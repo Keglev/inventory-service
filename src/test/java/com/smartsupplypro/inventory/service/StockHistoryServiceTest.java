@@ -1,6 +1,10 @@
 package com.smartsupplypro.inventory.service;
+
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -9,6 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -18,8 +25,13 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.smartsupplypro.inventory.dto.StockHistoryDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.model.StockHistory;
@@ -27,29 +39,31 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 
 /**
- * Unit tests for {@link StockHistoryService}, validating its ability to correctly
- * log stock changes under various input conditions. Ensures persistence behavior
- * and input validation rules for audit logs.
+ * Unit tests for {@link StockHistoryService}.
  *
- * <p><strong>Operation Coverage:</strong></p>
+ * <p><strong>Scope</strong>:</p>
  * <ul>
- *   <li><b>logStockChange:</b> Persist stock audit entries with multi-field validation</li>
- *   <li><b>delete:</b> Record negative change for item deletion with audit trail</li>
+ *   <li>Validate that stock-history events are persisted with correct core fields.</li>
+ *   <li>Validate that invalid inputs are rejected and never persisted.</li>
+ *   <li>Validate that read/query methods map entities to {@link StockHistoryDTO}s.</li>
  * </ul>
  *
- * <p><strong>Validation Rules:</strong></p>
+ * <p><strong>Coverage Targets</strong>:</p>
  * <ul>
- *   <li>Item ID: required and non-null</li>
- *   <li>Quantity change: non-zero (positive or negative allowed, but not 0)</li>
- *   <li>Reason: required and valid enum (SOLD, SCRAPPED, RETURNED_TO_SUPPLIER, etc.)</li>
- *   <li>CreatedBy: required, non-null, and non-blank</li>
+ *   <li>{@link StockHistoryService#logStockChange(String, int, StockChangeReason, String)}</li>
+ *   <li>{@link StockHistoryService#logStockChange(String, int, StockChangeReason, String, BigDecimal)}</li>
+ *   <li>{@link StockHistoryService#delete(String, StockChangeReason, String)}</li>
+ *   <li>{@link StockHistoryService#getAll()}</li>
+ *   <li>{@link StockHistoryService#getByItemId(String)}</li>
+ *   <li>{@link StockHistoryService#getByReason(StockChangeReason)}</li>
+ *   <li>{@link StockHistoryService#findFiltered(LocalDateTime, LocalDateTime, String, String, Pageable)}</li>
+ *   <li>{@link StockHistoryService#save(StockHistoryDTO)}</li>
  * </ul>
  *
- * <p><strong>Design Notes:</strong></p>
+ * <p><strong>Design Notes</strong>:</p>
  * <ul>
- *   <li>Negative quantities are allowed (e.g., sales, returns, damage).</li>
- *   <li>Positive quantities are allowed (e.g., restock, returns from customer).</li>
- *   <li>Both positive and negative help track full history in a single entity.</li>
+ *   <li>Negative and positive quantity deltas are both valid for audit trails.</li>
+ *   <li>Supplier ID is resolved once and denormalized onto the history record for analytics.</li>
  * </ul>
  */
 @SuppressWarnings("unused")
@@ -57,6 +71,12 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class StockHistoryServiceTest {
+
+    private static final String ITEM_1 = "item-1";
+    private static final String ITEM_2 = "new-id";
+    private static final String SUPPLIER_1 = "S1";
+    private static final String SUPPLIER_2 = "S2";
+    private static final String ADMIN = "admin";
 
     @Mock
     private StockHistoryRepository repository;
@@ -73,13 +93,8 @@ public class StockHistoryServiceTest {
      */
     @BeforeEach
     void setUp() {
-        // Default stubs used by most tests:
-        // Mock item-1 linked to supplier S1
-        when(itemRepository.findById("item-1"))
-                 .thenReturn(Optional.of(mkItem("item-1", "S1")));
-        // Mock new-id linked to supplier S2
-        when(itemRepository.findById("new-id"))
-                 .thenReturn(Optional.of(mkItem("new-id", "S2")));
+        when(itemRepository.findById(ITEM_1)).thenReturn(Optional.of(mkItem(ITEM_1, SUPPLIER_1)));
+        when(itemRepository.findById(ITEM_2)).thenReturn(Optional.of(mkItem(ITEM_2, SUPPLIER_2)));
     }
 
     private static com.smartsupplypro.inventory.model.InventoryItem mkItem(String id, String supplierId) {
@@ -87,6 +102,49 @@ public class StockHistoryServiceTest {
         it.setId(id);
         it.setSupplierId(supplierId);
         return it;
+    }
+
+    private static StockHistory mkHistory(
+            String id,
+            String itemId,
+            String supplierId,
+            int change,
+            StockChangeReason reason,
+            String createdBy,
+            LocalDateTime timestamp,
+            BigDecimal priceAtChange) {
+        return StockHistory.builder()
+                .id(id)
+                .itemId(itemId)
+                .supplierId(supplierId)
+                .change(change)
+                .reason(reason)
+                .createdBy(createdBy)
+                .timestamp(timestamp)
+                .priceAtChange(priceAtChange)
+                .build();
+    }
+
+    private static void assertDto(
+            StockHistoryDTO dto,
+            String itemId,
+            int change,
+            StockChangeReason reason,
+            String createdBy,
+            LocalDateTime timestamp,
+            BigDecimal priceAtChange) {
+        assertEquals(itemId, dto.getItemId());
+        assertEquals(change, dto.getChange());
+        assertEquals(reason.name(), dto.getReason());
+        assertEquals(createdBy, dto.getCreatedBy());
+        assertEquals(timestamp, dto.getTimestamp());
+        assertEquals(priceAtChange, dto.getPriceAtChange());
+    }
+
+    private StockHistory captureSavedHistory() {
+        ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
+        verify(repository).save(captor.capture());
+        return captor.getValue();
     }
 
     /**
@@ -97,18 +155,15 @@ public class StockHistoryServiceTest {
      */
     @Test
     void testLogStockChange_withValidReason_shouldSaveStockHistory() {
-        service.logStockChange("item-1", 10, StockChangeReason.SOLD, "admin");
+        // Scenario: valid stock movement event.
+        // Expected: entity is persisted with key audit fields populated.
+        service.logStockChange(ITEM_1, 10, StockChangeReason.SOLD, ADMIN);
 
-        // Capture the argument passed to save
-        ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
-        verify(repository).save(captor.capture());
-
-        // Verify all fields were persisted correctly
-        StockHistory saved = captor.getValue();
-        assertEquals("item-1", saved.getItemId());
+        StockHistory saved = captureSavedHistory();
+        assertEquals(ITEM_1, saved.getItemId());
         assertEquals(10, saved.getChange());
         assertEquals(StockChangeReason.SOLD, saved.getReason());
-        assertEquals("admin", saved.getCreatedBy());
+        assertEquals(ADMIN, saved.getCreatedBy());
         assertNotNull(saved.getTimestamp());
     }
 
@@ -120,9 +175,10 @@ public class StockHistoryServiceTest {
      */
     @Test
     void testLogStockChange_withInvalidReason_shouldThrowException() {
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
-            service.logStockChange("item-1", 5, null, "admin");
-        });
+        // Scenario: reason is missing (null).
+        // Expected: immediate rejection (enum validation) and no persistence.
+        Exception ex = assertThrows(IllegalArgumentException.class,
+                () -> service.logStockChange(ITEM_1, 5, null, ADMIN));
         assertTrue(ex.getMessage().contains("Invalid stock change reason"));
     }
 
@@ -134,89 +190,44 @@ public class StockHistoryServiceTest {
      */
     @Test
     void testLogStockChange_withNegativeChange_shouldSaveNormally() {
-        service.logStockChange("item-1", -5, StockChangeReason.SCRAPPED, "admin");
+        // Scenario: negative quantity delta (e.g., scrap/sale).
+        // Expected: persisted normally; negative delta preserved.
+        service.logStockChange(ITEM_1, -5, StockChangeReason.SCRAPPED, ADMIN);
 
-        // Capture the saved entity
-        ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
-        verify(repository).save(captor.capture());
-
-        // Verify negative quantity is preserved
-        StockHistory saved = captor.getValue();
-        assertEquals("item-1", saved.getItemId());
+        StockHistory saved = captureSavedHistory();
+        assertEquals(ITEM_1, saved.getItemId());
         assertEquals(-5, saved.getChange());
         assertEquals(StockChangeReason.SCRAPPED, saved.getReason());
-        assertEquals("admin", saved.getCreatedBy());
+        assertEquals(ADMIN, saved.getCreatedBy());
         assertNotNull(saved.getTimestamp());
     }
 
-    /**
-     * Validates that blank createdBy value is rejected.
-     * Scenario: CreatedBy is whitespace-only string.
-     * Expected: {@link InvalidRequestException} and no save operation.
-     */
-    @Test
-    void testLogStockChange_withBlankCreatedBy_shouldThrow() {
-        var ex = assertThrows(InvalidRequestException.class, () ->
-            service.logStockChange(
-                "item-1",
-                5,
-                StockChangeReason.MANUAL_UPDATE,
-                "  ",
-                new BigDecimal("120.00"))
+    static Stream<Arguments> invalidLogStockChangeCases() {
+        BigDecimal price = new BigDecimal("120.00");
+        return Stream.of(
+                Arguments.of("blank createdBy", ITEM_1, 5, StockChangeReason.MANUAL_UPDATE, "  ", price, "createdby"),
+                Arguments.of("null createdBy", ITEM_1, 5, StockChangeReason.MANUAL_UPDATE, null, price, "createdby"),
+                Arguments.of("zero change", ITEM_1, 0, StockChangeReason.MANUAL_UPDATE, ADMIN, price, "zero"),
+                Arguments.of("null itemId", null, 10, StockChangeReason.MANUAL_UPDATE, ADMIN, price, "item id")
         );
-        assertTrue(ex.getMessage().toLowerCase().contains("createdby"));
+    }
 
-        // Ensure nothing was saved (transaction rolled back)
+    @ParameterizedTest(name = "logStockChange invalid: {0}")
+    @MethodSource("invalidLogStockChangeCases")
+    void testLogStockChange_invalidInputs_shouldThrowAndNotPersist(
+            String _case,
+            String itemId,
+            int change,
+            StockChangeReason reason,
+            String createdBy,
+            BigDecimal priceAtChange,
+            String expectedMessageContainsLower) {
+        // Scenario: validation failures enforced by StockHistoryValidator.
+        // Expected: InvalidRequestException + repository.save is never called.
+        var ex = assertThrows(InvalidRequestException.class,
+                () -> service.logStockChange(itemId, change, reason, createdBy, priceAtChange));
+        assertTrue(ex.getMessage().toLowerCase().contains(expectedMessageContainsLower));
         verifyNoInteractions(repository);
-    }
-
-    /**
-     * Verifies that a zero stock change (no quantity movement) is rejected.
-     * Scenario: Change quantity is 0 (no actual movement).
-     * Expected: {@link InvalidRequestException} since 0 is meaningless in audit log.
-     */
-    @Test
-    void testLogStockChange_withZeroChange_shouldThrow() {
-        var ex = assertThrows(InvalidRequestException.class, () ->
-            service.logStockChange(
-                "item-1",
-                0,
-                StockChangeReason.MANUAL_UPDATE,
-                "admin",
-                new BigDecimal("120.00"))
-        );
-        assertTrue(ex.getMessage().toLowerCase().contains("zero"));
-    }
-
-    /**
-     * Ensures that a blank item ID input is treated as invalid and results in an exception.
-     * Scenario: Item ID is null (missing required field).
-     * Expected: {@link InvalidRequestException}.
-     */
-    @Test
-    void testLogStockChange_withNullItemId_shouldThrow() {
-        var ex = assertThrows(InvalidRequestException.class, () ->
-            service.logStockChange(
-                null,
-                10,
-                StockChangeReason.MANUAL_UPDATE,
-                "admin",
-                new BigDecimal("120.00"))
-        );
-        assertTrue(ex.getMessage().toLowerCase().contains("item id"));
-    }
-
-    /**
-     * Verifies that a null createdBy field (missing user context) results in a validation error.
-     * Scenario: CreatedBy is null (no audit user provided).
-     * Expected: {@link InvalidRequestException} and no save.
-     */
-    @Test
-    void testLogStockChange_withNullCreatedBy_shouldThrow() {
-        var ex = assertThrows(InvalidRequestException.class, () ->
-            service.logStockChange("item-1", 5, StockChangeReason.SOLD, null)
-        );
-        assertTrue(ex.getMessage().toLowerCase().contains("createdby"));
     }
 
     /**
@@ -227,18 +238,142 @@ public class StockHistoryServiceTest {
     */
     @Test
     void testDelete_shouldRecordDeletionInStockHistory() {
-        service.delete("item-1", StockChangeReason.RETURNED_TO_SUPPLIER, "admin");
+        // Scenario: legacy deletion convention logs a stock delta of -1.
+        // Expected: persisted history record with -1 change and the provided reason.
+        service.delete(ITEM_1, StockChangeReason.RETURNED_TO_SUPPLIER, ADMIN);
 
-        // Capture the saved entity
-        ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
-        verify(repository).save(captor.capture());
-
-        // Verify deletion was logged as negative change with specified reason
-        StockHistory saved = captor.getValue();
-        assertEquals("item-1", saved.getItemId());
+        StockHistory saved = captureSavedHistory();
+        assertEquals(ITEM_1, saved.getItemId());
         assertEquals(-1, saved.getChange()); // default for deletions
         assertEquals(StockChangeReason.RETURNED_TO_SUPPLIER, saved.getReason());
-        assertEquals("admin", saved.getCreatedBy());
+        assertEquals(ADMIN, saved.getCreatedBy());
         assertNotNull(saved.getTimestamp());
+    }
+
+    /**
+     * Verifies that {@link StockHistoryService#getAll()} maps persisted entities to DTOs.
+     * Scenario: repository returns two history rows.
+     * Expected: DTO list has same size and key fields mapped (itemId/change/reason/createdBy/timestamp/price).
+     */
+    @Test
+    void testGetAll_shouldMapEntitiesToDTOs() {
+        // Scenario: repository returns multiple rows.
+        // Expected: service maps entity list to DTO list with stable field mapping.
+        LocalDateTime t1 = LocalDateTime.of(2024, 1, 1, 12, 0);
+        LocalDateTime t2 = LocalDateTime.of(2024, 1, 2, 12, 0);
+        var h1 = mkHistory("sh-1", ITEM_1, SUPPLIER_1, 10, StockChangeReason.SOLD, ADMIN, t1, new BigDecimal("12.50"));
+        var h2 = mkHistory("sh-2", ITEM_2, SUPPLIER_2, -5, StockChangeReason.SCRAPPED, "bob", t2, null);
+
+        when(repository.findAll()).thenReturn(List.of(h1, h2));
+
+        List<StockHistoryDTO> out = service.getAll();
+
+        assertEquals(2, out.size());
+        assertDto(out.get(0), ITEM_1, 10, StockChangeReason.SOLD, ADMIN, t1, new BigDecimal("12.50"));
+        assertDto(out.get(1), ITEM_2, -5, StockChangeReason.SCRAPPED, "bob", t2, null);
+    }
+
+    /**
+     * Ensures that {@link StockHistoryService#getByItemId(String)} uses the ordered repository method
+     * and maps results to DTOs.
+     */
+    @Test
+    void testGetByItemId_shouldDelegateToOrderedFinder_andMapToDTOs() {
+        // Scenario: read history for a specific item.
+        // Expected: repository ordered finder is used and the result is mapped.
+        LocalDateTime t = LocalDateTime.of(2024, 2, 1, 10, 30);
+        var h = mkHistory("sh-3", ITEM_1, SUPPLIER_1, 1, StockChangeReason.MANUAL_UPDATE, ADMIN, t, null);
+        when(repository.findByItemIdOrderByTimestampDesc(ITEM_1)).thenReturn(List.of(h));
+
+        List<StockHistoryDTO> out = service.getByItemId(ITEM_1);
+
+        assertEquals(1, out.size());
+        assertDto(out.get(0), ITEM_1, 1, StockChangeReason.MANUAL_UPDATE, ADMIN, t, null);
+    }
+
+    /**
+     * Ensures that {@link StockHistoryService#getByReason(StockChangeReason)} uses the ordered repository method
+     * and maps results to DTOs.
+     */
+    @Test
+    void testGetByReason_shouldDelegateToOrderedFinder_andMapToDTOs() {
+        // Scenario: read history filtered by reason.
+        // Expected: repository ordered finder is used and the result is mapped.
+        LocalDateTime t = LocalDateTime.of(2024, 3, 1, 9, 0);
+        var h = mkHistory("sh-4", ITEM_1, SUPPLIER_1, -2, StockChangeReason.RETURNED_BY_CUSTOMER, ADMIN, t, null);
+        when(repository.findByReasonOrderByTimestampDesc(StockChangeReason.RETURNED_BY_CUSTOMER))
+                .thenReturn(List.of(h));
+
+        List<StockHistoryDTO> out = service.getByReason(StockChangeReason.RETURNED_BY_CUSTOMER);
+
+        assertEquals(1, out.size());
+        assertDto(out.get(0), ITEM_1, -2, StockChangeReason.RETURNED_BY_CUSTOMER, ADMIN, t, null);
+    }
+
+    /**
+     * Verifies {@link StockHistoryService#findFiltered(LocalDateTime, LocalDateTime, String, String, Pageable)}
+     * maps a repository page of entities to a page of DTOs.
+     */
+    @Test
+    void testFindFiltered_shouldMapPageToDTOPage() {
+        // Scenario: paginated filter query.
+        // Expected: Page<StockHistory> is mapped to Page<StockHistoryDTO>.
+        LocalDateTime start = LocalDateTime.of(2024, 1, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2024, 12, 31, 23, 59);
+        Pageable pageable = PageRequest.of(0, 10);
+        var h = mkHistory(
+                "sh-5",
+            ITEM_1,
+            SUPPLIER_1,
+                3,
+                StockChangeReason.INITIAL_STOCK,
+                "seed",
+                LocalDateTime.of(2024, 6, 1, 8, 0),
+                new BigDecimal("99.99"));
+
+        Page<StockHistory> page = new PageImpl<>(List.of(h), pageable, 1);
+        when(repository.findFiltered(start, end, "Widget", "S1", pageable)).thenReturn(page);
+
+        Page<StockHistoryDTO> out = service.findFiltered(start, end, "Widget", "S1", pageable);
+
+        assertEquals(1, out.getTotalElements());
+        assertEquals(1, out.getContent().size());
+        StockHistoryDTO dto = out.getContent().get(0);
+        assertEquals(ITEM_1, dto.getItemId());
+        assertEquals(3, dto.getChange());
+        assertEquals(StockChangeReason.INITIAL_STOCK.name(), dto.getReason());
+        assertEquals("seed", dto.getCreatedBy());
+        assertEquals(new BigDecimal("99.99"), dto.getPriceAtChange());
+    }
+
+    /**
+     * Verifies that {@link StockHistoryService#save(StockHistoryDTO)} validates the DTO, resolves supplierId,
+     * converts reason string to enum, and persists a StockHistory entity.
+     */
+    @Test
+    void testSave_shouldPersistMappedEntity_andResolveSupplierId() {
+        // Scenario: service-level save of a validated DTO.
+        // Expected: supplierId resolved, reason string converted to enum, entity persisted.
+        StockHistoryDTO dto = StockHistoryDTO.builder()
+                .itemId(ITEM_1)
+                .change(2)
+                .reason(StockChangeReason.SOLD.name())
+                .createdBy(ADMIN)
+                .priceAtChange(new BigDecimal("120.00"))
+                .build();
+
+        service.save(dto);
+
+        StockHistory saved = captureSavedHistory();
+
+        assertNotNull(saved.getId());
+        assertTrue(saved.getId().startsWith("sh-" + ITEM_1 + "-"));
+        assertEquals(ITEM_1, saved.getItemId());
+        assertEquals(SUPPLIER_1, saved.getSupplierId());
+        assertEquals(2, saved.getChange());
+        assertEquals(StockChangeReason.SOLD, saved.getReason());
+        assertEquals(ADMIN, saved.getCreatedBy());
+        assertNotNull(saved.getTimestamp());
+        assertEquals(new BigDecimal("120.00"), saved.getPriceAtChange());
     }
 }
