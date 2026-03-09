@@ -202,6 +202,13 @@ src/test/java/com/smartsupplypro/inventory/
 │   ├── OAuth2LoginSuccessHandlerTest.java
 │   ├── ApiEntryPointBehaviourTest.java
 │   ├── DemoReadonlySecurityTest.java
+│   ├── oauth2/
+│   │   ├── CookieOAuth2AuthorizationRequestRepositoryTestSupport.java
+│   │   ├── CookieOAuth2AuthorizationRequestRepositoryTest.java
+│   │   ├── CookieOAuth2AuthorizationRequestRepositoryLoadTest.java
+│   │   ├── CookieOAuth2AuthorizationRequestRepositorySaveTest.java
+│   │   ├── CookieOAuth2AuthorizationRequestRepositorySerializationTest.java
+│   │   └── CookieOAuth2AuthorizationRequestRepositorySameSiteTest.java
 │   ├── TestApiStubController.java                (Probe endpoints)
 │   └── AdminStubController.java
 │
