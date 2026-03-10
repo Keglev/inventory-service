@@ -66,9 +66,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     throws IOException, ServletException {
         
         // Enterprise Security: Prevent duplicate redirects in concurrent authentication scenarios
-<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (request.getAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;) != null) {</span>
-<span class="nc" id="L70">            log.debug(&quot;Success redirect already performed; skipping.&quot;);</span>
-<span class="nc" id="L71">            return;</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (request.getAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;) != null) {</span>
+<span class="fc" id="L70">            log.debug(&quot;Success redirect already performed; skipping.&quot;);</span>
+<span class="fc" id="L71">            return;</span>
         }
 <span class="fc" id="L73">        request.setAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;, Boolean.TRUE);</span>
         
@@ -94,7 +94,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             // Enterprise Concurrency: Handle race conditions in multi-instance deployments
 <span class="fc" id="L95">            log.warn(&quot;Enterprise OAuth2: Concurrent user creation resolved for: {}&quot;, email);</span>
 <span class="fc" id="L96">            userRepository.findByEmail(email).orElseThrow(() -&gt;</span>
-<span class="nc" id="L97">                new IllegalStateException(&quot;User already exists but cannot be loaded.&quot;));</span>
+<span class="fc" id="L97">                new IllegalStateException(&quot;User already exists but cannot be loaded.&quot;));</span>
 <span class="fc" id="L98">        }</span>
         
         // Enterprise Redirect Security: Origin allowlist prevents open redirect attacks
@@ -108,23 +108,23 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         
         // Enterprise Return URL: Check for custom return destination with security validation
 <span class="fc" id="L110">        Cookie[] cookies = request.getCookies();</span>
-<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if (cookies != null) {</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">            for (Cookie c : cookies) {</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">                if (&quot;SSP_RETURN&quot;.equals(c.getName())) {</span>
-<span class="nc" id="L114">                    String candidate = c.getValue();</span>
-<span class="nc bnc" id="L115" title="All 4 branches missed.">                    if (candidate != null &amp;&amp; allowed.contains(candidate)) {</span>
-<span class="nc" id="L116">                        target = candidate + &quot;/auth&quot;;  // Enterprise routing: custom post-auth destination</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">                    } else if (candidate != null) {</span>
-<span class="nc" id="L118">                        log.warn(&quot;Enterprise OAuth2: Rejected non-allowlisted return URL: {}&quot;, candidate);</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (cookies != null) {</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">            for (Cookie c : cookies) {</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">                if (&quot;SSP_RETURN&quot;.equals(c.getName())) {</span>
+<span class="fc" id="L114">                    String candidate = c.getValue();</span>
+<span class="pc bpc" id="L115" title="1 of 4 branches missed.">                    if (candidate != null &amp;&amp; allowed.contains(candidate)) {</span>
+<span class="fc" id="L116">                        target = candidate + &quot;/auth&quot;;  // Enterprise routing: custom post-auth destination</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">                    } else if (candidate != null) {</span>
+<span class="fc" id="L118">                        log.warn(&quot;Enterprise OAuth2: Rejected non-allowlisted return URL: {}&quot;, candidate);</span>
                     }
                     // Enterprise Cleanup: Remove single-use return URL cookie
-<span class="nc" id="L121">                    Cookie clear = new Cookie(&quot;SSP_RETURN&quot;, &quot;&quot;);</span>
-<span class="nc" id="L122">                    clear.setPath(&quot;/&quot;);</span>
-<span class="nc" id="L123">                    clear.setMaxAge(0);</span>
-<span class="nc" id="L124">                    clear.setSecure(isSecureOrForwardedHttps(request));</span>
-<span class="nc" id="L125">                    clear.setHttpOnly(false); // Frontend created it non-HttpOnly</span>
-<span class="nc" id="L126">                    addCookieWithSameSite(response, clear, &quot;None&quot;);</span>
-<span class="nc" id="L127">                    break;</span>
+<span class="fc" id="L121">                    Cookie clear = new Cookie(&quot;SSP_RETURN&quot;, &quot;&quot;);</span>
+<span class="fc" id="L122">                    clear.setPath(&quot;/&quot;);</span>
+<span class="fc" id="L123">                    clear.setMaxAge(0);</span>
+<span class="fc" id="L124">                    clear.setSecure(isSecureOrForwardedHttps(request));</span>
+<span class="fc" id="L125">                    clear.setHttpOnly(false); // Frontend created it non-HttpOnly</span>
+<span class="fc" id="L126">                    addCookieWithSameSite(response, clear, &quot;None&quot;);</span>
+<span class="fc" id="L127">                    break;</span>
                 }
             }
         }
@@ -140,9 +140,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
      * Supports both direct HTTPS and X-Forwarded-Proto header detection.
      */
     private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
-<span class="nc bnc" id="L143" title="All 2 branches missed.">        if (request.isSecure()) return true;</span>
-<span class="nc" id="L144">        String xfProto = request.getHeader(&quot;X-Forwarded-Proto&quot;);</span>
-<span class="nc bnc" id="L145" title="All 4 branches missed.">        return xfProto != null &amp;&amp; xfProto.equalsIgnoreCase(&quot;https&quot;);</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (request.isSecure()) return true;</span>
+<span class="fc" id="L144">        String xfProto = request.getHeader(&quot;X-Forwarded-Proto&quot;);</span>
+<span class="fc bfc" id="L145" title="All 4 branches covered.">        return xfProto != null &amp;&amp; xfProto.equalsIgnoreCase(&quot;https&quot;);</span>
     }
     
     /**
@@ -150,14 +150,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
      * Essential for OAuth2 flows between frontend and backend on different domains.
      */
     private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {
-<span class="nc" id="L153">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? &quot;&quot; : cookie.getValue());</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">        sb.append(&quot;; Path=&quot;).append(cookie.getPath() == null ? &quot;/&quot; : cookie.getPath());</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (cookie.getMaxAge() &gt;= 0) sb.append(&quot;; Max-Age=&quot;).append(cookie.getMaxAge());</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (cookie.getSecure()) sb.append(&quot;; Secure&quot;);</span>
-<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (cookie.isHttpOnly()) sb.append(&quot;; HttpOnly&quot;);</span>
-<span class="nc bnc" id="L159" title="All 4 branches missed.">        if (sameSite != null &amp;&amp; !sameSite.isBlank()) sb.append(&quot;; SameSite=&quot;).append(sameSite);</span>
-<span class="nc" id="L160">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
-<span class="nc" id="L161">    }</span>
+<span class="fc" id="L153">        StringBuilder sb = new StringBuilder();</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? &quot;&quot; : cookie.getValue());</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        sb.append(&quot;; Path=&quot;).append(cookie.getPath() == null ? &quot;/&quot; : cookie.getPath());</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (cookie.getMaxAge() &gt;= 0) sb.append(&quot;; Max-Age=&quot;).append(cookie.getMaxAge());</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        if (cookie.getSecure()) sb.append(&quot;; Secure&quot;);</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (cookie.isHttpOnly()) sb.append(&quot;; HttpOnly&quot;);</span>
+<span class="pc bpc" id="L159" title="1 of 4 branches missed.">        if (sameSite != null &amp;&amp; !sameSite.isBlank()) sb.append(&quot;; SameSite=&quot;).append(sameSite);</span>
+<span class="fc" id="L160">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
+<span class="fc" id="L161">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

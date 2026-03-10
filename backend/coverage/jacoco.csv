@@ -43,7 +43,7 @@ Inventory Service,com.smartsupplypro.inventory.mapper,InventoryItemMapper,16,88,
 Inventory Service,com.smartsupplypro.inventory.mapper,StockHistoryMapper,58,35,6,2,21,12,7,2,3,2
 Inventory Service,com.smartsupplypro.inventory.controller.analytics,AnalyticsControllerValidationHelper,107,3,26,0,21,1,19,1,6,1
 Inventory Service,com.smartsupplypro.inventory.controller.analytics,AnalyticsDashboardHelper,62,0,8,0,12,0,6,0,2,0
-Inventory Service,com.smartsupplypro.inventory.security,OAuth2LoginSuccessHandler,164,131,32,6,29,33,20,6,3,4
+Inventory Service,com.smartsupplypro.inventory.security,OAuth2LoginSuccessHandler,2,293,4,34,0,62,4,22,0,7
 Inventory Service,com.smartsupplypro.inventory.security,CookieOAuth2AuthorizationRequestRepository.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.security,CookieOAuth2AuthorizationRequestRepository,1,439,7,41,0,109,7,29,0,12
 Inventory Service,com.smartsupplypro.inventory.service,CustomOAuth2UserService,38,158,11,15,6,31,13,8,3,5
