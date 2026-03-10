@@ -199,7 +199,11 @@ src/test/java/com/smartsupplypro/inventory/
 │
 ├── security/
 │   ├── SecuritySmokeTest.java                    (Integration: 297 lines)
-│   ├── OAuth2LoginSuccessHandlerTest.java
+│   ├── oauth2login/
+│   │   ├── OAuth2LoginSuccessHandlerTestSupport.java
+│   │   ├── OAuth2LoginSuccessHandlerProvisioningTest.java
+│   │   ├── OAuth2LoginSuccessHandlerReturnCookieTest.java
+│   │   └── OAuth2LoginSuccessHandlerCookieHeaderBuilderTest.java
 │   ├── ApiEntryPointBehaviourTest.java
 │   ├── DemoReadonlySecurityTest.java
 │   ├── oauth2/
