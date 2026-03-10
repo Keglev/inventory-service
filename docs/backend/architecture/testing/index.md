@@ -57,6 +57,7 @@ graph TB
 - Validator tests (InventoryItemValidatorTest, SupplierValidatorTest)
 - Service method tests with mocked repositories
 - Converter tests (AnalyticsServiceImplConverterTest)
+- Exception tests (e.g., GlobalExceptionHandlerTest, BusinessExceptionHandlerTest)
 
 **Characteristics:**
 - ✅ Fast (milliseconds per test)
@@ -196,6 +197,12 @@ src/test/java/com/smartsupplypro/inventory/
 │   ├── analytics/
 │   ├── auth/
 │   └── security/
+│
+├── exception/
+│   ├── InvalidRequestExceptionTest.java          (Unit: exception DTO/context branches)
+│   ├── DuplicateResourceExceptionTest.java       (Unit: message/context branches)
+│   ├── GlobalExceptionHandlerTest.java           (Unit: handler branch coverage)
+│   └── BusinessExceptionHandlerTest.java         (Unit: handler branch coverage)
 │
 ├── security/
 │   ├── SecuritySmokeTest.java                    (Integration: 297 lines)
