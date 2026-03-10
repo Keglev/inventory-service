@@ -231,7 +231,8 @@
         <p><strong>Examples:</strong> - Validator tests
         (InventoryItemValidatorTest, SupplierValidatorTest) - Service
         method tests with mocked repositories - Converter tests
-        (AnalyticsServiceImplConverterTest)</p>
+        (AnalyticsServiceImplConverterTest) - Exception tests (e.g.,
+        GlobalExceptionHandlerTest, BusinessExceptionHandlerTest)</p>
         <p><strong>Characteristics:</strong> - ✅ Fast (milliseconds per
         test) - ✅ No database or Spring context needed - ✅ Easy to
         understand and maintain - ✅ Fail quickly for logic errors</p>
@@ -346,6 +347,12 @@
 │   ├── analytics/
 │   ├── auth/
 │   └── security/
+│
+├── exception/
+│   ├── InvalidRequestExceptionTest.java          (Unit: exception DTO/context branches)
+│   ├── DuplicateResourceExceptionTest.java       (Unit: message/context branches)
+│   ├── GlobalExceptionHandlerTest.java           (Unit: handler branch coverage)
+│   └── BusinessExceptionHandlerTest.java         (Unit: handler branch coverage)
 │
 ├── security/
 │   ├── SecuritySmokeTest.java                    (Integration: 297 lines)
