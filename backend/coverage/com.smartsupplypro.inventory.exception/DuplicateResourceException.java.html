@@ -40,11 +40,11 @@ public class DuplicateResourceException extends RuntimeException {
      * @param duplicateValue the conflicting value
      */
     public DuplicateResourceException(String message, String resourceType, String conflictField, String duplicateValue) {
-<span class="nc" id="L43">        super(message);</span>
-<span class="nc" id="L44">        this.resourceType = resourceType;</span>
-<span class="nc" id="L45">        this.conflictField = conflictField;</span>
-<span class="nc" id="L46">        this.duplicateValue = duplicateValue;</span>
-<span class="nc" id="L47">    }</span>
+<span class="fc" id="L43">        super(message);</span>
+<span class="fc" id="L44">        this.resourceType = resourceType;</span>
+<span class="fc" id="L45">        this.conflictField = conflictField;</span>
+<span class="fc" id="L46">        this.duplicateValue = duplicateValue;</span>
+<span class="fc" id="L47">    }</span>
 
     // Enterprise utility methods for enhanced error handling
 
@@ -54,7 +54,7 @@ public class DuplicateResourceException extends RuntimeException {
      * @return resource type name or null if not specified
      */
     public String getResourceType() {
-<span class="nc" id="L57">        return resourceType;</span>
+<span class="fc" id="L57">        return resourceType;</span>
     }
 
     /**
@@ -63,7 +63,7 @@ public class DuplicateResourceException extends RuntimeException {
      * @return field name or null if not specified
      */
     public String getConflictField() {
-<span class="nc" id="L66">        return conflictField;</span>
+<span class="fc" id="L66">        return conflictField;</span>
     }
 
     /**
@@ -72,7 +72,7 @@ public class DuplicateResourceException extends RuntimeException {
      * @return duplicate value or null if not specified
      */
     public String getDuplicateValue() {
-<span class="nc" id="L75">        return duplicateValue;</span>
+<span class="fc" id="L75">        return duplicateValue;</span>
     }
 
     /**
@@ -81,7 +81,7 @@ public class DuplicateResourceException extends RuntimeException {
      * @return true if resource type, field, and value are available
      */
     public boolean hasDetailedContext() {
-<span class="pc bpc" id="L84" title="5 of 6 branches missed.">        return resourceType != null &amp;&amp; conflictField != null &amp;&amp; duplicateValue != null;</span>
+<span class="fc bfc" id="L84" title="All 6 branches covered.">        return resourceType != null &amp;&amp; conflictField != null &amp;&amp; duplicateValue != null;</span>
     }
 
     /**
@@ -90,11 +90,11 @@ public class DuplicateResourceException extends RuntimeException {
      * @return formatted error message suitable for client display
      */
     public String getClientMessage() {
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (hasDetailedContext()) {</span>
-<span class="nc" id="L94">            return String.format(&quot;%s with %s '%s' already exists&quot;, </span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (hasDetailedContext()) {</span>
+<span class="fc" id="L94">            return String.format(&quot;%s with %s '%s' already exists&quot;, </span>
                 resourceType, conflictField, duplicateValue);
         }
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        return getMessage() != null ? getMessage() : &quot;Resource already exists&quot;;</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        return getMessage() != null ? getMessage() : &quot;Resource already exists&quot;;</span>
     }
 
     /**
@@ -103,17 +103,17 @@ public class DuplicateResourceException extends RuntimeException {
      * @return map of error details for client consumption
      */
     public java.util.Map&lt;String, Object&gt; getErrorDetails() {
-<span class="nc" id="L106">        java.util.Map&lt;String, Object&gt; details = new java.util.HashMap&lt;&gt;();</span>
-<span class="nc" id="L107">        details.put(&quot;errorType&quot;, &quot;DUPLICATE_RESOURCE&quot;);</span>
+<span class="fc" id="L106">        java.util.Map&lt;String, Object&gt; details = new java.util.HashMap&lt;&gt;();</span>
+<span class="fc" id="L107">        details.put(&quot;errorType&quot;, &quot;DUPLICATE_RESOURCE&quot;);</span>
         
-<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (hasDetailedContext()) {</span>
-<span class="nc" id="L110">            details.put(&quot;resourceType&quot;, resourceType);</span>
-<span class="nc" id="L111">            details.put(&quot;conflictField&quot;, conflictField);</span>
-<span class="nc" id="L112">            details.put(&quot;duplicateValue&quot;, duplicateValue);</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (hasDetailedContext()) {</span>
+<span class="fc" id="L110">            details.put(&quot;resourceType&quot;, resourceType);</span>
+<span class="fc" id="L111">            details.put(&quot;conflictField&quot;, conflictField);</span>
+<span class="fc" id="L112">            details.put(&quot;duplicateValue&quot;, duplicateValue);</span>
         }
         
-<span class="nc" id="L115">        details.put(&quot;message&quot;, getClientMessage());</span>
-<span class="nc" id="L116">        return details;</span>
+<span class="fc" id="L115">        details.put(&quot;message&quot;, getClientMessage());</span>
+<span class="fc" id="L116">        return details;</span>
     }
 
     // Static factory methods for common scenarios
@@ -125,7 +125,7 @@ public class DuplicateResourceException extends RuntimeException {
      * @return configured exception instance
      */
     public static DuplicateResourceException supplierName(String supplierName) {
-<span class="nc" id="L128">        return new DuplicateResourceException(</span>
+<span class="fc" id="L128">        return new DuplicateResourceException(</span>
             &quot;Supplier name already exists: &quot; + supplierName,
             &quot;Supplier&quot;,
             &quot;name&quot;,
@@ -140,7 +140,7 @@ public class DuplicateResourceException extends RuntimeException {
      * @return configured exception instance
      */
     public static DuplicateResourceException inventoryItemSku(String sku) {
-<span class="nc" id="L143">        return new DuplicateResourceException(</span>
+<span class="fc" id="L143">        return new DuplicateResourceException(</span>
             &quot;Inventory item SKU already exists: &quot; + sku,
             &quot;InventoryItem&quot;,
             &quot;sku&quot;,
@@ -155,7 +155,7 @@ public class DuplicateResourceException extends RuntimeException {
      * @return configured exception instance
      */
     public static DuplicateResourceException inventoryItemName(String itemName) {
-<span class="nc" id="L158">        return new DuplicateResourceException(</span>
+<span class="fc" id="L158">        return new DuplicateResourceException(</span>
             &quot;Inventory item name already exists: &quot; + itemName,
             &quot;InventoryItem&quot;,
             &quot;name&quot;,

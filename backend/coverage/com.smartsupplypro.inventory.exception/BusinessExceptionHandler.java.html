@@ -60,9 +60,9 @@ import com.smartsupplypro.inventory.exception.dto.ErrorResponse;
      */
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleInvalidRequest(InvalidRequestException ex) {
-<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        String message = ex.hasFieldErrors()</span>
-<span class="nc" id="L64">            ? &quot;Validation failed: &quot; + ex.getFieldErrors().size() + &quot; field error(s)&quot;</span>
-<span class="pc bpc" id="L65" title="1 of 2 branches missed.">            : (ex.getMessage() != null ? ex.getMessage() : &quot;Invalid request&quot;);</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        String message = ex.hasFieldErrors()</span>
+<span class="fc" id="L64">            ? &quot;Validation failed: &quot; + ex.getFieldErrors().size() + &quot; field error(s)&quot;</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">            : (ex.getMessage() != null ? ex.getMessage() : &quot;Invalid request&quot;);</span>
         
 <span class="fc" id="L67">        return ErrorResponse.builder()</span>
 <span class="fc" id="L68">                .status(HttpStatus.BAD_REQUEST)</span>
@@ -90,9 +90,9 @@ import com.smartsupplypro.inventory.exception.dto.ErrorResponse;
      */
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleDuplicateResource(DuplicateResourceException ex) {
-<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        String message = ex.hasDetailedContext()</span>
-<span class="nc" id="L94">            ? ex.getClientMessage()</span>
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">            : (ex.getMessage() != null ? ex.getMessage() : &quot;Duplicate resource&quot;);</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        String message = ex.hasDetailedContext()</span>
+<span class="fc" id="L94">            ? ex.getClientMessage()</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">            : (ex.getMessage() != null ? ex.getMessage() : &quot;Duplicate resource&quot;);</span>
         
 <span class="fc" id="L97">        return ErrorResponse.builder()</span>
 <span class="fc" id="L98">                .status(HttpStatus.CONFLICT)</span>
@@ -119,9 +119,9 @@ import com.smartsupplypro.inventory.exception.dto.ErrorResponse;
      */
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleBusinessStateConflict(IllegalStateException ex) {
-<span class="pc bpc" id="L122" title="2 of 4 branches missed.">        String message = (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank())</span>
+<span class="fc bfc" id="L122" title="All 4 branches covered.">        String message = (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank())</span>
 <span class="fc" id="L123">            ? ex.getMessage()</span>
-<span class="pc" id="L124">            : &quot;Business rule conflict&quot;;</span>
+<span class="fc" id="L124">            : &quot;Business rule conflict&quot;;</span>
         
 <span class="fc" id="L126">        return ErrorResponse.builder()</span>
 <span class="fc" id="L127">                .status(HttpStatus.CONFLICT)</span>

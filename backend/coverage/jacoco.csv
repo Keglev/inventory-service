@@ -30,11 +30,11 @@ Inventory Service,com.smartsupplypro.inventory.repository.custom,StockDetailQuer
 Inventory Service,com.smartsupplypro.inventory.repository.custom,StockTrendAnalyticsRepositoryImpl,41,189,9,11,6,50,10,13,3,10
 Inventory Service,com.smartsupplypro.inventory.enums,StockChangeReason.AuditSeverity,27,0,0,0,2,0,1,0,1,0
 Inventory Service,com.smartsupplypro.inventory.enums,StockChangeReason,94,69,14,0,24,12,18,1,10,1
-Inventory Service,com.smartsupplypro.inventory.exception,BusinessExceptionHandler,11,55,6,6,2,20,6,4,0,4
+Inventory Service,com.smartsupplypro.inventory.exception,BusinessExceptionHandler,0,66,0,12,0,22,0,10,0,4
 Inventory Service,com.smartsupplypro.inventory.exception,InvalidRequestException.ValidationSeverity,0,27,0,0,0,5,0,1,0,1
-Inventory Service,com.smartsupplypro.inventory.exception,DuplicateResourceException,126,18,11,1,22,6,15,2,9,2
-Inventory Service,com.smartsupplypro.inventory.exception,InvalidRequestException,198,26,11,1,38,7,21,2,15,2
-Inventory Service,com.smartsupplypro.inventory.exception,GlobalExceptionHandler,77,152,12,12,31,48,19,9,8,8
+Inventory Service,com.smartsupplypro.inventory.exception,DuplicateResourceException,0,144,0,12,0,28,0,17,0,11
+Inventory Service,com.smartsupplypro.inventory.exception,InvalidRequestException,0,224,0,12,0,45,0,23,0,17
+Inventory Service,com.smartsupplypro.inventory.exception,GlobalExceptionHandler,0,229,0,24,0,79,0,28,0,16
 Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemServiceImpl,181,105,25,5,34,24,21,4,6,4
 Inventory Service,com.smartsupplypro.inventory.service.impl,SupplierServiceImpl,28,102,0,2,8,23,4,6,4,5
 Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl,52,0,0,0,9,0,9,0,9,0
