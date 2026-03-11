@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl;
+package com.smartsupplypro.inventory.service.impl.analytics;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,7 +15,6 @@ import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
-import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
 /**
  * Validation tests for {@link StockAnalyticsService}.

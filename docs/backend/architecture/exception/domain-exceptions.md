@@ -717,7 +717,7 @@ public class BusinessExceptionHandler {
 
 ```java
 @ExtendWith(MockitoExtension.class)
-class SupplierServiceTest {
+class SupplierServiceCreateTest {
     
     @InjectMocks
     private SupplierService supplierService;

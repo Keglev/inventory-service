@@ -162,22 +162,40 @@ src/test/java/com/smartsupplypro/inventory/
 │   └── StockHistoryValidationTest.java           (Unit: ~100 lines)
 │
 ├── service/
-│   ├── InventoryItemServiceSaveTest.java         (Unit: 120 lines)
 │   ├── SecurityServiceTest.java                  (Unit: demo-mode principal checks)
 │   ├── CustomOAuth2UserServiceTest.java          (Unit: OAuth2 provisioning + roles)
 │   ├── CustomOidcUserServiceTest.java            (Unit: OIDC provisioning + roles)
-│   ├── SupplierServiceTest.java                  (Unit: ~150 lines)
-│   ├── StockHistoryServiceTest.java              (Unit: stock audit logging + queries)
+│   ├── inventoryitem/
+│   │   ├── InventoryItemServiceSaveHappyPathTest.java (Unit: save happy paths + audit logging)
+│   │   ├── InventoryItemServiceSaveValidationTest.java (Unit: save validation guards)
+│   │   └── InventoryItemServiceSaveTestBase.java      (Shared fixture)
+│   ├── supplier/
+│   │   ├── SupplierServiceCreateTest.java            (Unit: create flows)
+│   │   ├── SupplierServiceUpdateTest.java            (Unit: update flows)
+│   │   ├── SupplierServiceDeleteTest.java            (Unit: delete flows)
+│   │   ├── SupplierServiceReadCountTest.java         (Unit: read/query/count flows)
+│   │   └── SupplierServiceTestBase.java              (Shared fixture)
+│   ├── stockhistory/
+│   │   ├── StockHistoryServiceLogTest.java           (Unit: audit logging + validation)
+│   │   ├── StockHistoryServiceDeleteTest.java        (Unit: delete audit logging)
+│   │   ├── StockHistoryServiceReadTest.java          (Unit: stock history queries)
+│   │   ├── StockHistoryServiceSaveTest.java          (Unit: service-level save)
+│   │   └── StockHistoryServiceTestBase.java          (Shared fixture)
 │   └── impl/
-│       ├── InventoryItemServiceImplSaveTest.java (Unit: 120 lines)
-│       ├── InventoryItemServiceImplSearchTest.java
-│       ├── InventoryItemServiceImplUpdateDeleteTest.java
-│       ├── AnalyticsServiceImplConverterTest.java (Unit: 150 lines)
-│       ├── AnalyticsServiceImplQueryTest.java
-│       ├── AnalyticsServiceImplValidationTest.java
-│       ├── AnalyticsServiceImplWindowTest.java
-│       ├── AnalyticsServiceImplWacTest.java
-│       └── InventoryItemServiceImplTestHelper.java (Shared utilities)
+│       ├── analytics/
+│       │   ├── AnalyticsServiceImplTest.java
+│       │   ├── AnalyticsServiceImplConverterTest.java (Unit: 150 lines)
+│       │   ├── AnalyticsServiceImplQueryTest.java
+│       │   ├── AnalyticsServiceImplValidationTest.java
+│       │   ├── AnalyticsServiceImplWindowTest.java
+│       │   └── AnalyticsServiceImplWacTest.java
+│       └── inventoryitem/
+│           ├── InventoryItemServiceImplSaveTest.java (Unit: 120 lines)
+│           ├── InventoryItemServiceImplSearchTest.java
+│           ├── InventoryItemServiceImplUpdateTest.java
+│           ├── InventoryItemServiceImplDeleteTest.java
+│           ├── InventoryItemServiceImplReadAndAdjustmentsTest.java
+│           └── InventoryItemServiceImplTestHelper.java (Shared utilities)
 │
 ├── repository/
 │   ├── SupplierRepositoryTest.java               (Integration: 126 lines)

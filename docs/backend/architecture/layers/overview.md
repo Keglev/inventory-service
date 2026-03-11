@@ -275,7 +275,7 @@ Each layer can be unit tested in isolation by mocking layers below it.
 ```java
 // Test service without touching database
 @ExtendWith(MockitoExtension.class)
-class SupplierServiceTest {
+class SupplierServiceCreateTest {
     @Mock
     private SupplierRepository repository;
     

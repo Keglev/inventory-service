@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl;
+package com.smartsupplypro.inventory.service.impl.analytics;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -32,7 +32,6 @@ import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
 import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
-import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
 /**
  * Query operation tests for {@link StockAnalyticsService}.

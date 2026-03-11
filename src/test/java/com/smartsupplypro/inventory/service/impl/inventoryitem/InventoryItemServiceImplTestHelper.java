@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl;
+package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.util.Arrays;
 import java.util.Collection;

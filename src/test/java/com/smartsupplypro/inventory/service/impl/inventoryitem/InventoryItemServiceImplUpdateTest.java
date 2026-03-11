@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl;
+package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -27,46 +27,31 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
-import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.service.StockHistoryService;
+import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 
 /**
- * Tests for {@link InventoryItemServiceImpl} update and delete operations.
+ * Tests for {@link InventoryItemServiceImpl#update(String, InventoryItemDTO)}.
  *
- * <p><strong>Operation Coverage:</strong></p>
- * <ul>
- *   <li><b>update:</b> Modify existing items with uniqueness and existence checks</li>
- *   <li><b>delete:</b> Remove items with valid deletion reasons and history logging</li>
- * </ul>
+ * <p><strong>Why these tests exist</strong>: Update behavior has multiple service-level guards and
+ * integration points that are easy to regress (uniqueness checks, optimistic locking, validation
+ * outcomes, and audit logging). This test suite targets those branches directly while mocking
+ * dependencies and helper collaborators.
  *
- * <p><strong>Validation Layers (Update):</strong></p>
+ * <p><strong>What is intentionally mocked</strong>:
  * <ul>
- *   <li>Item must exist (not-found check)</li>
- *   <li>Name/price combination must be unique (conflict check)</li>
- *   <li>Optimistic locking errors propagated</li>
- * </ul>
- *
- * <p><strong>Exception Mapping:</strong></p>
- * <ul>
- *   <li>Item not found → {@link IllegalArgumentException} (404)</li>
- *   <li>Duplicate name/price → {@link DuplicateResourceException} or ResponseStatusException (409)</li>
- *   <li>Optimistic lock → {@link ObjectOptimisticLockingFailureException}</li>
- * </ul>
- *
- * <p><strong>Design Notes:</strong></p>
- * <ul>
- *   <li>validationHelper mocks test the integration points; actual validation is not tested here.</li>
- *   <li>auditHelper.logFullRemoval integrates deletion history logging.</li>
- *   <li>OAuth2 context mocked to simulate authenticated user context.</li>
+ *   <li>{@code validationHelper} is mocked to simulate existence/uniqueness behavior</li>
+ *   <li>{@code auditHelper} is verified to ensure quantity-change logging is triggered</li>
+ *   <li>OAuth2 context is set to mirror authenticated request execution</li>
  * </ul>
  */
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class InventoryItemServiceImplUpdateDeleteTest {
+class InventoryItemServiceImplUpdateTest {
     @Mock private InventoryItemRepository repository;
     @Mock private SupplierRepository supplierRepository;
     @Mock private StockHistoryService stockHistoryService;
@@ -100,32 +85,27 @@ class InventoryItemServiceImplUpdateDeleteTest {
         existing.setPrice(new BigDecimal("10.00"));
         existing.setSupplierId("S1");
 
-        // Default mocks: supplier exists, name is unique, save succeeds
+        // Default mocks: supplier exists, name is unique
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
         lenient().when(repository.existsByNameIgnoreCase(anyString())).thenReturn(false);
-        
+
         // Configure validation helper to return item if found
-        lenient().when(validationHelper.validateExists(anyString())).thenAnswer(inv -> {
-            String id = inv.getArgument(0);
-            return repository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Item not found: " + id));
-        });
         lenient().when(validationHelper.validateForUpdate(anyString(), any())).thenAnswer(inv -> {
             String id = inv.getArgument(0);
             return repository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Item not found for update"));
         });
-        
+
         // Configure uniqueness validation to throw DuplicateResourceException on conflict
         lenient().doAnswer(inv -> {
             String id = inv.getArgument(0);
             InventoryItem existingItem = inv.getArgument(1);
             InventoryItemDTO dto = inv.getArgument(2);
-            
+
             // Check if name or price changed
             boolean nameChanged = !existingItem.getName().equalsIgnoreCase(dto.getName());
             boolean priceChanged = !existingItem.getPrice().equals(dto.getPrice());
-            
+
             if (nameChanged || priceChanged) {
                 // Look for conflicting items with same name and price
                 java.util.List<InventoryItem> conflicts = repository.findByNameIgnoreCase(dto.getName());
@@ -139,20 +119,6 @@ class InventoryItemServiceImplUpdateDeleteTest {
             }
             return null;
         }).when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
-        
-        // Configure deletion validation to validate quantity is zero
-        lenient().doAnswer(inv -> {
-            String id = inv.getArgument(0);
-            InventoryItem item = repository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Item not found: " + id));
-            if (item.getQuantity() > 0) {
-                throw new IllegalStateException(
-                    "You still have merchandise in stock. " +
-                    "You need to first remove items from stock by changing quantity."
-                );
-            }
-            return null;
-        }).when(validationHelper).validateForDeletion(anyString());
     }
 
     @Test
@@ -162,6 +128,7 @@ class InventoryItemServiceImplUpdateDeleteTest {
         when(repository.findById("missing-id")).thenReturn(Optional.empty());
 
         InventoryItemDTO updateDto = copyOf(baseDto);
+
         // Attempt to update non-existent item
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.update("missing-id", updateDto));
@@ -232,64 +199,63 @@ class InventoryItemServiceImplUpdateDeleteTest {
     }
 
     @Test
-    @DisplayName("delete: not found -> IllegalArgumentException")
-    void delete_shouldThrow_whenItemNotFound() {
-        // Mock: item with ID "missing-id" does not exist
-        when(repository.findById("missing-id")).thenReturn(Optional.empty());
+    @DisplayName("update: minimumQuantity <= 0 does not overwrite existing minimumQuantity")
+    void update_minimumQuantityNonPositive_doesNotOverwriteExisting() {
+        InventoryItem current = copyOf(existing);
+        current.setMinimumQuantity(5);
 
-        // Attempt to delete non-existent item
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> service.delete("missing-id", StockChangeReason.SCRAPPED));
-        assertTrue(ex.getMessage() != null && ex.getMessage().toLowerCase().contains("not found"));
+        when(validationHelper.validateForUpdate(eq("id-1"), any())).thenReturn(current);
+        lenient().doNothing().when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
+        when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
+
+        InventoryItemDTO updateDto = copyOf(baseDto);
+        updateDto.setMinimumQuantity(0); // should be ignored
+        updateDto.setQuantity(101); // to create a quantity diff
+
+        var result = service.update("id-1", updateDto);
+
+        assertTrue(result.isPresent());
+        assertEquals(5, result.get().getMinimumQuantity());
+        assertEquals(101, result.get().getQuantity());
+        verify(auditHelper).logQuantityChange(any(InventoryItem.class), eq(1));
     }
 
     @Test
-    @DisplayName("delete: quantity > 0 -> IllegalStateException")
-    void delete_shouldThrow_whenQuantityGreaterThanZero() {
-        // Mock: item exists but has quantity > 0
-        InventoryItem found = copyOf(existing);
-        found.setQuantity(10); // Item has stock
-        when(repository.findById("item-1")).thenReturn(Optional.of(found));
+    @DisplayName("update: price changed -> updates price when valid")
+    void update_priceChanged_updatesPrice() {
+        InventoryItem current = copyOf(existing);
+        current.setPrice(new BigDecimal("10.00"));
 
-        // Attempt to delete item with stock
-        IllegalStateException ex = assertThrows(IllegalStateException.class,
-                () -> service.delete("item-1", StockChangeReason.SCRAPPED));
-        assertTrue(ex.getMessage() != null && ex.getMessage().toLowerCase().contains("still have"));
+        when(validationHelper.validateForUpdate(eq("id-1"), any())).thenReturn(current);
+        lenient().doNothing().when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
+        when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
+
+        InventoryItemDTO updateDto = copyOf(baseDto);
+        updateDto.setPrice(new BigDecimal("12.50"));
+
+        var result = service.update("id-1", updateDto);
+
+        assertTrue(result.isPresent());
+        assertEquals(new BigDecimal("12.50"), result.get().getPrice());
+        verify(auditHelper).logQuantityChange(any(InventoryItem.class), eq(0));
     }
 
     @Test
-    @DisplayName("delete: logs removal once with priceAtChange then deletes (quantity = 0)")
-    void delete_shouldRemoveItemAndRecordHistory() {
-        // Mock: item exists with quantity = 0 (safe to delete)
-        InventoryItem found = copyOf(existing);
-        found.setQuantity(0); // Item has no stock
-        when(repository.findById("item-1")).thenReturn(Optional.of(found));
+    @DisplayName("update: price changed but invalid -> ResponseStatusException 422")
+    void update_priceChanged_invalid_throws422() {
+        InventoryItem current = copyOf(existing);
+        current.setPrice(new BigDecimal("10.00"));
 
-        // Execute delete operation
-        service.delete("item-1", StockChangeReason.SCRAPPED);
+        when(validationHelper.validateForUpdate(eq("id-1"), any())).thenReturn(current);
+        lenient().doNothing().when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
 
-        // Verify audit helper recorded the removal with reason
-        verify(auditHelper).logFullRemoval(any(InventoryItem.class), eq(StockChangeReason.SCRAPPED));
-        // Verify repository deleteById was called
-        verify(repository).deleteById("item-1");
-    }
+        InventoryItemDTO updateDto = copyOf(baseDto);
+        updateDto.setPrice(BigDecimal.ZERO); // invalid -> should trigger assertPriceValid
 
-    @Test
-    @DisplayName("delete: supports null price at change (graceful log)")
-    void delete_logsHistoryThenDeletes() {
-        // Build item with null price (edge case) but quantity = 0
-        InventoryItem found = copyOf(existing);
-        found.setId("i-1");
-        found.setQuantity(0); // Must be 0 to delete
-        found.setPrice(null); // Edge case: null price
-        when(repository.findById("i-1")).thenReturn(Optional.of(found));
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> service.update("id-1", updateDto));
 
-        // Execute delete - should handle null price gracefully
-        service.delete("i-1", StockChangeReason.SCRAPPED);
-
-        // Verify deletion was logged and executed
-        verify(auditHelper).logFullRemoval(any(InventoryItem.class), eq(StockChangeReason.SCRAPPED));
-        verify(repository).deleteById("i-1");
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, ex.getStatusCode());
     }
 
     private static InventoryItemDTO copyOf(InventoryItemDTO src) {

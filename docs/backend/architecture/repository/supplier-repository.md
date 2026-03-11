@@ -345,7 +345,7 @@ class SupplierRepositoryTest {
 ```java
 @SpringBootTest
 @Transactional
-class SupplierServiceTest {
+class SupplierServiceIntegrationTest {
     
     @Autowired
     private SupplierService service;

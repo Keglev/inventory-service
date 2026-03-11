@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl;
+package com.smartsupplypro.inventory.service.impl.analytics;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -21,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
-import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
 /**
  * # StockAnalyticsService Converter Test

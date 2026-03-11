@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl;
+package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -25,6 +25,7 @@ import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.service.StockHistoryService;
+import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 
 /**
  * Tests for {@link InventoryItemServiceImpl#save(InventoryItemDTO)}.

@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl;
+package com.smartsupplypro.inventory.service.impl.analytics;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,7 +22,6 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
-import com.smartsupplypro.inventory.service.impl.analytics.FinancialAnalyticsService;
 
 /**
  * # AnalyticsServiceImplWacTest

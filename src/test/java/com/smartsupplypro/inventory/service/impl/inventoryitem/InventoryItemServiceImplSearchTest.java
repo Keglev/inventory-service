@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl;
+package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
@@ -24,6 +25,7 @@ import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.service.StockHistoryService;
+import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 
 /**
  * Tests for {@link InventoryItemServiceImpl} search and paging operations.
@@ -103,5 +105,17 @@ class InventoryItemServiceImplSearchTest {
         // Verify first item DTO has correct ID and price from entity
         assertEquals("i-1", result.getContent().get(0).getId());
         assertEquals(new BigDecimal("10.00"), result.getContent().get(0).getPrice());
+    }
+
+    @Test
+    @DisplayName("findByNameSortedByPrice: null page from repository -> returns Page.empty()")
+    void findByNameSortedByPrice_nullPage_returnsEmpty() {
+        when(repository.findByNameSortedByPrice(anyString(), any(org.springframework.data.domain.Pageable.class)))
+                .thenReturn(null);
+
+        Page<?> result = service.findByNameSortedByPrice("anything", PageRequest.of(0, 10));
+
+        assertEquals(0, result.getTotalElements());
+        assertEquals(0, result.getContent().size());
     }
 }
