@@ -118,13 +118,13 @@ public class InventoryItemValidator {
      * @throws ResponseStatusException 422 if negative
      */
     public static void assertFinalQuantityNonNegative(int resultingQuantity) {
-<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (resultingQuantity &lt; 0) {</span>
-<span class="nc" id="L122">            throw new ResponseStatusException(</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (resultingQuantity &lt; 0) {</span>
+<span class="fc" id="L122">            throw new ResponseStatusException(</span>
             HttpStatus.UNPROCESSABLE_ENTITY,
             &quot;Resulting stock cannot be negative&quot;
             );
         }
-<span class="nc" id="L127">    }</span>
+<span class="fc" id="L127">    }</span>
     
     /**
      * Validates price is strictly positive (for update/patch operations).
@@ -133,13 +133,13 @@ public class InventoryItemValidator {
      * @throws ResponseStatusException 422 if null or not positive
      */
     public static void assertPriceValid(BigDecimal price) {
-<span class="nc bnc" id="L136" title="All 4 branches missed.">        if (price == null || price.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
-<span class="nc" id="L137">            throw new ResponseStatusException(</span>
+<span class="pc bpc" id="L136" title="1 of 4 branches missed.">        if (price == null || price.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L137">            throw new ResponseStatusException(</span>
             HttpStatus.UNPROCESSABLE_ENTITY,
             &quot;Price must be greater than zero&quot;
             );
         }
-<span class="nc" id="L142">    }</span>
+<span class="fc" id="L142">    }</span>
 
     /**
      * Validates that quantity is zero before deletion (business rule).

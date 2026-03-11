@@ -125,8 +125,8 @@ public final class InventoryItemMapper {
      * @return calculated total value or BigDecimal.ZERO for null inputs
      */
     private static BigDecimal calculateTotalValue(BigDecimal price, Integer quantity) {
-<span class="pc bpc" id="L128" title="2 of 4 branches missed.">        if (price == null || quantity == null) {</span>
-<span class="nc" id="L129">            return BigDecimal.ZERO;</span>
+<span class="pc bpc" id="L128" title="1 of 4 branches missed.">        if (price == null || quantity == null) {</span>
+<span class="fc" id="L129">            return BigDecimal.ZERO;</span>
         }
 <span class="fc" id="L131">        return price.multiply(BigDecimal.valueOf(quantity));</span>
     }

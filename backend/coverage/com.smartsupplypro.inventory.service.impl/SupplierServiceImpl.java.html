@@ -63,9 +63,9 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional(readOnly = true)
     public List&lt;SupplierDTO&gt; findAll() {
         // No filtering here; caller controls access via @PreAuthorize at controller.
-<span class="nc" id="L66">        return supplierRepository.findAll().stream()</span>
-<span class="nc" id="L67">                .map(SupplierMapper::toDTO) // static call</span>
-<span class="nc" id="L68">                .toList();</span>
+<span class="fc" id="L66">        return supplierRepository.findAll().stream()</span>
+<span class="fc" id="L67">                .map(SupplierMapper::toDTO) // static call</span>
+<span class="fc" id="L68">                .toList();</span>
     }
 
     /**
@@ -78,7 +78,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional(readOnly = true)
     public Optional&lt;SupplierDTO&gt; findById(String id) {
-<span class="nc" id="L81">        return supplierRepository.findById(id).map(SupplierMapper::toDTO);</span>
+<span class="fc" id="L81">        return supplierRepository.findById(id).map(SupplierMapper::toDTO);</span>
     }
 
     /**
@@ -91,9 +91,9 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional(readOnly = true)
     public List&lt;SupplierDTO&gt; findByName(String name) {
-<span class="nc" id="L94">        return supplierRepository.findByNameContainingIgnoreCase(name).stream()</span>
-<span class="nc" id="L95">                .map(SupplierMapper::toDTO)</span>
-<span class="nc" id="L96">                .toList();</span>
+<span class="fc" id="L94">        return supplierRepository.findByNameContainingIgnoreCase(name).stream()</span>
+<span class="fc" id="L95">                .map(SupplierMapper::toDTO)</span>
+<span class="fc" id="L96">                .toList();</span>
     }
 
     /**
@@ -194,7 +194,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional(readOnly = true)
     public long countSuppliers() {
-<span class="nc" id="L197">        return supplierRepository.count();</span>
+<span class="fc" id="L197">        return supplierRepository.count();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
