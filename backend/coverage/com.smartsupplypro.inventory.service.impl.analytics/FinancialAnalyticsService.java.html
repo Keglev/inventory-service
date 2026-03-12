@@ -108,18 +108,18 @@ public class FinancialAnalyticsService {
 <span class="fc bfc" id="L108" title="All 2 branches covered.">            if (e.createdAt().isBefore(start)) {</span>
 <span class="fc" id="L109">                WacState st = state.get(e.itemId());</span>
                 
-<span class="pc bpc" id="L111" title="1 of 2 branches missed.">                if (e.quantityChange() &gt; 0) {</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">                if (e.quantityChange() &gt; 0) {</span>
                     // Inbound: determine unit cost and update WAC
-<span class="pc bpc" id="L113" title="1 of 2 branches missed.">                    BigDecimal unit = (e.priceAtChange() != null)</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">                    BigDecimal unit = (e.priceAtChange() != null)</span>
 <span class="fc" id="L114">                            ? e.priceAtChange()</span>
-<span class="pc bnc" id="L115" title="All 2 branches missed.">                            : (st == null ? BigDecimal.ZERO : st.avgCost());</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">                            : (st == null ? BigDecimal.ZERO : st.avgCost());</span>
 <span class="fc" id="L116">                    st = applyInbound(st, e.quantityChange(), unit);</span>
 <span class="fc" id="L117">                    state.put(e.itemId(), st);</span>
                     
-<span class="pc bnc" id="L119" title="All 2 branches missed.">                } else if (e.quantityChange() &lt; 0) {</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">                } else if (e.quantityChange() &lt; 0) {</span>
                     // Outbound: issue at current WAC
-<span class="nc" id="L121">                    WacIssue iss = issueAt(st, Math.abs(e.quantityChange()));</span>
-<span class="nc" id="L122">                    state.put(e.itemId(), iss.state());</span>
+<span class="fc" id="L121">                    WacIssue iss = issueAt(st, Math.abs(e.quantityChange()));</span>
+<span class="fc" id="L122">                    state.put(e.itemId(), iss.state());</span>
                 }
             }
 <span class="fc" id="L125">        }</span>
@@ -138,20 +138,20 @@ public class FinancialAnalyticsService {
 
 <span class="fc bfc" id="L139" title="All 2 branches covered.">            if (e.quantityChange() &gt; 0) {</span>
                 // === INBOUND: Purchases, Returns ===
-<span class="pc bpc" id="L141" title="1 of 2 branches missed.">                BigDecimal unit = (e.priceAtChange() != null)</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">                BigDecimal unit = (e.priceAtChange() != null)</span>
 <span class="fc" id="L142">                        ? e.priceAtChange()</span>
-<span class="pc bnc" id="L143" title="All 2 branches missed.">                        : (st == null ? BigDecimal.ZERO : st.avgCost());</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">                        : (st == null ? BigDecimal.ZERO : st.avgCost());</span>
                 
 <span class="fc" id="L145">                WacState newSt = applyInbound(st, e.quantityChange(), unit);</span>
 <span class="fc" id="L146">                state.put(e.itemId(), newSt);</span>
 
-<span class="pc bpc" id="L148" title="1 of 2 branches missed.">                if (RETURNS_IN.contains(e.reason())) {</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">                if (RETURNS_IN.contains(e.reason())) {</span>
                     // Customer returns
-<span class="nc" id="L150">                    returnsInQty += e.quantityChange();</span>
-<span class="nc" id="L151">                    returnsInCost = returnsInCost.add(unit.multiply(BigDecimal.valueOf(e.quantityChange())));</span>
+<span class="fc" id="L150">                    returnsInQty += e.quantityChange();</span>
+<span class="fc" id="L151">                    returnsInCost = returnsInCost.add(unit.multiply(BigDecimal.valueOf(e.quantityChange())));</span>
                 } else {
                     // Purchases (includes INITIAL_STOCK or entries with price)
-<span class="pc bpc" id="L154" title="3 of 4 branches missed.">                    if (e.priceAtChange() != null || e.reason() == StockChangeReason.INITIAL_STOCK) {</span>
+<span class="pc bpc" id="L154" title="1 of 4 branches missed.">                    if (e.priceAtChange() != null || e.reason() == StockChangeReason.INITIAL_STOCK) {</span>
 <span class="fc" id="L155">                        purchasesQty += e.quantityChange();</span>
 <span class="fc" id="L156">                        purchasesCost = purchasesCost.add(unit.multiply(BigDecimal.valueOf(e.quantityChange())));</span>
                     }
@@ -161,21 +161,21 @@ public class FinancialAnalyticsService {
                 // === OUTBOUND: Sales, Write-offs, Returns to Supplier ===
 <span class="fc" id="L162">                int out = Math.abs(e.quantityChange());</span>
 
-<span class="pc bpc" id="L164" title="1 of 2 branches missed.">                if (RETURN_TO_SUPPLIER.contains(e.reason())) {</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">                if (RETURN_TO_SUPPLIER.contains(e.reason())) {</span>
                     // Returning to supplier → negative purchase
-<span class="nc" id="L166">                    WacIssue iss = issueAt(st, out);</span>
-<span class="nc" id="L167">                    state.put(e.itemId(), iss.state());</span>
-<span class="nc" id="L168">                    purchasesQty -= out;</span>
-<span class="nc" id="L169">                    purchasesCost = purchasesCost.subtract(iss.cost());</span>
+<span class="fc" id="L166">                    WacIssue iss = issueAt(st, out);</span>
+<span class="fc" id="L167">                    state.put(e.itemId(), iss.state());</span>
+<span class="fc" id="L168">                    purchasesQty -= out;</span>
+<span class="fc" id="L169">                    purchasesCost = purchasesCost.subtract(iss.cost());</span>
 
-<span class="pc bpc" id="L171" title="1 of 2 branches missed.">                } else if (WRITE_OFFS.contains(e.reason())) {</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">                } else if (WRITE_OFFS.contains(e.reason())) {</span>
                     // Damaged, lost, expired, etc.
-<span class="nc" id="L173">                    WacIssue iss = issueAt(st, out);</span>
-<span class="nc" id="L174">                    state.put(e.itemId(), iss.state());</span>
-<span class="nc" id="L175">                    writeOffQty += out;</span>
-<span class="nc" id="L176">                    writeOffCost = writeOffCost.add(iss.cost());</span>
+<span class="fc" id="L173">                    WacIssue iss = issueAt(st, out);</span>
+<span class="fc" id="L174">                    state.put(e.itemId(), iss.state());</span>
+<span class="fc" id="L175">                    writeOffQty += out;</span>
+<span class="fc" id="L176">                    writeOffCost = writeOffCost.add(iss.cost());</span>
 
-<span class="nc" id="L178">                } else {</span>
+<span class="fc" id="L178">                } else {</span>
                     // Default: COGS (Cost of Goods Sold)
 <span class="fc" id="L180">                    WacIssue iss = issueAt(st, out);</span>
 <span class="fc" id="L181">                    state.put(e.itemId(), iss.state());</span>
@@ -260,8 +260,8 @@ public class FinancialAnalyticsService {
      * @return issue result with updated state and cost
      */
     private static WacIssue issueAt(WacState st, int qtyOut) {
-<span class="pc bpc" id="L263" title="1 of 2 branches missed.">        long q0 = (st == null) ? 0 : st.qty();</span>
-<span class="pc bpc" id="L264" title="1 of 2 branches missed.">        BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">        long q0 = (st == null) ? 0 : st.qty();</span>
+<span class="fc bfc" id="L264" title="All 2 branches covered.">        BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();</span>
         
 <span class="fc" id="L266">        long q1 = Math.max(0, q0 - qtyOut);  // Guard against negative</span>
 <span class="fc" id="L267">        BigDecimal cost = c0.multiply(BigDecimal.valueOf(qtyOut));</span>

@@ -51,26 +51,26 @@ final class AnalyticsConverterHelper {
      * @throws IllegalStateException if the value cannot be interpreted as a date
      */
     static LocalDate asLocalDate(Object o) {
-<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        if (o instanceof LocalDate ld) return ld;</span>
-<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        if (o instanceof java.sql.Date d) return d.toLocalDate();</span>
-<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (o instanceof java.sql.Timestamp ts) return ts.toLocalDateTime().toLocalDate();</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (o instanceof LocalDate ld) return ld;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (o instanceof java.sql.Date d) return d.toLocalDate();</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (o instanceof java.sql.Timestamp ts) return ts.toLocalDateTime().toLocalDate();</span>
 
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (o instanceof CharSequence cs) {</span>
-<span class="nc" id="L59">            String s = cs.toString();</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">            if (s.length() &gt;= 10) {</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (o instanceof CharSequence cs) {</span>
+<span class="fc" id="L59">            String s = cs.toString();</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">            if (s.length() &gt;= 10) {</span>
                 // e.g. &quot;2025-03-15 00:00:00.0&quot; → &quot;2025-03-15&quot;
-<span class="nc" id="L62">                return LocalDate.parse(s.substring(0, 10));</span>
+<span class="fc" id="L62">                return LocalDate.parse(s.substring(0, 10));</span>
             }
         }
 
         // Last resort: try toString().substring(0,10) if it looks like a timestamp literal
-<span class="nc" id="L67">        String s = String.valueOf(o);</span>
-<span class="nc bnc" id="L68" title="All 8 branches missed.">        if (s != null &amp;&amp; s.length() &gt;= 10 &amp;&amp; s.charAt(4) == '-' &amp;&amp; s.charAt(7) == '-') {</span>
-<span class="nc" id="L69">            return LocalDate.parse(s.substring(0, 10));</span>
+<span class="fc" id="L67">        String s = String.valueOf(o);</span>
+<span class="pc bpc" id="L68" title="3 of 8 branches missed.">        if (s != null &amp;&amp; s.length() &gt;= 10 &amp;&amp; s.charAt(4) == '-' &amp;&amp; s.charAt(7) == '-') {</span>
+<span class="fc" id="L69">            return LocalDate.parse(s.substring(0, 10));</span>
         }
 
-<span class="nc" id="L72">        throw new IllegalStateException(&quot;Expected LocalDate/Date/Timestamp/String but got: &quot; +</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">                (o == null ? &quot;null&quot; : o.getClass().getName() + &quot; -&gt; &quot; + o));</span>
+<span class="fc" id="L72">        throw new IllegalStateException(&quot;Expected LocalDate/Date/Timestamp/String but got: &quot; +</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">                (o == null ? &quot;null&quot; : o.getClass().getName() + &quot; -&gt; &quot; + o));</span>
     }
 
     /**
@@ -82,8 +82,8 @@ final class AnalyticsConverterHelper {
      */
     static LocalDateTime asLocalDateTime(Object o) {
 <span class="fc bfc" id="L84" title="All 2 branches covered.">        if (o instanceof LocalDateTime ldt) return ldt;</span>
-<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (o instanceof Timestamp ts) return ts.toLocalDateTime();</span>
-<span class="nc" id="L86">        throw new IllegalStateException(&quot;Expected LocalDateTime or java.sql.Timestamp but got: &quot; + o);</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (o instanceof Timestamp ts) return ts.toLocalDateTime();</span>
+<span class="fc" id="L86">        throw new IllegalStateException(&quot;Expected LocalDateTime or java.sql.Timestamp but got: &quot; + o);</span>
     }
 
     /**
@@ -93,7 +93,7 @@ final class AnalyticsConverterHelper {
      * @return the corresponding {@link Number} (null treated as zero)
      */
     static Number asNumber(Object o) {
-<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (o == null) return java.math.BigDecimal.ZERO;</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (o == null) return java.math.BigDecimal.ZERO;</span>
 <span class="fc bfc" id="L97" title="All 2 branches covered.">        if (o instanceof Number n) return n;</span>
 <span class="pc bpc" id="L98" title="1 of 2 branches missed.">        if (o instanceof java.math.BigDecimal bd) return bd;</span>
 <span class="fc" id="L99">        throw new IllegalStateException(&quot;Expected numeric type but got: &quot; + o);</span>
@@ -178,8 +178,8 @@ final class AnalyticsConverterHelper {
      * @throws InvalidRequestException if value is null
      */
     static &lt;T&gt; T requireNonNull(T v, String name) {
-<span class="pc bpc" id="L181" title="1 of 2 branches missed.">        if (v == null) {</span>
-<span class="nc" id="L182">            throw new InvalidRequestException(name + &quot; must not be null&quot;);</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        if (v == null) {</span>
+<span class="fc" id="L182">            throw new InvalidRequestException(name + &quot; must not be null&quot;);</span>
         }
 <span class="fc" id="L184">        return v;</span>
     }

@@ -50,9 +50,9 @@ Inventory Service,com.smartsupplypro.inventory.service,CustomOAuth2UserService,3
 Inventory Service,com.smartsupplypro.inventory.service,CustomOidcUserService,38,150,10,14,6,31,12,8,3,5
 Inventory Service,com.smartsupplypro.inventory.service,SecurityService,0,33,0,6,0,9,0,5,0,2
 Inventory Service,com.smartsupplypro.inventory.service,StockHistoryService,0,161,0,0,0,52,0,10,0,10
-Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService,103,391,21,33,14,87,17,14,0,4
+Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService,9,485,7,47,1,100,7,24,0,4
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService.WacIssue,0,9,0,0,0,1,0,1,0,1
-Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,AnalyticsConverterHelper,94,121,23,23,12,21,15,17,0,9
+Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,AnalyticsConverterHelper,7,208,7,39,0,33,7,25,0,9
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,StockAnalyticsService,5,322,4,16,1,66,5,19,1,13
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService.WacState,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,PriceTrendDTO,0,11,0,0,0,4,0,1,0,1
