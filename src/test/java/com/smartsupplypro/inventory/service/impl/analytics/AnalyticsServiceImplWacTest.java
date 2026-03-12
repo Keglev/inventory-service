@@ -13,14 +13,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.smartsupplypro.inventory.dto.FinancialSummaryDTO;
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
-import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 
 /**
@@ -48,13 +47,10 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
  *   <li>No Spring context or DB required (Mockito-only unit test).</li>
  * </ul>
  */
-@SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 class AnalyticsServiceImplWacTest {
     
     @Mock private StockHistoryRepository stockHistoryRepository;
-    
-    @Mock private InventoryItemRepository inventoryItemRepository;
     
     @InjectMocks private FinancialAnalyticsService service;
     
@@ -84,8 +80,7 @@ class AnalyticsServiceImplWacTest {
         new StockEventRowDTO("item1","sup1", at(2024,2,1,10,0), 10, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),
         new StockEventRowDTO("item1","sup1", at(2024,2,2, 9,0), -4, null,                   StockChangeReason.SOLD)
         );
-        lenient().when(stockHistoryRepository.streamEventsForWAC(any(), any()))
-        .thenReturn(events);
+        when(stockHistoryRepository.streamEventsForWAC(any(), any())).thenReturn(events);
         
         FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
         LocalDate.parse("2024-02-01"),
@@ -121,8 +116,7 @@ class AnalyticsServiceImplWacTest {
         new StockEventRowDTO("item1","sup1", at(2024,2, 1,10,0),  5, new BigDecimal("6.00"), StockChangeReason.INITIAL_STOCK),
         new StockEventRowDTO("item1","sup1", at(2024,2, 2,10,0), -4, null,                   StockChangeReason.SOLD)
         );
-        lenient().when(stockHistoryRepository.streamEventsForWAC(any(), any()))
-        .thenReturn(events);
+        when(stockHistoryRepository.streamEventsForWAC(any(), any())).thenReturn(events);
         
         FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
         LocalDate.parse("2024-02-01"),
@@ -161,8 +155,7 @@ class AnalyticsServiceImplWacTest {
             new StockEventRowDTO("i","s", at(2024,2,2,9,0), -5, null,                      StockChangeReason.SOLD)
         );
         // Mock repository to return event stream
-        lenient().when(stockHistoryRepository.streamEventsForWAC(any(), any()))
-            .thenReturn(events);
+        when(stockHistoryRepository.streamEventsForWAC(any(), any())).thenReturn(events);
         
         // Execute WAC calculation
         var dto = service.getFinancialSummaryWAC(LocalDate.parse("2024-02-01"), LocalDate.parse("2024-02-28"), "s");
@@ -188,8 +181,7 @@ class AnalyticsServiceImplWacTest {
             new StockEventRowDTO("i","s", at(2024,2,2,9,0), -4, null,                      StockChangeReason.SOLD)
         );
         // Mock repository to return event stream with over-issue condition
-        lenient().when(stockHistoryRepository.streamEventsForWAC(any(), any()))
-            .thenReturn(events);
+        when(stockHistoryRepository.streamEventsForWAC(any(), any())).thenReturn(events);
         
         // Execute WAC calculation (should handle gracefully by clamping)
         var dto = service.getFinancialSummaryWAC(
@@ -202,6 +194,8 @@ class AnalyticsServiceImplWacTest {
         assertEquals(0, dto.getEndingQty());
         assertEquals(0, BigDecimal.ZERO.compareTo(dto.getEndingValue()));
     }
+
+
     
     // ---------------------------------------------------------------------
     // Validation
