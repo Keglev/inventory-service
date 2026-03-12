@@ -231,7 +231,8 @@
         <p><strong>Examples:</strong> - Validator tests
         (InventoryItemValidatorTest, SupplierValidatorTest) - Service
         method tests with mocked repositories - Converter tests
-        (AnalyticsServiceImplConverterTest) - Exception tests (e.g.,
+        (AnalyticsServiceImplConverterTest,
+        AnalyticsConverterHelperTest) - Exception tests (e.g.,
         GlobalExceptionHandlerTest, BusinessExceptionHandlerTest)</p>
         <p><strong>Characteristics:</strong> - ✅ Fast (milliseconds per
         test) - ✅ No database or Spring context needed - ✅ Easy to
@@ -335,10 +336,12 @@
 │       ├── analytics/
 │       │   ├── AnalyticsServiceImplTest.java
 │       │   ├── AnalyticsServiceImplConverterTest.java (Unit: 150 lines)
+│       │   ├── AnalyticsConverterHelperTest.java       (Unit: direct helper coverage)
 │       │   ├── AnalyticsServiceImplQueryTest.java
 │       │   ├── AnalyticsServiceImplValidationTest.java
 │       │   ├── AnalyticsServiceImplWindowTest.java
-│       │   └── AnalyticsServiceImplWacTest.java
+│       │   ├── AnalyticsServiceImplWacTest.java
+│       │   └── FinancialAnalyticsServiceWacBucketsTest.java (Unit: WAC branch coverage suite)
 │       ├── inventory/
 │       │   ├── InventoryItemValidationHelperTest.java  (Unit: server-side validation + field population)
 │       │   └── InventoryItemAuditHelperTest.java       (Unit: stock-history audit logging)
