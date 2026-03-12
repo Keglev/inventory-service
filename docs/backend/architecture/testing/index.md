@@ -189,6 +189,9 @@ src/test/java/com/smartsupplypro/inventory/
 │       │   ├── AnalyticsServiceImplValidationTest.java
 │       │   ├── AnalyticsServiceImplWindowTest.java
 │       │   └── AnalyticsServiceImplWacTest.java
+│       ├── inventory/
+│       │   ├── InventoryItemValidationHelperTest.java  (Unit: server-side validation + field population)
+│       │   └── InventoryItemAuditHelperTest.java       (Unit: stock-history audit logging)
 │       └── inventoryitem/
 │           ├── InventoryItemServiceImplSaveTest.java (Unit: 120 lines)
 │           ├── InventoryItemServiceImplSearchTest.java
