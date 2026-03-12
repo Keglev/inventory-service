@@ -56,7 +56,7 @@ graph TB
 **Examples:**
 - Validator tests (InventoryItemValidatorTest, SupplierValidatorTest)
 - Service method tests with mocked repositories
-- Converter tests (AnalyticsServiceImplConverterTest)
+- Converter tests (AnalyticsServiceImplConverterTest, AnalyticsConverterHelperTest)
 - Exception tests (e.g., GlobalExceptionHandlerTest, BusinessExceptionHandlerTest)
 
 **Characteristics:**
@@ -185,10 +185,12 @@ src/test/java/com/smartsupplypro/inventory/
 │       ├── analytics/
 │       │   ├── AnalyticsServiceImplTest.java
 │       │   ├── AnalyticsServiceImplConverterTest.java (Unit: 150 lines)
+│       │   ├── AnalyticsConverterHelperTest.java       (Unit: direct helper coverage)
 │       │   ├── AnalyticsServiceImplQueryTest.java
 │       │   ├── AnalyticsServiceImplValidationTest.java
 │       │   ├── AnalyticsServiceImplWindowTest.java
-│       │   └── AnalyticsServiceImplWacTest.java
+│       │   ├── AnalyticsServiceImplWacTest.java
+│       │   └── FinancialAnalyticsServiceWacBucketsTest.java (Unit: WAC branch coverage suite)
 │       ├── inventory/
 │       │   ├── InventoryItemValidationHelperTest.java  (Unit: server-side validation + field population)
 │       │   └── InventoryItemAuditHelperTest.java       (Unit: stock-history audit logging)
