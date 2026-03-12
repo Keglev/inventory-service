@@ -49,19 +49,19 @@ public class InventoryItemValidationHelper {
      */
     public void validateForCreation(InventoryItemDTO dto) {
         // Populate createdBy from authenticated user
-<span class="nc bnc" id="L52" title="All 4 branches missed.">        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {</span>
-<span class="nc" id="L53">            dto.setCreatedBy(currentUsername());</span>
+<span class="pc bpc" id="L52" title="1 of 4 branches missed.">        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {</span>
+<span class="fc" id="L53">            dto.setCreatedBy(currentUsername());</span>
         }
         
         // Validate base fields
-<span class="nc" id="L57">        InventoryItemValidator.validateBase(dto);</span>
+<span class="fc" id="L57">        InventoryItemValidator.validateBase(dto);</span>
         
         // Check uniqueness (name + price)
-<span class="nc" id="L60">        InventoryItemValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);</span>
+<span class="fc" id="L60">        InventoryItemValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);</span>
         
         // Validate supplier exists
-<span class="nc" id="L63">        validateSupplierExists(dto.getSupplierId());</span>
-<span class="nc" id="L64">    }</span>
+<span class="fc" id="L63">        validateSupplierExists(dto.getSupplierId());</span>
+<span class="fc" id="L64">    }</span>
 
     /**
      * Validates and prepares entity for creation with server-side fields.
@@ -72,23 +72,23 @@ public class InventoryItemValidationHelper {
      */
     public void populateServerFields(InventoryItem entity) {
         // Generate UUID if not provided
-<span class="nc bnc" id="L75" title="All 4 branches missed.">        if (entity.getId() == null || entity.getId().isBlank()) {</span>
-<span class="nc" id="L76">            entity.setId(UUID.randomUUID().toString());</span>
+<span class="pc bpc" id="L75" title="1 of 4 branches missed.">        if (entity.getId() == null || entity.getId().isBlank()) {</span>
+<span class="fc" id="L76">            entity.setId(UUID.randomUUID().toString());</span>
         }
         
         // Always set createdBy from SecurityContext (authoritative source)
-<span class="nc" id="L80">        entity.setCreatedBy(currentUsername());</span>
+<span class="fc" id="L80">        entity.setCreatedBy(currentUsername());</span>
         
         // Set createdAt timestamp
-<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (entity.getCreatedAt() == null) {</span>
-<span class="nc" id="L84">            entity.setCreatedAt(LocalDateTime.now());</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (entity.getCreatedAt() == null) {</span>
+<span class="fc" id="L84">            entity.setCreatedAt(LocalDateTime.now());</span>
         }
         
         // Apply default minimum quantity
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (entity.getMinimumQuantity() &lt;= 0) {</span>
-<span class="nc" id="L89">            entity.setMinimumQuantity(10);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (entity.getMinimumQuantity() &lt;= 0) {</span>
+<span class="fc" id="L89">            entity.setMinimumQuantity(10);</span>
         }
-<span class="nc" id="L91">    }</span>
+<span class="fc" id="L91">    }</span>
 
     /**
      * Validates DTO for item update.
@@ -102,18 +102,18 @@ public class InventoryItemValidationHelper {
      */
     public InventoryItem validateForUpdate(String id, InventoryItemDTO dto) {
         // Validate base fields
-<span class="nc" id="L105">        InventoryItemValidator.validateBase(dto);</span>
+<span class="fc" id="L105">        InventoryItemValidator.validateBase(dto);</span>
         
         // Validate supplier exists
-<span class="nc" id="L108">        validateSupplierExists(dto.getSupplierId());</span>
+<span class="fc" id="L108">        validateSupplierExists(dto.getSupplierId());</span>
 
         // Verify item exists
-<span class="nc" id="L111">        InventoryItem existing = InventoryItemValidator.validateExists(id, repository);</span>
+<span class="fc" id="L111">        InventoryItem existing = InventoryItemValidator.validateExists(id, repository);</span>
 
         // Check user permissions
-<span class="nc" id="L114">        InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);</span>
+<span class="fc" id="L114">        InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);</span>
 
-<span class="nc" id="L116">        return existing;</span>
+<span class="fc" id="L116">        return existing;</span>
     }
 
     /**
@@ -124,13 +124,13 @@ public class InventoryItemValidationHelper {
      * @param dto the updated item data
      */
     public void validateUniquenessOnUpdate(String id, InventoryItem existing, InventoryItemDTO dto) {
-<span class="nc bnc" id="L127" title="All 2 branches missed.">        boolean nameChanged  = !existing.getName().equalsIgnoreCase(dto.getName());</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">        boolean priceChanged = !existing.getPrice().equals(dto.getPrice());</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        boolean nameChanged  = !existing.getName().equalsIgnoreCase(dto.getName());</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        boolean priceChanged = !existing.getPrice().equals(dto.getPrice());</span>
         
-<span class="nc bnc" id="L130" title="All 4 branches missed.">        if (nameChanged || priceChanged) {</span>
+<span class="pc bpc" id="L130" title="1 of 4 branches missed.">        if (nameChanged || priceChanged) {</span>
 <span class="nc" id="L131">            InventoryItemValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);</span>
         }
-<span class="nc" id="L133">    }</span>
+<span class="fc" id="L133">    }</span>
 
     /**
      * Validates item exists and retrieves it.
@@ -140,8 +140,8 @@ public class InventoryItemValidationHelper {
      * @throws IllegalArgumentException if item not found
      */
     public InventoryItem validateExists(String id) {
-<span class="nc" id="L143">        return repository.findById(id)</span>
-<span class="nc" id="L144">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Item not found&quot;));</span>
+<span class="pc" id="L143">        return repository.findById(id)</span>
+<span class="pc" id="L144">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Item not found&quot;));</span>
     }
 
     /**
@@ -154,7 +154,7 @@ public class InventoryItemValidationHelper {
      * @throws IllegalStateException if quantity is greater than zero
      */
     public void validateForDeletion(String id) {
-<span class="nc" id="L157">        InventoryItem item = InventoryItemValidator.validateExists(id, repository);</span>
+<span class="fc" id="L157">        InventoryItem item = InventoryItemValidator.validateExists(id, repository);</span>
 <span class="nc" id="L158">        InventoryItemValidator.assertQuantityIsZeroForDeletion(item);</span>
 <span class="nc" id="L159">    }</span>
 
@@ -165,10 +165,10 @@ public class InventoryItemValidationHelper {
      * @throws IllegalArgumentException if supplier does not exist
      */
     private void validateSupplierExists(String supplierId) {
-<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (!supplierRepository.existsById(supplierId)) {</span>
-<span class="nc" id="L169">            throw new IllegalArgumentException(&quot;Supplier does not exist&quot;);</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        if (!supplierRepository.existsById(supplierId)) {</span>
+<span class="fc" id="L169">            throw new IllegalArgumentException(&quot;Supplier does not exist&quot;);</span>
         }
-<span class="nc" id="L171">    }</span>
+<span class="fc" id="L171">    }</span>
 
     /**
      * Retrieves current authenticated username from Spring Security context.
@@ -176,9 +176,9 @@ public class InventoryItemValidationHelper {
      * @return authenticated username, or &quot;system&quot; if no authentication present
      */
     private String currentUsername() {
-<span class="nc bnc" id="L179" title="All 2 branches missed.">        Authentication a = SecurityContextHolder.getContext() != null</span>
-<span class="nc" id="L180">                ? SecurityContextHolder.getContext().getAuthentication() : null;</span>
-<span class="nc bnc" id="L181" title="All 2 branches missed.">        return a != null ? a.getName() : &quot;system&quot;;</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">        Authentication a = SecurityContextHolder.getContext() != null</span>
+<span class="pc" id="L180">                ? SecurityContextHolder.getContext().getAuthentication() : null;</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        return a != null ? a.getName() : &quot;system&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

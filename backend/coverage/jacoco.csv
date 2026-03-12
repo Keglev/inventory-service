@@ -15,8 +15,8 @@ Inventory Service,com.smartsupplypro.inventory.controller,AuthController.AppUser
 Inventory Service,com.smartsupplypro.inventory.controller,RootRedirectController,6,6,0,0,1,1,1,1,1,1
 Inventory Service,com.smartsupplypro.inventory.controller,HealthCheckController,107,3,12,0,25,1,8,1,2,1
 Inventory Service,com.smartsupplypro.inventory.controller,StockHistoryController,0,46,2,4,0,10,2,5,0,4
-Inventory Service,com.smartsupplypro.inventory.service.impl.inventory,InventoryItemValidationHelper,149,0,26,0,35,0,22,0,9,0
-Inventory Service,com.smartsupplypro.inventory.service.impl.inventory,InventoryItemAuditHelper,77,0,6,0,29,0,9,0,6,0
+Inventory Service,com.smartsupplypro.inventory.service.impl.inventory,InventoryItemValidationHelper,17,132,5,21,3,32,5,17,0,9
+Inventory Service,com.smartsupplypro.inventory.service.impl.inventory,InventoryItemAuditHelper,1,76,1,5,0,29,1,8,0,6
 Inventory Service,com.smartsupplypro.inventory.config,SecuritySpelBridgeConfig,0,5,0,0,0,2,0,2,0,2
 Inventory Service,com.smartsupplypro.inventory.config,SecurityFilterHelper.new OncePerRequestFilter() {...},25,6,6,0,6,1,4,1,1,1
 Inventory Service,com.smartsupplypro.inventory.config,SecurityEntryPointHelper,18,8,0,0,7,3,2,3,2,3
@@ -58,6 +58,6 @@ Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialA
 Inventory Service,com.smartsupplypro.inventory.dto,PriceTrendDTO,0,11,0,0,0,4,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,StockEventRowDTO,0,21,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.validation,StockHistoryValidator,16,101,8,18,2,18,7,8,0,2
-Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemValidator,32,132,11,25,7,27,12,14,2,6
+Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemValidator,24,140,11,25,6,28,11,15,1,7
 Inventory Service,com.smartsupplypro.inventory.validation,SupplierValidator,5,98,4,18,2,23,4,13,0,6
-Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemSecurityValidator,84,0,18,0,16,0,13,0,4,0
+Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemSecurityValidator,44,40,14,4,6,10,10,3,1,3

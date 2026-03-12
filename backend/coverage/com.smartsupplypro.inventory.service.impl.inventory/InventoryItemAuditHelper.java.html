@@ -43,14 +43,14 @@ public class InventoryItemAuditHelper {
      * @param item the newly created inventory item
      */
     public void logInitialStock(InventoryItem item) {
-<span class="nc" id="L46">        stockHistoryService.logStockChange(</span>
-<span class="nc" id="L47">                item.getId(),</span>
-<span class="nc" id="L48">                item.getQuantity(),</span>
+<span class="fc" id="L46">        stockHistoryService.logStockChange(</span>
+<span class="fc" id="L47">                item.getId(),</span>
+<span class="fc" id="L48">                item.getQuantity(),</span>
                 StockChangeReason.INITIAL_STOCK,
-<span class="nc" id="L50">                currentUsername(),</span>
-<span class="nc" id="L51">                item.getPrice()</span>
+<span class="fc" id="L50">                currentUsername(),</span>
+<span class="fc" id="L51">                item.getPrice()</span>
         );
-<span class="nc" id="L53">    }</span>
+<span class="fc" id="L53">    }</span>
 
     /**
      * Logs quantity adjustment if delta is non-zero.
@@ -61,16 +61,16 @@ public class InventoryItemAuditHelper {
      * @param quantityDelta the quantity change (positive or negative)
      */
     public void logQuantityChange(InventoryItem item, int quantityDelta) {
-<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (quantityDelta != 0) {</span>
-<span class="nc" id="L65">            stockHistoryService.logStockChange(</span>
-<span class="nc" id="L66">                    item.getId(),</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (quantityDelta != 0) {</span>
+<span class="fc" id="L65">            stockHistoryService.logStockChange(</span>
+<span class="fc" id="L66">                    item.getId(),</span>
                     quantityDelta,
                     StockChangeReason.MANUAL_UPDATE,
-<span class="nc" id="L69">                    currentUsername(),</span>
-<span class="nc" id="L70">                    item.getPrice()</span>
+<span class="fc" id="L69">                    currentUsername(),</span>
+<span class="fc" id="L70">                    item.getPrice()</span>
             );
         }
-<span class="nc" id="L73">    }</span>
+<span class="fc" id="L73">    }</span>
 
     /**
      * Logs quantity adjustment with specific reason.
@@ -80,14 +80,14 @@ public class InventoryItemAuditHelper {
      * @param reason the business reason for adjustment
      */
     public void logQuantityAdjustment(InventoryItem item, int delta, StockChangeReason reason) {
-<span class="nc" id="L83">        stockHistoryService.logStockChange(</span>
-<span class="nc" id="L84">                item.getId(),</span>
+<span class="fc" id="L83">        stockHistoryService.logStockChange(</span>
+<span class="fc" id="L84">                item.getId(),</span>
                 delta,
                 reason,
-<span class="nc" id="L87">                currentUsername(),</span>
-<span class="nc" id="L88">                item.getPrice()</span>
+<span class="fc" id="L87">                currentUsername(),</span>
+<span class="fc" id="L88">                item.getPrice()</span>
         );
-<span class="nc" id="L90">    }</span>
+<span class="fc" id="L90">    }</span>
 
     /**
      * Logs price change with zero quantity delta.
@@ -98,14 +98,14 @@ public class InventoryItemAuditHelper {
      * @param newPrice the new unit price
      */
     public void logPriceChange(String itemId, BigDecimal newPrice) {
-<span class="nc" id="L101">        stockHistoryService.logStockChange(</span>
+<span class="fc" id="L101">        stockHistoryService.logStockChange(</span>
                 itemId,
                 0,
                 StockChangeReason.PRICE_CHANGE,
-<span class="nc" id="L105">                currentUsername(),</span>
+<span class="fc" id="L105">                currentUsername(),</span>
                 newPrice
         );
-<span class="nc" id="L108">    }</span>
+<span class="fc" id="L108">    }</span>
 
     /**
      * Logs full stock removal before item deletion.
@@ -114,14 +114,14 @@ public class InventoryItemAuditHelper {
      * @param reason the deletion reason
      */
     public void logFullRemoval(InventoryItem item, StockChangeReason reason) {
-<span class="nc" id="L117">        stockHistoryService.logStockChange(</span>
-<span class="nc" id="L118">                item.getId(),</span>
-<span class="nc" id="L119">                -item.getQuantity(),</span>
+<span class="fc" id="L117">        stockHistoryService.logStockChange(</span>
+<span class="fc" id="L118">                item.getId(),</span>
+<span class="fc" id="L119">                -item.getQuantity(),</span>
                 reason,
-<span class="nc" id="L121">                currentUsername(),</span>
-<span class="nc" id="L122">                item.getPrice()</span>
+<span class="fc" id="L121">                currentUsername(),</span>
+<span class="fc" id="L122">                item.getPrice()</span>
         );
-<span class="nc" id="L124">    }</span>
+<span class="fc" id="L124">    }</span>
 
     /**
      * Retrieves current authenticated username.
@@ -129,9 +129,9 @@ public class InventoryItemAuditHelper {
      * @return authenticated username, or &quot;system&quot; if no authentication present
      */
     private String currentUsername() {
-<span class="nc bnc" id="L132" title="All 2 branches missed.">        Authentication a = SecurityContextHolder.getContext() != null</span>
-<span class="nc" id="L133">                ? SecurityContextHolder.getContext().getAuthentication() : null;</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">        return a != null ? a.getName() : &quot;system&quot;;</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        Authentication a = SecurityContextHolder.getContext() != null</span>
+<span class="pc" id="L133">                ? SecurityContextHolder.getContext().getAuthentication() : null;</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        return a != null ? a.getName() : &quot;system&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
