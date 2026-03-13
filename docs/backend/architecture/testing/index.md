@@ -218,6 +218,11 @@ src/test/java/com/smartsupplypro/inventory/
 │   ├── inventoryitem/
 │   ├── stockhistory/
 │   ├── analytics/
+│   │   ├── AnalyticsControllerBasicTest.java      (Integration: @WebMvcTest stock dashboard endpoints)
+│   │   ├── AnalyticsControllerFilteringTest.java  (Integration: @WebMvcTest filtering/search endpoints)
+│   │   ├── AnalyticsControllerFinancialTest.java  (Integration: @WebMvcTest financial analytics endpoints)
+│   │   ├── AnalyticsControllerValidationHelperTest.java (Unit: request parameter validation rules)
+│   │   └── AnalyticsDashboardHelperTest.java      (Unit: dashboard aggregation + supplier conditional branches)
 │   ├── auth/
 │   └── security/
 │
