@@ -36,13 +36,13 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @throws InvalidRequestException if validation fails
      */
     public void validateDateRange(LocalDate start, LocalDate end, String startName, String endName) {
-<span class="nc bnc" id="L39" title="All 4 branches missed.">        if (start == null || end == null) {</span>
-<span class="nc" id="L40">            throw new InvalidRequestException(startName + &quot; and &quot; + endName + &quot; are required&quot;);</span>
+<span class="fc bfc" id="L39" title="All 4 branches covered.">        if (start == null || end == null) {</span>
+<span class="fc" id="L40">            throw new InvalidRequestException(startName + &quot; and &quot; + endName + &quot; are required&quot;);</span>
         }
-<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (start.isAfter(end)) {</span>
-<span class="nc" id="L43">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (start.isAfter(end)) {</span>
+<span class="fc" id="L43">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
         }
-<span class="nc" id="L45">    }</span>
+<span class="fc" id="L45">    }</span>
 
     /**
      * Validates LocalDateTime range parameters.
@@ -54,10 +54,10 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @throws InvalidRequestException if start &gt; end
      */
     public void validateDateTimeRange(LocalDateTime start, LocalDateTime end, String startName, String endName) {
-<span class="nc bnc" id="L57" title="All 6 branches missed.">        if (start != null &amp;&amp; end != null &amp;&amp; start.isAfter(end)) {</span>
-<span class="nc" id="L58">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
+<span class="fc bfc" id="L57" title="All 6 branches covered.">        if (start != null &amp;&amp; end != null &amp;&amp; start.isAfter(end)) {</span>
+<span class="fc" id="L58">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
         }
-<span class="nc" id="L60">    }</span>
+<span class="fc" id="L60">    }</span>
 
     /**
      * Validates string parameter is not blank.
@@ -67,10 +67,10 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @throws InvalidRequestException if value is blank
      */
     public void requireNonBlank(String value, String name) {
-<span class="nc bnc" id="L70" title="All 4 branches missed.">        if (value == null || value.trim().isEmpty()) {</span>
-<span class="nc" id="L71">            throw new InvalidRequestException(name + &quot; must not be blank&quot;);</span>
+<span class="fc bfc" id="L70" title="All 4 branches covered.">        if (value == null || value.trim().isEmpty()) {</span>
+<span class="fc" id="L71">            throw new InvalidRequestException(name + &quot; must not be blank&quot;);</span>
         }
-<span class="nc" id="L73">    }</span>
+<span class="fc" id="L73">    }</span>
 
     /**
      * Validates numeric range parameters.
@@ -82,10 +82,10 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @throws InvalidRequestException if min &gt; max
      */
     public void validateNumericRange(Integer min, Integer max, String minName, String maxName) {
-<span class="nc bnc" id="L85" title="All 6 branches missed.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
-<span class="nc" id="L86">            throw new InvalidRequestException(minName + &quot; must be &lt;= &quot; + maxName);</span>
+<span class="fc bfc" id="L85" title="All 6 branches covered.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
+<span class="fc" id="L86">            throw new InvalidRequestException(minName + &quot; must be &lt;= &quot; + maxName);</span>
         }
-<span class="nc" id="L88">    }</span>
+<span class="fc" id="L88">    }</span>
 
     /**
      * Applies default date window (last 30 days) if both dates are null.
@@ -95,11 +95,11 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @return array with [startDate, endDate] with defaults applied
      */
     public LocalDateTime[] applyDefaultDateWindow(LocalDateTime startDate, LocalDateTime endDate) {
-<span class="nc bnc" id="L98" title="All 4 branches missed.">        if (startDate == null &amp;&amp; endDate == null) {</span>
-<span class="nc" id="L99">            endDate = LocalDateTime.now();</span>
-<span class="nc" id="L100">            startDate = endDate.minusDays(30);</span>
+<span class="fc bfc" id="L98" title="All 4 branches covered.">        if (startDate == null &amp;&amp; endDate == null) {</span>
+<span class="fc" id="L99">            endDate = LocalDateTime.now();</span>
+<span class="fc" id="L100">            startDate = endDate.minusDays(30);</span>
         }
-<span class="nc" id="L102">        return new LocalDateTime[]{startDate, endDate};</span>
+<span class="fc" id="L102">        return new LocalDateTime[]{startDate, endDate};</span>
     }
 
     /**
@@ -109,8 +109,8 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @throws InvalidRequestException if validation fails
      */
     public void validateStockUpdateFilter(StockUpdateFilterDTO filter) {
-<span class="nc" id="L112">        validateDateTimeRange(filter.getStartDate(), filter.getEndDate(), &quot;startDate&quot;, &quot;endDate&quot;);</span>
-<span class="nc" id="L113">        validateNumericRange(filter.getMinChange(), filter.getMaxChange(), &quot;minChange&quot;, &quot;maxChange&quot;);</span>
-<span class="nc" id="L114">    }</span>
+<span class="fc" id="L112">        validateDateTimeRange(filter.getStartDate(), filter.getEndDate(), &quot;startDate&quot;, &quot;endDate&quot;);</span>
+<span class="fc" id="L113">        validateNumericRange(filter.getMinChange(), filter.getMaxChange(), &quot;minChange&quot;, &quot;maxChange&quot;);</span>
+<span class="fc" id="L114">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
