@@ -366,15 +366,24 @@
 ├── controller/
 │   ├── supplier/
 │   │   └── SupplierControllerTest.java           (Integration: 404 lines)
+│   ├── auth/
+│   │   ├── AuthControllerTest.java               (Integration: @WebMvcTest /api/me)
+│   │   ├── AuthControllerAuthoritiesTest.java    (Integration: @WebMvcTest /api/me/authorities)
+│   │   ├── AuthControllerLogoutTest.java         (Integration: @WebMvcTest logout contract)
+│   │   └── AuthControllerBranchUnitTest.java     (Unit: guard branches blocked by security filters)
+│   ├── health/
+│   │   ├── HealthCheckControllerHealthEndpointTest.java (Unit: /api/health response contract)
+│   │   └── HealthCheckControllerDbEndpointTest.java     (Unit: /api/health/db response contract)
 │   ├── inventoryitem/
 │   ├── stockhistory/
+│   │   ├── StockHistoryControllerEndpointsTest.java (Integration: @WebMvcTest endpoint contract)
+│   │   └── StockHistoryControllerSearchTest.java    (Integration: @WebMvcTest search validation + paging)
 │   ├── analytics/
 │   │   ├── AnalyticsControllerBasicTest.java      (Integration: @WebMvcTest stock dashboard endpoints)
 │   │   ├── AnalyticsControllerFilteringTest.java  (Integration: @WebMvcTest filtering/search endpoints)
 │   │   ├── AnalyticsControllerFinancialTest.java  (Integration: @WebMvcTest financial analytics endpoints)
 │   │   ├── AnalyticsControllerValidationHelperTest.java (Unit: request parameter validation rules)
 │   │   └── AnalyticsDashboardHelperTest.java      (Unit: dashboard aggregation + supplier conditional branches)
-│   ├── auth/
 │   └── security/
 │
 ├── exception/
