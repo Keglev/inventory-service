@@ -90,7 +90,7 @@ public class StockHistoryController {
     ) {
         // Date range validation - prevent logical inconsistencies that could
         // cause confusion in audit reports and ensure temporal query validity
-<span class="pc bpc" id="L93" title="2 of 6 branches missed.">        if (startDate != null &amp;&amp; endDate != null &amp;&amp; endDate.isBefore(startDate)) {</span>
+<span class="fc bfc" id="L93" title="All 6 branches covered.">        if (startDate != null &amp;&amp; endDate != null &amp;&amp; endDate.isBefore(startDate)) {</span>
 <span class="fc" id="L94">            throw new InvalidRequestException(&quot;endDate must be &gt;= startDate&quot;);</span>
         }
         // Page size protection - cap large page requests to prevent memory issues

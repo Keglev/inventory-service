@@ -61,8 +61,8 @@ public class AuthController {
      */
     @GetMapping(&quot;/me&quot;)
     public AppUserProfileDTO me(@AuthenticationPrincipal OAuth2User principal) {
-<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (principal == null) {</span>
-<span class="nc" id="L65">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication provided&quot;);</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (principal == null) {</span>
+<span class="fc" id="L65">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication provided&quot;);</span>
         }
         
         // Enterprise Comment: OAuth2 Identity Resolution
@@ -96,14 +96,14 @@ public class AuthController {
     @GetMapping(&quot;/me/authorities&quot;)
     public java.util.List&lt;String&gt; meAuthorities(
             @AuthenticationPrincipal OAuth2User principal) {
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (principal == null) {</span>
-<span class="nc" id="L100">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication&quot;);</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (principal == null) {</span>
+<span class="fc" id="L100">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication&quot;);</span>
         }
-<span class="nc" id="L102">        return principal.getAuthorities().stream()</span>
-<span class="nc" id="L103">                .map(org.springframework.security.core.GrantedAuthority::getAuthority)</span>
-<span class="nc" id="L104">                .distinct()</span>
-<span class="nc" id="L105">                .sorted()</span>
-<span class="nc" id="L106">                .toList();</span>
+<span class="fc" id="L102">        return principal.getAuthorities().stream()</span>
+<span class="fc" id="L103">                .map(org.springframework.security.core.GrantedAuthority::getAuthority)</span>
+<span class="fc" id="L104">                .distinct()</span>
+<span class="fc" id="L105">                .sorted()</span>
+<span class="fc" id="L106">                .toList();</span>
     }
 
     /**
