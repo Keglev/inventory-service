@@ -85,6 +85,14 @@ testing/security-testing · Smart Supply Pro Docs</title>
         <li><a href="#security-testing-characteristics"
         id="toc-security-testing-characteristics">Security Testing
         Characteristics</a></li>
+        <li><a href="#security-test-suites-in-this-repository"
+        id="toc-security-test-suites-in-this-repository">Security Test
+        Suites in This Repository</a>
+        <ul>
+        <li><a href="#relationship-to-testsecurityconfig"
+        id="toc-relationship-to-testsecurityconfig">Relationship to
+        TestSecurityConfig</a></li>
+        </ul></li>
         <li><a href="#spring-security-test-annotations"
         id="toc-spring-security-test-annotations">Spring Security Test
         Annotations</a>
@@ -217,6 +225,47 @@ testing/security-testing · Smart Supply Pro Docs</title>
         </tr>
         </tbody>
         </table>
+        <hr />
+        <h2 id="security-test-suites-in-this-repository">Security Test
+        Suites in This Repository</h2>
+        <p>This codebase intentionally uses multiple security test
+        layers, each optimized for a different risk:</p>
+        <ul>
+        <li><strong>Unit tests (no Spring context):</strong> Validate
+        small, deterministic helpers that influence security behavior.
+        <ul>
+        <li><code>src/test/java/com/smartsupplypro/inventory/config/SecurityFilterHelperTest.java</code>
+        (API request classification via URI +
+        <code>Accept: application/json</code>)</li>
+        <li><code>src/test/java/com/smartsupplypro/inventory/config/SecurityEntryPointHelperTest.java</code>
+        (API 401 JSON vs web redirect entry points)</li>
+        <li><code>src/test/java/com/smartsupplypro/inventory/config/SecurityConfigUnitTest.java</code>
+        (bean helper contracts like CORS policy, session cookie
+        defaults, OAuth failure redirect handler)</li>
+        </ul></li>
+        <li><strong>MVC slice tests (real authorization rules):</strong>
+        Validate the production <code>SecurityConfig</code> matchers and
+        the demo-readonly branch without loading full application
+        infrastructure.
+        <ul>
+        <li><code>src/test/java/com/smartsupplypro/inventory/security/SecurityConfigAuthorizationRulesTest.java</code></li>
+        <li><code>src/test/java/com/smartsupplypro/inventory/security/SecurityConfigDemoReadonlyAuthorizationTest.java</code></li>
+        </ul></li>
+        <li><strong>Smoke tests (wiring + high-confidence
+        checks):</strong> Validate that a lean MVC slice can boot using
+        the production configuration and that key endpoints behave as
+        expected.
+        <ul>
+        <li><code>src/test/java/com/smartsupplypro/inventory/security/SecuritySmokeTest.java</code></li>
+        </ul></li>
+        </ul>
+        <h3 id="relationship-to-testsecurityconfig">Relationship to
+        TestSecurityConfig</h3>
+        <p><code>TestSecurityConfig</code> is still recommended for most
+        controller tests to keep them focused and fast. The suites above
+        exist specifically to ensure the production security
+        configuration remains correct even when controllers are tested
+        with simplified security.</p>
         <hr />
         <h2 id="spring-security-test-annotations">Spring Security Test
         Annotations</h2>

@@ -401,6 +401,8 @@
 │   │   └── OAuth2LoginSuccessHandlerCookieHeaderBuilderTest.java
 │   ├── ApiEntryPointBehaviourTest.java
 │   ├── DemoReadonlySecurityTest.java
+│   ├── SecurityConfigAuthorizationRulesTest.java  (Integration: @WebMvcTest real authZ rules)
+│   ├── SecurityConfigDemoReadonlyAuthorizationTest.java (Integration: demo-readonly branch)
 │   ├── oauth2/
 │   │   ├── CookieOAuth2AuthorizationRequestRepositoryTestSupport.java
 │   │   ├── CookieOAuth2AuthorizationRequestRepositoryTest.java
@@ -412,9 +414,13 @@
 │   └── AdminStubController.java
 │
 └── config/
-    └── (Test configuration and helpers)
+    ├── TestSecurityConfig.java                    (Helper: simplified security for controller slices)
+    ├── SecurityConfigUnitTest.java                (Unit: CORS/cookie/OAuth failure handler contracts)
+    ├── SecurityFilterHelperTest.java              (Unit: API request classification filter)
+    └── SecurityEntryPointHelperTest.java          (Unit: API 401 JSON vs web redirect entry points)
 
 src/test/resources/
+├── logback-test.xml                              (Test logging: reduce console noise)
 └── testcontainers.properties                     (TestContainers config)</code></pre>
         <hr />
         <h2 id="test-coverage">Test Coverage</h2>
@@ -528,9 +534,9 @@ src/test/resources/
         <li>Disables Testcontainers checks</li>
         <li>Configures test-specific properties</li>
         </ul>
-        <p><strong>Rationale:</strong> H2 is fast for unit tests;
-        TestContainers provide real Oracle for integration tests that
-        need it.</p>
+        <p><strong>Rationale:</strong> H2 is fast for repository and MVC
+        slice tests; TestContainers provide real Oracle for integration
+        tests that need it.</p>
         <pre class="properties"><code># Spring profile for testing
 spring.profiles.active=test
 
@@ -757,9 +763,9 @@ testcontainers.docker.client.strategy=org.testcontainers.dockerclient.UnixSocket
         <li><strong><a href="./security-testing.html">Security
         Testing</a></strong> - OAuth2, RBAC, API authentication
         tests</li>
-        <li><strong><a href="./coverage.html">Test Coverage</a></strong>
-        - JaCoCo configuration, coverage metrics, improvement
-        strategies</li>
+        <li><strong><a href="#test-coverage">Test Coverage
+        (JaCoCo)</a></strong> - Report location, plugin configuration,
+        suggested targets</li>
         </ul>
         <hr />
         <h2 id="related-documentation">Related Documentation</h2>
