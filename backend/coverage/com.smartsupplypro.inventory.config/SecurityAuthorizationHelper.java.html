@@ -37,10 +37,10 @@ import org.springframework.stereotype.Component;
 <span class="fc" id="L37">        ).permitAll();</span>
 
         // Demo mode: allow read-only endpoints without login
-<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (isDemoReadonly) {</span>
-<span class="nc" id="L41">            auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).permitAll();</span>
-<span class="nc" id="L42">            auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).permitAll();</span>
-<span class="nc" id="L43">            auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).permitAll();</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (isDemoReadonly) {</span>
+<span class="fc" id="L41">            auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).permitAll();</span>
+<span class="fc" id="L42">            auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).permitAll();</span>
+<span class="fc" id="L43">            auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).permitAll();</span>
         }
 
         // Default: authenticated users may READ these resources

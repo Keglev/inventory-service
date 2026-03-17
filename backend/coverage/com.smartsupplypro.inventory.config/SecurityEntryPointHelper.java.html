@@ -18,10 +18,10 @@ import jakarta.servlet.http.HttpServletResponse;
      */
     public AuthenticationEntryPoint createApiEntryPoint() {
 <span class="fc" id="L20">        return (req, res, ex) -&gt; {</span>
-<span class="nc" id="L21">            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);</span>
-<span class="nc" id="L22">            res.setContentType(&quot;application/json&quot;);</span>
-<span class="nc" id="L23">            res.getWriter().write(&quot;{\&quot;message\&quot;:\&quot;Unauthorized\&quot;}&quot;);</span>
-<span class="nc" id="L24">        };</span>
+<span class="fc" id="L21">            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);</span>
+<span class="fc" id="L22">            res.setContentType(&quot;application/json&quot;);</span>
+<span class="fc" id="L23">            res.getWriter().write(&quot;{\&quot;message\&quot;:\&quot;Unauthorized\&quot;}&quot;);</span>
+<span class="fc" id="L24">        };</span>
     }
 
     /**
@@ -29,9 +29,9 @@ import jakarta.servlet.http.HttpServletResponse;
      */
     public AuthenticationEntryPoint createWebEntryPoint(String frontendBaseUrl) {
 <span class="fc" id="L31">        return (req, res, ex) -&gt; {</span>
-<span class="nc" id="L32">            String target = frontendBaseUrl + &quot;/login&quot;;</span>
-<span class="nc" id="L33">            res.sendRedirect(target);</span>
-<span class="nc" id="L34">        };</span>
+<span class="fc" id="L32">            String target = frontendBaseUrl + &quot;/login&quot;;</span>
+<span class="fc" id="L33">            res.sendRedirect(target);</span>
+<span class="fc" id="L34">        };</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

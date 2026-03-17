@@ -84,7 +84,7 @@ import jakarta.servlet.http.HttpServletResponse;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 <span class="fc" id="L86">        OncePerRequestFilter apiFlagFilter = filterHelper.createApiDetectionFilter();</span>
-<span class="pc" id="L87">        RequestMatcher apiMatcher = request -&gt; Boolean.TRUE.equals(request.getAttribute(&quot;IS_API_REQUEST&quot;));</span>
+<span class="fc" id="L87">        RequestMatcher apiMatcher = request -&gt; Boolean.TRUE.equals(request.getAttribute(&quot;IS_API_REQUEST&quot;));</span>
 <span class="fc" id="L88">        AuthenticationEntryPoint apiEntry = entryPointHelper.createApiEntryPoint();</span>
 <span class="fc" id="L89">        AuthenticationEntryPoint webEntry = entryPointHelper.createWebEntryPoint(props.getFrontend().getBaseUrl());</span>
         // Main security configuration
@@ -95,7 +95,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 <span class="fc" id="L96">            .exceptionHandling(ex -&gt; ex</span>
 <span class="fc" id="L97">                .defaultAuthenticationEntryPointFor(apiEntry, apiMatcher)</span>
-<span class="pc" id="L98">                .defaultAuthenticationEntryPointFor(webEntry, request -&gt; true)</span>
+<span class="fc" id="L98">                .defaultAuthenticationEntryPointFor(webEntry, request -&gt; true)</span>
             )
 <span class="fc" id="L100">            .oauth2Login(oauth -&gt; oauth</span>
 <span class="fc" id="L101">                .authorizationEndpoint(ae -&gt; ae.authorizationRequestRepository(authorizationRequestRepository()))</span>
@@ -106,19 +106,19 @@ import jakarta.servlet.http.HttpServletResponse;
 <span class="fc" id="L106">            .logout(logout -&gt; logout</span>
 <span class="fc" id="L107">                .logoutUrl(&quot;/logout&quot;)</span>
 <span class="fc" id="L108">                .logoutSuccessHandler((req, res, auth) -&gt; {</span>
-<span class="nc" id="L109">                    boolean isApi = Boolean.TRUE.equals(req.getAttribute(&quot;IS_API_REQUEST&quot;));</span>
-<span class="nc bnc" id="L110" title="All 2 branches missed.">                    if (isApi) {</span>
-<span class="nc" id="L111">                        res.setStatus(HttpServletResponse.SC_NO_CONTENT);</span>
-<span class="nc" id="L112">                        return;</span>
+<span class="fc" id="L109">                    boolean isApi = Boolean.TRUE.equals(req.getAttribute(&quot;IS_API_REQUEST&quot;));</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">                    if (isApi) {</span>
+<span class="fc" id="L111">                        res.setStatus(HttpServletResponse.SC_NO_CONTENT);</span>
+<span class="fc" id="L112">                        return;</span>
                     }
-<span class="nc" id="L114">                    String base = props.getFrontend().getBaseUrl();</span>
-<span class="nc" id="L115">                    String ret  = req.getParameter(&quot;return&quot;);</span>
-<span class="nc" id="L116">                    String target = base + &quot;/logout-success&quot;;</span>
-<span class="nc bnc" id="L117" title="All 4 branches missed.">                    if (ret != null &amp;&amp; ret.startsWith(base)) {</span>
-<span class="nc" id="L118">                        target = ret;</span>
+<span class="fc" id="L114">                    String base = props.getFrontend().getBaseUrl();</span>
+<span class="fc" id="L115">                    String ret  = req.getParameter(&quot;return&quot;);</span>
+<span class="fc" id="L116">                    String target = base + &quot;/logout-success&quot;;</span>
+<span class="fc bfc" id="L117" title="All 4 branches covered.">                    if (ret != null &amp;&amp; ret.startsWith(base)) {</span>
+<span class="fc" id="L118">                        target = ret;</span>
                     }
-<span class="nc" id="L120">                    res.sendRedirect(target);</span>
-<span class="nc" id="L121">                })</span>
+<span class="fc" id="L120">                    res.sendRedirect(target);</span>
+<span class="fc" id="L121">                })</span>
 <span class="fc" id="L122">                .invalidateHttpSession(true)</span>
 <span class="fc" id="L123">                .deleteCookies(&quot;JSESSIONID&quot;, &quot;SESSION&quot;)</span>
 <span class="fc" id="L124">                .permitAll()</span>
@@ -169,10 +169,10 @@ import jakarta.servlet.http.HttpServletResponse;
     @Bean
     public AuthenticationFailureHandler oauthFailureHandler(AppProperties props) {
 <span class="fc" id="L171">        return (request, response, exception) -&gt; {</span>
-<span class="nc" id="L172">            LoggerFactory.getLogger(SecurityConfig.class).warn(&quot;OAuth2 failure: {}&quot;, exception.toString());</span>
-<span class="nc" id="L173">            String target = props.getFrontend().getBaseUrl() + &quot;/login?error=oauth&quot;;</span>
-<span class="nc bnc" id="L174" title="All 2 branches missed.">            if (!response.isCommitted()) response.sendRedirect(target);</span>
-<span class="nc" id="L175">        };</span>
+<span class="fc" id="L172">            LoggerFactory.getLogger(SecurityConfig.class).warn(&quot;OAuth2 failure: {}&quot;, exception.toString());</span>
+<span class="fc" id="L173">            String target = props.getFrontend().getBaseUrl() + &quot;/login?error=oauth&quot;;</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">            if (!response.isCommitted()) response.sendRedirect(target);</span>
+<span class="fc" id="L175">        };</span>
     };
 
     /**

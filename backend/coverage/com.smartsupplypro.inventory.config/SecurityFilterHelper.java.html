@@ -31,13 +31,13 @@ import jakarta.servlet.http.HttpServletResponse;
                                             @NonNull HttpServletResponse res,
                                             @NonNull FilterChain chain)
                     throws ServletException, IOException {
-<span class="nc" id="L34">                String accept = req.getHeader(&quot;Accept&quot;);</span>
-<span class="nc bnc" id="L35" title="All 4 branches missed.">                if (req.getRequestURI().startsWith(&quot;/api/&quot;)</span>
-<span class="nc bnc" id="L36" title="All 2 branches missed.">                        &amp;&amp; accept != null &amp;&amp; accept.contains(&quot;application/json&quot;)) {</span>
-<span class="nc" id="L37">                    req.setAttribute(&quot;IS_API_REQUEST&quot;, true);</span>
+<span class="fc" id="L34">                String accept = req.getHeader(&quot;Accept&quot;);</span>
+<span class="fc bfc" id="L35" title="All 4 branches covered.">                if (req.getRequestURI().startsWith(&quot;/api/&quot;)</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">                        &amp;&amp; accept != null &amp;&amp; accept.contains(&quot;application/json&quot;)) {</span>
+<span class="fc" id="L37">                    req.setAttribute(&quot;IS_API_REQUEST&quot;, true);</span>
                 }
-<span class="nc" id="L39">                chain.doFilter(req, res);</span>
-<span class="nc" id="L40">            }</span>
+<span class="fc" id="L39">                chain.doFilter(req, res);</span>
+<span class="fc" id="L40">            }</span>
         };
     }
 }
