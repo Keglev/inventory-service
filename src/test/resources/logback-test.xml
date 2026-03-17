@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--
+      Test-only logging configuration.
+
+      Goal: keep test output readable by suppressing Spring Boot bootstrap noise while
+      still surfacing warnings/errors that matter.
+
+      Notes:
+      - These specific INFO lines are emitted before @TestPropertySource is applied,
+        so they must be configured via the logging backend.
+    -->
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Keep the global test logging conservative. -->
+    <root level="WARN">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <!-- Silence bootstrap logs that are printed during test context initialization. -->
+    <logger name="org.springframework.boot.test.context.SpringBootTestContextBootstrapper" level="ERROR" />
+    <logger name="org.springframework.boot.devtools.restart.RestartApplicationListener" level="ERROR" />
+</configuration>
