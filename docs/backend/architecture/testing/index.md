@@ -250,6 +250,8 @@ src/test/java/com/smartsupplypro/inventory/
 │   │   └── OAuth2LoginSuccessHandlerCookieHeaderBuilderTest.java
 │   ├── ApiEntryPointBehaviourTest.java
 │   ├── DemoReadonlySecurityTest.java
+│   ├── SecurityConfigAuthorizationRulesTest.java  (Integration: @WebMvcTest real authZ rules)
+│   ├── SecurityConfigDemoReadonlyAuthorizationTest.java (Integration: demo-readonly branch)
 │   ├── oauth2/
 │   │   ├── CookieOAuth2AuthorizationRequestRepositoryTestSupport.java
 │   │   ├── CookieOAuth2AuthorizationRequestRepositoryTest.java
@@ -261,9 +263,13 @@ src/test/java/com/smartsupplypro/inventory/
 │   └── AdminStubController.java
 │
 └── config/
-    └── (Test configuration and helpers)
+    ├── TestSecurityConfig.java                    (Helper: simplified security for controller slices)
+    ├── SecurityConfigUnitTest.java                (Unit: CORS/cookie/OAuth failure handler contracts)
+    ├── SecurityFilterHelperTest.java              (Unit: API request classification filter)
+    └── SecurityEntryPointHelperTest.java          (Unit: API 401 JSON vs web redirect entry points)
 
 src/test/resources/
+├── logback-test.xml                              (Test logging: reduce console noise)
 └── testcontainers.properties                     (TestContainers config)
 ```
 
@@ -401,7 +407,8 @@ mvn clean package -DskipTests
 - Disables Testcontainers checks
 - Configures test-specific properties
 
-**Rationale:** H2 is fast for unit tests; TestContainers provide real Oracle for integration tests that need it.
+**Rationale:** H2 is fast for repository and MVC slice tests; TestContainers provide real Oracle for integration
+tests that need it.
 
 ```properties
 # Spring profile for testing
@@ -572,7 +579,7 @@ void testAdminCanSave() {
 - **[Unit Testing Patterns](./unit-testing.html)** - Component isolation, mocking, test organization
 - **[Integration Testing](./integration-testing.html)** - @DataJpaTest, @WebMvcTest, database testing
 - **[Security Testing](./security-testing.html)** - OAuth2, RBAC, API authentication tests
-- **[Test Coverage](./coverage.html)** - JaCoCo configuration, coverage metrics, improvement strategies
+- **[Test Coverage (JaCoCo)](#test-coverage)** - Report location, plugin configuration, suggested targets
 
 ---
 

@@ -20,6 +20,35 @@ Security tests verify **authentication, authorization, and API access control**.
 
 ---
 
+## Security Test Suites in This Repository
+
+This codebase intentionally uses multiple security test layers, each optimized for a different risk:
+
+- **Unit tests (no Spring context):** Validate small, deterministic helpers that influence security behavior.
+    - `src/test/java/com/smartsupplypro/inventory/config/SecurityFilterHelperTest.java`
+        (API request classification via URI + `Accept: application/json`)
+    - `src/test/java/com/smartsupplypro/inventory/config/SecurityEntryPointHelperTest.java`
+        (API 401 JSON vs web redirect entry points)
+    - `src/test/java/com/smartsupplypro/inventory/config/SecurityConfigUnitTest.java`
+        (bean helper contracts like CORS policy, session cookie defaults, OAuth failure redirect handler)
+
+- **MVC slice tests (real authorization rules):** Validate the production `SecurityConfig` matchers and
+    the demo-readonly branch without loading full application infrastructure.
+    - `src/test/java/com/smartsupplypro/inventory/security/SecurityConfigAuthorizationRulesTest.java`
+    - `src/test/java/com/smartsupplypro/inventory/security/SecurityConfigDemoReadonlyAuthorizationTest.java`
+
+- **Smoke tests (wiring + high-confidence checks):** Validate that a lean MVC slice can boot using the
+    production configuration and that key endpoints behave as expected.
+    - `src/test/java/com/smartsupplypro/inventory/security/SecuritySmokeTest.java`
+
+### Relationship to TestSecurityConfig
+
+`TestSecurityConfig` is still recommended for most controller tests to keep them focused and fast.
+The suites above exist specifically to ensure the production security configuration remains correct
+even when controllers are tested with simplified security.
+
+---
+
 ## Spring Security Test Annotations
 
 ### @WithMockUser
