@@ -11,9 +11,25 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 
 /**
- * Unit test class for {@link StockHistoryValidator}, verifying business rules and input validation
- * for stock history changes in the inventory system. Covers edge cases including invalid input,
- * blank fields, unsupported change reasons, and correct handling of enum values.
+ * Unit tests for {@link StockHistoryValidator}.
+ *
+ * <p><strong>Purpose</strong></p>
+ * Verifies the validator contract for stock-history input: required fields, reason parsing, and
+ * the rule that zero-delta changes are only permitted for {@link StockChangeReason#PRICE_CHANGE}.
+ * This suite intentionally exercises the validator directly (unit-level), not via service or
+ * controller entrypoints.
+ *
+ * <p><strong>Operations Tested</strong></p>
+ * <ul>
+ *   <li>{@link StockHistoryValidator#validate(StockHistoryDTO)} required-field and business-rule checks</li>
+ *   <li>Reason parsing against {@link StockChangeReason} (case sensitivity and invalid values)</li>
+ * </ul>
+ *
+ * <p><strong>Design Notes</strong></p>
+ * <ul>
+ *   <li>Assertions on exception messages are limited to user-facing contract strings.</li>
+ *   <li>Enum iteration test ensures all supported reasons remain accepted for non-zero deltas.</li>
+ * </ul>
  */
 @SuppressWarnings("unused")
 @ActiveProfiles("test")
@@ -39,6 +55,7 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testValidDTO_shouldPass() {
+        // GIVEN/WHEN/THEN
         assertDoesNotThrow(() -> StockHistoryValidator.validate(validDTO()));
     }
 
@@ -48,11 +65,15 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testEmptyItemId_shouldThrow() {
+        // GIVEN: missing item id
         StockHistoryDTO dto = validDTO();
         dto.setItemId(null);
 
+        // WHEN
         var e = assertThrows(InvalidRequestException.class, () ->
                 StockHistoryValidator.validate(dto));
+
+        // THEN
         assertEquals("Item ID cannot be null or empty", e.getMessage());
     }
 
@@ -62,11 +83,15 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testZeroChange_shouldThrow() {
+        // GIVEN: change delta is zero (non-PRICE_CHANGE reason)
         StockHistoryDTO dto = validDTO();
         dto.setChange(0);
 
+        // WHEN
         var e = assertThrows(InvalidRequestException.class, () ->
                 StockHistoryValidator.validate(dto));
+
+        // THEN
         assertEquals("Zero quantity change is only allowed for PRICE_CHANGE", e.getMessage());
     }
 
@@ -76,11 +101,15 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testInvalidReason_shouldThrow() {
+        // GIVEN: reason string not present in StockChangeReason
         StockHistoryDTO dto = validDTO();
         dto.setReason("DONATED");
 
+        // WHEN
         var e = assertThrows(InvalidRequestException.class, () ->
                 StockHistoryValidator.validate(dto));
+
+        // THEN
         assertEquals("Invalid stock change reason: DONATED", e.getMessage());
     }
 
@@ -89,11 +118,15 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testNullCreatedBy_shouldThrow() {
+        // GIVEN: missing audit/user field
         StockHistoryDTO dto = validDTO();
         dto.setCreatedBy(null);
 
+        // WHEN
         var e = assertThrows(InvalidRequestException.class, () ->
                 StockHistoryValidator.validate(dto));
+
+        // THEN
         assertEquals("CreatedBy must be provided", e.getMessage());
     }
 
@@ -102,11 +135,15 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testBlankCreatedBy_shouldThrow() {
+        // GIVEN: blank audit/user field
         StockHistoryDTO dto = validDTO();
         dto.setCreatedBy(" ");
 
+        // WHEN
         var e = assertThrows(InvalidRequestException.class, () ->
                 StockHistoryValidator.validate(dto));
+
+        // THEN
         assertEquals("CreatedBy must be provided", e.getMessage());
     }
 
@@ -116,9 +153,10 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testValidReason_shouldNotThrow() {
+        // GIVEN/WHEN/THEN: all supported reasons should validate when delta is non-zero
         for (StockChangeReason reason : StockChangeReason.values()) {
             StockHistoryDTO dto = validDTO();
-            dto.setReason(reason.name()); // change remains 5, so even PRICE_CHANGE is fine
+            dto.setReason(reason.name()); // change remains 5, so even PRICE_CHANGE is valid
             assertDoesNotThrow(() -> StockHistoryValidator.validate(dto));
         }
     }
@@ -129,11 +167,15 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testLowercaseReason_shouldThrow() {
+        // GIVEN: reason uses incorrect case (validator parses via enum name)
         StockHistoryDTO dto = validDTO();
-        dto.setReason("sold"); // not uppercase
+        dto.setReason("sold");
 
+        // WHEN
         var e = assertThrows(InvalidRequestException.class, () ->
                 StockHistoryValidator.validate(dto));
+
+        // THEN
         assertEquals("Invalid stock change reason: sold", e.getMessage());
     }
 }

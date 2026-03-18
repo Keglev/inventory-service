@@ -14,20 +14,27 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 /**
+ * # StockChangeReasonTest
+ *
  * Unit tests for {@link StockChangeReason}.
  *
- * <p>Why this test exists:
+ * <p><strong>Purpose</strong></p>
+ * {@link StockChangeReason} is a domain enum with executable logic (parsing helpers, classification
+ * helpers, and category sets). In practice, the enum constants are referenced all over the codebase,
+ * but JaCoCo will still report missed instructions if the helper methods are never executed.
+ * This suite keeps the enum's behavior explicit, stable, and independently verifiable.
+ *
+ * <p><strong>Operations Tested</strong></p>
  * <ul>
- *   <li>Enums often appear "covered" because constants are referenced by other tests, but JaCoCo
- *       still reports missed instructions if enum helper methods are not executed.</li>
- *   <li>{@link StockChangeReason} contains business-logic helpers (switch expressions, parsing,
- *       and category sets) that are part of the domain contract and should remain stable.</li>
+ *   <li>{@link StockChangeReason#parseReason(String)}: normalization + fail-fast error messaging</li>
+ *   <li>Classification helpers: manager-approval, compliance documentation, audit severity</li>
+ *   <li>Category sets: customer/supplier/loss/security-sensitive reason groupings</li>
  * </ul>
  *
- * <p>Scope:
+ * <p><strong>Design Notes</strong></p>
  * <ul>
- *   <li>Validates the behavior of enum helper methods.</li>
- *   <li>Does not attempt to validate service-layer behavior that happens to use this enum.</li>
+ *   <li>Assert on exception messages only where they are part of the contract (public API).</li>
+ *   <li>Prefer intent-focused assertions (membership and mapping) over brittle ordering checks.</li>
  * </ul>
  */
 class StockChangeReasonTest {
@@ -35,6 +42,7 @@ class StockChangeReasonTest {
     @Test
     @DisplayName("parseReason: trims, normalizes case, and maps to enum")
     void parseReason_trimsAndNormalizes() {
+        // GIVEN/WHEN/THEN: parsing should be tolerant of whitespace and case.
         assertSame(StockChangeReason.SOLD, StockChangeReason.parseReason("sold"));
         assertSame(StockChangeReason.SOLD, StockChangeReason.parseReason(" SOLD "));
         assertSame(StockChangeReason.RETURNED_BY_CUSTOMER,
@@ -44,10 +52,12 @@ class StockChangeReasonTest {
     @Test
     @DisplayName("parseReason: rejects null and blank")
     void parseReason_rejectsNullAndBlank() {
+        // GIVEN/WHEN: null input
         IllegalArgumentException nullEx = assertThrows(IllegalArgumentException.class,
                 () -> StockChangeReason.parseReason(null));
         assertTrue(nullEx.getMessage().toLowerCase().contains("cannot be null or empty"));
 
+        // GIVEN/WHEN: blank input
         IllegalArgumentException blankEx = assertThrows(IllegalArgumentException.class,
                 () -> StockChangeReason.parseReason("   "));
         assertTrue(blankEx.getMessage().toLowerCase().contains("cannot be null or empty"));
@@ -56,9 +66,11 @@ class StockChangeReasonTest {
     @Test
     @DisplayName("parseReason: rejects unknown values with an informative exception")
     void parseReason_rejectsUnknownWithContext() {
+        // WHEN
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> StockChangeReason.parseReason("not-a-reason"));
 
+        // THEN: keep a human-readable error and preserve the underlying cause.
         assertNotNull(ex.getCause());
         assertTrue(ex.getMessage().contains("Invalid stock change reason"));
         assertTrue(ex.getMessage().contains("Valid options"));
@@ -67,8 +79,10 @@ class StockChangeReasonTest {
     @Test
     @DisplayName("affectsQuantity: PRICE_CHANGE is the only non-quantity reason")
     void affectsQuantity_priceChangeIsFalseOthersTrue() {
+        // GIVEN: PRICE_CHANGE is a financial update only (quantity unchanged).
         assertFalse(StockChangeReason.PRICE_CHANGE.affectsQuantity());
 
+        // THEN: all remaining reasons are treated as quantity-affecting.
         for (StockChangeReason reason : StockChangeReason.values()) {
             if (reason != StockChangeReason.PRICE_CHANGE) {
                 assertTrue(reason.affectsQuantity(), () -> reason + " should affect quantity");
@@ -103,10 +117,11 @@ class StockChangeReasonTest {
     @ParameterizedTest(name = "getAuditSeverity: {0}")
     @EnumSource(StockChangeReason.class)
     void getAuditSeverity_expectedMapping(StockChangeReason reason) {
+        // WHEN
         StockChangeReason.AuditSeverity severity = reason.getAuditSeverity();
         assertNotNull(severity);
 
-        // Validate the intended mapping groups to ensure all switch arms execute.
+        // THEN: validate the intended mapping groups (covers all switch arms).
         StockChangeReason.AuditSeverity expected = switch (reason) {
             case DESTROYED, LOST -> StockChangeReason.AuditSeverity.CRITICAL;
             case INITIAL_STOCK, SOLD -> StockChangeReason.AuditSeverity.HIGH;
@@ -126,6 +141,7 @@ class StockChangeReasonTest {
     @Test
     @DisplayName("Static category sets: contain the expected reasons")
     void staticCategorySets_haveExpectedMembership() {
+        // These sets are part of the domain contract (used by analytics/audit/security decisions).
         assertEquals(Set.of(
                 StockChangeReason.SCRAPPED,
                 StockChangeReason.DESTROYED,
