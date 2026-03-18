@@ -177,7 +177,8 @@
         patterns. The test suite covers:</p>
         <ul>
         <li><strong>Unit Tests</strong> - Individual components in
-        isolation (validators, services, repositories)</li>
+        isolation (validators, services, repositories, enum
+        helpers)</li>
         <li><strong>Integration Tests</strong> - Component interaction
         with databases and frameworks</li>
         <li><strong>Security Tests</strong> - OAuth2, authorization,
@@ -306,6 +307,9 @@
         <h3 id="directory-structure">Directory Structure</h3>
         <pre><code>src/test/java/com/smartsupplypro/inventory/
 ├── InventoryServiceApplicationTest.java          (Context load smoke test)
+│
+├── enums/
+│   └── StockChangeReasonTest.java                (Unit: enum helper methods + parsing)
 │
 ├── validation/
 │   ├── InventoryItemValidatorTest.java           (Unit: 159 lines)
