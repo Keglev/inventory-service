@@ -39,13 +39,13 @@ public class InventoryItemValidator {
      * @throws IllegalArgumentException if validation fails
      */
     public static void validateBase(InventoryItemDTO dto) {
-<span class="pc bpc" id="L42" title="1 of 4 branches missed.">        if (dto.getName() == null || dto.getName().trim().isEmpty()) {</span>
+<span class="fc bfc" id="L42" title="All 4 branches covered.">        if (dto.getName() == null || dto.getName().trim().isEmpty()) {</span>
 <span class="fc" id="L43">            throw new IllegalArgumentException(&quot;Product name cannot be null or empty&quot;);</span>
         }
 <span class="fc bfc" id="L45" title="All 2 branches covered.">        if (dto.getQuantity() &lt; 0) {</span>
 <span class="fc" id="L46">            throw new IllegalArgumentException(&quot;Quantity cannot be negative&quot;);</span>
         }
-<span class="pc bpc" id="L48" title="1 of 4 branches missed.">        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc bfc" id="L48" title="All 4 branches covered.">        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
 <span class="fc" id="L49">            throw new IllegalArgumentException(&quot;Price must be positive or greater than zero&quot;);</span>
         }
 <span class="pc bpc" id="L51" title="1 of 4 branches missed.">        if (dto.getSupplierId() == null || dto.getSupplierId().trim().isEmpty()) {</span>
@@ -68,14 +68,14 @@ public class InventoryItemValidator {
     public static void validateInventoryItemNotExists(
     String id, String name, BigDecimal price, InventoryItemRepository inventoryRepo) {
 <span class="fc" id="L70">        List&lt;InventoryItem&gt; existingItems = inventoryRepo.findByNameIgnoreCase(name);</span>
-<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        for (InventoryItem item : existingItems) {</span>
-<span class="pc bpc" id="L72" title="2 of 4 branches missed.">            if (!item.getId().equals(id) &amp;&amp; item.getPrice().compareTo(price) == 0) {</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        for (InventoryItem item : existingItems) {</span>
+<span class="fc bfc" id="L72" title="All 4 branches covered.">            if (!item.getId().equals(id) &amp;&amp; item.getPrice().compareTo(price) == 0) {</span>
 <span class="fc" id="L73">                throw new DuplicateResourceException(</span>
                 &quot;Another inventory item with this name and price already exists.&quot;
                 );
             }
-<span class="nc" id="L77">        }</span>
-<span class="nc" id="L78">    }</span>
+<span class="fc" id="L77">        }</span>
+<span class="fc" id="L78">    }</span>
     
     /**
      * Validates no duplicate item exists with same name and price (for updates).
@@ -88,9 +88,9 @@ public class InventoryItemValidator {
     public static void validateInventoryItemNotExists(
     String name, BigDecimal price, InventoryItemRepository inventoryRepo) {
 <span class="fc" id="L90">        List&lt;InventoryItem&gt; existingItems = inventoryRepo.findByNameIgnoreCase(name);</span>
-<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        for (InventoryItem item : existingItems) {</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (item.getPrice().compareTo(price) == 0) {</span>
-<span class="nc" id="L93">                throw new DuplicateResourceException(</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        for (InventoryItem item : existingItems) {</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">            if (item.getPrice().compareTo(price) == 0) {</span>
+<span class="fc" id="L93">                throw new DuplicateResourceException(</span>
                 &quot;An inventory item with this name and price already exists.&quot;
                 );
             }
@@ -107,7 +107,7 @@ public class InventoryItemValidator {
      */
     public static InventoryItem validateExists(String id, InventoryItemRepository inventoryRepo) {
 <span class="fc" id="L109">        return inventoryRepo.findById(id).orElseThrow(() -&gt;</span>
-<span class="nc" id="L110">        new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found: &quot; + id)</span>
+<span class="fc" id="L110">        new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found: &quot; + id)</span>
         );
     }
     
@@ -133,7 +133,7 @@ public class InventoryItemValidator {
      * @throws ResponseStatusException 422 if null or not positive
      */
     public static void assertPriceValid(BigDecimal price) {
-<span class="pc bpc" id="L136" title="1 of 4 branches missed.">        if (price == null || price.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc bfc" id="L136" title="All 4 branches covered.">        if (price == null || price.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
 <span class="fc" id="L137">            throw new ResponseStatusException(</span>
             HttpStatus.UNPROCESSABLE_ENTITY,
             &quot;Price must be greater than zero&quot;

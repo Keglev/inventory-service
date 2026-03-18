@@ -32,20 +32,20 @@ public class StockHistoryValidator {
      * @throws InvalidRequestException if validation fails
      */
     public static void validate(StockHistoryDTO dto) {
-<span class="pc bpc" id="L35" title="1 of 4 branches missed.">    if (dto.getItemId() == null || dto.getItemId().isBlank()) {</span>
+<span class="fc bfc" id="L35" title="All 4 branches covered.">    if (dto.getItemId() == null || dto.getItemId().isBlank()) {</span>
 <span class="fc" id="L36">      throw new InvalidRequestException(&quot;Item ID cannot be null or empty&quot;);</span>
     }
 
     final StockChangeReason reason;
     try {
-<span class="pc bpc" id="L41" title="1 of 2 branches missed.">      reason = dto.getReason() == null ? null : StockChangeReason.valueOf(dto.getReason());</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">      reason = dto.getReason() == null ? null : StockChangeReason.valueOf(dto.getReason());</span>
 <span class="fc" id="L42">    } catch (IllegalArgumentException ex) {</span>
 <span class="fc" id="L43">      throw new InvalidRequestException(&quot;Invalid stock change reason: &quot; + dto.getReason());</span>
 <span class="fc" id="L44">    }</span>
-<span class="pc bpc" id="L45" title="1 of 2 branches missed.">    if (reason == null) throw new InvalidRequestException(&quot;Stock change reason is required&quot;);</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">    if (reason == null) throw new InvalidRequestException(&quot;Stock change reason is required&quot;);</span>
 
     // zero delta only for PRICE_CHANGE
-<span class="pc bpc" id="L48" title="1 of 4 branches missed.">    if (dto.getChange() == 0 &amp;&amp; reason != StockChangeReason.PRICE_CHANGE) {</span>
+<span class="fc bfc" id="L48" title="All 4 branches covered.">    if (dto.getChange() == 0 &amp;&amp; reason != StockChangeReason.PRICE_CHANGE) {</span>
 <span class="fc" id="L49">      throw new InvalidRequestException(&quot;Zero quantity change is only allowed for PRICE_CHANGE&quot;);</span>
     }
 
@@ -56,9 +56,9 @@ public class StockHistoryValidator {
 
     // optional: non-negative price for PRICE_CHANGE
 <span class="fc bfc" id="L58" title="All 2 branches covered.">    if (reason == StockChangeReason.PRICE_CHANGE &amp;&amp;</span>
-<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        dto.getPriceAtChange() != null &amp;&amp;</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        dto.getPriceAtChange().signum() &lt; 0) {</span>
-<span class="nc" id="L61">      throw new InvalidRequestException(&quot;priceAtChange must be &gt;= 0 for PRICE_CHANGE&quot;);</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        dto.getPriceAtChange() != null &amp;&amp;</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        dto.getPriceAtChange().signum() &lt; 0) {</span>
+<span class="fc" id="L61">      throw new InvalidRequestException(&quot;priceAtChange must be &gt;= 0 for PRICE_CHANGE&quot;);</span>
     }
 <span class="fc" id="L63">  }</span>
 
@@ -77,7 +77,7 @@ public class StockHistoryValidator {
                 StockChangeReason.INITIAL_STOCK,
                 StockChangeReason.MANUAL_UPDATE,
                 StockChangeReason.PRICE_CHANGE
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        ).contains(reason)) {</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        ).contains(reason)) {</span>
 <span class="fc" id="L81">            throw new IllegalArgumentException(&quot;Invalid stock change reason: &quot; + reason);</span>
         }
 <span class="fc" id="L83">    }</span>

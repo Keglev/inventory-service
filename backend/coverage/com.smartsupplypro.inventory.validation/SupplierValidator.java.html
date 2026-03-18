@@ -50,7 +50,7 @@ public final class SupplierValidator {
      * @throws DuplicateResourceException if name already exists
      */
     public static void assertUniqueName(SupplierRepository repo, String name, String excludeId) {
-<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        if (isBlank(name)) return; // validateBase already handles blank</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (isBlank(name)) return; // validateBase already handles blank</span>
 <span class="fc" id="L54">        String trimmed = name.trim();</span>
 
 <span class="fc" id="L56">        var existingOpt = repo.findByNameIgnoreCase(trimmed).map(s -&gt; (Object) s);</span>
@@ -76,7 +76,7 @@ public final class SupplierValidator {
 <span class="fc bfc" id="L76" title="All 2 branches covered.">        if (isBlank(supplierId)) {</span>
 <span class="fc" id="L77">            throw new InvalidRequestException(&quot;Supplier id must be provided for deletion&quot;);</span>
         }
-<span class="pc bpc" id="L79" title="1 of 4 branches missed.">        if (hasAnyLinks != null &amp;&amp; hasAnyLinks.getAsBoolean()) {</span>
+<span class="fc bfc" id="L79" title="All 4 branches covered.">        if (hasAnyLinks != null &amp;&amp; hasAnyLinks.getAsBoolean()) {</span>
 <span class="fc" id="L80">            throw new IllegalStateException(&quot;Cannot delete supplier with linked items&quot;);</span>
         }
 <span class="fc" id="L82">    }</span>
@@ -98,8 +98,8 @@ public final class SupplierValidator {
 <span class="fc" id="L98">            var m = entity.getClass().getMethod(&quot;getId&quot;);</span>
 <span class="fc" id="L99">            Object v = m.invoke(entity);</span>
 <span class="pc bpc" id="L100" title="1 of 2 branches missed.">            return v != null ? v.toString() : null;</span>
-<span class="nc" id="L101">        } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException | SecurityException e) {</span>
-<span class="nc" id="L102">            return null; // keep existing behavior: silently fall back</span>
+<span class="fc" id="L101">        } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException | SecurityException e) {</span>
+<span class="fc" id="L102">            return null; // keep existing behavior: silently fall back</span>
         }
     }
 }
