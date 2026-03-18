@@ -230,8 +230,13 @@
         <code>@Mock</code> for dependencies, <code>@InjectMocks</code>
         for target class</p>
         <p><strong>Examples:</strong> - Validator tests
-        (InventoryItemValidatorTest, SupplierValidatorTest) - Service
-        method tests with mocked repositories - Converter tests
+        (InventoryItemValidatorTest,
+        InventoryItemValidatorBusinessRulesTest, SupplierValidatorTest,
+        SupplierValidatorUniquenessAndDeletionEdgeCasesTest,
+        StockHistoryValidationTest,
+        StockHistoryValidatorPriceChangeAndEnumValidationTest,
+        InventoryItemSecurityValidatorTest) - Service method tests with
+        mocked repositories - Converter tests
         (AnalyticsServiceImplConverterTest,
         AnalyticsConverterHelperTest) - Exception tests (e.g.,
         GlobalExceptionHandlerTest, BusinessExceptionHandlerTest)</p>
@@ -313,8 +318,12 @@
 │
 ├── validation/
 │   ├── InventoryItemValidatorTest.java           (Unit: 159 lines)
+│   ├── InventoryItemValidatorBusinessRulesTest.java (Unit: incremental business rule branches)
+│   ├── InventoryItemSecurityValidatorTest.java    (Unit: RBAC/field-level update guards)
 │   ├── SupplierValidatorTest.java                (Unit: ~100 lines)
-│   └── StockHistoryValidationTest.java           (Unit: ~100 lines)
+│   ├── SupplierValidatorUniquenessAndDeletionEdgeCasesTest.java (Unit: uniqueness + deletion edge cases)
+│   ├── StockHistoryValidationTest.java           (Unit: ~100 lines)
+│   └── StockHistoryValidatorPriceChangeAndEnumValidationTest.java (Unit: PRICE_CHANGE + enum whitelist)
 │
 ├── service/
 │   ├── SecurityServiceTest.java                  (Unit: demo-mode principal checks)
@@ -514,13 +523,14 @@ src/test/resources/
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> test <span class="at">-Dtest</span><span class="op">=</span>SupplierRepositoryTest</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Run tests matching pattern</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> test <span class="at">-Dtest</span><span class="op">=</span><span class="pp">*</span>ValidatorTest</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Run with detailed output</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> test <span class="at">-X</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Skip tests during build</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> clean package <span class="at">-DskipTests</span></span></code></pre></div>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: validator-related tests include both *Validator*Test and *Validation*Test suites.</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> test <span class="at">-Dtest</span><span class="op">=</span><span class="pp">*</span>Validator<span class="pp">*</span>Test,<span class="pp">*</span>Validation<span class="pp">*</span>Test</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Run with detailed output</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> test <span class="at">-X</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Skip tests during build</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> clean package <span class="at">-DskipTests</span></span></code></pre></div>
         <h3 id="ide-integration">IDE Integration</h3>
         <p><strong>IntelliJ IDEA:</strong> - Right-click test class →
         Run ‘TestClassName’ - Right-click test method → Run

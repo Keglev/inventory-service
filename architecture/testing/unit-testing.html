@@ -258,6 +258,24 @@
         <code>src/test/java/com/smartsupplypro/inventory/enums/StockChangeReasonTest.java</code></p>
         <hr />
         <h2 id="validator-unit-tests">Validator Unit Tests</h2>
+        <p>In this repository, validator tests are organized as a small
+        set of focused suites so that each validator contract (base DTO
+        checks, uniqueness rules, authorization/field-level guards, and
+        special-case business rules) can be exercised directly without
+        duplicating service/controller tests.</p>
+        <p>Current validator-related suites under
+        <code>src/test/java/com/smartsupplypro/inventory/validation/</code>:
+        - <code>InventoryItemValidatorTest</code> -
+        <code>InventoryItemValidatorBusinessRulesTest</code>
+        (incremental business rule branches) -
+        <code>InventoryItemSecurityValidatorTest</code>
+        (RBAC/field-level update guards) -
+        <code>SupplierValidatorTest</code> -
+        <code>SupplierValidatorUniquenessAndDeletionEdgeCasesTest</code>
+        (incremental edge cases) -
+        <code>StockHistoryValidationTest</code> -
+        <code>StockHistoryValidatorPriceChangeAndEnumValidationTest</code>
+        (PRICE_CHANGE + enum whitelist)</p>
         <h3 id="example-inventoryitemvalidatortest">Example:
         InventoryItemValidatorTest</h3>
         <div class="sourceCode" id="cb3"><pre
