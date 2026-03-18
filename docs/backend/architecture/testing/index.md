@@ -54,7 +54,9 @@ graph TB
 - `@Mock` for dependencies, `@InjectMocks` for target class
 
 **Examples:**
-- Validator tests (InventoryItemValidatorTest, SupplierValidatorTest)
+- Validator tests (InventoryItemValidatorTest, InventoryItemValidatorBusinessRulesTest, SupplierValidatorTest,
+  SupplierValidatorUniquenessAndDeletionEdgeCasesTest, StockHistoryValidationTest,
+  StockHistoryValidatorPriceChangeAndEnumValidationTest, InventoryItemSecurityValidatorTest)
 - Service method tests with mocked repositories
 - Converter tests (AnalyticsServiceImplConverterTest, AnalyticsConverterHelperTest)
 - Exception tests (e.g., GlobalExceptionHandlerTest, BusinessExceptionHandlerTest)
@@ -161,8 +163,12 @@ src/test/java/com/smartsupplypro/inventory/
 │
 ├── validation/
 │   ├── InventoryItemValidatorTest.java           (Unit: 159 lines)
+│   ├── InventoryItemValidatorBusinessRulesTest.java (Unit: incremental business rule branches)
+│   ├── InventoryItemSecurityValidatorTest.java    (Unit: RBAC/field-level update guards)
 │   ├── SupplierValidatorTest.java                (Unit: ~100 lines)
-│   └── StockHistoryValidationTest.java           (Unit: ~100 lines)
+│   ├── SupplierValidatorUniquenessAndDeletionEdgeCasesTest.java (Unit: uniqueness + deletion edge cases)
+│   ├── StockHistoryValidationTest.java           (Unit: ~100 lines)
+│   └── StockHistoryValidatorPriceChangeAndEnumValidationTest.java (Unit: PRICE_CHANGE + enum whitelist)
 │
 ├── service/
 │   ├── SecurityServiceTest.java                  (Unit: demo-mode principal checks)
@@ -380,7 +386,8 @@ mvn clean verify
 mvn test -Dtest=SupplierRepositoryTest
 
 # Run tests matching pattern
-mvn test -Dtest=*ValidatorTest
+# Note: validator-related tests include both *Validator*Test and *Validation*Test suites.
+mvn test -Dtest=*Validator*Test,*Validation*Test
 
 # Run with detailed output
 mvn test -X

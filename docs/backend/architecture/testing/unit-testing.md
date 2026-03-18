@@ -78,6 +78,19 @@ Concrete example in this repository:
 
 ## Validator Unit Tests
 
+In this repository, validator tests are organized as a small set of focused suites so that each
+validator contract (base DTO checks, uniqueness rules, authorization/field-level guards, and
+special-case business rules) can be exercised directly without duplicating service/controller tests.
+
+Current validator-related suites under `src/test/java/com/smartsupplypro/inventory/validation/`:
+- `InventoryItemValidatorTest`
+- `InventoryItemValidatorBusinessRulesTest` (incremental business rule branches)
+- `InventoryItemSecurityValidatorTest` (RBAC/field-level update guards)
+- `SupplierValidatorTest`
+- `SupplierValidatorUniquenessAndDeletionEdgeCasesTest` (incremental edge cases)
+- `StockHistoryValidationTest`
+- `StockHistoryValidatorPriceChangeAndEnumValidationTest` (PRICE_CHANGE + enum whitelist)
+
 ### Example: InventoryItemValidatorTest
 
 ```java
