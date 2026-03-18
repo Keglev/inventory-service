@@ -61,6 +61,21 @@ assertFalse(condition);
 
 ---
 
+## Enum Unit Tests
+
+Enums often look "covered" because other tests reference constants, but JaCoCo will still report missed
+instructions if the enum contains executable logic (helper methods, parsing, switch expressions, static
+category sets) that is never invoked.
+
+Guideline:
+- If an enum contains non-trivial methods, add a small unit test in `src/test/java/.../enums/` that calls
+    the helper methods directly.
+
+Concrete example in this repository:
+- `src/test/java/com/smartsupplypro/inventory/enums/StockChangeReasonTest.java`
+
+---
+
 ## Validator Unit Tests
 
 ### Example: InventoryItemValidatorTest
