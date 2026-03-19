@@ -177,7 +177,7 @@
         patterns. The test suite covers:</p>
         <ul>
         <li><strong>Unit Tests</strong> - Individual components in
-        isolation (validators, services, repositories, enum
+        isolation (mappers, validators, services, repositories, enum
         helpers)</li>
         <li><strong>Integration Tests</strong> - Component interaction
         with databases and frameworks</li>
@@ -315,6 +315,11 @@
 │
 ├── enums/
 │   └── StockChangeReasonTest.java                (Unit: enum helper methods + parsing)
+│
+├── mapper/
+│   ├── InventoryItemMapperTest.java              (Unit: entity/DTO mapping + computed fields)
+│   ├── StockHistoryMapperTest.java               (Unit: audit mapping + enum/string conversion)
+│   └── SupplierMapperTest.java                   (Unit: sanitization + audit field handling)
 │
 ├── validation/
 │   ├── InventoryItemValidatorTest.java           (Unit: 159 lines)

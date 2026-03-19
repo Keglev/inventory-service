@@ -94,6 +94,8 @@
         </ul></li>
         <li><a href="#enum-unit-tests" id="toc-enum-unit-tests">Enum
         Unit Tests</a></li>
+        <li><a href="#mapper-unit-tests"
+        id="toc-mapper-unit-tests">Mapper Unit Tests</a></li>
         <li><a href="#validator-unit-tests"
         id="toc-validator-unit-tests">Validator Unit Tests</a>
         <ul>
@@ -256,6 +258,29 @@
         calls the helper methods directly.</p>
         <p>Concrete example in this repository: -
         <code>src/test/java/com/smartsupplypro/inventory/enums/StockChangeReasonTest.java</code></p>
+        <hr />
+        <h2 id="mapper-unit-tests">Mapper Unit Tests</h2>
+        <p>Mappers in this repository are static utility classes that
+        often include executable logic beyond simple field copies
+        (null-safety branches, computed fields, string sanitization,
+        enum parsing, and utility-class constructor guards). These
+        details are frequently exercised only indirectly via
+        service/controller tests, which can leave JaCoCo reporting
+        missed branches/instructions.</p>
+        <p>Guideline: - If a mapper contains non-trivial logic or
+        defensive branches, add a small unit test under
+        <code>src/test/java/com/smartsupplypro/inventory/mapper/</code>
+        that calls the mapper methods directly.</p>
+        <p>Concrete examples in this repository: -
+        <code>src/test/java/com/smartsupplypro/inventory/mapper/InventoryItemMapperTest.java</code>
+        -
+        <code>src/test/java/com/smartsupplypro/inventory/mapper/StockHistoryMapperTest.java</code>
+        -
+        <code>src/test/java/com/smartsupplypro/inventory/mapper/SupplierMapperTest.java</code></p>
+        <p>Design note: - Prefer black-box tests via public mapper
+        methods. Use reflection only when required to cover a private
+        helper branch that cannot be reliably triggered through the
+        public mapping API.</p>
         <hr />
         <h2 id="validator-unit-tests">Validator Unit Tests</h2>
         <p>In this repository, validator tests are organized as a small
