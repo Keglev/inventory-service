@@ -97,6 +97,8 @@
         2:
         <code>mockOAuth2Authentication(email, roles...)</code></a></li>
         </ul></li>
+        <li><a href="#customuserservicetestsupport"
+        id="toc-customuserservicetestsupport">CustomUserServiceTestSupport</a></li>
         <li><a href="#oauth2-authentication-setup"
         id="toc-oauth2-authentication-setup">OAuth2 Authentication
         Setup</a>
@@ -173,6 +175,8 @@
         <li><a href="#test-helper-pattern">Test Helper Pattern</a></li>
         <li><a
         href="#inventoryitemserviceimpltesthelper">InventoryItemServiceImplTestHelper</a></li>
+        <li><a
+        href="#customuserservicetestsupport">CustomUserServiceTestSupport</a></li>
         <li><a href="#oauth2-authentication-setup">OAuth2 Authentication
         Setup</a></li>
         <li><a href="#test-data-builders">Test Data Builders</a></li>
@@ -342,6 +346,27 @@
         attributes - Prefer simpler setup over authenticity</p>
         <p><strong>Prefer <code>authenticateAsOAuth2()</code>
         instead</strong> for most cases.</p>
+        <hr />
+        <h2
+        id="customuserservicetestsupport">CustomUserServiceTestSupport</h2>
+        <p><strong>Location:</strong>
+        <code>src/test/java/com/smartsupplypro/inventory/service/CustomUserServiceTestSupport.java</code></p>
+        <p><strong>Purpose:</strong> Centralizes deterministic unit-test
+        setup for <code>CustomOAuth2UserService</code> and
+        <code>CustomOidcUserService</code>.</p>
+        <p><strong>What it provides:</strong> - Upstream principal
+        stubs: <code>oauth2UserWithAttributes(...)</code>,
+        <code>upstreamOidcUser(...)</code> - Service factory methods
+        that override the provider call <em>and</em> the admin decision
+        seam: <code>oauth2Service(repo, upstream, isAdmin)</code> and
+        <code>oidcService(repo, upstream, isAdmin)</code> - Reflection
+        helpers to cover private role/authority normalization methods
+        without duplicating boilerplate</p>
+        <p><strong>Why it exists:</strong> The production services
+        consult <code>APP_ADMIN_EMAILS</code> and delegate to
+        provider-specific Spring services. For unit tests, this helper
+        keeps tests fast and stable by avoiding network calls and
+        avoiding any dependence on the local/CI environment.</p>
         <hr />
         <h2 id="oauth2-authentication-setup">OAuth2 Authentication
         Setup</h2>

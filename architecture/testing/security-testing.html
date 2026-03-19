@@ -373,22 +373,27 @@ testing/security-testing · Smart Supply Pro Docs</title>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">missingEmail_isRejected</span><span class="op">()</span> <span class="op">{</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        AppUserRepository repo <span class="op">=</span> <span class="fu">mock</span><span class="op">(</span>AppUserRepository<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        CustomOAuth2UserService svc <span class="op">=</span> <span class="kw">new</span> <span class="fu">CustomOAuth2UserService</span><span class="op">(</span>repo<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">@Override</span> <span class="kw">protected</span> OAuth2User <span class="fu">loadFromProvider</span><span class="op">(</span>OAuth2UserRequest req<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> <span class="fu">oauthUserWithAttributes</span><span class="op">(</span><span class="bu">Map</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">,</span> <span class="st">&quot;Alice&quot;</span><span class="op">));</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// The repository supports deterministic unit tests via the shared helper:</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// - stub the upstream principal</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// - override provider call and the admin decision</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        OAuth2User upstream <span class="op">=</span> <span class="fu">oauth2UserWithAttributes</span><span class="op">(</span><span class="bu">Map</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">,</span> <span class="st">&quot;Alice&quot;</span><span class="op">));</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        CustomOAuth2UserService svc <span class="op">=</span> <span class="fu">oauth2Service</span><span class="op">(</span>repo<span class="op">,</span> upstream<span class="op">,</span> <span class="kw">false</span><span class="op">);</span> <span class="co">// isAdmin=false</span></span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThatThrownBy</span><span class="op">(()</span> <span class="op">-&gt;</span> svc<span class="op">.</span><span class="fu">loadUser</span><span class="op">(</span><span class="fu">mock</span><span class="op">(</span>OAuth2UserRequest<span class="op">.</span><span class="fu">class</span><span class="op">)))</span></span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">isInstanceOf</span><span class="op">(</span>OAuth2AuthenticationException<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
         <p>See the concrete implementation in the test suite:
-        <code>src/test/java/com/smartsupplypro/inventory/service/CustomOAuth2UserServiceTest.java</code>.</p>
-        <p>Notes: - The service reads <code>APP_ADMIN_EMAILS</code>
-        directly from the process environment; unit tests should avoid
-        depending on local/CI environment by using a random email that
-        is extremely unlikely to be in the allow-list. -
+        <code>src/test/java/com/smartsupplypro/inventory/service/CustomOAuth2UserServiceTest.java</code>,
+        <code>src/test/java/com/smartsupplypro/inventory/service/CustomOAuth2UserServiceRoleHealingTest.java</code>,
+        <code>src/test/java/com/smartsupplypro/inventory/service/CustomUserServiceNormalizationTest.java</code>,
+        and the shared fixture
+        <code>src/test/java/com/smartsupplypro/inventory/service/CustomUserServiceTestSupport.java</code>.</p>
+        <p>Notes: - The service reads <code>APP_ADMIN_EMAILS</code> from
+        the process environment in production. Unit tests in this
+        repository avoid CI/environment dependence by overriding
+        <code>isAdminEmail(...)</code> via
+        <code>CustomUserServiceTestSupport</code>. -
         <code>OAuth2AuthenticationException</code> may have a
         <code>null</code> message; assert on
         <code>ex.getError().getErrorCode()</code>.</p>
@@ -408,22 +413,24 @@ testing/security-testing · Smart Supply Pro Docs</title>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">missingEmail_isRejected</span><span class="op">()</span> <span class="op">{</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        AppUserRepository repo <span class="op">=</span> <span class="fu">mock</span><span class="op">(</span>AppUserRepository<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        CustomOidcUserService svc <span class="op">=</span> <span class="kw">new</span> <span class="fu">CustomOidcUserService</span><span class="op">(</span>repo<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">@Override</span> <span class="kw">protected</span> OidcUser <span class="fu">loadFromProvider</span><span class="op">(</span>OidcUserRequest req<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> <span class="fu">upstreamOidcUser</span><span class="op">(</span><span class="kw">null</span><span class="op">,</span> <span class="st">&quot;Alice&quot;</span><span class="op">);</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThatThrownBy</span><span class="op">(()</span> <span class="op">-&gt;</span> svc<span class="op">.</span><span class="fu">loadUser</span><span class="op">(</span><span class="fu">mock</span><span class="op">(</span>OidcUserRequest<span class="op">.</span><span class="fu">class</span><span class="op">)))</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">isInstanceOf</span><span class="op">(</span>OAuth2AuthenticationException<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        OidcUser upstream <span class="op">=</span> <span class="fu">upstreamOidcUser</span><span class="op">(</span><span class="kw">null</span><span class="op">,</span> <span class="st">&quot;Alice&quot;</span><span class="op">);</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        CustomOidcUserService svc <span class="op">=</span> <span class="fu">oidcService</span><span class="op">(</span>repo<span class="op">,</span> upstream<span class="op">,</span> <span class="kw">false</span><span class="op">);</span> <span class="co">// isAdmin=false</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThatThrownBy</span><span class="op">(()</span> <span class="op">-&gt;</span> svc<span class="op">.</span><span class="fu">loadUser</span><span class="op">(</span><span class="fu">mock</span><span class="op">(</span>OidcUserRequest<span class="op">.</span><span class="fu">class</span><span class="op">)))</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">isInstanceOf</span><span class="op">(</span>OAuth2AuthenticationException<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
         <p>See the concrete implementation in the test suite:
-        <code>src/test/java/com/smartsupplypro/inventory/service/CustomOidcUserServiceTest.java</code>.</p>
-        <p>Notes: - The service reads <code>APP_ADMIN_EMAILS</code>
-        directly from the process environment; unit tests should avoid
-        depending on local/CI environment by using a random email that
-        is extremely unlikely to be in the allow-list. -
+        <code>src/test/java/com/smartsupplypro/inventory/service/CustomOidcUserServiceTest.java</code>,
+        <code>src/test/java/com/smartsupplypro/inventory/service/CustomOidcUserServiceRoleHealingTest.java</code>,
+        <code>src/test/java/com/smartsupplypro/inventory/service/CustomUserServiceNormalizationTest.java</code>,
+        and the shared fixture
+        <code>src/test/java/com/smartsupplypro/inventory/service/CustomUserServiceTestSupport.java</code>.</p>
+        <p>Notes: - The service reads <code>APP_ADMIN_EMAILS</code> from
+        the process environment in production. Unit tests in this
+        repository avoid CI/environment dependence by overriding
+        <code>isAdminEmail(...)</code> via
+        <code>CustomUserServiceTestSupport</code>. -
         <code>OAuth2AuthenticationException</code> may have a
         <code>null</code> message; assert on
         <code>ex.getError().getErrorCode()</code>.</p>
