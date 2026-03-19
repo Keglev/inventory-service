@@ -8,10 +8,11 @@
 
 1. [Test Helper Pattern](#test-helper-pattern)
 2. [InventoryItemServiceImplTestHelper](#inventoryitemserviceimpltesthelper)
-3. [OAuth2 Authentication Setup](#oauth2-authentication-setup)
-4. [Test Data Builders](#test-data-builders)
-5. [Test Isolation & Cleanup](#test-isolation--cleanup)
-6. [Best Practices](#best-practices)
+3. [CustomUserServiceTestSupport](#customuserservicetestsupport)
+4. [OAuth2 Authentication Setup](#oauth2-authentication-setup)
+5. [Test Data Builders](#test-data-builders)
+6. [Test Isolation & Cleanup](#test-isolation--cleanup)
+7. [Best Practices](#best-practices)
 
 ---
 
@@ -186,6 +187,24 @@ static void mockOAuth2Authentication(String email, String... roles) {
 - Prefer simpler setup over authenticity
 
 **Prefer `authenticateAsOAuth2()` instead** for most cases.
+
+---
+
+## CustomUserServiceTestSupport
+
+**Location:** `src/test/java/com/smartsupplypro/inventory/service/CustomUserServiceTestSupport.java`
+
+**Purpose:** Centralizes deterministic unit-test setup for `CustomOAuth2UserService` and `CustomOidcUserService`.
+
+**What it provides:**
+- Upstream principal stubs: `oauth2UserWithAttributes(...)`, `upstreamOidcUser(...)`
+- Service factory methods that override the provider call *and* the admin decision seam:
+    `oauth2Service(repo, upstream, isAdmin)` and `oidcService(repo, upstream, isAdmin)`
+- Reflection helpers to cover private role/authority normalization methods without duplicating boilerplate
+
+**Why it exists:** The production services consult `APP_ADMIN_EMAILS` and delegate to provider-specific
+Spring services. For unit tests, this helper keeps tests fast and stable by avoiding network calls and
+avoiding any dependence on the local/CI environment.
 
 ---
 

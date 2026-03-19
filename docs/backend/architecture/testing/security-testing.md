@@ -159,11 +159,11 @@ class CustomOAuth2UserServiceTest {
     void missingEmail_isRejected() {
         AppUserRepository repo = mock(AppUserRepository.class);
 
-        CustomOAuth2UserService svc = new CustomOAuth2UserService(repo) {
-            @Override protected OAuth2User loadFromProvider(OAuth2UserRequest req) {
-                return oauthUserWithAttributes(Map.of("name", "Alice"));
-            }
-        };
+        // The repository supports deterministic unit tests via the shared helper:
+        // - stub the upstream principal
+        // - override provider call and the admin decision
+        OAuth2User upstream = oauth2UserWithAttributes(Map.of("name", "Alice"));
+        CustomOAuth2UserService svc = oauth2Service(repo, upstream, false); // isAdmin=false
 
         assertThatThrownBy(() -> svc.loadUser(mock(OAuth2UserRequest.class)))
             .isInstanceOf(OAuth2AuthenticationException.class);
@@ -172,11 +172,14 @@ class CustomOAuth2UserServiceTest {
 ```
 
 See the concrete implementation in the test suite:
-`src/test/java/com/smartsupplypro/inventory/service/CustomOAuth2UserServiceTest.java`.
+`src/test/java/com/smartsupplypro/inventory/service/CustomOAuth2UserServiceTest.java`,
+`src/test/java/com/smartsupplypro/inventory/service/CustomOAuth2UserServiceRoleHealingTest.java`,
+`src/test/java/com/smartsupplypro/inventory/service/CustomUserServiceNormalizationTest.java`,
+and the shared fixture `src/test/java/com/smartsupplypro/inventory/service/CustomUserServiceTestSupport.java`.
 
 Notes:
-- The service reads `APP_ADMIN_EMAILS` directly from the process environment; unit tests should avoid depending
-    on local/CI environment by using a random email that is extremely unlikely to be in the allow-list.
+- The service reads `APP_ADMIN_EMAILS` from the process environment in production. Unit tests in this repository
+    avoid CI/environment dependence by overriding `isAdminEmail(...)` via `CustomUserServiceTestSupport`.
 - `OAuth2AuthenticationException` may have a `null` message; assert on `ex.getError().getErrorCode()`.
 
 ---
@@ -195,11 +198,8 @@ class CustomOidcUserServiceTest {
     void missingEmail_isRejected() {
         AppUserRepository repo = mock(AppUserRepository.class);
 
-        CustomOidcUserService svc = new CustomOidcUserService(repo) {
-            @Override protected OidcUser loadFromProvider(OidcUserRequest req) {
-                return upstreamOidcUser(null, "Alice");
-            }
-        };
+        OidcUser upstream = upstreamOidcUser(null, "Alice");
+        CustomOidcUserService svc = oidcService(repo, upstream, false); // isAdmin=false
 
         assertThatThrownBy(() -> svc.loadUser(mock(OidcUserRequest.class)))
             .isInstanceOf(OAuth2AuthenticationException.class);
@@ -208,11 +208,14 @@ class CustomOidcUserServiceTest {
 ```
 
 See the concrete implementation in the test suite:
-`src/test/java/com/smartsupplypro/inventory/service/CustomOidcUserServiceTest.java`.
+`src/test/java/com/smartsupplypro/inventory/service/CustomOidcUserServiceTest.java`,
+`src/test/java/com/smartsupplypro/inventory/service/CustomOidcUserServiceRoleHealingTest.java`,
+`src/test/java/com/smartsupplypro/inventory/service/CustomUserServiceNormalizationTest.java`,
+and the shared fixture `src/test/java/com/smartsupplypro/inventory/service/CustomUserServiceTestSupport.java`.
 
 Notes:
-- The service reads `APP_ADMIN_EMAILS` directly from the process environment; unit tests should avoid depending
-    on local/CI environment by using a random email that is extremely unlikely to be in the allow-list.
+- The service reads `APP_ADMIN_EMAILS` from the process environment in production. Unit tests in this repository
+    avoid CI/environment dependence by overriding `isAdminEmail(...)` via `CustomUserServiceTestSupport`.
 - `OAuth2AuthenticationException` may have a `null` message; assert on `ex.getError().getErrorCode()`.
 
 ---

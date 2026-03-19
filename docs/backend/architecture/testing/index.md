@@ -177,8 +177,12 @@ src/test/java/com/smartsupplypro/inventory/
 │
 ├── service/
 │   ├── SecurityServiceTest.java                  (Unit: demo-mode principal checks)
-│   ├── CustomOAuth2UserServiceTest.java          (Unit: OAuth2 provisioning + roles)
-│   ├── CustomOidcUserServiceTest.java            (Unit: OIDC provisioning + roles)
+│   ├── CustomUserServiceTestSupport.java         (Shared fixture: upstream principals + service factories)
+│   ├── CustomUserServiceNormalizationTest.java   (Unit: allow-list parsing + role authority normalization)
+│   ├── CustomOAuth2UserServiceTest.java          (Unit: OAuth2 provisioning + error handling)
+│   ├── CustomOAuth2UserServiceRoleHealingTest.java (Unit: role healing + idempotency)
+│   ├── CustomOidcUserServiceTest.java            (Unit: OIDC provisioning + error handling)
+│   ├── CustomOidcUserServiceRoleHealingTest.java (Unit: role healing + idempotency)
 │   ├── inventoryitem/
 │   │   ├── InventoryItemServiceSaveHappyPathTest.java (Unit: save happy paths + audit logging)
 │   │   ├── InventoryItemServiceSaveValidationTest.java (Unit: save validation guards)
