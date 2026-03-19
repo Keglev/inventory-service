@@ -38,9 +38,9 @@ Inventory Service,com.smartsupplypro.inventory.exception,GlobalExceptionHandler,
 Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemServiceImpl,0,286,6,24,0,58,6,19,0,10
 Inventory Service,com.smartsupplypro.inventory.service.impl,SupplierServiceImpl,0,130,0,2,0,31,0,10,0,9
 Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl,0,52,0,0,0,9,0,9,0,9
-Inventory Service,com.smartsupplypro.inventory.mapper,SupplierMapper,15,60,4,4,2,21,5,3,1,3
-Inventory Service,com.smartsupplypro.inventory.mapper,InventoryItemMapper,14,90,4,6,4,30,5,5,1,4
-Inventory Service,com.smartsupplypro.inventory.mapper,StockHistoryMapper,58,35,6,2,21,12,7,2,3,2
+Inventory Service,com.smartsupplypro.inventory.mapper,SupplierMapper,0,75,0,8,0,23,0,8,0,4
+Inventory Service,com.smartsupplypro.inventory.mapper,InventoryItemMapper,0,104,0,10,0,34,0,10,0,5
+Inventory Service,com.smartsupplypro.inventory.mapper,StockHistoryMapper,0,93,0,8,0,33,0,9,0,5
 Inventory Service,com.smartsupplypro.inventory.controller.analytics,AnalyticsControllerValidationHelper,0,110,0,26,0,22,0,20,0,7
 Inventory Service,com.smartsupplypro.inventory.controller.analytics,AnalyticsDashboardHelper,0,62,0,8,0,12,0,6,0,2
 Inventory Service,com.smartsupplypro.inventory.security,OAuth2LoginSuccessHandler,2,293,4,34,0,62,4,22,0,7

@@ -32,8 +32,8 @@ public final class SupplierMapper {
      * 
      * @throws UnsupportedOperationException if instantiation is attempted
      */
-<span class="nc" id="L35">    private SupplierMapper() {</span>
-<span class="nc" id="L36">        throw new UnsupportedOperationException(&quot;Utility class - no instances allowed&quot;);</span>
+<span class="fc" id="L35">    private SupplierMapper() {</span>
+<span class="fc" id="L36">        throw new UnsupportedOperationException(&quot;Utility class - no instances allowed&quot;);</span>
     }
 
     /**
@@ -56,7 +56,7 @@ public final class SupplierMapper {
      * @implNote Returns null for null input to support optional relationship handling
      */
     public static SupplierDTO toDTO(Supplier supplier) {
-<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        if (supplier == null) return null;</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (supplier == null) return null;</span>
 <span class="fc" id="L60">        return SupplierDTO.builder()</span>
 <span class="fc" id="L61">                .id(supplier.getId())</span>
 <span class="fc" id="L62">                .name(supplier.getName())</span>
@@ -92,7 +92,7 @@ public final class SupplierMapper {
      * @implNote Uses trimOrNull() utility for consistent string sanitization across all fields
      */
     public static Supplier toEntity(SupplierDTO dto) {
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        if (dto == null) return null;</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (dto == null) return null;</span>
 
         // If your Supplier has Lombok @Builder:
 <span class="fc" id="L98">        return Supplier.builder()</span>
@@ -134,9 +134,9 @@ public final class SupplierMapper {
      * @implNote Converts empty strings to null to maintain database normalization standards
      */
     private static String trimOrNull(String s) {
-<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        if (s == null) return null;</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        if (s == null) return null;</span>
 <span class="fc" id="L138">        String t = s.trim();</span>
-<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        return t.isEmpty() ? null : t;</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        return t.isEmpty() ? null : t;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -30,8 +30,8 @@ public final class StockHistoryMapper {
      * 
      * @throws UnsupportedOperationException if instantiation is attempted
      */
-<span class="nc" id="L33">    private StockHistoryMapper() {</span>
-<span class="nc" id="L34">        throw new UnsupportedOperationException(&quot;Utility class - no instances allowed&quot;);</span>
+<span class="fc" id="L33">    private StockHistoryMapper() {</span>
+<span class="fc" id="L34">        throw new UnsupportedOperationException(&quot;Utility class - no instances allowed&quot;);</span>
     }
 
     /**
@@ -54,8 +54,8 @@ public final class StockHistoryMapper {
      * @implNote Enum transformation ensures backward compatibility with external systems
      */
     public static StockHistoryDTO toDTO(StockHistory history) {
-<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (history == null) {</span>
-<span class="nc" id="L58">            return null;</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (history == null) {</span>
+<span class="fc" id="L58">            return null;</span>
         }
         
         // Transform enum safely for external system compatibility
@@ -93,22 +93,22 @@ public final class StockHistoryMapper {
      * @implNote Enum conversion uses valueOf() for strict validation of audit reasons
      */
     public static StockHistory toEntity(StockHistoryDTO dto) {
-<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (dto == null) {</span>
-<span class="nc" id="L97">            return null;</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (dto == null) {</span>
+<span class="fc" id="L97">            return null;</span>
         }
         
         // Convert enum string with validation and error handling
-<span class="nc" id="L101">        StockChangeReason reason = parseEnumSafely(dto.getReason());</span>
+<span class="fc" id="L101">        StockChangeReason reason = parseEnumSafely(dto.getReason());</span>
         
-<span class="nc" id="L103">        return StockHistory.builder()</span>
-<span class="nc" id="L104">                .id(dto.getId())</span>
-<span class="nc" id="L105">                .itemId(dto.getItemId())</span>
-<span class="nc" id="L106">                .change(dto.getChange())</span>
-<span class="nc" id="L107">                .reason(reason)</span>
-<span class="nc" id="L108">                .createdBy(dto.getCreatedBy())</span>
-<span class="nc" id="L109">                .timestamp(dto.getTimestamp())</span>
-<span class="nc" id="L110">                .priceAtChange(dto.getPriceAtChange())</span>
-<span class="nc" id="L111">                .build();</span>
+<span class="fc" id="L103">        return StockHistory.builder()</span>
+<span class="fc" id="L104">                .id(dto.getId())</span>
+<span class="fc" id="L105">                .itemId(dto.getItemId())</span>
+<span class="fc" id="L106">                .change(dto.getChange())</span>
+<span class="fc" id="L107">                .reason(reason)</span>
+<span class="fc" id="L108">                .createdBy(dto.getCreatedBy())</span>
+<span class="fc" id="L109">                .timestamp(dto.getTimestamp())</span>
+<span class="fc" id="L110">                .priceAtChange(dto.getPriceAtChange())</span>
+<span class="fc" id="L111">                .build();</span>
     }
     
     /**
@@ -121,7 +121,7 @@ public final class StockHistoryMapper {
      * @return string representation or null if enum is null
      */
     private static String transformEnumSafely(StockChangeReason reason) {
-<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        return reason != null ? reason.name() : null;</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        return reason != null ? reason.name() : null;</span>
     }
     
     /**
@@ -135,15 +135,15 @@ public final class StockHistoryMapper {
      * @throws IllegalArgumentException if string cannot be converted to valid enum
      */
     private static StockChangeReason parseEnumSafely(String reasonString) {
-<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (reasonString == null) {</span>
-<span class="nc" id="L139">            return null;</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (reasonString == null) {</span>
+<span class="fc" id="L139">            return null;</span>
         }
         try {
-<span class="nc" id="L142">            return StockChangeReason.valueOf(reasonString);</span>
-<span class="nc" id="L143">        } catch (IllegalArgumentException e) {</span>
-<span class="nc" id="L144">            throw new IllegalArgumentException(</span>
+<span class="fc" id="L142">            return StockChangeReason.valueOf(reasonString);</span>
+<span class="fc" id="L143">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L144">            throw new IllegalArgumentException(</span>
                 &quot;Invalid stock change reason: &quot; + reasonString + 
-<span class="nc" id="L146">                &quot;. Valid values: &quot; + java.util.Arrays.toString(StockChangeReason.values()), e);</span>
+<span class="fc" id="L146">                &quot;. Valid values: &quot; + java.util.Arrays.toString(StockChangeReason.values()), e);</span>
         }
     }
 }

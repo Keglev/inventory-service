@@ -31,8 +31,8 @@ public final class InventoryItemMapper {
      * 
      * @throws UnsupportedOperationException if instantiation is attempted
      */
-<span class="nc" id="L34">    private InventoryItemMapper() {</span>
-<span class="nc" id="L35">        throw new UnsupportedOperationException(&quot;Utility class - no instances allowed&quot;);</span>
+<span class="fc" id="L34">    private InventoryItemMapper() {</span>
+<span class="fc" id="L35">        throw new UnsupportedOperationException(&quot;Utility class - no instances allowed&quot;);</span>
     }
 
     /**
@@ -54,8 +54,8 @@ public final class InventoryItemMapper {
      * @implNote Uses builder pattern for null safety and performance optimization
      */
     public static InventoryItemDTO toDTO(InventoryItem item) {
-<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (item == null) {</span>
-<span class="nc" id="L58">            return null;</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (item == null) {</span>
+<span class="fc" id="L58">            return null;</span>
         }
         
         // Calculate total value with null safety and financial precision
@@ -98,8 +98,8 @@ public final class InventoryItemMapper {
      * @implNote Builder pattern ensures immutability and validation during entity creation
      */
     public static InventoryItem toEntity(InventoryItemDTO dto) {
-<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        if (dto == null) {</span>
-<span class="nc" id="L102">            return null;</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        if (dto == null) {</span>
+<span class="fc" id="L102">            return null;</span>
         }
         
 <span class="fc" id="L105">        return InventoryItem.builder()</span>
@@ -125,7 +125,7 @@ public final class InventoryItemMapper {
      * @return calculated total value or BigDecimal.ZERO for null inputs
      */
     private static BigDecimal calculateTotalValue(BigDecimal price, Integer quantity) {
-<span class="pc bpc" id="L128" title="1 of 4 branches missed.">        if (price == null || quantity == null) {</span>
+<span class="fc bfc" id="L128" title="All 4 branches covered.">        if (price == null || quantity == null) {</span>
 <span class="fc" id="L129">            return BigDecimal.ZERO;</span>
         }
 <span class="fc" id="L131">        return price.multiply(BigDecimal.valueOf(quantity));</span>
@@ -141,7 +141,7 @@ public final class InventoryItemMapper {
      * @return supplier name or null if supplier is null
      */
     private static String resolveSupplierName(com.smartsupplypro.inventory.model.Supplier supplier) {
-<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        return supplier != null ? supplier.getName() : null;</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        return supplier != null ? supplier.getName() : null;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
