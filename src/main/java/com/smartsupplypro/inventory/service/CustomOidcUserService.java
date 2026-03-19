@@ -60,12 +60,20 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
      */
     private static Set<String> readAdminAllowlist() {
         String raw = System.getenv().getOrDefault("APP_ADMIN_EMAILS", "");
+        return parseAdminAllowlist(raw);
+    }
+
+    static Set<String> parseAdminAllowlist(String raw) {
         if (raw == null || raw.isBlank()) return Collections.emptySet();
         return Arrays.stream(raw.split(","))
             .map(String::trim)
             .filter(s -> !s.isEmpty())
             .map(String::toLowerCase)
             .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    protected boolean isAdminEmail(String email) {
+        return readAdminAllowlist().contains(email.toLowerCase());
     }
 
     /**
@@ -103,7 +111,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         // Enterprise Comment: Environment-Based Role Assignment
         // APP_ADMIN_EMAILS allows zero-downtime role changes without code deployment.
         // Example: APP_ADMIN_EMAILS=admin@corp.com,manager@corp.com
-        final boolean isAdmin = readAdminAllowlist().contains(email.toLowerCase());
+        final boolean isAdmin = isAdminEmail(email);
 
         // Enterprise Comment: Auto-Provisioning Pattern
         // Create user on first login with role based on email allow-list.

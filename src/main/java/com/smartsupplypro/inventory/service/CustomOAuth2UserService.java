@@ -55,12 +55,20 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
      */
     private static Set<String> readAdminAllowlist() {
         String raw = System.getenv().getOrDefault("APP_ADMIN_EMAILS", "");
+        return parseAdminAllowlist(raw);
+    }
+
+    static Set<String> parseAdminAllowlist(String raw) {
         if (raw == null || raw.isBlank()) return Collections.emptySet();
         return Arrays.stream(raw.split(","))
             .map(String::trim)
             .filter(s -> !s.isEmpty())
             .map(String::toLowerCase)
             .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    protected boolean isAdminEmail(String email) {
+        return readAdminAllowlist().contains(email.toLowerCase());
     }
 
     /**
@@ -95,7 +103,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         // Enterprise Comment: Environment-Based Role Assignment
         // Admin emails configured via APP_ADMIN_EMAILS for operational flexibility
         // Decide role from env allow-list (minimal change; no AppProperties wiring needed)
-        final boolean isAdmin = readAdminAllowlist().contains(email.toLowerCase());
+        final boolean isAdmin = isAdminEmail(email);
 
         // Enterprise Comment: Auto-Provisioning Pattern
         // Creates local user on first login with race condition handling
