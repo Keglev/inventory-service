@@ -76,6 +76,28 @@ Concrete example in this repository:
 
 ---
 
+## Mapper Unit Tests
+
+Mappers in this repository are static utility classes that often include executable logic beyond
+simple field copies (null-safety branches, computed fields, string sanitization, enum parsing, and
+utility-class constructor guards). These details are frequently exercised only indirectly via
+service/controller tests, which can leave JaCoCo reporting missed branches/instructions.
+
+Guideline:
+- If a mapper contains non-trivial logic or defensive branches, add a small unit test under
+    `src/test/java/com/smartsupplypro/inventory/mapper/` that calls the mapper methods directly.
+
+Concrete examples in this repository:
+- `src/test/java/com/smartsupplypro/inventory/mapper/InventoryItemMapperTest.java`
+- `src/test/java/com/smartsupplypro/inventory/mapper/StockHistoryMapperTest.java`
+- `src/test/java/com/smartsupplypro/inventory/mapper/SupplierMapperTest.java`
+
+Design note:
+- Prefer black-box tests via public mapper methods. Use reflection only when required to cover
+    a private helper branch that cannot be reliably triggered through the public mapping API.
+
+---
+
 ## Validator Unit Tests
 
 In this repository, validator tests are organized as a small set of focused suites so that each

@@ -6,7 +6,7 @@
 
 Smart Supply Pro implements a **comprehensive, layered testing strategy** using industry-standard tools and patterns. The test suite covers:
 
-- **Unit Tests** - Individual components in isolation (validators, services, repositories, enum helpers)
+- **Unit Tests** - Individual components in isolation (mappers, validators, services, repositories, enum helpers)
 - **Integration Tests** - Component interaction with databases and frameworks
 - **Security Tests** - OAuth2, authorization, RBAC, and API endpoints
 - **Analytics Tests** - Complex queries, converters, and reporting
@@ -160,6 +160,11 @@ src/test/java/com/smartsupplypro/inventory/
 │
 ├── enums/
 │   └── StockChangeReasonTest.java                (Unit: enum helper methods + parsing)
+│
+├── mapper/
+│   ├── InventoryItemMapperTest.java              (Unit: entity/DTO mapping + computed fields)
+│   ├── StockHistoryMapperTest.java               (Unit: audit mapping + enum/string conversion)
+│   └── SupplierMapperTest.java                   (Unit: sanitization + audit field handling)
 │
 ├── validation/
 │   ├── InventoryItemValidatorTest.java           (Unit: 159 lines)
