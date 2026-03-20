@@ -68,8 +68,12 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
             ? null : createdBy.toLowerCase();
 
         final Query query = em.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
+        // Use java.sql.Timestamp for JDBC/native query compatibility
+        final java.sql.Timestamp startTs = (startDate == null) ? null : java.sql.Timestamp.valueOf(startDate);
+        final java.sql.Timestamp endTs = (endDate == null) ? null : java.sql.Timestamp.valueOf(endDate);
+
+        query.setParameter("startDate", startTs);
+        query.setParameter("endDate", endTs);
         query.setParameter("itemPattern", itemPattern);
         query.setParameter("supplierId", normalizedSupplier);
         query.setParameter("createdByNorm", normalizedCreator);
