@@ -433,6 +433,28 @@ spring.jpa.show-sql=false
 spring.jpa.properties.hibernate.format_sql=false
 ```
 
+---
+
+## Why CI Uses H2 Instead of Oracle Free Tier
+
+This project can connect to an Oracle database in production, but <strong>CI integration tests use H2</strong> by
+default.
+
+**Reasoning:** Oracle Free Tier access is not a simple "JDBC URL + credentials" setup in CI.
+
+- Oracle Free Tier commonly requires an <strong>Oracle Wallet</strong> (client files/config) to establish the connection.
+- Oracle policy/practice often requires <strong>IP allowlisting</strong> for any connection to the free-tier database.
+    GitHub-hosted runners have dynamic outbound IPs, so they cannot be reliably allowlisted.
+
+**Practical outcome:** running integration tests against the real Oracle Free Tier database is typically only feasible
+from a controlled environment (developer machine, dedicated VM, or self-hosted runner) with a stable outbound IP.
+
+**How we still cover Oracle-specific branches:** for custom repositories that choose SQL based on
+{@link com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector}, tests may:
+
+- Execute the H2-native query path on H2, and
+- Use mocks to force the Oracle-branch SQL selection and assert the selected SQL/parameters without requiring Oracle.
+
 ### TestContainers Configuration (Optional)
 
 ```java
@@ -449,6 +471,91 @@ class IntegrationTestWithOracleTest {
         Testcontainers.exposeHostPorts(1521);
     }
 }
+```
+
+**Note:** TestContainers is best suited for local/dev environments with Docker available. It is optional and not
+required for the default CI path.
+
+---
+
+## Local Oracle Free Tier Testing (Manual)
+
+If you want to run a small set of integration smoke tests against the <strong>real Oracle Autonomous Database (Free Tier)</strong>
+from your development machine, you can do so manually.
+
+This is intentionally <strong>not enabled in CI</strong> because it requires:
+
+- A locally downloaded Oracle Wallet (client config files)
+- Environment variable configuration for wallet + JDBC
+- Oracle-side IP allowlisting (GitHub-hosted runners cannot be reliably allowlisted)
+
+### 1) Download and extract the Oracle Wallet
+
+1. In Oracle Cloud Console → your Autonomous Database → <em>DB Connection</em>, download the wallet ZIP.
+2. Extract it to a local folder (do <strong>not</strong> commit it to git). Example folder structure:
+
+    - `.../wallet/Wallet_sspdb_fixed/tnsnames.ora`
+    - `.../wallet/Wallet_sspdb_fixed/sqlnet.ora`
+    - `.../wallet/Wallet_sspdb_fixed/ewallet.p12`
+
+If you need more background on how this project treats the wallet, see: `docs/backend/architecture/security/oracle-wallet.md`.
+
+### 2) Configure wallet + JDBC via environment variables
+
+At minimum, set these environment variables in the same shell where you run Maven/tests:
+
+- `TNS_ADMIN` → path to the extracted wallet folder (the folder that contains `tnsnames.ora`)
+- `DB_URL` → Oracle JDBC URL (usually `jdbc:oracle:thin:@...` with `tcps`)
+- `DB_USER` / `DB_PASS` → database credentials
+
+If your wallet is password-protected and your local JVM needs it, also set:
+
+- `ORACLE_WALLET_PASSWORD`
+
+This repo includes an example `.env` showing the variable names used locally.
+
+### 3) Allowlist your public IP in Oracle
+
+Oracle Autonomous Database commonly restricts inbound connections.
+
+In Oracle Cloud Console → Autonomous Database → <em>Network</em> / <em>Access Control</em>:
+
+- Add your current public IPv4 address to the allowlist.
+- If your ISP connection uses a dynamic IP, you may need to refresh this daily (or whenever your IP changes).
+
+If you are on a dynamic IP, only run the Oracle wallet tests when you have just refreshed the allowlist and confirmed your current public IP is permitted.
+
+### 4) Run the test with the correct Spring profile
+
+The test `InventoryServiceApplicationTest` is configured to select the Spring profile automatically:
+
+- Default: `test` (H2, CI-safe)
+- If `ENABLE_WALLET_TEST=true`: `oracle-it` (real Oracle, manual/local)
+
+The `oracle-it` profile configuration lives in `src/test/resources/application-oracle-it.yml`.
+
+#### PowerShell example
+
+```powershell
+$env:ENABLE_WALLET_TEST = "true"
+$env:TNS_ADMIN = "C:\\path\\to\\wallet\\Wallet_sspdb_fixed"
+$env:DB_URL = "jdbc:oracle:thin:@..."
+$env:DB_USER = "..."
+$env:DB_PASS = "..."
+
+./mvnw -Dtest=InventoryServiceApplicationTest test
+```
+
+#### Bash example
+
+```bash
+export ENABLE_WALLET_TEST=true
+export TNS_ADMIN="/path/to/wallet/Wallet_sspdb_fixed"
+export DB_URL="jdbc:oracle:thin:@..."
+export DB_USER="..."
+export DB_PASS="..."
+
+./mvnw -Dtest=InventoryServiceApplicationTest test
 ```
 
 ---

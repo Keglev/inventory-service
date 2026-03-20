@@ -1,0 +1,43 @@
+# ============================================
+# Spring Boot - Local Oracle Integration Test Config
+# Profile: oracle-it
+#
+# Purpose:
+# - Manually run a small subset of Spring Boot integration smoke tests against
+#   an Oracle Autonomous Database (Free Tier) from a developer machine.
+# - This profile is NOT intended for CI.
+#
+# Requirements:
+# - Oracle Wallet extracted locally and configured via environment variables.
+# - DB_URL, DB_USER, DB_PASS configured.
+# - Network access: your public IP allowlisted in Oracle.
+# ============================================
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: oracle.jdbc.OracleDriver
+    hikari:
+      # Keep pool small; Oracle Free Tier can be sensitive to idle timeouts.
+      maximum-pool-size: 2
+      minimum-idle: 0
+      connection-test-query: SELECT 1 FROM DUAL
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+
+  sql:
+    init:
+      mode: never
+
+logging:
+  level:
+    '[org.hibernate.SQL]': DEBUG
+    root: INFO

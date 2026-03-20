@@ -228,7 +228,11 @@ src/test/java/com/smartsupplypro/inventory/
 │   ├── StockHistoryRepositoryAnalyticsTest.java
 │   ├── InventoryItemRepositoryAnalyticsTest.java
 │   └── custom/
-│       └── StockHistoryCustomRepositoryImplTest.java
+│       ├── StockHistoryCustomRepositoryImplTest.java
+│       ├── StockMetricsRepositoryImplTest.java
+│       ├── StockDetailQueryRepositoryImplTest.java
+│       ├── StockTrendAnalyticsRepositoryImplH2Test.java
+│       └── StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest.java
 │
 ├── controller/
 │   ├── supplier/
@@ -420,14 +424,26 @@ mvn clean package -DskipTests
 
 ## Test Profiles
 
-### test Profile (application-test.properties)
+### test Profile (application-test.yml)
 
 - Uses **H2 in-memory database** (Oracle compatibility mode)
 - Disables Testcontainers checks
 - Configures test-specific properties
 
-**Rationale:** H2 is fast for repository and MVC slice tests; TestContainers provide real Oracle for integration
-tests that need it.
+**Rationale:** H2 is fast and reliable for repository and MVC slice tests, and it works in any CI environment.
+Running against the <em>real</em> Oracle Free Tier database in CI is intentionally avoided because:
+
+- Access typically requires an Oracle Wallet on the runner and correct client configuration.
+- Oracle Free Tier commonly enforces <strong>IP allowlisting</strong>; GitHub-hosted runners use dynamic egress IPs,
+  so you cannot reliably pre-allowlist them without a dedicated VM, self-hosted runner, or tunneling.
+
+If a test must validate Oracle-specific behavior, prefer:
+- TestContainers (local/dev environments with Docker), or
+- A controlled CI environment with a stable outbound IP (self-hosted runner/VM) where allowlisting is feasible.
+
+For <strong>manual</strong> testing against Oracle Free Tier from a developer machine, use the opt-in
+`oracle-it` profile (wallet-based connectivity). It is intentionally disabled by default and only activates when you
+explicitly set `ENABLE_WALLET_TEST=true` for `InventoryServiceApplicationTest`.
 
 ```properties
 # Spring profile for testing
