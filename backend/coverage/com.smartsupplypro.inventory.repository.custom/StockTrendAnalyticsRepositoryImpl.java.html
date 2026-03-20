@@ -38,9 +38,9 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; getMonthlyStockMovement(LocalDateTime start, LocalDateTime end) {
-<span class="pc bpc" id="L41" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
 <span class="fc" id="L42">            ? buildH2MonthlyMovementSql(false)</span>
-<span class="pc" id="L43">            : buildOracleMonthlyMovementSql(false);</span>
+<span class="fc" id="L43">            : buildOracleMonthlyMovementSql(false);</span>
 
 <span class="fc" id="L45">        return em.createNativeQuery(sql)</span>
 <span class="fc" id="L46">                .setParameter(&quot;start&quot;, start)</span>
@@ -51,9 +51,9 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; getMonthlyStockMovementBySupplier(LocalDateTime start, LocalDateTime end, String supplierId) {
-<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
 <span class="fc" id="L55">            ? buildH2MonthlyMovementSql(true)</span>
-<span class="pc" id="L56">            : buildOracleMonthlyMovementSql(true);</span>
+<span class="fc" id="L56">            : buildOracleMonthlyMovementSql(true);</span>
 
 <span class="fc" id="L58">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
 
@@ -67,9 +67,9 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; getDailyStockValuation(LocalDateTime start, LocalDateTime end, String supplierId) {
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
 <span class="fc" id="L71">            ? buildH2DailyValuationSql()</span>
-<span class="pc" id="L72">            : buildOracleDailyValuationSql();</span>
+<span class="fc" id="L72">            : buildOracleDailyValuationSql();</span>
 
 <span class="fc" id="L74">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
 
@@ -87,9 +87,9 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;PriceTrendDTO&gt; getItemPriceTrend(String itemId, String supplierId, LocalDateTime start, LocalDateTime end) {
-<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
 <span class="fc" id="L91">            ? buildH2PriceTrendSql()</span>
-<span class="pc" id="L92">            : buildOraclePriceTrendSql();</span>
+<span class="fc" id="L92">            : buildOraclePriceTrendSql();</span>
 
 <span class="fc" id="L94">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
 
@@ -191,7 +191,7 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
      * ====================================================================== */
 
     private String buildOracleMonthlyMovementSql(boolean withSupplierFilter) {
-<span class="nc" id="L194">        final String baseQuery = &quot;&quot;&quot;</span>
+<span class="fc" id="L194">        final String baseQuery = &quot;&quot;&quot;</span>
             SELECT TO_CHAR(sh.created_at, 'YYYY-MM') AS month_str,
                    SUM(CASE WHEN sh.quantity_change &gt; 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
                    SUM(CASE WHEN sh.quantity_change &lt; 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS stock_out
@@ -203,14 +203,14 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
             ORDER BY 1
         &quot;&quot;&quot;;
 
-<span class="nc bnc" id="L206" title="All 2 branches missed.">        final String join = withSupplierFilter ? &quot;JOIN inventory_item i ON sh.item_id = i.id&quot; : &quot;&quot;;</span>
-<span class="nc bnc" id="L207" title="All 2 branches missed.">        final String supplierFilter = withSupplierFilter ? &quot;AND (:supplierId IS NULL OR i.supplier_id = :supplierId)&quot; : &quot;&quot;;</span>
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        final String join = withSupplierFilter ? &quot;JOIN inventory_item i ON sh.item_id = i.id&quot; : &quot;&quot;;</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        final String supplierFilter = withSupplierFilter ? &quot;AND (:supplierId IS NULL OR i.supplier_id = :supplierId)&quot; : &quot;&quot;;</span>
 
-<span class="nc" id="L209">        return String.format(baseQuery, join, supplierFilter);</span>
+<span class="fc" id="L209">        return String.format(baseQuery, join, supplierFilter);</span>
     }
 
     private String buildOracleDailyValuationSql() {
-<span class="nc" id="L213">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L213">        return &quot;&quot;&quot;</span>
             WITH events AS (
                 SELECT
                     CAST(TRUNC(sh.created_at) AS DATE) AS day_date,
@@ -243,7 +243,7 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
     }
 
     private String buildOraclePriceTrendSql() {
-<span class="nc" id="L246">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L246">        return &quot;&quot;&quot;</span>
             SELECT TO_CHAR(sh.created_at, 'YYYY-MM-DD') AS day_str,
                    AVG(sh.price_at_change) AS price
             FROM stock_history sh
@@ -262,7 +262,7 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
 
     /** Normalizes optional string parameters (null/blank → null). */
     private String normalizeOptionalParam(String param) {
-<span class="pc bpc" id="L265" title="1 of 4 branches missed.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
+<span class="fc bfc" id="L265" title="All 4 branches covered.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

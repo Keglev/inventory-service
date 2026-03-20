@@ -44,9 +44,9 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; getUpdateCountByItem(String supplierId) {
-<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
 <span class="fc" id="L48">            ? buildH2UpdateCountSql()</span>
-<span class="pc" id="L49">            : buildOracleUpdateCountSql();</span>
+<span class="fc" id="L49">            : buildOracleUpdateCountSql();</span>
 
 <span class="fc" id="L51">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
 
@@ -58,9 +58,9 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; findItemsBelowMinimumStock(String supplierId) {
-<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
 <span class="fc" id="L62">            ? buildH2BelowMinimumSql()</span>
-<span class="pc" id="L63">            : buildOracleBelowMinimumSql();</span>
+<span class="fc" id="L63">            : buildOracleBelowMinimumSql();</span>
 
 <span class="fc" id="L65">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
 
@@ -119,7 +119,7 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
     }
 
     private String buildOracleUpdateCountSql() {
-<span class="nc" id="L122">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L122">        return &quot;&quot;&quot;</span>
             SELECT i.name AS item_name, COUNT(sh.id) AS update_count
             FROM stock_history sh
             JOIN inventory_item i ON sh.item_id = i.id
@@ -130,7 +130,7 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
     }
 
     private String buildOracleBelowMinimumSql() {
-<span class="nc" id="L133">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L133">        return &quot;&quot;&quot;</span>
             SELECT i.name, i.quantity, i.minimum_quantity
             FROM inventory_item i
             WHERE i.quantity &lt; i.minimum_quantity
@@ -145,7 +145,7 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
 
     /** Normalizes optional string parameters (null/blank → null). */
     private String normalizeOptionalParam(String param) {
-<span class="pc bpc" id="L148" title="2 of 4 branches missed.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
+<span class="fc bfc" id="L148" title="All 4 branches covered.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

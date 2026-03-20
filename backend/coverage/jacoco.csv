@@ -25,9 +25,9 @@ Inventory Service,com.smartsupplypro.inventory.config,AppProperties,0,21,0,0,0,6
 Inventory Service,com.smartsupplypro.inventory.config,SecurityConfig,0,275,0,8,0,58,0,22,0,18
 Inventory Service,com.smartsupplypro.inventory.config,SecurityAuthorizationHelper,0,344,0,2,0,24,0,3,0,2
 Inventory Service,com.smartsupplypro.inventory.config,SecurityFilterHelper,0,8,0,0,0,2,0,2,0,2
-Inventory Service,com.smartsupplypro.inventory.repository.custom,StockMetricsRepositoryImpl,14,76,5,5,3,25,8,8,3,8
-Inventory Service,com.smartsupplypro.inventory.repository.custom,StockDetailQueryRepositoryImpl,12,112,9,9,1,29,10,5,1,5
-Inventory Service,com.smartsupplypro.inventory.repository.custom,StockTrendAnalyticsRepositoryImpl,41,189,9,11,6,50,10,13,3,10
+Inventory Service,com.smartsupplypro.inventory.repository.custom,StockMetricsRepositoryImpl,4,86,1,9,1,27,2,14,1,10
+Inventory Service,com.smartsupplypro.inventory.repository.custom,StockDetailQueryRepositoryImpl,0,138,0,22,0,32,0,17,0,6
+Inventory Service,com.smartsupplypro.inventory.repository.custom,StockTrendAnalyticsRepositoryImpl,0,230,0,20,0,56,0,23,0,13
 Inventory Service,com.smartsupplypro.inventory.enums,StockChangeReason.AuditSeverity,0,27,0,0,0,2,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.enums,StockChangeReason,0,163,0,14,0,36,0,19,0,11
 Inventory Service,com.smartsupplypro.inventory.exception,BusinessExceptionHandler,0,66,0,12,0,22,0,10,0,4
