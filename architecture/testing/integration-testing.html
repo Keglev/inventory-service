@@ -134,9 +134,31 @@ testing/integration-testing · Smart Supply Pro Docs</title>
         <li><a href="#h2-configuration-application-test.properties"
         id="toc-h2-configuration-application-test.properties">H2
         Configuration (application-test.properties)</a></li>
+        </ul></li>
+        <li><a href="#why-ci-uses-h2-instead-of-oracle-free-tier"
+        id="toc-why-ci-uses-h2-instead-of-oracle-free-tier">Why CI Uses
+        H2 Instead of Oracle Free Tier</a>
+        <ul>
         <li><a href="#testcontainers-configuration-optional"
         id="toc-testcontainers-configuration-optional">TestContainers
         Configuration (Optional)</a></li>
+        </ul></li>
+        <li><a href="#local-oracle-free-tier-testing-manual"
+        id="toc-local-oracle-free-tier-testing-manual">Local Oracle Free
+        Tier Testing (Manual)</a>
+        <ul>
+        <li><a href="#download-and-extract-the-oracle-wallet"
+        id="toc-download-and-extract-the-oracle-wallet">1) Download and
+        extract the Oracle Wallet</a></li>
+        <li><a href="#configure-wallet-jdbc-via-environment-variables"
+        id="toc-configure-wallet-jdbc-via-environment-variables">2)
+        Configure wallet + JDBC via environment variables</a></li>
+        <li><a href="#allowlist-your-public-ip-in-oracle"
+        id="toc-allowlist-your-public-ip-in-oracle">3) Allowlist your
+        public IP in Oracle</a></li>
+        <li><a href="#run-the-test-with-the-correct-spring-profile"
+        id="toc-run-the-test-with-the-correct-spring-profile">4) Run the
+        test with the correct Spring profile</a></li>
         </ul></li>
         <li><a href="#testing-transactional-behavior"
         id="toc-testing-transactional-behavior">Testing Transactional
@@ -612,6 +634,38 @@ spring.h2.console.enabled=false
 # Show SQL for debugging (optional)
 spring.jpa.show-sql=false
 spring.jpa.properties.hibernate.format_sql=false</code></pre>
+        <hr />
+        <h2 id="why-ci-uses-h2-instead-of-oracle-free-tier">Why CI Uses
+        H2 Instead of Oracle Free Tier</h2>
+        <p>This project can connect to an Oracle database in production,
+        but <strong>CI integration tests use H2</strong> by default.</p>
+        <p><strong>Reasoning:</strong> Oracle Free Tier access is not a
+        simple “JDBC URL + credentials” setup in CI.</p>
+        <ul>
+        <li>Oracle Free Tier commonly requires an <strong>Oracle
+        Wallet</strong> (client files/config) to establish the
+        connection.</li>
+        <li>Oracle policy/practice often requires <strong>IP
+        allowlisting</strong> for any connection to the free-tier
+        database. GitHub-hosted runners have dynamic outbound IPs, so
+        they cannot be reliably allowlisted.</li>
+        </ul>
+        <p><strong>Practical outcome:</strong> running integration tests
+        against the real Oracle Free Tier database is typically only
+        feasible from a controlled environment (developer machine,
+        dedicated VM, or self-hosted runner) with a stable outbound
+        IP.</p>
+        <p><strong>How we still cover Oracle-specific branches:</strong>
+        for custom repositories that choose SQL based on {<span
+        class="citation" data-cites="link">@link</span>
+        com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector},
+        tests may:</p>
+        <ul>
+        <li>Execute the H2-native query path on H2, and</li>
+        <li>Use mocks to force the Oracle-branch SQL selection and
+        assert the selected SQL/parameters without requiring
+        Oracle.</li>
+        </ul>
         <h3 id="testcontainers-configuration-optional">TestContainers
         Configuration (Optional)</h3>
         <div class="sourceCode" id="cb7"><pre
@@ -628,34 +682,131 @@ spring.jpa.properties.hibernate.format_sql=false</code></pre>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        Testcontainers<span class="op">.</span><span class="fu">exposeHostPorts</span><span class="op">(</span><span class="dv">1521</span><span class="op">);</span></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Note:</strong> TestContainers is best suited for
+        local/dev environments with Docker available. It is optional and
+        not required for the default CI path.</p>
+        <hr />
+        <h2 id="local-oracle-free-tier-testing-manual">Local Oracle Free
+        Tier Testing (Manual)</h2>
+        <p>If you want to run a small set of integration smoke tests
+        against the <strong>real Oracle Autonomous Database (Free
+        Tier)</strong> from your development machine, you can do so
+        manually.</p>
+        <p>This is intentionally <strong>not enabled in CI</strong>
+        because it requires:</p>
+        <ul>
+        <li>A locally downloaded Oracle Wallet (client config
+        files)</li>
+        <li>Environment variable configuration for wallet + JDBC</li>
+        <li>Oracle-side IP allowlisting (GitHub-hosted runners cannot be
+        reliably allowlisted)</li>
+        </ul>
+        <h3 id="download-and-extract-the-oracle-wallet">1) Download and
+        extract the Oracle Wallet</h3>
+        <ol type="1">
+        <li><p>In Oracle Cloud Console → your Autonomous Database →
+        <em>DB Connection</em>, download the wallet ZIP.</p></li>
+        <li><p>Extract it to a local folder (do <strong>not</strong>
+        commit it to git). Example folder structure:</p>
+        <ul>
+        <li><code>.../wallet/Wallet_sspdb_fixed/tnsnames.ora</code></li>
+        <li><code>.../wallet/Wallet_sspdb_fixed/sqlnet.ora</code></li>
+        <li><code>.../wallet/Wallet_sspdb_fixed/ewallet.p12</code></li>
+        </ul></li>
+        </ol>
+        <p>If you need more background on how this project treats the
+        wallet, see:
+        <code>docs/backend/architecture/security/oracle-wallet.md</code>.</p>
+        <h3 id="configure-wallet-jdbc-via-environment-variables">2)
+        Configure wallet + JDBC via environment variables</h3>
+        <p>At minimum, set these environment variables in the same shell
+        where you run Maven/tests:</p>
+        <ul>
+        <li><code>TNS_ADMIN</code> → path to the extracted wallet folder
+        (the folder that contains <code>tnsnames.ora</code>)</li>
+        <li><code>DB_URL</code> → Oracle JDBC URL (usually
+        <code>jdbc:oracle:thin:@...</code> with <code>tcps</code>)</li>
+        <li><code>DB_USER</code> / <code>DB_PASS</code> → database
+        credentials</li>
+        </ul>
+        <p>If your wallet is password-protected and your local JVM needs
+        it, also set:</p>
+        <ul>
+        <li><code>ORACLE_WALLET_PASSWORD</code></li>
+        </ul>
+        <p>This repo includes an example <code>.env</code> showing the
+        variable names used locally.</p>
+        <h3 id="allowlist-your-public-ip-in-oracle">3) Allowlist your
+        public IP in Oracle</h3>
+        <p>Oracle Autonomous Database commonly restricts inbound
+        connections.</p>
+        <p>In Oracle Cloud Console → Autonomous Database →
+        <em>Network</em> / <em>Access Control</em>:</p>
+        <ul>
+        <li>Add your current public IPv4 address to the allowlist.</li>
+        <li>If your ISP connection uses a dynamic IP, you may need to
+        refresh this daily (or whenever your IP changes).</li>
+        </ul>
+        <p>If you are on a dynamic IP, only run the Oracle wallet tests
+        when you have just refreshed the allowlist and confirmed your
+        current public IP is permitted.</p>
+        <h3 id="run-the-test-with-the-correct-spring-profile">4) Run the
+        test with the correct Spring profile</h3>
+        <p>The test <code>InventoryServiceApplicationTest</code> is
+        configured to select the Spring profile automatically:</p>
+        <ul>
+        <li>Default: <code>test</code> (H2, CI-safe)</li>
+        <li>If <code>ENABLE_WALLET_TEST=true</code>:
+        <code>oracle-it</code> (real Oracle, manual/local)</li>
+        </ul>
+        <p>The <code>oracle-it</code> profile configuration lives in
+        <code>src/test/resources/application-oracle-it.yml</code>.</p>
+        <h4 id="powershell-example">PowerShell example</h4>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span>ENABLE_WALLET_TEST <span class="op">=</span> <span class="st">&quot;true&quot;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span>TNS_ADMIN <span class="op">=</span> <span class="st">&quot;C:\\path\\to\\wallet\\Wallet_sspdb_fixed&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span>DB_URL <span class="op">=</span> <span class="st">&quot;jdbc:oracle:thin:@...&quot;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span>DB_USER <span class="op">=</span> <span class="st">&quot;...&quot;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span>DB_PASS <span class="op">=</span> <span class="st">&quot;...&quot;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="op">./</span>mvnw <span class="op">-</span>Dtest<span class="op">=</span>InventoryServiceApplicationTest test</span></code></pre></div>
+        <h4 id="bash-example">Bash example</h4>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">ENABLE_WALLET_TEST</span><span class="op">=</span>true</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">TNS_ADMIN</span><span class="op">=</span><span class="st">&quot;/path/to/wallet/Wallet_sspdb_fixed&quot;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DB_URL</span><span class="op">=</span><span class="st">&quot;jdbc:oracle:thin:@...&quot;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DB_USER</span><span class="op">=</span><span class="st">&quot;...&quot;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DB_PASS</span><span class="op">=</span><span class="st">&quot;...&quot;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="ex">./mvnw</span> <span class="at">-Dtest</span><span class="op">=</span>InventoryServiceApplicationTest test</span></code></pre></div>
         <hr />
         <h2 id="testing-transactional-behavior">Testing Transactional
         Behavior</h2>
         <h3 id="transactional-in-tests"><span class="citation"
         data-cites="Transactional">@Transactional</span> in Tests</h3>
-        <div class="sourceCode" id="cb8"><pre
-        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@DataJpaTest</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RepositoryTransactionTest <span class="op">{</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> <span class="kw">private</span> SupplierRepository repo<span class="op">;</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span>  <span class="co">// This test runs in a transaction</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">createAndQuery_inTransaction</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        Supplier s <span class="op">=</span> Supplier<span class="op">.</span><span class="fu">builder</span><span class="op">().</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Acme&quot;</span><span class="op">).</span><span class="fu">build</span><span class="op">();</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> repo<span class="op">.</span><span class="fu">save</span><span class="op">(</span>s<span class="op">);</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Can query immediately within transaction</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;Acme&quot;</span><span class="op">).</span><span class="fu">isPresent</span><span class="op">());</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// No @Transactional = test runs without transaction</span></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Each test auto-rolls back after completion</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">createAndVerifyRollback</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Default behavior: test changes are rolled back</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="at">@DataJpaTest</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RepositoryTransactionTest <span class="op">{</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> <span class="kw">private</span> SupplierRepository repo<span class="op">;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span>  <span class="co">// This test runs in a transaction</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">createAndQuery_inTransaction</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        Supplier s <span class="op">=</span> Supplier<span class="op">.</span><span class="fu">builder</span><span class="op">().</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Acme&quot;</span><span class="op">).</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> repo<span class="op">.</span><span class="fu">save</span><span class="op">(</span>s<span class="op">);</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Can query immediately within transaction</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;Acme&quot;</span><span class="op">).</span><span class="fu">isPresent</span><span class="op">());</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// No @Transactional = test runs without transaction</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Each test auto-rolls back after completion</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">createAndVerifyRollback</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Default behavior: test changes are rolled back</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
         <hr />
         <h2 id="best-practices-for-integration-tests">Best Practices for
         Integration Tests</h2>

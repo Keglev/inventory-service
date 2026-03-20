@@ -128,9 +128,9 @@
         <li><a href="#test-profiles" id="toc-test-profiles">Test
         Profiles</a>
         <ul>
-        <li><a href="#test-profile-application-test.properties"
-        id="toc-test-profile-application-test.properties">test Profile
-        (application-test.properties)</a></li>
+        <li><a href="#test-profile-application-test.yml"
+        id="toc-test-profile-application-test.yml">test Profile
+        (application-test.yml)</a></li>
         </ul></li>
         <li><a href="#test-fixtures-helpers"
         id="toc-test-fixtures-helpers">Test Fixtures &amp; Helpers</a>
@@ -383,7 +383,11 @@
 │   ├── StockHistoryRepositoryAnalyticsTest.java
 │   ├── InventoryItemRepositoryAnalyticsTest.java
 │   └── custom/
-│       └── StockHistoryCustomRepositoryImplTest.java
+│       ├── StockHistoryCustomRepositoryImplTest.java
+│       ├── StockMetricsRepositoryImplTest.java
+│       ├── StockDetailQueryRepositoryImplTest.java
+│       ├── StockTrendAnalyticsRepositoryImplH2Test.java
+│       └── StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest.java
 │
 ├── controller/
 │   ├── supplier/
@@ -549,17 +553,36 @@ src/test/resources/
         Test”</p>
         <hr />
         <h2 id="test-profiles">Test Profiles</h2>
-        <h3 id="test-profile-application-test.properties">test Profile
-        (application-test.properties)</h3>
+        <h3 id="test-profile-application-test.yml">test Profile
+        (application-test.yml)</h3>
         <ul>
         <li>Uses <strong>H2 in-memory database</strong> (Oracle
         compatibility mode)</li>
         <li>Disables Testcontainers checks</li>
         <li>Configures test-specific properties</li>
         </ul>
-        <p><strong>Rationale:</strong> H2 is fast for repository and MVC
-        slice tests; TestContainers provide real Oracle for integration
-        tests that need it.</p>
+        <p><strong>Rationale:</strong> H2 is fast and reliable for
+        repository and MVC slice tests, and it works in any CI
+        environment. Running against the <em>real</em> Oracle Free Tier
+        database in CI is intentionally avoided because:</p>
+        <ul>
+        <li>Access typically requires an Oracle Wallet on the runner and
+        correct client configuration.</li>
+        <li>Oracle Free Tier commonly enforces <strong>IP
+        allowlisting</strong>; GitHub-hosted runners use dynamic egress
+        IPs, so you cannot reliably pre-allowlist them without a
+        dedicated VM, self-hosted runner, or tunneling.</li>
+        </ul>
+        <p>If a test must validate Oracle-specific behavior, prefer: -
+        TestContainers (local/dev environments with Docker), or - A
+        controlled CI environment with a stable outbound IP (self-hosted
+        runner/VM) where allowlisting is feasible.</p>
+        <p>For <strong>manual</strong> testing against Oracle Free Tier
+        from a developer machine, use the opt-in <code>oracle-it</code>
+        profile (wallet-based connectivity). It is intentionally
+        disabled by default and only activates when you explicitly set
+        <code>ENABLE_WALLET_TEST=true</code> for
+        <code>InventoryServiceApplicationTest</code>.</p>
         <pre class="properties"><code># Spring profile for testing
 spring.profiles.active=test
 
