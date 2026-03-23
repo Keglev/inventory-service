@@ -47,7 +47,7 @@ Inventory Service,com.smartsupplypro.inventory.security,OAuth2LoginSuccessHandle
 Inventory Service,com.smartsupplypro.inventory.security,CookieOAuth2AuthorizationRequestRepository.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.security,CookieOAuth2AuthorizationRequestRepository,1,439,7,41,0,109,7,29,0,12
 Inventory Service,com.smartsupplypro.inventory.service,CustomOAuth2UserService,22,181,3,23,4,35,6,17,3,7
-Inventory Service,com.smartsupplypro.inventory.service,CustomOidcUserService,24,171,5,19,4,35,8,14,3,7
+Inventory Service,com.smartsupplypro.inventory.service,CustomOidcUserService,22,173,1,23,4,35,4,18,3,7
 Inventory Service,com.smartsupplypro.inventory.service,SecurityService,0,33,0,6,0,9,0,5,0,2
 Inventory Service,com.smartsupplypro.inventory.service,StockHistoryService,0,161,0,0,0,52,0,10,0,10
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService,9,485,7,47,1,100,7,24,0,4
