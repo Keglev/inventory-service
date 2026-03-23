@@ -52,6 +52,15 @@ class CustomUserServiceNormalizationTest {
     }
 
     @Test
+    void oidc_parseAdminAllowlist_returnsEmptySet_whenRawNullOrBlank() {
+        // GIVEN: unset / empty allow-list payload
+        // WHEN: parsing null and blank values
+        // THEN: the result is an empty set (no admins).
+        Assertions.assertThat(CustomOidcUserService.parseAdminAllowlist(null)).isEmpty();
+        Assertions.assertThat(CustomOidcUserService.parseAdminAllowlist("   ")).isEmpty();
+    }
+
+    @Test
     void oauth2_toRoleAuthority_normalizesRoleNameVariants() throws Exception {
         // GIVEN: role name variants used throughout security configuration
         // WHEN: the service normalizes them to Spring Security ROLE_* authorities

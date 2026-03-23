@@ -58,11 +58,14 @@ final class CustomUserServiceTestSupport {
 
     static OidcUser upstreamOidcUser(String email, String fullName) {
         // Minimal-but-realistic OIDC principal.
-        Map<String, Object> claims = Map.of(
-            "sub", "sub-1",
-            "email", email,
-            "name", fullName
-        );
+        // Note: some providers omit optional claims (e.g., "name").
+        // We build the map dynamically so tests can simulate missing claims.
+        java.util.Map<String, Object> claims = new java.util.LinkedHashMap<>();
+        claims.put("sub", "sub-1");
+        claims.put("email", email);
+        if (fullName != null) {
+            claims.put("name", fullName);
+        }
 
         OidcIdToken idToken = new OidcIdToken(
             "dummy-token",
