@@ -98,6 +98,26 @@ Design note:
 
 ---
 
+## Entity (Model) Unit Tests
+
+Some model entities contain lightweight lifecycle logic (for example, defaulting audit fields or
+resolving denormalized foreign keys) in JPA callback methods like `@PrePersist`.
+
+Guideline:
+- If an entity contains executable lifecycle logic, add a small unit test under
+    `src/test/java/com/smartsupplypro/inventory/model/` that invokes the callback method directly.
+
+Design notes:
+- Keep these tests pure Java (no Spring/JPA context). The goal is to validate deterministic logic,
+    not persistence behavior.
+- Prefer explicit Arrange/Act/Assert comments and cover both “field missing” and “field already set” paths.
+
+Concrete examples in this repository:
+- `src/test/java/com/smartsupplypro/inventory/model/InventoryItemTest.java` (covers `InventoryItem#onCreate()`)
+- `src/test/java/com/smartsupplypro/inventory/model/StockHistoryTest.java` (covers `StockHistory#prePersist()`)
+
+---
+
 ## Validator Unit Tests
 
 In this repository, validator tests are organized as a small set of focused suites so that each

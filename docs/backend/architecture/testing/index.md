@@ -166,6 +166,10 @@ src/test/java/com/smartsupplypro/inventory/
 │   ├── StockHistoryMapperTest.java               (Unit: audit mapping + enum/string conversion)
 │   └── SupplierMapperTest.java                   (Unit: sanitization + audit field handling)
 │
+├── model/
+│   ├── InventoryItemTest.java                    (Unit: entity @PrePersist defaults + supplierId resolution)
+│   └── StockHistoryTest.java                     (Unit: entity @PrePersist timestamp defaulting)
+│
 ├── validation/
 │   ├── InventoryItemValidatorTest.java           (Unit: 159 lines)
 │   ├── InventoryItemValidatorBusinessRulesTest.java (Unit: incremental business rule branches)
@@ -300,6 +304,8 @@ src/test/resources/
 ## Test Coverage
 
 ### Coverage Summary
+
+Note: entity lifecycle hooks (for example `@PrePersist`) should be covered via pure unit tests under `src/test/java/com/smartsupplypro/inventory/model/`.
 
 ```
 ┌─────────────────────────────────────────────────────┐
