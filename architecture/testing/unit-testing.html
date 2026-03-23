@@ -96,6 +96,9 @@
         Unit Tests</a></li>
         <li><a href="#mapper-unit-tests"
         id="toc-mapper-unit-tests">Mapper Unit Tests</a></li>
+        <li><a href="#entity-model-unit-tests"
+        id="toc-entity-model-unit-tests">Entity (Model) Unit
+        Tests</a></li>
         <li><a href="#validator-unit-tests"
         id="toc-validator-unit-tests">Validator Unit Tests</a>
         <ul>
@@ -281,6 +284,26 @@
         methods. Use reflection only when required to cover a private
         helper branch that cannot be reliably triggered through the
         public mapping API.</p>
+        <hr />
+        <h2 id="entity-model-unit-tests">Entity (Model) Unit Tests</h2>
+        <p>Some model entities contain lightweight lifecycle logic (for
+        example, defaulting audit fields or resolving denormalized
+        foreign keys) in JPA callback methods like
+        <code>@PrePersist</code>.</p>
+        <p>Guideline: - If an entity contains executable lifecycle
+        logic, add a small unit test under
+        <code>src/test/java/com/smartsupplypro/inventory/model/</code>
+        that invokes the callback method directly.</p>
+        <p>Design notes: - Keep these tests pure Java (no Spring/JPA
+        context). The goal is to validate deterministic logic, not
+        persistence behavior. - Prefer explicit Arrange/Act/Assert
+        comments and cover both “field missing” and “field already set”
+        paths.</p>
+        <p>Concrete examples in this repository: -
+        <code>src/test/java/com/smartsupplypro/inventory/model/InventoryItemTest.java</code>
+        (covers <code>InventoryItem#onCreate()</code>) -
+        <code>src/test/java/com/smartsupplypro/inventory/model/StockHistoryTest.java</code>
+        (covers <code>StockHistory#prePersist()</code>)</p>
         <hr />
         <h2 id="validator-unit-tests">Validator Unit Tests</h2>
         <p>In this repository, validator tests are organized as a small

@@ -321,6 +321,10 @@
 │   ├── StockHistoryMapperTest.java               (Unit: audit mapping + enum/string conversion)
 │   └── SupplierMapperTest.java                   (Unit: sanitization + audit field handling)
 │
+├── model/
+│   ├── InventoryItemTest.java                    (Unit: entity @PrePersist defaults + supplierId resolution)
+│   └── StockHistoryTest.java                     (Unit: entity @PrePersist timestamp defaulting)
+│
 ├── validation/
 │   ├── InventoryItemValidatorTest.java           (Unit: 159 lines)
 │   ├── InventoryItemValidatorBusinessRulesTest.java (Unit: incremental business rule branches)
@@ -451,6 +455,10 @@ src/test/resources/
         <hr />
         <h2 id="test-coverage">Test Coverage</h2>
         <h3 id="coverage-summary">Coverage Summary</h3>
+        <p>Note: entity lifecycle hooks (for example
+        <code>@PrePersist</code>) should be covered via pure unit tests
+        under
+        <code>src/test/java/com/smartsupplypro/inventory/model/</code>.</p>
         <pre><code>┌─────────────────────────────────────────────────────┐
 │ Test Coverage (via JaCoCo Maven plugin)             │
 ├─────────────────────────────────────────────────────┤
