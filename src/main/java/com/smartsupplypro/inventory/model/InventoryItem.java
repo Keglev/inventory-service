@@ -93,10 +93,13 @@ public class InventoryItem {
         }
         // Enterprise Comment: Supplier ID Resolution
         // Handles test scenarios where supplier object is set but supplierId field is null
-        if ((this.supplierId == null || this.supplierId.isBlank()) && this.supplier != null) {
-            this.supplierId = this.supplier.getId();
-        } else if ((this.supplierId == null || this.supplierId.isBlank()) && this.supplier == null) {
-            this.supplierId = "default-supplier";
+        boolean supplierIdMissing = (this.supplierId == null || this.supplierId.isBlank());
+        if (supplierIdMissing) {
+            if (this.supplier != null) {
+                this.supplierId = this.supplier.getId();
+            } else {
+                this.supplierId = "default-supplier";
+            }
         }
     }
 }
