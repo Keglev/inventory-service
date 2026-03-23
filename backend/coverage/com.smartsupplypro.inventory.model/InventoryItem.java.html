@@ -79,13 +79,13 @@ public class InventoryItem {
      */
     @PrePersist
     protected void onCreate() {
-<span class="pc bpc" id="L82" title="2 of 4 branches missed.">        if (this.id == null || this.id.isBlank()) {</span>
-<span class="nc" id="L83">            this.id = UUID.randomUUID().toString();</span>
+<span class="fc bfc" id="L82" title="All 4 branches covered.">        if (this.id == null || this.id.isBlank()) {</span>
+<span class="fc" id="L83">            this.id = UUID.randomUUID().toString();</span>
         }
-<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (this.createdAt == null) {</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (this.createdAt == null) {</span>
 <span class="fc" id="L86">            this.createdAt = LocalDateTime.now();</span>
         }
-<span class="pc bpc" id="L88" title="1 of 4 branches missed.">        if (this.createdBy == null || this.createdBy.isBlank()) {</span>
+<span class="fc bfc" id="L88" title="All 4 branches covered.">        if (this.createdBy == null || this.createdBy.isBlank()) {</span>
 <span class="fc" id="L89">            this.createdBy = &quot;system&quot;;</span>
         }
 <span class="fc bfc" id="L91" title="All 2 branches covered.">        if (this.minimumQuantity &lt;= 0) {</span>
@@ -93,11 +93,14 @@ public class InventoryItem {
         }
         // Enterprise Comment: Supplier ID Resolution
         // Handles test scenarios where supplier object is set but supplierId field is null
-<span class="pc bpc" id="L96" title="1 of 6 branches missed.">        if ((this.supplierId == null || this.supplierId.isBlank()) &amp;&amp; this.supplier != null) {</span>
-<span class="fc" id="L97">            this.supplierId = this.supplier.getId();</span>
-<span class="pc bpc" id="L98" title="2 of 6 branches missed.">        } else if ((this.supplierId == null || this.supplierId.isBlank()) &amp;&amp; this.supplier == null) {</span>
-<span class="fc" id="L99">            this.supplierId = &quot;default-supplier&quot;;</span>
+<span class="fc bfc" id="L96" title="All 4 branches covered.">        boolean supplierIdMissing = (this.supplierId == null || this.supplierId.isBlank());</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (supplierIdMissing) {</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">            if (this.supplier != null) {</span>
+<span class="fc" id="L99">                this.supplierId = this.supplier.getId();</span>
+            } else {
+<span class="fc" id="L101">                this.supplierId = &quot;default-supplier&quot;;</span>
+            }
         }
-<span class="fc" id="L101">    }</span>
+<span class="fc" id="L104">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
