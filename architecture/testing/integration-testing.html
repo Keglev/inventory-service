@@ -666,6 +666,9 @@ spring.jpa.properties.hibernate.format_sql=false</code></pre>
         assert the selected SQL/parameters without requiring
         Oracle.</li>
         </ul>
+        <p>Note: the profile-based dialect decision itself is validated
+        in a pure unit test:
+        <code>src/test/java/com/smartsupplypro/inventory/repository/custom/util/DatabaseDialectDetectorTest.java</code>.</p>
         <h3 id="testcontainers-configuration-optional">TestContainers
         Configuration (Optional)</h3>
         <div class="sourceCode" id="cb7"><pre

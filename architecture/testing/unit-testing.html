@@ -96,6 +96,9 @@
         Unit Tests</a></li>
         <li><a href="#mapper-unit-tests"
         id="toc-mapper-unit-tests">Mapper Unit Tests</a></li>
+        <li><a href="#utility-builder-unit-tests"
+        id="toc-utility-builder-unit-tests">Utility &amp; Builder Unit
+        Tests</a></li>
         <li><a href="#entity-model-unit-tests"
         id="toc-entity-model-unit-tests">Entity (Model) Unit
         Tests</a></li>
@@ -284,6 +287,32 @@
         methods. Use reflection only when required to cover a private
         helper branch that cannot be reliably triggered through the
         public mapping API.</p>
+        <hr />
+        <h2 id="utility-builder-unit-tests">Utility &amp; Builder Unit
+        Tests</h2>
+        <p>Some of the most important JaCoCo gaps in a Spring Boot
+        codebase are not in services/controllers, but in small
+        “infrastructure helpers” and DTO builders that implement
+        fallback logic.</p>
+        <p>Typical examples: - Environment/profile driven toggles
+        (dialect selection, feature flags) - DTO builders with defensive
+        defaults (blank/null fallbacks, auto-generation of
+        IDs/timestamps)</p>
+        <p>Guideline: - Prefer <strong>pure unit tests</strong> with
+        mocks for the minimal dependency surface. - Explicitly cover
+        both sides of decision points (match vs no match, null/blank vs
+        value). - Use reflection only when the production API
+        intentionally does not expose setters but you still need to lock
+        down “already set” branches in the implementation.</p>
+        <p>Concrete examples in this repository: -
+        <code>src/test/java/com/smartsupplypro/inventory/repository/custom/util/DatabaseDialectDetectorTest.java</code>
+        (mocked {<span class="citation" data-cites="code">@code</span>
+        Environment#getActiveProfiles()} to cover profile matching
+        branches) -
+        <code>src/test/java/com/smartsupplypro/inventory/exception/ErrorResponseBuilderTest.java</code>
+        (covers {<span class="citation" data-cites="link">@link</span>
+        com.smartsupplypro.inventory.exception.dto.ErrorResponse.Builder}
+        fallbacks and auto-generation)</p>
         <hr />
         <h2 id="entity-model-unit-tests">Entity (Model) Unit Tests</h2>
         <p>Some model entities contain lightweight lifecycle logic (for
