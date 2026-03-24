@@ -236,7 +236,9 @@ src/test/java/com/smartsupplypro/inventory/
 │       ├── StockMetricsRepositoryImplTest.java
 │       ├── StockDetailQueryRepositoryImplTest.java
 │       ├── StockTrendAnalyticsRepositoryImplH2Test.java
-│       └── StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest.java
+│       ├── StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest.java
+│       └── util/
+│           └── DatabaseDialectDetectorTest.java   (Unit: profile-based dialect detection branches)
 │
 ├── controller/
 │   ├── supplier/
@@ -265,7 +267,8 @@ src/test/java/com/smartsupplypro/inventory/
 │   ├── InvalidRequestExceptionTest.java          (Unit: exception DTO/context branches)
 │   ├── DuplicateResourceExceptionTest.java       (Unit: message/context branches)
 │   ├── GlobalExceptionHandlerTest.java           (Unit: handler branch coverage)
-│   └── BusinessExceptionHandlerTest.java         (Unit: handler branch coverage)
+│   ├── BusinessExceptionHandlerTest.java         (Unit: handler branch coverage)
+│   └── ErrorResponseBuilderTest.java             (Unit: ErrorResponse.Builder fallback + generation branches)
 │
 ├── security/
 │   ├── SecuritySmokeTest.java                    (Integration: 297 lines)

@@ -98,6 +98,29 @@ Design note:
 
 ---
 
+## Utility & Builder Unit Tests
+
+Some of the most important JaCoCo gaps in a Spring Boot codebase are not in services/controllers, but in
+small “infrastructure helpers” and DTO builders that implement fallback logic.
+
+Typical examples:
+- Environment/profile driven toggles (dialect selection, feature flags)
+- DTO builders with defensive defaults (blank/null fallbacks, auto-generation of IDs/timestamps)
+
+Guideline:
+- Prefer <strong>pure unit tests</strong> with mocks for the minimal dependency surface.
+- Explicitly cover both sides of decision points (match vs no match, null/blank vs value).
+- Use reflection only when the production API intentionally does not expose setters but you still need to
+    lock down “already set” branches in the implementation.
+
+Concrete examples in this repository:
+- `src/test/java/com/smartsupplypro/inventory/repository/custom/util/DatabaseDialectDetectorTest.java`
+    (mocked {@code Environment#getActiveProfiles()} to cover profile matching branches)
+- `src/test/java/com/smartsupplypro/inventory/exception/ErrorResponseBuilderTest.java`
+    (covers {@link com.smartsupplypro.inventory.exception.dto.ErrorResponse.Builder} fallbacks and auto-generation)
+
+---
+
 ## Entity (Model) Unit Tests
 
 Some model entities contain lightweight lifecycle logic (for example, defaulting audit fields or

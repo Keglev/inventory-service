@@ -455,6 +455,9 @@ from a controlled environment (developer machine, dedicated VM, or self-hosted r
 - Execute the H2-native query path on H2, and
 - Use mocks to force the Oracle-branch SQL selection and assert the selected SQL/parameters without requiring Oracle.
 
+Note: the profile-based dialect decision itself is validated in a pure unit test:
+`src/test/java/com/smartsupplypro/inventory/repository/custom/util/DatabaseDialectDetectorTest.java`.
+
 ### TestContainers Configuration (Optional)
 
 ```java
