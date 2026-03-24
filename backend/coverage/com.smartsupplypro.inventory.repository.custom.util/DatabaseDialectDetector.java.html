@@ -40,7 +40,7 @@ public class DatabaseDialectDetector {
      */
     public boolean isH2() {
 <span class="fc" id="L42">        return Arrays.stream(environment.getActiveProfiles())</span>
-<span class="pc bpc" id="L43" title="3 of 4 branches missed.">                .anyMatch(p -&gt; p.equalsIgnoreCase(&quot;test&quot;) || p.equalsIgnoreCase(&quot;h2&quot;));</span>
+<span class="fc bfc" id="L43" title="All 4 branches covered.">                .anyMatch(p -&gt; p.equalsIgnoreCase(&quot;test&quot;) || p.equalsIgnoreCase(&quot;h2&quot;));</span>
     }
 
     /**
@@ -49,7 +49,7 @@ public class DatabaseDialectDetector {
      * @return true if Oracle dialect should be used
      */
     public boolean isOracle() {
-<span class="nc bnc" id="L52" title="All 2 branches missed.">        return !isH2();</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        return !isH2();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
