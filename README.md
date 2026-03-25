@@ -19,7 +19,7 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ## Table of contents
 
-1. [Still under construction](#still-under-construction)
+1. [Current App version](#Current App Version)
 2. [Screenshots](#screenshots)
 3. [Project status](#project-status)
 4. [Features](#features)
@@ -35,12 +35,12 @@ This project simulates a real-world software system for small-to-medium manufact
 10. [Available Scripts](#available-scripts)
 11. [Coming next](#coming-next)
 
-<a id="still-under-construction"></a>
-## Still under construction
+<a id="Current App Version"></a>
+## Current App Version
 
-> ⚠️ **Still under construction**
-> - Enterprise documentation is not yet complete
-> - Frontend development still not complete
+> ⚠️ **Current App Version**
+> - Enterprise documentation is now complete
+> - Backend working and tests are about 85% coverage; Frontend working and 86% test coverage.
 
 ---
 
