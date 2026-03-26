@@ -2,6 +2,7 @@
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Main application class for the SmartSupplyPro Inventory Service.
@@ -26,7 +27,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @see &lt;a href=&quot;https://keglev.github.io/inventory-service/api.html&quot;&gt;API Documentation&lt;/a&gt;
  */
 @SpringBootApplication
-<span class="fc" id="L29">public class InventoryServiceApplication {</span>
+<span class="fc" id="L30">public class InventoryServiceApplication {</span>
 
     /**
      * Main entry point for the Inventory Service application.
@@ -40,7 +41,31 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
      * @param args command-line arguments (typically empty in containerized deployments)
      */
     public static void main(String[] args) {
-<span class="nc" id="L43">        SpringApplication.run(InventoryServiceApplication.class, args);</span>
-<span class="nc" id="L44">    }</span>
+<span class="fc" id="L44">        run(args);</span>
+<span class="fc" id="L45">    }</span>
+
+    static ConfigurableApplicationContext run(String[] args) {
+<span class="fc" id="L48">        ConfigurableApplicationContext applicationContext = SpringApplication.run(InventoryServiceApplication.class, args);</span>
+
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (shouldCloseAfterStartup(args)) {</span>
+<span class="fc" id="L51">            applicationContext.close();</span>
+        }
+
+<span class="fc" id="L54">        return applicationContext;</span>
+    }
+
+    private static boolean shouldCloseAfterStartup(String[] args) {
+<span class="fc bfc" id="L58" title="All 4 branches covered.">        if (args == null || args.length == 0) {</span>
+<span class="fc" id="L59">            return false;</span>
+        }
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for (String arg : args) {</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">            if (&quot;--ssp.close=true&quot;.equals(arg)) {</span>
+<span class="fc" id="L64">                return true;</span>
+            }
+        }
+
+<span class="fc" id="L68">        return false;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
