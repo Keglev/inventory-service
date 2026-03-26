@@ -2,6 +2,7 @@ package com.smartsupplypro.inventory;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Main application class for the SmartSupplyPro Inventory Service.
@@ -40,6 +41,30 @@ public class InventoryServiceApplication {
      * @param args command-line arguments (typically empty in containerized deployments)
      */
     public static void main(String[] args) {
-        SpringApplication.run(InventoryServiceApplication.class, args);
+        run(args);
+    }
+
+    static ConfigurableApplicationContext run(String[] args) {
+        ConfigurableApplicationContext applicationContext = SpringApplication.run(InventoryServiceApplication.class, args);
+
+        if (shouldCloseAfterStartup(args)) {
+            applicationContext.close();
+        }
+
+        return applicationContext;
+    }
+
+    private static boolean shouldCloseAfterStartup(String[] args) {
+        if (args == null || args.length == 0) {
+            return false;
+        }
+
+        for (String arg : args) {
+            if ("--ssp.close=true".equals(arg)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
