@@ -157,6 +157,7 @@ class SupplierRepositoryTest {
 ```
 src/test/java/com/smartsupplypro/inventory/
 ├── InventoryServiceApplicationTest.java          (Context load smoke test)
+├── InventoryServiceApplicationMainTest.java      (Entry-point coverage: invokes main() and closes immediately)
 │
 ├── enums/
 │   └── StockChangeReasonTest.java                (Unit: enum helper methods + parsing)
