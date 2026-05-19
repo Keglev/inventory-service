@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.lang.NonNull;
 
 import com.smartsupplypro.inventory.model.InventoryItem;
 
@@ -35,6 +37,11 @@ import com.smartsupplypro.inventory.model.InventoryItem;
  * @see <a href="file:../../../../../../docs/architecture/patterns/repository-patterns.md">Repository Patterns</a>
  */
 public interface InventoryItemRepository extends JpaRepository<InventoryItem, String> {
+
+    @Override
+    @EntityGraph(attributePaths = {"supplier"})
+    @NonNull
+    List<InventoryItem> findAll();
 
     /**
      * Checks if supplier has active stock before deletion (uses supplier relation or FK).
@@ -137,6 +144,7 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * @param pageable pagination parameters
      * @return paginated results sorted by price ascending
      */
+    @EntityGraph(attributePaths = {"supplier"})
     @Query("""
         SELECT i FROM InventoryItem i
         WHERE LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%'))
@@ -169,4 +177,5 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * @return true if matching items exist
      */
     boolean existsBySupplier_IdAndQuantityGreaterThan(String supplierId, int quantity);
+
 }
