@@ -89,15 +89,21 @@ export const useInventoryData = (
   // Load inventory from backend
   const load = React.useCallback(async () => {
     setLoading(true);
-    const res = await getInventoryPage({
-      page: serverPage,
-      pageSize,
-      q,
-      supplierId: supplierId ?? undefined,
-      sort: serverSort,
-    });
-    setServer(res);
-    setLoading(false);
+    try {
+      const res = await getInventoryPage({
+        page: serverPage,
+        pageSize,
+        q,
+        supplierId: supplierId ?? undefined,
+        sort: serverSort,
+      });
+      setServer(res);
+    } catch (err) {
+      console.error('Failed to load inventory:', err);
+      setServer({ items: [], total: 0, page: serverPage, pageSize });
+    } finally {
+      setLoading(false);
+    }
   }, [serverPage, pageSize, q, supplierId, serverSort]);
 
   React.useEffect(() => {
