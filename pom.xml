@@ -41,7 +41,7 @@
   -->
   <properties>
     <java.version>17</java.version>
-    <tomcat.version>10.1.45</tomcat.version>
+    <tomcat.version>10.1.55</tomcat.version>
     <spring-security.version>6.5.4</spring-security.version>
     <spring-framework.version>6.2.11</spring-framework.version>
     <!-- Override Spring Boot managed Jackson BOM to address Trivy finding GHSA-72hv-8253-57qq -->
@@ -51,7 +51,7 @@
   <!--
     Explicit BOM import:
       - Makes dependency management visible to IDE linters.
-      - Works alongside the parent; the import is the same BOM (3.5.5).
+      - Works alongside the parent; the import is the same BOM (3.5.14).
       - Property overrides above are honored by this BOM.
   -->
   <dependencyManagement>
