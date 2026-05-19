@@ -50,13 +50,11 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * @param minQty minimum quantity threshold
      * @return true if any linked item has quantity > minQty
      */
-    @Query("""
-        select (count(i) > 0)
-        from InventoryItem i
-        left join i.supplier s
-        where (s.id = :supplierId or i.supplierId = :supplierId)
-            and i.quantity > :minQty
-    """)
+    @Query("select (count(i) > 0) "
+        + "from InventoryItem i "
+        + "left join i.supplier s "
+        + "where (s.id = :supplierId or i.supplierId = :supplierId) "
+        + "and i.quantity > :minQty")
     boolean existsActiveStockForSupplier(@Param("supplierId") String supplierId,
                                          @Param("minQty") int minQty);
 
@@ -93,13 +91,11 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * @param supplierId optional supplier filter
      * @return Object arrays with low-stock item data
      */
-    @Query(value = """
-        SELECT name, quantity, minimum_quantity
-        FROM inventory_item
-        WHERE quantity < minimum_quantity
-          AND (:supplierId IS NULL OR supplier_id = :supplierId)
-        ORDER BY quantity ASC
-        """, nativeQuery = true)
+    @Query(value = "SELECT name, quantity, minimum_quantity "
+        + "FROM inventory_item "
+        + "WHERE quantity < minimum_quantity "
+        + "AND (:supplierId IS NULL OR supplier_id = :supplierId) "
+        + "ORDER BY quantity ASC", nativeQuery = true)
     List<Object[]> findItemsBelowMinimumStockFiltered(@Param("supplierId") String supplierId);
 
     /**
@@ -108,12 +104,10 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * @param supplierId optional supplier filter
      * @return count of low-stock items
      */
-    @Query(value = """
-        SELECT COUNT(*)
-        FROM inventory_item
-        WHERE quantity < minimum_quantity
-            AND (:supplierId IS NULL OR supplier_id = :supplierId)
-        """, nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) "
+        + "FROM inventory_item "
+        + "WHERE quantity < minimum_quantity "
+        + "AND (:supplierId IS NULL OR supplier_id = :supplierId)", nativeQuery = true)
     long countItemsBelowMinimumStockFiltered(@Param("supplierId") String supplierId);
 
     /**
@@ -122,11 +116,9 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * @param threshold quantity threshold
      * @return count of items below threshold
      */
-    @Query("""
-        SELECT COUNT(i)
-        FROM InventoryItem i
-        WHERE COALESCE(i.quantity, 0) < :threshold
-        """)
+    @Query("SELECT COUNT(i) "
+        + "FROM InventoryItem i "
+        + "WHERE COALESCE(i.quantity, 0) < :threshold")
     long countWithQuantityBelow(@Param("threshold") int threshold);
 
     /**
@@ -145,11 +137,9 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * @return paginated results sorted by price ascending
      */
     @EntityGraph(attributePaths = {"supplier"})
-    @Query("""
-        SELECT i FROM InventoryItem i
-        WHERE LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%'))
-        ORDER BY i.price ASC
-    """)
+    @Query("SELECT i FROM InventoryItem i "
+        + "WHERE LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%')) "
+        + "ORDER BY i.price ASC")
     Page<InventoryItem> findByNameSortedByPrice(@Param("name") String name, Pageable pageable);
 
     /**
