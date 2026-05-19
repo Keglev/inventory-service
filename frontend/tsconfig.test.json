@@ -5,6 +5,7 @@
 {
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
     "baseUrl": ".",
     "paths": {
