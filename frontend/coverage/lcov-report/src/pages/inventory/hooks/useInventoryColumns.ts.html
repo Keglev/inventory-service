@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">79.41% </span>
+                <span class="strong">77.41% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>108/136</span>
+                <span class='fraction'>96/124</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80% </span>
+                <span class="strong">72.72% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>24/30</span>
+                <span class='fraction'>24/33</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">79.41% </span>
+                <span class="strong">77.41% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>108/136</span>
+                <span class='fraction'>96/124</span>
             </div>
         
             
@@ -187,19 +187,7 @@
 <a name='L122'></a><a href='#L122'>122</a>
 <a name='L123'></a><a href='#L123'>123</a>
 <a name='L124'></a><a href='#L124'>124</a>
-<a name='L125'></a><a href='#L125'>125</a>
-<a name='L126'></a><a href='#L126'>126</a>
-<a name='L127'></a><a href='#L127'>127</a>
-<a name='L128'></a><a href='#L128'>128</a>
-<a name='L129'></a><a href='#L129'>129</a>
-<a name='L130'></a><a href='#L130'>130</a>
-<a name='L131'></a><a href='#L131'>131</a>
-<a name='L132'></a><a href='#L132'>132</a>
-<a name='L133'></a><a href='#L133'>133</a>
-<a name='L134'></a><a href='#L134'>134</a>
-<a name='L135'></a><a href='#L135'>135</a>
-<a name='L136'></a><a href='#L136'>136</a>
-<a name='L137'></a><a href='#L137'>137</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L125'></a><a href='#L125'>125</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -249,9 +237,6 @@
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
@@ -279,9 +264,6 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -305,12 +287,6 @@
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
@@ -377,18 +353,15 @@ export const useInventoryColumns = (): GridColDef[] =&gt; {
         field: 'code',
         headerName: t('inventory:table.code', 'Code / SKU'),
         width: 140,
-        valueGetter: ({ row }: { row: InventoryRow }) =&gt; row.code ?? '—',
+        valueGetter: (_value: unknown, row: InventoryRow | null) =&gt; row?.code ?? '—',
       },
       {
         field: 'onHand',
         headerName: t('inventory:table.onHand', 'On-hand'),
         type: 'number',
         width: 140,
-        valueGetter: ({
-          row,
-        }: {
-          row: InventoryRow &amp; { quantity?: number | null };
-        }) =&gt; {
+        valueGetter: (_value: unknown, row: (InventoryRow &amp; { quantity?: number | null }) | null) =&gt; {
+          if (!row) <span class="branch-0 cbranch-no" title="branch not covered" >return 0;</span>
           const fromNormalized =
             typeof row.onHand === 'number' &amp;&amp; Number.isFinite(row.onHand)
               ? row.onHand
@@ -410,11 +383,8 @@ export const useInventoryColumns = (): GridColDef[] =&gt; {
         headerName: t('inventory:table.minQty', 'Min. Qty'),
         type: 'number',
         width: 140,
-        valueGetter: ({
-          row,
-        }: {
-          row: InventoryRow &amp; { minimumQuantity?: number | string | null };
-        }) =&gt; {
+        valueGetter: (_value: unknown, row: (InventoryRow &amp; { minimumQuantity?: number | string | null }) | null) =&gt; {
+          if (!row) <span class="branch-0 cbranch-no" title="branch not covered" >return 0;</span>
           const raw = row.minQty ?? row.<span class="branch-0 cbranch-no" title="branch not covered" >minimumQuantity ?? 0;</span>
           if (typeof raw === 'number' &amp;&amp; Number.isFinite(raw)) return raw;
           if (typeof raw === 'string' &amp;&amp; raw.trim() !== '') {
@@ -440,14 +410,8 @@ export const useInventoryColumns = (): GridColDef[] =&gt; {
         field: 'updatedAt',
         headerName: t('inventory:table.updated', 'Updated'),
         width: 190,
-        valueGetter: ({
-          row,
-        }: {
-          row: InventoryRow &amp; {
-            createdAt?: string | null;
-            created_at?: string | null;
-          };
-        }) =&gt; {
+        valueGetter: (_value: unknown, row: (InventoryRow &amp; { createdAt?: string | null; created_at?: string | null }) | null) =&gt; {
+          if (!row) <span class="branch-0 cbranch-no" title="branch not covered" >return null;</span>
           return row.updatedAt ?? row.createdAt ?? row.created_at ?? null;
         },
         valueFormatter: ({ value }: { value: unknown }) =&gt; {
@@ -478,7 +442,7 @@ export const useInventoryColumns = (): GridColDef[] =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-05-20T10:03:47.007Z
+                at 2026-05-20T10:47:09.809Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
