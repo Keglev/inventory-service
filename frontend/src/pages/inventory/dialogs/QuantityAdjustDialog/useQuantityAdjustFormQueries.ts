@@ -112,17 +112,22 @@ export const useQuantityAdjustFormQueries = (
   // Effects
   // ================================
 
+  // Destructure individual setters so the dependency array uses stable
+  // React useState setter references instead of the whole `setters` object
+  // (which is recreated on every render, causing the effect to fire every render).
+  const { setSelectedItem, setItemQuery, setFormError } = setters;
+
   /**
    * Reset item search when supplier changes.
    * Prevents cross-supplier item selection errors.
    */
   React.useEffect(() => {
-    setters.setSelectedItem(null);
-    setters.setItemQuery('');
+    setSelectedItem(null);
+    setItemQuery('');
     setValue('itemId', '');
     setValue('newQuantity', 0);
-    setters.setFormError('');
-  }, [state.selectedSupplier, setValue, setters]);
+    setFormError('');
+  }, [state.selectedSupplier, setValue, setSelectedItem, setItemQuery, setFormError]);
 
   /**
    * Update form value when item is selected.
