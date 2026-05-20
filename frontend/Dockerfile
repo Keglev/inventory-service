@@ -7,7 +7,7 @@ WORKDIR /app
 # Install deps with good layer caching
 # NOTE: Build context is repo root (.) in CI, so we must copy from frontend/
 COPY frontend/package*.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Bring in the rest of the source code
 # NOTE: Copy the frontend/ subtree into /app
