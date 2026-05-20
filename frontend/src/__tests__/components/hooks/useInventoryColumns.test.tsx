@@ -44,10 +44,8 @@ vi.mock('react-i18next', () => ({
 // Test helpers
 // -----------------------------------------------------------------------------
 
-type GridValueGetterParams<R> = {
-  value: unknown;
-  row: R;
-};
+// MUI DataGrid v7+ valueGetter signature: (value, row) => result
+type ValueGetter<R> = (value: unknown, row: R | null) => unknown;
 
 type GridValueFormatterParams = {
   value: unknown;
@@ -114,7 +112,7 @@ describe('useInventoryColumns', () => {
     const { result } = setup();
 
     const codeCol = getColumnByField(result.current, 'code') as
-      | { valueGetter?: (params: GridValueGetterParams<InventoryRow>) => unknown }
+      | { valueGetter?: ValueGetter<InventoryRow> }
       | undefined;
 
     expect(codeCol).toBeDefined();
@@ -135,8 +133,8 @@ describe('useInventoryColumns', () => {
       minQty: 5,
     };
 
-    expect(codeCol?.valueGetter?.({ value: undefined, row: rowWithCode })).toBe('ABC123');
-    expect(codeCol?.valueGetter?.({ value: undefined, row: rowWithoutCode })).toBe('—');
+    expect(codeCol?.valueGetter?.(undefined, rowWithCode)).toBe('ABC123');
+    expect(codeCol?.valueGetter?.(undefined, rowWithoutCode)).toBe('—');
   });
 
   it('normalizes the onHand column from onHand → quantity → 0', () => {
@@ -145,7 +143,7 @@ describe('useInventoryColumns', () => {
     const onHandCol = getColumnByField(result.current, 'onHand') as
       | {
           type?: string;
-          valueGetter?: (params: GridValueGetterParams<InventoryRow & { quantity?: number }>) => unknown;
+          valueGetter?: ValueGetter<InventoryRow & { quantity?: number }>;
         }
       | undefined;
 
@@ -154,15 +152,15 @@ describe('useInventoryColumns', () => {
     expect(onHandCol?.valueGetter).toBeTypeOf('function');
 
     const rowWithOnHand: InventoryRow = { id: '1', name: 'Test', onHand: 100, minQty: 5 };
-    expect(onHandCol?.valueGetter?.({ value: undefined, row: rowWithOnHand })).toBe(100);
+    expect(onHandCol?.valueGetter?.(undefined, rowWithOnHand)).toBe(100);
 
     const rowWithQuantity = { id: '2', name: 'Test', quantity: 50, minQty: 5 } as InventoryRow & {
       quantity: number;
     };
-    expect(onHandCol?.valueGetter?.({ value: undefined, row: rowWithQuantity })).toBe(50);
+    expect(onHandCol?.valueGetter?.(undefined, rowWithQuantity)).toBe(50);
 
     const rowDefaultZero: InventoryRow = { id: '3', name: 'Test', minQty: 5, onHand: 0 };
-    expect(onHandCol?.valueGetter?.({ value: undefined, row: rowDefaultZero })).toBe(0);
+    expect(onHandCol?.valueGetter?.(undefined, rowDefaultZero)).toBe(0);
   });
 
   it('normalizes the minQty column from minQty → minimumQuantity(string) → 0', () => {
@@ -171,9 +169,7 @@ describe('useInventoryColumns', () => {
     const minQtyCol = getColumnByField(result.current, 'minQty') as
       | {
           type?: string;
-          valueGetter?: (
-            params: GridValueGetterParams<InventoryRow & { minimumQuantity?: string }>,
-          ) => unknown;
+          valueGetter?: ValueGetter<InventoryRow & { minimumQuantity?: string }>;
         }
       | undefined;
 
@@ -182,7 +178,7 @@ describe('useInventoryColumns', () => {
     expect(minQtyCol?.valueGetter).toBeTypeOf('function');
 
     const rowWithMinQty: InventoryRow = { id: '1', name: 'Test', onHand: 10, minQty: 15 };
-    expect(minQtyCol?.valueGetter?.({ value: undefined, row: rowWithMinQty })).toBe(15);
+    expect(minQtyCol?.valueGetter?.(undefined, rowWithMinQty)).toBe(15);
 
     const rowWithMinimumQuantity = {
       id: '2',
@@ -190,10 +186,10 @@ describe('useInventoryColumns', () => {
       onHand: 10,
       minimumQuantity: '20',
     } as InventoryRow & { minimumQuantity: string };
-    expect(minQtyCol?.valueGetter?.({ value: undefined, row: rowWithMinimumQuantity })).toBe(20);
+    expect(minQtyCol?.valueGetter?.(undefined, rowWithMinimumQuantity)).toBe(20);
 
     const rowDefaultZero: InventoryRow = { id: '3', name: 'Test', onHand: 10, minQty: 0 };
-    expect(minQtyCol?.valueGetter?.({ value: undefined, row: rowDefaultZero })).toBe(0);
+    expect(minQtyCol?.valueGetter?.(undefined, rowDefaultZero)).toBe(0);
   });
 
   it('normalizes the updatedAt column from updatedAt → createdAt → null', () => {
@@ -201,9 +197,7 @@ describe('useInventoryColumns', () => {
 
     const updatedCol = getColumnByField(result.current, 'updatedAt') as
       | {
-          valueGetter?: (
-            params: GridValueGetterParams<InventoryRow & { createdAt?: string }>,
-          ) => unknown;
+          valueGetter?: ValueGetter<InventoryRow & { createdAt?: string }>;
         }
       | undefined;
 
@@ -217,7 +211,7 @@ describe('useInventoryColumns', () => {
       minQty: 5,
       updatedAt: '2023-12-01T10:00:00Z',
     };
-    expect(updatedCol?.valueGetter?.({ value: undefined, row: rowUpdatedAt })).toBe(
+    expect(updatedCol?.valueGetter?.(undefined, rowUpdatedAt)).toBe(
       '2023-12-01T10:00:00Z',
     );
 
@@ -228,12 +222,12 @@ describe('useInventoryColumns', () => {
       minQty: 5,
       createdAt: '2023-11-01T10:00:00Z',
     } as InventoryRow & { createdAt: string };
-    expect(updatedCol?.valueGetter?.({ value: undefined, row: rowCreatedAt })).toBe(
+    expect(updatedCol?.valueGetter?.(undefined, rowCreatedAt)).toBe(
       '2023-11-01T10:00:00Z',
     );
 
     const rowNull: InventoryRow = { id: '3', name: 'Test', onHand: 10, minQty: 5 };
-    expect(updatedCol?.valueGetter?.({ value: undefined, row: rowNull })).toBeNull();
+    expect(updatedCol?.valueGetter?.(undefined, rowNull)).toBeNull();
   });
 
   it('formats updatedAt as a placeholder when the value is empty', () => {

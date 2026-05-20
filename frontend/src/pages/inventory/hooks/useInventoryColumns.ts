@@ -40,18 +40,15 @@ export const useInventoryColumns = (): GridColDef[] => {
         field: 'code',
         headerName: t('inventory:table.code', 'Code / SKU'),
         width: 140,
-        valueGetter: ({ row }: { row: InventoryRow }) => row.code ?? '—',
+        valueGetter: (_value: unknown, row: InventoryRow | null) => row?.code ?? '—',
       },
       {
         field: 'onHand',
         headerName: t('inventory:table.onHand', 'On-hand'),
         type: 'number',
         width: 140,
-        valueGetter: ({
-          row,
-        }: {
-          row: InventoryRow & { quantity?: number | null };
-        }) => {
+        valueGetter: (_value: unknown, row: (InventoryRow & { quantity?: number | null }) | null) => {
+          if (!row) return 0;
           const fromNormalized =
             typeof row.onHand === 'number' && Number.isFinite(row.onHand)
               ? row.onHand
@@ -73,11 +70,8 @@ export const useInventoryColumns = (): GridColDef[] => {
         headerName: t('inventory:table.minQty', 'Min. Qty'),
         type: 'number',
         width: 140,
-        valueGetter: ({
-          row,
-        }: {
-          row: InventoryRow & { minimumQuantity?: number | string | null };
-        }) => {
+        valueGetter: (_value: unknown, row: (InventoryRow & { minimumQuantity?: number | string | null }) | null) => {
+          if (!row) return 0;
           const raw = row.minQty ?? row.minimumQuantity ?? 0;
           if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
           if (typeof raw === 'string' && raw.trim() !== '') {
@@ -103,14 +97,8 @@ export const useInventoryColumns = (): GridColDef[] => {
         field: 'updatedAt',
         headerName: t('inventory:table.updated', 'Updated'),
         width: 190,
-        valueGetter: ({
-          row,
-        }: {
-          row: InventoryRow & {
-            createdAt?: string | null;
-            created_at?: string | null;
-          };
-        }) => {
+        valueGetter: (_value: unknown, row: (InventoryRow & { createdAt?: string | null; created_at?: string | null }) | null) => {
+          if (!row) return null;
           return row.updatedAt ?? row.createdAt ?? row.created_at ?? null;
         },
         valueFormatter: ({ value }: { value: unknown }) => {

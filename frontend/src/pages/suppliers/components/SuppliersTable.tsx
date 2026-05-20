@@ -108,25 +108,25 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
       field: 'contactName',
       headerName: t('suppliers:table.contactName', 'Contact'),
       width: 150,
-      valueGetter: ({ row }: { row: SupplierRow }) => row.contactName ?? '—',
+      valueGetter: (_value: unknown, row: SupplierRow | null) => row?.contactName ?? '—',
     },
     {
       field: 'phone',
       headerName: t('suppliers:table.phone', 'Phone'),
       width: 140,
-      valueGetter: ({ row }: { row: SupplierRow }) => row.phone ?? '—',
+      valueGetter: (_value: unknown, row: SupplierRow | null) => row?.phone ?? '—',
     },
     {
       field: 'email',
       headerName: t('suppliers:table.email', 'Email'),
       width: 180,
-      valueGetter: ({ row }: { row: SupplierRow }) => row.email ?? '—',
+      valueGetter: (_value: unknown, row: SupplierRow | null) => row?.email ?? '—',
     },
     {
       field: 'createdAt',
       headerName: t('suppliers:table.createdAt', 'Created'),
       width: 180,
-      valueGetter: ({ row }: { row: SupplierRow }) => row.createdAt ?? null,
+      valueGetter: (_value: unknown, row: SupplierRow | null) => row?.createdAt ?? null,
       valueFormatter: ({ value }: { value: unknown }) => {
         if (!value) return '—';
         try {
