@@ -102,21 +102,21 @@ suppliers/validation/variables/createSupplierSchema · Smart Supply Pro · Front
         <p><code>const</code> <strong>createSupplierSchema</strong>:
         <code>ZodObject</code>&lt;{ <code>contactName</code>:
         <code>ZodPipe</code>&lt;<code>ZodOptional</code>&lt;<code>ZodString</code>&gt;,
-        <code>ZodTransform</code>&lt;<code>null</code> |
-        <code>string</code>, <code>undefined</code> |
-        <code>string</code>&gt;&gt;; <code>email</code>:
+        <code>ZodTransform</code>&lt;<code>string</code> |
+        <code>null</code>, <code>string</code> |
+        <code>undefined</code>&gt;&gt;; <code>email</code>:
         <code>ZodPipe</code>&lt;<code>ZodOptional</code>&lt;<code>ZodString</code>&gt;,
-        <code>ZodTransform</code>&lt;<code>null</code> |
-        <code>string</code>, <code>undefined</code> |
-        <code>string</code>&gt;&gt;; <code>name</code>:
+        <code>ZodTransform</code>&lt;<code>string</code> |
+        <code>null</code>, <code>string</code> |
+        <code>undefined</code>&gt;&gt;; <code>name</code>:
         <code>ZodString</code>; <code>phone</code>:
         <code>ZodPipe</code>&lt;<code>ZodOptional</code>&lt;<code>ZodString</code>&gt;,
-        <code>ZodTransform</code>&lt;<code>null</code> |
-        <code>string</code>, <code>undefined</code> |
-        <code>string</code>&gt;&gt;; }, <code>$strip</code>&gt;</p>
+        <code>ZodTransform</code>&lt;<code>string</code> |
+        <code>null</code>, <code>string</code> |
+        <code>undefined</code>&gt;&gt;; }, <code>$strip</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/ad7e1afd30a40551b8f4e2db64983c548ae16922/frontend/src/api/suppliers/validation.ts#L26">src/api/suppliers/validation.ts:26</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fa1f0cf85cc169534ae23d601bae07801ebea9ec/frontend/src/api/suppliers/validation.ts#L26">api/suppliers/validation.ts:26</a></p>
         <p>Schema for creating a new supplier. Handles supplier creation
         with optional contact information. Mirrors backend validation in
         supplier controller.</p>

@@ -111,26 +111,25 @@ suppliers/hooks/useSupplierByIdQuery/functions/useSupplierByIdQuery · Smart Sup
         useSupplierByIdQuery()</h1>
         <blockquote>
         <p><strong>useSupplierByIdQuery</strong>(<code>supplierId</code>,
-        <code>enabled</code>):
-        <code>UseQueryResult</code>&lt;<code>null</code> | <a
-        href="types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>,
-        <code>Error</code>&gt;</p>
+        <code>enabled</code>): <code>UseQueryResult</code>&lt;<a
+        href="types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>
+        | <code>null</code>, <code>Error</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/ad7e1afd30a40551b8f4e2db64983c548ae16922/frontend/src/api/suppliers/hooks/useSupplierByIdQuery.ts#L38">src/api/suppliers/hooks/useSupplierByIdQuery.ts:38</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fa1f0cf85cc169534ae23d601bae07801ebea9ec/frontend/src/api/suppliers/hooks/useSupplierByIdQuery.ts#L38">api/suppliers/hooks/useSupplierByIdQuery.ts:38</a></p>
         <p>Hook to load a single supplier by ID. Useful for edit dialogs
         that need to display current supplier data.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="supplierid">supplierId</h3>
         <p>The ID of the supplier to load</p>
-        <p><code>null</code> | <code>string</code></p>
+        <p><code>string</code> | <code>null</code></p>
         <h3 id="enabled">enabled</h3>
         <p><code>boolean</code> = <code>true</code></p>
         <p>Whether to fetch (defaults to true)</p>
         <h2 id="returns">Returns</h2>
-        <p><code>UseQueryResult</code>&lt;<code>null</code> | <a
-        href="types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>,
-        <code>Error</code>&gt;</p>
+        <p><code>UseQueryResult</code>&lt;<a
+        href="types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>
+        | <code>null</code>, <code>Error</code>&gt;</p>
         <p>React Query result with supplier data or null</p>
         <h2 id="remarks">Remarks</h2>
         <p>Currently fetches via the list endpoint with search filter. A
