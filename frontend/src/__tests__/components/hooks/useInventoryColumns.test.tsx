@@ -46,10 +46,8 @@ vi.mock('react-i18next', () => ({
 
 // MUI DataGrid v7+ valueGetter signature: (value, row) => result
 type ValueGetter<R> = (value: unknown, row: R | null) => unknown;
-
-type GridValueFormatterParams = {
-  value: unknown;
-};
+// MUI DataGrid v7+ valueFormatter signature: (value) => string
+type ValueFormatter = (value: unknown) => string;
 
 function setup() {
   return renderHook(() => useInventoryColumns(), { wrapper: AllProviders });
@@ -234,14 +232,14 @@ describe('useInventoryColumns', () => {
     const { result } = setup();
 
     const updatedCol = getColumnByField(result.current, 'updatedAt') as
-      | { valueFormatter?: (params: GridValueFormatterParams) => string }
+      | { valueFormatter?: ValueFormatter }
       | undefined;
 
     expect(updatedCol).toBeDefined();
 
     // The formatter is responsible for the UI placeholder on missing dates.
-    expect(updatedCol?.valueFormatter?.({ value: null })).toBe('—');
-    expect(updatedCol?.valueFormatter?.({ value: undefined })).toBe('—');
+    expect(updatedCol?.valueFormatter?.(null)).toBe('—');
+    expect(updatedCol?.valueFormatter?.(undefined)).toBe('—');
   });
 
   it('keeps the same column array reference across re-renders (memoization)', () => {

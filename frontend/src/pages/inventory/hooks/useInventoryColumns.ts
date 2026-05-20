@@ -59,7 +59,7 @@ export const useInventoryColumns = (): GridColDef[] => {
               : undefined;
           return fromNormalized ?? fromBackend ?? 0;
         },
-        valueFormatter: ({ value }: { value: unknown }) => {
+        valueFormatter: (value: unknown) => {
           const numeric =
             typeof value === 'number' && Number.isFinite(value) ? value : 0;
           return formatNumber(numeric, userPreferences.numberFormat);
@@ -80,7 +80,7 @@ export const useInventoryColumns = (): GridColDef[] => {
           }
           return 0;
         },
-        valueFormatter: ({ value }: { value: unknown }) => {
+        valueFormatter: (value: unknown) => {
           const numeric =
             typeof value === 'number'
               ? value
@@ -101,7 +101,7 @@ export const useInventoryColumns = (): GridColDef[] => {
           if (!row) return null;
           return row.updatedAt ?? row.createdAt ?? row.created_at ?? null;
         },
-        valueFormatter: ({ value }: { value: unknown }) => {
+        valueFormatter: (value: unknown) => {
           if (value === null || value === undefined || value === '') {
             return '—';
           }

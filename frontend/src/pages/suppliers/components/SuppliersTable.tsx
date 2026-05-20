@@ -127,7 +127,7 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
       headerName: t('suppliers:table.createdAt', 'Created'),
       width: 180,
       valueGetter: (_value: unknown, row: SupplierRow | null) => row?.createdAt ?? null,
-      valueFormatter: ({ value }: { value: unknown }) => {
+      valueFormatter: (value: unknown) => {
         if (!value) return '—';
         try {
           return formatDate(new Date(String(value)), userPreferences.dateFormat);
