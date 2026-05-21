@@ -7,6 +7,11 @@
 ```java
 public interface InventoryItemRepository extends JpaRepository<InventoryItem, String> {
 
+    @Override
+    @EntityGraph(attributePaths = {"supplier"})
+    @NonNull
+    List<InventoryItem> findAll();
+
     @Query("""
         select (count(i) > 0)
         from InventoryItem i
@@ -49,6 +54,7 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
 
     List<InventoryItem> findByNameIgnoreCase(String name);
 
+    @EntityGraph(attributePaths = {"supplier"})
     @Query("""
         SELECT i FROM InventoryItem i
         WHERE LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%'))
@@ -76,6 +82,31 @@ Provides data access for **InventoryItem** entities with capabilities for:
 ---
 
 ## Custom Query Methods
+
+### findAll() — @EntityGraph override (N+1 fix)
+
+**Purpose:** Eagerly fetch the `supplier` relation for all inventory items in a single JOIN query, eliminating the N+1 problem that would otherwise occur when accessing `item.getSupplier()` in a loop.
+
+**Type:** JpaRepository override with `@EntityGraph`
+
+**Why it exists:**
+JPA's default `findAll()` issues one SELECT for `InventoryItem` rows and then one additional SELECT per row to resolve the lazily-loaded `Supplier` relation. With hundreds of items, this produces hundreds of extra queries. The `@EntityGraph` override rewrites this as a single `LEFT JOIN FETCH`.
+
+**Usage:**
+```java
+// Returns all items with supplier pre-loaded (single JOIN query — no N+1)
+List<InventoryItem> items = inventoryItemRepository.findAll();
+for (InventoryItem item : items) {
+    // item.getSupplier() is already loaded — no lazy-load query here
+    System.out.println(item.getName() + " → " + item.getSupplier().getName());
+}
+```
+
+**Use Cases:**
+- Inventory list endpoint (all items with supplier name)
+- Analytics aggregation across all items
+
+---
 
 ### existsActiveStockForSupplier(supplierId, minQty)
 
@@ -249,7 +280,9 @@ List<InventoryItem> items = inventoryRepository
 
 **Purpose:** Search items by name, deterministically sorted by price
 
-**Type:** Custom @Query (JPQL)
+**Type:** Custom @Query (JPQL) with `@EntityGraph`
+
+**Note:** The `@EntityGraph(attributePaths = {"supplier"})` annotation eagerly loads the `supplier` relation in the same query, preventing N+1 fetches when iterating the result page.
 
 **Usage:**
 ```java

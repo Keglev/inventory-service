@@ -33,7 +33,7 @@ The `pom.xml` defines the complete build process:
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.0</version>
+    <version>3.5.14</version>
   </parent>
   
   <!-- Dependencies: Spring, OAuth2, Oracle, TestContainers, etc. -->

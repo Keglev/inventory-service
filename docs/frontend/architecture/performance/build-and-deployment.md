@@ -24,7 +24,7 @@ Vite outputs content-hashed static assets under `dist/`, typically including:
 
 The frontend has a dedicated multi-stage Docker build:
 
-1. Node stage installs deps (`npm ci`)
+1. Node stage installs deps (`npm ci --legacy-peer-deps`)
 2. Optional test stage (`vitest --run`)
 3. Build stage runs `vite build`
 4. Runtime stage serves `dist/` with Nginx
