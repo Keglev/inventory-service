@@ -129,7 +129,8 @@ performance/build-and-deployment · Smart Supply Pro Docs</title>
         model</h2>
         <p>The frontend has a dedicated multi-stage Docker build:</p>
         <ol type="1">
-        <li>Node stage installs deps (<code>npm ci</code>)</li>
+        <li>Node stage installs deps
+        (<code>npm ci --legacy-peer-deps</code>)</li>
         <li>Optional test stage (<code>vitest --run</code>)</li>
         <li>Build stage runs <code>vite build</code></li>
         <li>Runtime stage serves <code>dist/</code> with Nginx</li>
