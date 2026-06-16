@@ -1,64 +1,24 @@
 # =============================================================================
-# Smart Supply Pro – Documentation Building & Publishing Pipeline
+# Smart Supply Pro – Documentation Pipeline
 #
-# PIPELINE ROLE: Automated documentation generation and artifact production
+# Builds and packages all project documentation into the docs-site artifact.
+# Triggered after backend or frontend CI succeeds, or on docs-only pushes.
+# On success, triggers: 3-deploy-ghpages.yml (publishes to GitHub Pages).
 #
-# PURPOSE:
-# - Generate OpenAPI (Swagger/ReDoc) documentation from code annotations
-# - Build architecture guides and markdown files into HTML documentation
-# - Collect JaCoCo test coverage reports from CI builds
-# - Produce 'docs-site' artifact for 2-deploy-ghpages.yml to publish
-#
-# TRIGGER MODES:
-# 1. AUTOMATIC (via workflow_run):
-#    - Triggered after 1-ci-test.yml succeeds
-#    - Purpose: Rebuild docs whenever code changes (ensures freshness)
-#    - Artifact: docs-site (consumed by 2-deploy-ghpages.yml)
-#
-# 2. ON-DEMAND (direct push to main):
-#    - Triggered on changes to docs/, scripts/, or this workflow
-#    - Purpose: Rapid documentation updates without waiting for CI
-#    - Use case: Documentation-only PRs, emergency doc fixes
-#
-# ARTIFACTS PRODUCED:
-# - docs-site: Complete documentation website (API docs, architecture, coverage)
-#
-# ARTIFACTS CONSUMED:
-# - jacoco-html-{SHA}: JaCoCo coverage report from 1-ci-test.yml (optional)
-#
-# TOOLS & TECHNOLOGIES:
-# - Redocly CLI: Converts OpenAPI YAML → ReDoc HTML (interactive API docs)
-# - Pandoc: Converts Markdown → HTML (architecture guides, README files)
-# - Lua filter: Custom Pandoc filter for mermaid diagram rendering
-# - Bash scripts: Orchestrates document generation and artifact assembly
-#
-# DESIGN PRINCIPLES:
-# - Dual-trigger: Responds to both code changes (via CI) and docs-only changes
-# - Artifact accumulation: Preserves JaCoCo coverage from CI if not rebuilt
-# - Offline-capable: All documentation is static HTML (no server-side processing)
-# - Immutable builds: Same input always produces same output
-#
-# SCRIPTS INVOKED:
-# - scripts/build-openapi-docs.sh: Generates OpenAPI documentation
-# - scripts/build-architecture-docs.sh: Builds architecture guides
-#
-# TROUBLESHOOTING:
-# - Missing JaCoCo artifact: Normal for docs-only pushes; skip JaCoCo step
-# - Redocly CLI errors: Check OpenAPI YAML syntax in code annotations
-# - Pandoc conversion failures: Review markdown syntax, mermaid diagrams
-# - Large artifact size: Verify coverage HTML is compressed, no duplicate files
+# Artifacts consumed: jacoco-html-{SHA}            (from 1-ci-backend.yml, optional)
+#                     frontend-coverage-html-{SHA}  (from 5-ci-frontend.yml, optional)
+# Artifacts produced: docs-site                    (consumed by 3-deploy-ghpages.yml)
 # =============================================================================
 name: Docs Pipeline – OpenAPI & Architecture
+
 on:
-# A) After CI: for code changes
   workflow_run:
-    workflows: 
+    workflows:
       - "1️⃣ Backend CI - Build & Test"
-      - "4️⃣ Frontend CI - Build & Test" 
+      - "5️⃣ Frontend CI - Build & Test"
     types: [completed]
-# B) Directly on docs-only changes
   push:
-    branches: [ main ]
+    branches: [ "main" ]
     paths:
       - 'docs/**'
       - 'scripts/**'
@@ -68,62 +28,44 @@ permissions:
   contents: write
   actions: read
 
+# Cancel in-progress builds when a newer commit arrives
 concurrency:
-  group: ci-${{ github.ref }}
+  group: docs-pipeline-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-docs:
-    # For workflow_run: only if CI succeeded
-    # For push: always (we'll treat it as docs-only)
-    runs-on: ubuntu-latest
     if: >
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
       || github.event_name == 'push'
+    runs-on: ubuntu-latest
 
     steps:
-      # A) Checkout for workflow_run (after CI)
-      - name: Checkout (from CI head_sha)
-        if: github.event_name == 'workflow_run'
+      # Checkout the commit that triggered upstream CI, or HEAD for direct pushes
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-          fetch-depth: 0
-      # B) Checkout for direct docs push
-      - name: Checkout (push docs)
-        if: github.event_name == 'push'
-        uses: actions/checkout@v4
-        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 0
 
-      # 2) Detect project root (root vs backend/)
+      # Supports flat layout (pom.xml + docs/) and monorepo (backend/pom.xml + backend/docs/)
       - name: Detect project root
         id: where
         run: |
+          set -euo pipefail
           if [ -f "pom.xml" ] && [ -d "docs" ]; then
-            echo "dir=." >> $GITHUB_OUTPUT
+            echo "dir=." >> "$GITHUB_OUTPUT"
           elif [ -f "backend/pom.xml" ] && [ -d "backend/docs" ]; then
-            echo "dir=backend" >> $GITHUB_OUTPUT
+            echo "dir=backend" >> "$GITHUB_OUTPUT"
           else
-            echo "::error::No suitable project root found (no pom.xml + docs/)"
+            echo "::error::No project root found (expected pom.xml + docs/)"
             exit 1
           fi
-          echo "Using project directory:"
-          cat $GITHUB_OUTPUT
 
-      - name: Download frontend coverage artifact
-        if: github.event_name == 'workflow_run' && github.event.workflow_run.name == '4️⃣ Frontend CI - Build & Test'
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-coverage-html-${{ github.event.workflow_run.head_sha }}
-          path: ${{ steps.where.outputs.dir }}/target/frontend/coverage
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-
-      # 3) Download JaCoCo artifact from CI (name matches ci-test.yml)
+      # JaCoCo is only available when triggered after backend CI — absent on docs-only pushes
       - name: Download JaCoCo artifact
-        if: github.event_name == 'workflow_run' &&
+        if: >
+          github.event_name == 'workflow_run' &&
           github.event.workflow_run.name == '1️⃣ Backend CI - Build & Test'
         uses: actions/download-artifact@v4
         with:
@@ -132,231 +74,55 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Debug JaCoCo download 
-      - name: Check JaCoCo artifact
-        run: |
-          PROJECT_DIR="${{ steps.where.outputs.dir }}"
-          JACOCO_DIR="$PROJECT_DIR/target/site/jacoco"
-          
-          if [ -d "$JACOCO_DIR" ] && [ "$(ls -A $JACOCO_DIR)" ]; then
-            echo "✅ JaCoCo artifact found at $JACOCO_DIR"
-            echo "Files: $(ls -1 $JACOCO_DIR | head -5)"
-          else
-            echo "⚠️  JaCoCo artifact not found or empty"
-            echo "Event: ${{ github.event_name }}"
-            if [ "${{ github.event_name }}" = "push" ]; then
-              echo "Note: Direct push event (docs-only change) - JaCoCo artifact won't be available"
-              echo "JaCoCo is only available when workflow_run is triggered after CI succeeds"
-            fi
-          fi
+      # Frontend coverage is only available when triggered after frontend CI
+      - name: Download frontend coverage artifact
+        if: >
+          github.event_name == 'workflow_run' &&
+          github.event.workflow_run.name == '5️⃣ Frontend CI - Build & Test'
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage-html-${{ github.event.workflow_run.head_sha }}
+          path: ${{ steps.where.outputs.dir }}/target/frontend/coverage
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4) Node + ReDoc CLI (for OpenAPI → ReDoc)
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # Keep npm deterministic across environments.
-      # This pipeline runs `npm ci` inside `frontend/` for TypeDoc.
       - name: Pin npm version
         run: |
-          set -euo pipefail
-          echo "Before: $(npm --version)"
           npm install -g npm@11.10.1
-          echo "After:  $(npm --version)"
+          echo "npm: $(npm --version)"
 
       - name: Install ReDoc CLI
         run: npm install -g @redocly/cli
 
-      # 5) Pandoc (for Markdown → HTML)
-      - name: Install pandoc
+      - name: Install Pandoc
         run: |
-          sudo apt-get update
+          sudo apt-get update -qq
           sudo apt-get install -y pandoc
 
-      - name: Ensure Pandoc Lua filter exists
+      # Install frontend deps so TypeDoc can generate markdown from source
+      - name: Install frontend dependencies
         run: |
-          set -euo pipefail
-          mkdir -p scripts
-          LUA_FILTER="./scripts/md-to-html-links.lua"
+          [ -d "frontend" ] && cd frontend && npm ci || echo "No frontend directory — skipping"
 
-          cat > "$LUA_FILTER" << 'EOF'
-          function Link(el)
-            -- Keep links inside subtree (remove ../ prefixes)
-            while el.target:match("^%.%./") do
-              el.target = el.target:gsub("^%.%./", "")
-            end
-
-            -- Strip leading api/ so links match the rel="${rel#api/}" output rule
-            el.target = el.target:gsub("^api/", "")
-            el.target = el.target:gsub("^%./api/", "")
-
-            -- Convert .md -> .html (including anchors)
-            el.target = el.target:gsub("%.md#", ".html#")
-            el.target = el.target:gsub("%.md$", ".html")
-            return el
-          end
-
-          function CodeBlock(el)
-            if el.classes:includes('mermaid') then
-              local html = '<div class="mermaid">\n' .. el.text .. '\n</div>'
-              return pandoc.RawBlock('html', html)
-            end
-            return el
-          end
-          EOF
-            echo "✓ Wrote $LUA_FILTER"
-      # 6) Build OpenAPI docs & copy coverage (your script)
-      - name: Build OpenAPI docs & copy coverage
+      - name: Generate TypeDoc markdown
         run: |
-          PROJECT_DIR="${{ steps.where.outputs.dir }}"
-          bash "$PROJECT_DIR/scripts/build-openapi-docs.sh" "$PROJECT_DIR"
-
-      # 6b) Install frontend dev deps for TypeDoc
-      - name: Install frontend deps (TypeDoc)
-        run: |
-          if [ -d "frontend" ]; then
+          if [ -f "frontend/typedoc.json" ]; then
             cd frontend
-            npm ci
+            npx typedoc --options typedoc.json || echo "TypeDoc failed — continuing (non-blocking)"
           else
-            echo "ℹ️ No frontend directory; skipping TypeDoc"
+            echo "No frontend/typedoc.json — skipping TypeDoc"
           fi
 
-      # 6c) Generate TypeDoc markdown from frontend sources
-      - name: Generate TypeDoc (markdown)
-        run: |
-          set -euo pipefail
-          if [ -d "frontend" ] && [ -f "frontend/typedoc.json" ]; then
-            cd frontend
-            npx typedoc --options typedoc.json || {
-              echo "⚠️ TypeDoc failed; continuing docs pipeline (non-blocking for now)."
-            exit 0
-            }
-          else
-            echo "ℹ️ No frontend/typedoc.json; skipping TypeDoc."
-          fi
-      # 6d) Convert TypeDoc markdown → HTML under target/docs/frontend/api
-      - name: Convert TypeDoc markdown to HTML
+      - name: Build docs site
         run: |
           PROJECT_DIR="${{ steps.where.outputs.dir }}"
-          TYPEDOC_MD_DIR="$PROJECT_DIR/frontend/docs"
-          API_OUT="$PROJECT_DIR/target/docs/frontend/api"
-          TEMPLATE="$PROJECT_DIR/docs/templates/app-api.html"
-          LUA_FILTER="$PROJECT_DIR/scripts/md-to-html-links.lua"
+          bash .github/scripts/build-docs.sh "$PROJECT_DIR"
 
-          if [ ! -d "$TYPEDOC_MD_DIR" ]; then
-            echo "ℹ️ No TypeDoc markdown directory at $TYPEDOC_MD_DIR; skipping frontend API docs."
-            exit 0
-          fi
-
-          mkdir -p "$API_OUT"
-
-          find "$TYPEDOC_MD_DIR" -type f -name "*.md" | while read -r md; do
-            rel="${md#$TYPEDOC_MD_DIR/}"
-            rel="${rel#api/}"
-            out="$API_OUT/${rel%.md}.html"
-            mkdir -p "$(dirname "$out")"
-
-            pandoc "$md" \
-              --from gfm \
-              --to html \
-              --template "$TEMPLATE" \
-              --lua-filter "$LUA_FILTER" \
-              --metadata=title:"Frontend API · ${rel%.md}" \
-              --standalone \
-              --toc \
-              --toc-depth=3 \
-              -o "$out"
-
-            echo "✓ [frontend API] $md → $out"
-          done
-
-          # ---- Landing pages ----
-          # 1) Create a small, clean index page you control
-          cat > "$API_OUT/index.md" <<'EOF'
-          # Frontend API
-
-          This is the generated API reference for the Smart Supply Pro frontend.
-
-          - Go to **Modules** to browse by area (api, context, components).
-          - Use the left navigation and page TOC for quick jumping.
-          EOF
-
-          pandoc "$API_OUT/index.md" \
-            --from gfm \
-            --to html \
-            --template "$TEMPLATE" \
-            --lua-filter "$LUA_FILTER" \
-            --metadata=title:"Frontend API" \
-            --standalone \
-            -o "$API_OUT/index.html"
-            
-          rm -f "$API_OUT/index.md"
-
-          # 2) Generate modules.html from the best “modules” source available
-          MODULES_MD="$TYPEDOC_MD_DIR/README.md"
-
-          if [ -f "$MODULES_MD" ]; then
-            pandoc "$MODULES_MD" \
-              --from gfm \
-              --to html \
-              --template "$TEMPLATE" \
-              --lua-filter "$LUA_FILTER" \
-              --metadata=title:"Frontend API · Modules" \
-              --standalone \
-              --toc \
-              --toc-depth=3 \
-              -o "$API_OUT/modules.html"
-            echo "✓ Created $API_OUT/modules.html from $MODULES_MD"
-          else
-            echo "⚠️ Expected modules source not found: $MODULES_MD"
-            echo "   Available READMEs:"
-            find "$TYPEDOC_MD_DIR" -type f -name "README.md" | head -n 20 || true
-          fi
-          echo "Index exists?"
-          test -f "$API_OUT/index.html" && echo "YES" || echo "NO"
-          echo "Modules exists?"
-          test -f "$API_OUT/modules.html" && echo "YES" || echo "NO"
-
-      # debug frontend API output docs
-      - name: Debug frontend API output
-        run: |
-          ls -la target/docs/frontend/api || true
-          echo "Index exists?"
-          test -f target/docs/frontend/api/index.html && echo "YES" || echo "NO"
-          echo "Sample output files:"
-          API_OUT="target/docs/frontend/api"
-          find "$API_OUT" -type f -name "README-1.html" | head -n 10 || true
-
-      # 7) Build architecture & other markdown (script with Lua filter)
-      - name: Build architecture & markdown docs
-        run: |
-          PROJECT_DIR="${{ steps.where.outputs.dir }}"
-          bash "$PROJECT_DIR/scripts/build-architecture-docs.sh" "$PROJECT_DIR"
-
-      - name: Copy frontend coverage into docs tree
-        run: |
-          PROJECT_DIR="${{ steps.where.outputs.dir }}"
-          SRC="$PROJECT_DIR/target/frontend/coverage"
-          DEST="$PROJECT_DIR/target/docs/frontend/coverage"
-
-          if [ -d "$SRC" ] && [ "$(ls -A "$SRC")" ]; then
-            mkdir -p "$DEST"
-            cp -R "$SRC/." "$DEST/"
-            echo "✓ Copied frontend coverage into docs tree: $DEST"
-          else
-            echo "ℹ️ No frontend coverage found (tests may be missing or coverage disabled)."
-          fi
-
-      # 8) Sanity check
-      - name: Verify docs tree
-        run: |
-          PROJECT_DIR="${{ steps.where.outputs.dir }}"
-          OUTPUT_DIR="$PROJECT_DIR/target/docs"
-          echo "Files in $OUTPUT_DIR: $(find "$OUTPUT_DIR" -type f | wc -l || echo 0)"
-          du -sh "$OUTPUT_DIR" || echo "(size unavailable)"
-
-      # 9) Upload docs-site artifact
       - name: Upload docs-site artifact
         uses: actions/upload-artifact@v4
         with:

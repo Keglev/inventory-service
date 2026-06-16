@@ -43,7 +43,7 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 class SecurityConfigUnitTest {
 
-    private final SecurityConfig config = new SecurityConfig();
+    private final SecurityConfig config = new SecurityConfig(null, null, null, null, null, null, null);
 
     private static AutoCloseable suppressSecurityConfigWarnLogs() {
         // These unit tests intentionally trigger the OAuth failure handler, which logs at WARN.

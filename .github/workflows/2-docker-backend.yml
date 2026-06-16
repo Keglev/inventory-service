@@ -1,0 +1,106 @@
+# =============================================================================
+# Smart Supply Pro – Backend Docker Build & Security Scan
+#
+# Triggered after 1-ci-backend.yml succeeds on main or develop.
+# Builds the production Docker image, scans for CVEs, and pushes to Docker Hub.
+# On success, triggers: 4-deploy-fly.yml (production deployment).
+# =============================================================================
+name: 2️⃣ Backend Docker - Build & Scan
+
+on:
+  workflow_run:
+    workflows: ["1️⃣ Backend CI - Build & Test"]
+    types: [completed]
+    branches: [ "main", "develop" ]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Commit SHA to build (defaults to HEAD)'
+        required: false
+        default: ''
+
+concurrency:
+  group: backend-docker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docker-build-and-scan:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      IMAGE_REPO: ${{ secrets.DOCKER_USERNAME }}/inventory-service
+      IMAGE_TAG_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.IMAGE_TAG_SHA }}
+
+      # Supports both monorepo (inventory-service/Dockerfile) and flat (Dockerfile) layouts
+      - name: Resolve backend directory
+        run: |
+          set -euo pipefail
+          if [ -f "inventory-service/Dockerfile" ]; then
+            echo "BACKEND_DIR=inventory-service" >> "$GITHUB_ENV"
+          elif [ -f "Dockerfile" ]; then
+            echo "BACKEND_DIR=." >> "$GITHUB_ENV"
+          else
+            echo "::error::Dockerfile not found at repo root or inventory-service/"
+            exit 1
+          fi
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: |
+          set -euo pipefail
+          docker build --no-cache \
+            --build-arg PROFILE=prod \
+            -t $IMAGE_REPO:latest \
+            -t $IMAGE_REPO:${IMAGE_TAG_SHA} \
+            "$BACKEND_DIR"
+
+      # Verify the production image contains only runtime artifacts — no test sources or docs
+      - name: Inspect image contents
+        run: |
+          docker run --rm $IMAGE_REPO:${IMAGE_TAG_SHA} sh -c '
+            echo "=== Runtime artifacts ==="
+            ls -lh /app/app.jar /app/start.sh
+            echo "=== Confirming no test or docs directories ==="
+            ls /app/src/test 2>&1 || echo "OK: no test directory"
+            ls /app/docs    2>&1 || echo "OK: no docs directory"
+          '
+
+      - name: Push Docker images
+        run: |
+          docker push $IMAGE_REPO:latest
+          docker push $IMAGE_REPO:${IMAGE_TAG_SHA}
+
+      # Blocks 4-deploy-fly.yml if HIGH or CRITICAL CVEs are found in the image
+      - name: Scan image for CVEs (Trivy)
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG_SHA }}
+          format: table
+          scanners: vuln
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## Backend Docker Build & Scan" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** \`$IMAGE_REPO:${IMAGE_TAG_SHA}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Next:** \`4-deploy-fly.yml\` deploys this image to Fly.io" >> $GITHUB_STEP_SUMMARY

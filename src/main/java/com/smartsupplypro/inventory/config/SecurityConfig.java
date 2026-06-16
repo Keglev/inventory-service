@@ -3,7 +3,6 @@ package com.smartsupplypro.inventory.config;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +27,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository;
 import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
+import com.smartsupplypro.inventory.service.CustomOAuth2UserService;
+import com.smartsupplypro.inventory.service.CustomOidcUserService;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -50,33 +51,30 @@ import jakarta.servlet.http.HttpServletResponse;
 @EnableConfigurationProperties(AppProperties.class)
 public class SecurityConfig {
 
-    /** OAuth2 authentication success handler for user provisioning. */
-    @Autowired
-    private OAuth2LoginSuccessHandler successHandler;
+    private final OAuth2LoginSuccessHandler successHandler;
+    private final SecurityFilterHelper filterHelper;
+    private final SecurityEntryPointHelper entryPointHelper;
+    private final SecurityAuthorizationHelper authorizationHelper;
+    private final CustomOidcUserService customOidcUserService;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final AppProperties props;
 
-    /** Security filter helper for API request detection. */
-    @Autowired
-    private SecurityFilterHelper filterHelper;
-
-    /** Security entry point helper for authentication failure handling. */
-    @Autowired
-    private SecurityEntryPointHelper entryPointHelper;
-
-    /** Security authorization helper for request authorization rules. */
-    @Autowired
-    private SecurityAuthorizationHelper authorizationHelper;
-
-    /** Custom OIDC user service for Google OAuth2. */
-    @Autowired
-    private com.smartsupplypro.inventory.service.CustomOidcUserService customOidcUserService;
-
-    /** Custom OAuth2 user service for non-OIDC providers. */
-    @Autowired
-    private com.smartsupplypro.inventory.service.CustomOAuth2UserService customOAuth2UserService;
-
-    /** Application properties for demo mode and frontend URLs. */
-    @Autowired
-    private AppProperties props;
+    public SecurityConfig(
+            OAuth2LoginSuccessHandler successHandler,
+            SecurityFilterHelper filterHelper,
+            SecurityEntryPointHelper entryPointHelper,
+            SecurityAuthorizationHelper authorizationHelper,
+            CustomOidcUserService customOidcUserService,
+            CustomOAuth2UserService customOAuth2UserService,
+            AppProperties props) {
+        this.successHandler = successHandler;
+        this.filterHelper = filterHelper;
+        this.entryPointHelper = entryPointHelper;
+        this.authorizationHelper = authorizationHelper;
+        this.customOidcUserService = customOidcUserService;
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.props = props;
+    }
 
     /**
      * Primary security filter chain with OAuth2 and role-based authorization.

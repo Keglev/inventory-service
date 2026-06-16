@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import com.smartsupplypro.inventory.model.Supplier;
 
@@ -22,7 +21,6 @@ import com.smartsupplypro.inventory.model.Supplier;
  * @see SupplierService
  * @see <a href="file:../../../../../../docs/architecture/patterns/repository-patterns.md">Repository Patterns</a>
  */
-@Repository
 public interface SupplierRepository extends JpaRepository<Supplier, String> {
 
     /**

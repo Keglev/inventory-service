@@ -20,8 +20,6 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import com.smartsupplypro.inventory.controller.HealthCheckController;
 
 /**
@@ -67,9 +65,7 @@ class HealthCheckControllerDbEndpointTest {
     private ResultSet resultSet;
 
     private HealthCheckController newController() {
-        HealthCheckController controller = new HealthCheckController();
-        ReflectionTestUtils.setField(controller, "dataSource", dataSource);
-        return controller;
+        return new HealthCheckController(dataSource);
     }
 
     private void stubDbQuery() throws Exception {

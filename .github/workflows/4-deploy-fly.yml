@@ -1,0 +1,130 @@
+# =============================================================================
+# Smart Supply Pro – Deploy Backend to Fly.io
+#
+# Triggered automatically after 2-docker-backend.yml succeeds on main.
+# Manual trigger available for rollbacks or emergency deploys.
+# Deploys the pre-built, Trivy-scanned image — never rebuilds from source.
+# =============================================================================
+name: 4️⃣ Deploy Backend to Fly.io
+
+on:
+  workflow_run:
+    workflows: ["2️⃣ Backend Docker - Build & Scan"]
+    types: [completed]
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to deploy (commit SHA or "latest")'
+        required: true
+        default: 'latest'
+        type: string
+      deployment_strategy:
+        description: 'Deployment strategy'
+        required: true
+        default: 'immediate'
+        type: choice
+        options:
+          - immediate
+          - canary
+          - rolling
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+      url: https://inventoryservice.fly.dev
+
+    env:
+      APP_NAME: inventoryservice
+      IMAGE_REPO: ${{ secrets.DOCKER_USERNAME }}/inventory-service
+
+    steps:
+      # Resolve image tag and strategy from manual input or upstream workflow
+      - name: Set deployment variables
+        id: vars
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            IMAGE_TAG="${{ inputs.image_tag }}"
+            STRATEGY="${{ inputs.deployment_strategy }}"
+          else
+            IMAGE_TAG="${{ github.event.workflow_run.head_sha }}"
+            STRATEGY="immediate"
+          fi
+          echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "strategy=${STRATEGY}"   >> "$GITHUB_OUTPUT"
+          echo "Deploying ${{ env.IMAGE_REPO }}:${IMAGE_TAG} — strategy: ${STRATEGY}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Confirm the image exists in Docker Hub before calling Fly.io — fail fast
+      - name: Validate Docker image exists
+        run: |
+          set -euo pipefail
+          IMAGE="${{ env.IMAGE_REPO }}:${{ steps.vars.outputs.image_tag }}"
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
+            echo "Image confirmed: $IMAGE"
+          else
+            echo "::error::Image not found in registry: $IMAGE"
+            exit 1
+          fi
+
+      - name: Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      # Confirm the Fly app is reachable before attempting deployment
+      - name: Verify Fly app exists
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          if flyctl status --app "$APP_NAME" > /dev/null 2>&1; then
+            flyctl status --app "$APP_NAME"
+          else
+            echo "::error::Fly.io app '$APP_NAME' not found or unreachable"
+            exit 1
+          fi
+
+      - name: Deploy to Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          IMAGE="${{ env.IMAGE_REPO }}:${{ steps.vars.outputs.image_tag }}"
+          flyctl deploy \
+            --app "$APP_NAME" \
+            --image "$IMAGE" \
+            --strategy "${{ steps.vars.outputs.strategy }}" \
+            --remote-only \
+            --wait-timeout 300 \
+            --ha=false
+
+      - name: Health check and smoke tests
+        run: bash .github/scripts/health-check.sh "https://${{ env.APP_NAME }}.fly.dev"
+
+      - name: Capture Fly.io status and logs
+        if: always()
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          flyctl status --app "$APP_NAME" || true
+          echo "--- Recent logs ---"
+          flyctl logs --app "$APP_NAME" -n 50 || true
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## Backend Deployment – Fly.io" >> $GITHUB_STEP_SUMMARY
+          echo "- **App:** \`${{ env.APP_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** \`${{ env.IMAGE_REPO }}:${{ steps.vars.outputs.image_tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Strategy:** \`${{ steps.vars.outputs.strategy }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** https://${{ env.APP_NAME }}.fly.dev" >> $GITHUB_STEP_SUMMARY

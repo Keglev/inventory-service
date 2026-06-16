@@ -1,0 +1,122 @@
+# =============================================================================
+# Smart Supply Pro – Frontend CI
+#
+# Triggers on push/PR to main when frontend or Nginx config files change.
+# Runs Vitest unit tests outside Docker to get GitHub annotation support.
+# Builds and pushes a Docker image (Nginx + Vite bundle) tagged by commit SHA.
+# On success, triggers: 6-deploy-frontend.yml (Koyeb deployment).
+# =============================================================================
+name: 5️⃣ Frontend CI - Build & Test
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'frontend/**'
+      - 'ops/nginx/**'
+      - '.github/workflows/5-ci-frontend.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'frontend/**'
+      - 'ops/nginx/**'
+      - '.github/workflows/5-ci-frontend.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+# Only one frontend build at a time — do not cancel in progress to avoid broken image state
+concurrency:
+  group: frontend-ci
+  cancel-in-progress: false
+
+env:
+  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/ssp-frontend
+  # Pinned so local and CI environments stay aligned; update intentionally
+  NPM_VERSION: '11.10.1'
+  # Backend API base baked into the Vite production bundle
+  VITE_API_BASE: https://inventoryservice.fly.dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      # npm version drift causes lockfile metadata churn; pin to keep CI deterministic
+      - name: Pin npm version
+        run: |
+          set -euo pipefail
+          npm install -g "npm@${NPM_VERSION}"
+          echo "npm: $(npm --version)"
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      # Tests run outside Docker so failures appear as inline GitHub annotations
+      - name: Run unit tests (Vitest)
+        working-directory: frontend
+        env:
+          CI: "true"
+        run: npx vitest --reporter=default --reporter=github-actions --run --coverage
+
+      - name: Upload frontend coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage-html-${{ github.sha }}
+          path: frontend/coverage/
+          retention-days: 30
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Generate Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: docker.io/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=${{ github.sha }}
+            type=sha
+
+      # Build context is repo root so the Dockerfile can access ops/nginx config
+      - name: Build and push image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: frontend/Dockerfile
+          push: true
+          build-args: |
+            VITE_API_BASE=${{ env.VITE_API_BASE }}
+            RUN_TESTS=false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## Frontend CI Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** \`${{ env.IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Coverage artifact:** \`frontend-coverage-html-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Next:** \`6-deploy-frontend.yml\` deploys this image to Koyeb" >> $GITHUB_STEP_SUMMARY

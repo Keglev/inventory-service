@@ -9,7 +9,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,8 +36,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/health")
 public class HealthCheckController {
 
-    @Autowired
-    private DataSource dataSource;
+    private final DataSource dataSource;
+
+    public HealthCheckController(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     /**
     * Basic JSON health check for the frontend.

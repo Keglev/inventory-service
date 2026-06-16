@@ -1,0 +1,136 @@
+# =============================================================================
+# Smart Supply Pro – Deploy Frontend to Koyeb
+#
+# Triggered automatically after 5-ci-frontend.yml succeeds on main.
+# Manual trigger available for rollbacks or emergency deploys.
+# Deploys by image digest (not tag) for deterministic, rollback-safe releases.
+# =============================================================================
+name: 6️⃣ Deploy Frontend to Koyeb
+
+on:
+  workflow_run:
+    workflows: ["5️⃣ Frontend CI - Build & Test"]
+    types: [completed]
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/ssp-frontend
+      KOYEB_APP: ${{ secrets.KOYEB_APP }}
+      KOYEB_SERVICE: ${{ secrets.KOYEB_SERVICE }}
+      FRONTEND_URL: https://inventory-service.koyeb.app
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Resolve image digest from commit SHA.
+      # Deploying by digest (not tag) guarantees deterministic rollouts and safe rollbacks.
+      # Docker Hub can be eventually consistent — retries reduce post-push flakiness.
+      - name: Resolve image digest
+        id: img
+        run: bash .github/scripts/resolve-image-digest.sh "${{ secrets.DOCKER_USERNAME }}" "ssp-frontend" "${{ github.event.workflow_run.head_sha || github.sha }}"
+
+      - name: Install Koyeb CLI
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.koyeb/bin"
+          VER="$(curl -fsSL --retry 5 --retry-delay 2 \
+            https://api.github.com/repos/koyeb/koyeb-cli/releases/latest \
+            | grep -oE '"tag_name":\s*"v[0-9.]+"' | head -n1 \
+            | sed -E 's/.*"v([^"]+)".*/\1/')" || VER="4.4.1"
+          [ -z "$VER" ] && VER="4.4.1"
+          curl -fsSL --retry 5 --retry-delay 2 \
+            "https://github.com/koyeb/koyeb-cli/releases/download/v${VER}/koyeb-cli_${VER}_linux_amd64.tar.gz" \
+            | tar -xzC "$HOME/.koyeb/bin"
+          echo "$HOME/.koyeb/bin" >> "$GITHUB_PATH"
+          echo "Koyeb CLI installed: v${VER}"
+
+      # Write token to a restricted file — avoids exposing it via environment variables
+      - name: Authenticate Koyeb
+        env:
+          KOYEB_TOKEN: ${{ secrets.KOYEB_TOKEN }}
+        run: |
+          umask 077
+          printf "token: %s\n" "$KOYEB_TOKEN" > "$HOME/.koyeb.yaml"
+
+      # Validate image ref format before calling the deployment API — fail fast
+      - name: Validate image reference
+        run: |
+          set -euo pipefail
+          REF="${{ steps.img.outputs.image_ref }}"
+          echo "Image ref: $REF"
+          if [[ "$REF" =~ ^docker\.io\/[^\/]+\/[^@]+@sha256:[a-f0-9]{64}$ ]]; then
+            echo "Digest reference valid"
+          elif [[ "$REF" =~ ^docker\.io\/[^\/]+\/[^:]+:[A-Za-z0-9._-]+$ ]]; then
+            echo "Tag reference valid"
+          else
+            echo "::error::Invalid image reference: $REF"
+            exit 1
+          fi
+
+      # Koyeb <-> registry connectivity can be flaky — retries reduce transient failures
+      - name: Deploy to Koyeb
+        run: |
+          set -euo pipefail
+          SVC="${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}"
+          REF="${{ steps.img.outputs.image_ref }}"
+          echo "Updating $SVC to $REF"
+
+          for attempt in 1 2 3 4 5; do
+            if koyeb service update "$SVC" \
+              --docker "$REF" \
+              --ports 8080:http \
+              --docker-private-registry-secret docker-hub-registry; then
+              echo "Deploy accepted"
+              exit 0
+            fi
+            echo "Attempt $attempt failed — retrying in $((attempt * 10))s"
+            sleep $((attempt * 10))
+          done
+
+          echo "::error::All deploy attempts failed"
+          exit 1
+
+      # Poll Koyeb platform status — more reliable than curl during edge propagation
+      - name: Wait for Koyeb service to be healthy
+        run: |
+          set -euo pipefail
+          SVC="${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}"
+          echo "Waiting for $SVC to be HEALTHY..."
+
+          for i in $(seq 1 60); do
+            if koyeb service describe "$SVC" 2>/dev/null \
+              | tr '[:upper:]' '[:lower:]' | grep -q 'healthy'; then
+              echo "Service is HEALTHY"
+              exit 0
+            fi
+            echo "Not healthy yet ($i/60)"
+            sleep 5
+          done
+
+          echo "::group::Koyeb diagnostics"
+          koyeb service describe "$SVC"            || true
+          koyeb service deployments list "$SVC" --limit 5 || true
+          koyeb service instances list "$SVC"      || true
+          echo "::endgroup::"
+          exit 1
+
+      - name: Health check and smoke tests
+        run: bash .github/scripts/health-check.sh "${{ env.FRONTEND_URL }}"
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## Frontend Deployment – Koyeb" >> $GITHUB_STEP_SUMMARY
+          echo "- **Service:** \`${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** \`${{ steps.img.outputs.image_ref }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** ${{ env.FRONTEND_URL }}" >> $GITHUB_STEP_SUMMARY

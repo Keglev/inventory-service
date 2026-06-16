@@ -1,0 +1,98 @@
+# =============================================================================
+# Smart Supply Pro – Deploy Docs to GitHub Pages
+#
+# Triggered after docs-pipeline.yml succeeds.
+# Consumes: docs-site artifact (built by docs-pipeline.yml).
+# Publishes static documentation to the gh-pages branch.
+# =============================================================================
+name: 3️⃣ Deploy Docs to GitHub Pages
+
+on:
+  workflow_run:
+    workflows: ["Docs Pipeline – OpenAPI & Architecture"]
+    types: [completed]
+
+permissions:
+  contents: write
+  actions: read
+
+# Prevent concurrent gh-pages pushes — parallel runs cause branch merge conflicts
+concurrency:
+  group: ghpages-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-ghpages:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Download docs-site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-site
+          path: docs-site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync docs-site into gh-pages root
+        run: |
+          set -euo pipefail
+
+          # Preserve existing JaCoCo coverage when the current build did not regenerate it.
+          # This happens on docs-only pushes that bypass the backend CI step.
+          PRESERVE_COVERAGE=false
+          if [ ! -d "docs-site/backend/coverage" ] && [ -d "backend/coverage" ]; then
+            echo "JaCoCo not in current build — preserving existing coverage"
+            mkdir -p /tmp/coverage-backup
+            cp -R backend/coverage /tmp/coverage-backup/
+            PRESERVE_COVERAGE=true
+          fi
+
+          # Clear gh-pages content, keeping only .git and .github metadata
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name '.git' ! -name '.github' ! -name 'docs-site' \
+            -exec rm -rf {} +
+
+          if [ -d "docs-site" ] && [ "$(ls -A docs-site)" ]; then
+            cp -R docs-site/* .
+            rm -rf docs-site
+          else
+            echo "::error::docs-site artifact is empty or missing"
+            exit 1
+          fi
+
+          if [ "$PRESERVE_COVERAGE" = true ]; then
+            mkdir -p backend/coverage
+            cp -R /tmp/coverage-backup/coverage/* backend/coverage/
+            rm -rf /tmp/coverage-backup
+            echo "Restored existing JaCoCo coverage"
+          fi
+
+      - name: Commit and push to gh-pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git status --porcelain | grep .; then
+            git add .
+            git commit -m "docs: publish from workflow_run ${{ github.event.workflow_run.id }}"
+            git push origin gh-pages
+            echo "Documentation published"
+          else
+            echo "No changes to publish"
+          fi
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## GitHub Pages Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** \`gh-pages\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Site:** https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_STEP_SUMMARY
