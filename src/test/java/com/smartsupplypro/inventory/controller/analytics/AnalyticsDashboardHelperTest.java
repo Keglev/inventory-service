@@ -26,34 +26,20 @@ import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
 import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
 /**
- * Unit tests for {@link AnalyticsDashboardHelper}.
- *
- * <p><strong>Why unit tests (in addition to controller tests)?</strong>
- * Controller MVC tests typically mock this helper to keep endpoint tests focused on request/response
- * wiring. That leaves the aggregation rules (supplier conditional loads, top-N limiting, and
- * delegations to {@link StockAnalyticsService}) uncovered in JaCoCo.
- *
- * <p><strong>Coverage intent</strong>
- * These tests exercise both branches of the supplier filter check:
- * <ul>
- *   <li>Supplier provided: low-stock and update-frequency queries are executed and limited.</li>
- *   <li>Supplier missing/blank: supplier-specific queries are skipped and empty lists returned.</li>
- * </ul>
+ * Unit tests for {@link AnalyticsDashboardHelper} covering supplier-conditional aggregation,
+ * top-N limiting, and skipping supplier-specific queries when supplierId is absent.
  */
 class AnalyticsDashboardHelperTest {
 
     @Test
     void buildDashboardSummary_supplierProvided_shouldAggregateAndLimitTopN() {
-        // Given: a helper backed by a mocked analytics service
         StockAnalyticsService stockAnalyticsService = mock(StockAnalyticsService.class);
         AnalyticsDashboardHelper helper = new AnalyticsDashboardHelper(stockAnalyticsService);
 
-        // Given: a supplier filter and an explicit date window
         String supplierId = "s1";
         LocalDateTime startDate = LocalDateTime.of(2025, 1, 1, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2025, 1, 31, 0, 0);
 
-        // Given: upstream data (some lists are intentionally longer than top-N limits)
         List<StockPerSupplierDTO> stockPerSupplier = List.of(
                 new StockPerSupplierDTO("Supplier A", 10),
                 new StockPerSupplierDTO("Supplier B", 20)
@@ -79,15 +65,12 @@ class AnalyticsDashboardHelperTest {
                 .thenReturn(monthly);
         when(stockAnalyticsService.getItemUpdateFrequency(eq(supplierId))).thenReturn(frequencies);
 
-        // When: building the dashboard summary
         DashboardSummaryDTO summary = helper.buildDashboardSummary(supplierId, startDate, endDate);
 
-        // Then: overview metrics are always populated
         assertNotNull(summary);
         assertEquals(stockPerSupplier, summary.getStockPerSupplier());
         assertEquals(monthly, summary.getMonthlyStockMovement());
 
-        // Then: supplier-specific lists are limited (top 3 low-stock, top 5 updated)
         assertEquals(3, summary.getLowStockItems().size());
         assertEquals("Item0", summary.getLowStockItems().get(0).getItemName());
         assertEquals("Item2", summary.getLowStockItems().get(2).getItemName());
@@ -96,7 +79,6 @@ class AnalyticsDashboardHelperTest {
         assertEquals("Item0", summary.getTopUpdatedItems().get(0).getItemName());
         assertEquals("Item4", summary.getTopUpdatedItems().get(4).getItemName());
 
-        // And: expected supplier-specific service calls are executed
         verify(stockAnalyticsService).getTotalStockPerSupplier();
         verify(stockAnalyticsService).getItemsBelowMinimumStock(eq(supplierId));
         verify(stockAnalyticsService).getMonthlyStockMovement(eq(startDate.toLocalDate()), eq(endDate.toLocalDate()), eq(supplierId));
@@ -106,11 +88,9 @@ class AnalyticsDashboardHelperTest {
     @ParameterizedTest
     @MethodSource("missingSupplierValues")
     void buildDashboardSummary_missingSupplier_shouldSkipSupplierSpecificLoads(String supplierId) {
-        // Given: supplierId is missing/blank and the helper is backed by a mocked analytics service
         StockAnalyticsService stockAnalyticsService = mock(StockAnalyticsService.class);
         AnalyticsDashboardHelper helper = new AnalyticsDashboardHelper(stockAnalyticsService);
 
-        // Given: an explicit date window (still required for movement aggregation)
         LocalDateTime startDate = LocalDateTime.of(2025, 1, 1, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2025, 1, 31, 0, 0);
 
@@ -121,19 +101,15 @@ class AnalyticsDashboardHelperTest {
         when(stockAnalyticsService.getMonthlyStockMovement(eq(LocalDate.of(2025, 1, 1)), eq(LocalDate.of(2025, 1, 31)), eq(supplierId)))
                 .thenReturn(monthly);
 
-        // When
         DashboardSummaryDTO summary = helper.buildDashboardSummary(supplierId, startDate, endDate);
 
-        // Then: overview metrics are still populated
         assertNotNull(summary);
         assertEquals(stockPerSupplier, summary.getStockPerSupplier());
         assertEquals(monthly, summary.getMonthlyStockMovement());
 
-        // Then: supplier-specific sections are omitted for missing/blank supplier filters
         assertTrue(summary.getLowStockItems().isEmpty());
         assertTrue(summary.getTopUpdatedItems().isEmpty());
 
-        // And: supplier-specific queries are not invoked
         verify(stockAnalyticsService, never()).getItemsBelowMinimumStock(org.mockito.ArgumentMatchers.anyString());
         verify(stockAnalyticsService, never()).getItemUpdateFrequency(org.mockito.ArgumentMatchers.anyString());
     }

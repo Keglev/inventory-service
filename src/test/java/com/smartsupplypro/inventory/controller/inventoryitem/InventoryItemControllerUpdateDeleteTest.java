@@ -3,7 +3,7 @@ package com.smartsupplypro.inventory.controller.inventoryitem;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -30,15 +30,8 @@ import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 
 /**
- * UPDATE and DELETE operation tests for InventoryItemController.
- * 
- * Validates HTTP contract, security, and RBAC for:
- * - PUT /api/inventory/{id} (full update)
- * - DELETE /api/inventory/{id} (deletion with audit reason)
- * 
- * @see InventoryItemController
- * @see InventoryItemControllerCreateReadTest
- * @see InventoryItemControllerPatchTest
+ * Tests {@link InventoryItemController} PUT update and DELETE endpoints using {@link MockMvc},
+ * covering RBAC, HTTP contract, and security enforcement.
  */
 @SuppressWarnings("unused")
 @WebMvcTest(controllers = InventoryItemController.class)
@@ -50,11 +43,6 @@ class InventoryItemControllerUpdateDeleteTest {
 
     @MockitoBean InventoryItemService inventoryItemService;
 
-    /* ==================== Test Data Factory Methods ==================== */
-
-    /**
-     * Creates sample InventoryItemDTO for testing.
-     */
     private InventoryItemDTO sample(String id) {
         InventoryItemDTO dto = new InventoryItemDTO();
         dto.setId(id);
@@ -65,115 +53,79 @@ class InventoryItemControllerUpdateDeleteTest {
         return dto;
     }
 
-    /* ==================== UPDATE Operations (PUT /api/inventory/{id}) ==================== */
+    /** PUT /api/inventory/{id} update scenarios. */
+    @Nested
+    class UpdateItem {
 
-    /**
-     * Tests role-based field restrictions for inventory updates.
-     * Given: USER role attempting forbidden field changes
-     * When: PUT /api/inventory/{id}
-     * Then: Returns 403 Forbidden
-     */
-    @Test
-    @WithMockUser(roles = "USER")
-    @DisplayName("PUT /api/inventory/{id} -> 403 when user attempts forbidden field changes")
-    void update_user_forbidden_field_change() throws Exception {
-        when(inventoryItemService.update(eq("i-1"), any(InventoryItemDTO.class)))
-            .thenThrow(new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.FORBIDDEN,
-                "Users are only allowed to change quantity or price."
-            ));
+        @Test
+        @WithMockUser(roles = "USER")
+        void update_user_forbidden_fieldChange() throws Exception {
+            when(inventoryItemService.update(eq("i-1"), any(InventoryItemDTO.class)))
+                .thenThrow(new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN,
+                    "Users are only allowed to change quantity or price."
+                ));
 
-        mockMvc.perform(put("/api/inventory/i-1").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sample("i-1"))))
-            .andExpect(status().isForbidden());
+            mockMvc.perform(put("/api/inventory/i-1").with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(sample("i-1"))))
+                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        void update_foundOrMissing() throws Exception {
+            InventoryItemDTO updated = sample("i-1");
+            when(inventoryItemService.update(eq("i-1"), any(InventoryItemDTO.class)))
+                .thenReturn(Optional.of(updated));
+            when(inventoryItemService.update(eq("missing"), any(InventoryItemDTO.class)))
+                .thenReturn(Optional.empty());
+
+            mockMvc.perform(put("/api/inventory/i-1").with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(updated)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("i-1"));
+
+            mockMvc.perform(put("/api/inventory/missing").with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(updated)))
+                .andExpect(status().isNotFound());
+        }
     }
 
-    /**
-     * Tests full inventory update for admin users.
-     * Given: ADMIN role and valid/invalid item IDs
-     * When: PUT /api/inventory/{id}
-     * Then: Returns 200 with updated item or 404 if not found
-     */
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("PUT /api/inventory/{id} -> 200 when found, 404 when missing")
-    void update_foundOrMissing() throws Exception {
-        InventoryItemDTO updated = sample("i-1");
-        when(inventoryItemService.update(eq("i-1"), any(InventoryItemDTO.class)))
-            .thenReturn(Optional.of(updated));
-        when(inventoryItemService.update(eq("missing"), any(InventoryItemDTO.class)))
-            .thenReturn(Optional.empty());
+    /** DELETE /api/inventory/{id} deletion scenarios. */
+    @Nested
+    class DeleteItem {
 
-        mockMvc.perform(put("/api/inventory/i-1").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updated)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value("i-1"));
+        @Test
+        void delete_unauthenticated_401() throws Exception {
+            mockMvc.perform(delete("/api/inventory/i-1").with(csrf())
+                    .param("reason", StockChangeReason.SCRAPPED.name()))
+                .andExpect(status().isUnauthorized());
+        }
 
-        mockMvc.perform(put("/api/inventory/missing").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updated)))
-            .andExpect(status().isNotFound());
-    }
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        void delete_admin_noContent() throws Exception {
+            mockMvc.perform(delete("/api/inventory/i-1").with(csrf())
+                    .param("reason", StockChangeReason.SCRAPPED.name()))
+                .andExpect(status().isNoContent());
+        }
 
-    /* ==================== DELETE Operations (DELETE /api/inventory/{id}) ==================== */
+        @Test
+        @WithMockUser(roles = "USER")
+        void delete_user_forbidden() throws Exception {
+            mockMvc.perform(delete("/api/inventory/i-1").with(csrf())
+                    .param("reason", StockChangeReason.SCRAPPED.name()))
+                .andExpect(status().isForbidden());
+        }
 
-    /**
-     * Tests inventory deletion security for unauthenticated users.
-     * Given: No authentication context
-     * When: DELETE /api/inventory/{id}
-     * Then: Returns 401 Unauthorized
-     */
-    @Test
-    @DisplayName("DELETE /api/inventory/{id} -> 401 when unauthenticated")
-    void delete_unauthenticated_401() throws Exception {
-        mockMvc.perform(delete("/api/inventory/i-1").with(csrf())
-                .param("reason", StockChangeReason.SCRAPPED.name()))
-            .andExpect(status().isUnauthorized());
-    }
-
-    /**
-     * Tests successful inventory deletion for admin users.
-     * Given: ADMIN role with valid item ID and reason
-     * When: DELETE /api/inventory/{id}?reason=SCRAPPED
-     * Then: Returns 204 No Content
-     */
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("DELETE /api/inventory/{id}?reason=SCRAPPED -> 204 (ADMIN)")
-    void delete_admin_noContent() throws Exception {
-        mockMvc.perform(delete("/api/inventory/i-1").with(csrf())
-                .param("reason", StockChangeReason.SCRAPPED.name()))
-            .andExpect(status().isNoContent());
-    }
-
-    /**
-     * Tests USER role restriction for inventory deletion.
-     * Given: USER role attempting to delete inventory
-     * When: DELETE /api/inventory/{id}
-     * Then: Returns 403 Forbidden
-     */
-    @Test
-    @WithMockUser(roles = "USER")
-    @DisplayName("DELETE /api/inventory/{id} -> 403 (USER forbidden)")
-    void delete_user_forbidden() throws Exception {
-        mockMvc.perform(delete("/api/inventory/i-1").with(csrf())
-                .param("reason", StockChangeReason.SCRAPPED.name()))
-            .andExpect(status().isForbidden());
-    }
-
-    /**
-     * Tests validation requirement for deletion reason parameter.
-     * Given: ADMIN role but missing reason parameter
-     * When: DELETE /api/inventory/{id} without reason
-     * Then: Returns 400 Bad Request
-     */
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("DELETE /api/inventory/{id} without reason -> 400")
-    void delete_missing_reason_badRequest() throws Exception {
-        mockMvc.perform(delete("/api/inventory/i-1").with(csrf()))
-            .andExpect(status().isBadRequest());
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        void delete_missingReason_badRequest() throws Exception {
+            mockMvc.perform(delete("/api/inventory/i-1").with(csrf()))
+                .andExpect(status().isBadRequest());
+        }
     }
 }

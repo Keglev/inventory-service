@@ -9,19 +9,10 @@ import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 
 /**
- * Validation helper for analytics controller request parameters.
+ * Validates incoming analytics request parameters.
  *
- * <p>Centralizes validation logic for:
- * <ul>
- *   <li>Date range validation (start ≤ end)</li>
- *   <li>Non-blank string parameters</li>
- *   <li>Filter DTO validation (date ranges, numeric ranges)</li>
- *   <li>Default date window application (last 30 days)</li>
- * </ul>
- *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * <p>Extracted from {@link com.smartsupplypro.inventory.controller.AnalyticsController}
+ * to keep endpoint methods under 15 lines.</p>
  */
 @Component
 public class AnalyticsControllerValidationHelper {
@@ -111,5 +102,36 @@ public class AnalyticsControllerValidationHelper {
     public void validateStockUpdateFilter(StockUpdateFilterDTO filter) {
         validateDateTimeRange(filter.getStartDate(), filter.getEndDate(), "startDate", "endDate");
         validateNumericRange(filter.getMinChange(), filter.getMaxChange(), "minChange", "maxChange");
+    }
+
+    /**
+     * Builds a {@link StockUpdateFilterDTO} from individual query parameters.
+     *
+     * <p>Extracted from {@link com.smartsupplypro.inventory.controller.StockUpdateAnalyticsController}
+     * to keep the endpoint method under 15 lines.</p>
+     *
+     * @param startDate  optional start datetime
+     * @param endDate    optional end datetime
+     * @param itemName   optional item name filter
+     * @param supplierId optional supplier filter
+     * @param createdBy  optional creator filter
+     * @param minChange  optional minimum quantity change
+     * @param maxChange  optional maximum quantity change
+     * @return populated filter DTO
+     */
+    public StockUpdateFilterDTO buildFilter(
+            LocalDateTime startDate, LocalDateTime endDate,
+            String itemName, String supplierId, String createdBy,
+            Integer minChange, Integer maxChange) {
+
+        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
+        filter.setStartDate(startDate);
+        filter.setEndDate(endDate);
+        filter.setItemName(itemName);
+        filter.setSupplierId(supplierId);
+        filter.setCreatedBy(createdBy);
+        filter.setMinChange(minChange);
+        filter.setMaxChange(maxChange);
+        return filter;
     }
 }

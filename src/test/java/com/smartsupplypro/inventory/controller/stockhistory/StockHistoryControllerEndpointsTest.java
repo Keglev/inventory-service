@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -28,28 +27,8 @@ import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.StockHistoryService;
 
 /**
- * # StockHistoryControllerEndpointsTest
- *
- * MVC tests for basic Stock History endpoints in {@link StockHistoryController}.
- *
- * <p><strong>Purpose</strong></p>
- * Validate the HTTP contract for retrieving stock-change audit trail data. These endpoints are
- * used for traceability (who changed stock and why) and support operational and compliance needs.
- *
- * <p><strong>Operations Tested</strong></p>
- * <ul>
- *   <li>{@code GET /api/stock-history}: returns full history (including empty)</li>
- *   <li>{@code GET /api/stock-history/item/{itemId}}: returns history for an item</li>
- *   <li>{@code GET /api/stock-history/reason/{reason}}: filters by change reason</li>
- *   <li>Authentication and enum parsing behavior (invalid / wrong-case reason)</li>
- * </ul>
- *
- * <p><strong>Design Notes</strong></p>
- * <ul>
- *   <li>Uses {@code @WebMvcTest} to exercise controller routing and serialization.</li>
- *   <li>Spring Security filters stay active via {@link TestSecurityConfig}.</li>
- *   <li>Service interactions are mocked to keep tests deterministic.</li>
- * </ul>
+ * Tests {@link StockHistoryController} list and filter-by-reason endpoints covering HTTP contract,
+ * authentication enforcement, and enum parsing using {@link MockMvc}.
  */
 @SuppressWarnings("unused")
 @Import({TestSecurityConfig.class, GlobalExceptionHandler.class})
@@ -79,12 +58,9 @@ class StockHistoryControllerEndpointsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    @DisplayName("GET /api/stock-history -> 200 + list")
     void getAll_whenAuthenticated_returnsList(String role) throws Exception {
-        // GIVEN
         when(stockHistoryService.getAll()).thenReturn(List.of(history));
 
-        // WHEN/THEN
         mockMvc.perform(get("/api/stock-history")
                         .with(user("mockuser").roles(role)))
                 .andExpect(status().isOk())
@@ -94,12 +70,9 @@ class StockHistoryControllerEndpointsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    @DisplayName("GET /api/stock-history -> 200 + [] (empty)")
     void getAll_whenEmpty_returnsEmptyList(String role) throws Exception {
-        // GIVEN
         when(stockHistoryService.getAll()).thenReturn(List.of());
 
-        // WHEN/THEN
         mockMvc.perform(get("/api/stock-history")
                         .with(user("mockuser").roles(role)))
                 .andExpect(status().isOk())
@@ -108,12 +81,9 @@ class StockHistoryControllerEndpointsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    @DisplayName("GET /api/stock-history/item/{itemId} -> 200 + list")
     void getByItemId_whenAuthenticated_returnsHistory(String role) throws Exception {
-        // GIVEN
         when(stockHistoryService.getByItemId("item-1")).thenReturn(List.of(history));
 
-        // WHEN/THEN
         mockMvc.perform(get("/api/stock-history/item/item-1")
                         .with(user("mockuser").roles(role)))
                 .andExpect(status().isOk())
@@ -122,12 +92,9 @@ class StockHistoryControllerEndpointsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    @DisplayName("GET /api/stock-history/reason/{reason} -> 200 + list")
     void getByReason_whenAuthenticated_returnsHistory(String role) throws Exception {
-        // GIVEN
         when(stockHistoryService.getByReason(StockChangeReason.SOLD)).thenReturn(List.of(history));
 
-        // WHEN/THEN
         mockMvc.perform(get("/api/stock-history/reason/SOLD")
                         .with(user("mockuser").roles(role)))
                 .andExpect(status().isOk())
@@ -136,9 +103,7 @@ class StockHistoryControllerEndpointsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    @DisplayName("GET /api/stock-history/reason/{reason} (invalid) -> 400")
     void getByReason_whenInvalidEnum_returnsBadRequest(String role) throws Exception {
-        // GIVEN/WHEN/THEN
         mockMvc.perform(get("/api/stock-history/reason/INVALID_REASON")
                         .with(user("mockuser").roles(role)))
                 .andExpect(status().isBadRequest());
@@ -146,18 +111,14 @@ class StockHistoryControllerEndpointsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    @DisplayName("GET /api/stock-history/reason/{reason} (lowercase) -> 400")
     void getByReason_whenLowercase_returnsBadRequest(String role) throws Exception {
-        // GIVEN/WHEN/THEN
         mockMvc.perform(get("/api/stock-history/reason/sold")
                         .with(user("mockuser").roles(role)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("GET /api/stock-history (no auth) -> 401")
     void getAll_withoutAuthentication_returnsUnauthorized() throws Exception {
-        // GIVEN/WHEN/THEN
         mockMvc.perform(get("/api/stock-history"))
                 .andExpect(status().isUnauthorized());
     }

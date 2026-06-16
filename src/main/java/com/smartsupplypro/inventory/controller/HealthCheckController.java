@@ -16,21 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Health check controller for application and database status monitoring.
+ * REST controller for application and database health monitoring.
  *
- * <p>Provides lightweight and deep health checks with JSON response mapping for frontend integration.
- * Particularly useful for Oracle Free Tier environments where database pausing occurs.</p>
- *
- * <p><strong>Endpoints:</strong></p>
- * <ul>
- *   <li>{@code GET /api/health} - Basic application health check with JSON mapping:
- *       {@code {"status": "ok"|"down", "database": "ok"|"down", "timestamp": epochMillis}}</li>
- *   <li>{@code GET /api/health/db} - Deep health check with database connectivity verification and JSON response:
- *       {@code {"status": "UP"|"DOWN", "oracleSeesIp": "<ip>"|"error": "<message>"}}</li>
- * </ul>
- *
- * @version 1.1
- * @see <a href="file:../../../../../../docs/architecture/patterns/controller-patterns.md">Controller Patterns</a>
+ * <p>These endpoints are publicly accessible (no authentication required)
+ * and serve frontend polling and infrastructure probes.
+ * Designed for Oracle Free Tier environments where database pausing may occur.</p>
  */
 @RestController
 @RequestMapping("/api/health")
@@ -43,40 +33,19 @@ public class HealthCheckController {
     }
 
     /**
-    * Basic JSON health check for the frontend.
-    *
-    * Returns:
-    * {
-    *   "status": "ok" | "down",
-    *   "database": "ok" | "down",
-    *   "timestamp": <epochMillis>
-    * }
-    */
+     * Basic health check for the frontend.
+     *
+     * @return {@code {"status":"ok","database":"ok"|"down","timestamp":<epochMillis>}},
+     *         200 OK when database is up, 503 Service Unavailable when database is down
+     */
     @GetMapping
     public ResponseEntity<Map<String, Object>> health() {
-
         long now = System.currentTimeMillis();
-        boolean dbUp;
-
-        // low-cost DB ping; runs every 15min from the frontend
-        try (Connection conn = dataSource.getConnection();
-            PreparedStatement stmt = conn.prepareStatement("SELECT 1 FROM DUAL");
-            ResultSet rs = stmt.executeQuery()) {
-
-            dbUp = rs.next();
-
-        } catch (SQLException ex) {
-            // DB unreachable or query failed
-            dbUp = false;
-            // optionally log here with your logger
-            // log.warn("Database health check failed", ex);
-        }
+        boolean dbUp = pingDatabase();
         Map<String, Object> body = new HashMap<>();
-        // application is running if we reached this controller at all
-        body.put("status", "ok");
+        body.put("status", "ok"); // application is up if this controller was reached
         body.put("database", dbUp ? "ok" : "down");
         body.put("timestamp", now);
-
         HttpStatus status = dbUp ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
         return new ResponseEntity<>(body, status);
     }
@@ -90,26 +59,33 @@ public class HealthCheckController {
     public ResponseEntity<String> checkDatabaseConnection() {
         try (
             Connection conn = dataSource.getConnection();
-
-            // Oracle Health Check Strategy
-            // Use SYS_CONTEXT query instead of simple SELECT 1 FROM DUAL
-            // to verify actual Oracle functionality and return diagnostic info
-            PreparedStatement stmt = conn.prepareStatement("SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL");
+            // SYS_CONTEXT verifies actual Oracle functionality and returns client IP for diagnostics
+            PreparedStatement stmt = conn.prepareStatement(
+                    "SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') AS ip FROM DUAL");
             ResultSet rs = stmt.executeQuery()
         ) {
             if (rs.next()) {
                 String ip = rs.getString("ip");
-                // Query succeeded — DB is reachable
                 return ResponseEntity.ok("{\"status\": \"UP\", \"oracleSeesIp\": \"" + ip + "\"}");
             } else {
-                // Query returned no result — unusual but possible
+                // unexpected empty result from a healthy Oracle connection
                 return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                         .body("{\"status\": \"DOWN\", \"db\": \"query failed\"}");
             }
         } catch (Exception ex) {
-            // DB unreachable or misconfigured
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body("{\"status\": \"DOWN\", \"error\": \"" + ex.getMessage() + "\"}");
+        }
+    }
+
+    // low-cost ping; runs every 15 min from the frontend health check
+    private boolean pingDatabase() {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT 1 FROM DUAL");
+             ResultSet rs = stmt.executeQuery()) {
+            return rs.next();
+        } catch (SQLException ex) {
+            return false;
         }
     }
 }

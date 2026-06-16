@@ -19,13 +19,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Authentication controller for user profile and logout operations.
+ * REST controller for authentication and current-user profile operations.
  *
- * <p>Provides current user profile data and API logout functionality.
- * Works with OAuth2 authentication principals and Spring Security.</p>
+ * <p>All endpoints require an active OAuth2 session. No role restrictions
+ * beyond authentication — any authenticated user may call these endpoints.</p>
  *
  * @see AppUserRepository
- * @see <a href="file:../../../../../../docs/architecture/patterns/controller-patterns.md">Controller Patterns</a>
  */
 @RestController
 @RequestMapping("/api")
@@ -53,39 +52,27 @@ public class AuthController {
     ) {}
 
     /**
-     * Gets authenticated user's profile information.
+     * Gets the authenticated user's profile information.
      *
      * @param principal OAuth2 authentication principal
      * @return user profile with email, name, role, and optional picture
-     * @throws ResponseStatusException 401 if not authenticated or user not found
+     * @throws ResponseStatusException 401 if not authenticated or user not found in the database
      */
     @GetMapping("/me")
     public AppUserProfileDTO me(@AuthenticationPrincipal OAuth2User principal) {
         if (principal == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication provided");
         }
-        
-        // Enterprise Comment: OAuth2 Identity Resolution
-        // 1. Extract email from OAuth2 provider (Google)
-        // 2. Load corresponding AppUser entity (created during first login)
-        // 3. Return frontend-friendly profile shape
         String email = principal.getAttribute("email");
         if (email == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email not provided by OAuth2 provider");
         }
-
         AppUser user = appUserRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-
         String picture = principal.getAttribute("picture");
-
-        return new AppUserProfileDTO(
-                user.getEmail(),
-                user.getName(),              // map to fullName
-                user.getRole().name(),       // single role string
-                picture
-        );
+        return new AppUserProfileDTO(user.getEmail(), user.getName(), user.getRole().name(), picture);
     }
+
     /**
      * Gets user's granted authorities for authorization checks.
      *
@@ -94,8 +81,7 @@ public class AuthController {
      * @throws ResponseStatusException 401 if not authenticated
      */
     @GetMapping("/me/authorities")
-    public java.util.List<String> meAuthorities(
-            @AuthenticationPrincipal OAuth2User principal) {
+    public java.util.List<String> meAuthorities(@AuthenticationPrincipal OAuth2User principal) {
         if (principal == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication");
         }
@@ -109,7 +95,7 @@ public class AuthController {
     /**
      * API logout endpoint for programmatic clients.
      *
-     * <p>Invalidates session and expires cookies.
+     * <p>Invalidates the session and expires cookies.
      * For browser clients, prefer the standard POST /logout endpoint.</p>
      *
      * @param request  HTTP servlet request
@@ -120,24 +106,11 @@ public class AuthController {
     public ResponseEntity<Void> apiLogout(HttpServletRequest request, HttpServletResponse response) {
         new SecurityContextLogoutHandler().logout(request, response, null);
 
-        // Enterprise Comment: Cookie Expiration Strategy
-        // Explicitly expire session cookies for API clients with secure settings
-        // Required for proper logout in SPA and mobile applications
+        // Expire cookies for API clients (SPA/mobile) that can't follow the standard form-POST /logout
         ResponseCookie jsess = ResponseCookie.from("JSESSIONID", "")
-                .path("/")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .maxAge(0)
-                .build();
-
+                .path("/").httpOnly(true).secure(true).sameSite("None").maxAge(0).build();
         ResponseCookie session = ResponseCookie.from("SESSION", "")
-                .path("/")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .maxAge(0)
-                .build();
+                .path("/").httpOnly(true).secure(true).sameSite("None").maxAge(0).build();
 
         return ResponseEntity.noContent()
                 .header("Set-Cookie", jsess.toString())

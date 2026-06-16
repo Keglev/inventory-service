@@ -2,7 +2,6 @@ package com.smartsupplypro.inventory.controller.auth;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -27,29 +26,8 @@ import com.smartsupplypro.inventory.controller.AuthController;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 /**
- * # AuthControllerAuthoritiesTest
- *
- * MVC tests for the authority-projection endpoint in {@link AuthController}.
- *
- * <p><strong>Purpose</strong></p>
- * Validate the transformation applied by {@code GET /api/me/authorities}: the controller should
- * return a stable, client-friendly list of authority strings derived from the authenticated
- * principal. This endpoint is typically consumed by the UI to drive role-based route guards
- * and feature flags.
- *
- * <p><strong>Operations Tested</strong></p>
- * <ul>
- *   <li>Distinct projection (duplicate authorities are removed)</li>
- *   <li>Sorted output (stable order for deterministic UI behavior)</li>
- * </ul>
- *
- * <p><strong>Design Notes</strong></p>
- * <ul>
- *   <li>Runs as a {@code @WebMvcTest} with Spring Security filters enabled to ensure the
- *       controller is exercised under realistic authentication constraints.</li>
- *   <li>The authority list is derived purely from the principal; repository access is not
- *       expected for this endpoint and is asserted accordingly.</li>
- * </ul>
+ * Tests {@link AuthController} GET /api/me/authorities endpoint for distinct, sorted
+ * authority projection from the OAuth2 principal using {@link MockMvc}.
  */
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = true)
@@ -63,13 +41,6 @@ class AuthControllerAuthoritiesTest {
     @MockitoBean
     private AppUserRepository appUserRepository;
 
-    /**
-     * Builds an {@link OAuth2AuthenticationToken} with an explicit authority set.
-     *
-     * <p><strong>Enterprise intent</strong></p>
-     * Create a deterministic principal with duplicates and non-sorted entries so the endpoint's
-     * normalization logic (distinct + sorted) is verified at the HTTP layer.
-     */
     private OAuth2AuthenticationToken buildAuthTokenWithAuthorities(String email, java.util.List<String> authorities) {
         java.util.List<GrantedAuthority> granted = authorities.stream()
                 .map(a -> (GrantedAuthority) () -> a)
@@ -84,23 +55,13 @@ class AuthControllerAuthoritiesTest {
         return new OAuth2AuthenticationToken(principal, principal.getAuthorities(), "google");
     }
 
-    /**
-     * Validates authority projection behavior for authenticated users.
-     *
-     * <p><strong>GIVEN:</strong> OAuth2 principal with duplicated and unsorted authorities</p>
-     * <p><strong>WHEN:</strong> GET /api/me/authorities is called</p>
-     * <p><strong>THEN:</strong> The response is a distinct, sorted list of authority strings</p>
-     */
     @Test
-    @DisplayName("GET /api/me/authorities returns distinct sorted authorities")
     void shouldReturnAuthorities_distinctAndSorted() throws Exception {
-        // GIVEN
         OAuth2AuthenticationToken token = buildAuthTokenWithAuthorities(
                 "user@example.com",
                 java.util.List.of("ROLE_USER", "ROLE_ADMIN", "ROLE_ADMIN")
         );
 
-        // WHEN/THEN
         mockMvc.perform(get("/api/me/authorities")
                         .with(authentication(token))
                         .accept(MediaType.APPLICATION_JSON))
