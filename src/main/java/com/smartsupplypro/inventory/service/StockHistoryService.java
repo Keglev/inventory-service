@@ -185,7 +185,7 @@ public class StockHistoryService {
      *
      * <p><b>Validation contract</b>:
      * {@link com.smartsupplypro.inventory.validation.StockHistoryValidator} guarantees that
-     * required fields are present and consistent. In particular, {@code dto.getReason()} is
+     * required fields are present and consistent. In particular, {@code dto.reason()} is
      * expected to be non-null and a valid {@code StockChangeReason} name, so converting via
      * {@link com.smartsupplypro.inventory.enums.StockChangeReason#valueOf(String)} does not
      * require defensive null-branches.</p>
@@ -198,18 +198,18 @@ public class StockHistoryService {
         StockHistoryValidator.validate(dto);
 
         // Enterprise denormalization: store supplierId on the history row for analytics queries.
-        String supplierId = resolveSupplierId(dto.getItemId());
+        String supplierId = resolveSupplierId(dto.itemId());
 
         // Map DTO -> immutable audit event and persist with server-authoritative timestamp.
         StockHistory history = StockHistory.builder()
-                .id("sh-" + dto.getItemId() + "-" + System.currentTimeMillis())
-                .itemId(dto.getItemId())
+                .id("sh-" + dto.itemId() + "-" + System.currentTimeMillis())
+                .itemId(dto.itemId())
                 .supplierId(supplierId)
-                .change(dto.getChange())
-                .reason(StockChangeReason.valueOf(dto.getReason()))
-                .createdBy(dto.getCreatedBy())
+                .change(dto.change())
+                .reason(StockChangeReason.valueOf(dto.reason()))
+                .createdBy(dto.createdBy())
                 .timestamp(LocalDateTime.now())
-                .priceAtChange(dto.getPriceAtChange())
+                .priceAtChange(dto.priceAtChange())
                 .build();
 
         repository.save(history);

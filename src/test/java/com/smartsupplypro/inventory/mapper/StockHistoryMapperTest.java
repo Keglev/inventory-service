@@ -66,13 +66,13 @@ class StockHistoryMapperTest {
 
         // THEN
         assertNotNull(dto);
-        assertEquals("sh-1", dto.getId());
-        assertEquals("item-1", dto.getItemId());
-        assertEquals(5, dto.getChange());
-        assertEquals("INITIAL_STOCK", dto.getReason());
-        assertEquals("admin", dto.getCreatedBy());
-        assertEquals(ts, dto.getTimestamp());
-        assertEquals(new BigDecimal("12.34"), dto.getPriceAtChange());
+        assertEquals("sh-1", dto.id());
+        assertEquals("item-1", dto.itemId());
+        assertEquals(5, dto.change());
+        assertEquals("INITIAL_STOCK", dto.reason());
+        assertEquals("admin", dto.createdBy());
+        assertEquals(ts, dto.timestamp());
+        assertEquals(new BigDecimal("12.34"), dto.priceAtChange());
     }
 
     @Test
@@ -94,7 +94,7 @@ class StockHistoryMapperTest {
 
         // THEN
         assertNotNull(dto);
-        assertNull(dto.getReason());
+        assertNull(dto.reason());
     }
 
     @Test

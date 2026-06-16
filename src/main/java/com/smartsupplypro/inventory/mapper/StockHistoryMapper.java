@@ -97,17 +97,16 @@ public final class StockHistoryMapper {
             return null;
         }
         
-        // Convert enum string with validation and error handling
-        StockChangeReason reason = parseEnumSafely(dto.getReason());
-        
+        StockChangeReason reason = parseEnumSafely(dto.reason());
+
         return StockHistory.builder()
-                .id(dto.getId())
-                .itemId(dto.getItemId())
-                .change(dto.getChange())
+                .id(dto.id())
+                .itemId(dto.itemId())
+                .change(dto.change())
                 .reason(reason)
-                .createdBy(dto.getCreatedBy())
-                .timestamp(dto.getTimestamp())
-                .priceAtChange(dto.getPriceAtChange())
+                .createdBy(dto.createdBy())
+                .timestamp(dto.timestamp())
+                .priceAtChange(dto.priceAtChange())
                 .build();
     }
     

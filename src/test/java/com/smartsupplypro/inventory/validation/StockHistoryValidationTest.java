@@ -35,11 +35,6 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
 @ActiveProfiles("test")
 public class StockHistoryValidationTest {
 
-    /**
-     * Creates a valid {@link StockHistoryDTO} object that can be reused across multiple tests.
-     *
-     * @return a fully populated and valid DTO instance.
-     */
     private StockHistoryDTO validDTO() {
         return StockHistoryDTO.builder()
                 .id("sh-1")
@@ -55,7 +50,6 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testValidDTO_shouldPass() {
-        // GIVEN/WHEN/THEN
         assertDoesNotThrow(() -> StockHistoryValidator.validate(validDTO()));
     }
 
@@ -65,15 +59,17 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testEmptyItemId_shouldThrow() {
-        // GIVEN: missing item id
-        StockHistoryDTO dto = validDTO();
-        dto.setItemId(null);
+        StockHistoryDTO dto = StockHistoryDTO.builder()
+                .id("sh-1")
+                .itemId(null)
+                .change(5)
+                .reason("SOLD")
+                .createdBy("admin")
+                .build();
 
-        // WHEN
         var e = assertThrows(InvalidRequestException.class, () ->
                 StockHistoryValidator.validate(dto));
 
-        // THEN
         assertEquals("Item ID cannot be null or empty", e.getMessage());
     }
 
@@ -83,15 +79,17 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testZeroChange_shouldThrow() {
-        // GIVEN: change delta is zero (non-PRICE_CHANGE reason)
-        StockHistoryDTO dto = validDTO();
-        dto.setChange(0);
+        StockHistoryDTO dto = StockHistoryDTO.builder()
+                .id("sh-1")
+                .itemId("item-1")
+                .change(0)
+                .reason("SOLD")
+                .createdBy("admin")
+                .build();
 
-        // WHEN
         var e = assertThrows(InvalidRequestException.class, () ->
                 StockHistoryValidator.validate(dto));
 
-        // THEN
         assertEquals("Zero quantity change is only allowed for PRICE_CHANGE", e.getMessage());
     }
 
@@ -101,15 +99,17 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testInvalidReason_shouldThrow() {
-        // GIVEN: reason string not present in StockChangeReason
-        StockHistoryDTO dto = validDTO();
-        dto.setReason("DONATED");
+        StockHistoryDTO dto = StockHistoryDTO.builder()
+                .id("sh-1")
+                .itemId("item-1")
+                .change(5)
+                .reason("DONATED")
+                .createdBy("admin")
+                .build();
 
-        // WHEN
         var e = assertThrows(InvalidRequestException.class, () ->
                 StockHistoryValidator.validate(dto));
 
-        // THEN
         assertEquals("Invalid stock change reason: DONATED", e.getMessage());
     }
 
@@ -118,15 +118,17 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testNullCreatedBy_shouldThrow() {
-        // GIVEN: missing audit/user field
-        StockHistoryDTO dto = validDTO();
-        dto.setCreatedBy(null);
+        StockHistoryDTO dto = StockHistoryDTO.builder()
+                .id("sh-1")
+                .itemId("item-1")
+                .change(5)
+                .reason("SOLD")
+                .createdBy(null)
+                .build();
 
-        // WHEN
         var e = assertThrows(InvalidRequestException.class, () ->
                 StockHistoryValidator.validate(dto));
 
-        // THEN
         assertEquals("CreatedBy must be provided", e.getMessage());
     }
 
@@ -135,15 +137,17 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testBlankCreatedBy_shouldThrow() {
-        // GIVEN: blank audit/user field
-        StockHistoryDTO dto = validDTO();
-        dto.setCreatedBy(" ");
+        StockHistoryDTO dto = StockHistoryDTO.builder()
+                .id("sh-1")
+                .itemId("item-1")
+                .change(5)
+                .reason("SOLD")
+                .createdBy(" ")
+                .build();
 
-        // WHEN
         var e = assertThrows(InvalidRequestException.class, () ->
                 StockHistoryValidator.validate(dto));
 
-        // THEN
         assertEquals("CreatedBy must be provided", e.getMessage());
     }
 
@@ -153,10 +157,14 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testValidReason_shouldNotThrow() {
-        // GIVEN/WHEN/THEN: all supported reasons should validate when delta is non-zero
         for (StockChangeReason reason : StockChangeReason.values()) {
-            StockHistoryDTO dto = validDTO();
-            dto.setReason(reason.name()); // change remains 5, so even PRICE_CHANGE is valid
+            StockHistoryDTO dto = StockHistoryDTO.builder()
+                    .id("sh-1")
+                    .itemId("item-1")
+                    .change(5)
+                    .reason(reason.name())
+                    .createdBy("admin")
+                    .build();
             assertDoesNotThrow(() -> StockHistoryValidator.validate(dto));
         }
     }
@@ -167,15 +175,17 @@ public class StockHistoryValidationTest {
      */
     @Test
     void testLowercaseReason_shouldThrow() {
-        // GIVEN: reason uses incorrect case (validator parses via enum name)
-        StockHistoryDTO dto = validDTO();
-        dto.setReason("sold");
+        StockHistoryDTO dto = StockHistoryDTO.builder()
+                .id("sh-1")
+                .itemId("item-1")
+                .change(5)
+                .reason("sold")
+                .createdBy("admin")
+                .build();
 
-        // WHEN
         var e = assertThrows(InvalidRequestException.class, () ->
                 StockHistoryValidator.validate(dto));
 
-        // THEN
         assertEquals("Invalid stock change reason: sold", e.getMessage());
     }
 }

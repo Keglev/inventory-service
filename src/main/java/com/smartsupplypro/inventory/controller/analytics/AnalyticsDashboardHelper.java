@@ -33,24 +33,20 @@ public class AnalyticsDashboardHelper {
      * @param endDate    end of date range
      * @return dashboard summary with aggregated data
      */
-    public DashboardSummaryDTO buildDashboardSummary(String supplierId, LocalDateTime startDate, LocalDateTime endDate) {
-        DashboardSummaryDTO summary = new DashboardSummaryDTO();
-
-        // always load all suppliers regardless of supplier filter — needed for the overview chart
-        summary.setStockPerSupplier(stockAnalyticsService.getTotalStockPerSupplier());
-
-        summary.setLowStockItems(isSupplierProvided(supplierId)
-                ? stockAnalyticsService.getItemsBelowMinimumStock(supplierId).stream().limit(3).toList()
-                : List.of());
-
-        summary.setMonthlyStockMovement(stockAnalyticsService.getMonthlyStockMovement(
-                startDate.toLocalDate(), endDate.toLocalDate(), supplierId));
-
-        summary.setTopUpdatedItems(isSupplierProvided(supplierId)
-                ? stockAnalyticsService.getItemUpdateFrequency(supplierId).stream().limit(5).toList()
-                : List.of());
-
-        return summary;
+    public DashboardSummaryDTO buildDashboardSummary(
+            String supplierId, LocalDateTime startDate, LocalDateTime endDate) {
+        // stockPerSupplier always loads all suppliers regardless of filter -- needed for the overview chart
+        return DashboardSummaryDTO.builder()
+                .stockPerSupplier(stockAnalyticsService.getTotalStockPerSupplier())
+                .lowStockItems(isSupplierProvided(supplierId)
+                        ? stockAnalyticsService.getItemsBelowMinimumStock(supplierId).stream().limit(3).toList()
+                        : List.of())
+                .monthlyStockMovement(stockAnalyticsService.getMonthlyStockMovement(
+                        startDate.toLocalDate(), endDate.toLocalDate(), supplierId))
+                .topUpdatedItems(isSupplierProvided(supplierId)
+                        ? stockAnalyticsService.getItemUpdateFrequency(supplierId).stream().limit(5).toList()
+                        : List.of())
+                .build();
     }
 
     private boolean isSupplierProvided(String supplierId) {

@@ -115,11 +115,12 @@ public class AnalyticsControllerFinancialTest {
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
     void shouldReturnDashboardSummaryWithDefaults(String role) throws Exception {
-        DashboardSummaryDTO summary = new DashboardSummaryDTO();
-        summary.setStockPerSupplier(List.of(new StockPerSupplierDTO("Supplier A", 100)));
-        summary.setLowStockItems(List.of(new LowStockItemDTO("ItemX", 5, 10)));
-        summary.setMonthlyStockMovement(List.of(new MonthlyStockMovementDTO("2024-05", 20L, 10L)));
-        summary.setTopUpdatedItems(List.of(new ItemUpdateFrequencyDTO("ItemX", 3)));
+        DashboardSummaryDTO summary = DashboardSummaryDTO.builder()
+                .stockPerSupplier(List.of(new StockPerSupplierDTO("Supplier A", 100)))
+                .lowStockItems(List.of(new LowStockItemDTO("ItemX", 5, 10)))
+                .monthlyStockMovement(List.of(new MonthlyStockMovementDTO("2024-05", 20L, 10L)))
+                .topUpdatedItems(List.of(new ItemUpdateFrequencyDTO("ItemX", 3)))
+                .build();
 
         when(dashboardHelper.buildDashboardSummary(anyString(), any(), any())).thenReturn(summary);
 

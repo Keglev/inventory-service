@@ -126,10 +126,10 @@ public class StockHistoryServiceReadTest extends StockHistoryServiceTestBase {
         assertEquals(1, out.getContent().size());
 
         StockHistoryDTO dto = out.getContent().get(0);
-        assertEquals(ITEM_1, dto.getItemId());
-        assertEquals(3, dto.getChange());
-        assertEquals(StockChangeReason.INITIAL_STOCK.name(), dto.getReason());
-        assertEquals("seed", dto.getCreatedBy());
-        assertEquals(new BigDecimal("99.99"), dto.getPriceAtChange());
+        assertEquals(ITEM_1, dto.itemId());
+        assertEquals(3, dto.change());
+        assertEquals(StockChangeReason.INITIAL_STOCK.name(), dto.reason());
+        assertEquals("seed", dto.createdBy());
+        assertEquals(new BigDecimal("99.99"), dto.priceAtChange());
     }
 }

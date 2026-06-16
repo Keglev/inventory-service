@@ -88,12 +88,12 @@ abstract class StockHistoryServiceTestBase {
             String createdBy,
             LocalDateTime timestamp,
             BigDecimal priceAtChange) {
-        org.junit.jupiter.api.Assertions.assertEquals(itemId, dto.getItemId());
-        org.junit.jupiter.api.Assertions.assertEquals(change, dto.getChange());
-        org.junit.jupiter.api.Assertions.assertEquals(reason.name(), dto.getReason());
-        org.junit.jupiter.api.Assertions.assertEquals(createdBy, dto.getCreatedBy());
-        org.junit.jupiter.api.Assertions.assertEquals(timestamp, dto.getTimestamp());
-        org.junit.jupiter.api.Assertions.assertEquals(priceAtChange, dto.getPriceAtChange());
+        org.junit.jupiter.api.Assertions.assertEquals(itemId, dto.itemId());
+        org.junit.jupiter.api.Assertions.assertEquals(change, dto.change());
+        org.junit.jupiter.api.Assertions.assertEquals(reason.name(), dto.reason());
+        org.junit.jupiter.api.Assertions.assertEquals(createdBy, dto.createdBy());
+        org.junit.jupiter.api.Assertions.assertEquals(timestamp, dto.timestamp());
+        org.junit.jupiter.api.Assertions.assertEquals(priceAtChange, dto.priceAtChange());
     }
 
     protected StockHistory captureSavedHistory() {

@@ -1,21 +1,14 @@
 package com.smartsupplypro.inventory.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 /**
- * Item activity tracking DTO showing update frequency for volatility analysis.
- * Identifies high-activity items for operational insights and audit reporting.
- * @see AnalyticsController#getTopUpdatedItems()
- * @see dto-patterns.md for activity tracking patterns
+ * Response payload for item update frequency analytics.
+ *
+ * <p>Returned by {@link com.smartsupplypro.inventory.controller.AnalyticsController#getTopUpdatedItems()}.</p>
+ *
+ * @param itemName    display name of the inventory item
+ * @param updateCount number of stock change events recorded for this item
  */
-@Data
-@AllArgsConstructor
-public class ItemUpdateFrequencyDTO {
-
-    /** Item name being tracked for activity. */
-    private String itemName;
-
-    /** Number of update events recorded for this item. */
-    private long updateCount;
-}
+public record ItemUpdateFrequencyDTO(
+        String itemName,
+        long updateCount
+) {}

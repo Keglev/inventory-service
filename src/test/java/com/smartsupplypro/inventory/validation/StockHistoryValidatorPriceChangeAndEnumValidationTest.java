@@ -32,21 +32,16 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
  */
 class StockHistoryValidatorPriceChangeAndEnumValidationTest {
 
-    private static StockHistoryDTO baseDto() {
-        return StockHistoryDTO.builder()
+    @Test
+    @DisplayName("validate: blank itemId is rejected")
+    void validate_blankItemId_throws() {
+        StockHistoryDTO dto = StockHistoryDTO.builder()
                 .id("sh-1")
-                .itemId("item-1")
+                .itemId("   ")
                 .change(5)
                 .reason("SOLD")
                 .createdBy("admin")
                 .build();
-    }
-
-    @Test
-    @DisplayName("validate: blank itemId is rejected")
-    void validate_blankItemId_throws() {
-        StockHistoryDTO dto = baseDto();
-        dto.setItemId("   ");
 
         InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> StockHistoryValidator.validate(dto));
@@ -56,8 +51,13 @@ class StockHistoryValidatorPriceChangeAndEnumValidationTest {
     @Test
     @DisplayName("validate: null reason is rejected")
     void validate_nullReason_throws() {
-        StockHistoryDTO dto = baseDto();
-        dto.setReason(null);
+        StockHistoryDTO dto = StockHistoryDTO.builder()
+                .id("sh-1")
+                .itemId("item-1")
+                .change(5)
+                .reason(null)
+                .createdBy("admin")
+                .build();
 
         InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> StockHistoryValidator.validate(dto));
@@ -67,9 +67,13 @@ class StockHistoryValidatorPriceChangeAndEnumValidationTest {
     @Test
     @DisplayName("validate: PRICE_CHANGE allows zero delta")
     void validate_priceChange_allowsZeroChange() {
-        StockHistoryDTO dto = baseDto();
-        dto.setReason(StockChangeReason.PRICE_CHANGE.name());
-        dto.setChange(0);
+        StockHistoryDTO dto = StockHistoryDTO.builder()
+                .id("sh-1")
+                .itemId("item-1")
+                .change(0)
+                .reason(StockChangeReason.PRICE_CHANGE.name())
+                .createdBy("admin")
+                .build();
 
         assertDoesNotThrow(() -> StockHistoryValidator.validate(dto));
     }
@@ -77,10 +81,14 @@ class StockHistoryValidatorPriceChangeAndEnumValidationTest {
     @Test
     @DisplayName("validate: PRICE_CHANGE rejects negative priceAtChange")
     void validate_priceChange_negativePriceAtChange_throws() {
-        StockHistoryDTO dto = baseDto();
-        dto.setReason(StockChangeReason.PRICE_CHANGE.name());
-        dto.setChange(0);
-        dto.setPriceAtChange(new BigDecimal("-0.01"));
+        StockHistoryDTO dto = StockHistoryDTO.builder()
+                .id("sh-1")
+                .itemId("item-1")
+                .change(0)
+                .reason(StockChangeReason.PRICE_CHANGE.name())
+                .createdBy("admin")
+                .priceAtChange(new BigDecimal("-0.01"))
+                .build();
 
         InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> StockHistoryValidator.validate(dto));
@@ -90,10 +98,14 @@ class StockHistoryValidatorPriceChangeAndEnumValidationTest {
     @Test
     @DisplayName("validate: negative priceAtChange is ignored for non-PRICE_CHANGE")
     void validate_nonPriceChange_negativePriceAtChange_isIgnored() {
-        StockHistoryDTO dto = baseDto();
-        dto.setReason(StockChangeReason.SOLD.name());
-        dto.setChange(1);
-        dto.setPriceAtChange(new BigDecimal("-0.01"));
+        StockHistoryDTO dto = StockHistoryDTO.builder()
+                .id("sh-1")
+                .itemId("item-1")
+                .change(1)
+                .reason(StockChangeReason.SOLD.name())
+                .createdBy("admin")
+                .priceAtChange(new BigDecimal("-0.01"))
+                .build();
 
         // Branch condition includes reason == PRICE_CHANGE; for other reasons it should not fail.
         assertDoesNotThrow(() -> StockHistoryValidator.validate(dto));

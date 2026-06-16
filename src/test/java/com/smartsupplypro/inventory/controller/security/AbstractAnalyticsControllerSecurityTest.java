@@ -77,7 +77,7 @@ public abstract class AbstractAnalyticsControllerSecurityTest {
         FinancialAnalyticsService financialAnalyticsService() {
             FinancialAnalyticsService mock = Mockito.mock(FinancialAnalyticsService.class);
             when(mock.getFinancialSummaryWAC(any(LocalDate.class), any(LocalDate.class), anyString()))
-                .thenReturn(new com.smartsupplypro.inventory.dto.FinancialSummaryDTO());
+                .thenReturn(com.smartsupplypro.inventory.dto.FinancialSummaryDTO.builder().build());
             return mock;
         }
 
@@ -103,7 +103,7 @@ public abstract class AbstractAnalyticsControllerSecurityTest {
         AnalyticsDashboardHelper analyticsDashboardHelper() {
             AnalyticsDashboardHelper mock = Mockito.mock(AnalyticsDashboardHelper.class);
             when(mock.buildDashboardSummary(anyString(), any(), any()))
-                .thenReturn(new com.smartsupplypro.inventory.dto.DashboardSummaryDTO());
+                .thenReturn(com.smartsupplypro.inventory.dto.DashboardSummaryDTO.builder().build());
             return mock;
         }
 

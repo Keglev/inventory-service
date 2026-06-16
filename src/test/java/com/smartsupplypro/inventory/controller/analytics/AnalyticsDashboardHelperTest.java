@@ -68,16 +68,16 @@ class AnalyticsDashboardHelperTest {
         DashboardSummaryDTO summary = helper.buildDashboardSummary(supplierId, startDate, endDate);
 
         assertNotNull(summary);
-        assertEquals(stockPerSupplier, summary.getStockPerSupplier());
-        assertEquals(monthly, summary.getMonthlyStockMovement());
+        assertEquals(stockPerSupplier, summary.stockPerSupplier());
+        assertEquals(monthly, summary.monthlyStockMovement());
 
-        assertEquals(3, summary.getLowStockItems().size());
-        assertEquals("Item0", summary.getLowStockItems().get(0).getItemName());
-        assertEquals("Item2", summary.getLowStockItems().get(2).getItemName());
+        assertEquals(3, summary.lowStockItems().size());
+        assertEquals("Item0", summary.lowStockItems().get(0).itemName());
+        assertEquals("Item2", summary.lowStockItems().get(2).itemName());
 
-        assertEquals(5, summary.getTopUpdatedItems().size());
-        assertEquals("Item0", summary.getTopUpdatedItems().get(0).getItemName());
-        assertEquals("Item4", summary.getTopUpdatedItems().get(4).getItemName());
+        assertEquals(5, summary.topUpdatedItems().size());
+        assertEquals("Item0", summary.topUpdatedItems().get(0).itemName());
+        assertEquals("Item4", summary.topUpdatedItems().get(4).itemName());
 
         verify(stockAnalyticsService).getTotalStockPerSupplier();
         verify(stockAnalyticsService).getItemsBelowMinimumStock(eq(supplierId));
@@ -104,11 +104,11 @@ class AnalyticsDashboardHelperTest {
         DashboardSummaryDTO summary = helper.buildDashboardSummary(supplierId, startDate, endDate);
 
         assertNotNull(summary);
-        assertEquals(stockPerSupplier, summary.getStockPerSupplier());
-        assertEquals(monthly, summary.getMonthlyStockMovement());
+        assertEquals(stockPerSupplier, summary.stockPerSupplier());
+        assertEquals(monthly, summary.monthlyStockMovement());
 
-        assertTrue(summary.getLowStockItems().isEmpty());
-        assertTrue(summary.getTopUpdatedItems().isEmpty());
+        assertTrue(summary.lowStockItems().isEmpty());
+        assertTrue(summary.topUpdatedItems().isEmpty());
 
         verify(stockAnalyticsService, never()).getItemsBelowMinimumStock(org.mockito.ArgumentMatchers.anyString());
         verify(stockAnalyticsService, never()).getItemUpdateFrequency(org.mockito.ArgumentMatchers.anyString());

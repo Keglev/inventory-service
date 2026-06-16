@@ -93,9 +93,9 @@ class AnalyticsServiceImplConverterTest {
 
     // Verify all numeric types converted correctly to long
     assertEquals(3, out.size());
-    assertEquals(3, out.get(0).getChange());  // Integer → long
-    assertEquals(4, out.get(1).getChange());  // Long → long
-    assertEquals(5, out.get(2).getChange());  // BigDecimal → long
+    assertEquals(3, out.get(0).change());  // Integer → long
+    assertEquals(4, out.get(1).change());  // Long → long
+    assertEquals(5, out.get(2).change());  // BigDecimal → long
   }
 
   @Test

@@ -1,39 +1,30 @@
 package com.smartsupplypro.inventory.dto;
 
-import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import java.time.LocalDateTime;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import lombok.Data;
+
 /**
- * Flexible stock history search filter DTO supporting advanced query combinations.
- * Enables precise audit trail filtering with date ranges and entity constraints.
- * @see StockHistoryController#search()
- * @see dto-patterns.md for search filter patterns
+ * Request filter for stock history search queries.
+ *
+ * <p>Bound from query parameters by
+ * {@link com.smartsupplypro.inventory.controller.StockHistoryController#search()}.
+ * All fields are optional; omitted parameters are treated as unconstrained.</p>
  */
 @Data
 public class StockUpdateFilterDTO {
 
-    /** Optional start date/time for range filtering (ISO 8601). */
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime startDate;
 
-    /** Optional end date/time for range filtering (ISO 8601). */
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime endDate;
 
-    /** Optional item name for case-insensitive search. */
     private String itemName;
-
-    /** Optional supplier ID filter. */
     private String supplierId;
-
-    /** Optional user filter for audit tracking. */
     private String createdBy;
-
-    /** Optional minimum quantity change (inclusive). */
     private Integer minChange;
-
-    /** Optional maximum quantity change (inclusive). */
     private Integer maxChange;
 }

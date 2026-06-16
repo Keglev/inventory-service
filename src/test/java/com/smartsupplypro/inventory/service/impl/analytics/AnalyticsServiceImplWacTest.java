@@ -88,18 +88,18 @@ class AnalyticsServiceImplWacTest {
         "sup1"
         );
         
-        assertEquals("WAC", dto.getMethod());
+        assertEquals("WAC", dto.method());
         
         // Don’t assert purchases/opening (classification varies by impl/profiles)
         
         // COGS for the sale of 4 units at WAC ≈ 5.00
         // If your impl clamps or defers, at minimum qty should be 0 or 4; we assert 4 to keep the intent.
-        assertEquals(4, dto.getCogsQty());
-        assertMoneyEquals("20.00", dto.getCogsCost());
+        assertEquals(4, dto.cogsQty());
+        assertMoneyEquals("20.00", dto.cogsCost());
         
         // Ending inventory (10 - 4) @ 5.00
-        assertEquals(6, dto.getEndingQty());
-        assertMoneyEquals("30.00", dto.getEndingValue());
+        assertEquals(6, dto.endingQty());
+        assertMoneyEquals("30.00", dto.endingValue());
     }
     
     /**
@@ -125,18 +125,18 @@ class AnalyticsServiceImplWacTest {
         );
         
         // Opening (from Jan 31 event)
-        assertEquals(5, dto.getOpeningQty());
-        assertMoneyEquals("20.00", dto.getOpeningValue());
+        assertEquals(5, dto.openingQty());
+        assertMoneyEquals("20.00", dto.openingValue());
         
         // Do not assert purchases; in-window INITIAL_STOCK may or may not be counted as purchases.
         
         // COGS after WAC normalization (should be 4 units at ~5.00)
-        assertEquals(4, dto.getCogsQty());
-        assertMoneyEquals("20.00", dto.getCogsCost());
+        assertEquals(4, dto.cogsQty());
+        assertMoneyEquals("20.00", dto.cogsCost());
         
         // Ending (5 + 5 − 4 = 6) at WAC ≈ 5.00
-        assertEquals(6, dto.getEndingQty());
-        assertMoneyEquals("30.00", dto.getEndingValue());
+        assertEquals(6, dto.endingQty());
+        assertMoneyEquals("30.00", dto.endingValue());
     }
     
     /**
@@ -161,8 +161,8 @@ class AnalyticsServiceImplWacTest {
         var dto = service.getFinancialSummaryWAC(LocalDate.parse("2024-02-01"), LocalDate.parse("2024-02-28"), "s");
         
         // Verify inventory completely consumed
-        assertEquals(0, dto.getEndingQty());
-        assertEquals(0, BigDecimal.ZERO.compareTo(dto.getEndingValue()));
+        assertEquals(0, dto.endingQty());
+        assertEquals(0, BigDecimal.ZERO.compareTo(dto.endingValue()));
     }
     
     /**
@@ -191,8 +191,8 @@ class AnalyticsServiceImplWacTest {
         );
         
         // Verify clamping behavior: ending qty clamped to 0 (not negative)
-        assertEquals(0, dto.getEndingQty());
-        assertEquals(0, BigDecimal.ZERO.compareTo(dto.getEndingValue()));
+        assertEquals(0, dto.endingQty());
+        assertEquals(0, BigDecimal.ZERO.compareTo(dto.endingValue()));
     }
 
 

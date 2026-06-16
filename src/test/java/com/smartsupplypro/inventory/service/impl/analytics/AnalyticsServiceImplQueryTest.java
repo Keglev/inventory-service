@@ -86,8 +86,8 @@ class AnalyticsServiceImplQueryTest {
 
         // Verify DTO mapping: size, date conversion, value parsing
         assertEquals(2, out.size());
-        assertEquals(LocalDate.parse("2024-02-01"), out.get(0).getDate());
-        assertEquals(10.50, out.get(0).getTotalValue(), 1e-9);  // verify double precision value
+        assertEquals(LocalDate.parse("2024-02-01"), out.get(0).date());
+        assertEquals(10.50, out.get(0).totalValue(), 1e-9);  // verify double precision value
     }
 
     @Test
@@ -105,8 +105,8 @@ class AnalyticsServiceImplQueryTest {
 
         // Verify DTO mapping: supplier name and numeric conversion to long
         assertEquals(2, out.size());
-        assertEquals("Acme", out.get(0).getSupplierName());
-        assertEquals(42L, out.get(0).getTotalQuantity());  // BigDecimal converted to long
+        assertEquals("Acme", out.get(0).supplierName());
+        assertEquals(42L, out.get(0).totalQuantity());  // BigDecimal converted to long
     }
 
     @Test
@@ -124,8 +124,8 @@ class AnalyticsServiceImplQueryTest {
 
         // Verify DTO mapping: item name and numeric conversion to long
         assertEquals(2, out.size());
-        assertEquals("ItemA", out.get(0).getItemName());
-        assertEquals(5L, out.get(0).getUpdateCount());  // BigDecimal converted to long
+        assertEquals("ItemA", out.get(0).itemName());
+        assertEquals(5L, out.get(0).updateCount());  // BigDecimal converted to long
     }
 
     @Test
@@ -143,9 +143,9 @@ class AnalyticsServiceImplQueryTest {
 
         // Verify DTO mapping: item name and numeric conversions
         assertEquals(2, out.size());
-        assertEquals("ItemA", out.get(0).getItemName());
-        assertEquals(3, out.get(0).getQuantity());            // current quantity
-        assertEquals(5, out.get(0).getMinimumQuantity());     // minimum threshold
+        assertEquals("ItemA", out.get(0).itemName());
+        assertEquals(3, out.get(0).quantity());            // current quantity
+        assertEquals(5, out.get(0).minimumQuantity());     // minimum threshold
     }
 
     @Test
@@ -167,9 +167,9 @@ class AnalyticsServiceImplQueryTest {
 
         // Verify DTO mapping: month string and numeric conversions to long
         assertEquals(2, out.size());
-        assertEquals("2024-02", out.get(0).getMonth());
-        assertEquals(5L, out.get(0).getStockIn());   // BigDecimal converted to long
-        assertEquals(2L, out.get(0).getStockOut());  // Integer converted to long
+        assertEquals("2024-02", out.get(0).month());
+        assertEquals(5L, out.get(0).stockIn());   // BigDecimal converted to long
+        assertEquals(2L, out.get(0).stockOut());  // Integer converted to long
     }
 
     @Test
@@ -202,12 +202,12 @@ class AnalyticsServiceImplQueryTest {
         // Verify DTO mapping: all fields correctly extracted and converted
         assertEquals(1, out.size());
         StockUpdateResultDTO r = out.get(0);
-        assertEquals("ItemA", r.getItemName());
-        assertEquals("SuppA", r.getSupplierName());
-        assertEquals(5, r.getChange());              // quantity change
-        assertEquals("SOLD", r.getReason());         // stock change reason
-        assertEquals("alice", r.getCreatedBy());     // who made the change
-        assertEquals(ts.toLocalDateTime(), r.getTimestamp());  // when change occurred
+        assertEquals("ItemA", r.itemName());
+        assertEquals("SuppA", r.supplierName());
+        assertEquals(5, r.change());              // quantity change
+        assertEquals("SOLD", r.reason());         // stock change reason
+        assertEquals("alice", r.createdBy());     // who made the change
+        assertEquals(ts.toLocalDateTime(), r.timestamp());  // when change occurred
     }
 
     @Test

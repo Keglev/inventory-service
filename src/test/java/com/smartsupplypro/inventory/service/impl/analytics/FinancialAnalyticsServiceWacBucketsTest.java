@@ -107,30 +107,30 @@ class FinancialAnalyticsServiceWacBucketsTest {
         // Opening inventory:
         // item1: (10 - 2 + 2) = 10 units @ 5.00 => 50.00
         // item2: 3 units @ 0.00 => 0.00
-        assertEquals(13, dto.getOpeningQty());
-        assertMoneyEquals("50.00", dto.getOpeningValue());
+        assertEquals(13, dto.openingQty());
+        assertMoneyEquals("50.00", dto.openingValue());
 
         // Purchases: +4 (20.00) then return-to-supplier -3 (15.00) => net +1 and $5.00
-        assertEquals(1, dto.getPurchasesQty());
-        assertMoneyEquals("5.00", dto.getPurchasesCost());
+        assertEquals(1, dto.purchasesQty());
+        assertMoneyEquals("5.00", dto.purchasesCost());
 
         // Returns in: +1 @ 5.00
-        assertEquals(1, dto.getReturnsInQty());
-        assertMoneyEquals("5.00", dto.getReturnsInCost());
+        assertEquals(1, dto.returnsInQty());
+        assertMoneyEquals("5.00", dto.returnsInCost());
 
         // Write-off: 1 unit @ 5.00
-        assertEquals(1, dto.getWriteOffQty());
-        assertMoneyEquals("5.00", dto.getWriteOffCost());
+        assertEquals(1, dto.writeOffQty());
+        assertMoneyEquals("5.00", dto.writeOffCost());
 
         // COGS: 2 units @ 5.00
-        assertEquals(2, dto.getCogsQty());
-        assertMoneyEquals("10.00", dto.getCogsCost());
+        assertEquals(2, dto.cogsQty());
+        assertMoneyEquals("10.00", dto.cogsCost());
 
         // Ending inventory:
         // item1 ending qty: 10 +4 +1 +2 -3 -1 -2 = 11 @ 5.00 => 55.00
         // item2 remains 3 @ 0 => 0.00
-        assertEquals(14, dto.getEndingQty());
-        assertMoneyEquals("55.00", dto.getEndingValue());
+        assertEquals(14, dto.endingQty());
+        assertMoneyEquals("55.00", dto.endingValue());
 
         // blankToNull("   ") should pass null into repository
         verify(stockHistoryRepository).streamEventsForWAC(any(), isNull());

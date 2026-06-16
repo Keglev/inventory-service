@@ -3,42 +3,28 @@ package com.smartsupplypro.inventory.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
- * Stock change audit trail DTO capturing inventory modification events.
- * Records what changed, when, why, and who performed each stock operation.
- * @see StockHistoryController
- * @see dto-patterns.md for audit trail patterns
+ * Response payload for a stock history audit entry.
+ *
+ * <p>Returned by {@link com.smartsupplypro.inventory.controller.StockHistoryController}.</p>
+ *
+ * @param id            unique audit record identifier
+ * @param itemId        inventory item affected by this change
+ * @param change        signed quantity delta — positive for inbound, negative for outbound
+ * @param reason        stock change reason code
+ * @param createdBy     user or process that triggered this change
+ * @param timestamp     when this change was recorded
+ * @param priceAtChange unit price at time of change, used for value tracking
  */
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class StockHistoryDTO {
-
-    /** Unique audit record identifier. */
-    private String id;
-
-    /** Inventory item affected by this change. */
-    private String itemId;
-
-    /** Quantity delta (positive for inbound, negative for outbound). */
-    private int change;
-
-    /** Reason code for the stock change (enum-based). */
-    private String reason;
-
-    /** User or process that triggered this change. */
-    private String createdBy;
-
-    /** When this change was recorded. */
-    private LocalDateTime timestamp;
-
-    /** Item price at time of change (for value tracking). */
-    private BigDecimal priceAtChange;
-}
-
+public record StockHistoryDTO(
+        String id,
+        String itemId,
+        int change,
+        String reason,
+        String createdBy,
+        LocalDateTime timestamp,
+        BigDecimal priceAtChange
+) {}
