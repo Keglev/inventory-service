@@ -1,5 +1,6 @@
 package com.smartsupplypro.inventory.exception;
 
+import java.time.Instant;
 import java.util.NoSuchElementException;
 
 import org.springframework.core.Ordered;
@@ -25,39 +26,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 
 /**
- * Enterprise global exception handler for REST API standardization.
- *
- * <p>Handles framework-level exceptions (validation, security, HTTP). Domain business
- * logic exceptions are handled by {@link BusinessExceptionHandler}.
- *
- * <p><strong>Status Mapping</strong>: 400 (validation), 401 (auth), 403 (authz),
- * 404 (not found), 409 (conflicts), 500 (unexpected).
- * 
- * @author Smart Supply Pro Development Team
- * @version 2.0.0
- * @see BusinessExceptionHandler
- * @see ErrorResponse
+ * Fallback exception handler for framework-level exceptions not covered by {@link BusinessExceptionHandler}.
  */
-@Order(Ordered.HIGHEST_PRECEDENCE + 1)  // Runs after BusinessExceptionHandler as a catch-all
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /* =======================================================================
-     * 400 BAD REQUEST - Validation & Parameter Errors
-     * ======================================================================= */
-
-    /** Handles {@code @Valid} validation failures. Extracts first field error. */
+    /** Handles {@code @Valid} validation failures; extracts the first field error. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .findFirst()
                 .map(fe -> fe.getField() + " " + fe.getDefaultMessage())
                 .orElse("Validation failed");
-        
-        return ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST)
-                .message(sanitize(message))
-                .build();
+        return respond(HttpStatus.BAD_REQUEST, sanitize(message));
     }
 
     /** Handles JSR-380 constraint violations ({@code @NotNull}, {@code @Size}). */
@@ -67,20 +49,13 @@ public class GlobalExceptionHandler {
                 .findFirst()
                 .map(v -> v.getPropertyPath() + " " + v.getMessage())
                 .orElse("Constraint violation");
-        
-        return ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST)
-                .message(sanitize(message))
-                .build();
+        return respond(HttpStatus.BAD_REQUEST, sanitize(message));
     }
 
     /** Handles malformed JSON payloads and deserialization errors. */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleParsingError(HttpMessageNotReadableException ex) {
-        return ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST)
-                .message("Request body is invalid or unreadable")
-                .build();
+        return respond(HttpStatus.BAD_REQUEST, "Request body is invalid or unreadable");
     }
 
     /** Handles missing parameters and type conversion failures. */
@@ -97,150 +72,85 @@ public class GlobalExceptionHandler {
         } else {
             message = "Invalid parameter";
         }
-        
-        return ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST)
-                .message(message)
-                .build();
+        return respond(HttpStatus.BAD_REQUEST, message);
     }
 
-    /* =======================================================================
-     * 401 / 403 - Security & Authorization
-     * ======================================================================= */
-
-    /** Handles authentication failures. Returns generic message to prevent enumeration. 
-     * 
-     * @enterprise 
-     * - Avoids leaking details about authentication mechanisms or user existence.
-    */
+    /** Returns a generic 401 to prevent authentication mechanism enumeration. */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
-        return ErrorResponse.builder()
-                .status(HttpStatus.UNAUTHORIZED)
-                .message("Authentication required")
-                .build();
+        return respond(HttpStatus.UNAUTHORIZED, "Authentication required");
     }
 
-    /**
-     * Handle Spring Security access control violations.
-     *
-     * @enterprise
-     * - Returns generic 403 message to avoid leaking details about permissions.
-     * - For demo-mode violations, returns a friendly UX message that matches frontend wording.
-    */
+    /** Returns a generic 403; detects demo-mode restriction for a user-friendly message. */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
-        // By default: generic authorization failure
-        String message = "You are not allowed to perform this operation.";
-
-        // Heuristic: if the expression for @PreAuthorize with demo flag failed,
-        // the underlying exception message may carry that expression.
-        if (ex.getMessage() != null && ex.getMessage().contains("principal.isDemo")) {
-            message = "You are in demo mode and cannot perform this operation.";
-        }
-        
-        return ErrorResponse.builder()
-            .status(HttpStatus.FORBIDDEN)
-            .message(sanitize(message))
-            .build();
+        String message = (ex.getMessage() != null && ex.getMessage().contains("principal.isDemo"))
+            ? "You are in demo mode and cannot perform this operation."
+            : "You are not allowed to perform this operation.";
+        return respond(HttpStatus.FORBIDDEN, sanitize(message));
     }
 
-    /* =======================================================================
-     * 404 - Resource Not Found
-     * ======================================================================= */
-
-    /** Handles resource lookup failures from repositories and service layer. */
+    /** Handles resource lookup failures from repositories and the service layer. */
     @ExceptionHandler({NoSuchElementException.class, IllegalArgumentException.class})
     public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException ex) {
         String message = (ex.getMessage() != null && !ex.getMessage().isBlank())
             ? ex.getMessage()
             : "Resource not found";
-        
-        return ErrorResponse.builder()
-                .status(HttpStatus.NOT_FOUND)
-                .message(sanitize(message))
-                .build();
+        return respond(HttpStatus.NOT_FOUND, sanitize(message));
     }
 
-    /** Handles missing static resources (CSS, JS, images) with no response body. */
+    /** Handles missing static resources with no response body. */
     @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void handleStaticResource() {
-        // No body - standard 404 for static resources
+        // No body — standard 404 for static assets
     }
 
-    /* =======================================================================
-     * 409 - Data Conflicts
-     * ======================================================================= */
-
-    /** Handles database constraint violations. Sanitizes SQL to prevent disclosure. */
+    /** Sanitizes SQL details before returning a conflict message. */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex) {
-        return ErrorResponse.builder()
-                .status(HttpStatus.CONFLICT)
-                .message("Data conflict - constraint violation")
-                .build();
+        return respond(HttpStatus.CONFLICT, "Data conflict - constraint violation");
     }
 
     /** Handles JPA optimistic locking failures during concurrent updates. */
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<ErrorResponse> handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
-        return ErrorResponse.builder()
-                .status(HttpStatus.CONFLICT)
-                .message("Concurrent update detected - please refresh and retry")
-                .build();
+        return respond(HttpStatus.CONFLICT, "Concurrent update detected - please refresh and retry");
     }
 
-    /* =======================================================================
-     * Pass-Through & Fallback
-     * ======================================================================= */
-
-    /** Handles explicit {@link ResponseStatusException}. Preserves original status. */
+    /** Handles explicit {@link ResponseStatusException}; preserves the original status. */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatus(ResponseStatusException ex,
                                                                HttpServletRequest request) {
         HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
-        String reason = ex.getReason();  // Store to avoid multiple null-check warnings
+        String reason = ex.getReason();
         String message = (reason != null && !reason.isBlank())
             ? reason
             : (status != null ? status.getReasonPhrase() : "Request failed");
-        
-        return ErrorResponse.builder()
-                .status(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR)
-                .message(sanitize(message))
-                .build();
+        return respond(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR, sanitize(message));
     }
 
-    /** 
-     * Enterprise safety net for unhandled exceptions. Prevents stack trace exposure.
-     * <p><strong>Production</strong>: Add ERROR-level logging with correlation ID.
-     */
+    /** Prevents stack trace exposure for unhandled exceptions. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
-        return ErrorResponse.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .message("Unexpected server error")
-                .build();
+        return respond(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error");
     }
 
-    /* =======================================================================
-     * Security - Message Sanitization
-     * ======================================================================= */
+    private ResponseEntity<ErrorResponse> respond(HttpStatus status, String message) {
+        return ResponseEntity.status(status)
+            .body(new ErrorResponse(status.name().toLowerCase(), message, Instant.now().toString()));
+    }
 
-    /**
-     * Sanitizes error messages to prevent sensitive information disclosure.
-     * Removes file paths, class names, SQL fragments, and credentials.
-     */
+    /** Strips file paths, class names, SQL fragments, and credentials from error messages. */
     private String sanitize(String message) {
         if (message == null) return "Unknown error";
-        
         return message
-            .replaceAll("\\b[A-Za-z]:\\\\[\\w\\\\.-]+", "[PATH]")           // Windows paths
-            .replaceAll("/[\\w/.-]+\\.(java|class)", "[INTERNAL]")         // Unix paths
-            .replaceAll("\\bcom\\.smartsupplypro\\.[\\w.]+", "[INTERNAL]") // Package names
-            .replaceAll("(?i)\\bSQL.*", "Database operation failed")       // SQL fragments
-            .replaceAll("(?i)\\bPassword.*", "Authentication failed")      // Credentials
-            .replaceAll("(?i)\\bToken.*", "Authentication failed")         // Tokens
+            .replaceAll("\\b[A-Za-z]:\\\\[\\w\\\\.-]+", "[PATH]")
+            .replaceAll("/[\\w/.-]+\\.(java|class)", "[INTERNAL]")
+            .replaceAll("\\bcom\\.smartsupplypro\\.[\\w.]+", "[INTERNAL]")
+            .replaceAll("(?i)\\bSQL.*", "Database operation failed")
+            .replaceAll("(?i)\\bPassword.*", "Authentication failed")
+            .replaceAll("(?i)\\bToken.*", "Authentication failed")
             .trim();
     }
 }
