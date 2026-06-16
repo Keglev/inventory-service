@@ -14,42 +14,27 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Test-only Spring Security configuration for controller tests.
- *
- * <p><b>What it does</b>
- * <ul>
- *   <li>Disables OAuth2 and CSRF for simplified MockMvc testing.</li>
- *   <li>Requires authentication by default; APIs without auth receive JSON 401.</li>
- * </ul>
- *
- * <p><b>Usage</b>
- * <ul>
- *   <li>Import with {@code @Import(TestSecurityConfig.class)} in @WebMvcTest slices.</li>
- *   <li>Use {@code @WithMockUser} or {@code .with(authentication(...))} to simulate auth.</li>
- * </ul>
+ * Test-only security configuration for {@code @WebMvcTest} slices.
+ * Disables OAuth2 and CSRF, and returns a JSON 401 for unauthenticated API requests.
+ * Import with {@code @Import(TestSecurityConfig.class)}; use {@code @WithMockUser} to simulate roles.
  */
 @TestConfiguration
 @EnableMethodSecurity
 public class TestSecurityConfig {
 
     /**
-     * Defines a test-specific {@link SecurityFilterChain} bean that disables OAuth2 and CSRF,
-     * and returns a consistent JSON error structure on unauthorized API access.
-     *
-     * @param http the Spring Security {@link HttpSecurity} builder
-     * @return the customized {@link SecurityFilterChain} for test execution
-     * @throws Exception if the security chain cannot be built
+     * Replaces the production filter chain with a minimal configuration suitable for controller slices:
+     * OAuth2 is disabled, CSRF is disabled, and unauthenticated API requests receive a JSON 401
+     * instead of a redirect so MockMvc assertions remain predictable.
      */
     @Bean
     public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
-        // Matches requests to API endpoints that accept application/json
         RequestMatcher apiRequestMatcher = request -> {
             String accept = request.getHeader("Accept");
             return request.getRequestURI().startsWith("/api/")
                     && accept != null && accept.contains("application/json");
         };
 
-        // Custom entry point to return JSON error instead of redirect for unauthorized access
         AuthenticationEntryPoint jsonEntryPoint = (HttpServletRequest req,
                                                    HttpServletResponse res,
                                                    org.springframework.security.core.AuthenticationException ex) -> {
@@ -59,32 +44,19 @@ public class TestSecurityConfig {
         };
 
         http
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().authenticated()
-            )
+            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
             .exceptionHandling(ex -> ex
                 .defaultAuthenticationEntryPointFor(jsonEntryPoint, apiRequestMatcher)
-                .authenticationEntryPoint(jsonEntryPoint) // default for everything else in slice tests
+                .authenticationEntryPoint(jsonEntryPoint)
             )
-            .csrf(csrf -> csrf.disable())          // Disable CSRF for test context
-            .oauth2Login(oauth -> oauth.disable()) // Disable OAuth2 to allow simple mocking
-            .headers(headers -> headers.frameOptions(frame -> frame.disable())); // Allow H2 console if needed
+            .csrf(csrf -> csrf.disable())
+            .oauth2Login(oauth -> oauth.disable())
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
     }
 
-    /**
-     * Provides SecurityService bean for @PreAuthorize expression evaluation in tests.
-     *
-     * <p><b>Purpose</b>: Enables `@securityService.isDemo()` SpEL expressions in @PreAuthorize
-     * annotations during @WebMvcTest slices. The bean is automatically registered and available
-     * for method security checks.</p>
-     *
-     * <p><b>Enterprise Context</b>: SecurityService encapsulates authorization logic for demo mode
-     * and other complex permission checks that are difficult to express with standard SpEL.</p>
-     *
-     * @return SecurityService instance for authorization checks
-     */
+    /** Enables {@code @securityService.isDemo()} SpEL in {@code @PreAuthorize} during slice tests. */
     @Bean
     public SecurityService securityService() {
         return new SecurityService();

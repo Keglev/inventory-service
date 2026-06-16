@@ -12,18 +12,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Security filter helper for API request detection and flagging.
- * 
- * <p>Flags JSON API requests so authentication failures can return 401 instead of redirecting.</p>
+ * Detects JSON API requests and marks them with an {@code IS_API_REQUEST} attribute
+ * so downstream handlers can return 401 instead of triggering an OAuth2 redirect.
  */
 @Component
 public class SecurityFilterHelper {
 
-    /**
-     * Creates filter that flags API requests accepting JSON responses.
-     * 
-     * <p>Sets IS_API_REQUEST attribute for downstream authentication handlers.</p>
-     */
     public OncePerRequestFilter createApiDetectionFilter() {
         return new OncePerRequestFilter() {
             @Override

@@ -1,6 +1,5 @@
 package com.smartsupplypro.inventory.security;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.smartsupplypro.inventory.config.OAuth2Config;
 import com.smartsupplypro.inventory.config.SecurityAuthorizationHelper;
 import com.smartsupplypro.inventory.config.SecurityConfig;
 import com.smartsupplypro.inventory.config.SecurityEntryPointHelper;
@@ -37,23 +37,8 @@ import com.smartsupplypro.inventory.service.CustomOAuth2UserService;
 import com.smartsupplypro.inventory.service.CustomOidcUserService;
 
 /**
- * MVC slice test for the demo-readonly authorization branch in {@link SecurityAuthorizationHelper}.
- *
- * <h2>Contract</h2>
- * When {@code app.demo-readonly=true} is enabled, selected read-only endpoints are public (no login),
- * but mutation endpoints remain protected.
- *
- * <h2>Design</h2>
- * <ul>
- *   <li>Use {@link WebMvcTest} with a local stub controller to keep the test deterministic.</li>
- *   <li>Import production {@link SecurityConfig} and helper components to exercise real matchers.</li>
- *   <li>Set explicit properties to force the demo-readonly branch and frontend login base URL.</li>
- * </ul>
- *
- * <h2>Why a stub controller?</h2>
- * This test intentionally avoids coupling security rule validation to production controllers that may be
- * profile-gated or expensive to load. The only requirement is that the endpoints match the configured
- * security patterns.
+ * Verifies the demo-readonly authorization branch in {@link SecurityAuthorizationHelper}:
+ * read-only endpoints are public, mutation endpoints remain protected.
  */
 @SuppressWarnings("unused")
 @WebMvcTest(controllers = { SecurityConfigDemoReadonlyAuthorizationTest.DemoApiStubController.class })
@@ -70,6 +55,7 @@ import com.smartsupplypro.inventory.service.CustomOidcUserService;
     SecurityAuthorizationHelper.class,
     SecurityFilterHelper.class,
     SecurityEntryPointHelper.class,
+    OAuth2Config.class,
     SecurityConfigDemoReadonlyAuthorizationTest.DemoApiStubController.class,
     SecurityConfigDemoReadonlyAuthorizationTest.TestBeans.class
 })
@@ -78,77 +64,51 @@ class SecurityConfigDemoReadonlyAuthorizationTest {
     @Autowired
     private MockMvc mvc;
 
-    /**
-     * Minimal endpoints used to probe demo-readonly authorization behavior.
-     *
-     * <p>These handler methods are intentionally simple: they are not part of the test subject.
-     * Their role is to ensure requests reach MVC so we can assert the security decision (401 vs 200).</p>
-     */
-    @RestController
-    @RequestMapping("/api")
-    public static class DemoApiStubController {
-
-        @GetMapping(value = "/inventory/demo-ok", produces = MediaType.APPLICATION_JSON_VALUE)
-        public String inventoryOk() {
-            return "{\"status\":\"ok\"}";
-        }
-
-        @GetMapping(value = "/analytics/summary", produces = MediaType.APPLICATION_JSON_VALUE)
-        public String analyticsSummary() {
-            return "{\"status\":\"ok\"}";
-        }
-
-        @PatchMapping(value = "/inventory/{id}/price", produces = MediaType.APPLICATION_JSON_VALUE)
-        public String patchPrice(@PathVariable String id) {
-            return "{\"status\":\"patched\"}";
-        }
-    }
-
     @Test
-    @DisplayName("Demo-readonly ON: inventory GET is public")
-    void demoReadonlyOn_inventoryGet_isPermitAll() throws Exception {
-        // With demo-readonly enabled, read-only inventory endpoints are expected to be public.
+    void should_allowAnonymousGet_when_demoReadonlyOnAndInventoryEndpoint() throws Exception {
         mvc.perform(get("/api/inventory/demo-ok").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().json("{\"status\":\"ok\"}"));
     }
 
     @Test
-    @DisplayName("Demo-readonly ON: analytics GET is public")
-    void demoReadonlyOn_analyticsGet_isPermitAll() throws Exception {
-        // Analytics summary is another read-only endpoint that is public in demo mode.
+    void should_allowAnonymousGet_when_demoReadonlyOnAndAnalyticsEndpoint() throws Exception {
         mvc.perform(get("/api/analytics/summary").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().json("{\"status\":\"ok\"}"));
     }
 
     @Test
-    @DisplayName("Demo-readonly ON: inventory PATCH still requires authentication")
-    void demoReadonlyOn_inventoryPatch_stillRequiresAuth() throws Exception {
-        // Mutations must remain protected even in demo-readonly mode.
+    void should_return401_when_demoReadonlyOnAndUnauthenticatedInventoryPatch() throws Exception {
         mvc.perform(patch("/api/inventory/item-1/price").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("Demo-readonly ON: inventory PATCH allowed for authenticated user")
     @WithMockUser(username = "user", roles = "USER")
-    void demoReadonlyOn_inventoryPatch_authenticated_ok() throws Exception {
+    void should_return200_when_demoReadonlyOnAndAuthenticatedInventoryPatch() throws Exception {
         mvc.perform(patch("/api/inventory/item-1/price").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().json("{\"status\":\"patched\"}"));
     }
 
+    /** Minimal stub endpoints matching the security patterns under test. */
+    @RestController
+    @RequestMapping("/api")
+    public static class DemoApiStubController {
+
+        @GetMapping(value = "/inventory/demo-ok", produces = MediaType.APPLICATION_JSON_VALUE)
+        public String inventoryOk() { return "{\"status\":\"ok\"}"; }
+
+        @GetMapping(value = "/analytics/summary", produces = MediaType.APPLICATION_JSON_VALUE)
+        public String analyticsSummary() { return "{\"status\":\"ok\"}"; }
+
+        @PatchMapping(value = "/inventory/{id}/price", produces = MediaType.APPLICATION_JSON_VALUE)
+        public String patchPrice(@PathVariable String id) { return "{\"status\":\"patched\"}"; }
+    }
+
     @TestConfiguration
     static class TestBeans {
-
-        /**
-         * Minimal wiring required for {@link SecurityConfig} in a {@link WebMvcTest} slice.
-         *
-         * <p>Beans are provided up-front so SecurityConfig can autowire dependencies during context
-         * initialization. The mocks are intentionally behavior-free: the tests focus on authorization
-         * decisions, not OAuth flows or persistence.</p>
-         */
 
         @Bean
         OAuth2LoginSuccessHandler successHandler() {
@@ -172,7 +132,7 @@ class SecurityConfigDemoReadonlyAuthorizationTest {
 
         @Bean
         ClientRegistrationRepository clientRegistrationRepository() {
-            // Provide a deterministic in-memory OAuth2 registration used by /oauth2 endpoints.
+            // Stub Google registration satisfies the OAuth2 filter chain without real credentials
             ClientRegistration google = ClientRegistration.withRegistrationId("google")
                 .clientId("dummy")
                 .clientSecret("dummy")

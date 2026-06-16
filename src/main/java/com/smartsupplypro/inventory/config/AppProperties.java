@@ -1,51 +1,45 @@
 package com.smartsupplypro.inventory.config;
 
+import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Application configuration properties with environment-specific settings.
- * 
- * <p>Centralizes demo mode flags and frontend URL configuration for
- * OAuth2 redirects and CORS policy management.</p>
+ *
+ * <p>Centralizes demo mode flags, frontend URL configuration for OAuth2 redirects,
+ * and CORS allowed origins so each deployment environment can override them
+ * without code changes.</p>
  */
 @ConfigurationProperties(prefix = "app")
 public class AppProperties {
-  /** Demo mode flag for read-only public access to inventory data. */
-  private boolean isDemoReadonly = false;
-  
-  /** Frontend configuration for OAuth2 redirects and base URL resolution. */
-  private final Frontend frontend = new Frontend();
 
-  /** Gets demo read-only mode status for conditional access control. */
-  public boolean isDemoReadonly() { return isDemoReadonly; }
-  
-  /** Sets demo read-only mode for development and testing environments. */
-  public void setDemoReadonly(boolean demoReadonly) { this.isDemoReadonly = demoReadonly; }
-  
-  /** Gets frontend configuration object containing base URLs and paths. */
-  public Frontend getFrontend() { return frontend; }
+    private boolean isDemoReadonly = false;
+    private final Frontend frontend = new Frontend();
+    private final Cors cors = new Cors();
 
-  /**
-   * Frontend-specific configuration properties.
-   * Contains OAuth2 redirect URLs and application landing paths.
-   */
-  public static class Frontend {
-    /** Base URL for frontend application, used in OAuth2 redirects and CORS configuration. */
-    private String baseUrl = "http://localhost:8081";
-    
-    /** Default landing path after successful authentication. */
-    private String landingPath = "/auth";
-    
-    /** Gets frontend base URL for redirect and CORS configuration. */
-    public String getBaseUrl() { return baseUrl; }
-    
-    /** Sets frontend base URL for environment-specific deployment. */
-    public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }
-    
-    /** Gets post-authentication landing path. */
-    public String getLandingPath() { return landingPath; }
-    
-    /** Sets post-authentication landing path for custom routing. */
-    public void setLandingPath(String landingPath) { this.landingPath = landingPath; }
-  }
+    public boolean isDemoReadonly() { return isDemoReadonly; }
+    public void setDemoReadonly(boolean demoReadonly) { this.isDemoReadonly = demoReadonly; }
+
+    public Frontend getFrontend() { return frontend; }
+    public Cors getCors() { return cors; }
+
+    /** Frontend OAuth2 redirect and base URL configuration. */
+    public static class Frontend {
+        private String baseUrl = "http://localhost:8081";
+        private String landingPath = "/auth";
+
+        public String getBaseUrl() { return baseUrl; }
+        public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }
+
+        public String getLandingPath() { return landingPath; }
+        public void setLandingPath(String landingPath) { this.landingPath = landingPath; }
+    }
+
+    /** CORS allowed origins, one per environment. Replaces hardcoded origin lists in config classes. */
+    public static class Cors {
+        private List<String> allowedOrigins = List.of("http://localhost:5173");
+
+        public List<String> getAllowedOrigins() { return allowedOrigins; }
+        public void setAllowedOrigins(List<String> allowedOrigins) { this.allowedOrigins = allowedOrigins; }
+    }
 }

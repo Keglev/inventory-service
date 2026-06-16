@@ -80,6 +80,10 @@ app:
   # Flip ON in Fly by setting APP_DEMO_READONLY="true" (kept off by default)
   demo-readonly: ${APP_DEMO_READONLY:true}
 
+  cors:
+    allowed-origins:
+      - https://inventory-service.koyeb.app
+
   frontend:
     # Real frontend domain for recruiters
     base-url: ${APP_FRONTEND_BASE_URL:https://inventory-service.koyeb.app}

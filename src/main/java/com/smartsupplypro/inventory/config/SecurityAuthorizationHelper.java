@@ -6,17 +6,18 @@ import org.springframework.security.config.annotation.web.configurers.AuthorizeH
 import org.springframework.stereotype.Component;
 
 /**
- * Security authorization helper for HTTP request authorization rules.
+ * Centralizes HTTP authorization rules so {@link SecurityConfig} stays focused
+ * on filter chain wiring.
  *
- * <p>Centralizes authorization logic for demo mode and role-based access control.</p>
+ * <p>When demo mode is active, read-only inventory, analytics, and supplier endpoints
+ * are public so prospective users can explore data without logging in.</p>
  */
 @Component
 public class SecurityAuthorizationHelper {
 
     /**
-     * Configures authorization rules with demo mode support.
-     *
-     * <p>Applies public access, demo read-only, and role-based patterns.</p>
+     * Applies public-access, optional demo read-only, and role-based authorization rules
+     * in the order Spring Security evaluates them (most-specific first).
      */
     public void configureAuthorization(
             AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth,
@@ -36,36 +37,30 @@ public class SecurityAuthorizationHelper {
                 "/error"
         ).permitAll();
 
-        // Demo mode: allow read-only endpoints without login
         if (isDemoReadonly) {
             auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").permitAll();
             auth.requestMatchers(HttpMethod.GET, "/api/analytics/**").permitAll();
             auth.requestMatchers(HttpMethod.GET, "/api/suppliers/**").permitAll();
         }
 
-        // Default: authenticated users may READ these resources
         auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated();
         auth.requestMatchers(HttpMethod.GET, "/api/suppliers/**").authenticated();
         auth.requestMatchers(HttpMethod.GET, "/api/analytics/**").authenticated();
 
-        // Admin-only area (role-protected)
         auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
 
-        // Inventory & supplier mutations: authenticated business users (USER or ADMIN)
-        auth.requestMatchers(HttpMethod.POST, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
-        auth.requestMatchers(HttpMethod.PUT, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
-        auth.requestMatchers(HttpMethod.PATCH, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+        // Inventory & supplier mutations require an active USER or ADMIN role
+        auth.requestMatchers(HttpMethod.POST,   "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PUT,    "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PATCH,  "/api/inventory/**").hasAnyRole("USER", "ADMIN");
         auth.requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
 
-        auth.requestMatchers(HttpMethod.POST, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
-        auth.requestMatchers(HttpMethod.PUT, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
-        auth.requestMatchers(HttpMethod.PATCH, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.POST,   "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PUT,    "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PATCH,  "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
         auth.requestMatchers(HttpMethod.DELETE, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
 
-        // Everything else under /api/** must be authenticated
         auth.requestMatchers("/api/**").authenticated();
-
-        // Default: everything else authenticated
         auth.anyRequest().authenticated();
     }
 }

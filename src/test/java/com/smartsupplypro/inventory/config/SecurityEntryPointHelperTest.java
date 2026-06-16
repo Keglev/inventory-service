@@ -2,38 +2,21 @@ package com.smartsupplypro.inventory.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.DisplayName;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
-/**
- * Unit tests for {@link SecurityEntryPointHelper}.
- *
- * <h2>Purpose</h2>
- * The application uses different authentication entry points for API and browser traffic.
- * These entry points are part of the user-facing contract and must remain stable:
- * <ul>
- *   <li><b>API</b> requests should receive a JSON {@code 401 Unauthorized} response.</li>
- *   <li><b>Web</b> requests should be redirected to the frontend login route.</li>
- * </ul>
- *
- * <h2>Design</h2>
- * <ul>
- *   <li>No Spring context; servlet mocks only.</li>
- *   <li>Assertions focus on HTTP status, response headers, and payload/redirect location.</li>
- * </ul>
- */
+/** Verifies entry point and logout response decisions in {@link SecurityEntryPointHelper}. */
 class SecurityEntryPointHelperTest {
 
     private final SecurityEntryPointHelper helper = new SecurityEntryPointHelper();
 
     @Test
-    @DisplayName("API entry point returns 401 JSON payload")
-    void apiEntryPoint_returns401Json() throws Exception {
-        // Contract: API clients expect a JSON response body for 401s (not a redirect).
+    void should_return401Json_when_apiEntryPointInvoked() throws Exception {
         AuthenticationEntryPoint entryPoint = helper.createApiEntryPoint();
 
         MockHttpServletRequest req = new MockHttpServletRequest("GET", "/api/inventory/demo-ok");
@@ -48,9 +31,7 @@ class SecurityEntryPointHelperTest {
     }
 
     @Test
-    @DisplayName("Web entry point redirects to {frontendBaseUrl}/login")
-    void webEntryPoint_redirectsToLogin() throws Exception {
-        // Contract: browser navigation flows must redirect to the frontend login route.
+    void should_redirectToFrontendLogin_when_webEntryPointInvoked() throws Exception {
         AuthenticationEntryPoint entryPoint = helper.createWebEntryPoint("https://frontend.example");
 
         MockHttpServletRequest req = new MockHttpServletRequest("GET", "/api/admin/ping");
@@ -60,5 +41,62 @@ class SecurityEntryPointHelperTest {
 
         assertEquals(302, res.getStatus());
         assertEquals("https://frontend.example/login", res.getRedirectedUrl());
+    }
+
+    @Test
+    void should_return204_when_logoutHandlerInvokedWithApiRequestAttribute() throws Exception {
+        LogoutSuccessHandler handler = helper.createLogoutSuccessHandler(propsWithBase("https://frontend.test"));
+
+        MockHttpServletRequest req = new MockHttpServletRequest("POST", "/logout");
+        req.setAttribute("IS_API_REQUEST", Boolean.TRUE);
+        MockHttpServletResponse res = new MockHttpServletResponse();
+
+        handler.onLogoutSuccess(req, res, null);
+
+        assertEquals(204, res.getStatus());
+    }
+
+    @Test
+    void should_redirectToLogoutSuccess_when_logoutHandlerInvokedFromBrowser() throws Exception {
+        LogoutSuccessHandler handler = helper.createLogoutSuccessHandler(propsWithBase("https://frontend.test"));
+
+        MockHttpServletRequest req = new MockHttpServletRequest("POST", "/logout");
+        MockHttpServletResponse res = new MockHttpServletResponse();
+
+        handler.onLogoutSuccess(req, res, null);
+
+        assertEquals("https://frontend.test/logout-success", res.getRedirectedUrl());
+    }
+
+    @Test
+    void should_redirectToReturnParam_when_returnParamMatchesFrontendBase() throws Exception {
+        LogoutSuccessHandler handler = helper.createLogoutSuccessHandler(propsWithBase("https://frontend.test"));
+
+        MockHttpServletRequest req = new MockHttpServletRequest("POST", "/logout");
+        req.setParameter("return", "https://frontend.test/custom");
+        MockHttpServletResponse res = new MockHttpServletResponse();
+
+        handler.onLogoutSuccess(req, res, null);
+
+        assertEquals("https://frontend.test/custom", res.getRedirectedUrl());
+    }
+
+    @Test
+    void should_redirectToSafeDefault_when_returnParamIsExternalUrl() throws Exception {
+        LogoutSuccessHandler handler = helper.createLogoutSuccessHandler(propsWithBase("https://frontend.test"));
+
+        MockHttpServletRequest req = new MockHttpServletRequest("POST", "/logout");
+        req.setParameter("return", "https://evil.example/phish");
+        MockHttpServletResponse res = new MockHttpServletResponse();
+
+        handler.onLogoutSuccess(req, res, null);
+
+        assertEquals("https://frontend.test/logout-success", res.getRedirectedUrl());
+    }
+
+    private static AppProperties propsWithBase(String baseUrl) {
+        AppProperties p = new AppProperties();
+        p.getFrontend().setBaseUrl(baseUrl);
+        return p;
     }
 }
