@@ -9,22 +9,13 @@ import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 
 /**
- * Validation helper for analytics controller request parameters.
+ * Validates incoming analytics request parameters.
  *
- * &lt;p&gt;Centralizes validation logic for:
- * &lt;ul&gt;
- *   &lt;li&gt;Date range validation (start ≤ end)&lt;/li&gt;
- *   &lt;li&gt;Non-blank string parameters&lt;/li&gt;
- *   &lt;li&gt;Filter DTO validation (date ranges, numeric ranges)&lt;/li&gt;
- *   &lt;li&gt;Default date window application (last 30 days)&lt;/li&gt;
- * &lt;/ul&gt;
- *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * &lt;p&gt;Extracted from {@link com.smartsupplypro.inventory.controller.AnalyticsController}
+ * to keep endpoint methods under 15 lines.&lt;/p&gt;
  */
 @Component
-<span class="fc" id="L27">public class AnalyticsControllerValidationHelper {</span>
+<span class="fc" id="L18">public class AnalyticsControllerValidationHelper {</span>
 
     /**
      * Validates LocalDate range parameters.
@@ -36,13 +27,13 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @throws InvalidRequestException if validation fails
      */
     public void validateDateRange(LocalDate start, LocalDate end, String startName, String endName) {
-<span class="fc bfc" id="L39" title="All 4 branches covered.">        if (start == null || end == null) {</span>
-<span class="fc" id="L40">            throw new InvalidRequestException(startName + &quot; and &quot; + endName + &quot; are required&quot;);</span>
+<span class="fc bfc" id="L30" title="All 4 branches covered.">        if (start == null || end == null) {</span>
+<span class="fc" id="L31">            throw new InvalidRequestException(startName + &quot; and &quot; + endName + &quot; are required&quot;);</span>
         }
-<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (start.isAfter(end)) {</span>
-<span class="fc" id="L43">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        if (start.isAfter(end)) {</span>
+<span class="fc" id="L34">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
         }
-<span class="fc" id="L45">    }</span>
+<span class="fc" id="L36">    }</span>
 
     /**
      * Validates LocalDateTime range parameters.
@@ -54,10 +45,10 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @throws InvalidRequestException if start &gt; end
      */
     public void validateDateTimeRange(LocalDateTime start, LocalDateTime end, String startName, String endName) {
-<span class="fc bfc" id="L57" title="All 6 branches covered.">        if (start != null &amp;&amp; end != null &amp;&amp; start.isAfter(end)) {</span>
-<span class="fc" id="L58">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
+<span class="fc bfc" id="L48" title="All 6 branches covered.">        if (start != null &amp;&amp; end != null &amp;&amp; start.isAfter(end)) {</span>
+<span class="fc" id="L49">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
         }
-<span class="fc" id="L60">    }</span>
+<span class="fc" id="L51">    }</span>
 
     /**
      * Validates string parameter is not blank.
@@ -67,10 +58,10 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @throws InvalidRequestException if value is blank
      */
     public void requireNonBlank(String value, String name) {
-<span class="fc bfc" id="L70" title="All 4 branches covered.">        if (value == null || value.trim().isEmpty()) {</span>
-<span class="fc" id="L71">            throw new InvalidRequestException(name + &quot; must not be blank&quot;);</span>
+<span class="fc bfc" id="L61" title="All 4 branches covered.">        if (value == null || value.trim().isEmpty()) {</span>
+<span class="fc" id="L62">            throw new InvalidRequestException(name + &quot; must not be blank&quot;);</span>
         }
-<span class="fc" id="L73">    }</span>
+<span class="fc" id="L64">    }</span>
 
     /**
      * Validates numeric range parameters.
@@ -82,10 +73,10 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @throws InvalidRequestException if min &gt; max
      */
     public void validateNumericRange(Integer min, Integer max, String minName, String maxName) {
-<span class="fc bfc" id="L85" title="All 6 branches covered.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
-<span class="fc" id="L86">            throw new InvalidRequestException(minName + &quot; must be &lt;= &quot; + maxName);</span>
+<span class="fc bfc" id="L76" title="All 6 branches covered.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
+<span class="fc" id="L77">            throw new InvalidRequestException(minName + &quot; must be &lt;= &quot; + maxName);</span>
         }
-<span class="fc" id="L88">    }</span>
+<span class="fc" id="L79">    }</span>
 
     /**
      * Applies default date window (last 30 days) if both dates are null.
@@ -95,11 +86,11 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @return array with [startDate, endDate] with defaults applied
      */
     public LocalDateTime[] applyDefaultDateWindow(LocalDateTime startDate, LocalDateTime endDate) {
-<span class="fc bfc" id="L98" title="All 4 branches covered.">        if (startDate == null &amp;&amp; endDate == null) {</span>
-<span class="fc" id="L99">            endDate = LocalDateTime.now();</span>
-<span class="fc" id="L100">            startDate = endDate.minusDays(30);</span>
+<span class="fc bfc" id="L89" title="All 4 branches covered.">        if (startDate == null &amp;&amp; endDate == null) {</span>
+<span class="fc" id="L90">            endDate = LocalDateTime.now();</span>
+<span class="fc" id="L91">            startDate = endDate.minusDays(30);</span>
         }
-<span class="fc" id="L102">        return new LocalDateTime[]{startDate, endDate};</span>
+<span class="fc" id="L93">        return new LocalDateTime[]{startDate, endDate};</span>
     }
 
     /**
@@ -109,8 +100,39 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @throws InvalidRequestException if validation fails
      */
     public void validateStockUpdateFilter(StockUpdateFilterDTO filter) {
-<span class="fc" id="L112">        validateDateTimeRange(filter.getStartDate(), filter.getEndDate(), &quot;startDate&quot;, &quot;endDate&quot;);</span>
-<span class="fc" id="L113">        validateNumericRange(filter.getMinChange(), filter.getMaxChange(), &quot;minChange&quot;, &quot;maxChange&quot;);</span>
-<span class="fc" id="L114">    }</span>
+<span class="fc" id="L103">        validateDateTimeRange(filter.getStartDate(), filter.getEndDate(), &quot;startDate&quot;, &quot;endDate&quot;);</span>
+<span class="fc" id="L104">        validateNumericRange(filter.getMinChange(), filter.getMaxChange(), &quot;minChange&quot;, &quot;maxChange&quot;);</span>
+<span class="fc" id="L105">    }</span>
+
+    /**
+     * Builds a {@link StockUpdateFilterDTO} from individual query parameters.
+     *
+     * &lt;p&gt;Extracted from {@link com.smartsupplypro.inventory.controller.StockUpdateAnalyticsController}
+     * to keep the endpoint method under 15 lines.&lt;/p&gt;
+     *
+     * @param startDate  optional start datetime
+     * @param endDate    optional end datetime
+     * @param itemName   optional item name filter
+     * @param supplierId optional supplier filter
+     * @param createdBy  optional creator filter
+     * @param minChange  optional minimum quantity change
+     * @param maxChange  optional maximum quantity change
+     * @return populated filter DTO
+     */
+    public StockUpdateFilterDTO buildFilter(
+            LocalDateTime startDate, LocalDateTime endDate,
+            String itemName, String supplierId, String createdBy,
+            Integer minChange, Integer maxChange) {
+
+<span class="fc" id="L127">        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();</span>
+<span class="fc" id="L128">        filter.setStartDate(startDate);</span>
+<span class="fc" id="L129">        filter.setEndDate(endDate);</span>
+<span class="fc" id="L130">        filter.setItemName(itemName);</span>
+<span class="fc" id="L131">        filter.setSupplierId(supplierId);</span>
+<span class="fc" id="L132">        filter.setCreatedBy(createdBy);</span>
+<span class="fc" id="L133">        filter.setMinChange(minChange);</span>
+<span class="fc" id="L134">        filter.setMaxChange(maxChange);</span>
+<span class="fc" id="L135">        return filter;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

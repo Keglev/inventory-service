@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,10 +25,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 /**
- * REST controller for supplier management with full CRUD operations and search.
- * Supports role-based authorization (USER read-only, ADMIN full access).
+ * REST controller for supplier resource operations.
+ *
+ * &lt;p&gt;All endpoints require authentication. Write operations
+ * are restricted to ADMIN role.&lt;/p&gt;
+ *
  * @see SupplierService
- * @see controller-patterns.md for REST API patterns
  */
 @RestController
 @RequestMapping(&quot;/api/suppliers&quot;)
@@ -38,127 +39,87 @@ public class SupplierController {
 
     private final SupplierService supplierService;
 
-    /**
-     * Lists all suppliers with optional demo readonly access.
-     * @return list of supplier DTOs
-     */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping
     public ResponseEntity&lt;List&lt;SupplierDTO&gt;&gt; listAll() {
-<span class="fc" id="L48">        return ResponseEntity.ok(supplierService.findAll());</span>
+<span class="fc" id="L45">        return ResponseEntity.ok(supplierService.findAll());</span>
     }
 
-    /**
-     * Returns total count of suppliers in system.
-     * @return supplier count as long value
-     */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/count&quot;)
     public long countSuppliers() {
-<span class="nc" id="L58">        return supplierService.countSuppliers();</span>
+<span class="nc" id="L51">        return supplierService.countSuppliers();</span>
     }
 
     /**
-     * Retrieves supplier by unique identifier.
+     * Retrieves a supplier by ID.
+     *
      * @param id supplier ID
      * @return supplier DTO or 404 if not found
      */
     @PreAuthorize(&quot;isAuthenticated()&quot;)
     @GetMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;SupplierDTO&gt; getById(@PathVariable String id) {
-<span class="fc" id="L69">        return supplierService.findById(id)</span>
-<span class="fc" id="L70">                .map(ResponseEntity::ok)</span>
-<span class="fc" id="L71">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
+<span class="fc" id="L63">        return supplierService.findById(id)</span>
+<span class="fc" id="L64">                .map(ResponseEntity::ok)</span>
+<span class="fc" id="L65">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
     }
 
-    /**
-     * Searches suppliers by partial name match.
-     * @param name partial or full supplier name
-     * @return list of matching suppliers
-     */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/search&quot;)
     public ResponseEntity&lt;List&lt;SupplierDTO&gt;&gt; search(@RequestParam String name) {
-<span class="fc" id="L82">        return ResponseEntity.ok(supplierService.findByName(name));</span>
+<span class="fc" id="L71">        return ResponseEntity.ok(supplierService.findByName(name));</span>
     }
 
     /**
-     * Creates new supplier (ADMIN only).
+     * Creates a new supplier.
      *
-     * &lt;p&gt;&lt;b&gt;Authorization&lt;/b&gt;:
-     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
-     * - Demo users receive 403 Forbidden with demo mode message&lt;/p&gt;
-     *
-     * &lt;p&gt;&lt;b&gt;REST Pattern&lt;/b&gt;: Returns 201 Created with Location header for resource discovery&lt;/p&gt;
-     *
-     * @param dto supplier data (ID must be null for creation)
-     * @return created supplier with 201 status and Location header
+     * @param dto supplier data (ID must be null)
+     * @return 201 Created with Location header and created supplier
      * @throws ResponseStatusException 400 if ID is not null
-     * @throws ResponseStatusException 403 if user is in demo mode
-    */
+     */
     @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
     @PostMapping
     public ResponseEntity&lt;SupplierDTO&gt; create(@Valid @RequestBody SupplierDTO dto) {
-<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (dto.getId() != null) {</span>
-            // ID consistency validation - prevent client-generated IDs on creation
-            // to maintain server-side ID generation control and avoid potential ID conflicts
-<span class="fc" id="L105">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;ID must be null on create&quot;);</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (dto.getId() != null) {</span>
+            // client-generated IDs rejected to enforce server-side generation
+<span class="fc" id="L86">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;ID must be null on create&quot;);</span>
         }
-<span class="fc" id="L107">        SupplierDTO created = supplierService.create(dto);</span>
-        // REST Location header pattern - provide resource URI for immediate access
-        // enabling client-side navigation and RESTful resource discovery
-<span class="fc" id="L110">        return ResponseEntity.created(URI.create(&quot;/api/suppliers/&quot; + created.getId()))</span>
-<span class="fc" id="L111">                .header(HttpHeaders.LOCATION, &quot;/api/suppliers/&quot; + created.getId())</span>
-<span class="fc" id="L112">                .body(created);</span>
+<span class="fc" id="L88">        SupplierDTO created = supplierService.create(dto);</span>
+<span class="fc" id="L89">        return ResponseEntity.created(URI.create(&quot;/api/suppliers/&quot; + created.getId())).body(created);</span>
     }
 
     /**
-     * Updates existing supplier (ADMIN only).
+     * Replaces an existing supplier.
      *
-     * &lt;p&gt;&lt;b&gt;Authorization&lt;/b&gt;:
-     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
-     * - Demo users receive 403 Forbidden with demo mode message&lt;/p&gt;
-     *
-     * &lt;p&gt;&lt;b&gt;ID Consistency&lt;/b&gt;: Path ID takes precedence; body ID must match or be null&lt;/p&gt;
-     *
-     * @param id supplier ID from path parameter
-     * @param dto updated supplier data (id in body is ignored for consistency)
-     * @return updated supplier DTO
+     * @param id  supplier ID from path
+     * @param dto updated supplier data
+     * @return updated supplier
      * @throws ResponseStatusException 400 if path ID and body ID mismatch
      * @throws ResponseStatusException 404 if supplier not found
-     * @throws ResponseStatusException 403 if user is in demo mode
      */
     @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
     @PutMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;SupplierDTO&gt; update(@PathVariable String id, @Valid @RequestBody SupplierDTO dto) {
-        // Enterprise Comment: Path vs body ID validation - ensure API contract consistency
-        // by preventing mismatched identifiers that could lead to unintended updates
-<span class="pc bpc" id="L136" title="1 of 4 branches missed.">        if (dto.getId() != null &amp;&amp; !id.equals(dto.getId())) {</span>
-<span class="fc" id="L137">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Path id and body id must match&quot;);</span>
+<span class="pc bpc" id="L104" title="1 of 4 branches missed.">        if (dto.getId() != null &amp;&amp; !id.equals(dto.getId())) {</span>
+            // prevent mismatched identifiers that could lead to unintended updates
+<span class="fc" id="L106">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Path id and body id must match&quot;);</span>
         }
-<span class="fc" id="L139">        SupplierDTO updated = supplierService.update(id, dto);</span>
-<span class="fc" id="L140">        return ResponseEntity.ok(updated);</span>
+<span class="fc" id="L108">        return ResponseEntity.ok(supplierService.update(id, dto));</span>
     }
 
     /**
-     * Deletes supplier (ADMIN only).
-     *
-     * &lt;p&gt;&lt;b&gt;Authorization&lt;/b&gt;:
-     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
-     * - Demo users receive 403 Forbidden with demo mode message&lt;/p&gt;
-     *
-     * &lt;p&gt;&lt;b&gt;Referential Integrity&lt;/b&gt;: Supplier deletion may cascade or be blocked based on business rules&lt;/p&gt;
+     * Deletes a supplier.
      *
      * @param id supplier ID to delete
      * @return 204 No Content on success
      * @throws ResponseStatusException 404 if supplier not found
-     * @throws ResponseStatusException 403 if user is in demo mode
      */
     @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
     @DeleteMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;Void&gt; delete(@PathVariable String id) {
-<span class="fc" id="L160">        supplierService.delete(id);</span>
-<span class="fc" id="L161">        return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L121">        supplierService.delete(id);</span>
+<span class="fc" id="L122">        return ResponseEntity.noContent().build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryItemController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.controller</a> &gt; <span class="el_source">InventoryItemController.java</span></div><h1>InventoryItemController.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.controller;
 
-import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 
@@ -12,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,13 +27,12 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 
 /**
- * Inventory item REST controller for CRUD operations.
+ * REST controller for inventory item CRUD operations.
  *
- * &lt;p&gt;Provides item management with role-based authorization and validation.
- * Follows standard HTTP status conventions for REST APIs.&lt;/p&gt;
+ * &lt;p&gt;Read endpoints allow authentication or demo-readonly access.
+ * Write operations require {@code ROLE_ADMIN} and a non-demo session.&lt;/p&gt;
  *
  * @see InventoryItemService
- * @see &lt;a href=&quot;file:../../../../../../docs/architecture/patterns/controller-patterns.md&quot;&gt;Controller Patterns&lt;/a&gt;
  */
 @RestController
 @RequestMapping(&quot;/api/inventory&quot;)
@@ -44,12 +41,12 @@ public class InventoryItemController {
 
     private final InventoryItemService inventoryItemService;
 
-<span class="fc" id="L47">    public InventoryItemController(InventoryItemService inventoryItemService) {</span>
-<span class="fc" id="L48">        this.inventoryItemService = inventoryItemService;</span>
-<span class="fc" id="L49">    }</span>
+<span class="fc" id="L44">    public InventoryItemController(InventoryItemService inventoryItemService) {</span>
+<span class="fc" id="L45">        this.inventoryItemService = inventoryItemService;</span>
+<span class="fc" id="L46">    }</span>
 
     /**
-     * Gets single inventory item by ID.
+     * Gets a single inventory item by ID.
      *
      * @param id unique item identifier
      * @return inventory item details
@@ -57,32 +54,21 @@ public class InventoryItemController {
      */
     @GetMapping(&quot;/{id}&quot;)
     public InventoryItemDTO getById(@PathVariable String id) {
-<span class="fc" id="L60">        return inventoryItemService.getById(id)</span>
-<span class="fc" id="L61">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
+<span class="fc" id="L57">        return inventoryItemService.getById(id)</span>
+<span class="fc" id="L58">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
     }
 
-    /**
-     * Gets all inventory items (non-paginated).
-     *
-     * @return list of all inventory items
-     */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping
     public List&lt;InventoryItemDTO&gt; getAll() {
-<span class="fc" id="L72">        return inventoryItemService.getAll();</span>
+<span class="fc" id="L64">        return inventoryItemService.getAll();</span>
     }
 
-    /**
-     * Gets total count of inventory items.
-     *
-     * @return total number of items
-     */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/count&quot;)
     public long countItems() {
-<span class="fc" id="L83">        return inventoryItemService.countItems();</span>
+<span class="fc" id="L70">        return inventoryItemService.countItems();</span>
     }
-
 
     /**
      * Searches items by name with pagination and sorting.
@@ -94,185 +80,65 @@ public class InventoryItemController {
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/search&quot;)
     public Page&lt;InventoryItemDTO&gt; search(
-        @RequestParam String name,
-        @org.springframework.data.web.PageableDefault(size = 20, sort = &quot;price&quot;) Pageable pageable) {
-<span class="fc" id="L99">        return inventoryItemService.findByNameSortedByPrice(name, pageable);</span>
+            @RequestParam String name,
+            @org.springframework.data.web.PageableDefault(size = 20, sort = &quot;price&quot;) Pageable pageable) {
+<span class="fc" id="L85">        return inventoryItemService.findByNameSortedByPrice(name, pageable);</span>
     }
 
     /**
-     * Creates new inventory item (ADMIN only).
-     *
-     * &lt;p&gt;&lt;b&gt;Authorization&lt;/b&gt;:
-     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
-     * - Demo users receive 403 Forbidden with demo mode message&lt;/p&gt;
+     * Creates a new inventory item.
      *
      * @param body item data (ID must be absent)
      * @return 201 Created with Location header and created item
-     * @throws ResponseStatusException 400/409 on validation/duplicate errors
-     * @throws ResponseStatusException 403 if user is in demo mode
+     * @throws ResponseStatusException 400 if validation fails
      */
     @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
     @PostMapping
     public ResponseEntity&lt;InventoryItemDTO&gt; create(
             @Validated(InventoryItemDTO.Create.class) @RequestBody InventoryItemDTO body) {
 
-<span class="fc" id="L119">        InventoryItemDTO created = inventoryItemService.save(body);</span>
-<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (created == null) {</span>
-<span class="fc" id="L121">            return ResponseEntity.badRequest().build();</span>
+<span class="fc" id="L100">        InventoryItemDTO created = inventoryItemService.save(body);</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        if (created == null) {</span>
+<span class="fc" id="L102">            return ResponseEntity.badRequest().build();</span>
         }
-        
-        // REST Location Header Pattern
-        // Generate Location header pointing to the newly created resource
-        // Follows RFC 7231 standard for 201 Created responses
         URI location = ServletUriComponentsBuilder
-<span class="fc" id="L128">                .fromCurrentRequest().path(&quot;/{id}&quot;)</span>
-<span class="fc" id="L129">                .buildAndExpand(created.getId())</span>
-<span class="fc" id="L130">                .toUri();</span>
-<span class="fc" id="L131">        return ResponseEntity.created(location).body(created);</span>
+<span class="fc" id="L105">                .fromCurrentRequest().path(&quot;/{id}&quot;)</span>
+<span class="fc" id="L106">                .buildAndExpand(created.getId())</span>
+<span class="fc" id="L107">                .toUri();</span>
+<span class="fc" id="L108">        return ResponseEntity.created(location).body(created);</span>
     }
 
     /**
-     * Updates existing inventory item completely (full replacement).
-     *
-     * &lt;p&gt;&lt;b&gt;Authorization&lt;/b&gt;:
-     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
-     * - Demo users receive 403 Forbidden with demo mode message&lt;/p&gt;
-     *
-     * &lt;p&gt;&lt;b&gt;Semantics&lt;/b&gt;: PUT replaces entire item (id must match path parameter)&lt;/p&gt;
+     * Replaces an existing inventory item.
      *
      * @param id   path identifier
-     * @param body updated item data (id in body is ignored for consistency)
+     * @param body updated item data
      * @return updated inventory item
      * @throws ResponseStatusException 404 if item not found
-     * @throws ResponseStatusException 403 if user is in demo mode
-    */
+     */
     @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
     @PutMapping(&quot;/{id}&quot;)
     public InventoryItemDTO update(
             @PathVariable String id,
-            @Validated /* or @Valid */ @RequestBody InventoryItemDTO body) {
+            @Validated @RequestBody InventoryItemDTO body) {
 
-        // ID Consistency Strategy
-        // Ignore client-sent body.id to prevent conflicts and match test expectations
-        // Path parameter takes precedence for resource identification
-<span class="fc" id="L158">        body.setId(null); // or body.setId(id) if you prefer</span>
-
-<span class="fc" id="L160">        return inventoryItemService.update(id, body)</span>
-<span class="fc" id="L161">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
+<span class="fc" id="L125">        body.setId(null); // path id takes precedence; avoids conflicts in update logic</span>
+<span class="fc" id="L126">        return inventoryItemService.update(id, body)</span>
+<span class="fc" id="L127">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
     }
 
     /**
-     * Delete inventory item (ADMIN only).
-     *
-     * &lt;p&gt;&lt;b&gt;Authorization&lt;/b&gt;:
-     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
-     * - Demo users receive 403 Forbidden with demo mode message&lt;/p&gt;
-     *
-     * &lt;p&gt;&lt;b&gt;Audit Trail&lt;/b&gt;: Deletion reason is captured for compliance and troubleshooting&lt;/p&gt;
+     * Deletes an inventory item with an audit reason.
      *
      * @param id     item identifier
-     * @param reason business reason for deletion (StockChangeReason enum)
-     * @return 204 No Content on success
+     * @param reason business reason for deletion
      * @throws ResponseStatusException 404 if item not found
-     * @throws ResponseStatusException 403 if user is in demo mode
-    */
+     */
     @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
     @DeleteMapping(&quot;/{id}&quot;)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String id, @RequestParam StockChangeReason reason) {
-<span class="fc" id="L183">        inventoryItemService.delete(id, reason);</span>
-<span class="fc" id="L184">    }</span>
-
-    /**
-     * Adjusts item quantity by delta amount (partial update).
-     *
-     * &lt;p&gt;&lt;b&gt;Authorization&lt;/b&gt;:
-     * - Requires ROLE_USER or ROLE_ADMIN and non-demo mode (read-write access)
-     * - Demo users receive 403 Forbidden with demo mode message&lt;/p&gt;
-     *
-     * &lt;p&gt;&lt;b&gt;Business Rules&lt;/b&gt;:
-     * - Delta can be positive (receive stock) or negative (consume/return stock)
-     * - Reason is recorded for audit trail and compliance
-     * - Stock balance can go negative (backorder support)&lt;/p&gt;
-     *
-     * @param id     item identifier
-     * @param delta  quantity change (positive=add, negative=remove)
-     * @param reason business reason for stock change (StockChangeReason enum)
-     * @return updated inventory item with new quantity
-     * @throws ResponseStatusException 404 if item not found
-     * @throws ResponseStatusException 403 if user is in demo mode
-    */
-    @PreAuthorize(&quot;hasAnyRole('USER','ADMIN') and !@securityService.isDemo()&quot;)
-    @PatchMapping(&quot;/{id}/quantity&quot;)
-    public InventoryItemDTO adjustQuantity(@PathVariable String id,
-                                       @RequestParam int delta,
-                                       @RequestParam StockChangeReason reason) {
-<span class="fc" id="L210">        return inventoryItemService.adjustQuantity(id, delta, reason);</span>
-    }
-
-    /**
-     * Updates item unit price (partial update).
-     *
-     * &lt;p&gt;&lt;b&gt;Authorization&lt;/b&gt;:
-     * - Requires ROLE_USER or ROLE_ADMIN and non-demo mode (read-write access)
-     * - Demo users receive 403 Forbidden with demo mode message&lt;/p&gt;
-     *
-     * &lt;p&gt;&lt;b&gt;Business Rules&lt;/b&gt;:
-     * - Price must be positive (validated via @Positive constraint)
-     * - Previous prices are not retained (no price history in this version)
-     * - Price changes immediately affect all future calculations and reports&lt;/p&gt;
-     *
-     * @param id    item identifier
-     * @param price new unit price (must be positive, e.g., 19.99)
-     * @return updated inventory item with new price
-     * @throws ResponseStatusException 404 if item not found
-     * @throws ResponseStatusException 403 if user is in demo mode
-     * @throws ResponseStatusException 400 if price is not positive
-    */
-    @PreAuthorize(&quot;hasAnyRole('USER','ADMIN') and !@securityService.isDemo()&quot;)
-    @PatchMapping(&quot;/{id}/price&quot;)
-    public InventoryItemDTO updatePrice(@PathVariable String id,
-                                    @RequestParam @jakarta.validation.constraints.Positive BigDecimal price) {
-<span class="fc" id="L236">        return inventoryItemService.updatePrice(id, price);</span>
-    }
-
-    /**
-     * Renames an inventory item (changes the item name only).
-     *
-     * &lt;p&gt;&lt;b&gt;Authorization&lt;/b&gt;:
-     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
-     * - Demo users receive 403 Forbidden with demo mode message&lt;/p&gt;
-     *
-     * &lt;p&gt;&lt;b&gt;Business Rules&lt;/b&gt;:
-     * - Name must be unique per supplier (prevents duplicate SKU issues)
-     * - Name change is immediately visible in all reports and search results
-     * - Rename does not affect stock balance or price&lt;/p&gt;
-     *
-     * @param id   item identifier
-     * @param name new item name (must not be empty or whitespace-only)
-     * @return updated inventory item with new name
-     * @throws ResponseStatusException 400 if name is empty or blank
-     * @throws ResponseStatusException 404 if item not found
-     * @throws ResponseStatusException 409 if name already exists for the same supplier
-     * @throws ResponseStatusException 403 if user is in demo mode
-     */
-    @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
-    @PatchMapping(&quot;/{id}/name&quot;)
-    public InventoryItemDTO renameItem(@PathVariable String id,
-                                       @RequestParam String name) {
-        try {
-<span class="fc" id="L264">            return inventoryItemService.renameItem(id, name);</span>
-<span class="fc" id="L265">        } catch (IllegalArgumentException e) {</span>
-<span class="fc" id="L266">            String message = e.getMessage();</span>
-<span class="pc bpc" id="L267" title="1 of 4 branches missed.">            if (message != null &amp;&amp; message.contains(&quot;empty&quot;)) {</span>
-<span class="fc" id="L268">                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);</span>
-<span class="pc bpc" id="L269" title="1 of 4 branches missed.">            } else if (message != null &amp;&amp; message.contains(&quot;already exists&quot;)) {</span>
-<span class="fc" id="L270">                throw new ResponseStatusException(HttpStatus.CONFLICT, message);</span>
-            } else {
-<span class="fc" id="L272">                throw new ResponseStatusException(HttpStatus.NOT_FOUND, message);</span>
-            }
-        }
-    }
-
+<span class="fc" id="L141">        inventoryItemService.delete(id, reason);</span>
+<span class="fc" id="L142">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
