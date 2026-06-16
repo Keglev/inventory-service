@@ -32,35 +32,34 @@ public class StockHistoryValidator {
      * @throws InvalidRequestException if validation fails
      */
     public static void validate(StockHistoryDTO dto) {
-<span class="fc bfc" id="L35" title="All 4 branches covered.">    if (dto.getItemId() == null || dto.getItemId().isBlank()) {</span>
+<span class="fc bfc" id="L35" title="All 4 branches covered.">    if (dto.itemId() == null || dto.itemId().isBlank()) {</span>
 <span class="fc" id="L36">      throw new InvalidRequestException(&quot;Item ID cannot be null or empty&quot;);</span>
     }
 
     final StockChangeReason reason;
     try {
-<span class="fc bfc" id="L41" title="All 2 branches covered.">      reason = dto.getReason() == null ? null : StockChangeReason.valueOf(dto.getReason());</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">      reason = dto.reason() == null ? null : StockChangeReason.valueOf(dto.reason());</span>
 <span class="fc" id="L42">    } catch (IllegalArgumentException ex) {</span>
-<span class="fc" id="L43">      throw new InvalidRequestException(&quot;Invalid stock change reason: &quot; + dto.getReason());</span>
+<span class="fc" id="L43">      throw new InvalidRequestException(&quot;Invalid stock change reason: &quot; + dto.reason());</span>
 <span class="fc" id="L44">    }</span>
 <span class="fc bfc" id="L45" title="All 2 branches covered.">    if (reason == null) throw new InvalidRequestException(&quot;Stock change reason is required&quot;);</span>
 
     // zero delta only for PRICE_CHANGE
-<span class="fc bfc" id="L48" title="All 4 branches covered.">    if (dto.getChange() == 0 &amp;&amp; reason != StockChangeReason.PRICE_CHANGE) {</span>
+<span class="fc bfc" id="L48" title="All 4 branches covered.">    if (dto.change() == 0 &amp;&amp; reason != StockChangeReason.PRICE_CHANGE) {</span>
 <span class="fc" id="L49">      throw new InvalidRequestException(&quot;Zero quantity change is only allowed for PRICE_CHANGE&quot;);</span>
     }
 
-    // enforce createdBy is provided  ***
-<span class="fc bfc" id="L53" title="All 4 branches covered.">    if (dto.getCreatedBy() == null || dto.getCreatedBy().isBlank()) {</span>
-<span class="fc" id="L54">        throw new InvalidRequestException(&quot;CreatedBy must be provided&quot;);</span>
+<span class="fc bfc" id="L52" title="All 4 branches covered.">    if (dto.createdBy() == null || dto.createdBy().isBlank()) {</span>
+<span class="fc" id="L53">        throw new InvalidRequestException(&quot;CreatedBy must be provided&quot;);</span>
     }
 
-    // optional: non-negative price for PRICE_CHANGE
-<span class="fc bfc" id="L58" title="All 2 branches covered.">    if (reason == StockChangeReason.PRICE_CHANGE &amp;&amp;</span>
-<span class="fc bfc" id="L59" title="All 2 branches covered.">        dto.getPriceAtChange() != null &amp;&amp;</span>
-<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        dto.getPriceAtChange().signum() &lt; 0) {</span>
-<span class="fc" id="L61">      throw new InvalidRequestException(&quot;priceAtChange must be &gt;= 0 for PRICE_CHANGE&quot;);</span>
+    // non-negative price required for PRICE_CHANGE
+<span class="fc bfc" id="L57" title="All 2 branches covered.">    if (reason == StockChangeReason.PRICE_CHANGE &amp;&amp;</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        dto.priceAtChange() != null &amp;&amp;</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        dto.priceAtChange().signum() &lt; 0) {</span>
+<span class="fc" id="L60">      throw new InvalidRequestException(&quot;priceAtChange must be &gt;= 0 for PRICE_CHANGE&quot;);</span>
     }
-<span class="fc" id="L63">  }</span>
+<span class="fc" id="L62">  }</span>
 
     /**
      * Validates stock change reason is in allowed enum set.
@@ -69,7 +68,7 @@ public class StockHistoryValidator {
      * @throws IllegalArgumentException if reason is null or not allowed
      */
     public static void validateEnum(StockChangeReason reason) {
-<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (reason == null || !EnumSet.of(</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (reason == null || !EnumSet.of(</span>
                 StockChangeReason.SOLD,
                 StockChangeReason.SCRAPPED,
                 StockChangeReason.RETURNED_TO_SUPPLIER,
@@ -77,10 +76,10 @@ public class StockHistoryValidator {
                 StockChangeReason.INITIAL_STOCK,
                 StockChangeReason.MANUAL_UPDATE,
                 StockChangeReason.PRICE_CHANGE
-<span class="fc bfc" id="L80" title="All 2 branches covered.">        ).contains(reason)) {</span>
-<span class="fc" id="L81">            throw new IllegalArgumentException(&quot;Invalid stock change reason: &quot; + reason);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        ).contains(reason)) {</span>
+<span class="fc" id="L80">            throw new IllegalArgumentException(&quot;Invalid stock change reason: &quot; + reason);</span>
         }
-<span class="fc" id="L83">    }</span>
+<span class="fc" id="L82">    }</span>
 }
 // This code provides the StockHistoryValidator class, which enforces validation rules for stock history data.
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

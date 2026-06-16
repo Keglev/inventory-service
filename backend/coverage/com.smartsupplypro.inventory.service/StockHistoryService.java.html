@@ -185,7 +185,7 @@ public class StockHistoryService {
      *
      * &lt;p&gt;&lt;b&gt;Validation contract&lt;/b&gt;:
      * {@link com.smartsupplypro.inventory.validation.StockHistoryValidator} guarantees that
-     * required fields are present and consistent. In particular, {@code dto.getReason()} is
+     * required fields are present and consistent. In particular, {@code dto.reason()} is
      * expected to be non-null and a valid {@code StockChangeReason} name, so converting via
      * {@link com.smartsupplypro.inventory.enums.StockChangeReason#valueOf(String)} does not
      * require defensive null-branches.&lt;/p&gt;
@@ -198,18 +198,18 @@ public class StockHistoryService {
 <span class="fc" id="L198">        StockHistoryValidator.validate(dto);</span>
 
         // Enterprise denormalization: store supplierId on the history row for analytics queries.
-<span class="fc" id="L201">        String supplierId = resolveSupplierId(dto.getItemId());</span>
+<span class="fc" id="L201">        String supplierId = resolveSupplierId(dto.itemId());</span>
 
         // Map DTO -&gt; immutable audit event and persist with server-authoritative timestamp.
 <span class="fc" id="L204">        StockHistory history = StockHistory.builder()</span>
-<span class="fc" id="L205">                .id(&quot;sh-&quot; + dto.getItemId() + &quot;-&quot; + System.currentTimeMillis())</span>
-<span class="fc" id="L206">                .itemId(dto.getItemId())</span>
+<span class="fc" id="L205">                .id(&quot;sh-&quot; + dto.itemId() + &quot;-&quot; + System.currentTimeMillis())</span>
+<span class="fc" id="L206">                .itemId(dto.itemId())</span>
 <span class="fc" id="L207">                .supplierId(supplierId)</span>
-<span class="fc" id="L208">                .change(dto.getChange())</span>
-<span class="fc" id="L209">                .reason(StockChangeReason.valueOf(dto.getReason()))</span>
-<span class="fc" id="L210">                .createdBy(dto.getCreatedBy())</span>
+<span class="fc" id="L208">                .change(dto.change())</span>
+<span class="fc" id="L209">                .reason(StockChangeReason.valueOf(dto.reason()))</span>
+<span class="fc" id="L210">                .createdBy(dto.createdBy())</span>
 <span class="fc" id="L211">                .timestamp(LocalDateTime.now())</span>
-<span class="fc" id="L212">                .priceAtChange(dto.getPriceAtChange())</span>
+<span class="fc" id="L212">                .priceAtChange(dto.priceAtChange())</span>
 <span class="fc" id="L213">                .build();</span>
 
 <span class="fc" id="L215">        repository.save(history);</span>

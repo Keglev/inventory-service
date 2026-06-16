@@ -7,27 +7,29 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * Historical price trend DTO for individual inventory items over time.
- * Tracks unit price variations for supplier negotiation and market analysis.
- * @see AnalyticsController#getPriceTrend()
- * @see dto-patterns.md for time series patterns
+ * Response payload for a single price observation in a trend series.
+ *
+ * &lt;p&gt;Returned by {@link com.smartsupplypro.inventory.controller.AnalyticsController#getPriceTrend()}.&lt;/p&gt;
+ *
+ * &lt;p&gt;{@code timestamp} is stored as {@code yyyy-MM-dd} rather than a full datetime
+ * to normalise day-level granularity across database backends and frontend charting libraries.&lt;/p&gt;
  */
 @Data
 @AllArgsConstructor
 public class PriceTrendDTO {
 
-    /** Date when price was recorded (yyyy-MM-dd format for SQL compatibility). */
     private String timestamp;
-
-    /** Unit purchase price at this point in time. */
     private BigDecimal price;
 
-    // Enterprise Comment: Date format conversion - standardize on yyyy-MM-dd string format
-    // for consistent serialization across H2/Oracle databases and frontend charting libraries
-<span class="fc" id="L27">    public PriceTrendDTO(LocalDateTime timestamp, BigDecimal price) {</span>
-<span class="fc" id="L28">        this.timestamp = timestamp.toLocalDate().toString();</span>
-<span class="fc" id="L29">        this.price = price;</span>
-<span class="fc" id="L30">    }</span>
-
+    /**
+     * Constructs a data point from a full event timestamp, truncating to date precision.
+     *
+     * @param timestamp raw event timestamp; only the date part ({@code yyyy-MM-dd}) is retained
+     * @param price     unit price at this event
+     */
+<span class="fc" id="L30">    public PriceTrendDTO(LocalDateTime timestamp, BigDecimal price) {</span>
+<span class="fc" id="L31">        this.timestamp = timestamp.toLocalDate().toString();</span>
+<span class="fc" id="L32">        this.price = price;</span>
+<span class="fc" id="L33">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
