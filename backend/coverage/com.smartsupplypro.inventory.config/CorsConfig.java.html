@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CorsConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.config</a> &gt; <span class="el_source">CorsConfig.java</span></div><h1>CorsConfig.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.config;
+
+import java.util.List;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+/**
+ * CORS and session cookie configuration for cross-origin frontend access.
+ *
+ * &lt;p&gt;Allowed origins are driven by {@code app.cors.allowed-origins} so each environment
+ * (dev, prod) can declare its own list without touching this class.&lt;/p&gt;
+ */
+@Configuration
+public class CorsConfig {
+
+    private final AppProperties props;
+
+<span class="fc" id="L24">    public CorsConfig(AppProperties props) {</span>
+<span class="fc" id="L25">        this.props = props;</span>
+<span class="fc" id="L26">    }</span>
+
+    /**
+     * Registers the allowed origins from {@code app.cors.allowed-origins}.
+     * Credentials must be allowed because the session cookie is required on every cross-origin request.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+<span class="fc" id="L34">        CorsConfiguration config = new CorsConfiguration();</span>
+<span class="fc" id="L35">        config.setAllowedOrigins(props.getCors().getAllowedOrigins());</span>
+<span class="fc" id="L36">        config.setAllowedMethods(List.of(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;PATCH&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;));</span>
+<span class="fc" id="L37">        config.setAllowedHeaders(List.of(&quot;*&quot;));</span>
+<span class="fc" id="L38">        config.setExposedHeaders(List.of(&quot;Set-Cookie&quot;));</span>
+<span class="fc" id="L39">        config.setAllowCredentials(true);</span>
+<span class="fc" id="L40">        config.setMaxAge(3600L);</span>
+
+<span class="fc" id="L42">        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();</span>
+<span class="fc" id="L43">        source.registerCorsConfiguration(&quot;/**&quot;, config);</span>
+<span class="fc" id="L44">        return source;</span>
+    }
+
+    /**
+     * SameSite=None is required so the browser sends the session cookie on cross-origin requests.
+     * Secure=true is mandatory when SameSite=None per the browser spec.
+     */
+    @Bean
+    public CookieSerializer cookieSerializer() {
+<span class="fc" id="L53">        DefaultCookieSerializer serializer = new DefaultCookieSerializer();</span>
+<span class="fc" id="L54">        serializer.setSameSite(&quot;None&quot;);</span>
+<span class="fc" id="L55">        serializer.setUseSecureCookie(true);</span>
+<span class="fc" id="L56">        serializer.setCookiePath(&quot;/&quot;);</span>
+<span class="fc" id="L57">        return serializer;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
