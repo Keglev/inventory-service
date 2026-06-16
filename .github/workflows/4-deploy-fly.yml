@@ -109,7 +109,7 @@ jobs:
             --ha=false
 
       - name: Health check and smoke tests
-        run: bash .github/scripts/health-check.sh "https://${{ env.APP_NAME }}.fly.dev"
+        run: bash .github/workflows/scripts/health-check.sh "https://${{ env.APP_NAME }}.fly.dev"
 
       - name: Capture Fly.io status and logs
         if: always()

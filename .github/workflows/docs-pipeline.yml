@@ -121,7 +121,7 @@ jobs:
       - name: Build docs site
         run: |
           PROJECT_DIR="${{ steps.where.outputs.dir }}"
-          bash .github/scripts/build-docs.sh "$PROJECT_DIR"
+          bash .github/workflows/scripts/build-docs.sh "$PROJECT_DIR"
 
       - name: Upload docs-site artifact
         uses: actions/upload-artifact@v4
