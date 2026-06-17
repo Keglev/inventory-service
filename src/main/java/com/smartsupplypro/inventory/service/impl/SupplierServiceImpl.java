@@ -1,13 +1,13 @@
 package com.smartsupplypro.inventory.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.List; // <-- adjust package if your entity lives elsewhere
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // static methods used directly
+import org.springframework.transaction.annotation.Transactional;
 
 import com.smartsupplypro.inventory.dto.SupplierDTO;
 import com.smartsupplypro.inventory.mapper.SupplierMapper;
@@ -20,28 +20,15 @@ import com.smartsupplypro.inventory.validation.SupplierValidator;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Service implementation for supplier master data management.
+ * Default implementation of {@link SupplierService} using
+ * Spring Data JPA for persistence operations.
  *
- * <p><strong>Characteristics</strong>:
- * <ul>
- *   <li><strong>Master Data</strong>: Reference catalog with infrequent changes (&lt;1000 records)</li>
- *   <li><strong>Validation Delegation</strong>: All validation logic in {@link SupplierValidator}</li>
- *   <li><strong>Referential Integrity</strong>: Prevents deletion if inventory items reference supplier</li>
- *   <li><strong>Uniqueness Constraint</strong>: Case-insensitive supplier name enforcement</li>
- *   <li><strong>Static Mapping</strong>: DTO ↔ Entity via {@link SupplierMapper}</li>
- * </ul>
- *
- * <p><strong>Transaction Management</strong>:
- * Class-level {@code @Transactional} with method-level {@code readOnly=true} overrides for query operations.
- *
- * <p><strong>Architecture Documentation</strong>:
- * For detailed operation flows, business rules, design patterns, and refactoring notes, see:
- * <a href="../../../../../../docs/architecture/services/supplier-service.md">Supplier Service Architecture</a>
+ * <p>Validation is delegated to {@link SupplierValidator}. Referential integrity
+ * is enforced by checking inventory item references before deletion.</p>
  *
  * @see SupplierService
  * @see SupplierValidator
  * @see SupplierMapper
- * @see com.smartsupplypro.inventory.model.Supplier
  */
 @Service
 @RequiredArgsConstructor
@@ -52,43 +39,24 @@ public class SupplierServiceImpl implements SupplierService {
     private final InventoryItemRepository inventoryItemRepository;
     private final SupplierMapper supplierMapper;
 
-    /**
-     * Retrieves all suppliers from the database.
-     * 
-     * <p>Loads ALL suppliers (acceptable for master data &lt;1000 records).
-     * 
-     * @return list of all suppliers as DTOs
-     * @see <a href="../../../../../../docs/architecture/services/supplier-service.md#operation-flows">Operation Flows</a>
-     */
+    /** {@inheritDoc} */
     @Override
     @Transactional(readOnly = true)
     public List<SupplierDTO> findAll() {
-        // No filtering here; caller controls access via @PreAuthorize at controller.
+        // No filtering here; caller controls access via @PreAuthorize at controller level
         return supplierRepository.findAll().stream()
-                .map(supplierMapper::toDTO) // static call
+                .map(supplierMapper::toDTO)
                 .toList();
     }
 
-    /**
-     * Finds a supplier by ID.
-     * 
-     * @param id the supplier ID
-     * @return Optional containing supplier if found, empty otherwise
-     * @see <a href="../../../../../../docs/architecture/services/supplier-service.md#operation-flows">Operation Flows</a>
-     */
+    /** {@inheritDoc} */
     @Override
     @Transactional(readOnly = true)
     public Optional<SupplierDTO> findById(String id) {
         return supplierRepository.findById(id).map(supplierMapper::toDTO);
     }
 
-    /**
-     * Searches suppliers by name (partial match, case-insensitive).
-     * 
-     * @param name search term (can be partial)
-     * @return list of matching suppliers
-     * @see <a href="../../../../../../docs/architecture/services/supplier-service.md#operation-flows">Operation Flows</a>
-     */
+    /** {@inheritDoc} */
     @Override
     @Transactional(readOnly = true)
     public List<SupplierDTO> findByName(String name) {
@@ -98,20 +66,10 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     /**
-     * Creates a new supplier with validation and server-authoritative field generation.
+     * {@inheritDoc}
      *
-     * <p><strong>Business Rules</strong>:
-     * <ul>
-     *   <li>Name must be unique (case-insensitive) → HTTP 409 if conflict</li>
-     *   <li>Name and contactName required → HTTP 400 if blank</li>
-     *   <li>UUID and createdAt generated server-side (client values ignored)</li>
-     * </ul>
-     *
-     * @param dto the supplier data (client-provided)
-     * @return the saved supplier with generated fields
-     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if validation fails → HTTP 400
-     * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException if name exists → HTTP 409
-     * @see <a href="../../../../../../docs/architecture/services/supplier-service.md#1-create-supplier">Create Supplier Flow</a>
+     * <p>ID and createdAt are generated server-side; any client-supplied
+     * values in the DTO are ignored.</p>
      */
     @Override
     public SupplierDTO create(SupplierDTO dto) {
@@ -127,22 +85,10 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     /**
-     * Updates mutable fields of an existing supplier.
+     * {@inheritDoc}
      *
-     * <p><strong>Business Rules</strong>:
-     * <ul>
-     *   <li>Path ID authoritative (DTO ID ignored)</li>
-     *   <li>Name uniqueness check excludes current supplier</li>
-     *   <li>Immutable fields: ID, createdAt</li>
-     * </ul>
-     *
-     * @param id the supplier ID (path parameter, authoritative)
-     * @param dto the updated supplier data
-     * @return the updated supplier
-     * @throws NoSuchElementException if supplier not found → HTTP 404
-     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if validation fails → HTTP 400
-     * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException if name conflicts → HTTP 409
-     * @see <a href="../../../../../../docs/architecture/services/supplier-service.md#2-update-supplier">Update Supplier Flow</a>
+     * <p>The path ID is authoritative; the DTO ID is ignored. Immutable fields
+     * (ID, createdAt) are preserved from the existing entity.</p>
      */
     @Override
     public SupplierDTO update(String id, SupplierDTO dto) {
@@ -150,6 +96,7 @@ public class SupplierServiceImpl implements SupplierService {
                 .orElseThrow(() -> new NoSuchElementException("Supplier not found: " + id));
 
         SupplierValidator.validateBase(dto);
+        // Exclude the current supplier ID so the uniqueness check does not reject its own name
         SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), id);
 
         existing.setName(dto.getName());
@@ -162,36 +109,26 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     /**
-     * Deletes a supplier after ensuring no inventory items reference it.
+     * {@inheritDoc}
      *
-     * <p><strong>Referential Integrity</strong>:
-     * Deletion blocked if ANY inventory items (active or historical) reference this supplier.
-     *
-     * @param id the supplier ID to delete
-     * @throws NoSuchElementException if supplier not found → HTTP 404
-     * @throws IllegalStateException if inventory items reference supplier → HTTP 409
-     * @see <a href="../../../../../../docs/architecture/services/supplier-service.md#3-delete-supplier-referential-integrity">Delete Supplier Flow</a>
+     * <p>Deletion is blocked if any inventory items (active or historical)
+     * reference this supplier, to prevent orphaned stock records.</p>
      */
     @Override
     public void delete(String id) {
         SupplierValidator.assertDeletable(
-            id, 
+            id,
             () -> inventoryItemRepository.existsActiveStockForSupplier(id, 0)
         );
 
         if (!supplierRepository.existsById(id)) {
             throw new NoSuchElementException("Supplier not found: " + id);
         }
-        
+
         supplierRepository.deleteById(id);
     }
 
-    /**
-     * Returns the total number of suppliers (KPI metric).
-     *
-     * @return supplier count
-     * @see <a href="../../../../../../docs/architecture/services/supplier-service.md#performance-considerations">Performance Considerations</a>
-     */
+    /** {@inheritDoc} */
     @Override
     @Transactional(readOnly = true)
     public long countSuppliers() {

@@ -53,6 +53,7 @@ class OAuth2LoginSuccessHandlerReturnCookieTest {
     /**
      * Behavior when the SSP_RETURN cookie contains an allowlisted origin.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenReturnCookieIsAllowlisted {
 
@@ -122,6 +123,7 @@ class OAuth2LoginSuccessHandlerReturnCookieTest {
     /**
      * Behavior when the SSP_RETURN cookie is present but rejected.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenReturnCookieIsRejected {
 
@@ -169,6 +171,7 @@ class OAuth2LoginSuccessHandlerReturnCookieTest {
     /**
      * Behavior when no SSP_RETURN cookie is present.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenReturnCookieIsAbsent {
 

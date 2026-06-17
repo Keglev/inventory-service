@@ -52,6 +52,7 @@ class SecurityConfigAuthorizationRulesTest {
     /**
      * Behavior when the request is unauthenticated.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenUnauthenticated {
 
@@ -88,6 +89,7 @@ class SecurityConfigAuthorizationRulesTest {
     /**
      * Behavior when the request carries an authenticated principal.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenAuthenticated {
 
@@ -118,6 +120,7 @@ class SecurityConfigAuthorizationRulesTest {
     /**
      * Behavior when the client initiates a logout.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenLoggingOut {
 

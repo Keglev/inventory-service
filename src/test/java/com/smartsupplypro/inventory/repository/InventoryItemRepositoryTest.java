@@ -36,6 +36,7 @@ class InventoryItemRepositoryTest {
     private Supplier supplier1;
     private Supplier supplier2;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setup() {
         supplier1 = supplierRepository.save(Supplier.builder()
@@ -49,6 +50,7 @@ class InventoryItemRepositoryTest {
     /**
      * Case-insensitive name lookup and sorted paginated retrieval.
      */
+    @SuppressWarnings("unused")
     @Nested
     class NameSearch {
 
@@ -91,6 +93,7 @@ class InventoryItemRepositoryTest {
     /**
      * Supplier active-stock existence checks.
      */
+    @SuppressWarnings("unused")
     @Nested
     class SupplierAssociation {
 
@@ -116,6 +119,7 @@ class InventoryItemRepositoryTest {
     /**
      * Low-stock threshold queries with optional supplier filter.
      */
+    @SuppressWarnings("unused")
     @Nested
     class StockThreshold {
 

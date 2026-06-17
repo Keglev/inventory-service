@@ -25,6 +25,7 @@ class CookieOAuth2AuthorizationRequestRepositoryLoadTest {
     /**
      * Behavior when the authorization request cookie is absent or malformed.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenCookieIsAbsentOrMalformed {
 
@@ -46,6 +47,7 @@ class CookieOAuth2AuthorizationRequestRepositoryLoadTest {
     /**
      * Behavior when the cookie is present but contains schema deviations.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenCookieHasSchemaDeviations {
 

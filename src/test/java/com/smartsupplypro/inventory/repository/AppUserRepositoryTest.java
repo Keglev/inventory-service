@@ -41,6 +41,7 @@ class AppUserRepositoryTest {
     /**
      * Email-based lookup behavior and case sensitivity.
      */
+    @SuppressWarnings("unused")
     @Nested
     class EmailLookup {
 
@@ -72,6 +73,7 @@ class AppUserRepositoryTest {
     /**
      * Count accuracy after insertions.
      */
+    @SuppressWarnings("unused")
     @Nested
     class UserCount {
 
@@ -87,6 +89,7 @@ class AppUserRepositoryTest {
     /**
      * Unique email constraint enforcement.
      */
+    @SuppressWarnings("unused")
     @Nested
     class ConstraintValidation {
 

@@ -11,7 +11,7 @@ import com.smartsupplypro.inventory.model.InventoryItem;
 
 /**
  * Security validator for role-based inventory item update restrictions.
- *
+ *P
  * <p><strong>Access Control</strong>:
  * <ul>
  *   <li><strong>ADMIN</strong>: Full update permissions (name, supplier, quantity, price)</li>

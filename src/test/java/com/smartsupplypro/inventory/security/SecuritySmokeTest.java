@@ -58,6 +58,7 @@ class SecuritySmokeTest {
     /**
      * Behavior when verifying critical beans and access control rules.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenCheckingContextAndAccess {
 
@@ -88,6 +89,7 @@ class SecuritySmokeTest {
     /**
      * Behavior when verifying cross-cutting infrastructure (CORS, OAuth2).
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenCheckingInfrastructure {
 
@@ -158,6 +160,6 @@ class SecuritySmokeTest {
             return mock;
         }
 
-        // AppProperties is provided by @EnableConfigurationProperties on SecurityConfig — do not redeclare here
+        // AppProperties is provided by @EnableConfigurationProperties on SecurityConfig â€” do not redeclare here
     }
 }

@@ -10,12 +10,8 @@ import com.smartsupplypro.inventory.service.SupplierService;
 import com.smartsupplypro.inventory.service.impl.SupplierServiceImpl;
 
 /**
- * Shared fixture for SupplierService unit tests.
- *
- * <p><strong>Intent</strong>: keep individual test classes small and readable while exercising the
- * same production implementation ({@link SupplierServiceImpl}).</p>
+ * Shared fixture for {@link SupplierServiceImpl} unit tests.
  */
-@SuppressWarnings("unused")
 abstract class SupplierServiceTestBase {
 
     protected SupplierRepository supplierRepository;
@@ -23,6 +19,7 @@ abstract class SupplierServiceTestBase {
     protected SupplierMapper supplierMapper;
     protected SupplierService supplierService;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setUpBase() {
         supplierRepository = mock(SupplierRepository.class);

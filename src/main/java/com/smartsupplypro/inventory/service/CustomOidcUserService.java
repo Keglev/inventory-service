@@ -2,8 +2,10 @@ package com.smartsupplypro.inventory.service;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,23 +25,15 @@ import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 /**
- * OIDC user service for OpenID Connect providers with automatic role assignment.
+ * Default implementation of {@link OAuth2UserService} for OpenID Connect providers,
+ * with automatic local user provisioning and role assignment.
  *
- * <p><strong>Characteristics</strong>:
- * <ul>
- *   <li><strong>OIDC Support</strong>: Handles OpenID Connect flow (e.g., Google with openid scope)</li>
- *   <li><strong>Auto-Provisioning</strong>: Creates local user on first OIDC login</li>
- *   <li><strong>Role Assignment</strong>: ADMIN via APP_ADMIN_EMAILS env var, otherwise USER</li>
- *   <li><strong>Email-Based Identity</strong>: Uses email as principal for security context</li>
- *   <li><strong>Role Healing</strong>: Updates role if allow-list changes</li>
- * </ul>
+ * <p>A separate OIDC-specific service is required because the {@code OidcUserRequest}
+ * and {@code OidcUser} type parameters differ from the plain OAuth2 variants, so
+ * role mapping would not apply to OIDC logins without this class.</p>
  *
- * <p><strong>Why Separate from OAuth2UserService</strong>:
- * OIDC requires {@code OAuth2UserService<OidcUserRequest, OidcUser>} parametrization.
- * Without this, role mapping ({@code ROLE_ADMIN}/{@code ROLE_USER}) wouldn't apply to OIDC logins.
- *
- * <p><strong>Configuration</strong>:
- * Set {@code APP_ADMIN_EMAILS} environment variable with comma-separated admin emails.
+ * <p>Role is determined by the {@code APP_ADMIN_EMAILS} environment variable.
+ * Role healing keeps the role in sync if the allow-list changes between logins.</p>
  *
  * @see AppUser
  * @see CustomOAuth2UserService
@@ -53,11 +47,6 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         this.userRepository = userRepository;
     }
 
-    /**
-     * Reads admin allow-list from APP_ADMIN_EMAILS environment variable.
-     *
-     * @return set of lowercase admin emails
-     */
     private static Set<String> readAdminAllowlist() {
         String raw = System.getenv().getOrDefault("APP_ADMIN_EMAILS", "");
         return parseAdminAllowlist(raw);
@@ -76,48 +65,55 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         return readAdminAllowlist().contains(email.toLowerCase());
     }
 
-    /**
-     * Normalizes role to Spring Security authority format.
-     *
-     * @param role user role
-     * @return ROLE_* authority string
-     */
     private static String toRoleAuthority(Role role) {
         String name = (role == null) ? "USER" : role.name();
         return name.startsWith("ROLE_") ? name : "ROLE_" + name;
     }
 
     /**
-     * Loads OIDC user and assigns ROLE_ADMIN or ROLE_USER based on APP_ADMIN_EMAILS.
+     * Loads the OIDC user, provisions a local account on first login, and merges
+     * a {@code ROLE_*} authority so {@code hasRole()} checks work across the app.
      *
      * @param request OIDC user request
      * @return OIDC user with role-based authority
-     * @throws OAuth2AuthenticationException if email missing or user creation fails
+     * @throws OAuth2AuthenticationException if the provider does not supply an email
      */
     @Override
     public OidcUser loadUser(OidcUserRequest request) throws OAuth2AuthenticationException {
-        // Enterprise Comment: OIDC User Loading
-        // Delegate to OidcUserService to handle ID token validation and claims extraction.
-        // This ensures OpenID Connect standards (JWT signature, issuer validation, nonce) are enforced.
         OidcUser oidc = loadFromProvider(request);
 
-        final String email = oidc.getEmail(); // same as oidc.getAttribute("email")
-        final String name  = oidc.getFullName(); // falls back to "name" claim if present
+        String email = oidc.getEmail();
+        String name  = oidc.getFullName();
 
         if (email == null || email.isBlank()) {
             throw new OAuth2AuthenticationException("Email not provided by OAuth2 provider.");
         }
 
-        // Enterprise Comment: Environment-Based Role Assignment
-        // APP_ADMIN_EMAILS allows zero-downtime role changes without code deployment.
-        // Example: APP_ADMIN_EMAILS=admin@corp.com,manager@corp.com
-        final boolean isAdmin = isAdminEmail(email);
+        boolean isAdmin = isAdminEmail(email);
+        AppUser user = provisionUser(email, name, isAdmin);
 
-        // Enterprise Comment: Auto-Provisioning Pattern
-        // Create user on first login with role based on email allow-list.
-        // Race condition handling: If concurrent login creates duplicate, re-fetch by email.
+        List<GrantedAuthority> authorities = new ArrayList<>(oidc.getAuthorities());
+        authorities.add(new SimpleGrantedAuthority(toRoleAuthority(user.getRole())));
+
+        // Email is used as the principal name so SecurityContext and logs show the user's email
+        return new DefaultOidcUser(authorities, oidc.getIdToken(), oidc.getUserInfo(), "email");
+    }
+
+    /**
+     * Finds or creates the local {@link AppUser} for the given OIDC identity,
+     * and heals the role if the allow-list has changed since the last login.
+     *
+     * <p>Concurrent first-logins from the same identity are resolved by catching
+     * the unique-constraint violation and re-fetching the row the winning thread committed.</p>
+     *
+     * @param email   verified email from the OIDC provider
+     * @param name    display name from the OIDC provider (nullable)
+     * @param isAdmin whether the email is on the admin allow-list
+     * @return the persisted (and potentially role-healed) user
+     */
+    private AppUser provisionUser(String email, String name, boolean isAdmin) {
         AppUser user = userRepository.findByEmail(email).orElseGet(() -> {
-            AppUser u = new AppUser();                           // let JPA manage UUID id
+            AppUser u = new AppUser();
             u.setEmail(email);
             u.setName((name == null || name.isBlank()) ? email : name);
             u.setRole(isAdmin ? Role.ADMIN : Role.USER);
@@ -125,37 +121,23 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             try {
                 return userRepository.save(u);
             } catch (DataIntegrityViolationException e) {
-                // Another request created it concurrently, or it already existed -> re-fetch by EMAIL
+                // Another concurrent request already created the user — re-fetch by email
                 return userRepository.findByEmail(email).orElseThrow(() -> e);
             }
         });
 
-        // Enterprise Comment: Role Healing Pattern
-        // Update role if APP_ADMIN_EMAILS changed since last login (idempotent operation).
-        final Role desired = isAdmin ? Role.ADMIN : Role.USER;
+        // Keep role in sync when APP_ADMIN_EMAILS changes between logins
+        Role desired = isAdmin ? Role.ADMIN : Role.USER;
         if (user.getRole() != desired) {
             user.setRole(desired);
             userRepository.save(user);
         }
-
-        // Merge ROLE_* into authorities so hasRole(...) works across the app
-        var authorities = new java.util.ArrayList<GrantedAuthority>(oidc.getAuthorities());
-        authorities.add(new SimpleGrantedAuthority(toRoleAuthority(user.getRole())));
-
-        // Prefer "email" as the principal name (so logs & SecurityContext name show the email)
-        return new DefaultOidcUser(
-            authorities,
-            oidc.getIdToken(),
-            oidc.getUserInfo(),
-            "email"
-        );
+        return user;
     }
 
     /**
      * Loads the user from the upstream OIDC provider.
-     *
-     * <p>Extracted for testability: unit tests can override this method to provide a deterministic
-     * {@link OidcUser} without hitting an actual provider user-info endpoint.
+     * Extracted for testability — tests override this to avoid network calls.
      */
     protected OidcUser loadFromProvider(OidcUserRequest request) throws OAuth2AuthenticationException {
         return new OidcUserService().loadUser(request);

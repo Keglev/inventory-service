@@ -23,28 +23,12 @@ import static com.smartsupplypro.inventory.validation.InventoryItemValidator.ass
 import lombok.RequiredArgsConstructor;
 
 /**
- * Service implementation for inventory item lifecycle management with audit trails.
+ * Default implementation of {@link InventoryItemService} using Spring Data JPA,
+ * with validation and audit trail delegated to helper components.
  *
- * <p>Delegates to specialized helpers for validation and audit logging while maintaining
- * the original {@link InventoryItemService} interface contract.
+ * <p>{@link InventoryItemValidationHelper} covers field validation, supplier checks,
+ * and server-field population. {@link InventoryItemAuditHelper} covers stock history logging.</p>
  *
- * <p><strong>Delegation Strategy</strong>:
- * <ul>
- *   <li>{@link InventoryItemValidationHelper} - Validation, supplier checks, server field population</li>
- *   <li>{@link InventoryItemAuditHelper} - Stock history audit trail logging</li>
- * </ul>
- *
- * <p><strong>Business Rules</strong>:
- * <ul>
- *   <li>Uniqueness: No duplicate name+price combinations</li>
- *   <li>Positive prices: Unit price must be > 0</li>
- *   <li>Non-negative quantities: Final quantity cannot be negative after adjustment</li>
- *   <li>Supplier validation: Referenced supplier must exist</li>
- * </ul>
- *
- * @author Smart Supply Pro Development Team
- * @version 2.0.0
- * @since 1.0.0
  * @see InventoryItemValidationHelper
  * @see InventoryItemAuditHelper
  */
@@ -57,47 +41,26 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     private final InventoryItemAuditHelper auditHelper;
     private final InventoryItemMapper inventoryItemMapper;
 
-    /**
-     * {@inheritDoc}
-     * 
-     * <p><strong>Performance Warning</strong>: Loads ALL items. Use pagination for large datasets.
-     *
-     * @return list of all inventory items as DTOs
-     */
+    /** {@inheritDoc} */
     @Override
     public List<InventoryItemDTO> getAll() {
         return repository.findAll().stream().map(inventoryItemMapper::toDTO).toList();
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @param id the unique identifier of the inventory item
-     * @return Optional containing the item DTO if found, empty otherwise
-     */
+    /** {@inheritDoc} */
     @Override
     public Optional<InventoryItemDTO> getById(String id) {
         return repository.findById(id).map(inventoryItemMapper::toDTO);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param name the search term for item name (partial match supported)
-     * @param pageable pagination and sorting parameters
-     * @return paginated results sorted by price, empty page if no matches
-     */
+    /** {@inheritDoc} */
     @Override
     public Page<InventoryItemDTO> findByNameSortedByPrice(String name, Pageable pageable) {
         Page<InventoryItem> page = repository.findByNameSortedByPrice(name, pageable);
         return page == null ? Page.empty() : page.map(inventoryItemMapper::toDTO);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return total count of inventory items in the database
-     */
+    /** {@inheritDoc} */
     @Override
     @Transactional(readOnly = true)
     public long countItems() {
@@ -105,88 +68,64 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     }
 
     /**
-     * Creates a new inventory item with validation and audit trail initialization.
+     * {@inheritDoc}
      *
-     * @param dto the inventory item data transfer object
-     * @return the saved inventory item as DTO with server-generated fields
-     * @throws IllegalArgumentException if validation fails
+     * <p>Server-side fields (ID, createdBy, createdAt, minimumQuantity default)
+     * are populated after validation and before persistence.</p>
      */
     @Override
     @Transactional
     public InventoryItemDTO save(InventoryItemDTO dto) {
-        // Validate DTO for creation
         validationHelper.validateForCreation(dto);
-
-        // Convert DTO to entity
         InventoryItem entity = inventoryItemMapper.toEntity(dto);
-
-        // Populate server-side fields
         validationHelper.populateServerFields(entity);
-
-        // Persist entity
         InventoryItem saved = repository.save(entity);
-
-        // Log initial stock history
         auditHelper.logInitialStock(saved);
-
         return inventoryItemMapper.toDTO(saved);
     }
 
     /**
-     * Updates an existing inventory item with validation, security checks, and audit trail.
+     * {@inheritDoc}
      *
-     * @param id the unique identifier of the item to update
-     * @param dto the updated inventory item data
-     * @return Optional containing updated item DTO
-     * @throws IllegalArgumentException if validation fails
+     * <p>Price validation is applied only when the price actually changed,
+     * to avoid redundant checks on quantity-only updates.</p>
      */
     @Override
     @Transactional
     public Optional<InventoryItemDTO> update(String id, InventoryItemDTO dto) {
-        // Validate for update and get existing item
         InventoryItem existing = validationHelper.validateForUpdate(id, dto);
-
-        // Check uniqueness if name or price changed
         validationHelper.validateUniquenessOnUpdate(id, existing, dto);
 
-        // Calculate quantity delta
         int quantityDiff = dto.getQuantity() - existing.getQuantity();
 
-        // Update entity fields
         existing.setName(dto.getName());
         existing.setQuantity(dto.getQuantity());
         existing.setSupplierId(dto.getSupplierId());
-        
+
         if (dto.getMinimumQuantity() > 0) {
             existing.setMinimumQuantity(dto.getMinimumQuantity());
         }
-        
+
         boolean priceChanged = !existing.getPrice().equals(dto.getPrice());
         if (priceChanged) {
             assertPriceValid(dto.getPrice());
             existing.setPrice(dto.getPrice());
         }
 
-        // Persist changes
         InventoryItem updated = repository.save(existing);
-
-        // Log quantity change if delta is non-zero
         auditHelper.logQuantityChange(updated, quantityDiff);
-
         return Optional.of(inventoryItemMapper.toDTO(updated));
     }
 
     /**
-     * Deletes an inventory item after logging complete stock removal to audit trail.
+     * {@inheritDoc}
      *
-     * @param id the unique identifier of the item to delete
-     * @param reason the business reason for deletion
-     * @throws IllegalArgumentException if reason is invalid or item not found
+     * <p>Only deletion reasons that represent physical stock disposal are accepted;
+     * generic reasons like MANUAL_UPDATE would produce a misleading audit trail.</p>
      */
     @Override
     @Transactional
     public void delete(String id, StockChangeReason reason) {
-        // Validate deletion reason
         if (reason != StockChangeReason.SCRAPPED &&
             reason != StockChangeReason.DESTROYED &&
             reason != StockChangeReason.DAMAGED &&
@@ -196,117 +135,61 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             throw new IllegalArgumentException("Invalid reason for deletion");
         }
 
-        // Validate item exists and quantity is zero before deletion
         validationHelper.validateForDeletion(id);
         InventoryItem item = validationHelper.validateExists(id);
-
-        // Log full stock removal
         auditHelper.logFullRemoval(item, reason);
-
-        // Perform hard delete
         repository.deleteById(id);
     }
 
-    /**
-     * Adjusts inventory quantity by a delta (positive for stock-in, negative for stock-out).
-     *
-     * @param id the unique identifier of the item to adjust
-     * @param delta the quantity change
-     * @param reason the business reason for the adjustment
-     * @return the updated inventory item as DTO
-     * @throws IllegalArgumentException if item not found or final quantity would be negative
-     */
+    /** {@inheritDoc} */
     @Override
     @Transactional
     public InventoryItemDTO adjustQuantity(String id, int delta, StockChangeReason reason) {
-        // Verify item exists
         InventoryItem item = validationHelper.validateExists(id);
-
-        // Calculate new quantity
         int newQty = item.getQuantity() + delta;
-        
-        // Validate non-negative quantity
         assertFinalQuantityNonNegative(newQty);
-
-        // Update item quantity
         item.setQuantity(newQty);
-        
-        // Persist to database
         InventoryItem saved = repository.save(item);
-
-        // Log stock history
         auditHelper.logQuantityAdjustment(saved, delta, reason);
-
         return inventoryItemMapper.toDTO(saved);
     }
 
-    /**
-     * Updates the unit price of an inventory item and logs a PRICE_CHANGE history entry.
-     *
-     * @param id the unique identifier of the item
-     * @param newPrice the new unit price (must be > 0)
-     * @return the updated inventory item as DTO
-     * @throws IllegalArgumentException if newPrice ≤ 0 or item not found
-     */
+    /** {@inheritDoc} */
     @Override
     @Transactional
     public InventoryItemDTO updatePrice(String id, BigDecimal newPrice) {
-        // Validate price is positive
         assertPriceValid(newPrice);
-
-        // Verify item exists
         InventoryItem item = validationHelper.validateExists(id);
-        
-        // Update item price
         item.setPrice(newPrice);
-        
-        // Persist to database
         InventoryItem saved = repository.save(item);
-
-        // Log price change history
         auditHelper.logPriceChange(id, newPrice);
-        
         return inventoryItemMapper.toDTO(saved);
     }
 
     /**
-     * Renames an inventory item (changes the item name).
-     * Validates that the new name is not a duplicate for the same supplier.
+     * {@inheritDoc}
      *
-     * @param id the unique identifier of the item
-     * @param newName the new item name (must not be empty)
-     * @return the updated inventory item as DTO
-     * @throws IllegalArgumentException if name is empty or already exists for this supplier
-     * @throws IllegalArgumentException if item not found
+     * <p>Case-insensitive duplicate check is scoped to the same supplier;
+     * the same name under a different supplier is valid.</p>
      */
     @Override
     @Transactional
     public InventoryItemDTO renameItem(String id, String newName) {
-        // Validate new name is not empty
         if (newName == null || newName.trim().isEmpty()) {
             throw new IllegalArgumentException("Item name cannot be empty");
         }
 
-        // Verify item exists and get existing data
         InventoryItem existing = validationHelper.validateExists(id);
 
-        // Check if new name already exists for the same supplier (case-insensitive)
         List<InventoryItem> duplicates = repository.findByNameIgnoreCase(newName.trim());
         for (InventoryItem dup : duplicates) {
-            // If we find an item with the same name and supplier (but different id), it's a conflict
-            if (!dup.getId().equals(id) && 
-                dup.getSupplierId().equals(existing.getSupplierId())) {
+            if (!dup.getId().equals(id) && dup.getSupplierId().equals(existing.getSupplierId())) {
                 throw new IllegalArgumentException("An item with this name already exists for this supplier");
             }
         }
 
-        // Update item name
         existing.setName(newName.trim());
-        
-        // Persist to database
         InventoryItem saved = repository.save(existing);
-        
         return inventoryItemMapper.toDTO(saved);
     }
 }
-

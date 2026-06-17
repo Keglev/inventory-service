@@ -40,6 +40,7 @@ class ApiEntryPointBehaviourTest {
     /**
      * Behavior when the request is unauthenticated and targets an API endpoint.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenRequestIsUnauthenticatedApi {
 
@@ -63,6 +64,7 @@ class ApiEntryPointBehaviourTest {
     /**
      * Behavior when the request is unauthenticated and targets a web (non-API) endpoint.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenRequestIsUnauthenticatedWeb {
 
@@ -75,7 +77,7 @@ class ApiEntryPointBehaviourTest {
         }
     }
 
-    /** Minimal stub endpoints — never actually reached when unauthenticated. */
+    /** Minimal stub endpoints â€” never actually reached when unauthenticated. */
     @RestController
     @SuppressWarnings("unused")
     static class StubController {

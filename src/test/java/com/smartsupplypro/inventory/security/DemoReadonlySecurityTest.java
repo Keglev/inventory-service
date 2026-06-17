@@ -47,6 +47,7 @@ class DemoReadonlySecurityTest {
     /**
      * Behavior when the request is an unauthenticated read.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenRequestIsUnauthenticatedRead {
 
@@ -70,6 +71,7 @@ class DemoReadonlySecurityTest {
     /**
      * Behavior when the request is an unauthenticated write.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenRequestIsUnauthenticatedWrite {
 

@@ -54,6 +54,7 @@ class InventoryItemControllerUpdateDeleteTest {
     }
 
     /** PUT /api/inventory/{id} update scenarios. */
+    @SuppressWarnings("unused")
     @Nested
     class UpdateItem {
 
@@ -95,6 +96,7 @@ class InventoryItemControllerUpdateDeleteTest {
     }
 
     /** DELETE /api/inventory/{id} deletion scenarios. */
+    @SuppressWarnings("unused")
     @Nested
     class DeleteItem {
 

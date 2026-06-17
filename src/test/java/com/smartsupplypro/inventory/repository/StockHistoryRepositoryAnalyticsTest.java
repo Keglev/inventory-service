@@ -48,6 +48,7 @@ class StockHistoryRepositoryAnalyticsTest {
     private Supplier supplierB;
     private LocalDateTime now;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setup() {
         now = LocalDateTime.now(fixedClock);
@@ -90,6 +91,7 @@ class StockHistoryRepositoryAnalyticsTest {
     /**
      * Daily valuation and supplier-level aggregation queries.
      */
+    @SuppressWarnings("unused")
     @Nested
     class AggregationQueries {
 
@@ -129,6 +131,7 @@ class StockHistoryRepositoryAnalyticsTest {
     /**
      * Monthly movement reports and low-stock/tabular export queries.
      */
+    @SuppressWarnings("unused")
     @Nested
     class MovementReporting {
 
@@ -176,6 +179,7 @@ class StockHistoryRepositoryAnalyticsTest {
     /**
      * Price trend DTO projection and supplier-filtered variant.
      */
+    @SuppressWarnings("unused")
     @Nested
     class PriceTrend {
 

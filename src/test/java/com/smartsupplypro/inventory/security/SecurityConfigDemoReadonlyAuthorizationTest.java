@@ -69,6 +69,7 @@ class SecurityConfigDemoReadonlyAuthorizationTest {
     /**
      * Behavior when demo-readonly is enabled.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenDemoReadonlyIsEnabled {
 

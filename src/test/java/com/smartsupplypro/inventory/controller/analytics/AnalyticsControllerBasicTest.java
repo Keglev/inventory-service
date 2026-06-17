@@ -46,6 +46,7 @@ public class AnalyticsControllerBasicTest {
     @MockitoBean
     private AnalyticsControllerValidationHelper validationHelper;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setup() {
         // applyDefaultDateWindow must return a non-null array; the controller indexes into it immediately

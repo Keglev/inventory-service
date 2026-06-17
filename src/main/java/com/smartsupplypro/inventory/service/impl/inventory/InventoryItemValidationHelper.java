@@ -17,20 +17,13 @@ import com.smartsupplypro.inventory.validation.InventoryItemValidator;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Validation helper for inventory item operations.
+ * Validation helper for inventory item write operations.
  *
- * <p>Centralizes validation logic including:
- * <ul>
- *   <li>Base field validation (name, price, quantity)</li>
- *   <li>Uniqueness checks (name + price combinations)</li>
- *   <li>Supplier existence validation</li>
- *   <li>Security permission checks</li>
- *   <li>Server-side field population (ID, createdBy, timestamps)</li>
- * </ul>
+ * <p>Centralises field validation, uniqueness checks, supplier existence checks,
+ * security permission checks, and server-field population (ID, createdBy, timestamps).</p>
  *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * @see InventoryItemValidator
+ * @see InventoryItemSecurityValidator
  */
 @Component
 @RequiredArgsConstructor
@@ -40,101 +33,76 @@ public class InventoryItemValidationHelper {
     private final SupplierRepository supplierRepository;
 
     /**
-     * Validates and prepares DTO for item creation.
-     *
-     * <p>Steps: Populate createdBy → validate base fields → check uniqueness → validate supplier.
+     * Validates a DTO for item creation.
+     * Order: populate createdBy → validate base fields → check uniqueness → validate supplier.
      *
      * @param dto the inventory item DTO to validate
      * @throws IllegalArgumentException if validation fails
      */
     public void validateForCreation(InventoryItemDTO dto) {
-        // Populate createdBy from authenticated user
         if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {
             dto.setCreatedBy(currentUsername());
         }
-        
-        // Validate base fields
         InventoryItemValidator.validateBase(dto);
-        
-        // Check uniqueness (name + price)
         InventoryItemValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);
-        
-        // Validate supplier exists
         validateSupplierExists(dto.getSupplierId());
     }
 
     /**
-     * Validates and prepares entity for creation with server-side fields.
-     *
-     * <p>Generates: ID, createdBy, createdAt, minimum quantity default.
+     * Populates server-managed fields on a new entity before persistence.
+     * Generates a UUID when none is present and applies a minimum-quantity default of 10.
      *
      * @param entity the inventory item entity to populate
      */
     public void populateServerFields(InventoryItem entity) {
-        // Generate UUID if not provided
         if (entity.getId() == null || entity.getId().isBlank()) {
             entity.setId(UUID.randomUUID().toString());
         }
-        
-        // Always set createdBy from SecurityContext (authoritative source)
+        // Always override createdBy from SecurityContext — client-supplied value is untrusted
         entity.setCreatedBy(currentUsername());
-        
-        // Set createdAt timestamp
         if (entity.getCreatedAt() == null) {
             entity.setCreatedAt(LocalDateTime.now());
         }
-        
-        // Apply default minimum quantity
         if (entity.getMinimumQuantity() <= 0) {
             entity.setMinimumQuantity(10);
         }
     }
 
     /**
-     * Validates DTO for item update.
+     * Validates a DTO for item update and returns the existing entity.
+     * Order: validate base fields → validate supplier → assert item exists → check permissions.
      *
-     * <p>Steps: Validate base fields → validate supplier → check existence → check permissions.
-     *
-     * @param id the item ID being updated
+     * @param id  the item ID being updated
      * @param dto the updated inventory item data
      * @return the existing item entity
-     * @throws IllegalArgumentException if validation fails
+     * @throws IllegalArgumentException if validation or permission check fails
      */
     public InventoryItem validateForUpdate(String id, InventoryItemDTO dto) {
-        // Validate base fields
         InventoryItemValidator.validateBase(dto);
-        
-        // Validate supplier exists
         validateSupplierExists(dto.getSupplierId());
-
-        // Verify item exists
         InventoryItem existing = InventoryItemValidator.validateExists(id, repository);
-
-        // Check user permissions
         InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);
-
         return existing;
     }
 
     /**
-     * Validates uniqueness if name or price changed during update.
+     * Validates uniqueness when the name or price changed during an update.
+     * No check is performed when neither field changed.
      *
-     * @param id the item ID being updated
+     * @param id       the item ID being updated
      * @param existing the existing item entity
-     * @param dto the updated item data
+     * @param dto      the updated item data
      */
     public void validateUniquenessOnUpdate(String id, InventoryItem existing, InventoryItemDTO dto) {
         boolean nameChanged  = !existing.getName().equalsIgnoreCase(dto.getName());
         boolean priceChanged = !existing.getPrice().equals(dto.getPrice());
-        
         if (nameChanged || priceChanged) {
             InventoryItemValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);
         }
     }
 
     /**
-     * Validates item exists and retrieves it.
-     *
+     * Validates that the item exists and returns it.
      * @param id the item identifier
      * @return the existing item entity
      * @throws IllegalArgumentException if item not found
@@ -145,11 +113,8 @@ public class InventoryItemValidationHelper {
     }
 
     /**
-     * Validates item for deletion.
-     *
-     * <p>Steps: Validate item exists → check quantity is zero.
-     *
-     * @param id the item ID to validate for deletion
+     * Validates that the item exists and that its quantity is zero before deletion.
+     * @param id the item ID to validate
      * @throws IllegalArgumentException if item not found
      * @throws IllegalStateException if quantity is greater than zero
      */
@@ -160,7 +125,6 @@ public class InventoryItemValidationHelper {
 
     /**
      * Validates that the specified supplier exists.
-     *
      * @param supplierId the supplier identifier
      * @throws IllegalArgumentException if supplier does not exist
      */
@@ -171,9 +135,8 @@ public class InventoryItemValidationHelper {
     }
 
     /**
-     * Retrieves current authenticated username from Spring Security context.
-     *
-     * @return authenticated username, or "system" if no authentication present
+     * Retrieves the current authenticated username from the Spring Security context.
+     * Returns "system" when no authentication is present.
      */
     private String currentUsername() {
         Authentication a = SecurityContextHolder.getContext() != null

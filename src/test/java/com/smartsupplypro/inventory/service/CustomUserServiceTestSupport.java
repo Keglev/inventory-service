@@ -17,31 +17,15 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 /**
- * Test support helpers for Custom OAuth/OIDC user services.
- *
- * <p><strong>Intent</strong>:
- * Keep unit tests short and deterministic by centralizing:
- * <ul>
- *   <li>Upstream principal stubs (OAuth2User / OidcUser)</li>
- *   <li>Service factories (override provider call + admin decision)</li>
- *   <li>Reflection access for private normalization helpers</li>
- * </ul>
+ * Shared fixture for {@link CustomOAuth2UserService} and {@link CustomOidcUserService} unit tests.
  */
 final class CustomUserServiceTestSupport {
 
-    private CustomUserServiceTestSupport() {
-        // utility class
-    }
+    private CustomUserServiceTestSupport() {}
 
     static OAuth2User oauth2UserWithAttributes(Map<String, Object> attributes) {
-        // Keep this stub permissive:
-        // - DefaultOAuth2User enforces a nameAttributeKey.
-        // - Our service must handle missing "email" (reject with exception).
         return new OAuth2User() {
-            @Override
-            public Map<String, Object> getAttributes() {
-                return attributes;
-            }
+            @Override public Map<String, Object> getAttributes() { return attributes; }
 
             @Override
             public java.util.Collection<? extends GrantedAuthority> getAuthorities() {
@@ -57,58 +41,35 @@ final class CustomUserServiceTestSupport {
     }
 
     static OidcUser upstreamOidcUser(String email, String fullName) {
-        // Minimal-but-realistic OIDC principal.
-        // Note: some providers omit optional claims (e.g., "name").
-        // We build the map dynamically so tests can simulate missing claims.
         java.util.Map<String, Object> claims = new java.util.LinkedHashMap<>();
         claims.put("sub", "sub-1");
         claims.put("email", email);
-        if (fullName != null) {
-            claims.put("name", fullName);
-        }
+        if (fullName != null) claims.put("name", fullName);
 
         OidcIdToken idToken = new OidcIdToken(
-            "dummy-token",
-            Instant.now().minusSeconds(5),
-            Instant.now().plusSeconds(3600),
-            claims
-        );
-
-        OidcUserInfo userInfo = new OidcUserInfo(claims);
+                "dummy-token",
+                Instant.now().minusSeconds(5),
+                Instant.now().plusSeconds(3600),
+                claims);
 
         return new DefaultOidcUser(
-            Collections.singletonList(new SimpleGrantedAuthority("ROLE_OIDC")),
-            idToken,
-            userInfo,
-            "email"
-        );
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_OIDC")),
+                idToken,
+                new OidcUserInfo(claims),
+                "email");
     }
 
     static CustomOAuth2UserService oauth2Service(AppUserRepository repo, OAuth2User upstream, boolean isAdmin) {
         return new CustomOAuth2UserService(repo) {
-            @Override
-            protected OAuth2User loadFromProvider(OAuth2UserRequest request) {
-                return upstream;
-            }
-
-            @Override
-            protected boolean isAdminEmail(String email) {
-                return isAdmin;
-            }
+            @Override protected OAuth2User loadFromProvider(OAuth2UserRequest request) { return upstream; }
+            @Override protected boolean isAdminEmail(String email) { return isAdmin; }
         };
     }
 
     static CustomOidcUserService oidcService(AppUserRepository repo, OidcUser upstream, boolean isAdmin) {
         return new CustomOidcUserService(repo) {
-            @Override
-            protected OidcUser loadFromProvider(OidcUserRequest request) {
-                return upstream;
-            }
-
-            @Override
-            protected boolean isAdminEmail(String email) {
-                return isAdmin;
-            }
+            @Override protected OidcUser loadFromProvider(OidcUserRequest request) { return upstream; }
+            @Override protected boolean isAdminEmail(String email) { return isAdmin; }
         };
     }
 
@@ -119,7 +80,8 @@ final class CustomUserServiceTestSupport {
     }
 
     static String oidcRoleAuthority(com.smartsupplypro.inventory.model.Role role) throws Exception {
-        var m = CustomOidcUserService.class.getDeclaredMethod("toRoleAuthority", com.smartsupplypro.inventory.model.Role.class);
+        var m = CustomOidcUserService.class.getDeclaredMethod("toRoleAuthority",
+                com.smartsupplypro.inventory.model.Role.class);
         m.setAccessible(true);
         return (String) m.invoke(null, role);
     }

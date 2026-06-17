@@ -57,6 +57,7 @@ class SupplierControllerTest {
 
     SupplierDTO dto;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         dto = SupplierDTO.builder()
@@ -74,6 +75,7 @@ class SupplierControllerTest {
     }
 
     /** READ endpoints accessible to USER and ADMIN roles. */
+    @SuppressWarnings("unused")
     @Nested
     class WhenReading {
 
@@ -117,6 +119,7 @@ class SupplierControllerTest {
     }
 
     /** Write endpoints restricted to ADMIN role covering creation, update, deletion, and validation. */
+    @SuppressWarnings("unused")
     @Nested
     class WhenWritingAsAdmin {
 

@@ -27,6 +27,7 @@ class OAuth2ConfigTest {
     private ch.qos.logback.classic.Logger oauthLogger;
     private ch.qos.logback.classic.Level originalLevel;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void suppressFailureHandlerLogs() {
         org.slf4j.Logger log = LoggerFactory.getLogger(OAuth2Config.class);
@@ -37,6 +38,7 @@ class OAuth2ConfigTest {
         }
     }
 
+    @SuppressWarnings("unused")
     @AfterEach
     void restoreFailureHandlerLogs() {
         if (oauthLogger != null) oauthLogger.setLevel(originalLevel);

@@ -24,6 +24,7 @@ class CookieOAuth2AuthorizationRequestRepositoryTest {
     /**
      * Behavior when the authorization request cookie is present and valid.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenCookieIsValid {
 
@@ -63,6 +64,7 @@ class CookieOAuth2AuthorizationRequestRepositoryTest {
     /**
      * Behavior when the authorization request cookie is removed.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenCookieIsRemoved {
 

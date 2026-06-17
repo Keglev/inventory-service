@@ -13,26 +13,19 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.StockHistory;
 
 /**
- * Unit tests for {@link StockHistoryService} delete audit behavior.
+ * Unit tests for {@link com.smartsupplypro.inventory.service.StockHistoryService}
+ * item deletion audit logging behavior.
  */
-@SuppressWarnings("unused")
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class StockHistoryServiceDeleteTest extends StockHistoryServiceTestBase {
+@SuppressWarnings("unused")
+class StockHistoryServiceDeleteTest extends StockHistoryServiceTestBase {
 
-    /**
-     * Verifies that {@link StockHistoryService#delete(String, StockChangeReason, String)}
-     * logs a negative change and persists it via the repository.
-     * Scenario: Deleting an item (logs -1 quantity for deletion reason).
-     * Expected: StockHistory saved with negative change and deletion reason.
-     */
     @Test
-    void delete_shouldRecordDeletionInStockHistory() {
-        // GIVEN/WHEN
+    void should_record_negative_change_with_deletion_reason_when_item_deleted() {
         service.delete(ITEM_1, StockChangeReason.RETURNED_TO_SUPPLIER, ADMIN);
 
-        // THEN
         StockHistory saved = captureSavedHistory();
         assertEquals(ITEM_1, saved.getItemId());
         assertEquals(-1, saved.getChange());

@@ -26,26 +26,14 @@ import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConve
 /**
  * Stock analytics service for inventory metrics and reporting.
  *
- * <p>Provides read-only analytics operations including:
- * <ul>
- *   <li>Stock valuation trends (daily inventory value)</li>
- *   <li>Supplier performance metrics (stock distribution, activity)</li>
- *   <li>Low stock alerts (threshold-based warnings)</li>
- *   <li>Movement trends (monthly stock-in/stock-out)</li>
- *   <li>Price history (item price trends over time)</li>
- *   <li>Advanced filtering (multi-criteria stock update queries)</li>
- * </ul>
+ * <p>All operations are read-only. Date windows default to the last 30 days
+ * when not specified. Type coercion from native SQL projections is handled
+ * by {@link AnalyticsConverterHelper} to bridge H2 (test) and Oracle (prod) differences.</p>
  *
- * <p><strong>Design Notes</strong>:
- * <ul>
- *   <li>All operations are read-only ({@code @Transactional(readOnly = true)})</li>
- *   <li>Date windows default to last 30 days when not specified</li>
- *   <li>Handles H2 (test) and Oracle (prod) type differences via converter helpers</li>
- * </ul>
+ * <p>Exceeds the 200-line guideline due to private helper methods and per-method
+ * inline documentation that must remain co-located for analytical coherence.</p>
  *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * @see AnalyticsConverterHelper
  */
 @Service
 @RequiredArgsConstructor
@@ -57,19 +45,19 @@ public class StockAnalyticsService {
 
     /**
      * Retrieves daily inventory value (quantity × price) over a date range.
-     *
-     * <p>Defaults to last 30 days if bounds are {@code null}.
+     * Defaults to last 30 days when bounds are null.
      *
      * @param startDate inclusive start date (nullable)
-     * @param endDate inclusive end date (nullable)
-     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
-     * @return ordered list of daily stock values (ascending by date)
+     * @param endDate   inclusive end date (nullable)
+     * @param supplierId optional supplier filter (null/blank = all suppliers)
+     * @return daily stock values ordered by date ascending
      * @throws InvalidRequestException if {@code startDate > endDate}
      */
     public List<StockValueOverTimeDTO> getTotalStockValueOverTime(LocalDate startDate,
                                                                    LocalDate endDate,
                                                                    String supplierId) {
         LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);
+        // startOfDay/endOfDay used so the inclusive date bounds match TIMESTAMP column precision
         LocalDateTime from = startOfDay(window[0]);
         LocalDateTime to   = endOfDay(window[1]);
 
@@ -85,8 +73,7 @@ public class StockAnalyticsService {
 
     /**
      * Retrieves current stock quantities grouped by supplier.
-     *
-     * @return list of suppliers with total quantities (ordered by quantity desc)
+     * @return suppliers with total quantities ordered by quantity descending
      */
     public List<StockPerSupplierDTO> getTotalStockPerSupplier() {
         List<Object[]> rows = stockHistoryRepository.getTotalStockBySupplier();
@@ -101,16 +88,14 @@ public class StockAnalyticsService {
 
     /**
      * Retrieves stock update frequency per item for a supplier.
-     *
-     * <p>Counts stock history entries per item (higher count = more active product).
+     * Higher count indicates a more actively managed product.
      *
      * @param supplierId supplier identifier (required)
-     * @return list of items with update counts (ordered by count desc)
+     * @return items with update counts ordered by count descending
      * @throws InvalidRequestException if {@code supplierId} is blank
      */
     public List<ItemUpdateFrequencyDTO> getItemUpdateFrequency(String supplierId) {
         String sid = requireNonBlank(supplierId, "supplierId");
-
         List<Object[]> rows = stockHistoryRepository.getUpdateCountByItem(sid);
 
         return rows.stream()
@@ -123,16 +108,14 @@ public class StockAnalyticsService {
 
     /**
      * Identifies items below minimum stock threshold for a supplier.
-     *
-     * <p><strong>Business Rule</strong>: Low stock when {@code currentQuantity < minimumQuantity}.
+     * Low stock is defined as {@code currentQuantity < minimumQuantity}.
      *
      * @param supplierId supplier identifier (required)
-     * @return list of low-stock items (ordered by quantity asc, most critical first)
+     * @return low-stock items ordered by quantity ascending (most critical first)
      * @throws InvalidRequestException if {@code supplierId} is blank
      */
     public List<LowStockItemDTO> getItemsBelowMinimumStock(String supplierId) {
         String sid = requireNonBlank(supplierId, "supplierId");
-
         List<Object[]> rows = inventoryItemRepository.findItemsBelowMinimumStockFiltered(sid);
 
         return rows.stream()
@@ -146,19 +129,19 @@ public class StockAnalyticsService {
 
     /**
      * Aggregates stock movements into monthly buckets (stock-in vs stock-out).
+     * Defaults to last 30 days when bounds are null.
      *
-     * <p>Defaults to last 30 days if bounds are {@code null}.
-     *
-     * @param startDate inclusive start date (nullable)
-     * @param endDate inclusive end date (nullable)
-     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
-     * @return list of monthly movements (YYYY-MM format, ordered by month asc)
+     * @param startDate  inclusive start date (nullable)
+     * @param endDate    inclusive end date (nullable)
+     * @param supplierId optional supplier filter (null/blank = all suppliers)
+     * @return monthly movements in YYYY-MM format ordered by month ascending
      * @throws InvalidRequestException if {@code startDate > endDate}
      */
     public List<MonthlyStockMovementDTO> getMonthlyStockMovement(LocalDate startDate,
                                                                   LocalDate endDate,
                                                                   String supplierId) {
         LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);
+        // startOfDay/endOfDay so the inclusive bounds match TIMESTAMP column precision
         LocalDateTime from = startOfDay(window[0]);
         LocalDateTime to   = endOfDay(window[1]);
 
@@ -174,22 +157,20 @@ public class StockAnalyticsService {
     }
 
     /**
-     * Total number of items currently below minimum stock threshold.
-     *
-     * @return count of low-stock items (global KPI, no supplier filter)
+     * Total items currently below minimum stock threshold (global KPI, no supplier filter).
+     * @return count of low-stock items
      */
     public long lowStockCount() {
         return inventoryItemRepository.countWithQuantityBelow(5);
     }
 
     /**
-     * Applies flexible filter over stock updates (multi-criteria query).
+     * Applies flexible filter criteria over stock updates.
+     * Defaults to last 30 days when both date bounds are null.
      *
-     * <p>Defaults to last 30 days if date bounds are {@code null}.
-     *
-     * @param filter filter object with optional criteria (required, must not be {@code null})
-     * @return list of stock updates (ordered by createdAt DESC)
-     * @throws InvalidRequestException if filter is {@code null} or validation fails
+     * @param filter filter object with optional criteria (required, must not be null)
+     * @return stock updates matching criteria, ordered by createdAt descending
+     * @throws InvalidRequestException if filter is null or date/quantity ranges are inverted
      */
     public List<StockUpdateResultDTO> getFilteredStockUpdates(StockUpdateFilterDTO filter) {
         if (filter == null) {
@@ -199,28 +180,27 @@ public class StockAnalyticsService {
         LocalDateTime start = filter.getStartDate();
         LocalDateTime end   = filter.getEndDate();
 
-        // Apply 30-day default window
+        // Apply 30-day default only when both bounds are absent; partial bounds are honoured as-is
         if (start == null && end == null) {
-            end = LocalDateTime.now();
+            end   = LocalDateTime.now();
             start = end.minusDays(30);
         }
         if (start != null && end != null && start.isAfter(end)) {
             throw new InvalidRequestException("startDate must be on or before endDate");
         }
 
-        // Validate quantity range
         Integer min = filter.getMinChange();
         Integer max = filter.getMaxChange();
         if (min != null && max != null && min > max) {
             throw new InvalidRequestException("minChange must be <= maxChange");
         }
 
-        String itemName   = blankToNull(filter.getItemName());
-        String supplierId = blankToNull(filter.getSupplierId());
-        String createdBy  = blankToNull(filter.getCreatedBy());
-
         List<Object[]> rows = stockHistoryRepository.searchStockUpdates(
-                start, end, itemName, supplierId, createdBy, min, max
+                start, end,
+                blankToNull(filter.getItemName()),
+                blankToNull(filter.getSupplierId()),
+                blankToNull(filter.getCreatedBy()),
+                min, max
         );
 
         return rows.stream()
@@ -238,24 +218,23 @@ public class StockAnalyticsService {
     /**
      * Returns average unit price per day for an item within a date window.
      *
-     * @param itemId required inventory item identifier
-     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
-     * @param start inclusive start date (required)
-     * @param end inclusive end date (required)
-     * @return ordered list of day/price pairs (ascending by date)
+     * @param itemId     required inventory item identifier
+     * @param supplierId optional supplier filter (null/blank = all suppliers)
+     * @param start      inclusive start date (required)
+     * @param end        inclusive end date (required)
+     * @return day/price pairs ordered by date ascending
      * @throws InvalidRequestException if {@code itemId} is blank or {@code start > end}
      */
     public List<PriceTrendDTO> getPriceTrend(String itemId, String supplierId, LocalDate start, LocalDate end) {
         String iid = requireNonBlank(itemId, "itemId");
         LocalDate s = requireNonNull(start, "start");
         LocalDate e = requireNonNull(end, "end");
+
         if (s.isAfter(e)) {
             throw new InvalidRequestException("start must be on or before end");
         }
 
-        LocalDateTime from = startOfDay(s);
-        LocalDateTime to   = endOfDay(e);
-
-        return stockHistoryRepository.getItemPriceTrend(iid, supplierId, from, to);
+        // startOfDay/endOfDay so start and end dates are fully inclusive at TIMESTAMP precision
+        return stockHistoryRepository.getItemPriceTrend(iid, supplierId, startOfDay(s), endOfDay(e));
     }
 }

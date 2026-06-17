@@ -37,6 +37,7 @@ class StockHistoryCustomRepositoryImplTest {
     @Autowired private EntityManager em;
     @Autowired private StockHistoryRepository repository;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         em.createNativeQuery("DELETE FROM stock_history").executeUpdate();
@@ -66,6 +67,7 @@ class StockHistoryCustomRepositoryImplTest {
     /**
      * Supplier filter and ordering guarantees for streamEventsForWAC.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WacEventStreaming {
 
@@ -74,7 +76,7 @@ class StockHistoryCustomRepositoryImplTest {
             em.persist(sh("itemA", "sup1", at(2024,2,1, 9,0), +5, bd("4.00"), StockChangeReason.INITIAL_STOCK));
             em.persist(sh("itemA", "sup1", at(2024,2,1,10,0), -2, null, StockChangeReason.SOLD));
             em.persist(sh("itemB", "sup1", at(2024,2,2,10,0), +3, bd("5.50"), StockChangeReason.INITIAL_STOCK));
-            // different supplier — must be excluded
+            // different supplier â€” must be excluded
             em.persist(sh("itemA", "sup2", at(2024,2,1,11,0), +1, bd("6.00"), StockChangeReason.INITIAL_STOCK));
             em.flush();
             em.clear();

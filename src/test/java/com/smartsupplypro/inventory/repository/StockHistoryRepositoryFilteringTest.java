@@ -45,6 +45,7 @@ class StockHistoryRepositoryFilteringTest {
     private Supplier supplierA;
     private LocalDateTime now;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setup() {
         now = LocalDateTime.now(fixedClock);
@@ -87,6 +88,7 @@ class StockHistoryRepositoryFilteringTest {
     /**
      * Paginated date-range filtering with optional item name and supplier.
      */
+    @SuppressWarnings("unused")
     @Nested
     class DateRangeFiltering {
 
@@ -102,6 +104,7 @@ class StockHistoryRepositoryFilteringTest {
     /**
      * Lookup by item ID and change reason.
      */
+    @SuppressWarnings("unused")
     @Nested
     class ItemAndReasonLookup {
 

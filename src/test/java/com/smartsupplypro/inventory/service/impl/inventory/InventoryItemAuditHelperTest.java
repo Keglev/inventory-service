@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -21,170 +22,129 @@ import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.service.StockHistoryService;
 
 /**
- * Unit tests for {@link InventoryItemAuditHelper}.
- *
- * <p><strong>Why this suite exists</strong>:</p>
- * <ul>
- *   <li>Audit logging is business-critical and should not be left uncovered.</li>
- *   <li>Service tests often mock this helper, which can hide regressions in logging semantics.</li>
- * </ul>
- *
- * <p><strong>What is validated</strong>:</p>
- * <ul>
- *   <li>Correct reason and delta selection</li>
- *   <li>SecurityContext username usage and fallback behavior</li>
- *   <li>Conditional behavior for quantity changes (delta=0 => no log)</li>
- * </ul>
+ * Unit tests for {@link InventoryItemAuditHelper} business logic and exception handling behavior.
  */
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unused")
 class InventoryItemAuditHelperTest {
 
     @Mock private StockHistoryService stockHistoryService;
-
     @InjectMocks private InventoryItemAuditHelper helper;
 
     @AfterEach
-    @SuppressWarnings("unused")
     void tearDown() {
         SecurityContextHolder.clearContext();
     }
 
-    @Test
-    void logInitialStock_usesInitialStockReason_andAuthenticatedUsername() {
-        // GIVEN
-        authenticateAs("admin");
-        InventoryItem item = item("item-1", 5, new BigDecimal("12.50"));
+    /**
+     * Tests for {@code logInitialStock()}.
+     */
+    @SuppressWarnings("unused")
+    @Nested
+    class LogInitialStock {
 
-        // WHEN
-        helper.logInitialStock(item);
+        @Test
+        void should_log_initial_stock_reason_with_authenticated_username() {
+            authenticateAs("admin");
+            InventoryItem item = item("item-1", 5, new BigDecimal("12.50"));
 
-        // THEN
-        ArgumentCaptor<String> itemId = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Integer> delta = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<StockChangeReason> reason = ArgumentCaptor.forClass(StockChangeReason.class);
-        ArgumentCaptor<String> user = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<BigDecimal> price = ArgumentCaptor.forClass(BigDecimal.class);
+            helper.logInitialStock(item);
 
-        verify(stockHistoryService).logStockChange(itemId.capture(), delta.capture(), reason.capture(), user.capture(), price.capture());
+            ArgumentCaptor<String>            itemId = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<Integer>           delta  = ArgumentCaptor.forClass(Integer.class);
+            ArgumentCaptor<StockChangeReason> reason = ArgumentCaptor.forClass(StockChangeReason.class);
+            ArgumentCaptor<String>            user   = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<BigDecimal>        price  = ArgumentCaptor.forClass(BigDecimal.class);
 
-        assertEquals("item-1", itemId.getValue());
-        assertEquals(5, delta.getValue());
-        assertEquals(StockChangeReason.INITIAL_STOCK, reason.getValue());
-        assertEquals("admin", user.getValue());
-        assertEquals(new BigDecimal("12.50"), price.getValue());
+            verify(stockHistoryService).logStockChange(
+                    itemId.capture(), delta.capture(), reason.capture(), user.capture(), price.capture());
+
+            assertEquals("item-1",                        itemId.getValue());
+            assertEquals(5,                               delta.getValue());
+            assertEquals(StockChangeReason.INITIAL_STOCK, reason.getValue());
+            assertEquals("admin",                         user.getValue());
+            assertEquals(new BigDecimal("12.50"),         price.getValue());
+        }
     }
 
-    @Test
-    void logQuantityChange_doesNotLog_whenDeltaIsZero() {
-        // GIVEN
-        authenticateAs("admin");
-        InventoryItem item = item("item-1", 5, new BigDecimal("10.00"));
+    /**
+     * Tests for {@code logQuantityChange()} and {@code logQuantityAdjustment()}.
+     */
+    @SuppressWarnings("unused")
+    @Nested
+    class LogQuantityChange {
 
-        // WHEN
-        helper.logQuantityChange(item, 0);
+        @Test
+        void should_not_log_when_delta_is_zero() {
+            authenticateAs("admin");
+            helper.logQuantityChange(item("item-1", 5, new BigDecimal("10.00")), 0);
+            verify(stockHistoryService, never()).logStockChange(
+                    org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyInt(),
+                    org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
+                    org.mockito.ArgumentMatchers.any());
+        }
 
-        // THEN
-        verify(stockHistoryService, never()).logStockChange(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        @Test
+        void should_log_manual_update_reason_when_delta_is_non_zero() {
+            authenticateAs("admin");
+            helper.logQuantityChange(item("item-1", 5, new BigDecimal("10.00")), -2);
+            verify(stockHistoryService).logStockChange(
+                    "item-1", -2, StockChangeReason.MANUAL_UPDATE, "admin", new BigDecimal("10.00"));
+        }
+
+        @Test
+        void should_log_provided_reason_for_quantity_adjustment() {
+            authenticateAs("admin");
+            helper.logQuantityAdjustment(item("item-1", 5, new BigDecimal("10.00")),
+                    3, StockChangeReason.RETURNED_BY_CUSTOMER);
+            verify(stockHistoryService).logStockChange(
+                    "item-1", 3, StockChangeReason.RETURNED_BY_CUSTOMER, "admin", new BigDecimal("10.00"));
+        }
     }
 
-    @Test
-    void logQuantityChange_logsManualUpdate_whenDeltaNonZero() {
-        // GIVEN
-        authenticateAs("admin");
-        InventoryItem item = item("item-1", 5, new BigDecimal("10.00"));
+    /**
+     * Tests for {@code logPriceChange()}.
+     */
+    @SuppressWarnings("unused")
+    @Nested
+    class LogPriceChange {
 
-        // WHEN
-        helper.logQuantityChange(item, -2);
+        @Test
+        void should_log_price_change_reason_with_zero_delta() {
+            authenticateAs("admin");
+            helper.logPriceChange("item-1", new BigDecimal("99.99"));
+            verify(stockHistoryService).logStockChange(
+                    "item-1", 0, StockChangeReason.PRICE_CHANGE, "admin", new BigDecimal("99.99"));
+        }
 
-        // THEN
-        verify(stockHistoryService).logStockChange(
-                "item-1",
-                -2,
-                StockChangeReason.MANUAL_UPDATE,
-                "admin",
-                new BigDecimal("10.00")
-        );
+        @Test
+        void should_fall_back_to_system_username_when_no_authentication_present() {
+            SecurityContextHolder.clearContext();
+            helper.logPriceChange("item-1", new BigDecimal("1.00"));
+            verify(stockHistoryService).logStockChange(
+                    "item-1", 0, StockChangeReason.PRICE_CHANGE, "system", new BigDecimal("1.00"));
+        }
     }
 
-    @Test
-    void logQuantityAdjustment_logsProvidedReason() {
-        // GIVEN
-        authenticateAs("admin");
-        InventoryItem item = item("item-1", 5, new BigDecimal("10.00"));
+    /**
+     * Tests for {@code logFullRemoval()}.
+     */
+    @SuppressWarnings("unused")
+    @Nested
+    class LogFullRemoval {
 
-        // WHEN
-        helper.logQuantityAdjustment(item, 3, StockChangeReason.RETURNED_BY_CUSTOMER);
-
-        // THEN
-        verify(stockHistoryService).logStockChange(
-                "item-1",
-                3,
-            StockChangeReason.RETURNED_BY_CUSTOMER,
-                "admin",
-                new BigDecimal("10.00")
-        );
-    }
-
-    @Test
-    void logPriceChange_logsPriceChangeReason_andZeroDelta() {
-        // GIVEN
-        authenticateAs("admin");
-
-        // WHEN
-        helper.logPriceChange("item-1", new BigDecimal("99.99"));
-
-        // THEN
-        verify(stockHistoryService).logStockChange(
-                "item-1",
-                0,
-                StockChangeReason.PRICE_CHANGE,
-                "admin",
-                new BigDecimal("99.99")
-        );
-    }
-
-    @Test
-    void logFullRemoval_logsNegativeQuantity_andProvidedReason() {
-        // GIVEN
-        authenticateAs("admin");
-        InventoryItem item = item("item-1", 7, new BigDecimal("10.00"));
-
-        // WHEN
-        helper.logFullRemoval(item, StockChangeReason.SCRAPPED);
-
-        // THEN
-        verify(stockHistoryService).logStockChange(
-                "item-1",
-                -7,
-                StockChangeReason.SCRAPPED,
-                "admin",
-                new BigDecimal("10.00")
-        );
-    }
-
-    @Test
-    void usernameFallsBackToSystem_whenNoAuthenticationPresent() {
-        // GIVEN
-        SecurityContextHolder.clearContext();
-
-        // WHEN
-        helper.logPriceChange("item-1", new BigDecimal("1.00"));
-
-        // THEN
-        verify(stockHistoryService).logStockChange(
-                "item-1",
-                0,
-                StockChangeReason.PRICE_CHANGE,
-                "system",
-                new BigDecimal("1.00")
-        );
+        @Test
+        void should_log_negative_quantity_with_provided_reason() {
+            authenticateAs("admin");
+            helper.logFullRemoval(item("item-1", 7, new BigDecimal("10.00")), StockChangeReason.SCRAPPED);
+            verify(stockHistoryService).logStockChange(
+                    "item-1", -7, StockChangeReason.SCRAPPED, "admin", new BigDecimal("10.00"));
+        }
     }
 
     private static InventoryItem item(String id, int qty, BigDecimal price) {
         InventoryItem item = new InventoryItem();
-        item.setId(id);
-        item.setQuantity(qty);
-        item.setPrice(price);
+        item.setId(id); item.setQuantity(qty); item.setPrice(price);
         return item;
     }
 

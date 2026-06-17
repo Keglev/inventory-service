@@ -17,21 +17,17 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.StockHistory;
 
 /**
- * Unit tests for {@link StockHistoryService} service-level save behavior.
+ * Unit tests for {@link com.smartsupplypro.inventory.service.StockHistoryService}
+ * DTO-based save including supplierId resolution and ID generation.
  */
-@SuppressWarnings("unused")
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class StockHistoryServiceSaveTest extends StockHistoryServiceTestBase {
+@SuppressWarnings("unused")
+class StockHistoryServiceSaveTest extends StockHistoryServiceTestBase {
 
-    /**
-     * Verifies that {@link StockHistoryService#save(StockHistoryDTO)} validates the DTO, resolves supplierId,
-     * converts reason string to enum, and persists a StockHistory entity.
-     */
     @Test
-    void save_shouldPersistMappedEntity_andResolveSupplierId() {
-        // GIVEN
+    void should_persist_mapped_entity_and_resolve_supplier_id_when_saving_dto() {
         StockHistoryDTO dto = StockHistoryDTO.builder()
                 .itemId(ITEM_1)
                 .change(2)
@@ -40,10 +36,8 @@ public class StockHistoryServiceSaveTest extends StockHistoryServiceTestBase {
                 .priceAtChange(new BigDecimal("120.00"))
                 .build();
 
-        // WHEN
         service.save(dto);
 
-        // THEN
         StockHistory saved = captureSavedHistory();
         assertNotNull(saved.getId());
         assertTrue(saved.getId().startsWith("sh-" + ITEM_1 + "-"));

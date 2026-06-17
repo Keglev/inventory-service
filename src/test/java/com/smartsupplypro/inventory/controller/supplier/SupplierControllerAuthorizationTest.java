@@ -42,6 +42,7 @@ class SupplierControllerAuthorizationTest {
 
     SupplierDTO dto;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         dto = SupplierDTO.builder()

@@ -15,19 +15,11 @@ import lombok.RequiredArgsConstructor;
 /**
  * Audit trail helper for inventory item operations.
  *
- * <p>Centralizes stock history logging patterns:
- * <ul>
- *   <li>Initial stock logging (INITIAL_STOCK reason)</li>
- *   <li>Quantity adjustments (MANUAL_UPDATE reason)</li>
- *   <li>Price changes (PRICE_CHANGE reason with delta=0)</li>
- *   <li>Full removals (deletion reasons with negative quantity)</li>
- * </ul>
+ * <p>Centralises stock history logging for initial stock, quantity adjustments,
+ * price changes, and full removals. All entries capture: itemId, quantityDelta,
+ * reason, username, and price snapshot.</p>
  *
- * <p>All audit entries capture: itemId, quantityDelta, reason, username, price snapshot.
- *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * @see StockHistoryService
  */
 @Component
 @RequiredArgsConstructor
@@ -36,10 +28,7 @@ public class InventoryItemAuditHelper {
     private final StockHistoryService stockHistoryService;
 
     /**
-     * Logs initial stock entry for newly created item.
-     *
-     * <p>Creates INITIAL_STOCK entry with full quantity and price snapshot.
-     *
+     * Logs an INITIAL_STOCK entry with the full opening quantity and price snapshot.
      * @param item the newly created inventory item
      */
     public void logInitialStock(InventoryItem item) {
@@ -53,11 +42,10 @@ public class InventoryItemAuditHelper {
     }
 
     /**
-     * Logs quantity adjustment if delta is non-zero.
+     * Logs a MANUAL_UPDATE entry when the quantity actually changed.
+     * No entry is created for zero-delta updates to keep the audit trail clean.
      *
-     * <p>Creates MANUAL_UPDATE entry only if quantity changed.
-     *
-     * @param item the updated item
+     * @param item          the updated item
      * @param quantityDelta the quantity change (positive or negative)
      */
     public void logQuantityChange(InventoryItem item, int quantityDelta) {
@@ -73,11 +61,10 @@ public class InventoryItemAuditHelper {
     }
 
     /**
-     * Logs quantity adjustment with specific reason.
-     *
-     * @param item the item being adjusted
-     * @param delta the quantity change
-     * @param reason the business reason for adjustment
+     * Logs a quantity adjustment with an explicit reason code.
+     * @param item   the item being adjusted
+     * @param delta  the quantity change
+     * @param reason the business reason for the adjustment
      */
     public void logQuantityAdjustment(InventoryItem item, int delta, StockChangeReason reason) {
         stockHistoryService.logStockChange(
@@ -90,11 +77,8 @@ public class InventoryItemAuditHelper {
     }
 
     /**
-     * Logs price change with zero quantity delta.
-     *
-     * <p>Creates PRICE_CHANGE entry to preserve price history timeline.
-     *
-     * @param itemId the item identifier
+     * Logs a PRICE_CHANGE entry with a zero quantity delta to preserve the price history timeline.
+     * @param itemId   the item identifier
      * @param newPrice the new unit price
      */
     public void logPriceChange(String itemId, BigDecimal newPrice) {
@@ -108,9 +92,8 @@ public class InventoryItemAuditHelper {
     }
 
     /**
-     * Logs full stock removal before item deletion.
-     *
-     * @param item the item being deleted
+     * Logs full stock removal before an item is deleted.
+     * @param item   the item being deleted
      * @param reason the deletion reason
      */
     public void logFullRemoval(InventoryItem item, StockChangeReason reason) {
@@ -124,9 +107,8 @@ public class InventoryItemAuditHelper {
     }
 
     /**
-     * Retrieves current authenticated username.
-     *
-     * @return authenticated username, or "system" if no authentication present
+     * Retrieves the current authenticated username from the Spring Security context.
+     * Returns "system" when no authentication is present (e.g. batch jobs).
      */
     private String currentUsername() {
         Authentication a = SecurityContextHolder.getContext() != null

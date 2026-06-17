@@ -51,6 +51,7 @@ class StockHistoryControllerSearchTest {
 
     private StockHistoryDTO history;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         history = StockHistoryDTO.builder()

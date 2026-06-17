@@ -14,11 +14,10 @@ import com.smartsupplypro.inventory.repository.AppUserRepository;
 /**
  * Provisions local user accounts on first OAuth2 login.
  *
- * <p>Extracted from
- * {@link com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler}
- * to keep that handler focused on authentication flow coordination.
- * Role defaults to {@link Role#USER}; admin promotion is handled separately
- * by {@link CustomOAuth2UserService} via the {@code APP_ADMIN_EMAILS} allow-list.</p>
+ * <p>Extracted from {@link com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler}
+ * to keep that handler focused on authentication-flow coordination.
+ * Role defaults to {@link Role#USER}; admin promotion is handled by
+ * {@link CustomOAuth2UserService} via the {@code APP_ADMIN_EMAILS} allow-list.</p>
  *
  * @see CustomOAuth2UserService
  * @see com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler

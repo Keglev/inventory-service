@@ -55,6 +55,7 @@ class InventoryItemControllerRenameTest {
     }
 
     /** Rename succeeds for authorized ADMIN requests. */
+    @SuppressWarnings("unused")
     @Nested
     class WhenAuthorizedAdmin {
 
@@ -83,6 +84,7 @@ class InventoryItemControllerRenameTest {
     }
 
     /** Rename rejected for insufficient authorization. */
+    @SuppressWarnings("unused")
     @Nested
     class WhenUnauthorized {
 
@@ -103,6 +105,7 @@ class InventoryItemControllerRenameTest {
     }
 
     /** Rename rejected for invalid name input. */
+    @SuppressWarnings("unused")
     @Nested
     class WhenNameInvalid {
 
@@ -137,6 +140,7 @@ class InventoryItemControllerRenameTest {
     }
 
     /** Rename rejected for duplicate name constraint. */
+    @SuppressWarnings("unused")
     @Nested
     class WhenDuplicate {
 
@@ -167,6 +171,7 @@ class InventoryItemControllerRenameTest {
     }
 
     /** Resource not found scenario. */
+    @SuppressWarnings("unused")
     @Nested
     class WhenNotFound {
 

@@ -39,6 +39,7 @@ import com.smartsupplypro.inventory.model.InventoryItem;
 @SuppressWarnings({"unused", "java:S1144"}) // JUnit lifecycle methods can be flagged as "unused" by some analyzers.
 class InventoryItemSecurityValidatorTest {
 
+    @SuppressWarnings("unused")
     @AfterEach
     void tearDown() {
         clearSecurityContext();

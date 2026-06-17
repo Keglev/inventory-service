@@ -8,46 +8,25 @@ import java.time.LocalTime;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 
 /**
- * Type conversion utilities for analytics database projections.
+ * Type-conversion utilities for analytics native SQL projections.
  *
- * <p>Handles type coercion from native SQL queries (Object[] projections) to Java types,
- * accounting for vendor differences between H2 (test) and Oracle (prod).
- *
- * <p><strong>Supported Conversions</strong>:
- * <ul>
- *   <li>DATE/TIMESTAMP → LocalDate/LocalDateTime</li>
- *   <li>Numeric projections → Number (handles null as zero)</li>
- *   <li>String normalization (blank → null)</li>
- *   <li>Date window defaults (30-day lookback)</li>
- * </ul>
- *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * <p>Handles vendor differences between H2 (test) and Oracle (prod) by
+ * accepting multiple date/numeric types from {@code Object[]} projections
+ * and coercing them to standard Java types.</p>
  */
 final class AnalyticsConverterHelper {
 
-    private AnalyticsConverterHelper() {
-        // Utility class - prevent instantiation
-    }
+    private AnalyticsConverterHelper() {}
 
-    // ==================================================================================
-    // Date/Time Conversions
-    // ==================================================================================
+    // ── Date/Time conversions ─────────────────────────────────────────────────
 
     /**
-     * Converts a date-like value to {@link LocalDate}.
+     * Converts a date-like projection value to {@link LocalDate}.
+     * Accepts {@code LocalDate}, {@code java.sql.Date}, {@code java.sql.Timestamp},
+     * and {@code CharSequence} values starting with {@code yyyy-MM-dd}.
      *
-     * <p>Accepts:
-     * <ul>
-     *   <li>{@link LocalDate}</li>
-     *   <li>{@link java.sql.Date} (converted via {@code toLocalDate()})</li>
-     *   <li>{@link java.sql.Timestamp} (converted via {@code toLocalDateTime().toLocalDate()})</li>
-     *   <li>{@link CharSequence} in formats starting with {@code yyyy-MM-dd}</li>
-     * </ul>
-     *
-     * @param o raw value from native projections (DATE/TIMESTAMP/STRING)
-     * @return the corresponding {@link LocalDate}
+     * @param o raw value from a native projection
+     * @return corresponding {@link LocalDate}
      * @throws IllegalStateException if the value cannot be interpreted as a date
      */
     static LocalDate asLocalDate(Object o) {
@@ -57,15 +36,12 @@ final class AnalyticsConverterHelper {
 
         if (o instanceof CharSequence cs) {
             String s = cs.toString();
-            if (s.length() >= 10) {
-                // e.g. "2025-03-15 00:00:00.0" → "2025-03-15"
-                return LocalDate.parse(s.substring(0, 10));
-            }
+            if (s.length() >= 10) return LocalDate.parse(s.substring(0, 10));
         }
 
-        // Last resort: try toString().substring(0,10) if it looks like a timestamp literal
+        // Last resort: toString() on timestamp literals from H2 (e.g. "2025-03-15 00:00:00.0")
         String s = String.valueOf(o);
-        if (s != null && s.length() >= 10 && s.charAt(4) == '-' && s.charAt(7) == '-') {
+        if (s.length() >= 10 && s.charAt(4) == '-' && s.charAt(7) == '-') {
             return LocalDate.parse(s.substring(0, 10));
         }
 
@@ -74,10 +50,10 @@ final class AnalyticsConverterHelper {
     }
 
     /**
-     * Converts a timestamp-like object to {@link LocalDateTime}.
+     * Converts a timestamp-like projection value to {@link LocalDateTime}.
      *
-     * @param o timestamp value (LocalDateTime or java.sql.Timestamp)
-     * @return the corresponding {@link LocalDateTime}
+     * @param o timestamp value ({@code LocalDateTime} or {@code java.sql.Timestamp})
+     * @return corresponding {@link LocalDateTime}
      * @throws IllegalStateException if the object type is unsupported
      */
     static LocalDateTime asLocalDateTime(Object o) {
@@ -88,9 +64,10 @@ final class AnalyticsConverterHelper {
 
     /**
      * Safely unboxes any numeric projection value via {@link Number}.
+     * Null is treated as zero to avoid NPEs in aggregation results.
      *
-     * @param o numeric value (null, Number, or BigDecimal)
-     * @return the corresponding {@link Number} (null treated as zero)
+     * @param o numeric value (null, {@link Number}, or {@link java.math.BigDecimal})
+     * @return corresponding {@link Number}
      */
     static Number asNumber(Object o) {
         if (o == null) return java.math.BigDecimal.ZERO;
@@ -99,17 +76,15 @@ final class AnalyticsConverterHelper {
         throw new IllegalStateException("Expected numeric type but got: " + o);
     }
 
-    // ==================================================================================
-    // Date Window Utilities
-    // ==================================================================================
+    // ── Date window utilities ─────────────────────────────────────────────────
 
     /**
-     * Applies defaults for a date window (last 30 days ending today) and validates {@code start <= end}.
+     * Applies a 30-day default window when bounds are null and validates {@code start <= end}.
      *
      * @param start nullable inclusive start date
-     * @param end nullable inclusive end date
-     * @return a 2-element array containing the effective start and end
-     * @throws InvalidRequestException if the effective start is after the effective end
+     * @param end   nullable inclusive end date
+     * @return 2-element array {@code [effectiveStart, effectiveEnd]}
+     * @throws InvalidRequestException if effective start is after effective end
      */
     static LocalDate[] defaultAndValidateDateWindow(LocalDate start, LocalDate end) {
         LocalDate s = (start == null) ? LocalDate.now().minusDays(30) : start;
@@ -120,46 +95,28 @@ final class AnalyticsConverterHelper {
         return new LocalDate[]{s, e};
     }
 
-    /**
-     * Converts date to start of day (00:00:00.000000000).
-     *
-     * @param d the date
-     * @return LocalDateTime at start of day
-     */
+    /** Returns the start-of-day boundary (00:00:00) for the given date (inclusive lower bound). */
     static LocalDateTime startOfDay(LocalDate d) {
         return LocalDateTime.of(d, LocalTime.MIN);
     }
 
-    /**
-     * Converts date to end of day (23:59:59.999999999).
-     *
-     * @param d the date
-     * @return LocalDateTime at end of day
-     */
+    /** Returns the end-of-day boundary (23:59:59.999…) for the given date (inclusive upper bound). */
     static LocalDateTime endOfDay(LocalDate d) {
         return LocalDateTime.of(d, LocalTime.MAX);
     }
 
-    // ==================================================================================
-    // String Utilities
-    // ==================================================================================
+    // ── String utilities ──────────────────────────────────────────────────────
 
     /**
-     * Normalizes a String to {@code null} if blank; otherwise returns a trimmed value.
-     *
-     * @param s the string to normalize
-     * @return null if blank, trimmed value otherwise
+     * Returns null if the string is blank, otherwise a trimmed value.
+     * Used to normalize optional filter parameters before passing to repository queries.
      */
     static String blankToNull(String s) {
         return (s == null || s.trim().isEmpty()) ? null : s.trim();
     }
 
     /**
-     * Ensures a String is non-blank; returns trimmed value or throws.
-     *
-     * @param v the value to check
-     * @param name the parameter name for error message
-     * @return trimmed non-blank value
+     * Returns the trimmed value or throws if the string is blank.
      * @throws InvalidRequestException if value is blank
      */
     static String requireNonBlank(String v, String name) {
@@ -170,11 +127,7 @@ final class AnalyticsConverterHelper {
     }
 
     /**
-     * Ensures a reference is non-null; returns it or throws.
-     *
-     * @param v the value to check
-     * @param name the parameter name for error message
-     * @return the non-null value
+     * Returns the value or throws if null.
      * @throws InvalidRequestException if value is null
      */
     static <T> T requireNonNull(T v, String name) {

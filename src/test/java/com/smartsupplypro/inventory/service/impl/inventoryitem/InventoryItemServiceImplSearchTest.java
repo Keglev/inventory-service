@@ -5,7 +5,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,30 +29,14 @@ import com.smartsupplypro.inventory.service.StockHistoryService;
 import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 
 /**
- * Tests for {@link InventoryItemServiceImpl} search and paging operations.
- *
- * <p><strong>Operation Coverage</strong></p>
- * <ul>
- *   <li><b>findByNameSortedByPrice:</b> Paginated search delegating to repository with DTO mapping</li>
- * </ul>
- *
- * <p><strong>Validation Checks</strong></p>
- * <ul>
- *   <li>Repository method is called with correct pagination parameters</li>
- *   <li>Returned DTOs are correctly mapped from entities (ID, name, price, quantity preserved)</li>
- *   <li>Page metadata (totalElements, content size) is accurate</li>
- * </ul>
- *
- * <p><strong>Design Notes</strong></p>
- * <ul>
- *   <li>Search is delegated entirely to repository layer (service is thin wrapper).</li>
- *   <li>Mapper is static utility; no bean dependency needed.</li>
- * </ul>
+ * Unit tests for {@link InventoryItemServiceImpl#findByNameSortedByPrice(String, org.springframework.data.domain.Pageable)}
+ * covering pagination delegation and DTO mapping.
  */
-@SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
+@SuppressWarnings("unused")
 class InventoryItemServiceImplSearchTest {
+
     @Mock private InventoryItemRepository repository;
     @Mock private SupplierRepository supplierRepository;
     @Mock private StockHistoryService stockHistoryService;
@@ -63,57 +46,34 @@ class InventoryItemServiceImplSearchTest {
 
     @BeforeEach
     void setup() {
-        // Set up OAuth2 authenticated context (simulates logged-in ADMIN user)
         InventoryItemServiceImplTestHelper.authenticateAsOAuth2("admin", "ADMIN");
-        // Mock supplier repository - all suppliers exist for tests
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
     }
 
-    /**
-     * Validates that search delegates to repository and maps results to DTO.
-     * Scenario: Repository returns paginated items; service maps them to DTOs.
-     * Expected: Correct DTOs with preserved ID, name, price, quantity fields.
-     */
     @Test
-    @DisplayName("findByNameSortedByPrice: delegates to repository and maps to DTO")
-    void findByNameSortedByPrice_delegatesToRepository() {
-        // Build first entity with basic fields
+    void should_delegate_to_repository_and_map_results_to_dtos() {
         InventoryItem e1 = new InventoryItem();
-        e1.setId("i-1");
-        e1.setName("AAA");
-        e1.setPrice(new BigDecimal("10.00"));
-        e1.setQuantity(5);
-        e1.setMinimumQuantity(1);
-        e1.setSupplierId("S1");
+        e1.setId("i-1"); e1.setName("AAA");
+        e1.setPrice(new BigDecimal("10.00")); e1.setQuantity(5);
+        e1.setMinimumQuantity(1); e1.setSupplierId("S1");
 
-        // Build second entity with different price
         InventoryItem e2 = new InventoryItem();
-        e2.setId("i-2");
-        e2.setName("BBB");
-        e2.setPrice(new BigDecimal("20.00"));
-        e2.setQuantity(7);
-        e2.setMinimumQuantity(1);
-        e2.setSupplierId("S1");
+        e2.setId("i-2"); e2.setName("BBB");
+        e2.setPrice(new BigDecimal("20.00")); e2.setQuantity(7);
+        e2.setMinimumQuantity(1); e2.setSupplierId("S1");
 
-        // Create page result with both items
-        var page = new PageImpl<>(List.of(e1, e2));
-        // Mock repository to return page when search is called
         when(repository.findByNameSortedByPrice(anyString(), any(org.springframework.data.domain.Pageable.class)))
-                .thenReturn(page);
+                .thenReturn(new PageImpl<>(List.of(e1, e2)));
 
-        // Execute search with pagination
         var result = service.findByNameSortedByPrice("z", PageRequest.of(0, 10));
 
-        // Verify page metadata and DTO mapping
         assertEquals(2, result.getTotalElements());
-        // Verify first item DTO has correct ID and price from entity
         assertEquals("i-1", result.getContent().get(0).getId());
         assertEquals(new BigDecimal("10.00"), result.getContent().get(0).getPrice());
     }
 
     @Test
-    @DisplayName("findByNameSortedByPrice: null page from repository -> returns Page.empty()")
-    void findByNameSortedByPrice_nullPage_returnsEmpty() {
+    void should_return_empty_page_when_repository_returns_null() {
         when(repository.findByNameSortedByPrice(anyString(), any(org.springframework.data.domain.Pageable.class)))
                 .thenReturn(null);
 

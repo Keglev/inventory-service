@@ -34,6 +34,7 @@ class CookieOAuth2AuthorizationRequestRepositorySaveTest {
     /**
      * Behavior when the request passed to save is null.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenRequestIsNull {
 
@@ -60,6 +61,7 @@ class CookieOAuth2AuthorizationRequestRepositorySaveTest {
     /**
      * Behavior for the optional SSP_RETURN origin cookie.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenReturnParamIsProvided {
 
@@ -115,6 +117,7 @@ class CookieOAuth2AuthorizationRequestRepositorySaveTest {
     /**
      * Behavior when the request is not over HTTPS.
      */
+    @SuppressWarnings("unused")
     @Nested
     class WhenRequestIsInsecure {
 

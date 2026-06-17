@@ -18,22 +18,20 @@ import com.smartsupplypro.inventory.mapper.StockHistoryMapper;
 import com.smartsupplypro.inventory.model.StockHistory;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
-import com.smartsupplypro.inventory.service.StockHistoryService;
+import com.smartsupplypro.inventory.service.impl.StockHistoryServiceImpl;
+
 
 /**
- * Shared fixture for StockHistoryService unit tests.
- *
- * <p><strong>Intent</strong>: keep test classes small by centralizing common constants, default
- * repository stubs, and mapper assertions.</p>
+ * Shared fixture for {@link StockHistoryService} unit tests.
  */
 @SuppressWarnings("unused")
 abstract class StockHistoryServiceTestBase {
 
-    protected static final String ITEM_1 = "item-1";
-    protected static final String ITEM_2 = "new-id";
+    protected static final String ITEM_1   = "item-1";
+    protected static final String ITEM_2   = "new-id";
     protected static final String SUPPLIER_1 = "S1";
     protected static final String SUPPLIER_2 = "S2";
-    protected static final String ADMIN = "admin";
+    protected static final String ADMIN    = "admin";
 
     @Mock
     protected StockHistoryRepository repository;
@@ -45,12 +43,8 @@ abstract class StockHistoryServiceTestBase {
     protected StockHistoryMapper mapper = new StockHistoryMapper();
 
     @InjectMocks
-    protected StockHistoryService service;
+    protected StockHistoryServiceImpl service;
 
-    /**
-     * Initializes mock objects before each test case.
-     * Sets up default mock behavior for common inventory items.
-     */
     @BeforeEach
     void setUpBase() {
         when(itemRepository.findById(ITEM_1)).thenReturn(Optional.of(mkItem(ITEM_1, SUPPLIER_1)));
@@ -65,34 +59,19 @@ abstract class StockHistoryServiceTestBase {
     }
 
     protected static StockHistory mkHistory(
-            String id,
-            String itemId,
-            String supplierId,
-            int change,
-            StockChangeReason reason,
-            String createdBy,
-            LocalDateTime timestamp,
-            BigDecimal priceAtChange) {
+            String id, String itemId, String supplierId,
+            int change, StockChangeReason reason,
+            String createdBy, LocalDateTime timestamp, BigDecimal priceAtChange) {
         return StockHistory.builder()
-                .id(id)
-                .itemId(itemId)
-                .supplierId(supplierId)
-                .change(change)
-                .reason(reason)
-                .createdBy(createdBy)
-                .timestamp(timestamp)
-                .priceAtChange(priceAtChange)
+                .id(id).itemId(itemId).supplierId(supplierId)
+                .change(change).reason(reason).createdBy(createdBy)
+                .timestamp(timestamp).priceAtChange(priceAtChange)
                 .build();
     }
 
     protected static void assertDto(
-            StockHistoryDTO dto,
-            String itemId,
-            int change,
-            StockChangeReason reason,
-            String createdBy,
-            LocalDateTime timestamp,
-            BigDecimal priceAtChange) {
+            StockHistoryDTO dto, String itemId, int change, StockChangeReason reason,
+            String createdBy, LocalDateTime timestamp, BigDecimal priceAtChange) {
         org.junit.jupiter.api.Assertions.assertEquals(itemId, dto.itemId());
         org.junit.jupiter.api.Assertions.assertEquals(change, dto.change());
         org.junit.jupiter.api.Assertions.assertEquals(reason.name(), dto.reason());

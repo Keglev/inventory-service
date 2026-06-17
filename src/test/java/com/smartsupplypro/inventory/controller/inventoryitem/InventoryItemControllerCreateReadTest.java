@@ -74,6 +74,7 @@ class InventoryItemControllerCreateReadTest {
     }
 
     /** POST /api/inventory create scenarios. */
+    @SuppressWarnings("unused")
     @Nested
     class CreateItem {
 
@@ -132,6 +133,7 @@ class InventoryItemControllerCreateReadTest {
     }
 
     /** GET read and count scenarios. */
+    @SuppressWarnings("unused")
     @Nested
     class ReadAndCountItems {
 

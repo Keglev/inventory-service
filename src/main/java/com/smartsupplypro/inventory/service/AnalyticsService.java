@@ -14,101 +14,89 @@ import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
 import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
 
 /**
- * Service interface for inventory analytics and dashboard reporting.
+ * Service contract for inventory analytics and dashboard reporting.
  *
- * <p><strong>Capabilities</strong>:
- * <ul>
- *   <li><strong>Stock Valuation</strong>: Daily trends over time with supplier filtering</li>
- *   <li><strong>Supplier Analytics</strong>: Per-supplier stock distribution and performance</li>
- *   <li><strong>Low Stock Alerts</strong>: Items below minimum thresholds</li>
- *   <li><strong>Movement Analysis</strong>: Monthly stock-in/stock-out summaries</li>
- *   <li><strong>Financial Reporting</strong>: Weighted Average Cost (WAC) summaries</li>
- *   <li><strong>Price Trends</strong>: Historical price tracking per item</li>
- * </ul>
+ * <p>Defines stock valuation trends, supplier metrics, low-stock alerts,
+ * movement summaries, price history, and WAC financial reporting.</p>
  *
  * @see AnalyticsServiceImpl
  */
 public interface AnalyticsService {
 
     /**
-     * Retrieves daily stock value over date range with optional supplier filter.
+     * Retrieves daily stock value over a date range with optional supplier filter.
+     * Date bounds default to the last 30 days when null.
      *
-     * @param startDate start date (nullable, defaults to last 30 days)
-     * @param endDate end date (nullable, defaults to today)
+     * @param startDate  start date (nullable)
+     * @param endDate    end date (nullable)
      * @param supplierId optional supplier filter
-     * @return list of daily stock valuations
+     * @return daily stock valuations ordered by date ascending
      */
     List<StockValueOverTimeDTO> getTotalStockValueOverTime(LocalDate startDate, LocalDate endDate, String supplierId);
 
     /**
      * Returns current stock quantities grouped by supplier.
-     *
      * @return per-supplier inventory totals
      */
     List<StockPerSupplierDTO> getTotalStockPerSupplier();
 
     /**
-     * Returns item update frequency for given supplier.
-     *
+     * Returns stock update frequency per item for a given supplier.
      * @param supplierId supplier ID (required)
-     * @return update counts per item
+     * @return update counts per item ordered by count descending
      */
     List<ItemUpdateFrequencyDTO> getItemUpdateFrequency(String supplierId);
 
     /**
-     * Identifies items below minimum stock threshold for given supplier.
-     *
+     * Identifies items below minimum stock threshold for a given supplier.
      * @param supplierId supplier ID (required)
-     * @return low-stock items requiring attention
+     * @return low-stock items ordered by current quantity ascending
      */
     List<LowStockItemDTO> getItemsBelowMinimumStock(String supplierId);
 
     /**
-     * Returns monthly stock-in/stock-out aggregations with optional filters.
+     * Returns monthly stock-in/out aggregations with optional filters.
+     * Date bounds default to the last 30 days when null.
      *
-     * @param startDate start date (nullable, defaults to last 30 days)
-     * @param endDate end date (nullable, defaults to today)
+     * @param startDate  start date (nullable)
+     * @param endDate    end date (nullable)
      * @param supplierId optional supplier filter
-     * @return monthly movement summaries
+     * @return monthly movement summaries ordered by month ascending
      */
     List<MonthlyStockMovementDTO> getMonthlyStockMovement(LocalDate startDate, LocalDate endDate, String supplierId);
 
     /**
      * Retrieves stock history events matching advanced filter criteria.
-     *
-     * @param filter time, supplier, user, and quantity filters
-     * @return filtered stock update events
+     * @param filter time, supplier, user, and quantity filters (required)
+     * @return filtered stock update events ordered by timestamp descending
      */
     List<StockUpdateResultDTO> getFilteredStockUpdates(StockUpdateFilterDTO filter);
 
     /**
-     * Retrieves historical price trend data for given item.
-     *
-     * @param itemId inventory item ID (required)
+     * Retrieves historical price trend data for a given item.
+     * @param itemId     item ID (required)
      * @param supplierId optional supplier filter
-     * @param start start date (inclusive)
-     * @param end end date (inclusive)
-     * @return price history data points
+     * @param start      start date (inclusive, required)
+     * @param end        end date (inclusive, required)
+     * @return price data points ordered by date ascending
      */
     List<PriceTrendDTO> getPriceTrend(String itemId, String supplierId, LocalDate start, LocalDate end);
 
     /**
-     * Retrieves Weighted Average Cost (WAC) financial summary for date range.
-     * Includes opening/ending inventory, purchases, COGS, write-offs, and returns.
+     * Retrieves WAC financial summary covering opening/ending inventory,
+     * purchases, COGS, write-offs, and returns for a date range.
      *
-     * @param from start date (inclusive)
-     * @param to end date (inclusive)
+     * @param from       start date (inclusive, required)
+     * @param to         end date (inclusive, required)
      * @param supplierId optional supplier filter
-     * @return aggregated financial metrics
+     * @return aggregated WAC financial metrics
      */
     FinancialSummaryDTO getFinancialSummaryWAC(LocalDate from, LocalDate to, String supplierId);
 
     /**
      * Counts items below minimum stock threshold across all suppliers (KPI).
-     *
      * @return total count of low-stock items
      */
     long lowStockCount();
 
 }
-

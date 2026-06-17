@@ -3,226 +3,101 @@ package com.smartsupplypro.inventory.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
-import com.smartsupplypro.inventory.mapper.StockHistoryMapper;
-import com.smartsupplypro.inventory.model.StockHistory;
-import com.smartsupplypro.inventory.repository.InventoryItemRepository;
-import com.smartsupplypro.inventory.repository.StockHistoryRepository;
-import com.smartsupplypro.inventory.validation.StockHistoryValidator;
-
-import lombok.RequiredArgsConstructor;
 
 /**
- * Service for immutable stock movement event logging and audit trail management.
+ * Service contract for immutable stock movement event logging and audit trail management.
  *
- * <p><strong>Characteristics</strong>:
- * <ul>
- *   <li><strong>Event Sourcing</strong>: Immutable history records for all inventory changes</li>
- *   <li><strong>Denormalization</strong>: Stores supplier ID for efficient analytics queries</li>
- *   <li><strong>Price Snapshots</strong>: Captures unit price at transaction time for WAC</li>
- *   <li><strong>Audit Compliance</strong>: Tracks user, timestamp, reason for all changes</li>
- *   <li><strong>Read-Only Operations</strong>: Query methods with filtering and pagination</li>
- * </ul>
+ * <p>Defines operations for logging stock changes with optional price snapshots,
+ * querying history by item or reason, paginated filtered search, and deletion recording.</p>
  *
- * <p><strong>Architecture Documentation</strong>:
- * For event sourcing patterns, denormalization strategy, compliance features, and integration details, see:
- * <a href="../../../../../docs/architecture/services/stock-history-service.md">Stock History Service Architecture</a>
- *
- * @see StockHistory
- * @see StockHistoryValidator
- * @see StockHistoryMapper
+ * @see com.smartsupplypro.inventory.service.impl.StockHistoryServiceImpl
+ * @see com.smartsupplypro.inventory.model.StockHistory
+ * @see com.smartsupplypro.inventory.validation.StockHistoryValidator
  */
-@Service
-@RequiredArgsConstructor
-public class StockHistoryService {
-
-    private final StockHistoryRepository repository;
-    private final InventoryItemRepository itemRepository;
-    private final StockHistoryMapper mapper;
-
-    /**
-     * Resolves supplier ID for denormalization in stock history records.
-     * @param itemId inventory item ID
-     * @return supplier ID or null if item/supplier not found
-     */
-    private String resolveSupplierId(String itemId) {
-        // Enterprise Comment: Denormalization for Analytics Performance
-        // Supplier ID stored directly on history record to avoid joins
-        // Enables efficient supplier-centric analytics queries with index: (SUPPLIER_ID, CREATED_AT)
-        return itemRepository.findById(itemId)
-                .map(item -> item.getSupplierId())
-                .orElse(null); // keep null-safe; index still works for present values
-    }
+public interface StockHistoryService {
 
     /**
      * Retrieves all stock history entries.
-     * @return list of stock history DTOs
+     * @return list of all stock history DTOs
      */
-    public List<StockHistoryDTO> getAll() {
-        return repository.findAll().stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
-    }
+    List<StockHistoryDTO> getAll();
 
     /**
-     * Retrieves stock history for specific inventory item (newest first).
+     * Retrieves stock history for a specific inventory item, newest first.
      * @param itemId inventory item ID
-     * @return list of stock history DTOs ordered by timestamp descending
+     * @return stock history DTOs ordered by timestamp descending
      */
-    public List<StockHistoryDTO> getByItemId(String itemId) {
-        // Prefer ordered repo method (added in our repository suggestions)
-        var list = repository.findByItemIdOrderByTimestampDesc(itemId);
-        return list.stream().map(mapper::toDTO).toList();
-    }
+    List<StockHistoryDTO> getByItemId(String itemId);
 
     /**
-     * Retrieves stock history for specific change reason (newest first).
+     * Retrieves stock history filtered by change reason, newest first.
      * @param reason stock change reason filter
-     * @return list of stock history DTOs ordered by timestamp descending
+     * @return stock history DTOs ordered by timestamp descending
      */
-    public List<StockHistoryDTO> getByReason(StockChangeReason reason) {
-        var list = repository.findByReasonOrderByTimestampDesc(reason);
-        return list.stream().map(mapper::toDTO).toList();
-    }
+    List<StockHistoryDTO> getByReason(StockChangeReason reason);
 
     /**
      * Retrieves paginated stock history filtered by date range, item name, and supplier.
-     * @param startDate start date (inclusive)
-     * @param endDate end date (inclusive)
-     * @param itemName item name filter (partial match)
-     * @param supplierId supplier ID filter
-     * @param pageable pagination parameters
+     * @param startDate  start date (inclusive, nullable)
+     * @param endDate    end date (inclusive, nullable)
+     * @param itemName   item name filter (partial match, nullable)
+     * @param supplierId supplier ID filter (nullable)
+     * @param pageable   pagination parameters
      * @return page of stock history DTOs
      */
-    public Page<StockHistoryDTO> findFiltered(LocalDateTime startDate,
-                                              LocalDateTime endDate,
-                                              String itemName,
-                                              String supplierId,
-                                              Pageable pageable) {
-        return repository.findFiltered(startDate, endDate, itemName, supplierId, pageable)
-                .map(mapper::toDTO);
-    }
+    Page<StockHistoryDTO> findFiltered(LocalDateTime startDate,
+                                       LocalDateTime endDate,
+                                       String itemName,
+                                       String supplierId,
+                                       Pageable pageable);
 
     /**
-     * Logs stock change without price snapshot (backwards compatibility).
-     * @param itemId inventory item ID
-     * @param change quantity change (positive or negative)
-     * @param reason business reason for change
+     * Logs a stock change without a price snapshot.
+     * Delegates to the price-aware overload with a null price.
+     *
+     * @param itemId    inventory item ID
+     * @param change    quantity change (positive or negative)
+     * @param reason    business reason for change
      * @param createdBy user who initiated change
      * @throws IllegalArgumentException if input validation fails
      */
-    public void logStockChange(String itemId, int change, StockChangeReason reason, String createdBy) {
-        // Delegate to the price-aware overload with a null snapshot
-        logStockChange(itemId, change, reason, createdBy, null);
-    }
+    void logStockChange(String itemId, int change, StockChangeReason reason, String createdBy);
 
     /**
-     * Logs stock change with price snapshot for analytics (WAC calculation).
-     * @param itemId inventory item ID
-     * @param change quantity change (positive or negative)
-     * @param reason business reason for change
-     * @param createdBy user who initiated change
-     * @param priceAtChange unit price snapshot at time of change (nullable)
+     * Logs a stock change with a price snapshot for WAC analytics.
+     * @param itemId        inventory item ID
+     * @param change        quantity change (positive or negative)
+     * @param reason        business reason for change
+     * @param createdBy     user who initiated change
+     * @param priceAtChange unit price at time of change (nullable)
      * @throws IllegalArgumentException if input validation fails
      */
-    public void logStockChange(String itemId,
-                               int change,
-                               StockChangeReason reason,
-                               String createdBy,
-                               BigDecimal priceAtChange) {
-
-        // Validate the enum value & basic constraints
-        StockHistoryValidator.validateEnum(reason);
-
-        // Enterprise Comment: DTO Construction for Validation
-        // Price snapshot enables WAC calculations and PRICE_CHANGE tracking
-        // Construct a DTO for validation (includes price snapshot when provided)
-        StockHistoryDTO dto = StockHistoryDTO.builder()
-                .itemId(itemId)
-                .change(change)
-                .reason(reason.name()) // If DTO already uses enum, set it directly instead of name()
-                .createdBy(createdBy)
-                .priceAtChange(priceAtChange)
-                .build();
-
-        // Business validation (e.g., zero allowed only for PRICE_CHANGE, etc.)
-        StockHistoryValidator.validate(dto);
-
-        // Enterprise Comment: Denormalization Pattern
-        // Resolve supplier ID once and store on history record for analytics
-        String supplierId = resolveSupplierId(itemId);
-
-        // Enterprise Comment: Immutable Event Creation
-        // Server-authoritative timestamp ensures consistency across distributed systems
-        // Persist entity with server-authoritative timestamp
-        StockHistory history = StockHistory.builder()
-                .id("sh-" + itemId + "-" + System.currentTimeMillis())
-                .itemId(itemId)
-                .supplierId(supplierId)
-                .change(change)
-                .reason(reason)              // entity uses enum directly
-                .createdBy(createdBy)
-                .timestamp(LocalDateTime.now())
-                .priceAtChange(priceAtChange)
-                .build();
-
-        repository.save(history);
-    }
+    void logStockChange(String itemId,
+                        int change,
+                        StockChangeReason reason,
+                        String createdBy,
+                        BigDecimal priceAtChange);
 
     /**
-     * Persists a stock-history event based on an API-facing DTO.
-     *
-     * <p><b>Enterprise behavior</b>:
-     * This overload exists for controller/service boundaries where inputs arrive as DTOs.
-     * The method applies domain validation, enriches the record with denormalized references
-     * (supplierId), and uses a server-authoritative timestamp for audit consistency.</p>
-     *
-     * <p><b>Validation contract</b>:
-     * {@link com.smartsupplypro.inventory.validation.StockHistoryValidator} guarantees that
-     * required fields are present and consistent. In particular, {@code dto.reason()} is
-     * expected to be non-null and a valid {@code StockChangeReason} name, so converting via
-     * {@link com.smartsupplypro.inventory.enums.StockChangeReason#valueOf(String)} does not
-     * require defensive null-branches.</p>
+     * Persists a stock history event from an API-facing DTO.
+     * Applies domain validation and enriches the record with denormalized supplierId.
      *
      * @param dto stock history DTO (validated by this method)
-     * @throws IllegalArgumentException if validation fails or the reason is not a valid enum name
+     * @throws IllegalArgumentException if validation fails or reason is not a valid enum name
      */
-    public void save(StockHistoryDTO dto) {
-        // Enterprise validation: enforce domain invariants at the write boundary.
-        StockHistoryValidator.validate(dto);
-
-        // Enterprise denormalization: store supplierId on the history row for analytics queries.
-        String supplierId = resolveSupplierId(dto.itemId());
-
-        // Map DTO -> immutable audit event and persist with server-authoritative timestamp.
-        StockHistory history = StockHistory.builder()
-                .id("sh-" + dto.itemId() + "-" + System.currentTimeMillis())
-                .itemId(dto.itemId())
-                .supplierId(supplierId)
-                .change(dto.change())
-                .reason(StockChangeReason.valueOf(dto.reason()))
-                .createdBy(dto.createdBy())
-                .timestamp(LocalDateTime.now())
-                .priceAtChange(dto.priceAtChange())
-                .build();
-
-        repository.save(history);
-    }
+    void save(StockHistoryDTO dto);
 
     /**
-     * Records item deletion in stock history (legacy convention: -1 quantity).
-     * @param itemId inventory item ID
-     * @param reason deletion reason
+     * Records item deletion in stock history using -1 as a sentinel quantity.
+     * @param itemId    inventory item ID
+     * @param reason    deletion reason
      * @param createdBy user who initiated deletion
      */
-    public void delete(String itemId, StockChangeReason reason, String createdBy) {
-        logStockChange(itemId, -1, reason, createdBy);
-    }
+    void delete(String itemId, StockChangeReason reason, String createdBy);
 }

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.smartsupplypro.inventory.dto.FinancialSummaryDTO;
+import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
@@ -21,25 +23,21 @@ import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConve
 import lombok.RequiredArgsConstructor;
 
 /**
- * Financial analytics service implementing Weighted Average Cost (WAC) calculations.
+ * Default implementation of WAC-based financial analytics.
  *
- * <p>Provides comprehensive financial summaries by replaying stock events to calculate:
- * <ul>
- *   <li>Opening inventory (quantity and value at period start)</li>
- *   <li>Purchases (new stock acquisitions with costs)</li>
- *   <li>Returns (customer returns, returns to supplier)</li>
- *   <li>Cost of Goods Sold - COGS (items sold at WAC)</li>
- *   <li>Write-offs (damaged, lost, expired items)</li>
- *   <li>Ending inventory (quantity and value at period end)</li>
- * </ul>
+ * <p>Replays the full stock event stream per item to maintain a running
+ * Weighted Average Cost (WAC). Events before the requested period establish
+ * the opening inventory baseline; events within the period are categorised into
+ * purchases, returns, COGS, and write-offs.</p>
  *
- * <p><strong>WAC Algorithm</strong>: Maintains running weighted average cost per item by
- * blending old and new costs proportionally when stock arrives at different prices.
+ * <p><strong>WAC formula</strong>:
+ * {@code newWAC = (oldQty × oldWAC + inboundQty × unitCost) / (oldQty + inboundQty)}</p>
  *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
- * @see <a href="../../../../../../../docs/architecture/services/analytics-service.md#wac-algorithm">WAC Algorithm</a>
+ * <p>Exceeds the 200-line guideline due to private WAC calculation helpers
+ * ({@code applyInbound}, {@code issueAt}, phase helpers) that must remain
+ * co-located for algorithmic coherence.</p>
+ *
+ * @see AnalyticsConverterHelper
  */
 @Service
 @RequiredArgsConstructor
@@ -48,224 +46,231 @@ public class FinancialAnalyticsService {
 
     private final StockHistoryRepository stockHistoryRepository;
 
-    // === Reason Categories for Financial Buckets ===
-    private static final Set<StockChangeReason> RETURNS_IN = Set.of(StockChangeReason.RETURNED_BY_CUSTOMER);
-    private static final Set<StockChangeReason> WRITE_OFFS = Set.of(
-            StockChangeReason.DAMAGED, StockChangeReason.DESTROYED,
-            StockChangeReason.SCRAPPED, StockChangeReason.EXPIRED, StockChangeReason.LOST
-    );
-    private static final Set<StockChangeReason> RETURN_TO_SUPPLIER = Set.of(StockChangeReason.RETURNED_TO_SUPPLIER);
+    // Reason sets define which financial bucket each outbound event belongs to
+    private static final Set<StockChangeReason> RETURNS_IN =
+            Set.of(StockChangeReason.RETURNED_BY_CUSTOMER);
+    private static final Set<StockChangeReason> WRITE_OFFS =
+            Set.of(StockChangeReason.DAMAGED, StockChangeReason.DESTROYED,
+                   StockChangeReason.SCRAPPED, StockChangeReason.EXPIRED, StockChangeReason.LOST);
+    private static final Set<StockChangeReason> RETURN_TO_SUPPLIER =
+            Set.of(StockChangeReason.RETURNED_TO_SUPPLIER);
 
     /**
-     * Produces financial summary using Weighted Average Cost (WAC) method.
+     * Produces a WAC financial summary for a date range.
      *
-     * <p><strong>Computation Model</strong>:
+     * <p>Three-phase computation:
      * <ol>
-     *   <li>Opening inventory: Replay events before period to establish baseline WAC per item</li>
-     *   <li>Period events: Categorize into purchases, returns, COGS, write-offs, returns to supplier</li>
-     *   <li>Ending inventory: Final state after processing all events</li>
+     *   <li>Replay all events before {@code from} to establish opening WAC per item.</li>
+     *   <li>Categorise events within [{@code from}, {@code to}] into financial buckets.</li>
+     *   <li>Sum the final per-item state to derive ending inventory.</li>
      * </ol>
      *
-     * <p><strong>WAC Formula</strong>: {@code newWAC = (oldQty × oldWAC + inboundQty × unitCost) / newQty}
-     *
-     * <p><strong>Financial Equation</strong>:
-     * <pre>
-     * Opening Value + Purchases Cost + Returns In Cost - COGS Cost - Write-off Cost = Ending Value
-     * </pre>
-     *
-     * @param from inclusive start date (required)
-     * @param to inclusive end date (required)
-     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
-     * @return WAC-based financial summary with all categories
-     * @throws InvalidRequestException if {@code from/to} is {@code null} or {@code from > to}
+     * @param from       inclusive start date (required)
+     * @param to         inclusive end date (required)
+     * @param supplierId optional supplier filter (null/blank = all suppliers)
+     * @return WAC-based financial summary
+     * @throws InvalidRequestException if dates are null or {@code from > to}
      */
     public FinancialSummaryDTO getFinancialSummaryWAC(LocalDate from, LocalDate to, String supplierId) {
-        // === Input Validation ===
         if (from == null || to == null) throw new InvalidRequestException("from/to must be provided");
-        if (from.isAfter(to)) throw new InvalidRequestException("from must be on or before to");
+        if (from.isAfter(to))          throw new InvalidRequestException("from must be on or before to");
 
-        // Convert LocalDate to LocalDateTime boundaries (inclusive range)
-        LocalDateTime start = LocalDateTime.of(from, LocalTime.MIN);  // 00:00:00.000
-        LocalDateTime end   = LocalDateTime.of(to,   LocalTime.MAX);  // 23:59:59.999
+        // LocalTime.MIN/MAX give full-day inclusive boundaries at TIMESTAMP precision
+        LocalDateTime start = LocalDateTime.of(from, LocalTime.MIN);
 
-        // === Fetch Event Stream ===
-        var events = stockHistoryRepository.streamEventsForWAC(end, blankToNull(supplierId));
+        List<StockEventRowDTO> events =
+                stockHistoryRepository.streamEventsForWAC(
+                        LocalDateTime.of(to, LocalTime.MAX), blankToNull(supplierId));
 
-        // === Initialize Financial Buckets ===
-        long openingQty = 0, purchasesQty = 0, returnsInQty = 0, cogsQty = 0, writeOffQty = 0, endingQty = 0;
-        BigDecimal openingValue = BigDecimal.ZERO,
-                   purchasesCost = BigDecimal.ZERO,
-                   returnsInCost = BigDecimal.ZERO,
-                   cogsCost = BigDecimal.ZERO,
-                   writeOffCost = BigDecimal.ZERO,
-                   endingValue = BigDecimal.ZERO;
-
-        // === Per-Item State Tracking (itemId → State) ===
         Map<String, WacState> state = new HashMap<>();
+        FinancialBuckets b = new FinancialBuckets();
 
-        // === PHASE 1: Opening Inventory (events before period start) ===
-        for (var e : events) {
-            if (e.createdAt().isBefore(start)) {
-                WacState st = state.get(e.itemId());
-                
-                if (e.quantityChange() > 0) {
-                    // Inbound: determine unit cost and update WAC
-                    BigDecimal unit = (e.priceAtChange() != null)
-                            ? e.priceAtChange()
-                            : (st == null ? BigDecimal.ZERO : st.avgCost());
-                    st = applyInbound(st, e.quantityChange(), unit);
-                    state.put(e.itemId(), st);
-                    
-                } else if (e.quantityChange() < 0) {
-                    // Outbound: issue at current WAC
-                    WacIssue iss = issueAt(st, Math.abs(e.quantityChange()));
-                    state.put(e.itemId(), iss.state());
-                }
+        processOpeningInventory(events, start, state);
+        sumOpeningInventory(state, b);
+        processPeriodEvents(events, start, state, b);
+        sumEndingInventory(state, b);
+
+        return buildSummary(from, to, b);
+    }
+
+    // ── Phase helpers ─────────────────────────────────────────────────────────
+
+    /**
+     * Replays all events that occurred before {@code start} to build the opening WAC
+     * baseline per item. Events are processed in chronological order as supplied
+     * by the repository query.
+     */
+    private void processOpeningInventory(List<StockEventRowDTO> events,
+                                         LocalDateTime start,
+                                         Map<String, WacState> state) {
+        for (StockEventRowDTO e : events) {
+            if (!e.createdAt().isBefore(start)) continue;
+
+            WacState st = state.get(e.itemId());
+            if (e.quantityChange() > 0) {
+                state.put(e.itemId(), applyInbound(st, e.quantityChange(), resolveUnit(e.priceAtChange(), st)));
+            } else if (e.quantityChange() < 0) {
+                state.put(e.itemId(), issueAt(st, Math.abs(e.quantityChange())).state());
             }
         }
-        
-        // Sum opening inventory across all items
-        for (var st : state.values()) {
-            openingQty += st.qty();
-            openingValue = openingValue.add(st.avgCost().multiply(BigDecimal.valueOf(st.qty())));
-        }
+    }
 
-        // === PHASE 2: Process Events Within Period [start..end] ===
-        for (var e : events) {
+    /** Sums per-item opening state into the opening quantity and value buckets. */
+    private void sumOpeningInventory(Map<String, WacState> state, FinancialBuckets b) {
+        for (WacState st : state.values()) {
+            b.openingQty  += st.qty();
+            b.openingValue = b.openingValue.add(st.avgCost().multiply(BigDecimal.valueOf(st.qty())));
+        }
+    }
+
+    /**
+     * Processes events within the reporting period and routes each to the
+     * correct financial bucket. WAC state is updated continuously.
+     */
+    private void processPeriodEvents(List<StockEventRowDTO> events,
+                                     LocalDateTime start,
+                                     Map<String, WacState> state,
+                                     FinancialBuckets b) {
+        for (StockEventRowDTO e : events) {
             if (e.createdAt().isBefore(start)) continue;
 
             WacState st = state.get(e.itemId());
-
             if (e.quantityChange() > 0) {
-                // === INBOUND: Purchases, Returns ===
-                BigDecimal unit = (e.priceAtChange() != null)
-                        ? e.priceAtChange()
-                        : (st == null ? BigDecimal.ZERO : st.avgCost());
-                
-                WacState newSt = applyInbound(st, e.quantityChange(), unit);
-                state.put(e.itemId(), newSt);
-
-                if (RETURNS_IN.contains(e.reason())) {
-                    // Customer returns
-                    returnsInQty += e.quantityChange();
-                    returnsInCost = returnsInCost.add(unit.multiply(BigDecimal.valueOf(e.quantityChange())));
-                } else {
-                    // Purchases (includes INITIAL_STOCK or entries with price)
-                    if (e.priceAtChange() != null || e.reason() == StockChangeReason.INITIAL_STOCK) {
-                        purchasesQty += e.quantityChange();
-                        purchasesCost = purchasesCost.add(unit.multiply(BigDecimal.valueOf(e.quantityChange())));
-                    }
-                }
-
+                processInboundEvent(e, st, state, b);
             } else if (e.quantityChange() < 0) {
-                // === OUTBOUND: Sales, Write-offs, Returns to Supplier ===
-                int out = Math.abs(e.quantityChange());
-
-                if (RETURN_TO_SUPPLIER.contains(e.reason())) {
-                    // Returning to supplier → negative purchase
-                    WacIssue iss = issueAt(st, out);
-                    state.put(e.itemId(), iss.state());
-                    purchasesQty -= out;
-                    purchasesCost = purchasesCost.subtract(iss.cost());
-
-                } else if (WRITE_OFFS.contains(e.reason())) {
-                    // Damaged, lost, expired, etc.
-                    WacIssue iss = issueAt(st, out);
-                    state.put(e.itemId(), iss.state());
-                    writeOffQty += out;
-                    writeOffCost = writeOffCost.add(iss.cost());
-
-                } else {
-                    // Default: COGS (Cost of Goods Sold)
-                    WacIssue iss = issueAt(st, out);
-                    state.put(e.itemId(), iss.state());
-                    cogsQty += out;
-                    cogsCost = cogsCost.add(iss.cost());
-                }
+                processOutboundEvent(e, st, state, b);
             }
         }
+    }
 
-        // === PHASE 3: Calculate Ending Inventory ===
-        for (var st : state.values()) {
-            endingQty += st.qty();
-            endingValue = endingValue.add(st.avgCost().multiply(BigDecimal.valueOf(st.qty())));
+    /** Routes a positive-quantity period event to the purchases or customer-returns bucket. */
+    private void processInboundEvent(StockEventRowDTO e,
+                                     WacState st,
+                                     Map<String, WacState> state,
+                                     FinancialBuckets b) {
+        BigDecimal unit = resolveUnit(e.priceAtChange(), st);
+        state.put(e.itemId(), applyInbound(st, e.quantityChange(), unit));
+        BigDecimal cost = unit.multiply(BigDecimal.valueOf(e.quantityChange()));
+
+        if (RETURNS_IN.contains(e.reason())) {
+            b.returnsInQty  += e.quantityChange();
+            b.returnsInCost  = b.returnsInCost.add(cost);
+        } else if (e.priceAtChange() != null || e.reason() == StockChangeReason.INITIAL_STOCK) {
+            // Only events with a price snapshot or INITIAL_STOCK reason count as purchases
+            b.purchasesQty  += e.quantityChange();
+            b.purchasesCost  = b.purchasesCost.add(cost);
         }
+    }
 
-        // === Build Financial Summary DTO ===
+    /** Routes a negative-quantity period event to COGS, write-offs, or returns-to-supplier. */
+    private void processOutboundEvent(StockEventRowDTO e,
+                                      WacState st,
+                                      Map<String, WacState> state,
+                                      FinancialBuckets b) {
+        int out      = Math.abs(e.quantityChange());
+        WacIssue iss = issueAt(st, out);
+        state.put(e.itemId(), iss.state());
+
+        if (RETURN_TO_SUPPLIER.contains(e.reason())) {
+            // Returning to supplier reverses a purchase rather than creating a COGS entry
+            b.purchasesQty  -= out;
+            b.purchasesCost  = b.purchasesCost.subtract(iss.cost());
+        } else if (WRITE_OFFS.contains(e.reason())) {
+            b.writeOffQty   += out;
+            b.writeOffCost   = b.writeOffCost.add(iss.cost());
+        } else {
+            b.cogsQty       += out;
+            b.cogsCost       = b.cogsCost.add(iss.cost());
+        }
+    }
+
+    /** Sums the final per-item WAC state into ending quantity and value buckets. */
+    private void sumEndingInventory(Map<String, WacState> state, FinancialBuckets b) {
+        for (WacState st : state.values()) {
+            b.endingQty   += st.qty();
+            b.endingValue  = b.endingValue.add(st.avgCost().multiply(BigDecimal.valueOf(st.qty())));
+        }
+    }
+
+    private FinancialSummaryDTO buildSummary(LocalDate from, LocalDate to, FinancialBuckets b) {
         return FinancialSummaryDTO.builder()
                 .method("WAC")
                 .fromDate(from.toString())
                 .toDate(to.toString())
-                .openingQty(openingQty)
-                .openingValue(openingValue)
-                .purchasesQty(purchasesQty)
-                .purchasesCost(purchasesCost)
-                .returnsInQty(returnsInQty)
-                .returnsInCost(returnsInCost)
-                .cogsQty(cogsQty)
-                .cogsCost(cogsCost)
-                .writeOffQty(writeOffQty)
-                .writeOffCost(writeOffCost)
-                .endingQty(endingQty)
-                .endingValue(endingValue)
+                .openingQty(b.openingQty)
+                .openingValue(b.openingValue)
+                .purchasesQty(b.purchasesQty)
+                .purchasesCost(b.purchasesCost)
+                .returnsInQty(b.returnsInQty)
+                .returnsInCost(b.returnsInCost)
+                .cogsQty(b.cogsQty)
+                .cogsCost(b.cogsCost)
+                .writeOffQty(b.writeOffQty)
+                .writeOffCost(b.writeOffCost)
+                .endingQty(b.endingQty)
+                .endingValue(b.endingValue)
                 .build();
     }
 
-    // === WAC Algorithm - Core Data Structures ===
+    // ── WAC algorithm — data structures ──────────────────────────────────────
 
-    /** Represents current inventory state (qty + WAC) for a single item. */
+    /** Current inventory state (running quantity + WAC) for a single item. */
     private record WacState(long qty, BigDecimal avgCost) {}
 
-    /** Result of outbound operation (updated state + cost at WAC). */
+    /** Result of an outbound operation: updated state and the cost issued at WAC. */
     private record WacIssue(WacState state, BigDecimal cost) {}
 
-    // === WAC Algorithm - Core Operations ===
+    /** Mutable accumulator for all financial bucket totals across the reporting period. */
+    private static class FinancialBuckets {
+        long openingQty, purchasesQty, returnsInQty, cogsQty, writeOffQty, endingQty;
+        BigDecimal openingValue  = BigDecimal.ZERO;
+        BigDecimal purchasesCost = BigDecimal.ZERO;
+        BigDecimal returnsInCost = BigDecimal.ZERO;
+        BigDecimal cogsCost      = BigDecimal.ZERO;
+        BigDecimal writeOffCost  = BigDecimal.ZERO;
+        BigDecimal endingValue   = BigDecimal.ZERO;
+    }
+
+    // ── WAC algorithm — core operations ──────────────────────────────────────
 
     /**
-     * Applies inbound stock movement and recalculates WAC.
+     * Recalculates WAC after an inbound stock movement.
      *
-     * <p><strong>Formula</strong>:
-     * <pre>
-     * newWAC = (oldQty × oldWAC + inboundQty × unitCost) / (oldQty + inboundQty)
-     * </pre>
-     *
-     * @param st current state (nullable for first purchase)
-     * @param qtyIn quantity being added (positive)
-     * @param unitCost unit cost of inbound stock
-     * @return new state with updated quantity and recalculated WAC
+     * <p>Formula: {@code newWAC = (oldQty × oldWAC + inboundQty × unitCost) / newQty}
+     * — blends old and new costs proportionally when stock arrives at different prices.</p>
      */
     private static WacState applyInbound(WacState st, int qtyIn, BigDecimal unitCost) {
-        long q0 = (st == null) ? 0 : st.qty();
+        long q0       = (st == null) ? 0 : st.qty();
         BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();
-        
-        long q1 = q0 + qtyIn;
-        BigDecimal v0  = c0.multiply(BigDecimal.valueOf(q0));
-        BigDecimal vin = unitCost.multiply(BigDecimal.valueOf(qtyIn));
-        
-        BigDecimal avg1 = (q1 == 0)
-                ? BigDecimal.ZERO
-                : v0.add(vin).divide(BigDecimal.valueOf(q1), 4, RoundingMode.HALF_UP);
-        
+        long q1       = q0 + qtyIn;
+
+        BigDecimal avg1 = (q1 == 0) ? BigDecimal.ZERO
+                : c0.multiply(BigDecimal.valueOf(q0))
+                    .add(unitCost.multiply(BigDecimal.valueOf(qtyIn)))
+                    .divide(BigDecimal.valueOf(q1), 4, RoundingMode.HALF_UP);
+
         return new WacState(q1, avg1);
     }
 
     /**
-     * Issues (consumes) inventory at current WAC.
-     *
-     * <p>WAC remains unchanged, only quantity is reduced.
-     * Quantity is clamped to zero if issue exceeds available stock.
-     *
-     * @param st current state
-     * @param qtyOut quantity being issued (positive)
-     * @return issue result with updated state and cost
+     * Issues (consumes) inventory at the current WAC.
+     * WAC remains unchanged; only quantity is reduced.
+     * Quantity is clamped to zero if the issue exceeds available stock.
      */
     private static WacIssue issueAt(WacState st, int qtyOut) {
-        long q0 = (st == null) ? 0 : st.qty();
+        long q0       = (st == null) ? 0 : st.qty();
         BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();
-        
-        long q1 = Math.max(0, q0 - qtyOut);  // Guard against negative
-        BigDecimal cost = c0.multiply(BigDecimal.valueOf(qtyOut));
-        
-        return new WacIssue(new WacState(q1, c0), cost);
+        long q1       = Math.max(0, q0 - qtyOut);
+        return new WacIssue(new WacState(q1, c0), c0.multiply(BigDecimal.valueOf(qtyOut)));
+    }
+
+    /**
+     * Resolves the unit cost for an inbound event.
+     * Falls back to the current WAC when no price snapshot is recorded,
+     * so events without a price do not reset the cost basis to zero.
+     */
+    private static BigDecimal resolveUnit(BigDecimal priceAtChange, WacState st) {
+        if (priceAtChange != null) return priceAtChange;
+        return (st == null) ? BigDecimal.ZERO : st.avgCost();
     }
 }

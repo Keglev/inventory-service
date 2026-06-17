@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -35,233 +36,189 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 
 /**
- * Unit tests for {@link InventoryItemValidationHelper}.
- *
- * <p><strong>Why this suite exists</strong>:</p>
- * <ul>
- *   <li>These helpers are often mocked in service tests; without direct tests they may stay at 0% coverage.</li>
- *   <li>They encapsulate server-side population rules and security-context behavior that must remain stable.</li>
- * </ul>
- *
- * <p><strong>Scope</strong> (unit level):</p>
- * <ul>
- *   <li>Security-context fallback and createdBy population</li>
- *   <li>Supplier existence enforcement</li>
- *   <li>Server-side field population defaults (ID, createdAt, minimumQuantity)</li>
- *   <li>Uniqueness-on-update behavior when name/price change</li>
- * </ul>
+ * Unit tests for {@link InventoryItemValidationHelper} business logic and exception handling behavior.
  */
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unused")
 class InventoryItemValidationHelperTest {
 
     @Mock private InventoryItemRepository repository;
     @Mock private SupplierRepository supplierRepository;
-
     @InjectMocks private InventoryItemValidationHelper helper;
 
     @AfterEach
-    @SuppressWarnings("unused")
     void tearDown() {
         SecurityContextHolder.clearContext();
     }
 
-    @Test
-    void validateForCreation_populatesCreatedByFromSecurityContext_whenMissing() {
-        // GIVEN
-        authenticateAs("admin@example.com");
+    /**
+     * Tests for {@code validateForCreation()}.
+     */
+    @SuppressWarnings("unused")
+    @Nested
+    class ValidateForCreation {
 
-        InventoryItemDTO dto = new InventoryItemDTO();
-        dto.setName("SSD");
-        dto.setQuantity(5);
-        dto.setPrice(new BigDecimal("10.00"));
-        dto.setSupplierId("sup-1");
-        dto.setCreatedBy("   ");
+        @Test
+        void should_populate_created_by_from_security_context_when_field_is_blank() {
+            authenticateAs("admin@example.com");
+            InventoryItemDTO dto = dto("SSD", 5, "10.00", "sup-1", "   ");
+            when(supplierRepository.existsById("sup-1")).thenReturn(true);
+            when(repository.findByNameIgnoreCase("SSD")).thenReturn(Collections.emptyList());
 
-        when(supplierRepository.existsById("sup-1")).thenReturn(true);
-        when(repository.findByNameIgnoreCase("SSD")).thenReturn(Collections.emptyList());
+            helper.validateForCreation(dto);
 
-        // WHEN
-        helper.validateForCreation(dto);
+            assertEquals("admin@example.com", dto.getCreatedBy());
+        }
 
-        // THEN
-        assertEquals("admin@example.com", dto.getCreatedBy());
+        @Test
+        void should_throw_when_supplier_does_not_exist() {
+            authenticateAs("admin");
+            InventoryItemDTO dto = dto("SSD", 5, "10.00", "missing-supplier", null);
+            when(supplierRepository.existsById("missing-supplier")).thenReturn(false);
+            when(repository.findByNameIgnoreCase(anyString())).thenReturn(Collections.emptyList());
+
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                    () -> helper.validateForCreation(dto));
+            assertEquals("Supplier does not exist", ex.getMessage());
+        }
     }
 
-    @Test
-    void validateForCreation_throws_whenSupplierDoesNotExist() {
-        // GIVEN
-        authenticateAs("admin");
+    /**
+     * Tests for {@code populateServerFields()}.
+     */
+    @SuppressWarnings("unused")
+    @Nested
+    class PopulateServerFields {
 
-        InventoryItemDTO dto = new InventoryItemDTO();
-        dto.setName("SSD");
-        dto.setQuantity(5);
-        dto.setPrice(new BigDecimal("10.00"));
-        dto.setSupplierId("missing-supplier");
+        @Test
+        void should_generate_id_set_created_by_and_default_minimum_quantity_when_missing() {
+            authenticateAs("system-user");
+            InventoryItem entity = entity(" ", "Widget", 1, 0, "1.00", "sup-1", null);
 
-        when(supplierRepository.existsById("missing-supplier")).thenReturn(false);
-        when(repository.findByNameIgnoreCase(anyString())).thenReturn(Collections.emptyList());
+            helper.populateServerFields(entity);
 
-        // WHEN/THEN
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> helper.validateForCreation(dto));
-        assertEquals("Supplier does not exist", ex.getMessage());
+            assertNotNull(entity.getId());
+            assertEquals("system-user", entity.getCreatedBy());
+            assertNotNull(entity.getCreatedAt());
+            assertEquals(10, entity.getMinimumQuantity());
+        }
+
+        @Test
+        void should_preserve_existing_id_created_at_and_minimum_quantity_and_fall_back_to_system_when_unauthenticated() {
+            SecurityContextHolder.clearContext();
+            LocalDateTime createdAt = LocalDateTime.of(2026, 1, 1, 0, 0);
+            InventoryItem entity = entity("item-123", "Widget", 1, 20, "1.00", "sup-1", createdAt);
+
+            helper.populateServerFields(entity);
+
+            assertEquals("item-123", entity.getId());
+            assertEquals("system",   entity.getCreatedBy());
+            assertEquals(createdAt,  entity.getCreatedAt());
+            assertEquals(20,         entity.getMinimumQuantity());
+        }
     }
 
-    @Test
-    void populateServerFields_generatesId_setsCreatedBy_setsCreatedAt_andDefaultsMinimumQuantity() {
-        // GIVEN
-        authenticateAs("system-user");
+    /**
+     * Tests for {@code validateUniquenessOnUpdate()}.
+     */
+    @SuppressWarnings("unused")
+    @Nested
+    class ValidateUniquenessOnUpdate {
 
-        InventoryItem entity = new InventoryItem();
-        entity.setId(" ");
-        entity.setName("Widget");
-        entity.setQuantity(1);
-        entity.setMinimumQuantity(0);
-        entity.setPrice(new BigDecimal("1.00"));
-        entity.setSupplierId("sup-1");
-        entity.setCreatedAt(null);
+        @Test
+        void should_skip_repository_query_when_name_and_price_are_unchanged() {
+            InventoryItem existing = existingItem("item-1", "Widget", "10.00");
+            InventoryItemDTO dto = new InventoryItemDTO();
+            dto.setName("widget"); dto.setPrice(new BigDecimal("10.00"));
 
-        // WHEN
-        helper.populateServerFields(entity);
+            helper.validateUniquenessOnUpdate("item-1", existing, dto);
 
-        // THEN
-        assertNotNull(entity.getId());
-        assertEquals("system-user", entity.getCreatedBy());
-        assertNotNull(entity.getCreatedAt());
-        assertEquals(10, entity.getMinimumQuantity());
+            verify(repository, never()).findByNameIgnoreCase(anyString());
+        }
+
+        @Test
+        void should_throw_duplicate_exception_when_another_item_with_same_name_and_price_exists() {
+            InventoryItem existing = existingItem("item-1", "Widget", "10.00");
+            InventoryItemDTO dto = new InventoryItemDTO();
+            dto.setName("NewWidget"); dto.setPrice(new BigDecimal("10.00"));
+
+            InventoryItem other = existingItem("item-2", "NewWidget", "10.00");
+            when(repository.findByNameIgnoreCase("NewWidget")).thenReturn(List.of(other));
+
+            DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
+                    () -> helper.validateUniquenessOnUpdate("item-1", existing, dto));
+            assertEquals("Another inventory item with this name and price already exists.", ex.getMessage());
+            verify(repository).findByNameIgnoreCase("NewWidget");
+        }
     }
 
-    @Test
-    void populateServerFields_preservesExistingIdCreatedAtAndMinimumQuantity_andFallsBackToSystem_whenUnauthenticated() {
-        // GIVEN
-        SecurityContextHolder.clearContext();
+    /**
+     * Tests for {@code validateExists()}, {@code validateForDeletion()}, and {@code validateForUpdate()}.
+     */
+    @SuppressWarnings("unused")
+    @Nested
+    class ValidationGating {
 
-        LocalDateTime createdAt = LocalDateTime.of(2026, 1, 1, 0, 0);
+        @Test
+        void should_throw_when_item_not_found_by_id() {
+            when(repository.findById("missing")).thenReturn(Optional.empty());
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                    () -> helper.validateExists("missing"));
+            assertEquals("Item not found", ex.getMessage());
+        }
 
-        InventoryItem entity = new InventoryItem();
-        entity.setId("item-123");
-        entity.setName("Widget");
-        entity.setQuantity(1);
-        entity.setMinimumQuantity(20);
-        entity.setPrice(new BigDecimal("1.00"));
-        entity.setSupplierId("sup-1");
-        entity.setCreatedAt(createdAt);
+        @Test
+        void should_throw_illegal_state_when_item_quantity_is_not_zero_on_deletion() {
+            InventoryItem item = new InventoryItem();
+            item.setId("item-1"); item.setQuantity(1);
+            when(repository.findById("item-1")).thenReturn(Optional.of(item));
+            assertNotNull(assertThrows(IllegalStateException.class,
+                    () -> helper.validateForDeletion("item-1")).getMessage());
+        }
 
-        // WHEN
-        helper.populateServerFields(entity);
+        @Test
+        void should_return_existing_item_when_update_passes_all_validation() {
+            authenticateAs("admin");
+            InventoryItem existing = existingItem("item-1", "Widget", "10.00");
+            existing.setSupplierId("sup-1");
 
-        // THEN
-        assertEquals("item-123", entity.getId());
-        assertEquals("system", entity.getCreatedBy());
-        assertEquals(createdAt, entity.getCreatedAt());
-        assertEquals(20, entity.getMinimumQuantity());
+            InventoryItemDTO dto = new InventoryItemDTO();
+            dto.setName("Widget"); dto.setQuantity(5); dto.setMinimumQuantity(1);
+            dto.setPrice(new BigDecimal("10.00")); dto.setSupplierId("sup-1");
+            dto.setCreatedBy("admin");
+
+            when(supplierRepository.existsById("sup-1")).thenReturn(true);
+            when(repository.findById("item-1")).thenReturn(Optional.of(existing));
+
+            assertEquals("item-1", helper.validateForUpdate("item-1", dto).getId());
+        }
     }
 
-    @Test
-    void validateUniquenessOnUpdate_doesNothing_whenNameAndPriceUnchanged() {
-        // GIVEN
-        InventoryItem existing = new InventoryItem();
-        existing.setId("item-1");
-        existing.setName("Widget");
-        existing.setPrice(new BigDecimal("10.00"));
-
-        InventoryItemDTO dto = new InventoryItemDTO();
-        dto.setName("widget"); // case-insensitive same
-        dto.setPrice(new BigDecimal("10.00"));
-
-        // WHEN
-        helper.validateUniquenessOnUpdate("item-1", existing, dto);
-
-        // THEN
-        // validateInventoryItemNotExists(...) is static; we assert no repository query was needed.
-        verify(repository, never()).findByNameIgnoreCase(anyString());
+    private static InventoryItemDTO dto(String name, int qty, String price, String supplierId, String createdBy) {
+        InventoryItemDTO d = new InventoryItemDTO();
+        d.setName(name); d.setQuantity(qty);
+        d.setPrice(new BigDecimal(price)); d.setSupplierId(supplierId);
+        d.setCreatedBy(createdBy);
+        return d;
     }
 
-    @Test
-    void validateUniquenessOnUpdate_throwsDuplicateResource_whenNameChangedAndAnotherItemWithSameNameAndPriceExists() {
-        // GIVEN
-        InventoryItem existing = new InventoryItem();
-        existing.setId("item-1");
-        existing.setName("Widget");
-        existing.setPrice(new BigDecimal("10.00"));
-
-        InventoryItemDTO dto = new InventoryItemDTO();
-        dto.setName("NewWidget");
-        dto.setPrice(new BigDecimal("10.00"));
-
-        InventoryItem other = new InventoryItem();
-        other.setId("item-2");
-        other.setName("NewWidget");
-        other.setPrice(new BigDecimal("10.00"));
-
-        when(repository.findByNameIgnoreCase("NewWidget")).thenReturn(List.of(other));
-
-        // WHEN/THEN
-        DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
-            () -> helper.validateUniquenessOnUpdate("item-1", existing, dto));
-
-        assertEquals("Another inventory item with this name and price already exists.", ex.getMessage());
-
-        verify(repository).findByNameIgnoreCase("NewWidget");
+    private static InventoryItem entity(String id, String name, int qty, int minQty,
+                                        String price, String supplierId, LocalDateTime createdAt) {
+        InventoryItem e = new InventoryItem();
+        e.setId(id); e.setName(name); e.setQuantity(qty); e.setMinimumQuantity(minQty);
+        e.setPrice(new BigDecimal(price)); e.setSupplierId(supplierId); e.setCreatedAt(createdAt);
+        return e;
     }
 
-    @Test
-    void validateExists_throws_whenItemMissing() {
-        // GIVEN
-        when(repository.findById("missing")).thenReturn(Optional.empty());
-
-        // WHEN/THEN
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> helper.validateExists("missing"));
-        assertEquals("Item not found", ex.getMessage());
-    }
-
-    @Test
-    void validateForDeletion_throwsIllegalState_whenQuantityNotZero() {
-        // GIVEN
-        InventoryItem item = new InventoryItem();
-        item.setId("item-1");
-        item.setQuantity(1);
-        when(repository.findById("item-1")).thenReturn(Optional.of(item));
-
-        // WHEN/THEN
-        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> helper.validateForDeletion("item-1"));
-        // Message text is owned by InventoryItemValidator; assert only type to avoid brittle coupling.
-        assertNotNull(ex.getMessage());
-    }
-
-    @Test
-    void validateForUpdate_returnsExistingItem_whenValid() {
-        // GIVEN
-        authenticateAs("admin");
-
-        InventoryItem existing = new InventoryItem();
-        existing.setId("item-1");
-        existing.setName("Widget");
-        existing.setPrice(new BigDecimal("10.00"));
-        existing.setSupplierId("sup-1");
-
-        InventoryItemDTO dto = new InventoryItemDTO();
-        dto.setName("Widget");
-        dto.setQuantity(5);
-        dto.setMinimumQuantity(1);
-        dto.setPrice(new BigDecimal("10.00"));
-        dto.setSupplierId("sup-1");
-        dto.setCreatedBy("admin");
-
-        when(supplierRepository.existsById("sup-1")).thenReturn(true);
-        when(repository.findById("item-1")).thenReturn(Optional.of(existing));
-
-        // WHEN
-        InventoryItem returned = helper.validateForUpdate("item-1", dto);
-
-        // THEN
-        assertEquals("item-1", returned.getId());
+    private static InventoryItem existingItem(String id, String name, String price) {
+        InventoryItem e = new InventoryItem();
+        e.setId(id); e.setName(name); e.setPrice(new BigDecimal(price));
+        return e;
     }
 
     private static void authenticateAs(String username) {
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        Map<String, Object> attributes = Map.of("email", username);
-        OAuth2User principal = new DefaultOAuth2User(authorities, attributes, "email");
-
+        OAuth2User principal = new DefaultOAuth2User(authorities, Map.of("email", username), "email");
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(new OAuth2AuthenticationToken(principal, authorities, "test"));
         SecurityContextHolder.setContext(context);
