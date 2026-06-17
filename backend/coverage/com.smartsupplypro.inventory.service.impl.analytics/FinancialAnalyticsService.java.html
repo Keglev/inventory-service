@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.smartsupplypro.inventory.dto.FinancialSummaryDTO;
+import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
@@ -21,25 +23,21 @@ import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConve
 import lombok.RequiredArgsConstructor;
 
 /**
- * Financial analytics service implementing Weighted Average Cost (WAC) calculations.
+ * Default implementation of WAC-based financial analytics.
  *
- * &lt;p&gt;Provides comprehensive financial summaries by replaying stock events to calculate:
- * &lt;ul&gt;
- *   &lt;li&gt;Opening inventory (quantity and value at period start)&lt;/li&gt;
- *   &lt;li&gt;Purchases (new stock acquisitions with costs)&lt;/li&gt;
- *   &lt;li&gt;Returns (customer returns, returns to supplier)&lt;/li&gt;
- *   &lt;li&gt;Cost of Goods Sold - COGS (items sold at WAC)&lt;/li&gt;
- *   &lt;li&gt;Write-offs (damaged, lost, expired items)&lt;/li&gt;
- *   &lt;li&gt;Ending inventory (quantity and value at period end)&lt;/li&gt;
- * &lt;/ul&gt;
+ * &lt;p&gt;Replays the full stock event stream per item to maintain a running
+ * Weighted Average Cost (WAC). Events before the requested period establish
+ * the opening inventory baseline; events within the period are categorised into
+ * purchases, returns, COGS, and write-offs.&lt;/p&gt;
  *
- * &lt;p&gt;&lt;strong&gt;WAC Algorithm&lt;/strong&gt;: Maintains running weighted average cost per item by
- * blending old and new costs proportionally when stock arrives at different prices.
+ * &lt;p&gt;&lt;strong&gt;WAC formula&lt;/strong&gt;:
+ * {@code newWAC = (oldQty × oldWAC + inboundQty × unitCost) / (oldQty + inboundQty)}&lt;/p&gt;
  *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
- * @see &lt;a href=&quot;../../../../../../../docs/architecture/services/analytics-service.md#wac-algorithm&quot;&gt;WAC Algorithm&lt;/a&gt;
+ * &lt;p&gt;Exceeds the 200-line guideline due to private WAC calculation helpers
+ * ({@code applyInbound}, {@code issueAt}, phase helpers) that must remain
+ * co-located for algorithmic coherence.&lt;/p&gt;
+ *
+ * @see AnalyticsConverterHelper
  */
 @Service
 @RequiredArgsConstructor
@@ -48,225 +46,232 @@ public class FinancialAnalyticsService {
 
     private final StockHistoryRepository stockHistoryRepository;
 
-    // === Reason Categories for Financial Buckets ===
-<span class="fc" id="L52">    private static final Set&lt;StockChangeReason&gt; RETURNS_IN = Set.of(StockChangeReason.RETURNED_BY_CUSTOMER);</span>
-<span class="fc" id="L53">    private static final Set&lt;StockChangeReason&gt; WRITE_OFFS = Set.of(</span>
-            StockChangeReason.DAMAGED, StockChangeReason.DESTROYED,
-            StockChangeReason.SCRAPPED, StockChangeReason.EXPIRED, StockChangeReason.LOST
-    );
-<span class="fc" id="L57">    private static final Set&lt;StockChangeReason&gt; RETURN_TO_SUPPLIER = Set.of(StockChangeReason.RETURNED_TO_SUPPLIER);</span>
+    // Reason sets define which financial bucket each outbound event belongs to
+<span class="fc" id="L50">    private static final Set&lt;StockChangeReason&gt; RETURNS_IN =</span>
+<span class="fc" id="L51">            Set.of(StockChangeReason.RETURNED_BY_CUSTOMER);</span>
+<span class="fc" id="L52">    private static final Set&lt;StockChangeReason&gt; WRITE_OFFS =</span>
+<span class="fc" id="L53">            Set.of(StockChangeReason.DAMAGED, StockChangeReason.DESTROYED,</span>
+                   StockChangeReason.SCRAPPED, StockChangeReason.EXPIRED, StockChangeReason.LOST);
+<span class="fc" id="L55">    private static final Set&lt;StockChangeReason&gt; RETURN_TO_SUPPLIER =</span>
+<span class="fc" id="L56">            Set.of(StockChangeReason.RETURNED_TO_SUPPLIER);</span>
 
     /**
-     * Produces financial summary using Weighted Average Cost (WAC) method.
+     * Produces a WAC financial summary for a date range.
      *
-     * &lt;p&gt;&lt;strong&gt;Computation Model&lt;/strong&gt;:
+     * &lt;p&gt;Three-phase computation:
      * &lt;ol&gt;
-     *   &lt;li&gt;Opening inventory: Replay events before period to establish baseline WAC per item&lt;/li&gt;
-     *   &lt;li&gt;Period events: Categorize into purchases, returns, COGS, write-offs, returns to supplier&lt;/li&gt;
-     *   &lt;li&gt;Ending inventory: Final state after processing all events&lt;/li&gt;
+     *   &lt;li&gt;Replay all events before {@code from} to establish opening WAC per item.&lt;/li&gt;
+     *   &lt;li&gt;Categorise events within [{@code from}, {@code to}] into financial buckets.&lt;/li&gt;
+     *   &lt;li&gt;Sum the final per-item state to derive ending inventory.&lt;/li&gt;
      * &lt;/ol&gt;
      *
-     * &lt;p&gt;&lt;strong&gt;WAC Formula&lt;/strong&gt;: {@code newWAC = (oldQty × oldWAC + inboundQty × unitCost) / newQty}
-     *
-     * &lt;p&gt;&lt;strong&gt;Financial Equation&lt;/strong&gt;:
-     * &lt;pre&gt;
-     * Opening Value + Purchases Cost + Returns In Cost - COGS Cost - Write-off Cost = Ending Value
-     * &lt;/pre&gt;
-     *
-     * @param from inclusive start date (required)
-     * @param to inclusive end date (required)
-     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
-     * @return WAC-based financial summary with all categories
-     * @throws InvalidRequestException if {@code from/to} is {@code null} or {@code from &gt; to}
+     * @param from       inclusive start date (required)
+     * @param to         inclusive end date (required)
+     * @param supplierId optional supplier filter (null/blank = all suppliers)
+     * @return WAC-based financial summary
+     * @throws InvalidRequestException if dates are null or {@code from &gt; to}
      */
     public FinancialSummaryDTO getFinancialSummaryWAC(LocalDate from, LocalDate to, String supplierId) {
-        // === Input Validation ===
-<span class="pc bpc" id="L84" title="2 of 4 branches missed.">        if (from == null || to == null) throw new InvalidRequestException(&quot;from/to must be provided&quot;);</span>
-<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (from.isAfter(to)) throw new InvalidRequestException(&quot;from must be on or before to&quot;);</span>
+<span class="pc bpc" id="L75" title="2 of 4 branches missed.">        if (from == null || to == null) throw new InvalidRequestException(&quot;from/to must be provided&quot;);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (from.isAfter(to))          throw new InvalidRequestException(&quot;from must be on or before to&quot;);</span>
 
-        // Convert LocalDate to LocalDateTime boundaries (inclusive range)
-<span class="fc" id="L88">        LocalDateTime start = LocalDateTime.of(from, LocalTime.MIN);  // 00:00:00.000</span>
-<span class="fc" id="L89">        LocalDateTime end   = LocalDateTime.of(to,   LocalTime.MAX);  // 23:59:59.999</span>
+        // LocalTime.MIN/MAX give full-day inclusive boundaries at TIMESTAMP precision
+<span class="fc" id="L79">        LocalDateTime start = LocalDateTime.of(from, LocalTime.MIN);</span>
 
-        // === Fetch Event Stream ===
-<span class="fc" id="L92">        var events = stockHistoryRepository.streamEventsForWAC(end, blankToNull(supplierId));</span>
+<span class="fc" id="L81">        List&lt;StockEventRowDTO&gt; events =</span>
+<span class="fc" id="L82">                stockHistoryRepository.streamEventsForWAC(</span>
+<span class="fc" id="L83">                        LocalDateTime.of(to, LocalTime.MAX), blankToNull(supplierId));</span>
 
-        // === Initialize Financial Buckets ===
-<span class="fc" id="L95">        long openingQty = 0, purchasesQty = 0, returnsInQty = 0, cogsQty = 0, writeOffQty = 0, endingQty = 0;</span>
-<span class="fc" id="L96">        BigDecimal openingValue = BigDecimal.ZERO,</span>
-<span class="fc" id="L97">                   purchasesCost = BigDecimal.ZERO,</span>
-<span class="fc" id="L98">                   returnsInCost = BigDecimal.ZERO,</span>
-<span class="fc" id="L99">                   cogsCost = BigDecimal.ZERO,</span>
-<span class="fc" id="L100">                   writeOffCost = BigDecimal.ZERO,</span>
-<span class="fc" id="L101">                   endingValue = BigDecimal.ZERO;</span>
+<span class="fc" id="L85">        Map&lt;String, WacState&gt; state = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L86">        FinancialBuckets b = new FinancialBuckets();</span>
 
-        // === Per-Item State Tracking (itemId → State) ===
-<span class="fc" id="L104">        Map&lt;String, WacState&gt; state = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L88">        processOpeningInventory(events, start, state);</span>
+<span class="fc" id="L89">        sumOpeningInventory(state, b);</span>
+<span class="fc" id="L90">        processPeriodEvents(events, start, state, b);</span>
+<span class="fc" id="L91">        sumEndingInventory(state, b);</span>
 
-        // === PHASE 1: Opening Inventory (events before period start) ===
-<span class="fc bfc" id="L107" title="All 2 branches covered.">        for (var e : events) {</span>
-<span class="fc bfc" id="L108" title="All 2 branches covered.">            if (e.createdAt().isBefore(start)) {</span>
-<span class="fc" id="L109">                WacState st = state.get(e.itemId());</span>
-                
-<span class="fc bfc" id="L111" title="All 2 branches covered.">                if (e.quantityChange() &gt; 0) {</span>
-                    // Inbound: determine unit cost and update WAC
-<span class="fc bfc" id="L113" title="All 2 branches covered.">                    BigDecimal unit = (e.priceAtChange() != null)</span>
-<span class="fc" id="L114">                            ? e.priceAtChange()</span>
-<span class="fc bfc" id="L115" title="All 2 branches covered.">                            : (st == null ? BigDecimal.ZERO : st.avgCost());</span>
-<span class="fc" id="L116">                    st = applyInbound(st, e.quantityChange(), unit);</span>
-<span class="fc" id="L117">                    state.put(e.itemId(), st);</span>
-                    
-<span class="pc bpc" id="L119" title="1 of 2 branches missed.">                } else if (e.quantityChange() &lt; 0) {</span>
-                    // Outbound: issue at current WAC
-<span class="fc" id="L121">                    WacIssue iss = issueAt(st, Math.abs(e.quantityChange()));</span>
-<span class="fc" id="L122">                    state.put(e.itemId(), iss.state());</span>
-                }
+<span class="fc" id="L93">        return buildSummary(from, to, b);</span>
+    }
+
+    // ── Phase helpers ─────────────────────────────────────────────────────────
+
+    /**
+     * Replays all events that occurred before {@code start} to build the opening WAC
+     * baseline per item. Events are processed in chronological order as supplied
+     * by the repository query.
+     */
+    private void processOpeningInventory(List&lt;StockEventRowDTO&gt; events,
+                                         LocalDateTime start,
+                                         Map&lt;String, WacState&gt; state) {
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        for (StockEventRowDTO e : events) {</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">            if (!e.createdAt().isBefore(start)) continue;</span>
+
+<span class="fc" id="L109">            WacState st = state.get(e.itemId());</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">            if (e.quantityChange() &gt; 0) {</span>
+<span class="fc" id="L111">                state.put(e.itemId(), applyInbound(st, e.quantityChange(), resolveUnit(e.priceAtChange(), st)));</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">            } else if (e.quantityChange() &lt; 0) {</span>
+<span class="fc" id="L113">                state.put(e.itemId(), issueAt(st, Math.abs(e.quantityChange())).state());</span>
             }
-<span class="fc" id="L125">        }</span>
-        
-        // Sum opening inventory across all items
-<span class="fc bfc" id="L128" title="All 2 branches covered.">        for (var st : state.values()) {</span>
-<span class="fc" id="L129">            openingQty += st.qty();</span>
-<span class="fc" id="L130">            openingValue = openingValue.add(st.avgCost().multiply(BigDecimal.valueOf(st.qty())));</span>
-<span class="fc" id="L131">        }</span>
+<span class="fc" id="L115">        }</span>
+<span class="fc" id="L116">    }</span>
 
-        // === PHASE 2: Process Events Within Period [start..end] ===
-<span class="fc bfc" id="L134" title="All 2 branches covered.">        for (var e : events) {</span>
+    /** Sums per-item opening state into the opening quantity and value buckets. */
+    private void sumOpeningInventory(Map&lt;String, WacState&gt; state, FinancialBuckets b) {
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        for (WacState st : state.values()) {</span>
+<span class="fc" id="L121">            b.openingQty  += st.qty();</span>
+<span class="fc" id="L122">            b.openingValue = b.openingValue.add(st.avgCost().multiply(BigDecimal.valueOf(st.qty())));</span>
+<span class="fc" id="L123">        }</span>
+<span class="fc" id="L124">    }</span>
+
+    /**
+     * Processes events within the reporting period and routes each to the
+     * correct financial bucket. WAC state is updated continuously.
+     */
+    private void processPeriodEvents(List&lt;StockEventRowDTO&gt; events,
+                                     LocalDateTime start,
+                                     Map&lt;String, WacState&gt; state,
+                                     FinancialBuckets b) {
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        for (StockEventRowDTO e : events) {</span>
 <span class="fc bfc" id="L135" title="All 2 branches covered.">            if (e.createdAt().isBefore(start)) continue;</span>
 
 <span class="fc" id="L137">            WacState st = state.get(e.itemId());</span>
-
-<span class="fc bfc" id="L139" title="All 2 branches covered.">            if (e.quantityChange() &gt; 0) {</span>
-                // === INBOUND: Purchases, Returns ===
-<span class="fc bfc" id="L141" title="All 2 branches covered.">                BigDecimal unit = (e.priceAtChange() != null)</span>
-<span class="fc" id="L142">                        ? e.priceAtChange()</span>
-<span class="pc bpc" id="L143" title="1 of 2 branches missed.">                        : (st == null ? BigDecimal.ZERO : st.avgCost());</span>
-                
-<span class="fc" id="L145">                WacState newSt = applyInbound(st, e.quantityChange(), unit);</span>
-<span class="fc" id="L146">                state.put(e.itemId(), newSt);</span>
-
-<span class="fc bfc" id="L148" title="All 2 branches covered.">                if (RETURNS_IN.contains(e.reason())) {</span>
-                    // Customer returns
-<span class="fc" id="L150">                    returnsInQty += e.quantityChange();</span>
-<span class="fc" id="L151">                    returnsInCost = returnsInCost.add(unit.multiply(BigDecimal.valueOf(e.quantityChange())));</span>
-                } else {
-                    // Purchases (includes INITIAL_STOCK or entries with price)
-<span class="pc bpc" id="L154" title="1 of 4 branches missed.">                    if (e.priceAtChange() != null || e.reason() == StockChangeReason.INITIAL_STOCK) {</span>
-<span class="fc" id="L155">                        purchasesQty += e.quantityChange();</span>
-<span class="fc" id="L156">                        purchasesCost = purchasesCost.add(unit.multiply(BigDecimal.valueOf(e.quantityChange())));</span>
-                    }
-                }
-
-<span class="pc bpc" id="L160" title="1 of 2 branches missed.">            } else if (e.quantityChange() &lt; 0) {</span>
-                // === OUTBOUND: Sales, Write-offs, Returns to Supplier ===
-<span class="fc" id="L162">                int out = Math.abs(e.quantityChange());</span>
-
-<span class="fc bfc" id="L164" title="All 2 branches covered.">                if (RETURN_TO_SUPPLIER.contains(e.reason())) {</span>
-                    // Returning to supplier → negative purchase
-<span class="fc" id="L166">                    WacIssue iss = issueAt(st, out);</span>
-<span class="fc" id="L167">                    state.put(e.itemId(), iss.state());</span>
-<span class="fc" id="L168">                    purchasesQty -= out;</span>
-<span class="fc" id="L169">                    purchasesCost = purchasesCost.subtract(iss.cost());</span>
-
-<span class="fc bfc" id="L171" title="All 2 branches covered.">                } else if (WRITE_OFFS.contains(e.reason())) {</span>
-                    // Damaged, lost, expired, etc.
-<span class="fc" id="L173">                    WacIssue iss = issueAt(st, out);</span>
-<span class="fc" id="L174">                    state.put(e.itemId(), iss.state());</span>
-<span class="fc" id="L175">                    writeOffQty += out;</span>
-<span class="fc" id="L176">                    writeOffCost = writeOffCost.add(iss.cost());</span>
-
-<span class="fc" id="L178">                } else {</span>
-                    // Default: COGS (Cost of Goods Sold)
-<span class="fc" id="L180">                    WacIssue iss = issueAt(st, out);</span>
-<span class="fc" id="L181">                    state.put(e.itemId(), iss.state());</span>
-<span class="fc" id="L182">                    cogsQty += out;</span>
-<span class="fc" id="L183">                    cogsCost = cogsCost.add(iss.cost());</span>
-                }
+<span class="fc bfc" id="L138" title="All 2 branches covered.">            if (e.quantityChange() &gt; 0) {</span>
+<span class="fc" id="L139">                processInboundEvent(e, st, state, b);</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">            } else if (e.quantityChange() &lt; 0) {</span>
+<span class="fc" id="L141">                processOutboundEvent(e, st, state, b);</span>
             }
-<span class="fc" id="L186">        }</span>
+<span class="fc" id="L143">        }</span>
+<span class="fc" id="L144">    }</span>
 
-        // === PHASE 3: Calculate Ending Inventory ===
-<span class="fc bfc" id="L189" title="All 2 branches covered.">        for (var st : state.values()) {</span>
-<span class="fc" id="L190">            endingQty += st.qty();</span>
-<span class="fc" id="L191">            endingValue = endingValue.add(st.avgCost().multiply(BigDecimal.valueOf(st.qty())));</span>
+    /** Routes a positive-quantity period event to the purchases or customer-returns bucket. */
+    private void processInboundEvent(StockEventRowDTO e,
+                                     WacState st,
+                                     Map&lt;String, WacState&gt; state,
+                                     FinancialBuckets b) {
+<span class="fc" id="L151">        BigDecimal unit = resolveUnit(e.priceAtChange(), st);</span>
+<span class="fc" id="L152">        state.put(e.itemId(), applyInbound(st, e.quantityChange(), unit));</span>
+<span class="fc" id="L153">        BigDecimal cost = unit.multiply(BigDecimal.valueOf(e.quantityChange()));</span>
+
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        if (RETURNS_IN.contains(e.reason())) {</span>
+<span class="fc" id="L156">            b.returnsInQty  += e.quantityChange();</span>
+<span class="fc" id="L157">            b.returnsInCost  = b.returnsInCost.add(cost);</span>
+<span class="pc bpc" id="L158" title="1 of 4 branches missed.">        } else if (e.priceAtChange() != null || e.reason() == StockChangeReason.INITIAL_STOCK) {</span>
+            // Only events with a price snapshot or INITIAL_STOCK reason count as purchases
+<span class="fc" id="L160">            b.purchasesQty  += e.quantityChange();</span>
+<span class="fc" id="L161">            b.purchasesCost  = b.purchasesCost.add(cost);</span>
+        }
+<span class="fc" id="L163">    }</span>
+
+    /** Routes a negative-quantity period event to COGS, write-offs, or returns-to-supplier. */
+    private void processOutboundEvent(StockEventRowDTO e,
+                                      WacState st,
+                                      Map&lt;String, WacState&gt; state,
+                                      FinancialBuckets b) {
+<span class="fc" id="L170">        int out      = Math.abs(e.quantityChange());</span>
+<span class="fc" id="L171">        WacIssue iss = issueAt(st, out);</span>
+<span class="fc" id="L172">        state.put(e.itemId(), iss.state());</span>
+
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (RETURN_TO_SUPPLIER.contains(e.reason())) {</span>
+            // Returning to supplier reverses a purchase rather than creating a COGS entry
+<span class="fc" id="L176">            b.purchasesQty  -= out;</span>
+<span class="fc" id="L177">            b.purchasesCost  = b.purchasesCost.subtract(iss.cost());</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        } else if (WRITE_OFFS.contains(e.reason())) {</span>
+<span class="fc" id="L179">            b.writeOffQty   += out;</span>
+<span class="fc" id="L180">            b.writeOffCost   = b.writeOffCost.add(iss.cost());</span>
+        } else {
+<span class="fc" id="L182">            b.cogsQty       += out;</span>
+<span class="fc" id="L183">            b.cogsCost       = b.cogsCost.add(iss.cost());</span>
+        }
+<span class="fc" id="L185">    }</span>
+
+    /** Sums the final per-item WAC state into ending quantity and value buckets. */
+    private void sumEndingInventory(Map&lt;String, WacState&gt; state, FinancialBuckets b) {
+<span class="fc bfc" id="L189" title="All 2 branches covered.">        for (WacState st : state.values()) {</span>
+<span class="fc" id="L190">            b.endingQty   += st.qty();</span>
+<span class="fc" id="L191">            b.endingValue  = b.endingValue.add(st.avgCost().multiply(BigDecimal.valueOf(st.qty())));</span>
 <span class="fc" id="L192">        }</span>
+<span class="fc" id="L193">    }</span>
 
-        // === Build Financial Summary DTO ===
-<span class="fc" id="L195">        return FinancialSummaryDTO.builder()</span>
-<span class="fc" id="L196">                .method(&quot;WAC&quot;)</span>
-<span class="fc" id="L197">                .fromDate(from.toString())</span>
-<span class="fc" id="L198">                .toDate(to.toString())</span>
-<span class="fc" id="L199">                .openingQty(openingQty)</span>
-<span class="fc" id="L200">                .openingValue(openingValue)</span>
-<span class="fc" id="L201">                .purchasesQty(purchasesQty)</span>
-<span class="fc" id="L202">                .purchasesCost(purchasesCost)</span>
-<span class="fc" id="L203">                .returnsInQty(returnsInQty)</span>
-<span class="fc" id="L204">                .returnsInCost(returnsInCost)</span>
-<span class="fc" id="L205">                .cogsQty(cogsQty)</span>
-<span class="fc" id="L206">                .cogsCost(cogsCost)</span>
-<span class="fc" id="L207">                .writeOffQty(writeOffQty)</span>
-<span class="fc" id="L208">                .writeOffCost(writeOffCost)</span>
-<span class="fc" id="L209">                .endingQty(endingQty)</span>
-<span class="fc" id="L210">                .endingValue(endingValue)</span>
-<span class="fc" id="L211">                .build();</span>
+    private FinancialSummaryDTO buildSummary(LocalDate from, LocalDate to, FinancialBuckets b) {
+<span class="fc" id="L196">        return FinancialSummaryDTO.builder()</span>
+<span class="fc" id="L197">                .method(&quot;WAC&quot;)</span>
+<span class="fc" id="L198">                .fromDate(from.toString())</span>
+<span class="fc" id="L199">                .toDate(to.toString())</span>
+<span class="fc" id="L200">                .openingQty(b.openingQty)</span>
+<span class="fc" id="L201">                .openingValue(b.openingValue)</span>
+<span class="fc" id="L202">                .purchasesQty(b.purchasesQty)</span>
+<span class="fc" id="L203">                .purchasesCost(b.purchasesCost)</span>
+<span class="fc" id="L204">                .returnsInQty(b.returnsInQty)</span>
+<span class="fc" id="L205">                .returnsInCost(b.returnsInCost)</span>
+<span class="fc" id="L206">                .cogsQty(b.cogsQty)</span>
+<span class="fc" id="L207">                .cogsCost(b.cogsCost)</span>
+<span class="fc" id="L208">                .writeOffQty(b.writeOffQty)</span>
+<span class="fc" id="L209">                .writeOffCost(b.writeOffCost)</span>
+<span class="fc" id="L210">                .endingQty(b.endingQty)</span>
+<span class="fc" id="L211">                .endingValue(b.endingValue)</span>
+<span class="fc" id="L212">                .build();</span>
     }
 
-    // === WAC Algorithm - Core Data Structures ===
+    // ── WAC algorithm — data structures ──────────────────────────────────────
 
-    /** Represents current inventory state (qty + WAC) for a single item. */
-<span class="fc" id="L217">    private record WacState(long qty, BigDecimal avgCost) {}</span>
+    /** Current inventory state (running quantity + WAC) for a single item. */
+<span class="fc" id="L218">    private record WacState(long qty, BigDecimal avgCost) {}</span>
 
-    /** Result of outbound operation (updated state + cost at WAC). */
-<span class="fc" id="L220">    private record WacIssue(WacState state, BigDecimal cost) {}</span>
+    /** Result of an outbound operation: updated state and the cost issued at WAC. */
+<span class="fc" id="L221">    private record WacIssue(WacState state, BigDecimal cost) {}</span>
 
-    // === WAC Algorithm - Core Operations ===
+    /** Mutable accumulator for all financial bucket totals across the reporting period. */
+<span class="fc" id="L224">    private static class FinancialBuckets {</span>
+        long openingQty, purchasesQty, returnsInQty, cogsQty, writeOffQty, endingQty;
+<span class="fc" id="L226">        BigDecimal openingValue  = BigDecimal.ZERO;</span>
+<span class="fc" id="L227">        BigDecimal purchasesCost = BigDecimal.ZERO;</span>
+<span class="fc" id="L228">        BigDecimal returnsInCost = BigDecimal.ZERO;</span>
+<span class="fc" id="L229">        BigDecimal cogsCost      = BigDecimal.ZERO;</span>
+<span class="fc" id="L230">        BigDecimal writeOffCost  = BigDecimal.ZERO;</span>
+<span class="fc" id="L231">        BigDecimal endingValue   = BigDecimal.ZERO;</span>
+    }
+
+    // ── WAC algorithm — core operations ──────────────────────────────────────
 
     /**
-     * Applies inbound stock movement and recalculates WAC.
+     * Recalculates WAC after an inbound stock movement.
      *
-     * &lt;p&gt;&lt;strong&gt;Formula&lt;/strong&gt;:
-     * &lt;pre&gt;
-     * newWAC = (oldQty × oldWAC + inboundQty × unitCost) / (oldQty + inboundQty)
-     * &lt;/pre&gt;
-     *
-     * @param st current state (nullable for first purchase)
-     * @param qtyIn quantity being added (positive)
-     * @param unitCost unit cost of inbound stock
-     * @return new state with updated quantity and recalculated WAC
+     * &lt;p&gt;Formula: {@code newWAC = (oldQty × oldWAC + inboundQty × unitCost) / newQty}
+     * — blends old and new costs proportionally when stock arrives at different prices.&lt;/p&gt;
      */
     private static WacState applyInbound(WacState st, int qtyIn, BigDecimal unitCost) {
-<span class="fc bfc" id="L238" title="All 2 branches covered.">        long q0 = (st == null) ? 0 : st.qty();</span>
-<span class="fc bfc" id="L239" title="All 2 branches covered.">        BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();</span>
-        
-<span class="fc" id="L241">        long q1 = q0 + qtyIn;</span>
-<span class="fc" id="L242">        BigDecimal v0  = c0.multiply(BigDecimal.valueOf(q0));</span>
-<span class="fc" id="L243">        BigDecimal vin = unitCost.multiply(BigDecimal.valueOf(qtyIn));</span>
-        
-<span class="pc bpc" id="L245" title="1 of 2 branches missed.">        BigDecimal avg1 = (q1 == 0)</span>
-<span class="nc" id="L246">                ? BigDecimal.ZERO</span>
-<span class="fc" id="L247">                : v0.add(vin).divide(BigDecimal.valueOf(q1), 4, RoundingMode.HALF_UP);</span>
-        
-<span class="fc" id="L249">        return new WacState(q1, avg1);</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">        long q0       = (st == null) ? 0 : st.qty();</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">        BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();</span>
+<span class="fc" id="L245">        long q1       = q0 + qtyIn;</span>
+
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">        BigDecimal avg1 = (q1 == 0) ? BigDecimal.ZERO</span>
+<span class="fc" id="L248">                : c0.multiply(BigDecimal.valueOf(q0))</span>
+<span class="fc" id="L249">                    .add(unitCost.multiply(BigDecimal.valueOf(qtyIn)))</span>
+<span class="fc" id="L250">                    .divide(BigDecimal.valueOf(q1), 4, RoundingMode.HALF_UP);</span>
+
+<span class="fc" id="L252">        return new WacState(q1, avg1);</span>
     }
 
     /**
-     * Issues (consumes) inventory at current WAC.
-     *
-     * &lt;p&gt;WAC remains unchanged, only quantity is reduced.
-     * Quantity is clamped to zero if issue exceeds available stock.
-     *
-     * @param st current state
-     * @param qtyOut quantity being issued (positive)
-     * @return issue result with updated state and cost
+     * Issues (consumes) inventory at the current WAC.
+     * WAC remains unchanged; only quantity is reduced.
+     * Quantity is clamped to zero if the issue exceeds available stock.
      */
     private static WacIssue issueAt(WacState st, int qtyOut) {
-<span class="fc bfc" id="L263" title="All 2 branches covered.">        long q0 = (st == null) ? 0 : st.qty();</span>
-<span class="fc bfc" id="L264" title="All 2 branches covered.">        BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();</span>
-        
-<span class="fc" id="L266">        long q1 = Math.max(0, q0 - qtyOut);  // Guard against negative</span>
-<span class="fc" id="L267">        BigDecimal cost = c0.multiply(BigDecimal.valueOf(qtyOut));</span>
-        
-<span class="fc" id="L269">        return new WacIssue(new WacState(q1, c0), cost);</span>
+<span class="fc bfc" id="L261" title="All 2 branches covered.">        long q0       = (st == null) ? 0 : st.qty();</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">        BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();</span>
+<span class="fc" id="L263">        long q1       = Math.max(0, q0 - qtyOut);</span>
+<span class="fc" id="L264">        return new WacIssue(new WacState(q1, c0), c0.multiply(BigDecimal.valueOf(qtyOut)));</span>
+    }
+
+    /**
+     * Resolves the unit cost for an inbound event.
+     * Falls back to the current WAC when no price snapshot is recorded,
+     * so events without a price do not reset the cost basis to zero.
+     */
+    private static BigDecimal resolveUnit(BigDecimal priceAtChange, WacState st) {
+<span class="fc bfc" id="L273" title="All 2 branches covered.">        if (priceAtChange != null) return priceAtChange;</span>
+<span class="fc bfc" id="L274" title="All 2 branches covered.">        return (st == null) ? BigDecimal.ZERO : st.avgCost();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StockHistoryServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.service.impl</a> &gt; <span class="el_source">StockHistoryServiceImpl.java</span></div><h1>StockHistoryServiceImpl.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.service.impl;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.smartsupplypro.inventory.dto.StockHistoryDTO;
+import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.mapper.StockHistoryMapper;
+import com.smartsupplypro.inventory.model.StockHistory;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
+import com.smartsupplypro.inventory.repository.StockHistoryRepository;
+import com.smartsupplypro.inventory.service.StockHistoryService;
+import com.smartsupplypro.inventory.validation.StockHistoryValidator;
+
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Default implementation of {@link StockHistoryService} using Spring Data JPA.
+ *
+ * &lt;p&gt;Denormalizes supplier ID onto each history record so analytics queries
+ * can filter by supplier without joining back to inventory_item.&lt;/p&gt;
+ *
+ * @see StockHistoryService
+ * @see StockHistoryValidator
+ * @see StockHistoryMapper
+ */
+@Service
+@RequiredArgsConstructor
+public class StockHistoryServiceImpl implements StockHistoryService {
+
+    private final StockHistoryRepository repository;
+    private final InventoryItemRepository itemRepository;
+    private final StockHistoryMapper mapper;
+
+    /**
+     * Resolves the supplier ID for denormalization on stock history records.
+     * Stored on the history row to avoid joins in analytics queries.
+     */
+    private String resolveSupplierId(String itemId) {
+<span class="fc" id="L46">        return itemRepository.findById(itemId)</span>
+<span class="fc" id="L47">                .map(item -&gt; item.getSupplierId())</span>
+<span class="fc" id="L48">                .orElse(null);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List&lt;StockHistoryDTO&gt; getAll() {
+<span class="fc" id="L54">        return repository.findAll().stream()</span>
+<span class="fc" id="L55">                .map(mapper::toDTO)</span>
+<span class="fc" id="L56">                .collect(Collectors.toList());</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List&lt;StockHistoryDTO&gt; getByItemId(String itemId) {
+<span class="fc" id="L62">        return repository.findByItemIdOrderByTimestampDesc(itemId)</span>
+<span class="fc" id="L63">                .stream().map(mapper::toDTO).toList();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List&lt;StockHistoryDTO&gt; getByReason(StockChangeReason reason) {
+<span class="fc" id="L69">        return repository.findByReasonOrderByTimestampDesc(reason)</span>
+<span class="fc" id="L70">                .stream().map(mapper::toDTO).toList();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Page&lt;StockHistoryDTO&gt; findFiltered(LocalDateTime startDate,
+                                              LocalDateTime endDate,
+                                              String itemName,
+                                              String supplierId,
+                                              Pageable pageable) {
+<span class="fc" id="L80">        return repository.findFiltered(startDate, endDate, itemName, supplierId, pageable)</span>
+<span class="fc" id="L81">                .map(mapper::toDTO);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void logStockChange(String itemId, int change, StockChangeReason reason, String createdBy) {
+<span class="fc" id="L87">        logStockChange(itemId, change, reason, createdBy, null);</span>
+<span class="fc" id="L88">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;Builds a DTO for domain validation, then persists an immutable
+     * {@link StockHistory} entity with a server-authoritative timestamp.&lt;/p&gt;
+     */
+    @Override
+    public void logStockChange(String itemId,
+                               int change,
+                               StockChangeReason reason,
+                               String createdBy,
+                               BigDecimal priceAtChange) {
+
+<span class="fc" id="L103">        StockHistoryValidator.validateEnum(reason);</span>
+
+        // Build DTO for domain validation; price snapshot enables WAC and PRICE_CHANGE tracking
+<span class="fc" id="L106">        StockHistoryDTO dto = StockHistoryDTO.builder()</span>
+<span class="fc" id="L107">                .itemId(itemId)</span>
+<span class="fc" id="L108">                .change(change)</span>
+<span class="fc" id="L109">                .reason(reason.name())</span>
+<span class="fc" id="L110">                .createdBy(createdBy)</span>
+<span class="fc" id="L111">                .priceAtChange(priceAtChange)</span>
+<span class="fc" id="L112">                .build();</span>
+
+<span class="fc" id="L114">        StockHistoryValidator.validate(dto);</span>
+
+<span class="fc" id="L116">        String supplierId = resolveSupplierId(itemId);</span>
+
+        // Server-authoritative timestamp ensures consistency across distributed writes
+<span class="fc" id="L119">        StockHistory history = StockHistory.builder()</span>
+<span class="fc" id="L120">                .id(&quot;sh-&quot; + itemId + &quot;-&quot; + System.currentTimeMillis())</span>
+<span class="fc" id="L121">                .itemId(itemId)</span>
+<span class="fc" id="L122">                .supplierId(supplierId)</span>
+<span class="fc" id="L123">                .change(change)</span>
+<span class="fc" id="L124">                .reason(reason)</span>
+<span class="fc" id="L125">                .createdBy(createdBy)</span>
+<span class="fc" id="L126">                .timestamp(LocalDateTime.now())</span>
+<span class="fc" id="L127">                .priceAtChange(priceAtChange)</span>
+<span class="fc" id="L128">                .build();</span>
+
+<span class="fc" id="L130">        repository.save(history);</span>
+<span class="fc" id="L131">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;Applies domain validation, enriches the record with the denormalized
+     * supplierId, and uses a server-authoritative timestamp for audit consistency.&lt;/p&gt;
+     */
+    @Override
+    public void save(StockHistoryDTO dto) {
+<span class="fc" id="L141">        StockHistoryValidator.validate(dto);</span>
+
+<span class="fc" id="L143">        String supplierId = resolveSupplierId(dto.itemId());</span>
+
+<span class="fc" id="L145">        StockHistory history = StockHistory.builder()</span>
+<span class="fc" id="L146">                .id(&quot;sh-&quot; + dto.itemId() + &quot;-&quot; + System.currentTimeMillis())</span>
+<span class="fc" id="L147">                .itemId(dto.itemId())</span>
+<span class="fc" id="L148">                .supplierId(supplierId)</span>
+<span class="fc" id="L149">                .change(dto.change())</span>
+<span class="fc" id="L150">                .reason(StockChangeReason.valueOf(dto.reason()))</span>
+<span class="fc" id="L151">                .createdBy(dto.createdBy())</span>
+<span class="fc" id="L152">                .timestamp(LocalDateTime.now())</span>
+<span class="fc" id="L153">                .priceAtChange(dto.priceAtChange())</span>
+<span class="fc" id="L154">                .build();</span>
+
+<span class="fc" id="L156">        repository.save(history);</span>
+<span class="fc" id="L157">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void delete(String itemId, StockChangeReason reason, String createdBy) {
+<span class="fc" id="L162">        logStockChange(itemId, -1, reason, createdBy);</span>
+<span class="fc" id="L163">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
