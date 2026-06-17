@@ -13,21 +13,8 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository;
 
 /**
- * Shared helper utilities for {@link CookieOAuth2AuthorizationRequestRepository} unit tests.
- *
- * <p><strong>Purpose</strong>:</p>
- * <ul>
- *   <li>Keep test classes small and focused by centralizing boilerplate (sample request creation, forwarded HTTPS
- *       request setup, cookie header parsing, base64url encode/decode).</li>
- *   <li>Ensure all tests use a consistent sample {@code OAuth2AuthorizationRequest} and cookie parsing logic,
- *       reducing maintenance cost when the repository format evolves.</li>
- * </ul>
- *
- * <p><strong>Design notes</strong>:</p>
- * <ul>
- *   <li>Package-private on purpose: used only by tests in this package.</li>
- *   <li>No assertions here: helpers should remain deterministic and side-effect free.</li>
- * </ul>
+ * Shared test utilities for {@link CookieOAuth2AuthorizationRequestRepository} unit tests.
+ * Package-private; helpers must remain deterministic and side-effect free — no assertions here.
  */
 final class CookieOAuth2AuthorizationRequestRepositoryTestSupport {
 
@@ -40,6 +27,7 @@ final class CookieOAuth2AuthorizationRequestRepositoryTestSupport {
     private CookieOAuth2AuthorizationRequestRepositoryTestSupport() {
     }
 
+    /** Canonical {@code OAuth2AuthorizationRequest} with all fields populated for round-trip assertions. */
     static OAuth2AuthorizationRequest sampleAuthorizationRequest() {
         return OAuth2AuthorizationRequest.authorizationCode()
             .authorizationUri("https://accounts.example.test/oauth2/auth")
@@ -56,6 +44,7 @@ final class CookieOAuth2AuthorizationRequestRepositoryTestSupport {
             .build();
     }
 
+    /** Request that simulates a reverse-proxied HTTPS connection via {@code X-Forwarded-Proto}. */
     static MockHttpServletRequest forwardedHttpsRequest() {
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.setSecure(false);
@@ -63,6 +52,7 @@ final class CookieOAuth2AuthorizationRequestRepositoryTestSupport {
         return req;
     }
 
+    /** Extracts the value portion of a named cookie from a list of {@code Set-Cookie} header strings. */
     static String cookieValueFromSetCookieHeaders(List<String> setCookieHeaders, String cookieName) {
         String prefix = cookieName + "=";
         return setCookieHeaders.stream()

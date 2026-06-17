@@ -14,20 +14,7 @@ import jakarta.servlet.http.Cookie;
 
 /**
  * Shared test utilities for {@code OAuth2LoginSuccessHandler} unit tests.
- *
- * <h2>Scope</h2>
- * <ul>
- *   <li>Build minimal {@link OAuth2AuthenticationToken} principals with email/name attributes.</li>
- *   <li>Build {@link MockHttpServletRequest} instances with the {@code SSP_RETURN} cookie.</li>
- *   <li>Provide a lenient {@link MockHttpServletResponse} variant that tolerates duplicate redirects.</li>
- * </ul>
- *
- * <h2>Design</h2>
- * <ul>
- *   <li>Package-private and colocated with tests so helpers stay discoverable and do not leak into
- *       production code.</li>
- *   <li>Helpers are intentionally small and deterministic to keep Mockito tests readable.</li>
- * </ul>
+ * Package-private; helpers must remain deterministic and side-effect free.
  */
 @SuppressWarnings("unused")
 final class OAuth2LoginSuccessHandlerTestSupport {
@@ -35,11 +22,7 @@ final class OAuth2LoginSuccessHandlerTestSupport {
     private OAuth2LoginSuccessHandlerTestSupport() {
     }
 
-    /**
-     * Utility: build an OAuth2 token with {email, name} and a {@code ROLE_USER} authority.
-     *
-     * <p>This mirrors what the handler expects from typical OAuth2 providers.</p>
-     */
+    /** Builds an OAuth2 token with {@code email} and {@code name} attributes and a {@code ROLE_USER} authority. */
     static OAuth2AuthenticationToken token(String email, String name) {
         OAuth2User principal = new DefaultOAuth2User(
             singletonList(() -> "ROLE_USER"),
@@ -49,7 +32,7 @@ final class OAuth2LoginSuccessHandlerTestSupport {
         return new OAuth2AuthenticationToken(principal, principal.getAuthorities(), "google");
     }
 
-    /** Create a request pre-populated with the single-use {@code SSP_RETURN} cookie. */
+    /** Builds a request pre-populated with the single-use {@code SSP_RETURN} cookie. */
     static MockHttpServletRequest requestWithReturnCookie(String returnUrl) {
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.setCookies(new Cookie("SSP_RETURN", returnUrl));
@@ -57,11 +40,9 @@ final class OAuth2LoginSuccessHandlerTestSupport {
     }
 
     /**
-     * Response that ignores subsequent redirects once committed.
-     *
-     * <p>Some authentication success flows can trigger more than one redirect in a single call chain.
-     * Spring’s {@link MockHttpServletResponse} throws on the second call; this variant intentionally
-     * records the first redirect and swallows the rest so tests can assert the redirect target.</p>
+     * Response that silently drops redirect calls after the first commit.
+     * Some authentication success flows trigger more than one redirect in a single call chain;
+     * this variant records the first and swallows the rest so tests can assert the redirect target.
      */
     static class LenientRedirectResponse extends MockHttpServletResponse {
         @Override
@@ -72,7 +53,7 @@ final class OAuth2LoginSuccessHandlerTestSupport {
             try {
                 super.sendRedirect(location);
             } catch (IOException ignored) {
-                // Mock behaviour shouldn't propagate here in tests.
+                // Swallow mock IOException so tests can assert the redirect target.
             }
         }
     }

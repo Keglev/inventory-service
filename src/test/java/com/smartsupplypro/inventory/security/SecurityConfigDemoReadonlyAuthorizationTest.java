@@ -1,5 +1,6 @@
 package com.smartsupplypro.inventory.security;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,13 +39,13 @@ import com.smartsupplypro.inventory.service.CustomOAuth2UserService;
 import com.smartsupplypro.inventory.service.CustomOidcUserService;
 
 /**
- * Verifies the demo-readonly authorization branch in {@link SecurityAuthorizationHelper}:
+ * Tests for the demo-readonly authorization branch in {@link SecurityAuthorizationHelper}:
  * read-only endpoints are public, mutation endpoints remain protected.
  */
 @SuppressWarnings("unused")
 @WebMvcTest(controllers = { SecurityConfigDemoReadonlyAuthorizationTest.DemoApiStubController.class })
 @AutoConfigureMockMvc(addFilters = true)
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "demo-readonly-test"})
 @TestPropertySource(properties = {
     "app.demo-readonly=true",
     "app.frontend.base-url=https://frontend.test",
@@ -64,35 +66,43 @@ class SecurityConfigDemoReadonlyAuthorizationTest {
     @Autowired
     private MockMvc mvc;
 
-    @Test
-    void should_allowAnonymousGet_when_demoReadonlyOnAndInventoryEndpoint() throws Exception {
-        mvc.perform(get("/api/inventory/demo-ok").accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().json("{\"status\":\"ok\"}"));
-    }
+    /**
+     * Behavior when demo-readonly is enabled.
+     */
+    @Nested
+    class WhenDemoReadonlyIsEnabled {
 
-    @Test
-    void should_allowAnonymousGet_when_demoReadonlyOnAndAnalyticsEndpoint() throws Exception {
-        mvc.perform(get("/api/analytics/summary").accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().json("{\"status\":\"ok\"}"));
-    }
+        @Test
+        void should_allowAnonymousGet_when_demoReadonlyOnAndInventoryEndpoint() throws Exception {
+            mvc.perform(get("/api/inventory/demo-ok").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"status\":\"ok\"}"));
+        }
 
-    @Test
-    void should_return401_when_demoReadonlyOnAndUnauthenticatedInventoryPatch() throws Exception {
-        mvc.perform(patch("/api/inventory/item-1/price").accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isUnauthorized());
-    }
+        @Test
+        void should_allowAnonymousGet_when_demoReadonlyOnAndAnalyticsEndpoint() throws Exception {
+            mvc.perform(get("/api/analytics/summary").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"status\":\"ok\"}"));
+        }
 
-    @Test
-    @WithMockUser(username = "user", roles = "USER")
-    void should_return200_when_demoReadonlyOnAndAuthenticatedInventoryPatch() throws Exception {
-        mvc.perform(patch("/api/inventory/item-1/price").accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().json("{\"status\":\"patched\"}"));
+        @Test
+        void should_return401_when_demoReadonlyOnAndUnauthenticatedInventoryPatch() throws Exception {
+            mvc.perform(patch("/api/inventory/item-1/price").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @WithMockUser(username = "user", roles = "USER")
+        void should_return200_when_demoReadonlyOnAndAuthenticatedInventoryPatch() throws Exception {
+            mvc.perform(patch("/api/inventory/item-1/price").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"status\":\"patched\"}"));
+        }
     }
 
     /** Minimal stub endpoints matching the security patterns under test. */
+    @Profile("demo-readonly-test")
     @RestController
     @RequestMapping("/api")
     public static class DemoApiStubController {
@@ -132,7 +142,7 @@ class SecurityConfigDemoReadonlyAuthorizationTest {
 
         @Bean
         ClientRegistrationRepository clientRegistrationRepository() {
-            // Stub Google registration satisfies the OAuth2 filter chain without real credentials
+            // Stub Google registration satisfies the OAuth2 filter chain without real credentials.
             ClientRegistration google = ClientRegistration.withRegistrationId("google")
                 .clientId("dummy")
                 .clientSecret("dummy")

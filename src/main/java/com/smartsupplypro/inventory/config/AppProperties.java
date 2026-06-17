@@ -16,12 +16,14 @@ public class AppProperties {
     private boolean isDemoReadonly = false;
     private final Frontend frontend = new Frontend();
     private final Cors cors = new Cors();
+    private final Cookie cookie = new Cookie();
 
     public boolean isDemoReadonly() { return isDemoReadonly; }
     public void setDemoReadonly(boolean demoReadonly) { this.isDemoReadonly = demoReadonly; }
 
     public Frontend getFrontend() { return frontend; }
     public Cors getCors() { return cors; }
+    public Cookie getCookie() { return cookie; }
 
     /** Frontend OAuth2 redirect and base URL configuration. */
     public static class Frontend {
@@ -41,5 +43,16 @@ public class AppProperties {
 
         public List<String> getAllowedOrigins() { return allowedOrigins; }
         public void setAllowedOrigins(List<String> allowedOrigins) { this.allowedOrigins = allowedOrigins; }
+    }
+
+    /** OAuth2 authorization request cookie settings for the stateless login flow. */
+    public static class Cookie {
+        private String authRequestName = "OAUTH2_AUTH_REQUEST";
+        private int authRequestMaxAge = 180;
+
+        public String getAuthRequestName() { return authRequestName; }
+        public void setAuthRequestName(String authRequestName) { this.authRequestName = authRequestName; }
+        public int getAuthRequestMaxAge() { return authRequestMaxAge; }
+        public void setAuthRequestMaxAge(int authRequestMaxAge) { this.authRequestMaxAge = authRequestMaxAge; }
     }
 }

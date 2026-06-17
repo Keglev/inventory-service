@@ -43,6 +43,6 @@ public class OAuth2Config {
      */
     @Bean
     public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
-        return new CookieOAuth2AuthorizationRequestRepository();
+        return new CookieOAuth2AuthorizationRequestRepository(props);
     }
 }
