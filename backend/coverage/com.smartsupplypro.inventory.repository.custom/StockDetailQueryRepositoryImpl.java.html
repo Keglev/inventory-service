@@ -7,20 +7,19 @@ import org.springframework.stereotype.Repository;
 
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
+import com.smartsupplypro.inventory.repository.custom.util.StockDetailSqlBuilder;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
 /**
- * Detail query repository implementation with multi-database support.
+ * Custom repository implementation for granular stock history searches and WAC event streaming.
  *
- * &lt;p&gt;Encapsulates complex filtering logic and JPQL event streaming for
- * audit trails and cost-flow calculations across H2 and Oracle.
+ * &lt;p&gt;Delegates SQL generation to {@link StockDetailSqlBuilder} and selects the correct
+ * dialect variant at runtime via {@link DatabaseDialectDetector}.&lt;/p&gt;
  *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * @see StockDetailQueryRepository
  */
 @Repository
 public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepository {
@@ -30,20 +29,25 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
 
     private final DatabaseDialectDetector dialectDetector;
 
-<span class="fc" id="L33">    public StockDetailQueryRepositoryImpl(DatabaseDialectDetector dialectDetector) {</span>
-<span class="fc" id="L34">        this.dialectDetector = dialectDetector;</span>
-<span class="fc" id="L35">    }</span>
+<span class="fc" id="L32">    public StockDetailQueryRepositoryImpl(DatabaseDialectDetector dialectDetector) {</span>
+<span class="fc" id="L33">        this.dialectDetector = dialectDetector;</span>
+<span class="fc" id="L34">    }</span>
 
     /**
-     * Searches stock updates with flexible filtering across supported databases.
-     * Supports H2 and Oracle with optimized SQL per dialect.
-     * @param startDate   filter start date (inclusive)
-     * @param endDate     filter end date (inclusive)
-     * @param itemName    partial item name (case-insensitive, optional)
-     * @param supplierId  exact supplier ID (optional)
-     * @param createdBy   exact creator username (case-insensitive, optional)
-     * @param minChange   minimum change value (optional)
-     * @param maxChange   maximum change value (optional)
+     * Executes dialect-specific native SQL for filtered stock history search.
+     *
+     * &lt;p&gt;Delegates SQL construction to {@link StockDetailSqlBuilder}. Optional string
+     * parameters are normalised to {@code null} before binding so the SQL's
+     * {@code :param IS NULL} guards can short-circuit the filter correctly.
+     *
+     * @param startDate  optional minimum creation timestamp
+     * @param endDate    optional maximum creation timestamp
+     * @param itemName   optional partial item name (case-insensitive)
+     * @param supplierId optional supplier ID
+     * @param createdBy  optional creator username (case-insensitive exact match)
+     * @param minChange  optional minimum quantity change
+     * @param maxChange  optional maximum quantity change
+     * @return filtered records ordered by creation time descending
      */
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
@@ -56,134 +60,73 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         Integer minChange,
         Integer maxChange
     ) {
-<span class="fc bfc" id="L59" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
-<span class="fc" id="L60">            ? buildH2FilteredSearchSql()</span>
-<span class="fc" id="L61">            : buildOracleFilteredSearchSql();</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc" id="L64">            ? StockDetailSqlBuilder.buildH2FilteredSearchSql()</span>
+<span class="fc" id="L65">            : StockDetailSqlBuilder.buildOracleFilteredSearchSql();</span>
 
-        // Normalize optional parameters for NULL-safe SQL filtering
-<span class="fc bfc" id="L64" title="All 4 branches covered.">        final String itemPattern = (itemName == null || itemName.isBlank())</span>
-<span class="fc" id="L65">            ? null : &quot;%&quot; + itemName.toLowerCase() + &quot;%&quot;;</span>
-<span class="fc" id="L66">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
-<span class="fc bfc" id="L67" title="All 4 branches covered.">        final String normalizedCreator = (createdBy == null || createdBy.isBlank())</span>
-<span class="fc" id="L68">            ? null : createdBy.toLowerCase();</span>
+        // Normalize optional parameters so the SQL's :param IS NULL guards work correctly
+<span class="fc bfc" id="L68" title="All 4 branches covered.">        final String itemPattern = (itemName == null || itemName.isBlank())</span>
+<span class="fc" id="L69">            ? null : &quot;%&quot; + itemName.toLowerCase() + &quot;%&quot;;</span>
+<span class="fc" id="L70">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
+<span class="fc bfc" id="L71" title="All 4 branches covered.">        final String normalizedCreator = (createdBy == null || createdBy.isBlank())</span>
+<span class="fc" id="L72">            ? null : createdBy.toLowerCase();</span>
 
-<span class="fc" id="L70">        final Query query = em.createNativeQuery(sql);</span>
-        // Use java.sql.Timestamp for JDBC/native query compatibility
-<span class="fc bfc" id="L72" title="All 2 branches covered.">        final java.sql.Timestamp startTs = (startDate == null) ? null : java.sql.Timestamp.valueOf(startDate);</span>
-<span class="fc bfc" id="L73" title="All 2 branches covered.">        final java.sql.Timestamp endTs = (endDate == null) ? null : java.sql.Timestamp.valueOf(endDate);</span>
+<span class="fc" id="L74">        final Query query = em.createNativeQuery(sql);</span>
+        // Use java.sql.Timestamp for JDBC/native query compatibility with LocalDateTime parameters
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        final java.sql.Timestamp startTs = (startDate == null) ? null : java.sql.Timestamp.valueOf(startDate);</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        final java.sql.Timestamp endTs = (endDate == null) ? null : java.sql.Timestamp.valueOf(endDate);</span>
 
-<span class="fc" id="L75">        query.setParameter(&quot;startDate&quot;, startTs);</span>
-<span class="fc" id="L76">        query.setParameter(&quot;endDate&quot;, endTs);</span>
-<span class="fc" id="L77">        query.setParameter(&quot;itemPattern&quot;, itemPattern);</span>
-<span class="fc" id="L78">        query.setParameter(&quot;supplierId&quot;, normalizedSupplier);</span>
-<span class="fc" id="L79">        query.setParameter(&quot;createdByNorm&quot;, normalizedCreator);</span>
-<span class="fc" id="L80">        query.setParameter(&quot;minChange&quot;, minChange);</span>
-<span class="fc" id="L81">        query.setParameter(&quot;maxChange&quot;, maxChange);</span>
+<span class="fc" id="L79">        query.setParameter(&quot;startDate&quot;, startTs);</span>
+<span class="fc" id="L80">        query.setParameter(&quot;endDate&quot;, endTs);</span>
+<span class="fc" id="L81">        query.setParameter(&quot;itemPattern&quot;, itemPattern);</span>
+<span class="fc" id="L82">        query.setParameter(&quot;supplierId&quot;, normalizedSupplier);</span>
+<span class="fc" id="L83">        query.setParameter(&quot;createdByNorm&quot;, normalizedCreator);</span>
+<span class="fc" id="L84">        query.setParameter(&quot;minChange&quot;, minChange);</span>
+<span class="fc" id="L85">        query.setParameter(&quot;maxChange&quot;, maxChange);</span>
 
-<span class="fc" id="L83">        return query.getResultList();</span>
+<span class="fc" id="L87">        return query.getResultList();</span>
     }
 
     /**
-     * Streams stock events up to a specified end time for WAC calculations.
-     * Uses JPQL for database-agnostic entity querying.
-     * @param end         upper timestamp bound (inclusive)
-     * @param supplierId  optional supplier ID filter
-     * @return list of stock event rows for WAC processing
-     * @see StockEventRowDTO
+     * Streams stock events via JPQL for WAC cost-flow replay.
+     *
+     * &lt;p&gt;Uses JPQL instead of native SQL so the entity graph resolves correctly across
+     * both H2 and Oracle without dialect-specific date casting.
+     *
+     * @param end        inclusive upper timestamp bound
+     * @param supplierId optional supplier filter
+     * @return events projected to {@link StockEventRowDTO}, ordered by itemId then timestamp
      */
     @Override
     public List&lt;StockEventRowDTO&gt; streamEventsForWAC(LocalDateTime end, String supplierId) {
-        // Use JPQL for entity-based event streaming (database-agnostic)
-<span class="fc" id="L97">        final String jpql = &quot;&quot;&quot;</span>
+        // JPQL ensures this query runs unchanged on H2 and Oracle
+<span class="fc" id="L103">        final String jpql = &quot;&quot;&quot;</span>
             SELECT new com.smartsupplypro.inventory.dto.StockEventRowDTO(
-                sh.itemId, 
-                COALESCE(sh.supplierId, i.supplierId), 
-                sh.timestamp, 
+                sh.itemId,
+                COALESCE(sh.supplierId, i.supplierId),
+                sh.timestamp,
                 sh.change,
                 sh.priceAtChange,
                 sh.reason
             )
             FROM StockHistory sh, InventoryItem i
-            WHERE i.id = sh.itemId 
+            WHERE i.id = sh.itemId
               AND sh.timestamp &lt;= :end
               AND (:supplierIdNorm IS NULL OR LOWER(sh.supplierId) = :supplierIdNorm)
             ORDER BY sh.itemId ASC, sh.timestamp ASC
         &quot;&quot;&quot;;
 
-<span class="fc bfc" id="L113" title="All 4 branches covered.">        final String supplierIdNorm = (supplierId == null || supplierId.isBlank())</span>
-<span class="fc" id="L114">            ? null : supplierId.trim().toLowerCase();</span>
+<span class="fc bfc" id="L119" title="All 4 branches covered.">        final String supplierIdNorm = (supplierId == null || supplierId.isBlank())</span>
+<span class="fc" id="L120">            ? null : supplierId.trim().toLowerCase();</span>
 
-<span class="fc" id="L116">        return em.createQuery(jpql, StockEventRowDTO.class)</span>
-<span class="fc" id="L117">                .setParameter(&quot;end&quot;, end)</span>
-<span class="fc" id="L118">                .setParameter(&quot;supplierIdNorm&quot;, supplierIdNorm)</span>
-<span class="fc" id="L119">                .getResultList();</span>
+<span class="fc" id="L122">        return em.createQuery(jpql, StockEventRowDTO.class)</span>
+<span class="fc" id="L123">                .setParameter(&quot;end&quot;, end)</span>
+<span class="fc" id="L124">                .setParameter(&quot;supplierIdNorm&quot;, supplierIdNorm)</span>
+<span class="fc" id="L125">                .getResultList();</span>
     }
 
-    /**
-     * Builds the SQL query for filtered search on H2 database.
-     * @return SQL query string
-     * @see #buildOracleFilteredSearchSql()
-     */
-    private String buildH2FilteredSearchSql() {
-<span class="fc" id="L128">        return &quot;&quot;&quot;</span>
-            SELECT i.name AS item_name, 
-                   s.name AS supplier_name, 
-                   sh.quantity_change, 
-                   sh.reason, 
-                   sh.created_by, 
-                   sh.created_at
-            FROM stock_history sh
-            JOIN inventory_item i ON sh.item_id = i.id
-            JOIN supplier s ON i.supplier_id = s.id
-            WHERE (:startDate IS NULL OR sh.created_at &gt;= :startDate)
-              AND (:endDate IS NULL OR sh.created_at &lt;= :endDate)
-              AND (:itemPattern IS NULL OR LOWER(i.name) LIKE :itemPattern)
-              AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-              AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
-              AND (:minChange IS NULL OR sh.quantity_change &gt;= :minChange)
-              AND (:maxChange IS NULL OR sh.quantity_change &lt;= :maxChange)
-            ORDER BY sh.created_at DESC
-        &quot;&quot;&quot;;
-    }
-
-    /**
-     * Builds the SQL query for filtered search on Oracle database.
-     * @return SQL query string
-     * @see #buildH2FilteredSearchSql()
-     */
-    private String buildOracleFilteredSearchSql() {
-<span class="fc" id="L155">        return &quot;&quot;&quot;</span>
-            SELECT i.name AS item_name, 
-                   s.name AS supplier_name, 
-                   sh.quantity_change, 
-                   sh.reason, 
-                   sh.created_by, 
-                   sh.created_at
-            FROM stock_history sh
-            JOIN inventory_item i ON sh.item_id = i.id
-            JOIN supplier s ON i.supplier_id = s.id
-            WHERE (:startDate IS NULL OR sh.created_at &gt;= :startDate)
-              AND (:endDate IS NULL OR sh.created_at &lt;= :endDate)
-              AND (:itemPattern IS NULL OR LOWER(i.name) LIKE :itemPattern)
-              AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
-              AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
-              AND (:minChange IS NULL OR sh.quantity_change &gt;= :minChange)
-              AND (:maxChange IS NULL OR sh.quantity_change &lt;= :maxChange)
-            ORDER BY sh.created_at DESC
-        &quot;&quot;&quot;;
-    }
-
-    /* ======================================================================
-     * Utility Methods
-     * ====================================================================== */
-
-    /** Normalizes optional string parameters (null/blank → null). 
-     * @param param input parameter
-     * @return normalized parameter 
-     * @see #searchStockUpdates(LocalDateTime, LocalDateTime, String, String, String, Integer, Integer)
-    */
     private String normalizeOptionalParam(String param) {
-<span class="fc bfc" id="L186" title="All 4 branches covered.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
+<span class="fc bfc" id="L129" title="All 4 branches covered.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

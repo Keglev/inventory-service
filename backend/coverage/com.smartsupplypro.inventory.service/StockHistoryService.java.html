@@ -45,6 +45,7 @@ public class StockHistoryService {
 
     private final StockHistoryRepository repository;
     private final InventoryItemRepository itemRepository;
+    private final StockHistoryMapper mapper;
 
     /**
      * Resolves supplier ID for denormalization in stock history records.
@@ -55,9 +56,9 @@ public class StockHistoryService {
         // Enterprise Comment: Denormalization for Analytics Performance
         // Supplier ID stored directly on history record to avoid joins
         // Enables efficient supplier-centric analytics queries with index: (SUPPLIER_ID, CREATED_AT)
-<span class="fc" id="L58">        return itemRepository.findById(itemId)</span>
-<span class="fc" id="L59">                .map(item -&gt; item.getSupplierId())</span>
-<span class="fc" id="L60">                .orElse(null); // keep null-safe; index still works for present values</span>
+<span class="fc" id="L59">        return itemRepository.findById(itemId)</span>
+<span class="fc" id="L60">                .map(item -&gt; item.getSupplierId())</span>
+<span class="fc" id="L61">                .orElse(null); // keep null-safe; index still works for present values</span>
     }
 
     /**
@@ -65,9 +66,9 @@ public class StockHistoryService {
      * @return list of stock history DTOs
      */
     public List&lt;StockHistoryDTO&gt; getAll() {
-<span class="fc" id="L68">        return repository.findAll().stream()</span>
-<span class="fc" id="L69">                .map(StockHistoryMapper::toDTO)</span>
-<span class="fc" id="L70">                .collect(Collectors.toList());</span>
+<span class="fc" id="L69">        return repository.findAll().stream()</span>
+<span class="fc" id="L70">                .map(mapper::toDTO)</span>
+<span class="fc" id="L71">                .collect(Collectors.toList());</span>
     }
 
     /**
@@ -77,8 +78,8 @@ public class StockHistoryService {
      */
     public List&lt;StockHistoryDTO&gt; getByItemId(String itemId) {
         // Prefer ordered repo method (added in our repository suggestions)
-<span class="fc" id="L80">        var list = repository.findByItemIdOrderByTimestampDesc(itemId);</span>
-<span class="fc" id="L81">        return list.stream().map(StockHistoryMapper::toDTO).toList();</span>
+<span class="fc" id="L81">        var list = repository.findByItemIdOrderByTimestampDesc(itemId);</span>
+<span class="fc" id="L82">        return list.stream().map(mapper::toDTO).toList();</span>
     }
 
     /**
@@ -87,8 +88,8 @@ public class StockHistoryService {
      * @return list of stock history DTOs ordered by timestamp descending
      */
     public List&lt;StockHistoryDTO&gt; getByReason(StockChangeReason reason) {
-<span class="fc" id="L90">        var list = repository.findByReasonOrderByTimestampDesc(reason);</span>
-<span class="fc" id="L91">        return list.stream().map(StockHistoryMapper::toDTO).toList();</span>
+<span class="fc" id="L91">        var list = repository.findByReasonOrderByTimestampDesc(reason);</span>
+<span class="fc" id="L92">        return list.stream().map(mapper::toDTO).toList();</span>
     }
 
     /**
@@ -105,8 +106,8 @@ public class StockHistoryService {
                                               String itemName,
                                               String supplierId,
                                               Pageable pageable) {
-<span class="fc" id="L108">        return repository.findFiltered(startDate, endDate, itemName, supplierId, pageable)</span>
-<span class="fc" id="L109">                .map(StockHistoryMapper::toDTO);</span>
+<span class="fc" id="L109">        return repository.findFiltered(startDate, endDate, itemName, supplierId, pageable)</span>
+<span class="fc" id="L110">                .map(mapper::toDTO);</span>
     }
 
     /**
@@ -119,8 +120,8 @@ public class StockHistoryService {
      */
     public void logStockChange(String itemId, int change, StockChangeReason reason, String createdBy) {
         // Delegate to the price-aware overload with a null snapshot
-<span class="fc" id="L122">        logStockChange(itemId, change, reason, createdBy, null);</span>
-<span class="fc" id="L123">    }</span>
+<span class="fc" id="L123">        logStockChange(itemId, change, reason, createdBy, null);</span>
+<span class="fc" id="L124">    }</span>
 
     /**
      * Logs stock change with price snapshot for analytics (WAC calculation).
@@ -138,42 +139,42 @@ public class StockHistoryService {
                                BigDecimal priceAtChange) {
 
         // Validate the enum value &amp; basic constraints
-<span class="fc" id="L141">        StockHistoryValidator.validateEnum(reason);</span>
+<span class="fc" id="L142">        StockHistoryValidator.validateEnum(reason);</span>
 
         // Enterprise Comment: DTO Construction for Validation
         // Price snapshot enables WAC calculations and PRICE_CHANGE tracking
         // Construct a DTO for validation (includes price snapshot when provided)
-<span class="fc" id="L146">        StockHistoryDTO dto = StockHistoryDTO.builder()</span>
-<span class="fc" id="L147">                .itemId(itemId)</span>
-<span class="fc" id="L148">                .change(change)</span>
-<span class="fc" id="L149">                .reason(reason.name()) // If DTO already uses enum, set it directly instead of name()</span>
-<span class="fc" id="L150">                .createdBy(createdBy)</span>
-<span class="fc" id="L151">                .priceAtChange(priceAtChange)</span>
-<span class="fc" id="L152">                .build();</span>
+<span class="fc" id="L147">        StockHistoryDTO dto = StockHistoryDTO.builder()</span>
+<span class="fc" id="L148">                .itemId(itemId)</span>
+<span class="fc" id="L149">                .change(change)</span>
+<span class="fc" id="L150">                .reason(reason.name()) // If DTO already uses enum, set it directly instead of name()</span>
+<span class="fc" id="L151">                .createdBy(createdBy)</span>
+<span class="fc" id="L152">                .priceAtChange(priceAtChange)</span>
+<span class="fc" id="L153">                .build();</span>
 
         // Business validation (e.g., zero allowed only for PRICE_CHANGE, etc.)
-<span class="fc" id="L155">        StockHistoryValidator.validate(dto);</span>
+<span class="fc" id="L156">        StockHistoryValidator.validate(dto);</span>
 
         // Enterprise Comment: Denormalization Pattern
         // Resolve supplier ID once and store on history record for analytics
-<span class="fc" id="L159">        String supplierId = resolveSupplierId(itemId);</span>
+<span class="fc" id="L160">        String supplierId = resolveSupplierId(itemId);</span>
 
         // Enterprise Comment: Immutable Event Creation
         // Server-authoritative timestamp ensures consistency across distributed systems
         // Persist entity with server-authoritative timestamp
-<span class="fc" id="L164">        StockHistory history = StockHistory.builder()</span>
-<span class="fc" id="L165">                .id(&quot;sh-&quot; + itemId + &quot;-&quot; + System.currentTimeMillis())</span>
-<span class="fc" id="L166">                .itemId(itemId)</span>
-<span class="fc" id="L167">                .supplierId(supplierId)</span>
-<span class="fc" id="L168">                .change(change)</span>
-<span class="fc" id="L169">                .reason(reason)              // entity uses enum directly</span>
-<span class="fc" id="L170">                .createdBy(createdBy)</span>
-<span class="fc" id="L171">                .timestamp(LocalDateTime.now())</span>
-<span class="fc" id="L172">                .priceAtChange(priceAtChange)</span>
-<span class="fc" id="L173">                .build();</span>
+<span class="fc" id="L165">        StockHistory history = StockHistory.builder()</span>
+<span class="fc" id="L166">                .id(&quot;sh-&quot; + itemId + &quot;-&quot; + System.currentTimeMillis())</span>
+<span class="fc" id="L167">                .itemId(itemId)</span>
+<span class="fc" id="L168">                .supplierId(supplierId)</span>
+<span class="fc" id="L169">                .change(change)</span>
+<span class="fc" id="L170">                .reason(reason)              // entity uses enum directly</span>
+<span class="fc" id="L171">                .createdBy(createdBy)</span>
+<span class="fc" id="L172">                .timestamp(LocalDateTime.now())</span>
+<span class="fc" id="L173">                .priceAtChange(priceAtChange)</span>
+<span class="fc" id="L174">                .build();</span>
 
-<span class="fc" id="L175">        repository.save(history);</span>
-<span class="fc" id="L176">    }</span>
+<span class="fc" id="L176">        repository.save(history);</span>
+<span class="fc" id="L177">    }</span>
 
     /**
      * Persists a stock-history event based on an API-facing DTO.
@@ -195,25 +196,25 @@ public class StockHistoryService {
      */
     public void save(StockHistoryDTO dto) {
         // Enterprise validation: enforce domain invariants at the write boundary.
-<span class="fc" id="L198">        StockHistoryValidator.validate(dto);</span>
+<span class="fc" id="L199">        StockHistoryValidator.validate(dto);</span>
 
         // Enterprise denormalization: store supplierId on the history row for analytics queries.
-<span class="fc" id="L201">        String supplierId = resolveSupplierId(dto.itemId());</span>
+<span class="fc" id="L202">        String supplierId = resolveSupplierId(dto.itemId());</span>
 
         // Map DTO -&gt; immutable audit event and persist with server-authoritative timestamp.
-<span class="fc" id="L204">        StockHistory history = StockHistory.builder()</span>
-<span class="fc" id="L205">                .id(&quot;sh-&quot; + dto.itemId() + &quot;-&quot; + System.currentTimeMillis())</span>
-<span class="fc" id="L206">                .itemId(dto.itemId())</span>
-<span class="fc" id="L207">                .supplierId(supplierId)</span>
-<span class="fc" id="L208">                .change(dto.change())</span>
-<span class="fc" id="L209">                .reason(StockChangeReason.valueOf(dto.reason()))</span>
-<span class="fc" id="L210">                .createdBy(dto.createdBy())</span>
-<span class="fc" id="L211">                .timestamp(LocalDateTime.now())</span>
-<span class="fc" id="L212">                .priceAtChange(dto.priceAtChange())</span>
-<span class="fc" id="L213">                .build();</span>
+<span class="fc" id="L205">        StockHistory history = StockHistory.builder()</span>
+<span class="fc" id="L206">                .id(&quot;sh-&quot; + dto.itemId() + &quot;-&quot; + System.currentTimeMillis())</span>
+<span class="fc" id="L207">                .itemId(dto.itemId())</span>
+<span class="fc" id="L208">                .supplierId(supplierId)</span>
+<span class="fc" id="L209">                .change(dto.change())</span>
+<span class="fc" id="L210">                .reason(StockChangeReason.valueOf(dto.reason()))</span>
+<span class="fc" id="L211">                .createdBy(dto.createdBy())</span>
+<span class="fc" id="L212">                .timestamp(LocalDateTime.now())</span>
+<span class="fc" id="L213">                .priceAtChange(dto.priceAtChange())</span>
+<span class="fc" id="L214">                .build();</span>
 
-<span class="fc" id="L215">        repository.save(history);</span>
-<span class="fc" id="L216">    }</span>
+<span class="fc" id="L216">        repository.save(history);</span>
+<span class="fc" id="L217">    }</span>
 
     /**
      * Records item deletion in stock history (legacy convention: -1 quantity).
@@ -222,7 +223,7 @@ public class StockHistoryService {
      * @param createdBy user who initiated deletion
      */
     public void delete(String itemId, StockChangeReason reason, String createdBy) {
-<span class="fc" id="L225">        logStockChange(itemId, -1, reason, createdBy);</span>
-<span class="fc" id="L226">    }</span>
+<span class="fc" id="L226">        logStockChange(itemId, -1, reason, createdBy);</span>
+<span class="fc" id="L227">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

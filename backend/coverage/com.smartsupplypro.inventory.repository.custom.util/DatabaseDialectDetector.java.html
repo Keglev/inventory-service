@@ -6,50 +6,34 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 /**
- * Database dialect detection utility for multi-database support.
- *
- * &lt;p&gt;Determines active database engine (H2 vs Oracle) based on Spring profiles,
- * enabling dialect-specific SQL generation in custom repositories without
- * hardcoding environment checks.
- *
- * &lt;p&gt;&lt;strong&gt;Usage Pattern&lt;/strong&gt;:
- * &lt;pre&gt;
- * String sql = dialectDetector.isH2()
- *     ? &quot;SELECT YEAR(created_at) ...&quot; // H2 syntax
- *     : &quot;SELECT TO_CHAR(created_at, 'YYYY') ...&quot;; // Oracle syntax
- * &lt;/pre&gt;
- *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * Spring profile–based detector that signals whether the active database is H2 or Oracle.
  */
 @Component
 public class DatabaseDialectDetector {
 
     private final Environment environment;
 
-<span class="fc" id="L31">    public DatabaseDialectDetector(Environment environment) {</span>
-<span class="fc" id="L32">        this.environment = environment;</span>
-<span class="fc" id="L33">    }</span>
+<span class="fc" id="L16">    public DatabaseDialectDetector(Environment environment) {</span>
+<span class="fc" id="L17">        this.environment = environment;</span>
+<span class="fc" id="L18">    }</span>
 
     /**
-     * Detects H2 database mode based on active Spring profiles.
-     * Returns true if 'test' or 'h2' profile is active.
+     * Returns {@code true} when the {@code test} or {@code h2} Spring profile is active.
      *
      * @return true if H2 dialect should be used, false for Oracle
      */
     public boolean isH2() {
-<span class="fc" id="L42">        return Arrays.stream(environment.getActiveProfiles())</span>
-<span class="fc bfc" id="L43" title="All 4 branches covered.">                .anyMatch(p -&gt; p.equalsIgnoreCase(&quot;test&quot;) || p.equalsIgnoreCase(&quot;h2&quot;));</span>
+<span class="fc" id="L26">        return Arrays.stream(environment.getActiveProfiles())</span>
+<span class="fc bfc" id="L27" title="All 4 branches covered.">                .anyMatch(p -&gt; p.equalsIgnoreCase(&quot;test&quot;) || p.equalsIgnoreCase(&quot;h2&quot;));</span>
     }
 
     /**
-     * Detects Oracle database mode (inverse of H2 check).
+     * Returns {@code true} when Oracle dialect should be used (inverse of {@link #isH2()}).
      *
      * @return true if Oracle dialect should be used
      */
     public boolean isOracle() {
-<span class="fc bfc" id="L52" title="All 2 branches covered.">        return !isH2();</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        return !isH2();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

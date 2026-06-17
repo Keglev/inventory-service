@@ -2,6 +2,7 @@
 
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
+import com.smartsupplypro.inventory.repository.custom.util.StockTrendSqlBuilder;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -14,14 +15,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Trend analytics repository implementation with multi-database support.
+ * Custom repository implementation for time-series stock and price trend analytics.
  *
- * &lt;p&gt;Encapsulates native SQL for time-series aggregations across H2 (test) and
- * Oracle (prod) without exposing dialect specifics to service layer.
+ * &lt;p&gt;Delegates SQL generation to {@link StockTrendSqlBuilder} and selects the correct
+ * dialect variant at runtime via {@link DatabaseDialectDetector}.&lt;/p&gt;
  *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * @see StockTrendAnalyticsRepository
  */
 @Repository
 public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRepository {
@@ -31,238 +30,111 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
 
     private final DatabaseDialectDetector dialectDetector;
 
-<span class="fc" id="L34">    public StockTrendAnalyticsRepositoryImpl(DatabaseDialectDetector dialectDetector) {</span>
-<span class="fc" id="L35">        this.dialectDetector = dialectDetector;</span>
-<span class="fc" id="L36">    }</span>
+<span class="fc" id="L33">    public StockTrendAnalyticsRepositoryImpl(DatabaseDialectDetector dialectDetector) {</span>
+<span class="fc" id="L34">        this.dialectDetector = dialectDetector;</span>
+<span class="fc" id="L35">    }</span>
 
+    /**
+     * Executes dialect-specific native SQL for monthly stock movement aggregation.
+     *
+     * @param start inclusive lower bound
+     * @param end   inclusive upper bound
+     * @return monthly aggregations ordered by month ascending
+     */
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; getMonthlyStockMovement(LocalDateTime start, LocalDateTime end) {
-<span class="fc bfc" id="L41" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
-<span class="fc" id="L42">            ? buildH2MonthlyMovementSql(false)</span>
-<span class="fc" id="L43">            : buildOracleMonthlyMovementSql(false);</span>
-
-<span class="fc" id="L45">        return em.createNativeQuery(sql)</span>
-<span class="fc" id="L46">                .setParameter(&quot;start&quot;, start)</span>
-<span class="fc" id="L47">                .setParameter(&quot;end&quot;, end)</span>
-<span class="fc" id="L48">                .getResultList();</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc" id="L48">            ? StockTrendSqlBuilder.buildH2MonthlyMovementSql(false)</span>
+<span class="fc" id="L49">            : StockTrendSqlBuilder.buildOracleMonthlyMovementSql(false);</span>
+<span class="fc" id="L50">        return em.createNativeQuery(sql)</span>
+<span class="fc" id="L51">                .setParameter(&quot;start&quot;, start)</span>
+<span class="fc" id="L52">                .setParameter(&quot;end&quot;, end)</span>
+<span class="fc" id="L53">                .getResultList();</span>
     }
 
+    /**
+     * Executes dialect-specific native SQL for monthly stock movement filtered by supplier.
+     *
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
+     * @param supplierId optional supplier filter
+     * @return monthly aggregations ordered by month ascending
+     */
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; getMonthlyStockMovementBySupplier(LocalDateTime start, LocalDateTime end, String supplierId) {
-<span class="fc bfc" id="L54" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
-<span class="fc" id="L55">            ? buildH2MonthlyMovementSql(true)</span>
-<span class="fc" id="L56">            : buildOracleMonthlyMovementSql(true);</span>
-
-<span class="fc" id="L58">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
-
-<span class="fc" id="L60">        return em.createNativeQuery(sql)</span>
-<span class="fc" id="L61">                .setParameter(&quot;start&quot;, start)</span>
-<span class="fc" id="L62">                .setParameter(&quot;end&quot;, end)</span>
-<span class="fc" id="L63">                .setParameter(&quot;supplierId&quot;, normalizedSupplier)</span>
-<span class="fc" id="L64">                .getResultList();</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc" id="L68">            ? StockTrendSqlBuilder.buildH2MonthlyMovementSql(true)</span>
+<span class="fc" id="L69">            : StockTrendSqlBuilder.buildOracleMonthlyMovementSql(true);</span>
+<span class="fc" id="L70">        return em.createNativeQuery(sql)</span>
+<span class="fc" id="L71">                .setParameter(&quot;start&quot;, start)</span>
+<span class="fc" id="L72">                .setParameter(&quot;end&quot;, end)</span>
+<span class="fc" id="L73">                .setParameter(&quot;supplierId&quot;, normalizeOptionalParam(supplierId))</span>
+<span class="fc" id="L74">                .getResultList();</span>
     }
 
+    /**
+     * Executes dialect-specific native SQL for daily inventory valuation.
+     *
+     * &lt;p&gt;Passes {@code start}/{@code end} as {@code java.sql.Timestamp} because some JDBC
+     * drivers do not coerce {@code LocalDateTime} for native query parameters automatically.
+     *
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
+     * @param supplierId optional supplier filter
+     * @return daily valuations ordered by day ascending
+     */
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; getDailyStockValuation(LocalDateTime start, LocalDateTime end, String supplierId) {
-<span class="fc bfc" id="L70" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
-<span class="fc" id="L71">            ? buildH2DailyValuationSql()</span>
-<span class="fc" id="L72">            : buildOracleDailyValuationSql();</span>
-
-<span class="fc" id="L74">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc" id="L92">            ? StockTrendSqlBuilder.buildH2DailyValuationSql()</span>
+<span class="fc" id="L93">            : StockTrendSqlBuilder.buildOracleDailyValuationSql();</span>
 
         // Convert LocalDateTime to java.sql.Timestamp for JDBC compatibility
-<span class="fc" id="L77">        final java.sql.Timestamp startTs = java.sql.Timestamp.valueOf(start);</span>
-<span class="fc" id="L78">        final java.sql.Timestamp endTs = java.sql.Timestamp.valueOf(end);</span>
+<span class="fc" id="L96">        final java.sql.Timestamp startTs = java.sql.Timestamp.valueOf(start);</span>
+<span class="fc" id="L97">        final java.sql.Timestamp endTs = java.sql.Timestamp.valueOf(end);</span>
 
-<span class="fc" id="L80">        return em.createNativeQuery(sql)</span>
-<span class="fc" id="L81">                .setParameter(&quot;start&quot;, startTs)</span>
-<span class="fc" id="L82">                .setParameter(&quot;end&quot;, endTs)</span>
-<span class="fc" id="L83">                .setParameter(&quot;supplierId&quot;, normalizedSupplier)</span>
-<span class="fc" id="L84">                .getResultList();</span>
+<span class="fc" id="L99">        return em.createNativeQuery(sql)</span>
+<span class="fc" id="L100">                .setParameter(&quot;start&quot;, startTs)</span>
+<span class="fc" id="L101">                .setParameter(&quot;end&quot;, endTs)</span>
+<span class="fc" id="L102">                .setParameter(&quot;supplierId&quot;, normalizeOptionalParam(supplierId))</span>
+<span class="fc" id="L103">                .getResultList();</span>
     }
 
+    /**
+     * Executes dialect-specific native SQL for daily average price trend of a specific item.
+     *
+     * &lt;p&gt;Maps raw Object[] rows to {@link PriceTrendDTO} projections after query execution.
+     *
+     * @param itemId     required item identifier
+     * @param supplierId optional supplier filter
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
+     * @return daily price trend ordered by day ascending
+     */
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;PriceTrendDTO&gt; getItemPriceTrend(String itemId, String supplierId, LocalDateTime start, LocalDateTime end) {
-<span class="fc bfc" id="L90" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
-<span class="fc" id="L91">            ? buildH2PriceTrendSql()</span>
-<span class="fc" id="L92">            : buildOraclePriceTrendSql();</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc" id="L121">            ? StockTrendSqlBuilder.buildH2PriceTrendSql()</span>
+<span class="fc" id="L122">            : StockTrendSqlBuilder.buildOraclePriceTrendSql();</span>
 
-<span class="fc" id="L94">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
+<span class="fc" id="L124">        final Query query = em.createNativeQuery(sql);</span>
+<span class="fc" id="L125">        query.setParameter(&quot;start&quot;, start);</span>
+<span class="fc" id="L126">        query.setParameter(&quot;end&quot;, end);</span>
+<span class="fc" id="L127">        query.setParameter(&quot;itemId&quot;, itemId);</span>
+<span class="fc" id="L128">        query.setParameter(&quot;supplierId&quot;, normalizeOptionalParam(supplierId));</span>
 
-<span class="fc" id="L96">        final Query query = em.createNativeQuery(sql);</span>
-<span class="fc" id="L97">        query.setParameter(&quot;start&quot;, start);</span>
-<span class="fc" id="L98">        query.setParameter(&quot;end&quot;, end);</span>
-<span class="fc" id="L99">        query.setParameter(&quot;itemId&quot;, itemId);</span>
-<span class="fc" id="L100">        query.setParameter(&quot;supplierId&quot;, normalizedSupplier);</span>
-
-<span class="fc" id="L102">        final List&lt;Object[]&gt; raw = query.getResultList();</span>
-<span class="fc" id="L103">        return raw.stream()</span>
-<span class="fc" id="L104">                .map(r -&gt; new PriceTrendDTO((String) r[0], (BigDecimal) r[1]))</span>
-<span class="fc" id="L105">                .collect(Collectors.toList());</span>
+<span class="fc" id="L130">        final List&lt;Object[]&gt; raw = query.getResultList();</span>
+<span class="fc" id="L131">        return raw.stream()</span>
+<span class="fc" id="L132">                .map(r -&gt; new PriceTrendDTO((String) r[0], (BigDecimal) r[1]))</span>
+<span class="fc" id="L133">                .collect(Collectors.toList());</span>
     }
 
-    /* ======================================================================
-     * SQL Builder Methods - H2 Dialect
-     * ====================================================================== */
-
-    private String buildH2MonthlyMovementSql(boolean withSupplierFilter) {
-<span class="fc" id="L113">        final String baseQuery = &quot;&quot;&quot;</span>
-            SELECT CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
-                          LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0')) AS month_str,
-                   SUM(CASE WHEN sh.quantity_change &gt; 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
-                   SUM(CASE WHEN sh.quantity_change &lt; 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS stock_out
-            FROM stock_history sh
-            %s
-            WHERE sh.created_at BETWEEN :start AND :end
-            %s
-            GROUP BY CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
-                            LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'))
-            ORDER BY 1
-        &quot;&quot;&quot;;
-
-<span class="fc bfc" id="L127" title="All 2 branches covered.">        final String join = withSupplierFilter ? &quot;JOIN inventory_item i ON sh.item_id = i.id&quot; : &quot;&quot;;</span>
-<span class="fc bfc" id="L128" title="All 2 branches covered.">        final String supplierFilter = withSupplierFilter ? &quot;AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))&quot; : &quot;&quot;;</span>
-
-<span class="fc" id="L130">        return String.format(baseQuery, join, supplierFilter);</span>
-    }
-
-    private String buildH2DailyValuationSql() {
-<span class="fc" id="L134">        return &quot;&quot;&quot;</span>
-            WITH events AS (
-                SELECT
-                    CAST(sh.created_at AS DATE) AS day_date,
-                    sh.item_id,
-                    sh.created_at,
-                    sh.quantity_change,
-                    sh.price_at_change,
-                    SUM(sh.quantity_change) OVER (
-                        PARTITION BY sh.item_id
-                        ORDER BY sh.created_at
-                        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-                    ) AS qty_after,
-                    ROW_NUMBER() OVER (
-                        PARTITION BY CAST(sh.created_at AS DATE), sh.item_id
-                        ORDER BY sh.created_at DESC
-                    ) AS rn
-                FROM stock_history sh
-                JOIN inventory_item i ON i.id = sh.item_id
-                WHERE sh.created_at BETWEEN :start AND :end
-                  AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-            )
-            SELECT
-                e.day_date,
-                SUM(COALESCE(e.qty_after, 0) * COALESCE(e.price_at_change, i.price, 0)) AS total_value
-            FROM events e
-            JOIN inventory_item i ON i.id = e.item_id
-            WHERE e.rn = 1
-            GROUP BY e.day_date
-            ORDER BY e.day_date
-        &quot;&quot;&quot;;
-    }
-
-    private String buildH2PriceTrendSql() {
-<span class="fc" id="L168">        return &quot;&quot;&quot;</span>
-            SELECT CONCAT(
-                       CAST(YEAR(sh.created_at) AS VARCHAR), '-',
-                       LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'), '-',
-                       LPAD(CAST(DAY(sh.created_at) AS VARCHAR), 2, '0')
-                   ) AS day_str,
-                   AVG(sh.price_at_change) AS price
-            FROM stock_history sh
-            JOIN inventory_item i ON sh.item_id = i.id
-            WHERE sh.created_at BETWEEN :start AND :end
-              AND sh.item_id = :itemId
-              AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-            GROUP BY CONCAT(
-                       CAST(YEAR(sh.created_at) AS VARCHAR), '-',
-                       LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'), '-',
-                       LPAD(CAST(DAY(sh.created_at) AS VARCHAR), 2, '0')
-                   )
-            ORDER BY 1
-        &quot;&quot;&quot;;
-    }
-
-    /* ======================================================================
-     * SQL Builder Methods - Oracle Dialect
-     * ====================================================================== */
-
-    private String buildOracleMonthlyMovementSql(boolean withSupplierFilter) {
-<span class="fc" id="L194">        final String baseQuery = &quot;&quot;&quot;</span>
-            SELECT TO_CHAR(sh.created_at, 'YYYY-MM') AS month_str,
-                   SUM(CASE WHEN sh.quantity_change &gt; 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
-                   SUM(CASE WHEN sh.quantity_change &lt; 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS stock_out
-            FROM stock_history sh
-            %s
-            WHERE sh.created_at BETWEEN :start AND :end
-            %s
-            GROUP BY TO_CHAR(sh.created_at, 'YYYY-MM')
-            ORDER BY 1
-        &quot;&quot;&quot;;
-
-<span class="fc bfc" id="L206" title="All 2 branches covered.">        final String join = withSupplierFilter ? &quot;JOIN inventory_item i ON sh.item_id = i.id&quot; : &quot;&quot;;</span>
-<span class="fc bfc" id="L207" title="All 2 branches covered.">        final String supplierFilter = withSupplierFilter ? &quot;AND (:supplierId IS NULL OR i.supplier_id = :supplierId)&quot; : &quot;&quot;;</span>
-
-<span class="fc" id="L209">        return String.format(baseQuery, join, supplierFilter);</span>
-    }
-
-    private String buildOracleDailyValuationSql() {
-<span class="fc" id="L213">        return &quot;&quot;&quot;</span>
-            WITH events AS (
-                SELECT
-                    CAST(TRUNC(sh.created_at) AS DATE) AS day_date,
-                    sh.item_id,
-                    sh.created_at,
-                    sh.quantity_change,
-                    sh.price_at_change,
-                    SUM(sh.quantity_change) OVER (
-                        PARTITION BY sh.item_id
-                        ORDER BY sh.created_at
-                    ) AS qty_after,
-                    ROW_NUMBER() OVER (
-                        PARTITION BY TRUNC(sh.created_at), sh.item_id
-                        ORDER BY sh.created_at DESC
-                    ) AS rn
-                FROM stock_history sh
-                JOIN inventory_item i ON i.id = sh.item_id
-                WHERE sh.created_at BETWEEN :start AND :end
-                  AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
-            )
-            SELECT
-                e.day_date,
-                SUM(COALESCE(e.qty_after, 0) * COALESCE(e.price_at_change, i.price, 0)) AS total_value
-            FROM events e
-            JOIN inventory_item i ON i.id = e.item_id
-            WHERE e.rn = 1
-            GROUP BY e.day_date
-            ORDER BY e.day_date
-        &quot;&quot;&quot;;
-    }
-
-    private String buildOraclePriceTrendSql() {
-<span class="fc" id="L246">        return &quot;&quot;&quot;</span>
-            SELECT TO_CHAR(sh.created_at, 'YYYY-MM-DD') AS day_str,
-                   AVG(sh.price_at_change) AS price
-            FROM stock_history sh
-            JOIN inventory_item i ON sh.item_id = i.id
-            WHERE sh.created_at BETWEEN :start AND :end
-              AND sh.item_id = :itemId
-              AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
-            GROUP BY TO_CHAR(sh.created_at, 'YYYY-MM-DD')
-            ORDER BY 1
-        &quot;&quot;&quot;;
-    }
-
-    /* ======================================================================
-     * Utility Methods
-     * ====================================================================== */
-
-    /** Normalizes optional string parameters (null/blank → null). */
     private String normalizeOptionalParam(String param) {
-<span class="fc bfc" id="L265" title="All 4 branches covered.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
+<span class="fc bfc" id="L137" title="All 4 branches covered.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

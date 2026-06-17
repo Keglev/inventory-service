@@ -14,93 +14,83 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
- * Inventory item entity with stock quantity, pricing, and supplier linkage.
- * Maps to INVENTORY_ITEM table with audit metadata.
+ * Represents an inventory item in the stock management domain.
  *
- * &lt;p&gt;&lt;strong&gt;Purpose&lt;/strong&gt;: Represents physical/digital items with quantity tracking and low-stock alerts.
- *
- * &lt;p&gt;&lt;strong&gt;Usage&lt;/strong&gt;: Inventory management, stock analytics, dashboard reporting.
+ * &lt;p&gt;Tracks quantity, pricing, and supplier association for each stocked item.
+ * Low-stock alerts are triggered when quantity falls below {@code minimumQuantity}.&lt;/p&gt;
  *
  * @see Supplier
  * @see StockHistory
- * @see &lt;a href=&quot;../../../../../docs/architecture/patterns/model-patterns.md&quot;&gt;Model Patterns&lt;/a&gt;
  */
 @Entity
 @Table(name = &quot;INVENTORY_ITEM&quot;)
-@Data
+@Getter
+@Setter
+@ToString(exclude = &quot;supplier&quot;)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class InventoryItem {
 
-    /** Unique item identifier (UUID). */
     @Id
     @Column(name = &quot;ID&quot;, nullable = false, length = 36)
     private String id;
 
-    /** Item name (unique, for display and lookups). */
-    @Column(name = &quot;NAME&quot;, nullable=false) private String name;
+    @Column(name = &quot;NAME&quot;, nullable = false)
+    private String name;
 
-    /** Current stock quantity (non-negative). */
-    @Column(name = &quot;QUANTITY&quot;, nullable=false) private int quantity;
+    @Column(name = &quot;QUANTITY&quot;, nullable = false)
+    private int quantity;
 
-    /** Price per unit. */
-    @Column(name = &quot;PRICE&quot;, nullable=false) private BigDecimal price;
+    @Column(name = &quot;PRICE&quot;, nullable = false)
+    private BigDecimal price;
 
-    /** Foreign key to supplier. */
-    @Column(name = &quot;SUPPLIER_ID&quot;, nullable=false)
+    @Column(name = &quot;SUPPLIER_ID&quot;, nullable = false)
     private String supplierId;
 
-    /** Creator username/email. */
-    @Column(name = &quot;CREATED_BY&quot;, nullable=false)
+    @Column(name = &quot;CREATED_BY&quot;, nullable = false)
     private String createdBy;
 
-    /** Minimum quantity threshold for low-stock alerts. */
-    @Column(name = &quot;MINIMUM_QUANTITY&quot;, nullable=false)
+    @Column(name = &quot;MINIMUM_QUANTITY&quot;, nullable = false)
     private int minimumQuantity;
 
-    /** Creation timestamp. */
-    @Column(name = &quot;CREATED_AT&quot;, nullable=false)
+    @Column(name = &quot;CREATED_AT&quot;, nullable = false)
     private LocalDateTime createdAt;
 
-    /**
-     * Supplier entity reference (read-only, for joins).
-     */
+    // read-only join; SUPPLIER_ID is the authoritative FK column
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = &quot;SUPPLIER_ID&quot;, insertable = false, updatable = false)
     private Supplier supplier;
 
-    /**
-     * Sets creation metadata before persist.
-     */
     @PrePersist
     protected void onCreate() {
-<span class="fc bfc" id="L82" title="All 4 branches covered.">        if (this.id == null || this.id.isBlank()) {</span>
-<span class="fc" id="L83">            this.id = UUID.randomUUID().toString();</span>
+<span class="fc bfc" id="L73" title="All 4 branches covered.">        if (this.id == null || this.id.isBlank()) {</span>
+<span class="fc" id="L74">            this.id = UUID.randomUUID().toString();</span>
         }
-<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (this.createdAt == null) {</span>
-<span class="fc" id="L86">            this.createdAt = LocalDateTime.now();</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (this.createdAt == null) {</span>
+<span class="fc" id="L77">            this.createdAt = LocalDateTime.now();</span>
         }
-<span class="fc bfc" id="L88" title="All 4 branches covered.">        if (this.createdBy == null || this.createdBy.isBlank()) {</span>
-<span class="fc" id="L89">            this.createdBy = &quot;system&quot;;</span>
+<span class="fc bfc" id="L79" title="All 4 branches covered.">        if (this.createdBy == null || this.createdBy.isBlank()) {</span>
+<span class="fc" id="L80">            this.createdBy = &quot;system&quot;;</span>
         }
-<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (this.minimumQuantity &lt;= 0) {</span>
-<span class="fc" id="L92">            this.minimumQuantity = 10; </span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (this.minimumQuantity &lt;= 0) {</span>
+<span class="fc" id="L83">            this.minimumQuantity = 10;</span>
         }
-        // Enterprise Comment: Supplier ID Resolution
-        // Handles test scenarios where supplier object is set but supplierId field is null
-<span class="fc bfc" id="L96" title="All 4 branches covered.">        boolean supplierIdMissing = (this.supplierId == null || this.supplierId.isBlank());</span>
-<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (supplierIdMissing) {</span>
-<span class="fc bfc" id="L98" title="All 2 branches covered.">            if (this.supplier != null) {</span>
-<span class="fc" id="L99">                this.supplierId = this.supplier.getId();</span>
+        // denormalized supplierId must match the supplier relationship when only the entity is set
+<span class="fc bfc" id="L86" title="All 4 branches covered.">        boolean supplierIdMissing = (this.supplierId == null || this.supplierId.isBlank());</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (supplierIdMissing) {</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            if (this.supplier != null) {</span>
+<span class="fc" id="L89">                this.supplierId = this.supplier.getId();</span>
             } else {
-<span class="fc" id="L101">                this.supplierId = &quot;default-supplier&quot;;</span>
+<span class="fc" id="L91">                this.supplierId = &quot;default-supplier&quot;;</span>
             }
         }
-<span class="fc" id="L104">    }</span>
+<span class="fc" id="L94">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

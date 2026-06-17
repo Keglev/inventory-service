@@ -14,73 +14,51 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * User entity for OAuth2 authentication and role-based access control.
- * Persisted in users_app table with Google email as unique identifier.
+ * Represents an application user registered via OAuth2.
  *
- * &lt;p&gt;&lt;strong&gt;Purpose&lt;/strong&gt;: Tracks registered users, their roles (USER/ADMIN), and registration timestamps.
- *
- * &lt;p&gt;&lt;strong&gt;Usage&lt;/strong&gt;: Spring Security role checks, audit trails, API personalization.
+ * &lt;p&gt;The email address serves as the unique login identifier.
+ * Roles default to USER; an admin must manually promote to ADMIN.&lt;/p&gt;
  *
  * @see Role
- * @see &lt;a href=&quot;../../../../../docs/architecture/patterns/model-patterns.md&quot;&gt;Model Patterns&lt;/a&gt;
  */
 @Getter
 @Setter
 @Entity(name = &quot;UsersApp&quot;)
 @Table(name = &quot;users_app&quot;,
-    uniqueConstraints = @UniqueConstraint(name= &quot;uk_users_email&quot;, columnNames = &quot;email&quot;)
+    uniqueConstraints = @UniqueConstraint(name = &quot;uk_users_email&quot;, columnNames = &quot;email&quot;)
 )
 public class AppUser {
 
-    /** Unique user ID (UUID format). */
-<span class="fc" id="L36">    @Id</span>
+<span class="fc" id="L32">    @Id</span>
     @Column(length = 36)
-<span class="fc" id="L38">    private String id = UUID.randomUUID().toString();</span>
-    
-    /** Google email address (login ID). */
+<span class="fc" id="L34">    private String id = UUID.randomUUID().toString();</span>
+
     @Column(unique = true, nullable = false)
     private String email;
 
-    /** Full name from OAuth2 provider. */
     @Column(nullable = false)
     private String name;
 
-    /** User role: USER or ADMIN (stored as STRING). */
-<span class="fc" id="L49">    @Enumerated(EnumType.STRING)</span>
+<span class="fc" id="L42">    @Enumerated(EnumType.STRING)</span>
     @Column(name = &quot;ROLE&quot;, nullable = false, length = 16)
-    private Role role = Role.USER; 
+    private Role role = Role.USER;
 
-    /** Registration timestamp. */
-<span class="fc" id="L54">    private LocalDateTime createdAt = LocalDateTime.now();</span>
+<span class="fc" id="L46">    private LocalDateTime createdAt = LocalDateTime.now();</span>
 
-    /**
-     * Creates new OAuth2 user with email and name.
-     *
-     * @param email Google email
-     * @param name full name
-     */
-<span class="fc" id="L62">    public AppUser(String email, String name) {</span>
-<span class="fc" id="L63">        this.id = UUID.randomUUID().toString();</span>
-<span class="fc" id="L64">        this.email = email;</span>
-<span class="fc" id="L65">        this.name = name;</span>
-<span class="fc" id="L66">        this.createdAt = LocalDateTime.now();</span>
-<span class="fc" id="L67">    }</span>
+<span class="fc" id="L48">    public AppUser(String email, String name) {</span>
+<span class="fc" id="L49">        this.id = UUID.randomUUID().toString();</span>
+<span class="fc" id="L50">        this.email = email;</span>
+<span class="fc" id="L51">        this.name = name;</span>
+<span class="fc" id="L52">        this.createdAt = LocalDateTime.now();</span>
+<span class="fc" id="L53">    }</span>
 
-    /**
-     * No-arg constructor for JPA.
-     */
-<span class="fc" id="L72">    public AppUser() {</span>
-<span class="fc" id="L73">        this.id = UUID.randomUUID().toString();</span>
-<span class="fc" id="L74">    }</span>
+    // required by JPA
+<span class="fc" id="L56">    public AppUser() {</span>
+<span class="fc" id="L57">        this.id = UUID.randomUUID().toString();</span>
+<span class="fc" id="L58">    }</span>
 
-    /**
-     * Returns user's role enum.
-     *
-     * @return assigned role
-     */
     public Role getRoleEnum() {
-<span class="nc" id="L82">        return this.role;</span>
+<span class="nc" id="L61">        return this.role;</span>
     }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

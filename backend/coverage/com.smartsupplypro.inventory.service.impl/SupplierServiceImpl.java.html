@@ -50,6 +50,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     private final SupplierRepository supplierRepository;
     private final InventoryItemRepository inventoryItemRepository;
+    private final SupplierMapper supplierMapper;
 
     /**
      * Retrieves all suppliers from the database.
@@ -63,9 +64,9 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional(readOnly = true)
     public List&lt;SupplierDTO&gt; findAll() {
         // No filtering here; caller controls access via @PreAuthorize at controller.
-<span class="fc" id="L66">        return supplierRepository.findAll().stream()</span>
-<span class="fc" id="L67">                .map(SupplierMapper::toDTO) // static call</span>
-<span class="fc" id="L68">                .toList();</span>
+<span class="fc" id="L67">        return supplierRepository.findAll().stream()</span>
+<span class="fc" id="L68">                .map(supplierMapper::toDTO) // static call</span>
+<span class="fc" id="L69">                .toList();</span>
     }
 
     /**
@@ -78,7 +79,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional(readOnly = true)
     public Optional&lt;SupplierDTO&gt; findById(String id) {
-<span class="fc" id="L81">        return supplierRepository.findById(id).map(SupplierMapper::toDTO);</span>
+<span class="fc" id="L82">        return supplierRepository.findById(id).map(supplierMapper::toDTO);</span>
     }
 
     /**
@@ -91,9 +92,9 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional(readOnly = true)
     public List&lt;SupplierDTO&gt; findByName(String name) {
-<span class="fc" id="L94">        return supplierRepository.findByNameContainingIgnoreCase(name).stream()</span>
-<span class="fc" id="L95">                .map(SupplierMapper::toDTO)</span>
-<span class="fc" id="L96">                .toList();</span>
+<span class="fc" id="L95">        return supplierRepository.findByNameContainingIgnoreCase(name).stream()</span>
+<span class="fc" id="L96">                .map(supplierMapper::toDTO)</span>
+<span class="fc" id="L97">                .toList();</span>
     }
 
     /**
@@ -114,15 +115,15 @@ public class SupplierServiceImpl implements SupplierService {
      */
     @Override
     public SupplierDTO create(SupplierDTO dto) {
-<span class="fc" id="L117">        SupplierValidator.validateBase(dto);</span>
-<span class="fc" id="L118">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), null);</span>
+<span class="fc" id="L118">        SupplierValidator.validateBase(dto);</span>
+<span class="fc" id="L119">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), null);</span>
 
-<span class="fc" id="L120">        Supplier entity = SupplierMapper.toEntity(dto);</span>
-<span class="fc" id="L121">        entity.setId(UUID.randomUUID().toString());</span>
-<span class="fc" id="L122">        entity.setCreatedAt(LocalDateTime.now());</span>
+<span class="fc" id="L121">        Supplier entity = supplierMapper.toEntity(dto);</span>
+<span class="fc" id="L122">        entity.setId(UUID.randomUUID().toString());</span>
+<span class="fc" id="L123">        entity.setCreatedAt(LocalDateTime.now());</span>
 
-<span class="fc" id="L124">        Supplier saved = supplierRepository.save(entity);</span>
-<span class="fc" id="L125">        return SupplierMapper.toDTO(saved);</span>
+<span class="fc" id="L125">        Supplier saved = supplierRepository.save(entity);</span>
+<span class="fc" id="L126">        return supplierMapper.toDTO(saved);</span>
     }
 
     /**
@@ -145,19 +146,19 @@ public class SupplierServiceImpl implements SupplierService {
      */
     @Override
     public SupplierDTO update(String id, SupplierDTO dto) {
-<span class="fc" id="L148">        Supplier existing = supplierRepository.findById(id)</span>
-<span class="fc" id="L149">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
+<span class="fc" id="L149">        Supplier existing = supplierRepository.findById(id)</span>
+<span class="fc" id="L150">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
 
-<span class="fc" id="L151">        SupplierValidator.validateBase(dto);</span>
-<span class="fc" id="L152">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), id);</span>
+<span class="fc" id="L152">        SupplierValidator.validateBase(dto);</span>
+<span class="fc" id="L153">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), id);</span>
 
-<span class="fc" id="L154">        existing.setName(dto.getName());</span>
-<span class="fc" id="L155">        existing.setContactName(dto.getContactName());</span>
-<span class="fc" id="L156">        existing.setPhone(dto.getPhone());</span>
-<span class="fc" id="L157">        existing.setEmail(dto.getEmail());</span>
+<span class="fc" id="L155">        existing.setName(dto.getName());</span>
+<span class="fc" id="L156">        existing.setContactName(dto.getContactName());</span>
+<span class="fc" id="L157">        existing.setPhone(dto.getPhone());</span>
+<span class="fc" id="L158">        existing.setEmail(dto.getEmail());</span>
 
-<span class="fc" id="L159">        Supplier saved = supplierRepository.save(existing);</span>
-<span class="fc" id="L160">        return SupplierMapper.toDTO(saved);</span>
+<span class="fc" id="L160">        Supplier saved = supplierRepository.save(existing);</span>
+<span class="fc" id="L161">        return supplierMapper.toDTO(saved);</span>
     }
 
     /**
@@ -173,17 +174,17 @@ public class SupplierServiceImpl implements SupplierService {
      */
     @Override
     public void delete(String id) {
-<span class="fc" id="L176">        SupplierValidator.assertDeletable(</span>
+<span class="fc" id="L177">        SupplierValidator.assertDeletable(</span>
             id, 
-<span class="fc" id="L178">            () -&gt; inventoryItemRepository.existsActiveStockForSupplier(id, 0)</span>
+<span class="fc" id="L179">            () -&gt; inventoryItemRepository.existsActiveStockForSupplier(id, 0)</span>
         );
 
-<span class="fc bfc" id="L181" title="All 2 branches covered.">        if (!supplierRepository.existsById(id)) {</span>
-<span class="fc" id="L182">            throw new NoSuchElementException(&quot;Supplier not found: &quot; + id);</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        if (!supplierRepository.existsById(id)) {</span>
+<span class="fc" id="L183">            throw new NoSuchElementException(&quot;Supplier not found: &quot; + id);</span>
         }
         
-<span class="fc" id="L185">        supplierRepository.deleteById(id);</span>
-<span class="fc" id="L186">    }</span>
+<span class="fc" id="L186">        supplierRepository.deleteById(id);</span>
+<span class="fc" id="L187">    }</span>
 
     /**
      * Returns the total number of suppliers (KPI metric).
@@ -194,7 +195,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional(readOnly = true)
     public long countSuppliers() {
-<span class="fc" id="L197">        return supplierRepository.count();</span>
+<span class="fc" id="L198">        return supplierRepository.count();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StockDetailSqlBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.repository.custom.util</a> &gt; <span class="el_source">StockDetailSqlBuilder.java</span></div><h1>StockDetailSqlBuilder.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.repository.custom.util;
+
+/**
+ * SQL factory for {@code StockDetailQueryRepositoryImpl} — produces filtered search queries for H2 and Oracle.
+ */
+public final class StockDetailSqlBuilder {
+
+    private StockDetailSqlBuilder() {}
+
+    /**
+     * Returns the H2 SQL for multi-criteria filtered stock history search.
+     *
+     * &lt;p&gt;Uses {@code UPPER()} for case-insensitive supplier ID comparison (H2 requires explicit casing).
+     *
+     * @return parameterised SQL string with named parameters
+     */
+    public static String buildH2FilteredSearchSql() {
+<span class="fc" id="L18">        return &quot;&quot;&quot;</span>
+            SELECT i.name AS item_name,
+                   s.name AS supplier_name,
+                   sh.quantity_change,
+                   sh.reason,
+                   sh.created_by,
+                   sh.created_at
+            FROM stock_history sh
+            JOIN inventory_item i ON sh.item_id = i.id
+            JOIN supplier s ON i.supplier_id = s.id
+            WHERE (:startDate IS NULL OR sh.created_at &gt;= :startDate)
+              AND (:endDate IS NULL OR sh.created_at &lt;= :endDate)
+              AND (:itemPattern IS NULL OR LOWER(i.name) LIKE :itemPattern)
+              AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+              AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
+              AND (:minChange IS NULL OR sh.quantity_change &gt;= :minChange)
+              AND (:maxChange IS NULL OR sh.quantity_change &lt;= :maxChange)
+            ORDER BY sh.created_at DESC
+        &quot;&quot;&quot;;
+    }
+
+    /**
+     * Returns the Oracle SQL for multi-criteria filtered stock history search.
+     *
+     * &lt;p&gt;Omits {@code UPPER()} on the supplier FK column; Oracle stores IDs case-sensitively
+     * and an uppercase comparison would bypass any function-based index.
+     *
+     * @return parameterised SQL string with named parameters
+     */
+    public static String buildOracleFilteredSearchSql() {
+<span class="fc" id="L48">        return &quot;&quot;&quot;</span>
+            SELECT i.name AS item_name,
+                   s.name AS supplier_name,
+                   sh.quantity_change,
+                   sh.reason,
+                   sh.created_by,
+                   sh.created_at
+            FROM stock_history sh
+            JOIN inventory_item i ON sh.item_id = i.id
+            JOIN supplier s ON i.supplier_id = s.id
+            WHERE (:startDate IS NULL OR sh.created_at &gt;= :startDate)
+              AND (:endDate IS NULL OR sh.created_at &lt;= :endDate)
+              AND (:itemPattern IS NULL OR LOWER(i.name) LIKE :itemPattern)
+              AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
+              AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
+              AND (:minChange IS NULL OR sh.quantity_change &gt;= :minChange)
+              AND (:maxChange IS NULL OR sh.quantity_change &lt;= :maxChange)
+            ORDER BY sh.created_at DESC
+        &quot;&quot;&quot;;
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
