@@ -16,31 +16,44 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 <span class="fc" id="L16">    private boolean isDemoReadonly = false;</span>
 <span class="fc" id="L17">    private final Frontend frontend = new Frontend();</span>
 <span class="fc" id="L18">    private final Cors cors = new Cors();</span>
+<span class="fc" id="L19">    private final Cookie cookie = new Cookie();</span>
 
-<span class="fc" id="L20">    public boolean isDemoReadonly() { return isDemoReadonly; }</span>
-<span class="fc" id="L21">    public void setDemoReadonly(boolean demoReadonly) { this.isDemoReadonly = demoReadonly; }</span>
+<span class="fc" id="L21">    public boolean isDemoReadonly() { return isDemoReadonly; }</span>
+<span class="fc" id="L22">    public void setDemoReadonly(boolean demoReadonly) { this.isDemoReadonly = demoReadonly; }</span>
 
-<span class="fc" id="L23">    public Frontend getFrontend() { return frontend; }</span>
-<span class="fc" id="L24">    public Cors getCors() { return cors; }</span>
+<span class="fc" id="L24">    public Frontend getFrontend() { return frontend; }</span>
+<span class="fc" id="L25">    public Cors getCors() { return cors; }</span>
+<span class="fc" id="L26">    public Cookie getCookie() { return cookie; }</span>
 
     /** Frontend OAuth2 redirect and base URL configuration. */
-<span class="fc" id="L27">    public static class Frontend {</span>
-<span class="fc" id="L28">        private String baseUrl = &quot;http://localhost:8081&quot;;</span>
-<span class="fc" id="L29">        private String landingPath = &quot;/auth&quot;;</span>
+<span class="fc" id="L29">    public static class Frontend {</span>
+<span class="fc" id="L30">        private String baseUrl = &quot;http://localhost:8081&quot;;</span>
+<span class="fc" id="L31">        private String landingPath = &quot;/auth&quot;;</span>
 
-<span class="fc" id="L31">        public String getBaseUrl() { return baseUrl; }</span>
-<span class="fc" id="L32">        public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }</span>
+<span class="fc" id="L33">        public String getBaseUrl() { return baseUrl; }</span>
+<span class="fc" id="L34">        public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }</span>
 
-<span class="nc" id="L34">        public String getLandingPath() { return landingPath; }</span>
-<span class="fc" id="L35">        public void setLandingPath(String landingPath) { this.landingPath = landingPath; }</span>
+<span class="nc" id="L36">        public String getLandingPath() { return landingPath; }</span>
+<span class="fc" id="L37">        public void setLandingPath(String landingPath) { this.landingPath = landingPath; }</span>
     }
 
     /** CORS allowed origins, one per environment. Replaces hardcoded origin lists in config classes. */
-<span class="fc" id="L39">    public static class Cors {</span>
-<span class="fc" id="L40">        private List&lt;String&gt; allowedOrigins = List.of(&quot;http://localhost:5173&quot;);</span>
+<span class="fc" id="L41">    public static class Cors {</span>
+<span class="fc" id="L42">        private List&lt;String&gt; allowedOrigins = List.of(&quot;http://localhost:5173&quot;);</span>
 
-<span class="fc" id="L42">        public List&lt;String&gt; getAllowedOrigins() { return allowedOrigins; }</span>
-<span class="fc" id="L43">        public void setAllowedOrigins(List&lt;String&gt; allowedOrigins) { this.allowedOrigins = allowedOrigins; }</span>
+<span class="fc" id="L44">        public List&lt;String&gt; getAllowedOrigins() { return allowedOrigins; }</span>
+<span class="fc" id="L45">        public void setAllowedOrigins(List&lt;String&gt; allowedOrigins) { this.allowedOrigins = allowedOrigins; }</span>
+    }
+
+    /** OAuth2 authorization request cookie settings for the stateless login flow. */
+<span class="fc" id="L49">    public static class Cookie {</span>
+<span class="fc" id="L50">        private String authRequestName = &quot;OAUTH2_AUTH_REQUEST&quot;;</span>
+<span class="fc" id="L51">        private int authRequestMaxAge = 180;</span>
+
+<span class="fc" id="L53">        public String getAuthRequestName() { return authRequestName; }</span>
+<span class="nc" id="L54">        public void setAuthRequestName(String authRequestName) { this.authRequestName = authRequestName; }</span>
+<span class="fc" id="L55">        public int getAuthRequestMaxAge() { return authRequestMaxAge; }</span>
+<span class="nc" id="L56">        public void setAuthRequestMaxAge(int authRequestMaxAge) { this.authRequestMaxAge = authRequestMaxAge; }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

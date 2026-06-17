@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OAuth2AuthorizationRequestCookieSerializer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.security</a> &gt; <span class="el_source">OAuth2AuthorizationRequestCookieSerializer.java</span></div><h1>OAuth2AuthorizationRequestCookieSerializer.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.security;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+
+/**
+ * Serializes and deserializes {@link OAuth2AuthorizationRequest} to and from
+ * a Base64URL-encoded JSON string for HTTP cookie storage.
+ *
+ * &lt;p&gt;Uses a manually constructed {@link Map} rather than direct Jackson binding
+ * because {@code OAuth2AuthorizationRequest} is not Jackson-serializable by default.&lt;/p&gt;
+ */
+final class OAuth2AuthorizationRequestCookieSerializer {
+
+<span class="fc" id="L27">    private static final Logger log = LoggerFactory.getLogger(OAuth2AuthorizationRequestCookieSerializer.class);</span>
+<span class="fc" id="L28">    private static final ObjectMapper MAPPER = new ObjectMapper();</span>
+
+    private OAuth2AuthorizationRequestCookieSerializer() {}
+
+    static String serialize(OAuth2AuthorizationRequest r) {
+        try {
+            // Base64+JSON chosen over Java serialization for readability and cross-version safety
+<span class="fc" id="L35">            Map&lt;String, Object&gt; m = Map.of(</span>
+<span class="fc" id="L36">                &quot;authorizationUri&quot;,        r.getAuthorizationUri(),</span>
+<span class="fc" id="L37">                &quot;clientId&quot;,                r.getClientId(),</span>
+<span class="fc" id="L38">                &quot;redirectUri&quot;,             r.getRedirectUri(),</span>
+<span class="fc" id="L39">                &quot;scopes&quot;,                  r.getScopes(),</span>
+<span class="fc" id="L40">                &quot;state&quot;,                   r.getState(),</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">                &quot;responseType&quot;,            r.getResponseType() != null ? r.getResponseType().getValue() : &quot;code&quot;,</span>
+<span class="fc" id="L42">                &quot;additionalParameters&quot;,    r.getAdditionalParameters(),</span>
+<span class="fc" id="L43">                &quot;attributes&quot;,              r.getAttributes(),</span>
+<span class="fc" id="L44">                &quot;authorizationRequestUri&quot;, r.getAuthorizationRequestUri()</span>
+            );
+<span class="fc" id="L46">            return Base64.getUrlEncoder()</span>
+<span class="fc" id="L47">                    .encodeToString(MAPPER.writeValueAsString(m).getBytes(StandardCharsets.UTF_8));</span>
+<span class="fc" id="L48">        } catch (JsonProcessingException e) {</span>
+<span class="fc" id="L49">            return Base64.getUrlEncoder().encodeToString(&quot;{}&quot;.getBytes(StandardCharsets.UTF_8));</span>
+        }
+    }
+
+    static OAuth2AuthorizationRequest deserialize(String encoded) {
+        try {
+<span class="fc" id="L55">            String json = new String(Base64.getUrlDecoder().decode(encoded), StandardCharsets.UTF_8);</span>
+<span class="fc" id="L56">            Map&lt;String, Object&gt; m = MAPPER.readValue(json, new TypeReference&lt;Map&lt;String, Object&gt;&gt;() {});</span>
+<span class="fc" id="L57">            return buildRequest(m);</span>
+<span class="fc" id="L58">        } catch (IllegalArgumentException | java.io.IOException e) {</span>
+<span class="fc" id="L59">            log.warn(&quot;Malformed authorization request cookie ignored&quot;);</span>
+<span class="fc" id="L60">            return null;</span>
+        }
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private static OAuth2AuthorizationRequest buildRequest(Map&lt;String, Object&gt; m) {
+<span class="fc" id="L66">        Map&lt;String, Object&gt; additionalParameters =</span>
+<span class="fc" id="L67">                (Map&lt;String, Object&gt;) m.getOrDefault(&quot;additionalParameters&quot;, Map.of());</span>
+<span class="fc" id="L68">        Map&lt;String, Object&gt; attributes =</span>
+<span class="fc" id="L69">                (Map&lt;String, Object&gt;) m.getOrDefault(&quot;attributes&quot;, Map.of());</span>
+<span class="fc" id="L70">        OAuth2AuthorizationRequest.Builder b = OAuth2AuthorizationRequest.authorizationCode()</span>
+<span class="fc" id="L71">                .authorizationUri((String) m.get(&quot;authorizationUri&quot;))</span>
+<span class="fc" id="L72">                .clientId((String) m.get(&quot;clientId&quot;))</span>
+<span class="fc" id="L73">                .redirectUri((String) m.get(&quot;redirectUri&quot;))</span>
+<span class="fc" id="L74">                .scopes(extractScopes(m.get(&quot;scopes&quot;)))</span>
+<span class="fc" id="L75">                .state((String) m.get(&quot;state&quot;))</span>
+<span class="fc" id="L76">                .additionalParameters(additionalParameters)</span>
+<span class="fc" id="L77">                .attributes(attrs -&gt; attrs.putAll(attributes));</span>
+<span class="fc" id="L78">        Object authReqUri = m.get(&quot;authorizationRequestUri&quot;);</span>
+<span class="pc bpc" id="L79" title="1 of 4 branches missed.">        if (authReqUri instanceof String s &amp;&amp; !s.isBlank()) b.authorizationRequestUri(s);</span>
+<span class="fc" id="L80">        return b.build();</span>
+    }
+
+    private static Set&lt;String&gt; extractScopes(Object sc) {
+<span class="fc" id="L84">        Set&lt;String&gt; scopes = new HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (sc instanceof Iterable&lt;?&gt; it) {</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">            for (Object s : it) {</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">                if (s != null) scopes.add(String.valueOf(s));</span>
+<span class="fc" id="L88">            }</span>
+        }
+<span class="fc" id="L90">        return scopes;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

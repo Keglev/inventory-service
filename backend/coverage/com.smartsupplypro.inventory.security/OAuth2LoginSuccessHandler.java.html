@@ -2,19 +2,16 @@
 
 import java.io.IOException;
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
 
-import org.springframework.dao.DataIntegrityViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import com.smartsupplypro.inventory.config.AppProperties;
-import com.smartsupplypro.inventory.model.AppUser;
-import com.smartsupplypro.inventory.model.Role;
-import com.smartsupplypro.inventory.repository.AppUserRepository;
+import com.smartsupplypro.inventory.service.UserProvisioningService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -22,142 +19,113 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Enterprise OAuth2 authentication success handler with automatic user provisioning.
- * 
- * &lt;p&gt;Handles post-authentication user onboarding and secure frontend redirection
- * after successful Google OAuth2 login. Creates local user accounts with default
- * permissions and manages cross-origin redirect security.&lt;/p&gt;
- * 
- * &lt;p&gt;&lt;strong&gt;Enterprise Features:&lt;/strong&gt; Automatic user provisioning, concurrent
- * login safety, configurable frontend redirects, and origin allowlist security.&lt;/p&gt;
+ * Handles successful OAuth2 authentication by provisioning
+ * the user and redirecting to the frontend application.
+ *
+ * &lt;p&gt;Delegates user creation and role assignment to
+ * {@link UserProvisioningService} to keep this handler
+ * focused on the authentication flow.&lt;/p&gt;
+ *
+ * @see CookieOAuth2AuthorizationRequestRepository
+ * @see SecurityConfig
  */
-
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-    
-<span class="fc" id="L38">    private static final org.slf4j.Logger log =</span>
-<span class="fc" id="L39">    org.slf4j.LoggerFactory.getLogger(OAuth2LoginSuccessHandler.class);</span>
-    /** Application properties for frontend URL configuration and environment settings. */
+
+<span class="fc" id="L35">    private static final Logger log = LoggerFactory.getLogger(OAuth2LoginSuccessHandler.class);</span>
+
     private final AppProperties props;
-    
-    /** User repository for automatic user provisioning and duplicate detection. */
-    private final AppUserRepository userRepository;
-    
-    /** Constructor with dependency injection for configuration and data access. */
-<span class="fc" id="L47">    public OAuth2LoginSuccessHandler(AppProperties props, AppUserRepository userRepository) {</span>
-<span class="fc" id="L48">        this.props = props;</span>
-<span class="fc" id="L49">        this.userRepository = userRepository;</span>
-<span class="fc" id="L50">    }</span>
-    
+    private final UserProvisioningService userProvisioningService;
+
+<span class="fc" id="L40">    public OAuth2LoginSuccessHandler(AppProperties props, UserProvisioningService userProvisioningService) {</span>
+<span class="fc" id="L41">        this.props = props;</span>
+<span class="fc" id="L42">        this.userProvisioningService = userProvisioningService;</span>
+<span class="fc" id="L43">    }</span>
+
     /**
-     * Handles successful OAuth2 authentication with automatic user provisioning.
-     * 
-     * &lt;p&gt;Extracts user credentials from OAuth2 token, creates local user account
-     * if needed, and redirects to configured frontend URL with origin allowlist security.&lt;/p&gt;
-     * 
-     * &lt;p&gt;&lt;strong&gt;Enterprise Security:&lt;/strong&gt; Prevents duplicate redirects, validates
-     * return URLs against allowlist, and handles concurrent login scenarios safely.&lt;/p&gt;
+     * Provisions the authenticated user and redirects to the frontend.
+     *
+     * &lt;p&gt;Guards against duplicate invocations in the same request cycle.
+     * Validates that email and name are present before delegating to
+     * {@link UserProvisioningService}. Redirect target is resolved from
+     * the optional {@code SSP_RETURN} cookie, validated against the
+     * configured CORS allowed origins.&lt;/p&gt;
+     *
+     * @param request        current HTTP request
+     * @param response       current HTTP response
+     * @param authentication successful OAuth2 authentication token
      */
-    
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request,
-    HttpServletResponse response,
-    Authentication authentication)
-    throws IOException, ServletException {
-        
-        // Enterprise Security: Prevent duplicate redirects in concurrent authentication scenarios
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (request.getAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;) != null) {</span>
-<span class="fc" id="L70">            log.debug(&quot;Success redirect already performed; skipping.&quot;);</span>
-<span class="fc" id="L71">            return;</span>
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException {
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (request.getAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;) != null) {</span>
+<span class="fc" id="L62">            log.debug(&quot;Success redirect already performed; skipping.&quot;);</span>
+<span class="fc" id="L63">            return;</span>
         }
-<span class="fc" id="L73">        request.setAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;, Boolean.TRUE);</span>
-        
-        // Enterprise Identity: Extract user credentials from OAuth2 token for local provisioning
-<span class="fc" id="L76">        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;</span>
-<span class="fc" id="L77">        String email = token.getPrincipal().getAttribute(&quot;email&quot;);</span>
-<span class="fc" id="L78">        String name = token.getPrincipal().getAttribute(&quot;name&quot;);</span>
-        
-<span class="fc bfc" id="L80" title="All 4 branches covered.">        if (email == null || name == null) {</span>
-<span class="fc" id="L81">            throw new IllegalStateException(&quot;Email or name not provided by OAuth2 provider&quot;);</span>
+<span class="fc" id="L65">        request.setAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;, Boolean.TRUE);</span>
+
+<span class="fc" id="L67">        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;</span>
+<span class="fc" id="L68">        String email = token.getPrincipal().getAttribute(&quot;email&quot;);</span>
+<span class="fc" id="L69">        String name = token.getPrincipal().getAttribute(&quot;name&quot;);</span>
+<span class="fc bfc" id="L70" title="All 4 branches covered.">        if (email == null || name == null) {</span>
+<span class="fc" id="L71">            throw new IllegalStateException(&quot;Email or name not provided by OAuth2 provider&quot;);</span>
         }
-        
-        try {
-            // Enterprise Provisioning: Automatic user creation with default role assignment
-<span class="fc" id="L86">            userRepository.findById(email).orElseGet(() -&gt; {</span>
-<span class="fc" id="L87">                log.info(&quot;Enterprise OAuth2: Creating new user account: {}&quot;, email);</span>
-<span class="fc" id="L88">                AppUser newUser = new AppUser(email, name);</span>
-<span class="fc" id="L89">                newUser.setRole(Role.USER);  // Enterprise default: USER role for OAuth2 users</span>
-<span class="fc" id="L90">                newUser.setCreatedAt(LocalDateTime.now());</span>
-<span class="fc" id="L91">                return userRepository.save(newUser);</span>
-            });
-<span class="fc" id="L93">        } catch (DataIntegrityViolationException e) {</span>
-            // Enterprise Concurrency: Handle race conditions in multi-instance deployments
-<span class="fc" id="L95">            log.warn(&quot;Enterprise OAuth2: Concurrent user creation resolved for: {}&quot;, email);</span>
-<span class="fc" id="L96">            userRepository.findByEmail(email).orElseThrow(() -&gt;</span>
-<span class="fc" id="L97">                new IllegalStateException(&quot;User already exists but cannot be loaded.&quot;));</span>
-<span class="fc" id="L98">        }</span>
-        
-        // Enterprise Redirect Security: Origin allowlist prevents open redirect attacks
-<span class="fc" id="L101">        List&lt;String&gt; allowed = List.of(</span>
-        &quot;http://localhost:5173&quot;,     // Development environment
-        &quot;https://localhost:5173&quot;,    // Development HTTPS
-<span class="fc" id="L104">        props.getFrontend().getBaseUrl() // Production frontend from configuration</span>
-        );
-        // Enterprise Configuration: Environment-specific post-login landing page
-<span class="fc" id="L107">        String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();</span>
-        
-        // Enterprise Return URL: Check for custom return destination with security validation
-<span class="fc" id="L110">        Cookie[] cookies = request.getCookies();</span>
-<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (cookies != null) {</span>
-<span class="fc bfc" id="L112" title="All 2 branches covered.">            for (Cookie c : cookies) {</span>
-<span class="fc bfc" id="L113" title="All 2 branches covered.">                if (&quot;SSP_RETURN&quot;.equals(c.getName())) {</span>
-<span class="fc" id="L114">                    String candidate = c.getValue();</span>
-<span class="pc bpc" id="L115" title="1 of 4 branches missed.">                    if (candidate != null &amp;&amp; allowed.contains(candidate)) {</span>
-<span class="fc" id="L116">                        target = candidate + &quot;/auth&quot;;  // Enterprise routing: custom post-auth destination</span>
-<span class="pc bpc" id="L117" title="1 of 2 branches missed.">                    } else if (candidate != null) {</span>
-<span class="fc" id="L118">                        log.warn(&quot;Enterprise OAuth2: Rejected non-allowlisted return URL: {}&quot;, candidate);</span>
-                    }
-                    // Enterprise Cleanup: Remove single-use return URL cookie
-<span class="fc" id="L121">                    Cookie clear = new Cookie(&quot;SSP_RETURN&quot;, &quot;&quot;);</span>
-<span class="fc" id="L122">                    clear.setPath(&quot;/&quot;);</span>
-<span class="fc" id="L123">                    clear.setMaxAge(0);</span>
-<span class="fc" id="L124">                    clear.setSecure(isSecureOrForwardedHttps(request));</span>
-<span class="fc" id="L125">                    clear.setHttpOnly(false); // Frontend created it non-HttpOnly</span>
-<span class="fc" id="L126">                    addCookieWithSameSite(response, clear, &quot;None&quot;);</span>
-<span class="fc" id="L127">                    break;</span>
+
+<span class="fc" id="L74">        userProvisioningService.provisionIfAbsent(email, name);</span>
+
+<span class="fc" id="L76">        String target = resolveRedirectTarget(request, response);</span>
+<span class="fc" id="L77">        log.info(&quot;Authentication success, redirecting to: {}&quot;, target);</span>
+<span class="fc" id="L78">        setAlwaysUseDefaultTargetUrl(true);</span>
+<span class="fc" id="L79">        setDefaultTargetUrl(URI.create(target).toString());</span>
+<span class="fc" id="L80">        super.onAuthenticationSuccess(request, response, authentication);</span>
+<span class="fc" id="L81">    }</span>
+
+    private String resolveRedirectTarget(HttpServletRequest request, HttpServletResponse response) {
+<span class="fc" id="L84">        String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();</span>
+<span class="fc" id="L85">        Cookie[] cookies = request.getCookies();</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (cookies == null) return target;</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        for (Cookie c : cookies) {</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            if (!&quot;SSP_RETURN&quot;.equals(c.getName())) continue;</span>
+<span class="fc" id="L89">            String candidate = c.getValue();</span>
+<span class="pc bpc" id="L90" title="1 of 4 branches missed.">            if (candidate != null &amp;&amp; !candidate.isBlank()) {</span>
+                // Redirect URL construction: validate against allowed origins to prevent open redirect
+<span class="fc bfc" id="L92" title="All 2 branches covered.">                if (props.getCors().getAllowedOrigins().contains(candidate)) {</span>
+<span class="fc" id="L93">                    target = candidate + &quot;/auth&quot;;</span>
+                } else {
+<span class="fc" id="L95">                    log.warn(&quot;Rejected non-allowlisted return URL: {}&quot;, candidate);</span>
                 }
             }
+<span class="fc" id="L98">            clearReturnCookie(request, response);</span>
+<span class="fc" id="L99">            break;</span>
         }
-<span class="fc" id="L131">        log.info(&quot;Enterprise OAuth2: Authentication success, redirecting to: {}&quot;, target);</span>
-<span class="fc" id="L132">        setAlwaysUseDefaultTargetUrl(true);</span>
-<span class="fc" id="L133">        setDefaultTargetUrl(URI.create(target).toString());</span>
-        // Enterprise Flow: Single redirect execution via parent handler
-<span class="fc" id="L135">        super.onAuthenticationSuccess(request, response, authentication);</span>
-<span class="fc" id="L136">    }</span>
-    
-    /**
-     * Enterprise Security: Detects HTTPS context including load balancer forwarding.
-     * Supports both direct HTTPS and X-Forwarded-Proto header detection.
-     */
-    private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
-<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (request.isSecure()) return true;</span>
-<span class="fc" id="L144">        String xfProto = request.getHeader(&quot;X-Forwarded-Proto&quot;);</span>
-<span class="fc bfc" id="L145" title="All 4 branches covered.">        return xfProto != null &amp;&amp; xfProto.equalsIgnoreCase(&quot;https&quot;);</span>
+<span class="fc" id="L101">        return target;</span>
     }
-    
-    /**
-     * Enterprise Cookie Security: Adds SameSite attribute for cross-origin compatibility.
-     * Essential for OAuth2 flows between frontend and backend on different domains.
-     */
+
+    private void clearReturnCookie(HttpServletRequest request, HttpServletResponse response) {
+<span class="fc" id="L105">        Cookie clear = new Cookie(&quot;SSP_RETURN&quot;, &quot;&quot;);</span>
+<span class="fc" id="L106">        clear.setPath(&quot;/&quot;);</span>
+<span class="fc" id="L107">        clear.setMaxAge(0);</span>
+<span class="fc" id="L108">        clear.setSecure(isSecureOrForwardedHttps(request));</span>
+        // Not HttpOnly: frontend created it non-HttpOnly so clearing must match
+<span class="fc" id="L110">        clear.setHttpOnly(false);</span>
+<span class="fc" id="L111">        addCookieWithSameSite(response, clear, &quot;None&quot;);</span>
+<span class="fc" id="L112">    }</span>
+
+    private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (request.isSecure()) return true;</span>
+<span class="fc" id="L116">        String xfProto = request.getHeader(&quot;X-Forwarded-Proto&quot;);</span>
+<span class="fc bfc" id="L117" title="All 4 branches covered.">        return xfProto != null &amp;&amp; xfProto.equalsIgnoreCase(&quot;https&quot;);</span>
+    }
+
     private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {
-<span class="fc" id="L153">        StringBuilder sb = new StringBuilder();</span>
-<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? &quot;&quot; : cookie.getValue());</span>
-<span class="fc bfc" id="L155" title="All 2 branches covered.">        sb.append(&quot;; Path=&quot;).append(cookie.getPath() == null ? &quot;/&quot; : cookie.getPath());</span>
-<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (cookie.getMaxAge() &gt;= 0) sb.append(&quot;; Max-Age=&quot;).append(cookie.getMaxAge());</span>
-<span class="fc bfc" id="L157" title="All 2 branches covered.">        if (cookie.getSecure()) sb.append(&quot;; Secure&quot;);</span>
-<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (cookie.isHttpOnly()) sb.append(&quot;; HttpOnly&quot;);</span>
-<span class="pc bpc" id="L159" title="1 of 4 branches missed.">        if (sameSite != null &amp;&amp; !sameSite.isBlank()) sb.append(&quot;; SameSite=&quot;).append(sameSite);</span>
-<span class="fc" id="L160">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
-<span class="fc" id="L161">    }</span>
+<span class="fc" id="L121">        StringBuilder sb = new StringBuilder();</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? &quot;&quot; : cookie.getValue());</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        sb.append(&quot;; Path=&quot;).append(cookie.getPath() == null ? &quot;/&quot; : cookie.getPath());</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (cookie.getMaxAge() &gt;= 0) sb.append(&quot;; Max-Age=&quot;).append(cookie.getMaxAge());</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (cookie.getSecure()) sb.append(&quot;; Secure&quot;);</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (cookie.isHttpOnly()) sb.append(&quot;; HttpOnly&quot;);</span>
+<span class="pc bpc" id="L127" title="1 of 4 branches missed.">        if (sameSite != null &amp;&amp; !sameSite.isBlank()) sb.append(&quot;; SameSite=&quot;).append(sameSite);</span>
+<span class="fc" id="L128">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
+<span class="fc" id="L129">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

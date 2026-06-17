@@ -43,7 +43,7 @@ public class OAuth2Config {
      */
     @Bean
     public AuthorizationRequestRepository&lt;OAuth2AuthorizationRequest&gt; authorizationRequestRepository() {
-<span class="fc" id="L46">        return new CookieOAuth2AuthorizationRequestRepository();</span>
+<span class="fc" id="L46">        return new CookieOAuth2AuthorizationRequestRepository(props);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
