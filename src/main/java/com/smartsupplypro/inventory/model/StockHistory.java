@@ -18,79 +18,67 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
- * Stock history entity for immutable audit trail of inventory movements.
- * Maps to STOCK_HISTORY table with indexed columns for analytics.
+ * Represents an immutable stock movement record in the audit trail.
  *
- * <p><strong>Purpose</strong>: Captures stock changes (receive, sell, scrap, adjust) with who, what, when, why, and price context.
- *
- * <p><strong>Indexes</strong>: IX_SH_ITEM_TS (item_id, created_at), IX_SH_TS (created_at), IX_SH_SUPPLIER_TS (supplier_id, created_at).
- *
- * <p><strong>Usage</strong>: Analytics, compliance, debugging, WAC calculations.
+ * <p>Captures who changed what, when, why, and at what price — enabling
+ * compliance reporting, WAC calculations, and stock reconciliation.</p>
  *
  * @see InventoryItem
- * @see Supplier
  * @see StockChangeReason
- * @see <a href="../../../../../docs/architecture/patterns/model-patterns.md">Model Patterns</a>
  */
 @Entity
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"inventoryItem", "supplier"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Table(
     name = "STOCK_HISTORY",
     indexes = {
-        // itemId + timestamp lookups (common for item history views)
-        @Index(name = "IX_SH_ITEM_TS",     columnList = "ITEM_ID, CREATED_AT"),
-        // timestamp range scans (recent activity)
-        @Index(name = "IX_SH_TS",          columnList = "CREATED_AT"),
-        // supplier + timestamp analytics
-        @Index(name = "IX_SH_SUPPLIER_TS", columnList = "SUPPLIER_ID, CREATED_AT")
+        @Index(name = "IX_SH_ITEM_TS",     columnList = "ITEM_ID, CREATED_AT"),    // item history views
+        @Index(name = "IX_SH_TS",          columnList = "CREATED_AT"),             // recent activity scans
+        @Index(name = "IX_SH_SUPPLIER_TS", columnList = "SUPPLIER_ID, CREATED_AT") // supplier analytics
     }
 )
 public class StockHistory {
 
-    /** Unique identifier for stock history event (UUID). */
     @Id
-    @Column(name="ID")
+    @Column(name = "ID")
     private String id;
 
-    /** Foreign key reference to affected inventory item. */
     @Column(name = "ITEM_ID", nullable = false)
     private String itemId;
 
-    /** Denormalized supplier reference for fast analytics (populated by service layer). */
+    // denormalized from InventoryItem for supplier-scoped analytics queries
     @Column(name = "SUPPLIER_ID")
     private String supplierId;
 
-    /** Quantity delta (positive for increases, negative for decreases). */
+    // positive for stock-in, negative for stock-out
     @Column(name = "QUANTITY_CHANGE", nullable = false)
     private int change;
 
-    /** Reason for stock change (stored as STRING). */
     @Enumerated(EnumType.STRING)
+    // Stored as STRING for DB readability; renaming enum constants requires a data migration
     @Column(name = "REASON", nullable = false)
     private StockChangeReason reason;
 
-    /** User who initiated the stock change. */
     @Column(name = "CREATED_BY", nullable = false)
     private String createdBy;
 
-    /** Timestamp of stock change event. */
     @Column(name = "CREATED_AT", nullable = false)
     private LocalDateTime timestamp;
 
-    /** Price at time of change (for valuation analytics). */
+    // snapshot of the unit price at the time of this movement, used for WAC calculations
     @Column(name = "PRICE_AT_CHANGE", precision = 12, scale = 2)
     private BigDecimal priceAtChange;
 
-    /**
-     * Sets timestamp before persist if not already set.
-     */
     @PrePersist
     public void prePersist() {
         if (timestamp == null) {
@@ -98,16 +86,11 @@ public class StockHistory {
         }
     }
 
-    /**
-     * Inventory item entity reference (read-only, for joins).
-     */
+    // read-only joins; ITEM_ID and SUPPLIER_ID are the authoritative FK columns
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ITEM_ID", insertable = false, updatable = false)
     private InventoryItem inventoryItem;
 
-    /**
-     * Supplier entity reference (read-only, for joins).
-     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SUPPLIER_ID", insertable = false, updatable = false)
     private Supplier supplier;

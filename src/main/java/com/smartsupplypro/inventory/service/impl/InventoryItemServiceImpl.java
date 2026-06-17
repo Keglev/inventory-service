@@ -55,6 +55,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     private final InventoryItemRepository repository;
     private final InventoryItemValidationHelper validationHelper;
     private final InventoryItemAuditHelper auditHelper;
+    private final InventoryItemMapper inventoryItemMapper;
 
     /**
      * {@inheritDoc}
@@ -65,7 +66,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
      */
     @Override
     public List<InventoryItemDTO> getAll() {
-        return repository.findAll().stream().map(InventoryItemMapper::toDTO).toList();
+        return repository.findAll().stream().map(inventoryItemMapper::toDTO).toList();
     }
 
     /**
@@ -76,7 +77,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
      */
     @Override
     public Optional<InventoryItemDTO> getById(String id) {
-        return repository.findById(id).map(InventoryItemMapper::toDTO);
+        return repository.findById(id).map(inventoryItemMapper::toDTO);
     }
 
     /**
@@ -89,7 +90,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Override
     public Page<InventoryItemDTO> findByNameSortedByPrice(String name, Pageable pageable) {
         Page<InventoryItem> page = repository.findByNameSortedByPrice(name, pageable);
-        return page == null ? Page.empty() : page.map(InventoryItemMapper::toDTO);
+        return page == null ? Page.empty() : page.map(inventoryItemMapper::toDTO);
     }
 
     /**
@@ -117,7 +118,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         validationHelper.validateForCreation(dto);
 
         // Convert DTO to entity
-        InventoryItem entity = InventoryItemMapper.toEntity(dto);
+        InventoryItem entity = inventoryItemMapper.toEntity(dto);
 
         // Populate server-side fields
         validationHelper.populateServerFields(entity);
@@ -128,7 +129,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         // Log initial stock history
         auditHelper.logInitialStock(saved);
 
-        return InventoryItemMapper.toDTO(saved);
+        return inventoryItemMapper.toDTO(saved);
     }
 
     /**
@@ -172,7 +173,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         // Log quantity change if delta is non-zero
         auditHelper.logQuantityChange(updated, quantityDiff);
 
-        return Optional.of(InventoryItemMapper.toDTO(updated));
+        return Optional.of(inventoryItemMapper.toDTO(updated));
     }
 
     /**
@@ -236,7 +237,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         // Log stock history
         auditHelper.logQuantityAdjustment(saved, delta, reason);
 
-        return InventoryItemMapper.toDTO(saved);
+        return inventoryItemMapper.toDTO(saved);
     }
 
     /**
@@ -265,7 +266,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         // Log price change history
         auditHelper.logPriceChange(id, newPrice);
         
-        return InventoryItemMapper.toDTO(saved);
+        return inventoryItemMapper.toDTO(saved);
     }
 
     /**
@@ -305,7 +306,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         // Persist to database
         InventoryItem saved = repository.save(existing);
         
-        return InventoryItemMapper.toDTO(saved);
+        return inventoryItemMapper.toDTO(saved);
     }
 }
 

@@ -171,9 +171,9 @@ public class InventoryItemValidatorTest {
      */
     @Test
     void testValidateInventoryItemNotExists_withUniqueNameAndPrice_shouldPass() {
-        // GIVEN: repository indicates no existing row for name+price
+        // GIVEN: repository returns no items for the name (no duplicate exists)
         InventoryItemRepository mockRepo = mock(InventoryItemRepository.class);
-        when(mockRepo.existsByNameAndPrice("UniqueItem", new BigDecimal("25.00"))).thenReturn(false);
+        when(mockRepo.findByNameIgnoreCase("UniqueItem")).thenReturn(List.of());
 
         // WHEN/THEN
         assertDoesNotThrow(() ->

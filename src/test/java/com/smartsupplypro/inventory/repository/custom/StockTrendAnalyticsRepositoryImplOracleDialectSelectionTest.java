@@ -17,18 +17,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
 /**
- * Unit tests that cover the <em>Oracle dialect branch selection</em> in
- * {@link StockTrendAnalyticsRepositoryImpl} without executing Oracle SQL.
- *
- * <p>Why: the Oracle SQL uses functions like TO_CHAR / TRUNC which are not
- * guaranteed to run on H2, but the implementation still needs branch coverage.
- *
- * <p>Strategy:
- * <ul>
- *   <li>Force {@code detector.isH2() == false} to select Oracle SQL branches.</li>
- *   <li>Mock {@link EntityManager#createNativeQuery(String)} to capture generated SQL.</li>
- *   <li>Verify that blank supplier inputs normalize to {@code null} parameters.</li>
- * </ul>
+ * Unit tests for Oracle dialect branch selection in {@link StockTrendAnalyticsRepositoryImpl}.
  */
 @ExtendWith(MockitoExtension.class)
 class StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest {
@@ -38,7 +27,7 @@ class StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest {
     @Mock private Query query;
 
     @Test
-    void oracleDialect_selected_forAllMethods_andSupplierBlankNormalizesToNull() {
+    void should_select_oracle_sql_for_all_methods_and_normalize_blank_supplier_to_null() {
         org.mockito.Mockito.when(detector.isH2()).thenReturn(false);
         org.mockito.Mockito.when(em.createNativeQuery(org.mockito.ArgumentMatchers.anyString())).thenReturn(query);
         org.mockito.Mockito.when(query.setParameter(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any()))
@@ -49,7 +38,7 @@ class StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest {
         injectEntityManager(repo, em);
 
         LocalDateTime start = LocalDateTime.of(2024, 2, 1, 0, 0);
-        LocalDateTime end = LocalDateTime.of(2024, 3, 31, 23, 59);
+        LocalDateTime end   = LocalDateTime.of(2024, 3, 31, 23, 59);
 
         repo.getMonthlyStockMovement(start, end);
         repo.getMonthlyStockMovementBySupplier(start, end, "   ");
@@ -59,25 +48,21 @@ class StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest {
         ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
         org.mockito.Mockito.verify(em, org.mockito.Mockito.times(4)).createNativeQuery(sql.capture());
 
-        // Monthly movement query should use TO_CHAR(..., 'YYYY-MM') in Oracle branch.
+        // Oracle monthly movement uses TO_CHAR(..., 'YYYY-MM')
         assertTrue(sql.getAllValues().get(0).contains("TO_CHAR"));
         assertTrue(sql.getAllValues().get(0).contains("YYYY-MM"));
-
-        // Supplier-filtered monthly movement should still be Oracle-flavored.
+        // Oracle supplier-filtered movement is also TO_CHAR-flavored
         assertTrue(sql.getAllValues().get(1).contains("TO_CHAR"));
-
-        // Daily valuation uses TRUNC in Oracle variant.
+        // Oracle daily valuation uses TRUNC
         assertTrue(sql.getAllValues().get(2).contains("TRUNC"));
-
-        // Price trend uses YYYY-MM-DD in Oracle variant.
+        // Oracle price trend uses YYYY-MM-DD format
         assertTrue(sql.getAllValues().get(3).contains("YYYY-MM-DD"));
 
-        // Blank supplier should normalize to a NULL parameter to disable supplier filtering.
+        // blank supplier must normalize to null so the supplier filter is disabled
         org.mockito.Mockito.verify(query, org.mockito.Mockito.atLeastOnce())
             .setParameter("supplierId", null);
     }
 
-    /** Injects the {@link EntityManager} into the repository under test (field injection mirror). */
     private static void injectEntityManager(Object target, EntityManager em) {
         try {
             Field f = target.getClass().getDeclaredField("em");

@@ -8,42 +8,19 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.smartsupplypro.inventory.model.Supplier;
 
 /**
- * Repository for supplier aggregate management.
+ * Repository for {@link Supplier} persistence operations.
  *
- * <p><strong>Capabilities</strong>:
- * <ul>
- *   <li><strong>Uniqueness Checks</strong>: Case-insensitive name lookup for validation</li>
- *   <li><strong>Search</strong>: Case-insensitive substring matching for search endpoint</li>
- *   <li><strong>Existence Checks</strong>: Optional helper for uniqueness validation</li>
- * </ul>
+ * <p>Provides case-insensitive name lookups and existence checks
+ * used for uniqueness validation before create and update operations.</p>
  *
  * @see Supplier
  * @see SupplierService
- * @see <a href="file:../../../../../../docs/architecture/patterns/repository-patterns.md">Repository Patterns</a>
  */
 public interface SupplierRepository extends JpaRepository<Supplier, String> {
 
-    /**
-     * Finds supplier by exact name (case-insensitive).
-     *
-     * @param name supplier name
-     * @return supplier if found, empty otherwise
-     */
     Optional<Supplier> findByNameIgnoreCase(String name);
 
-    /**
-     * Searches suppliers by name substring (case-insensitive).
-     *
-     * @param namePart substring to match
-     * @return matching suppliers
-     */
     List<Supplier> findByNameContainingIgnoreCase(String namePart);
 
-    /**
-     * Checks if supplier exists by name (case-insensitive).
-     *
-     * @param name supplier name
-     * @return true if exists
-     */
     boolean existsByNameIgnoreCase(String name);
 }

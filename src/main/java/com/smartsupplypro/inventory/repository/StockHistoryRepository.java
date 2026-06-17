@@ -17,29 +17,16 @@ import com.smartsupplypro.inventory.repository.custom.StockMetricsRepository;
 import com.smartsupplypro.inventory.repository.custom.StockTrendAnalyticsRepository;
 
 /**
- * Repository for stock history audit data with analytics support.
+ * Repository for {@link StockHistory} audit data with analytics support.
  *
- * <p><strong>Capabilities</strong>:
- * <ul>
- *   <li><strong>Paginated Filtering</strong>: Time range, item name, supplier queries</li>
- *   <li><strong>Ordered Finders</strong>: Newest-first sorting to avoid in-memory sorts</li>
- *   <li><strong>Price Trends</strong>: Historical price snapshots for item analytics</li>
- *   <li><strong>Custom Queries</strong>: Extends specialized analytics repositories for complex operations</li>
- * </ul>
- *
- * <p><strong>Design Notes</strong>:
- * <ul>
- *   <li>Java field <code>timestamp</code> maps to DB column <code>CREATED_AT</code></li>
- *   <li>Denormalized <code>supplierId</code> on stock_history for index-friendly analytics</li>
- *   <li>Native SQL uses <code>CREATED_AT</code>, JPQL uses <code>timestamp</code></li>
- *   <li>Stable default ordering (CREATED_AT DESC) in native queries</li>
- * </ul>
+ * <p>Extends three specialised custom repositories for complex analytics queries.
+ * The Java field {@code timestamp} maps to DB column {@code CREATED_AT}; native SQL
+ * uses the column name while JPQL uses the field name.</p>
  *
  * @see StockHistory
  * @see StockTrendAnalyticsRepository
  * @see StockMetricsRepository
  * @see StockDetailQueryRepository
- * @see <a href="file:../../../../../../docs/architecture/patterns/repository-patterns.md">Repository Patterns</a>
  */
 public interface StockHistoryRepository
         extends JpaRepository<StockHistory, String>,
@@ -48,14 +35,16 @@ public interface StockHistoryRepository
                 StockDetailQueryRepository {
 
     /**
-     * Paginated stock history with optional time/item/supplier filters.
-     * Stable ordering by CREATED_AT DESC (native SQL).
+     * Returns a paginated, filtered view of stock history ordered by creation time descending.
      *
-     * @param startDate optional start (inclusive)
-     * @param endDate optional end (inclusive)
-     * @param itemName optional partial item name match
-     * @param supplierId optional supplier filter
-     * @param pageable pagination parameters
+     * <p>All filter parameters are optional; pass {@code null} to omit a filter.
+     * Uses a separate {@code countQuery} to avoid re-executing the JOIN for pagination counts.
+     *
+     * @param startDate  optional start timestamp (inclusive)
+     * @param endDate    optional end timestamp (inclusive)
+     * @param itemName   optional partial item name (case-insensitive)
+     * @param supplierId optional supplier ID filter
+     * @param pageable   pagination parameters
      * @return paginated stock history records
      */
     @Query(
@@ -88,46 +77,22 @@ public interface StockHistoryRepository
         Pageable pageable
     );
 
-    /**
-     * Finds all records for item ordered newest first (uses timestamp field).
-     *
-     * @param itemId inventory item ID
-     * @return ordered stock history records
-     */
     List<StockHistory> findByItemIdOrderByTimestampDesc(String itemId);
 
-    /**
-     * Finds all records by reason ordered newest first (uses timestamp field).
-     *
-     * @param reason stock change reason
-     * @return ordered stock history records
-     */
     List<StockHistory> findByReasonOrderByTimestampDesc(StockChangeReason reason);
 
-    /**
-     * Finds all records for item (unordered - prefer timestampDesc variant).
-     *
-     * @param itemId inventory item ID
-     * @return stock history records
-     */
     List<StockHistory> findByItemId(String itemId);
 
-    /**
-     * Finds records by reason (unordered - prefer timestampDesc variant).
-     *
-     * @param reason stock change reason
-     * @return stock history records
-     */
     List<StockHistory> findByReason(StockChangeReason reason);
 
     /**
-     * Retrieves time-ordered price snapshots for item within date range.
-     * Only includes entries with non-null priceAtChange.
+     * Retrieves time-ordered price snapshots for an item within a date range.
+     * Only entries with a non-null {@code priceAtChange} are included.
      *
      * @param itemId item ID
-     * @param start start date (inclusive)
-     * @param end end date (inclusive)
-     * @return price trend data points
+     * @param start  start timestamp (inclusive)
+     * @param end    end timestamp (inclusive)
+     * @return {@link PriceTrendDTO} projections ordered by timestamp ascending
      */
     @Query("""
         SELECT new com.smartsupplypro.inventory.dto.PriceTrendDTO(sh.timestamp, sh.priceAtChange)

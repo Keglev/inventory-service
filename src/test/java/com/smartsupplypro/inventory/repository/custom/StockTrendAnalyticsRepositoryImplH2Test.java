@@ -8,6 +8,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -20,18 +21,12 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
 import jakarta.persistence.EntityManager;
 
 /**
- * H2 execution-path tests for {@link StockTrendAnalyticsRepositoryImpl}.
+ * Integration tests for dynamic query methods in {@link StockTrendAnalyticsRepositoryImpl}.
  *
- * <p>Exercises the native SQL logic that must run on H2 (test profile):
- * monthly movement, supplier-filtered movement, daily valuation, and price trend mapping.
- *
- * <p>Coverage intent:
- * <ul>
- *   <li>Validate aggregation semantics (stock-in vs stock-out, grouping by month/day).</li>
- *   <li>Cover optional supplier filter normalization (blank → null) in supplier-filtered methods.</li>
- *   <li>Verify DTO mapping (timestamp formatting and price averaging) for price trends.</li>
- * </ul>
+ * <p>Verifies H2 execution path for monthly movement aggregation,
+ * daily valuation, and price trend DTO mapping.</p>
  */
+@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
@@ -39,16 +34,6 @@ class StockTrendAnalyticsRepositoryImplH2Test {
 
     @Autowired private EntityManager em;
 
-    /**
-     * Seeds a small dataset designed to validate analytics behavior across days and months.
-     *
-     * <p>Notable properties:
-     * <ul>
-     *   <li>Item A has multiple events across Feb and Mar; includes a price change event.</li>
-     *   <li>Item B contributes only to February movement.</li>
-     *   <li>Quantities in the inventory table start at 0 because analytics are derived from history events.</li>
-     * </ul>
-     */
     private void seedTestData() {
         em.createNativeQuery("DELETE FROM stock_history").executeUpdate();
         em.createNativeQuery("DELETE FROM inventory_item").executeUpdate();
@@ -67,7 +52,7 @@ class StockTrendAnalyticsRepositoryImplH2Test {
             "('itemB','Item B', 5.00, 0, 10, 'sup2', CURRENT_TIMESTAMP, 'test')"
         ).executeUpdate();
 
-        // Item A events across days/months
+        // itemA spans Feb and Mar; includes a price-change event on Feb 5
         em.createNativeQuery(
             "INSERT INTO stock_history (id, item_id, supplier_id, quantity_change, reason, created_by, created_at, price_at_change) VALUES " +
             "('sh1','itemA','sup1', 5, 'INITIAL_STOCK', 'alice', TIMESTAMP '2024-02-05 09:00:00', 2.00)," +
@@ -76,128 +61,126 @@ class StockTrendAnalyticsRepositoryImplH2Test {
             "('sh4','itemA','sup1', 3, 'MANUAL_UPDATE', 'alice', TIMESTAMP '2024-03-01 10:00:00', 2.50)"
         ).executeUpdate();
 
-        // Item B contributes only to February movement
+        // itemB contributes only to February movement
         em.createNativeQuery(
             "INSERT INTO stock_history (id, item_id, supplier_id, quantity_change, reason, created_by, created_at, price_at_change) VALUES " +
-            "('sh5','itemB','sup2', 1, 'INITIAL_STOCK', 'bob',   TIMESTAMP '2024-02-10 10:00:00', 5.00)"
+            "('sh5','itemB','sup2', 1, 'INITIAL_STOCK', 'bob', TIMESTAMP '2024-02-10 10:00:00', 5.00)"
         ).executeUpdate();
 
         em.flush();
         em.clear();
     }
 
-    @Test
-    void getMonthlyStockMovement_aggregatesStockInAndOut() {
-        seedTestData();
-        StockTrendAnalyticsRepositoryImpl repo = repoH2();
+    /**
+     * Global monthly stock-in/stock-out aggregation.
+     */
+    @Nested
+    @SuppressWarnings("unused")
+    class MonthlyMovement {
 
-        List<Object[]> out = repo.getMonthlyStockMovement(
-            LocalDateTime.of(2024, 2, 1, 0, 0),
-            LocalDateTime.of(2024, 3, 31, 23, 59)
-        );
+        @Test
+        void should_aggregate_stock_in_and_out_by_month() {
+            seedTestData();
+            StockTrendAnalyticsRepositoryImpl repo = repoH2();
 
-        assertEquals(2, out.size());
+            List<Object[]> out = repo.getMonthlyStockMovement(
+                    LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 3, 31, 23, 59));
 
-        // February: stock-in includes itemA +5 and itemB +1; stock-out includes itemA -2.
-        assertEquals("2024-02", out.get(0)[0]);
-        assertEquals(6L, ((Number) out.get(0)[1]).longValue());
-        assertEquals(2L, ((Number) out.get(0)[2]).longValue());
+            assertEquals(2, out.size());
+            // Feb: itemA +5, itemB +1 = 6 in; itemA -2 = 2 out
+            assertEquals("2024-02", out.get(0)[0]);
+            assertEquals(6L, ((Number) out.get(0)[1]).longValue());
+            assertEquals(2L, ((Number) out.get(0)[2]).longValue());
+            // Mar: itemA +3 = 3 in; no out
+            assertEquals("2024-03", out.get(1)[0]);
+            assertEquals(3L, ((Number) out.get(1)[1]).longValue());
+            assertEquals(0L, ((Number) out.get(1)[2]).longValue());
+        }
 
-        // March: only a +3 update on itemA; no stock-out events.
-        assertEquals("2024-03", out.get(1)[0]);
-        assertEquals(3L, ((Number) out.get(1)[1]).longValue());
-        assertEquals(0L, ((Number) out.get(1)[2]).longValue());
+        @Test
+        void should_filter_monthly_movement_by_supplier_and_normalize_blank_to_null() {
+            seedTestData();
+            StockTrendAnalyticsRepositoryImpl repo = repoH2();
+
+            List<Object[]> filtered = repo.getMonthlyStockMovementBySupplier(
+                    LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 3, 31, 23, 59), "sup1");
+
+            assertEquals(2, filtered.size());
+            assertEquals("2024-02", filtered.get(0)[0]);
+            assertEquals(5L, ((Number) filtered.get(0)[1]).longValue());
+
+            // blank supplier normalizes to null → no filter applied
+            List<Object[]> blank = repo.getMonthlyStockMovementBySupplier(
+                    LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 3, 31, 23, 59), "   ");
+            assertTrue(blank.size() >= 2);
+            assertEquals(6L, ((Number) blank.get(0)[1]).longValue());
+        }
     }
 
-    @Test
-    void getMonthlyStockMovementBySupplier_filtersWhenSupplierProvided_andIgnoresBlank() {
-        seedTestData();
-        StockTrendAnalyticsRepositoryImpl repo = repoH2();
+    /**
+     * Daily closing stock valuation.
+     */
+    @Nested
+    @SuppressWarnings("unused")
+    class DailyValuation {
 
-        List<Object[]> filtered = repo.getMonthlyStockMovementBySupplier(
-            LocalDateTime.of(2024, 2, 1, 0, 0),
-            LocalDateTime.of(2024, 3, 31, 23, 59),
-            "sup1"
-        );
+        @Test
+        void should_return_closing_stock_value_per_day() {
+            seedTestData();
+            StockTrendAnalyticsRepositoryImpl repo = repoH2();
 
-        assertEquals(2, filtered.size());
-        assertEquals("2024-02", filtered.get(0)[0]);
-        assertEquals(5L, ((Number) filtered.get(0)[1]).longValue());
+            List<Object[]> out = repo.getDailyStockValuation(
+                    LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 3, 2, 0, 0), "sup1");
 
-        // Blank supplier -> normalized to null -> should behave like no supplier filter.
-        List<Object[]> blank = repo.getMonthlyStockMovementBySupplier(
-            LocalDateTime.of(2024, 2, 1, 0, 0),
-            LocalDateTime.of(2024, 3, 31, 23, 59),
-            "   "
-        );
-        assertTrue(blank.size() >= 2);
-        assertEquals("2024-02", blank.get(0)[0]);
-        assertEquals(6L, ((Number) blank.get(0)[1]).longValue());
+            assertEquals(3, out.size());
+            // 2024-02-05: last price of day is 4.00; qty-after = 5; valuation = 20
+            assertEquals(LocalDate.of(2024, 2, 5), ((java.sql.Date) out.get(0)[0]).toLocalDate());
+            assertEquals(20L, ((Number) out.get(0)[1]).longValue());
+            // 2024-02-06: price 2.00; qty-after = 3; valuation = 6
+            assertEquals(LocalDate.of(2024, 2, 6), ((java.sql.Date) out.get(1)[0]).toLocalDate());
+            assertEquals(6L, ((Number) out.get(1)[1]).longValue());
+            // 2024-03-01: price 2.50; qty-after = 6; valuation = 15
+            assertEquals(LocalDate.of(2024, 3, 1), ((java.sql.Date) out.get(2)[0]).toLocalDate());
+            assertEquals(15L, ((Number) out.get(2)[1]).longValue());
+        }
     }
 
-    @Test
-    void getDailyStockValuation_returnsClosingValuePerDay() {
-        seedTestData();
-        StockTrendAnalyticsRepositoryImpl repo = repoH2();
+    /**
+     * Price trend DTO mapping and supplier filter.
+     */
+    @Nested
+    @SuppressWarnings("unused")
+    class PriceTrend {
 
-        List<Object[]> out = repo.getDailyStockValuation(
-            LocalDateTime.of(2024, 2, 1, 0, 0),
-            LocalDateTime.of(2024, 3, 2, 0, 0),
-            "sup1"
-        );
+        @Test
+        void should_map_price_trend_to_dto_and_honor_supplier_filter() {
+            seedTestData();
+            StockTrendAnalyticsRepositoryImpl repo = repoH2();
 
-        assertEquals(3, out.size());
+            List<PriceTrendDTO> out = repo.getItemPriceTrend(
+                    "itemA", "sup1",
+                    LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 3, 31, 23, 59));
 
-        // 2024-02-05: closing price comes from the last event of the day (a price change to 4.00)
-        // and quantity-after is 5 -> valuation = 5 * 4.00 = 20.
-        assertEquals(LocalDate.of(2024, 2, 5), ((java.sql.Date) out.get(0)[0]).toLocalDate());
-        assertEquals(20L, ((Number) out.get(0)[1]).longValue());
-
-        // 2024-02-06: quantity-after is 3 and price at event is 2.00 -> 6.
-        assertEquals(LocalDate.of(2024, 2, 6), ((java.sql.Date) out.get(1)[0]).toLocalDate());
-        assertEquals(6L, ((Number) out.get(1)[1]).longValue());
-
-        // 2024-03-01: quantity-after is 6 and price at event is 2.50 -> 15.
-        assertEquals(LocalDate.of(2024, 3, 1), ((java.sql.Date) out.get(2)[0]).toLocalDate());
-        assertEquals(15L, ((Number) out.get(2)[1]).longValue());
+            assertEquals(3, out.size());
+            // 2024-02-05 has two events (2.00 and 4.00) → average = 3.00
+            assertEquals("2024-02-05", out.get(0).getTimestamp());
+            assertEquals(0, out.get(0).getPrice().compareTo(new BigDecimal("3.00")));
+            assertEquals("2024-02-06", out.get(1).getTimestamp());
+            assertEquals(0, out.get(1).getPrice().compareTo(new BigDecimal("2.00")));
+            assertEquals("2024-03-01", out.get(2).getTimestamp());
+            assertEquals(0, out.get(2).getPrice().compareTo(new BigDecimal("2.50")));
+        }
     }
 
-    @Test
-    void getItemPriceTrend_mapsToDTO_andHonorsSupplierFilter() {
-        seedTestData();
-        StockTrendAnalyticsRepositoryImpl repo = repoH2();
-
-        List<PriceTrendDTO> out = repo.getItemPriceTrend(
-            "itemA",
-            "sup1",
-            LocalDateTime.of(2024, 2, 1, 0, 0),
-            LocalDateTime.of(2024, 3, 31, 23, 59)
-        );
-
-        // Price trend rows are returned per day for the selected item/supplier.
-        assertEquals(3, out.size());
-        assertEquals("2024-02-05", out.get(0).getTimestamp());
-        // 2024-02-05 has two events with prices 2.00 and 4.00 -> average is 3.00.
-        assertEquals(0, out.get(0).getPrice().compareTo(new BigDecimal("3.00")));
-
-        assertEquals("2024-02-06", out.get(1).getTimestamp());
-        assertEquals(0, out.get(1).getPrice().compareTo(new BigDecimal("2.00")));
-
-        assertEquals("2024-03-01", out.get(2).getTimestamp());
-        assertEquals(0, out.get(2).getPrice().compareTo(new BigDecimal("2.50")));
-    }
-
-    /** Creates a repository configured to take the H2 dialect path. */
+    // forces the H2 dialect branch
     private StockTrendAnalyticsRepositoryImpl repoH2() {
         DatabaseDialectDetector detector = org.mockito.Mockito.mock(DatabaseDialectDetector.class);
         org.mockito.Mockito.when(detector.isH2()).thenReturn(true);
-
         StockTrendAnalyticsRepositoryImpl repo = new StockTrendAnalyticsRepositoryImpl(detector);
         injectEntityManager(repo, em);
         return repo;
     }
 
-    /** Injects the {@link EntityManager} into the repository under test (field injection mirror). */
     private static void injectEntityManager(Object target, EntityManager em) {
         try {
             Field f = target.getClass().getDeclaredField("em");

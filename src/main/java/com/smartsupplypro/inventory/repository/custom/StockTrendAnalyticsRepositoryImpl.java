@@ -2,6 +2,7 @@ package com.smartsupplypro.inventory.repository.custom;
 
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
+import com.smartsupplypro.inventory.repository.custom.util.StockTrendSqlBuilder;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -14,14 +15,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Trend analytics repository implementation with multi-database support.
+ * Custom repository implementation for time-series stock and price trend analytics.
  *
- * <p>Encapsulates native SQL for time-series aggregations across H2 (test) and
- * Oracle (prod) without exposing dialect specifics to service layer.
+ * <p>Delegates SQL generation to {@link StockTrendSqlBuilder} and selects the correct
+ * dialect variant at runtime via {@link DatabaseDialectDetector}.</p>
  *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * @see StockTrendAnalyticsRepository
  */
 @Repository
 public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRepository {
@@ -35,43 +34,63 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
         this.dialectDetector = dialectDetector;
     }
 
+    /**
+     * Executes dialect-specific native SQL for monthly stock movement aggregation.
+     *
+     * @param start inclusive lower bound
+     * @param end   inclusive upper bound
+     * @return monthly aggregations ordered by month ascending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getMonthlyStockMovement(LocalDateTime start, LocalDateTime end) {
         final String sql = dialectDetector.isH2()
-            ? buildH2MonthlyMovementSql(false)
-            : buildOracleMonthlyMovementSql(false);
-
+            ? StockTrendSqlBuilder.buildH2MonthlyMovementSql(false)
+            : StockTrendSqlBuilder.buildOracleMonthlyMovementSql(false);
         return em.createNativeQuery(sql)
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .getResultList();
     }
 
+    /**
+     * Executes dialect-specific native SQL for monthly stock movement filtered by supplier.
+     *
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
+     * @param supplierId optional supplier filter
+     * @return monthly aggregations ordered by month ascending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getMonthlyStockMovementBySupplier(LocalDateTime start, LocalDateTime end, String supplierId) {
         final String sql = dialectDetector.isH2()
-            ? buildH2MonthlyMovementSql(true)
-            : buildOracleMonthlyMovementSql(true);
-
-        final String normalizedSupplier = normalizeOptionalParam(supplierId);
-
+            ? StockTrendSqlBuilder.buildH2MonthlyMovementSql(true)
+            : StockTrendSqlBuilder.buildOracleMonthlyMovementSql(true);
         return em.createNativeQuery(sql)
                 .setParameter("start", start)
                 .setParameter("end", end)
-                .setParameter("supplierId", normalizedSupplier)
+                .setParameter("supplierId", normalizeOptionalParam(supplierId))
                 .getResultList();
     }
 
+    /**
+     * Executes dialect-specific native SQL for daily inventory valuation.
+     *
+     * <p>Passes {@code start}/{@code end} as {@code java.sql.Timestamp} because some JDBC
+     * drivers do not coerce {@code LocalDateTime} for native query parameters automatically.
+     *
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
+     * @param supplierId optional supplier filter
+     * @return daily valuations ordered by day ascending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getDailyStockValuation(LocalDateTime start, LocalDateTime end, String supplierId) {
         final String sql = dialectDetector.isH2()
-            ? buildH2DailyValuationSql()
-            : buildOracleDailyValuationSql();
-
-        final String normalizedSupplier = normalizeOptionalParam(supplierId);
+            ? StockTrendSqlBuilder.buildH2DailyValuationSql()
+            : StockTrendSqlBuilder.buildOracleDailyValuationSql();
 
         // Convert LocalDateTime to java.sql.Timestamp for JDBC compatibility
         final java.sql.Timestamp startTs = java.sql.Timestamp.valueOf(start);
@@ -80,24 +99,33 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
         return em.createNativeQuery(sql)
                 .setParameter("start", startTs)
                 .setParameter("end", endTs)
-                .setParameter("supplierId", normalizedSupplier)
+                .setParameter("supplierId", normalizeOptionalParam(supplierId))
                 .getResultList();
     }
 
+    /**
+     * Executes dialect-specific native SQL for daily average price trend of a specific item.
+     *
+     * <p>Maps raw Object[] rows to {@link PriceTrendDTO} projections after query execution.
+     *
+     * @param itemId     required item identifier
+     * @param supplierId optional supplier filter
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
+     * @return daily price trend ordered by day ascending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<PriceTrendDTO> getItemPriceTrend(String itemId, String supplierId, LocalDateTime start, LocalDateTime end) {
         final String sql = dialectDetector.isH2()
-            ? buildH2PriceTrendSql()
-            : buildOraclePriceTrendSql();
-
-        final String normalizedSupplier = normalizeOptionalParam(supplierId);
+            ? StockTrendSqlBuilder.buildH2PriceTrendSql()
+            : StockTrendSqlBuilder.buildOraclePriceTrendSql();
 
         final Query query = em.createNativeQuery(sql);
         query.setParameter("start", start);
         query.setParameter("end", end);
         query.setParameter("itemId", itemId);
-        query.setParameter("supplierId", normalizedSupplier);
+        query.setParameter("supplierId", normalizeOptionalParam(supplierId));
 
         final List<Object[]> raw = query.getResultList();
         return raw.stream()
@@ -105,162 +133,6 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
                 .collect(Collectors.toList());
     }
 
-    /* ======================================================================
-     * SQL Builder Methods - H2 Dialect
-     * ====================================================================== */
-
-    private String buildH2MonthlyMovementSql(boolean withSupplierFilter) {
-        final String baseQuery = """
-            SELECT CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
-                          LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0')) AS month_str,
-                   SUM(CASE WHEN sh.quantity_change > 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
-                   SUM(CASE WHEN sh.quantity_change < 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS stock_out
-            FROM stock_history sh
-            %s
-            WHERE sh.created_at BETWEEN :start AND :end
-            %s
-            GROUP BY CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
-                            LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'))
-            ORDER BY 1
-        """;
-
-        final String join = withSupplierFilter ? "JOIN inventory_item i ON sh.item_id = i.id" : "";
-        final String supplierFilter = withSupplierFilter ? "AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))" : "";
-
-        return String.format(baseQuery, join, supplierFilter);
-    }
-
-    private String buildH2DailyValuationSql() {
-        return """
-            WITH events AS (
-                SELECT
-                    CAST(sh.created_at AS DATE) AS day_date,
-                    sh.item_id,
-                    sh.created_at,
-                    sh.quantity_change,
-                    sh.price_at_change,
-                    SUM(sh.quantity_change) OVER (
-                        PARTITION BY sh.item_id
-                        ORDER BY sh.created_at
-                        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-                    ) AS qty_after,
-                    ROW_NUMBER() OVER (
-                        PARTITION BY CAST(sh.created_at AS DATE), sh.item_id
-                        ORDER BY sh.created_at DESC
-                    ) AS rn
-                FROM stock_history sh
-                JOIN inventory_item i ON i.id = sh.item_id
-                WHERE sh.created_at BETWEEN :start AND :end
-                  AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-            )
-            SELECT
-                e.day_date,
-                SUM(COALESCE(e.qty_after, 0) * COALESCE(e.price_at_change, i.price, 0)) AS total_value
-            FROM events e
-            JOIN inventory_item i ON i.id = e.item_id
-            WHERE e.rn = 1
-            GROUP BY e.day_date
-            ORDER BY e.day_date
-        """;
-    }
-
-    private String buildH2PriceTrendSql() {
-        return """
-            SELECT CONCAT(
-                       CAST(YEAR(sh.created_at) AS VARCHAR), '-',
-                       LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'), '-',
-                       LPAD(CAST(DAY(sh.created_at) AS VARCHAR), 2, '0')
-                   ) AS day_str,
-                   AVG(sh.price_at_change) AS price
-            FROM stock_history sh
-            JOIN inventory_item i ON sh.item_id = i.id
-            WHERE sh.created_at BETWEEN :start AND :end
-              AND sh.item_id = :itemId
-              AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-            GROUP BY CONCAT(
-                       CAST(YEAR(sh.created_at) AS VARCHAR), '-',
-                       LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'), '-',
-                       LPAD(CAST(DAY(sh.created_at) AS VARCHAR), 2, '0')
-                   )
-            ORDER BY 1
-        """;
-    }
-
-    /* ======================================================================
-     * SQL Builder Methods - Oracle Dialect
-     * ====================================================================== */
-
-    private String buildOracleMonthlyMovementSql(boolean withSupplierFilter) {
-        final String baseQuery = """
-            SELECT TO_CHAR(sh.created_at, 'YYYY-MM') AS month_str,
-                   SUM(CASE WHEN sh.quantity_change > 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
-                   SUM(CASE WHEN sh.quantity_change < 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS stock_out
-            FROM stock_history sh
-            %s
-            WHERE sh.created_at BETWEEN :start AND :end
-            %s
-            GROUP BY TO_CHAR(sh.created_at, 'YYYY-MM')
-            ORDER BY 1
-        """;
-
-        final String join = withSupplierFilter ? "JOIN inventory_item i ON sh.item_id = i.id" : "";
-        final String supplierFilter = withSupplierFilter ? "AND (:supplierId IS NULL OR i.supplier_id = :supplierId)" : "";
-
-        return String.format(baseQuery, join, supplierFilter);
-    }
-
-    private String buildOracleDailyValuationSql() {
-        return """
-            WITH events AS (
-                SELECT
-                    CAST(TRUNC(sh.created_at) AS DATE) AS day_date,
-                    sh.item_id,
-                    sh.created_at,
-                    sh.quantity_change,
-                    sh.price_at_change,
-                    SUM(sh.quantity_change) OVER (
-                        PARTITION BY sh.item_id
-                        ORDER BY sh.created_at
-                    ) AS qty_after,
-                    ROW_NUMBER() OVER (
-                        PARTITION BY TRUNC(sh.created_at), sh.item_id
-                        ORDER BY sh.created_at DESC
-                    ) AS rn
-                FROM stock_history sh
-                JOIN inventory_item i ON i.id = sh.item_id
-                WHERE sh.created_at BETWEEN :start AND :end
-                  AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
-            )
-            SELECT
-                e.day_date,
-                SUM(COALESCE(e.qty_after, 0) * COALESCE(e.price_at_change, i.price, 0)) AS total_value
-            FROM events e
-            JOIN inventory_item i ON i.id = e.item_id
-            WHERE e.rn = 1
-            GROUP BY e.day_date
-            ORDER BY e.day_date
-        """;
-    }
-
-    private String buildOraclePriceTrendSql() {
-        return """
-            SELECT TO_CHAR(sh.created_at, 'YYYY-MM-DD') AS day_str,
-                   AVG(sh.price_at_change) AS price
-            FROM stock_history sh
-            JOIN inventory_item i ON sh.item_id = i.id
-            WHERE sh.created_at BETWEEN :start AND :end
-              AND sh.item_id = :itemId
-              AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
-            GROUP BY TO_CHAR(sh.created_at, 'YYYY-MM-DD')
-            ORDER BY 1
-        """;
-    }
-
-    /* ======================================================================
-     * Utility Methods
-     * ====================================================================== */
-
-    /** Normalizes optional string parameters (null/blank → null). */
     private String normalizeOptionalParam(String param) {
         return (param == null || param.isBlank()) ? null : param.trim();
     }

@@ -12,6 +12,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
@@ -55,6 +57,8 @@ class InventoryItemServiceImplSearchTest {
     @Mock private InventoryItemRepository repository;
     @Mock private SupplierRepository supplierRepository;
     @Mock private StockHistoryService stockHistoryService;
+    @SuppressWarnings("FieldMayBeFinal")
+    @Spy  private InventoryItemMapper inventoryItemMapper = new InventoryItemMapper();
     @InjectMocks private InventoryItemServiceImpl service;
 
     @BeforeEach

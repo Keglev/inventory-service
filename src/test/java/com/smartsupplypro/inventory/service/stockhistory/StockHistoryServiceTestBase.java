@@ -8,11 +8,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.mapper.StockHistoryMapper;
 import com.smartsupplypro.inventory.model.StockHistory;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
@@ -38,6 +40,9 @@ abstract class StockHistoryServiceTestBase {
 
     @Mock
     protected InventoryItemRepository itemRepository;
+
+    @Spy
+    protected StockHistoryMapper mapper = new StockHistoryMapper();
 
     @InjectMocks
     protected StockHistoryService service;

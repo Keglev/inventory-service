@@ -70,8 +70,6 @@ class InventoryItemServiceImplDeleteTest {
 
         // Default mocks
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
-        lenient().when(repository.existsByNameIgnoreCase(anyString())).thenReturn(false);
-
         // Configure validation helper to return item if found
         lenient().when(validationHelper.validateExists(anyString())).thenAnswer(inv -> {
             String id = inv.getArgument(0);

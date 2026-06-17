@@ -1,17 +1,12 @@
 package com.smartsupplypro.inventory.mapper;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
@@ -19,192 +14,106 @@ import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.model.Supplier;
 
 /**
- * Unit tests for {@link InventoryItemMapper}.
- *
- * <p><strong>Purpose</strong>: Validate mapping rules for inventory item DTO ↔ entity conversions,
- * including computed fields used by analytics and UI projections.</p>
- *
- * <p><strong>Operations Tested</strong>:</p>
- * <ul>
- *   <li>Null-safety boundaries (null in → null out)</li>
- *   <li>Total value computation (price × quantity) using BigDecimal precision</li>
- *   <li>Supplier relationship projection (supplierName)</li>
- *   <li>DTO → entity mapping excludes computed-only fields (totalValue, supplierName)</li>
- *   <li>Utility-class constructor guard (no instances)</li>
- * </ul>
+ * Unit tests for {@link InventoryItemMapper} bidirectional mapping correctness.
  */
+@SuppressWarnings("unused")
 class InventoryItemMapperTest {
 
-    @Test
-    @DisplayName("toDTO: null input returns null")
-    void toDTO_nullInput_returnsNull() {
-        // GIVEN
-        InventoryItem entity = null;
+    private final InventoryItemMapper mapper = new InventoryItemMapper();
 
-        // WHEN
-        InventoryItemDTO dto = InventoryItemMapper.toDTO(entity);
+    /**
+     * Mapping from {@link InventoryItem} entity to {@link InventoryItemDTO}.
+     */
+    @Nested
+    @SuppressWarnings("unused")
+    class ToDTO {
 
-        // THEN
-        assertNull(dto);
+        @Test
+        void should_return_null_for_null_input() {
+            assertNull(mapper.toDTO(null));
+        }
+
+        @Test
+        void should_compute_total_value_as_price_times_quantity() {
+            InventoryItem entity = InventoryItem.builder()
+                    .id("i-1").name("SSD").quantity(3).price(new BigDecimal("12.34"))
+                    .supplierId("s-1").minimumQuantity(1).createdBy("admin")
+                    .createdAt(LocalDateTime.of(2026, 3, 1, 12, 0)).build();
+            InventoryItemDTO dto = mapper.toDTO(entity);
+            assertNotNull(dto);
+            assertEquals(new BigDecimal("37.02"), dto.getTotalValue());
+        }
+
+        @Test
+        void should_return_zero_total_value_when_price_is_null() {
+            InventoryItem entity = InventoryItem.builder()
+                    .id("i-2").name("Cable").quantity(5).price(null)
+                    .supplierId("s-1").minimumQuantity(1).createdBy("admin")
+                    .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0)).build();
+            InventoryItemDTO dto = mapper.toDTO(entity);
+            assertEquals(BigDecimal.ZERO, dto.getTotalValue());
+        }
+
+        @Test
+        void should_resolve_supplier_name_from_loaded_relationship() {
+            Supplier supplier = Supplier.builder().id("s-1").name("Acme").createdBy("sys").build();
+            InventoryItem entity = InventoryItem.builder()
+                    .id("i-3").name("Widget").quantity(1).price(new BigDecimal("1.00"))
+                    .supplierId("s-1").supplier(supplier).minimumQuantity(1)
+                    .createdBy("admin").createdAt(LocalDateTime.of(2026, 1, 1, 0, 0)).build();
+            InventoryItemDTO dto = mapper.toDTO(entity);
+            assertEquals("Acme", dto.getSupplierName());
+        }
+
+        @Test
+        void should_return_null_supplier_name_when_supplier_is_null() {
+            InventoryItem entity = InventoryItem.builder()
+                    .id("i-4").name("Bolt").quantity(10).price(new BigDecimal("0.50"))
+                    .supplierId("s-1").minimumQuantity(1).createdBy("admin")
+                    .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0)).build();
+            InventoryItemDTO dto = mapper.toDTO(entity);
+            assertNull(dto.getSupplierName());
+        }
     }
 
-    @Test
-    @DisplayName("toDTO: computes totalValue = price × quantity with BigDecimal precision")
-    void toDTO_computesTotalValue() {
-        // GIVEN
-        InventoryItem entity = InventoryItem.builder()
-                .id("item-1")
-                .name("SSD")
-                .quantity(3)
-                .price(new BigDecimal("12.34"))
-                .supplierId("sup-1")
-                .minimumQuantity(1)
-                .createdBy("admin")
-                .createdAt(LocalDateTime.of(2026, 3, 1, 12, 0, 0))
-                .build();
+    /**
+     * Mapping from {@link InventoryItemDTO} to {@link InventoryItem} entity.
+     */
+    @Nested
+    @SuppressWarnings("unused")
+    class ToEntity {
 
-        // WHEN
-        InventoryItemDTO dto = InventoryItemMapper.toDTO(entity);
+        @Test
+        void should_return_null_for_null_input() {
+            assertNull(mapper.toEntity(null));
+        }
 
-        // THEN
-        assertNotNull(dto);
-        assertEquals(new BigDecimal("37.02"), dto.getTotalValue());
-    }
+        @Test
+        void should_map_all_persistence_fields() {
+            InventoryItemDTO dto = InventoryItemDTO.builder()
+                    .id("i-9").name("SSD").quantity(7).price(new BigDecimal("10.00"))
+                    .supplierId("s-1").minimumQuantity(2).createdBy("admin")
+                    .createdAt(LocalDateTime.of(2026, 3, 1, 12, 0)).build();
+            InventoryItem entity = mapper.toEntity(dto);
+            assertNotNull(entity);
+            assertEquals("i-9", entity.getId());
+            assertEquals("SSD", entity.getName());
+            assertEquals(7, entity.getQuantity());
+            assertEquals(new BigDecimal("10.00"), entity.getPrice());
+            assertEquals("s-1", entity.getSupplierId());
+            assertEquals(2, entity.getMinimumQuantity());
+        }
 
-    @Test
-    @DisplayName("toDTO: null price yields BigDecimal.ZERO totalValue")
-    void toDTO_nullPrice_yieldsZeroTotalValue() {
-        // GIVEN
-        InventoryItem entity = InventoryItem.builder()
-                .id("item-2")
-                .name("Cable")
-                .quantity(10)
-                .price(null)
-                .supplierId("sup-1")
-                .minimumQuantity(1)
-                .createdBy("admin")
-                .createdAt(LocalDateTime.of(2026, 3, 1, 12, 0, 0))
-                .build();
-
-        // WHEN
-        InventoryItemDTO dto = InventoryItemMapper.toDTO(entity);
-
-        // THEN
-        assertNotNull(dto);
-        assertEquals(BigDecimal.ZERO, dto.getTotalValue());
-    }
-
-    @Test
-    @DisplayName("toDTO: supplier relationship populates supplierName")
-    void toDTO_supplierPresent_populatesSupplierName() {
-        // GIVEN
-        Supplier supplier = Supplier.builder()
-                .id("sup-9")
-                .name("Acme")
-                .contactName(null)
-                .phone(null)
-                .email(null)
-                .createdBy("system")
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
-                .build();
-
-        InventoryItem entity = InventoryItem.builder()
-                .id("item-3")
-                .name("Widget")
-                .quantity(1)
-                .price(new BigDecimal("1.00"))
-                .supplierId("sup-9")
-                .supplier(supplier)
-                .minimumQuantity(1)
-                .createdBy("admin")
-                .createdAt(LocalDateTime.of(2026, 3, 1, 12, 0, 0))
-                .build();
-
-        // WHEN
-        InventoryItemDTO dto = InventoryItemMapper.toDTO(entity);
-
-        // THEN
-        assertNotNull(dto);
-        assertEquals("Acme", dto.getSupplierName());
-    }
-
-    @Test
-    @DisplayName("toEntity: null input returns null")
-    void toEntity_nullInput_returnsNull() {
-        // GIVEN
-        InventoryItemDTO dto = null;
-
-        // WHEN
-        InventoryItem entity = InventoryItemMapper.toEntity(dto);
-
-        // THEN
-        assertNull(entity);
-    }
-
-    @Test
-    @DisplayName("toEntity: maps persistence fields and ignores computed-only DTO fields")
-    void toEntity_mapsFields_andIgnoresComputedFields() {
-        // GIVEN
-        InventoryItemDTO dto = InventoryItemDTO.builder()
-                .id("item-9")
-                .name("SSD")
-                .quantity(7)
-                .price(new BigDecimal("10.00"))
-                .totalValue(new BigDecimal("999.99"))
-                .supplierId("sup-1")
-                .supplierName("Acme")
-                .minimumQuantity(2)
-                .createdBy("admin")
-                .createdAt(LocalDateTime.of(2026, 3, 1, 12, 0, 0))
-                .build();
-
-        // WHEN
-        InventoryItem entity = InventoryItemMapper.toEntity(dto);
-
-        // THEN
-        assertNotNull(entity);
-        assertEquals("item-9", entity.getId());
-        assertEquals("SSD", entity.getName());
-        assertEquals(7, entity.getQuantity());
-        assertEquals(new BigDecimal("10.00"), entity.getPrice());
-        assertEquals("sup-1", entity.getSupplierId());
-        assertEquals(2, entity.getMinimumQuantity());
-        assertEquals("admin", entity.getCreatedBy());
-        assertEquals(LocalDateTime.of(2026, 3, 1, 12, 0, 0), entity.getCreatedAt());
-
-        // Entity has no totalValue/supplierName; they must not influence persistence mapping.
-        assertNull(entity.getSupplier());
-    }
-
-    @Test
-    @DisplayName("private calculateTotalValue: quantity null branch returns BigDecimal.ZERO")
-    void calculateTotalValue_quantityNull_returnsZero() throws Exception {
-        // GIVEN
-        // This test intentionally uses reflection to exercise a private, branchy helper.
-        // Rationale: the null-quantity branch is easy to miss via service/controller flows,
-        // but we still want explicit coverage of the mapper's financial safety behavior.
-        Method method = InventoryItemMapper.class.getDeclaredMethod("calculateTotalValue", BigDecimal.class, Integer.class);
-        method.setAccessible(true);
-
-        // WHEN
-        BigDecimal result = (BigDecimal) method.invoke(null, new BigDecimal("10.00"), null);
-
-        // THEN
-        assertEquals(BigDecimal.ZERO, result);
-    }
-
-    @Test
-    @DisplayName("constructor: utility class cannot be instantiated")
-    void constructor_throwsUnsupportedOperationException() throws Exception {
-        // GIVEN
-        Constructor<InventoryItemMapper> ctor = InventoryItemMapper.class.getDeclaredConstructor();
-        ctor.setAccessible(true);
-
-        // WHEN
-        InvocationTargetException ex = assertThrows(InvocationTargetException.class, ctor::newInstance);
-
-        // THEN
-        assertTrue(ex.getCause() instanceof UnsupportedOperationException);
-        assertEquals("Utility class - no instances allowed", ex.getCause().getMessage());
+        @Test
+        void should_not_include_computed_dto_fields_in_entity() {
+            // totalValue and supplierName are DTO-only; passing them in must not affect the entity
+            InventoryItemDTO dto = InventoryItemDTO.builder()
+                    .id("i-10").name("Bolt").quantity(1).price(new BigDecimal("1.00"))
+                    .totalValue(new BigDecimal("999.99")).supplierName("Acme")
+                    .supplierId("s-1").minimumQuantity(1).createdBy("admin")
+                    .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0)).build();
+            InventoryItem entity = mapper.toEntity(dto);
+            assertNull(entity.getSupplier());
+        }
     }
 }

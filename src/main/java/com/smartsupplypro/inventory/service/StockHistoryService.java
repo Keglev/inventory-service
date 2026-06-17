@@ -45,6 +45,7 @@ public class StockHistoryService {
 
     private final StockHistoryRepository repository;
     private final InventoryItemRepository itemRepository;
+    private final StockHistoryMapper mapper;
 
     /**
      * Resolves supplier ID for denormalization in stock history records.
@@ -66,7 +67,7 @@ public class StockHistoryService {
      */
     public List<StockHistoryDTO> getAll() {
         return repository.findAll().stream()
-                .map(StockHistoryMapper::toDTO)
+                .map(mapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -78,7 +79,7 @@ public class StockHistoryService {
     public List<StockHistoryDTO> getByItemId(String itemId) {
         // Prefer ordered repo method (added in our repository suggestions)
         var list = repository.findByItemIdOrderByTimestampDesc(itemId);
-        return list.stream().map(StockHistoryMapper::toDTO).toList();
+        return list.stream().map(mapper::toDTO).toList();
     }
 
     /**
@@ -88,7 +89,7 @@ public class StockHistoryService {
      */
     public List<StockHistoryDTO> getByReason(StockChangeReason reason) {
         var list = repository.findByReasonOrderByTimestampDesc(reason);
-        return list.stream().map(StockHistoryMapper::toDTO).toList();
+        return list.stream().map(mapper::toDTO).toList();
     }
 
     /**
@@ -106,7 +107,7 @@ public class StockHistoryService {
                                               String supplierId,
                                               Pageable pageable) {
         return repository.findFiltered(startDate, endDate, itemName, supplierId, pageable)
-                .map(StockHistoryMapper::toDTO);
+                .map(mapper::toDTO);
     }
 
     /**

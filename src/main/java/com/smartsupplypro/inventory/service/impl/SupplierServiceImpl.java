@@ -50,6 +50,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     private final SupplierRepository supplierRepository;
     private final InventoryItemRepository inventoryItemRepository;
+    private final SupplierMapper supplierMapper;
 
     /**
      * Retrieves all suppliers from the database.
@@ -64,7 +65,7 @@ public class SupplierServiceImpl implements SupplierService {
     public List<SupplierDTO> findAll() {
         // No filtering here; caller controls access via @PreAuthorize at controller.
         return supplierRepository.findAll().stream()
-                .map(SupplierMapper::toDTO) // static call
+                .map(supplierMapper::toDTO) // static call
                 .toList();
     }
 
@@ -78,7 +79,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional(readOnly = true)
     public Optional<SupplierDTO> findById(String id) {
-        return supplierRepository.findById(id).map(SupplierMapper::toDTO);
+        return supplierRepository.findById(id).map(supplierMapper::toDTO);
     }
 
     /**
@@ -92,7 +93,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional(readOnly = true)
     public List<SupplierDTO> findByName(String name) {
         return supplierRepository.findByNameContainingIgnoreCase(name).stream()
-                .map(SupplierMapper::toDTO)
+                .map(supplierMapper::toDTO)
                 .toList();
     }
 
@@ -117,12 +118,12 @@ public class SupplierServiceImpl implements SupplierService {
         SupplierValidator.validateBase(dto);
         SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), null);
 
-        Supplier entity = SupplierMapper.toEntity(dto);
+        Supplier entity = supplierMapper.toEntity(dto);
         entity.setId(UUID.randomUUID().toString());
         entity.setCreatedAt(LocalDateTime.now());
 
         Supplier saved = supplierRepository.save(entity);
-        return SupplierMapper.toDTO(saved);
+        return supplierMapper.toDTO(saved);
     }
 
     /**
@@ -157,7 +158,7 @@ public class SupplierServiceImpl implements SupplierService {
         existing.setEmail(dto.getEmail());
 
         Supplier saved = supplierRepository.save(existing);
-        return SupplierMapper.toDTO(saved);
+        return supplierMapper.toDTO(saved);
     }
 
     /**

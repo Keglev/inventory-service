@@ -6,7 +6,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -19,10 +19,8 @@ import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
 
 /**
- * Integration test class for {@link AppUserRepository} using an in-memory H2 database.
- * <p>
- * Verifies persistence operations related to application users authenticated via OAuth2,
- * including lookup by email, user count tracking, and entity storage.
+ * Integration tests for {@link AppUserRepository} query correctness
+ * using {@link org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest}.
  */
 @SuppressWarnings("unused")
 @DataJpaTest
@@ -33,104 +31,81 @@ class AppUserRepositoryTest {
     @Autowired
     private AppUserRepository appUserRepository;
 
-    /**
-     * Helper method to create a sample AppUser entity.
-     *
-     * @param email the email to assign
-     * @return a valid AppUser instance
-     */
     private AppUser createUser(String email) {
         AppUser user = new AppUser(email, "Test User");
         user.setId("user-" + email.hashCode());
-        user.setRole(Role.USER); // Enum required
+        user.setRole(Role.USER);
         return user;
     }
 
     /**
-     * Verifies that a new user can be saved and retrieved by email.
+     * Email-based lookup behavior and case sensitivity.
      */
-    @Test
-    @DisplayName("Should save and retrieve user by email")
-    void testFindByEmail_successfulLookup() {
-        // Arrange
-        AppUser user = createUser("test@example.com");
-        appUserRepository.save(user);
+    @Nested
+    class EmailLookup {
 
-        // Act
-        Optional<AppUser> result = appUserRepository.findByEmail("test@example.com");
+        @Test
+        void should_find_user_by_email_after_save() {
+            appUserRepository.save(createUser("test@example.com"));
 
-        // Assert
-        assertTrue(result.isPresent(), "Expected user to be found by email");
-        assertEquals("test@example.com", result.get().getEmail());
+            Optional<AppUser> result = appUserRepository.findByEmail("test@example.com");
+
+            assertTrue(result.isPresent());
+            assertEquals("test@example.com", result.get().getEmail());
+        }
+
+        @Test
+        void should_return_empty_when_email_not_found() {
+            assertTrue(appUserRepository.findByEmail("unknown@example.com").isEmpty());
+        }
+
+        @Test
+        void should_treat_email_lookup_as_case_sensitive() {
+            appUserRepository.save(createUser("CaseSensitive@Example.com"));
+
+            // H2 string comparison is case-sensitive for exact equality
+            assertTrue(appUserRepository.findByEmail("casesensitive@example.com").isEmpty());
+            assertTrue(appUserRepository.findByEmail("CaseSensitive@Example.com").isPresent());
+        }
     }
 
     /**
-     * Verifies that an unknown email returns an empty Optional.
+     * Count accuracy after insertions.
      */
-    @Test
-    @DisplayName("Should return empty when email is not found")
-    void testFindByEmail_notFound() {
-        Optional<AppUser> result = appUserRepository.findByEmail("unknown@example.com");
-        assertTrue(result.isEmpty(), "Expected no user for unknown email");
+    @Nested
+    class UserCount {
+
+        @Test
+        void should_reflect_correct_count_after_insertions() {
+            appUserRepository.save(createUser("a@example.com"));
+            appUserRepository.save(createUser("b@example.com"));
+
+            assertEquals(2, appUserRepository.count());
+        }
     }
 
     /**
-     * Verifies that count() reflects the correct number of saved users.
+     * Unique email constraint enforcement.
      */
-    @Test
-    @DisplayName("Should return correct user count after saving")
-    void testCount_afterInsertions() {
-        appUserRepository.save(createUser("a@example.com"));
-        appUserRepository.save(createUser("b@example.com"));
+    @Nested
+    class ConstraintValidation {
 
-        long count = appUserRepository.count();
-        assertEquals(2, count, "Expected user count to match number of insertions");
-    }
+        @Test
+        void should_throw_on_duplicate_email() {
+            AppUser user1 = new AppUser("duplicate@example.com", "Original User");
+            user1.setRole(Role.USER);
+            appUserRepository.saveAndFlush(user1);
 
-    /**
-    * Verifies that saving two users with the same ID triggers a database constraint violation.
-    * This ensures that the `email` field is treated as a unique primary key in the USERS_APP table.
-    */
-    @Test
-    @DisplayName("Should throw exception when saving duplicate email")
-    void testSave_duplicateEmail_throwsException() {
-        // Save initial user
-        AppUser user1 = new AppUser("duplicate@example.com", "Original User");
-        user1.setRole(Role.USER);
-        appUserRepository.saveAndFlush(user1);
+            AppUser user2 = new AppUser("duplicate@example.com", "Other User");
+            user2.setRole(Role.ADMIN);
 
-        // Try saving another user with same email
-        AppUser user2 = new AppUser("duplicate@example.com", "Other User");
-        user2.setRole(Role.ADMIN);
-
-        // Capture the exception to avoid "method result ignored" warning
-        DataIntegrityViolationException ex = assertThrows(
-            DataIntegrityViolationException.class,
-            () -> appUserRepository.saveAndFlush(user2),
-            "Expected DataIntegrityViolationException due to unique email constraint (uk_users_email)"
-        );
-
-        // Optional: sanity check on the root cause type/message (portable enough)
-        Throwable root = ex.getCause();
-        assertTrue(
-            root instanceof ConstraintViolationException || ex.getMostSpecificCause() != null,
-            "Root cause should indicate a constraint violation"
-        );
-    }
-
-    /**
-     * Verifies that the email field is treated as case-sensitive in lookups.
-     */
-    @Test
-    @DisplayName("Should respect case sensitivity in email lookups")
-    void testFindByEmail_caseSensitive() {
-        appUserRepository.save(createUser("CaseSensitive@Example.com"));
-
-        Optional<AppUser> lower = appUserRepository.findByEmail("casesensitive@example.com");
-        Optional<AppUser> exact = appUserRepository.findByEmail("CaseSensitive@Example.com");
-
-        assertTrue(lower.isEmpty(), "Expected case-sensitive email lookup to fail for lowercase");
-        assertTrue(exact.isPresent(), "Expected exact case email to be found");
+            DataIntegrityViolationException ex = assertThrows(
+                DataIntegrityViolationException.class,
+                () -> appUserRepository.saveAndFlush(user2)
+            );
+            assertTrue(
+                ex.getCause() instanceof ConstraintViolationException || ex.getMostSpecificCause() != null
+            );
+        }
     }
 }
-

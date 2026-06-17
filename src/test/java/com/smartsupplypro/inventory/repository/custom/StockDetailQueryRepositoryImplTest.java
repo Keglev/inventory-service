@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -18,18 +19,12 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
 import jakarta.persistence.EntityManager;
 
 /**
- * Tests for {@link StockDetailQueryRepositoryImpl} focused on correctness and JaCoCo branch coverage.
+ * Integration tests for dynamic query methods in {@link StockDetailQueryRepositoryImpl}.
  *
- * <p>These tests intentionally exercise the repository's highest-risk decision points:
- * <ul>
- *   <li><strong>Dialect selection</strong>: ensures both H2 and Oracle SQL variants are selected.</li>
- *   <li><strong>Optional filter normalization</strong>: covers {@code null}/{@code blank}/{@code value} branches.</li>
- *   <li><strong>JPQL supplier filter</strong>: validates the {@code :supplierIdNorm IS NULL OR ...} branch behavior.</li>
- * </ul>
- *
- * <p>Implementation note: the repository is instantiated directly and the {@link EntityManager}
- * is injected via reflection so we can force dialect branches without needing multiple DBs.
+ * <p>Verifies predicate composition and result correctness
+ * for runtime-constructed queries.</p>
  */
+@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
@@ -37,16 +32,6 @@ class StockDetailQueryRepositoryImplTest {
 
     @Autowired private EntityManager em;
 
-    /**
-     * Seeds a minimal but representative dataset used across test cases.
-     *
-     * <p>Data shape:
-     * <ul>
-     *   <li>Two suppliers ({@code sup1}, {@code sup2}) plus {@code default-supplier} to satisfy entity defaults.</li>
-     *   <li>Two items mapped to different suppliers.</li>
-     *   <li>Three stock history rows spanning two items and two creators.</li>
-     * </ul>
-     */
     private void seedTestData() {
         em.createNativeQuery("DELETE FROM stock_history").executeUpdate();
         em.createNativeQuery("DELETE FROM inventory_item").executeUpdate();
@@ -76,123 +61,83 @@ class StockDetailQueryRepositoryImplTest {
         em.clear();
     }
 
-    @Test
-    void searchStockUpdates_h2Dialect_normalizesOptionalFilters() {
-        seedTestData();
-        StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
+    /**
+     * Optional filter normalization and dialect-specific SQL selection for searchStockUpdates.
+     */
+    @Nested
+    @SuppressWarnings("unused")
+    class StockUpdateSearch {
 
-        // Null/blank inputs normalize to SQL NULL parameters -> no filters apply -> all rows.
-        List<Object[]> all = repo.searchStockUpdates(
-            null,
-            null,
-            null,
-            "   ",
-            null,
-            null,
-            null
-        );
-        assertEquals(3, all.size());
+        @Test
+        void should_normalize_optional_filters_and_return_all_rows_in_h2_dialect() {
+            seedTestData();
+            StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
 
-        // Cover remaining normalization branches:
-        // - itemName blank but non-null
-        // - supplierId null
-        // - createdBy blank but non-null
-        List<Object[]> all2 = repo.searchStockUpdates(
-            null,
-            null,
-            "   ",
-            null,
-            "   ",
-            null,
-            null
-        );
-        assertEquals(3, all2.size());
+            // null/blank inputs normalize to SQL NULL → no predicates applied
+            assertEquals(3, repo.searchStockUpdates(null, null, null, "   ", null, null, null).size());
+            assertEquals(3, repo.searchStockUpdates(null, null, "   ", null, "   ", null, null).size());
 
-        // Apply several filters at once to validate predicate wiring and parameter normalization:
-        // - itemName partial match (case-insensitive)
-        // - supplier exact match
-        // - createdBy exact match (case-insensitive)
-        // - quantity_change range
-        List<Object[]> filtered = repo.searchStockUpdates(
-            null,
-            null,
-            "Item A",
-            "sup1",
-            "ALICE",
-            -1,
-            -1
-        );
+            List<Object[]> filtered = repo.searchStockUpdates(null, null, "Item A", "sup1", "ALICE", -1, -1);
+            assertEquals(1, filtered.size());
+            assertEquals("Item A", filtered.get(0)[0]);
+            assertEquals("Supplier One", filtered.get(0)[1]);
+            assertEquals(-1, ((Number) filtered.get(0)[2]).intValue());
+            assertEquals("SOLD", String.valueOf(filtered.get(0)[3]));
+            assertEquals("alice", String.valueOf(filtered.get(0)[4]));
+        }
 
-        assertEquals(1, filtered.size());
-        assertEquals("Item A", filtered.get(0)[0]);
-        assertEquals("Supplier One", filtered.get(0)[1]);
-        assertEquals(-1, ((Number) filtered.get(0)[2]).intValue());
-        assertEquals("SOLD", String.valueOf(filtered.get(0)[3]));
-        assertEquals("alice", String.valueOf(filtered.get(0)[4]));
-    }
+        @Test
+        void should_select_oracle_dialect_sql_and_narrow_results_by_supplier() {
+            seedTestData();
+            StockDetailQueryRepositoryImpl repo = repoWithDialect(false);
 
-    @Test
-    void searchStockUpdates_oracleDialect_executesOnH2_andCoversDialectBranch() {
-        seedTestData();
-        StockDetailQueryRepositoryImpl repo = repoWithDialect(false);
+            List<Object[]> out = repo.searchStockUpdates(null, null, "item", "sup1", "alice", null, null);
 
-        List<Object[]> out = repo.searchStockUpdates(
-            null,
-            null,
-            "item",
-            "sup1",
-            "alice",
-            null,
-            null
-        );
-
-        // Even though the Oracle SQL variant is selected, this query remains H2-compatible.
-        // The supplierId predicate should narrow results to itemA's supplier.
-        assertEquals(2, out.size());
-        assertEquals("Item A", out.get(0)[0]);
-    }
-
-    @Test
-    void streamEventsForWAC_ordersByItemThenTime_andFiltersSupplier() {
-        seedTestData();
-        StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
-
-        LocalDateTime endInclusive = LocalDateTime.of(2024, 12, 31, 23, 59);
-
-        // Blank supplier -> treated as null -> supplier filter disabled -> all events.
-        List<StockEventRowDTO> all = repo.streamEventsForWAC(endInclusive, "   ");
-        assertEquals(3, all.size());
-        assertEquals("itemA", all.get(0).itemId());
-        assertEquals(LocalDate.of(2024, 2, 1), all.get(0).createdAt().toLocalDate());
-
-        // Null supplier -> same disabled-filter branch as blank.
-        List<StockEventRowDTO> allNull = repo.streamEventsForWAC(endInclusive, null);
-        assertEquals(3, allNull.size());
-
-        // Supplier filter enabled -> only sup1 events.
-        List<StockEventRowDTO> sup1 = repo.streamEventsForWAC(endInclusive, "sup1");
-        assertEquals(2, sup1.size());
-        assertEquals("sup1", sup1.get(0).supplierId());
-        assertEquals("sup1", sup1.get(1).supplierId());
-        assertEquals("itemA", sup1.get(0).itemId());
+            // Oracle SQL variant is selected; supplierId predicate narrows to itemA's events
+            assertEquals(2, out.size());
+            assertEquals("Item A", out.get(0)[0]);
+        }
     }
 
     /**
-     * Creates a repository instance with a forced dialect branch.
-     *
-     * <p>We use a mocked {@link DatabaseDialectDetector} so we can cover dialect selection without
-     * needing an Oracle database in CI.
+     * Supplier filter and ordering guarantees for streamEventsForWAC.
      */
+    @Nested
+    @SuppressWarnings("unused")
+    class WacEventStreaming {
+
+        @Test
+        void should_stream_events_ordered_by_item_then_time_with_supplier_filter() {
+            seedTestData();
+            StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
+
+            LocalDateTime end = LocalDateTime.of(2024, 12, 31, 23, 59);
+
+            // blank supplier normalizes to null → supplier filter disabled → all events
+            List<StockEventRowDTO> all = repo.streamEventsForWAC(end, "   ");
+            assertEquals(3, all.size());
+            assertEquals("itemA", all.get(0).itemId());
+            assertEquals(LocalDate.of(2024, 2, 1), all.get(0).createdAt().toLocalDate());
+
+            List<StockEventRowDTO> allNull = repo.streamEventsForWAC(end, null);
+            assertEquals(3, allNull.size());
+
+            List<StockEventRowDTO> sup1 = repo.streamEventsForWAC(end, "sup1");
+            assertEquals(2, sup1.size());
+            sup1.forEach(e -> assertEquals("sup1", e.supplierId()));
+            assertEquals("itemA", sup1.get(0).itemId());
+        }
+    }
+
+    // forces the dialect branch without needing an Oracle database in CI
     private StockDetailQueryRepositoryImpl repoWithDialect(boolean isH2) {
         DatabaseDialectDetector detector = org.mockito.Mockito.mock(DatabaseDialectDetector.class);
         org.mockito.Mockito.when(detector.isH2()).thenReturn(isH2);
-
         StockDetailQueryRepositoryImpl repo = new StockDetailQueryRepositoryImpl(detector);
         injectEntityManager(repo, em);
         return repo;
     }
 
-    /** Injects the {@link EntityManager} into the repository under test (field injection mirror). */
     private static void injectEntityManager(Object target, EntityManager em) {
         try {
             Field f = target.getClass().getDeclaredField("em");

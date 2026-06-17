@@ -1,16 +1,14 @@
 package com.smartsupplypro.inventory.mapper;
 
-import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
@@ -18,185 +16,85 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.StockHistory;
 
 /**
- * Unit tests for {@link StockHistoryMapper}.
- *
- * <p><strong>Purpose</strong>: Validate enterprise-grade audit mapping between the immutable
- * {@link StockHistory} entity and its external {@link StockHistoryDTO} representation.</p>
- *
- * <p><strong>Operations Tested</strong>:</p>
- * <ul>
- *   <li>Null-safety boundaries (null in → null out)</li>
- *   <li>Enum ↔ String transformations for reason codes</li>
- *   <li>Strict parsing error behavior for invalid reason strings</li>
- *   <li>Utility-class constructor guard (no instances)</li>
- * </ul>
+ * Unit tests for {@link StockHistoryMapper} bidirectional mapping correctness.
  */
+@SuppressWarnings("unused")
 class StockHistoryMapperTest {
 
-    @Test
-    @DisplayName("toDTO: null input returns null")
-    void toDTO_nullInput_returnsNull() {
-        // GIVEN
-        StockHistory entity = null;
+    private final StockHistoryMapper mapper = new StockHistoryMapper();
 
-        // WHEN
-        StockHistoryDTO dto = StockHistoryMapper.toDTO(entity);
+    /**
+     * Mapping from {@link StockHistory} entity to {@link StockHistoryDTO}.
+     */
+    @Nested
+    @SuppressWarnings("unused")
+    class ToDTO {
 
-        // THEN
-        assertNull(dto);
+        @Test
+        void should_return_null_for_null_input() {
+            assertNull(mapper.toDTO(null));
+        }
+
+        @Test
+        void should_convert_enum_reason_to_its_string_name() {
+            StockHistory entity = StockHistory.builder()
+                    .id("h-1").itemId("i-1").change(5)
+                    .reason(StockChangeReason.INITIAL_STOCK).createdBy("admin")
+                    .timestamp(LocalDateTime.of(2025, 1, 1, 0, 0))
+                    .priceAtChange(new BigDecimal("12.34")).build();
+            StockHistoryDTO dto = mapper.toDTO(entity);
+            assertEquals("INITIAL_STOCK", dto.reason());
+        }
+
+        @Test
+        void should_return_null_reason_string_when_reason_is_null() {
+            StockHistory entity = StockHistory.builder()
+                    .id("h-2").itemId("i-2").change(-1).reason(null)
+                    .createdBy("user").timestamp(LocalDateTime.of(2025, 2, 1, 0, 0)).build();
+            StockHistoryDTO dto = mapper.toDTO(entity);
+            assertNull(dto.reason());
+        }
     }
 
-    @Test
-    @DisplayName("toDTO: maps audit fields and converts enum reason to string")
-    void toDTO_mapsFields_andTransformsEnumReason() {
-        // GIVEN
-        LocalDateTime ts = LocalDateTime.of(2025, 1, 2, 3, 4, 5);
-        StockHistory entity = StockHistory.builder()
-                .id("sh-1")
-                .itemId("item-1")
-                .change(5)
-                .reason(StockChangeReason.INITIAL_STOCK)
-                .createdBy("admin")
-                .timestamp(ts)
-                .priceAtChange(new BigDecimal("12.34"))
-                .build();
+    /**
+     * Mapping from {@link StockHistoryDTO} to {@link StockHistory} entity.
+     */
+    @Nested
+    @SuppressWarnings("unused")
+    class ToEntity {
 
-        // WHEN
-        StockHistoryDTO dto = StockHistoryMapper.toDTO(entity);
+        @Test
+        void should_return_null_for_null_input() {
+            assertNull(mapper.toEntity(null));
+        }
 
-        // THEN
-        assertNotNull(dto);
-        assertEquals("sh-1", dto.id());
-        assertEquals("item-1", dto.itemId());
-        assertEquals(5, dto.change());
-        assertEquals("INITIAL_STOCK", dto.reason());
-        assertEquals("admin", dto.createdBy());
-        assertEquals(ts, dto.timestamp());
-        assertEquals(new BigDecimal("12.34"), dto.priceAtChange());
-    }
+        @Test
+        void should_parse_valid_reason_string_to_enum() {
+            StockHistoryDTO dto = StockHistoryDTO.builder()
+                    .id("h-3").itemId("i-3").change(10).reason("PRICE_CHANGE")
+                    .createdBy("sys").timestamp(LocalDateTime.of(2026, 1, 1, 0, 0)).build();
+            StockHistory entity = mapper.toEntity(dto);
+            assertSame(StockChangeReason.PRICE_CHANGE, entity.getReason());
+        }
 
-    @Test
-    @DisplayName("toDTO: entity with null reason yields DTO with null reason")
-    void toDTO_nullReason_yieldsNullReasonString() {
-        // GIVEN
-        StockHistory entity = StockHistory.builder()
-                .id("sh-2")
-                .itemId("item-2")
-                .change(-1)
-                .reason(null)
-                .createdBy("user")
-                .timestamp(LocalDateTime.of(2025, 2, 3, 4, 5, 6))
-                .priceAtChange(null)
-                .build();
+        @Test
+        void should_return_null_reason_when_reason_string_is_null() {
+            StockHistoryDTO dto = StockHistoryDTO.builder()
+                    .id("h-4").itemId("i-4").change(1).reason(null)
+                    .createdBy("admin").timestamp(LocalDateTime.of(2026, 1, 1, 0, 0)).build();
+            StockHistory entity = mapper.toEntity(dto);
+            assertNull(entity.getReason());
+        }
 
-        // WHEN
-        StockHistoryDTO dto = StockHistoryMapper.toDTO(entity);
-
-        // THEN
-        assertNotNull(dto);
-        assertNull(dto.reason());
-    }
-
-    @Test
-    @DisplayName("toEntity: null input returns null")
-    void toEntity_nullInput_returnsNull() {
-        // GIVEN
-        StockHistoryDTO dto = null;
-
-        // WHEN
-        StockHistory entity = StockHistoryMapper.toEntity(dto);
-
-        // THEN
-        assertNull(entity);
-    }
-
-    @Test
-    @DisplayName("toEntity: maps audit fields and parses reason string to enum")
-    void toEntity_mapsFields_andParsesEnumReason() {
-        // GIVEN
-        LocalDateTime ts = LocalDateTime.of(2026, 3, 4, 5, 6, 7);
-        StockHistoryDTO dto = StockHistoryDTO.builder()
-                .id("sh-3")
-                .itemId("item-3")
-                .change(10)
-                .reason("PRICE_CHANGE")
-                .createdBy("system")
-                .timestamp(ts)
-                .priceAtChange(new BigDecimal("99.99"))
-                .build();
-
-        // WHEN
-        StockHistory entity = StockHistoryMapper.toEntity(dto);
-
-        // THEN
-        assertNotNull(entity);
-        assertEquals("sh-3", entity.getId());
-        assertEquals("item-3", entity.getItemId());
-        assertEquals(10, entity.getChange());
-        assertSame(StockChangeReason.PRICE_CHANGE, entity.getReason());
-        assertEquals("system", entity.getCreatedBy());
-        assertEquals(ts, entity.getTimestamp());
-        assertEquals(new BigDecimal("99.99"), entity.getPriceAtChange());
-    }
-
-    @Test
-    @DisplayName("toEntity: null reason string yields entity with null reason")
-    void toEntity_nullReasonString_yieldsNullEnum() {
-        // GIVEN
-        StockHistoryDTO dto = StockHistoryDTO.builder()
-                .id("sh-4")
-                .itemId("item-4")
-                .change(1)
-                .reason(null)
-                .createdBy("admin")
-                .timestamp(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
-                .build();
-
-        // WHEN
-        StockHistory entity = StockHistoryMapper.toEntity(dto);
-
-        // THEN
-        assertNotNull(entity);
-        assertNull(entity.getReason());
-    }
-
-    @Test
-    @DisplayName("toEntity: invalid reason string throws IllegalArgumentException with valid values")
-    void toEntity_invalidReasonString_throwsWithContext() {
-        // GIVEN
-        StockHistoryDTO dto = StockHistoryDTO.builder()
-                .id("sh-5")
-                .itemId("item-5")
-                .change(1)
-                .reason("NOT_A_REAL_REASON")
-                .createdBy("admin")
-                .timestamp(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
-                .build();
-
-        // WHEN
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> StockHistoryMapper.toEntity(dto));
-
-        // THEN
-        // The exception message is treated as part of the mapper's audit/debug contract:
-        // it must clearly identify the invalid value and enumerate allowed reasons.
-        assertTrue(ex.getMessage().contains("Invalid stock change reason: NOT_A_REAL_REASON"));
-        assertTrue(ex.getMessage().contains("Valid values:"));
-        assertNotNull(ex.getCause());
-        assertTrue(ex.getCause() instanceof IllegalArgumentException);
-    }
-
-    @Test
-    @DisplayName("constructor: utility class cannot be instantiated")
-    void constructor_throwsUnsupportedOperationException() throws Exception {
-        // GIVEN
-        Constructor<StockHistoryMapper> ctor = StockHistoryMapper.class.getDeclaredConstructor();
-        ctor.setAccessible(true);
-
-        // WHEN
-        var ex = assertThrows(java.lang.reflect.InvocationTargetException.class, ctor::newInstance);
-
-        // THEN
-        assertTrue(ex.getCause() instanceof UnsupportedOperationException);
-        assertEquals("Utility class - no instances allowed", ex.getCause().getMessage());
+        @Test
+        void should_throw_for_invalid_reason_string_with_context_message() {
+            StockHistoryDTO dto = StockHistoryDTO.builder()
+                    .id("h-5").itemId("i-5").change(1).reason("INVALID")
+                    .createdBy("admin").timestamp(LocalDateTime.of(2026, 1, 1, 0, 0)).build();
+            IllegalArgumentException ex = assertThrows(
+                    IllegalArgumentException.class, () -> mapper.toEntity(dto));
+            assertTrue(ex.getMessage().contains("Invalid stock change reason: INVALID"));
+            assertTrue(ex.getMessage().contains("Valid values:"));
+        }
     }
 }

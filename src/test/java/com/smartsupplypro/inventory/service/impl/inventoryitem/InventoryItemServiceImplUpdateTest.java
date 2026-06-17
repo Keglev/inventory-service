@@ -16,6 +16,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,6 +28,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
@@ -57,6 +59,8 @@ class InventoryItemServiceImplUpdateTest {
     @Mock private StockHistoryService stockHistoryService;
     @Mock private com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidationHelper validationHelper;
     @Mock private com.smartsupplypro.inventory.service.impl.inventory.InventoryItemAuditHelper auditHelper;
+    @SuppressWarnings("FieldMayBeFinal")
+    @Spy  private InventoryItemMapper inventoryItemMapper = new InventoryItemMapper();
     @InjectMocks private InventoryItemServiceImpl service;
 
     private InventoryItemDTO baseDto;
@@ -87,8 +91,6 @@ class InventoryItemServiceImplUpdateTest {
 
         // Default mocks: supplier exists, name is unique
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
-        lenient().when(repository.existsByNameIgnoreCase(anyString())).thenReturn(false);
-
         // Configure validation helper to return item if found
         lenient().when(validationHelper.validateForUpdate(anyString(), any())).thenAnswer(inv -> {
             String id = inv.getArgument(0);

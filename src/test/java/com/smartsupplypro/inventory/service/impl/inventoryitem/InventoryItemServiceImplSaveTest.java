@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,12 +13,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
@@ -31,13 +36,15 @@ import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
  * Tests for {@link InventoryItemServiceImpl#save(InventoryItemDTO)}.
  * Covers happy path persistence and INITIAL_STOCK logging.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "ThrowableResultOfMethodCallIgnored"})
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class InventoryItemServiceImplSaveTest {
     @Mock private InventoryItemRepository repository;
     @Mock private SupplierRepository supplierRepository;
     @Mock private StockHistoryService stockHistoryService;
+    @SuppressWarnings("FieldMayBeFinal")
+    @Spy  private InventoryItemMapper inventoryItemMapper = new InventoryItemMapper();
     @Mock private com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidationHelper validationHelper;
     @Mock private com.smartsupplypro.inventory.service.impl.inventory.InventoryItemAuditHelper auditHelper;
     @InjectMocks private InventoryItemServiceImpl service;
@@ -57,14 +64,13 @@ class InventoryItemServiceImplSaveTest {
         baseDto.setCreatedBy("admin");
 
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
-        lenient().when(repository.existsByNameIgnoreCase(anyString())).thenReturn(false);
     }
 
     @Test
     @DisplayName("save: returns saved item and logs INITIAL_STOCK via auditHelper")
     void save_shouldReturnSavedItem() {
         // Map DTO to entity for persistence
-        InventoryItem toPersist = InventoryItemMapper.toEntity(baseDto);
+        InventoryItem toPersist = new InventoryItemMapper().toEntity(baseDto);
         // Create saved copy with generated ID from repository
         InventoryItem saved = copyOf(toPersist);
         saved.setId("item-1");
@@ -83,21 +89,12 @@ class InventoryItemServiceImplSaveTest {
     }
 
     @Test
-    @DisplayName("save: duplicate name -> 409 CONFLICT")
+    @DisplayName("save: validation helper throws DuplicateResourceException -> propagated by service")
     void save_duplicateName_throwsConflict() {
-        // Mock repository to indicate name already exists (duplicate check returns true)
-        when(repository.existsByNameIgnoreCase(anyString())).thenReturn(true);
+        doThrow(new DuplicateResourceException("An inventory item with this name and price already exists."))
+            .when(validationHelper).validateForCreation(any());
 
-        // Mock repository save to simulate ID generation for failed save attempt
-        lenient().when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> {
-            InventoryItem src = inv.getArgument(0, InventoryItem.class);
-            // Generate ID if not already set
-            if (src.getId() == null) {
-                src.setId("generated-id");
-            }
-            return src;
-        });
-        // Note: Service should throw IllegalStateException before reaching repository.save due to validation
+        assertThrows(DuplicateResourceException.class, () -> service.save(baseDto));
     }
 
     /**

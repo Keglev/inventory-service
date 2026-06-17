@@ -110,7 +110,7 @@ public class InventoryItemServiceSaveValidationTest extends InventoryItemService
         authenticateAs("admin", "ROLE_ADMIN");
         when(supplierRepository.existsById("invalid-supplier")).thenReturn(false);
 
-        InventoryItemDTO invalidDto = InventoryItemMapper.toDTO(entity);
+        InventoryItemDTO invalidDto = new InventoryItemMapper().toDTO(entity);
         invalidDto.setSupplierId("invalid-supplier");
 
         // WHEN/THEN

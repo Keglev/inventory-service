@@ -6,22 +6,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 /**
- * Database dialect detection utility for multi-database support.
- *
- * <p>Determines active database engine (H2 vs Oracle) based on Spring profiles,
- * enabling dialect-specific SQL generation in custom repositories without
- * hardcoding environment checks.
- *
- * <p><strong>Usage Pattern</strong>:
- * <pre>
- * String sql = dialectDetector.isH2()
- *     ? "SELECT YEAR(created_at) ..." // H2 syntax
- *     : "SELECT TO_CHAR(created_at, 'YYYY') ..."; // Oracle syntax
- * </pre>
- *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * Spring profile–based detector that signals whether the active database is H2 or Oracle.
  */
 @Component
 public class DatabaseDialectDetector {
@@ -33,8 +18,7 @@ public class DatabaseDialectDetector {
     }
 
     /**
-     * Detects H2 database mode based on active Spring profiles.
-     * Returns true if 'test' or 'h2' profile is active.
+     * Returns {@code true} when the {@code test} or {@code h2} Spring profile is active.
      *
      * @return true if H2 dialect should be used, false for Oracle
      */
@@ -44,7 +28,7 @@ public class DatabaseDialectDetector {
     }
 
     /**
-     * Detects Oracle database mode (inverse of H2 check).
+     * Returns {@code true} when Oracle dialect should be used (inverse of {@link #isH2()}).
      *
      * @return true if Oracle dialect should be used
      */

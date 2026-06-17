@@ -3,6 +3,7 @@ package com.smartsupplypro.inventory.service.supplier;
 import org.junit.jupiter.api.BeforeEach;
 import static org.mockito.Mockito.mock;
 
+import com.smartsupplypro.inventory.mapper.SupplierMapper;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.service.SupplierService;
@@ -19,12 +20,14 @@ abstract class SupplierServiceTestBase {
 
     protected SupplierRepository supplierRepository;
     protected InventoryItemRepository inventoryItemRepository;
+    protected SupplierMapper supplierMapper;
     protected SupplierService supplierService;
 
     @BeforeEach
     void setUpBase() {
         supplierRepository = mock(SupplierRepository.class);
         inventoryItemRepository = mock(InventoryItemRepository.class);
-        supplierService = new SupplierServiceImpl(supplierRepository, inventoryItemRepository);
+        supplierMapper = new SupplierMapper();
+        supplierService = new SupplierServiceImpl(supplierRepository, inventoryItemRepository, supplierMapper);
     }
 }

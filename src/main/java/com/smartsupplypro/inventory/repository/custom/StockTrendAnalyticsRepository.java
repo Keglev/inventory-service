@@ -6,73 +6,62 @@ import java.util.List;
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 
 /**
- * Trend analytics repository for time-series stock and price analysis.
+ * Custom repository for time-series stock and price trend analytics.
  *
- * <p>Provides aggregated historical data for reporting dashboards and charts,
- * including monthly stock movements, daily valuations, and price trends.
+ * <p>Handles monthly aggregations, daily valuations, and price trends that require
+ * dialect-specific date functions (TO_CHAR, TRUNC, YEAR/MONTH) not available
+ * through Spring Data derived query methods.</p>
  *
- * <p><strong>Use Cases</strong>:
- * <ul>
- *   <li>Monthly stock-in/stock-out reports</li>
- *   <li>Daily inventory valuation tracking</li>
- *   <li>Item price trend analysis</li>
- * </ul>
- *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
- * @see StockMetricsRepository
- * @see StockDetailQueryRepository
+ * @see StockHistoryRepository
  */
 public interface StockTrendAnalyticsRepository {
 
     /**
-     * Returns monthly stock-in/stock-out aggregations for time window.
+     * Returns monthly stock-in/stock-out aggregations over a time window.
      *
-     * <p><strong>Result format</strong>: [month (YYYY-MM), stockIn, stockOut]
+     * <p>Result format: [month (YYYY-MM String), stockIn (Number), stockOut (Number)].
      *
      * @param start inclusive lower bound
-     * @param end inclusive upper bound
+     * @param end   inclusive upper bound
      * @return monthly aggregations ordered by month ascending
      */
     List<Object[]> getMonthlyStockMovement(LocalDateTime start, LocalDateTime end);
 
     /**
-     * Returns monthly stock-in/stock-out filtered by supplier.
+     * Returns monthly stock-in/stock-out aggregations filtered by supplier.
      *
-     * <p><strong>Result format</strong>: [month (YYYY-MM), stockIn, stockOut]
+     * <p>Result format: [month (YYYY-MM String), stockIn (Number), stockOut (Number)].
      *
-     * @param start inclusive lower bound
-     * @param end inclusive upper bound
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
      * @param supplierId optional supplier filter
      * @return monthly aggregations ordered by month ascending
      */
     List<Object[]> getMonthlyStockMovementBySupplier(LocalDateTime start, LocalDateTime end, String supplierId);
 
     /**
-     * Returns daily total stock value (quantity × price) over time window.
+     * Returns daily total inventory value (closing quantity × price) over a time window.
      *
-     * <p>Computes closing quantity per item per day using cumulative sums,
-     * then multiplies by price at that point. Aggregates across items.
+     * <p>Computes the closing quantity per item per day using cumulative window sums,
+     * then multiplies by the price at that point and aggregates across all items.
+     * Result format: [day_date (DATE), total_value (Number)].
      *
-     * <p><strong>Result format</strong>: [day_date (DATE), total_value (Number)]
-     *
-     * @param start inclusive lower bound
-     * @param end inclusive upper bound
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
      * @param supplierId optional supplier filter
      * @return daily valuations ordered by day ascending
      */
     List<Object[]> getDailyStockValuation(LocalDateTime start, LocalDateTime end, String supplierId);
 
     /**
-     * Returns daily average price trend for specific item.
+     * Returns the daily average price trend for a specific item.
      *
-     * <p><strong>Result format</strong>: PriceTrendDTO with day and avgPrice
+     * <p>Result format: {@link PriceTrendDTO} with day (YYYY-MM-DD) and avgPrice.
      *
-     * @param itemId required item identifier
+     * @param itemId     required item identifier
      * @param supplierId optional supplier filter
-     * @param start inclusive lower bound
-     * @param end inclusive upper bound
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
      * @return daily price trend ordered by day ascending
      */
     List<PriceTrendDTO> getItemPriceTrend(String itemId, String supplierId, LocalDateTime start, LocalDateTime end);

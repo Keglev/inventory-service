@@ -14,51 +14,37 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * User entity for OAuth2 authentication and role-based access control.
- * Persisted in users_app table with Google email as unique identifier.
+ * Represents an application user registered via OAuth2.
  *
- * <p><strong>Purpose</strong>: Tracks registered users, their roles (USER/ADMIN), and registration timestamps.
- *
- * <p><strong>Usage</strong>: Spring Security role checks, audit trails, API personalization.
+ * <p>The email address serves as the unique login identifier.
+ * Roles default to USER; an admin must manually promote to ADMIN.</p>
  *
  * @see Role
- * @see <a href="../../../../../docs/architecture/patterns/model-patterns.md">Model Patterns</a>
  */
 @Getter
 @Setter
 @Entity(name = "UsersApp")
 @Table(name = "users_app",
-    uniqueConstraints = @UniqueConstraint(name= "uk_users_email", columnNames = "email")
+    uniqueConstraints = @UniqueConstraint(name = "uk_users_email", columnNames = "email")
 )
 public class AppUser {
 
-    /** Unique user ID (UUID format). */
     @Id
     @Column(length = 36)
     private String id = UUID.randomUUID().toString();
-    
-    /** Google email address (login ID). */
+
     @Column(unique = true, nullable = false)
     private String email;
 
-    /** Full name from OAuth2 provider. */
     @Column(nullable = false)
     private String name;
 
-    /** User role: USER or ADMIN (stored as STRING). */
     @Enumerated(EnumType.STRING)
     @Column(name = "ROLE", nullable = false, length = 16)
-    private Role role = Role.USER; 
+    private Role role = Role.USER;
 
-    /** Registration timestamp. */
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    /**
-     * Creates new OAuth2 user with email and name.
-     *
-     * @param email Google email
-     * @param name full name
-     */
     public AppUser(String email, String name) {
         this.id = UUID.randomUUID().toString();
         this.email = email;
@@ -66,20 +52,12 @@ public class AppUser {
         this.createdAt = LocalDateTime.now();
     }
 
-    /**
-     * No-arg constructor for JPA.
-     */
+    // required by JPA
     public AppUser() {
         this.id = UUID.randomUUID().toString();
     }
 
-    /**
-     * Returns user's role enum.
-     *
-     * @return assigned role
-     */
     public Role getRoleEnum() {
         return this.role;
     }
-
 }

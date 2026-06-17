@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -22,17 +23,10 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
 import jakarta.persistence.EntityManager;
 
 /**
- * Repository integration tests for {@link StockHistoryRepository} custom query methods.
+ * Integration tests for the WAC event streaming query in {@link StockDetailQueryRepositoryImpl}.
  *
- * <p>Tests the specialized repository implementations that provide custom analytics queries:
- * <ul>
- *   <li>{@link StockDetailQueryRepositoryImpl} - Event streaming for WAC calculations</li>
- *   <li>{@link StockTrendAnalyticsRepositoryImpl} - Time-series analytics</li>
- *   <li>{@link StockMetricsRepositoryImpl} - Dashboard KPIs</li>
- * </ul>
- *
- * <p>Focuses on the JPQL projection method {@code streamEventsForWAC}, which feeds the WAC algorithm.
- * Verifies supplier filtering and ordering by (itemId ASC, createdAt ASC).</p>
+ * <p>Verifies supplier filtering and result ordering (itemId ASC, timestamp ASC)
+ * for the JPQL projection method {@code streamEventsForWAC}.</p>
  */
 @SuppressWarnings("unused")
 @DataJpaTest
@@ -45,26 +39,20 @@ class StockHistoryCustomRepositoryImplTest {
 
     @BeforeEach
     void setUp() {
-        // clean in FK-safe order
         em.createNativeQuery("DELETE FROM stock_history").executeUpdate();
         em.createNativeQuery("DELETE FROM inventory_item").executeUpdate();
         em.createNativeQuery("DELETE FROM supplier").executeUpdate();
 
-        // seed suppliers (including default-supplier for @PrePersist)
         em.createNativeQuery(
-            "INSERT INTO supplier (id, name, created_at, created_by) " +
-            "VALUES ('sup1','Supplier One', CURRENT_TIMESTAMP, 'test')"
+            "INSERT INTO supplier (id, name, created_at, created_by) VALUES ('sup1','Supplier One', CURRENT_TIMESTAMP, 'test')"
         ).executeUpdate();
         em.createNativeQuery(
-            "INSERT INTO supplier (id, name, created_at, created_by) " +
-            "VALUES ('sup2','Supplier Two', CURRENT_TIMESTAMP, 'test')"
+            "INSERT INTO supplier (id, name, created_at, created_by) VALUES ('sup2','Supplier Two', CURRENT_TIMESTAMP, 'test')"
         ).executeUpdate();
         em.createNativeQuery(
-            "INSERT INTO supplier (id, name, created_at, created_by) " +
-            "VALUES ('default-supplier','Default Supplier', CURRENT_TIMESTAMP, 'test')"
+            "INSERT INTO supplier (id, name, created_at, created_by) VALUES ('default-supplier','Default Supplier', CURRENT_TIMESTAMP, 'test')"
         ).executeUpdate();
 
-        // seed inventory items with supplier_id column
         em.createNativeQuery(
             "INSERT INTO inventory_item (id, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) " +
             "VALUES ('itemA','Item A', 1.00, 0, 0, 'sup1', CURRENT_TIMESTAMP, 'test')"
@@ -75,67 +63,54 @@ class StockHistoryCustomRepositoryImplTest {
         ).executeUpdate();
     }
 
-    @Test
-    void findEventsUpTo_ordersByItemThenTime_andFiltersBySupplier() {
-        // Two items across two suppliers; only sup1 should be returned.
-        persist(sh("itemA", "sup1",
-                at(2024,2,1, 9,0),  +5, bd("4.00"), StockChangeReason.INITIAL_STOCK));
-        persist(sh("itemA", "sup1",
-                at(2024,2,1,10,0),  -2, null,       StockChangeReason.SOLD));
-        persist(sh("itemB", "sup1",
-                at(2024,2,2,10,0),  +3, bd("5.50"), StockChangeReason.INITIAL_STOCK));
-        persist(sh("itemA", "sup2",
-                at(2024,2,1,11,0),  +1, bd("6.00"), StockChangeReason.INITIAL_STOCK)); // different supplier
+    /**
+     * Supplier filter and ordering guarantees for streamEventsForWAC.
+     */
+    @Nested
+    class WacEventStreaming {
 
-        em.flush();
-        em.clear();
+        @Test
+        void should_order_events_by_item_then_time_and_filter_by_supplier() {
+            em.persist(sh("itemA", "sup1", at(2024,2,1, 9,0), +5, bd("4.00"), StockChangeReason.INITIAL_STOCK));
+            em.persist(sh("itemA", "sup1", at(2024,2,1,10,0), -2, null, StockChangeReason.SOLD));
+            em.persist(sh("itemB", "sup1", at(2024,2,2,10,0), +3, bd("5.50"), StockChangeReason.INITIAL_STOCK));
+            // different supplier — must be excluded
+            em.persist(sh("itemA", "sup2", at(2024,2,1,11,0), +1, bd("6.00"), StockChangeReason.INITIAL_STOCK));
+            em.flush();
+            em.clear();
 
-        LocalDateTime endInclusive = at(2024,2,28,23,59);
-        List<StockEventRowDTO> out = repository.streamEventsForWAC(endInclusive, "sup1");
+            List<StockEventRowDTO> out = repository.streamEventsForWAC(at(2024,2,28,23,59), "sup1");
 
-        // assertions unchanged …
-        assertEquals(3, out.size());
-        assertEquals("sup1", out.get(0).supplierId());
-        assertEquals("sup1", out.get(1).supplierId());
-        assertEquals("sup1", out.get(2).supplierId());
+            assertEquals(3, out.size());
+            out.forEach(e -> assertEquals("sup1", e.supplierId()));
 
-        assertEquals("itemA", out.get(0).itemId());
-        assertEquals(at(2024,2,1, 9,0), out.get(0).createdAt());
-        assertEquals(+5, out.get(0).quantityChange());
+            assertEquals("itemA", out.get(0).itemId());
+            assertEquals(at(2024,2,1,9,0), out.get(0).createdAt());
+            assertEquals(+5, out.get(0).quantityChange());
 
-        assertEquals("itemA", out.get(1).itemId());
-        assertEquals(at(2024,2,1,10,0), out.get(1).createdAt());
-        assertEquals(-2, out.get(1).quantityChange());
+            assertEquals("itemA", out.get(1).itemId());
+            assertEquals(at(2024,2,1,10,0), out.get(1).createdAt());
+            assertEquals(-2, out.get(1).quantityChange());
 
-        assertEquals("itemB", out.get(2).itemId());
-        assertEquals(at(2024,2,2,10,0), out.get(2).createdAt());
-        assertEquals(+3, out.get(2).quantityChange());
+            assertEquals("itemB", out.get(2).itemId());
+            assertEquals(at(2024,2,2,10,0), out.get(2).createdAt());
+            assertEquals(+3, out.get(2).quantityChange());
+        }
     }
-
 
     // ---- helpers ----------------------------------------------------------
 
-    // Helper to create LocalDateTime
-    private static LocalDateTime at(int y,int m,int d,int H,int M) {
+    private static LocalDateTime at(int y, int m, int d, int H, int M) {
         return LocalDateTime.of(y, m, d, H, M);
     }
 
-    // Helper to create BigDecimal
-    private static BigDecimal bd(String v) {
-        return new BigDecimal(v);
-    }
+    private static BigDecimal bd(String v) { return new BigDecimal(v); }
 
-    // Helper to persist StockHistory
-    private void persist(StockHistory sh) {
-        em.persist(sh);
-    }
+    private void persist(StockHistory sh) { em.persist(sh); }
 
-    // Helper to create StockHistory
     private static StockHistory sh(String itemId, String supplierId,
-                                   LocalDateTime createdAt,
-                                   int quantityChange,
-                                   BigDecimal priceAtChange,
-                                   StockChangeReason reason) {
+                                   LocalDateTime createdAt, int quantityChange,
+                                   BigDecimal priceAtChange, StockChangeReason reason) {
         StockHistory e = new StockHistory();
         e.setId(UUID.randomUUID().toString());
         e.setItemId(itemId);
@@ -145,8 +120,6 @@ class StockHistoryCustomRepositoryImplTest {
         e.setPriceAtChange(priceAtChange);
         e.setReason(reason);
         e.setCreatedBy("test");
-        // set other non-null fields if your entity requires them (e.g., createdBy)
         return e;
     }
 }
-

@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
@@ -51,20 +53,19 @@ import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidati
  * These endpoints have small but important branch behavior (fast-fail validation, trimming, conflict rules)
  * and are easy to miss if tests focus only on CRUD scenarios.
  */
+@SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 class InventoryItemServiceImplReadAndAdjustmentsTest {
 
     @Mock private InventoryItemRepository repository;
     @Mock private InventoryItemValidationHelper validationHelper;
     @Mock private InventoryItemAuditHelper auditHelper;
+    @SuppressWarnings("FieldMayBeFinal")
+    @Spy  private InventoryItemMapper inventoryItemMapper = new InventoryItemMapper();
 
     @InjectMocks private InventoryItemServiceImpl service;
 
-    /**
-     * Executed by JUnit 5 via {@link BeforeEach}; may be flagged as "unused" by some IDE inspections.
-     */
     @BeforeEach
-    @SuppressWarnings("unused")
     void setUp() {
         InventoryItemServiceImplTestHelper.authenticateAsOAuth2("admin", "ADMIN");
     }

@@ -7,20 +7,19 @@ import org.springframework.stereotype.Repository;
 
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
+import com.smartsupplypro.inventory.repository.custom.util.StockDetailSqlBuilder;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
 /**
- * Detail query repository implementation with multi-database support.
+ * Custom repository implementation for granular stock history searches and WAC event streaming.
  *
- * <p>Encapsulates complex filtering logic and JPQL event streaming for
- * audit trails and cost-flow calculations across H2 and Oracle.
+ * <p>Delegates SQL generation to {@link StockDetailSqlBuilder} and selects the correct
+ * dialect variant at runtime via {@link DatabaseDialectDetector}.</p>
  *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * @see StockDetailQueryRepository
  */
 @Repository
 public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepository {
@@ -35,15 +34,20 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
     }
 
     /**
-     * Searches stock updates with flexible filtering across supported databases.
-     * Supports H2 and Oracle with optimized SQL per dialect.
-     * @param startDate   filter start date (inclusive)
-     * @param endDate     filter end date (inclusive)
-     * @param itemName    partial item name (case-insensitive, optional)
-     * @param supplierId  exact supplier ID (optional)
-     * @param createdBy   exact creator username (case-insensitive, optional)
-     * @param minChange   minimum change value (optional)
-     * @param maxChange   maximum change value (optional)
+     * Executes dialect-specific native SQL for filtered stock history search.
+     *
+     * <p>Delegates SQL construction to {@link StockDetailSqlBuilder}. Optional string
+     * parameters are normalised to {@code null} before binding so the SQL's
+     * {@code :param IS NULL} guards can short-circuit the filter correctly.
+     *
+     * @param startDate  optional minimum creation timestamp
+     * @param endDate    optional maximum creation timestamp
+     * @param itemName   optional partial item name (case-insensitive)
+     * @param supplierId optional supplier ID
+     * @param createdBy  optional creator username (case-insensitive exact match)
+     * @param minChange  optional minimum quantity change
+     * @param maxChange  optional maximum quantity change
+     * @return filtered records ordered by creation time descending
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -57,10 +61,10 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         Integer maxChange
     ) {
         final String sql = dialectDetector.isH2()
-            ? buildH2FilteredSearchSql()
-            : buildOracleFilteredSearchSql();
+            ? StockDetailSqlBuilder.buildH2FilteredSearchSql()
+            : StockDetailSqlBuilder.buildOracleFilteredSearchSql();
 
-        // Normalize optional parameters for NULL-safe SQL filtering
+        // Normalize optional parameters so the SQL's :param IS NULL guards work correctly
         final String itemPattern = (itemName == null || itemName.isBlank())
             ? null : "%" + itemName.toLowerCase() + "%";
         final String normalizedSupplier = normalizeOptionalParam(supplierId);
@@ -68,7 +72,7 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
             ? null : createdBy.toLowerCase();
 
         final Query query = em.createNativeQuery(sql);
-        // Use java.sql.Timestamp for JDBC/native query compatibility
+        // Use java.sql.Timestamp for JDBC/native query compatibility with LocalDateTime parameters
         final java.sql.Timestamp startTs = (startDate == null) ? null : java.sql.Timestamp.valueOf(startDate);
         final java.sql.Timestamp endTs = (endDate == null) ? null : java.sql.Timestamp.valueOf(endDate);
 
@@ -84,27 +88,29 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
     }
 
     /**
-     * Streams stock events up to a specified end time for WAC calculations.
-     * Uses JPQL for database-agnostic entity querying.
-     * @param end         upper timestamp bound (inclusive)
-     * @param supplierId  optional supplier ID filter
-     * @return list of stock event rows for WAC processing
-     * @see StockEventRowDTO
+     * Streams stock events via JPQL for WAC cost-flow replay.
+     *
+     * <p>Uses JPQL instead of native SQL so the entity graph resolves correctly across
+     * both H2 and Oracle without dialect-specific date casting.
+     *
+     * @param end        inclusive upper timestamp bound
+     * @param supplierId optional supplier filter
+     * @return events projected to {@link StockEventRowDTO}, ordered by itemId then timestamp
      */
     @Override
     public List<StockEventRowDTO> streamEventsForWAC(LocalDateTime end, String supplierId) {
-        // Use JPQL for entity-based event streaming (database-agnostic)
+        // JPQL ensures this query runs unchanged on H2 and Oracle
         final String jpql = """
             SELECT new com.smartsupplypro.inventory.dto.StockEventRowDTO(
-                sh.itemId, 
-                COALESCE(sh.supplierId, i.supplierId), 
-                sh.timestamp, 
+                sh.itemId,
+                COALESCE(sh.supplierId, i.supplierId),
+                sh.timestamp,
                 sh.change,
                 sh.priceAtChange,
                 sh.reason
             )
             FROM StockHistory sh, InventoryItem i
-            WHERE i.id = sh.itemId 
+            WHERE i.id = sh.itemId
               AND sh.timestamp <= :end
               AND (:supplierIdNorm IS NULL OR LOWER(sh.supplierId) = :supplierIdNorm)
             ORDER BY sh.itemId ASC, sh.timestamp ASC
@@ -119,69 +125,6 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
                 .getResultList();
     }
 
-    /**
-     * Builds the SQL query for filtered search on H2 database.
-     * @return SQL query string
-     * @see #buildOracleFilteredSearchSql()
-     */
-    private String buildH2FilteredSearchSql() {
-        return """
-            SELECT i.name AS item_name, 
-                   s.name AS supplier_name, 
-                   sh.quantity_change, 
-                   sh.reason, 
-                   sh.created_by, 
-                   sh.created_at
-            FROM stock_history sh
-            JOIN inventory_item i ON sh.item_id = i.id
-            JOIN supplier s ON i.supplier_id = s.id
-            WHERE (:startDate IS NULL OR sh.created_at >= :startDate)
-              AND (:endDate IS NULL OR sh.created_at <= :endDate)
-              AND (:itemPattern IS NULL OR LOWER(i.name) LIKE :itemPattern)
-              AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-              AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
-              AND (:minChange IS NULL OR sh.quantity_change >= :minChange)
-              AND (:maxChange IS NULL OR sh.quantity_change <= :maxChange)
-            ORDER BY sh.created_at DESC
-        """;
-    }
-
-    /**
-     * Builds the SQL query for filtered search on Oracle database.
-     * @return SQL query string
-     * @see #buildH2FilteredSearchSql()
-     */
-    private String buildOracleFilteredSearchSql() {
-        return """
-            SELECT i.name AS item_name, 
-                   s.name AS supplier_name, 
-                   sh.quantity_change, 
-                   sh.reason, 
-                   sh.created_by, 
-                   sh.created_at
-            FROM stock_history sh
-            JOIN inventory_item i ON sh.item_id = i.id
-            JOIN supplier s ON i.supplier_id = s.id
-            WHERE (:startDate IS NULL OR sh.created_at >= :startDate)
-              AND (:endDate IS NULL OR sh.created_at <= :endDate)
-              AND (:itemPattern IS NULL OR LOWER(i.name) LIKE :itemPattern)
-              AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
-              AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
-              AND (:minChange IS NULL OR sh.quantity_change >= :minChange)
-              AND (:maxChange IS NULL OR sh.quantity_change <= :maxChange)
-            ORDER BY sh.created_at DESC
-        """;
-    }
-
-    /* ======================================================================
-     * Utility Methods
-     * ====================================================================== */
-
-    /** Normalizes optional string parameters (null/blank → null). 
-     * @param param input parameter
-     * @return normalized parameter 
-     * @see #searchStockUpdates(LocalDateTime, LocalDateTime, String, String, String, Integer, Integer)
-    */
     private String normalizeOptionalParam(String param) {
         return (param == null || param.isBlank()) ? null : param.trim();
     }

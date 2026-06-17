@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -54,6 +55,9 @@ abstract class InventoryItemServiceSaveTestBase {
     @Mock
     protected SupplierRepository supplierRepository;
 
+    @Spy
+    protected InventoryItemMapper inventoryItemMapper = new InventoryItemMapper();
+
     @Mock
     protected com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidationHelper validationHelper;
 
@@ -74,7 +78,7 @@ abstract class InventoryItemServiceSaveTestBase {
         dto.setSupplierId("supplier-1");
         dto.setCreatedBy("admin");
 
-        entity = InventoryItemMapper.toEntity(dto);
+        entity = new com.smartsupplypro.inventory.mapper.InventoryItemMapper().toEntity(dto);
 
         // Default mocks: supplier exists and repo operations succeed.
         when(supplierRepository.existsById(anyString())).thenReturn(true);

@@ -5,19 +5,18 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
+import com.smartsupplypro.inventory.repository.custom.util.StockMetricsSqlBuilder;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 /**
- * KPI metrics repository implementation with multi-database support.
+ * Custom repository implementation for aggregated stock KPI metrics.
  *
- * <p>Encapsulates native SQL for dashboard statistics and threshold monitoring
- * across H2 (test) and Oracle (prod) environments.
+ * <p>Delegates SQL generation to {@link StockMetricsSqlBuilder} and selects the correct
+ * dialect variant at runtime via {@link DatabaseDialectDetector}.</p>
  *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
+ * @see StockMetricsRepository
  */
 @Repository
 public class StockMetricsRepositoryImpl implements StockMetricsRepository {
@@ -31,119 +30,54 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
         this.dialectDetector = dialectDetector;
     }
 
+    /**
+     * Executes dialect-specific native SQL for total stock per supplier.
+     *
+     * @return per-supplier totals ordered by quantity descending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getTotalStockBySupplier() {
         final String sql = dialectDetector.isH2()
-            ? buildH2SupplierTotalsSql()
-            : buildOracleSupplierTotalsSql();
-
+            ? StockMetricsSqlBuilder.buildH2SupplierTotalsSql()
+            : StockMetricsSqlBuilder.buildOracleSupplierTotalsSql();
         return em.createNativeQuery(sql).getResultList();
     }
 
+    /**
+     * Executes dialect-specific native SQL for update count per item with optional supplier filter.
+     *
+     * @param supplierId optional supplier filter (null returns all suppliers)
+     * @return per-item counts ordered by update_count descending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getUpdateCountByItem(String supplierId) {
         final String sql = dialectDetector.isH2()
-            ? buildH2UpdateCountSql()
-            : buildOracleUpdateCountSql();
-
-        final String normalizedSupplier = normalizeOptionalParam(supplierId);
-
+            ? StockMetricsSqlBuilder.buildH2UpdateCountSql()
+            : StockMetricsSqlBuilder.buildOracleUpdateCountSql();
         return em.createNativeQuery(sql)
-                .setParameter("supplierId", normalizedSupplier)
+                .setParameter("supplierId", normalizeOptionalParam(supplierId))
                 .getResultList();
     }
 
+    /**
+     * Executes dialect-specific native SQL for items below minimum stock threshold.
+     *
+     * @param supplierId optional supplier filter (null returns all suppliers)
+     * @return items below minimum ordered by quantity ascending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> findItemsBelowMinimumStock(String supplierId) {
         final String sql = dialectDetector.isH2()
-            ? buildH2BelowMinimumSql()
-            : buildOracleBelowMinimumSql();
-
-        final String normalizedSupplier = normalizeOptionalParam(supplierId);
-
+            ? StockMetricsSqlBuilder.buildH2BelowMinimumSql()
+            : StockMetricsSqlBuilder.buildOracleBelowMinimumSql();
         return em.createNativeQuery(sql)
-                .setParameter("supplierId", normalizedSupplier)
+                .setParameter("supplierId", normalizeOptionalParam(supplierId))
                 .getResultList();
     }
 
-    /* ======================================================================
-     * SQL Builder Methods - H2 Dialect
-     * ====================================================================== */
-
-    private String buildH2SupplierTotalsSql() {
-        return """
-            SELECT s."NAME" AS supplier_name, SUM(i."QUANTITY") AS total_quantity
-            FROM "SUPPLIER" s
-            JOIN "INVENTORY_ITEM" i ON s."ID" = i."SUPPLIER_ID"
-            GROUP BY s."NAME"
-            ORDER BY total_quantity DESC
-        """;
-    }
-
-    private String buildH2UpdateCountSql() {
-        return """
-            SELECT i."NAME" AS item_name, COUNT(sh."ID") AS update_count
-            FROM "INVENTORY_ITEM" i
-            JOIN "STOCK_HISTORY" sh ON sh."ITEM_ID" = i."ID"
-            WHERE (:supplierId IS NULL OR UPPER(i."SUPPLIER_ID") = UPPER(:supplierId))
-            GROUP BY i."NAME"
-            ORDER BY update_count DESC
-        """;
-    }
-
-    private String buildH2BelowMinimumSql() {
-        return """
-            SELECT i."NAME", i."QUANTITY", i."MINIMUM_QUANTITY"
-            FROM "INVENTORY_ITEM" i
-            WHERE i."QUANTITY" < i."MINIMUM_QUANTITY"
-              AND (:supplierId IS NULL OR UPPER(i."SUPPLIER_ID") = UPPER(:supplierId))
-            ORDER BY i."QUANTITY" ASC
-        """;
-    }
-
-    /* ======================================================================
-     * SQL Builder Methods - Oracle Dialect
-     * ====================================================================== */
-
-    private String buildOracleSupplierTotalsSql() {
-        return """
-            SELECT s.name AS supplier_name, SUM(i.quantity) AS total_quantity
-            FROM supplier s
-            JOIN inventory_item i ON s.id = i.supplier_id
-            GROUP BY s.name
-            ORDER BY total_quantity DESC
-        """;
-    }
-
-    private String buildOracleUpdateCountSql() {
-        return """
-            SELECT i.name AS item_name, COUNT(sh.id) AS update_count
-            FROM stock_history sh
-            JOIN inventory_item i ON sh.item_id = i.id
-            WHERE (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-            GROUP BY i.name
-            ORDER BY update_count DESC
-        """;
-    }
-
-    private String buildOracleBelowMinimumSql() {
-        return """
-            SELECT i.name, i.quantity, i.minimum_quantity
-            FROM inventory_item i
-            WHERE i.quantity < i.minimum_quantity
-              AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-            ORDER BY i.quantity ASC
-        """;
-    }
-
-    /* ======================================================================
-     * Utility Methods
-     * ====================================================================== */
-
-    /** Normalizes optional string parameters (null/blank → null). */
     private String normalizeOptionalParam(String param) {
         return (param == null || param.isBlank()) ? null : param.trim();
     }

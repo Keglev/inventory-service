@@ -6,43 +6,29 @@ import java.util.List;
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 
 /**
- * Detail query repository for granular stock history searches and event streaming.
+ * Custom repository for granular stock history searches and WAC event streaming.
  *
- * <p>Provides flexible multi-criteria filtering for stock updates and sequential
- * event streaming for Weighted Average Cost (WAC) calculations.
+ * <p>Handles multi-criteria filtering and cost-flow event replay that cannot be expressed
+ * as Spring Data derived query methods — both require dynamic SQL or JPQL construction.</p>
  *
- * <p><strong>Use Cases</strong>:
- * <ul>
- *   <li>Advanced search with multiple filter combinations</li>
- *   <li>Audit trail queries (who changed what, when)</li>
- *   <li>WAC cost-flow algorithm event replay</li>
- * </ul>
- *
- * @author Smart Supply Pro Development Team
- * @version 1.0.0
- * @since 2.0.0
- * @see StockTrendAnalyticsRepository
- * @see StockMetricsRepository
+ * @see StockHistoryRepository
  */
 public interface StockDetailQueryRepository {
 
     /**
-     * Returns stock updates with flexible multi-criteria filtering.
+     * Returns filtered stock update records with all criteria optional.
      *
-     * <p>Supports optional filtering by date range, item name, supplier, creator,
-     * and quantity change bounds. All filters are nullable (omit to ignore).
+     * <p>All parameters are nullable; pass {@code null} to omit a filter.
+     * Result format: [item_name, supplier_name, quantity_change, reason, created_by, created_at].
      *
-     * <p><strong>Result format</strong>:
-     * [item_name, supplier_name, quantity_change, reason, created_by, created_at]
-     *
-     * @param startDate optional minimum creation timestamp
-     * @param endDate optional maximum creation timestamp
-     * @param itemName optional item name filter (case-insensitive partial match)
-     * @param supplierId optional supplier ID filter
-     * @param createdBy optional creator username filter (case-insensitive exact match)
-     * @param minChange optional minimum quantity change filter
-     * @param maxChange optional maximum quantity change filter
-     * @return filtered stock updates ordered by creation time descending
+     * @param startDate  optional minimum creation timestamp
+     * @param endDate    optional maximum creation timestamp
+     * @param itemName   optional partial item name (case-insensitive)
+     * @param supplierId optional supplier ID (exact match)
+     * @param createdBy  optional creator username (case-insensitive exact match)
+     * @param minChange  optional minimum quantity change
+     * @param maxChange  optional maximum quantity change
+     * @return filtered records ordered by creation time descending
      */
     List<Object[]> searchStockUpdates(
         LocalDateTime startDate,
@@ -55,15 +41,14 @@ public interface StockDetailQueryRepository {
     );
 
     /**
-     * Streams stock events up to specified time for WAC algorithm.
+     * Returns time-ordered stock events up to {@code end} for WAC cost-flow replay.
      *
-     * <p>Provides time-ordered event stream for Weighted Average Cost calculations.
-     * Events are sorted by item and timestamp to enable sequential replay for
-     * opening inventory reconstruction and period-specific cost aggregations.
+     * <p>Events are ordered by item then timestamp to allow sequential reconstruction
+     * of per-item running quantities required by the Weighted Average Cost algorithm.
      *
-     * @param end inclusive upper bound timestamp
+     * @param end        inclusive upper timestamp bound
      * @param supplierId optional supplier filter
-     * @return ordered event stream projected to StockEventRowDTO
+     * @return events projected to {@link StockEventRowDTO}, ordered by itemId then timestamp
      */
     List<StockEventRowDTO> streamEventsForWAC(LocalDateTime end, String supplierId);
 }
