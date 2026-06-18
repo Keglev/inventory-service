@@ -1,13 +1,14 @@
 package com.smartsupplypro.inventory.validation;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -21,151 +22,113 @@ import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.model.InventoryItem;
 
 /**
- * # InventoryItemSecurityValidatorTest
- *
  * Unit tests for {@link InventoryItemSecurityValidator}.
  *
- * <p><strong>Purpose</strong></p>
- * Validates the field-level authorization guard that runs before inventory updates are persisted.
- * The validator reads the current {@link org.springframework.security.core.Authentication} from
- * {@link SecurityContextHolder} and enforces that USERS cannot change sensitive fields.
- *
- * <p><strong>Access Rules</strong></p>
- * <ul>
- *   <li><strong>ADMIN</strong>: may update name/supplier/quantity/price</li>
- *   <li><strong>USER</strong>: may update quantity/price only; name/supplier are forbidden</li>
- * </ul>
+ * <p>Validates field-level authorization: ADMIN may update any field;
+ * USER may only change quantity and price. Exercises all principal states:
+ * unauthenticated, non-OAuth, ADMIN, USER, and unknown authority (defaults to USER).</p>
  */
-@SuppressWarnings({"unused", "java:S1144"}) // JUnit lifecycle methods can be flagged as "unused" by some analyzers.
+@SuppressWarnings("unused")
 class InventoryItemSecurityValidatorTest {
 
-    @SuppressWarnings("unused")
     @AfterEach
-    void tearDown() {
-        clearSecurityContext();
+    void tearDown() { SecurityContextHolder.clearContext(); }
+
+    private static InventoryItem existing() {
+        InventoryItem i = new InventoryItem();
+        i.setId("item-1"); i.setName("Monitor"); i.setSupplierId("supplier-1");
+        i.setQuantity(10); i.setPrice(new BigDecimal("199.99")); return i;
     }
 
-    private void clearSecurityContext() {
-        SecurityContextHolder.clearContext();
+    private static InventoryItemDTO incoming(String name, String supplierId) {
+        return InventoryItemDTO.builder().id("item-1").name(name).supplierId(supplierId)
+                .quantity(20).price(new BigDecimal("299.99")).createdBy("admin").build();
     }
 
-    private static InventoryItem existingItem() {
-        InventoryItem item = new InventoryItem();
-        item.setId("item-1");
-        item.setName("Monitor");
-        item.setSupplierId("supplier-1");
-        item.setQuantity(10);
-        item.setPrice(new BigDecimal("199.99"));
-        return item;
+    private static OAuth2User oauth(String authority) {
+        return new DefaultOAuth2User(List.of(new SimpleGrantedAuthority(authority)),
+                Map.of("sub", "user-1", "email", "user@test.com"), "sub");
     }
 
-    private static InventoryItemDTO incomingDto(String name, String supplierId) {
-        return InventoryItemDTO.builder()
-                .id("item-1")
-                .name(name)
-                .supplierId(supplierId)
-                .quantity(20)
-                .price(new BigDecimal("299.99"))
-                .createdBy("admin")
-                .build();
+    private static void setAuth(OAuth2User user) {
+        SecurityContextHolder.getContext()
+                .setAuthentication(new TestingAuthenticationToken(user, "n/a"));
     }
 
-    private static OAuth2User oauthUserWithAuthority(String authority) {
-        return new DefaultOAuth2User(
-                java.util.List.of(new SimpleGrantedAuthority(authority)),
-                Map.of("sub", "user-1", "email", "user@example.test"),
-                "sub");
+    /**
+     * Missing or non-OAuth authentication must be rejected.
+     */
+    @Nested
+    class AuthenticationGuards {
+        @Test
+        void should_reject_unauthenticated_request_with_401() {
+            SecurityContextHolder.clearContext();
+            ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                    () -> InventoryItemSecurityValidator.validateUpdatePermissions(
+                            existing(), incoming("New", "s-2")));
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+        }
+
+        @Test
+        void should_reject_non_oauth_principal_with_401() {
+            SecurityContextHolder.getContext()
+                    .setAuthentication(new TestingAuthenticationToken("principal", "n/a"));
+            ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                    () -> InventoryItemSecurityValidator.validateUpdatePermissions(
+                            existing(), incoming("New", "s-2")));
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+        }
     }
 
-    @Test
-    @DisplayName("validateUpdatePermissions: unauthenticated requests are rejected with 401")
-    void validateUpdatePermissions_noAuthentication_throws401() {
-        // GIVEN: no authentication in security context
-        SecurityContextHolder.clearContext();
-
-        // WHEN/THEN
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> InventoryItemSecurityValidator.validateUpdatePermissions(existingItem(), incomingDto("New", "supplier-2")));
-        assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+    /**
+     * ADMIN principals may change any field.
+     */
+    @Nested
+    class AdminPermissions {
+        @Test
+        void should_allow_admin_to_change_name_and_supplier() {
+            setAuth(oauth("ROLE_ADMIN"));
+            assertDoesNotThrow(() -> InventoryItemSecurityValidator.validateUpdatePermissions(
+                    existing(), incoming("New Name", "supplier-2")));
+        }
     }
 
-    @Test
-    @DisplayName("validateUpdatePermissions: non-OAuth principals are rejected with 401")
-    void validateUpdatePermissions_nonOAuthPrincipal_throws401() {
-        // GIVEN: authentication exists but principal is not an OAuth2User
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("principal", "n/a"));
+    /**
+     * USER principals are restricted to quantity and price changes.
+     */
+    @Nested
+    class UserPermissions {
+        @Test
+        void should_forbid_user_from_changing_name() {
+            setAuth(oauth("ROLE_USER"));
+            assertEquals(HttpStatus.FORBIDDEN, assertThrows(ResponseStatusException.class,
+                    () -> InventoryItemSecurityValidator.validateUpdatePermissions(
+                            existing(), incoming("Different Name", "supplier-1"))).getStatusCode());
+        }
 
-        // WHEN/THEN
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> InventoryItemSecurityValidator.validateUpdatePermissions(existingItem(), incomingDto("New", "supplier-2")));
-        assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
-    }
+        @Test
+        void should_forbid_user_from_changing_supplier() {
+            setAuth(oauth("ROLE_USER"));
+            assertEquals(HttpStatus.FORBIDDEN, assertThrows(ResponseStatusException.class,
+                    () -> InventoryItemSecurityValidator.validateUpdatePermissions(
+                            existing(), incoming("Monitor", "supplier-2"))).getStatusCode());
+        }
 
-    @Test
-    @DisplayName("ROLE_ADMIN: may change name and supplier")
-    void validateUpdatePermissions_admin_allowsSensitiveFieldChanges() {
-        // GIVEN: ADMIN principal
-        OAuth2User admin = oauthUserWithAuthority("ROLE_ADMIN");
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(admin, "n/a"));
+        @Test
+        void should_default_unknown_authority_to_user_restrictions() {
+            // unrecognised authority falls back to the most restrictive role
+            setAuth(oauth("ROLE_VIEWER"));
+            assertEquals(HttpStatus.FORBIDDEN, assertThrows(ResponseStatusException.class,
+                    () -> InventoryItemSecurityValidator.validateUpdatePermissions(
+                            existing(), incoming("Different Name", "supplier-2"))).getStatusCode());
+        }
 
-        // WHEN/THEN
-        assertDoesNotThrow(() -> InventoryItemSecurityValidator.validateUpdatePermissions(
-                existingItem(),
-                incomingDto("New Name", "supplier-2")));
-    }
-
-    @Test
-    @DisplayName("ROLE_USER: name change is forbidden")
-    void validateUpdatePermissions_user_nameChange_forbidden() {
-        OAuth2User user = oauthUserWithAuthority("ROLE_USER");
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(user, "n/a"));
-
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> InventoryItemSecurityValidator.validateUpdatePermissions(
-                        existingItem(),
-                        incomingDto("Different Name", "supplier-1")));
-        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("ROLE_USER: supplier change is forbidden")
-    void validateUpdatePermissions_user_supplierChange_forbidden() {
-        OAuth2User user = oauthUserWithAuthority("ROLE_USER");
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(user, "n/a"));
-
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> InventoryItemSecurityValidator.validateUpdatePermissions(
-                        existingItem(),
-                        incomingDto("Monitor", "supplier-2")));
-        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("Default role path: unknown authority defaults to USER restrictions")
-    void validateUpdatePermissions_unknownAuthority_defaultsToUserRestrictions() {
-        // GIVEN: authority list does not contain ROLE_ADMIN nor ROLE_USER
-        OAuth2User user = oauthUserWithAuthority("ROLE_VIEWER");
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(user, "n/a"));
-
-        // THEN: treated as USER, so sensitive field change is rejected
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> InventoryItemSecurityValidator.validateUpdatePermissions(
-                        existingItem(),
-                        incomingDto("Different Name", "supplier-2")));
-        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("ROLE_USER: quantity/price changes are allowed when name/supplier unchanged")
-    void validateUpdatePermissions_user_allowsQuantityAndPriceChanges() {
-        OAuth2User user = oauthUserWithAuthority("ROLE_USER");
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(user, "n/a"));
-
-        // GIVEN: name and supplier unchanged; other fields may change
-        InventoryItem existing = existingItem();
-        InventoryItemDTO incoming = incomingDto(existing.getName(), existing.getSupplierId());
-
-        // WHEN/THEN
-        assertDoesNotThrow(() -> InventoryItemSecurityValidator.validateUpdatePermissions(existing, incoming));
+        @Test
+        void should_allow_user_to_change_quantity_and_price() {
+            setAuth(oauth("ROLE_USER"));
+            InventoryItem e = existing();
+            assertDoesNotThrow(() -> InventoryItemSecurityValidator.validateUpdatePermissions(
+                    e, incoming(e.getName(), e.getSupplierId())));
+        }
     }
 }

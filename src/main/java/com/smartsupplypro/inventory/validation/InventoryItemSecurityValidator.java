@@ -10,31 +10,23 @@ import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.model.InventoryItem;
 
 /**
- * Security validator for role-based inventory item update restrictions.
- *P
- * <p><strong>Access Control</strong>:
- * <ul>
- *   <li><strong>ADMIN</strong>: Full update permissions (name, supplier, quantity, price)</li>
- *   <li><strong>USER</strong>: Restricted to quantity and price updates only</li>
- * </ul>
+ * Enforces field-level authorization rules for inventory item updates.
  *
- * <p><strong>Design</strong>:
- * Validates field-level permissions before service layer commits changes.
- * Throws HTTP 403 for unauthorized field modifications.
+ * <p>ADMIN principals may update any field; USER principals may only
+ * change quantity and price. Cannot be expressed as Bean Validation
+ * because it requires reading the live {@link SecurityContextHolder}.</p>
  *
- * @see InventoryItemService
- * @see <a href="file:../../../../../../docs/architecture/patterns/validation-patterns.md">Validation Patterns</a>
+ * @see com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidationHelper
  */
 public class InventoryItemSecurityValidator {
 
     /**
-     * Validates user has permission to update specific inventory item fields.
-     * USER role: only quantity and price changes allowed.
-     * ADMIN role: full update permissions.
+     * Throws 401 if not authenticated as an OAuth2User, or 403 if a
+     * USER principal attempts to change {@code name} or {@code supplierId}.
      *
-     * @param existing current inventory item entity
-     * @param incoming updated item DTO from request
-     * @throws ResponseStatusException 401 if not authenticated, 403 if unauthorized field change
+     * @param existing current persisted entity
+     * @param incoming update payload from request
+     * @throws ResponseStatusException 401 if unauthenticated, 403 if forbidden field changed
      */
     public static void validateUpdatePermissions(InventoryItem existing, InventoryItemDTO incoming) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -47,10 +39,10 @@ public class InventoryItemSecurityValidator {
                 .map(a -> a.getAuthority())
                 .filter(r -> r.equals("ROLE_ADMIN") || r.equals("ROLE_USER"))
                 .findFirst()
-                .orElse("ROLE_USER"); // Default to USER if not explicitly found
+                .orElse("ROLE_USER"); // unrecognised authorities default to the most restrictive role
 
         if (role.equals("ROLE_USER")) {
-            boolean nameChanged = !existing.getName().equals(incoming.getName());
+            boolean nameChanged     = !existing.getName().equals(incoming.getName());
             boolean supplierChanged = !existing.getSupplierId().equals(incoming.getSupplierId());
 
             if (nameChanged || supplierChanged) {
@@ -62,4 +54,3 @@ public class InventoryItemSecurityValidator {
         }
     }
 }
-// This code provides the InventoryItemSecurityValidator class, which enforces security constraints on inventory item updates based on user roles.

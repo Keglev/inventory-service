@@ -1,243 +1,139 @@
 package com.smartsupplypro.inventory.validation;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import org.springframework.test.context.ActiveProfiles;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
-import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.model.InventoryItem;
-import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 
 /**
  * Unit tests for {@link InventoryItemValidator}.
  *
- * <p><strong>Purpose</strong></p>
- * Validates the public, reusable business-rule guards in the validator layer. These tests
- * intentionally focus on the validator contract (exception types/messages and allowed inputs)
- * rather than any service/controller flow that happens to call into the validator.
- *
- * <p><strong>Operations Tested</strong></p>
- * <ul>
- *   <li>{@link InventoryItemValidator#validateBase(InventoryItemDTO)} core DTO input rules</li>
- *   <li>{@link InventoryItemValidator#validateInventoryItemNotExists(String, String, BigDecimal, InventoryItemRepository)}
- *       duplicate name+price detection for create/update</li>
- *   <li>{@link InventoryItemValidator#validateInventoryItemNotExists(String, BigDecimal, InventoryItemRepository)}
- *       simple uniqueness check used by update scenarios</li>
- *   <li>{@link InventoryItemValidator#assertQuantityIsZeroForDeletion(InventoryItem)} deletion precondition</li>
- * </ul>
- *
- * <p><strong>Design Notes</strong></p>
- * <ul>
- *   <li>Repository interactions are mocked; this suite isolates validator logic.</li>
- *   <li>Assertions on exception messages are limited to user-facing contract strings.</li>
- * </ul>
+ * <p>Covers pure format and business-rule guards: required-field rejection,
+ * deletion preconditions, and standalone price/quantity guards.
+ * Persistence-backed tests live in {@link InventoryItemLookupValidatorTest}.</p>
  */
 @SuppressWarnings("unused")
-@ActiveProfiles("test")
-public class InventoryItemValidatorTest {
+class InventoryItemValidatorTest {
 
-    /**
-     * Helper method to generate a valid {@link InventoryItemDTO} instance for testing.
-     *
-     * @return a DTO with all required fields properly set.
-     */
-    private InventoryItemDTO validDTO() {
+    record InvalidBaseCase(Consumer<InventoryItemDTO> apply, String expected) {}
+
+    @SuppressWarnings("unused") // called reflectively by @MethodSource
+    static Stream<InvalidBaseCase> invalidBaseInputs() {
+        return Stream.of(
+            new InvalidBaseCase(d -> d.setName(null),  "Product name cannot be null or empty"),
+            new InvalidBaseCase(d -> d.setName("   "), "Product name cannot be null or empty"),
+            new InvalidBaseCase(d -> d.setQuantity(-1), "Quantity cannot be negative"),
+            new InvalidBaseCase(d -> d.setPrice(null), "Price must be positive or greater than zero"),
+            new InvalidBaseCase(d -> d.setPrice(new BigDecimal("-5.00")), "Price must be positive or greater than zero"),
+            new InvalidBaseCase(d -> d.setSupplierId(" "), "Supplier ID must be provided"),
+            new InvalidBaseCase(d -> d.setCreatedBy(null), "CreatedBy must be provided")
+        );
+    }
+
+    private static InventoryItemDTO validDTO() {
         return InventoryItemDTO.builder()
-                .id("item-1")
-                .name("Monitor")
-                .quantity(10)
-                .price(new BigDecimal("199.99"))
-                .supplierId("supplier-1")
-                .createdBy("admin")
-                .build();
+                .id("item-1").name("Monitor").quantity(10)
+                .price(new BigDecimal("199.99")).supplierId("supplier-1")
+                .createdBy("admin").build();
     }
 
     /**
-     * Verifies that a fully valid inventory item passes base validation without exception.
+     * Required-field validation via {@link InventoryItemValidator#validateBase(InventoryItemDTO)}.
      */
-    @Test
-    void testValidateBase_withValidInput_shouldPass() {
-        // GIVEN: a complete DTO
-        // WHEN/THEN: no validation exception is expected
-        assertDoesNotThrow(() -> InventoryItemValidator.validateBase(validDTO()));
+    @Nested
+    @SuppressWarnings("unused")
+    class ValidateBase {
+        @Test
+        void should_pass_when_all_fields_are_valid() {
+            assertDoesNotThrow(() -> InventoryItemValidator.validateBase(validDTO()));
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.smartsupplypro.inventory.validation.InventoryItemValidatorTest#invalidBaseInputs")
+        void should_fail_when_input_is_invalid(InvalidBaseCase c) {
+            InventoryItemDTO dto = validDTO();
+            c.apply().accept(dto);
+            assertEquals(c.expected(), assertThrows(IllegalArgumentException.class,
+                    () -> InventoryItemValidator.validateBase(dto)).getMessage());
+        }
     }
 
     /**
-     * Ensures that the base validation throws an {@link IllegalArgumentException}
-     * when the product name is null.
+     * Deletion preconditions via {@link InventoryItemValidator#assertQuantityIsZeroForDeletion(InventoryItem)}.
      */
-    @Test
-    void testValidateBase_withNullName_shouldThrow() {
-        // GIVEN: DTO with null name
-        InventoryItemDTO dto = validDTO();
-        dto.setName(null);
+    @Nested
+    @SuppressWarnings("unused")
+    class DeletionGuards {
+        @Test
+        void should_fail_when_item_has_stock() {
+            InventoryItem item = new InventoryItem();
+            item.setId("item-1"); item.setQuantity(5);
+            assertEquals(
+                "You still have merchandise in stock. " +
+                "You need to first remove items from stock by changing quantity.",
+                assertThrows(IllegalStateException.class,
+                        () -> InventoryItemValidator.assertQuantityIsZeroForDeletion(item)).getMessage());
+        }
 
-        // WHEN
-        Exception e = assertThrows(IllegalArgumentException.class, () ->
-                InventoryItemValidator.validateBase(dto));
-
-        // THEN
-        assertEquals("Product name cannot be null or empty", e.getMessage());
+        @Test
+        void should_pass_when_quantity_is_zero() {
+            InventoryItem item = new InventoryItem();
+            item.setId("item-1"); item.setQuantity(0);
+            assertDoesNotThrow(() -> InventoryItemValidator.assertQuantityIsZeroForDeletion(item));
+        }
     }
 
     /**
-     * Verifies that validation fails if the quantity is negative, throwing an appropriate exception.
+     * Standalone price and quantity guards.
      */
-    @Test
-    void testValidateBase_withNegativeQuantity_shouldThrow() {
-        // GIVEN: DTO with negative quantity
-        InventoryItemDTO dto = validDTO();
-        dto.setQuantity(-1);
+    @Nested
+    @SuppressWarnings("unused")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    class PriceAndQuantityGuards {
+        @SuppressWarnings("unused") // called reflectively by @MethodSource
+        Stream<BigDecimal> invalidPrices() {
+            return Stream.of(null, BigDecimal.ZERO, new BigDecimal("-0.01"));
+        }
 
-        // WHEN
-        Exception e = assertThrows(IllegalArgumentException.class, () ->
-                InventoryItemValidator.validateBase(dto));
+        @ParameterizedTest
+        @MethodSource("invalidPrices")
+        void should_reject_invalid_price(BigDecimal price) {
+            assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,
+                    assertThrows(ResponseStatusException.class,
+                            () -> InventoryItemValidator.assertPriceValid(price)).getStatusCode());
+        }
 
-        // THEN
-        assertEquals("Quantity cannot be negative", e.getMessage());
+        @Test
+        void should_accept_positive_price() {
+            assertDoesNotThrow(() -> InventoryItemValidator.assertPriceValid(new BigDecimal("0.01")));
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = {-1, -100})
+        void should_reject_negative_resulting_quantity(int qty) {
+            assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,
+                    assertThrows(ResponseStatusException.class,
+                            () -> InventoryItemValidator.assertFinalQuantityNonNegative(qty)).getStatusCode());
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = {0, 10})
+        void should_accept_non_negative_resulting_quantity(int qty) {
+            assertDoesNotThrow(() -> InventoryItemValidator.assertFinalQuantityNonNegative(qty));
+        }
     }
-
-    /**
-     * Ensures that a negative price value fails base validation with a clear error message.
-     */
-    @Test
-    void testValidateBase_withNegativePrice_shouldThrow() {
-        // GIVEN: DTO with negative price
-        InventoryItemDTO dto = validDTO();
-        dto.setPrice(new BigDecimal("-5.00"));
-
-        // WHEN
-        Exception e = assertThrows(IllegalArgumentException.class, () ->
-                InventoryItemValidator.validateBase(dto));
-
-        // THEN
-        assertEquals("Price must be positive or greater than zero", e.getMessage());
-    }
-
-    /**
-     * Verifies that an empty or blank supplier ID triggers validation failure as expected.
-     * This ensures that all inventory items are associated with a valid supplier.
-     */
-    @Test
-    void testValidateBase_withEmptySupplier_shouldThrow() {
-        // GIVEN: DTO with blank supplier id
-        InventoryItemDTO dto = validDTO();
-        dto.setSupplierId(" ");
-
-        // WHEN
-        Exception e = assertThrows(IllegalArgumentException.class, () ->
-                InventoryItemValidator.validateBase(dto));
-
-        // THEN
-        assertEquals("Supplier ID must be provided", e.getMessage());
-    }
-
-    /**
-     * Ensures that attempting to add a duplicate item name triggers a validation exception.
-     * This test mocks the repository to simulate a name conflict.
-     */
-    @Test
-    void testValidateInventoryItemNotExists_withExistingNameAndPrice_shouldThrowException() {
-        // GIVEN: existing inventory item (different id) with the same name+price
-        InventoryItemRepository mockRepo = mock(InventoryItemRepository.class);
-
-        InventoryItem existingItem = new InventoryItem();
-        existingItem.setId("existing-id");
-        existingItem.setName("DuplicateItem");
-        existingItem.setPrice(new BigDecimal("10.00"));
-
-        when(mockRepo.findByNameIgnoreCase("DuplicateItem")).thenReturn(List.of(existingItem));
-
-        // WHEN
-        Exception ex = assertThrows(DuplicateResourceException.class, () ->
-            InventoryItemValidator.validateInventoryItemNotExists("new-id", "DuplicateItem", new BigDecimal("10.00"), mockRepo)
-        );
-
-        // THEN
-        assertEquals("Another inventory item with this name and price already exists.", ex.getMessage());
-    }
-
-
-    /**
-     * Confirms that a unique item name passes duplicate check validation without error.
-     */
-    @Test
-    void testValidateInventoryItemNotExists_withUniqueNameAndPrice_shouldPass() {
-        // GIVEN: repository returns no items for the name (no duplicate exists)
-        InventoryItemRepository mockRepo = mock(InventoryItemRepository.class);
-        when(mockRepo.findByNameIgnoreCase("UniqueItem")).thenReturn(List.of());
-
-        // WHEN/THEN
-        assertDoesNotThrow(() ->
-            InventoryItemValidator.validateInventoryItemNotExists("UniqueItem", new BigDecimal("25.00"), mockRepo)
-        );
-    }
-
-    @Test
-    void testValidateBase_withNullCreatedBy_shouldThrow() {
-        // GIVEN: DTO without createdBy
-        InventoryItemDTO dto = validDTO();
-        dto.setCreatedBy(null);
-
-        // WHEN
-        Exception ex = assertThrows(IllegalArgumentException.class, () ->
-            InventoryItemValidator.validateBase(dto)
-        );
-
-        // THEN
-        assertEquals("CreatedBy must be provided", ex.getMessage());
-    }
-
-    /**
-     * Verifies that an item with quantity greater than zero cannot be deleted.
-     * This enforces the business rule that items must be fully depleted before deletion.
-     */
-    @Test
-    void testAssertQuantityIsZeroForDeletion_withQuantityGreaterThanZero_shouldThrow() {
-        // GIVEN: item still has stock
-        InventoryItem item = new InventoryItem();
-        item.setId("item-1");
-        item.setName("Monitor");
-        item.setQuantity(5);
-        item.setPrice(new BigDecimal("199.99"));
-
-        // WHEN
-        Exception ex = assertThrows(IllegalStateException.class, () ->
-            InventoryItemValidator.assertQuantityIsZeroForDeletion(item)
-        );
-
-        // THEN
-        assertEquals(
-            "You still have merchandise in stock. " +
-            "You need to first remove items from stock by changing quantity.",
-            ex.getMessage()
-        );
-    }
-
-    /**
-     * Confirms that an item with zero quantity passes deletion validation without error.
-     */
-    @Test
-    void testAssertQuantityIsZeroForDeletion_withQuantityZero_shouldPass() {
-        // GIVEN: item is depleted
-        InventoryItem item = new InventoryItem();
-        item.setId("item-1");
-        item.setName("Monitor");
-        item.setQuantity(0);
-        item.setPrice(new BigDecimal("199.99"));
-
-        // WHEN/THEN
-        assertDoesNotThrow(() ->
-            InventoryItemValidator.assertQuantityIsZeroForDeletion(item)
-        );
-    }
-
 }

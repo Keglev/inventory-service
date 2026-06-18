@@ -11,6 +11,7 @@ import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
+import com.smartsupplypro.inventory.validation.InventoryItemLookupValidator;
 import com.smartsupplypro.inventory.validation.InventoryItemSecurityValidator;
 import com.smartsupplypro.inventory.validation.InventoryItemValidator;
 
@@ -44,7 +45,7 @@ public class InventoryItemValidationHelper {
             dto.setCreatedBy(currentUsername());
         }
         InventoryItemValidator.validateBase(dto);
-        InventoryItemValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);
+        InventoryItemLookupValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);
         validateSupplierExists(dto.getSupplierId());
     }
 
@@ -80,7 +81,7 @@ public class InventoryItemValidationHelper {
     public InventoryItem validateForUpdate(String id, InventoryItemDTO dto) {
         InventoryItemValidator.validateBase(dto);
         validateSupplierExists(dto.getSupplierId());
-        InventoryItem existing = InventoryItemValidator.validateExists(id, repository);
+        InventoryItem existing = InventoryItemLookupValidator.validateExists(id, repository);
         InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);
         return existing;
     }
@@ -97,7 +98,7 @@ public class InventoryItemValidationHelper {
         boolean nameChanged  = !existing.getName().equalsIgnoreCase(dto.getName());
         boolean priceChanged = !existing.getPrice().equals(dto.getPrice());
         if (nameChanged || priceChanged) {
-            InventoryItemValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);
+            InventoryItemLookupValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);
         }
     }
 
@@ -119,7 +120,7 @@ public class InventoryItemValidationHelper {
      * @throws IllegalStateException if quantity is greater than zero
      */
     public void validateForDeletion(String id) {
-        InventoryItem item = InventoryItemValidator.validateExists(id, repository);
+        InventoryItem item = InventoryItemLookupValidator.validateExists(id, repository);
         InventoryItemValidator.assertQuantityIsZeroForDeletion(item);
     }
 

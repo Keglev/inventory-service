@@ -6,10 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.dto.SupplierDTO;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
@@ -20,149 +21,130 @@ import com.smartsupplypro.inventory.repository.SupplierRepository;
 /**
  * Unit tests for {@link SupplierValidator}.
  *
- * <p><strong>Validation Layers Tested:</strong></p>
- * <ul>
- *   <li><b>Base validation:</b> Null/blank checks on DTO fields → {@link InvalidRequestException}</li>
- *   <li><b>Uniqueness:</b> Case-insensitive name collision detection → {@link DuplicateResourceException}</li>
- *   <li><b>Deletion precondition:</b> Prevents deletion of suppliers with linked items → {@link IllegalStateException}</li>
- * </ul>
- *
- * <p><strong>Design Notes:</strong></p>
- * <ul>
- *   <li>Delete validation uses a {@code BooleanSupplier} lambda, making it repo-agnostic
- *       and independent of specific relationship cardinality (1‑N vs N‑N).</li>
- *   <li>Audit fields like {@code createdBy} are server-managed and not validated here.</li>
- *   <li>Tests use mocks to isolate validator logic from repository implementation.</li>
- * </ul>
- *
- * @see SupplierValidator
+ * <p>Covers the three public guards: {@code validateBase}, {@code assertUniqueName}
+ * (case-insensitive collision detection, blank short-circuit, reflective getId fallback),
+ * and {@code assertDeletable}. Repository interactions are mocked.</p>
  */
 @SuppressWarnings("unused")
-@ActiveProfiles("test")
 class SupplierValidatorTest {
 
-    // ==================== validateBase() Tests ====================
-    // Tests basic DTO validation (null/blank checks)
-
     /**
-     * Validates that null DTO is rejected.
-     * Expected: {@link InvalidRequestException} with "must not be null" message.
+     * Required-field validation via {@link SupplierValidator#validateBase(SupplierDTO)}.
      */
-    @Test
-    void validateBase_nullDto_throws400() {
-        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
-                () -> SupplierValidator.validateBase(null));
-        assertTrue(ex.getMessage().toLowerCase().contains("must not be null"));
+    @Nested
+    class BaseValidation {
+        @Test
+        void should_fail_when_dto_is_null() {
+            InvalidRequestException ex = assertThrows(InvalidRequestException.class,
+                    () -> SupplierValidator.validateBase(null));
+            assertTrue(ex.getMessage().toLowerCase().contains("must not be null"));
+        }
+
+        @Test
+        void should_fail_when_name_is_blank() {
+            SupplierDTO dto = SupplierDTO.builder().name("  ").build();
+            InvalidRequestException ex = assertThrows(InvalidRequestException.class,
+                    () -> SupplierValidator.validateBase(dto));
+            assertTrue(ex.getMessage().toLowerCase().contains("name"));
+        }
+
+        @Test
+        void should_pass_when_dto_is_valid() {
+            assertDoesNotThrow(() -> SupplierValidator.validateBase(SupplierDTO.builder().name("Acme").build()));
+        }
     }
 
     /**
-     * Validates that blank supplier name is rejected.
-     * Expected: {@link InvalidRequestException} mentioning "name" field.
+     * Name uniqueness via {@link SupplierValidator#assertUniqueName(SupplierRepository, String, String)}.
      */
-    @Test
-    void validateBase_blankName_throws400() {
-        SupplierDTO dto = SupplierDTO.builder().name("  ").build();
+    @Nested
+    class NameUniqueness {
+        private Supplier brokenSupplier() {
+            Supplier s = new Supplier() {
+                @Override public String getId() { throw new RuntimeException("boom"); }
+            };
+            s.setName("Acme");
+            return s;
+        }
 
-        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
-                () -> SupplierValidator.validateBase(dto));
-        assertTrue(ex.getMessage().toLowerCase().contains("name"));
+        @Test
+        void should_fail_when_name_belongs_to_different_supplier() {
+            SupplierRepository repo = mock(SupplierRepository.class);
+            Supplier existing = Supplier.builder().id("other-123").name("Acme").build();
+            when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(existing));
+            DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
+                    () -> SupplierValidator.assertUniqueName(repo, "Acme", "current-999"));
+            assertEquals("Supplier already exists", ex.getMessage());
+        }
+
+        @Test
+        void should_pass_when_updating_own_name() {
+            SupplierRepository repo = mock(SupplierRepository.class);
+            Supplier existing = Supplier.builder().id("same-123").name("Acme").build();
+            when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(existing));
+            assertDoesNotThrow(() -> SupplierValidator.assertUniqueName(repo, "Acme", "same-123"));
+        }
+
+        @Test
+        void should_pass_when_name_is_unique() {
+            SupplierRepository repo = mock(SupplierRepository.class);
+            when(repo.findByNameIgnoreCase("Unique")).thenReturn(Optional.empty());
+            assertDoesNotThrow(() -> SupplierValidator.assertUniqueName(repo, "Unique", null));
+        }
+
+        @Test
+        void should_short_circuit_when_name_is_blank() {
+            // blank names are already rejected by validateBase; uniqueness check must be a no-op
+            SupplierRepository repo = mock(SupplierRepository.class);
+            assertDoesNotThrow(() -> SupplierValidator.assertUniqueName(repo, "   ", null));
+            verifyNoInteractions(repo);
+        }
+
+        @Test
+        void should_allow_when_getId_throws_and_excludeId_is_null() {
+            SupplierRepository repo = mock(SupplierRepository.class);
+            when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(brokenSupplier()));
+            // null falls back to null via reflective failure; Objects.equals(null, null) == true
+            assertDoesNotThrow(() -> SupplierValidator.assertUniqueName(repo, "Acme", null));
+        }
+
+        @Test
+        void should_reject_when_getId_throws_and_excludeId_differs() {
+            SupplierRepository repo = mock(SupplierRepository.class);
+            when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(brokenSupplier()));
+            DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
+                    () -> SupplierValidator.assertUniqueName(repo, "Acme", "sup-1"));
+            assertEquals("Supplier already exists", ex.getMessage());
+        }
     }
 
     /**
-     * Validates that valid DTO passes base validation.
-     * Expected: No exception thrown.
+     * Deletion safety via {@link SupplierValidator#assertDeletable(String, java.util.function.BooleanSupplier)}.
      */
-    @Test
-    void validateBase_valid_passes() {
-        SupplierDTO dto = SupplierDTO.builder().name("Acme").build();
-        assertDoesNotThrow(() -> SupplierValidator.validateBase(dto));
-    }
+    @Nested
+    class DeletionGuards {
+        @Test
+        void should_fail_when_id_is_blank() {
+            InvalidRequestException ex = assertThrows(InvalidRequestException.class,
+                    () -> SupplierValidator.assertDeletable("  ", () -> false));
+            assertTrue(ex.getMessage().toLowerCase().contains("id"));
+        }
 
-    // ==================== assertUniqueName() Tests ====================
-    // Tests case-insensitive name uniqueness enforcement
+        @Test
+        void should_fail_when_supplier_has_linked_items() {
+            IllegalStateException ex = assertThrows(IllegalStateException.class,
+                    () -> SupplierValidator.assertDeletable("sup-1", () -> true));
+            assertEquals("Cannot delete supplier with linked items", ex.getMessage());
+        }
 
-    /**
-     * Validates that duplicate names from OTHER suppliers are rejected.
-     * Scenario: Attempting to create/update a supplier with a name already owned by a different supplier.
-     * Expected: {@link DuplicateResourceException} with "already exists" message.
-     */
-    @Test
-    void assertUniqueName_duplicateOtherId_throws409() {
-        SupplierRepository repo = mock(SupplierRepository.class);
-        // existing supplier with different id owns the same name (case-insensitive)
-        Supplier existing = Supplier.builder().id("other-123").name("Acme").build();
-        when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(existing));
+        @Test
+        void should_pass_when_no_linked_items() {
+            assertDoesNotThrow(() -> SupplierValidator.assertDeletable("sup-1", () -> false));
+        }
 
-        DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
-                () -> SupplierValidator.assertUniqueName(repo, "Acme", "current-999"));
-        assertEquals("Supplier already exists", ex.getMessage());
-    }
-
-    /**
-     * Validates that updating a supplier with its SAME name is allowed.
-     * Scenario: Supplier "Acme" (id: same-123) updates its own record without changing the name.
-     * Expected: No exception (idempotent update is safe).
-     */
-    @Test
-    void assertUniqueName_sameRecord_update_ok() {
-        SupplierRepository repo = mock(SupplierRepository.class);
-        Supplier existing = Supplier.builder().id("same-123").name("Acme").build();
-        when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(existing));
-
-        // Same ID = same supplier = update is allowed
-        assertDoesNotThrow(() -> SupplierValidator.assertUniqueName(repo, "Acme", "same-123"));
-    }
-
-    /**
-     * Validates that a completely new (unique) name is allowed.
-     * Scenario: No existing supplier has this name.
-     * Expected: No exception thrown.
-     */
-    @Test
-    void assertUniqueName_noExisting_ok() {
-        SupplierRepository repo = mock(SupplierRepository.class);
-        when(repo.findByNameIgnoreCase("Unique")).thenReturn(Optional.empty());
-
-        // No existing record with this name = safe to proceed
-        assertDoesNotThrow(() -> SupplierValidator.assertUniqueName(repo, "Unique", null));
-    }
-
-    // ==================== assertDeletable() Tests ====================
-    // Tests deletion preconditions using repo-agnostic BooleanSupplier pattern
-
-    /**
-     * Validates that blank supplier IDs are rejected before deletion.
-     * Expected: {@link InvalidRequestException} mentioning "id" field.
-     */
-    @Test
-    void assertDeletable_blankId_throws400() {
-        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
-                () -> SupplierValidator.assertDeletable("  ", () -> false));
-        assertTrue(ex.getMessage().toLowerCase().contains("id"));
-    }
-
-    /**
-     * Validates that suppliers with linked inventory items cannot be deleted.
-     * Scenario: The BooleanSupplier returns true, indicating at least one item is linked.
-     * Expected: {@link IllegalStateException} preventing deletion.
-     */
-    @Test
-    void assertDeletable_whenHasAnyLinks_true_throws409() {
-        // simulate existence of at least one linked item with quantity > 0
-        // BooleanSupplier.getAsBoolean() returns true = has links = cannot delete
-        IllegalStateException ex = assertThrows(IllegalStateException.class,
-                () -> SupplierValidator.assertDeletable("sup-1", () -> true));
-        assertEquals("Cannot delete supplier with linked items", ex.getMessage());
-    }
-
-    /**
-     * Validates that suppliers with NO linked items CAN be deleted.
-     * Scenario: The BooleanSupplier returns false, indicating no items are linked.
-     * Expected: No exception (deletion is allowed).
-     */
-    @Test
-    void assertDeletable_whenHasAnyLinks_false_ok() {
-        // BooleanSupplier.getAsBoolean() returns false = no links = safe to delete
-        assertDoesNotThrow(() -> SupplierValidator.assertDeletable("sup-1", () -> false));
+        @Test
+        void should_pass_when_links_supplier_is_null() {
+            assertDoesNotThrow(() -> SupplierValidator.assertDeletable("sup-1", null));
+        }
     }
 }
