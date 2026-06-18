@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.mapper;
+package com.smartsupplypro.inventory.mapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

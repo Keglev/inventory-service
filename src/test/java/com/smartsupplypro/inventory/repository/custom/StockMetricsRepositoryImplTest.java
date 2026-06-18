@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.repository.custom;
+package com.smartsupplypro.inventory.repository.custom;
 
 import java.lang.reflect.Field;
 import java.util.List;

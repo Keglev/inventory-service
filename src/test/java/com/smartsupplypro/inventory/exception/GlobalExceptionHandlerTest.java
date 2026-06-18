@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.exception;
+package com.smartsupplypro.inventory.exception;
 
 import java.util.NoSuchElementException;
 

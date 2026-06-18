@@ -2,7 +2,7 @@
 # Java + Spring Boot: Target Build Output
 ###############################################################################
 target/
-!/mvn/wrapper/maven-wrapper.jar
+!/.mvn/wrapper/maven-wrapper.jar
 
 ###############################################################################
 # Maven Subdirectories (optional — remove if not needed)
@@ -43,9 +43,6 @@ logs/
 
 # VS Code
 .vscode/
-
-# Necessary files for deployment
-fly.toml
 
 # Local dev HTTPS certs
 *.pem

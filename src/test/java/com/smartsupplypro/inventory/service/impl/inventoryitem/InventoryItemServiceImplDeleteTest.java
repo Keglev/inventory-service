@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.service.impl.inventoryitem;
+package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.math.BigDecimal;
 import java.util.Optional;

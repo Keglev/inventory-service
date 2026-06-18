@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.service.stockhistory;
+package com.smartsupplypro.inventory.service.stockhistory;
 
 import java.math.BigDecimal;
 

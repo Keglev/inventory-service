@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.controller.auth;
+package com.smartsupplypro.inventory.controller.auth;
 
 import static java.util.Collections.singletonList;
 import java.util.List;

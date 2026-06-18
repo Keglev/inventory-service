@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.controller.analytics;
+package com.smartsupplypro.inventory.controller.analytics;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

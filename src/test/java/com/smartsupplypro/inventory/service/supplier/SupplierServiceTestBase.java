@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.service.supplier;
+package com.smartsupplypro.inventory.service.supplier;
 
 import org.junit.jupiter.api.BeforeEach;
 import static org.mockito.Mockito.mock;

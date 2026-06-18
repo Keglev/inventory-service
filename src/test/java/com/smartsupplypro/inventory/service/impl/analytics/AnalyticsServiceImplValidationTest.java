@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.service.impl.analytics;
+package com.smartsupplypro.inventory.service.impl.analytics;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

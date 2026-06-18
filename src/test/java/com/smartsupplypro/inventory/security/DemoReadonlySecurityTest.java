@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.security;
+package com.smartsupplypro.inventory.security;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.controller.security;
+package com.smartsupplypro.inventory.controller.security;
 
 import org.junit.jupiter.api.Test;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;

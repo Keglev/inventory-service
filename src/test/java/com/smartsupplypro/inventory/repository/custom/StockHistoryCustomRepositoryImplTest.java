@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.repository.custom;
+package com.smartsupplypro.inventory.repository.custom;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

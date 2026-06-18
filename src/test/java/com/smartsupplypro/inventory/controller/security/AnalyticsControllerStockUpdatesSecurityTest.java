@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.controller.security;
+package com.smartsupplypro.inventory.controller.security;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;

@@ -34,6 +34,9 @@ RUN mvn -q -B -DskipTests dependency:go-offline
 # -----------------------------------------------------------------------------
 # 2) Build Stage
 #    Compiles and packages the Spring Boot app. Tests run in CI already.
+# Build-stage CVEs are in Maven system packages and have no upstream fix.
+# These stages are discarded after packaging — only the JRE runtime stage is deployed.
+# Runtime image: eclipse-temurin:17-jre-alpine (no build tools, minimal attack surface).
 # -----------------------------------------------------------------------------
 FROM maven:3.9.11-eclipse-temurin-17 AS build
 WORKDIR /build
@@ -67,16 +70,10 @@ FROM eclipse-temurin:17-jre-alpine AS runtime
 # Set working directory for runtime files (wallet + jar)
 WORKDIR /app
 
-# /**
-#  * Create non-root user to follow container security best practices.
-#  */
+# Create non-root user — container security best practice
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# /**
-#  * Install required system utilities:
-#  * - unzip: to extract Oracle Wallet
-#  * - coreutils: for base64 decoding
-#  */
+# unzip: extracts Oracle Wallet; coreutils: provides base64 decoding for wallet secrets 
 RUN apk add --no-cache unzip coreutils && apk upgrade --no-cache
 
 # ==========================================================
@@ -111,22 +108,13 @@ RUN chown -R appuser:appgroup /app
 # Drop privileges - must be last
 USER appuser
 
-# /**
-#  * Define the startup command: extract Oracle wallet and launch Spring Boot.
-#  * (scripts/start.sh defaults SPRING_PROFILES_ACTIVE=prod and SERVER_PORT=8081)
-#  */
+# Startup delegates to start.sh: wallet decode + JVM flags + Spring Boot launch
 CMD ["/app/start.sh"]
 
 # ==========================================================
 # HEALTHCHECK & PORT EXPOSURE
 # ==========================================================
 
-# /**
-#  * Healthcheck endpoint must match the app’s actual mapping.
-#  * For Spring Boot Actuator defaults: /actuator/health on SERVER_PORT (8081 here).
-#  * Health probing is handled by Fly.io (fly.toml). Dockerfile HEALTHCHECK
-#  * is optional and ignored by Fly. We omit it here to keep the image lean.
-#  */
-
+# Health probing handled by Fly.io via fly.toml — HEALTHCHECK omitted to keep image lean
 EXPOSE 8081
 

@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.security;
+package com.smartsupplypro.inventory.security;
 
 import static org.hamcrest.Matchers.containsString;
 import org.junit.jupiter.api.Nested;

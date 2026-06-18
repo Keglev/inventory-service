@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.repository.custom.util;
+package com.smartsupplypro.inventory.repository.custom.util;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

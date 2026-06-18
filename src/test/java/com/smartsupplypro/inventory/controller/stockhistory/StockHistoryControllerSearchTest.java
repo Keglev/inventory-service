@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.controller.stockhistory;
+package com.smartsupplypro.inventory.controller.stockhistory;
 
 import java.time.LocalDateTime;
 import java.util.List;

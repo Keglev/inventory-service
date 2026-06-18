@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.repository;
+package com.smartsupplypro.inventory.repository;
 
 import java.math.BigDecimal;
 import java.util.List;

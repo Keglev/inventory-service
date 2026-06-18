@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.controller.security;
+package com.smartsupplypro.inventory.controller.security;
 
 import java.time.LocalDate;
 

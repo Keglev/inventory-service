@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory;
+package com.smartsupplypro.inventory;
 
 import java.lang.reflect.Method;
 import java.time.Duration;

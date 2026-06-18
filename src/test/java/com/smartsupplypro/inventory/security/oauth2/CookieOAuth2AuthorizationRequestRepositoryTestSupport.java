@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.security.oauth2;
+package com.smartsupplypro.inventory.security.oauth2;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;

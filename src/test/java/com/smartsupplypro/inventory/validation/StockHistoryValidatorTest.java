@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.validation;
+package com.smartsupplypro.inventory.validation;
 
 import java.math.BigDecimal;
 

@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.security.oauth2login;
+package com.smartsupplypro.inventory.security.oauth2login;
 
 import java.util.Map;
 

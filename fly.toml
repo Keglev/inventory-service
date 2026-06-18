@@ -1,0 +1,62 @@
+# =============================================
+# fly.toml — Fly.io App Configuration for Inventory Microservice
+# =============================================
+
+# The name of your Fly.io app
+app = "inventoryservice"
+
+# The primary region to deploy your app to (e.g., Frankfurt = fra)
+primary_region = "fra"
+
+[build]
+# Build only the backend (Java Spring Boot) 
+  # Fly automatically detects Dockerfile
+  dockerfile = "Dockerfile"     # Located in inventory-service/
+  context = "."                 # Build context is the entire project root
+
+[env]
+  # Spring Boot profile to activate
+  SPRING_PROFILES_ACTIVE = "prod"
+  APP_DEMO_READONLY = "true"
+  APP_FRONTEND_BASE_URL = "https://inventory-service.koyeb.app"
+  APP_FRONTEND_LANDING_PATH = "/auth"
+
+
+[vm]
+  size = "shared-cpu-1x"        # Lightweight machine with 512MB RAM
+  memory = 1024                  # Upgrade to 1024MB if Oracle connections fail frequently
+
+[experimental]
+  auto_rollback = true          # Revert deployment if health checks fail after deployment
+
+[[services]]
+  internal_port = 8081          # Spring Boot application exposed on this port
+  protocol = "tcp"
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+  # Use simple TCP check first (required fallback for cold boot)
+  [[services.tcp_checks]]
+    interval = 10000            # Every 10 seconds
+    timeout = 2000              # Max 2 seconds to respond
+    grace_period = "10s"
+    restart_limit = 0
+
+  # HTTP health check for Fly.io (should NOT hit the Oracle DB directly)
+  [[services.http_checks]]
+    interval = 10000            # Every 10 seconds
+    timeout = 2000
+    grace_period = "30s"
+    method = "GET"
+    path = "/api/health"        # Health endpoint with JSON response mapping
+    protocol = "http"
+    tls_skip_verify = false
+    headers = []
+
+

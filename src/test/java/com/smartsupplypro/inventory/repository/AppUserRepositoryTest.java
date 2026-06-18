@@ -1,4 +1,4 @@
-﻿package com.smartsupplypro.inventory.repository;
+package com.smartsupplypro.inventory.repository;
 
 import java.util.Optional;
 
