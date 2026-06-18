@@ -76,7 +76,8 @@ Inventory Service,com.smartsupplypro.inventory.dto,StockPerSupplierDTO,0,9,0,0,0
 Inventory Service,com.smartsupplypro.inventory.dto,StockValueOverTimeDTO,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,ItemUpdateFrequencyDTO,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,FinancialSummaryDTO,0,48,0,0,0,1,0,1,0,1
-Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemValidator,1,163,3,33,1,33,3,23,0,8
-Inventory Service,com.smartsupplypro.inventory.validation,SupplierValidator,1,102,2,20,0,25,2,15,0,6
+Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemValidator,0,92,2,24,0,20,2,15,0,4
+Inventory Service,com.smartsupplypro.inventory.validation,SupplierValidator,1,96,2,20,0,21,2,15,0,6
+Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemLookupValidator,1,71,1,9,1,13,1,8,0,4
 Inventory Service,com.smartsupplypro.inventory.validation,StockHistoryValidator,0,117,1,25,0,20,1,14,0,2
 Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemSecurityValidator,3,81,0,18,1,15,1,12,1,3
