@@ -9,38 +9,24 @@
  
 set -eu
 
-# ==========================================================
-# Script to decode Oracle Wallet, display configs, and run Spring Boot
-# ==========================================================
-
 # Default profile (you can override via env)
 : "${SPRING_PROFILES_ACTIVE:=prod}" # default to 'prod' profile
 : "${SERVER_PORT:=8081}"            # honor CI's 8081 preflight; defaults to 8081
 : "${DEBUG:=0}"                     # set to 1 to enable debug output
 
-# harden file perms for anything we create
 umask 077
 
-# --- Require secrets (wallet-only) ---
+# --- Require credentials (wallet-only) ---
 if [ -z "${ORACLE_WALLET_B64:-}" ]; then
   echo "ERROR: ORACLE_WALLET_B64 is not set (runtime secret required)"; exit 1
 fi
-if [ -z "${ORACLE_WALLET_PASSWORD:-}" ]; then
-  echo "ERROR: ORACLE_WALLET_PASSWORD is not set (runtime secret required)"; exit 1
-fi
 
-# 1) Decode the wallet (base64) and unzip to /app/wallet
+# Decode the base64 wallet (delivered as a Fly secret) and extract it
 mkdir -p /app/wallet
 printf "%s" "${ORACLE_WALLET_B64}" | base64 -d > /app/wallet.zip
 
-# /**
-#  * Windows-zip quirk:
-#  * - Some ZIPs store paths with backslashes. `unzip` may return rc=1 with a warning
-#  *   even though extraction succeeded. We treat rc==1 as non-fatal if the expected
-#  *   /app/wallet/Wallet_sspdb_fixed folder exists.
-#  */
-# -- Windows ZIP quirk: unzip may return rc=1 yet still extract successfully.
-#    We accept rc==0, or rc==1 *if* the expected folder appears.
+# Windows ZIP quirk: unzip may return rc=1 yet still extract successfully.
+# Accept rc==0, or rc==1 if the expected wallet folder appears.
 set +e
 unzip -o -q /app/wallet.zip -d /app/wallet
 rc=$?
@@ -51,7 +37,7 @@ if [ "$rc" -ne 0 ] && [ "$rc" -ne 1 ]; then
   echo "[start] ERROR: unzip failed (rc=$rc)"; exit 1
 fi
 
-# 2) Hard-set TNS_ADMIN to the known nested folder
+# Oracle thin driver reads the wallet location (and cwallet.sso) from TNS_ADMIN
 export TNS_ADMIN="/app/wallet/Wallet_sspdb_fixed"
 if [ ! -d "$TNS_ADMIN" ] || [ ! -f "$TNS_ADMIN/tnsnames.ora" ] || [ ! -f "$TNS_ADMIN/ewallet.p12" ]; then
   echo "ERROR: Wallet files missing under $TNS_ADMIN"; exit 1
@@ -81,9 +67,6 @@ JAVA_OPTS="${JAVA_OPTS:-} \
  -Doracle.net.wallet_password=${ORACLE_WALLET_PASSWORD} \
  -Dserver.forward-headers-strategy=framework \
  -XX:MaxRAMPercentage=75"
-
-# Minimize exposure: we can safely unset the password env var after building JAVA_OPTS
-unset ORACLE_WALLET_PASSWORD
 
 echo "Starting Spring Boot on port ${SERVER_PORT}..."
 echo "[start] Starting Inventory Service App..."
