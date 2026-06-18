@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl.analytics;
+﻿package com.smartsupplypro.inventory.service.impl.analytics;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -28,7 +28,6 @@ class AnalyticsConverterHelperTest {
     /**
      * Tests for {@code asLocalDate} and {@code asLocalDateTime} date conversion methods.
      */
-    @SuppressWarnings("unused")
     @Nested
     class DateConversion {
 
@@ -74,13 +73,12 @@ class AnalyticsConverterHelperTest {
     /**
      * Tests for {@code asNumber}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class AsNumber {
 
         @Test
         void should_treat_null_as_zero_and_support_number_and_big_decimal() {
-            // null → BigDecimal.ZERO to simplify aggregation
+            // null â†’ BigDecimal.ZERO to simplify aggregation
             assertEquals(BigDecimal.ZERO, (BigDecimal) AnalyticsConverterHelper.asNumber(null));
             assertEquals(3L, AnalyticsConverterHelper.asNumber(3L).longValue());
             assertEquals(5L, AnalyticsConverterHelper.asNumber(new BigDecimal("5")).longValue());
@@ -97,7 +95,6 @@ class AnalyticsConverterHelperTest {
     /**
      * Tests for {@code defaultAndValidateDateWindow}, {@code startOfDay}, {@code endOfDay}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class DateWindow {
 
@@ -128,7 +125,6 @@ class AnalyticsConverterHelperTest {
     /**
      * Tests for {@code blankToNull}, {@code requireNonBlank}, and {@code requireNonNull}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class StringPreconditions {
 

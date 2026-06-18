@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.validation;
+﻿package com.smartsupplypro.inventory.validation;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,7 +28,6 @@ import com.smartsupplypro.inventory.model.InventoryItem;
  * USER may only change quantity and price. Exercises all principal states:
  * unauthenticated, non-OAuth, ADMIN, USER, and unknown authority (defaults to USER).</p>
  */
-@SuppressWarnings("unused")
 class InventoryItemSecurityValidatorTest {
 
     @AfterEach

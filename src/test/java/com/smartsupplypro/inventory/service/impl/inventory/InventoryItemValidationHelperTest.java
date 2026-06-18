@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl.inventory;
+﻿package com.smartsupplypro.inventory.service.impl.inventory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -39,7 +39,6 @@ import com.smartsupplypro.inventory.repository.SupplierRepository;
  * Unit tests for {@link InventoryItemValidationHelper} business logic and exception handling behavior.
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("unused")
 class InventoryItemValidationHelperTest {
 
     @Mock private InventoryItemRepository repository;
@@ -54,7 +53,6 @@ class InventoryItemValidationHelperTest {
     /**
      * Tests for {@code validateForCreation()}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class ValidateForCreation {
 
@@ -86,7 +84,6 @@ class InventoryItemValidationHelperTest {
     /**
      * Tests for {@code populateServerFields()}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class PopulateServerFields {
 
@@ -121,7 +118,6 @@ class InventoryItemValidationHelperTest {
     /**
      * Tests for {@code validateUniquenessOnUpdate()}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class ValidateUniquenessOnUpdate {
 
@@ -155,7 +151,6 @@ class InventoryItemValidationHelperTest {
     /**
      * Tests for {@code validateExists()}, {@code validateForDeletion()}, and {@code validateForUpdate()}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class ValidationGating {
 

@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service;
+﻿package com.smartsupplypro.inventory.service;
 
 import java.util.Map;
 import java.util.Optional;
@@ -30,7 +30,6 @@ class CustomOAuth2UserServiceTest {
     /**
      * Tests for email validation in {@code loadUser}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class EmailValidation {
 
@@ -50,7 +49,6 @@ class CustomOAuth2UserServiceTest {
     /**
      * Tests for first-login provisioning and role assignment in {@code loadUser}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class Provisioning {
 
@@ -100,7 +98,6 @@ class CustomOAuth2UserServiceTest {
     /**
      * Tests for concurrent-creation race condition handling in {@code loadUser}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class RaceCondition {
 

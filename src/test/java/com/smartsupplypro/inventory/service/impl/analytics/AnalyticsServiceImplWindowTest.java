@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl.analytics;
+﻿package com.smartsupplypro.inventory.service.impl.analytics;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,7 +28,6 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
  * in {@code getMonthlyStockMovement} and {@code getPriceTrend}.
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("unused")
 class AnalyticsServiceImplWindowTest {
 
     @Mock private StockHistoryRepository stockHistoryRepository;
@@ -38,7 +37,6 @@ class AnalyticsServiceImplWindowTest {
     /**
      * Date-window defaulting behavior for {@code getMonthlyStockMovement}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class MonthlyStockMovementWindow {
 
@@ -81,7 +79,6 @@ class AnalyticsServiceImplWindowTest {
     /**
      * Item-ID validation for {@code getPriceTrend}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class PriceTrendItemIdValidation {
 

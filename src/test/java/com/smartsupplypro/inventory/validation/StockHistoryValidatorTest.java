@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.validation;
+﻿package com.smartsupplypro.inventory.validation;
 
 import java.math.BigDecimal;
 
@@ -21,7 +21,6 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
  * PRICE_CHANGE-specific branches, and the {@code validateEnum} whitelist.
  * All tests are pure unit tests with no Spring context.</p>
  */
-@SuppressWarnings("unused")
 class StockHistoryValidatorTest {
 
     private static StockHistoryDTO validDTO() {

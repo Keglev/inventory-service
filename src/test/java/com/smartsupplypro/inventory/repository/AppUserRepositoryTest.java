@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.repository;
+﻿package com.smartsupplypro.inventory.repository;
 
 import java.util.Optional;
 
@@ -22,7 +22,6 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
  * Integration tests for {@link AppUserRepository} query correctness
  * using {@link org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest}.
  */
-@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
@@ -41,7 +40,6 @@ class AppUserRepositoryTest {
     /**
      * Email-based lookup behavior and case sensitivity.
      */
-    @SuppressWarnings("unused")
     @Nested
     class EmailLookup {
 
@@ -73,7 +71,6 @@ class AppUserRepositoryTest {
     /**
      * Count accuracy after insertions.
      */
-    @SuppressWarnings("unused")
     @Nested
     class UserCount {
 
@@ -89,7 +86,6 @@ class AppUserRepositoryTest {
     /**
      * Unique email constraint enforcement.
      */
-    @SuppressWarnings("unused")
     @Nested
     class ConstraintValidation {
 

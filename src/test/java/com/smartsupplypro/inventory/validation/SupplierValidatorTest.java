@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.validation;
+﻿package com.smartsupplypro.inventory.validation;
 
 import java.util.Optional;
 
@@ -25,7 +25,6 @@ import com.smartsupplypro.inventory.repository.SupplierRepository;
  * (case-insensitive collision detection, blank short-circuit, reflective getId fallback),
  * and {@code assertDeletable}. Repository interactions are mocked.</p>
  */
-@SuppressWarnings("unused")
 class SupplierValidatorTest {
 
     /**

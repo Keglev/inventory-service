@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.repository.custom.util;
+﻿package com.smartsupplypro.inventory.repository.custom.util;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,7 +12,6 @@ import org.springframework.core.env.Environment;
 /**
  * Unit tests for dialect detection logic in {@link DatabaseDialectDetector}.
  */
-@SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 class DatabaseDialectDetectorTest {
 
@@ -22,7 +21,6 @@ class DatabaseDialectDetectorTest {
      * H2 dialect detection via 'test' or 'h2' profile match (case-insensitive).
      */
     @Nested
-    @SuppressWarnings("unused")
     class H2Detection {
 
         @Test
@@ -58,7 +56,6 @@ class DatabaseDialectDetectorTest {
      * Oracle as the fallback when no H2 profiles are active.
      */
     @Nested
-    @SuppressWarnings("unused")
     class OracleFallback {
 
         @Test

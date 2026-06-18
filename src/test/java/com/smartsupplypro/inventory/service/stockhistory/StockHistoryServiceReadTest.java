@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.stockhistory;
+﻿package com.smartsupplypro.inventory.service.stockhistory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,13 +28,11 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-@SuppressWarnings("unused")
 class StockHistoryServiceReadTest extends StockHistoryServiceTestBase {
 
     /**
      * Tests for {@code getAll()}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class GetAll {
 
@@ -58,7 +56,6 @@ class StockHistoryServiceReadTest extends StockHistoryServiceTestBase {
     /**
      * Tests for {@code getByItemId(String)}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class GetByItemId {
 
@@ -78,7 +75,6 @@ class StockHistoryServiceReadTest extends StockHistoryServiceTestBase {
     /**
      * Tests for {@code getByReason(StockChangeReason)}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class GetByReason {
 
@@ -99,7 +95,6 @@ class StockHistoryServiceReadTest extends StockHistoryServiceTestBase {
     /**
      * Tests for {@code findFiltered(LocalDateTime, LocalDateTime, String, String, Pageable)}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class FindFiltered {
 

@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.security;
+﻿package com.smartsupplypro.inventory.controller.security;
 
 import org.junit.jupiter.api.Test;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Security tests for {@link com.smartsupplypro.inventory.controller.AnalyticsController}
  * summary endpoints (dashboard summary, financial summary) ensuring 401 for anonymous and 200 for USER.
  */
-@SuppressWarnings("unused")
 class AnalyticsControllerSummarySecurityTest extends AbstractAnalyticsControllerSecurityTest {
 
     @Test

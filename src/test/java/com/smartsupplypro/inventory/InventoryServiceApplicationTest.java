@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory;
+﻿package com.smartsupplypro.inventory;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,11 +32,8 @@ class InventoryServiceApplicationTest {
 
         private static boolean isWalletTestEnabled() {
             String env = System.getenv("ENABLE_WALLET_TEST");
-            if (env != null && Boolean.parseBoolean(env)) {
-                return true;
-            }
-
-            return Boolean.parseBoolean(System.getProperty("enableWalletTest", "false"));
+            return (env != null && Boolean.parseBoolean(env))
+                || Boolean.parseBoolean(System.getProperty("enableWalletTest", "false"));
         }
 
         private static void requireEnv(String name) {
@@ -53,7 +50,6 @@ class InventoryServiceApplicationTest {
      * Validates bean wiring, JPA entity mappings, and configuration binding.
      */
     @Test
-    @SuppressWarnings("unused")
     void contextLoads() {
         // Context load failure will automatically fail the test
     }

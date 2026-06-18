@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.security;
+﻿package com.smartsupplypro.inventory.controller.security;
 
 import java.time.LocalDate;
 
@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Security tests for {@link com.smartsupplypro.inventory.controller.StockAnalyticsController}
  * trend endpoints (monthly-stock-movement, price-trend) ensuring 401 for anonymous and 200 for USER.
  */
-@SuppressWarnings("unused")
 class AnalyticsControllerTrendsSecurityTest extends AbstractAnalyticsControllerSecurityTest {
 
     @Test

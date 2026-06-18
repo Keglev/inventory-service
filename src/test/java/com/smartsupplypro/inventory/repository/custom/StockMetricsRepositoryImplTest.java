@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.repository.custom;
+﻿package com.smartsupplypro.inventory.repository.custom;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -22,7 +22,6 @@ import jakarta.persistence.EntityManager;
  * <p>Verifies supplier filter normalization and dialect-specific SQL selection
  * for stock metrics queries.</p>
  */
-@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
@@ -63,7 +62,6 @@ class StockMetricsRepositoryImplTest {
      * Total stock per supplier, ordered by quantity descending.
      */
     @Nested
-    @SuppressWarnings("unused")
     class TotalStockBySupplier {
 
         @Test
@@ -85,7 +83,6 @@ class StockMetricsRepositoryImplTest {
      * Update count per item with optional supplier filter and blank normalization.
      */
     @Nested
-    @SuppressWarnings("unused")
     class UpdateCountByItem {
 
         @Test
@@ -98,7 +95,7 @@ class StockMetricsRepositoryImplTest {
             assertEquals("Item A", forSup1.get(0)[0]);
             assertEquals(2L, ((Number) forSup1.get(0)[1]).longValue());
 
-            // blank normalizes to null → supplier filter disabled → all items returned
+            // blank normalizes to null â†’ supplier filter disabled â†’ all items returned
             List<Object[]> forAll = repo.getUpdateCountByItem("   ");
             assertTrue(forAll.size() >= 2);
             assertEquals("Item A", forAll.get(0)[0]);
@@ -110,7 +107,6 @@ class StockMetricsRepositoryImplTest {
      * Below-minimum-stock query with case-insensitive supplier filter.
      */
     @Nested
-    @SuppressWarnings("unused")
     class BelowMinimumStock {
 
         @Test

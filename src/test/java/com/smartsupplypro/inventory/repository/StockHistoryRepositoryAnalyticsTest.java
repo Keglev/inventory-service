@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.repository;
+﻿package com.smartsupplypro.inventory.repository;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -30,7 +30,6 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
  * Integration tests for {@link StockHistoryRepository} analytics query correctness
  * using {@link org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest}.
  */
-@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
@@ -48,7 +47,6 @@ class StockHistoryRepositoryAnalyticsTest {
     private Supplier supplierB;
     private LocalDateTime now;
 
-    @SuppressWarnings("unused")
     @BeforeEach
     void setup() {
         now = LocalDateTime.now(fixedClock);
@@ -91,7 +89,6 @@ class StockHistoryRepositoryAnalyticsTest {
     /**
      * Daily valuation and supplier-level aggregation queries.
      */
-    @SuppressWarnings("unused")
     @Nested
     class AggregationQueries {
 
@@ -131,7 +128,6 @@ class StockHistoryRepositoryAnalyticsTest {
     /**
      * Monthly movement reports and low-stock/tabular export queries.
      */
-    @SuppressWarnings("unused")
     @Nested
     class MovementReporting {
 
@@ -179,7 +175,6 @@ class StockHistoryRepositoryAnalyticsTest {
     /**
      * Price trend DTO projection and supplier-filtered variant.
      */
-    @SuppressWarnings("unused")
     @Nested
     class PriceTrend {
 

@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl.inventoryitem;
+﻿package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -38,7 +38,6 @@ import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidati
  * {@code updatePrice}, and {@code renameItem}.
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("unused")
 class InventoryItemServiceImplReadAndAdjustmentsTest {
 
     @Mock private InventoryItemRepository repository;
@@ -56,7 +55,6 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
     /**
      * Tests for {@code getAll()}, {@code getById()}, and {@code countItems()}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class ReadOperations {
 
@@ -96,7 +94,6 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
     /**
      * Tests for {@code adjustQuantity(String, int, StockChangeReason)}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class AdjustQuantity {
 
@@ -127,7 +124,6 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
     /**
      * Tests for {@code updatePrice(String, BigDecimal)}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class UpdatePrice {
 
@@ -154,7 +150,6 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
     /**
      * Tests for {@code renameItem(String, String)}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class RenameItem {
 

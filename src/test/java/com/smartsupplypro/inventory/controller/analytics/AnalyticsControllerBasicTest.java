@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.analytics;
+﻿package com.smartsupplypro.inventory.controller.analytics;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,7 +32,6 @@ import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService
  * Tests {@link StockAnalyticsController} stock aggregation, low-stock, monthly movement,
  * and update-frequency endpoints using {@link MockMvc}.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(StockAnalyticsController.class)
 @Import({TestSecurityConfig.class, GlobalExceptionHandler.class})
 public class AnalyticsControllerBasicTest {
@@ -46,7 +45,6 @@ public class AnalyticsControllerBasicTest {
     @MockitoBean
     private AnalyticsControllerValidationHelper validationHelper;
 
-    @SuppressWarnings("unused")
     @BeforeEach
     void setup() {
         // applyDefaultDateWindow must return a non-null array; the controller indexes into it immediately

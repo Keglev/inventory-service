@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service;
+﻿package com.smartsupplypro.inventory.service;
 
 import java.util.Map;
 
@@ -21,7 +21,6 @@ class SecurityServiceTest {
     private final SecurityService service = new SecurityService();
 
     @AfterEach
-    @SuppressWarnings("unused")
     void clearSecurityContext() {
         SecurityContextHolder.clearContext();
     }

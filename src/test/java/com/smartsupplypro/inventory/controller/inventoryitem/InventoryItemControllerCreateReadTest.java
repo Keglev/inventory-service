@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.inventoryitem;
+﻿package com.smartsupplypro.inventory.controller.inventoryitem;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -39,7 +39,6 @@ import com.smartsupplypro.inventory.service.InventoryItemService;
  * Tests {@link InventoryItemController} POST create and GET read endpoints using {@link MockMvc},
  * covering HTTP contract, security, and JSON serialization.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(controllers = InventoryItemController.class)
 @Import({ GlobalExceptionHandler.class, TestSecurityConfig.class })
 class InventoryItemControllerCreateReadTest {
@@ -74,7 +73,6 @@ class InventoryItemControllerCreateReadTest {
     }
 
     /** POST /api/inventory create scenarios. */
-    @SuppressWarnings("unused")
     @Nested
     class CreateItem {
 
@@ -133,7 +131,6 @@ class InventoryItemControllerCreateReadTest {
     }
 
     /** GET read and count scenarios. */
-    @SuppressWarnings("unused")
     @Nested
     class ReadAndCountItems {
 

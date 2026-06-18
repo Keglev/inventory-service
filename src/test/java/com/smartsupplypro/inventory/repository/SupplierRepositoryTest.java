@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.repository;
+﻿package com.smartsupplypro.inventory.repository;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,7 +21,6 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
  * Integration tests for {@link SupplierRepository} query correctness
  * using {@link org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest}.
  */
-@SuppressWarnings("unused")
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @ActiveProfiles("test")
@@ -46,7 +45,6 @@ class SupplierRepositoryTest {
      * Case-insensitive exact name lookup behavior.
      */
     @Nested
-    @SuppressWarnings("unused")
     class NameLookup {
 
         @Test
@@ -66,7 +64,6 @@ class SupplierRepositoryTest {
      * Case-insensitive substring name search behavior.
      */
     @Nested
-    @SuppressWarnings("unused")
     class NameSearch {
 
         @Test
@@ -94,7 +91,6 @@ class SupplierRepositoryTest {
      * Case-insensitive existence check behavior.
      */
     @Nested
-    @SuppressWarnings("unused")
     class ExistenceCheck {
 
         @Test

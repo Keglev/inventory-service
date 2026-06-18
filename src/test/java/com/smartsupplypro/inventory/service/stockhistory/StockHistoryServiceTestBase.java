@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.stockhistory;
+﻿package com.smartsupplypro.inventory.service.stockhistory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,7 +24,6 @@ import com.smartsupplypro.inventory.service.impl.StockHistoryServiceImpl;
 /**
  * Shared fixture for {@link StockHistoryService} unit tests.
  */
-@SuppressWarnings("unused")
 abstract class StockHistoryServiceTestBase {
 
     protected static final String ITEM_1   = "item-1";

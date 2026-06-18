@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.exception;
+﻿package com.smartsupplypro.inventory.exception;
 
 import java.util.NoSuchElementException;
 
@@ -28,7 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Tests HTTP error response mapping in {@link GlobalExceptionHandler}.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(GlobalExceptionHandlerTest.ThrowingController.class)
 @Import(TestSecurityConfig.class)
 @WithMockUser
@@ -36,7 +35,6 @@ class GlobalExceptionHandlerTest {
 
     @Autowired MockMvc mockMvc;
 
-    @SuppressWarnings("unused")
     @RestController @RequestMapping("/err")
     static class ThrowingController {
         @GetMapping("/nse")    void nse()    { throw new NoSuchElementException(); }
@@ -51,7 +49,6 @@ class GlobalExceptionHandlerTest {
     }
 
     /** 404 Not Found responses. */
-    @SuppressWarnings("unused")
     @Nested class WhenNotFound {
         @Test void noMessage_fallsBackToDefault() throws Exception {
             mockMvc.perform(get("/err/nse"))
@@ -66,7 +63,6 @@ class GlobalExceptionHandlerTest {
     }
 
     /** 401 and 403 security responses. */
-    @SuppressWarnings("unused")
     @Nested class WhenSecurityViolated {
         @Test void authenticationException_returns401() throws Exception {
             mockMvc.perform(get("/err/auth"))
@@ -86,7 +82,6 @@ class GlobalExceptionHandlerTest {
     }
 
     /** 409 Conflict responses. */
-    @SuppressWarnings("unused")
     @Nested class WhenConflict {
         @Test void dataIntegrity_returns409() throws Exception {
             mockMvc.perform(get("/err/data"))
@@ -101,7 +96,6 @@ class GlobalExceptionHandlerTest {
     }
 
     /** Pass-through and fallback responses. */
-    @SuppressWarnings("unused")
     @Nested class WhenPassThrough {
         @Test void responseStatusException_preservesStatusAndMessage() throws Exception {
             mockMvc.perform(get("/err/rse"))

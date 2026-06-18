@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.security;
+﻿package com.smartsupplypro.inventory.controller.security;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Security tests for {@link com.smartsupplypro.inventory.controller.StockUpdateAnalyticsController}
  * stock-updates endpoints (GET and POST) ensuring 401 for anonymous and 200 for USER.
  */
-@SuppressWarnings("unused")
 class AnalyticsControllerStockUpdatesSecurityTest extends AbstractAnalyticsControllerSecurityTest {
 
     @Test

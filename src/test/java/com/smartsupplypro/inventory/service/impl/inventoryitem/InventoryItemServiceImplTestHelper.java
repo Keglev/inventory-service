@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl.inventoryitem;
+﻿package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +21,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
  * Shared OAuth2 authentication helpers for {@link com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl}
  * unit tests.
  */
-@SuppressWarnings("unused")
 final class InventoryItemServiceImplTestHelper {
 
     private InventoryItemServiceImplTestHelper() {}

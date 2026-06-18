@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.stockhistory;
+﻿package com.smartsupplypro.inventory.controller.stockhistory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +30,6 @@ import com.smartsupplypro.inventory.service.StockHistoryService;
  * Tests {@link StockHistoryController} list and filter-by-reason endpoints covering HTTP contract,
  * authentication enforcement, and enum parsing using {@link MockMvc}.
  */
-@SuppressWarnings("unused")
 @Import({TestSecurityConfig.class, GlobalExceptionHandler.class})
 @WebMvcTest(StockHistoryController.class)
 @ActiveProfiles("test")
@@ -44,7 +43,6 @@ class StockHistoryControllerEndpointsTest {
 
     private StockHistoryDTO history;
 
-    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         history = StockHistoryDTO.builder()

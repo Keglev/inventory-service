@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.mapper;
+﻿package com.smartsupplypro.inventory.mapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,7 +16,6 @@ import com.smartsupplypro.inventory.model.Supplier;
 /**
  * Unit tests for {@link InventoryItemMapper} bidirectional mapping correctness.
  */
-@SuppressWarnings("unused")
 class InventoryItemMapperTest {
 
     private final InventoryItemMapper mapper = new InventoryItemMapper();
@@ -25,7 +24,6 @@ class InventoryItemMapperTest {
      * Mapping from {@link InventoryItem} entity to {@link InventoryItemDTO}.
      */
     @Nested
-    @SuppressWarnings("unused")
     class ToDTO {
 
         @Test
@@ -80,7 +78,6 @@ class InventoryItemMapperTest {
      * Mapping from {@link InventoryItemDTO} to {@link InventoryItem} entity.
      */
     @Nested
-    @SuppressWarnings("unused")
     class ToEntity {
 
         @Test

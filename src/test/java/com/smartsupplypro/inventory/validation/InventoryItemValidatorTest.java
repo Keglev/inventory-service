@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.validation;
+﻿package com.smartsupplypro.inventory.validation;
 
 import java.math.BigDecimal;
 import java.util.function.Consumer;
@@ -26,12 +26,10 @@ import com.smartsupplypro.inventory.model.InventoryItem;
  * deletion preconditions, and standalone price/quantity guards.
  * Persistence-backed tests live in {@link InventoryItemLookupValidatorTest}.</p>
  */
-@SuppressWarnings("unused")
 class InventoryItemValidatorTest {
 
     record InvalidBaseCase(Consumer<InventoryItemDTO> apply, String expected) {}
 
-    @SuppressWarnings("unused") // called reflectively by @MethodSource
     static Stream<InvalidBaseCase> invalidBaseInputs() {
         return Stream.of(
             new InvalidBaseCase(d -> d.setName(null),  "Product name cannot be null or empty"),
@@ -55,7 +53,6 @@ class InventoryItemValidatorTest {
      * Required-field validation via {@link InventoryItemValidator#validateBase(InventoryItemDTO)}.
      */
     @Nested
-    @SuppressWarnings("unused")
     class ValidateBase {
         @Test
         void should_pass_when_all_fields_are_valid() {
@@ -76,7 +73,6 @@ class InventoryItemValidatorTest {
      * Deletion preconditions via {@link InventoryItemValidator#assertQuantityIsZeroForDeletion(InventoryItem)}.
      */
     @Nested
-    @SuppressWarnings("unused")
     class DeletionGuards {
         @Test
         void should_fail_when_item_has_stock() {
@@ -101,10 +97,8 @@ class InventoryItemValidatorTest {
      * Standalone price and quantity guards.
      */
     @Nested
-    @SuppressWarnings("unused")
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class PriceAndQuantityGuards {
-        @SuppressWarnings("unused") // called reflectively by @MethodSource
         Stream<BigDecimal> invalidPrices() {
             return Stream.of(null, BigDecimal.ZERO, new BigDecimal("-0.01"));
         }

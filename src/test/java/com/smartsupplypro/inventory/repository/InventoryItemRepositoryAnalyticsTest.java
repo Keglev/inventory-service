@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.repository;
+﻿package com.smartsupplypro.inventory.repository;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,7 +28,6 @@ import jakarta.persistence.PersistenceContext;
  * Suppliers are inserted via native SQL to guarantee known IDs; items are persisted via
  * JPA then supplier_id is patched with a native UPDATE to avoid entity-mapping ambiguity.</p>
  */
-@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
@@ -37,7 +36,6 @@ class InventoryItemRepositoryAnalyticsTest {
     @Autowired private InventoryItemRepository repository;
     @PersistenceContext private EntityManager em;
 
-    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         em.createNativeQuery("DELETE FROM stock_history").executeUpdate();
@@ -48,10 +46,10 @@ class InventoryItemRepositoryAnalyticsTest {
         em.createNativeQuery("INSERT INTO supplier (id, name, created_at, created_by) VALUES ('S2', 'Supplier Two', CURRENT_TIMESTAMP, 'test')").executeUpdate();
         em.createNativeQuery("INSERT INTO supplier (id, name, created_at, created_by) VALUES ('default-supplier', 'Default Supplier', CURRENT_TIMESTAMP, 'test')").executeUpdate();
 
-        em.persist(item(null, "S1-low",   3,  5, "1.00")); // below â†’ included for S1
-        em.persist(item(null, "S1-eq",    5,  5, "2.00")); // equal â†’ NOT included
-        em.persist(item(null, "S1-high", 10,  5, "3.00")); // above â†’ NOT included
-        em.persist(item(null, "S2-low",   1,  2, "4.00")); // below â†’ included for S2
+        em.persist(item(null, "S1-low",   3,  5, "1.00")); // below Ã¢â€ â€™ included for S1
+        em.persist(item(null, "S1-eq",    5,  5, "2.00")); // equal Ã¢â€ â€™ NOT included
+        em.persist(item(null, "S1-high", 10,  5, "3.00")); // above Ã¢â€ â€™ NOT included
+        em.persist(item(null, "S2-low",   1,  2, "4.00")); // below Ã¢â€ â€™ included for S2
         em.flush();
 
         // set supplier_id via native UPDATE to avoid entity-mapping ambiguity
@@ -64,7 +62,6 @@ class InventoryItemRepositoryAnalyticsTest {
     /**
      * Below-minimum-stock native query with optional supplier filter.
      */
-    @SuppressWarnings("unused")
     @Nested
     class BelowMinimumStock {
 

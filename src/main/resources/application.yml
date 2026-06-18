@@ -37,7 +37,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none                            # Do not auto-create schemas by default
-    show-sql: true                              # Shown unless overridden (e.g. turned off in prod)
+    show-sql: true                              # Overridden to false in prod profile 
 
   main:
     allow-bean-definition-overriding: true      # Useful when using multiple configs (e.g., testing mocks)
@@ -56,6 +56,7 @@ logging:
   level:
     '[org.springframework.jdbc.core]': DEBUG     # Enable detailed JDBC logs for dev/debugging
     '[org.hibernate.SQL]': DEBUG                 # Hibernate SQL logging (override in prod)
+# Both overridden in prod profile — global defaults support local development only    
 
 # -------- App-level knobs used by SecurityConfig & SuccessHandler --------
 app:

@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.security.oauth2;
+﻿package com.smartsupplypro.inventory.security.oauth2;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -14,7 +14,7 @@ import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRep
 
 /**
  * Shared test utilities for {@link CookieOAuth2AuthorizationRequestRepository} unit tests.
- * Package-private; helpers must remain deterministic and side-effect free — no assertions here.
+ * Package-private; helpers must remain deterministic and side-effect free â€” no assertions here.
  */
 final class CookieOAuth2AuthorizationRequestRepositoryTestSupport {
 
@@ -74,7 +74,6 @@ final class CookieOAuth2AuthorizationRequestRepositoryTestSupport {
         return new String(Base64.getUrlDecoder().decode(encoded), StandardCharsets.UTF_8);
     }
 
-    @SuppressWarnings("unused") // used reflectively by JUnit via @MethodSource(Class#method)
     static Stream<String> invalidAuthCookieValues() {
         return Stream.of(
             "%%%not-base64%%%",

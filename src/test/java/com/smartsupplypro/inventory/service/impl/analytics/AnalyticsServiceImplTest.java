@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl.analytics;
+﻿package com.smartsupplypro.inventory.service.impl.analytics;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,7 +32,6 @@ import com.smartsupplypro.inventory.service.impl.AnalyticsServiceImpl;
  * the delegate's result unchanged.
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("unused")
 class AnalyticsServiceImplTest {
 
     @Mock private StockAnalyticsService stockAnalytics;
@@ -42,7 +41,6 @@ class AnalyticsServiceImplTest {
     /**
      * Delegation to {@link StockAnalyticsService}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class StockAnalyticsDelegation {
 
@@ -94,7 +92,6 @@ class AnalyticsServiceImplTest {
     /**
      * Delegation to {@link FinancialAnalyticsService}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class FinancialAnalyticsDelegation {
 

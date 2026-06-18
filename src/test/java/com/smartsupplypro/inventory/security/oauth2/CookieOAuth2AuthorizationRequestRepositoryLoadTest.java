@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.security.oauth2;
+﻿package com.smartsupplypro.inventory.security.oauth2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Nested;
@@ -25,7 +25,6 @@ class CookieOAuth2AuthorizationRequestRepositoryLoadTest {
     /**
      * Behavior when the authorization request cookie is absent or malformed.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenCookieIsAbsentOrMalformed {
 
@@ -47,7 +46,6 @@ class CookieOAuth2AuthorizationRequestRepositoryLoadTest {
     /**
      * Behavior when the cookie is present but contains schema deviations.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenCookieHasSchemaDeviations {
 

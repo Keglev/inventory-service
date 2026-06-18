@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.mapper;
+﻿package com.smartsupplypro.inventory.mapper;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +14,6 @@ import com.smartsupplypro.inventory.model.Supplier;
 /**
  * Unit tests for {@link SupplierMapper} bidirectional mapping correctness.
  */
-@SuppressWarnings("unused")
 class SupplierMapperTest {
 
     private final SupplierMapper mapper = new SupplierMapper();
@@ -23,7 +22,6 @@ class SupplierMapperTest {
      * Mapping from {@link Supplier} entity to {@link SupplierDTO}.
      */
     @Nested
-    @SuppressWarnings("unused")
     class ToDTO {
 
         @Test
@@ -63,7 +61,6 @@ class SupplierMapperTest {
      * Mapping from {@link SupplierDTO} to {@link Supplier} entity.
      */
     @Nested
-    @SuppressWarnings("unused")
     class ToEntity {
 
         @Test

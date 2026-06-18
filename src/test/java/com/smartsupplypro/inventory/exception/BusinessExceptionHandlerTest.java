@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.exception;
+﻿package com.smartsupplypro.inventory.exception;
 
 import java.util.Objects;
 
@@ -13,7 +13,6 @@ import com.smartsupplypro.inventory.exception.dto.ErrorResponse;
 /**
  * Tests HTTP error response mapping in {@link BusinessExceptionHandler}.
  */
-@SuppressWarnings("unused")
 class BusinessExceptionHandlerTest {
 
     private final BusinessExceptionHandler handler = new BusinessExceptionHandler();

@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl.analytics;
+﻿package com.smartsupplypro.inventory.service.impl.analytics;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -35,11 +35,10 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 
 /**
- * Unit tests for {@link StockAnalyticsService} query methods — DTO mapping, repository delegation,
+ * Unit tests for {@link StockAnalyticsService} query methods â€” DTO mapping, repository delegation,
  * mixed numeric type coercion, and blank-to-null normalization.
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("unused")
 class AnalyticsServiceImplQueryTest {
 
     @Mock private StockHistoryRepository stockHistoryRepository;
@@ -49,7 +48,6 @@ class AnalyticsServiceImplQueryTest {
     /**
      * Tests for {@code getTotalStockValueOverTime} and {@code getTotalStockPerSupplier}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class AggregatedStockQueries {
 
@@ -88,7 +86,6 @@ class AnalyticsServiceImplQueryTest {
     /**
      * Tests for {@code getItemUpdateFrequency} and {@code getItemsBelowMinimumStock}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class SupplierScopedQueries {
 
@@ -127,7 +124,6 @@ class AnalyticsServiceImplQueryTest {
     /**
      * Tests for {@code getFilteredStockUpdates}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class FilteredStockUpdates {
 
@@ -181,7 +177,6 @@ class AnalyticsServiceImplQueryTest {
     /**
      * Tests for {@code getMonthlyStockMovement} and {@code getPriceTrend}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class TimeSeriesQueries {
 

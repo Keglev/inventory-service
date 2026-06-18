@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.supplier;
+﻿package com.smartsupplypro.inventory.controller.supplier;
 
 import java.time.LocalDateTime;
 
@@ -29,7 +29,6 @@ import com.smartsupplypro.inventory.service.SupplierService;
  * Tests {@link SupplierController} RBAC enforcement ensuring create, update, and delete
  * endpoints return 403 for the USER role using {@link MockMvc}.
  */
-@SuppressWarnings("unused")
 @ActiveProfiles("test")
 @WebMvcTest(SupplierController.class)
 @Import({ TestSecurityConfig.class, GlobalExceptionHandler.class })
@@ -42,7 +41,6 @@ class SupplierControllerAuthorizationTest {
 
     SupplierDTO dto;
 
-    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         dto = SupplierDTO.builder()

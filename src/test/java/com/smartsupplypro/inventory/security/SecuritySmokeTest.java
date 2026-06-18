@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.security;
+﻿package com.smartsupplypro.inventory.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Nested;
@@ -31,7 +31,6 @@ import com.smartsupplypro.inventory.service.CustomOAuth2UserService;
  * Smoke tests for the production {@link SecurityConfig}: bean wiring, ADMIN/USER access control,
  * CORS preflight, and OAuth2 authorization endpoint reachability.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(controllers = AdminStubController.class)
 @AutoConfigureMockMvc(addFilters = true)
 @TestPropertySource(properties = {
@@ -58,7 +57,6 @@ class SecuritySmokeTest {
     /**
      * Behavior when verifying critical beans and access control rules.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenCheckingContextAndAccess {
 
@@ -89,7 +87,6 @@ class SecuritySmokeTest {
     /**
      * Behavior when verifying cross-cutting infrastructure (CORS, OAuth2).
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenCheckingInfrastructure {
 
@@ -160,6 +157,6 @@ class SecuritySmokeTest {
             return mock;
         }
 
-        // AppProperties is provided by @EnableConfigurationProperties on SecurityConfig â€” do not redeclare here
+        // AppProperties is provided by @EnableConfigurationProperties on SecurityConfig Ã¢â‚¬â€ do not redeclare here
     }
 }

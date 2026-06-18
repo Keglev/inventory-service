@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.supplier;
+﻿package com.smartsupplypro.inventory.controller.supplier;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,7 +44,6 @@ import com.smartsupplypro.inventory.service.SupplierService;
  * Tests {@link SupplierController} read and write endpoints covering HTTP contract, RBAC,
  * and REST conventions using {@link MockMvc}.
  */
-@SuppressWarnings("unused")
 @ActiveProfiles("test")
 @WebMvcTest(SupplierController.class)
 @Import({ TestSecurityConfig.class, GlobalExceptionHandler.class })
@@ -57,7 +56,6 @@ class SupplierControllerTest {
 
     SupplierDTO dto;
 
-    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         dto = SupplierDTO.builder()
@@ -75,7 +73,6 @@ class SupplierControllerTest {
     }
 
     /** READ endpoints accessible to USER and ADMIN roles. */
-    @SuppressWarnings("unused")
     @Nested
     class WhenReading {
 
@@ -119,7 +116,6 @@ class SupplierControllerTest {
     }
 
     /** Write endpoints restricted to ADMIN role covering creation, update, deletion, and validation. */
-    @SuppressWarnings("unused")
     @Nested
     class WhenWritingAsAdmin {
 

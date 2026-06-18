@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.supplier;
+﻿package com.smartsupplypro.inventory.service.supplier;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +23,6 @@ class SupplierServiceReadCountTest extends SupplierServiceTestBase {
     /**
      * Tests for {@code findAll()}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class FindAll {
 
@@ -56,7 +55,6 @@ class SupplierServiceReadCountTest extends SupplierServiceTestBase {
     /**
      * Tests for {@code findById(String)}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class FindById {
 
@@ -89,7 +87,6 @@ class SupplierServiceReadCountTest extends SupplierServiceTestBase {
     /**
      * Tests for {@code findByName(String)}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class FindByName {
 
@@ -113,7 +110,6 @@ class SupplierServiceReadCountTest extends SupplierServiceTestBase {
     /**
      * Tests for {@code countSuppliers()}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class CountSuppliers {
 

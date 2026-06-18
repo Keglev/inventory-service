@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.security;
+﻿package com.smartsupplypro.inventory.security;
 
 import java.io.IOException;
 
@@ -34,7 +34,6 @@ import jakarta.servlet.http.HttpServletResponse;
  * Tests for demo-readonly mode using a minimal in-test security chain:
  * GET requests to inventory and analytics are public; writes remain protected.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(controllers = TestApiStubController.class)
 @AutoConfigureMockMvc(addFilters = true)
 @Import(DemoReadonlySecurityTest.DemoReadonlyTestSecurityConfig.class)
@@ -47,7 +46,6 @@ class DemoReadonlySecurityTest {
     /**
      * Behavior when the request is an unauthenticated read.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenRequestIsUnauthenticatedRead {
 
@@ -71,7 +69,6 @@ class DemoReadonlySecurityTest {
     /**
      * Behavior when the request is an unauthenticated write.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenRequestIsUnauthenticatedWrite {
 
@@ -90,7 +87,6 @@ class DemoReadonlySecurityTest {
      */
     @TestConfiguration
     @EnableMethodSecurity
-    @SuppressWarnings("unused") // loaded via @Import above
     static class DemoReadonlyTestSecurityConfig {
 
         @Bean

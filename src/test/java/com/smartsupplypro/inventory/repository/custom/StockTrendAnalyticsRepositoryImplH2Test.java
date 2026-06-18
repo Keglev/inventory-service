@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.repository.custom;
+﻿package com.smartsupplypro.inventory.repository.custom;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -26,7 +26,6 @@ import jakarta.persistence.EntityManager;
  * <p>Verifies H2 execution path for monthly movement aggregation,
  * daily valuation, and price trend DTO mapping.</p>
  */
-@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
@@ -75,7 +74,6 @@ class StockTrendAnalyticsRepositoryImplH2Test {
      * Global monthly stock-in/stock-out aggregation.
      */
     @Nested
-    @SuppressWarnings("unused")
     class MonthlyMovement {
 
         @Test
@@ -109,7 +107,7 @@ class StockTrendAnalyticsRepositoryImplH2Test {
             assertEquals("2024-02", filtered.get(0)[0]);
             assertEquals(5L, ((Number) filtered.get(0)[1]).longValue());
 
-            // blank supplier normalizes to null → no filter applied
+            // blank supplier normalizes to null â†’ no filter applied
             List<Object[]> blank = repo.getMonthlyStockMovementBySupplier(
                     LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 3, 31, 23, 59), "   ");
             assertTrue(blank.size() >= 2);
@@ -121,7 +119,6 @@ class StockTrendAnalyticsRepositoryImplH2Test {
      * Daily closing stock valuation.
      */
     @Nested
-    @SuppressWarnings("unused")
     class DailyValuation {
 
         @Test
@@ -149,7 +146,6 @@ class StockTrendAnalyticsRepositoryImplH2Test {
      * Price trend DTO mapping and supplier filter.
      */
     @Nested
-    @SuppressWarnings("unused")
     class PriceTrend {
 
         @Test
@@ -162,7 +158,7 @@ class StockTrendAnalyticsRepositoryImplH2Test {
                     LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 3, 31, 23, 59));
 
             assertEquals(3, out.size());
-            // 2024-02-05 has two events (2.00 and 4.00) → average = 3.00
+            // 2024-02-05 has two events (2.00 and 4.00) â†’ average = 3.00
             assertEquals("2024-02-05", out.get(0).getTimestamp());
             assertEquals(0, out.get(0).getPrice().compareTo(new BigDecimal("3.00")));
             assertEquals("2024-02-06", out.get(1).getTimestamp());

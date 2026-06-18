@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl.inventory;
+﻿package com.smartsupplypro.inventory.service.impl.inventory;
 
 import java.math.BigDecimal;
 
@@ -25,7 +25,6 @@ import com.smartsupplypro.inventory.service.StockHistoryService;
  * Unit tests for {@link InventoryItemAuditHelper} business logic and exception handling behavior.
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("unused")
 class InventoryItemAuditHelperTest {
 
     @Mock private StockHistoryService stockHistoryService;
@@ -39,7 +38,6 @@ class InventoryItemAuditHelperTest {
     /**
      * Tests for {@code logInitialStock()}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class LogInitialStock {
 
@@ -70,7 +68,6 @@ class InventoryItemAuditHelperTest {
     /**
      * Tests for {@code logQuantityChange()} and {@code logQuantityAdjustment()}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class LogQuantityChange {
 
@@ -105,7 +102,6 @@ class InventoryItemAuditHelperTest {
     /**
      * Tests for {@code logPriceChange()}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class LogPriceChange {
 
@@ -129,7 +125,6 @@ class InventoryItemAuditHelperTest {
     /**
      * Tests for {@code logFullRemoval()}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class LogFullRemoval {
 

@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service;
+﻿package com.smartsupplypro.inventory.service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -26,7 +26,6 @@ import com.smartsupplypro.inventory.repository.AppUserRepository;
  * Unit tests for {@link UserProvisioningService} business logic and exception handling behavior.
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("unused")
 class UserProvisioningServiceTest {
 
     @InjectMocks UserProvisioningService service;

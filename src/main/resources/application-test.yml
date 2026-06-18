@@ -77,4 +77,3 @@ app:
     landing-path: /api/me
 
 # Overrides schema for H2 tests (used in @Table(schema = "$(USERS_SCHEMA:ADMIN)")) 
-# warning: This is a placeholder and should be replaced with actual schema name in production.

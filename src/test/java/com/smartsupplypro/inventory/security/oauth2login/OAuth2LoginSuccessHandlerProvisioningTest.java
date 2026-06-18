@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.security.oauth2login;
+﻿package com.smartsupplypro.inventory.security.oauth2login;
 
 import java.util.Map;
 
@@ -54,7 +54,6 @@ class OAuth2LoginSuccessHandlerProvisioningTest {
     /**
      * Behavior when authentication succeeds with valid principal attributes.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenAuthenticationSucceeds {
 
@@ -88,7 +87,6 @@ class OAuth2LoginSuccessHandlerProvisioningTest {
     /**
      * Behavior when required principal attributes are missing or provisioning throws.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenProvisioningFails {
 

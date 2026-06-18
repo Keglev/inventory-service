@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.inventoryitem;
+﻿package com.smartsupplypro.inventory.controller.inventoryitem;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -33,7 +33,6 @@ import com.smartsupplypro.inventory.service.InventoryItemService;
  * Tests {@link InventoryItemController} PUT update and DELETE endpoints using {@link MockMvc},
  * covering RBAC, HTTP contract, and security enforcement.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(controllers = InventoryItemController.class)
 @Import({ GlobalExceptionHandler.class, TestSecurityConfig.class })
 class InventoryItemControllerUpdateDeleteTest {
@@ -54,7 +53,6 @@ class InventoryItemControllerUpdateDeleteTest {
     }
 
     /** PUT /api/inventory/{id} update scenarios. */
-    @SuppressWarnings("unused")
     @Nested
     class UpdateItem {
 
@@ -96,7 +94,6 @@ class InventoryItemControllerUpdateDeleteTest {
     }
 
     /** DELETE /api/inventory/{id} deletion scenarios. */
-    @SuppressWarnings("unused")
     @Nested
     class DeleteItem {
 

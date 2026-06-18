@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.security;
+﻿package com.smartsupplypro.inventory.security;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 class AdminStubController {
 
     @GetMapping("/ping")
-    @SuppressWarnings("unused")
     String ping() {
         return "admin ok";
     }

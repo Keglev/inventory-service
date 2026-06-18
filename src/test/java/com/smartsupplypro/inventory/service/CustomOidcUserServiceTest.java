@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service;
+﻿package com.smartsupplypro.inventory.service;
 
 import java.util.Optional;
 
@@ -33,7 +33,6 @@ class CustomOidcUserServiceTest {
     /**
      * Tests for email validation in {@code loadUser}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class EmailValidation {
 
@@ -63,7 +62,6 @@ class CustomOidcUserServiceTest {
     /**
      * Tests for first-login provisioning and role assignment in {@code loadUser}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class Provisioning {
 
@@ -117,7 +115,6 @@ class CustomOidcUserServiceTest {
     /**
      * Tests for concurrent-creation race condition and role healing in {@code loadUser}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class RaceConditionAndRoleHealing {
 

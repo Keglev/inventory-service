@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.security;
+﻿package com.smartsupplypro.inventory.controller.security;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -59,7 +59,6 @@ public abstract class AbstractAnalyticsControllerSecurityTest {
     static class TestSupport {
 
         @Bean
-        @SuppressWarnings("unused")
         StockAnalyticsService stockAnalyticsService() {
             StockAnalyticsService mock = Mockito.mock(StockAnalyticsService.class);
             when(mock.getFilteredStockUpdates(any())).thenReturn(Collections.emptyList());
@@ -73,7 +72,6 @@ public abstract class AbstractAnalyticsControllerSecurityTest {
         }
 
         @Bean
-        @SuppressWarnings("unused")
         FinancialAnalyticsService financialAnalyticsService() {
             FinancialAnalyticsService mock = Mockito.mock(FinancialAnalyticsService.class);
             when(mock.getFinancialSummaryWAC(any(LocalDate.class), any(LocalDate.class), anyString()))
@@ -82,7 +80,6 @@ public abstract class AbstractAnalyticsControllerSecurityTest {
         }
 
         @Bean
-        @SuppressWarnings("unused")
         AnalyticsControllerValidationHelper analyticsControllerValidationHelper() {
             AnalyticsControllerValidationHelper mock = Mockito.mock(AnalyticsControllerValidationHelper.class);
             // applyDefaultDateWindow must return a non-null array; the controller indexes into it immediately
@@ -99,7 +96,6 @@ public abstract class AbstractAnalyticsControllerSecurityTest {
         }
 
         @Bean
-        @SuppressWarnings("unused")
         AnalyticsDashboardHelper analyticsDashboardHelper() {
             AnalyticsDashboardHelper mock = Mockito.mock(AnalyticsDashboardHelper.class);
             when(mock.buildDashboardSummary(anyString(), any(), any()))
@@ -110,7 +106,6 @@ public abstract class AbstractAnalyticsControllerSecurityTest {
         // Admits any authenticated user to /api/analytics/**; challenges anonymous requests.
         // Form login and CSRF are disabled for API testing; HTTP Basic is used to simulate auth in tests.
         @Bean
-        @SuppressWarnings("unused")
         SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             http
                 .csrf(csrf -> csrf.disable())

@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl.analytics;
+﻿package com.smartsupplypro.inventory.service.impl.analytics;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,11 +18,10 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 
 /**
- * Unit tests for {@link StockAnalyticsService} input validation â€”
+ * Unit tests for {@link StockAnalyticsService} input validation Ã¢â‚¬â€
  * blank/null supplier IDs, invalid date ranges, and malformed filter objects.
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("unused")
 class AnalyticsServiceImplValidationTest {
 
     @Mock private StockHistoryRepository stockHistoryRepository;
@@ -32,7 +31,6 @@ class AnalyticsServiceImplValidationTest {
     /**
      * Supplier-scoped query validation.
      */
-    @SuppressWarnings("unused")
     @Nested
     class SupplierIdValidation {
 
@@ -54,7 +52,6 @@ class AnalyticsServiceImplValidationTest {
     /**
      * Filter object validation for {@code getFilteredStockUpdates}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class FilteredStockUpdatesValidation {
 
@@ -93,7 +90,6 @@ class AnalyticsServiceImplValidationTest {
     /**
      * Parameter validation for {@code getPriceTrend}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class PriceTrendValidation {
 

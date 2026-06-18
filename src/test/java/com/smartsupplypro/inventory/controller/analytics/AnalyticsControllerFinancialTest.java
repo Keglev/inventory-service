@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.analytics;
+﻿package com.smartsupplypro.inventory.controller.analytics;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -48,7 +48,6 @@ import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService
  * Tests {@link AnalyticsController} dashboard and financial summary endpoints, and
  * {@link StockAnalyticsController} stock-value endpoint, using {@link MockMvc}.
  */
-@SuppressWarnings("unused")
 @WebMvcTest({AnalyticsController.class, StockAnalyticsController.class})
 @Import({TestSecurityConfig.class, BusinessExceptionHandler.class, GlobalExceptionHandler.class})
 public class AnalyticsControllerFinancialTest {
@@ -68,7 +67,6 @@ public class AnalyticsControllerFinancialTest {
     @MockitoBean
     private AnalyticsDashboardHelper dashboardHelper;
 
-    @SuppressWarnings("unused")
     @BeforeEach
     void setup() {
         // applyDefaultDateWindow must return a non-null array; the controller indexes into it immediately

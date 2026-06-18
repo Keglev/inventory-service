@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.security;
+﻿package com.smartsupplypro.inventory.controller.security;
 
 import org.junit.jupiter.api.Test;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Security tests for {@link com.smartsupplypro.inventory.controller.StockAnalyticsController}
  * supplier-scoped endpoints (item-update-frequency, low-stock-items) ensuring 401 for anonymous and 200 for USER.
  */
-@SuppressWarnings("unused")
 class AnalyticsControllerSupplierScopedSecurityTest extends AbstractAnalyticsControllerSecurityTest {
 
     @Test

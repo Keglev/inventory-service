@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.analytics;
+﻿package com.smartsupplypro.inventory.controller.analytics;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -114,7 +114,6 @@ class AnalyticsDashboardHelperTest {
         verify(stockAnalyticsService, never()).getItemUpdateFrequency(org.mockito.ArgumentMatchers.anyString());
     }
 
-    @SuppressWarnings("unused")
     private static Stream<String> missingSupplierValues() {
         // Referenced reflectively by JUnit 5 via @MethodSource("missingSupplierValues").
         return Stream.of(null, "", "   ");

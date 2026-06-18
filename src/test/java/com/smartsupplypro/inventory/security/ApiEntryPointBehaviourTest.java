@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.security;
+﻿package com.smartsupplypro.inventory.security;
 
 import static org.hamcrest.Matchers.containsString;
 import org.junit.jupiter.api.Nested;
@@ -28,7 +28,6 @@ import jakarta.annotation.Resource;
  * Tests for entry-point behavior: API JSON requests return 401 JSON;
  * non-API or non-JSON requests redirect to the OAuth2 login endpoint.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(controllers = ApiEntryPointBehaviourTest.StubController.class)
 @AutoConfigureMockMvc(addFilters = true)
 @Import(ApiEntryPointBehaviourTest.TestSecurityConfig.class)
@@ -40,7 +39,6 @@ class ApiEntryPointBehaviourTest {
     /**
      * Behavior when the request is unauthenticated and targets an API endpoint.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenRequestIsUnauthenticatedApi {
 
@@ -64,7 +62,6 @@ class ApiEntryPointBehaviourTest {
     /**
      * Behavior when the request is unauthenticated and targets a web (non-API) endpoint.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenRequestIsUnauthenticatedWeb {
 
@@ -77,9 +74,8 @@ class ApiEntryPointBehaviourTest {
         }
     }
 
-    /** Minimal stub endpoints â€” never actually reached when unauthenticated. */
+    /** Minimal stub endpoints Ã¢â‚¬â€ never actually reached when unauthenticated. */
     @RestController
-    @SuppressWarnings("unused")
     static class StubController {
         @GetMapping("/api/protected")
         String api() { return "{\"ok\":true}"; }
@@ -91,7 +87,6 @@ class ApiEntryPointBehaviourTest {
     /** Test-only dual-chain security config that mirrors the production entry-point split. */
     @TestConfiguration
     @EnableMethodSecurity
-    @SuppressWarnings("unused") // loaded via @Import; IDE cannot see direct calls
     static class TestSecurityConfig {
 
         @Bean

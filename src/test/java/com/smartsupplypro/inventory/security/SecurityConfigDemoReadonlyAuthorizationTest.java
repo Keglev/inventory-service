@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.security;
+﻿package com.smartsupplypro.inventory.security;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,6 @@ import com.smartsupplypro.inventory.service.CustomOidcUserService;
  * Tests for the demo-readonly authorization branch in {@link SecurityAuthorizationHelper}:
  * read-only endpoints are public, mutation endpoints remain protected.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(controllers = { SecurityConfigDemoReadonlyAuthorizationTest.DemoApiStubController.class })
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles({"test", "demo-readonly-test"})
@@ -69,7 +68,6 @@ class SecurityConfigDemoReadonlyAuthorizationTest {
     /**
      * Behavior when demo-readonly is enabled.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenDemoReadonlyIsEnabled {
 

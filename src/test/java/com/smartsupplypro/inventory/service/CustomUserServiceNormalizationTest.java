@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service;
+﻿package com.smartsupplypro.inventory.service;
 
 import java.util.Set;
 
@@ -17,7 +17,6 @@ class CustomUserServiceNormalizationTest {
     /**
      * Tests for {@code parseAdminAllowlist}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class AdminAllowlist {
 
@@ -47,7 +46,6 @@ class CustomUserServiceNormalizationTest {
     /**
      * Tests for {@code toRoleAuthority}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class RoleAuthorityNormalization {
 

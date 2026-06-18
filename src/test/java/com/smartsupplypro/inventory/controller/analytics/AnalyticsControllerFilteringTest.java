@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.analytics;
+﻿package com.smartsupplypro.inventory.controller.analytics;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -34,7 +34,6 @@ import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService
  * Tests {@link StockUpdateAnalyticsController} GET and POST filtering endpoints using {@link MockMvc},
  * covering date-range defaults, parameter validation, and filter criteria processing.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(StockUpdateAnalyticsController.class)
 @Import({TestSecurityConfig.class, GlobalExceptionHandler.class})
 public class AnalyticsControllerFilteringTest {
@@ -51,7 +50,6 @@ public class AnalyticsControllerFilteringTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @SuppressWarnings("unused")
     @BeforeEach
     void setup() {
         // applyDefaultDateWindow must return a non-null array; the controller indexes into it immediately

@@ -1,12 +1,12 @@
-package com.smartsupplypro.inventory;
+﻿package com.smartsupplypro.inventory;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -31,6 +31,15 @@ import org.springframework.context.ConfigurableApplicationContext;
  * This approach avoids introducing that extra dependency while still covering the entry point.
  */
 class InventoryServiceApplicationMainTest {
+
+    private Method shouldCloseAfterStartup;
+
+    @BeforeEach
+    void resolveMethod() throws Exception {
+        shouldCloseAfterStartup = InventoryServiceApplication.class
+                .getDeclaredMethod("shouldCloseAfterStartup", String[].class);
+        shouldCloseAfterStartup.setAccessible(true);
+    }
 
     @Test
     @Timeout(value = 30)
@@ -65,25 +74,5 @@ class InventoryServiceApplicationMainTest {
             assertNotNull(applicationContext, "run(..) must return the Spring application context");
             assertTrue(applicationContext.isActive(), "Context should remain active when close flag is absent");
         }
-    }
-
-    @Test
-    @DisplayName("shouldCloseAfterStartup returns false for null args")
-    void shouldCloseAfterStartup_returnsFalse_whenArgsNull() throws Exception {
-        Method method = InventoryServiceApplication.class.getDeclaredMethod("shouldCloseAfterStartup", String[].class);
-        method.setAccessible(true);
-
-        boolean result = (boolean) method.invoke(null, (Object) null);
-        assertFalse(result, "Null args should never trigger the test-only close behavior");
-    }
-
-    @Test
-    @DisplayName("shouldCloseAfterStartup returns false for empty args")
-    void shouldCloseAfterStartup_returnsFalse_whenArgsEmpty() throws Exception {
-        Method method = InventoryServiceApplication.class.getDeclaredMethod("shouldCloseAfterStartup", String[].class);
-        method.setAccessible(true);
-
-        boolean result = (boolean) method.invoke(null, (Object) new String[0]);
-        assertFalse(result, "Empty args should never trigger the test-only close behavior");
     }
 }

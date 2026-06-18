@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.inventoryitem;
+﻿package com.smartsupplypro.inventory.controller.inventoryitem;
 
 import java.math.BigDecimal;
 
@@ -26,7 +26,6 @@ import com.smartsupplypro.inventory.service.InventoryItemService;
  * Tests {@link InventoryItemPatchController} PATCH endpoints for quantity and price updates
  * using {@link MockMvc}.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(controllers = InventoryItemPatchController.class)
 @Import({ GlobalExceptionHandler.class, TestSecurityConfig.class })
 class InventoryItemControllerPatchTest {

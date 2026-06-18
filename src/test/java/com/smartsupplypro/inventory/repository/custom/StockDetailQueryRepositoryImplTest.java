@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.repository.custom;
+﻿package com.smartsupplypro.inventory.repository.custom;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -24,7 +24,6 @@ import jakarta.persistence.EntityManager;
  * <p>Verifies predicate composition and result correctness
  * for runtime-constructed queries.</p>
  */
-@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
@@ -65,7 +64,6 @@ class StockDetailQueryRepositoryImplTest {
      * Optional filter normalization and dialect-specific SQL selection for searchStockUpdates.
      */
     @Nested
-    @SuppressWarnings("unused")
     class StockUpdateSearch {
 
         @Test
@@ -73,7 +71,7 @@ class StockDetailQueryRepositoryImplTest {
             seedTestData();
             StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
 
-            // null/blank inputs normalize to SQL NULL → no predicates applied
+            // null/blank inputs normalize to SQL NULL â†’ no predicates applied
             assertEquals(3, repo.searchStockUpdates(null, null, null, "   ", null, null, null).size());
             assertEquals(3, repo.searchStockUpdates(null, null, "   ", null, "   ", null, null).size());
 
@@ -103,7 +101,6 @@ class StockDetailQueryRepositoryImplTest {
      * Supplier filter and ordering guarantees for streamEventsForWAC.
      */
     @Nested
-    @SuppressWarnings("unused")
     class WacEventStreaming {
 
         @Test
@@ -113,7 +110,7 @@ class StockDetailQueryRepositoryImplTest {
 
             LocalDateTime end = LocalDateTime.of(2024, 12, 31, 23, 59);
 
-            // blank supplier normalizes to null → supplier filter disabled → all events
+            // blank supplier normalizes to null â†’ supplier filter disabled â†’ all events
             List<StockEventRowDTO> all = repo.streamEventsForWAC(end, "   ");
             assertEquals(3, all.size());
             assertEquals("itemA", all.get(0).itemId());

@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.mapper;
+﻿package com.smartsupplypro.inventory.mapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,7 +18,6 @@ import com.smartsupplypro.inventory.model.StockHistory;
 /**
  * Unit tests for {@link StockHistoryMapper} bidirectional mapping correctness.
  */
-@SuppressWarnings("unused")
 class StockHistoryMapperTest {
 
     private final StockHistoryMapper mapper = new StockHistoryMapper();
@@ -27,7 +26,6 @@ class StockHistoryMapperTest {
      * Mapping from {@link StockHistory} entity to {@link StockHistoryDTO}.
      */
     @Nested
-    @SuppressWarnings("unused")
     class ToDTO {
 
         @Test
@@ -60,7 +58,6 @@ class StockHistoryMapperTest {
      * Mapping from {@link StockHistoryDTO} to {@link StockHistory} entity.
      */
     @Nested
-    @SuppressWarnings("unused")
     class ToEntity {
 
         @Test

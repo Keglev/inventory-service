@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.repository;
+﻿package com.smartsupplypro.inventory.repository;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -29,7 +29,6 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
  * Integration tests for {@link StockHistoryRepository} filtering query correctness
  * using {@link org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest}.
  */
-@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
@@ -45,7 +44,6 @@ class StockHistoryRepositoryFilteringTest {
     private Supplier supplierA;
     private LocalDateTime now;
 
-    @SuppressWarnings("unused")
     @BeforeEach
     void setup() {
         now = LocalDateTime.now(fixedClock);
@@ -88,7 +86,6 @@ class StockHistoryRepositoryFilteringTest {
     /**
      * Paginated date-range filtering with optional item name and supplier.
      */
-    @SuppressWarnings("unused")
     @Nested
     class DateRangeFiltering {
 
@@ -104,7 +101,6 @@ class StockHistoryRepositoryFilteringTest {
     /**
      * Lookup by item ID and change reason.
      */
-    @SuppressWarnings("unused")
     @Nested
     class ItemAndReasonLookup {
 

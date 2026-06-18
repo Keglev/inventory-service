@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.security;
+﻿package com.smartsupplypro.inventory.security;
 
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -17,7 +17,6 @@ import com.smartsupplypro.inventory.service.CustomOidcUserService;
  * common to multiple {@link com.smartsupplypro.inventory.config.SecurityConfig} slice tests.
  */
 @TestConfiguration
-@SuppressWarnings("unused")
 class SecurityTestBeans {
 
     @Bean

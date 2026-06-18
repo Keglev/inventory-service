@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.auth;
+﻿package com.smartsupplypro.inventory.controller.auth;
 
 import static java.util.Collections.singletonList;
 import java.util.Map;
@@ -34,7 +34,6 @@ import com.smartsupplypro.inventory.repository.AppUserRepository;
  * Tests {@link AuthController} GET /api/me endpoint for OAuth2 authentication flows,
  * role projection, and error handling across all Role values using {@link MockMvc}.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

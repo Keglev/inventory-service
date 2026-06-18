@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.auth;
+﻿package com.smartsupplypro.inventory.controller.auth;
 
 import static java.util.Collections.singletonList;
 import java.util.List;
@@ -37,7 +37,6 @@ import jakarta.annotation.Resource;
  * Tests {@link AuthController} POST /api/auth/logout endpoint for session invalidation,
  * secure cookie cleanup, and unauthenticated access rejection using {@link MockMvc}.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = true)
 @Import(TestSecurityConfig.class)

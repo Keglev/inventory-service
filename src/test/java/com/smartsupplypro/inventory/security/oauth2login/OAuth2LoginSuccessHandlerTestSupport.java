@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.security.oauth2login;
+﻿package com.smartsupplypro.inventory.security.oauth2login;
 
 import java.io.IOException;
 import static java.util.Collections.singletonList;
@@ -16,7 +16,6 @@ import jakarta.servlet.http.Cookie;
  * Shared test utilities for {@code OAuth2LoginSuccessHandler} unit tests.
  * Package-private; helpers must remain deterministic and side-effect free.
  */
-@SuppressWarnings("unused")
 final class OAuth2LoginSuccessHandlerTestSupport {
 
     private OAuth2LoginSuccessHandlerTestSupport() {

@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl.analytics;
+﻿package com.smartsupplypro.inventory.service.impl.analytics;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -24,10 +24,9 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 
 /**
  * Unit tests for {@link StockAnalyticsService} converter helpers invoked via
- * {@code getFilteredStockUpdates} â€” verifying numeric and date type coercion.
+ * {@code getFilteredStockUpdates} Ã¢â‚¬â€ verifying numeric and date type coercion.
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("unused")
 class AnalyticsServiceImplConverterTest {
 
     @Mock private StockHistoryRepository stockHistoryRepository;
@@ -46,7 +45,6 @@ class AnalyticsServiceImplConverterTest {
     /**
      * Tests for numeric type coercion in {@code getFilteredStockUpdates}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class NumericTypeCoercion {
 
@@ -84,7 +82,6 @@ class AnalyticsServiceImplConverterTest {
     /**
      * Tests for date type coercion in {@code getFilteredStockUpdates}.
      */
-    @SuppressWarnings("unused")
     @Nested
     class DateTypeCoercion {
 

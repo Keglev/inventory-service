@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller.stockhistory;
+﻿package com.smartsupplypro.inventory.controller.stockhistory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,7 +37,6 @@ import com.smartsupplypro.inventory.service.StockHistoryService;
  * Tests {@link StockHistoryController} GET /api/stock-history/search endpoint covering filter
  * combinations, date-range validation, page-size capping, and authentication using {@link MockMvc}.
  */
-@SuppressWarnings("unused")
 @Import({TestSecurityConfig.class, GlobalExceptionHandler.class})
 @WebMvcTest(StockHistoryController.class)
 @ActiveProfiles("test")
@@ -51,7 +50,6 @@ class StockHistoryControllerSearchTest {
 
     private StockHistoryDTO history;
 
-    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         history = StockHistoryDTO.builder()

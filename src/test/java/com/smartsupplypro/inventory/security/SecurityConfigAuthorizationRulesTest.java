@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.security;
+﻿package com.smartsupplypro.inventory.security;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,6 @@ import com.smartsupplypro.inventory.config.SecurityFilterHelper;
 /**
  * Tests for production {@link SecurityConfig} authorization rules, entry points, and logout behavior.
  */
-@SuppressWarnings("unused")
 @WebMvcTest(controllers = { AdminStubController.class, TestApiStubController.class })
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles({"test", "test-stub"})
@@ -52,7 +51,6 @@ class SecurityConfigAuthorizationRulesTest {
     /**
      * Behavior when the request is unauthenticated.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenUnauthenticated {
 
@@ -89,7 +87,6 @@ class SecurityConfigAuthorizationRulesTest {
     /**
      * Behavior when the request carries an authenticated principal.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenAuthenticated {
 
@@ -120,7 +117,6 @@ class SecurityConfigAuthorizationRulesTest {
     /**
      * Behavior when the client initiates a logout.
      */
-    @SuppressWarnings("unused")
     @Nested
     class WhenLoggingOut {
 

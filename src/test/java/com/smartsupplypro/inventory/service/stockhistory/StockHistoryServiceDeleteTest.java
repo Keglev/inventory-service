@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.stockhistory;
+﻿package com.smartsupplypro.inventory.service.stockhistory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -19,7 +19,6 @@ import com.smartsupplypro.inventory.model.StockHistory;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-@SuppressWarnings("unused")
 class StockHistoryServiceDeleteTest extends StockHistoryServiceTestBase {
 
     @Test

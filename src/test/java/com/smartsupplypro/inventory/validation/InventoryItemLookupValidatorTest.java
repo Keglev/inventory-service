@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.validation;
+﻿package com.smartsupplypro.inventory.validation;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -27,7 +27,6 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
  * Pure format guards with no DB dependency are tested in
  * {@link InventoryItemValidatorTest}.</p>
  */
-@SuppressWarnings("unused")
 class InventoryItemLookupValidatorTest {
 
     /**

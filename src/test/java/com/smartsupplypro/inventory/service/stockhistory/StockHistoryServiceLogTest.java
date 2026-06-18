@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.stockhistory;
+﻿package com.smartsupplypro.inventory.service.stockhistory;
 
 import java.math.BigDecimal;
 import java.util.stream.Stream;
@@ -29,7 +29,6 @@ import com.smartsupplypro.inventory.model.StockHistory;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-@SuppressWarnings("unused")
 class StockHistoryServiceLogTest extends StockHistoryServiceTestBase {
 
     @Test

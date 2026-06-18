@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.service.impl.inventoryitem;
+﻿package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,7 +34,6 @@ import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-@SuppressWarnings("unused")
 class InventoryItemServiceImplSearchTest {
 
     @Mock private InventoryItemRepository repository;
