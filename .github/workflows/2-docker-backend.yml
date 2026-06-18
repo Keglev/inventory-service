@@ -12,6 +12,12 @@ on:
     workflows: ["1️⃣ Backend CI - Build & Test"]
     types: [completed]
     branches: [ "main", "develop" ]
+  push: 
+    branches: [ "main", "develop" ]
+    paths:
+      - 'scripts/start.sh'
+      - 'Dockerfile'
+      - '.github/workflows/2-docker-backend.yml'
   workflow_dispatch:
     inputs:
       image_tag:

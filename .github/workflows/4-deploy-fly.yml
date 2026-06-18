@@ -12,6 +12,11 @@ on:
     workflows: ["2️⃣ Backend Docker - Build & Scan"]
     types: [completed]
     branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+    paths:
+      - '.github/scripts/health-check.sh'
+      - '.github/workflows/4-deploy-fly.yml'
   workflow_dispatch:
     inputs:
       image_tag:
@@ -34,7 +39,7 @@ permissions:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
     runs-on: ubuntu-latest
 
     environment:
@@ -55,7 +60,7 @@ jobs:
             IMAGE_TAG="${{ inputs.image_tag }}"
             STRATEGY="${{ inputs.deployment_strategy }}"
           else
-            IMAGE_TAG="${{ github.event.workflow_run.head_sha }}"
+            IMAGE_TAG="${{ github.event.workflow_run.head_sha || github.sha }}"
             STRATEGY="immediate"
           fi
           echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
@@ -109,7 +114,7 @@ jobs:
             --ha=false
 
       - name: Health check and smoke tests
-        run: bash .github/workflows/scripts/health-check.sh "https://${{ env.APP_NAME }}.fly.dev"
+        run: bash .github/scripts/health-check.sh "https://${{ env.APP_NAME }}.fly.dev"
 
       - name: Capture Fly.io status and logs
         if: always()
