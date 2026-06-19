@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # build-architecture-docs.sh — Converts architecture markdown guides to HTML
-# Usage: .github/scripts/build-architecture-docs.sh <project-dir>
+# Usage: .github/scripts/docs/build-architecture-docs.sh <project-dir>
 #
 # Expects the Lua filter at <project-dir>/scripts/md-to-html-links.lua,
 # written by build-docs.sh before this script is called.
@@ -15,6 +15,11 @@ DOCS_DIR="$PROJECT_DIR/docs"
 OUTPUT_DIR="$PROJECT_DIR/target/docs"
 TEMPLATE="$DOCS_DIR/_theme/app-docs.html"
 LUA_FILTER="$PROJECT_DIR/scripts/md-to-html-links.lua"
+
+# Pandoc resolves the $nav()$ partial from <data-dir>/templates/. Setting this
+# explicitly makes partial resolution work the same on old and new pandoc
+# (older versions ignore the template's own directory for partials).
+DATA_DIR="$DOCS_DIR/_theme"
 
 mkdir -p "$OUTPUT_DIR/backend/architecture" "$OUTPUT_DIR/frontend/architecture"
 
@@ -51,6 +56,7 @@ convert_arch() {
 
     pandoc "$md" \
       --from markdown --to html \
+      --data-dir="$DATA_DIR" \
       --template "$TEMPLATE" \
       --lua-filter "$LUA_FILTER" \
       --metadata=title:"${CONTEXT^} · ${rel%.md}" \

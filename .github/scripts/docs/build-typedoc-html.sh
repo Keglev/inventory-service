@@ -15,6 +15,10 @@ TYPEDOC_MD_DIR="$PROJECT_DIR/frontend/docs"
 API_OUT="$PROJECT_DIR/target/docs/frontend/api"
 TEMPLATE="$PROJECT_DIR/docs/_theme/app-api.html"
 
+# Pandoc resolves the $nav()$ partial from <data-dir>/templates/; setting this
+# explicitly keeps partial resolution working across pandoc versions.
+DATA_DIR="$PROJECT_DIR/docs/_theme"
+
 if [ ! -d "$TYPEDOC_MD_DIR" ]; then
   echo "ℹ️  No TypeDoc markdown at $TYPEDOC_MD_DIR — skipping"
   exit 0
@@ -31,6 +35,7 @@ find "$TYPEDOC_MD_DIR" -type f -name "*.md" | while read -r md; do
   mkdir -p "$(dirname "$out")"
   pandoc "$md" \
     --from gfm --to html \
+    --data-dir="$DATA_DIR" \
     --template "$TEMPLATE" \
     --lua-filter "$LUA_FILTER" \
     --metadata=title:"Frontend API · ${rel%.md}" \
@@ -46,6 +51,7 @@ Browse by module using the navigation panel.
 MD
 pandoc "$API_OUT/index.md" \
   --from gfm --to html \
+  --data-dir="$DATA_DIR" \
   --template "$TEMPLATE" \
   --lua-filter "$LUA_FILTER" \
   --metadata=title:"Frontend API" \
