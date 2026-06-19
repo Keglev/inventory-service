@@ -75,6 +75,16 @@
   background: var(--surface-2);
   color: var(--heading);
 }
+/* Disabled language (no translation for this page): greyed and inert, with a
+   not-allowed cursor on hover. Removing href already blocks navigation. */
+.lang-switch a[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.lang-switch a[aria-disabled="true"]:hover {
+  background: none;
+  color: var(--muted);
+}
 .theme-toggle {
   display: inline-flex;
   padding: 0.35rem;
