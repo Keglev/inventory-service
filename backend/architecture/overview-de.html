@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · overview-de · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App Shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data Access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Frontend Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing strategies</a></li>
+        <li><a href="/inventory-service/frontend/architecture/>domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Frontend Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Frontend Theming</a></li>
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#backend-architektur"
+        id="toc-backend-architektur">Backend-Architektur</a>
+        <ul>
+        <li><a href="#technologie-stack"
+        id="toc-technologie-stack">Technologie-Stack</a></li>
+        <li><a href="#architekturprinzipien"
+        id="toc-architekturprinzipien">Architekturprinzipien</a></li>
+        <li><a href="#systemarchitektur"
+        id="toc-systemarchitektur">Systemarchitektur</a></li>
+        <li><a href="#kernschichten"
+        id="toc-kernschichten">Kernschichten</a>
+        <ul>
+        <li><a href="#controller-schicht"
+        id="toc-controller-schicht">Controller-Schicht</a></li>
+        <li><a href="#service-schicht"
+        id="toc-service-schicht">Service-Schicht</a></li>
+        <li><a href="#validierungs-schicht"
+        id="toc-validierungs-schicht">Validierungs-Schicht</a></li>
+        <li><a href="#repository-schicht"
+        id="toc-repository-schicht">Repository-Schicht</a></li>
+        <li><a href="#datenschicht"
+        id="toc-datenschicht">Datenschicht</a></li>
+        </ul></li>
+        <li><a href="#authentifizierung-und-sicherheit"
+        id="toc-authentifizierung-und-sicherheit">Authentifizierung und
+        Sicherheit</a></li>
+        <li><a href="#exception-handling"
+        id="toc-exception-handling">Exception-Handling</a></li>
+        <li><a href="#datenfluss-bestandsitem-erstellen"
+        id="toc-datenfluss-bestandsitem-erstellen">Datenfluss:
+        Bestandsitem erstellen</a></li>
+        <li><a href="#wichtigste-design-muster"
+        id="toc-wichtigste-design-muster">Wichtigste
+        Design-Muster</a></li>
+        <li><a href="#performance-überlegungen"
+        id="toc-performance-überlegungen">Performance-Überlegungen</a></li>
+        <li><a href="#testing" id="toc-testing">Testing</a></li>
+        <li><a href="#konfiguration"
+        id="toc-konfiguration">Konfiguration</a></li>
+        <li><a href="#bereitstellung"
+        id="toc-bereitstellung">Bereitstellung</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="backend-architektur">Backend-Architektur</h1>
+        <p>Das Backend von Smart Supply Pro ist ein Spring-Boot-Dienst
+        zur Verwaltung von Lieferantenbeziehungen, Bestandsverfolgung
+        und Echtzeit-Bestandsanalysen. Die Architektur legt den
+        Schwerpunkt auf <strong>Sicherheit</strong>,
+        <strong>Wartbarkeit</strong> und <strong>klare Trennung der
+        Verantwortlichkeiten</strong> durch klar definierte
+        Schichten.</p>
+        <h2 id="technologie-stack">Technologie-Stack</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Komponente</th>
+        <th>Technologie</th>
+        <th>Version</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Framework</td>
+        <td>Spring Boot</td>
+        <td>3.5.15</td>
+        </tr>
+        <tr class="even">
+        <td>Sprache</td>
+        <td>Java</td>
+        <td>17</td>
+        </tr>
+        <tr class="odd">
+        <td>Datenbank</td>
+        <td>Oracle Autonomous Database</td>
+        <td>23ai</td>
+        </tr>
+        <tr class="even">
+        <td>Build-Tool</td>
+        <td>Maven</td>
+        <td>3.x+</td>
+        </tr>
+        <tr class="odd">
+        <td>Testing</td>
+        <td>JUnit 5, Mockito</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="even">
+        <td>Sicherheit</td>
+        <td>Spring Security, OAuth2</td>
+        <td>3.5.x</td>
+        </tr>
+        <tr class="odd">
+        <td>Containerisierung</td>
+        <td>Docker</td>
+        <td>Aktuell</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="architekturprinzipien">Architekturprinzipien</h2>
+        <ol type="1">
+        <li><strong>Trennung der Verantwortlichkeiten</strong> — klare
+        Grenzen zwischen Controller-, Service-, Repository- und
+        Datenschicht</li>
+        <li><strong>Dependency Injection</strong> — Spring verwaltet
+        alle Bean-Lebenszyklen und Abhängigkeiten</li>
+        <li><strong>RESTful API-Design</strong> — einheitliche
+        HTTP-Methoden und Statuscodes in der gesamten Anwendung</li>
+        <li><strong>Sicherheit zuerst</strong> —
+        OAuth2-Authentifizierung mit rollenbasierter Zugriffskontrolle
+        (RBAC)</li>
+        <li><strong>Mehrschichtige Validierung</strong> — von
+        DTO-Annotationen bis hin zu Datenbankconstraints</li>
+        <li><strong>Einheitliches Exception-Handling</strong> —
+        konsistentes Fehler-Response-Format mit passenden
+        HTTP-Statuscodes</li>
+        <li><strong>Testbarkeit</strong> — Constructor Injection und
+        Repository-Abstraktion ermöglichen saubere Unit- und
+        Integrationstests</li>
+        <li><strong>Dokumentation</strong> — Javadoc-Kommentare erklären
+        das <em>Warum</em>, nicht das Was; Architekturdokumentation wird
+        von der Pipeline generiert</li>
+        </ol>
+        <h2 id="systemarchitektur">Systemarchitektur</h2>
+        <div class="mermaid">
+        flowchart TB
+          Client["Client-Anwendungen"]:::controller
+          API["REST-API-Schicht"]:::controller
+          Security["Sicherheit & OAuth2"]:::service
+          Service["Geschäftslogik-Schicht"]:::service
+          Validation["Validierungs-Schicht"]:::service
+          Repository["Repository-Schicht"]:::repository
+          Database["Oracle ADB"]:::repository
+
+          Client -->|HTTP| API
+          API --> Security
+          Security -->|Authentifiziert| Service
+          Service --> Validation
+          Service --> Repository
+          Repository --> Database
+          Security -.->|Principal| Service
+
+          classDef controller fill:var(--layer-controller);
+          classDef service    fill:var(--layer-service);
+          classDef repository fill:var(--layer-repository);
+        </div>
+        <h2 id="kernschichten">Kernschichten</h2>
+        <h3 id="controller-schicht">Controller-Schicht</h3>
+        <p>Einstiegspunkt für alle HTTP-Anfragen. Die Controller
+        übernehmen Request-Routing, DTO-Konvertierung,
+        Response-Serialisierung und Basisvalidierung über
+        <code>@Valid</code>.</p>
+        <p>Wichtigste Controller: <code>SupplierController</code>,
+        <code>InventoryItemController</code>,
+        <code>StockHistoryController</code>,
+        <code>AnalyticsController</code>,
+        <code>AuthController</code>.</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">createSupplier</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CREATED</span><span class="op">).</span><span class="fu">body</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">));</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="service-schicht">Service-Schicht</h3>
+        <p>Enthält die gesamte Geschäftslogik und koordiniert
+        Operationen: Geschäftsregel-Validierung, Transaktionsverwaltung,
+        Datentransformation und Audit-Protokollierung.</p>
+        <p>Wichtigste Services: <code>SupplierService</code>,
+        <code>InventoryItemService</code>,
+        <code>StockHistoryService</code>, <code>AnalyticsService</code>
+        (WAC- und FIFO-Finanzanalyse).</p>
+        <h3 id="validierungs-schicht">Validierungs-Schicht</h3>
+        <p>Drei Ebenen gewährleisten die Datenintegrität:</p>
+        <ul>
+        <li><strong>Controller-Ebene</strong> — JSR-380-Annotationen
+        (<code>@NotBlank</code>, <code>@NotNull</code> usw.) über
+        <code>@Valid</code></li>
+        <li><strong>Service-Ebene</strong> — Eindeutigkeitsprüfungen,
+        Beziehungsvalidierung, Zustandsprüfungen</li>
+        <li><strong>Datenbankebene</strong> — Constraints und eindeutige
+        Indizes als letzte Sicherheitsstufe</li>
+        </ul>
+        <h3 id="repository-schicht">Repository-Schicht</h3>
+        <p>Spring Data JPA Repositories mit benutzerdefinierten
+        <code>@Query</code>-Methoden für komplexe Aggregationen,
+        <code>Pageable</code>-Unterstützung für große Datenmengen und
+        <code>@Transactional</code>-Verwaltung.</p>
+        <p>Wichtigste Repositories: <code>SupplierRepository</code>,
+        <code>InventoryItemRepository</code>,
+        <code>StockHistoryRepository</code> sowie benutzerdefinierte
+        Analytics-Mixins mit JPQL und nativem SQL.</p>
+        <h3 id="datenschicht">Datenschicht</h3>
+        <p>JPA-Entities mit Optimistic Locking (<code>@Version</code>),
+        Audit-Feldern (<code>createdAt</code>, <code>updatedAt</code>,
+        <code>createdBy</code>) und typsicheren Enum-Spalten.</p>
+        <p>Entities: <code>Supplier</code>, <code>InventoryItem</code>,
+        <code>StockHistory</code>, <code>AppUser</code>.</p>
+        <h2 id="authentifizierung-und-sicherheit">Authentifizierung und
+        Sicherheit</h2>
+        <p>OAuth2-Authentifizierung mit Google als Provider. Spring
+        Security validiert jeden Request-Token, erstellt den Principal
+        im <code>SecurityContext</code> und setzt RBAC über
+        <code>@PreAuthorize</code> durch.</p>
+        <p><strong>Rollen:</strong> - <code>ADMIN</code> — vollständiger
+        Systemzugriff - <code>USER</code> — Bestandsanzeige und
+        grundlegende Operationen</p>
+        <div class="mermaid">
+        sequenceDiagram
+          Client->>OAuth2Provider: Autorisierung anfordern
+          OAuth2Provider->>Client: Autorisierungscode
+          Client->>Controller: Code einreichen
+          Controller->>AuthService: Code gegen Token austauschen
+          AuthService->>OAuth2Provider: Token validieren
+          OAuth2Provider->>AuthService: Token gültig + Benutzerinformationen
+          AuthService->>Client: Session-Token
+          Client->>API: Token im Authorization-Header
+          API->>SecurityContext: Token validieren und Principal aufbauen
+          SecurityContext->>Controller: Mit authentifiziertem Principal ausführen
+        </div>
+        <h2 id="exception-handling">Exception-Handling</h2>
+        <p>Geschäfts- und Framework-Exceptions werden über einen
+        globalen <code>@ControllerAdvice</code>-Handler geleitet und
+        erzeugen eine einheitliche Fehler-Response — HTTP-Status,
+        maschinenlesbares Fehler-Token, Zeitstempel und Korrelations-ID.
+        Stack-Traces werden in Responses grundsätzlich nicht
+        exponiert.</p>
+        <div class="mermaid">
+        flowchart LR
+          Service["Service-Logik"]:::service
+          BusinessEx["Geschäfts-Exception"]:::service
+          DataEx["Daten-Exception"]:::repository
+          Handler["Exception-Handler"]:::controller
+          Response["Fehler-Response\nHTTP-Status + Nachricht"]:::controller
+
+          Service -->|Validierung fehlgeschlagen| BusinessEx
+          Service -->|DB-Constraint| DataEx
+          BusinessEx --> Handler
+          DataEx --> Handler
+          Handler --> Response
+
+          classDef controller fill:var(--layer-controller);
+          classDef service    fill:var(--layer-service);
+          classDef repository fill:var(--layer-repository);
+        </div>
+        <h2 id="datenfluss-bestandsitem-erstellen">Datenfluss:
+        Bestandsitem erstellen</h2>
+        <pre><code>POST /inventory/items
+  → InventoryItemController   DTO-Struktur mit @Valid prüfen
+  → InventoryItemService      DTO konvertieren, Namenseindeutigkeit prüfen, Lieferant validieren
+  → InventoryItemRepository   INSERT mit Datenbankconstraints
+  → StockHistoryService       Audit-Eintrag für Anfangsbestand schreiben
+  → Response                  InventoryItemDTO mit generierter ID</code></pre>
+        <h2 id="wichtigste-design-muster">Wichtigste Design-Muster</h2>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Muster</th>
+        <th>Zweck</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Constructor Injection</td>
+        <td>Explizite Abhängigkeiten; Unit-Tests ohne Spring-Kontext
+        möglich</td>
+        </tr>
+        <tr class="even">
+        <td>Repository-Abstraktion</td>
+        <td>Austauschbarer Datenzugriff; in Service-Tests mockbar</td>
+        </tr>
+        <tr class="odd">
+        <td>DTO-Muster</td>
+        <td>Entkoppelt API-Vertrag vom internen Domain-Modell</td>
+        </tr>
+        <tr class="even">
+        <td>Exception-Übersetzung</td>
+        <td>Geschäfts-Exceptions werden an einer Grenze auf
+        HTTP-Statuscodes gemappt</td>
+        </tr>
+        <tr class="odd">
+        <td>Validierungs-Helfer</td>
+        <td>Komplexe Geschäftsregeln in dedizierten Validator-Klassen
+        isoliert</td>
+        </tr>
+        <tr class="even">
+        <td>Audit-Protokollierung</td>
+        <td><code>createdBy</code> / <code>updatedAt</code> einheitlich
+        aus dem <code>SecurityContext</code> erfasst</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="performance-überlegungen">Performance-Überlegungen</h2>
+        <ul>
+        <li><strong>Pagination</strong> — alle Listen-Endpunkte
+        akzeptieren <code>Pageable</code>; unbegrenzte Abfragen werden
+        blockiert</li>
+        <li><strong><code>@EntityGraph</code></strong> — auf häufig
+        genutzten Pfaden eingesetzt, um N+1-Abfragen zu vermeiden</li>
+        <li><strong>Benutzerdefinierte <code>@Query</code></strong> —
+        natives SQL für komplexe Aggregationen, wo JPQL nicht
+        ausreicht</li>
+        <li><strong>HikariCP-Tuning</strong> — Connection Pool auf die
+        RAM-Beschränkungen von Fly.io abgestimmt</li>
+        <li><strong>Zustandslose Services</strong> — kein serverseitiger
+        Session-State; horizontale Skalierung ist direkt möglich</li>
+        </ul>
+        <h2 id="testing">Testing</h2>
+        <div class="mermaid">
+        flowchart TB
+          Unit["Unit-Tests\nServices, Validatoren"]:::service
+          Integration["Integrationstests\nController, Repositories"]:::controller
+          Coverage["JaCoCo-Abdeckungsbericht"]:::repository
+
+          Unit --> Coverage
+          Integration --> Coverage
+
+          classDef controller fill:var(--layer-controller);
+          classDef service    fill:var(--layer-service);
+          classDef repository fill:var(--layer-repository);
+        </div>
+        <ul>
+        <li><strong>Unit-Tests</strong> — Mockito-Mocks für alle
+        externen Abhängigkeiten; Fokus auf Geschäftslogik</li>
+        <li><strong>Integrationstests</strong> —
+        <code>@SpringBootTest</code> mit H2 im Oracle-kompatiblen
+        Modus</li>
+        <li><strong>Test-Fixtures</strong> — Builder- und
+        Factory-Methoden für reproduzierbare Testdaten</li>
+        </ul>
+        <h2 id="konfiguration">Konfiguration</h2>
+        <p>Spring Boot externalisierte Konfiguration über
+        <code>application.yml</code> mit drei Profilen:</p>
+        <ul>
+        <li><em>(kein Profil)</em> — lokale Entwicklung, H2
+        In-Memory-Datenbank</li>
+        <li><code>test</code> — H2 im Oracle-kompatiblen Modus,
+        DEBUG-Protokollierung</li>
+        <li><code>prod</code> — Oracle Autonomous Database über
+        Wallet-Authentifizierung, INFO-Protokollierung</li>
+        </ul>
+        <p>Umgebungsspezifische Secrets (OAuth2-Schlüssel,
+        Datenbankzugangsdaten) werden über Umgebungsvariablen injiziert
+        und nie in die Versionsverwaltung eingecheckt.</p>
+        <h2 id="bereitstellung">Bereitstellung</h2>
+        <p>Das Backend wird über eine vollständig automatisierte
+        GitHub-Actions-Pipeline auf <strong>Fly.io</strong>
+        bereitgestellt:</p>
+        <pre><code>Code-Push
+  → 1-ci-backend.yml      Maven-Build, JUnit-Tests, JaCoCo-Abdeckung
+  → 2-docker-backend.yml  Docker-Image-Build, Trivy-CVE-Scan, Push zu Docker Hub
+  → 4-deploy-fly.yml      Vorgebautes Image auf Fly.io deployen, Health-Check</code></pre>
+        <p>Das Docker-Image enthält ausschließlich das Produktions-JAR
+        und <code>start.sh</code> — keine Testquellen oder
+        Dokumentation.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

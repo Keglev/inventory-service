@@ -1,164 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Supply Pro – Documentation</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 800px;
-            width: 100%;
-            padding: 60px 40px;
-            text-align: center;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            color: #666;
-            margin-bottom: 40px;
-        }
-        
-        .docs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-        
-        .doc-card {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 30px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .doc-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
-            transform: translateY(-5px);
-        }
-        
-        .doc-card h2 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .doc-card p {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-        
-        .icon {
-            font-size: 2rem;
-            margin-bottom: 15px;
-        }
-        
-        .footer {
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 1px solid #e9ecef;
-            color: #999;
-            font-size: 0.9rem;
-        }
-        
-        .footer a {
-            color: #667eea;
-            text-decoration: none;
-        }
-        
-        .footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Supply Pro · Documentation</title>
+
+  <!-- Set the theme before paint to avoid a flash; matches the doc templates. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
 </head>
+
 <body>
-    <div class="container">
-        <h1>📚 Smart Supply Pro</h1>
-        <p class="subtitle">Enterprise Inventory & Supplier Management System</p>
-        
-        <div class="docs-grid">
-            <a href="backend/api/index.html" class="doc-card">
-                <div class="icon">🔌</div>
-                <h2>Backend API</h2>
-                <p>Complete REST API documentation with OAuth2 authentication, endpoints, and schema definitions</p>
-            </a>
-            
-            <a href="backend/coverage/index.html" class="doc-card">
-                <div class="icon">📊</div>
-                <h2>Coverage Report</h2>
-                <p>Code coverage analysis and test metrics for backend services</p>
-            </a>
-            
-            <a href="architecture/index.html" class="doc-card">
-                <div class="icon">🏛️</div>
-                <h2>Architecture</h2>
-                <p>System design, patterns, security overview, and deployment strategy</p>
-            </a>
-            
-            <a href="architecture/overview-de.html" class="doc-card">
-                <div class="icon">🏛️🇩🇪</div>
-                <h2>Architektur</h2>
-                <p>Systemdesign, Muster, Sicherheitsübersicht und Deployment-Strategie (Deutsch)</p>
-            </a>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-            <a href="frontend/api/index.html" class="doc-card">
-                <div class="icon">🧩</div>
-                <h2>Frontend API</h2>
-                <p>Component, hooks, and context documentation generated from TypeScript sources.</p>
-            </a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
 
-            <a href="frontend/coverage/index.html" class="doc-card">
-                <div class="icon">📊</div>
-                <h2>Frontend Coverage</h2>
-                <p>Vitest coverage report for React components and utilities.</p>
-            </a>
-
-            <a href="frontend/architecture/index.html" class="doc-card">
-                <div class="icon">🎨</div>
-                <h2>Frontend Architecture</h2>
-                <p>SPA shell, routing, state management, and design system overview.</p>
-            </a>    
-
-            <a href="frontend/architecture/overview-de.html" class="doc-card">
-                <div class="icon">🎨🇩🇪</div>
-                <h2>Frontend Architektur</h2>
-                <p>SPA-Shell, Routing, State-Management und Design-System-Übersicht (Deutsch).</p>
-            </a> 
-        </div>
-        
-        <div class="footer">
-            <p>Smart Supply Pro © 2025 | <a href="https://github.com/Keglev/inventory-service">GitHub Repository</a></p>
-        </div>
+      <div class="topbar-tools">
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
     </div>
+  </header>
+
+  <main class="home" id="main">
+    <section class="hero">
+      <h1>Enterprise inventory &amp; supplier management</h1>
+      <p>A production-ready Spring Boot and React system with OAuth2 security, Oracle Autonomous Database, and a full CI/CD pipeline. Modeled on real procurement workflows.</p>
+      <div class="stack">
+        <span>Java · Spring Boot</span>
+        <span>React · TypeScript</span>
+        <span>Oracle ADB</span>
+        <span>Docker</span>
+        <span>GitHub Actions</span>
+      </div>
+    </section>
+
+    <div class="card-grid">
+      <a class="card" href="/inventory-service/backend/architecture/overview.html">
+        <span class="card-tag">Backend</span>
+        <h2>Architecture</h2>
+        <p>System design, layering, security, and deployment of the Spring Boot service.</p>
+      </a>
+
+      <a class="card" href="/inventory-service/backend/api/index.html">
+        <span class="card-tag">Backend</span>
+        <h2>API reference</h2>
+        <p>REST API with OAuth2 authentication, endpoints, and schema definitions.</p>
+      </a>
+
+      <a class="card" href="/inventory-service/backend/coverage/index.html">
+        <span class="card-tag">Backend</span>
+        <h2>Coverage</h2>
+        <p>JaCoCo coverage report and test metrics for the backend services.</p>
+      </a>
+
+      <a class="card" href="/inventory-service/frontend/architecture/overview.html">
+        <span class="card-tag">Frontend</span>
+        <h2>Architecture</h2>
+        <p>SPA shell, routing, state management, and design-system overview.</p>
+      </a>
+
+      <a class="card" href="/inventory-service/frontend/api/index.html">
+        <span class="card-tag">Frontend</span>
+        <h2>API reference</h2>
+        <p>API-layer and React context reference generated from the TypeScript sources.</p>
+      </a>
+
+      <a class="card" href="/inventory-service/frontend/coverage/index.html">
+        <span class="card-tag">Frontend</span>
+        <h2>Coverage</h2>
+        <p>Vitest coverage report for React components and utilities.</p>
+      </a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · <a href="https://github.com/Keglev/inventory-service">GitHub repository</a>
+  </footer>
+
+  <script src="/inventory-service/assets/docs.js"></script>
 </body>
 </html>

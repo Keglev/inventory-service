@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/model/relationships · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App Shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data Access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Frontend Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing strategies</a></li>
+        <li><a href="/inventory-service/frontend/architecture/>domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Frontend Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Frontend Theming</a></li>
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#entity-relationships"
+        id="toc-entity-relationships">Entity Relationships</a>
+        <ul>
+        <li><a href="#entity-relationship-diagram"
+        id="toc-entity-relationship-diagram">Entity Relationship
+        Diagram</a></li>
+        <li><a href="#relationship-types"
+        id="toc-relationship-types">Relationship Types</a>
+        <ul>
+        <li><a href="#one-to-many-1m-relationships"
+        id="toc-one-to-many-1m-relationships">One-to-Many (1:M)
+        Relationships</a></li>
+        <li><a href="#many-to-one-m1-relationships"
+        id="toc-many-to-one-m1-relationships">Many-to-One (M:1)
+        Relationships</a></li>
+        </ul></li>
+        <li><a href="#relationship-cardinality"
+        id="toc-relationship-cardinality">Relationship
+        Cardinality</a></li>
+        <li><a href="#key-constraints" id="toc-key-constraints">Key
+        Constraints</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+        <h1 id="entity-relationships">Entity Relationships</h1>
+        <p>The <strong>Entity Relationships</strong> describe how
+        different domain entities connect and interact.</p>
+        <h2 id="entity-relationship-diagram">Entity Relationship
+        Diagram</h2>
+        <div class="mermaid">
+        erDiagram
+            SUPPLIER ||--o{ INVENTORY_ITEM : "provides"
+            SUPPLIER ||--o{ STOCK_HISTORY : "source"
+            INVENTORY_ITEM ||--o{ STOCK_HISTORY : "tracks"
+            APP_USER ||--o{ INVENTORY_ITEM : "creates"
+            APP_USER ||--o{ STOCK_HISTORY : "logs"
+
+            SUPPLIER {
+                string ID PK
+                string NAME UK
+                string CONTACT_NAME
+                string PHONE
+                string EMAIL
+                string CREATED_BY
+                timestamp CREATED_AT
+            }
+
+            INVENTORY_ITEM {
+                string ID PK
+                string NAME UK
+                string SKU
+                string SUPPLIER_ID FK
+                int QUANTITY
+                decimal UNIT_PRICE
+                string CREATED_BY
+                timestamp CREATED_AT
+                long VERSION
+            }
+
+            STOCK_HISTORY {
+                string ID PK
+                string ITEM_ID FK
+                string SUPPLIER_ID FK
+                int OLD_QUANTITY
+                int NEW_QUANTITY
+                string REASON
+                string NOTES
+                string CREATED_BY
+                timestamp CREATED_AT
+            }
+
+            APP_USER {
+                string ID PK
+                string EMAIL UK
+                string OAUTH2_ID
+                string NAME
+                string ROLE
+                timestamp CREATED_AT
+                timestamp LAST_LOGIN
+            }
+        </div>
+        <h2 id="relationship-types">Relationship Types</h2>
+        <h3 id="one-to-many-1m-relationships">One-to-Many (1:M)
+        Relationships</h3>
+        <p><strong>Supplier → InventoryItem</strong></p>
+        <pre><code>One supplier can provide many inventory items
+SUPPLIER.ID (1) ──→ INVENTORY_ITEM.SUPPLIER_ID (M)</code></pre>
+        <ul>
+        <li>One supplier supplies multiple products</li>
+        <li>Query: “Get all items from ACME Corp”</li>
+        </ul>
+        <p><strong>InventoryItem → StockHistory</strong></p>
+        <pre><code>One inventory item has many stock changes
+INVENTORY_ITEM.ID (1) ──→ STOCK_HISTORY.ITEM_ID (M)</code></pre>
+        <ul>
+        <li>Each item has complete audit trail of changes</li>
+        <li>Query: “Get stock change history for item X”</li>
+        </ul>
+        <p><strong>AppUser → InventoryItem (Audit)</strong></p>
+        <pre><code>One user creates many inventory items
+APP_USER.ID (1) ──→ INVENTORY_ITEM.CREATED_BY (M)</code></pre>
+        <ul>
+        <li>Tracks who created each item</li>
+        <li>Query: “Show all items created by user Y”</li>
+        </ul>
+        <p><strong>AppUser → StockHistory (Audit)</strong></p>
+        <pre><code>One user creates many stock history entries
+APP_USER.ID (1) ──→ STOCK_HISTORY.CREATED_BY (M)</code></pre>
+        <ul>
+        <li>Tracks who made each stock change</li>
+        <li>Query: “Show all changes made by user Z”</li>
+        </ul>
+        <h3 id="many-to-one-m1-relationships">Many-to-One (M:1)
+        Relationships</h3>
+        <p><strong>InventoryItem → Supplier</strong> (inverse of 1:M
+        above)</p>
+        <pre><code>Many items belong to one supplier
+INVENTORY_ITEM.SUPPLIER_ID → SUPPLIER.ID</code></pre>
+        <ul>
+        <li>Every item must reference a supplier</li>
+        <li>Foreign key constraint ensures referential integrity</li>
+        </ul>
+        <p><strong>StockHistory → InventoryItem</strong> (inverse of 1:M
+        above)</p>
+        <pre><code>Many stock changes tracked for one item
+STOCK_HISTORY.ITEM_ID → INVENTORY_ITEM.ID</code></pre>
+        <ul>
+        <li>Every stock change must reference an item</li>
+        <li>Enables complete audit trail per item</li>
+        </ul>
+        <h2 id="relationship-cardinality">Relationship Cardinality</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Relationship</th>
+        <th>Supplier</th>
+        <th>InventoryItem</th>
+        <th>Notation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Supplier provides items</td>
+        <td>1</td>
+        <td>Many</td>
+        <td>1:M</td>
+        </tr>
+        <tr class="even">
+        <td>Item belongs to supplier</td>
+        <td>Many</td>
+        <td>1</td>
+        <td>M:1</td>
+        </tr>
+        <tr class="odd">
+        <td>Item has history entries</td>
+        <td>1</td>
+        <td>Many</td>
+        <td>1:M</td>
+        </tr>
+        <tr class="even">
+        <td>History tracks item</td>
+        <td>Many</td>
+        <td>1</td>
+        <td>M:1</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="key-constraints">Key Constraints</h2>
+        <p><strong>Primary Keys (PK):</strong> - Every entity has unique
+        ID (UUID) - Uniquely identifies each record</p>
+        <p><strong>Foreign Keys (FK):</strong> -
+        INVENTORY_ITEM.SUPPLIER_ID → SUPPLIER.ID - STOCK_HISTORY.ITEM_ID
+        → INVENTORY_ITEM.ID - Enforces referential integrity</p>
+        <p><strong>Unique Keys (UK):</strong> - SUPPLIER.NAME - No
+        duplicate supplier names - INVENTORY_ITEM.NAME - No duplicate
+        item names - APP_USER.EMAIL - No duplicate user emails</p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

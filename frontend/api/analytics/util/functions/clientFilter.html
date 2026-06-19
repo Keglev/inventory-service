@@ -2,102 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Frontend API ·
-analytics/util/functions/clientFilter · Smart Supply Pro · Frontend API</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend API ·
+analytics/util/functions/clientFilter · Smart Supply Pro · API</title>
 
-  <!-- Shared docs CSS -->
-  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
 
-  <!-- Optional: tiny API-specific tweaks without changing docs.css -->
-  <style>
-    /* Small “API” header badge to reduce confusion vs architecture */
-    .api-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.15rem 0.5rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      border: 1px solid #e5e7eb;
-      background: #eef2ff; /* subtle indigo tint */
-      color: #3730a3;
-      margin-left: 0.6rem;
-      white-space: nowrap;
-    }
-
-    /* Make sidebar feel “lighter” for API reference pages */
-    .sidebar.api-sidebar h2 {
-      margin-top: 0.25rem;
-    }
-  </style>
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
 </head>
 
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
   <header class="topbar">
     <div class="topbar-inner">
-      <a href="/inventory-service/" class="logo">
-        📦 Smart Supply Pro Docs
-        <span class="api-badge">🧩 Frontend API</span>
-      </a>
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
 
-      <nav class="nav">
-        <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
-        <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
-        <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
-        <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
-        <a href="/inventory-service/backend/api/index.html">Backend API</a>
-        <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
-        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
-        <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
-      </nav>
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+      <!-- Badge distinguishes API-reference pages from architecture pages. -->
+      <span class="badge">API</span>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="layout">
-    <!-- Small API sidebar (no backend architecture tree) -->
-    <aside class="sidebar api-sidebar">
-      <h2>Frontend API</h2>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Site navigation">
+      <p class="nav-title">Backend</p>
       <ul>
-        <li><a href="/inventory-service/frontend/api/index.html">API Home</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture</a></li>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Coverage</a></li>
       </ul>
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html" aria-current="page">API Reference</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Coverage</a></li>
+      </ul>
+    </nav>
 
-      <h2>Quick Links</h2>
-      <ul>
-        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a></li>
-        <li><a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a></li>
-      </ul>
-
-      <h2>Project</h2>
-      <ul>
-        <li><a href="/inventory-service/">Docs Home</a></li>
-        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
-        <li><a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a></li>
-      </ul>
-      <h2>Reference</h2>
-      <ul>
-        <li><a href="/inventory-service/frontend/api/modules.html">Modules</a></li>
-      </ul>
-    </aside>
-
-    <section class="content">
-            <nav class="toc">
-        <h2>On this page</h2>
-        <ul>
-        <li><a href="#function-clientfilter"
-        id="toc-function-clientfilter">Function: clientFilter()</a>
-        <ul>
-        <li><a href="#parameters" id="toc-parameters">Parameters</a>
-        <ul>
-        <li><a href="#items" id="toc-items">items</a></li>
-        <li><a href="#q" id="toc-q">q</a></li>
-        <li><a href="#limit" id="toc-limit">limit</a></li>
-        </ul></li>
-        <li><a href="#returns" id="toc-returns">Returns</a></li>
-        </ul></li>
-        </ul>
-      </nav>
-      
+    <main class="content" id="main">
       <article class="doc-body">
         <p><a href="README.html"><strong>frontend</strong></a></p>
         <hr />
@@ -110,7 +87,7 @@ analytics/util/functions/clientFilter · Smart Supply Pro · Frontend API</title
         href="types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/072ac14e2690b4fb6860ef432a100756f25c63fb/frontend/src/api/analytics/util.ts#L95">api/analytics/util.ts:95</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/e3f4f9aaa1fbc0a65d17127488df22865ad0f09e/frontend/src/api/analytics/util.ts#L95">api/analytics/util.ts:95</a></p>
         <p>Client-side filter as a safety net if the BE ignores search
         params. Returns at most <code>limit</code> items whose names
         include <code>q</code> (case-insensitive). If <code>q</code> is
@@ -128,15 +105,31 @@ analytics/util/functions/clientFilter · Smart Supply Pro · Frontend API</title
         <p><a
         href="types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]</p>
       </article>
-    </section>
-  </main>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#function-clientfilter"
+      id="toc-function-clientfilter">Function: clientFilter()</a>
+      <ul>
+      <li><a href="#parameters" id="toc-parameters">Parameters</a>
+      <ul>
+      <li><a href="#items" id="toc-items">items</a></li>
+      <li><a href="#q" id="toc-q">q</a></li>
+      <li><a href="#limit" id="toc-limit">limit</a></li>
+      </ul></li>
+      <li><a href="#returns" id="toc-returns">Returns</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
 
   <footer class="footer">
-    Smart Supply Pro · Frontend API · Generated by Docs Pipeline
+    Smart Supply Pro · API Reference · Generated by Docs Pipeline
   </footer>
 
-  <!-- Mermaid support (harmless even if API pages don't use it) -->
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script>mermaid.initialize({ startOnLoad: true });</script>
+  <script src="/inventory-service/assets/docs.js"></script>
 </body>
 </html>
