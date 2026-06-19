@@ -36,3 +36,37 @@ if (menu) {
     }
   });
 })();
+
+// Language switch: point EN/DE at the current page's translated twin when one
+// exists. Only the overview pages and the landing are translated, so any other
+// page routes DE to the German landing rather than a missing -de file. Done at
+// runtime to avoid wiring a per-page twin URL through the build.
+(function () {
+  var links = document.querySelectorAll(".lang-switch a");
+  if (links.length < 2) return;
+  var en = links[0], de = links[1];
+  var base = "/inventory-service";
+  var path = location.pathname;
+  var file = path.substring(path.lastIndexOf("/") + 1);
+  var dir = path.substring(0, path.lastIndexOf("/") + 1);
+
+  function current(active) {
+    en.removeAttribute("aria-current");
+    de.removeAttribute("aria-current");
+    active.setAttribute("aria-current", "true");
+  }
+
+  // The site landing is base/ or base/index.html specifically — a deep section
+  // index.html (e.g. enums/index.html) must not be mistaken for it.
+  if (path === base + "/" || path === base + "/index.html") {
+    en.href = base + "/"; de.href = base + "/index-de.html"; current(en);
+  } else if (path === base + "/index-de.html") {
+    en.href = base + "/"; de.href = base + "/index-de.html"; current(de);
+  } else if (file === "overview.html") {
+    en.href = path; de.href = dir + "overview-de.html"; current(en);
+  } else if (file === "overview-de.html") {
+    en.href = dir + "overview.html"; de.href = path; current(de);
+  } else {
+    en.href = path; de.href = base + "/index-de.html"; current(en);
+  }
+})();
