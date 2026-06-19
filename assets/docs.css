@@ -387,8 +387,9 @@ button:focus-visible {
 }
 .card:hover {
   border-color: var(--accent);
-  background: var(--surface);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 12%, transparent);
+  border-width: 2px;
+  background: #dce5ef;
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--accent) 22%, transparent);
   text-decoration: none;
 }
 .card h2 {
@@ -416,13 +417,15 @@ button:focus-visible {
    border for separation. The hover rule below is scoped to the same selector
    depth so it keeps winning the cascade over this base rule. */
 :root[data-theme="dark"] .card {
-  border-color: rgba(148, 163, 184, 0.28);
-  box-shadow: var(--shadow);
+  background: #111f33;
+  border-color: rgba(148, 163, 184, 0.40);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.40);
 }
 :root[data-theme="dark"] .card:hover {
   border-color: var(--accent);
-  background: var(--surface);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 22%, transparent);
+  border-width: 2px;
+  background: #1a2f4a;
+  box-shadow: 0 4px 24px color-mix(in srgb, var(--accent) 30%, transparent);
 }/* =============================================================================
    Smart Supply Pro Docs — Content
    Typography for Markdown rendered into .doc-body by the Pandoc pipeline.
