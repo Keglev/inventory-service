@@ -73,8 +73,8 @@ build_theme_assets() {
 
 # Landing pages are static HTML served at the site root.
 copy_landing_pages() {
-  cp "$DOCS_DIR/index.html"    "$OUTPUT_DIR/index.html"
-  cp "$DOCS_DIR/index-de.html" "$OUTPUT_DIR/index-de.html"
+  cp "$THEME_DIR/index.html"    "$OUTPUT_DIR/index.html"
+  cp "$THEME_DIR/index-de.html" "$OUTPUT_DIR/index-de.html"
   echo "✓ Landing pages copied"
 }
 
