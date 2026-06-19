@@ -92,3 +92,10 @@
   text-transform: uppercase;
   color: var(--accent);
 }
+
+/* Lift card separation in dark mode — page bg and surface are close, so
+   nudge the border brighter and add a subtle elevation. */
+:root[data-theme="dark"] .card {
+  border-color: rgba(148, 163, 184, 0.28);
+  box-shadow: var(--shadow);
+}
