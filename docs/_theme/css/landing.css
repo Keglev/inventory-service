@@ -65,10 +65,11 @@
   border-radius: var(--radius);
   color: var(--text);
   text-decoration: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 .card:hover {
   border-color: var(--accent);
+  background: var(--surface);
   box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 12%, transparent);
   text-decoration: none;
 }
@@ -93,9 +94,15 @@
   color: var(--accent);
 }
 
-/* Lift card separation in dark mode — page bg and surface are close, so
-   nudge the border brighter and add a subtle elevation. */
+/* Dark mode: page bg and --surface-2 sit close together, so lift the card
+   border for separation. The hover rule below is scoped to the same selector
+   depth so it keeps winning the cascade over this base rule. */
 :root[data-theme="dark"] .card {
   border-color: rgba(148, 163, 184, 0.28);
   box-shadow: var(--shadow);
+}
+:root[data-theme="dark"] .card:hover {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 22%, transparent);
 }
