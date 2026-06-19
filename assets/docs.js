@@ -67,6 +67,13 @@ if (menu) {
   } else if (file === "overview-de.html") {
     en.href = dir + "overview.html"; de.href = path; current(de);
   } else {
-    en.href = path; de.href = base + "/index-de.html"; current(en);
+    // English-only page: there is no German twin, so EN stays active and DE is
+    // shown disabled (greyed, not clickable) rather than sending the reader off
+    // to an unrelated page.
+    en.href = path;
+    de.removeAttribute("href");
+    de.setAttribute("aria-disabled", "true");
+    de.setAttribute("title", "Diese Seite ist nur auf Englisch verfügbar");
+    current(en);
   }
 })();
