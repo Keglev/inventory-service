@@ -1,8 +1,8 @@
-# =============================================
+# ===================================================
 # Spring Boot - Production Environment Config
 # Profile: prod
 # Used in deployment (e.g. Docker, cloud, prod server)
-# =============================================
+# ===================================================
 
 # Note: avoid hardcoding secrets here; use environment variables or secret management
 
