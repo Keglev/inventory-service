@@ -48,9 +48,9 @@ flowchart TB
   Repository --> Database
   Security -.->|Principal| Service
 
-  classDef controller fill:#e6f1fb;
-  classDef service    fill:#e1f5ee;
-  classDef repository fill:#eef2f6;
+  classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
+  classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
+  classDef repository fill:#d97706,color:#fff,stroke:#b45309;
 ```
 
 ## Core layers
@@ -147,9 +147,9 @@ flowchart LR
   DataEx --> Handler
   Handler --> Response
 
-  classDef controller fill:#e6f1fb;
-  classDef service    fill:#e1f5ee;
-  classDef repository fill:#eef2f6;
+  classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
+  classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
+  classDef repository fill:#d97706,color:#fff,stroke:#b45309;
 ```
 
 ## Data flow: creating an inventory item
@@ -193,9 +193,9 @@ flowchart TB
   Unit --> Coverage
   Integration --> Coverage
 
-  classDef controller fill:#e6f1fb;
-  classDef service    fill:#e1f5ee;
-  classDef repository fill:#eef2f6;
+  classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
+  classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
+  classDef repository fill:#d97706,color:#fff,stroke:#b45309;
 ```
 
 - **Unit tests** — Mockito mocks for all external dependencies; focus on business logic

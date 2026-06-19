@@ -16,6 +16,7 @@
   --surface-2: #f1f5f9;
   --surface-3: rgba(255, 255, 255, 0.85);
   --border: rgba(15, 23, 42, 0.12);
+  --border-strong: rgba(15, 23, 42, 0.28);
 
   --text: #1e293b;
   --muted: #64748b;
@@ -27,11 +28,8 @@
   --code-bg: #f1f5f9;
   --code-border: rgba(2, 132, 199, 0.18);
 
-  /* Diagram layer fills — consumed by mermaid.css. Red is intentionally
-     absent: it is reserved for error/danger states elsewhere in the system. */
-  --layer-controller: #e6f1fb;
-  --layer-service: #e1f5ee;
-  --layer-repository: #eef2f6;
+  /* Diagram edge/arrow color. Node fills are set per-layer in each diagram's
+     classDef (medium tones that read on both themes), not via tokens. */
   --layer-edge: #0284c7;
 
   /* --- Layout --- */
@@ -51,6 +49,7 @@
   --surface-2: #0c1626;
   --surface-3: rgba(9, 14, 25, 0.72);
   --border: rgba(148, 163, 184, 0.18);
+  --border-strong: rgba(148, 163, 184, 0.38);
 
   --text: #e5e7eb;
   --muted: #a7b0c0;
@@ -62,9 +61,6 @@
   --code-bg: #0b1424;
   --code-border: rgba(125, 211, 252, 0.18);
 
-  --layer-controller: #0c447c;
-  --layer-service: #04342c;
-  --layer-repository: #1e293b;
   --layer-edge: #7dd3fc;
 
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);

@@ -49,14 +49,14 @@
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   overflow: hidden;
 }
 .doc-body th, .doc-body td {
   text-align: left;
   padding: 0.6rem 0.7rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-strong);
   vertical-align: top;
 }
 .doc-body th { color: var(--heading); background: var(--surface-2); font-weight: 600; }

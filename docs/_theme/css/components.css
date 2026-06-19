@@ -115,7 +115,7 @@
   color: var(--text);
   font-size: 0.92rem;
 }
-.sidebar a:hover { background: var(--surface); text-decoration: none; }
+.sidebar a:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); text-decoration: none; }
 
 /* Current page is stamped server-side with aria-current for both styling and
    screen-reader orientation. */
