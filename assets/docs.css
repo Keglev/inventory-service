@@ -16,6 +16,7 @@
   --surface-2: #f1f5f9;
   --surface-3: rgba(255, 255, 255, 0.85);
   --border: rgba(15, 23, 42, 0.12);
+  --border-strong: rgba(15, 23, 42, 0.28);
 
   --text: #1e293b;
   --muted: #64748b;
@@ -27,11 +28,8 @@
   --code-bg: #f1f5f9;
   --code-border: rgba(2, 132, 199, 0.18);
 
-  /* Diagram layer fills — consumed by mermaid.css. Red is intentionally
-     absent: it is reserved for error/danger states elsewhere in the system. */
-  --layer-controller: #e6f1fb;
-  --layer-service: #e1f5ee;
-  --layer-repository: #eef2f6;
+  /* Diagram edge/arrow color. Node fills are set per-layer in each diagram's
+     classDef (medium tones that read on both themes), not via tokens. */
   --layer-edge: #0284c7;
 
   /* --- Layout --- */
@@ -51,6 +49,7 @@
   --surface-2: #0c1626;
   --surface-3: rgba(9, 14, 25, 0.72);
   --border: rgba(148, 163, 184, 0.18);
+  --border-strong: rgba(148, 163, 184, 0.38);
 
   --text: #e5e7eb;
   --muted: #a7b0c0;
@@ -62,9 +61,6 @@
   --code-bg: #0b1424;
   --code-border: rgba(125, 211, 252, 0.18);
 
-  --layer-controller: #0c447c;
-  --layer-service: #04342c;
-  --layer-repository: #1e293b;
   --layer-edge: #7dd3fc;
 
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
@@ -273,7 +269,7 @@ button:focus-visible {
   color: var(--text);
   font-size: 0.92rem;
 }
-.sidebar a:hover { background: var(--surface); text-decoration: none; }
+.sidebar a:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); text-decoration: none; }
 
 /* Current page is stamped server-side with aria-current for both styling and
    screen-reader orientation. */
@@ -477,58 +473,34 @@ button:focus-visible {
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   overflow: hidden;
 }
 .doc-body th, .doc-body td {
   text-align: left;
   padding: 0.6rem 0.7rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-strong);
   vertical-align: top;
 }
 .doc-body th { color: var(--heading); background: var(--surface-2); font-weight: 600; }
 .doc-body tr:hover td { background: var(--surface-2); }
 /* =============================================================================
    Smart Supply Pro Docs — Mermaid
-   Theme-aware diagram styling. Replaces the previous two blanket override
-   blocks with a single pass driven entirely by design tokens, so diagrams
-   re-theme live when the user toggles light/dark — no re-render needed.
-
-   !important is required throughout: Mermaid writes colors as inline style
-   attributes on the generated SVG, and an inline style outranks any class
-   selector. Routing every color through a token + !important is what lets the
-   variables win and stay theme-reactive.
-
-   Layer colors are opt-in. Author a diagram with classDef/class so nodes carry
-   .controller / .service / .repository and they pick up the matching --layer-*
-   token in both themes. Unclassed nodes use the neutral surface fill. Red is
-   never used here — it is reserved for error states elsewhere.
+   Node fills and label colors are set per-layer in each diagram's classDef
+   (medium tones with white text, chosen to read on BOTH light and dark
+   backgrounds). This file deliberately does NOT override node fills or label
+   text, so it never fights the classDef. It themes only the parts a classDef
+   cannot reach: edges, arrowheads, edge labels, clusters, and sequence
+   diagrams. Those use !important because Mermaid writes them as inline styles.
    ========================================================================== */
 
-/* Wrap wide diagrams in <div class="diagram-scroll"> so they scroll instead of
-   shrinking to an unreadable size inside the content column. */
+/* Wrap wide diagrams so they scroll instead of shrinking to an unreadable size. */
 .diagram-scroll { overflow-x: auto; }
 
 .mermaid { background: transparent; }
 
-/* Default node: neutral surface, accent border, readable label in both themes. */
-.mermaid .node rect,
-.mermaid .node circle,
-.mermaid .node ellipse,
-.mermaid .node polygon {
-  fill: var(--surface) !important;
-  stroke: var(--accent) !important;
-  stroke-width: 1.6px !important;
-}
-.mermaid .nodeLabel { color: var(--text) !important; fill: var(--text) !important; }
-
-/* Semantic architecture layers. */
-.mermaid .node.controller rect { fill: var(--layer-controller) !important; }
-.mermaid .node.service rect    { fill: var(--layer-service) !important; }
-.mermaid .node.repository rect  { fill: var(--layer-repository) !important; }
-
-/* Edges and arrowheads share one token so flow stays legible on either bg. */
+/* Edges and arrowheads: one themed color so flow stays legible on either bg. */
 .mermaid .edgePath path,
 .mermaid .flowchart-link,
 .mermaid svg line[stroke] {
@@ -542,6 +514,7 @@ button:focus-visible {
   stroke: var(--layer-edge) !important;
 }
 
+/* Edge labels (e.g. "HTTP", "Authenticated"): readable chip on the page bg. */
 .mermaid .edgeLabel {
   background-color: var(--surface) !important;
   color: var(--text) !important;
@@ -556,7 +529,14 @@ button:focus-visible {
   fill: var(--surface-2) !important;
 }
 
-/* Sequence diagrams reuse the same edge and label tokens. */
+/* Sequence diagrams have no classDef, so theme their parts directly. */
+.mermaid .actor {
+  fill: var(--surface-2) !important;
+  stroke: var(--accent) !important;
+}
+.mermaid text.actor,
+.mermaid text.actor > tspan { fill: var(--text) !important; stroke: none !important; }
+.mermaid .actor-line { stroke: var(--muted) !important; }
 .mermaid .messageLine0,
 .mermaid .messageLine1 { stroke: var(--layer-edge) !important; stroke-width: 2px !important; }
 .mermaid .messageText { fill: var(--text) !important; }
