@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend · 08-concepts · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
+        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
+        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="cross-cutting-concepts">§8 Cross-cutting Concepts</h1>
+        <h2 id="security">Security</h2>
+        <p>Authentication uses the OAuth2 Authorization Code flow with
+        Google as the sole identity provider. The code exchange is
+        server-to-server; the browser never sees a token.
+        <code>CookieOAuth2AuthorizationRequestRepository</code>
+        serialises the OAuth2 state parameter into an HTTP-only cookie
+        (<code>OAUTH2_AUTH_REQUEST</code>, TTL 180 s, configurable via
+        <code>AppProperties.Cookie</code>). On success,
+        <code>OAuth2LoginSuccessHandler</code> calls
+        <code>UserProvisioningService.provisionIfAbsent(email, name)</code>,
+        which inserts a new <code>AppUser</code> (role
+        <code>USER</code>) on first login or retrieves the existing
+        record, then redirects to
+        <code>AppProperties.frontend.baseUrl + landingPath</code>.</p>
+        <p>Two roles — <code>ADMIN</code> (full CRUD, analytics) and
+        <code>USER</code> (read + basic stock ops) — are stored as
+        <code>STRING</code> on <code>AppUser.role</code>. Every mutating
+        endpoint carries <code>@PreAuthorize</code>; the frontend hides
+        UI elements, but the backend enforces each rule independently
+        and does not trust the client’s claimed role.</p>
+        <p><strong>Demo mode</strong>:
+        <code>AppProperties.isDemoReadonly</code> (env
+        <code>APP_DEMO_READONLY</code>, default <code>true</code> in
+        prod) permits unauthenticated read access. The flag is evaluated
+        inside the <code>@PreAuthorize</code> SpEL expression on each
+        endpoint; it does not disable the security filter chain.</p>
+        <p>Session cookies are <code>HttpOnly</code>,
+        <code>Secure=true</code>, <code>SameSite=None</code> (required
+        because Nginx on Koyeb proxies <code>/api/*</code> to Fly.io
+        across origins — <code>Strict</code> would drop the session
+        cookie on every cross-origin subrequest). CORS allowed origins
+        are configured per profile in
+        <code>AppProperties.cors.allowedOrigins</code> (default:
+        <code>http://localhost:5173</code>; prod:
+        <code>https://inventory-service.koyeb.app</code>).</p>
+        <p>See <a href="reference/config/index.html">config
+        reference</a>.</p>
+        <hr />
+        <h2 id="validation">Validation</h2>
+        <p>Three tiers enforce data integrity in sequence:</p>
+        <ol type="1">
+        <li><p><strong>Controller — JSR-380</strong>
+        (<code>@Valid</code> on <code>@RequestBody</code>): Bean
+        Validation constraints (<code>@NotBlank</code>,
+        <code>@NotNull</code>, <code>@Size</code>,
+        <code>@Positive</code>, etc.) fire before the method body
+        executes. Failures throw
+        <code>MethodArgumentNotValidException</code> → 400.</p></li>
+        <li><p><strong>Service — business rules</strong>: dedicated
+        validator classes (<code>SupplierValidator</code>,
+        <code>InventoryItemValidator</code>,
+        <code>InventoryItemLookupValidator</code>,
+        <code>InventoryItemSecurityValidator</code>,
+        <code>StockHistoryValidator</code>) enforce uniqueness,
+        referential integrity, and state guards that require database
+        reads. Failures throw <code>InvalidRequestException</code> → 400
+        or <code>DuplicateResourceException</code> → 409.</p></li>
+        <li><p><strong>Database — constraints</strong>:
+        <code>NOT NULL</code>, <code>UNIQUE</code>, and foreign-key
+        constraints in Oracle act as the final safety net. Violations
+        surface as <code>DataIntegrityViolationException</code> → 409.
+        SQL detail is stripped by
+        <code>GlobalExceptionHandler.sanitize()</code> before the
+        message reaches the client.</p></li>
+        </ol>
+        <p>See <a href="reference/exception/index.html">exception
+        reference</a>.</p>
+        <hr />
+        <h2 id="exception-handling">Exception Handling</h2>
+        <p>Two <code>@ControllerAdvice</code> handlers cover all
+        exceptions without overlap:</p>
+        <p><strong><code>BusinessExceptionHandler</code></strong>
+        (<code>@Order(HIGHEST_PRECEDENCE)</code>) handles domain
+        exceptions:</p>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Exception</th>
+        <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>InvalidRequestException</code></td>
+        <td>400</td>
+        </tr>
+        <tr class="even">
+        <td><code>DuplicateResourceException</code></td>
+        <td>409</td>
+        </tr>
+        <tr class="odd">
+        <td><code>IllegalStateException</code></td>
+        <td>409</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong><code>GlobalExceptionHandler</code></strong>
+        (<code>@Order(HIGHEST_PRECEDENCE + 1)</code>) handles framework
+        exceptions:</p>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Exception</th>
+        <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>MethodArgumentNotValidException</code>,
+        <code>ConstraintViolationException</code>,
+        <code>HttpMessageNotReadableException</code></td>
+        <td>400</td>
+        </tr>
+        <tr class="even">
+        <td><code>AuthenticationException</code></td>
+        <td>401</td>
+        </tr>
+        <tr class="odd">
+        <td><code>AccessDeniedException</code></td>
+        <td>403</td>
+        </tr>
+        <tr class="even">
+        <td><code>NoSuchElementException</code>,
+        <code>IllegalArgumentException</code></td>
+        <td>404</td>
+        </tr>
+        <tr class="odd">
+        <td><code>DataIntegrityViolationException</code>,
+        <code>ObjectOptimisticLockingFailureException</code></td>
+        <td>409</td>
+        </tr>
+        <tr class="even">
+        <td><code>Exception</code> (fallback)</td>
+        <td>500</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>Error contract</strong> — every response body (except
+        static-resource 404s, which return no body) is:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span> <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;not_found&quot;</span><span class="fu">,</span> <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span> <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-...&quot;</span> <span class="fu">}</span></span></code></pre></div>
+        <p><code>error</code> =
+        <code>HttpStatus.name().toLowerCase()</code>
+        (e.g. <code>bad_request</code>, <code>not_found</code>,
+        <code>conflict</code>). There is no <code>correlationId</code>
+        field.</p>
+        <p><strong><code>sanitize()</code></strong> strips the following
+        from exception messages before they reach the client: Windows
+        and Unix file paths → <code>[PATH]</code>;
+        <code>.java</code>/<code>.class</code> file references and
+        <code>com.smartsupplypro.*</code> class names →
+        <code>[INTERNAL]</code>; SQL fragments →
+        <code>"Database operation failed"</code>; strings starting with
+        <code>Password</code> or <code>Token</code> →
+        <code>"Authentication failed"</code>. A <code>null</code> input
+        returns <code>"Unknown error"</code>.</p>
+        <p>See <a href="reference/exception/index.html">exception
+        reference</a>.</p>
+        <hr />
+        <p>See also: <a href="08b-concepts-infra.html">Infrastructure
+        concepts — Configuration, Persistence, Logging</a></p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#cross-cutting-concepts"
+      id="toc-cross-cutting-concepts">§8 Cross-cutting Concepts</a>
+      <ul>
+      <li><a href="#security" id="toc-security">Security</a></li>
+      <li><a href="#validation" id="toc-validation">Validation</a></li>
+      <li><a href="#exception-handling"
+      id="toc-exception-handling">Exception Handling</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

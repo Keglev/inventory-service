@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0003-dto-boundary-no-entity-exposure · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
+        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
+        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0003-dto-boundary-no-entity-exposure-across-layers">ADR-0003:
+        DTO boundary — no entity exposure across layers</h1>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2025-06-01</p>
+        <h2 id="context">Context</h2>
+        <p>SmartSupplyPro follows a layered architecture: controllers
+        receive HTTP requests, services apply business logic,
+        repositories persist and retrieve JPA entities. A key design
+        question is which objects cross each layer boundary.</p>
+        <p>Forces/constraints: - <strong>Serialization safety</strong>:
+        JPA entities contain lazy-loaded associations. Exposing an
+        entity in a controller response risks triggering lazy loads
+        outside a transaction (<code>LazyInitializationException</code>)
+        or serializing more data than intended. - <strong>API
+        stability</strong>: the public REST contract should be decoupled
+        from the internal persistence model; a schema change should not
+        force an API change. - <strong>Auditability</strong>:
+        <code>createdBy</code> and <code>createdAt</code> are audit
+        fields that must never be copied from client input;
+        <code>createdAt</code> is populated by JPA lifecycle callbacks
+        (<code>@PrePersist</code> on
+        <code>InventoryItem</code>/<code>StockHistory</code>,
+        <code>@CreationTimestamp</code> on <code>Supplier</code>), with
+        <code>createdBy</code> defaulted in <code>@PrePersist</code> and
+        optionally pre-set by the service layer. -
+        <strong>Testability</strong>: services and controllers should be
+        testable with simple DTO objects, not full JPA entities wired to
+        a database session.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Entities never cross the controller boundary; DTOs never
+        enter the repository layer.</p>
+        <ul>
+        <li><strong>Controllers</strong> receive and return DTOs
+        exclusively. All deserialization (<code>@RequestBody</code>)
+        targets DTO classes; all serialized responses are DTOs.</li>
+        <li><strong>Service layer</strong> is the only place that
+        crosses the boundary: it calls mapper classes to translate
+        incoming DTOs to entities (before <code>save()</code>) and to
+        translate outgoing entities to DTOs (before returning to the
+        controller).</li>
+        <li><strong>Repositories</strong> never accept DTOs as
+        parameters. CRUD methods accept and return JPA entities;
+        read-only reporting queries are the sole exception and return
+        DTO projections built inside the query via JPQL constructor
+        expressions (e.g.
+        <code>StockHistoryRepository.getPriceTrend()</code> returns
+        <code>List&lt;PriceTrendDTO&gt;</code>). A DTO never enters a
+        repository as a parameter.</li>
+        </ul>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ol type="1">
+        <li><strong>Expose entities directly from controllers</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Less code — no mapper or DTO classes needed</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Lazy-loaded associations cause
+        <code>LazyInitializationException</code> or require
+        <code>FetchType.EAGER</code> everywhere (N+1 risk)</li>
+        <li>Jackson serializes the entire entity graph, including
+        internal audit fields not intended for API consumers</li>
+        <li>Schema changes break the public API immediately</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Use DTOs in repositories (pass DTOs to
+        <code>save()</code>)</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Service layer needs no mapping step for writes</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Spring Data JPA’s <code>save()</code> requires a managed
+        entity; DTOs are not managed objects — this pattern requires
+        manual <code>EntityManager</code> wiring</li>
+        <li>Repository tests would need DTO objects instead of entities,
+        coupling persistence tests to API shape</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Use projections (Spring Data interface
+        projections)</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Avoids a separate DTO class for read-only queries</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Projection interfaces are harder to test and construct in
+        unit tests</li>
+        <li>Does not help with write paths — entities are still required
+        for <code>save()</code></li>
+        <li>The codebase already has 14 DTO classes; projections would
+        add a third abstraction alongside entities and DTOs</li>
+        </ul></li>
+        </ul></li>
+        </ol>
+        <h2 id="consequences">Consequences</h2>
+        <h3 id="positive">Positive</h3>
+        <ul>
+        <li>Controllers and their tests work with plain DTO objects; no
+        Spring context or database session is required to unit-test a
+        controller.</li>
+        <li>The REST API shape is independent of the persistence schema;
+        internal fields (<code>@CreationTimestamp</code>, JPA
+        annotations) are never serialized.</li>
+        <li>No accidental lazy-load triggers: the mapper is called
+        inside the service transaction, where the session is still
+        open.</li>
+        </ul>
+        <h3 id="negative-tradeoffs">Negative / Tradeoffs</h3>
+        <ul>
+        <li>Every new entity requires a corresponding DTO class and
+        mapper method. For a codebase with 14 DTOs this is manageable
+        but not zero cost.</li>
+        <li>Read-only analytics queries return aggregated values as
+        DTOs; these are constructed inside repository reporting queries
+        (JPQL constructor expressions, and native SQL for aggregates),
+        not mapped from entities — which is a pragmatic exception to the
+        general pattern.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Where it is implemented:
+        <ul>
+        <li>DTOs:
+        <code>src/main/java/com/smartsupplypro/inventory/dto/</code> (14
+        classes: e.g., <code>InventoryItemDTO</code>,
+        <code>SupplierDTO</code>, <code>StockHistoryDTO</code>,
+        analytics DTOs)</li>
+        <li>Mappers:
+        <code>src/main/java/com/smartsupplypro/inventory/mapper/</code>
+        — <code>InventoryItemMapper</code>,
+        <code>StockHistoryMapper</code>,
+        <code>SupplierMapper</code></li>
+        <li>Service layer: mappers are injected and called before
+        <code>save()</code> and before returning from service
+        methods</li>
+        <li>Repositories: <code>SupplierRepository</code>,
+        <code>InventoryItemRepository</code>,
+        <code>StockHistoryRepository</code>,
+        <code>AppUserRepository</code> — no method takes a DTO
+        parameter; CRUD methods use entity types, while reporting
+        methods (e.g.
+        <code>StockHistoryRepository.getPriceTrend()</code>) return DTO
+        projections built by the query</li>
+        </ul></li>
+        <li>Migration notes (if relevant):
+        <ul>
+        <li>Analytics aggregation DTOs
+        (<code>DashboardSummaryDTO</code>,
+        <code>StockPerSupplierDTO</code>, etc.) are constructed inside
+        repository reporting queries (JPQL constructor expressions or
+        native SQL), not mapped from entity objects; they are an
+        accepted exception consistent with this ADR (they still never
+        enter the repository as parameters)</li>
+        </ul></li>
+        <li>Testing implications:
+        <ul>
+        <li>Controller tests use DTO objects and mock the service
+        layer</li>
+        <li>Service tests use entity objects and mock the repository
+        layer</li>
+        <li>The mapper classes are unit-tested independently</li>
+        </ul></li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a href="05-building-blocks.html">§5 Building Block View</a>
+        — layer narrative describing the controller/service/repository
+        boundary</li>
+        <li><a
+        href="./adr-0002-manual-mapping-over-mapstruct.html">ADR-0002:
+        Manual mapping</a> — how the boundary is bridged</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0003-dto-boundary-no-entity-exposure-across-layers"
+      id="toc-adr-0003-dto-boundary-no-entity-exposure-across-layers">ADR-0003:
+      DTO boundary — no entity exposure across layers</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences" id="toc-consequences">Consequences</a>
+      <ul>
+      <li><a href="#positive" id="toc-positive">Positive</a></li>
+      <li><a href="#negative-tradeoffs"
+      id="toc-negative-tradeoffs">Negative / Tradeoffs</a></li>
+      </ul></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

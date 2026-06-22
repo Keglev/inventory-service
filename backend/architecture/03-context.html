@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend · 03-context · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
+        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
+        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="context-scope">§3 Context &amp; Scope</h1>
+        <h2 id="business-context">Business Context</h2>
+        <p>Smart Supply Pro (SSP) is a full-stack inventory management
+        system for small-to-medium businesses. It lets authorised staff
+        track stock levels, manage supplier relationships, and analyse
+        purchasing trends in real time. Two roles interact with the
+        system: <code>USER</code> (view inventory, record stock
+        movements) and <code>ADMIN</code> (full CRUD over suppliers and
+        inventory items, financial analytics).</p>
+        <h2 id="technical-context">Technical Context</h2>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>External System</th>
+        <th>Role</th>
+        <th>Integration</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>React SPA (frontend)</td>
+        <td>Primary client — all user interaction</td>
+        <td>REST over HTTPS; HTTP-only session cookie; same origin in
+        production via Nginx reverse proxy</td>
+        </tr>
+        <tr class="even">
+        <td>Google OAuth2</td>
+        <td>Identity provider</td>
+        <td>Authorization Code flow; backend exchanges code for token
+        server-to-server; no token is stored or forwarded to the
+        frontend</td>
+        </tr>
+        <tr class="odd">
+        <td>Oracle Autonomous Database 23ai</td>
+        <td>Persistent store</td>
+        <td>JDBC via wallet authentication (<code>cwallet.sso</code>,
+        <code>TNS_ADMIN</code> at runtime); H2 in Oracle-compatibility
+        mode for local dev and CI</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="context-diagram-c4-level-1">Context Diagram (C4 Level
+        1)</h2>
+        <div class="mermaid">
+        graph TB
+            User["End User\n(USER role)"]:::actor
+            Admin["Administrator\n(ADMIN role)"]:::actor
+            Frontend["React SPA\n(TypeScript / Vite)"]:::controller
+            Backend["Spring Boot API\n(inventory-service)"]:::service
+            OAuth["Google OAuth2\n(identity provider)"]:::external
+            DB["Oracle Autonomous DB\n(23ai)"]:::repository
+
+            User    -->|"HTTPS"| Frontend
+            Admin   -->|"HTTPS"| Frontend
+            Frontend -->|"REST / JSON\nHTTP-only session cookie"| Backend
+            Backend  -->|"Authorization Code flow"| OAuth
+            OAuth    -->|"User info + verified token"| Backend
+            Backend  -->|"JDBC / wallet"| DB
+
+            classDef actor      fill:#6b7280,color:#fff,stroke:#4b5563;
+            classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
+            classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
+            classDef repository fill:#d97706,color:#fff,stroke:#b45309;
+            classDef external   fill:#4f46e5,color:#fff,stroke:#3730a3;
+        </div>
+        <h2 id="system-boundary">System Boundary</h2>
+        <p><strong>Inside</strong> (owned and deployed by this
+        project):</p>
+        <ul>
+        <li>Spring Boot backend (<code>/src</code>) — REST API, business
+        logic, security, persistence</li>
+        <li>React frontend (<code>/frontend</code>) — SPA served via
+        Nginx on the same Fly.io host</li>
+        </ul>
+        <p><strong>Outside</strong> (external, not controlled by this
+        project):</p>
+        <ul>
+        <li>Google OAuth2 — user identity and token issuance</li>
+        <li>Oracle Cloud — database hosting and automated backup</li>
+        <li>Fly.io / Nginx — container runtime and reverse proxy (see <a
+        href="07-deployment.html">§7</a>)</li>
+        </ul>
+        <h2 id="key-integration-facts">Key Integration Facts</h2>
+        <ul>
+        <li><strong>Token handling</strong>: the OAuth2 code exchange is
+        backend-to-backend; the frontend never receives or stores a
+        token. The backend issues an HTTP-only,
+        <code>SameSite=Strict</code> session cookie; the browser
+        includes it automatically on every subsequent request.</li>
+        <li><strong>Same origin in production</strong>: frontend and
+        backend share <code>app.fly.dev</code>. Nginx proxies
+        <code>/api/</code> to the backend on
+        <code>localhost:8080</code>, so no CORS headers are needed in
+        production and cookies work natively.</li>
+        <li><strong>Local development</strong>: Vite’s dev server
+        proxies <code>/api</code> to <code>localhost:8080</code>; Spring
+        Security CORS is enabled for <code>localhost:3000</code> only in
+        the default profile.</li>
+        <li><strong>Demo mode</strong>:
+        <code>AppProperties.demoReadonly</code> allows unauthenticated
+        read-only access without removing <code>@PreAuthorize</code>
+        from any endpoint — the flag is evaluated inside the SpEL
+        expression, not by bypassing the security filter chain.</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#context-scope" id="toc-context-scope">§3 Context
+      &amp; Scope</a>
+      <ul>
+      <li><a href="#business-context" id="toc-business-context">Business
+      Context</a></li>
+      <li><a href="#technical-context"
+      id="toc-technical-context">Technical Context</a></li>
+      <li><a href="#context-diagram-c4-level-1"
+      id="toc-context-diagram-c4-level-1">Context Diagram (C4 Level
+      1)</a></li>
+      <li><a href="#system-boundary" id="toc-system-boundary">System
+      Boundary</a></li>
+      <li><a href="#key-integration-facts"
+      id="toc-key-integration-facts">Key Integration Facts</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

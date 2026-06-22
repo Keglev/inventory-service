@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0002-manual-mapping-over-mapstruct · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
+        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
+        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="adr-0002-manual-mapping-over-mapstruct">ADR-0002: Manual
+        mapping over MapStruct</h1>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2025-06-01</p>
+        <h2 id="context">Context</h2>
+        <p>SmartSupplyPro’s service layer must translate between JPA
+        entities and DTOs in both directions. The project uses 14 DTOs
+        across inventory, supplier, stock history, and analytics
+        domains. Several mappings involve computed fields (e.g.,
+        <code>totalValue</code> = <code>price × quantity</code> in
+        <code>InventoryItemMapper</code>) or deliberate field exclusions
+        (e.g., <code>createdBy</code> overwritten in the service layer
+        after mapping).</p>
+        <p>Forces/constraints: - <strong>Explicitness</strong>: computed
+        and conditional mapping logic must be readable and debuggable
+        without understanding a code-generation framework. -
+        <strong>Control</strong>: some fields (<code>createdBy</code>,
+        <code>createdAt</code>) must be set by the service layer or
+        <code>@PrePersist</code>, not blindly copied — a code generator
+        that copies all fields by default is a liability. -
+        <strong>Simplicity</strong>: adding MapStruct requires an
+        annotation processor, build-plugin configuration, and generated
+        source inspection to verify correctness. - <strong>Portfolio
+        readability</strong>: reviewers reading the codebase should be
+        able to trace data flow without knowing MapStruct’s
+        conventions.</p>
+        <h2 id="decision">Decision</h2>
+        <p>All entity-to-DTO and DTO-to-entity conversions are
+        implemented as plain Spring <code>@Component</code> mapper
+        classes (<code>InventoryItemMapper</code>,
+        <code>StockHistoryMapper</code>, <code>SupplierMapper</code>)
+        with explicit <code>toDTO()</code> and <code>toEntity()</code>
+        methods. No code generation framework is used.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ol type="1">
+        <li><strong>MapStruct</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Eliminates boilerplate for field-by-field copies</li>
+        <li>Compile-time safety: unmapped fields produce warnings</li>
+        <li>Well-known in enterprise Java</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Requires annotation processor and Maven plugin; adds a
+        build-time dependency</li>
+        <li>Custom logic (computed fields, conditional writes) requires
+        <code>@AfterMapping</code> or expression callbacks — often
+        harder to read than a plain method</li>
+        <li>Generated code is invisible in the IDE until the build runs;
+        debugging requires inspecting
+        <code>target/generated-sources/</code></li>
+        <li>For the number of DTOs in this project (~14), the
+        boilerplate saving is modest</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>ModelMapper</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Zero configuration for simple 1:1 field matches</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Reflection-based; mapping errors surface at runtime, not
+        compile time</li>
+        <li>Type-unsafe; silently skips mismatched fields</li>
+        <li>Performance overhead from reflection on hot paths</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Records/constructors with Lombok
+        <code>@Builder</code></strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Less ceremony than full mapper classes</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Computed fields and null guards still require helper
+        methods</li>
+        <li>Does not meaningfully differ from the chosen approach for
+        this codebase</li>
+        </ul></li>
+        </ul></li>
+        </ol>
+        <h2 id="consequences">Consequences</h2>
+        <h3 id="positive">Positive</h3>
+        <ul>
+        <li>Every mapping is explicit: a reader can see exactly which
+        fields are set and why.</li>
+        <li>Computed fields (<code>totalValue</code>), null guards, and
+        deliberate omissions are plain Java — no framework convention to
+        look up.</li>
+        <li>No annotation processor; the build has one fewer moving
+        part.</li>
+        </ul>
+        <h3 id="negative-tradeoffs">Negative / Tradeoffs</h3>
+        <ul>
+        <li>Adding a new DTO field requires updating
+        <code>toDTO()</code> and <code>toEntity()</code> manually;
+        MapStruct would catch omissions at compile time.</li>
+        <li>More lines of code per mapper compared to a generated
+        equivalent.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Where it is implemented:
+        <ul>
+        <li><code>src/main/java/com/smartsupplypro/inventory/mapper/InventoryItemMapper.java</code>
+        — <code>toDTO()</code> computes <code>totalValue</code> and
+        resolves <code>supplierName</code> from the lazy
+        <code>@ManyToOne</code>; <code>toEntity()</code> does not copy
+        the audit fields from the DTO — <code>createdAt</code> is set by
+        the entity’s <code>@PrePersist</code> callback, and
+        <code>createdBy</code> falls back to <code>"system"</code> there
+        if the service layer has not already assigned it</li>
+        <li><code>src/main/java/com/smartsupplypro/inventory/mapper/StockHistoryMapper.java</code></li>
+        <li><code>src/main/java/com/smartsupplypro/inventory/mapper/SupplierMapper.java</code></li>
+        <li>All three are <code>@Component</code>-injected; service
+        classes receive them via constructor injection</li>
+        </ul></li>
+        <li>Migration notes (if relevant):
+        <ul>
+        <li>If a new entity is added, create a corresponding mapper
+        class in the <code>mapper/</code> package following the same
+        <code>toDTO()</code> / <code>toEntity()</code> pattern</li>
+        </ul></li>
+        <li>Testing implications:
+        <ul>
+        <li>Mappers can be unit-tested directly (no Spring context
+        required) by constructing an entity, calling
+        <code>toDTO()</code>, and asserting field values</li>
+        </ul></li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a href="05-building-blocks.html">§5 Building Block View</a>
+        — service layer description</li>
+        <li><a
+        href="./adr-0003-dto-boundary-no-entity-exposure.html">ADR-0003:
+        DTO boundary</a> — why the boundary exists that these mappers
+        bridge</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#adr-0002-manual-mapping-over-mapstruct"
+      id="toc-adr-0002-manual-mapping-over-mapstruct">ADR-0002: Manual
+      mapping over MapStruct</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences" id="toc-consequences">Consequences</a>
+      <ul>
+      <li><a href="#positive" id="toc-positive">Positive</a></li>
+      <li><a href="#negative-tradeoffs"
+      id="toc-negative-tradeoffs">Negative / Tradeoffs</a></li>
+      </ul></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

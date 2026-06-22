@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+10-quality-requirements · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
+        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
+        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="quality-requirements">Quality Requirements</h1>
+        <p>This section makes SmartSupplyPro’s quality goals explicit
+        and testable. It refines the top-level goals stated in the
+        architecture overview — <strong>security</strong>,
+        <strong>maintainability</strong>, and <strong>separation of
+        concerns</strong> — into a quality tree and a set of concrete,
+        measurable scenarios. Each scenario points to the decision (§9
+        ADR) or view (§5–§8) where the property is realised, so quality
+        goals are traceable rather than aspirational.</p>
+        <h2 id="quality-tree">10.1 Quality Tree</h2>
+        <p>Top-level quality goals, refined into the sub-characteristics
+        this architecture actually targets. Separation of concerns and
+        testability sit under maintainability; correctness and
+        performance sit under reliability.</p>
+        <div class="mermaid">
+        graph LR
+          Q["Quality goals"]
+          Q --> SEC["Security"]
+          Q --> MNT["Maintainability"]
+          Q --> REL["Reliability & correctness"]
+
+          SEC --> SEC1["No internal disclosure in error responses"]
+          SEC --> SEC2["Credential safety (wallet auto-login, injected secrets)"]
+          SEC --> SEC3["AuthN / AuthZ: OAuth2 + RBAC, secure cross-origin session"]
+
+          MNT --> MNT1["Separation of concerns (layered)"]
+          MNT --> MNT2["Modifiability via the DTO boundary"]
+          MNT --> MNT3["Explicit mapping, no code generation"]
+          MNT --> MNT4["Testability via constructor injection"]
+
+          REL --> REL1["Uniform error contract"]
+          REL --> REL2["Multi-tier validation"]
+          REL --> REL3["N+1 avoidance on hot paths"]
+        </div>
+        <h2 id="quality-scenarios">10.2 Quality Scenarios</h2>
+        <p>Each scenario is a stimulus → response pair with a concrete
+        measure. The source column links to the decision or view that
+        guarantees it.</p>
+        <table>
+        <colgroup>
+        <col style="width: 8%" />
+        <col style="width: 20%" />
+        <col style="width: 45%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>ID</th>
+        <th>Quality goal</th>
+        <th>Scenario (stimulus → response)</th>
+        <th>Measure / source</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Q-01</td>
+        <td>Security — no internal disclosure</td>
+        <td>An exception whose message carries a file path, class name,
+        SQL fragment, or credential is thrown while handling a
+        request</td>
+        <td>Response body contains none of them — replaced by
+        <code>[PATH]</code>, <code>[INTERNAL]</code>,
+        <code>Database operation failed</code>, or
+        <code>Authentication failed</code>. See <a
+        href="./09-decisions/adr-0005-error-message-sanitization.html">ADR-0005</a>,
+        <a href="./08-concepts.html">§8</a></td>
+        </tr>
+        <tr class="even">
+        <td>Q-02</td>
+        <td>Security — credential safety</td>
+        <td>The production image and Fly.io configuration are
+        inspected</td>
+        <td>No wallet password is required at runtime
+        (<code>cwallet.sso</code> auto-login); the DB schema credentials
+        are injected as Fly secrets and appear in neither source nor
+        image. See <a
+        href="./09-decisions/adr-0001-oracle-wallet-autologin.html">ADR-0001</a></td>
+        </tr>
+        <tr class="odd">
+        <td>Q-03</td>
+        <td>Security — cross-origin auth</td>
+        <td>A browser request from the Koyeb frontend origin calls the
+        Fly.io backend</td>
+        <td>The session cookie is sent
+        <code>SameSite=None; Secure</code>; the request authenticates;
+        OAuth2 success redirects to <code>/auth</code>. See <a
+        href="./06-runtime.html">§6</a></td>
+        </tr>
+        <tr class="even">
+        <td>Q-04</td>
+        <td>Maintainability — modifiability</td>
+        <td>A new persisted field is added to an entity</td>
+        <td>The change is localised to the entity, its DTO, and one
+        mapper method; no controller or repository signature changes.
+        See <a
+        href="./09-decisions/adr-0002-manual-mapping-over-mapstruct.html">ADR-0002</a>,
+        <a
+        href="./09-decisions/adr-0003-dto-boundary-no-entity-exposure.html">ADR-0003</a></td>
+        </tr>
+        <tr class="odd">
+        <td>Q-05</td>
+        <td>Maintainability — API stability</td>
+        <td>A persistence column is renamed</td>
+        <td>The public REST contract (DTO JSON shape) is unchanged; the
+        OpenAPI schema diff is empty. See <a
+        href="./09-decisions/adr-0003-dto-boundary-no-entity-exposure.html">ADR-0003</a></td>
+        </tr>
+        <tr class="even">
+        <td>Q-06</td>
+        <td>Reliability — error consistency</td>
+        <td>Any handled failure occurs (validation, not-found, conflict,
+        access-denied, unexpected)</td>
+        <td>The body is exactly <code>{error, message, timestamp}</code>
+        with <code>error == HttpStatus.name().toLowerCase()</code>; no
+        correlation ID, no stack trace. See <a
+        href="./09-decisions/adr-0004-http-status-as-envelope.html">ADR-0004</a></td>
+        </tr>
+        <tr class="odd">
+        <td>Q-07</td>
+        <td>Reliability — performance</td>
+        <td>The inventory list endpoint is queried as the item count
+        grows</td>
+        <td>Suppliers load via <code>@EntityGraph</code> in a single
+        join; the SQL query count stays constant regardless of row count
+        (no N+1). See <a href="./06-runtime.html">§6</a></td>
+        </tr>
+        </tbody>
+        </table>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#quality-requirements"
+      id="toc-quality-requirements">Quality Requirements</a>
+      <ul>
+      <li><a href="#quality-tree" id="toc-quality-tree">10.1 Quality
+      Tree</a></li>
+      <li><a href="#quality-scenarios" id="toc-quality-scenarios">10.2
+      Quality Scenarios</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend · 05-building-blocks · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
+        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
+        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="building-block-view">§5 Building Block View</h1>
+        <h2 id="controller-layer">Controller Layer</h2>
+        <p>Eight <code>@RestController</code> classes form the HTTP
+        boundary, grouped by domain path.
+        <code>SupplierController</code> (<code>/api/suppliers</code>)
+        handles full CRUD for suppliers.
+        <code>InventoryItemController</code>
+        (<code>/api/inventory</code>) handles create, read, delete, and
+        list; <code>InventoryItemPatchController</code> (same path)
+        handles price and quantity patch operations separately to keep
+        each class focused. <code>StockHistoryController</code>
+        (<code>/api/stock-history</code>) exposes paginated read and
+        search. Three analytics controllers share
+        <code>/api/analytics</code>: <code>AnalyticsController</code>
+        (dashboard and financial summaries),
+        <code>StockAnalyticsController</code> (stock-per-supplier,
+        low-stock, movement), and
+        <code>StockUpdateAnalyticsController</code> (stock update query
+        and post). <code>AuthController</code> (<code>/api</code>)
+        exposes <code>/auth/me</code> and logout. Every mutating
+        endpoint carries <code>@PreAuthorize</code>; inbound DTOs are
+        validated with JSR-380 (<code>@Valid</code>) before reaching the
+        service layer. Controllers perform DTO conversion and response
+        building — no business logic lives here.</p>
+        <h2 id="service-layer">Service Layer</h2>
+        <p>Business logic and transaction boundaries live in four
+        service interfaces and their implementations:
+        <code>SupplierService</code>, <code>InventoryItemService</code>,
+        <code>StockHistoryService</code>, and
+        <code>AnalyticsService</code> (implemented by
+        <code>AnalyticsServiceImpl</code>, with
+        <code>StockAnalyticsService</code> and
+        <code>FinancialAnalyticsService</code> as focused sub-services
+        for WAC and stock-movement calculations).
+        <code>UserProvisioningService</code> owns the OAuth2
+        user-creation and role-assignment flow on first login;
+        <code>SecurityService</code> exposes the current principal for
+        <code>createdBy</code> stamping. All service interfaces are
+        constructor-injected; every state-mutating operation is wrapped
+        in <code>@Transactional</code>.</p>
+        <h2 id="repository-layer">Repository Layer</h2>
+        <p><code>SupplierRepository</code>,
+        <code>InventoryItemRepository</code>, and
+        <code>StockHistoryRepository</code> are Spring Data JPA
+        interfaces that cover the core domain.
+        <code>InventoryItemRepository</code> declares
+        <code>@EntityGraph(attributePaths = {"supplier"})</code> on both
+        <code>findAll()</code> and
+        <code>findByNameSortedByPrice()</code> to eager-load the
+        supplier association in a single JOIN, preventing N+1 queries on
+        the two hot list paths. Complex analytics aggregations that
+        exceed what JPQL can express cleanly are handled by three custom
+        repository implementations:
+        <code>StockDetailQueryRepositoryImpl</code>,
+        <code>StockMetricsRepositoryImpl</code>, and
+        <code>StockTrendAnalyticsRepositoryImpl</code>, each backed by
+        dedicated SQL builders in <code>repository/custom/util/</code>.
+        <code>AppUserRepository</code> is used exclusively by
+        <code>UserProvisioningService</code> for OAuth2 user lookup and
+        provisioning and does not participate in the domain service
+        flow.</p>
+        <h2 id="model-layer">Model Layer</h2>
+        <p>Four JPA entities map to Oracle tables: <code>Supplier</code>
+        (table <code>SUPPLIER</code>), <code>InventoryItem</code> (table
+        <code>INVENTORY_ITEM</code>), <code>StockHistory</code> (table
+        <code>STOCK_HISTORY</code>), and <code>AppUser</code> (table
+        <code>users_app</code>). All entities carry exactly two audit
+        fields: <code>createdBy</code> (plain <code>String</code>, not a
+        FK) and <code>createdAt</code> (<code>LocalDateTime</code>).
+        There is no <code>@Version</code>, no optimistic locking, and no
+        <code>updatedAt</code>. <code>StockHistory.reason</code> is
+        typed as <code>StockChangeReason</code> (11 values, stored as
+        <code>STRING</code>); <code>AppUser.role</code> is typed as
+        <code>Role</code> (<code>ADMIN</code> / <code>USER</code>,
+        stored as <code>STRING</code>).</p>
+        <h2 id="cross-cutting">Cross-cutting</h2>
+        <p><code>SecurityConfig</code> and its helper split-classes
+        (<code>SecurityFilterHelper</code>,
+        <code>SecurityAuthorizationHelper</code>,
+        <code>SecurityEntryPointHelper</code>) configure the Spring
+        Security filter chain, OAuth2 login, and CORS.
+        <code>OAuth2LoginSuccessHandler</code> delegates to
+        <code>UserProvisioningService</code> on first login;
+        <code>CookieOAuth2AuthorizationRequestRepository</code>
+        serialises OAuth2 state into an HTTP-only cookie. All exceptions
+        funnel through two <code>@ControllerAdvice</code> handlers:
+        <code>GlobalExceptionHandler</code> for framework exceptions and
+        <code>BusinessExceptionHandler</code> for domain exceptions
+        (<code>DuplicateResourceException</code>,
+        <code>InvalidRequestException</code>). Both produce a
+        three-field <code>ErrorResponse</code>:
+        <code>{ "error": "...", "message": "...", "timestamp": "..." }</code>
+        where <code>error</code> is
+        <code>HttpStatus.name().toLowerCase()</code>.</p>
+        <h2 id="building-block-diagram">Building-Block Diagram</h2>
+        <div class="mermaid">
+        graph TB
+            subgraph Controllers
+                SC["SupplierController"]:::controller
+                IC["InventoryItemController\nInventoryItemPatchController"]:::controller
+                SHC["StockHistoryController"]:::controller
+                AC["AnalyticsController\nStockAnalyticsController\nStockUpdateAnalyticsController"]:::controller
+                AuC["AuthController"]:::controller
+            end
+
+            subgraph Services
+                SS["SupplierService"]:::service
+                IS["InventoryItemService"]:::service
+                SHS["StockHistoryService"]:::service
+                AS["AnalyticsService"]:::service
+                UPS["UserProvisioningService"]:::service
+            end
+
+            subgraph Repositories
+                SR["SupplierRepository"]:::repository
+                IR["InventoryItemRepository"]:::repository
+                SHR["StockHistoryRepository"]:::repository
+            end
+
+            subgraph Model
+                SUP["Supplier"]:::entity
+                INV["InventoryItem"]:::entity
+                SH["StockHistory"]:::entity
+                AU["AppUser"]:::entity
+                SCR["StockChangeReason\n(11 values)"]:::enumNode
+                RL["Role\nADMIN / USER"]:::enumNode
+            end
+
+            subgraph CrossCutting["Cross-cutting"]
+                SEC["Spring Security + OAuth2\nOAuth2LoginSuccessHandler\nCookieOAuth2AuthorizationRequestRepository"]:::crosscut
+                EH["GlobalExceptionHandler\nBusinessExceptionHandler"]:::crosscut
+                VAL["JSR-380 @Valid"]:::crosscut
+            end
+
+            SC --> SS
+            IC --> IS
+            SHC --> SHS
+            AC --> AS
+            AuC --> UPS
+
+            SS --> SR
+            IS --> IR
+            SHS --> SHR
+            AS --> IR
+            AS --> SHR
+            UPS --> AU
+
+            SR --> SUP
+            IR --> INV
+            SHR --> SH
+            SH -. reason .-> SCR
+            AU -. role .-> RL
+
+            classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
+            classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
+            classDef repository fill:#d97706,color:#fff,stroke:#b45309;
+            classDef entity     fill:#374151,color:#fff,stroke:#1f2937;
+            classDef enumNode   fill:#6b7280,color:#fff,stroke:#4b5563;
+            classDef crosscut   fill:#7c3aed,color:#fff,stroke:#5b21b6;
+        </div>
+        <h2 id="domain-model-er-diagram">Domain Model (ER Diagram)</h2>
+        <div class="mermaid">
+        erDiagram
+            SUPPLIER ||--o{ INVENTORY_ITEM : supplies
+            INVENTORY_ITEM ||--o{ STOCK_HISTORY : tracked_by
+            SUPPLIER ||--o{ STOCK_HISTORY : denormalized_ref
+
+            SUPPLIER {
+                string id PK
+                string name "unique (service/DB rule)"
+                string contactName
+                string phone
+                string email
+                string createdBy
+                timestamp createdAt
+            }
+            INVENTORY_ITEM {
+                string id PK
+                string name
+                int quantity
+                decimal price
+                int minimumQuantity "low-stock threshold"
+                string supplierId FK
+                string createdBy
+                timestamp createdAt
+            }
+            STOCK_HISTORY {
+                string id PK
+                string itemId FK
+                string supplierId FK "denormalized"
+                int change "+ in / - out"
+                string reason "StockChangeReason (11 values)"
+                decimal priceAtChange "WAC snapshot"
+                string createdBy
+                timestamp timestamp "col CREATED_AT"
+            }
+            APP_USER {
+                string id PK
+                string email UK
+                string name
+                string role "Role: ADMIN/USER"
+                timestamp createdAt
+            }
+        </div>
+        <h2 id="reference">Reference</h2>
+        <p>Class-level detail for each package — navigate down for
+        specifics:</p>
+        <ul>
+        <li><a href="reference/controller/index.html">Controller
+        reference</a></li>
+        <li><a href="reference/dto/index.html">DTO reference</a></li>
+        <li><a href="reference/model/index.html">Model
+        reference</a></li>
+        <li><a href="reference/repository/index.html">Repository
+        reference</a></li>
+        <li><a href="reference/config/index.html">Config
+        reference</a></li>
+        <li><a href="reference/enums/index.html">Enums
+        reference</a></li>
+        <li><a href="reference/exception/index.html">Exception
+        reference</a></li>
+        <li><a href="reference/resources/index.html">Resources
+        reference</a></li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#building-block-view" id="toc-building-block-view">§5
+      Building Block View</a>
+      <ul>
+      <li><a href="#controller-layer"
+      id="toc-controller-layer">Controller Layer</a></li>
+      <li><a href="#service-layer" id="toc-service-layer">Service
+      Layer</a></li>
+      <li><a href="#repository-layer"
+      id="toc-repository-layer">Repository Layer</a></li>
+      <li><a href="#model-layer" id="toc-model-layer">Model
+      Layer</a></li>
+      <li><a href="#cross-cutting"
+      id="toc-cross-cutting">Cross-cutting</a></li>
+      <li><a href="#building-block-diagram"
+      id="toc-building-block-diagram">Building-Block Diagram</a></li>
+      <li><a href="#domain-model-er-diagram"
+      id="toc-domain-model-er-diagram">Domain Model (ER
+      Diagram)</a></li>
+      <li><a href="#reference" id="toc-reference">Reference</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

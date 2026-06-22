@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend · 07-deployment · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
+        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
+        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="deployment-view">§7 Deployment View</h1>
+        <h2 id="topology">Topology</h2>
+        <p>The backend runs on <strong>Fly.io</strong> (region
+        <code>fra</code>, Frankfurt) as a Docker container on a
+        <code>shared-cpu-1x</code> / 1 GB RAM machine, listening
+        internally on port 8081. The React frontend SPA is served by
+        <strong>Koyeb</strong>
+        (<code>https://inventory-service.koyeb.app</code>) behind
+        <strong>Nginx</strong> (<code>ops/nginx/</code>), which
+        reverse-proxies <code>/api/*</code> to the Fly.io backend —
+        making the two appear same-origin to the browser so session
+        cookies work without CORS. Persistent data lives in
+        <strong>Oracle Autonomous Database 23ai</strong>, authenticated
+        via wallet (no password at runtime). Architecture and API
+        documentation are published to <strong>GitHub Pages</strong> via
+        a separate docs pipeline.</p>
+        <h2 id="deployment-diagram">Deployment Diagram</h2>
+        <div class="mermaid">
+        graph TB
+            Dev["Developer\ngit push to main"]:::actor
+            GHA["GitHub Actions"]:::external
+            DH["Docker Hub\nckbuzin/inventory-service"]:::external
+            Fly["Fly.io — fra\ninventoryservice\nport 8081"]:::service
+            OADB["Oracle Autonomous DB\n23ai — wallet auth"]:::repository
+            Koyeb["Koyeb\nReact SPA + Nginx\ninventory-service.koyeb.app"]:::controller
+            GHP["GitHub Pages\nAPI + architecture docs"]:::external
+            User["End User"]:::actor
+
+            Dev -->|push| GHA
+            GHA -->|2-docker-backend.yml\ndocker build + Trivy + push :SHA| DH
+            DH -.->|image pull on deploy| Fly
+            GHA -->|4-deploy-fly.yml\nflyctl deploy --image SHA| Fly
+            GHA -->|6-deploy-frontend.yml| Koyeb
+            GHA -->|3-deploy-ghpages.yml| GHP
+            Fly -->|JDBC / cwallet.sso\nTNS_ADMIN only| OADB
+            User -->|HTTPS| Koyeb
+            Koyeb -->|/api/* reverse proxy| Fly
+
+            classDef actor      fill:#6b7280,color:#fff,stroke:#4b5563;
+            classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
+            classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
+            classDef repository fill:#d97706,color:#fff,stroke:#b45309;
+            classDef external   fill:#4f46e5,color:#fff,stroke:#3730a3;
+        </div>
+        <h2 id="cicd-pipeline">CI/CD Pipeline</h2>
+        <p>Seven GitHub Actions workflows run on push to
+        <code>main</code>:</p>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Workflow</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>1-ci-test.yml</code></td>
+        <td><code>mvn clean verify</code> — compile, unit + integration
+        tests, JaCoCo coverage report</td>
+        </tr>
+        <tr class="even">
+        <td><code>2-docker-backend.yml</code></td>
+        <td><code>docker build</code> (prod profile), Trivy CVE scan
+        (blocks on HIGH/CRITICAL), <code>docker push :SHA :latest</code>
+        to Docker Hub</td>
+        </tr>
+        <tr class="odd">
+        <td><code>4-deploy-fly.yml</code></td>
+        <td><code>flyctl deploy --image &lt;SHA&gt;</code>, polls
+        <code>GET /api/health</code> (5-minute timeout), auto-rollback
+        on failure</td>
+        </tr>
+        <tr class="even">
+        <td><code>docs-pipeline.yml</code></td>
+        <td>Generates OpenAPI docs (Redocly) and converts architecture
+        markdown to HTML (Pandoc + Lua filter)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>3-deploy-ghpages.yml</code></td>
+        <td>Publishes docs-site artifact to the <code>gh-pages</code>
+        branch (GitHub Pages)</td>
+        </tr>
+        <tr class="even">
+        <td><code>5-frontend-ci.yml</code></td>
+        <td>Frontend lint, type-check, build</td>
+        </tr>
+        <tr class="odd">
+        <td><code>6-deploy-frontend.yml</code></td>
+        <td>Deploys built frontend to Koyeb</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="backend-pipeline-chain">Backend Pipeline Chain</h3>
+        <div class="mermaid">
+        sequenceDiagram
+            participant Dev as Developer
+            participant GH as GitHub
+            participant CI as 1-ci-test.yml
+            participant Docker as 2-docker-backend.yml
+            participant DH as Docker Hub
+            participant Deploy as 4-deploy-fly.yml
+            participant Fly as Fly.io
+
+            Dev->>GH: git push origin main
+            GH->>CI: trigger
+            CI->>CI: mvn clean verify + JaCoCo
+            CI->>Docker: trigger on CI success
+            Docker->>Docker: docker build (prod profile)
+            Docker->>Docker: Trivy scan — block on HIGH/CRITICAL
+            Docker->>DH: docker push :SHA + :latest
+            DH-->>Deploy: trigger on Docker success
+            Deploy->>Fly: flyctl deploy --image ckbuzin/inventory-service:SHA
+            Fly->>Fly: health check GET /api/health (grace 30 s, interval 10 s)
+            alt health check passes
+                Fly-->>Deploy: deployment confirmed
+            else health check fails
+                Fly-->>Deploy: auto_rollback = true — previous image restored
+            end
+        </div>
+        <h2 id="immutable-sha-strategy">Immutable SHA Strategy</h2>
+        <p>Every Docker image is tagged with the commit SHA (e.g.,
+        <code>ckbuzin/inventory-service:a1b2c3d</code>).
+        <code>4-deploy-fly.yml</code> always deploys by SHA, never by
+        <code>latest</code>. This means:</p>
+        <ul>
+        <li>Any commit can be redeployed exactly by re-running
+        <code>flyctl deploy --image &lt;SHA&gt;</code>.</li>
+        <li>Rolling back is deploying the previous SHA — no rebuild
+        required.</li>
+        <li>The <code>latest</code> tag is a convenience alias only and
+        is never used in production deploys.</li>
+        </ul>
+        <h2 id="runtime-environment">Runtime Environment</h2>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Environment</th>
+        <th>Spring Profile</th>
+        <th>Database</th>
+        <th>Secret Source</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Local dev</td>
+        <td>(none)</td>
+        <td>H2 in-memory</td>
+        <td><code>.env</code> file or IDE run config</td>
+        </tr>
+        <tr class="even">
+        <td>CI / test</td>
+        <td><code>test</code></td>
+        <td>H2 (Oracle-compatibility mode)</td>
+        <td><code>application-test.yml</code></td>
+        </tr>
+        <tr class="odd">
+        <td>Production</td>
+        <td><code>prod</code></td>
+        <td>Oracle Autonomous DB 23ai</td>
+        <td>Fly.io secrets vault</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><code>SPRING_PROFILES_ACTIVE=prod</code> is set in
+        <code>fly.toml</code> <code>[env]</code>. Non-sensitive runtime
+        flags (<code>APP_DEMO_READONLY</code>,
+        <code>APP_FRONTEND_BASE_URL</code>,
+        <code>APP_FRONTEND_LANDING_PATH</code>) are also declared in
+        <code>fly.toml</code>. Sensitive credentials are stored
+        exclusively as Fly.io secrets and injected as environment
+        variables at container start — they are never committed to
+        source control.</p>
+        <h2 id="oracle-wallet-authentication">Oracle Wallet
+        Authentication</h2>
+        <p>The production connection to Oracle Autonomous Database is
+        <strong>passwordless</strong>. The Oracle wallet
+        (<code>oracle_wallet/Wallet_sspdb_fixed/cwallet.sso</code>) is
+        bundled into the Docker image. At runtime only
+        <code>TNS_ADMIN</code> needs to point to the wallet directory —
+        no username/password is stored or injected. See <a
+        href="09-decisions/0001-oracle-wallet-autologin.html">ADR
+        0001</a>.</p>
+        <h2 id="environment-variables-and-secrets">Environment Variables
+        and Secrets</h2>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Variable</th>
+        <th>Source</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>SPRING_PROFILES_ACTIVE</code></td>
+        <td><code>fly.toml [env]</code></td>
+        <td>Activates <code>prod</code> profile</td>
+        </tr>
+        <tr class="even">
+        <td><code>APP_DEMO_READONLY</code></td>
+        <td><code>fly.toml [env]</code></td>
+        <td>Enables read-only demo mode</td>
+        </tr>
+        <tr class="odd">
+        <td><code>APP_FRONTEND_BASE_URL</code></td>
+        <td><code>fly.toml [env]</code></td>
+        <td>CORS allowed origin for Koyeb frontend</td>
+        </tr>
+        <tr class="even">
+        <td><code>TNS_ADMIN</code></td>
+        <td>Fly.io secret</td>
+        <td>Path to Oracle wallet directory inside container</td>
+        </tr>
+        <tr class="odd">
+        <td><code>OAUTH2_CLIENT_ID</code></td>
+        <td>Fly.io secret</td>
+        <td>Google OAuth2 client ID</td>
+        </tr>
+        <tr class="even">
+        <td><code>OAUTH2_CLIENT_SECRET</code></td>
+        <td>Fly.io secret</td>
+        <td>Google OAuth2 client secret</td>
+        </tr>
+        </tbody>
+        </table>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#deployment-view" id="toc-deployment-view">§7
+      Deployment View</a>
+      <ul>
+      <li><a href="#topology" id="toc-topology">Topology</a></li>
+      <li><a href="#deployment-diagram"
+      id="toc-deployment-diagram">Deployment Diagram</a></li>
+      <li><a href="#cicd-pipeline" id="toc-cicd-pipeline">CI/CD
+      Pipeline</a>
+      <ul>
+      <li><a href="#backend-pipeline-chain"
+      id="toc-backend-pipeline-chain">Backend Pipeline Chain</a></li>
+      </ul></li>
+      <li><a href="#immutable-sha-strategy"
+      id="toc-immutable-sha-strategy">Immutable SHA Strategy</a></li>
+      <li><a href="#runtime-environment"
+      id="toc-runtime-environment">Runtime Environment</a></li>
+      <li><a href="#oracle-wallet-authentication"
+      id="toc-oracle-wallet-authentication">Oracle Wallet
+      Authentication</a></li>
+      <li><a href="#environment-variables-and-secrets"
+      id="toc-environment-variables-and-secrets">Environment Variables
+      and Secrets</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

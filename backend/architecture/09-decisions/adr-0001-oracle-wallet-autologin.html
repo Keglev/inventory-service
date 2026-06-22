@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0001-oracle-wallet-autologin · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
+        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
+        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0001-oracle-wallet-auto-login-for-database-authentication">ADR-0001:
+        Oracle Wallet auto-login for database authentication</h1>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2025-06-01</p>
+        <h2 id="context">Context</h2>
+        <p>SmartSupplyPro connects to Oracle Autonomous Database 23ai
+        hosted on Oracle Cloud. The production instance runs on Fly.io
+        (region <code>fra</code>); the JDBC driver must authenticate to
+        Oracle ADB on every connection. Oracle ADB supports three
+        authentication mechanisms: username + password, encrypted wallet
+        with wallet password, and auto-login wallet
+        (<code>cwallet.sso</code>).</p>
+        <p>Forces/constraints: - <strong>Credential security</strong>:
+        DB credentials must not live in plain-text environment variables
+        or be committed to source control. - <strong>Operational
+        simplicity</strong>: A solo-developer portfolio project should
+        minimise the number of secrets that must be managed and rotated.
+        - <strong>Container portability</strong>: The authentication
+        mechanism must work inside a Docker image on Fly.io without an
+        external secrets manager. - <strong>No second-factor
+        overhead</strong>: Keeping the wallet encrypted with a separate
+        wallet password adds a second secret while providing no
+        meaningful additional protection if the image is already
+        protected.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Use Oracle Wallet auto-login (<code>cwallet.sso</code>). The
+        wallet directory
+        (<code>oracle_wallet/Wallet_sspdb_fixed/</code>) is bundled into
+        the Docker image at build time. At runtime,
+        <code>TNS_ADMIN</code> points to the wallet directory; the
+        wallet provides mTLS (certificate-based channel authentication)
+        to Oracle ADB. <code>DB_USER</code> and <code>DB_PASS</code>
+        still authenticate the database account — they are required. No
+        wallet password is needed because <code>cwallet.sso</code> is an
+        auto-login credential that carries the SSO token without a
+        secondary passphrase.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ol type="1">
+        <li><strong>Username + password via environment
+        variables</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Simple to configure; widely understood</li>
+        <li>No binary wallet files in the repository</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Database password exposed as a secret — must be rotated if
+        compromised</li>
+        <li>JDBC URL logging at startup risks exposing credentials</li>
+        <li>Password rotation requires a coordinated container
+        restart</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Encrypted wallet (<code>ewallet.p12</code>) + wallet
+        password</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Wallet files are encrypted at rest on the filesystem</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Requires both the wallet directory (in image) and a wallet
+        password (injected as a secret): two secrets instead of
+        zero</li>
+        <li>No net security gain once the container image is already the
+        trust boundary</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>External secrets manager (e.g., HashiCorp
+        Vault)</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Credentials never appear in environment variables, images,
+        or logs</li>
+        <li>Centralised rotation and audit trail</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Significant operational overhead for a solo portfolio
+        project</li>
+        <li>Fly.io does not natively integrate with Vault; would require
+        a sidecar agent</li>
+        </ul></li>
+        </ul></li>
+        </ol>
+        <h2 id="consequences">Consequences</h2>
+        <h3 id="positive">Positive</h3>
+        <ul>
+        <li>Zero DB credentials in environment variables, logs, or
+        secrets vaults.</li>
+        <li><code>TNS_ADMIN</code> is the only wallet-related runtime
+        injection needed.</li>
+        <li>Two independent authentication layers: mTLS via
+        <code>cwallet.sso</code> (channel) and <code>DB_USER</code> /
+        <code>DB_PASS</code> (account) — both must succeed for a
+        connection to open.</li>
+        <li>Rotation is structural (new wallet → new image build) rather
+        than operational (rotating a live secret).</li>
+        </ul>
+        <h3 id="negative-tradeoffs">Negative / Tradeoffs</h3>
+        <ul>
+        <li>The wallet is embedded in the Docker image. An attacker who
+        extracts the image gains the <code>cwallet.sso</code> file.
+        Residual risk: Oracle ADB still requires network access from a
+        whitelisted IP/VPC; the wallet file alone is not
+        sufficient.</li>
+        <li>If the Oracle ADB instance is recreated, a new wallet must
+        be downloaded, placed in
+        <code>oracle_wallet/Wallet_sspdb_fixed/</code>, and the image
+        rebuilt and redeployed.</li>
+        <li><code>cwallet.sso</code> is an auto-login credential with no
+        secondary passphrase; there is no second factor protecting the
+        wallet file itself.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Where it is implemented:
+        <ul>
+        <li>Wallet directory:
+        <code>oracle_wallet/Wallet_sspdb_fixed/</code> — contains
+        <code>cwallet.sso</code>, <code>tnsnames.ora</code>,
+        <code>sqlnet.ora</code>, <code>ojdbc.properties</code>,
+        <code>ewallet.p12</code>, <code>keystore.jks</code>,
+        <code>truststore.jks</code></li>
+        <li><code>TNS_ADMIN</code> is injected as a Fly.io secret
+        (<code>flyctl secrets set TNS_ADMIN=...</code>); it is not
+        present in <code>fly.toml [env]</code> or committed to source
+        control</li>
+        <li><code>application-prod.yml</code> datasource uses
+        <code>${DB_URL}</code> (JDBC TNS alias),
+        <code>${DB_USER}</code>, and <code>${DB_PASS}</code>; all three
+        are required at runtime</li>
+        </ul></li>
+        <li>Migration notes (if relevant):
+        <ul>
+        <li>If the Oracle ADB instance is recreated: download the new
+        wallet from Oracle Cloud Console, replace the contents of
+        <code>oracle_wallet/Wallet_sspdb_fixed/</code>, rebuild the
+        Docker image, push via <code>2-docker-backend.yml</code>, and
+        redeploy via <code>4-deploy-fly.yml</code></li>
+        </ul></li>
+        <li>Testing implications:
+        <ul>
+        <li>The <code>test</code> profile uses H2 in
+        Oracle-compatibility mode (<code>MODE=Oracle</code>); no wallet
+        is needed. Oracle wallet authentication is exercised only by the
+        <code>prod</code> profile and is not covered by unit or
+        integration tests.</li>
+        </ul></li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a href="07-deployment.html">§7 Deployment View</a> — wallet
+        path, <code>TNS_ADMIN</code> injection, Fly.io secrets
+        table</li>
+        <li><a href="08b-concepts-infra.html">§8 Configuration /
+        Profiles</a> — datasource config per profile, HikariCP prod
+        tuning</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0001-oracle-wallet-auto-login-for-database-authentication"
+      id="toc-adr-0001-oracle-wallet-auto-login-for-database-authentication">ADR-0001:
+      Oracle Wallet auto-login for database authentication</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences" id="toc-consequences">Consequences</a>
+      <ul>
+      <li><a href="#positive" id="toc-positive">Positive</a></li>
+      <li><a href="#negative-tradeoffs"
+      id="toc-negative-tradeoffs">Negative / Tradeoffs</a></li>
+      </ul></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

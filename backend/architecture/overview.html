@@ -254,9 +254,9 @@
         <code>StockHistoryRepository</code>, plus custom analytics
         mixins using JPQL and native SQL.</p>
         <h3 id="data-layer">Data layer</h3>
-        <p>JPA entities with optimistic locking (<code>@Version</code>),
-        audit fields (<code>createdAt</code>, <code>updatedAt</code>,
-        <code>createdBy</code>), and type-safe enum columns.</p>
+        <p>JPA entities with audit fields (<code>createdAt</code>,
+        <code>createdBy</code>) set via <code>@PrePersist</code> /
+        <code>@CreationTimestamp</code>, and type-safe enum columns.</p>
         <p>Entities: <code>Supplier</code>, <code>InventoryItem</code>,
         <code>StockHistory</code>, <code>AppUser</code>.</p>
         <h2 id="authentication-and-security">Authentication and
@@ -276,17 +276,19 @@
           Controller->>AuthService: Exchange code for token
           AuthService->>OAuth2Provider: Validate token
           OAuth2Provider->>AuthService: Token valid + user info
-          AuthService->>Client: Session token
-          Client->>API: Token in Authorization header
+          AuthService->>Client: Set session cookie
+          Client->>API: Request with session cookie (SameSite=None, Secure)
           API->>SecurityContext: Validate and build principal
           SecurityContext->>Controller: Execute with authenticated principal
         </div>
         <h2 id="exception-handling">Exception handling</h2>
         <p>Business exceptions and framework exceptions are both routed
         through a global <code>@ControllerAdvice</code> handler,
-        producing a consistent error response — HTTP status,
-        machine-readable error token, timestamp, and correlation ID.
-        Stack traces are never exposed in responses.</p>
+        producing a consistent error response — HTTP status, the HTTP
+        status code carries the result and the body holds exactly three
+        fields: a machine-readable error token, a human-readable
+        message, and a timestamp. There is no correlation ID, and stack
+        traces are never exposed in responses.</p>
         <div class="mermaid">
         flowchart LR
           Service["Service logic"]:::service
@@ -351,8 +353,10 @@
         </tr>
         <tr class="even">
         <td>Audit logging</td>
-        <td><code>createdBy</code> / <code>updatedAt</code> captured
-        from <code>SecurityContext</code> uniformly</td>
+        <td><code>createdAt</code> set by <code>@PrePersist</code> /
+        <code>@CreationTimestamp</code>; <code>createdBy</code>
+        defaulted to <code>"system"</code> in <code>@PrePersist</code>,
+        or set by the service before persist</td>
         </tr>
         </tbody>
         </table>
@@ -411,7 +415,7 @@
         <p>The backend is deployed to <strong>Fly.io</strong> via a
         fully automated GitHub Actions pipeline:</p>
         <pre><code>Source push
-  → 1-ci-backend.yml      Maven build, JUnit tests, JaCoCo coverage
+  → 1-ci-test.yml         Maven build, JUnit tests, JaCoCo coverage
   → 2-docker-backend.yml  Docker image build, Trivy CVE scan, push to Docker Hub
   → 4-deploy-fly.yml      Deploy pre-built image to Fly.io, health check</code></pre>
         <p>The Docker image contains only the production JAR and

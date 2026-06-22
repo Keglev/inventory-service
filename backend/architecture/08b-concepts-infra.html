@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend · 08b-concepts-infra · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
+        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
+        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="cross-cutting-concepts-infrastructure">§8 Cross-cutting
+        Concepts — Infrastructure</h1>
+        <p>← <a href="08-concepts.html">Runtime cross-cutting —
+        Security, Validation, Exception Handling</a></p>
+        <hr />
+        <h2 id="configuration-profiles">Configuration / Profiles</h2>
+        <p><code>application.yml</code> holds shared defaults (server
+        port 8081, OAuth2 provider URLs, global logging). Two profile
+        overlays specialise it:</p>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Profile</th>
+        <th>Activation</th>
+        <th>Database</th>
+        <th>SQL logging</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>(none)</td>
+        <td>No <code>SPRING_PROFILES_ACTIVE</code></td>
+        <td>Oracle via <code>DB_URL</code> env var (H2 if unset)</td>
+        <td>DEBUG — JDBC + Hibernate SQL</td>
+        </tr>
+        <tr class="even">
+        <td><code>test</code></td>
+        <td><code>SPRING_PROFILES_ACTIVE=test</code></td>
+        <td>H2 <code>MODE=Oracle</code> in-memory;
+        <code>ddl-auto=create-drop</code></td>
+        <td>DEBUG; H2 console at <code>/h2-console</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>prod</code></td>
+        <td><code>SPRING_PROFILES_ACTIVE=prod</code></td>
+        <td>Oracle Autonomous DB via wallet;
+        <code>ddl-auto=update</code></td>
+        <td>off (<code>show-sql=false</code>, root INFO)</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><code>AppProperties</code>
+        (<code>@ConfigurationProperties(prefix="app")</code>)
+        centralises all environment-specific knobs: demo-readonly flag,
+        frontend base URL and landing path, CORS allowed origins, and
+        OAuth2 state cookie settings. Every field defaults to a safe
+        local-dev value and is overridable by environment variable
+        without code changes.</p>
+        <p>In production, HikariCP is tuned for Fly.io’s RAM
+        constraints: <code>maximum-pool-size=5</code>,
+        <code>max-lifetime=240000</code> ms (below Oracle ADB’s 5-minute
+        idle timeout), with a <code>SELECT 1 FROM DUAL</code> keepalive
+        query.</p>
+        <p>See <a href="reference/config/index.html">config
+        reference</a> and <a
+        href="reference/resources/index.html">resources
+        reference</a>.</p>
+        <hr />
+        <h2 id="persistence">Persistence</h2>
+        <p>All JPA entities carry exactly two audit fields:</p>
+        <ul>
+        <li><code>createdBy</code> — plain <code>String</code> (the
+        authenticated user’s email from <code>SecurityContext</code>,
+        set in the service layer before <code>save()</code>). Not a
+        foreign key to <code>AppUser</code>.</li>
+        <li><code>createdAt</code> — <code>LocalDateTime</code>, set
+        immutably at creation: via <code>@CreationTimestamp</code> on
+        <code>Supplier</code>; via <code>@PrePersist</code> on
+        <code>InventoryItem</code> and <code>StockHistory</code>; via
+        field initialiser on <code>AppUser</code>.</li>
+        </ul>
+        <p>There is no <code>updatedAt</code>, no
+        <code>updatedBy</code>, and no <code>@Version</code> field on
+        any entity. <code>StockHistory</code> records are immutable by
+        design and are never updated after insertion.</p>
+        <p>All <code>id</code> fields are UUID strings.
+        <code>InventoryItem</code> and <code>Supplier</code> each hold a
+        read-only lazy <code>@ManyToOne</code> join for object
+        navigation; the authoritative FK (<code>supplierId</code>) is a
+        plain <code>String</code> column on the owning entity, and
+        <code>insertable=false, updatable=false</code> prevents the join
+        from conflicting with the scalar column.</p>
+        <p>See <a href="reference/model/index.html">model
+        reference</a>.</p>
+        <hr />
+        <h2 id="logging">Logging</h2>
+        <p>SLF4J with Logback (Spring Boot default). Log levels per
+        profile:</p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Profile</th>
+        <th>Application (<code>com.smartsupplypro</code>)</th>
+        <th>Framework / Hibernate SQL</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>default / test</td>
+        <td>DEBUG</td>
+        <td>DEBUG (JDBC + Hibernate SQL + parameter values)</td>
+        </tr>
+        <tr class="even">
+        <td>prod</td>
+        <td>INFO</td>
+        <td>INFO (framework noise suppressed)</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>In production: <code>show-sql=false</code>, health endpoint
+        <code>show-details: never</code>. In test:
+        <code>show-details: always</code> to support CI assertions. Test
+        output also writes to <code>logs/test-application.log</code>. No
+        MDC context or correlation ID is added to log entries.</p>
+        <p>See <a href="reference/resources/index.html">resources
+        reference</a>.</p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#cross-cutting-concepts-infrastructure"
+      id="toc-cross-cutting-concepts-infrastructure">§8 Cross-cutting
+      Concepts — Infrastructure</a>
+      <ul>
+      <li><a href="#configuration-profiles"
+      id="toc-configuration-profiles">Configuration / Profiles</a></li>
+      <li><a href="#persistence"
+      id="toc-persistence">Persistence</a></li>
+      <li><a href="#logging" id="toc-logging">Logging</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0005-error-message-sanitization · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
+        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
+        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0005-error-message-sanitization-in-globalexceptionhandler">ADR-0005:
+        Error message sanitization in GlobalExceptionHandler</h1>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2025-06-01</p>
+        <h2 id="context">Context</h2>
+        <p>When an exception is caught and its message is forwarded to
+        the client inside an <code>ErrorResponse</code>, the raw
+        exception message may contain server-internal detail: file
+        system paths, fully-qualified Java class names, raw SQL
+        fragments, or credential strings that leaked into an exception’s
+        message field. Returning these to the client violates the
+        principle of minimal disclosure and is a common finding in
+        security audits.</p>
+        <p>Forces/constraints: - <strong>Information
+        disclosure</strong>: stack-trace details and SQL help an
+        attacker map the server’s internal structure. -
+        <strong>Credential safety</strong>: if a password or token
+        string is accidentally included in an exception message, it must
+        not reach the client or be logged in a response body. -
+        <strong>Usefulness</strong>: the sanitized message must still be
+        human-readable; replacing every message with
+        <code>"error"</code> defeats the purpose of having a
+        <code>message</code> field. - <strong>Single enforcement
+        point</strong>: sanitization must happen in one place so that
+        adding a new exception handler does not silently bypass it.</p>
+        <h2 id="decision">Decision</h2>
+        <p><code>GlobalExceptionHandler</code> applies a
+        <code>sanitize()</code> method to all exception messages before
+        they are placed in the <code>ErrorResponse</code>. The method
+        applies six sequential regex replacements:</p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Pattern</th>
+        <th>Replacement</th>
+        <th>Catches</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>\b[A-Za-z]:\\[\w\\.-]+</code></td>
+        <td><code>[PATH]</code></td>
+        <td>Windows drive paths (<code>C:\...</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><code>/[\w/.-]+\.(java\|class)</code></td>
+        <td><code>[INTERNAL]</code></td>
+        <td>Unix paths ending in <code>.java</code> or
+        <code>.class</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>\bcom\.smartsupplypro\.[\w.]+</code></td>
+        <td><code>[INTERNAL]</code></td>
+        <td>Fully-qualified class names</td>
+        </tr>
+        <tr class="even">
+        <td><code>(?i)\bSQL.*</code></td>
+        <td><code>Database operation failed</code></td>
+        <td>SQL fragments and JDBC error text</td>
+        </tr>
+        <tr class="odd">
+        <td><code>(?i)\bPassword.*</code></td>
+        <td><code>Authentication failed</code></td>
+        <td>Credential strings</td>
+        </tr>
+        <tr class="even">
+        <td><code>(?i)\bToken.*</code></td>
+        <td><code>Authentication failed</code></td>
+        <td>Token strings</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>A <code>null</code> input returns
+        <code>"Unknown error"</code>.</p>
+        <p>Sanitization is applied in
+        <code>GlobalExceptionHandler</code> only.
+        <code>BusinessExceptionHandler</code> handles domain exceptions
+        whose messages are authored in application code and are already
+        safe to expose.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ol type="1">
+        <li><strong>Return a fixed generic message for all
+        exceptions</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Zero disclosure risk</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li><code>"An error occurred"</code> is useless to the developer
+        and to the frontend for displaying meaningful validation
+        feedback</li>
+        <li>Validation errors
+        (<code>MethodArgumentNotValidException</code>) need to tell the
+        user which field failed; a fixed message makes this
+        impossible</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Allowlist-based approach (only pass messages that
+        match known safe patterns)</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Stronger guarantee; nothing leaks unless explicitly
+        permitted</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>High maintenance: every new exception message must be added
+        to the allowlist</li>
+        <li>Framework exceptions (Spring, Hibernate) produce messages
+        outside our control</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Denylist at the logging layer only (not in the
+        response)</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Keeps internal messages available in logs for debugging</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>The response body still exposes internal detail to the
+        client; a frontend user or network observer sees the raw
+        message</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Structured error codes with no message text</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>No free-text disclosure at all</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Requires maintaining a lookup table of every possible error
+        code</li>
+        <li>Validation messages (field name + constraint description)
+        cannot be reduced to a single code without losing
+        actionability</li>
+        </ul></li>
+        </ul></li>
+        </ol>
+        <h2 id="consequences">Consequences</h2>
+        <h3 id="positive">Positive</h3>
+        <ul>
+        <li>Server paths, class names, SQL, and credential strings are
+        stripped before the response leaves the JVM.</li>
+        <li>The <code>message</code> field remains actionable for
+        validation errors (field name + rule) and domain errors
+        (authored in application code).</li>
+        <li>One method, one location: adding a new
+        <code>@ExceptionHandler</code> in
+        <code>GlobalExceptionHandler</code> automatically benefits from
+        sanitization via the shared <code>respond()</code> helper.</li>
+        </ul>
+        <h3 id="negative-tradeoffs">Negative / Tradeoffs</h3>
+        <ul>
+        <li>The regex rules are order-dependent and string-based; a
+        novel internal detail that does not match any pattern will pass
+        through unsanitized. This is a known gap — the rules catch the
+        most common leak patterns, not all possible ones.</li>
+        <li><code>DataIntegrityViolationException</code> (JDBC
+        constraint violations) bypasses <code>sanitize()</code>
+        entirely: its handler returns a hardcoded string
+        (<code>"Data conflict - constraint violation"</code>) because
+        JDBC messages always contain table/column names that would
+        otherwise require sanitization.</li>
+        <li>Developers debugging in production must use application
+        logs, not the response body, to see the original exception
+        message.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Where it is implemented:
+        <ul>
+        <li><code>src/main/java/com/smartsupplypro/inventory/exception/GlobalExceptionHandler.java</code>
+        — <code>private String sanitize(String message)</code> (lines
+        145–155)</li>
+        <li>Called by the <code>respond()</code> helper for:
+        <code>handleValidation</code>, <code>handleConstraint</code>,
+        <code>handleAccessDenied</code>, <code>handleNotFound</code>,
+        <code>handleResponseStatus</code></li>
+        <li>NOT called by: <code>handleDataIntegrity</code> (hardcoded
+        message), <code>handleAuthentication</code> (hardcoded message),
+        <code>handleUnexpected</code> (hardcoded message)</li>
+        </ul></li>
+        <li>Migration notes (if relevant):
+        <ul>
+        <li>Any new <code>@ExceptionHandler</code> added to
+        <code>GlobalExceptionHandler</code> should call
+        <code>sanitize()</code> on the message before passing it to
+        <code>respond()</code></li>
+        <li>If new internal package names are added (e.g., a new root
+        package), the third regex pattern
+        (<code>\bcom\.smartsupplypro\.[\w.]+</code>) should be
+        extended</li>
+        </ul></li>
+        <li>Testing implications:
+        <ul>
+        <li>Unit tests for <code>GlobalExceptionHandler</code> should
+        include cases where the exception message contains a Windows
+        path, a class name, and a SQL fragment, and assert that the
+        sanitized replacement strings appear in the response body</li>
+        </ul></li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a href="08-concepts.html">§8 Exception Handling</a> —
+        handler order, error contract, full sanitize() behaviour
+        summary</li>
+        <li><a href="./adr-0004-http-status-as-envelope.html">ADR-0004:
+        HTTP status as envelope</a> — the <code>ErrorResponse</code>
+        shape that sanitized messages flow into</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0005-error-message-sanitization-in-globalexceptionhandler"
+      id="toc-adr-0005-error-message-sanitization-in-globalexceptionhandler">ADR-0005:
+      Error message sanitization in GlobalExceptionHandler</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences" id="toc-consequences">Consequences</a>
+      <ul>
+      <li><a href="#positive" id="toc-positive">Positive</a></li>
+      <li><a href="#negative-tradeoffs"
+      id="toc-negative-tradeoffs">Negative / Tradeoffs</a></li>
+      </ul></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

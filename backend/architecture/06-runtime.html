@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend · 06-runtime · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
+        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
+        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="runtime-view">§6 Runtime View</h1>
+        <h2 id="exception-to-status-reference">Exception-to-Status
+        Reference</h2>
+        <p>Both <code>@ControllerAdvice</code> handlers produce
+        <code>{ "error": "...", "message": "...", "timestamp": "..." }</code>.
+        The <code>error</code> token is
+        <code>HttpStatus.name().toLowerCase()</code>. There is no
+        <code>correlationId</code>.</p>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Exception</th>
+        <th>Handler</th>
+        <th>Status</th>
+        <th><code>error</code> token</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>InvalidRequestException</code></td>
+        <td><code>BusinessExceptionHandler</code></td>
+        <td>400</td>
+        <td><code>bad_request</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>MethodArgumentNotValidException</code></td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td>400</td>
+        <td><code>bad_request</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>ConstraintViolationException</code></td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td>400</td>
+        <td><code>bad_request</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>AuthenticationException</code></td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td>401</td>
+        <td><code>unauthorized</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>AccessDeniedException</code></td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td>403</td>
+        <td><code>forbidden</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>NoSuchElementException</code></td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td><strong>404</strong></td>
+        <td><code>not_found</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>IllegalArgumentException</code></td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td><strong>404</strong></td>
+        <td><code>not_found</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>DuplicateResourceException</code></td>
+        <td><code>BusinessExceptionHandler</code></td>
+        <td>409</td>
+        <td><code>conflict</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>IllegalStateException</code></td>
+        <td><code>BusinessExceptionHandler</code></td>
+        <td>409</td>
+        <td><code>conflict</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>DataIntegrityViolationException</code></td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td>409</td>
+        <td><code>conflict</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>Exception</code> (fallback)</td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td>500</td>
+        <td><code>internal_server_error</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="scenario-1a-create-inventory-item-happy-path">Scenario
+        1a — Create Inventory Item: Happy Path</h2>
+        <div class="mermaid">
+        sequenceDiagram
+            participant Client
+            participant SF as Spring Security Filter
+            participant IC as InventoryItemController
+            participant IS as InventoryItemService
+            participant IV as InventoryItemValidator
+            participant SR as SupplierRepository
+            participant IR as InventoryItemRepository
+            participant DB as Oracle ADB
+
+            Client->>SF: POST /api/inventory (session cookie + JSON body)
+            SF->>SF: validate session; populate SecurityContext
+            SF->>IC: authenticated request
+
+            IC->>IC: @Valid — deserialise InventoryItemDTO
+            IC->>IS: create(dto)
+            IS->>IV: validate(dto)
+
+            IV->>SR: findById(dto.supplierId)
+            SR->>DB: SELECT SUPPLIER WHERE id=?
+            DB-->>SR: Supplier row
+            SR-->>IV: Optional[Supplier]
+
+            IV->>IR: existsByName(dto.name)
+            IR->>DB: SELECT COUNT WHERE name=?
+            DB-->>IR: 0
+            IR-->>IV: false
+            IV-->>IS: validation passed
+
+            IS->>IS: map DTO to InventoryItem; set createdBy from SecurityContext
+            IS->>IR: save(item)
+            IR->>DB: INSERT INTO INVENTORY_ITEM
+            DB-->>IR: saved entity
+            IR-->>IS: InventoryItem
+            IS-->>IC: InventoryItemDTO
+            IC-->>Client: 201 Created — InventoryItemDTO
+        </div>
+        <h2 id="scenario-1b-create-inventory-item-error-path">Scenario
+        1b — Create Inventory Item: Error Path</h2>
+        <p>Three distinct error branches. Branch B illustrates the key
+        correction: <code>NoSuchElementException</code> → 404, not
+        400.</p>
+        <div class="mermaid">
+        sequenceDiagram
+            participant Client
+            participant SF as Spring Security Filter
+            participant IC as InventoryItemController
+            participant IS as InventoryItemService
+            participant IV as InventoryItemValidator
+            participant SR as SupplierRepository
+            participant IR as InventoryItemRepository
+            participant BEH as BusinessExceptionHandler
+            participant GEH as GlobalExceptionHandler
+
+            Note over Client,GEH: Branch A — @Valid constraint fails (400)
+            Client->>SF: POST /api/inventory (blank name)
+            SF->>IC: authenticated
+            IC->>IC: @Valid fails
+            IC-->>GEH: MethodArgumentNotValidException
+            GEH-->>Client: 400 bad_request — {error, message, timestamp}
+
+            Note over Client,GEH: Branch B — supplier not found (404, not 400)
+            Client->>SF: POST /api/inventory (unknown supplierId)
+            SF->>IC: authenticated
+            IC->>IS: create(dto)
+            IS->>IV: validate(dto)
+            IV->>SR: findById(dto.supplierId)
+            SR-->>IV: Optional.empty()
+            IV-->>IS: throw NoSuchElementException("Supplier not found")
+            IS-->>GEH: propagates
+            GEH-->>Client: 404 not_found — {error, message, timestamp}
+
+            Note over Client,GEH: Branch C — duplicate item name (409)
+            Client->>SF: POST /api/inventory (duplicate name)
+            SF->>IC: authenticated
+            IC->>IS: create(dto)
+            IS->>IV: validate(dto)
+            IV->>IR: existsByName(dto.name)
+            IR-->>IV: true
+            IV-->>IS: throw DuplicateResourceException
+            IS-->>BEH: propagates
+            BEH-->>Client: 409 conflict — {error, message, timestamp}
+        </div>
+        <h2 id="scenario-2-oauth2-login">Scenario 2 — OAuth2 Login</h2>
+        <div class="mermaid">
+        sequenceDiagram
+            participant User
+            participant Browser
+            participant Backend as Spring Boot Backend
+            participant CR as CookieOAuth2AuthorizationRequestRepository
+            participant Google as Google OAuth2
+            participant SH as OAuth2LoginSuccessHandler
+            participant UPS as UserProvisioningService
+            participant DB as Oracle ADB (users_app)
+
+            User->>Browser: click "Sign in with Google"
+            Browser->>Backend: GET /oauth2/authorization/google
+            Backend->>CR: saveAuthorizationRequest(request, response)
+            CR-->>Browser: Set-Cookie: oauth2_state (HTTP-only)
+            Backend-->>Browser: 302 Redirect to Google authorization URL
+            Browser->>Google: GET /o/oauth2/auth?client_id=...&state=...
+            User->>Google: enter credentials
+            Google-->>Browser: 302 Redirect to /login/oauth2/code/google?code=...&state=...
+            Browser->>Backend: GET /login/oauth2/code/google?code=...&state=...
+            Backend->>CR: removeAuthorizationRequest(request, response)
+            CR-->>Backend: AuthorizationRequest (state verified)
+            Backend->>Google: POST /token — exchange code (server-to-server)
+            Google-->>Backend: access_token + user info (email, name)
+            Backend->>SH: onAuthenticationSuccess(request, response, authentication)
+            SH->>UPS: getOrCreate(oAuth2User)
+            UPS->>DB: findByEmail(email)
+
+            alt first login
+                DB-->>UPS: empty
+                UPS->>DB: save new AppUser (role=USER, createdAt=now)
+                DB-->>UPS: AppUser
+            else returning user
+                DB-->>UPS: AppUser
+            end
+
+            UPS-->>SH: AppUser
+            SH-->>Browser: Set-Cookie: SESSION (HTTP-only, SameSite=None; Secure — cross-origin Koyeb→Fly.io; Strict would drop it); 302 to /auth
+        </div>
+        <h2 id="scenario-3-analytics-read">Scenario 3 — Analytics
+        Read</h2>
+        <div class="mermaid">
+        sequenceDiagram
+            participant Client
+            participant SF as Spring Security Filter
+            participant AC as AnalyticsController
+            participant AS as AnalyticsService
+            participant IR as InventoryItemRepository
+            participant SMR as StockMetricsRepositoryImpl
+            participant DB as Oracle ADB
+
+            Client->>SF: GET /api/analytics/dashboard-summary (session cookie)
+            SF->>SF: validate session; populate SecurityContext
+            SF->>AC: authenticated (USER or ADMIN role accepted)
+
+            AC->>AS: getDashboardSummary()
+
+            AS->>IR: findAll() — @EntityGraph(attributePaths={"supplier"})
+            IR->>DB: SELECT INVENTORY_ITEM JOIN SUPPLIER
+            DB-->>IR: item + supplier rows (single query, no N+1)
+            IR-->>AS: List<InventoryItem>
+
+            AS->>SMR: aggregate low-stock count and total stock value
+            SMR->>DB: native SQL over INVENTORY_ITEM and STOCK_HISTORY
+            DB-->>SMR: aggregated rows
+            SMR-->>AS: stock metrics
+
+            AS->>AS: compute WAC snapshot, low-stock items, movement summary
+            AS-->>AC: DashboardSummaryDTO
+            AC-->>Client: 200 OK — DashboardSummaryDTO
+        </div>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#runtime-view" id="toc-runtime-view">§6 Runtime
+      View</a>
+      <ul>
+      <li><a href="#exception-to-status-reference"
+      id="toc-exception-to-status-reference">Exception-to-Status
+      Reference</a></li>
+      <li><a href="#scenario-1a-create-inventory-item-happy-path"
+      id="toc-scenario-1a-create-inventory-item-happy-path">Scenario 1a
+      — Create Inventory Item: Happy Path</a></li>
+      <li><a href="#scenario-1b-create-inventory-item-error-path"
+      id="toc-scenario-1b-create-inventory-item-error-path">Scenario 1b
+      — Create Inventory Item: Error Path</a></li>
+      <li><a href="#scenario-2-oauth2-login"
+      id="toc-scenario-2-oauth2-login">Scenario 2 — OAuth2
+      Login</a></li>
+      <li><a href="#scenario-3-analytics-read"
+      id="toc-scenario-3-analytics-read">Scenario 3 — Analytics
+      Read</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

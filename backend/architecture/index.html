@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend · index · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
+        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
+        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="introduction-goals">§1 Introduction &amp; Goals</h1>
+        <h2 id="purpose">Purpose</h2>
+        <p>Smart Supply Pro’s backend is a Spring Boot service handling
+        supplier relationships, inventory tracking, and real-time stock
+        analytics. It exposes a RESTful API consumed by the React
+        frontend, backed by Oracle Autonomous Database 23ai, and secured
+        through Google OAuth2 with role-based access control (RBAC).</p>
+        <h2 id="quality-goals">Quality Goals</h2>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Priority</th>
+        <th>Quality Goal</th>
+        <th>Scenario</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>1</td>
+        <td>Security</td>
+        <td>Every endpoint requires a valid OAuth2 token; admin
+        operations additionally require the <code>ADMIN</code> role
+        enforced via <code>@PreAuthorize</code> at the controller
+        boundary</td>
+        </tr>
+        <tr class="even">
+        <td>2</td>
+        <td>Maintainability</td>
+        <td>Each concept has exactly one home — controllers route,
+        services decide, repositories persist; cross-layer leakage is a
+        build-time error</td>
+        </tr>
+        <tr class="odd">
+        <td>3</td>
+        <td>Separation of concerns</td>
+        <td>DTO boundary enforced at all controller boundaries; JPA
+        entities never leave the service layer; DTOs never reach
+        repositories</td>
+        </tr>
+        <tr class="even">
+        <td>4</td>
+        <td>Testability</td>
+        <td>Constructor injection and repository abstraction allow
+        service-layer unit tests without a live Spring context or
+        database</td>
+        </tr>
+        <tr class="odd">
+        <td>5</td>
+        <td>Correctness</td>
+        <td>Three-tier validation (DTO annotations, service business
+        rules, database constraints) ensures no invalid state can be
+        persisted</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="stakeholders">Stakeholders</h2>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Role</th>
+        <th>Interest</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>End users (<code>USER</code> role)</td>
+        <td>Reliable inventory viewing and basic stock operations;
+        responsive API with meaningful error messages</td>
+        </tr>
+        <tr class="even">
+        <td>Administrators (<code>ADMIN</code> role)</td>
+        <td>Full CRUD over suppliers and inventory items; access to
+        analytics and financial summary reports</td>
+        </tr>
+        <tr class="odd">
+        <td>Developers</td>
+        <td>Clear layer boundaries, documented architectural decisions,
+        and a test suite that catches regressions before deployment</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="sections">Sections</h2>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Section</th>
+        <th>Topic</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><a href="02-constraints.html">§2 Constraints</a></td>
+        <td>Java 17, Spring Boot 3.5.x, Oracle 23ai, Maven, Docker;
+        solo-dev and REST conventions</td>
+        </tr>
+        <tr class="even">
+        <td><a href="03-context.html">§3 Context &amp; Scope</a></td>
+        <td>Business context, external systems (React frontend, Oracle
+        ADB, Google OAuth2), C4 L1 diagram</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="04-solution-strategy.html">§4 Solution
+        Strategy</a></td>
+        <td>Key strategic choices and the ADRs that justify each
+        one</td>
+        </tr>
+        <tr class="even">
+        <td><a href="05-building-blocks.html">§5 Building Block
+        View</a></td>
+        <td>Layer breakdown — controller, service, repository, model —
+        logical-architecture and ER diagrams</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="06-runtime.html">§6 Runtime View</a></td>
+        <td>Request lifecycle, OAuth2 login flow, and analytics
+        computation as sequence diagrams</td>
+        </tr>
+        <tr class="even">
+        <td><a href="07-deployment.html">§7 Deployment View</a></td>
+        <td>Fly.io topology, GitHub Actions CI/CD pipeline, Docker image
+        strategy, environment secrets</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="08-concepts.html">§8 Cross-cutting
+        Concepts</a></td>
+        <td>Security, validation, exception handling, configuration
+        profiles, persistence audit fields (<code>createdBy</code>,
+        <code>createdAt</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><a href="09-decisions/index.html">§9 Decisions</a></td>
+        <td>Architecture Decision Records</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="10-quality.html">§10 Quality Requirements</a></td>
+        <td>Test strategy, JaCoCo coverage gates, CI pipeline, Trivy CVE
+        scan</td>
+        </tr>
+        <tr class="even">
+        <td><a href="11-risks.html">§11 Risks &amp; Technical
+        Debt</a></td>
+        <td>Known risks, upcoming EOLs, and named technical debt</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="12-glossary.html">§12 Glossary</a></td>
+        <td>Domain and technical terms</td>
+        </tr>
+        </tbody>
+        </table>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#introduction-goals" id="toc-introduction-goals">§1
+      Introduction &amp; Goals</a>
+      <ul>
+      <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
+      <li><a href="#quality-goals" id="toc-quality-goals">Quality
+      Goals</a></li>
+      <li><a href="#stakeholders"
+      id="toc-stakeholders">Stakeholders</a></li>
+      <li><a href="#sections" id="toc-sections">Sections</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>
