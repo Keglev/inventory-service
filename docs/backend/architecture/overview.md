@@ -97,8 +97,8 @@ Key repositories: `SupplierRepository`, `InventoryItemRepository`,
 
 ### Data layer
 
-JPA entities with optimistic locking (`@Version`), audit fields
-(`createdAt`, `updatedAt`, `createdBy`), and type-safe enum columns.
+JPA entities with audit fields
+(`createdAt`, `createdBy`) set via `@PrePersist` / `@CreationTimestamp`, and type-safe enum columns.
 
 Entities: `Supplier`, `InventoryItem`, `StockHistory`, `AppUser`.
 
@@ -120,8 +120,8 @@ sequenceDiagram
   Controller->>AuthService: Exchange code for token
   AuthService->>OAuth2Provider: Validate token
   OAuth2Provider->>AuthService: Token valid + user info
-  AuthService->>Client: Session token
-  Client->>API: Token in Authorization header
+  AuthService->>Client: Set session cookie
+  Client->>API: Request with session cookie (SameSite=None, Secure)
   API->>SecurityContext: Validate and build principal
   SecurityContext->>Controller: Execute with authenticated principal
 ```
@@ -130,8 +130,7 @@ sequenceDiagram
 
 Business exceptions and framework exceptions are both routed through a global
 `@ControllerAdvice` handler, producing a consistent error response — HTTP status,
-machine-readable error token, timestamp, and correlation ID. Stack traces are never
-exposed in responses.
+the HTTP status code carries the result and the body holds exactly three fields: a machine-readable error token, a human-readable message, and a timestamp. There is no correlation ID, and stack traces are never exposed in responses.
 
 ```mermaid
 flowchart LR
@@ -172,7 +171,7 @@ POST /inventory/items
 | DTO pattern | Decouples API contract from internal domain model |
 | Exception translation | Business exceptions mapped to HTTP status codes at one boundary |
 | Validation helpers | Complex business rules isolated in dedicated validator classes |
-| Audit logging | `createdBy` / `updatedAt` captured from `SecurityContext` uniformly |
+| Audit logging | `createdAt` set by `@PrePersist` / `@CreationTimestamp`; `createdBy` defaulted to `"system"` in `@PrePersist`, or set by the service before persist |
 
 ## Performance considerations
 
@@ -219,7 +218,7 @@ The backend is deployed to **Fly.io** via a fully automated GitHub Actions pipel
 
 ```
 Source push
-  → 1-ci-backend.yml      Maven build, JUnit tests, JaCoCo coverage
+  → 1-ci-test.yml         Maven build, JUnit tests, JaCoCo coverage
   → 2-docker-backend.yml  Docker image build, Trivy CVE scan, push to Docker Hub
   → 4-deploy-fly.yml      Deploy pre-built image to Fly.io, health check
 ```
