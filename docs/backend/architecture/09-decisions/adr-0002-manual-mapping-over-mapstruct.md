@@ -1,5 +1,7 @@
 # ADR-0002: Manual mapping over MapStruct
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

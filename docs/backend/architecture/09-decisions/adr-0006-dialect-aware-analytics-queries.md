@@ -1,5 +1,7 @@
 # ADR-0006: Custom repository implementations for dialect-aware analytics queries
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

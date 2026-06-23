@@ -1,5 +1,7 @@
 # ADR-0007: Cross-origin session cookie configuration for split frontend/backend deployment
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

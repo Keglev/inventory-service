@@ -1,5 +1,7 @@
 # ADR-0001: Oracle Wallet auto-login for database authentication
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

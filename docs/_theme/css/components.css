@@ -160,6 +160,17 @@
 .toc a { color: var(--muted); font-size: 0.85rem; }
 .toc a:hover { color: var(--heading); text-decoration: none; }
 
+/* Hide the inner scrollbars on the nav and TOC. They remain scrollable by
+   wheel, trackpad, and keyboard — only the visual bar is suppressed, so long
+   pages show a single page-level scrollbar instead of two or three. */
+.sidebar, .toc {
+  scrollbar-width: none;        /* Firefox */
+}
+.sidebar::-webkit-scrollbar,
+.toc::-webkit-scrollbar {
+  display: none;                /* Chrome, Edge, Safari */
+}
+
 /* --- Footer -------------------------------------------------------------- */
 .footer {
   border-top: 1px solid var(--border);

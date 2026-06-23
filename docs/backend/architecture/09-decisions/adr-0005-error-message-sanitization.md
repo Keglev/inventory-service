@@ -1,5 +1,7 @@
 # ADR-0005: Error message sanitization in GlobalExceptionHandler
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

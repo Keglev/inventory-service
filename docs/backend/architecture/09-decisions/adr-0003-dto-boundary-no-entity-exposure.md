@@ -1,5 +1,7 @@
 # ADR-0003: DTO boundary — no entity exposure across layers
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

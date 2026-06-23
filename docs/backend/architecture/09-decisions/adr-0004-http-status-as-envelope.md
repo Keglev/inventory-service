@@ -1,5 +1,7 @@
 # ADR-0004: HTTP status as the error envelope (no success wrapper)
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 
