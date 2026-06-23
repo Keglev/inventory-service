@@ -215,7 +215,7 @@
             participant DB as Oracle ADB
 
             Client->>SF: POST /api/inventory (session cookie + JSON body)
-            SF->>SF: validate session; populate SecurityContext
+            SF->>SF: validate session, populate SecurityContext
             SF->>IC: authenticated request
 
             IC->>IC: @Valid (deserialise InventoryItemDTO)
@@ -340,7 +340,7 @@
             participant DB as Oracle ADB
 
             Client->>SF: GET /api/analytics/dashboard-summary (session cookie)
-            SF->>SF: validate session; populate SecurityContext
+            SF->>SF: validate session, populate SecurityContext
             SF->>AC: authenticated (USER or ADMIN role accepted)
 
             AC->>AS: getDashboardSummary()
@@ -348,7 +348,7 @@
             AS->>IR: findAll() with EntityGraph supplier join
             IR->>DB: SELECT INVENTORY_ITEM JOIN SUPPLIER
             DB-->>IR: item + supplier rows (single query, no N+1)
-            IR-->>AS: List<InventoryItem>
+            IR-->>AS: List of InventoryItem
 
             AS->>SMR: aggregate low-stock count and total stock value
             SMR->>DB: native SQL over INVENTORY_ITEM and STOCK_HISTORY
