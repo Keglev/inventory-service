@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-007-cross-origin-auth-cookie · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0007-cross-origin-session-cookie-configuration-for-split-frontendbackend-deployment">ADR-0007:
+        Cross-origin session cookie configuration for split
+        frontend/backend deployment</h1>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2025-11-15</p>
+        <h2 id="context">Context</h2>
+        <p>SmartSupplyPro is deployed as two separate services on two
+        different origins: the React frontend on Koyeb
+        (<code>https://inventory-service.koyeb.app</code>) and the
+        Spring Boot backend on Fly.io
+        (<code>https://inventoryservice.fly.dev</code>). Authentication
+        is Google OAuth2, and the authenticated session is carried by a
+        server-issued cookie rather than a token held in browser
+        storage.</p>
+        <p>Because the browser sends requests from the Koyeb origin to
+        the Fly.io origin, every authenticated API call is
+        <strong>cross-origin</strong>. The default browser cookie policy
+        does not send cookies on cross-site requests, which breaks the
+        session the moment the frontend and backend live on different
+        domains. Two further mechanics matter:</p>
+        <ul>
+        <li>The OAuth2 <strong>authorization request state</strong> (the
+        value Spring Security needs to correlate the redirect back from
+        Google with the originating request) must survive a full-page
+        redirect away to Google and back. The default in-memory
+        <code>HttpSessionOAuth2AuthorizationRequestRepository</code>
+        relies on a server-side session, which is fragile across the
+        redirect in this split, stateless-leaning topology.</li>
+        <li>After a successful login, the backend must hand control back
+        to the <strong>frontend</strong>, not render a backend
+        page.</li>
+        </ul>
+        <p>Forces/constraints: - <strong>Cross-site delivery</strong>:
+        the session cookie must be sent by the browser on requests from
+        the Koyeb origin to the Fly.io origin. -
+        <strong>Security</strong>: relaxing the cross-site rule must not
+        expose the cookie to JavaScript (XSS) or allow transmission over
+        plaintext. - <strong>OAuth2 state survival</strong>: the
+        authorization-request state must persist across the redirect to
+        Google without depending on a sticky server-side session. -
+        <strong>Correct landing</strong>: OAuth2 success must return the
+        user to the frontend SPA, not to a backend route.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Configure the session cookie as
+        <strong><code>SameSite=None; Secure; HttpOnly</code></strong>
+        and store the OAuth2 authorization-request state in a cookie via
+        a custom repository.</p>
+        <ul>
+        <li><strong><code>SameSite=None</code></strong> instructs the
+        browser to include the cookie on cross-site requests, which is
+        required because the frontend (Koyeb) and backend (Fly.io) are
+        different registrable domains.</li>
+        <li><strong><code>Secure</code></strong> is mandatory whenever
+        <code>SameSite=None</code> is set: browsers reject a
+        <code>SameSite=None</code> cookie that is not also
+        <code>Secure</code>. Both deployments serve over HTTPS, so this
+        holds in all environments except plain-HTTP local
+        development.</li>
+        <li><strong><code>HttpOnly</code></strong> keeps the cookie
+        unreadable from JavaScript, preserving the main defence against
+        session theft via XSS that the cross-site relaxation would
+        otherwise weaken.</li>
+        <li>The OAuth2 authorization-request state is persisted with a
+        custom <code>CookieOAuth2AuthorizationRequestRepository</code>
+        (an HttpOnly cookie) instead of the default session-backed
+        repository, so the state survives the redirect to Google and
+        back without a sticky server session.</li>
+        <li>On successful authentication,
+        <code>OAuth2LoginSuccessHandler</code> (extending
+        <code>SimpleUrlAuthenticationSuccessHandler</code>) redirects to
+        the frontend’s <strong><code>/auth</code></strong> route (not
+        <code>/dashboard</code> and not a backend page), where the SPA
+        takes over. The redirect origin is taken from the OAuth2 return
+        cookie and validated against the configured
+        <code>AppProperties.cors.allowedOrigins</code> allow-list before
+        use, falling back to
+        <code>frontend.baseUrl + frontend.landingPath</code> if
+        validation fails — preventing an open-redirect via a forged
+        return origin.</li>
+        </ul>
+        <p>CORS on the backend (<code>CorsConfig</code>) sets
+        <code>setAllowCredentials(true)</code> and exposes the
+        <code>Set-Cookie</code> header via
+        <code>setExposedHeaders</code>, so the browser is permitted to
+        attach and receive the cross-site cookie. Allowed origins come
+        from the configured
+        <code>AppProperties.cors.allowedOrigins</code> list (the
+        production Koyeb origin is injected via
+        <code>application-prod.yml</code>, not hardcoded in Java).</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ol type="1">
+        <li><strong>Same-origin deployment (reverse-proxy frontend and
+        backend under one domain)</strong>
+        <ul>
+        <li>Pros: cookies stay first-party; <code>SameSite=Lax</code>
+        works; no cross-site relaxation needed.</li>
+        <li>Cons: requires a shared ingress / proxy layer in front of
+        both services; couples two independently deployed apps on two
+        providers (Koyeb, Fly.io) into one routing surface. Rejected to
+        keep the two deployments independent.</li>
+        </ul></li>
+        <li><strong>Bearer token (JWT) in <code>Authorization</code>
+        header, held in browser storage</strong>
+        <ul>
+        <li>Pros: stateless; no cookie cross-site policy to fight.</li>
+        <li>Cons: token in
+        <code>localStorage</code>/<code>sessionStorage</code> is
+        reachable by JavaScript and a direct XSS exfiltration target;
+        loses the HttpOnly protection a cookie gives. Rejected on
+        security grounds.</li>
+        </ul></li>
+        <li><strong><code>SameSite=Lax</code> or
+        <code>Strict</code></strong>
+        <ul>
+        <li>Pros: stronger CSRF posture by default; no
+        <code>Secure</code>-coupling requirement.</li>
+        <li>Cons: the browser would not send the cookie on the
+        cross-site Koyeb→Fly.io request at all, so the session simply
+        would not work in this topology. Not viable.</li>
+        </ul></li>
+        <li><strong>Default session-backed OAuth2 authorization-request
+        repository</strong>
+        <ul>
+        <li>Pros: zero custom code; Spring Security default.</li>
+        <li>Cons: depends on a server-side session surviving the
+        external redirect to Google; brittle across the split
+        deployment. Replaced by the cookie-backed repository.</li>
+        </ul></li>
+        </ol>
+        <h2 id="consequences">Consequences</h2>
+        <h3 id="positive">Positive</h3>
+        <ul>
+        <li>The session works across the two-origin deployment: the
+        browser attaches the cookie on every cross-site call from Koyeb
+        to Fly.io.</li>
+        <li><code>HttpOnly</code> is retained, so the cross-site
+        relaxation does not open a JavaScript-based session-theft path;
+        the cookie is never exposed to SPA code.</li>
+        <li>OAuth2 login state survives the Google redirect without a
+        sticky server session, keeping the backend closer to
+        stateless.</li>
+        <li>The two services stay independently deployable; no shared
+        proxy or single-domain coupling is required.</li>
+        </ul>
+        <h3 id="negative-tradeoffs">Negative / Tradeoffs</h3>
+        <ul>
+        <li><code>SameSite=None</code> widens the cross-site surface;
+        the CSRF posture now rests on the combination of
+        <code>HttpOnly</code>, <code>Secure</code>, and the backend’s
+        credentialed CORS allow-list rather than on the cookie’s
+        same-site rule.</li>
+        <li><code>Secure</code> is required, so the cookie cannot be
+        delivered over plain HTTP. Local development that does not use
+        HTTPS needs a profile-specific accommodation.</li>
+        <li>The CORS allow-list and the cookie configuration are now
+        coupled: an origin change on either deployment (new Koyeb or
+        Fly.io URL) requires updating both, or auth breaks silently in
+        the browser.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Cookie attributes (<code>SameSite=None; Secure</code>) are
+        set on a dedicated cookie serializer bean; CORS (credentials,
+        allowed origins, exposed <code>Set-Cookie</code> header) is
+        configured in <code>CorsConfig</code>. See §5
+        Cross-cutting.</li>
+        <li><code>CookieOAuth2AuthorizationRequestRepository</code>
+        serialises the OAuth2 authorization request into an HttpOnly
+        cookie in place of the default session-backed repository.</li>
+        <li><code>OAuth2LoginSuccessHandler.onAuthenticationSuccess</code>
+        performs the post-login redirect, building the target as
+        <code>{validatedOrigin}/auth</code> where the origin is
+        validated against
+        <code>AppProperties.cors.allowedOrigins</code>; the fallback
+        target is <code>frontend.baseUrl + frontend.landingPath</code>
+        (<code>/auth</code>).</li>
+        <li>CORS (<code>CorsConfig</code>) enables credentials and
+        exposes <code>Set-Cookie</code>, so the browser may send and
+        receive the cross-site cookie; allowed origins are the
+        configured <code>AppProperties.cors.allowedOrigins</code>
+        list.</li>
+        <li>Local development caveat: because <code>Secure</code> blocks
+        plain-HTTP delivery, the default profile’s allowed origins
+        include an HTTPS localhost variant
+        (<code>https://localhost:5173</code> alongside the plain-HTTP
+        ones); verify the cookie is delivered when testing auth locally
+        over HTTP.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a href="../05-building-blocks.html#cross-cutting">§5
+        Building Block View</a> — Spring Security, OAuth2 success
+        handler, and the cookie-backed authorization-request
+        repository</li>
+        <li><a href="../08-concepts.html">§8 Concepts</a> — CORS origins
+        and security concepts</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0007-cross-origin-session-cookie-configuration-for-split-frontendbackend-deployment"
+      id="toc-adr-0007-cross-origin-session-cookie-configuration-for-split-frontendbackend-deployment">ADR-0007:
+      Cross-origin session cookie configuration for split
+      frontend/backend deployment</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences" id="toc-consequences">Consequences</a>
+      <ul>
+      <li><a href="#positive" id="toc-positive">Positive</a></li>
+      <li><a href="#negative-tradeoffs"
+      id="toc-negative-tradeoffs">Negative / Tradeoffs</a></li>
+      </ul></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

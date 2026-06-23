@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend · oracle-it-smoke-test · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="runbook-manual-oracle-smoke-test-oracle-it-profile">Runbook:
+        Manual Oracle smoke test (<code>oracle-it</code> profile)</h1>
+        <p>Operational procedure for verifying that the application
+        boots and authenticates against the real Oracle Autonomous
+        Database before a significant release. This is a
+        <strong>manual</strong> check run from a developer machine; it
+        is intentionally excluded from CI (see <a
+        href="../08c-concepts-testing.html">§8 Testing</a> for the
+        rationale and <a href="../11-risks-technical-debt.html">§11,
+        R-04</a> for the gap it partially closes).</p>
+        <h2 id="what-it-does">What it does</h2>
+        <p>Runs a single Spring Boot context-load test
+        (<code>InventoryServiceApplicationTest.contextLoads()</code>)
+        under the <code>oracle-it</code> profile. If the application
+        context assembles and the datasource connects, the test passes —
+        confirming the wallet, credentials, and Oracle dialect work end
+        to end against a live ADB. It does <strong>not</strong> exercise
+        the analytics SQL or business flows; it is a connection and boot
+        smoke test.</p>
+        <h2 id="safety-property">Safety property</h2>
+        <p>The <code>oracle-it</code> profile activates
+        <strong>only</strong> when <code>ENABLE_WALLET_TEST=true</code>.
+        Without that flag the profile resolver falls back to the
+        standard <code>test</code> profile (H2), so this can never
+        accidentally contact Oracle in CI or a normal local build.</p>
+        <h2 id="prerequisites">Prerequisites</h2>
+        <ol type="1">
+        <li><strong>Oracle wallet extracted locally.</strong> Download
+        the wallet for the ADB instance and unzip it to a local
+        directory (the directory containing <code>tnsnames.ora</code>,
+        <code>cwallet.sso</code>, <code>sqlnet.ora</code>).</li>
+        <li><strong>Your public IP allowlisted.</strong> Oracle Free
+        Tier ADB restricts access by IP. In the Oracle Cloud console,
+        add your current public IP to the instance’s access control
+        list. (Home ISPs rotate IPs, so re-check this each time.)</li>
+        <li><strong>A reachable TNS alias.</strong> Note the alias from
+        <code>tnsnames.ora</code> you will use in
+        <code>DB_URL</code>.</li>
+        </ol>
+        <h2 id="environment-variables-all-four-required">Environment
+        variables (all four required)</h2>
+        <p>The profile resolver validates these before the Spring
+        context starts; any missing one aborts with an
+        <code>IllegalStateException</code>.</p>
+        <table>
+        <colgroup>
+        <col style="width: 58%" />
+        <col style="width: 41%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Variable</th>
+        <th>Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>ENABLE_WALLET_TEST</code></td>
+        <td><code>true</code> — the activation flag</td>
+        </tr>
+        <tr class="even">
+        <td><code>TNS_ADMIN</code></td>
+        <td>Absolute path to the extracted wallet directory (read by the
+        Oracle driver from the OS environment)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>DB_URL</code></td>
+        <td>JDBC URL using the TNS alias,
+        e.g. <code>jdbc:oracle:thin:@&lt;alias&gt;</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>DB_USER</code></td>
+        <td>Oracle schema user</td>
+        </tr>
+        <tr class="odd">
+        <td><code>DB_PASS</code></td>
+        <td>Oracle schema password</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><code>TNS_ADMIN</code> must be exported in the shell
+        <strong>before</strong> launching the JVM — the driver resolves
+        the wallet from the process environment, not from
+        <code>application-oracle-it.yml</code>.</p>
+        <h2 id="steps-powershell">Steps (PowerShell)</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Confirm your current public IP is allowlisted in the Oracle console first.</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Export the environment for this shell session</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span>ENABLE_WALLET_TEST <span class="op">=</span> <span class="st">&quot;true&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span>TNS_ADMIN <span class="op">=</span> <span class="st">&quot;C:\path\to\extracted\wallet&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span>DB_URL    <span class="op">=</span> <span class="st">&quot;jdbc:oracle:thin:@your_tns_alias&quot;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span>DB_USER   <span class="op">=</span> <span class="st">&quot;your_schema_user&quot;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span>DB_PASS   <span class="op">=</span> <span class="st">&quot;your_schema_password&quot;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Run only the context-load test under the oracle-it profile</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>mvn test <span class="st">&quot;-Dtest=InventoryServiceApplicationTest&quot;</span> <span class="st">&quot;-DenableWalletTest=true&quot;</span></span></code></pre></div>
+        <p><code>-DenableWalletTest=true</code> and
+        <code>ENABLE_WALLET_TEST=true</code> are equivalent triggers;
+        setting either is sufficient. Both are shown for clarity.</p>
+        <h2 id="interpreting-the-result">Interpreting the result</h2>
+        <ul>
+        <li><strong><code>contextLoads()</code> passes</strong> → the
+        app boots, the wallet/mTLS connection succeeds, and the Oracle
+        dialect initialises. Connection path verified.</li>
+        <li><strong><code>IllegalStateException</code> before tests
+        run</strong> → a required env var is unset. Re-check the four
+        variables above.</li>
+        <li><strong>Connection/timeout failure</strong> → almost always
+        the IP allowlist (your IP changed) or a wrong
+        <code>DB_URL</code> alias / <code>TNS_ADMIN</code> path.</li>
+        </ul>
+        <h2 id="after-the-test">After the test</h2>
+        <p>Remove your IP from the allowlist if you added it
+        temporarily, and clear the session variables (close the shell,
+        or set them to empty). The wallet directory holds live
+        credentials — keep it outside the repository.</p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#runbook-manual-oracle-smoke-test-oracle-it-profile"
+      id="toc-runbook-manual-oracle-smoke-test-oracle-it-profile">Runbook:
+      Manual Oracle smoke test (<code>oracle-it</code> profile)</a>
+      <ul>
+      <li><a href="#what-it-does" id="toc-what-it-does">What it
+      does</a></li>
+      <li><a href="#safety-property" id="toc-safety-property">Safety
+      property</a></li>
+      <li><a href="#prerequisites"
+      id="toc-prerequisites">Prerequisites</a></li>
+      <li><a href="#environment-variables-all-four-required"
+      id="toc-environment-variables-all-four-required">Environment
+      variables (all four required)</a></li>
+      <li><a href="#steps-powershell" id="toc-steps-powershell">Steps
+      (PowerShell)</a></li>
+      <li><a href="#interpreting-the-result"
+      id="toc-interpreting-the-result">Interpreting the result</a></li>
+      <li><a href="#after-the-test" id="toc-after-the-test">After the
+      test</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

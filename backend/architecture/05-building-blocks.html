@@ -65,21 +65,19 @@
       <ul>
         <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
         <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
-        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
-        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
-        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
-        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
-        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
-        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
-        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
-        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
-        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
-        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
-        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
-        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
-        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
-        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
-        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
       </ul>
 
       <p class="nav-title">Frontend</p>
@@ -171,6 +169,18 @@
         <code>UserProvisioningService</code> for OAuth2 user lookup and
         provisioning and does not participate in the domain service
         flow.</p>
+        <p><strong>Analytics/reporting repositories</strong> with custom
+        implementations — <code>StockDetailQueryRepository</code>,
+        <code>StockMetricsRepository</code>,
+        <code>StockTrendAnalyticsRepository</code> (each with a
+        <code>*Impl</code>), plus the static
+        <code>StockMetricsSqlBuilder</code> — form a distinct group.
+        These build dialect-specific SQL (H2 in tests, Oracle in prod)
+        selected at runtime via <code>DatabaseDialectDetector</code>,
+        and return either raw <code>Object[]</code> tuples mapped to
+        DTOs in the service layer or, in two cases, typed projections
+        (<code>StockEventRowDTO</code>, <code>PriceTrendDTO</code>). See
+        ADR-0006.</p>
         <h2 id="model-layer">Model Layer</h2>
         <p>Four JPA entities map to Oracle tables: <code>Supplier</code>
         (table <code>SUPPLIER</code>), <code>InventoryItem</code> (table
@@ -315,24 +325,18 @@
             }
         </div>
         <h2 id="reference">Reference</h2>
-        <p>Class-level detail for each package — navigate down for
-        specifics:</p>
+        <p>The detailed class-level surface is documented
+        authoritatively in two places:</p>
         <ul>
-        <li><a href="reference/controller/index.html">Controller
-        reference</a></li>
-        <li><a href="reference/dto/index.html">DTO reference</a></li>
-        <li><a href="reference/model/index.html">Model
-        reference</a></li>
-        <li><a href="reference/repository/index.html">Repository
-        reference</a></li>
-        <li><a href="reference/config/index.html">Config
-        reference</a></li>
-        <li><a href="reference/enums/index.html">Enums
-        reference</a></li>
-        <li><a href="reference/exception/index.html">Exception
-        reference</a></li>
-        <li><a href="reference/resources/index.html">Resources
-        reference</a></li>
+        <li><strong>HTTP API surface</strong> (endpoints,
+        request/response DTOs, the <code>StockChangeReason</code> enum,
+        error responses) — see the <a href="../api/index.html">OpenAPI
+        specification</a>.</li>
+        <li><strong>Internal structure</strong> (entities, repositories,
+        cross-cutting concerns) — documented in the sections above: <a
+        href="#model-layer">Model Layer</a>, <a
+        href="#repository-layer">Repository Layer</a>, and <a
+        href="#cross-cutting">Cross-cutting</a>.</li>
         </ul>
       </article>
     </main>

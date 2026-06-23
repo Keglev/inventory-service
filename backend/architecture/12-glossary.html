@@ -65,21 +65,19 @@
       <ul>
         <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
         <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
-        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
-        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
-        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
-        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
-        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
-        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
-        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
-        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
-        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
-        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
-        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
-        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
-        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
-        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
-        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
       </ul>
 
       <p class="nav-title">Frontend</p>
@@ -110,9 +108,11 @@
     </aside>
     <main class="content" id="main">
       <article class="doc-body">
-        <h1 id="glossary">§12 Glossary</h1>
-        <p>Domain and technical terms used across this
-        documentation.</p>
+        <h1 id="glossary">Glossary</h1>
+        <p>Domain, technical, and infrastructure terms used across this
+        documentation, defined in the context of SmartSupplyPro.
+        Cross-references point to the section or decision where a term
+        is treated in depth.</p>
         <table>
         <colgroup>
         <col style="width: 33%" />
@@ -126,23 +126,176 @@
         </thead>
         <tbody>
         <tr class="odd">
+        <td>ADB (Oracle Autonomous Database)</td>
+        <td>Managed Oracle 23ai database backing the <code>prod</code>
+        profile; reached via the wallet. See <a
+        href="./09-decisions/adr-0001-oracle-wallet-autologin.html">ADR-0001</a></td>
+        </tr>
+        <tr class="even">
         <td>ADR</td>
         <td>Architecture Decision Record — a decision with its
-        justification (see §9)</td>
-        </tr>
-        <tr class="even">
-        <td>DTO</td>
-        <td>Data Transfer Object — the type that crosses the controller
-        boundary (see ADR-0003)</td>
+        justification and rejected alternatives. See <a
+        href="./09-decisions/index.html">§9</a></td>
         </tr>
         <tr class="odd">
-        <td>mTLS</td>
-        <td>Mutual TLS — certificate-based transport authentication used
-        by the Oracle wallet (see ADR-0001)</td>
+        <td>AnalyticsService</td>
+        <td>Service computing stock valuation and trends, including WAC
+        and FIFO analysis</td>
         </tr>
         <tr class="even">
-        <td></td>
-        <td></td>
+        <td>AppUser</td>
+        <td>JPA entity for an authenticated user; carries the assigned
+        role</td>
+        </tr>
+        <tr class="odd">
+        <td>arc42</td>
+        <td>The documentation template structuring this architecture
+        (§1–§12)</td>
+        </tr>
+        <tr class="even">
+        <td>BusinessExceptionHandler</td>
+        <td><code>@ControllerAdvice</code> mapping domain exceptions to
+        HTTP status: <code>InvalidRequest</code> → 400,
+        <code>Duplicate</code> / <code>IllegalState</code> → 409</td>
+        </tr>
+        <tr class="odd">
+        <td><code>cwallet.sso</code></td>
+        <td>Oracle auto-login wallet file; opens the wallet for mTLS
+        without a wallet password at runtime. See <a
+        href="./09-decisions/adr-0001-oracle-wallet-autologin.html">ADR-0001</a></td>
+        </tr>
+        <tr class="even">
+        <td>DTO (Data Transfer Object)</td>
+        <td>The only object types that cross the controller boundary; 14
+        in the <code>dto/</code> package. See <a
+        href="./09-decisions/adr-0003-dto-boundary-no-entity-exposure.html">ADR-0003</a></td>
+        </tr>
+        <tr class="odd">
+        <td><code>@EntityGraph</code></td>
+        <td>JPA fetch hint on <code>InventoryItemRepository</code>
+        loading <code>supplier</code> in a single join to avoid N+1
+        queries</td>
+        </tr>
+        <tr class="even">
+        <td>ErrorResponse</td>
+        <td>The canonical three-field error record
+        <code>{error, message, timestamp}</code>; <code>error</code> =
+        <code>HttpStatus.name().toLowerCase()</code>. See <a
+        href="./09-decisions/adr-0004-http-status-as-envelope.html">ADR-0004</a></td>
+        </tr>
+        <tr class="odd">
+        <td>FIFO</td>
+        <td>First-In-First-Out inventory costing method used by
+        <code>AnalyticsService</code></td>
+        </tr>
+        <tr class="even">
+        <td>Fly.io</td>
+        <td>Hosting platform for the backend (port 8081, health check
+        <code>/api/health</code>)</td>
+        </tr>
+        <tr class="odd">
+        <td>GlobalExceptionHandler</td>
+        <td><code>@ControllerAdvice</code> for framework and uncaught
+        exceptions; applies <code>sanitize()</code>. See <a
+        href="./09-decisions/adr-0005-error-message-sanitization.html">ADR-0005</a></td>
+        </tr>
+        <tr class="even">
+        <td>HikariCP</td>
+        <td>JDBC connection pool, sized for Fly.io memory
+        constraints</td>
+        </tr>
+        <tr class="odd">
+        <td>InventoryItem</td>
+        <td>Core domain entity representing a tracked stock item, linked
+        to a <code>Supplier</code></td>
+        </tr>
+        <tr class="even">
+        <td>JaCoCo</td>
+        <td>Java code-coverage tool run in the CI pipeline</td>
+        </tr>
+        <tr class="odd">
+        <td>Koyeb</td>
+        <td>Hosting platform for the React frontend; the cross-origin
+        request origin</td>
+        </tr>
+        <tr class="even">
+        <td>mTLS</td>
+        <td>Mutual TLS — certificate-based transport authentication
+        provided by the Oracle wallet. See <a
+        href="./09-decisions/adr-0001-oracle-wallet-autologin.html">ADR-0001</a></td>
+        </tr>
+        <tr class="odd">
+        <td>N+1 problem</td>
+        <td>Repeated per-row association queries; avoided here via
+        <code>@EntityGraph</code></td>
+        </tr>
+        <tr class="even">
+        <td>OAuth2</td>
+        <td>Authentication via Google; on success the flow redirects to
+        <code>/auth</code>. See <a href="./06-runtime.html">§6</a></td>
+        </tr>
+        <tr class="odd">
+        <td><code>@PrePersist</code> /
+        <code>@CreationTimestamp</code></td>
+        <td>JPA / Hibernate callbacks that populate
+        <code>createdAt</code> (and default <code>createdBy</code>)
+        before insert</td>
+        </tr>
+        <tr class="even">
+        <td>RBAC</td>
+        <td>Role-based access control; <code>ADMIN</code> and
+        <code>USER</code> roles enforced via
+        <code>@PreAuthorize</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>sanitize()</code></td>
+        <td><code>GlobalExceptionHandler</code> method stripping file
+        paths, class names, SQL, and credentials from error messages.
+        See <a
+        href="./09-decisions/adr-0005-error-message-sanitization.html">ADR-0005</a></td>
+        </tr>
+        <tr class="even">
+        <td><code>SameSite=None; Secure</code></td>
+        <td>Session cookie attributes enabling the cross-origin Koyeb →
+        Fly.io session. See <a href="./06-runtime.html">§6</a></td>
+        </tr>
+        <tr class="odd">
+        <td>StockChangeReason</td>
+        <td>Enum classifying each stock movement
+        (<code>INITIAL_STOCK</code>, <code>MANUAL_UPDATE</code>,
+        <code>SOLD</code>, …). See the enums reference</td>
+        </tr>
+        <tr class="even">
+        <td>StockHistory</td>
+        <td>Domain entity recording each stock movement as an audit
+        trail</td>
+        </tr>
+        <tr class="odd">
+        <td>Supplier</td>
+        <td>Domain entity representing a goods supplier linked to
+        inventory items</td>
+        </tr>
+        <tr class="even">
+        <td><code>TNS_ADMIN</code></td>
+        <td>Environment variable pointing the JDBC driver at the wallet
+        directory</td>
+        </tr>
+        <tr class="odd">
+        <td>Trivy</td>
+        <td>Container-image CVE scanner run in the Docker build
+        workflow</td>
+        </tr>
+        <tr class="even">
+        <td>WAC</td>
+        <td>Weighted Average Cost inventory costing method used by
+        <code>AnalyticsService</code></td>
+        </tr>
+        <tr class="odd">
+        <td>Wallet (Oracle)</td>
+        <td>Directory of TLS certificates and config
+        (<code>cwallet.sso</code>, <code>tnsnames.ora</code>, …)
+        authenticating the DB connection. See <a
+        href="./09-decisions/adr-0001-oracle-wallet-autologin.html">ADR-0001</a></td>
         </tr>
         </tbody>
         </table>
@@ -152,7 +305,7 @@
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#glossary" id="toc-glossary">§12 Glossary</a></li>
+      <li><a href="#glossary" id="toc-glossary">Glossary</a></li>
       </ul>
     </nav>
       </div>

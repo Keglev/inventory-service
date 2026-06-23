@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0006-dialect-aware-analytics-queries · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0006-custom-repository-implementations-for-dialect-aware-analytics-queries">ADR-0006:
+        Custom repository implementations for dialect-aware analytics
+        queries</h1>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2025-06-01</p>
+        <h2 id="context">Context</h2>
+        <p>Beyond CRUD, SmartSupplyPro must answer analytical questions:
+        total stock per supplier, update counts per item, items below
+        minimum stock, monthly stock movement, daily valuation,
+        weighted-average-cost (WAC) event streams, and item price
+        trends. These require aggregation and date bucketing that Spring
+        Data derived queries cannot express.</p>
+        <p>A second constraint shapes the solution: the application runs
+        against <strong>two SQL dialects</strong> — H2
+        (Oracle-compatibility mode) in the <code>test</code> profile,
+        and Oracle Autonomous Database in <code>prod</code>. The reason
+        H2 is used in tests rather than a shared Oracle instance is
+        infrastructure: Oracle Free Tier ADB restricts access by IP
+        allowlist, and development machines (home ISP) and CI runners
+        have dynamic IPs that cannot be reliably added to that
+        allowlist. Automated tests therefore run against H2 in
+        Oracle-compatibility mode; Oracle is exercised only by the
+        deployed application. Several of these analytical statements
+        differ between H2 and Oracle (date functions, aggregation,
+        valuation arithmetic), so a single fixed query string cannot
+        serve both environments.</p>
+        <p>Forces/constraints: - <strong>Expressiveness</strong>: the
+        queries need grouping, date bucketing, and conditional
+        aggregation beyond derived-query or simple JPQL capability. -
+        <strong>Dialect portability</strong>: the same logical query
+        must execute on H2 in CI and on Oracle in production without a
+        live Oracle instance in the test pipeline. - <strong>One
+        enforcement point for SQL</strong>: dialect variants should live
+        together, not be scattered across annotations, so they stay in
+        sync. - <strong>Boundary consistency</strong>: these queries
+        must not violate the DTO boundary (see ADR-0003) — no DTO as a
+        parameter; most results stay as tuples mapped by the service
+        layer.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Implement the analytical queries as <strong>custom Spring
+        Data repository fragments</strong>
+        (<code>StockDetailQueryRepository</code>,
+        <code>StockMetricsRepository</code>,
+        <code>StockTrendAnalyticsRepository</code>, each with a
+        <code>*Impl</code>), rather than as derived queries or
+        <code>@Query</code> annotations.</p>
+        <ul>
+        <li>SQL text is centralised in a static, non-instantiable
+        <code>StockMetricsSqlBuilder</code> exposing paired
+        <code>buildH2*Sql()</code> / <code>buildOracle*Sql()</code>
+        methods.</li>
+        <li>Each <code>*Impl</code> selects the H2 or Oracle variant via
+        an injected <code>DatabaseDialectDetector</code>. The detector
+        inspects <code>Environment.getActiveProfiles()</code> only: if
+        any active profile name equals <code>"test"</code> or
+        <code>"h2"</code> (case-insensitive) it returns
+        <code>true</code> for H2; any other case — including no active
+        profile — defaults to Oracle. It does not inspect the datasource
+        URL, connection metadata, or JDBC product name.</li>
+        <li>Methods return raw <code>List&lt;Object[]&gt;</code> tuples,
+        which the service layer maps to the analytics DTOs. Two methods
+        are the exception and return a typed projection directly:
+        <code>StockDetailQueryRepository.streamEventsForWAC()</code> →
+        <code>List&lt;StockEventRowDTO&gt;</code> and
+        <code>StockTrendAnalyticsRepository.getItemPriceTrend()</code> →
+        <code>List&lt;PriceTrendDTO&gt;</code>.</li>
+        </ul>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ol type="1">
+        <li><strong><code>@Query(nativeQuery = true)</code> with a
+        single fixed string</strong>
+        <ul>
+        <li>Pros: declarative, lives on the method</li>
+        <li>Cons: one string cannot branch per dialect; forces a
+        lowest-common-denominator SQL that works on both, or breaks on
+        one. No place for the H2/Oracle divergence these queries
+        actually have.</li>
+        </ul></li>
+        <li><strong>JPQL <code>@Query</code> / constructor
+        expressions</strong>
+        <ul>
+        <li>Pros: portable, type-safe projections</li>
+        <li>Cons: cannot express the dialect-specific aggregation and
+        date bucketing; limited function support; no runtime dialect
+        control.</li>
+        </ul></li>
+        <li><strong>Database views (one per analytical
+        question)</strong>
+        <ul>
+        <li>Pros: moves heavy SQL into the database</li>
+        <li>Cons: requires keeping the H2 test schema and the Oracle
+        prod schema’s views in lockstep; not portable across the two
+        engines; harder to version with the app.</li>
+        </ul></li>
+        <li><strong>Separate query beans selected by Spring
+        profile</strong>
+        <ul>
+        <li>Pros: clean per-environment separation</li>
+        <li>Cons: duplicates the method surface and adds wiring; the
+        dialect choice is a runtime detail, not a profile-wide one, so
+        profile selection is the wrong axis.</li>
+        </ul></li>
+        </ol>
+        <h2 id="consequences">Consequences</h2>
+        <h3 id="positive">Positive</h3>
+        <ul>
+        <li>The same analytics API runs on H2 in CI (no live Oracle
+        needed) and on Oracle in production; the dialect difference is
+        absorbed in one place.</li>
+        <li>All SQL variants sit side by side in
+        <code>StockMetricsSqlBuilder</code>, so an H2/Oracle pair is
+        easy to compare and keep in sync.</li>
+        <li>The DTO boundary holds: no DTO parameters; the service layer
+        owns most DTO mapping, keeping repositories thin (consistent
+        with ADR-0003).</li>
+        </ul>
+        <h3 id="negative-tradeoffs">Negative / Tradeoffs</h3>
+        <ul>
+        <li>Hand-written SQL has no compile-time checking; each query
+        carries two variants to maintain.</li>
+        <li><code>List&lt;Object[]&gt;</code> returns are untyped;
+        correctness of the tuple→DTO mapping rests on service-layer
+        tests.</li>
+        <li>Tests must exercise both dialect branches to catch
+        divergence between the H2 and Oracle variants — H2-only testing
+        can mask an Oracle-specific defect.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Where it is implemented:
+        <ul>
+        <li><code>StockDetailQueryRepository</code> /
+        <code>...Impl</code> — <code>searchStockUpdates(...)</code>
+        (<code>List&lt;Object[]&gt;</code>) and
+        <code>streamEventsForWAC(...)</code>
+        (<code>List&lt;StockEventRowDTO&gt;</code>)</li>
+        <li><code>StockMetricsRepository</code> / <code>...Impl</code> —
+        <code>getTotalStockBySupplier()</code>,
+        <code>getUpdateCountByItem(...)</code>,
+        <code>findItemsBelowMinimumStock(...)</code>, all
+        <code>List&lt;Object[]&gt;</code></li>
+        <li><code>StockTrendAnalyticsRepository</code> /
+        <code>...Impl</code> —
+        <code>getMonthlyStockMovement(...)</code>,
+        <code>getMonthlyStockMovementBySupplier(...)</code>,
+        <code>getDailyStockValuation(...)</code> (all
+        <code>List&lt;Object[]&gt;</code>) and
+        <code>getItemPriceTrend(...)</code>
+        (<code>List&lt;PriceTrendDTO&gt;</code>)</li>
+        <li><code>StockMetricsSqlBuilder</code> — static
+        <code>buildH2*Sql()</code> / <code>buildOracle*Sql()</code>
+        pairs; private constructor, non-instantiable</li>
+        <li>Each <code>*Impl</code> is constructor-injected with
+        <code>DatabaseDialectDetector</code>, which reads
+        <code>Environment.getActiveProfiles()</code>: a profile named
+        <code>"test"</code> or <code>"h2"</code> (case-insensitive)
+        selects H2; any other case (including no active profile) selects
+        Oracle. The datasource URL, connection metadata, and JDBC
+        product name are never consulted.</li>
+        </ul></li>
+        <li>Testing implications:
+        <ul>
+        <li>CI runs the H2 branch; the Oracle branch is exercised only
+        against the prod database. Both SQL variants of a query should
+        be kept under test where feasible.</li>
+        </ul></li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a
+        href="./adr-0003-dto-boundary-no-entity-exposure.html">ADR-0003:
+        DTO boundary</a> — the reporting exception these repositories
+        implement</li>
+        <li><a href="../06-runtime.html">§6 Runtime View</a> — the
+        analytics request flow</li>
+        <li><a href="../08-concepts.html">§8 Concepts</a> — test
+        strategy (H2 vs Oracle), once written</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0006-custom-repository-implementations-for-dialect-aware-analytics-queries"
+      id="toc-adr-0006-custom-repository-implementations-for-dialect-aware-analytics-queries">ADR-0006:
+      Custom repository implementations for dialect-aware analytics
+      queries</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences" id="toc-consequences">Consequences</a>
+      <ul>
+      <li><a href="#positive" id="toc-positive">Positive</a></li>
+      <li><a href="#negative-tradeoffs"
+      id="toc-negative-tradeoffs">Negative / Tradeoffs</a></li>
+      </ul></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

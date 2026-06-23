@@ -66,21 +66,19 @@
       <ul>
         <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
         <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
-        <li><a href="/inventory-service/backend/architecture/layers/overview.html">Layers</a></li>
-        <li><a href="/inventory-service/backend/architecture/model/index.html">Data models</a></li>
-        <li><a href="/inventory-service/backend/architecture/enums/index.html">Enums</a></li>
-        <li><a href="/inventory-service/backend/architecture/dto/index.html">DTOs</a></li>
-        <li><a href="/inventory-service/backend/architecture/config/index.html">Config</a></li>
-        <li><a href="/inventory-service/backend/architecture/controller/index.html">Controllers</a></li>
-        <li><a href="/inventory-service/backend/architecture/security/index.html">Security</a></li>
-        <li><a href="/inventory-service/backend/architecture/deployment/index.html">Deployment</a></li>
-        <li><a href="/inventory-service/backend/architecture/exception/index.html">Exception handling</a></li>
-        <li><a href="/inventory-service/backend/architecture/integration/index.html">Integration</a></li>
-        <li><a href="/inventory-service/backend/architecture/repository/index.html">Repository</a></li>
-        <li><a href="/inventory-service/backend/architecture/resources/index.html">Resources</a></li>
-        <li><a href="/inventory-service/backend/architecture/validation/index.html">Validation</a></li>
-        <li><a href="/inventory-service/backend/architecture/testing/index.html">Testing</a></li>
-        <li><a href="/inventory-service/backend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
       </ul>
 
       <p class="nav-title">Frontend</p>
@@ -111,83 +109,164 @@
     </aside>
     <main class="content" id="main">
       <article class="doc-body">
-        <h1 id="risks-and-technical-debt">§11 Risks and Technical
-        Debt</h1>
-        <p>Known risks and accepted technical debt, with mitigation or
-        planned resolution.</p>
-        <blockquote>
-        <p>DRAFT rows below are the verified deferred items — refine
-        wording, severity, and add/remove during the §11 authoring
-        pass.</p>
-        </blockquote>
+        <h1 id="risks-and-technical-debt">Risks and Technical Debt</h1>
+        <p>Known risks and accepted technical debt, with impact and a
+        mitigation or planned resolution. Items are grouped as
+        <strong>risks</strong> (external or time-driven exposure) and
+        <strong>technical debt</strong> (internal shortcuts accepted
+        deliberately). Each is traceable to the code or decision it
+        concerns.</p>
+        <h2 id="risks">11.1 Risks</h2>
         <table>
         <colgroup>
-        <col style="width: 13%" />
-        <col style="width: 13%" />
-        <col style="width: 13%" />
-        <col style="width: 17%" />
-        <col style="width: 42%" />
+        <col style="width: 11%" />
+        <col style="width: 11%" />
+        <col style="width: 15%" />
+        <col style="width: 23%" />
+        <col style="width: 37%" />
         </colgroup>
         <thead>
         <tr class="header">
         <th>ID</th>
-        <th>Item</th>
-        <th>Type</th>
+        <th>Risk</th>
         <th>Impact</th>
+        <th>Likelihood</th>
         <th>Mitigation / plan</th>
         </tr>
         </thead>
         <tbody>
         <tr class="odd">
+        <td>R-01</td>
+        <td>Spring Boot 3.5.x reaches <strong>OSS end-of-support on
+        2026-06-30</strong>; after that no security patches reach Maven
+        Central. The app is pinned to 3.5.15 (last free patch).</td>
+        <td>Rising, unpatched CVE exposure across the Spring portfolio
+        (Framework 6.2, Security) over time</td>
+        <td>High over time; nil at runtime on the cutoff date</td>
+        <td>Upgrade to 4.x (deferred — an 83-breaking-change migration
+        raising the baseline to JUnit 6 / Jackson 3). Interim: stay on
+        3.5.15, watch CVE advisories. Source:
+        spring.io/support-policy</td>
+        </tr>
+        <tr class="even">
+        <td>R-02</td>
+        <td>Oracle wallet is embedded in the Docker image; an attacker
+        who extracts the image obtains <code>cwallet.sso</code>.</td>
+        <td>Medium — wallet alone is insufficient without network access
+        to ADB and the schema credentials</td>
+        <td>Low</td>
+        <td>Documented residual risk in <a
+        href="./09-decisions/adr-0001-oracle-wallet-autologin.html">ADR-0001</a>;
+        ADB still enforces network/credential checks</td>
+        </tr>
+        <tr class="odd">
+        <td>R-03</td>
+        <td><code>sanitize()</code> is regex- and order-based; a novel
+        internal detail matching no pattern can pass through into an
+        error body.</td>
+        <td>Low–Medium — information disclosure</td>
+        <td>Low</td>
+        <td>Known gap documented in <a
+        href="./09-decisions/adr-0005-error-message-sanitization.html">ADR-0005</a>;
+        extend patterns as new leak shapes appear</td>
+        </tr>
+        <tr class="even">
+        <td>R-04</td>
+        <td>Oracle Free Tier ADB restricts access by IP allowlist; dev
+        and CI environments have dynamic IPs and cannot reach it. All
+        automated tests therefore run against H2 (Oracle-compatibility
+        mode); no integration test exercises Oracle before
+        deployment.</td>
+        <td>An Oracle-specific defect (SQL dialect divergence in the
+        analytics queries) can surface only in production.</td>
+        <td>Low–Medium</td>
+        <td>Keep H2 and Oracle SQL variants paired in
+        StockMetricsSqlBuilder (ADR-0006); smoke-test analytics
+        endpoints post-deploy; consider a manual Oracle-reachable test
+        run before major releases (<a
+        href="./runbooks/oracle-it-smoke-test.html">runbook</a>).</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="technical-debt">11.2 Technical Debt</h2>
+        <table>
+        <colgroup>
+        <col style="width: 18%" />
+        <col style="width: 18%" />
+        <col style="width: 25%" />
+        <col style="width: 37%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>ID</th>
+        <th>Item</th>
+        <th>Impact</th>
+        <th>Resolution</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
         <td>TD-01</td>
-        <td><code>sanitize()</code> is regex/order-based; a novel
-        internal detail matching no pattern passes through
-        unsanitized</td>
-        <td>Debt</td>
-        <td>Low–Med (info disclosure)</td>
-        <td>Documented gap (ADR-0005); extend patterns as new leak
-        shapes appear</td>
+        <td><code>createdAt</code> is set three different ways across
+        entities: <code>@PrePersist</code> (InventoryItem,
+        StockHistory), <code>@CreationTimestamp</code> (Supplier), field
+        initializer (AppUser).</td>
+        <td>Low — inconsistent audit semantics, harder to reason
+        about</td>
+        <td>Standardise on one mechanism</td>
         </tr>
         <tr class="even">
         <td>TD-02</td>
-        <td><code>createdAt</code> set three different ways across
-        entities (<code>@PrePersist</code>,
-        <code>@CreationTimestamp</code>, field initializer)</td>
-        <td>Debt</td>
-        <td>Low</td>
-        <td>Standardize on one mechanism</td>
+        <td><code>handleDataIntegrity</code> Javadoc states it sanitizes
+        SQL detail, but it returns a hardcoded conflict message and
+        never calls <code>sanitize()</code>.</td>
+        <td>Trivial — misleading documentation</td>
+        <td>Correct the comment to match behaviour</td>
         </tr>
         <tr class="odd">
         <td>TD-03</td>
-        <td><code>handleDataIntegrity</code> Javadoc says it sanitizes
-        SQL, but it returns a hardcoded message</td>
-        <td>Debt (docs)</td>
-        <td>Trivial</td>
-        <td>Fix the comment to match behaviour</td>
+        <td>No optimistic locking (<code>@Version</code>) anywhere;
+        concurrent updates to the same row last-write-wins.</td>
+        <td>Low — acceptable for current single-writer workload</td>
+        <td>Accepted; revisit if concurrent edit volume grows</td>
         </tr>
         <tr class="even">
-        <td>R-01</td>
-        <td>Spring Boot 3.5.x approaching OSS end-of-support</td>
-        <td>Risk</td>
-        <td>Security/support</td>
-        <td>Upgrade to 4.x (deferred — verify exact EOL date when
-        authoring)</td>
+        <td>TD-04</td>
+        <td>Docs build: Lua filter rule <code>gsub("^api/","")</code> is
+        unverified and possibly incorrect.</td>
+        <td>Low — affects generated doc links only</td>
+        <td>Review during the reference/cleanup pass</td>
         </tr>
         <tr class="odd">
-        <td>TD-04</td>
-        <td>Docs build: Lua filter <code>gsub("^api/","")</code> rule
-        unverified</td>
-        <td>Debt (build)</td>
-        <td>Low</td>
-        <td>Review during docs pass</td>
+        <td>TD-05</td>
+        <td>Docs UI: double scrollbars on documentation pages; JaCoCo
+        report “back to docs” link is broken.</td>
+        <td>Low — cosmetic / navigation</td>
+        <td>Fix in the reference/cleanup pass</td>
         </tr>
         <tr class="even">
-        <td>TD-05</td>
-        <td>Docs UI: double scrollbars on doc pages; JaCoCo “back to
-        docs” link</td>
-        <td>Debt (docs UI)</td>
-        <td>Low</td>
-        <td>Fix in reference/cleanup pass</td>
+        <td>TD-06</td>
+        <td>Legacy duplicate doc trees (<code>layers/</code> vs flat
+        <code>controller/</code>, <code>model/</code>,
+        <code>repository/</code>, …) and the typo file
+        <code>dto-converson-inbound.md</code> coexist.</td>
+        <td>Low — reader confusion, stale content</td>
+        <td>Resolve in the reference/cleanup pass; delete the
+        non-<code>adr-</code> ADR stubs
+        (<code>0001</code>–<code>0004</code>) once migration is
+        confirmed</td>
+        </tr>
+        <tr class="odd">
+        <td>TD-07</td>
+        <td><code>DatabaseDialectDetector</code> selects SQL dialect
+        from the active Spring profile, not from the real datasource. An
+        H2 datasource without a <code>test</code> or <code>h2</code>
+        profile active silently produces Oracle SQL that fails at query
+        execution rather than at startup.</td>
+        <td>Low — misconfiguration surfaces as a runtime query error,
+        not a clear startup failure</td>
+        <td>Consider validating dialect against actual connection
+        metadata, or failing fast on a profile/datasource mismatch</td>
         </tr>
         </tbody>
         </table>
@@ -198,8 +277,12 @@
       <p class="toc-title">On this page</p>
       <ul>
       <li><a href="#risks-and-technical-debt"
-      id="toc-risks-and-technical-debt">§11 Risks and Technical
-      Debt</a></li>
+      id="toc-risks-and-technical-debt">Risks and Technical Debt</a>
+      <ul>
+      <li><a href="#risks" id="toc-risks">11.1 Risks</a></li>
+      <li><a href="#technical-debt" id="toc-technical-debt">11.2
+      Technical Debt</a></li>
+      </ul></li>
       </ul>
     </nav>
       </div>
