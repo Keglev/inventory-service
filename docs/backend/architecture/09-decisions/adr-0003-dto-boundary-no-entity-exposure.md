@@ -33,11 +33,7 @@ Entities never cross the controller boundary; DTOs never enter the repository la
 - **Service layer** is the only place that crosses the boundary: it calls mapper
   classes to translate incoming DTOs to entities (before `save()`) and to translate
   outgoing entities to DTOs (before returning to the controller).
-- **Repositories** never accept DTOs as parameters. CRUD methods accept and return
-  JPA entities; read-only reporting queries are the sole exception and return DTO
-  projections built inside the query via JPQL constructor expressions (e.g.
-  `StockHistoryRepository.getPriceTrend()` returns `List<PriceTrendDTO>`). A DTO
-  never enters a repository as a parameter.
+- **Repositories** never accept DTOs as parameters — every repository method parameter is a scalar or an entity id. CRUD methods accept and return JPA entities. Read-only reporting queries are the sole exception and may return DTO projections, produced one of two ways: (a) a JPQL constructor expression in a Spring Data @Query (e.g. StockHistoryRepository.getPriceTrend() returns List<PriceTrendDTO>), or (b) a custom repository implementation that maps result rows to a DTO in Java (e.g. StockTrendAnalyticsRepository.getItemPriceTrend() returns List<PriceTrendDTO>, StockDetailQueryRepository.streamEventsForWAC() returns List<StockEventRowDTO>). Most analytics methods return raw List<Object[]> tuples that the service layer maps to DTOs; only these two return DTOs directly. A DTO never enters a repository as a parameter.
 
 ## Alternatives Considered
 
@@ -100,6 +96,7 @@ Entities never cross the controller boundary; DTOs never enter the repository la
     parameter; CRUD methods use entity types, while reporting methods (e.g.
     `StockHistoryRepository.getPriceTrend()`) return DTO projections built by
     the query
+  - Analytics/reporting repositories with custom implementations: StockDetailQueryRepository, StockMetricsRepository, StockTrendAnalyticsRepository (each with a *Impl), plus the static StockMetricsSqlBuilder. These run dialect-specific SQL (H2 in tests, Oracle in prod) selected via DatabaseDialectDetector — see ADR-0006.
 
 - Migration notes (if relevant):
   - Analytics aggregation DTOs (`DashboardSummaryDTO`, `StockPerSupplierDTO`, etc.)

@@ -24,9 +24,6 @@ In production, HikariCP is tuned for Fly.io's RAM constraints: `maximum-pool-siz
 `max-lifetime=240000` ms (below Oracle ADB's 5-minute idle timeout), with a
 `SELECT 1 FROM DUAL` keepalive query.
 
-See [config reference](reference/config/index.md) and
-[resources reference](reference/resources/index.md).
-
 ---
 
 ## Persistence
@@ -47,7 +44,7 @@ lazy `@ManyToOne` join for object navigation; the authoritative FK (`supplierId`
 plain `String` column on the owning entity, and `insertable=false, updatable=false`
 prevents the join from conflicting with the scalar column.
 
-See [model reference](reference/model/index.md).
+See [§5 Repository Layer](05-building-blocks.md#repository-layer).
 
 ---
 
@@ -64,4 +61,6 @@ In production: `show-sql=false`, health endpoint `show-details: never`. In test:
 `show-details: always` to support CI assertions. Test output also writes to
 `logs/test-application.log`. No MDC context or correlation ID is added to log entries.
 
-See [resources reference](reference/resources/index.md).
+---
+
+See also: [§8 Testing (test strategy, H2 vs Oracle)](08c-concepts-testing.md)

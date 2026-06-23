@@ -20,6 +20,8 @@ ADRs do **not** document:
 - [ADR-0003: DTO boundary — no entity exposure across layers](./adr-0003-dto-boundary-no-entity-exposure.md)
 - [ADR-0004: HTTP status as the error envelope (no success wrapper)](./adr-0004-http-status-as-envelope.md)
 - [ADR-0005: Error message sanitization in GlobalExceptionHandler](./adr-0005-error-message-sanitization.md)
+- [ADR-0006: Custom repository implementations for dialect-aware analytics queries](./adr-0006-dialect-aware-analytics-queries.md)
+- [ADR-0007: Cross-origin session cookie configuration for split frontend/backend deployment](./adr-0007-cross-origin-auth-cookie.md)
 
 ---
 

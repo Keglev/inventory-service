@@ -87,14 +87,14 @@ get:
               - id: "hist-001"
                 itemId: "550e8400-e29b-41d4-a716-446655440000"
                 change: -25
-                reason: "SALE"
+                reason: "SOLD"
                 createdBy: "user@example.com"
                 timestamp: "2025-11-15T14:30:00Z"
                 priceAtChange: 29.99
               - id: "hist-002"
                 itemId: "660e8400-e29b-41d4-a716-446655440001"
                 change: -10
-                reason: "SALE"
+                reason: "RETURNED_BY_CUSTOMER"
                 createdBy: "user@example.com"
                 timestamp: "2025-11-12T16:45:00Z"
                 priceAtChange: 49.99

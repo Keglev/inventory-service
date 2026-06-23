@@ -6,45 +6,47 @@ components:
       description: Unique identifier for the resource
       required: true
       schema:
-        type: integer
-        format: int64
-      example: 42
-    
+        type: string
+        format: uuid
+      example: "550e8400-e29b-41d4-a716-446655440000"
+
     itemId:
       name: itemId
       in: path
       description: Unique identifier for an inventory item
       required: true
       schema:
-        type: integer
-        format: int64
-      example: 101
-    
+        type: string
+        format: uuid
+      example: "550e8400-e29b-41d4-a716-446655440000"
+
     supplierId:
       name: supplierId
       in: path
       description: Unique identifier for a supplier
       required: true
       schema:
-        type: integer
-        format: int64
-      example: 5
+        type: string
+      example: "supplier-123"
     
     reason:
       name: reason
       in: path
       description: |
         Stock change reason filter. One of:
-        - SALE: Items sold to customers
-        - RETURN: Customer returns
+        - INITIAL_STOCK: Initial stock entry
+        - MANUAL_UPDATE: Manual quantity correction
+        - PRICE_CHANGE: Price adjustment recorded against the item
+        - SOLD: Items sold to customers
+        - SCRAPPED: Removed as scrap
+        - DESTROYED: Destroyed stock
         - DAMAGED: Damaged stock removal
         - EXPIRED: Expired items
-        - RESTOCK: New inventory received
-        - MANUAL_ADJUSTMENT: Manual count corrections
-        - INVENTORY_COUNT: Periodic inventory count
-        - INITIAL_STOCK: Initial stock entry
+        - LOST: Lost or unaccounted for
+        - RETURNED_TO_SUPPLIER: Returned to supplier
+        - RETURNED_BY_CUSTOMER: Returned by customer
       required: true
       schema:
         type: string
-        enum: [SALE, RETURN, DAMAGED, EXPIRED, RESTOCK, MANUAL_ADJUSTMENT, INVENTORY_COUNT, INITIAL_STOCK]
-      example: SALE
+        enum: [INITIAL_STOCK, MANUAL_UPDATE, PRICE_CHANGE, SOLD, SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER, RETURNED_BY_CUSTOMER]
+      example: SOLD

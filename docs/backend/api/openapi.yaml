@@ -27,7 +27,7 @@ info:
 servers:
   - url: https://inventoryservice.fly.dev
     description: Production
-  - url: http://localhost:8080
+  - url: http://localhost:8081
     description: Local development
 
 # Tags moved to a separate file

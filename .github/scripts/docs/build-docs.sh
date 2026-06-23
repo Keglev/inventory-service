@@ -29,11 +29,6 @@ write_lua_filter() {
   mkdir -p "$PROJECT_DIR/scripts"
   cat > "$LUA_FILTER" << 'LUA'
 function Link(el)
-  while el.target:match("^%.%./") do
-    el.target = el.target:gsub("^%.%./", "")
-  end
-  el.target = el.target:gsub("^api/", "")
-  el.target = el.target:gsub("^%./api/", "")
   el.target = el.target:gsub("%.md#", ".html#")
   el.target = el.target:gsub("%.md$", ".html")
   return el

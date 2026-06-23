@@ -26,32 +26,38 @@ components:
             Quantity delta (positive for inbound, negative for outbound).
             
             **Examples:**
-            - `100` - Added 100 units (RESTOCK)
-            - `-25` - Removed 25 units (SALE)
-            - `5` - Corrected by +5 units (INVENTORY_COUNT)
+            - `100` - Added 100 units (INITIAL_STOCK)
+            - `-25` - Removed 25 units (SOLD)
+            - `5` - Corrected by +5 units (MANUAL_UPDATE)
           example: -25
         reason:
           type: string
           enum:
-            - SALE
-            - RETURN
+            - INITIAL_STOCK
+            - MANUAL_UPDATE
+            - PRICE_CHANGE
+            - SOLD
+            - SCRAPPED
+            - DESTROYED
             - DAMAGED
             - EXPIRED
-            - RESTOCK
-            - MANUAL_ADJUSTMENT
-            - INVENTORY_COUNT
-            - INITIAL_STOCK
+            - LOST
+            - RETURNED_TO_SUPPLIER
+            - RETURNED_BY_CUSTOMER
           description: |
             Reason code for the stock change:
-            - **SALE**: Sold to customer
-            - **RETURN**: Returned by customer
+            - **INITIAL_STOCK**: Initial inventory load
+            - **MANUAL_UPDATE**: Manual quantity correction
+            - **PRICE_CHANGE**: Price adjustment recorded against the item
+            - **SOLD**: Sold to customer
+            - **SCRAPPED**: Removed as scrap
+            - **DESTROYED**: Destroyed stock
             - **DAMAGED**: Damaged/defective
             - **EXPIRED**: Expired/obsolete
-            - **RESTOCK**: Replenished inventory
-            - **MANUAL_ADJUSTMENT**: Manual correction
-            - **INVENTORY_COUNT**: Physical count adjustment
-            - **INITIAL_STOCK**: Initial inventory load
-          example: "SALE"
+            - **LOST**: Lost or unaccounted for
+            - **RETURNED_TO_SUPPLIER**: Returned to supplier
+            - **RETURNED_BY_CUSTOMER**: Returned by customer
+          example: "SOLD"
         createdBy:
           type: string
           description: User or process that triggered this change

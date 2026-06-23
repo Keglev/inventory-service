@@ -42,15 +42,18 @@ patch:
       schema:
         type: string
         enum:
-          - SALE
-          - RETURN
+          - INITIAL_STOCK
+          - MANUAL_UPDATE
+          - PRICE_CHANGE
+          - SOLD
+          - SCRAPPED
+          - DESTROYED
           - DAMAGED
           - EXPIRED
-          - RESTOCK
-          - MANUAL_ADJUSTMENT
-          - INVENTORY_COUNT
-          - INITIAL_STOCK
-      example: "SALE"
+          - LOST
+          - RETURNED_TO_SUPPLIER
+          - RETURNED_BY_CUSTOMER
+      example: "SOLD"
   responses:
     '200':
       description: Quantity adjusted successfully

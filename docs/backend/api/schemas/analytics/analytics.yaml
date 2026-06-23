@@ -148,7 +148,7 @@ components:
         reason:
           type: string
           description: Change reason code
-          example: "SALE"
+          example: "SOLD"
         timestamp:
           type: string
           format: date-time

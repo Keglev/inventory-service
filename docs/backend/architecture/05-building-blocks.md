@@ -40,6 +40,14 @@ implementations: `StockDetailQueryRepositoryImpl`, `StockMetricsRepositoryImpl`,
 `UserProvisioningService` for OAuth2 user lookup and provisioning and does not
 participate in the domain service flow.
 
+**Analytics/reporting repositories** with custom implementations —
+`StockDetailQueryRepository`, `StockMetricsRepository`,
+`StockTrendAnalyticsRepository` (each with a `*Impl`), plus the static
+`StockMetricsSqlBuilder` — form a distinct group. These build dialect-specific SQL
+(H2 in tests, Oracle in prod) selected at runtime via `DatabaseDialectDetector`, and
+return either raw `Object[]` tuples mapped to DTOs in the service layer or, in two
+cases, typed projections (`StockEventRowDTO`, `PriceTrendDTO`). See ADR-0006.
+
 ## Model Layer
 
 Four JPA entities map to Oracle tables: `Supplier` (table `SUPPLIER`), `InventoryItem`
@@ -179,13 +187,7 @@ erDiagram
 
 ## Reference
 
-Class-level detail for each package — navigate down for specifics:
+The detailed class-level surface is documented authoritatively in two places:
 
-- [Controller reference](reference/controller/index.md)
-- [DTO reference](reference/dto/index.md)
-- [Model reference](reference/model/index.md)
-- [Repository reference](reference/repository/index.md)
-- [Config reference](reference/config/index.md)
-- [Enums reference](reference/enums/index.md)
-- [Exception reference](reference/exception/index.md)
-- [Resources reference](reference/resources/index.md)
+- **HTTP API surface** (endpoints, request/response DTOs, the `StockChangeReason` enum, error responses) — see the [OpenAPI specification](../api/index.html).
+- **Internal structure** (entities, repositories, cross-cutting concerns) — documented in the sections above: [Model Layer](#model-layer), [Repository Layer](#repository-layer), and [Cross-cutting](#cross-cutting).

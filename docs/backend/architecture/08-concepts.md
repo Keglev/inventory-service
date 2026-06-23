@@ -27,7 +27,7 @@ cookie on every cross-origin subrequest). CORS allowed origins are configured pe
 profile in `AppProperties.cors.allowedOrigins`
 (default: `http://localhost:5173`; prod: `https://inventory-service.koyeb.app`).
 
-See [config reference](reference/config/index.md).
+See [§5 Cross-cutting](05-building-blocks.md#cross-cutting).
 
 ---
 
@@ -50,7 +50,7 @@ Three tiers enforce data integrity in sequence:
    `DataIntegrityViolationException` → 409. SQL detail is stripped by
    `GlobalExceptionHandler.sanitize()` before the message reaches the client.
 
-See [exception reference](reference/exception/index.md).
+See [§5 Cross-cutting](05-building-blocks.md#cross-cutting).
 
 ---
 
@@ -93,7 +93,7 @@ client: Windows and Unix file paths → `[PATH]`; `.java`/`.class` file referenc
 operation failed"`; strings starting with `Password` or `Token` → `"Authentication
 failed"`. A `null` input returns `"Unknown error"`.
 
-See [exception reference](reference/exception/index.md).
+See [§5 Cross-cutting](05-building-blocks.md#cross-cutting).
 
 ---
 
