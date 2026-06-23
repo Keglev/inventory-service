@@ -9,7 +9,7 @@ import org.springframework.test.context.ActiveProfilesResolver;
 /**
  * Verifies Spring Boot application context loads successfully with test profile.
  * Uses H2 in-memory database with Oracle compatibility mode instead of Testcontainers
- * due to Oracle Autonomous Database IP whitelisting requirements.
+ * due to Oracle Autonomous Database IP whitelisting requirements.  
  */
 @SpringBootTest
 @ActiveProfiles(resolver = InventoryServiceApplicationTest.InventoryServiceActiveProfilesResolver.class)

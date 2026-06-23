@@ -45,7 +45,7 @@ Manual Oracle verification: an `oracle-it` profile (`application-oracle-it.yml`,
 `src/test/resources`) runs a smoke test against a real Oracle ADB from a developer
 machine with a locally extracted wallet and an allowlisted IP. It is explicitly **not**
 intended for CI and is run by hand before significant releases — see
-[oracle-it smoke-test runbook](./runbooks/oracle-it-smoke-test.md).
+[oracle-it smoke-test runbook](oracle-it-smoke-test.md).
 
 This gap is recorded as a standing risk — see [§11, R-04](./11-risks-technical-debt.md)
 — and the dialect design that makes the H2/Oracle split possible is documented in

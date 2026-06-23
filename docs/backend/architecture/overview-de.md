@@ -5,6 +5,11 @@ Lieferantenbeziehungen, Bestandsverfolgung und Echtzeit-Bestandsanalysen.
 Die Architektur legt den Schwerpunkt auf **Sicherheit**, **Wartbarkeit** und
 **klare Trennung der Verantwortlichkeiten** durch klar definierte Schichten.
 
+> **Dies ist eine Zusammenfassung auf einer Seite.** Die vollständige
+> arc42-Dokumentation — Einführung und Ziele, Randbedingungen, Kontext, Bausteine,
+> Laufzeit, Verteilung, Konzepte, Entscheidungen, Qualität, Risiken und Glossar —
+> finden Sie in der [vollständigen Architekturdokumentation](index-de.html).
+
 ## Technologie-Stack
 
 | Komponente       | Technologie                     | Version   |
@@ -77,7 +82,7 @@ Enthält die gesamte Geschäftslogik und koordiniert Operationen: Geschäftsrege
 Transaktionsverwaltung, Datentransformation und Audit-Protokollierung.
 
 Wichtigste Services: `SupplierService`, `InventoryItemService`, `StockHistoryService`,
-`AnalyticsService` (WAC- und FIFO-Finanzanalyse).
+`AnalyticsService` (Finanzanalyse auf Basis gewichteter Durchschnittskosten, WAC).
 
 ### Validierungs-Schicht
 
@@ -97,15 +102,15 @@ Wichtigste Repositories: `SupplierRepository`, `InventoryItemRepository`,
 
 ### Datenschicht
 
-JPA-Entities mit Optimistic Locking (`@Version`), Audit-Feldern
-(`createdAt`, `updatedAt`, `createdBy`) und typsicheren Enum-Spalten.
+JPA-Entities mit Audit-Feldern (`createdAt`, `createdBy`), gesetzt über
+`@PrePersist` / `@CreationTimestamp`, und typsicheren Enum-Spalten.
 
 Entities: `Supplier`, `InventoryItem`, `StockHistory`, `AppUser`.
 
 ## Authentifizierung und Sicherheit
 
-OAuth2-Authentifizierung mit Google als Provider. Spring Security validiert jeden
-Request-Token, erstellt den Principal im `SecurityContext` und setzt RBAC über
+OAuth2-Authentifizierung mit Google als Provider. Spring Security validiert jede
+Anfrage, erstellt den Principal im `SecurityContext` und setzt RBAC über
 `@PreAuthorize` durch.
 
 **Rollen:**
@@ -120,18 +125,19 @@ sequenceDiagram
   Controller->>AuthService: Code gegen Token austauschen
   AuthService->>OAuth2Provider: Token validieren
   OAuth2Provider->>AuthService: Token gültig + Benutzerinformationen
-  AuthService->>Client: Session-Token
-  Client->>API: Token im Authorization-Header
-  API->>SecurityContext: Token validieren und Principal aufbauen
+  AuthService->>Client: Session-Cookie setzen
+  Client->>API: Anfrage mit Session-Cookie (SameSite=None, Secure)
+  API->>SecurityContext: Validieren und Principal aufbauen
   SecurityContext->>Controller: Mit authentifiziertem Principal ausführen
 ```
 
 ## Exception-Handling
 
 Geschäfts- und Framework-Exceptions werden über einen globalen `@ControllerAdvice`-Handler
-geleitet und erzeugen eine einheitliche Fehler-Response — HTTP-Status, maschinenlesbares
-Fehler-Token, Zeitstempel und Korrelations-ID. Stack-Traces werden in Responses
-grundsätzlich nicht exponiert.
+geleitet und erzeugen eine einheitliche Fehler-Response — der HTTP-Status trägt das
+Ergebnis, der Body enthält genau drei Felder: ein maschinenlesbares Fehler-Token, eine
+menschenlesbare Nachricht und einen Zeitstempel. Es gibt keine Korrelations-ID, und
+Stack-Traces werden in Responses grundsätzlich nicht exponiert.
 
 ```mermaid
 flowchart LR
@@ -172,7 +178,7 @@ POST /inventory/items
 | DTO-Muster | Entkoppelt API-Vertrag vom internen Domain-Modell |
 | Exception-Übersetzung | Geschäfts-Exceptions werden an einer Grenze auf HTTP-Statuscodes gemappt |
 | Validierungs-Helfer | Komplexe Geschäftsregeln in dedizierten Validator-Klassen isoliert |
-| Audit-Protokollierung | `createdBy` / `updatedAt` einheitlich aus dem `SecurityContext` erfasst |
+| Audit-Protokollierung | `createdAt` per `@PrePersist` / `@CreationTimestamp`; `createdBy` im `@PrePersist` auf `"system"` gesetzt oder vom Service vor dem Persistieren gesetzt |
 
 ## Performance-Überlegungen
 
@@ -219,7 +225,7 @@ Das Backend wird über eine vollständig automatisierte GitHub-Actions-Pipeline 
 
 ```
 Code-Push
-  → 1-ci-backend.yml      Maven-Build, JUnit-Tests, JaCoCo-Abdeckung
+  → 1-ci-test.yml         Maven-Build, JUnit-Tests, JaCoCo-Abdeckung
   → 2-docker-backend.yml  Docker-Image-Build, Trivy-CVE-Scan, Push zu Docker Hub
   → 4-deploy-fly.yml      Vorgebautes Image auf Fly.io deployen, Health-Check
 ```

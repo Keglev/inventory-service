@@ -37,6 +37,6 @@ Google OAuth2 with role-based access control (RBAC).
 | [§7 Deployment View](07-deployment.md) | Fly.io topology, GitHub Actions CI/CD pipeline, Docker image strategy, environment secrets |
 | [§8 Cross-cutting Concepts](08-concepts.md) | Security, validation, exception handling, configuration profiles, persistence audit fields (`createdBy`, `createdAt`) |
 | [§9 Decisions](09-decisions/index.md) | Architecture Decision Records |
-| [§10 Quality Requirements](10-quality.md) | Test strategy, JaCoCo coverage gates, CI pipeline, Trivy CVE scan |
-| [§11 Risks & Technical Debt](11-risks.md) | Known risks, upcoming EOLs, and named technical debt |
+| [§10 Quality Requirements](10-quality-requirements.md) | Test strategy, JaCoCo coverage gates, CI pipeline, Trivy CVE scan |
+| [§11 Risks & Technical Debt](11-risks-technical-debt.md) | Known risks, upcoming EOLs, and named technical debt |
 | [§12 Glossary](12-glossary.md) | Domain and technical terms |

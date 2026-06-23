@@ -1,10 +1,12 @@
 # Runbook: Manual Oracle smoke test (`oracle-it` profile)
 
+[← Back to §8c Testing Concepts](08c-concepts-testing.md)
+
 Operational procedure for verifying that the application boots and authenticates
 against the real Oracle Autonomous Database before a significant release. This is a
 **manual** check run from a developer machine; it is intentionally excluded from CI
-(see [§8 Testing](../08c-concepts-testing.md) for the rationale and
-[§11, R-04](../11-risks-technical-debt.md) for the gap it partially closes).
+(see [§8 Testing](08c-concepts-testing.md) for the rationale and
+[§11, R-04](11-risks-technical-debt.md) for the gap it partially closes).
 
 ## What it does
 

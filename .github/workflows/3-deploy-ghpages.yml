@@ -76,6 +76,21 @@ jobs:
             echo "Restored existing JaCoCo coverage"
           fi
 
+      - name: Inject back-to-docs link into coverage report
+        run: |
+          set -euo pipefail
+          COV="backend/coverage/index.html"
+          if [ -f "$COV" ]; then
+            if grep -q 'id="back-to-docs"' "$COV"; then
+              echo "Back-to-docs link already present — skipping"
+            else
+              sed -i 's|<body[^>]*>|&<a id="back-to-docs" href="/inventory-service/backend/architecture/overview.html" style="position:fixed;top:8px;right:12px;z-index:9999;font:14px sans-serif;padding:6px 12px;background:#2563eb;color:#fff;text-decoration:none;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.2);">\&larr; Back to docs</a>|' "$COV"
+              echo "Back-to-docs link injected"
+            fi
+          else
+            echo "No coverage index.html found — skipping injection"
+          fi
+          
       - name: Commit and push to gh-pages
         run: |
           git config user.name "github-actions[bot]"

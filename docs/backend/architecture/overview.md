@@ -5,6 +5,11 @@ inventory tracking, and real-time stock analytics. The architecture prioritises
 **security**, **maintainability**, and **clear separation of concerns** through
 well-defined layers.
 
+> **This is a one-page summary.** For the structured arc42 documentation — introduction
+> and goals, constraints, context, building blocks, runtime, deployment, concepts,
+> decisions, quality, risks, and glossary — see the
+> [full architecture documentation](index.html).
+
 ## Technology stack
 
 | Component        | Technology                     | Version   |
@@ -77,7 +82,7 @@ Contains all business logic and orchestrates operations: business rule validatio
 transaction management, data transformation, and audit logging.
 
 Key services: `SupplierService`, `InventoryItemService`, `StockHistoryService`,
-`AnalyticsService` (WAC and FIFO financial analysis).
+`AnalyticsService` (weighted-average-cost (WAC) financial analysis).
 
 ### Validation layer
 
@@ -105,7 +110,7 @@ Entities: `Supplier`, `InventoryItem`, `StockHistory`, `AppUser`.
 ## Authentication and security
 
 OAuth2 authentication with Google as the provider. Spring Security validates each
-request token, builds the principal in `SecurityContext`, and enforces RBAC via
+request, builds the principal in `SecurityContext`, and enforces RBAC via
 `@PreAuthorize`.
 
 **Roles:**
@@ -129,8 +134,10 @@ sequenceDiagram
 ## Exception handling
 
 Business exceptions and framework exceptions are both routed through a global
-`@ControllerAdvice` handler, producing a consistent error response — HTTP status,
-the HTTP status code carries the result and the body holds exactly three fields: a machine-readable error token, a human-readable message, and a timestamp. There is no correlation ID, and stack traces are never exposed in responses.
+`@ControllerAdvice` handler, producing a consistent error response — the HTTP status
+carries the result and the body holds exactly three fields: a machine-readable error
+token, a human-readable message, and a timestamp. There is no correlation ID, and
+stack traces are never exposed in responses.
 
 ```mermaid
 flowchart LR
