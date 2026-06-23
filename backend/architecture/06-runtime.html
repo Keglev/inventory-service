@@ -218,7 +218,7 @@
             SF->>SF: validate session; populate SecurityContext
             SF->>IC: authenticated request
 
-            IC->>IC: @Valid — deserialise InventoryItemDTO
+            IC->>IC: @Valid (deserialise InventoryItemDTO)
             IC->>IS: create(dto)
             IS->>IV: validate(dto)
 
@@ -233,7 +233,7 @@
             IR-->>IV: false
             IV-->>IS: validation passed
 
-            IS->>IS: map DTO to InventoryItem; set createdBy from SecurityContext
+            IS->>IS: build InventoryItem from DTO, set createdBy from SecurityContext
             IS->>IR: save(item)
             IR->>DB: INSERT INTO INVENTORY_ITEM
             DB-->>IR: saved entity
@@ -297,7 +297,7 @@
             participant Google as Google OAuth2
             participant SH as OAuth2LoginSuccessHandler
             participant UPS as UserProvisioningService
-            participant DB as Oracle ADB (users_app)
+            participant DB as Oracle ADB
 
             User->>Browser: click "Sign in with Google"
             Browser->>Backend: GET /oauth2/authorization/google
@@ -325,7 +325,7 @@
             end
 
             UPS-->>SH: AppUser
-            SH-->>Browser: Set-Cookie: SESSION (HTTP-only, SameSite=None; Secure — cross-origin Koyeb→Fly.io; Strict would drop it); 302 to /auth
+            SH-->>Browser: Set-Cookie SESSION HTTP-only SameSite=None Secure, 302 to /auth
         </div>
         <h2 id="scenario-3-analytics-read">Scenario 3 — Analytics
         Read</h2>
@@ -345,7 +345,7 @@
 
             AC->>AS: getDashboardSummary()
 
-            AS->>IR: findAll() — @EntityGraph(attributePaths={"supplier"})
+            AS->>IR: findAll() with EntityGraph supplier join
             IR->>DB: SELECT INVENTORY_ITEM JOIN SUPPLIER
             DB-->>IR: item + supplier rows (single query, no N+1)
             IR-->>AS: List<InventoryItem>
