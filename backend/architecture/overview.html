@@ -115,6 +115,13 @@
         <strong>security</strong>, <strong>maintainability</strong>, and
         <strong>clear separation of concerns</strong> through
         well-defined layers.</p>
+        <blockquote>
+        <p><strong>This is a one-page summary.</strong> For the
+        structured arc42 documentation — introduction and goals,
+        constraints, context, building blocks, runtime, deployment,
+        concepts, decisions, quality, risks, and glossary — see the <a
+        href="index.html">full architecture documentation</a>.</p>
+        </blockquote>
         <h2 id="technology-stack">Technology stack</h2>
         <table>
         <thead>
@@ -230,7 +237,7 @@
         <p>Key services: <code>SupplierService</code>,
         <code>InventoryItemService</code>,
         <code>StockHistoryService</code>, <code>AnalyticsService</code>
-        (WAC and FIFO financial analysis).</p>
+        (weighted-average-cost (WAC) financial analysis).</p>
         <h3 id="validation-layer">Validation layer</h3>
         <p>Three distinct tiers ensure data integrity:</p>
         <ul>
@@ -260,7 +267,7 @@
         <h2 id="authentication-and-security">Authentication and
         security</h2>
         <p>OAuth2 authentication with Google as the provider. Spring
-        Security validates each request token, builds the principal in
+        Security validates each request, builds the principal in
         <code>SecurityContext</code>, and enforces RBAC via
         <code>@PreAuthorize</code>.</p>
         <p><strong>Roles:</strong> - <code>ADMIN</code> — full system
@@ -282,11 +289,11 @@
         <h2 id="exception-handling">Exception handling</h2>
         <p>Business exceptions and framework exceptions are both routed
         through a global <code>@ControllerAdvice</code> handler,
-        producing a consistent error response — HTTP status, the HTTP
-        status code carries the result and the body holds exactly three
-        fields: a machine-readable error token, a human-readable
-        message, and a timestamp. There is no correlation ID, and stack
-        traces are never exposed in responses.</p>
+        producing a consistent error response — the HTTP status carries
+        the result and the body holds exactly three fields: a
+        machine-readable error token, a human-readable message, and a
+        timestamp. There is no correlation ID, and stack traces are
+        never exposed in responses.</p>
         <div class="mermaid">
         flowchart LR
           Service["Service logic"]:::service

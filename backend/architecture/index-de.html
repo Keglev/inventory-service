@@ -108,15 +108,15 @@
     </aside>
     <main class="content" id="main">
       <article class="doc-body">
-        <h1 id="einfuhrung-und-ziele">§1 Einfuhrung und Ziele</h1>
+        <h1 id="einführung-und-ziele">§1 Einführung und Ziele</h1>
         <h2 id="zweck">Zweck</h2>
         <p>Das Backend von Smart Supply Pro ist ein Spring-Boot-Dienst
-        fur die Verwaltung von Lieferantenbeziehungen, die
+        für die Verwaltung von Lieferantenbeziehungen, die
         Bestandsverfolgung und Echtzeit-Lageranalysen. Es stellt eine
         RESTful API bereit, die vom React-Frontend genutzt wird, basiert
-        auf Oracle Autonomous Database 23ai und wird uber Google OAuth2
+        auf Oracle Autonomous Database 23ai und wird über Google OAuth2
         mit rollenbasierter Zugriffskontrolle (RBAC) abgesichert.</p>
-        <h2 id="qualitatsziele">Qualitatsziele</h2>
+        <h2 id="qualitätsziele">Qualitätsziele</h2>
         <table>
         <colgroup>
         <col style="width: 33%" />
@@ -125,8 +125,8 @@
         </colgroup>
         <thead>
         <tr class="header">
-        <th>Prioritat</th>
-        <th>Qualitatsziel</th>
+        <th>Priorität</th>
+        <th>Qualitätsziel</th>
         <th>Szenario</th>
         </tr>
         </thead>
@@ -134,8 +134,8 @@
         <tr class="odd">
         <td>1</td>
         <td>Sicherheit</td>
-        <td>Jeder Endpunkt erfordert ein gultig es OAuth2-Token;
-        Administratoroperationen erfordern zusatzlich die Rolle
+        <td>Jeder Endpunkt erfordert ein gültiges OAuth2-Token;
+        Administratoroperationen erfordern zusätzlich die Rolle
         <code>ADMIN</code>, die per <code>@PreAuthorize</code> an der
         Controller-Grenze durchgesetzt wird</td>
         </tr>
@@ -144,29 +144,29 @@
         <td>Wartbarkeit</td>
         <td>Jedes Konzept hat genau einen Ort — Controller routen,
         Services entscheiden, Repositories persistieren;
-        schichtenubergreifende Abhangigkeiten werden zur Kompilierzeit
+        schichtenübergreifende Abhängigkeiten werden zur Kompilierzeit
         verhindert</td>
         </tr>
         <tr class="odd">
         <td>3</td>
         <td>Trennung der Verantwortlichkeiten</td>
-        <td>DTO-Grenze an allen Controller-Grenzen; JPA-Entitaten
+        <td>DTO-Grenze an allen Controller-Grenzen; JPA-Entitäten
         verlassen nie die Service-Schicht; DTOs gelangen nie in
         Repositories</td>
         </tr>
         <tr class="even">
         <td>4</td>
         <td>Testbarkeit</td>
-        <td>Konstruktorinjektion und Repository-Abstraktion ermoglichen
+        <td>Konstruktorinjektion und Repository-Abstraktion ermöglichen
         Unit-Tests der Service-Schicht ohne laufenden Spring-Kontext
         oder Datenbank</td>
         </tr>
         <tr class="odd">
         <td>5</td>
         <td>Korrektheit</td>
-        <td>Drei-Stufen-Validierung (DTO-Annotationen, geschaftliche
+        <td>Drei-Stufen-Validierung (DTO-Annotationen, geschäftliche
         Regeln im Service, Datenbankconstraints) stellt sicher, dass
-        kein ungu ltiger Zustand persistiert werden kann</td>
+        kein ungültiger Zustand persistiert werden kann</td>
         </tr>
         </tbody>
         </table>
@@ -185,13 +185,13 @@
         <tbody>
         <tr class="odd">
         <td>Endbenutzer (Rolle <code>USER</code>)</td>
-        <td>Zuverlassige Bestandsansicht und grundlegende
-        Lageroperationen; reaktionsfahige API mit aussagekraftigen
+        <td>Zuverlässige Bestandsansicht und grundlegende
+        Lageroperationen; reaktionsfähige API mit aussagekräftigen
         Fehlermeldungen</td>
         </tr>
         <tr class="even">
         <td>Administratoren (Rolle <code>ADMIN</code>)</td>
-        <td>Vollstandiges CRUD fur Lieferanten und Lagerartikel; Zugang
+        <td>Vollständiges CRUD für Lieferanten und Lagerartikel; Zugang
         zu Analysen und Finanzzusammenfassungen</td>
         </tr>
         <tr class="odd">
@@ -227,9 +227,9 @@
         </tr>
         <tr class="odd">
         <td><a href="04-solution-strategy.html">§4
-        Losungsstrategie</a></td>
+        Lösungsstrategie</a></td>
         <td>Wesentliche strategische Entscheidungen und die ADRs, die
-        sie begrunden</td>
+        sie begründen</td>
         </tr>
         <tr class="even">
         <td><a href="05-building-blocks.html">§5 Bausteinsicht</a></td>
@@ -250,21 +250,22 @@
         <td><a href="08-concepts.html">§8 Querschnittliche
         Konzepte</a></td>
         <td>Sicherheit, Validierung, Fehlerbehandlung,
-        Konfigurationsprofile, Persistenz-Audit-Felder,
-        Korrelations-ID-Logging</td>
+        Konfigurationsprofile, Persistenz-Audit-Felder
+        (<code>createdBy</code>, <code>createdAt</code>)</td>
         </tr>
         <tr class="even">
         <td><a href="09-decisions/index.html">§9 Entscheidungen</a></td>
         <td>Architecture Decision Records</td>
         </tr>
         <tr class="odd">
-        <td><a href="10-quality.html">§10 Qualitatsziele</a></td>
+        <td><a href="10-quality-requirements.html">§10
+        Qualitätsziele</a></td>
         <td>Teststrategie, JaCoCo-Abdeckungsgrenzen, CI-Pipeline,
         Trivy-CVE-Scan</td>
         </tr>
         <tr class="even">
-        <td><a href="11-risks.html">§11 Risiken und technische
-        Schulden</a></td>
+        <td><a href="11-risks-technical-debt.html">§11 Risiken und
+        technische Schulden</a></td>
         <td>Bekannte Risiken, bevorstehende EOLs und benannte technische
         Schulden</td>
         </tr>
@@ -280,12 +281,12 @@
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#einfuhrung-und-ziele"
-      id="toc-einfuhrung-und-ziele">§1 Einfuhrung und Ziele</a>
+      <li><a href="#einführung-und-ziele"
+      id="toc-einführung-und-ziele">§1 Einführung und Ziele</a>
       <ul>
       <li><a href="#zweck" id="toc-zweck">Zweck</a></li>
-      <li><a href="#qualitatsziele"
-      id="toc-qualitatsziele">Qualitatsziele</a></li>
+      <li><a href="#qualitätsziele"
+      id="toc-qualitätsziele">Qualitätsziele</a></li>
       <li><a href="#stakeholder"
       id="toc-stakeholder">Stakeholder</a></li>
       <li><a href="#abschnitte" id="toc-abschnitte">Abschnitte</a></li>

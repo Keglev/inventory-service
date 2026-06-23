@@ -116,6 +116,15 @@
         <strong>Wartbarkeit</strong> und <strong>klare Trennung der
         Verantwortlichkeiten</strong> durch klar definierte
         Schichten.</p>
+        <blockquote>
+        <p><strong>Dies ist eine Zusammenfassung auf einer
+        Seite.</strong> Die vollständige arc42-Dokumentation —
+        Einführung und Ziele, Randbedingungen, Kontext, Bausteine,
+        Laufzeit, Verteilung, Konzepte, Entscheidungen, Qualität,
+        Risiken und Glossar — finden Sie in der <a
+        href="index-de.html">vollständigen
+        Architekturdokumentation</a>.</p>
+        </blockquote>
         <h2 id="technologie-stack">Technologie-Stack</h2>
         <table>
         <thead>
@@ -234,7 +243,8 @@
         <p>Wichtigste Services: <code>SupplierService</code>,
         <code>InventoryItemService</code>,
         <code>StockHistoryService</code>, <code>AnalyticsService</code>
-        (WAC- und FIFO-Finanzanalyse).</p>
+        (Finanzanalyse auf Basis gewichteter Durchschnittskosten,
+        WAC).</p>
         <h3 id="validierungs-schicht">Validierungs-Schicht</h3>
         <p>Drei Ebenen gewährleisten die Datenintegrität:</p>
         <ul>
@@ -256,16 +266,17 @@
         <code>StockHistoryRepository</code> sowie benutzerdefinierte
         Analytics-Mixins mit JPQL und nativem SQL.</p>
         <h3 id="datenschicht">Datenschicht</h3>
-        <p>JPA-Entities mit Optimistic Locking (<code>@Version</code>),
-        Audit-Feldern (<code>createdAt</code>, <code>updatedAt</code>,
-        <code>createdBy</code>) und typsicheren Enum-Spalten.</p>
+        <p>JPA-Entities mit Audit-Feldern (<code>createdAt</code>,
+        <code>createdBy</code>), gesetzt über <code>@PrePersist</code> /
+        <code>@CreationTimestamp</code>, und typsicheren
+        Enum-Spalten.</p>
         <p>Entities: <code>Supplier</code>, <code>InventoryItem</code>,
         <code>StockHistory</code>, <code>AppUser</code>.</p>
         <h2 id="authentifizierung-und-sicherheit">Authentifizierung und
         Sicherheit</h2>
         <p>OAuth2-Authentifizierung mit Google als Provider. Spring
-        Security validiert jeden Request-Token, erstellt den Principal
-        im <code>SecurityContext</code> und setzt RBAC über
+        Security validiert jede Anfrage, erstellt den Principal im
+        <code>SecurityContext</code> und setzt RBAC über
         <code>@PreAuthorize</code> durch.</p>
         <p><strong>Rollen:</strong> - <code>ADMIN</code> — vollständiger
         Systemzugriff - <code>USER</code> — Bestandsanzeige und
@@ -278,16 +289,18 @@
           Controller->>AuthService: Code gegen Token austauschen
           AuthService->>OAuth2Provider: Token validieren
           OAuth2Provider->>AuthService: Token gültig + Benutzerinformationen
-          AuthService->>Client: Session-Token
-          Client->>API: Token im Authorization-Header
-          API->>SecurityContext: Token validieren und Principal aufbauen
+          AuthService->>Client: Session-Cookie setzen
+          Client->>API: Anfrage mit Session-Cookie (SameSite=None, Secure)
+          API->>SecurityContext: Validieren und Principal aufbauen
           SecurityContext->>Controller: Mit authentifiziertem Principal ausführen
         </div>
         <h2 id="exception-handling">Exception-Handling</h2>
         <p>Geschäfts- und Framework-Exceptions werden über einen
         globalen <code>@ControllerAdvice</code>-Handler geleitet und
-        erzeugen eine einheitliche Fehler-Response — HTTP-Status,
-        maschinenlesbares Fehler-Token, Zeitstempel und Korrelations-ID.
+        erzeugen eine einheitliche Fehler-Response — der HTTP-Status
+        trägt das Ergebnis, der Body enthält genau drei Felder: ein
+        maschinenlesbares Fehler-Token, eine menschenlesbare Nachricht
+        und einen Zeitstempel. Es gibt keine Korrelations-ID, und
         Stack-Traces werden in Responses grundsätzlich nicht
         exponiert.</p>
         <div class="mermaid">
@@ -354,8 +367,10 @@
         </tr>
         <tr class="even">
         <td>Audit-Protokollierung</td>
-        <td><code>createdBy</code> / <code>updatedAt</code> einheitlich
-        aus dem <code>SecurityContext</code> erfasst</td>
+        <td><code>createdAt</code> per <code>@PrePersist</code> /
+        <code>@CreationTimestamp</code>; <code>createdBy</code> im
+        <code>@PrePersist</code> auf <code>"system"</code> gesetzt oder
+        vom Service vor dem Persistieren gesetzt</td>
         </tr>
         </tbody>
         </table>
@@ -416,7 +431,7 @@
         GitHub-Actions-Pipeline auf <strong>Fly.io</strong>
         bereitgestellt:</p>
         <pre><code>Code-Push
-  → 1-ci-backend.yml      Maven-Build, JUnit-Tests, JaCoCo-Abdeckung
+  → 1-ci-test.yml         Maven-Build, JUnit-Tests, JaCoCo-Abdeckung
   → 2-docker-backend.yml  Docker-Image-Build, Trivy-CVE-Scan, Push zu Docker Hub
   → 4-deploy-fly.yml      Vorgebautes Image auf Fly.io deployen, Health-Check</code></pre>
         <p>Das Docker-Image enthält ausschließlich das Produktions-JAR
