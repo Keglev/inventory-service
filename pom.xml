@@ -44,8 +44,8 @@
     <tomcat.version>10.1.55</tomcat.version>
     <spring-security.version>6.5.4</spring-security.version>
     <spring-framework.version>6.2.11</spring-framework.version>
-    <!-- Override Spring Boot managed Jackson BOM to address Trivy finding GHSA-72hv-8253-57qq -->
-    <jackson-bom.version>2.21.1</jackson-bom.version>
+    <!-- Override Spring Boot managed Jackson BOM to address CVE-2026-54512, CVE-2026-54513 -->
+    <jackson-bom.version>2.21.4</jackson-bom.version>
   </properties>
 
   <!--
