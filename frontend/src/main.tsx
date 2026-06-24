@@ -12,7 +12,7 @@
  */
 
 // Side-effect import: initializes i18n (language detection + resources + persistence).
-// IMPORTANT: Must be imported before any component that calls `useTranslation()`.
+
 import './i18n';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
