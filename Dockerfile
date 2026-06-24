@@ -14,7 +14,6 @@
 #
 # Runtime is driven by scripts/start.sh which performs wallet decoding and secure startup.
 
-
 # -----------------------------------------------------------------------------
 # 1) Dependency Warmup (optional but good for speed)
 #    Copies only pom + .mvn to leverage Docker layer cache for dependencies.
