@@ -6,7 +6,7 @@
 # Builds and pushes a Docker image (Nginx + Vite bundle) tagged by commit SHA.
 # On success, triggers: 6-deploy-frontend.yml (Koyeb deployment).
 # =============================================================================
-name: 5️⃣ Frontend CI - Build & Test
+name: 5 Frontend CI - Build & Test
 
 on:
   push:
