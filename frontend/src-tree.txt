@@ -1,0 +1,852 @@
+﻿Auflistung der Ordnerpfade f³r Volume Acer
+Volumeseriennummer : 0000028A 9895:EE9F
+C:\USERS\CARLO\DOCUMENTS\GITHUBPROJECTS\INVENTORY-SERVICE\FRONTEND\SRC
+|   App.tsx
+|   index.css
+|   main.tsx
+|   vite-env.d.ts
+|   
++---api
+|   |   httpClient.ts
+|   |   testConnection.ts
+|   |   
+|   +---analytics
+|   |   |   finance.ts
+|   |   |   frequency.ts
+|   |   |   index.ts
+|   |   |   lowStock.ts
+|   |   |   metrics.ts
+|   |   |   priceTrend.ts
+|   |   |   search.ts
+|   |   |   stock.ts
+|   |   |   suppliers.ts
+|   |   |   types.ts
+|   |   |   updates.ts
+|   |   |   util.ts
+|   |   |   validation.ts
+|   |   |   
+|   |   \---hooks
+|   |           index.ts
+|   |           useDashboardMetrics.ts
+|   |           useLowStockAlerts.ts
+|   |           usePriceAndFinancials.ts
+|   |           useStockAnalytics.ts
+|   |           
+|   +---inventory
+|   |   |   index.ts
+|   |   |   itemMutations.ts
+|   |   |   list.ts
+|   |   |   listFetcher.ts
+|   |   |   mutations.ts
+|   |   |   normalizers.ts
+|   |   |   priceMutations.ts
+|   |   |   rowNormalizers.ts
+|   |   |   stockMutations.ts
+|   |   |   supplierQueries.ts
+|   |   |   types.ts
+|   |   |   utils.ts
+|   |   |   validation.ts
+|   |   |   
+|   |   +---hooks
+|   |   |       useInventoryData.ts
+|   |   |       useItemDetailsQuery.ts
+|   |   |       useItemSearchQuery.ts
+|   |   |       useSuppliersQuery.ts
+|   |   |       
+|   |   \---utils
+|   |           errorHandling.ts
+|   |           fieldPickers.ts
+|   |           responseExtraction.ts
+|   |           typeGuards.ts
+|   |           
+|   \---suppliers
+|       |   index.ts
+|       |   supplierListFetcher.ts
+|       |   supplierMutations.ts
+|       |   supplierNormalizers.ts
+|       |   types.ts
+|       |   validation.ts
+|       |   
+|       \---hooks
+|               index.ts
+|               useSupplierByIdQuery.ts
+|               useSupplierPageQuery.ts
+|               useSuppliersData.ts
+|               useSupplierSearchQuery.ts
+|               
++---app
+|   +---footer
+|   |       AppFooter.tsx
+|   |       FooterLegal.tsx
+|   |       FooterLinks.tsx
+|   |       FooterMetaInfo.tsx
+|   |       HealthStatusDisplay.tsx
+|   |       index.ts
+|   |       LocalizationDisplay.tsx
+|   |       useFooterState.ts
+|   |       
+|   +---HamburgerMenu
+|   |   |   AppearanceMenuSection.tsx
+|   |   |   HamburgerMenu.tsx
+|   |   |   HelpDocsMenuSection.tsx
+|   |   |   index.ts
+|   |   |   LanguageRegionMenuSection.tsx
+|   |   |   NotificationsMenuSection.tsx
+|   |   |   ProfileMenuSection.tsx
+|   |   |   SystemInfoMenuSection.tsx
+|   |   |   
+|   |   +---AppearanceSettings
+|   |   |       index.ts
+|   |   |       TableDensitySetting.tsx
+|   |   |       ThemeToggle.tsx
+|   |   |       
+|   |   +---LanguageRegionSettings
+|   |   |       DateFormatSetting.tsx
+|   |   |       index.ts
+|   |   |       LanguageToggle.tsx
+|   |   |       NumberFormatSetting.tsx
+|   |   |       
+|   |   +---MenuContent
+|   |   |       index.ts
+|   |   |       LogoutMenuAction.tsx
+|   |   |       MenuSectionsRenderer.tsx
+|   |   |       
+|   |   +---NotificationSettings
+|   |   |       AllClearNotificationSection.tsx
+|   |   |       index.ts
+|   |   |       LowStockAlertSection.tsx
+|   |   |       NotificationLoadingState.tsx
+|   |   |       
+|   |   \---ProfileSettings
+|   |           index.ts
+|   |           ProfileEmailDisplay.tsx
+|   |           ProfileNameDisplay.tsx
+|   |           ProfileRoleDisplay.tsx
+|   |           
+|   +---layout
+|   |   |   AppHeader.tsx
+|   |   |   AppMain.tsx
+|   |   |   AppShell.tsx
+|   |   |   AppSidebar.tsx
+|   |   |   AppToolbarActions.tsx
+|   |   |   index.ts
+|   |   |   navConfig.ts
+|   |   |   
+|   |   +---header
+|   |   |       HeaderDemoBadge.tsx
+|   |   |       HealthBadge.tsx
+|   |   |       index.ts
+|   |   |       
+|   |   \---sidebar
+|   |           index.ts
+|   |           NavItem.tsx
+|   |           SidebarActions.tsx
+|   |           SidebarEnvironment.tsx
+|   |           SidebarNavList.tsx
+|   |           SidebarUserProfile.tsx
+|   |           
+|   +---public-shell
+|   |   |   AppPublicShell.tsx
+|   |   |   index.ts
+|   |   |   PublicShellContent.tsx
+|   |   |   PublicShellToastContainer.tsx
+|   |   |   
+|   |   +---header
+|   |   |       index.ts
+|   |   |       LanguageToggle.tsx
+|   |   |       PublicShellHeader.tsx
+|   |   |       ThemeToggle.tsx
+|   |   |       
+|   |   \---hooks
+|   |           index.ts
+|   |           useLocale.ts
+|   |           usePublicShellToast.ts
+|   |           useThemeMode.ts
+|   |           
+|   \---settings
+|       |   AppSettingsDialog.tsx
+|       |   AppSettingsForm.tsx
+|       |   index.ts
+|       |   
+|       +---hooks
+|       |       index.ts
+|       |       useAppSettingsForm.ts
+|       |       
+|       \---sections
+|               AppearanceSettingsSection.tsx
+|               index.ts
+|               LanguageRegionSettingsSection.tsx
+|               NotificationsSettingsSection.tsx
+|               SystemPreferencesSection.tsx
+|               
++---assets
+|       barchart.png
+|       piechart.png
+|       project-image.png
+|       react.svg
+|       trendline.png
+|       
++---components
+|   +---help
+|   |       HelpPanel.tsx
+|   |       
+|   \---ui
+|           StatCard.tsx
+|           
++---context
+|   +---auth
+|   |       AuthContext.ts
+|   |       AuthProvider.tsx
+|   |       authTypes.ts
+|   |       index.ts
+|   |       
+|   +---help
+|   |       HelpContext.tsx
+|   |       HelpContext.types.ts
+|   |       index.ts
+|   |       
+|   +---settings
+|   |       index.ts
+|   |       SettingsContext.tsx
+|   |       SettingsContext.types.ts
+|   |       SettingsStorage.ts
+|   |       useSettings.ts
+|   |       
+|   \---toast
+|           index.ts
+|           ToastContext.ts
+|           
++---features
+|   +---auth
+|   |   |   index.ts
+|   |   |   
+|   |   +---guards
+|   |   |       RequireAuth.tsx
+|   |   |       
+|   |   \---hooks
+|   |           useSessionTimeout.ts
+|   |           
+|   +---health
+|   |   |   index.ts
+|   |   |   
+|   |   \---hooks
+|   |           useHealthCheck.ts
+|   |           
+|   \---help
+|       |   index.ts
+|       |   
+|       \---components
+|               HelpIconButton.tsx
+|               
++---help
+|       topics.ts
+|       
++---hooks
+|       createContextHook.ts
+|       useAuth.ts
+|       useDebounced.ts
+|       useHelp.ts
+|       useSettings.ts
+|       
++---i18n
+|       index.ts
+|       resources.d.ts
+|       
++---pages
+|   +---analytics
+|   |   |   Analytics.tsx
+|   |   |   
+|   |   +---blocks
+|   |   |   |   FinancialSummaryCard.tsx
+|   |   |   |   ItemUpdateFrequencyCard.tsx
+|   |   |   |   LowStockTable.tsx
+|   |   |   |   MonthlyMovementCard.tsx
+|   |   |   |   MovementLineCard.tsx
+|   |   |   |   PriceTrendCard.tsx
+|   |   |   |   RecentStockActivityCard.tsx
+|   |   |   |   StockPerSupplier.tsx
+|   |   |   |   StockPerSupplierDonut.tsx
+|   |   |   |   StockUpdatesTable.tsx
+|   |   |   |   StockValueCard.tsx
+|   |   |   |   
+|   |   |   +---low-stock
+|   |   |   |       index.ts
+|   |   |   |       LowStockStatusCell.tsx
+|   |   |   |       LowStockTable.tsx
+|   |   |   |       LowStockTable.types.ts
+|   |   |   |       LowStockTableHeader.tsx
+|   |   |   |       LowStockTableRows.tsx
+|   |   |   |       
+|   |   |   \---price-trend
+|   |   |           index.ts
+|   |   |           ItemAutocomplete.tsx
+|   |   |           PriceChart.tsx
+|   |   |           PriceTrendCard.tsx
+|   |   |           PriceTrendCard.types.ts
+|   |   |           
+|   |   \---components
+|   |       |   AnalyticsNav.tsx
+|   |       |   
+|   |       \---filters
+|   |               DateRangeFilter.tsx
+|   |               Filters.tsx
+|   |               Filters.types.ts
+|   |               index.ts
+|   |               SupplierFilter.tsx
+|   |               useFiltersLogic.ts
+|   |               
+|   +---auth
+|   |       AuthCallback.tsx
+|   |       LoginPage.tsx
+|   |       LogoutPage.tsx
+|   |       LogoutSuccess.tsx
+|   |       
+|   +---dashboard
+|   |   |   Dashboard.tsx
+|   |   |   
+|   |   \---blocks
+|   |           MonthlyMovementMini.tsx
+|   |           
+|   +---home
+|   |       Home.tsx
+|   |       
+|   +---inventory
+|   |   |   InventoryBoard.tsx
+|   |   |   InventoryFilters.tsx
+|   |   |   
+|   |   +---components
+|   |   |       InventoryDialogs.tsx
+|   |   |       InventoryFilterPanel.tsx
+|   |   |       InventoryTable.tsx
+|   |   |       InventoryToolbar.tsx
+|   |   |       
+|   |   +---dialogs
+|   |   |   +---DeleteItemDialog
+|   |   |   |       DeleteConfirmationView.tsx
+|   |   |   |       DeleteFormFields.tsx
+|   |   |   |       DeleteFormView.tsx
+|   |   |   |       DeleteItemContent.tsx
+|   |   |   |       DeleteItemDialog.tsx
+|   |   |   |       DeleteItemDialog.types.ts
+|   |   |   |       deleteItemErrorHandler.ts
+|   |   |   |       index.ts
+|   |   |   |       useDeleteItemDialog.ts
+|   |   |   |       useDeleteItemHandlers.ts
+|   |   |   |       useDeleteItemQueries.ts
+|   |   |   |       useDeleteItemState.ts
+|   |   |   |       
+|   |   |   +---EditItemDialog
+|   |   |   |       EditItemDialog.tsx
+|   |   |   |       EditItemDialog.types.ts
+|   |   |   |       EditItemForm.tsx
+|   |   |   |       index.ts
+|   |   |   |       useEditItemForm.ts
+|   |   |   |       
+|   |   |   +---ItemFormDialog
+|   |   |   |       index.ts
+|   |   |   |       ItemForm.tsx
+|   |   |   |       ItemFormDialog.tsx
+|   |   |   |       ItemFormDialog.types.ts
+|   |   |   |       useItemForm.ts
+|   |   |   |       
+|   |   |   +---PriceChangeDialog
+|   |   |   |       index.ts
+|   |   |   |       PriceChangeDialog.tsx
+|   |   |   |       PriceChangeDialog.types.ts
+|   |   |   |       PriceChangeForm.tsx
+|   |   |   |       PriceChangeItemDetails.tsx
+|   |   |   |       usePriceChangeForm.ts
+|   |   |   |       usePriceChangeFormQueries.ts
+|   |   |   |       usePriceChangeFormState.ts
+|   |   |   |       
+|   |   |   \---QuantityAdjustDialog
+|   |   |           index.ts
+|   |   |           QuantityAdjustDialog.tsx
+|   |   |           QuantityAdjustDialog.types.ts
+|   |   |           QuantityAdjustForm.tsx
+|   |   |           QuantityAdjustItemDetails.tsx
+|   |   |           QuantityAdjustItemSelect.tsx
+|   |   |           QuantityAdjustQuantityInput.tsx
+|   |   |           QuantityAdjustSupplierSelect.tsx
+|   |   |           useItemPriceQuery.ts
+|   |   |           useQuantityAdjustForm.ts
+|   |   |           useQuantityAdjustFormQueries.ts
+|   |   |           useQuantityAdjustFormState.ts
+|   |   |           
+|   |   +---handlers
+|   |   |       index.ts
+|   |   |       useDataFetchingLogic.ts
+|   |   |       useFilterHandlers.ts
+|   |   |       useRefreshHandler.ts
+|   |   |       useTableHandlers.ts
+|   |   |       useToolbarHandlers.ts
+|   |   |       
+|   |   +---hooks
+|   |   |       useInventoryColumns.ts
+|   |   |       useInventoryData.ts
+|   |   |       useInventoryRowStyling.ts
+|   |   |       useInventoryState.ts
+|   |   |       
+|   |   \---validation
+|   |           inventoryValidation.ts
+|   |           
+|   +---suppliers
+|   |   |   SuppliersBoard.tsx
+|   |   |   
+|   |   +---components
+|   |   |       index.ts
+|   |   |       SuppliersDialogs.tsx
+|   |   |       SuppliersFilterPanel.tsx
+|   |   |       SuppliersSearchPanel.tsx
+|   |   |       SuppliersTable.tsx
+|   |   |       SuppliersToolbar.tsx
+|   |   |       
+|   |   +---dialogs
+|   |   |   +---CreateSupplierDialog
+|   |   |   |       CreateSupplierDialog.tsx
+|   |   |   |       CreateSupplierDialog.types.ts
+|   |   |   |       CreateSupplierForm.tsx
+|   |   |   |       index.ts
+|   |   |   |       useCreateSupplierForm.ts
+|   |   |   |       
+|   |   |   +---DeleteSupplierDialog
+|   |   |   |       DeleteSupplierConfirmation.tsx
+|   |   |   |       DeleteSupplierDialog.tsx
+|   |   |   |       DeleteSupplierDialog.types.ts
+|   |   |   |       DeleteSupplierSearch.tsx
+|   |   |   |       DeleteSupplierSearchEmpty.tsx
+|   |   |   |       DeleteSupplierSearchInput.tsx
+|   |   |   |       DeleteSupplierSearchResults.tsx
+|   |   |   |       index.ts
+|   |   |   |       useDeleteSupplierForm.ts
+|   |   |   |       useSupplierSearch.ts
+|   |   |   |       
+|   |   |   \---EditSupplierDialog
+|   |   |           EditSupplierConfirmation.tsx
+|   |   |           EditSupplierDialog.tsx
+|   |   |           EditSupplierDialog.types.ts
+|   |   |           EditSupplierInfoStep.tsx
+|   |   |           EditSupplierSearchStep.tsx
+|   |   |           index.ts
+|   |   |           mapSupplierErrors.ts
+|   |   |           useEditSupplierConfirmation.ts
+|   |   |           useEditSupplierForm.ts
+|   |   |           useEditSupplierFormState.ts
+|   |   |           
+|   |   +---handlers
+|   |   |       index.ts
+|   |   |       useDataFetchingLogic.ts
+|   |   |       useDialogHandlers.ts
+|   |   |       useFilterHandlers.ts
+|   |   |       useSearchHandlers.ts
+|   |   |       useTableHandlers.ts
+|   |   |       useToolbarHandlers.ts
+|   |   |       
+|   |   \---hooks
+|   |           index.ts
+|   |           useSuppliersBoardData.ts
+|   |           useSuppliersBoardState.ts
+|   |           
+|   \---system
+|           NotFoundPage.tsx
+|           
++---routes
+|       AppRouter.tsx
+|       
++---styles
+|       global.css
+|       
++---theme
+|       index.ts
+|       
++---utils
+|       formatters.ts
+|       systemInfo.ts
+|       urlState.ts
+|       
+\---__tests__
+    |   App.test.tsx
+    |   
+    +---app
+    |   +---footer
+    |   |       AppFooter.test.tsx
+    |   |       FooterLegal.test.tsx
+    |   |       FooterLinks.test.tsx
+    |   |       FooterMetaInfo.test.tsx
+    |   |       HealthStatusDisplay.test.tsx
+    |   |       LocalizationDisplay.test.tsx
+    |   |       useFooterState.test.ts
+    |   |       
+    |   +---HamburgerMenu
+    |   |   |   AppearanceMenuSection.test.tsx
+    |   |   |   HamburgerMenu.test.tsx
+    |   |   |   HelpDocsMenuSection.test.tsx
+    |   |   |   LanguageRegionMenuSection.test.tsx
+    |   |   |   NotificationsMenuSection.test.tsx
+    |   |   |   ProfileMenuSection.test.tsx
+    |   |   |   SystemInfoMenuSection.test.tsx
+    |   |   |   
+    |   |   +---AppearanceSettings
+    |   |   |       TableDensitySetting.test.tsx
+    |   |   |       ThemeToggle.test.tsx
+    |   |   |       
+    |   |   +---LanguageRegionSettings
+    |   |   |       DateFormatSetting.test.tsx
+    |   |   |       LanguageToggle.test.tsx
+    |   |   |       NumberFormatSetting.test.tsx
+    |   |   |       
+    |   |   +---MenuContent
+    |   |   |       LogoutMenuAction.test.tsx
+    |   |   |       MenuSectionsRenderer.test.tsx
+    |   |   |       
+    |   |   +---NotificationSettings
+    |   |   |       AllClearNotificationSection.test.tsx
+    |   |   |       LowStockAlertSection.test.tsx
+    |   |   |       NotificationLoadingState.test.tsx
+    |   |   |       
+    |   |   \---ProfileSettings
+    |   |           ProfileEmailDisplay.test.tsx
+    |   |           ProfileNameDisplay.test.tsx
+    |   |           ProfileRoleDisplay.test.tsx
+    |   |           
+    |   +---layout
+    |   |   |   AppHeader.test.tsx
+    |   |   |   AppMain.test.tsx
+    |   |   |   AppShell.test.tsx
+    |   |   |   AppToolbarActions.hamburger-layout.test.tsx
+    |   |   |   AppToolbarActions.language-help.test.tsx
+    |   |   |   HeaderDemoBadge.test.tsx
+    |   |   |   HealthBadge.test.tsx
+    |   |   |   NavItem.active-state.test.tsx
+    |   |   |   NavItem.rendering.test.tsx
+    |   |   |   
+    |   |   \---sidebar
+    |   |           AppSidebar.actions.test.tsx
+    |   |           AppSidebar.rendering.test.tsx
+    |   |           SidebarActions.test.tsx
+    |   |           SidebarEnvironment.test.tsx
+    |   |           SidebarNavList.test.tsx
+    |   |           SidebarUserProfile.test.tsx
+    |   |           
+    |   +---public-shell
+    |   |   |   AppPublicShell.test.tsx
+    |   |   |   PublicShellContent.test.tsx
+    |   |   |   PublicShellToastContainer.test.tsx
+    |   |   |   
+    |   |   +---header
+    |   |   |       LanguageToggle.interactions.test.tsx
+    |   |   |       LanguageToggle.rendering.test.tsx
+    |   |   |       PublicShellHeader.interactions.test.tsx
+    |   |   |       PublicShellHeader.rendering.test.tsx
+    |   |   |       ThemeToggle.test.tsx
+    |   |   |       
+    |   |   \---hooks
+    |   |           useLocale.test.tsx
+    |   |           usePublicShellToast.test.tsx
+    |   |           useThemeMode.test.tsx
+    |   |           
+    |   \---settings
+    |       |   AppSettingsDialog.test.tsx
+    |       |   AppSettingsForm.test.tsx
+    |       |   
+    |       +---hooks
+    |       |       useAppSettingsForm.test.tsx
+    |       |       
+    |       \---sections
+    |               AppearanceSettingsSection.test.tsx
+    |               LanguageRegionSettingsSection.test.tsx
+    |               NotificationsSettingsSection.test.tsx
+    |               SystemPreferencesSection.test.tsx
+    |               
+    +---components
+    |   +---help
+    |   |       HelpPanel.test.tsx
+    |   |       
+    |   +---hooks
+    |   |       useInventoryColumns.test.tsx
+    |   |       useInventoryRowStyling.test.ts
+    |   |       useInventoryState.test.ts
+    |   |       
+    |   +---pages
+    |   |   |   InventoryFilterPanel.test.tsx
+    |   |   |   InventoryToolbar.test.tsx
+    |   |   |   
+    |   |   +---analytics
+    |   |   |   |   Analytics.test.tsx
+    |   |   |   |   AnalyticsNav.test.tsx
+    |   |   |   |   DateRangeFilter.test.tsx
+    |   |   |   |   Filters.test.tsx
+    |   |   |   |   SupplierFilter.test.tsx
+    |   |   |   |   
+    |   |   |   \---blocks
+    |   |   |       |   FinancialSummaryCard.test.tsx
+    |   |   |       |   ItemUpdateFrequencyCard.test.tsx
+    |   |   |       |   MonthlyMovementCard.test.tsx
+    |   |   |       |   RecentStockActivitycard.test.tsx
+    |   |   |       |   StockPerSupplier.test.tsx
+    |   |   |       |   StockPerSupplierDonut.test.tsx
+    |   |   |       |   StockUpdatesTable.test.tsx
+    |   |   |       |   StockValueCard.test.tsx
+    |   |   |       |   
+    |   |   |       +---low-stock
+    |   |   |       |       LowStockStatusCell.test.tsx
+    |   |   |       |       LowStockTable.test.tsx
+    |   |   |       |       LowStockTableHeader.test.tsx
+    |   |   |       |       LowStockTableRows.test.tsx
+    |   |   |       |       
+    |   |   |       \---price-trend
+    |   |   |               ItemAutocomplete.test.tsx
+    |   |   |               PriceChart.test.tsx
+    |   |   |               PriceTrendCard.test.tsx
+    |   |   |               
+    |   |   +---auth
+    |   |   |       AuthCallback.test.tsx
+    |   |   |       LoginPage.test.tsx
+    |   |   |       LogoutPage.test.tsx
+    |   |   |       LogoutSuccess.test.tsx
+    |   |   |       
+    |   |   +---dashboard
+    |   |   |       Dashboard.test.tsx
+    |   |   |       MonthlyMovementMini.test.tsx
+    |   |   |       
+    |   |   +---home
+    |   |   |       Home.test.tsx
+    |   |   |       
+    |   |   +---inventory
+    |   |   |   |   fixtures.ts
+    |   |   |   |   InventoryBoard.test.tsx
+    |   |   |   |   InventoryDialogsWiring.test.tsx
+    |   |   |   |   InventoryFilters.test.tsx
+    |   |   |   |   inventoryValidation.test.ts
+    |   |   |   |   testSetup.ts
+    |   |   |   |   useFilterHandlers.test.ts
+    |   |   |   |   useRefreshHandler.test.ts
+    |   |   |   |   useTableHandlers.test.ts
+    |   |   |   |   useToolbarHandlers.test.ts
+    |   |   |   |   validationTestUtils.ts
+    |   |   |   |   
+    |   |   |   +---DeleteItemDialog
+    |   |   |   |       DeleteItemContent.test.tsx
+    |   |   |   |       DeleteItemDialog.test.tsx
+    |   |   |   |       deleteItemErrorHandler.test.ts
+    |   |   |   |       useDeleteItemDialog.test.ts
+    |   |   |   |       useDeleteItemHandlers.test.ts
+    |   |   |   |       useDeleteItemQueries.test.ts
+    |   |   |   |       useDeleteItemState.test.ts
+    |   |   |   |       
+    |   |   |   +---EditItemDialog
+    |   |   |   |       EditItemDialog.test.tsx
+    |   |   |   |       EditItemForm.test.tsx
+    |   |   |   |       useEditItemForm.test.ts
+    |   |   |   |       
+    |   |   |   +---ItemFormDialog
+    |   |   |   |       ItemForm.test.tsx
+    |   |   |   |       ItemFormDialog.test.tsx
+    |   |   |   |       useItemForm.test.ts
+    |   |   |   |       
+    |   |   |   +---PriceChangeDialog
+    |   |   |   |       PriceChangeDialog.test.tsx
+    |   |   |   |       PriceChangeForm.test.tsx
+    |   |   |   |       usePriceChangeForm.test.ts
+    |   |   |   |       usePriceChangeForm.test.types.ts
+    |   |   |   |       
+    |   |   |   \---QuantityAdjustDialog
+    |   |   |           fixtures.ts
+    |   |   |           QuantityAdjustDialog.test.tsx
+    |   |   |           QuantityAdjustForm.test.tsx
+    |   |   |           QuantityAdjustItemDetails.test.tsx
+    |   |   |           QuantityAdjustItemSelect.test.tsx
+    |   |   |           QuantityAdjustQuantityInput.test.tsx
+    |   |   |           QuantityAdjustSupplierSelect.test.tsx
+    |   |   |           testSetup.ts
+    |   |   |           useItemPriceQuery.test.ts
+    |   |   |           useQuantityAdjustForm.test.ts
+    |   |   |           
+    |   |   +---suppliers
+    |   |   |   |   SuppliersBoard.test.tsx
+    |   |   |   |   SuppliersDialogs.test.tsx
+    |   |   |   |   SuppliersFilterPanel.test.tsx
+    |   |   |   |   SuppliersSearchPanel.test.tsx
+    |   |   |   |   SuppliersTable.test.tsx
+    |   |   |   |   SuppliersToolbar.test.tsx
+    |   |   |   |   
+    |   |   |   +---CreateSupplierDialog
+    |   |   |   |       CreateSupplierDialog.test.tsx
+    |   |   |   |       CreateSupplierForm.test.tsx
+    |   |   |   |       useCreateSupplierForm.test.ts
+    |   |   |   |       
+    |   |   |   +---DeleteSupplierDialog
+    |   |   |   |       DeleteSupplierConfirmation.test.tsx
+    |   |   |   |       DeleteSupplierDialog.test.tsx
+    |   |   |   |       DeleteSupplierSearch.test.tsx
+    |   |   |   |       DeleteSupplierSearchEmpty.test.tsx
+    |   |   |   |       DeleteSupplierSearchInput.test.tsx
+    |   |   |   |       DeleteSupplierSearchResults.test.tsx
+    |   |   |   |       useDeleteSupplierForm.test.ts
+    |   |   |   |       useSupplierSearch.test.ts
+    |   |   |   |       
+    |   |   |   +---EditSupplierDialog
+    |   |   |   |       EditSupplierConfirmation.test.tsx
+    |   |   |   |       EditSupplierDialog.test.tsx
+    |   |   |   |       EditSupplierInfoStep.test.tsx
+    |   |   |   |       EditSupplierSearchStep.test.tsx
+    |   |   |   |       fixtures.ts
+    |   |   |   |       mapSupplierErrors.test.ts
+    |   |   |   |       testHelpers.ts
+    |   |   |   |       useEditSupplierConfirmation.test.ts
+    |   |   |   |       useEditSupplierForm.test.ts
+    |   |   |   |       useEditSupplierFormState.test.ts
+    |   |   |   |       
+    |   |   |   +---handlers
+    |   |   |   |       useDataFetchingLogic.test.ts
+    |   |   |   |       useDialogHandlers.test.ts
+    |   |   |   |       useFilterHandlers.test.ts
+    |   |   |   |       useSearchHandlers.test.ts
+    |   |   |   |       useTableHandlers.test.ts
+    |   |   |   |       useToolbarHandlers.test.ts
+    |   |   |   |       
+    |   |   |   \---hooks
+    |   |   |           useSuppliersBoardData.test.ts
+    |   |   |           useSuppliersBoardState.test.ts
+    |   |   |           
+    |   |   \---system
+    |   |           NotFoundPage.test.tsx
+    |   |           
+    |   \---ui
+    |           StatCard.test.tsx
+    |           
+    +---context
+    |   +---auth
+    |   |       AuthContext.test.ts
+    |   |       AuthProvider.test.tsx
+    |   |       
+    |   +---help
+    |   |       HelpProvider.test.tsx
+    |   |       
+    |   +---settings
+    |   |       SettingsContext.test.tsx
+    |   |       SettingsProvider.test.tsx
+    |   |       SettingsStorage.test.ts
+    |   |       useSettings.test.ts
+    |   |       
+    |   \---toast
+    |           ToastContext.test.ts
+    |           
+    +---features
+    |   +---auth
+    |   |   +---guards
+    |   |   |       RequireAuth.test.tsx
+    |   |   |       
+    |   |   \---hooks
+    |   |           useSessionTimeout.test.ts
+    |   |           
+    |   +---health
+    |   |   \---hooks
+    |   |           useHealthCheck.test.ts
+    |   |           
+    |   \---help
+    |       \---components
+    |               HelpIconButton.test.tsx
+    |               
+    +---help
+    |       topics.test.ts
+    |       
+    +---hooks
+    |       useAuth.test.ts
+    |       useDebounced.test.ts
+    |       useSettings.test.ts
+    |       
+    +---routes
+    |       AppRouter.test.tsx
+    |       
+    +---stubs
+    |       DataGridLocalesStub.ts
+    |       DataGridStub.tsx
+    |       DataGridThemeAugmentationStub.ts
+    |       empty.css
+    |       MuiIconStub.tsx
+    |       
+    +---test
+    |       all-providers.tsx
+    |       setupTests.ts
+    |       test-utils.tsx
+    |       
+    \---unit
+        |   example.test.tsx
+        |   
+        +---api
+        |   |   httpClient.test.ts
+        |   |   testConnection.test.ts
+        |   |   
+        |   +---analytics
+        |   |   |   finance.test.ts
+        |   |   |   frequency.test.ts
+        |   |   |   lowStock.test.ts
+        |   |   |   metrics.test.ts
+        |   |   |   priceTrend.test.ts
+        |   |   |   stock.test.ts
+        |   |   |   updates.test.ts
+        |   |   |   
+        |   |   +---hooks
+        |   |   |       useDashboardMetrics.test.tsx
+        |   |   |       useLowStockAlerts.test.tsx
+        |   |   |       usePriceAndFinancials.test.tsx
+        |   |   |       useStockAnalytics.test.tsx
+        |   |   |       
+        |   |   +---utils
+        |   |   |       util.clientFilter.test.ts
+        |   |   |       util.normalizeItemsList.test.ts
+        |   |   |       util.number.test.ts
+        |   |   |       util.paramClean.test.ts
+        |   |   |       util.pickString.test.ts
+        |   |   |       util.recordGuards.test.ts
+        |   |   |       
+        |   |   \---validation
+        |   |           validation.analyticsParamsSchema.test.ts
+        |   |           validation.financialSummaryParamsSchema.test.ts
+        |   |           validation.priceTrendParamsSchema.test.ts
+        |   |           validation.stockMovementParamsSchema.test.ts
+        |   |           
+        |   +---inventory
+        |   |   |   itemMutations.test.ts
+        |   |   |   list.test.ts
+        |   |   |   listFetcher.test.ts
+        |   |   |   normalizers.test.ts
+        |   |   |   priceMutations.test.ts
+        |   |   |   responseExtraction.test.ts
+        |   |   |   rowNormalizers.test.ts
+        |   |   |   stockMutations.test.ts
+        |   |   |   supplierQueries.test.ts
+        |   |   |   
+        |   |   +---hooks
+        |   |   |       useItemDetailsQuery.test.ts
+        |   |   |       useItemSearchQuery.test.ts
+        |   |   |       useSuppliersQuery.test.ts
+        |   |   |       
+        |   |   \---utils
+        |   |           errorHandling.test.ts
+        |   |           fieldPickers.test.ts
+        |   |           typeGuards.test.ts
+        |   |           
+        |   \---suppliers
+        |       |   supplierListFetcher.test.ts
+        |       |   supplierMutations.test.ts
+        |       |   supplierNormalizers.test.ts
+        |       |   validation.test.ts
+        |       |   
+        |       \---hooks
+        |               useSupplierByIdQuery.test.ts
+        |               useSupplierPageQuery.test.ts
+        |               useSuppliersData.test.ts
+        |               useSupplierSearchQuery.test.ts
+        |               
+        +---i18n
+        |       i18n.test.ts
+        |       
+        \---utils
+                formatters.test.ts
+                reactQueryCapture.ts
+                reactQueryTestUtils.tsx
+                systemInfo.test.ts
+                urlState.test.ts
+                
