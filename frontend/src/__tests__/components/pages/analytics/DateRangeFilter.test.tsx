@@ -2,7 +2,7 @@
  * @file DateRangeFilter.test.tsx
  * @module __tests__/components/pages/analytics/components/filters/DateRangeFilter
  * @description
- * Enterprise tests for DateRangeFilter:
+ * Tests for DateRangeFilter:
  * - Quick range buttons render and reflect active state
  * - Clicking quick ranges calls onChange with the expected `quick` value
  * - Custom mode shows date inputs and emits changes via onChange
