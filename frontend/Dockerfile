@@ -1,65 +1,48 @@
-# =========================
-# 1) Base deps (cached)
-# =========================
+# Multi-stage Dockerfile for the Vite/React frontend.
+# Build context must be the repo root so ops/nginx configs are accessible alongside frontend source.
+# Stages: base (deps) → test (CI validation) → build (Vite bundle) → runtime (Nginx static server).
+
+# Installs npm dependencies into a cached layer; subsequent stages inherit from here
+# rather than re-running npm ci on every source change.
 FROM node:22-bullseye-slim AS base
 WORKDIR /app
 
-# Install deps with good layer caching
-# NOTE: Build context is repo root (.) in CI, so we must copy from frontend/
+# Build context is repo root, so package files live under frontend/ relative to context.
 COPY frontend/package*.json ./
 RUN npm ci --legacy-peer-deps
 
-# Bring in the rest of the source code
-# NOTE: Copy the frontend/ subtree into /app
 COPY frontend/ .
 
-# If you use Vite envs at build time, pass them as build args.
-# Enterprise guidance:
-# - Default to same-origin `/api` so the SPA can rely on the Nginx reverse-proxy.
-# - For cloud deployments, override this ARG at build time only when necessary.
-ARG VITE_API_BASE="/api"
+# VITE_ vars are inlined into the bundle at build time; override at --build-arg for non-default targets.
+ARG VITE_API_BASE=""
 ENV VITE_API_BASE=$VITE_API_BASE
 
-# =========================
-# 2) Test stage (CI)
-# =========================
+# Runs the test suite; decoupled from build so CI can fail fast without tainting the build cache.
+# Pass --build-arg RUN_TESTS=false when tests run outside Docker (e.g. for GitHub Actions annotations).
 FROM base AS test
-# Only run if you actually have a "test" script; otherwise this is harmless
-# Use --run to avoid watch mode (Vitest)
-# Allow CI to skip tests here because we run them outside Docker for GitHub annotations
 ARG RUN_TESTS=true
 RUN if [ "$RUN_TESTS" = "true" ]; then npm run test --if-present -- --run; else echo "Skipping tests in Docker build"; fi
 
-# =========================
-# 3) Build stage (prod bundle)
-# =========================
+# Produces the optimised static bundle under /app/dist; nothing else carries forward to the runtime image.
 FROM base AS build
-# Optional: TypeScript sanity (if you keep tsc in your build script)
-# RUN npm run typecheck --if-present
 RUN npm run build
 
-# =========================
-# 4) Runtime (Nginx)
-# =========================
+# Minimal Nginx image that serves the static assets — no node_modules, no source, no build tooling.
 FROM nginx:1.27-alpine AS runtime
 
-# Ensure TLS to upstream works (CA bundle for HTTPS proxy_pass)
+# Alpine ships without a full CA bundle; needed for HTTPS proxy_pass to upstream services.
 RUN apk add --no-cache ca-certificates && update-ca-certificates
 
-# Copy Nginx configs from ops/nginx into container
-# NOTE: Paths are relative to the build context, do NOT start with "/" but context must be repo root (`.` in CI)
+# Paths are relative to the repo-root build context, not the container filesystem.
 COPY ops/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ops/nginx/default.conf /etc/nginx/conf.d/default.conf
 
-# Copy only the built assets — no node_modules, no tests, no sources
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Koyeb/containers best practice: bind to $PORT (we listen on 8080)
+# Koyeb routes traffic to $PORT; 8080 is the value configured in the platform settings.
 ENV PORT=8080
 EXPOSE 8080
 
-# Lightweight container healthcheck: index should be reachable
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD wget -q -O- http://127.0.0.1:8080/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
-# =========================

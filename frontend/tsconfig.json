@@ -1,9 +1,10 @@
-/**
- * Root TypeScript configuration for the React frontend.
- * Defines compiler options and extends to application and build tool configurations.
- */
+// Root TypeScript configuration — entry point for project references.
+// Contains no source itself; delegates to tsconfig.app.json, tsconfig.node.json,
+// and tsconfig.test.json via tsc --build.
 
 {
+  // Prevents the root config from inadvertently including files; all compilation
+  // is handled by the referenced project configs.
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
@@ -15,10 +16,13 @@
     "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    // Vite/esbuild transpiles each file in isolation without cross-file type information.
     "isolatedModules": true,
     "strict": true,
     "skipLibCheck": true,
+    // Allows importing .json files as typed modules (used for i18n translation files).
     "resolveJsonModule": true,
+    // Enables default imports from CommonJS packages (e.g. import dayjs from 'dayjs').
     "esModuleInterop": true,
     "types": ["vite/client", "node"]
   },
@@ -26,7 +30,7 @@
     "node_modules",
     "dist",
     "vite.config.ts",
+    // Possible typo: the actual test directory is src/__tests__ (double underscore).
     "src/_tests_/**"
   ]
 }
-

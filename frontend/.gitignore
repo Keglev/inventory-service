@@ -1,6 +1,38 @@
-##
-# Frontend Build Artifacts & Runtime Dependencies
-##
+# Excludes generated, machine-specific, and editor-noise files from version control
+# for the frontend Vite + TypeScript application.
+
+# ---- build output ----
+dist
+dist-ssr
+docs/
+
+# ---- deps ----
+node_modules
+
+# ---- env ----
+# Vite's *.local convention — machine-specific overrides that must never be committed.
+# .env.development and .env.production are intentionally tracked; all vars are
+# VITE_-prefixed public client config only, no secrets present.
+*.local
+
+# ---- test/coverage ----
+coverage/
+
+# ---- editor/IDE ----
+# .vscode/extensions.json is tracked so the team shares recommended extensions.
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ---- OS files ----
+.DS_Store
+
+# ---- misc ----
 logs
 *.log
 npm-debug.log*
@@ -8,26 +40,3 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# TypeDoc output
-docs/
-coverage/
-
-##
-# IDE Configuration & OS-Specific Files
-# (Allow extensions config for team standardization via .vscode/extensions.json)
-##
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?

@@ -1,24 +1,22 @@
-/**
- * TypeScript configuration for build and configuration files (Vite, etc.).
- * Isolated strict configuration targeting modern Node.js runtime.
- */
+// TypeScript configuration for build tooling files (vite.config.ts, etc.).
+// Targets a newer ES version than the app config because these files run in Node,
+// not the browser, and are never bundled or shipped to users.
 
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    // Node 20+ supports all ES2023 features natively; no browser compatibility constraint here.
     "target": "ES2023",
     "lib": ["ES2023"],
     "module": "ESNext",
     "skipLibCheck": true,
 
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
 
-    /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

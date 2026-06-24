@@ -1,11 +1,16 @@
-/**
- * TypeScript configuration for test files.
- * Extends base app configuration with test-specific settings.
- */
+// TypeScript configuration for test files.
+// Extends tsconfig.app.json rather than standing alone so test code shares the same
+// strict compiler rules; separated only to layer in test-specific type declarations
+// (vitest/globals, @testing-library/jest-dom) without exposing them to production source.
+
 {
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
+    // extends does not inherit ignoreDeprecations; repeated here for the same reason
+    // as tsconfig.app.json (blocked by i18next peer dep).
     "ignoreDeprecations": "6.0",
+    // vitest/globals matches globals: true in vitest.config.ts, providing describe/it/expect
+    // types without explicit imports in every test file.
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
     "baseUrl": ".",
     "paths": {

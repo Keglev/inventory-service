@@ -1,7 +1,6 @@
-/**
- * TypeScript configuration for application source code.
- * Enforces strict type checking and linting rules for production-quality deliverables.
- */
+// TypeScript configuration for application source files under src/.
+// Test files are excluded and covered by tsconfig.test.json, which extends this
+// config with test-specific type declarations without exposing them to production source.
 
 {
   "compilerOptions": {
@@ -13,26 +12,34 @@
     "skipLibCheck": true,
     "types": ["vite/client"],
 
-    /* Bundler mode */
     "moduleResolution": "bundler",
+    // Permits explicit .ts extensions in import paths; required when noEmit is true
+    // and Vite resolves modules without stripping the extension itself.
     "allowImportingTsExtensions": true,
+    // Ensures type-only imports use `import type`, allowing esbuild to strip them
+    // without a full compilation pass.
     "verbatimModuleSyntax": true,
+    // Treats every file as a module; prevents files with no imports/exports from
+    // leaking declarations into the global scope.
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
 
+    // Blocked by i18next peer dep incompatibility with TS 6.0; remove once resolved.
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     },
 
-    /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    // Restricts to syntax esbuild can strip without emitting; prevents enums and
+    // namespace declarations that require a separate compilation step.
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
+    // Flags imports used only for side effects unless explicitly declared as intentional.
     "noUncheckedSideEffectImports": true
   },
   "include": ["src"],

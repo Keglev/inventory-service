@@ -1,7 +1,6 @@
-/**
- * ESLint configuration for TypeScript and React development.
- * Enforces code quality standards for React, TypeScript, hooks, and refresh patterns.
- */
+// ESLint flat config for the Vite + React + TypeScript frontend.
+// Uses typescript-eslint, react-hooks, and react-refresh plugins to enforce
+// correctness and hot-reload compatibility across all TypeScript source files.
 
 import js from '@eslint/js'
 import globals from 'globals'
@@ -21,6 +20,7 @@ export default tseslint.config([
       reactRefresh.configs.vite,
     ],
     languageOptions: {
+      // create-vite scaffold default; ESLint recommends "latest" — upgrade if no older browser targets exist.
       ecmaVersion: 2020,
       globals: globals.browser,
     },

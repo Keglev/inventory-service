@@ -1,16 +1,17 @@
-/**
- * Vite configuration for React frontend application.
- * Manages development server, build optimization with vendor code splitting,
- * and API proxy routing for local development and HTTPS support.
- */
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+// Vite configuration for the React frontend.
+// Covers local HTTPS (optional cert detection), vendor chunk splitting to improve
+// cache efficiency in production, and dev-server proxying to the backend API.
+
 import fs from 'fs';
 import path from 'path';
+
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 const keyPath = path.resolve(__dirname, 'cert/key.pem');
 const certPath = path.resolve(__dirname, 'cert/cert.pem');
 
+// Falls back to HTTP if certs are absent; avoids breaking CI or teammates without local certs.
 const useHttps = fs.existsSync(keyPath) && fs.existsSync(certPath);
 const httpsConfig = useHttps
   ? {
@@ -20,12 +21,14 @@ const httpsConfig = useHttps
   : undefined;
 
 export default defineConfig({
+  plugins: [react()],
   build: {
-    chunkSizeWarningLimit: 800, // Set to 800KB to allow MUI chunk but warn for others
+    // MUI's combined bundle exceeds Vite's 500 KB default; raised to suppress noise
+    // while keeping the warning active for other chunks.
+    chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {
         manualChunks: {
-          // Split vendor libraries
           'vendor-react': ['react', 'react-dom'],
           'vendor-mui': ['@mui/material', '@mui/icons-material', '@mui/x-data-grid'],
           'vendor-routing': ['react-router-dom'],
@@ -42,13 +45,13 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'https://inventoryservice.fly.dev',
+        // Required when proxying to a different host; prevents the backend from
+        // rejecting requests with a mismatched Host header.
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
       },
       '/oauth2': 'https://inventoryservice.fly.dev',
       '/logout': 'https://inventoryservice.fly.dev',
     },
     port: 5173,
   },
-  plugins: [react()],
 });

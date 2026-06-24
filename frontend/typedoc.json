@@ -1,18 +1,21 @@
-/**
- * TypeDoc configuration for automated API documentation generation.
- * Generates markdown documentation from TypeScript source code excluding tests and internal utilities.
- */
+// TypeDoc configuration for generating API documentation from TypeScript source.
+// Outputs Markdown rather than HTML so the docs pipeline can consume it without
+// a separate rendering step.
 
 {
   "entryPoints": [
     "src/api/**/*.ts",
     "src/context/**/*.ts",
-    "src/context/**/*.tsx",
+    "src/context/**/*.tsx"
   ],
+  // expand treats each entry point as a glob, emitting one doc page per matched file
+  // rather than merging them into a single module page.
   "entryPointStrategy": "expand",
   "out": "docs",
   "tsconfig": "tsconfig.app.json",
   "plugin": ["typedoc-plugin-markdown"],
+  // markdown theme is required by typedoc-plugin-markdown; the default HTML theme
+  // is incompatible with the plugin.
   "theme": "markdown",
   "exclude": [
     "**/*.test.ts",
@@ -25,5 +28,6 @@
     "**/main.tsx",
     "**/App.tsx"
   ],
+  // Suppresses TypeDoc's default behaviour of prepending the project README to generated docs.
   "readme": "none"
 }
