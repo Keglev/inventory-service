@@ -5,11 +5,11 @@
 # Manual trigger available for rollbacks or emergency deploys.
 # Deploys the pre-built, Trivy-scanned image — never rebuilds from source.
 # =============================================================================
-name: 4️⃣ Deploy Backend to Fly.io
+name: 4 Deploy Backend to Fly.io
 
 on:
   workflow_run:
-    workflows: ["2️⃣ Backend Docker - Build & Scan"]
+    workflows: ["2 Backend Docker - Build & Scan"]
     types: [completed]
     branches: [ "main" ]
   workflow_dispatch:

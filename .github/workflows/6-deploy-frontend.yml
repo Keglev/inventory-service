@@ -5,11 +5,11 @@
 # Manual trigger available for rollbacks or emergency deploys.
 # Deploys by image digest (not tag) for deterministic, rollback-safe releases.
 # =============================================================================
-name: 6️⃣ Deploy Frontend to Koyeb
+name: 6 Deploy Frontend to Koyeb
 
 on:
   workflow_run:
-    workflows: ["5️⃣ Frontend CI - Build & Test"]
+    workflows: ["5 Frontend CI - Build & Test"]
     types: [completed]
     branches: [ "main" ]
   workflow_dispatch: {}
@@ -31,7 +31,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       # Resolve image digest from commit SHA.
       # Deploying by digest (not tag) guarantees deterministic rollouts and safe rollbacks.
       # Docker Hub can be eventually consistent — retries reduce post-push flakiness.
@@ -53,7 +52,6 @@ jobs:
             | tar -xzC "$HOME/.koyeb/bin"
           echo "$HOME/.koyeb/bin" >> "$GITHUB_PATH"
           echo "Koyeb CLI installed: v${VER}"
-
       # Write token to a restricted file — avoids exposing it via environment variables
       - name: Authenticate Koyeb
         env:
@@ -76,7 +74,6 @@ jobs:
             echo "::error::Invalid image reference: $REF"
             exit 1
           fi
-
       # Koyeb <-> registry connectivity can be flaky — retries reduce transient failures
       - name: Deploy to Koyeb
         run: |
@@ -99,7 +96,6 @@ jobs:
 
           echo "::error::All deploy attempts failed"
           exit 1
-
       # Poll Koyeb platform status — more reliable than curl during edge propagation
       - name: Wait for Koyeb service to be healthy
         run: |
@@ -126,7 +122,6 @@ jobs:
 
       - name: Health check and smoke tests
         run: bash .github/scripts/health-check.sh "${{ env.FRONTEND_URL }}"
-
       - name: Job summary
         if: always()
         run: |

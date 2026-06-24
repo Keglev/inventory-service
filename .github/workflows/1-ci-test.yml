@@ -4,7 +4,7 @@
 # Compiles, tests, and generates JaCoCo coverage for the backend service.
 # On success, triggers: 2-docker-backend.yml (image build and scan).
 # =============================================================================
-name: 1️⃣ Backend CI - Build & Test
+name: 1 Backend CI - Build & Test
 
 on:
   push:

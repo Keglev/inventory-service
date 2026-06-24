@@ -5,7 +5,7 @@
 # Consumes: docs-site artifact (built by docs-pipeline.yml).
 # Publishes static documentation to the gh-pages branch.
 # =============================================================================
-name: 3️⃣ Deploy Docs to GitHub Pages
+name: 3 Deploy Docs to GitHub Pages
 
 on:
   workflow_run:

@@ -5,11 +5,11 @@
 # Builds the production Docker image, scans for CVEs, and pushes to Docker Hub.
 # On success, triggers: 4-deploy-fly.yml (production deployment).
 # =============================================================================
-name: 2️⃣ Backend Docker - Build & Scan
+name: 2 Backend Docker - Build & Scan
 
 on:
   workflow_run:
-    workflows: ["1️⃣ Backend CI - Build & Test"]
+    workflows: ["1 Backend CI - Build & Test"]
     types: [completed]
     branches: [ "main", "develop" ]
   push: 
