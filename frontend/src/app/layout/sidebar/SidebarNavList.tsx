@@ -7,11 +7,9 @@
  * Renders all navigation items from centralized navConfig with route matching.
  *
  * @enterprise
- * - Centralized navigation from navConfig module
- * - i18n translation with type casting for dynamic keys
- * - Route matching for active state highlighting
- * - Support for disabled navigation items via feature flags
- * - Full TypeDoc coverage for navigation rendering logic
+ * - Iterates NAV_ITEMS from navConfig rather than inlining route definitions — nav structure is owned by navConfig, rendering is owned here.
+ * - `as any` cast on the i18n key is intentional; NAV_ITEMS labels are plain strings, not typed i18n keys, and typing them would couple navConfig to the i18n type system (see CB-APP8).
+ * - Logout button lives in this list rather than in the sidebar footer actions, keeping all navigation-style actions (go somewhere / leave) visually grouped.
  */
 
 import {
@@ -55,7 +53,7 @@ export default function SidebarNavList({ onLogout }: SidebarNavListProps) {
       <Box sx={{ py: 0.25 }}>
         <List>
           {NAV_ITEMS.map((item) => {
-            // Cast label key to bypass strict type checking for dynamic i18n keys
+            // BUCKET: t(... as any) bypasses i18n-key typing — type the key properly, no runtime change (CB-APP8)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const translatedLabel = t(item.label as any);
             return (

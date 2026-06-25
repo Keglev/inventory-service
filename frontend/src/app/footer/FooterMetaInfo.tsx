@@ -7,12 +7,11 @@
  * Displays version, build ID, environment, language, and region information.
  *
  * @enterprise
- * - Version and build tracking display
- * - Environment identification
- * - Language and region display
- * - i18n support for all labels
- * - Compact metadata presentation
- * - Full TypeDoc coverage for meta information
+ * - Pure presentational leaf: props-only, no state. Compact single-row status bar
+ *   variant of the expanded footer metadata.
+ * - All five props originate from useFooterState hardcoded config (see CB-APP1);
+ *   currentLanguage is the only live value (derived from i18n.language).
+ * - The two JSX structural comments are intentional layout markers.
  */
 
 import { Typography, Stack } from '@mui/material';

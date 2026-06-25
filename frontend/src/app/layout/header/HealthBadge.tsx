@@ -7,11 +7,10 @@
  * Displays backend and database status with color-coded visual feedback.
  *
  * @enterprise
- * - Real-time health status monitoring
- * - Color-coded status (success/warning/error)
- * - Responsive visibility (hidden on xs, shown on sm+)
- * - Detailed tooltip with status explanation
- * - Full TypeDoc coverage for health monitoring
+ * - Owns its own health polling via useHealthCheck, keeping the header decoupled from polling configuration.
+ * - Three-state model (allOk / backend-only / neither) maps cleanly to MUI Chip's success/warning/error color props.
+ * - Hidden on xs to avoid crowding the mobile toolbar where horizontal space is constrained.
+ * - Dot icon duplicates the chip's color signal so status is legible even when theme color perception varies.
  */
 
 import { Box, Chip, Tooltip } from '@mui/material';
@@ -61,7 +60,7 @@ export default function HealthBadge() {
     ? t('app.health.dbDownTooltip', 'Database reachable, DB issue')
     : t('app.health.downTooltip', 'Backend not reachable');
 
-  // Map health tone to text color
+  // BUCKET: raw hex label color — use theme palette tokens like the dot does (CB-APP7)
   const healthTextColor =
     healthTone === 'success' ? '#1b5e20' : healthTone === 'warning' ? '#e65100' : '#b71c1c';
 

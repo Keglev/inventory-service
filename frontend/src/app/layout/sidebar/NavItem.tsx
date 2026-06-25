@@ -7,10 +7,9 @@
  * Highlights current route and supports feature flag-based disabling.
  *
  * @enterprise
- * - Route matching with active state highlighting
- * - Disabled state with tooltips for feature flags
- * - MUI ListItemButton integration with routing
- * - Full TypeDoc coverage for navigation state and user feedback
+ * - Active state uses `startsWith` (not exact match) so nested routes like `/inventory/123` correctly highlight the parent nav item.
+ * - Disabled items remain visible and non-interactive; tooltip explains the feature-flag reason, preventing silent dead links.
+ * - onClick guard prevents default on disabled items rather than relying solely on the `disabled` attribute, which can be bypassed programmatically.
  */
 
 import {
@@ -65,6 +64,7 @@ export default function NavItem({
   tooltip,
 }: NavItemProps) {
   const location = useLocation();
+  // startsWith is intentional: activates the nav item for any nested route under `to`.
   const selected = location.pathname === to || (to !== '/' && location.pathname.startsWith(to));
 
   const handleClick = (event: React.MouseEvent) => {
@@ -74,6 +74,7 @@ export default function NavItem({
       return;
     }
 
+    // Gated behind the 'debugRouting' localStorage flag; intentional opt-in dev tooling.
     try {
       if (localStorage.getItem('debugRouting') === '1') {
         // eslint-disable-next-line no-console

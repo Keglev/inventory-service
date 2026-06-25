@@ -7,10 +7,11 @@
  * Shows current language and region settings.
  *
  * @enterprise
- * - Language and region display
- * - i18n support for labels
- * - Compact display format
- * - Full TypeDoc coverage for localization display
+ * - Pure presentational leaf: props-only, no state. Receives currentLanguage/region from
+ *   useFooterState — region is the static 'DE' originating from hardcoded config (see
+ *   CB-APP1); currentLanguage is i18n-derived.
+ * - Isolated from the other footer sections so it can be unit-tested standalone.
+ * - Labels are i18n keys in the 'footer' namespace with English fallbacks.
  */
 
 import { Box, Typography } from '@mui/material';

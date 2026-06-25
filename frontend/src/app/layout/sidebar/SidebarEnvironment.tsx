@@ -7,11 +7,8 @@
  * Shows application environment and version information.
  *
  * @enterprise
- * - Hardcoded environment and version (configured via i18n keys)
- * - Clean metadata display with labels and values
- * - i18n support for future environment changes
- * - Consistent typography and spacing
- * - Full TypeDoc coverage for metadata display
+ * - Environment and version are served as i18n fallbacks rather than build-time env vars, allowing deployment-time string overrides without a rebuild.
+ * - Reuses `footer:` namespace keys (footer:meta.environment, footer:meta.version) even though it renders in the sidebar, keeping terminology consistent with the footer component.
  */
 
 import { Box, Typography } from '@mui/material';
@@ -36,16 +33,19 @@ export default function SidebarEnvironment() {
 
   return (
     <Box>
+      {/* footer: namespace keys are reused intentionally; terminology stays consistent with the footer component. */}
       <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
         {t('footer:meta.environment', 'Environment:')}
       </Typography>
       <Typography variant="caption" color="text.secondary" display="block">
+        {/* BUCKET: env/version hardcoded as i18n fallbacks — consolidate with footer config single source (CB-APP1) */}
         {t('app.environment', 'Production (Koyeb)')}
       </Typography>
       <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
         {t('footer:meta.version', 'Version:')}
       </Typography>
       <Typography variant="caption" color="text.secondary" display="block">
+        {/* BUCKET: env/version hardcoded as i18n fallbacks — consolidate with footer config single source (CB-APP1) */}
         {t('app.version', '1.0.0')}
       </Typography>
     </Box>

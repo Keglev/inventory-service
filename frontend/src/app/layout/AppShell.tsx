@@ -7,12 +7,13 @@
  * Delegates rendering to focused sub-components (header, sidebar, main).
  *
  * @enterprise
- * - Single source of truth for theme, locale, and drawer state
- * - Coordinates state flow between header, sidebar, and main content
- * - Manages localStorage persistence for theme and locale preferences
- * - Session timeout enforcement and health check monitoring
- * - Clean separation: orchestration vs. rendering logic
+ * - Owns the only mutable copies of themeMode and locale; all sub-components receive them as props, enforcing top-down data flow.
+ * - LocalStorage persistence lives here so no child needs storage access; they only see callbacks.
+ * - Session keep-alive ping fires at shell level so it runs regardless of which page route is active.
+ * - Single Snackbar instance prevents duplicate toasts from concurrent state changes across sub-components.
+ * - Delegates all rendering to AppHeader, AppSidebar, AppMain — this file coordinates, not renders.
  */
+// BUCKET: file exceeds ~150-line guideline — review for extract/split (ST-APP2)
 
 import * as React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -125,6 +126,7 @@ export default function AppShell() {
       localStorage.setItem(LS_THEME_KEY, nextMode);
       setToast({
         open: true,
+        // BUCKET: hardcoded string bypasses i18n — route through t() (CB-APP6)
         msg: nextMode === 'dark' ? 'Dark mode enabled' : 'Light mode enabled',
         severity: 'info',
       });
@@ -143,6 +145,7 @@ export default function AppShell() {
     i18n.changeLanguage(next);
     setToast({
       open: true,
+      // BUCKET: hardcoded string bypasses i18n — route through t() (CB-APP6)
       msg: next === 'de' ? 'Sprache: Deutsch' : 'Language: English',
       severity: 'info',
     });
@@ -154,6 +157,7 @@ export default function AppShell() {
    * or a simple client-side redirect (for demo users).
    */
   const handleLogout = () => {
+    // BUCKET: ungated console.debug in prod — gate behind 'debugRouting' flag or remove (CB-APP5)
     console.debug('[AppShell] handleLogout invoked at', location.pathname, {
       hasUser: Boolean(user),
     });
@@ -162,6 +166,7 @@ export default function AppShell() {
     if (isDemo) {
       queryClient.clear();
       logout();
+      // BUCKET: ungated console.debug in prod — gate behind 'debugRouting' flag or remove (CB-APP5)
       console.debug('[AppShell] demo logout → redirecting to /logout-success');
       navigate('/logout-success', { replace: true });
       return;
@@ -174,14 +179,13 @@ export default function AppShell() {
     form.action = `${API_BASE}/logout?return=${encodeURIComponent(returnUrl)}`;
     form.style.display = 'none';
     document.body.appendChild(form);
+    // BUCKET: ungated console.debug in prod — gate behind 'debugRouting' flag or remove (CB-APP5)
     console.debug('[AppShell] submitting logout form to', form.action);
     form.submit();
   };
 
-  /**
-   * Session timeout/ping configuration.
-   * Monitors idle time and pings backend to maintain session.
-   */
+  // Idle timeout is intentionally disabled (enableIdleTimeout: false); this hook only pings
+  // the backend to keep the session alive, not to enforce inactivity logout.
   useSessionTimeout({
     pingEndpoint: '/api/me',
     pingIntervalMs: 60_000,

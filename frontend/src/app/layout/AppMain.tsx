@@ -7,10 +7,8 @@
  * Extracted from AppShell to isolate main content layout and demo mode messaging.
  *
  * @enterprise
- * - Responsive flexbox layout optimized for content scrolling
- * - Demo mode non-blocking information banner
- * - Suspense fallback for lazy-loaded page components
- * - Full TypeDoc coverage for content area and demo mode integration
+ * - Extracted from AppShell to keep the shell a pure orchestrator; all content-area layout lives here.
+ * - Demo banner is non-blocking (alert, no modal) so users can navigate freely; placement above content makes it unmissable on every page.
  */
 
 import { Outlet, useLocation } from 'react-router-dom';
@@ -38,7 +36,7 @@ export default function AppMain({ isDemo }: AppMainProps) {
   const { t } = useTranslation(['auth']);
   const location = useLocation();
 
-  // Render-phase log to confirm this component is rendering
+  // Gated behind the 'debugRouting' localStorage flag; intentional opt-in dev tooling — keep.
   try {
     if (localStorage.getItem('debugRouting') === '1') {
       console.debug('[AppMain] render', location.pathname + location.search);

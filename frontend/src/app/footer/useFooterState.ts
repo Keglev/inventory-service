@@ -7,11 +7,11 @@
  * Encapsulates footer state (details collapse) and health status data.
  *
  * @enterprise
- * - Separates footer state management from UI components
- * - Integrates with useHealthCheck hook for health monitoring
- * - Provides localization metadata (language, region)
- * - Type-safe footer configuration
- * - Full TypeDoc coverage for all exported functions
+ * - Owns footer state (details collapse) + metadata composition; the presentational
+ *   footer components receive everything as props and own no state.
+ * - `health` is read from useHealthCheck (features/health) — footer consumes health
+ *   state, it does not own it (correct app -> features direction).
+ * - Build metadata below is HARDCODED, not build-injected (see config comment).
  */
 
 import React from 'react';
@@ -56,9 +56,11 @@ export function useFooterState() {
     setDetailsOpen((prev) => !prev);
   };
 
-  /**
-   * Footer configuration extracted from i18n and hardcoded values.
-   */
+  // WHY: build metadata is hardcoded — no build-time source wired (package.json=0.0.0,
+  //      no vite define / import.meta.env for version). currentLanguage is the only live
+  //      value (derived from i18n.language); region is a static 'DE'.
+  // BUCKET: inject appVersion/buildId/environment from build-time env
+  //         (vite define + git SHA + package version) (CB-APP1)
   const config: FooterConfig = {
     appVersion: '1.0.0',
     buildId: '4a9c12f',

@@ -7,16 +7,20 @@
  * Shows backend and database status with real-time response time information.
  *
  * @enterprise
- * - Backend status monitoring with response time
- * - Database status display
- * - Color-coded status indicators (green/red)
- * - i18n support for status labels
- * - Full TypeDoc coverage for health display
+ * - Pure presentational leaf: props-only, no state. Receives a HealthStatus prop
+ *   sourced from useFooterState (which reads it from useHealthCheck).
+ * - Local HealthStatus interface duplicates the exported one in
+ *   features/health/hooks/useHealthCheck.ts; barrel gap: features/health/index.ts
+ *   does not re-export the type (see ST-APP1).
+ * - 'Online'/'Oracle ADB' labels are hardcoded; 'Offline' is translated. Status-dot
+ *   colors use raw hex while Chip borders use theme tokens (see CB-APP3).
  */
 
 import { Box, Chip, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
+// BUCKET: (ST-APP1) import HealthStatus from features/health barrel once it re-exports
+//         the type; drop this local duplicate.
 interface HealthStatus {
   status: 'online' | 'offline';
   responseTime: number;
@@ -70,11 +74,11 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
                   width: 8,
                   height: 8,
                   borderRadius: '50%',
-                  bgcolor: backendOnline ? '#4CAF50' : '#F44336',
+                  bgcolor: backendOnline ? '#4CAF50' : '#F44336', // BUCKET: (CB-APP3) use theme palette (success.main / error.main)
                 }}
               />
             }
-            label={backendOnline ? 'Online' : t('footer:status.offline', 'Offline')}
+            label={backendOnline ? 'Online' : t('footer:status.offline', 'Offline')} // BUCKET: (CB-APP3) 'Online' hardcoded — use i18n key
             size="small"
             variant="outlined"
             sx={{ borderColor: backendColor, color: backendColor }}
@@ -104,11 +108,11 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                bgcolor: databaseOnline ? '#4CAF50' : '#F44336',
+                bgcolor: databaseOnline ? '#4CAF50' : '#F44336', // BUCKET: (CB-APP3) use theme palette (success.main / error.main)
               }}
             />
           }
-          label={databaseOnline ? 'Oracle ADB' : t('footer:status.offline', 'Offline')}
+          label={databaseOnline ? 'Oracle ADB' : t('footer:status.offline', 'Offline')} // BUCKET: (CB-APP3) 'Oracle ADB' hardcoded — use i18n key
           size="small"
           variant="outlined"
           sx={{ borderColor: dbColor, color: dbColor }}

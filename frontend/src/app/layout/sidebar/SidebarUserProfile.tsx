@@ -7,11 +7,9 @@
  * Shows logged-in user's full name and role with i18n labels.
  *
  * @enterprise
- * - Clean display of user identity information
- * - Support for undefined/null user data with fallbacks
- * - i18n labels for internationalization
- * - Consistent typography and spacing
- * - Full TypeDoc coverage for user information display
+ * - Accepts an optional user prop with graceful fallbacks ('User', 'user') so the sidebar renders correctly before auth data resolves.
+ * - Receives user as a prop from AppShell (which owns auth state) rather than calling useAuth directly, keeping data flow explicit and testable.
+ * - i18n keys are in the common namespace because these labels (Logged in as, Role) appear elsewhere in the app.
  */
 
 import { Box, Typography } from '@mui/material';

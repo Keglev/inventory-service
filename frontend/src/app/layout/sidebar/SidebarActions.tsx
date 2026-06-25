@@ -7,12 +7,12 @@
  * Provides quick access to settings and theme/language toggles.
  *
  * @enterprise
- * - Theme toggle with light/dark mode icons
- * - Language toggle with flag images
- * - Settings dialog button
- * - Context-sensitive help button
- * - Responsive button layout with tooltips
- * - Full TypeDoc coverage for all actions
+ * - Sidebar footer repeats the toolbar's language and theme toggles as a redundant
+ *   convenience surface; the duplication is deliberate, not compensation for any
+ *   hidden toolbar control (only HealthBadge is xs-hidden).
+ * - nextThemeMode and nextLocale are pre-computed outside JSX to avoid repeating the ternary across icon, onClick, and aria label.
+ * - Settings and help are placed here rather than inline in the sidebar because this footer row is the natural endpoint for "leave current workflow" actions.
+ * - Help button is placed below the main action row to give it visual separation from the denser icon row above.
  */
 
 import {
@@ -96,6 +96,7 @@ export default function SidebarActions({
         }}
       >
         {/* Theme Toggle */}
+        {/* BUCKET: hardcoded string bypasses i18n — route through t() (CB-APP6) */}
         <Tooltip title={themeMode === 'light' ? 'Dark mode' : 'Light mode'}>
           <IconButton
             size="small"

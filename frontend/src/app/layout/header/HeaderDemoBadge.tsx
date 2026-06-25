@@ -7,10 +7,11 @@
  * Displays prominent DEMO indicator when user is on demo account.
  *
  * @enterprise
- * - Clear visual indication of demo mode
- * - Only shown when isDemo is true
- * - Yellow/warning color for visibility
- * - Full TypeDoc coverage for demo mode display
+ * - Pure conditional display: renders nothing when `isDemo` is false, keeping the header uncluttered for normal users.
+ * - Chip outline uses the theme `warning` palette (mode-aware), but the label color is
+ *   pinned to '#000' for fixed contrast against the outlined chip — a deliberate
+ *   override, not a theme-inherited value (black-on-warning can read poorly in dark mode).
+ * - i18n key ('auth:demoBadge') shares the auth namespace with login/demo flows so labels stay consistent across those contexts.
  */
 
 import { Chip } from '@mui/material';

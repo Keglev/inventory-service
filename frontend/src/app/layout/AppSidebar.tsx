@@ -7,13 +7,12 @@
  * Thin orchestrator delegating to focused sub-components for navigation, profile, and actions.
  *
  * @enterprise
- * - Responsive drawer (temporary on mobile, permanent on desktop)
- * - Navigation items via SidebarNavList sub-component
- * - User profile section via SidebarUserProfile sub-component
- * - Environment metadata via SidebarEnvironment sub-component
- * - Theme/language toggles via SidebarActions sub-component
- * - Full TypeDoc coverage for drawer layout and component coordination
+ * - Two Drawer variants (temporary on mobile, permanent on desktop) share one content tree via `drawerContent`, avoiding JSX duplication for each breakpoint.
+ * - Delegates all content areas to sub-components (SidebarNavList, SidebarUserProfile, SidebarEnvironment, SidebarActions) so this file only controls drawer chrome.
+ * - Receives state via props from AppShell, which is the single state owner; sidebar never reads localStorage directly.
+ * - helpTopic is re-derived from location here (not forwarded from AppShell) because the sidebar needs it independently for its own help button.
  */
+// BUCKET: file exceeds ~150-line guideline — review for extract/split (ST-APP2)
 
 import {
   Box,
@@ -67,15 +66,6 @@ interface AppSidebarProps {
   };
 }
 
-/**
- * Application sidebar component.
- *
- * Renders responsive drawer with navigation items, user profile,
- * and settings/theme controls in footer.
- *
- * @param props - Component props
- * @returns JSX element rendering sidebar navigation
- */
 /**
  * Application sidebar component.
  *

@@ -7,11 +7,10 @@
  * Thin orchestrator delegating to HealthBadge and HeaderDemoBadge sub-components.
  *
  * @enterprise
- * - Fixed positioning with consistent z-index stacking
- * - System health status via HealthBadge sub-component
- * - Demo mode indicator via HeaderDemoBadge sub-component
- * - Responsive toolbar with mobile drawer toggle
- * - Full TypeDoc coverage for header layout and component coordination
+ * - Fixed positioning with z-index above the drawer so the toolbar always overlaps the sidebar on scroll.
+ * - Delegates health status to HealthBadge (owns its own polling) and demo indicator to HeaderDemoBadge, keeping this component agnostic of their implementation details.
+ * - Receives all state via props; intentionally stateless so AppShell remains the single owner of theme, locale, and session.
+ * - Mobile drawer toggle forwarded to AppShell rather than controlling the drawer directly, keeping drawer state colocated with its owner.
  */
 
 import {

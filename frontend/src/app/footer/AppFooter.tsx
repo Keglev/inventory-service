@@ -8,12 +8,11 @@
  * Displays legal info, support links, system health, and localization.
  *
  * @enterprise
- * - Collapsible details panel (click expand button)
- * - Compact status bar always visible
- * - Real-time system health monitoring
- * - i18n support for all text
- * - Responsive layout for mobile and desktop
- * - Full TypeDoc coverage for footer orchestration
+ * - Thin orchestrator: owns layout composition only; all state flows from useFooterState.
+ * - Collapsible details panel + compact status bar share the same sub-components.
+ * - HealthStatusDisplay renders twice by design (expanded details panel vs compact
+ *   status bar), not a copy-paste bug.
+ * - All config props flow from useFooterState hardcoded config (see CB-APP1).
  */
 
 import {

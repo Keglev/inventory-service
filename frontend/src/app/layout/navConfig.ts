@@ -7,10 +7,10 @@
  * Defines routes, labels, icons, and contextual properties for all navigation items.
  *
  * @enterprise
- * - Centralized single source of truth for navigation structure
- * - Supports optional disabled state and tooltips for feature flags
- * - Enables dynamic nav generation and help topic routing
- * - Type-safe with strict enum patterns for route consistency
+ * - Sole owner of AppRoutes, HelpTopics, and NAV_ITEMS; consumers import, never redeclare.
+ * - Help-topic routing colocated with nav data so getHelpTopicForRoute stays consistent with NAV_ITEMS without cross-file coordination.
+ * - Disabled + tooltip fields carry feature-flag state at config time rather than scattering it across render components.
+ * - Const enum pattern prevents routing typos at compile time and keeps route strings refactorable in one place.
  */
 
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -37,6 +37,7 @@ export type AppRoutesType = (typeof AppRoutes)[keyof typeof AppRoutes];
  */
 export const HelpTopics = {
   Main: 'app.main',
+  // Dashboard deliberately reuses Main's help topic; they share the same contextual documentation.
   Dashboard: 'app.main',
   Inventory: 'inventory.overview',
   Suppliers: 'suppliers.manage',

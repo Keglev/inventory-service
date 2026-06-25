@@ -7,11 +7,10 @@
  * Displays navigation links to documentation, API reference, release notes, and support.
  *
  * @enterprise
- * - Support and documentation link management
- * - Consistent link styling with primary color
- * - i18n support for all link labels
- * - Accessible link navigation
- * - Full TypeDoc coverage for links section
+ * - Pure presentational leaf: props-only, no state.
+ * - 3 of 4 links are dead placeholders (href:'#'): Documentation, API Reference,
+ *   Release Notes. Only Contact (mailto) is a real destination (see CB-APP2).
+ * - Labels are i18n keys in the 'footer' namespace with English fallbacks.
  */
 
 import { Box, Typography, Link, Stack } from '@mui/material';
@@ -33,6 +32,7 @@ import { useTranslation } from 'react-i18next';
 export default function FooterLinks() {
   const { t } = useTranslation(['footer']);
 
+  // BUCKET: wire real hrefs or remove placeholder links (CB-APP2)
   const links = [
     {
       label: t('footer:support.documentation', 'Documentation'),

@@ -7,10 +7,10 @@
  * Extracted from AppShell to isolate toolbar icon/button logic and styling.
  *
  * @enterprise
- * - Clean separation of toolbar chrome from layout orchestration
- * - Reusable theme/locale callbacks with optional toast notifications
- * - Responsive visibility (some hidden on mobile)
- * - Full TypeDoc coverage for internationalization and theme integration
+ * - Extracted from AppShell so AppBar chrome can evolve independently of layout orchestration.
+ * - This is the mount point for HamburgerMenu (see ST-APP4); it passes theme/locale callbacks down but does not own the menu's state.
+ * - Callbacks are passed in rather than called directly so toast side-effects remain in AppShell where the Snackbar lives.
+ * - Language flag toggle mirrors SidebarActions by design — toolbar and sidebar must stay in sync without coupling.
  */
 
 import { Box, IconButton, Tooltip } from '@mui/material';
@@ -63,7 +63,7 @@ export default function AppToolbarActions({
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-      {/* Language Flag Toggle (hidden on xs, shown on sm+) */}
+      {/* Language Flag Toggle (always visible) */}
       <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
         <IconButton size="small" onClick={() => onLocaleChange(locale === 'de' ? 'en' : 'de')} sx={{ mr: 1 }}>
           <img

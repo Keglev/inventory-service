@@ -7,11 +7,10 @@
  * Displays copyright, version, build ID, and environment metadata.
  *
  * @enterprise
- * - Legal and meta information display
- * - Version and build tracking
- * - Environment identification
- * - i18n support for all text
- * - Full TypeDoc coverage for legal section
+ * - Pure presentational leaf: props-only, no state.
+ * - Props (appVersion, buildId, environment) originate from useFooterState hardcoded
+ *   config — none are build-injected (see CB-APP1).
+ * - Labels are i18n keys in the 'footer' namespace with English fallbacks.
  */
 
 import { Box, Typography } from '@mui/material';
