@@ -117,25 +117,6 @@ inventory/mutations/README · Smart Supply Pro · API</title>
         <p><a href="../../../README.html">frontend</a> /
         api/inventory/mutations</p>
         <h1 id="apiinventorymutations">api/inventory/mutations</h1>
-        <h2 id="file">File</h2>
-        <p>mutations.ts</p>
-        <h2 id="enterprise">Enterprise</h2>
-        <ul>
-        <li>Single import location for all mutations and queries</li>
-        <li>Backward compatible with existing imports</li>
-        <li>Clear separation of concerns across modules</li>
-        <li>Full TypeDoc documentation inheritance</li>
-        </ul>
-        <h2 id="usage">Usage</h2>
-        <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Import specific mutations</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { upsertItem<span class="op">,</span> adjustQuantity<span class="op">,</span> changePrice } <span class="im">from</span> <span class="st">&#39;@/api/inventory/mutations&#39;</span><span class="op">;</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Or import types</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { UpsertItemRequest<span class="op">,</span> AdjustQuantityRequest } <span class="im">from</span> <span class="st">&#39;@/api/inventory/mutations&#39;</span><span class="op">;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Or import suppliers</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { listSuppliers<span class="op">,</span> searchItemsBySupplier } <span class="im">from</span> <span class="st">&#39;@/api/inventory/mutations&#39;</span><span class="op">;</span></span></code></pre></div>
         <h2 id="references">References</h2>
         <h3 id="adjustquantity">adjustQuantity</h3>
         <p>Re-exports <a
@@ -201,9 +182,6 @@ inventory/mutations/README · Smart Supply Pro · API</title>
       <li><a href="#apiinventorymutations"
       id="toc-apiinventorymutations">api/inventory/mutations</a>
       <ul>
-      <li><a href="#file" id="toc-file">File</a></li>
-      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
-      <li><a href="#usage" id="toc-usage">Usage</a></li>
       <li><a href="#references" id="toc-references">References</a>
       <ul>
       <li><a href="#adjustquantity"

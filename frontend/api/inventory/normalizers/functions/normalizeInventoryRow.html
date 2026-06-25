@@ -125,10 +125,11 @@ inventory/normalizers/functions/normalizeInventoryRow · Smart Supply Pro · API
         | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/inventory/normalizers.ts#L38">api/inventory/normalizers.ts:38</a></p>
-        <p>Normalize raw backend response into typed InventoryRow.
-        Returns null if required fields (id) are missing. Uses defensive
-        field picking with fallback chains for flexibility.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/inventory/normalizers.ts#L29">api/inventory/normalizers.ts:29</a></p>
+        <p>Normalizes a raw backend response into a typed InventoryRow.
+        Returns null (never throws) when the required <code>id</code>
+        field is absent. Tries multiple field-name variants per field to
+        tolerate backend naming inconsistencies.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="raw">raw</h3>
         <p><code>unknown</code></p>
@@ -137,13 +138,8 @@ inventory/normalizers/functions/normalizeInventoryRow · Smart Supply Pro · API
         <p><a
         href="../../types/interfaces/InventoryRow.html"><code>InventoryRow</code></a>
         | <code>null</code></p>
-        <p>Normalized InventoryRow or null if validation fails</p>
-        <h2 id="enterprise">Enterprise</h2>
-        <ul>
-        <li>Accepts multiple field name variations from backend</li>
-        <li>Gracefully handles missing optional fields</li>
-        <li>Never throws; returns null for invalid data</li>
-        </ul>
+        <p>Normalized InventoryRow, or null if <code>id</code> is
+        missing</p>
       </article>
     </main>
 
@@ -159,7 +155,6 @@ inventory/normalizers/functions/normalizeInventoryRow · Smart Supply Pro · API
       <li><a href="#raw" id="toc-raw">raw</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       </ul></li>
       </ul>
     </nav>

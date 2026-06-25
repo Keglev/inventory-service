@@ -122,10 +122,12 @@ suppliers/supplierMutations/README · Smart Supply Pro · API</title>
         <p>supplierMutations.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Single responsibility: CRUD operations only</li>
-        <li>Consistent error handling with user-friendly messages</li>
-        <li>Type-safe requests and responses</li>
-        <li>Normalization through shared normalizer</li>
+        <li>errorMessage is borrowed from api/inventory/utils — not a
+        supplier-owned helper.</li>
+        <li>Error shape from the backend is {error, message, timestamp};
+        errorMessage extracts the message field.</li>
+        <li>All three functions return {success, error?} so callers
+        never need to catch; errors surface as strings.</li>
         </ul>
         <h2 id="functions">Functions</h2>
         <ul>

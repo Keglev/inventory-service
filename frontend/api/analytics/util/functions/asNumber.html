@@ -122,19 +122,10 @@ analytics/util/functions/asNumber · Smart Supply Pro · API</title>
         <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/util.ts#L31">api/analytics/util.ts:31</a></p>
-        <p>Defensive number coercion (NaN → 0). Handles numbers and
-        numeric strings; returns 0 for others. Useful for parsing
-        backend data with uncertain types. Examples:</p>
-        <ul>
-        <li>asNumber(42) → 42</li>
-        <li>asNumber("3.14") → 3.14</li>
-        <li>asNumber("foo") → 0</li>
-        <li>asNumber(null) → 0</li>
-        <li>asNumber(undefined) → 0</li>
-        <li>asNumber([]) → 0</li>
-        <li>asNumber({}) → 0</li>
-        </ul>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/util.ts#L13">api/analytics/util.ts:13</a></p>
+        <p>Guards numeric fields from the backend against NaN, Infinity,
+        and non-numeric strings so callers never silently accumulate bad
+        values.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="v">v</h3>
         <p><code>unknown</code></p>

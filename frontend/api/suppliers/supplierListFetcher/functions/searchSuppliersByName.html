@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-analytics/metrics/variables/getInventoryCount · Smart Supply Pro · API</title>
+suppliers/supplierListFetcher/functions/searchSuppliersByName · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -115,43 +115,49 @@ analytics/metrics/variables/getInventoryCount · Smart Supply Pro · API</title>
         href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
         <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/analytics/metrics</a> /
-        getInventoryCount</p>
-        <h1 id="variable-getinventorycount"><del>Variable:
-        getInventoryCount()</del></h1>
+        href="../README.html">api/suppliers/supplierListFetcher</a> /
+        searchSuppliersByName</p>
+        <h1 id="function-searchsuppliersbyname">Function:
+        searchSuppliersByName()</h1>
         <blockquote>
-        <p><code>const</code> <strong>getInventoryCount</strong>: ()
-        =&gt; <code>Promise</code>&lt;<code>number</code>&gt; =
-        <code>getItemCount</code></p>
+        <p><strong>searchSuppliersByName</strong>(<code>name</code>):
+        <code>Promise</code>&lt;<a
+        href="../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/metrics.ts#L86">api/analytics/metrics.ts:86</a></p>
-        <p>Alias for getItemCount() - kept for backward compatibility
-        with Dashboard.tsx</p>
-        <p>Fetch total inventory item count from backend. Returns 0 on
-        any error (tolerant).</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/suppliers/supplierListFetcher.ts#L69">api/suppliers/supplierListFetcher.ts:69</a></p>
+        <h2 id="parameters">Parameters</h2>
+        <h3 id="name">name</h3>
+        <p><code>string</code></p>
+        <p>Name fragment to match (case-insensitive substring).</p>
         <h2 id="returns">Returns</h2>
-        <p><code>Promise</code>&lt;<code>number</code>&gt;</p>
-        <p>Total number of inventory items</p>
+        <p><code>Promise</code>&lt;<a
+        href="../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>[]&gt;</p>
+        <p>Matching SupplierRow[], or [] on error.</p>
+        <h2 id="backend">Backend</h2>
+        <p>GET /api/suppliers/search?name= → plain List<SupplierDTO>;
+        case-insensitive substring match on name
+        (findByNameContainingIgnoreCase)</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> count <span class="op">=</span> <span class="cf">await</span> <span class="fu">getItemCount</span>()<span class="op">;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(count)<span class="op">;</span> <span class="co">// 150</span></span></code></pre></div>
-        <h2 id="deprecated">Deprecated</h2>
-        <p>Use getItemCount() instead</p>
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> results <span class="op">=</span> <span class="cf">await</span> <span class="fu">searchSuppliersByName</span>(<span class="st">&#39;acme&#39;</span>)<span class="op">;</span></span></code></pre></div>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#variable-getinventorycount"
-      id="toc-variable-getinventorycount"><del>Variable:
-      getInventoryCount()</del></a>
+      <li><a href="#function-searchsuppliersbyname"
+      id="toc-function-searchsuppliersbyname">Function:
+      searchSuppliersByName()</a>
       <ul>
+      <li><a href="#parameters" id="toc-parameters">Parameters</a>
+      <ul>
+      <li><a href="#name" id="toc-name">name</a></li>
+      </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
+      <li><a href="#backend" id="toc-backend">Backend</a></li>
       <li><a href="#example" id="toc-example">Example</a></li>
-      <li><a href="#deprecated" id="toc-deprecated">Deprecated</a></li>
       </ul></li>
       </ul>
     </nav>

@@ -123,21 +123,24 @@ inventory/utils/responseExtraction/functions/extractArray · Smart Supply Pro ·
         <code>keys</code>): <code>unknown</code>[]</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/inventory/utils/responseExtraction.ts#L52">api/inventory/utils/responseExtraction.ts:52</a></p>
-        <p>From an unknown response object, try to pull an array from
-        one of the keys. Useful for extracting arrays from envelope
-        formats like { items: [...] } or { content: [...] }. Falls back
-        to [] if nothing sane is found.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/inventory/utils/responseExtraction.ts#L51">api/inventory/utils/responseExtraction.ts:51</a></p>
+        <p>Tries each key in order and returns the first array-valued
+        property found. Needed because different backends use different
+        envelope field names for list payloads (e.g. Spring Page uses
+        <code>content</code>); the caller supplies the priority order so
+        the same logic handles multiple endpoints without branching.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="obj">obj</h3>
         <p><code>unknown</code></p>
-        <p>Response object to extract array from</p>
+        <p>Response record to search</p>
         <h3 id="keys">keys</h3>
         <p><code>string</code>[]</p>
-        <p>Keys to try in order (e.g., ['items', 'content', 'data'])</p>
+        <p>Keys to try in priority order (e.g.,
+        <code>['items', 'content', 'data']</code>)</p>
         <h2 id="returns">Returns</h2>
         <p><code>unknown</code>[]</p>
-        <p>Array if found in one of the keys, empty array otherwise</p>
+        <p>First array found, or <code>[]</code> if no key holds an
+        array</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> items <span class="op">=</span> <span class="fu">extractArray</span>(response<span class="op">,</span> [<span class="st">&#39;items&#39;</span><span class="op">,</span> <span class="st">&#39;content&#39;</span>])<span class="op">;</span></span></code></pre></div>

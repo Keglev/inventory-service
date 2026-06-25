@@ -123,11 +123,11 @@ analytics/util/functions/paramClean · Smart Supply Pro · API</title>
         <code>string</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/util.ts#L106">api/analytics/util.ts:106</a></p>
-        <p>Normalize FE filter parameters to BE query params. BE expects
-        <code>start</code> / <code>end</code> (LocalDate), optional
-        <code>supplierId</code>. If the caller omits dates, default to
-        the last 180 days.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/util.ts#L77">api/analytics/util.ts:77</a></p>
+        <p>Maps UI filter state to the query-string shape the backend
+        expects: <code>start</code>/<code>end</code> as LocalDate
+        strings, optional <code>supplierId</code>. Defaults to the last
+        180 days when the caller omits date bounds.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="p">p?</h3>
         <h4 id="from">from?</h4>

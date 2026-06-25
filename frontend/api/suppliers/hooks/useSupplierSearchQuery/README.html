@@ -122,10 +122,9 @@ suppliers/hooks/useSupplierSearchQuery/README · Smart Supply Pro · API</title>
         <p>useSupplierSearchQuery.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Client-side filtering for instant search feedback</li>
-        <li>Searches name, email, phone, contactName fields</li>
-        <li>Returns full supplier rows for display flexibility</li>
-        <li>Case-insensitive matching</li>
+        <li>Searches via GET /api/suppliers/search?name= (the dedicated
+        backend endpoint). Match is case-insensitive substring on
+        supplier name only. Activates at query length &gt;= 2.</li>
         </ul>
         <h2 id="functions">Functions</h2>
         <ul>

@@ -123,18 +123,13 @@ testConnection/functions/testConnection · Smart Supply Pro · API</title>
         <code>Promise</code>&lt;<code>boolean</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/testConnection.ts#L29">api/testConnection.ts:29</a></p>
-        <p>Calls a cheap health endpoint to confirm <strong>backend +
-        DB</strong> connectivity. Returns true on HTTP 200; otherwise
-        false.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/testConnection.ts#L30">api/testConnection.ts:30</a></p>
+        <p>Confirms backend and database reachability without touching
+        application state. Returns <code>true</code> only on HTTP 200;
+        any error (network, 5xx, etc.) returns <code>false</code> so
+        callers can surface a connectivity warning safely.</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<code>boolean</code>&gt;</p>
-        <h2 id="remarks">Remarks</h2>
-        <ul>
-        <li>Uses your existing <code>/health/db</code> path.</li>
-        <li>If you later expose <code>/actuator/health</code> you can
-        add a fallback branch.</li>
-        </ul>
       </article>
     </main>
 
@@ -145,7 +140,6 @@ testConnection/functions/testConnection · Smart Supply Pro · API</title>
       id="toc-function-testconnection">Function: testConnection()</a>
       <ul>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#remarks" id="toc-remarks">Remarks</a></li>
       </ul></li>
       </ul>
     </nav>

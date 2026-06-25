@@ -119,17 +119,11 @@ suppliers/README · Smart Supply Pro · API</title>
         <p>index.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Enables single-responsibility modules (list fetching,
-        mutations, normalization)</li>
-        <li>Preserves existing import paths:
-        <code>import { getSuppliersPage, createSupplier } from '@/api/suppliers'</code></li>
-        <li>Zero breaking changes for consuming components</li>
-        <li>Clear organization: listFetcher, mutations, normalizers,
-        validation</li>
+        <li>Single import point for all supplier API surface: fetcher,
+        mutations, normalizers, types, validation, hooks.</li>
+        <li>toSupplierRow is re-exported for testing and for any
+        consumer that normalizes outside the standard hooks.</li>
         </ul>
-        <h2 id="usage">Usage</h2>
-        <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { getSuppliersPage<span class="op">,</span> createSupplier<span class="op">,</span> SUPPLIERS_BASE } <span class="im">from</span> <span class="st">&#39;@/api/suppliers&#39;</span><span class="op">;</span></span></code></pre></div>
         <h2 id="references">References</h2>
         <h3 id="createsupplier">createSupplier</h3>
         <p>Re-exports <a
@@ -159,6 +153,10 @@ suppliers/README · Smart Supply Pro · API</title>
         <p>Re-exports <a
         href="supplierListFetcher/functions/getSuppliersPage.html">getSuppliersPage</a></p>
         <hr />
+        <h3 id="searchsuppliersbyname">searchSuppliersByName</h3>
+        <p>Re-exports <a
+        href="supplierListFetcher/functions/searchSuppliersByName.html">searchSuppliersByName</a></p>
+        <hr />
         <h3 id="serversort">ServerSort</h3>
         <p>Re-exports <a
         href="types/type-aliases/ServerSort.html">ServerSort</a></p>
@@ -185,7 +183,7 @@ suppliers/README · Smart Supply Pro · API</title>
         <hr />
         <h3 id="tosupplierrow">toSupplierRow</h3>
         <p>Re-exports <a
-        href="normalizers/functions/toSupplierRow.html">toSupplierRow</a></p>
+        href="supplierNormalizers/functions/toSupplierRow.html">toSupplierRow</a></p>
         <hr />
         <h3 id="updatesupplier">updateSupplier</h3>
         <p>Re-exports <a
@@ -217,7 +215,6 @@ suppliers/README · Smart Supply Pro · API</title>
       <ul>
       <li><a href="#file" id="toc-file">File</a></li>
       <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
-      <li><a href="#usage" id="toc-usage">Usage</a></li>
       <li><a href="#references" id="toc-references">References</a>
       <ul>
       <li><a href="#createsupplier"
@@ -234,6 +231,8 @@ suppliers/README · Smart Supply Pro · API</title>
       id="toc-editsupplierschema">editSupplierSchema</a></li>
       <li><a href="#getsupplierspage"
       id="toc-getsupplierspage">getSuppliersPage</a></li>
+      <li><a href="#searchsuppliersbyname"
+      id="toc-searchsuppliersbyname">searchSuppliersByName</a></li>
       <li><a href="#serversort" id="toc-serversort">ServerSort</a></li>
       <li><a href="#supplierdto"
       id="toc-supplierdto">SupplierDTO</a></li>

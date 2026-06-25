@@ -125,9 +125,11 @@ analytics/finance/functions/getFinancialSummary · Smart Supply Pro · API</titl
         href="../type-aliases/FinancialSummary.html"><code>FinancialSummary</code></a>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/finance.ts#L63">api/analytics/finance.ts:63</a></p>
-        <p>Fetch financial summary for a window. Backend: GET
-        /api/analytics/financial/summary?from&amp;to[&amp;supplierId]</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/finance.ts#L52">api/analytics/finance.ts:52</a></p>
+        <p>Fetch financial summary for a date window. Backend: GET
+        /api/analytics/financial/summary?from&amp;to[&amp;supplierId]
+        Returns ZERO_FINANCE on network errors or unrecognised response
+        shapes.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="p">p?</h3>
         <h4 id="from">from?</h4>
@@ -139,14 +141,6 @@ analytics/finance/functions/getFinancialSummary · Smart Supply Pro · API</titl
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
         href="../type-aliases/FinancialSummary.html"><code>FinancialSummary</code></a>&gt;</p>
-        <h2 id="enterprise">Enterprise</h2>
-        <ul>
-        <li>Finance endpoint uses <code>from/to</code> (not
-        <code>start/end</code> like other analytics).</li>
-        <li>Accepts either a direct object or an envelope (e.g., {
-        summary } or { data }).</li>
-        <li>Returns a fully-populated zero object on any error.</li>
-        </ul>
       </article>
     </main>
 
@@ -162,7 +156,6 @@ analytics/finance/functions/getFinancialSummary · Smart Supply Pro · API</titl
       <li><a href="#p" id="toc-p">p?</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       </ul></li>
       </ul>
     </nav>

@@ -123,16 +123,13 @@ analytics/metrics/functions/getItemCount · Smart Supply Pro · API</title>
         <code>Promise</code>&lt;<code>number</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/metrics.ts#L29">api/analytics/metrics.ts:29</a></p>
-        <p>Fetch total inventory item count from backend. Returns 0 on
-        any error (tolerant).</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/metrics.ts#L18">api/analytics/metrics.ts:18</a></p>
+        <p>Total number of inventory items currently stored in the
+        system. Calls <code>GET /api/inventory/count</code> →
+        <code>number</code>. Returns 0 on error so a single backend
+        failure does not break the dashboard.</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<code>number</code>&gt;</p>
-        <p>Total number of inventory items</p>
-        <h2 id="example">Example</h2>
-        <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> count <span class="op">=</span> <span class="cf">await</span> <span class="fu">getItemCount</span>()<span class="op">;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(count)<span class="op">;</span> <span class="co">// 150</span></span></code></pre></div>
       </article>
     </main>
 
@@ -143,7 +140,6 @@ analytics/metrics/functions/getItemCount · Smart Supply Pro · API</title>
       id="toc-function-getitemcount">Function: getItemCount()</a>
       <ul>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>
     </nav>

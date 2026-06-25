@@ -126,9 +126,8 @@ suppliers/hooks/useSupplierByIdQuery/functions/useSupplierByIdQuery · Smart Sup
         | <code>null</code>, <code>Error</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/suppliers/hooks/useSupplierByIdQuery.ts#L38">api/suppliers/hooks/useSupplierByIdQuery.ts:38</a></p>
-        <p>Hook to load a single supplier by ID. Useful for edit dialogs
-        that need to display current supplier data.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/suppliers/hooks/useSupplierByIdQuery.ts#L33">api/suppliers/hooks/useSupplierByIdQuery.ts:33</a></p>
+        <p>Loads a single supplier by ID, or null if not found.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="supplierid">supplierId</h3>
         <p>The ID of the supplier to load</p>
@@ -141,10 +140,6 @@ suppliers/hooks/useSupplierByIdQuery/functions/useSupplierByIdQuery · Smart Sup
         href="../../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>
         | <code>null</code>, <code>Error</code>&gt;</p>
         <p>React Query result with supplier data or null</p>
-        <h2 id="remarks">Remarks</h2>
-        <p>Currently fetches via the list endpoint with search filter. A
-        dedicated GET /api/suppliers/:id endpoint would be more
-        efficient.</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> { data<span class="op">:</span> supplier } <span class="op">=</span> <span class="fu">useSupplierByIdQuery</span>(selectedSupplierId)<span class="op">;</span></span>
@@ -166,7 +161,6 @@ suppliers/hooks/useSupplierByIdQuery/functions/useSupplierByIdQuery · Smart Sup
       <li><a href="#enabled" id="toc-enabled">enabled</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#remarks" id="toc-remarks">Remarks</a></li>
       <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>

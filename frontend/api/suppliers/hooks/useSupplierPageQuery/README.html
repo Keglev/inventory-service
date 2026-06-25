@@ -122,11 +122,10 @@ suppliers/hooks/useSupplierPageQuery/README · Smart Supply Pro · API</title>
         <p>useSupplierPageQuery.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Consistent caching strategy: 1-minute cache for supplier
-        lists</li>
-        <li>Performance optimized with conditional enabling</li>
-        <li>Error handling with graceful fallbacks</li>
-        <li>Type-safe pagination model for DataGrid integration</li>
+        <li>staleTime 1 min / gcTime 5 min: balances freshness against
+        backend load during rapid pagination.</li>
+        <li>enabled param lets callers suppress the fetch (e.g. while a
+        dialog is closed) without unmounting.</li>
         </ul>
         <h2 id="functions">Functions</h2>
         <ul>

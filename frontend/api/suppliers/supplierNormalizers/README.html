@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-inventory/hooks/README-3 · Smart Supply Pro · API</title>
+suppliers/supplierNormalizers/README · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -115,21 +115,25 @@ inventory/hooks/README-3 · Smart Supply Pro · API</title>
         href="../../../README.html"><strong>frontend</strong></a></p>
         <hr />
         <p><a href="../../../README.html">frontend</a> /
-        api/inventory/hooks</p>
-        <h1 id="apiinventoryhooks">api/inventory/hooks</h1>
+        api/suppliers/supplierNormalizers</p>
+        <h1
+        id="apisupplierssuppliernormalizers">api/suppliers/supplierNormalizers</h1>
         <h2 id="file">File</h2>
-        <p>useSuppliersQuery.ts</p>
+        <p>supplierNormalizers.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>5-minute cache reduces API calls and improves UX</li>
-        <li>Conditional enabling for performance optimization</li>
-        <li>Normalized to SupplierOption shape for UI consistency</li>
-        <li>Graceful error handling with React Query</li>
+        <li>pickString and pickNumber are borrowed from
+        api/inventory/utils — not supplier-owned helpers.</li>
+        <li>Returns null for any DTO missing id or name so callers can
+        filter invalid records without throwing.</li>
+        <li>id is coerced from number to string defensively; the backend
+        declares id as String but raw JSON may emit it as a number in
+        legacy or test fixtures.</li>
         </ul>
         <h2 id="functions">Functions</h2>
         <ul>
         <li><a
-        href="functions/useSuppliersQuery.html">useSuppliersQuery</a></li>
+        href="functions/toSupplierRow.html">toSupplierRow</a></li>
         </ul>
       </article>
     </main>
@@ -137,8 +141,8 @@ inventory/hooks/README-3 · Smart Supply Pro · API</title>
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#apiinventoryhooks"
-      id="toc-apiinventoryhooks">api/inventory/hooks</a>
+      <li><a href="#apisupplierssuppliernormalizers"
+      id="toc-apisupplierssuppliernormalizers">api/suppliers/supplierNormalizers</a>
       <ul>
       <li><a href="#file" id="toc-file">File</a></li>
       <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>

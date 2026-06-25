@@ -123,10 +123,13 @@ testConnection/functions/checkSession · Smart Supply Pro · API</title>
         | <code>null</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/testConnection.ts#L42">api/testConnection.ts:42</a></p>
-        <p>Checks if a session is currently valid by fetching
-        <code>/api/me</code>. Returns the user profile on success, or
-        <code>null</code> when not authenticated.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/testConnection.ts#L45">api/testConnection.ts:45</a></p>
+        <p>Determines whether a server-side session exists by probing
+        <code>/api/me</code>. Returns the user profile when
+        authenticated, or <code>null</code> on any failure. The response
+        interceptor in <code>httpClient</code> does not redirect on
+        <code>/me</code> probes, so 401s surface here as a caught error
+        rather than a navigation.</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
         href="../type-aliases/AppUserProfile.html"><code>AppUserProfile</code></a>

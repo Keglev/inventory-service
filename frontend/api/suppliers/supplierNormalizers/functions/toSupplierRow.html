@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-inventory/hooks/functions/useItemSearchQuery · Smart Supply Pro · API</title>
+suppliers/supplierNormalizers/functions/toSupplierRow · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -115,90 +115,45 @@ inventory/hooks/functions/useItemSearchQuery · Smart Supply Pro · API</title>
         href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
         <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README-2.html">api/inventory/hooks</a> /
-        useItemSearchQuery</p>
-        <h1 id="function-useitemsearchquery">Function:
-        useItemSearchQuery()</h1>
+        href="../README.html">api/suppliers/supplierNormalizers</a> /
+        toSupplierRow</p>
+        <h1 id="function-tosupplierrow">Function: toSupplierRow()</h1>
         <blockquote>
-        <p><strong>useItemSearchQuery</strong>(<code>selectedSupplier</code>,
-        <code>searchQuery</code>): <code>UseQueryResult</code>&lt;<a
-        href="../../../analytics/types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[],
-        <code>Error</code>&gt;</p>
+        <p><strong>toSupplierRow</strong>(<code>raw</code>): <a
+        href="../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>
+        | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/inventory/hooks/useItemSearchQuery.ts#L61">api/inventory/hooks/useItemSearchQuery.ts:61</a></p>
-        <p>Hook to search items with supplier-scoped filtering and
-        type-ahead search. Applies client-side supplier filtering due to
-        backend limitation.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/suppliers/supplierNormalizers.ts#L31">api/suppliers/supplierNormalizers.ts:31</a></p>
+        <p>Converts a single raw SupplierDTO into a SupplierRow.</p>
         <h2 id="parameters">Parameters</h2>
-        <h3 id="selectedsupplier">selectedSupplier</h3>
-        <p>Currently selected supplier (required for filtering)</p>
-        <p><a
-        href="../../../analytics/types/type-aliases/SupplierOption.html"><code>SupplierOption</code></a>
-        | <code>null</code></p>
-        <h3 id="searchquery">searchQuery</h3>
-        <p><code>string</code></p>
-        <p>User's search query (minimum 2 characters to trigger
-        search)</p>
+        <h3 id="raw">raw</h3>
+        <p><code>unknown</code></p>
+        <p>Raw DTO from API response</p>
         <h2 id="returns">Returns</h2>
-        <p><code>UseQueryResult</code>&lt;<a
-        href="../../../analytics/types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[],
-        <code>Error</code>&gt;</p>
-        <p>React Query result with filtered item options</p>
-        <h2 id="enterprise">Enterprise</h2>
-        <ul>
-        <li>Requires supplier selection first (prevents cross-supplier
-        errors)</li>
-        <li>Minimum 2 characters to trigger search (reduces API
-        load)</li>
-        <li><strong>Client-side supplier filtering</strong> (backend
-        doesn't filter properly)</li>
-        <li>Returns placeholder price/quantity (actual values fetched on
-        selection)</li>
-        <li>30-second cache improves UX during selection</li>
-        </ul>
-        <p>@backend_limitation Backend /api/inventory endpoint ignores
-        supplierId parameter, so we:</p>
-        <ol type="1">
-        <li>Fetch up to 500 items from backend</li>
-        <li>Apply client-side filtering:
-        <code>item.supplierId === selectedSupplier.id</code></li>
-        <li>Return only items belonging to selected supplier</li>
-        </ol>
-        <h2 id="remarks">Remarks</h2>
-        <p>The returned <code>ItemOption</code> objects have placeholder
-        values (0) for <code>onHand</code> and <code>price</code>. Fetch
-        full details using <code>useItemDetailsQuery()</code> when user
-        selects an item.</p>
+        <p><a
+        href="../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>
+        | <code>null</code></p>
+        <p>Normalized SupplierRow, or null if id or name is missing</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> { data<span class="op">:</span> items<span class="op">,</span> isLoading } <span class="op">=</span> <span class="fu">useItemSearchQuery</span>(selectedSupplier<span class="op">,</span> <span class="st">&quot;widget&quot;</span>)<span class="op">;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>Autocomplete</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  options<span class="op">=</span>{items <span class="op">||</span> []}</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  loading<span class="op">=</span>{isLoading}</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  getOptionLabel<span class="op">=</span>{(opt) <span class="kw">=&gt;</span> opt<span class="op">.</span><span class="at">name</span>}</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="op">/&gt;</span></span></code></pre></div>
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> rows <span class="op">=</span> (response<span class="op">.</span><span class="at">data</span> <span class="im">as</span> <span class="dt">unknown</span>[])</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">map</span>(toSupplierRow)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>((r)<span class="op">:</span> r <span class="kw">is</span> SupplierRow <span class="kw">=&gt;</span> r <span class="op">!==</span> <span class="kw">null</span>)<span class="op">;</span></span></code></pre></div>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-useitemsearchquery"
-      id="toc-function-useitemsearchquery">Function:
-      useItemSearchQuery()</a>
+      <li><a href="#function-tosupplierrow"
+      id="toc-function-tosupplierrow">Function: toSupplierRow()</a>
       <ul>
       <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
-      <li><a href="#selectedsupplier"
-      id="toc-selectedsupplier">selectedSupplier</a></li>
-      <li><a href="#searchquery"
-      id="toc-searchquery">searchQuery</a></li>
+      <li><a href="#raw" id="toc-raw">raw</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
-      <li><a href="#remarks" id="toc-remarks">Remarks</a></li>
       <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>

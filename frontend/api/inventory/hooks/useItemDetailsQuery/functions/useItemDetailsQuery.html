@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-suppliers/normalizers/functions/toSupplierRow · Smart Supply Pro · API</title>
+inventory/hooks/useItemDetailsQuery/functions/useItemDetailsQuery · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -112,49 +112,60 @@ suppliers/normalizers/functions/toSupplierRow · Smart Supply Pro · API</title>
     <main class="content" id="main">
       <article class="doc-body">
         <p><a
-        href="../../../../README.html"><strong>frontend</strong></a></p>
+        href="../../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/suppliers/normalizers</a> /
-        toSupplierRow</p>
-        <h1 id="function-tosupplierrow">Function: toSupplierRow()</h1>
+        <p><a href="../../../../../README.html">frontend</a> / <a
+        href="../README.html">api/inventory/hooks/useItemDetailsQuery</a>
+        / useItemDetailsQuery</p>
+        <h1 id="function-useitemdetailsquery">Function:
+        useItemDetailsQuery()</h1>
         <blockquote>
-        <p><strong>toSupplierRow</strong>(<code>raw</code>): <a
-        href="../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>
-        | <code>null</code></p>
+        <p><strong>useItemDetailsQuery</strong>(<code>itemId</code>):
+        <code>UseQueryResult</code>&lt;<a
+        href="../../../types/interfaces/ItemDetails.html"><code>ItemDetails</code></a>
+        | <code>null</code>, <code>Error</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/suppliers/supplierNormalizers.ts#L33">api/suppliers/supplierNormalizers.ts:33</a></p>
-        <p>Normalize a raw API response object into a strongly-typed
-        SupplierRow. Safely handles missing/misnamed fields from backend
-        with intelligent fallbacks.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/inventory/hooks/useItemDetailsQuery.ts#L35">api/inventory/hooks/useItemDetailsQuery.ts:35</a></p>
+        <p>Fetches full details for a single inventory item by ID.</p>
+        <p>Disabled until <code>itemId</code> is truthy — prevents a
+        fetch with a null/undefined key. 30 s stale time keeps data
+        fresh during a typical edit session while avoiding redundant
+        re-fetches if the user reopens the same item shortly after.</p>
+        <p>The backend response may use several field names for stock
+        quantity (<code>onHand</code>, <code>quantity</code>,
+        <code>qty</code>, <code>currentQuantity</code>,
+        <code>stock</code>); <code>pickNumberFromList</code> tries all
+        of them in priority order.</p>
         <h2 id="parameters">Parameters</h2>
-        <h3 id="raw">raw</h3>
-        <p><code>unknown</code></p>
-        <p>Raw DTO from API response</p>
+        <h3 id="itemid">itemId</h3>
+        <p>ID of the item to fetch; pass null or undefined when no item
+        is selected</p>
+        <p><code>string</code> | <code>null</code> |
+        <code>undefined</code></p>
         <h2 id="returns">Returns</h2>
-        <p><a
-        href="../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>
-        | <code>null</code></p>
-        <p>SupplierRow with all fields safely extracted and coerced, or
-        null if invalid</p>
+        <p><code>UseQueryResult</code>&lt;<a
+        href="../../../types/interfaces/ItemDetails.html"><code>ItemDetails</code></a>
+        | <code>null</code>, <code>Error</code>&gt;</p>
+        <p>React Query result with normalized <a
+        href="../../../types/interfaces/ItemDetails.html">ItemDetails</a>,
+        or null on error / no selection</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> rows <span class="op">=</span> response<span class="op">.</span><span class="at">content</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">map</span>(toSupplierRow)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>((r)<span class="op">:</span> r <span class="kw">is</span> SupplierRow <span class="kw">=&gt;</span> r <span class="op">!==</span> <span class="kw">null</span>)<span class="op">;</span></span></code></pre></div>
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> { data<span class="op">:</span> itemDetails } <span class="op">=</span> <span class="fu">useItemDetailsQuery</span>(selectedItem<span class="op">?.</span><span class="at">id</span>)<span class="op">;</span></span></code></pre></div>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-tosupplierrow"
-      id="toc-function-tosupplierrow">Function: toSupplierRow()</a>
+      <li><a href="#function-useitemdetailsquery"
+      id="toc-function-useitemdetailsquery">Function:
+      useItemDetailsQuery()</a>
       <ul>
       <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
-      <li><a href="#raw" id="toc-raw">raw</a></li>
+      <li><a href="#itemid" id="toc-itemid">itemId</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
       <li><a href="#example" id="toc-example">Example</a></li>

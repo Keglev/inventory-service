@@ -123,10 +123,16 @@ inventory/stockMutations/functions/adjustQuantity · Smart Supply Pro · API</ti
         <code>Promise</code>&lt;<code>boolean</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/inventory/stockMutations.ts#L50">api/inventory/stockMutations.ts:50</a></p>
-        <p>Adjust item quantity by delta (purchase/correction style).
-        Positive delta = purchase/inbound; negative =
-        correction/outbound.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/inventory/stockMutations.ts#L37">api/inventory/stockMutations.ts:37</a></p>
+        <p>Records a stock quantity change via PATCH
+        /api/inventory/{id}/quantity. Centralises all stock mutations so
+        callers get uniform error handling without catching HTTP errors
+        themselves.</p>
+        <p>Positive delta = inbound; negative = outbound.
+        <code>reason</code> must be one of the 11 backend
+        StockChangeReason values: INITIAL_STOCK, MANUAL_UPDATE,
+        PRICE_CHANGE, SOLD, SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST,
+        RETURNED_TO_SUPPLIER, RETURNED_BY_CUSTOMER.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="req">req</h3>
         <p><a
@@ -135,27 +141,15 @@ inventory/stockMutations/functions/adjustQuantity · Smart Supply Pro · API</ti
         reason</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<code>boolean</code>&gt;</p>
-        <p>true if successful, false otherwise</p>
-        <h2 id="enterprise">Enterprise</h2>
-        <p>Server commonly exposes: PATCH
-        /{id}/quantity?delta=&amp;reason= Reasons typically map to
-        business enums (PURCHASE, CORRECTION, WRITE_OFF, RETURN,
-        etc.)</p>
+        <p>true if the server accepted the adjustment, false on any
+        error</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Record a purchase (inbound)</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> success <span class="op">=</span> <span class="cf">await</span> <span class="fu">adjustQuantity</span>({</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  id<span class="op">:</span> <span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  delta<span class="op">:</span> <span class="dv">50</span><span class="op">,</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  reason<span class="op">:</span> <span class="st">&#39;PURCHASE&#39;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Record a correction (outbound)</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> corrected <span class="op">=</span> <span class="cf">await</span> <span class="fu">adjustQuantity</span>({</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  id<span class="op">:</span> <span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  delta<span class="op">:</span> <span class="op">-</span><span class="dv">5</span><span class="op">,</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  reason<span class="op">:</span> <span class="st">&#39;CORRECTION&#39;</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Mark items as sold (outbound)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ok <span class="op">=</span> <span class="cf">await</span> <span class="fu">adjustQuantity</span>({ id<span class="op">:</span> <span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span> delta<span class="op">:</span> <span class="op">-</span><span class="dv">5</span><span class="op">,</span> reason<span class="op">:</span> <span class="st">&#39;SOLD&#39;</span> })<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Inbound manual correction</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ok <span class="op">=</span> <span class="cf">await</span> <span class="fu">adjustQuantity</span>({ id<span class="op">:</span> <span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span> delta<span class="op">:</span> <span class="dv">50</span><span class="op">,</span> reason<span class="op">:</span> <span class="st">&#39;MANUAL_UPDATE&#39;</span> })<span class="op">;</span></span></code></pre></div>
       </article>
     </main>
 
@@ -170,7 +164,6 @@ inventory/stockMutations/functions/adjustQuantity · Smart Supply Pro · API</ti
       <li><a href="#req" id="toc-req">req</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>

@@ -124,9 +124,12 @@ inventory/itemMutations/functions/renameItem · Smart Supply Pro · API</title>
         href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/inventory/itemMutations.ts#L85">api/inventory/itemMutations.ts:85</a></p>
-        <p>Rename an inventory item (change item name). Only ADMIN users
-        can rename items.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/inventory/itemMutations.ts#L77">api/inventory/itemMutations.ts:77</a></p>
+        <p>Patches the item name via PATCH /api/inventory/{id}/name
+        rather than going through the full PUT update, so the backend
+        can enforce per-field authorization. Sends the new name as a
+        query param (not a body), matching the backend endpoint
+        contract.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="req">req</h3>
         <p>Rename payload with item id and new name</p>
@@ -139,11 +142,6 @@ inventory/itemMutations/functions/renameItem · Smart Supply Pro · API</title>
         href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
         <p>Response object with ok status, normalized item, and optional
         error</p>
-        <h2 id="note">Note</h2>
-        <p>Backend validates that the new name is not a duplicate for
-        the same supplier</p>
-        <h2 id="note-1">Note</h2>
-        <p>ADMIN-only operation</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="cf">await</span> <span class="fu">renameItem</span>({</span>
@@ -164,8 +162,6 @@ inventory/itemMutations/functions/renameItem · Smart Supply Pro · API</title>
       <li><a href="#req" id="toc-req">req</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#note" id="toc-note">Note</a></li>
-      <li><a href="#note-1" id="toc-note-1">Note</a></li>
       <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>

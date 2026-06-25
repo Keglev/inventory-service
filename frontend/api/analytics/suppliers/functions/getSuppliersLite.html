@@ -125,9 +125,12 @@ analytics/suppliers/functions/getSuppliersLite · Smart Supply Pro · API</title
         href="../../types/type-aliases/SupplierRef.html"><code>SupplierRef</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/suppliers.ts#L24">api/analytics/suppliers.ts:24</a></p>
-        <p>Fetch a lightweight supplier list. Returns array of {id,
-        name}. Empty array on errors.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/suppliers.ts#L23">api/analytics/suppliers.ts:23</a></p>
+        <p>Returns a lightweight <code>{id, name}</code> list for
+        populating supplier dropdowns. Silently returns an empty array
+        on network or parse errors so filter controls degrade gracefully
+        rather than blocking the UI.</p>
+        <p>Calls <code>GET /api/suppliers?limit=200</code>.</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
         href="../../types/type-aliases/SupplierRef.html"><code>SupplierRef</code></a>[]&gt;</p>

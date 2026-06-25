@@ -121,19 +121,13 @@ suppliers/hooks/README-1 · Smart Supply Pro · API</title>
         <p>useSuppliersData.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Enables focused single-responsibility hooks</li>
-        <li>Preserves existing import paths:
-        <code>import { useSuppliersPageQuery } from '@/api/suppliers/hooks'</code></li>
-        <li>Zero breaking changes for consuming components</li>
-        <li>Organized by use case: page query, search, detail by id</li>
+        <li>Despite the hook-style filename, this file is a pure barrel;
+        it contains no logic of its own.</li>
+        <li>useSuppliersPageQuery is a legacy alias for
+        useSupplierPageQuery; both are exported to avoid breaking
+        existing consumers while the canonical name is
+        standardized.</li>
         </ul>
-        <h2 id="usage">Usage</h2>
-        <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> {</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  useSuppliersPageQuery<span class="op">,</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  useSupplierSearchQuery<span class="op">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  useSupplierByIdQuery</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>} <span class="im">from</span> <span class="st">&#39;@/api/suppliers/hooks&#39;</span><span class="op">;</span></span></code></pre></div>
         <h2 id="references">References</h2>
         <h3 id="usesupplierbyidquery">useSupplierByIdQuery</h3>
         <p>Re-exports <a
@@ -161,7 +155,6 @@ suppliers/hooks/README-1 · Smart Supply Pro · API</title>
       <ul>
       <li><a href="#file" id="toc-file">File</a></li>
       <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
-      <li><a href="#usage" id="toc-usage">Usage</a></li>
       <li><a href="#references" id="toc-references">References</a>
       <ul>
       <li><a href="#usesupplierbyidquery"

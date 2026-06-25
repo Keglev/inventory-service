@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-inventory/hooks/functions/useItemDetailsQuery · Smart Supply Pro · API</title>
+inventory/hooks/useInventoryData/README · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -114,50 +114,43 @@ inventory/hooks/functions/useItemDetailsQuery · Smart Supply Pro · API</title>
         <p><a
         href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README-1.html">api/inventory/hooks</a> /
-        useItemDetailsQuery</p>
-        <h1 id="function-useitemdetailsquery">Function:
-        useItemDetailsQuery()</h1>
-        <blockquote>
-        <p><strong>useItemDetailsQuery</strong>(<code>itemId</code>):
-        <code>UseQueryResult</code>&lt;<a
-        href="../../types/interfaces/ItemDetails.html"><code>ItemDetails</code></a>
-        | <code>null</code>, <code>Error</code>&gt;</p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/inventory/hooks/useItemDetailsQuery.ts#L32">api/inventory/hooks/useItemDetailsQuery.ts:32</a></p>
-        <p>Hook to fetch full item details including actual current
-        price and quantity.</p>
-        <h2 id="parameters">Parameters</h2>
-        <h3 id="itemid">itemId</h3>
-        <p>Item identifier (null/undefined if no selection)</p>
-        <p><code>string</code> | <code>null</code> |
-        <code>undefined</code></p>
-        <h2 id="returns">Returns</h2>
-        <p><code>UseQueryResult</code>&lt;<a
-        href="../../types/interfaces/ItemDetails.html"><code>ItemDetails</code></a>
-        | <code>null</code>, <code>Error</code>&gt;</p>
-        <p>React Query result with complete item details or null</p>
-        <h2 id="example">Example</h2>
-        <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> { data<span class="op">:</span> itemDetails } <span class="op">=</span> <span class="fu">useItemDetailsQuery</span>(selectedItem<span class="op">?.</span><span class="at">id</span>)<span class="op">;</span></span></code></pre></div>
+        <p><a href="../../../../README.html">frontend</a> /
+        api/inventory/hooks/useInventoryData</p>
+        <h1
+        id="apiinventoryhooksuseinventorydata">api/inventory/hooks/useInventoryData</h1>
+        <h2 id="file">File</h2>
+        <p>useInventoryData.ts</p>
+        <h2 id="references">References</h2>
+        <h3 id="useitemdetailsquery">useItemDetailsQuery</h3>
+        <p>Re-exports <a
+        href="../useItemDetailsQuery/functions/useItemDetailsQuery.html">useItemDetailsQuery</a></p>
+        <hr />
+        <h3 id="useitemsearchquery">useItemSearchQuery</h3>
+        <p>Re-exports <a
+        href="../useItemSearchQuery/functions/useItemSearchQuery.html">useItemSearchQuery</a></p>
+        <hr />
+        <h3 id="usesuppliersquery">useSuppliersQuery</h3>
+        <p>Re-exports <a
+        href="../useSuppliersQuery/functions/useSuppliersQuery.html">useSuppliersQuery</a></p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-useitemdetailsquery"
-      id="toc-function-useitemdetailsquery">Function:
-      useItemDetailsQuery()</a>
+      <li><a href="#apiinventoryhooksuseinventorydata"
+      id="toc-apiinventoryhooksuseinventorydata">api/inventory/hooks/useInventoryData</a>
       <ul>
-      <li><a href="#parameters" id="toc-parameters">Parameters</a>
+      <li><a href="#file" id="toc-file">File</a></li>
+      <li><a href="#references" id="toc-references">References</a>
       <ul>
-      <li><a href="#itemid" id="toc-itemid">itemId</a></li>
+      <li><a href="#useitemdetailsquery"
+      id="toc-useitemdetailsquery">useItemDetailsQuery</a></li>
+      <li><a href="#useitemsearchquery"
+      id="toc-useitemsearchquery">useItemSearchQuery</a></li>
+      <li><a href="#usesuppliersquery"
+      id="toc-usesuppliersquery">useSuppliersQuery</a></li>
       </ul></li>
-      <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>
     </nav>

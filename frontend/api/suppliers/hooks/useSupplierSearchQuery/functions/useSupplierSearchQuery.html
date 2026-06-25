@@ -126,14 +126,13 @@ suppliers/hooks/useSupplierSearchQuery/functions/useSupplierSearchQuery · Smart
         <code>Error</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/suppliers/hooks/useSupplierSearchQuery.ts#L45">api/suppliers/hooks/useSupplierSearchQuery.ts:45</a></p>
-        <p>Hook to search suppliers by query string. Searches within
-        loaded suppliers (client-side filtering). Useful for
-        autocomplete and search dialogs.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/suppliers/hooks/useSupplierSearchQuery.ts#L34">api/suppliers/hooks/useSupplierSearchQuery.ts:34</a></p>
+        <p>Searches suppliers matching query and returns the filtered
+        SupplierRow array.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="query">query</h3>
         <p><code>string</code></p>
-        <p>Search query string (e.g., supplier name or email)</p>
+        <p>Search query string (e.g., supplier name fragment)</p>
         <h3 id="enabled">enabled</h3>
         <p><code>boolean</code> = <code>true</code></p>
         <p>Whether to fetch (defaults to true)</p>
@@ -141,14 +140,7 @@ suppliers/hooks/useSupplierSearchQuery/functions/useSupplierSearchQuery · Smart
         <p><code>UseQueryResult</code>&lt;<a
         href="../../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>[],
         <code>Error</code>&gt;</p>
-        <p>React Query result with filtered supplier results</p>
-        <h2 id="enterprise">Enterprise</h2>
-        <ul>
-        <li>Only fetches when query length &gt;= 2 characters</li>
-        <li>Client-side filtering for instant search feedback</li>
-        <li>Returns full supplier rows for display flexibility</li>
-        <li>Case-insensitive matching</li>
-        </ul>
+        <p>React Query result with matching supplier results</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> { data<span class="op">:</span> results } <span class="op">=</span> <span class="fu">useSupplierSearchQuery</span>(<span class="st">&#39;acme&#39;</span><span class="op">,</span> searchQuery<span class="op">.</span><span class="at">length</span> <span class="op">&gt;=</span> <span class="dv">2</span>)<span class="op">;</span></span>
@@ -173,7 +165,6 @@ suppliers/hooks/useSupplierSearchQuery/functions/useSupplierSearchQuery · Smart
       <li><a href="#enabled" id="toc-enabled">enabled</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>

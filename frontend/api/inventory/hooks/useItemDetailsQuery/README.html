@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-inventory/hooks/README-2 · Smart Supply Pro · API</title>
+inventory/hooks/useItemDetailsQuery/README · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -112,32 +112,18 @@ inventory/hooks/README-2 · Smart Supply Pro · API</title>
     <main class="content" id="main">
       <article class="doc-body">
         <p><a
-        href="../../../README.html"><strong>frontend</strong></a></p>
+        href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../README.html">frontend</a> /
-        api/inventory/hooks</p>
-        <h1 id="apiinventoryhooks">api/inventory/hooks</h1>
+        <p><a href="../../../../README.html">frontend</a> /
+        api/inventory/hooks/useItemDetailsQuery</p>
+        <h1
+        id="apiinventoryhooksuseitemdetailsquery">api/inventory/hooks/useItemDetailsQuery</h1>
         <h2 id="file">File</h2>
-        <p>useItemSearchQuery.ts</p>
-        <h2 id="enterprise">Enterprise</h2>
-        <ul>
-        <li>Requires supplier selection first (prevents cross-supplier
-        errors)</li>
-        <li>Minimum 2 characters to trigger search (reduces API
-        load)</li>
-        <li><strong>Client-side supplier filtering</strong> (backend
-        doesn't filter properly)</li>
-        <li>Returns placeholder price/quantity (actual values fetched on
-        selection)</li>
-        <li>30-second cache improves UX during selection</li>
-        </ul>
-        <p>@backend_limitation The /api/inventory search endpoint
-        doesn't properly filter by supplierId parameter, so this hook
-        applies client-side filtering to ensure supplier isolation.</p>
+        <p>useItemDetailsQuery.ts</p>
         <h2 id="functions">Functions</h2>
         <ul>
         <li><a
-        href="functions/useItemSearchQuery.html">useItemSearchQuery</a></li>
+        href="functions/useItemDetailsQuery.html">useItemDetailsQuery</a></li>
         </ul>
       </article>
     </main>
@@ -145,11 +131,10 @@ inventory/hooks/README-2 · Smart Supply Pro · API</title>
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#apiinventoryhooks"
-      id="toc-apiinventoryhooks">api/inventory/hooks</a>
+      <li><a href="#apiinventoryhooksuseitemdetailsquery"
+      id="toc-apiinventoryhooksuseitemdetailsquery">api/inventory/hooks/useItemDetailsQuery</a>
       <ul>
       <li><a href="#file" id="toc-file">File</a></li>
-      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       <li><a href="#functions" id="toc-functions">Functions</a></li>
       </ul></li>
       </ul>

@@ -125,21 +125,22 @@ inventory/supplierQueries/functions/searchItemsBySupplier · Smart Supply Pro ·
         href="../../../analytics/types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/inventory/supplierQueries.ts#L89">api/inventory/supplierQueries.ts:89</a></p>
-        <p>Search items by supplier (type-ahead for item pickers).
-        Supplier-scoped item search with tolerant response parsing.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/inventory/supplierQueries.ts#L90">api/inventory/supplierQueries.ts:90</a></p>
+        <p>Searches inventory items by supplier via GET
+        /api/inventory/search, used for type-ahead item pickers filtered
+        to a specific supplier. Tolerant parsing handles multiple
+        field-name conventions from the backend.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="supplierid">supplierId</h3>
-        <p>Supplier to search within</p>
+        <p>Supplier to scope the search to</p>
         <p><code>string</code> | <code>number</code></p>
         <h3 id="q">q</h3>
         <p><code>string</code></p>
-        <p>Search query string</p>
+        <p>Search query string for type-ahead matching</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
         href="../../../analytics/types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
-        <p>Array of matching item references with id, name, and
-        supplierId</p>
+        <p>Matching ItemRef array, or [] on any error</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> items <span class="op">=</span> <span class="cf">await</span> <span class="fu">searchItemsBySupplier</span>(<span class="st">&#39;SUP-001&#39;</span><span class="op">,</span> <span class="st">&#39;widget&#39;</span>)<span class="op">;</span></span>

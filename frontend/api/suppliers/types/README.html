@@ -121,11 +121,13 @@ suppliers/types/README · Smart Supply Pro · API</title>
         <p>types.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>No <code>any</code> types; all responses are fully
-        typed</li>
-        <li>Matches backend SupplierDTO structure</li>
-        <li>Supports filtering, pagination, and sorting</li>
-        <li>Comprehensive TypeDoc for all exports</li>
+        <li>Matches the backend SupplierDTO field names exactly — no
+        MapStruct, manual mapping only.</li>
+        <li>SupplierListParams forwards client-managed
+        page/pageSize/sort/q; backend has no server-side
+        pagination.</li>
+        <li>All optional fields are <code>string | null</code> to match
+        the nullable columns in the backend entity.</li>
         </ul>
         <h2 id="interfaces">Interfaces</h2>
         <ul>

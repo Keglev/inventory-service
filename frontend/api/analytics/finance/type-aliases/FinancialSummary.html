@@ -123,61 +123,60 @@ analytics/finance/type-aliases/FinancialSummary · Smart Supply Pro · API</titl
         <p><strong>FinancialSummary</strong> = <code>object</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/finance.ts#L33">api/analytics/finance.ts:33</a></p>
-        <p>Canonical FE shape for financial summary (numbers are always
-        defined). Returns 0 for missing/invalid fields.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/finance.ts#L28">api/analytics/finance.ts:28</a></p>
+        <p>Canonical frontend shape for a financial summary period. All
+        fields are guaranteed numbers (0 when absent or
+        unparseable).</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> summary <span class="op">=</span> <span class="cf">await</span> <span class="fu">getFinancialSummary</span>({</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  from<span class="op">:</span> <span class="st">&#39;2025-09-01&#39;</span><span class="op">,</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a> to<span class="op">:</span> <span class="st">&#39;2025-11-30&#39;</span><span class="op">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a> supplierId<span class="op">:</span> <span class="st">&#39;SUP-001&#39;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  to<span class="op">:</span> <span class="st">&#39;2025-11-30&#39;</span><span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  supplierId<span class="op">:</span> <span class="st">&#39;SUP-001&#39;</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> (</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>FinanceDashboard data<span class="op">=</span>{summary} <span class="op">/&gt;</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code></pre></div>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">&lt;</span>FinanceDashboard data<span class="op">=</span>{summary} <span class="op">/&gt;;</span></span></code></pre></div>
         <h2 id="properties">Properties</h2>
         <h3 id="cogs">cogs</h3>
         <blockquote>
         <p><strong>cogs</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/finance.ts#L35">api/analytics/finance.ts:35</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/finance.ts#L30">api/analytics/finance.ts:30</a></p>
         <hr />
         <h3 id="endingvalue">endingValue</h3>
         <blockquote>
         <p><strong>endingValue</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/finance.ts#L39">api/analytics/finance.ts:39</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/finance.ts#L34">api/analytics/finance.ts:34</a></p>
         <hr />
         <h3 id="openingvalue">openingValue</h3>
         <blockquote>
         <p><strong>openingValue</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/finance.ts#L38">api/analytics/finance.ts:38</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/finance.ts#L33">api/analytics/finance.ts:33</a></p>
         <hr />
         <h3 id="purchases">purchases</h3>
         <blockquote>
         <p><strong>purchases</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/finance.ts#L34">api/analytics/finance.ts:34</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/finance.ts#L29">api/analytics/finance.ts:29</a></p>
         <hr />
         <h3 id="returns">returns</h3>
         <blockquote>
         <p><strong>returns</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/finance.ts#L37">api/analytics/finance.ts:37</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/finance.ts#L32">api/analytics/finance.ts:32</a></p>
         <hr />
         <h3 id="writeoffs">writeOffs</h3>
         <blockquote>
         <p><strong>writeOffs</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/finance.ts#L36">api/analytics/finance.ts:36</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/finance.ts#L31">api/analytics/finance.ts:31</a></p>
       </article>
     </main>
 

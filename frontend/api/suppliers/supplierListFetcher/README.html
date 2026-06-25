@@ -122,13 +122,14 @@ suppliers/supplierListFetcher/README · Smart Supply Pro · API</title>
         <p>supplierListFetcher.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Single API endpoint: GET /api/suppliers with pagination
-        params</li>
-        <li>Tolerant of response envelope variations (plain array,
-        Spring Page format)</li>
-        <li>Graceful error handling: returns empty page on network
-        failure</li>
-        <li>Type-safe response structure</li>
+        <li>Backend returns a plain JSON array (List<SupplierDTO>) — no
+        Spring Page envelope, no server-side pagination.</li>
+        <li>page/pageSize/q/sort are forwarded as query params but are
+        not processed server-side.</li>
+        <li>extractArray and pickNumber are borrowed from
+        api/inventory/utils — not supplier-owned helpers.</li>
+        <li>On network failure the fetcher returns an empty page so the
+        UI degrades cleanly rather than throwing.</li>
         </ul>
         <h2 id="variables">Variables</h2>
         <ul>
@@ -139,6 +140,8 @@ suppliers/supplierListFetcher/README · Smart Supply Pro · API</title>
         <ul>
         <li><a
         href="functions/getSuppliersPage.html">getSuppliersPage</a></li>
+        <li><a
+        href="functions/searchSuppliersByName.html">searchSuppliersByName</a></li>
         </ul>
       </article>
     </main>

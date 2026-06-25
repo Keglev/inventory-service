@@ -125,15 +125,20 @@ analytics/frequency/functions/getItemUpdateFrequency · Smart Supply Pro · API<
         href="../type-aliases/ItemUpdateFrequencyPoint.html"><code>ItemUpdateFrequencyPoint</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/frequency.ts#L28">api/analytics/frequency.ts:28</a></p>
-        <p>GET
-        /api/analytics/item-update-frequency?supplierId=...&amp;limit=N
-        Accepts either:</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/frequency.ts#L25">api/analytics/frequency.ts:25</a></p>
+        <p>Fetch the top <code>limit</code> items ranked by update count
+        for a supplier. Backend: GET
+        /api/analytics/item-update-frequency?supplierId=...&amp;limit=N</p>
+        <p>Field aliases accepted from the backend:</p>
         <ul>
-        <li>{ id, name, updates } or</li>
-        <li>{ itemId?, itemName, updates|updateCount|count }</li>
+        <li>id: <code>id</code> | <code>itemId</code> | <code>sku</code>
+        | <code>code</code>, falls back to <code>name</code> when
+        absent</li>
+        <li>name: <code>name</code> | <code>itemName</code></li>
+        <li>updates: <code>updates</code> | <code>updateCount</code> |
+        <code>updatesCount</code> | <code>count</code> |
+        <code>changes</code></li>
         </ul>
-        <p>If no id is present, uses the name as a stable id.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="supplierid">supplierId</h3>
         <p><code>string</code></p>

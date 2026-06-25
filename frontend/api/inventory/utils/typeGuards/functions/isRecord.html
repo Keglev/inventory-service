@@ -123,16 +123,20 @@ inventory/utils/typeGuards/functions/isRecord · Smart Supply Pro · API</title>
         <code>v is Record&lt;string, unknown&gt;</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/inventory/utils/typeGuards.ts#L28">api/inventory/utils/typeGuards.ts:28</a></p>
-        <p>Type narrowing helper: safely check if a value is a plain
-        object record.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/inventory/utils/typeGuards.ts#L24">api/inventory/utils/typeGuards.ts:24</a></p>
+        <p>Narrows <code>v</code> to
+        <code>Record&lt;string, unknown&gt;</code> when it is a non-null
+        object. Arrays also pass this check — call sites needing plain
+        objects must additionally guard with
+        <code>!Array.isArray</code>.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="v">v</h3>
         <p><code>unknown</code></p>
-        <p>Value to check</p>
+        <p>Value to test</p>
         <h2 id="returns">Returns</h2>
         <p><code>v is Record&lt;string, unknown&gt;</code></p>
-        <p>True if v is a non-null object (record)</p>
+        <p><code>true</code> when <code>typeof v === 'object'</code> and
+        <code>v !== null</code></p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">isRecord</span>(data)) {</span>

@@ -125,20 +125,24 @@ analytics/updates/functions/getStockUpdates · Smart Supply Pro · API</title>
         href="../type-aliases/StockUpdateRow.html"><code>StockUpdateRow</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/updates.ts#L49">api/analytics/updates.ts:49</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/updates.ts#L48">api/analytics/updates.ts:48</a></p>
         <p>GET
-        /api/analytics/stock-updates?start&amp;end[&amp;supplierId][&amp;itemName][&amp;limit]
-        Fetch recent stock updates with tolerant field mapping. Returns
-        empty array on errors.</p>
+        /api/analytics/stock-updates?startDate&amp;endDate[&amp;supplierId][&amp;itemName]</p>
+        <p>Fetches recent stock updates with tolerant field mapping so
+        backend renames don't break the UI. <code>limit</code> is
+        included in the request but is not a declared backend parameter
+        and will be silently ignored. Returns an empty array when the
+        response is missing or malformed.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="filter">filter?</h3>
         <p><a
         href="../type-aliases/StockUpdatesFilter.html"><code>StockUpdatesFilter</code></a></p>
-        <p>Optional filtering parameters</p>
+        <p>Optional date range, supplier, item name, and result-count
+        hint</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
         href="../type-aliases/StockUpdateRow.html"><code>StockUpdateRow</code></a>[]&gt;</p>
-        <p>Array of stock update rows</p>
+        <p>Array of stock update rows, empty on errors</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> updates <span class="op">=</span> <span class="cf">await</span> <span class="fu">getStockUpdates</span>({</span>
@@ -146,7 +150,7 @@ analytics/updates/functions/getStockUpdates · Smart Supply Pro · API</title>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  to<span class="op">:</span> <span class="st">&#39;2025-10-31&#39;</span><span class="op">,</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  supplierId<span class="op">:</span> <span class="st">&#39;SUP-001&#39;</span><span class="op">,</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  itemName<span class="op">:</span> <span class="st">&#39;Widget&#39;</span><span class="op">,</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a> limit<span class="op">:</span> <span class="dv">100</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  limit<span class="op">:</span> <span class="dv">100</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">&lt;</span>Table data<span class="op">=</span>{updates} <span class="op">/&gt;;</span></span></code></pre></div>
       </article>

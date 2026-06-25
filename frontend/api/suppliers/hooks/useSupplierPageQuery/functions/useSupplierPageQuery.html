@@ -126,9 +126,9 @@ suppliers/hooks/useSupplierPageQuery/functions/useSupplierPageQuery · Smart Sup
         <code>Error</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/suppliers/hooks/useSupplierPageQuery.ts#L44">api/suppliers/hooks/useSupplierPageQuery.ts:44</a></p>
-        <p>Hook to load paginated suppliers from the backend. Caches
-        results for 1 minute to reduce API calls.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/suppliers/hooks/useSupplierPageQuery.ts#L34">api/suppliers/hooks/useSupplierPageQuery.ts:34</a></p>
+        <p>Fetches and caches the supplier list for the given
+        params.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="params">params</h3>
         <p><a
@@ -142,14 +142,6 @@ suppliers/hooks/useSupplierPageQuery/functions/useSupplierPageQuery · Smart Sup
         href="../../../types/interfaces/SupplierListResponse.html"><code>SupplierListResponse</code></a>,
         <code>Error</code>&gt;</p>
         <p>React Query result with paginated supplier data</p>
-        <h2 id="enterprise">Enterprise</h2>
-        <ul>
-        <li>Only fetches when enabled (performance optimization)</li>
-        <li>1-minute cache reduces backend load for rapid
-        pagination</li>
-        <li>Automatically handles loading and error states</li>
-        <li>Type-safe pagination model for DataGrid integration</li>
-        </ul>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> { data<span class="op">,</span> isLoading<span class="op">,</span> error } <span class="op">=</span> <span class="fu">useSupplierPageQuery</span>(</span>
@@ -174,7 +166,6 @@ suppliers/hooks/useSupplierPageQuery/functions/useSupplierPageQuery · Smart Sup
       <li><a href="#enabled" id="toc-enabled">enabled</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>

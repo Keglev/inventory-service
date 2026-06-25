@@ -123,16 +123,19 @@ inventory/utils/responseExtraction/functions/resDataOrEmpty · Smart Supply Pro 
         <code>unknown</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/inventory/utils/responseExtraction.ts#L30">api/inventory/utils/responseExtraction.ts:30</a></p>
-        <p>Extract response.data safely, or return an empty object.
-        Handles both Axios responses and raw data objects.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/inventory/utils/responseExtraction.ts#L28">api/inventory/utils/responseExtraction.ts:28</a></p>
+        <p>Safely unwraps the .data property that Axios attaches to
+        every response; returns an empty object when the property is
+        absent so callers can destructure or pass the result to
+        extractArray without null-guarding.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="resp">resp</h3>
         <p><code>unknown</code></p>
-        <p>Response object from http call</p>
+        <p>Value to unwrap (typically an Axios response)</p>
         <h2 id="returns">Returns</h2>
         <p><code>unknown</code></p>
-        <p>Response data or empty object if not found</p>
+        <p><code>resp.data</code> if present, <code>{}</code>
+        otherwise</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> data <span class="op">=</span> <span class="fu">resDataOrEmpty</span>(response)<span class="op">;</span> <span class="co">// Safe access to response.data</span></span></code></pre></div>

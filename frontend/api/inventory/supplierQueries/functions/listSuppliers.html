@@ -123,13 +123,16 @@ inventory/supplierQueries/functions/listSuppliers · Smart Supply Pro · API</ti
         <code>Promise</code>&lt;<code>object</code>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/inventory/supplierQueries.ts#L43">api/inventory/supplierQueries.ts:43</a></p>
-        <p>Fetch supplier list for selection dropdowns. Accepts raw
-        array OR envelopes { items: [...] } / { content: [...] }.
-        Tolerant: returns empty array on any error.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/inventory/supplierQueries.ts#L43">api/inventory/supplierQueries.ts:43</a></p>
+        <p>Fetches all suppliers from GET /api/suppliers for use in
+        selection dropdowns. Requests pageSize=1000 to load all
+        suppliers in a single call, avoiding pagination complexity in
+        dropdown controls. Accepts raw array or envelopes { items: [...]
+        } / { content: [...] }.</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<code>object</code>[]&gt;</p>
-        <p>Array of supplier options with id and name</p>
+        <p>Array of supplier options with id and name, or [] on any
+        error</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> suppliers <span class="op">=</span> <span class="cf">await</span> <span class="fu">listSuppliers</span>()<span class="op">;</span></span>

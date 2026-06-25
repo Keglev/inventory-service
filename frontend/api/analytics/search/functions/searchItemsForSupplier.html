@@ -125,9 +125,9 @@ analytics/search/functions/searchItemsForSupplier · Smart Supply Pro · API</ti
         href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/search.ts#L141">api/analytics/search.ts:141</a></p>
-        <p>Supplier-scoped item search (does not silently downgrade to
-        global). Returns array of {id, name}. Empty array on errors.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/search.ts#L100">api/analytics/search.ts:100</a></p>
+        <p>Supplier-scoped item search against /api/inventory (does not
+        silently downgrade to global).</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="supplierid">supplierId</h3>
         <p><code>string</code></p>
@@ -138,10 +138,6 @@ analytics/search/functions/searchItemsForSupplier · Smart Supply Pro · API</ti
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
         href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
-        <h2 id="example">Example</h2>
-        <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> items <span class="op">=</span> <span class="cf">await</span> <span class="fu">searchItemsForSupplier</span>(<span class="st">&#39;SUP-001&#39;</span><span class="op">,</span> <span class="st">&#39;widget&#39;</span><span class="op">,</span> <span class="dv">50</span>)<span class="op">;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">&lt;</span>Select options<span class="op">=</span>{items} <span class="op">/&gt;;</span></span></code></pre></div>
       </article>
     </main>
 
@@ -159,7 +155,6 @@ analytics/search/functions/searchItemsForSupplier · Smart Supply Pro · API</ti
       <li><a href="#limit" id="toc-limit">limit</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>
     </nav>

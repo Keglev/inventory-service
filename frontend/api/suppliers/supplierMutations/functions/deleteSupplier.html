@@ -125,12 +125,12 @@ suppliers/supplierMutations/functions/deleteSupplier · Smart Supply Pro · API<
         }&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/suppliers/supplierMutations.ts#L111">api/suppliers/supplierMutations.ts:111</a></p>
-        <p>Delete supplier by ID.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/suppliers/supplierMutations.ts#L111">api/suppliers/supplierMutations.ts:111</a></p>
+        <p>Deletes a supplier via DELETE /api/suppliers/:id.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="id">id</h3>
         <p><code>string</code></p>
-        <p>Supplier ID to delete</p>
+        <p>Supplier ID</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;{ <code>error?</code>:
         <code>string</code>; <code>success</code>: <code>boolean</code>;
@@ -139,7 +139,7 @@ suppliers/supplierMutations/functions/deleteSupplier · Smart Supply Pro · API<
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> { success<span class="op">,</span> error } <span class="op">=</span> <span class="cf">await</span> <span class="fu">deleteSupplier</span>(<span class="st">&#39;sup-123&#39;</span>)<span class="op">;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="op">!</span>success) <span class="fu">alert</span>(error)<span class="op">;</span></span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="op">!</span>success) <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(error)<span class="op">;</span></span></code></pre></div>
       </article>
     </main>
 

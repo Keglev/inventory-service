@@ -123,12 +123,10 @@ analytics/util/functions/clientFilter · Smart Supply Pro · API</title>
         href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/util.ts#L95">api/analytics/util.ts:95</a></p>
-        <p>Client-side filter as a safety net if the BE ignores search
-        params. Returns at most <code>limit</code> items whose names
-        include <code>q</code> (case-insensitive). If <code>q</code> is
-        empty/whitespace, returns the first <code>limit</code>
-        items.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/util.ts#L66">api/analytics/util.ts:66</a></p>
+        <p>Safety net for when the backend ignores the search query
+        param; filters and caps results client-side. Returns the first
+        <code>limit</code> items when <code>q</code> is blank.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="items">items</h3>
         <p><a

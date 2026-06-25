@@ -123,9 +123,11 @@ inventory/utils/fieldPickers/functions/pickString · Smart Supply Pro · API</ti
         <code>string</code> | <code>undefined</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/inventory/utils/fieldPickers.ts#L29">api/inventory/utils/fieldPickers.ts:29</a></p>
-        <p>Extract string value from record, checking a specific key.
-        Handles both string and number coercion.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/inventory/utils/fieldPickers.ts#L27">api/inventory/utils/fieldPickers.ts:27</a></p>
+        <p>Returns the value at key <code>k</code> only when it is
+        already a string; returns undefined for numbers, booleans, and
+        all other types. Avoids implicit coercions that could silently
+        produce unexpected data.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="r">r</h3>
         <p><code>Record</code>&lt;<code>string</code>,
@@ -136,7 +138,7 @@ inventory/utils/fieldPickers/functions/pickString · Smart Supply Pro · API</ti
         <p>Key to look up</p>
         <h2 id="returns">Returns</h2>
         <p><code>string</code> | <code>undefined</code></p>
-        <p>String value if found, undefined otherwise</p>
+        <p>String value if present, undefined otherwise</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> name <span class="op">=</span> <span class="fu">pickString</span>(obj<span class="op">,</span> <span class="st">&#39;name&#39;</span>)<span class="op">;</span> <span class="co">// returns string or undefined</span></span></code></pre></div>

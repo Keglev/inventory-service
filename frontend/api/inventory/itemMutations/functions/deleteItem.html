@@ -124,29 +124,23 @@ inventory/itemMutations/functions/deleteItem · Smart Supply Pro · API</title>
         href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/inventory/itemMutations.ts#L120">api/inventory/itemMutations.ts:120</a></p>
-        <p>Delete an inventory item by ID. Item can only be deleted if
-        quantity is 0 (no stock remaining). Only ADMIN users can delete
-        items.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/inventory/itemMutations.ts#L108">api/inventory/itemMutations.ts:108</a></p>
+        <p>Sends DELETE /api/inventory/{id} with a StockChangeReason so
+        the backend can audit why the item was removed. The backend
+        rejects the request if quantity is not 0.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="id">id</h3>
         <p><code>string</code></p>
         <p>Item identifier to delete</p>
         <h3 id="reason">reason</h3>
         <p><code>string</code></p>
-        <p>Business reason for deletion (SCRAPPED, DESTROYED, DAMAGED,
-        EXPIRED, LOST, RETURNED_TO_SUPPLIER)</p>
+        <p>Must be one of the six deletion reasons the backend accepts:
+        SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST,
+        RETURNED_TO_SUPPLIER (the backend rejects others)</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
         href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
         <p>Response object with ok status and optional error message</p>
-        <h2 id="note">Note</h2>
-        <p>ADMIN-only operation</p>
-        <h2 id="note-1">Note</h2>
-        <p>Backend validates that item quantity is 0 before deletion</p>
-        <h2 id="note-2">Note</h2>
-        <p>Backend may return error: "You still have merchandise in
-        stock"</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="cf">await</span> <span class="fu">deleteItem</span>(<span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span> <span class="st">&#39;EXPIRED&#39;</span>)<span class="op">;</span></span>
@@ -168,9 +162,6 @@ inventory/itemMutations/functions/deleteItem · Smart Supply Pro · API</title>
       <li><a href="#reason" id="toc-reason">reason</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#note" id="toc-note">Note</a></li>
-      <li><a href="#note-1" id="toc-note-1">Note</a></li>
-      <li><a href="#note-2" id="toc-note-2">Note</a></li>
       <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>

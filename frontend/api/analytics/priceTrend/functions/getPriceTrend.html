@@ -124,13 +124,21 @@ analytics/priceTrend/functions/getPriceTrend · Smart Supply Pro · API</title>
         href="../../types/type-aliases/PricePoint.html"><code>PricePoint</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/6d15478bf827bcc3aa79ae4f516400d831d53504/frontend/src/api/analytics/priceTrend.ts#L32">api/analytics/priceTrend.ts:32</a></p>
-        <p>Fetch an item's price trend in a time window. Returns array
-        of {date, price}. Empty array on errors.</p>
+        href="https://github.com/Keglev/inventory-service/blob/d38878bbaf1f291faed505e0afbfc884269cbc6b/frontend/src/api/analytics/priceTrend.ts#L37">api/analytics/priceTrend.ts:37</a></p>
+        <p>GET
+        /api/analytics/price-trend?itemId&amp;start&amp;end[&amp;supplierId]</p>
+        <p>Fetches historical price observations for the given item. The
+        backend returns rows ordered by date ascending (ORDER BY
+        timestamp); the client-side sort is a defensive guard against
+        malformed or unordered responses. Returns an empty array when
+        <code>itemId</code> is blank or on any error.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="itemid">itemId</h3>
         <p><code>string</code></p>
+        <p>Required item identifier</p>
         <h3 id="p">p?</h3>
+        <p>Optional date window and supplier filter; defaults to last
+        180 days</p>
         <h4 id="from">from?</h4>
         <p><code>string</code> = <code>...</code></p>
         <h4 id="supplierid">supplierId?</h4>
@@ -140,12 +148,13 @@ analytics/priceTrend/functions/getPriceTrend · Smart Supply Pro · API</title>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
         href="../../types/type-aliases/PricePoint.html"><code>PricePoint</code></a>[]&gt;</p>
+        <p>Chronologically sorted price points, empty on errors</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> points <span class="op">=</span> <span class="cf">await</span> <span class="fu">getPriceTrend</span>(<span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span> {</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  from<span class="op">:</span> <span class="st">&#39;2025-09-01&#39;</span><span class="op">,</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a> to<span class="op">:</span> <span class="st">&#39;2025-11-30&#39;</span><span class="op">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a> supplierId<span class="op">:</span> <span class="st">&#39;SUP-001&#39;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  to<span class="op">:</span> <span class="st">&#39;2025-11-30&#39;</span><span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  supplierId<span class="op">:</span> <span class="st">&#39;SUP-001&#39;</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">&lt;</span>LineChart data<span class="op">=</span>{points} <span class="op">/&gt;;</span></span></code></pre></div>
       </article>
