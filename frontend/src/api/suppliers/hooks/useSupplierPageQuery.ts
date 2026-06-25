@@ -3,14 +3,11 @@
  * @module api/suppliers/hooks/useSupplierPageQuery
  *
  * @summary
- * React Query hook for paginated supplier list fetching.
- * Handles caching, loading states, and error management.
+ * React Query hook that wraps getSuppliersPage for use in supplier list views.
  *
  * @enterprise
- * - Consistent caching strategy: 1-minute cache for supplier lists
- * - Performance optimized with conditional enabling
- * - Error handling with graceful fallbacks
- * - Type-safe pagination model for DataGrid integration
+ * - staleTime 1 min / gcTime 5 min: balances freshness against backend load during rapid pagination.
+ * - enabled param lets callers suppress the fetch (e.g. while a dialog is closed) without unmounting.
  */
 
 import { useQuery } from '@tanstack/react-query';
@@ -18,18 +15,11 @@ import { getSuppliersPage } from '../supplierListFetcher';
 import type { SupplierListParams } from '../types';
 
 /**
- * Hook to load paginated suppliers from the backend.
- * Caches results for 1 minute to reduce API calls.
+ * Fetches and caches the supplier list for the given params.
  *
  * @param params - Pagination, filtering, and sorting parameters
  * @param enabled - Whether to fetch (defaults to true)
  * @returns React Query result with paginated supplier data
- *
- * @enterprise
- * - Only fetches when enabled (performance optimization)
- * - 1-minute cache reduces backend load for rapid pagination
- * - Automatically handles loading and error states
- * - Type-safe pagination model for DataGrid integration
  *
  * @example
  * ```typescript
@@ -49,7 +39,7 @@ export const useSupplierPageQuery = (
     queryKey: ['suppliers', 'page', params.page, params.pageSize, params.q, params.sort],
     queryFn: () => getSuppliersPage(params),
     enabled,
-    staleTime: 60_000, // 1 minute
-    gcTime: 5 * 60_000, // 5 minutes (formerly cacheTime)
+    staleTime: 60_000,  // 1 min — see @enterprise above
+    gcTime: 5 * 60_000, // 5 min; gcTime renamed from cacheTime in TanStack Query v5
   });
 };

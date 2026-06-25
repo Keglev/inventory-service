@@ -1,16 +1,14 @@
 /**
- * @file supplierQueries.ts
  * @module api/inventory/supplierQueries
  *
- * @summary
- * Supplier and item search query operations.
- * Provides supplier listings and supplier-scoped item type-ahead.
+ * Supplier listing and item-search queries used by inventory UI flows.
+ * Hits GET /api/suppliers for supplier dropdowns and
+ * GET /api/inventory/search for supplier-scoped item type-ahead.
+ * Both functions absorb response-shape variations and never throw,
+ * making them safe to use directly with React Query without extra guards.
  *
- * @enterprise
- * - Tolerant response parsing: accepts multiple envelope formats
- * - Flexible field mapping: handles backend field name variations
- * - Never throws: returns empty arrays on any error
- * - Suitable for React Query integration
+ * Note: INVENTORY_BASE is duplicated from other inventory modules;
+ * consolidation is a deferred structural item.
  */
 
 import http from '../httpClient';
@@ -23,16 +21,18 @@ import {
   extractArray,
 } from './utils';
 
-/** Centralized endpoint bases. */
+/** Inventory API base path; duplicated from other inventory modules pending a shared constants file. */
 export const INVENTORY_BASE = '/api/inventory';
+/** Suppliers domain API base path. */
 export const SUPPLIERS_BASE = '/api/suppliers';
 
 /**
- * Fetch supplier list for selection dropdowns.
- * Accepts raw array OR envelopes { items: [...] } / { content: [...] }.
- * Tolerant: returns empty array on any error.
+ * Fetches all suppliers from GET /api/suppliers for use in selection dropdowns.
+ * Requests pageSize=1000 to load all suppliers in a single call, avoiding
+ * pagination complexity in dropdown controls.
+ * Accepts raw array or envelopes { items: [...] } / { content: [...] }.
  *
- * @returns Array of supplier options with id and name
+ * @returns Array of supplier options with id and name, or [] on any error
  *
  * @example
  * ```typescript
@@ -73,12 +73,13 @@ export async function listSuppliers(): Promise<Array<{ id: string | number; name
 }
 
 /**
- * Search items by supplier (type-ahead for item pickers).
- * Supplier-scoped item search with tolerant response parsing.
+ * Searches inventory items by supplier via GET /api/inventory/search,
+ * used for type-ahead item pickers filtered to a specific supplier.
+ * Tolerant parsing handles multiple field-name conventions from the backend.
  *
- * @param supplierId - Supplier to search within
- * @param q - Search query string
- * @returns Array of matching item references with id, name, and supplierId
+ * @param supplierId - Supplier to scope the search to
+ * @param q - Search query string for type-ahead matching
+ * @returns Matching ItemRef array, or [] on any error
  *
  * @example
  * ```typescript

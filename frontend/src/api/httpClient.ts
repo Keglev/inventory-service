@@ -1,32 +1,36 @@
 /**
- * @file httpClient.ts
- * @description
- * - Base URL from VITE_API_BASE with resilient fallback to **api** (same-origin).
- * - withCredentials: true so session cookies are sent on same-origin requests.
- * - JSON Accept header for session-cookie-authenticated APIs.
- * - Response interceptor: on 401 -> navigate to /login except on public routes
- *   and probe endpoints.
+ * @module src/api/httpClient
  *
- * @enterprise
- * - Keep this file thin; feature-specific APIs should live under src/features/**api.ts.
- * - Centralize retries/backoff and cross-cutting concerns here so all consumers benefit.
- * - Avoid circular deps by not importing from outside src/api/.
- * - See https://axios-http.com/docs/interceptors for more on interceptors.
+ * Singleton Axios instance used by every feature-level API module.  All
+ * session-cookie authentication, shared request headers, and cross-cutting
+ * 401 handling are wired here so individual feature modules stay focused on
+ * their own resources.
+ *
+ * Base-URL contract: `VITE_API_BASE` is origin-only — no `/api` suffix;
+ * call sites append `/api` on each request path themselves.  Production
+ * sets this to the backend host; development sets it to `/`.  The fallback
+ * value `/api` is a defensive default not used by any committed environment.
+ *
+ * Production guidance: deploy behind Nginx so frontend and backend share
+ * the same origin; this keeps session cookies first-party and avoids CORS.
+ *
+ * Keep this file thin; feature APIs live under `src/features/**\/api.ts`.
+ * Do not import from outside `src/api/` to avoid circular deps.
+ * See https://axios-http.com/docs/interceptors for interceptor reference.
  */
-import axios, { type InternalAxiosRequestConfig, AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 
-/** Narrow typing for Vite env to avoid `any`. */
+/** Narrows `import.meta.env` to the env vars this module reads. */
 interface ViteEnv {
   VITE_API_BASE?: string;
 }
 
 /**
- * API base URL resolution.
+ * Resolved base URL prepended to every request.
  *
- * @enterprise
- * - Production should call the backend **same-origin** through Nginx,
- *   which proxies `/api` to the Spring service. That keeps cookies first-party.
- * - Treat undefined, empty, or whitespace-only envs as "not set" and fall back to `/api`.
+ * `VITE_API_BASE` must be origin-only (no `/api` suffix) because call
+ * sites append `/api` themselves.  Undefined, empty, or whitespace-only
+ * values fall back to `/api` for local dev (Vite proxy assumed).
  */
 const RAW_BASE = (import.meta.env as unknown as ViteEnv)?.VITE_API_BASE;
 export const API_BASE: string = (() => {
@@ -34,29 +38,23 @@ export const API_BASE: string = (() => {
   return v.length > 0 ? v : '/api';
 })();
 
-/* Create the HTTP client */
 const httpClient = axios.create({
-  baseURL: API_BASE.replace(/\/+$/, ''), // normalize trailing slash
+  baseURL: API_BASE.replace(/\/+$/, ''), // normalise trailing slash for consistent path joining
   withCredentials: true,
   timeout: 30_000,
 });
 
-/** Common headers (set via defaults to avoid Axios v1 typing friction). */
+// Set via `defaults` rather than `create` config to sidestep Axios v1 header-typing friction.
 httpClient.defaults.headers.common['Accept'] = 'application/json';
 httpClient.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 /**
- * Tolerate old calls like httpClient.get('/api/xyz') by stripping the extra '/api'
- * when baseURL already is '/api'.
+ * Returns true when a demo session is active.  Demo sessions intentionally
+ * have no server-side session, so 401 responses are expected and must not
+ * trigger a login redirect.
  *
- * @enterprise
- * - Lets you migrate call sites gradually.
+ * @internal
  */
-httpClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  return config;
-});
-
-/** Detect if we are in a demo session (no redirect on 401). */
 function isDemoSession(): boolean {
   try {
     const raw = localStorage.getItem('ssp.demo.session');
@@ -66,7 +64,14 @@ function isDemoSession(): boolean {
   }
 }
 
-/** 401 → /login (but never from public pages or the /me probe). */
+/**
+ * Redirects unauthenticated requests to `/login`.
+ *
+ * Suppressed when the user is already on a public page (to prevent
+ * redirect loops), when the failing call is the `/me` session probe
+ * (a 401 is the expected "not logged in" signal there), or when a
+ * demo session is active.
+ */
 httpClient.interceptors.response.use(
   (res) => res,
   (error: AxiosError) => {
@@ -76,7 +81,6 @@ httpClient.interceptors.response.use(
     if (resp.status === 401) {
       if (isDemoSession()) return Promise.reject(error);
 
-      // Never redirect if already on a public page or if this is the /me probe
       const path = window.location.pathname;
       const onPublic =
         path === '/' ||
@@ -84,14 +88,12 @@ httpClient.interceptors.response.use(
         path.startsWith('/auth') ||
         path.startsWith('/logout');
 
-      // Check if this is the /me probe (can be on any page)
       const reqUrl = typeof resp.config?.url === 'string' ? resp.config.url : '';
       const isMeProbe =
         reqUrl.includes('/api/me') || reqUrl === '/me' || reqUrl.startsWith('/me/');
 
       if (onPublic || isMeProbe) return Promise.reject(error);
 
-      // Redirect to login
       console.debug('[401]', resp.config?.method?.toUpperCase(), resp.config?.url);
       window.location.assign('/login');
       return;

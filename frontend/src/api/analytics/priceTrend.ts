@@ -1,34 +1,39 @@
 /**
-* @file priceTrend.ts
-* @module api/analytics/priceTrend
-*
-* @summary
-* Price trend time series for a given item within an optional date/supplier window.
-* Provides function to fetch historical price points.
-* @enterprise
-* - Resilient data fetching with graceful error handling
-* - TypeDoc documentation for price trend analytics function
-*/
+ * @module api/analytics/priceTrend
+ *
+ * Historical price trend for a single item, fetched from
+ * GET /api/analytics/price-trend. The backend requires `start` and `end`, so
+ * `paramClean` always supplies them (defaulting to the last 180 days).
+ * Returns an empty array on any error.
+ */
 import http from '../httpClient';
 import { asNumber, paramClean } from './util';
 import type { AnalyticsParams } from './validation';
 import type { PricePoint } from './types';
 
-// Tolerant DTO (local)
+/** @internal */
 type BackendPriceTrendDTO = { timestamp?: string; price?: unknown };
 
-/** Fetch an item's price trend in a time window. 
- * Returns array of {date, price}. Empty array on errors.
+/**
+ * GET /api/analytics/price-trend?itemId&start&end[&supplierId]
+ *
+ * Fetches historical price observations for the given item. The backend returns
+ * rows ordered by date ascending (ORDER BY timestamp); the client-side sort is a
+ * defensive guard against malformed or unordered responses.
+ * Returns an empty array when `itemId` is blank or on any error.
+ * @param itemId - Required item identifier
+ * @param p - Optional date window and supplier filter; defaults to last 180 days
+ * @returns Chronologically sorted price points, empty on errors
  * @example
  * ```typescript
  * const points = await getPriceTrend('ITEM-123', {
  *   from: '2025-09-01',
- *  to: '2025-11-30',
- *  supplierId: 'SUP-001'
+ *   to: '2025-11-30',
+ *   supplierId: 'SUP-001'
  * });
  * return <LineChart data={points} />;
  * ```
-*/
+ */
 export async function getPriceTrend(itemId: string, p?: AnalyticsParams): Promise<PricePoint[]> {
     if (!itemId) return [];
     try {

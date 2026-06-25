@@ -1,16 +1,10 @@
 /**
- * @file itemMutations.ts
  * @module api/inventory/itemMutations
  *
- * @summary
- * Item lifecycle mutations: create, update, rename, and delete.
- * All operations are tolerant and return typed responses instead of throwing.
- *
- * @enterprise
- * - CRUD operations with consistent response pattern
- * - Tolerant error handling with detailed error messages
- * - Support for create (POST) and update (PUT) patterns
- * - Endpoint base centralized for easy backend path adjustments
+ * Item lifecycle mutations (create, update, rename, delete) for the inventory API.
+ * Uses POST /api/inventory to create, PUT /api/inventory/{id} to update,
+ * PATCH /api/inventory/{id}/name to rename, and DELETE /api/inventory/{id} to remove.
+ * All functions return typed response objects rather than throwing.
  */
 
 import http from '../httpClient';
@@ -22,10 +16,10 @@ import { errorMessage } from './utils';
 export const INVENTORY_BASE = '/api/inventory';
 
 /**
- * Create or update an inventory item.
- * ID absent in request ⇒ create (POST); ID present ⇒ update (PUT).
+ * Collapses POST (create) and PUT (update) into one call — presence of `id` selects the verb.
+ * Hits POST /api/inventory when `id` is absent, PUT /api/inventory/{id} when present.
  *
- * @param req - Upsert payload with optional id
+ * @param req - Upsert payload; omit `id` for create, include it for update
  * @returns Response object with ok status, normalized item, and optional error
  *
  * @example
@@ -65,14 +59,12 @@ export async function upsertItem(req: UpsertItemRequest): Promise<UpsertItemResp
 }
 
 /**
- * Rename an inventory item (change item name).
- * Only ADMIN users can rename items.
+ * Patches the item name via PATCH /api/inventory/{id}/name rather than going through
+ * the full PUT update, so the backend can enforce per-field authorization.
+ * Sends the new name as a query param (not a body), matching the backend endpoint contract.
  *
  * @param req - Rename payload with item id and new name
  * @returns Response object with ok status, normalized item, and optional error
- *
- * @note Backend validates that the new name is not a duplicate for the same supplier
- * @note ADMIN-only operation
  *
  * @example
  * ```typescript
@@ -97,17 +89,13 @@ export async function renameItem(req: { id: string; newName: string }): Promise<
 }
 
 /**
- * Delete an inventory item by ID.
- * Item can only be deleted if quantity is 0 (no stock remaining).
- * Only ADMIN users can delete items.
+ * Sends DELETE /api/inventory/{id} with a StockChangeReason so the backend can audit
+ * why the item was removed. The backend rejects the request if quantity is not 0.
  *
  * @param id - Item identifier to delete
- * @param reason - Business reason for deletion (SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER)
+ * @param reason - Must be one of the six deletion reasons the backend accepts:
+ *   SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER (the backend rejects others)
  * @returns Response object with ok status and optional error message
- *
- * @note ADMIN-only operation
- * @note Backend validates that item quantity is 0 before deletion
- * @note Backend may return error: "You still have merchandise in stock"
  *
  * @example
  * ```typescript

@@ -1,19 +1,13 @@
 /**
- * @file list.ts
  * @module api/inventory/list
  *
- * @summary
- * Coordinator barrel export for inventory list operations.
- * Maintains backward compatibility by re-exporting from focused modules.
- *
- * @enterprise
- * - Enables focused single-responsibility modules (listFetcher, rowNormalizers)
- * - Preserves existing import paths: `import { getInventoryPage } from '@/api/inventory'`
- * - Zero breaking changes for consuming components
+ * Barrel facade for inventory list operations.
+ * Re-exports getInventoryPage from listFetcher and toInventoryRow from rowNormalizers,
+ * preserving existing import paths after the module was split from a single file into
+ * focused single-responsibility modules — zero breaking changes for consuming components.
  */
 
-// Main API export
 export { getInventoryPage } from './listFetcher';
 
-// Normalization utilities (internal, for testing/reuse)
+// Re-exported for testing and reuse
 export { toInventoryRow } from './rowNormalizers';

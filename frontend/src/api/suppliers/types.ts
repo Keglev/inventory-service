@@ -3,39 +3,37 @@
  * @module api/suppliers/types
  *
  * @summary
- * TypeScript type definitions for supplier API responses and list operations.
- * Centralizes all supplier-related types for consistent frontend handling.
+ * TypeScript types for the supplier API: DTOs, list params, and response shapes.
  *
  * @enterprise
- * - No `any` types; all responses are fully typed
- * - Matches backend SupplierDTO structure
- * - Supports filtering, pagination, and sorting
- * - Comprehensive TypeDoc for all exports
+ * - Matches the backend SupplierDTO field names exactly — no MapStruct, manual mapping only.
+ * - SupplierListParams forwards client-managed page/pageSize/sort/q; backend has no server-side pagination.
+ * - All optional fields are `string | null` to match the nullable columns in the backend entity.
  */
 
 /** Supplier row shape displayed in grid. */
 export interface SupplierRow {
-  id: string;                    // Unique supplier identifier
-  name: string;                  // Supplier company name
-  contactName?: string | null;   // Contact person name (optional)
-  phone?: string | null;         // Contact phone (optional)
-  email?: string | null;         // Contact email (optional)
-  createdBy?: string | null;     // Who created (audit trail)
-  createdAt?: string | null;     // ISO datetime created
+  id: string;
+  name: string;
+  contactName?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  createdBy?: string | null;     // backend audit field; not user-editable
+  createdAt?: string | null;     // ISO-8601 string; formatted for display only
 }
 
 /** Paginated response from /api/suppliers list endpoint. */
 export interface SupplierListResponse {
   items: SupplierRow[];
-  total: number;                 // Total count across all pages
-  page: number;                  // 1-based page index
-  pageSize: number;              // Items per page
+  total: number;                 // equals items.length when backend returns a plain array
+  page: number;                  // 1-based; mirrors the param sent in SupplierListParams
+  pageSize: number;
 }
 
 /** Filter & pagination params for supplier list endpoint. */
 export interface SupplierListParams {
-  page: number;                  // 1-based page index
-  pageSize: number;              // Page size
+  page: number;                  // 1-based
+  pageSize: number;
   q?: string;                    // Search query (name/email)
   sort?: ServerSort;             // Sort expression, e.g., "name,asc"
 }
@@ -45,11 +43,11 @@ export type ServerSort = string;
 
 /** Supplier DTO for create/update operations. */
 export interface SupplierDTO {
-  id?: string;                   // Absent for POST, required for PUT
-  name: string;                  // Required
-  contactName?: string | null;   // Optional
-  phone?: string | null;         // Optional
-  email?: string | null;         // Optional email (validated if provided)
-  createdBy?: string;            // Auto-filled by backend
-  createdAt?: string | null;     // Auto-filled by backend (ISO datetime)
+  id?: string;                   // absent on POST; required on PUT
+  name: string;
+  contactName?: string | null;
+  phone?: string | null;
+  email?: string | null;         // validated server-side if present
+  createdBy?: string;            // auto-filled by backend; do not send on create
+  createdAt?: string | null;     // auto-filled by backend; ISO-8601
 }

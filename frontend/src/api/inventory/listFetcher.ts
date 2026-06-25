@@ -19,19 +19,13 @@ import { toInventoryRow } from './rowNormalizers';
 import { pickNumber } from './utils';
 
 /**
- * Extract an array of rows from various envelope styles.
- * Supports:
- *  - plain array: [dto, dto, ...]
- *  - Spring Page: { content: [...], totalElements: 5 }
- *  - custom: { items: [...] }
+ * Extract an array of rows from the response envelope. The backend returns a
+ * Spring Page envelope; the authoritative path is the `content` field.
+ * The plain-array and `items` branches are dead paths against the current
+ * backend, retained pending a separate cleanup.
  *
  * @param data - Response data from /api/inventory
  * @returns Array of raw DTO objects to normalize
- *
- * @example
- * ```typescript
- * const rows = extractRows(response.data);
- * ```
  */
 const extractRows = (data: unknown): unknown[] => {
   if (Array.isArray(data)) return data;
@@ -97,7 +91,7 @@ export const getInventoryPage = async (
       total = data.length;
     } else if (typeof data === 'object' && data !== null) {
       const r = data as Record<string, unknown>;
-      // Try Spring Page field first (totalElements), then custom (total)
+      // Total count comes from the Spring Page `totalElements` field; the `total` fallback is a dead path against the current backend
       const totalElements = pickNumber(r, 'totalElements');
       const totalField = pickNumber(r, 'total');
 

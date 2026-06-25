@@ -1,16 +1,9 @@
 /**
- * @file priceMutations.ts
  * @module api/inventory/priceMutations
  *
- * @summary
- * Price change mutations for inventory items.
- * Handles item unit price updates with audit trail support.
- *
- * @enterprise
- * - Single-responsibility: focused on price changes only
- * - Tolerant error handling with boolean returns
- * - PATCH endpoint pattern for atomic price updates
- * - URL-safe ID encoding for special characters
+ * Price mutation for inventory items.
+ * Hits PATCH /api/inventory/{id}/price to update the unit price for a given item.
+ * Returns a boolean because the endpoint has no meaningful response payload.
  */
 
 import http from '../httpClient';
@@ -20,24 +13,21 @@ import type { ChangePriceRequest } from './types';
 export const INVENTORY_BASE = '/api/inventory';
 
 /**
- * Change item unit price.
- * Updates the unit price for the specified item.
+ * Sends the new unit price to PATCH /api/inventory/{id}/price via query param.
+ * Returns a boolean rather than a structured response because the endpoint returns no payload.
+ * Intentionally sends no StockChangeReason — the backend audit helper automatically records
+ * a PRICE_CHANGE stock-history entry server-side. Do not add a reason param; the endpoint
+ * does not accept one.
  *
  * @param req - Price change payload with item id and new price
  * @returns true if successful, false otherwise
  *
- * @enterprise
- * Server commonly exposes: PATCH /{id}/price?price=
- * Price validation (minimum/maximum) typically handled by backend.
- *
  * @example
  * ```typescript
- * // Update item price
  * const success = await changePrice({
  *   id: 'ITEM-123',
  *   price: 29.99
  * });
- *
  * if (!success) {
  *   console.error('Price update failed');
  * }

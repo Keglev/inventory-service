@@ -1,14 +1,11 @@
 /**
-* @file stock.ts
-* @module api/analytics/stock
-*
-* @summary
-* Stock value time series and monthly movement endpoints.
-* Functions are resilient and return `[]` on any error to keep charts rendering.
-* @enterprise
-* - Resilient data fetching with graceful error handling
-* - TypeDoc documentation for stock analytics functions
-*/
+ * @module api/analytics/stock
+ *
+ * Stock value time series and snapshot endpoints. Hits
+ * /api/analytics/stock-value, /api/analytics/monthly-stock-movement, and
+ * /api/analytics/stock-per-supplier. All functions return `[]` on any error so
+ * charts keep rendering.
+ */
 import http from '../httpClient';
 import { asNumber, paramClean } from './util';
 import type { AnalyticsParams } from './validation';
@@ -46,7 +43,7 @@ export async function getStockValueOverTime(p?: AnalyticsParams): Promise<StockV
     }
 }
 
-/** Fetch monthly stock movement (in/out). */
+/** Fetch monthly stock in/out aggregated by month. Hits /api/analytics/monthly-stock-movement. */
 export async function getMonthlyStockMovement(p?: AnalyticsParams): Promise<MonthlyMovement[]> {
     try {
         const { data } = await http.get<unknown>('/api/analytics/monthly-stock-movement', { params: paramClean(p) });

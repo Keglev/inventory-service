@@ -1,29 +1,12 @@
 /**
- * @file mutations.ts
  * @module api/inventory/mutations
  *
- * @summary
- * Barrel export for inventory mutations and queries.
- * Provides unified interface for all inventory-related API operations:
- * item CRUD, stock adjustments, price changes, and supplier searches.
- *
- * @enterprise
- * - Single import location for all mutations and queries
- * - Backward compatible with existing imports
- * - Clear separation of concerns across modules
- * - Full TypeDoc documentation inheritance
- *
- * @usage
- * ```typescript
- * // Import specific mutations
- * import { upsertItem, adjustQuantity, changePrice } from '@/api/inventory/mutations';
- *
- * // Or import types
- * import type { UpsertItemRequest, AdjustQuantityRequest } from '@/api/inventory/mutations';
- *
- * // Or import suppliers
- * import { listSuppliers, searchItemsBySupplier } from '@/api/inventory/mutations';
- * ```
+ * Barrel facade for inventory write operations and supporting types.
+ * Re-exports item lifecycle mutations from itemMutations, stock quantity adjustments
+ * from stockMutations, price changes from priceMutations, supplier and item search
+ * queries from supplierQueries, row normalization from normalizers, and request/response
+ * types from types — providing a single stable import path that is decoupled from
+ * the internal module split.
  */
 
 // Item lifecycle mutations (create, update, rename, delete)

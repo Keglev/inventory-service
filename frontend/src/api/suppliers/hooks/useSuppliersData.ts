@@ -3,29 +3,19 @@
  * @module api/suppliers/hooks
  *
  * @summary
- * Coordinator barrel export for supplier hooks.
- * Re-exports specialized React Query hooks for supplier operations.
+ * Barrel re-export of supplier hooks — content is identical to hooks/index.ts.
  *
  * @enterprise
- * - Enables focused single-responsibility hooks
- * - Preserves existing import paths: `import { useSuppliersPageQuery } from '@/api/suppliers/hooks'`
- * - Zero breaking changes for consuming components
- * - Organized by use case: page query, search, detail by id
- *
- * @usage
- * ```typescript
- * import {
- *   useSuppliersPageQuery,
- *   useSupplierSearchQuery,
- *   useSupplierByIdQuery
- * } from '@/api/suppliers/hooks';
- * ```
+ * - Despite the hook-style filename, this file is a pure barrel; it contains no logic of its own.
+ * - useSuppliersPageQuery is a legacy alias for useSupplierPageQuery; both are exported to avoid
+ *   breaking existing consumers while the canonical name is standardized.
  */
+// BUCKET: exports are identical to hooks/index.ts and no non-test file imports this; delete-or-justify later — export removal is a behavior change (B#7)
 
-// Legacy name exports for backward compatibility
+// legacy alias kept for backward compatibility
 export { useSupplierPageQuery as useSuppliersPageQuery } from './useSupplierPageQuery';
 export { useSupplierSearchQuery } from './useSupplierSearchQuery';
 export { useSupplierByIdQuery } from './useSupplierByIdQuery';
 
-// Standard names
+// canonical name
 export { useSupplierPageQuery } from './useSupplierPageQuery';

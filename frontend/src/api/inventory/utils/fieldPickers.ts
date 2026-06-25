@@ -1,25 +1,23 @@
 /**
- * @file fieldPickers.ts
  * @module api/inventory/utils/fieldPickers
  *
- * @summary
- * Field extraction helpers for flexible backend field name handling.
- * Handles string and number coercion with safe fallbacks.
- *
- * @enterprise
- * - Tolerant of backend field name variations
- * - Handles type coercion safely
- * - Clear, composable extraction functions
- * - No throwing: returns undefined for missing fields
+ * Field extraction helpers for records of unknown shape coming from the backend.
+ * pickNumber coerces string representations of numbers; pickString requires the
+ * value to already be a string — it never coerces. The *FromList variants try
+ * keys in priority order to handle backend field-name variations. All functions
+ * return undefined rather than throwing on missing or invalid fields.
+ * Re-exported through api/inventory/utils and consumed by both the inventory
+ * and supplier API layers.
  */
 
 /**
- * Extract string value from record, checking a specific key.
- * Handles both string and number coercion.
+ * Returns the value at key `k` only when it is already a string; returns
+ * undefined for numbers, booleans, and all other types. Avoids implicit
+ * coercions that could silently produce unexpected data.
  *
  * @param r - Record to extract from
  * @param k - Key to look up
- * @returns String value if found, undefined otherwise
+ * @returns String value if present, undefined otherwise
  *
  * @example
  * ```typescript
@@ -32,7 +30,7 @@ export const pickString = (r: Record<string, unknown>, k: string): string | unde
 };
 
 /**
- * Extract finite number from record, handling string coercion.
+ * Extract finite number from record, handling string-to-number coercion.
  * Ignores NaN, Infinity, and non-numeric strings.
  *
  * @param r - Record to extract from

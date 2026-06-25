@@ -1,15 +1,9 @@
 /**
- * @file types.ts
  * @module api/inventory/types
  *
- * @summary
- * Type-safe shapes for Inventory list operations.
- * These DTOs reflect the *normalized* shapes the frontend relies on,
+ * Type-safe shapes for inventory list operations.
+ * These DTOs reflect the normalized shapes the frontend relies on,
  * not necessarily the raw backend payloads.
- *
- * @enterprise
- * Keep these minimal and stable. Prefer widening unknown fields to narrow types
- * at the edge (parsers) so that the UI is resilient to backend changes.
  */
 
 /** Server sort expression (e.g., "name,asc" or "onHand,desc"). */
@@ -88,11 +82,11 @@ export interface UpsertItemRequest {
   quantity: number;
   /** Unit price */
   price: number;
-  /** Minimum quantity threshold - will be auto-set to 5 if not provided */
+  /** Minimum-stock threshold. The form layer sets this to a fixed baseline of 5; items below it flag as low-stock. */
   minQty?: number | null;
   /** Notes/reason for creation */
   notes?: string | null;
-  /** Created by user - required for backend validation */
+  /** Audit field; always populated by the form layer before submission. */
   createdBy?: string;
 }
 

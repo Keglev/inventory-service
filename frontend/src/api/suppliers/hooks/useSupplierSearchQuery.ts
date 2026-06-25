@@ -3,34 +3,23 @@
  * @module api/suppliers/hooks/useSupplierSearchQuery
  *
  * @summary
- * React Query hook for searching suppliers.
- * Client-side filtering for instant search feedback.
+ * React Query hook that searches suppliers by name via the dedicated backend search endpoint.
  *
  * @enterprise
- * - Client-side filtering for instant search feedback
- * - Searches name, email, phone, contactName fields
- * - Returns full supplier rows for display flexibility
- * - Case-insensitive matching
+ * - Searches via GET /api/suppliers/search?name= (the dedicated backend endpoint). Match is
+ *   case-insensitive substring on supplier name only. Activates at query length >= 2.
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { getSuppliersPage } from '../supplierListFetcher';
+import { searchSuppliersByName } from '../supplierListFetcher';
 import type { SupplierRow } from '../types';
 
 /**
- * Hook to search suppliers by query string.
- * Searches within loaded suppliers (client-side filtering).
- * Useful for autocomplete and search dialogs.
+ * Searches suppliers matching query and returns the filtered SupplierRow array.
  *
- * @param query - Search query string (e.g., supplier name or email)
+ * @param query - Search query string (e.g., supplier name fragment)
  * @param enabled - Whether to fetch (defaults to true)
- * @returns React Query result with filtered supplier results
- *
- * @enterprise
- * - Only fetches when query length >= 2 characters
- * - Client-side filtering for instant search feedback
- * - Returns full supplier rows for display flexibility
- * - Case-insensitive matching
+ * @returns React Query result with matching supplier results
  *
  * @example
  * ```typescript
@@ -49,19 +38,13 @@ export const useSupplierSearchQuery = (
   return useQuery({
     queryKey: ['suppliers', 'search', query],
     queryFn: async (): Promise<SupplierRow[]> => {
-      if (!query.trim()) return [];
+      const trimmed = query.trim();
+      if (trimmed.length < 2) return [];
 
-      // Fetch suppliers using backend search
-      const response = await getSuppliersPage({
-        page: 1,
-        pageSize: 1000, // Fetch more suppliers for search
-        q: query,
-      });
-
-      return response.items;
+      return await searchSuppliersByName(trimmed);
     },
     enabled: enabled && query.length >= 2,
-    staleTime: 60_000, // 1 minute
-    gcTime: 5 * 60_000, // 5 minutes
+    staleTime: 60_000,  // 1 min
+    gcTime: 5 * 60_000, // 5 min; gcTime renamed from cacheTime in TanStack Query v5
   });
 };

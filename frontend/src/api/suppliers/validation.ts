@@ -3,25 +3,19 @@
  * @module api/suppliers/validation
  *
  * @summary
- * Centralized validation schemas for supplier management forms.
- * Zod schemas for supplier create and edit operations.
- * These schemas mirror backend validation rules for client-side validation.
- *
- * Uses Zod for type-safe validation with custom error messages.
+ * Zod schemas for the supplier create and edit forms.
  *
  * @enterprise
- * - No any. Clear, field-level error messages suitable for form mapping.
- * - Schemas should echo backend validation for consistency.
- * - Email validation using built-in email validator
- * - Nullable fields for optional contact information
+ * - Field-level error messages are phrased for direct display in form helpers.
+ * - Email is validated client-side to match backend @Email constraint; other fields have no format rules.
+ * - Optional string fields transform empty strings to null so the backend receives a clean null, not "".
  */
 
 import { z } from 'zod';
 
 /**
- * Schema for creating a new supplier.
- * Handles supplier creation with optional contact information.
- * Mirrors backend validation in supplier controller.
+ * Schema for the supplier create form.
+ * Empty optional fields are coerced to null so the backend receives null rather than an empty string.
  */
 export const createSupplierSchema = z.object({
   name: z
@@ -46,13 +40,12 @@ export const createSupplierSchema = z.object({
 export type CreateSupplierForm = z.infer<typeof createSupplierSchema>;
 
 /**
- * Schema for editing supplier contact information.
- * Does NOT include name field - supplier name is immutable.
- * Only allows updating contactName, phone, and email.
+ * Schema for the supplier edit form.
+ * Excludes `name` — renaming is not exposed through this form.
  *
  * @remarks
- * Name is read-only to prevent duplicate/new supplier creation.
- * Changing a supplier's name is a business rule violation.
+ * The backend PUT does accept name changes (with a uniqueness check via SupplierValidator.assertUniqueName),
+ * so omitting name here is a frontend form decision, not a backend immutability rule.
  */
 export const editSupplierSchema = z.object({
   supplierId: z.string().min(1, 'Supplier ID is required'),

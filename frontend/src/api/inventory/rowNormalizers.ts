@@ -1,5 +1,4 @@
 /**
- * @file rowNormalizers.ts
  * @module api/inventory/rowNormalizers
  *
  * @summary

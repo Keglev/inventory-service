@@ -1,22 +1,18 @@
 /**
- * @file typeGuards.ts
  * @module api/inventory/utils/typeGuards
  *
- * @summary
  * Type narrowing helpers for safe type checking.
- * Single source of truth for all type guards used across inventory operations.
- *
- * @enterprise
- * - Strict TypeScript without any
- * - Reusable across all inventory modules
- * - Clear, single-purpose functions
+ * Re-exported through api/inventory/utils, which is consumed by
+ * both the inventory and supplier API layers.
  */
 
 /**
- * Type narrowing helper: safely check if a value is a plain object record.
+ * Narrows `v` to `Record<string, unknown>` when it is a non-null object.
+ * Arrays also pass this check — call sites needing plain objects must
+ * additionally guard with `!Array.isArray`.
  *
- * @param v - Value to check
- * @returns True if v is a non-null object (record)
+ * @param v - Value to test
+ * @returns `true` when `typeof v === 'object'` and `v !== null`
  *
  * @example
  * ```typescript

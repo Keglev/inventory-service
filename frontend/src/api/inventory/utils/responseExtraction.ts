@@ -1,26 +1,24 @@
 /**
- * @file responseExtraction.ts
  * @module api/inventory/utils/responseExtraction
  *
- * @summary
- * Response parsing utilities for extracting data from various envelope formats.
- * Handles plain arrays, Spring Page envelopes, and custom response shapes.
- *
- * @enterprise
- * - Tolerant of multiple response envelope formats
- * - Single source of truth for response parsing
- * - Clear separation of parsing logic
- * - Defensive programming: returns sensible defaults
+ * Response parsing utilities that unwrap common backend envelope formats.
+ * resDataOrEmpty handles the Axios .data wrapper; extractArray handles Spring
+ * Page responses (content key), arbitrary key envelopes (items, results), and
+ * any other record shape the caller supplies key names for. Both functions
+ * return safe defaults ({} / []) rather than throwing when the expected shape
+ * is absent. Re-exported through api/inventory/utils and consumed by both the
+ * inventory and supplier API layers.
  */
 
 import { isRecord } from './typeGuards';
 
 /**
- * Extract response.data safely, or return an empty object.
- * Handles both Axios responses and raw data objects.
+ * Safely unwraps the .data property that Axios attaches to every response;
+ * returns an empty object when the property is absent so callers can
+ * destructure or pass the result to extractArray without null-guarding.
  *
- * @param resp - Response object from http call
- * @returns Response data or empty object if not found
+ * @param resp - Value to unwrap (typically an Axios response)
+ * @returns `resp.data` if present, `{}` otherwise
  *
  * @example
  * ```typescript
@@ -36,13 +34,14 @@ export const resDataOrEmpty = (resp: unknown): unknown => {
 };
 
 /**
- * From an unknown response object, try to pull an array from one of the keys.
- * Useful for extracting arrays from envelope formats like { items: [...] } or { content: [...] }.
- * Falls back to [] if nothing sane is found.
+ * Tries each key in order and returns the first array-valued property found.
+ * Needed because different backends use different envelope field names for list
+ * payloads (e.g. Spring Page uses `content`); the caller supplies the priority
+ * order so the same logic handles multiple endpoints without branching.
  *
- * @param obj - Response object to extract array from
- * @param keys - Keys to try in order (e.g., ['items', 'content', 'data'])
- * @returns Array if found in one of the keys, empty array otherwise
+ * @param obj - Response record to search
+ * @param keys - Keys to try in priority order (e.g., `['items', 'content', 'data']`)
+ * @returns First array found, or `[]` if no key holds an array
  *
  * @example
  * ```typescript

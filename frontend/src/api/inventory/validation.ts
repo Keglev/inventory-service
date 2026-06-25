@@ -3,8 +3,9 @@
  * @module api/inventory/validation
  *
  * @summary
- * Re-exports validation schemas from pages/inventory/validation.
- * Maintains backward compatibility while centralizing validation schemas.
+ * Backward-compatibility re-export shim for inventory validation schemas.
+ * All schema logic lives in pages/inventory/validation/inventoryValidation;
+ * this module preserves existing import paths during migration.
  *
  * @deprecated Import directly from pages/inventory/validation/inventoryValidation instead.
  * This module will be removed in a future version.

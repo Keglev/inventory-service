@@ -3,28 +3,20 @@
  * @module api/suppliers
  *
  * @summary
- * Coordinator barrel export for supplier API operations.
- * Re-exports from focused modules to maintain backward compatibility.
+ * Barrel export for the supplier API module.
  *
  * @enterprise
- * - Enables single-responsibility modules (list fetching, mutations, normalization)
- * - Preserves existing import paths: `import { getSuppliersPage, createSupplier } from '@/api/suppliers'`
- * - Zero breaking changes for consuming components
- * - Clear organization: listFetcher, mutations, normalizers, validation
- *
- * @usage
- * ```typescript
- * import { getSuppliersPage, createSupplier, SUPPLIERS_BASE } from '@/api/suppliers';
- * ```
+ * - Single import point for all supplier API surface: fetcher, mutations, normalizers, types, validation, hooks.
+ * - toSupplierRow is re-exported for testing and for any consumer that normalizes outside the standard hooks.
  */
 
-// API endpoints and list fetching
-export { getSuppliersPage, SUPPLIERS_BASE } from './supplierListFetcher';
+// list fetcher and endpoint constant
+export { getSuppliersPage, searchSuppliersByName, SUPPLIERS_BASE } from './supplierListFetcher';
 
-// CRUD mutations
+// create / update / delete
 export { createSupplier, updateSupplier, deleteSupplier } from './supplierMutations';
 
-// Normalization utilities (internal, for testing/reuse)
+// low-level normalizer; prefer hooks or mutations for typical use
 export { toSupplierRow } from './supplierNormalizers';
 
 // Types and validation

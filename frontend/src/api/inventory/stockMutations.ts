@@ -1,16 +1,9 @@
 /**
- * @file stockMutations.ts
  * @module api/inventory/stockMutations
  *
- * @summary
- * Stock quantity adjustment mutations for inventory management.
- * Handles inbound purchases, outbound corrections, and inventory adjustments.
- *
- * @enterprise
- * - Purchase-style delta operations (positive/negative quantities)
- * - Business reason tracking for audit trails
- * - Tolerant error handling with boolean returns
- * - PATCH endpoint pattern for partial updates
+ * Quantity-adjustment mutations for inventory items.
+ * All stock changes route through PATCH /api/inventory/{id}/quantity so
+ * error handling and endpoint encoding are uniform across the app.
  */
 
 import http from '../httpClient';
@@ -20,31 +13,25 @@ import type { AdjustQuantityRequest } from './types';
 export const INVENTORY_BASE = '/api/inventory';
 
 /**
- * Adjust item quantity by delta (purchase/correction style).
- * Positive delta = purchase/inbound; negative = correction/outbound.
+ * Records a stock quantity change via PATCH /api/inventory/{id}/quantity.
+ * Centralises all stock mutations so callers get uniform error handling
+ * without catching HTTP errors themselves.
+ *
+ * Positive delta = inbound; negative = outbound.
+ * `reason` must be one of the 11 backend StockChangeReason values:
+ * INITIAL_STOCK, MANUAL_UPDATE, PRICE_CHANGE, SOLD, SCRAPPED, DESTROYED,
+ * DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER, RETURNED_BY_CUSTOMER.
  *
  * @param req - Adjustment payload with item id, delta, and business reason
- * @returns true if successful, false otherwise
- *
- * @enterprise
- * Server commonly exposes: PATCH /{id}/quantity?delta=&reason=
- * Reasons typically map to business enums (PURCHASE, CORRECTION, WRITE_OFF, RETURN, etc.)
+ * @returns true if the server accepted the adjustment, false on any error
  *
  * @example
  * ```typescript
- * // Record a purchase (inbound)
- * const success = await adjustQuantity({
- *   id: 'ITEM-123',
- *   delta: 50,
- *   reason: 'PURCHASE'
- * });
+ * // Mark items as sold (outbound)
+ * const ok = await adjustQuantity({ id: 'ITEM-123', delta: -5, reason: 'SOLD' });
  *
- * // Record a correction (outbound)
- * const corrected = await adjustQuantity({
- *   id: 'ITEM-123',
- *   delta: -5,
- *   reason: 'CORRECTION'
- * });
+ * // Inbound manual correction
+ * const ok = await adjustQuantity({ id: 'ITEM-123', delta: 50, reason: 'MANUAL_UPDATE' });
  * ```
  */
 export async function adjustQuantity(req: AdjustQuantityRequest): Promise<boolean> {

@@ -1,31 +1,29 @@
 /**
  * @file supplierNormalizers.ts
- * @module api/suppliers/normalizers
+ * @module api/suppliers/supplierNormalizers
  *
  * @summary
- * DTO normalization for supplier list rows.
- * Converts raw API responses to strongly-typed SupplierRow shapes.
+ * Converts raw SupplierDTO objects from GET /api/suppliers into strongly-typed SupplierRow values.
  *
  * @enterprise
- * - Single responsibility: DTO → SupplierRow transformation
- * - Flexible field extraction with safe fallbacks
- * - Type-safe with full TypeScript support
- * - Reusable for both single rows and batch operations
+ * - pickString and pickNumber are borrowed from api/inventory/utils — not supplier-owned helpers.
+ * - Returns null for any DTO missing id or name so callers can filter invalid records without throwing.
+ * - id is coerced from number to string defensively; the backend declares id as String but raw JSON
+ *   may emit it as a number in legacy or test fixtures.
  */
 
 import type { SupplierRow } from './types';
 import { pickString, pickNumber } from '../inventory/utils';
 
 /**
- * Normalize a raw API response object into a strongly-typed SupplierRow.
- * Safely handles missing/misnamed fields from backend with intelligent fallbacks.
+ * Converts a single raw SupplierDTO into a SupplierRow.
  *
  * @param raw - Raw DTO from API response
- * @returns SupplierRow with all fields safely extracted and coerced, or null if invalid
+ * @returns Normalized SupplierRow, or null if id or name is missing
  *
  * @example
  * ```typescript
- * const rows = response.content
+ * const rows = (response.data as unknown[])
  *   .map(toSupplierRow)
  *   .filter((r): r is SupplierRow => r !== null);
  * ```
@@ -35,7 +33,7 @@ export const toSupplierRow = (raw: unknown): SupplierRow | null => {
 
   const r = raw as Record<string, unknown>;
 
-  // ID is required - try both string and number
+  // Try string first; fall back to number in case JSON serialized id as a numeric literal.
   let id: string | null = pickString(r, 'id') ?? null;
   if (!id) {
     const numId = pickNumber(r, 'id');
@@ -43,7 +41,6 @@ export const toSupplierRow = (raw: unknown): SupplierRow | null => {
   }
   if (!id) return null;
 
-  // Name is required
   const name = pickString(r, 'name');
   if (!name) return null;
 

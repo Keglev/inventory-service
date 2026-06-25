@@ -1,33 +1,15 @@
 /**
-* @file util.ts
-* @module api/analytics/util
-*
-* @summary
-* Internal helpers for safe coercions, param normalization, and tolerant parsing.
-* These utilities are internal to the API layer and are not exported to UI code directly.
-* @enterprise
-* - Defensive type coercion for robust data handling
-* - Tolerant parsing of backend responses to prevent UI breakage
-* - Parameter normalization for consistent API requests
-* - TypeDoc documentation for utility functions
-*/
+ * @module api/analytics/util
+ *
+ * Low-level helpers for the analytics API layer: defensive numeric coercion,
+ * tolerant backend-response parsing, and filter-parameter normalisation for
+ * /api/analytics endpoints. Re-exported from the analytics barrel (index.ts).
+ */
 import type { AnalyticsParams } from './validation';
 import type { ItemRef } from './types';
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
 
-/** Defensive number coercion (NaN → 0). 
- * Handles numbers and numeric strings; returns 0 for others.
- * Useful for parsing backend data with uncertain types.
- * Examples:
- * - asNumber(42) → 42
- * - asNumber("3.14") → 3.14
- * - asNumber("foo") → 0
- * - asNumber(null) → 0
- * - asNumber(undefined) → 0
- * - asNumber([]) → 0
- * - asNumber({}) → 0
- * 
-*/
+/** Guards numeric fields from the backend against NaN, Infinity, and non-numeric strings so callers never silently accumulate bad values. */
 export function asNumber(v: unknown): number {
     if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
     if (typeof v === 'string' && v.trim() !== '') {
@@ -37,21 +19,20 @@ export function asNumber(v: unknown): number {
     return 0;
 }
 
-/** Narrow unknown to record. 
- * Returns false for null/arrays.
- * Use isArrayOfRecords to check for arrays of records.
-*/
+/** Named record alias so all narrowing helpers share a single consistent type target. */
 export type Rec = Record<string, unknown>;
+
+/** Narrows `unknown` to a plain record; explicitly excludes null and arrays, which `typeof` also reports as `'object'`. */
 export function isRecord(x: unknown): x is Rec {
     return !!x && typeof x === 'object' && !Array.isArray(x);
 }
+
+/** Narrows `unknown` to a homogeneous array of plain records; useful before mapping list-endpoint responses to domain types. */
 export function isArrayOfRecords(x: unknown): x is Rec[] {
     return Array.isArray(x) && x.every(isRecord);
 }
 
-/** Try multiple keys; return first string/number encountered as string. 
- * Returns empty string if none found.
-*/
+/** Tries a fallback key list so callers tolerate backend field renames without branching; returns `''` when no key resolves. */
 export function pickString(r: Rec, keys: string[]): string {
     for (const k of keys) {
         const v = r[k];
@@ -61,9 +42,7 @@ export function pickString(r: Rec, keys: string[]): string {
     return '';
 }
 
-/** Try multiple keys; return first numeric-like value. 
- * Returns 0 if none found or non-numeric.
-*/
+/** Same contract as pickString but returns a coerced number; prevents NaN from reaching callers when a numeric key is missing. */
 export function pickNumber(r: Rec, keys: string[]): number {
     for (const k of keys) {
         if (k in r) return asNumber(r[k]);
@@ -71,12 +50,7 @@ export function pickNumber(r: Rec, keys: string[]): number {
     return 0;
 }
 
-/** Normalize backend rows into `{ id, name }[]` safely. 
- * Filters out invalid entries.
- * Accepts either `id` or `itemId` for the identifier,
- * and `name` or `itemName` for the display name.
- * Optionally includes `supplierId` if present.
-*/
+/** Absorbs field-name variations (`id`/`itemId`, `name`/`itemName`) across backend endpoints so callers always receive a uniform ItemRef[]. */
 export function normalizeItemsList(data: unknown): ItemRef[] {
     if (!Array.isArray(data)) return [];
     return (data as Array<{ id?: string | number; itemId?: string | number; name?: string; itemName?: string; supplierId?: string | number | null }>)
@@ -88,10 +62,7 @@ export function normalizeItemsList(data: unknown): ItemRef[] {
     .filter((it) => it.id && it.name);
 }
 
-/** Client-side filter as a safety net if the BE ignores search params. 
- * Returns at most `limit` items whose names include `q` (case-insensitive).
- * If `q` is empty/whitespace, returns the first `limit` items.
-*/
+/** Safety net for when the backend ignores the search query param; filters and caps results client-side. Returns the first `limit` items when `q` is blank. */
 export function clientFilter(items: ItemRef[], q: string, limit: number): ItemRef[] {
     const needle = q.trim().toLowerCase();
     if (!needle) return items.slice(0, limit);
@@ -99,10 +70,10 @@ export function clientFilter(items: ItemRef[], q: string, limit: number): ItemRe
 }
 
 /**
- * Normalize FE filter parameters to BE query params.
- * BE expects `start` / `end` (LocalDate), optional `supplierId`.
- * If the caller omits dates, default to the last 180 days.
-*/
+ * Maps UI filter state to the query-string shape the backend expects:
+ * `start`/`end` as LocalDate strings, optional `supplierId`.
+ * Defaults to the last 180 days when the caller omits date bounds.
+ */
 export function paramClean(p?: AnalyticsParams): Record<string, string> {
     const out: Record<string, string> = {};
     const from = p?.from ?? getDaysAgoIso(180);

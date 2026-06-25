@@ -4,13 +4,9 @@
  *
  * @summary
  * Data normalization utilities for inventory API responses.
- * Converts tolerant backend responses into typed frontend models.
- *
- * @enterprise
- * - Tolerant parsing: handles missing/unknown fields gracefully
- * - Type narrowing via guards before unsafe operations
- * - No throwing: returns null for invalid data instead of errors
- * - Defensive field mapping with fallback chains
+ * Converts raw backend payloads into typed frontend models using defensive field picking:
+ * never throws, returns null for invalid data, guards types before unsafe operations,
+ * and accepts multiple field-name variants to tolerate backend naming inconsistencies.
  */
 
 import type { InventoryRow } from './types';
@@ -23,17 +19,12 @@ import {
 } from './utils';
 
 /**
- * Normalize raw backend response into typed InventoryRow.
- * Returns null if required fields (id) are missing.
- * Uses defensive field picking with fallback chains for flexibility.
+ * Normalizes a raw backend response into a typed InventoryRow.
+ * Returns null (never throws) when the required `id` field is absent.
+ * Tries multiple field-name variants per field to tolerate backend naming inconsistencies.
  *
  * @param raw - Unknown backend response data
- * @returns Normalized InventoryRow or null if validation fails
- *
- * @enterprise
- * - Accepts multiple field name variations from backend
- * - Gracefully handles missing optional fields
- * - Never throws; returns null for invalid data
+ * @returns Normalized InventoryRow, or null if `id` is missing
  */
 export function normalizeInventoryRow(raw: unknown): InventoryRow | null {
   if (!isRecord(raw)) return null;
@@ -92,7 +83,7 @@ export function normalizeInventoryRow(raw: unknown): InventoryRow | null {
       'reorderLevel',
     ]) ?? null;
 
-  // Backend list payload only has createdAt; surface it as updatedAt for the grid.
+  // Backend has no updatedAt field; the fallback chain surfaces the creation timestamp for the grid's "last updated" column.
   const updatedAt = pickStringFromList(raw, [
     'updatedAt',
     'updated_at',

@@ -1,16 +1,10 @@
 /**
- * @file utils.ts
  * @module api/inventory/utils
  *
- * @summary
- * Coordinator barrel export for inventory utilities.
- * Re-exports type guards, field pickers, error handling, and response extraction from focused modules.
- *
- * @enterprise
- * - Enables single-responsibility utility modules organized by concern
- * - Preserves existing import paths: `import { pickString, errorMessage } from '@/api/inventory/utils'`
- * - Zero breaking changes for consuming modules across inventory API layer
- * - Clear organization: typeGuards, fieldPickers, errorHandling, responseExtraction
+ * Barrel re-export for shared API utility modules.
+ * Consumed by both the inventory and supplier API layers — do not treat as inventory-private.
+ * Re-exports type guards, field pickers, error handling, and response extraction so callers
+ * can import from a single stable path (`@/api/inventory/utils`) regardless of internal restructuring.
  */
 
 // Type narrowing helpers

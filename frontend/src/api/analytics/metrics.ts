@@ -1,30 +1,19 @@
 /**
- * @file metrics.ts
  * @module api/analytics/metrics
  *
- * @summary
- * Dashboard KPI metrics - lightweight API helpers for inventory counts.
- * All functions are tolerant and never throw; they return graceful defaults.
- *
- * @enterprise
- * - Resilient: Returns 0 on error instead of throwing
- * - Fast: Direct HTTP calls for simple count operations
- * - Type-safe: Promise<number> return type
- * - No side effects: Pure functions suitable for React Query hooks
+ * Aggregates scalar count metrics across three domains: inventory items
+ * (`/api/inventory/count`), suppliers (`/api/suppliers/count`), and
+ * low-stock alerts (`/api/analytics/low-stock/count`). Each helper is
+ * intentionally fault-tolerant — it returns 0 on any HTTP error so callers
+ * can render partial dashboards without cascading failures.
  */
 
 import http from '../httpClient';
 
 /**
- * Fetch total inventory item count from backend.
- * Returns 0 on any error (tolerant).
- *
- * @returns Total number of inventory items
- * @example
- * ```typescript
- * const count = await getItemCount();
- * console.log(count); // 150
- * ```
+ * Total number of inventory items currently stored in the system.
+ * Calls `GET /api/inventory/count` → `number`.
+ * Returns 0 on error so a single backend failure does not break the dashboard.
  */
 export async function getItemCount(): Promise<number> {
   try {
@@ -36,15 +25,9 @@ export async function getItemCount(): Promise<number> {
 }
 
 /**
- * Fetch total suppliers count from backend.
- * Returns 0 on any error (tolerant).
- *
- * @returns Total number of suppliers
- * @example
- * ```typescript
- * const count = await getSupplierCount();
- * console.log(count); // 25
- * ```
+ * Total number of suppliers registered in the system.
+ * Calls `GET /api/suppliers/count` → `number`.
+ * Returns 0 on error so a single backend failure does not break the dashboard.
  */
 export async function getSupplierCount(): Promise<number> {
   try {
@@ -56,15 +39,9 @@ export async function getSupplierCount(): Promise<number> {
 }
 
 /**
- * Fetch count of items below minimum stock threshold.
- * Returns 0 on any error (tolerant).
- *
- * @returns Total count of low-stock items
- * @example
- * ```typescript
- * const count = await getLowStockCount();
- * console.log(count); // 12
- * ```
+ * Number of inventory items currently below their minimum stock threshold.
+ * Calls `GET /api/analytics/low-stock/count` → `number`.
+ * Returns 0 on error so a single backend failure does not break the dashboard.
  */
 export async function getLowStockCount(): Promise<number> {
   try {
@@ -74,19 +51,3 @@ export async function getLowStockCount(): Promise<number> {
     return 0;
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/* Aliases for backward compatibility                                         */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Alias for getItemCount() - kept for backward compatibility with Dashboard.tsx
- * @deprecated Use getItemCount() instead
- */
-export const getInventoryCount = getItemCount;
-
-/**
- * Alias for getSupplierCount() - kept for backward compatibility with Dashboard.tsx
- * @deprecated Use getSupplierCount() instead
- */
-export const getSuppliersCount = getSupplierCount;

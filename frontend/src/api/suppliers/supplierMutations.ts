@@ -3,26 +3,24 @@
  * @module api/suppliers/supplierMutations
  *
  * @summary
- * Supplier CRUD operations (create, update, delete).
- * Centralized mutation logic for supplier management.
+ * POST / PUT / DELETE operations for the supplier resource.
  *
  * @enterprise
- * - Single responsibility: CRUD operations only
- * - Consistent error handling with user-friendly messages
- * - Type-safe requests and responses
- * - Normalization through shared normalizer
+ * - errorMessage is borrowed from api/inventory/utils — not a supplier-owned helper.
+ * - Error shape from the backend is {error, message, timestamp}; errorMessage extracts the message field.
+ * - All three functions return {success, error?} so callers never need to catch; errors surface as strings.
  */
 
 import http from '../httpClient';
 import type { SupplierRow, SupplierDTO } from './types';
 import { toSupplierRow } from './supplierNormalizers';
-import { errorMessage } from '../inventory/utils';
+import { errorMessage } from '../inventory/utils'; // BUCKET: errorMessage 404 returns inventory wording "Item not found"; make domain-agnostic for supplier callers (B#6)
 import { SUPPLIERS_BASE } from './supplierListFetcher';
 
 /**
- * Create new supplier.
+ * Creates a new supplier via POST /api/suppliers.
  *
- * @param supplier - Supplier data (id and createdAt are auto-filled by backend)
+ * @param supplier - DTO to POST; omit id and createdAt — both are auto-filled by the backend.
  * @returns Created supplier with system-generated id, or error message
  *
  * @example
@@ -31,7 +29,7 @@ import { SUPPLIERS_BASE } from './supplierListFetcher';
  *   name: 'ACME Corp',
  *   email: 'contact@acme.com'
  * });
- * if (success) console.log('Created:', success.id);
+ * if (success) console.log(success.id);
  * ```
  */
 export const createSupplier = async (
@@ -40,6 +38,7 @@ export const createSupplier = async (
   try {
     const resp = await http.post(SUPPLIERS_BASE, supplier);
 
+    // httpClient passes through the raw Axios response without unwrapping; extract .data here
     const data: unknown = typeof resp === 'object' && resp !== null && 'data' in resp
       ? (resp as unknown as Record<string, unknown>).data
       : {};
@@ -58,17 +57,17 @@ export const createSupplier = async (
 };
 
 /**
- * Update existing supplier.
+ * Updates a supplier via PUT /api/suppliers/:id.
  *
  * @param id - Supplier ID
- * @param supplier - Updated supplier data
+ * @param supplier - Full DTO to PUT; id in the path takes precedence over any id field in the body.
  * @returns Updated supplier, or error message
  *
  * @example
  * ```typescript
  * const { success, error } = await updateSupplier('sup-123', {
- *   name: 'ACME Corp Updated',
- *   email: 'newemail@acme.com'
+ *   name: 'ACME Corp',
+ *   email: 'newemail@acme.com',
  * });
  * ```
  */
@@ -79,6 +78,7 @@ export const updateSupplier = async (
   try {
     const resp = await http.put(`${SUPPLIERS_BASE}/${id}`, supplier);
 
+    // httpClient passes through the raw Axios response without unwrapping; extract .data here
     const data: unknown = typeof resp === 'object' && resp !== null && 'data' in resp
       ? (resp as unknown as Record<string, unknown>).data
       : {};
@@ -97,15 +97,15 @@ export const updateSupplier = async (
 };
 
 /**
- * Delete supplier by ID.
+ * Deletes a supplier via DELETE /api/suppliers/:id.
  *
- * @param id - Supplier ID to delete
+ * @param id - Supplier ID
  * @returns Success status with optional error message
  *
  * @example
  * ```typescript
  * const { success, error } = await deleteSupplier('sup-123');
- * if (!success) alert(error);
+ * if (!success) console.error(error);
  * ```
  */
 export const deleteSupplier = async (

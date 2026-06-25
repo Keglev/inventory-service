@@ -1,16 +1,20 @@
 /**
- * @file testConnection.ts
- * @description
- * Health checks for connectivity and session validity.
- * - `testConnection()` -> hits a cheap health endpoint; returns boolean.
- * - `checkSession()` -> fetches `/api/me`; returns user profile or null on 401.
+ * @module src/api/testConnection
  *
- * @remarks
- * - Keeps API calls separate from React components and hooks.
- * - Centralizes error handling for connectivity/session checks.
+ * Lightweight probes for backend reachability and session validity.
+ * Kept here rather than inside components so React code never makes raw
+ * HTTP calls directly and error handling is centralised.
+ *
+ * Base-URL contract: `httpClient` carries an origin-only base (see
+ * `httpClient.ts`); every path in this module therefore begins with `/api`.
  */
 import httpClient from './httpClient';
 
+/**
+ * Shape of the authenticated-user payload returned by `/api/me`.
+ * Typed here so `checkSession` callers can read identity without a
+ * separate fetch.
+ */
 export type AppUserProfile = {
   id: string;
   fullName: string;
@@ -19,12 +23,9 @@ export type AppUserProfile = {
 };
 
 /**
- * Calls a cheap health endpoint to confirm **backend + DB** connectivity.
- * Returns true on HTTP 200; otherwise false.
- *
- * @remarks
- * - Uses your existing `/health/db` path.
- * - If you later expose `/actuator/health` you can add a fallback branch.
+ * Confirms backend and database reachability without touching application
+ * state.  Returns `true` only on HTTP 200; any error (network, 5xx, etc.)
+ * returns `false` so callers can surface a connectivity warning safely.
  */
 export async function testConnection(): Promise<boolean> {
   try {
@@ -36,8 +37,10 @@ export async function testConnection(): Promise<boolean> {
 }
 
 /**
- * Checks if a session is currently valid by fetching `/api/me`.
- * Returns the user profile on success, or `null` when not authenticated.
+ * Determines whether a server-side session exists by probing `/api/me`.
+ * Returns the user profile when authenticated, or `null` on any failure.
+ * The response interceptor in `httpClient` does not redirect on `/me`
+ * probes, so 401s surface here as a caught error rather than a navigation.
  */
 export async function checkSession(): Promise<AppUserProfile | null> {
   try {
@@ -47,5 +50,3 @@ export async function checkSession(): Promise<AppUserProfile | null> {
     return null;
   }
 }
-
-

@@ -3,7 +3,7 @@
  * @module tests/unit/api/suppliers/hooks/useSupplierSearchQuery
  * @what_is_under_test useSupplierSearchQuery
  * @responsibility
- * Guarantees the hook’s contract: stable search queryKey composition, enablement gating for
+ * Guarantees the hook's contract: stable search queryKey composition, enablement gating for
  * short/blank terms, and deterministic empty results without calling the backend when gated.
  * @out_of_scope
  * React Query runtime behavior (cache lifetimes, retries, background refetching, observer lifecycles).
@@ -18,11 +18,11 @@ vi.mock('@tanstack/react-query', () => ({
 }));
 
 vi.mock('@/api/suppliers/supplierListFetcher', () => ({
-  getSuppliersPage: vi.fn(),
+  searchSuppliersByName: vi.fn(),
 }));
 
 import { useQuery } from '@tanstack/react-query';
-import { getSuppliersPage } from '@/api/suppliers/supplierListFetcher';
+import { searchSuppliersByName } from '@/api/suppliers/supplierListFetcher';
 import { useSupplierSearchQuery } from '@/api/suppliers/hooks/useSupplierSearchQuery';
 import type { SupplierRow } from '@/api/suppliers/types';
 import {
@@ -31,27 +31,22 @@ import {
 } from '../../../utils/reactQueryCapture';
 
 const useQueryMock = useQuery as unknown as ReturnType<typeof vi.fn>;
-const getSuppliersPageMock = getSuppliersPage as ReturnType<typeof vi.fn>;
+const searchSuppliersByNameMock = searchSuppliersByName as ReturnType<typeof vi.fn>;
 
 describe('useSupplierSearchQuery', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
-    getSuppliersPageMock.mockReset();
+    searchSuppliersByNameMock.mockReset();
   });
 
-  it('wires the search query to backend pagination when length threshold met', async () => {
+  it('wires the search query to backend search endpoint when length threshold met', async () => {
     const queryHandle = { data: undefined };
     const term = 'acme';
+    const rows: SupplierRow[] = [{ id: 'SUP-5', name: 'Acme Labs' } as SupplierRow];
 
     const { getConfig } = arrangeUseQueryConfigCapture<SupplierRow[]>(useQueryMock, queryHandle);
 
-    const response = {
-      items: [{ id: 'SUP-5', name: 'Acme Labs' }],
-      total: 1,
-      page: 1,
-      pageSize: 1000,
-    };
-    getSuppliersPageMock.mockResolvedValue(response);
+    searchSuppliersByNameMock.mockResolvedValue(rows);
 
     const hookResult = useSupplierSearchQuery(term, true);
 
@@ -65,12 +60,9 @@ describe('useSupplierSearchQuery', () => {
     });
 
     const payload = await capturedConfig.queryFn();
-    expect(payload).toEqual(response.items);
-    expect(getSuppliersPageMock).toHaveBeenCalledWith({
-      page: 1,
-      pageSize: 1000,
-      q: term,
-    });
+    expect(payload).toEqual(rows);
+    expect(searchSuppliersByNameMock).toHaveBeenCalledOnce();
+    expect(searchSuppliersByNameMock).toHaveBeenCalledWith(term);
     expect(hookResult).toBe(queryHandle);
   });
 
@@ -88,6 +80,6 @@ describe('useSupplierSearchQuery', () => {
     const blankResult = await configs[1]!.queryFn();
     expect(blankResult).toEqual([]);
     expect(configs[1]).toMatchObject({ queryKey: ['suppliers', 'search', '   '] });
-    expect(getSuppliersPageMock).not.toHaveBeenCalled();
+    expect(searchSuppliersByNameMock).not.toHaveBeenCalled();
   });
 });

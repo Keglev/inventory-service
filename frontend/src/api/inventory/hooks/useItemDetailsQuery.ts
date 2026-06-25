@@ -2,15 +2,10 @@
  * @file useItemDetailsQuery.ts
  * @module api/inventory/hooks
  *
- * @summary
- * Hook to fetch full item details including actual current price and quantity.
- * Critical for displaying accurate values and pre-filling forms.
- *
- * @enterprise
- * - Fetches from /api/inventory/{id} for complete item data
- * - Handles both 'quantity' and 'onHand' field name variations
- * - Gracefully handles fetch errors without blocking dialogs
- * - 30-second cache for performance
+ * Fetches complete item data from GET /api/inventory/{id}.
+ * Used to pre-fill edit forms with accurate current price and stock level, because
+ * list/search responses carry placeholder values only.
+ * Errors are swallowed (returns null) so that missing details don't block dialog open.
  */
 
 import { useQuery } from '@tanstack/react-query';
@@ -19,10 +14,18 @@ import { isRecord, pickNumberFromList } from '../utils';
 import type { ItemDetails } from '../types';
 
 /**
- * Hook to fetch full item details including actual current price and quantity.
+ * Fetches full details for a single inventory item by ID.
  *
- * @param itemId - Item identifier (null/undefined if no selection)
- * @returns React Query result with complete item details or null
+ * Disabled until `itemId` is truthy — prevents a fetch with a null/undefined key.
+ * 30 s stale time keeps data fresh during a typical edit session while avoiding
+ * redundant re-fetches if the user reopens the same item shortly after.
+ *
+ * The backend response may use several field names for stock quantity
+ * (`onHand`, `quantity`, `qty`, `currentQuantity`, `stock`); `pickNumberFromList`
+ * tries all of them in priority order.
+ *
+ * @param itemId - ID of the item to fetch; pass null or undefined when no item is selected
+ * @returns React Query result with normalized {@link ItemDetails}, or null on error / no selection
  *
  * @example
  * ```typescript

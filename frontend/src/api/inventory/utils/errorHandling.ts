@@ -1,33 +1,29 @@
 /**
- * @file errorHandling.ts
  * @module api/inventory/utils/errorHandling
  *
- * @summary
- * Error extraction and user-friendly message handling.
- * Converts API errors into meaningful messages for UI display.
- *
- * @enterprise
- * - Extracts structured error info from Axios responses
- * - HTTP status-specific fallback messages
- * - User-friendly error messages (no technical jargon)
- * - Consistent error handling across all mutations
+ * Shared error extraction utilities used by both the inventory and supplier API layers.
+ * Converts Axios error shapes into user-friendly strings for UI display, with
+ * HTTP status-specific fallback messages when the backend sends no body message.
  */
 
 import { isRecord } from './typeGuards';
 import { pickString, pickNumber } from './fieldPickers';
 
 /**
- * Extract user-friendly error message from network response or exception.
- * Handles Axios-like error shapes with structured response.data.
- * Provides HTTP status-specific fallback messages.
+ * Extracts a user-friendly error message from a network error.
  *
- * @param e - Error from network call (Axios error or generic Error)
- * @returns User-friendly error message for UI display
+ * Used by both `itemMutations` (inventory) and `supplierMutations` to normalize
+ * Axios error shapes into strings the UI can display directly.
+ * Prefers `response.data.message` or `response.data.error` from the backend;
+ * falls back to status-specific strings when no body message is present.
+ *
+ * @param e - Error from a network call (Axios error or generic `Error`)
+ * @returns User-friendly error message string
  *
  * @example
  * ```typescript
  * try {
- *   await http.post('/api/items', data);
+ *   await http.post('/api/suppliers', data);
  * } catch (error) {
  *   const msg = errorMessage(error); // "Access denied - Admin permission required"
  * }
@@ -45,7 +41,7 @@ export const errorMessage = (e: unknown): string => {
       if (msg) return msg;
     }
 
-    // Fallback to HTTP status message if available
+    // HTTP status-specific fallbacks when backend sends no body message
     if (status === 403) return 'Access denied - Admin permission required';
     if (status === 401) return 'Not authenticated - Please log in';
     if (status === 404) return 'Item not found';

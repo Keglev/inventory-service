@@ -1,26 +1,25 @@
 /**
-* @file suppliers.ts
-* @module api/analytics/suppliers
-*
-* @summary
-* Lightweight supplier lookups.
-* Provides functions to fetch minimal supplier data for dropdowns and references.
-* @enterprise
-* - Efficient supplier list retrieval with basic fields
-* - Error-tolerant fetching with graceful fallbacks
-* - TypeDoc documentation for supplier utilities
-*/
+ * @module api/analytics/suppliers
+ *
+ * Fetches a minimal supplier list for use in dropdowns and filter controls.
+ * Hits `GET /api/suppliers` with a capped result count so the UI can populate
+ * supplier selectors without loading full supplier records.
+ */
 import http from '../httpClient';
 import type { SupplierRef } from './types';
 
-/** Fetch a lightweight supplier list. 
- * Returns array of {id, name}. Empty array on errors.
+/**
+ * Returns a lightweight `{id, name}` list for populating supplier dropdowns.
+ * Silently returns an empty array on network or parse errors so filter controls
+ * degrade gracefully rather than blocking the UI.
+ *
+ * Calls `GET /api/suppliers?limit=200`.
  * @example
  * ```typescript
  * const suppliers = await getSuppliersLite();
  * return <Select options={suppliers} />;
  * ```
-*/
+ */
 export async function getSuppliersLite(): Promise<SupplierRef[]> {
     try {
         const { data } = await http.get<unknown>('/api/suppliers', { params: { limit: 200 } });
@@ -33,4 +32,5 @@ export async function getSuppliersLite(): Promise<SupplierRef[]> {
     }
 }
 
+/** Re-exported so callers can import the type and function from a single module. */
 export type { SupplierRef } from './types';
