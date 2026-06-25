@@ -1,5 +1,5 @@
 # =============================================================================
-# Smart Supply Pro – Deploy Docs to GitHub Pages
+# Smart Supply Pro - Deploy Docs to GitHub Pages
 #
 # Triggered after docs-pipeline.yml succeeds.
 # Consumes: docs-site artifact (built by docs-pipeline.yml).
@@ -9,7 +9,7 @@ name: 3 Deploy Docs to GitHub Pages
 
 on:
   workflow_run:
-    workflows: ["Docs Pipeline – OpenAPI & Architecture"]
+    workflows: ["Docs Pipeline - OpenAPI & Architecture"]
     types: [completed]
 
 permissions:

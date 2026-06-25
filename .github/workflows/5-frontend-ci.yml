@@ -40,7 +40,7 @@ env:
   VITE_API_BASE: https://inventoryservice.fly.dev
 
 jobs:
-  build-and-deploy:
+  build-and-dockerize:
     runs-on: ubuntu-latest
 
     steps:

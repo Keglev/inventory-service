@@ -52,7 +52,7 @@ Seven GitHub Actions workflows run on push to `main`:
 | `4-deploy-fly.yml` | `flyctl deploy --image <SHA>`, polls `GET /api/health` (5-minute timeout), auto-rollback on failure |
 | `docs-pipeline.yml` | Generates OpenAPI docs (Redocly) and converts architecture markdown to HTML (Pandoc + Lua filter) |
 | `3-deploy-ghpages.yml` | Publishes docs-site artifact to the `gh-pages` branch (GitHub Pages) |
-| `5-frontend-ci.yml` | Frontend lint, type-check, build |
+| `5-frontend-ci.yml` | Vitest unit tests, Docker image build (Nginx + Vite bundle), push to Docker Hub |
 | `6-deploy-frontend.yml` | Deploys built frontend to Koyeb |
 
 ### Backend Pipeline Chain
