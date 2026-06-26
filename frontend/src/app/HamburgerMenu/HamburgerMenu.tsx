@@ -3,14 +3,18 @@
  * @module app/HamburgerMenu
  *
  * @summary
- * Hamburger menu (4-line icon) coordinator managing menu state and popover.
- * Orchestrates menu content rendering with theme, locale, and logout callbacks.
+ * Popover menu root — mounts the MUI Menu, owns only the anchor open/closed
+ * state, and composes MenuSectionsRenderer + LogoutMenuAction inside it.
+ * Single consumer: AppToolbarActions.
  *
  * @enterprise
- * - Separates menu state management from content rendering
- * - Delegates menu sections to MenuSectionsRenderer
- * - Responsive popover menu (scrollable on mobile)
- * - Clean separation of concerns
+ * Theme, locale, and settings state are owned by AppShell and flow down via
+ * AppToolbarActions; HamburgerMenu neither persists nor mutates them.
+ * The onClose callback threaded through MenuSectionsRenderer (one per section
+ * wrapper) is what dismisses the popover on any section interaction.
+ * Distinct from the public-shell settings surface — this is the authenticated
+ * shell's in-toolbar settings entry point (tracked under ST-APP4; do not merge
+ * the two UIs here).
  */
 
 import * as React from 'react';
@@ -41,20 +45,9 @@ interface HamburgerMenuProps {
 }
 
 /**
- * Hamburger menu component.
- *
- * Manages menu popover state and renders all menu sections.
- * Comprehensive app options:
- * - My Profile (name, email/demo message, role)
- * - Appearance (theme toggle, table density)
- * - Language & Region (language, date format, number format)
- * - Notifications (low-stock alerts)
- * - Help & Documentation (links)
- * - System Info (environment, backend URL, version)
- * - Logout
- *
- * @param props - Component props
- * @returns JSX element rendering hamburger menu with popover
+ * Root popover orchestrator. Anchors the MUI Menu to the hamburger IconButton
+ * and wires the close callback into every child section so any interaction
+ * dismisses the popover.
  */
 export default function HamburgerMenu({
   themeMode,
@@ -67,19 +60,16 @@ export default function HamburgerMenu({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  // Open menu when hamburger button is clicked
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  // Close menu
   const handleClose = () => {
     setAnchorEl(null);
   };
 
   return (
     <>
-      {/* Hamburger Button */}
       <IconButton
         onClick={handleOpen}
         title={t('actions.menu', 'Menu')}
@@ -93,7 +83,6 @@ export default function HamburgerMenu({
         <MenuIcon />
       </IconButton>
 
-      {/* Menu Popover */}
       <Menu
         anchorEl={anchorEl}
         open={open}
@@ -111,7 +100,6 @@ export default function HamburgerMenu({
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        {/* Menu Sections with Dividers */}
         <MenuSectionsRenderer
           themeMode={themeMode}
           onThemeModeChange={onThemeModeChange}
@@ -120,7 +108,6 @@ export default function HamburgerMenu({
           onClose={handleClose}
         />
 
-        {/* Logout Action */}
         <LogoutMenuAction onLogout={onLogout} onClose={handleClose} />
       </Menu>
     </>

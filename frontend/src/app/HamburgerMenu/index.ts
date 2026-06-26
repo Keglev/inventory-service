@@ -2,7 +2,10 @@
  * @file index.ts
  * @module app/HamburgerMenu
  *
- * Barrel export for HamburgerMenu and sub-components.
+ * @summary
+ * Public barrel for this directory. HamburgerMenu is the intended public
+ * entry point; the remaining section-coordinator exports are internal
+ * composition units and are not part of the stable API of this directory.
  */
 
 export { default as HamburgerMenu } from './HamburgerMenu';

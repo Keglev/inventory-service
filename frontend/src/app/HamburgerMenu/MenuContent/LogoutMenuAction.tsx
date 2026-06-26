@@ -3,13 +3,13 @@
  * @module app/HamburgerMenu/MenuContent/LogoutMenuAction
  *
  * @summary
- * Logout menu item component with logout icon and callback.
- * Handles logout action trigger with menu close integration.
+ * MenuItem that dismisses the popover before triggering logout.
  *
- * @example
- * ```tsx
- * <LogoutMenuAction onLogout={handleLogout} onClose={handleClose} />
- * ```
+ * @enterprise
+ * onClose() is called before onLogout() so the popover is gone before
+ * logout-driven navigation starts; reversing the order causes a brief visual
+ * flash where the menu reopens during the transition. Mounted exclusively by
+ * the root HamburgerMenu.tsx via the MenuContent barrel.
  */
 
 import { MenuItem, Typography } from '@mui/material';
@@ -20,19 +20,10 @@ interface LogoutMenuActionProps {
   /** Callback when logout is clicked */
   onLogout: () => void;
 
-  /** Callback to close menu before logout */
+  /** Must fire before onLogout to prevent the menu flashing during navigation */
   onClose: () => void;
 }
 
-/**
- * Logout menu action component.
- *
- * Renders logout menu item with icon and label.
- * Closes menu before triggering logout callback.
- *
- * @param props - Component props
- * @returns JSX element rendering logout menu item
- */
 export default function LogoutMenuAction({
   onLogout,
   onClose,

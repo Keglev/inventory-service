@@ -3,8 +3,8 @@
  * @module app/HamburgerMenu/MenuContent
  *
  * @summary
- * Barrel export for HamburgerMenu content components.
- * Provides centralized access to menu rendering and action components.
+ * Surfaces MenuSectionsRenderer and LogoutMenuAction; consumed only by the
+ * root HamburgerMenu.tsx.
  */
 
 export { default as MenuSectionsRenderer } from './MenuSectionsRenderer';

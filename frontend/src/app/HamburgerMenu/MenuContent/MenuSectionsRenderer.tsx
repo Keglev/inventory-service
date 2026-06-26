@@ -3,19 +3,14 @@
  * @module app/HamburgerMenu/MenuContent/MenuSectionsRenderer
  *
  * @summary
- * Renders all menu sections with dividers between them.
- * Separates menu content rendering from menu state management.
+ * Composes the six section coordinators with Dividers between them; this is
+ * the only place section ordering is defined.
  *
- * @example
- * ```tsx
- * <MenuSectionsRenderer
- *   themeMode="dark"
- *   onThemeModeChange={handleTheme}
- *   locale="en"
- *   onLocaleChange={handleLocale}
- *   onClose={handleClose}
- * />
- * ```
+ * @enterprise
+ * Each section is wrapped in <Box onClick={onClose}> so any click inside a
+ * section dismisses the popover Menu — onClose is threaded here as a sibling
+ * concern rather than owned by individual sections. Mounted exclusively by
+ * the root HamburgerMenu.tsx via the MenuContent barrel.
  */
 
 import { Box, Divider } from '@mui/material';
@@ -40,19 +35,10 @@ interface MenuSectionsRendererProps {
   /** Callback when locale changes */
   onLocaleChange: (locale: SupportedLocale) => void;
 
-  /** Callback to close menu */
+  /** Closes the popover Menu; shared across all section wrappers */
   onClose: () => void;
 }
 
-/**
- * Menu sections renderer component.
- *
- * Orchestrates rendering of all menu sections with dividers.
- * Handles section layout and spacing consistently.
- *
- * @param props - Component props
- * @returns JSX element rendering all menu sections
- */
 export default function MenuSectionsRenderer({
   themeMode,
   onThemeModeChange,
@@ -62,42 +48,36 @@ export default function MenuSectionsRenderer({
 }: MenuSectionsRendererProps) {
   return (
     <>
-      {/* Profile Section */}
       <Box onClick={onClose}>
         <ProfileMenuSection />
       </Box>
 
       <Divider />
 
-      {/* Appearance Section */}
       <Box onClick={onClose}>
         <AppearanceMenuSection themeMode={themeMode} onThemeModeChange={onThemeModeChange} />
       </Box>
 
       <Divider />
 
-      {/* Language & Region Section */}
       <Box onClick={onClose}>
         <LanguageRegionMenuSection locale={locale} onLocaleChange={onLocaleChange} />
       </Box>
 
       <Divider />
 
-      {/* Notifications Section */}
       <Box onClick={onClose}>
         <NotificationsMenuSection />
       </Box>
 
       <Divider />
 
-      {/* Help & Docs Section */}
       <Box onClick={onClose}>
         <HelpDocsMenuSection />
       </Box>
 
       <Divider />
 
-      {/* System Info Section */}
       <Box onClick={onClose}>
         <SystemInfoMenuSection />
       </Box>
