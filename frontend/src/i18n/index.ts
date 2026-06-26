@@ -1,20 +1,27 @@
 /**
  * @file src/i18n/index.ts
- * @description
- * i18next initialization for Smart Supply Pro (German-first).
- * - Namespaced JSON backend: /locales/{{lng}}/{{ns}}.json
- * - Language detection: localStorage → querystring → navigator
- * - Persistence to localStorage (key: i18nextLng)
- * - React integration (hooks/context)
+ * @module i18n
+ * @summary i18next runtime initialization (German-first). Bootstrapped via side-effect
+ *   import in main.tsx; not consumed via named imports anywhere in production code.
+ *   After init, components access translations via react-i18next's useTranslation()
+ *   against the initialized singleton.
  *
  * @enterprise
- * - Default UI language is German (de) to match our target audience; English is fully supported.
- * - Regional variants (de-DE, en-US) are normalized to base languages (de, en).
- * - If a user selected a language previously, that choice wins (from localStorage).
- *
- * @usage
- * Import once in `main.tsx` (side effect): `import './i18n'`.
- * In components: `const { t } = useTranslation('<ns>');`
+ * - Side-effect import contract: imported once from main.tsx (`import './i18n'`).
+ *   No production code imports from this module's named exports; I18N_LS_KEY and
+ *   I18N_NAMESPACES exist as test-pinning surface only (consumed by
+ *   __tests__/unit/i18n/i18n.test.ts).
+ * - Translation JSON lives in frontend/public/locales/{en,de}/<ns>.json. Nine
+ *   namespaces match I18N_NAMESPACES exactly. EN files double as the typing source
+ *   via resources.d.ts (see that file's header).
+ * - German-first impression: on first visit, localStorage is pre-seeded with 'de'
+ *   before LanguageDetector runs. Navigator detection therefore affects returning
+ *   users who have cleared localStorage, not first-time visitors. Intentional.
+ * - Regional variants collapse to base language (de-DE → de, en-US → en) via
+ *   supportedLngs + nonExplicitSupportedLngs + load:'languageOnly'.
+ * - Vite BASE_URL is in the loadPath — supports sub-path deployment (e.g. /app/).
+ * - MUI theme locale must be kept in sync via the languageChanged event (see
+ *   @remarks block below).
  */
 
 import i18n from 'i18next';
@@ -22,11 +29,13 @@ import Backend from 'i18next-http-backend';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
+// BUCKET: unguarded console.log ships to production console; move under import.meta.env.DEV guard or remove (CB-APP22)
 console.log('[i18n] boot file loaded')
 
 /** LocalStorage key used by i18next to persist the selected language. */
 export const I18N_LS_KEY = 'i18nextLng';
 
+// BUCKET: namespace list duplicated in resources.d.ts (9 imports + 9 typed resources keys); risk of drift on add/remove (CB-APP23)
 /** Namespaces we maintain as separate JSON files. */
 export const I18N_NAMESPACES = ['common', 'auth', 'system', 'analytics', 'inventory', 'errors', 'suppliers', 'footer', 'help'] as const;
 
@@ -56,7 +65,7 @@ i18n
     // Fallback & supported languages
     fallbackLng: 'de',
     supportedLngs: ['de', 'en'],
-    nonExplicitSupportedLngs: true, // treat de-DE as de, en-US as en
+    nonExplicitSupportedLngs: true, // WHY: regional variants collapse so a user with browser lang en-US sees English without an exact match in supportedLngs.
     load: 'languageOnly',           // ignore region code
 
     // Namespaces
@@ -83,6 +92,7 @@ i18n
   // Explicitly ensure all namespaces are loaded (might be async)
   i18n.loadNamespaces(I18N_NAMESPACES as unknown as string[]);
 
+  // BUCKET: dev tap is useful — drop the "remove later" instruction or remove the tap (CM-APP6)
   // TEMP: expose for debugging in dev (remove later)
   if (import.meta.env.DEV) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -97,8 +107,8 @@ i18n
 export default i18n;
 
 /**
- * @tips
- * - To change the language manually, call `i18n.changeLanguage('de' | 'en')`.
+ * @remarks
+ * - To change the language manually, call `i18n.changeLanguage(‘de’ | ‘en’)`.
  * - If you want to “reset” to German for demos, clear localStorage key `i18nextLng`.
  * - Keep MUI’s locale (theme) in sync via `buildTheme(locale)` and i18n’s `languageChanged` event.
  */

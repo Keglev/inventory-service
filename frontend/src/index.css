@@ -1,2 +1,14 @@
-/* Import global styles */
+/*
+ * File:    src/index.css
+ * Module:  (entry)
+ * Summary: CSS entry point. Imported by main.tsx as the sole global stylesheet
+ *   reference; centralizes global @imports so main.tsx has one CSS import line.
+ *
+ * Enterprise:
+ *   - Indirection layer: main.tsx → index.css → styles/global.css. New
+ *     project-wide stylesheets are added here, not in main.tsx.
+ *   - Component styles do NOT belong here — use MUI sx or styled() at the
+ *     component level (see styles/global.css header for the global-scope rationale).
+ */
+
 @import './styles/global.css';

@@ -1,27 +1,23 @@
 /**
  * @file formatters.ts
- * @description
- * Date and number formatting utilities based on user preferences.
- * Supports multiple locales and formats (DE, EN_US, etc.).
+ * @module utils/formatters
+ * @summary Locale-aware date and number formatting helpers used across analytics,
+ *   dashboard, inventory, supplier, and settings surfaces. 'DE' and 'EN_US' are
+ *   app-internal format codes, not BCP-47 locale tags.
  *
  * @enterprise
- * - Locale-aware formatting
- * - Reusable across components
- * - Type-safe
- * - Consistent formatting throughout app
- *
- * @usage
- * import { formatDate, formatNumber } from '../utils/formatters'
- * formatDate(new Date(), 'DD.MM.YYYY')  // → '27.11.2025'
- * formatNumber(1234.56, 'DE')           // → '1.234,56'
+ * - Cross-feature utility: ~18 production call sites across api/analytics,
+ *   app/settings, pages/analytics blocks, pages/dashboard, pages/inventory,
+ *   pages/suppliers.
+ * - Type-only dependency on SettingsContext for DateFormat / NumberFormat union
+ *   types; no runtime coupling to context state.
+ * - Thousands separation is manual regex, not Intl.NumberFormat — historical
+ *   choice tracked under CM-APP4.
+ * - Pure functions: no state, no side effects, safe to call in render paths.
  */
 import type { DateFormat, NumberFormat } from '../context/settings/SettingsContext';
 
 /**
- * Format a date according to the specified format.
- * @param date - Date object or ISO string
- * @param format - Target date format
- * @returns Formatted date string
  * @example
  * formatDate(new Date(2025, 10, 27), 'DD.MM.YYYY')  // → '27.11.2025'
  * formatDate(new Date(2025, 10, 27), 'YYYY-MM-DD')  // → '2025-11-27'
@@ -51,11 +47,6 @@ export const formatDate = (date: Date | string, format: DateFormat): string => {
 };
 
 /**
- * Format a number according to locale-specific conventions.
- * @param num - Number to format
- * @param format - Target number format ('DE' or 'EN_US')
- * @param decimals - Number of decimal places (default: 2)
- * @returns Formatted number string
  * @example
  * formatNumber(1234.56, 'DE')     // → '1.234,56'
  * formatNumber(1234.56, 'EN_US')  // → '1,234.56'
@@ -71,24 +62,20 @@ export const formatNumber = (num: number, format: NumberFormat, decimals: number
   const decimalPart = parts[1];
 
   if (format === 'DE') {
-    // German: 1.234,56 (dot for thousands, comma for decimal)
+    // BUCKET: reinvents Intl.NumberFormat — investigate migration preserving byte-identical DE/EN_US output (CM-APP4)
     const thousands = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     return decimals > 0 ? `${thousands},${decimalPart}` : thousands;
   } else {
-    // English/US: 1,234.56 (comma for thousands, dot for decimal)
     const thousands = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return decimals > 0 ? `${thousands}.${decimalPart}` : thousands;
   }
 };
 
 /**
- * Get number formatting configuration for DataGrid/tables.
- * Useful for currency formatting in tables.
- * @param format - Target number format
- * @returns Object with decimal and thousands separators
  * @example
  * const config = getCurrencyFormat('DE')  // → { decimal: ',', thousands: '.' }
  */
+// BUCKET: dead export candidate — no production caller found in formatter consumer set (CB-APP20)
 export const getCurrencyFormat = (format: NumberFormat): { decimal: string; thousands: string } => {
   return format === 'DE'
     ? { decimal: ',', thousands: '.' }
@@ -96,11 +83,6 @@ export const getCurrencyFormat = (format: NumberFormat): { decimal: string; thou
 };
 
 /**
- * Parse a formatted number string back to a number.
- * Useful for form inputs.
- * @param str - Formatted number string
- * @param format - Format of the input string
- * @returns Parsed number
  * @example
  * parseFormattedNumber('1.234,56', 'DE')   // → 1234.56
  * parseFormattedNumber('1,234.56', 'EN_US') // → 1234.56
@@ -109,33 +91,18 @@ export const parseFormattedNumber = (str: string, format: NumberFormat): number 
   if (!str) return 0;
 
   if (format === 'DE') {
-    // German: remove dots (thousands separator), replace comma with dot
     return parseFloat(str.replace(/\./g, '').replace(',', '.'));
   } else {
-    // English/US: remove commas (thousands separator)
     return parseFloat(str.replace(/,/g, ''));
   }
 };
 
-/**
- * Get today's date in ISO YYYY-MM-DD format.
- * @returns Today in local ISO format (e.g., '2025-12-08')
- * @example
- * getTodayIso()  // → '2025-12-08'
- */
 export const getTodayIso = (): string => {
   const d = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
-/**
- * Get a date n days ago in ISO YYYY-MM-DD format.
- * @param n - Number of days ago
- * @returns Date n days ago in local ISO format
- * @example
- * getDaysAgoIso(180)  // → '2025-06-12' (180 days ago)
- */
 export const getDaysAgoIso = (n: number): string => {
   const d = new Date();
   d.setDate(d.getDate() - n);

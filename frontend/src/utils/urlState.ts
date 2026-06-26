@@ -1,12 +1,17 @@
 /**
  * @file urlState.ts
- * @description
- * Tiny helpers to read/write query params for the analytics filters.
+ * @module utils/urlState
+ * @summary Read/write helpers for URL query params on the analytics route.
+ *   Centralizes parsing and serialization so the analytics page stays declarative.
  *
  * @enterprise
- * - Centralizes URL parsing/serialization so pages/components stay dumb.
- * - Backward-compatible: accepts both `supplierId` (canonical) and `supplierid`.
- * - Defensive: strips accidental surrounding quotes (e.g., `%22abc%22` → `abc`).
+ * - Sole production consumer: pages/analytics/Analytics.tsx.
+ * - Backward-compatibility surface: accepts canonical `supplierId` AND legacy
+ *   lowercase `supplierid` (early-version artifact); strips surrounding quotes from
+ *   supplierId values that may arrive URL-encoded as %22abc%22. Both behaviors are
+ *   intentional — see inline WHY comments in readParams.
+ * - Pure functions: no state, no side effects, no network calls.
+ * - Import direction: leaf — no app, context, or component imports.
  */
 
 /** Plain dict of URL params (undefined = absent) */
@@ -45,12 +50,12 @@ export function readParams(search: string, keys: string[]): UrlDict {
   for (const k of keys) {
     let raw = sp.get(k);
 
-    // Backward compatibility + robustness for supplierId
+    // WHY: backward-compat for early-version URLs that used lowercase supplierid.
     if ((raw == null || raw === '') && k === 'supplierId') {
       raw = sp.get('supplierid');
     }
 
-    // Strip accidental quotes for IDs (especially supplierId)
+    // WHY: supplierId values may arrive URL-encoded as %22abc%22 — dequote strips the surrounding quotes.
     out[k] = k === 'supplierId' ? dequote(raw) : (raw ?? undefined);
   }
 
@@ -68,15 +73,14 @@ export function readParams(search: string, keys: string[]): UrlDict {
  * writeParams('?from=2025-01-01', { supplierId: 'abc', to: '2025-02-01' })
  * // → '?from=2025-01-01&supplierId=abc&to=2025-02-01'
  */
+// BUCKET: no production caller — only test-consumed; dead export candidate (CB-APP21)
 export function writeParams(baseSearch: string, patch: UrlDict): string {
   const sp = new URLSearchParams(baseSearch);
-  // Apply the patch
   Object.entries(patch).forEach(([k, v]) => {
     const val = v?.trim?.() ?? v;
     if (val === undefined || val === null || val === '') sp.delete(k);
     else sp.set(k, val);
   });
-  // Serialize back
   const s = sp.toString();
   return s ? `?${s}` : '';
 }

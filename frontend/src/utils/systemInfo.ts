@@ -1,18 +1,26 @@
 /**
  * @file systemInfo.ts
- * @description
- * System information retrieval from backend health endpoint.
- * Auto-detects database type and other system characteristics.
+ * @module utils/systemInfo
+ * @summary Runtime health probe against /api/health. Returns the detected database
+ *   flavor (Oracle ADB vs Local H2) and a small set of derived fields. Build-time
+ *   app metadata (version, commit hash, environment) does not belong here — see
+ *   CB-APP1 for the build-time channel.
  *
  * @enterprise
- * - Single source of truth: /api/health endpoint
- * - Auto-detection logic: "Oracle" in response → "Oracle ADB", else "Local H2"
- * - Caching to avoid excessive requests
- * - Fallback values for reliability
- *
- * @usage
- * import { getSystemInfo } from '../utils/systemInfo'
- * const info = await getSystemInfo()
+ * - Sole production consumer: context/settings/SettingsContext.tsx. Other surfaces
+ *   that display environment/version values (footer, SidebarEnvironment,
+ *   SystemInfoMenuSection) hardcode those values and do not call this function —
+ *   tracked under CB-APP1.
+ * - /api/health is Spring Actuator standard: returns status + components.db.status
+ *   + components.db.details. It does NOT return version, commitHash, or environment
+ *   fields.
+ * - DB detection is a substring-match heuristic: 'ORACLE' anywhere in the
+ *   stringified response → Oracle ADB; otherwise Local H2. Acceptable for the
+ *   current closed two-DB set; not a long-term contract.
+ * - environment is DERIVED from DB flavor (Oracle → 'production'), not from a
+ *   real environment signal.
+ * - NO caching: each call is a separate fetch. isProduction() calls getSystemInfo()
+ *   again — tracked under CB-APP19.
  */
 
 export interface SystemInfoResponse {
@@ -30,24 +38,16 @@ export interface SystemInfoResponse {
   [key: string]: unknown;
 }
 
-/**
- * Detect database type from health endpoint response.
- * Smart detection: if "Oracle" appears in any string, it's Oracle ADB.
- * Otherwise, defaults to "Local H2" (development database).
- * @param healthResponse - Response from /api/health endpoint
- * @returns Database type string
- */
 const detectDatabase = (healthResponse: unknown): string => {
   try {
     const response = healthResponse as SystemInfoResponse;
 
-    // Check if response contains Oracle database indicators
+    // WHY: closed two-DB set means any 'ORACLE' substring in the full response reliably identifies Oracle ADB.
     const responseString = JSON.stringify(response).toUpperCase();
     if (responseString.includes('ORACLE')) {
       return 'Oracle ADB';
     }
 
-    // Check database details if available
     if (response.components?.db?.details?.database) {
       const db = response.components.db.details.database.toUpperCase();
       if (db.includes('ORACLE')) {
@@ -55,28 +55,13 @@ const detectDatabase = (healthResponse: unknown): string => {
       }
     }
 
-    // Default to Local H2 for development
     return 'Local H2';
   } catch {
-    // Fallback if parsing fails
     return 'Local H2';
   }
 };
 
-/**
- * Retrieve system information from backend health endpoint.
- * Includes app version, database type, environment, etc.
- * @returns System info object with database, version, and environment details
- * @throws May log errors but always returns fallback values
- *
- * @example
- * const systemInfo = await getSystemInfo()
- * console.log(systemInfo.database)  // → 'Oracle ADB' or 'Local H2'
- * console.log(systemInfo.version)   // → 'v2.0.0' or 'dev'
- * console.log(systemInfo.environment) // → 'production' or 'development'
- */
 export const getSystemInfo = async () => {
-  // Fallback values for reliability
   const fallback = {
     database: 'Local H2',
     version: 'dev',
@@ -93,7 +78,6 @@ export const getSystemInfo = async () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      // No timeout needed - browser default is used
     });
 
     if (!response.ok) {
@@ -103,17 +87,13 @@ export const getSystemInfo = async () => {
 
     const data = (await response.json()) as SystemInfoResponse;
 
-    // Detect database from response
     const database = detectDatabase(data);
 
-    // Determine environment based on database type
     const environment = database === 'Oracle ADB' ? 'production' : 'development';
 
-    // Extract version from response if available
-    // Backends may include version in different locations
+    // BUCKET: /api/health does not return version/app-version/build-version — branch is dead; build-time version belongs in import.meta.env.VITE_* (CB-APP18 / CB-APP1)
     let version = 'dev';
     if (typeof data === 'object' && data !== null) {
-      // Try common version locations
       const versionFromResponse =
         (data as unknown as Record<string, unknown>).version ||
         (data as unknown as Record<string, unknown>)['app-version'] ||
@@ -124,45 +104,28 @@ export const getSystemInfo = async () => {
       }
     }
 
+    // BUCKET: fabricated values — apiVersion hardcoded, buildDate is today-at-call-time, uptime is placeholder; remove or wire real sources (CB-APP18)
     return {
       database,
       version,
       environment,
       apiVersion: 'v1',
       buildDate: new Date().toISOString().split('T')[0],
-      uptime: '0h', // Could be extended with actual uptime from backend if provided
+      uptime: '0h',
       status: data.status || 'UP',
     };
   } catch (error) {
-    // Log the error for debugging but don't throw - return fallback
     console.error('Failed to fetch system info from health endpoint:', error);
     return fallback;
   }
 };
 
-/**
- * Check if system is in production based on database type.
- * Useful for conditionally showing features/warnings.
- * @returns boolean indicating if production environment
- * @example
- * if (await isProduction()) {
- *   // Show production warning
- * }
- */
 export const isProduction = async (): Promise<boolean> => {
+  // BUCKET: independent getSystemInfo() call — no shared cache (CB-APP19)
   const info = await getSystemInfo();
   return info.environment === 'production';
 };
 
-/**
- * Format uptime string for display.
- * @param uptimeSeconds - Uptime in seconds
- * @returns Formatted uptime string
- * @example
- * formatUptime(3661)  // → '1h 1m'
- * formatUptime(60)    // → '1m'
- * formatUptime(3661)  // → '1h 1m 1s'
- */
 export const formatUptime = (uptimeSeconds: number): string => {
   const hours = Math.floor(uptimeSeconds / 3600);
   const minutes = Math.floor((uptimeSeconds % 3600) / 60);

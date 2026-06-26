@@ -1,25 +1,27 @@
 /**
  * @file resources.d.ts
- * @description
- * Type augmentation for i18next to provide compile-time safety when using `t('...')`.
- * This ties your translation keys to the structure you define in your resources.
- *
- * Keep this file in sync with actual JSON namespaces under:
- *   public/locales/{en,de}/...json
- *
- * IMPORTANT:
- * - We augment 'i18next' directly here because we are typing the CustomTypeOptions.
- * - This ensures `useTranslation('<ns>')` only accepts your declared namespaces,
- *   and keys inside `t('...')` are validated at compile time.
+ * @module i18n/resources
+ * @summary TypeScript module augmentation for i18next CustomTypeOptions. Ties the
+ *   runtime translation keys to compile-time types: useTranslation('<ns>') only
+ *   accepts declared namespaces; t('<key>') is validated against the JSON shapes
+ *   at compile time.
  *
  * @enterprise
- * - Keeps i18n usage self-documenting and safe during refactors.
- * - When adding new translation keys/namespaces, update this file to keep TS in sync.
+ * - Augments 'i18next' directly via declare module — affects every useTranslation()
+ *   call site project-wide.
+ * - Typing source contract: the nine EN JSON files (public/locales/en/*.json) are
+ *   imported as the shape source. DE JSON files are expected to mirror the EN shape;
+ *   mismatches surface as runtime missing-key warnings, not compile errors.
+ * - Cross-boundary import: reaches out of src/ into public/ — intentional; the
+ *   English JSON files are the typing contract, not an implementation detail.
+ * - Coupled to I18N_NAMESPACES in i18n/index.ts — both must be edited together
+ *   when adding or removing a namespace. Tracked under CB-APP23.
+ * - .d.ts file: no runtime emit; comment-only changes are safe.
  */
 
 import 'i18next';
 
-// Import JSONs (EN versions are enough for typing) so their shapes become the source of truth.
+// BUCKET: nine imports + nine typed keys duplicate the I18N_NAMESPACES list in i18n/index.ts; investigate deriving the typed shape from a mapped type over the namespace tuple (CB-APP23)
 import common from '../../public/locales/en/common.json';
 import analytics from '../../public/locales/en/analytics.json';
 import auth from '../../public/locales/en/auth.json';
@@ -35,38 +37,15 @@ declare module 'i18next' {
     /** Default namespace if not passed to useTranslation */
     defaultNS: 'common';
 
-    /**
-     * Declare all namespaces and their key shapes.
-     * NOTE:
-     *  - We keep `common` typed via the actual JSON (safer than hand-written shapes).
-     *  - We expose `analytics` as a dedicated namespace.
-     */
     resources: {
-      /** Shared/global keys (navigation, basic actions, dashboard, etc.) */
       common: typeof common;
-
-      /** dedicated namespace for analytics UI */
       analytics: typeof analytics;
-
-      /** dedicated namespace for auth screens */
       auth: typeof auth;
-
-      /** dedicated namespace for system-level screens */
       system: typeof system;
-
-      /** dedicated namespace for inventory screens */
       inventory: typeof inventory;
-
-      /** dedicated namespace for error messages */
       errors: typeof errors;
-
-      /** dedicated namespace for supplier screens */
       suppliers: typeof suppliers;
-
-      /** dedicated namespace for footer */
       footer: typeof footer;
-
-      /** dedicated namespace for help system */
       help: typeof help;
     };
   }

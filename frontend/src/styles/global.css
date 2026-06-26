@@ -1,11 +1,28 @@
-/* Global structure MUI doesn't cover fully */
+/*
+ * File:    src/styles/global.css
+ * Module:  styles
+ * Summary: Document-level CSS resets that MUI CssBaseline does not own: full-viewport
+ *   height on html/body/#root, webkit scrollbar styling, a screen-reader-only utility
+ *   class, and print overrides.
+ *
+ * Enterprise:
+ *   - Loaded via index.css (@import './styles/global.css'), which main.tsx imports
+ *     before React mounts — rules here are in scope before the first render.
+ *   - Intentionally global in scope. Every other style in this project is component-
+ *     scoped via MUI sx or styled(). This file is the only project-wide exception.
+ *   - MUI CssBaseline (applied in AppShell and AppPublicShell) handles body margin
+ *     and box-sizing; this file adds height: 100% and the #root reset that
+ *     CssBaseline omits.
+ */
+
+/* WHY: height 100% on html/body/#root is not set by MUI CssBaseline — required for full-viewport flex/grid layouts. */
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
-/* Scrollbars (webkit) */
+/* BUCKET: webkit scrollbar rules are also defined in MuiCssBaseline in theme/index.ts — consolidate to one location (CB-APP15) */
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -18,7 +35,7 @@ html, body, #root {
   background: transparent;
 }
 
-/* A11y helper */
+/* WHY: WCAG screen-reader-only pattern; !important on position prevents any outer positioning rule from accidentally making the element visible. */
 .visually-hidden {
   position: absolute !important;
   height: 1px;
@@ -31,7 +48,7 @@ html, body, #root {
   margin: -1px;
 }
 
-/* Print */
+/* BUCKET: !important overrides in print rules — audit whether theme or MUI already handles print backgrounds (CM-APP2) */
 @media print {
   body {
     background: white !important;

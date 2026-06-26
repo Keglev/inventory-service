@@ -1,16 +1,20 @@
 /**
  * @file src/theme/index.ts
- * @description
- * MUI theme factory for Smart Supply Pro (MUI 7.2.0).
- * - German/English locale packs (Material Core + X DataGrid)
- * - Compact density defaults
- * - 8px spacing grid, enterprise palette, CSS variables enabled
- * - Responsive font sizes
+ * @module theme
+ * @summary MUI theme factory — builds the fully-configured ThemeProvider input for a
+ *   given locale and color mode. Single source of truth for palette, typography,
+ *   spacing, and component overrides.
  *
  * @enterprise
- * - Keep all visual tokens and component defaults here (single source of truth).
- * - DataGrid defaults (density) align with the global compact baseline.
- * - Prefer theme overrides over ad-hoc `sx` where possible.
+ * - Consumed by AppShell.tsx (authenticated shell) and AppPublicShell.tsx (unauthenticated
+ *   shell) via React.useMemo; each shell owns its own themeMode state and calls
+ *   buildTheme(locale, themeMode) — there is no shared theme context.
+ * - Color-mode state: AppShell holds themeMode in useState (persisted to localStorage
+ *   key 'themeMode'); AppPublicShell delegates to the useThemeMode hook.
+ * - Import direction: leaf — depends only on @mui/material and @mui/x-data-grid; no
+ *   imports from /utils, /context, /components, or feature code.
+ * - CSS variables (cssVariables: true) are a MUI v7 feature; they let consuming
+ *   components reference palette tokens without importing the theme object at runtime.
  */
 
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
@@ -18,34 +22,22 @@ import { deDE as coreDeDE, enUS as coreEnUS } from '@mui/material/locale';
 import { deDE as dataGridDeDE, enUS as dataGridEnUS } from '@mui/x-data-grid/locales';
 import '@mui/x-data-grid/themeAugmentation';
 
-/**
- * Merge locale bundles for Material Core + X Data Grid.
- * Add new locales here as needed.
- */
 const locales = {
   en: [coreEnUS, dataGridEnUS],
   de: [coreDeDE, dataGridDeDE],
 } as const;
 
-/** Supported UI locales. */
 export type SupportedLocale = keyof typeof locales; // 'en' | 'de'
 
-/**
- * Build the theme for a given locale and mode.
- * @param locale - UI locale; defaults to 'en'
- * @param mode - 'light' or 'dark'; defaults to 'light'
- */
 export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark' = 'light') => {
   const base = createTheme(
     {
-      // MUI v7: output CSS variables for palette/typography/etc.
+      // WHY: MUI v7 CSS-variable output; consuming components reference palette tokens without importing the theme object.
       cssVariables: true,
 
-      // 8px spacing grid and rounded shapes
       spacing: 8,
       shape: { borderRadius: 10 },
 
-      // Enterprise typography
       typography: {
         fontFamily:
           "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'",
@@ -54,7 +46,7 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
         h3: { fontWeight: 600 },
       },
 
-      // Enterprise palette (light/dark modes)
+      // BUCKET: palette hex values are hardcoded — extract to a design-tokens file for cross-component consistency (CB-APP14)
       palette: mode === 'light' ? {
         mode: 'light',
         primary: { main: '#1976D2' },   // Lighter enterprise blue
@@ -77,11 +69,7 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
         divider: 'rgba(255,255,255,0.12)',
       },
 
-      // Component defaults & style overrides
       components: {
-        //
-        // Density defaults: compact across form/table controls
-        //
         MuiButton: { defaultProps: { size: 'small' } },
         MuiTextField: { defaultProps: { size: 'small' } },
         MuiFormControl: { defaultProps: { size: 'small' } },
@@ -89,14 +77,12 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
         MuiAutocomplete: { defaultProps: { size: 'small' } },
         MuiTable: { defaultProps: { size: 'small' } },
         MuiTableCell: {
+          // BUCKET: magic pixel values (6) not on the spacing scale — token-ize (CM-APP1)
           styleOverrides: { root: { paddingTop: 6, paddingBottom: 6 } },
         },
         MuiListItem: { defaultProps: { dense: true } },
         MuiListItemButton: { defaultProps: { dense: true } },
 
-        //
-        // App chrome polish
-        //
         MuiAppBar: {
           styleOverrides: {
             root: { 
@@ -119,8 +105,8 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
           },
         },
         MuiPaper: {
-          // Use `root` instead of the `rounded` slot to ensure consistent radius application
-          styleOverrides: { 
+          // WHY: targeting `root` applies to all Paper instances regardless of variant; the `rounded` slot is variant-specific.
+          styleOverrides: {
             root: { 
               borderRadius: 10,
               boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
@@ -128,9 +114,6 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
           },
         },
 
-        //
-        // Global baseline polishing (scrollbars, bg image)
-        //
         MuiCssBaseline: {
           styleOverrides: {
             body: { backgroundImage: 'none' },
@@ -142,21 +125,16 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
           },
         },
 
-        //
-        // X Data Grid defaults (align with compact density)
-        //
         MuiDataGrid: {
           defaultProps: {
             density: 'compact',
-            // locale text comes from the locale bundle we merge below
+            // WHY: locale text is injected via the locale bundle spread below, not via the localeText prop.
           },
         },
       },
     },
-    // Merge in the locale objects for the chosen language
     ...locales[locale]
   );
 
-  // Responsive font scaling for headings
   return responsiveFontSizes(base);
 };

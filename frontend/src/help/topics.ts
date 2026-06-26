@@ -1,14 +1,17 @@
 /**
  * @file topics.ts
- * @description
- * Central registry of all help topics with metadata.
- * Each topic maps to i18n keys for title and body content.
+ * @module help/topics
+ * @summary Static registry mapping help-topic keys to i18n metadata. Text bodies are
+ *   NOT stored here — they are resolved by i18next at render time via bodyKey/titleKey.
  *
  * @enterprise
- * - Single source of truth for topic definitions
- * - Type-safe topic IDs
- * - Easy to add/remove topics
- * - Categories for future organization
+ * - Keys in this registry are stable identifiers; renaming a key breaks any caller
+ *   that passes it by string literal (including HelpContext route mappings).
+ * - Production consumer: HelpPanel.tsx (components/help/HelpPanel.tsx) looks up a
+ *   topic via getHelpTopic(id) and passes the metadata to the renderer.
+ * - Route-to-topic mapping lives in navConfig.ts (getHelpTopicForRoute); this file
+ *   is route-agnostic.
+ * - Import direction: leaf — no React, MUI, context, or feature-code imports.
  */
 
 /**
@@ -27,16 +30,6 @@ export interface HelpTopic {
   category: 'general' | 'inventory' | 'suppliers' | 'analytics' | 'settings';
 }
 
-/**
- * Registry of all help topics
- * Add new topics here and they'll automatically be available system-wide
- * @example
- * ```typescript
- * const topic = HELP_TOPICS['app.main'];
- * console.log(topic.titleKey); // "help:app.main.title"
- * 
- * ```
- */
 export const HELP_TOPICS: Record<string, HelpTopic> = {
   'app.main': {
     id: 'app.main',
@@ -51,7 +44,8 @@ export const HELP_TOPICS: Record<string, HelpTopic> = {
     bodyKey: 'help:inventory.overview.body',
     category: 'inventory',
   },
-  // Alias to keep older references working
+  // WHY: backward-compat alias; external deep-links may still reference this key.
+  // BUCKET: no production caller found outside tests — verify and remove if dead (CB-APP16)
   'inventory.manage': {
     id: 'inventory.manage',
     titleKey: 'help:inventory.overview.title',
@@ -108,30 +102,16 @@ export const HELP_TOPICS: Record<string, HelpTopic> = {
   },
 };
 
-/**
- * Get a help topic by ID
- * @param id - Topic ID
- * @returns Help topic or undefined if not found
- * @example
- * const topic = getHelpTopic('app.main')
- */
 export function getHelpTopic(id: string): HelpTopic | undefined {
   return HELP_TOPICS[id];
 }
 
-/**
- * Get all help topics by category
- * @param category - Category to filter by
- * @returns Array of topics in that category
- */
+// BUCKET: no production caller — only test-consumed; dead export candidate (CB-APP17)
 export function getTopicsByCategory(category: HelpTopic['category']): HelpTopic[] {
   return Object.values(HELP_TOPICS).filter((topic) => topic.category === category);
 }
 
-/**
- * Get all unique categories
- * @returns Array of category names
- */
+// BUCKET: no production caller — only test-consumed; dead export candidate (CB-APP17)
 export function getAllCategories(): HelpTopic['category'][] {
   const categories = new Set(Object.values(HELP_TOPICS).map((topic) => topic.category));
   return Array.from(categories).sort();
