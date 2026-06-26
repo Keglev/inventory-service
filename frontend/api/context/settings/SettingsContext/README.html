@@ -118,6 +118,35 @@ context/settings/SettingsContext/README · Smart Supply Pro · API</title>
         context/settings/SettingsContext</p>
         <h1
         id="contextsettingssettingscontext">context/settings/SettingsContext</h1>
+        <h2 id="file">File</h2>
+        <p>SettingsContext.tsx</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>Two concerns bridged in one context: USER PREFERENCES
+        (locale-sensitive, persisted to localStorage under
+        'appSettings') and RUNTIME SYSTEM INFO (database flavor + health
+        status from /api/health). See CB-APP1 (re-scoped in MASTER) for
+        the open question of splitting these into separate sources of
+        truth.</li>
+        <li>SINGLE production consumer of getSystemInfo()
+        (utils/systemInfo). The fetched object's
+        apiVersion/buildDate/uptime/version/environment fields are
+        FABRICATIONS — see CB-APP18 in MASTER. This file applies a
+        SECOND layer of fallbacks on top.</li>
+        <li>Language-sync effect: on i18n.language change, format
+        defaults are silently rewritten to match locale. KNOWN BUGS —
+        see CB-APP33 (overwrites explicit user choice) and CB-APP34
+        (in-memory only, not persisted).</li>
+        <li>On /api/health fetch failure, fallback values are HARDCODED
+        (database: 'Oracle ADB', environment: 'production'). These ship
+        to the UI as assertions — particularly suspect because fetch
+        failures are more likely in dev. → CB-APP32.</li>
+        <li>Consumed via useSettings — note the TWIN:
+        hooks/useSettings.ts is the factory-built consumer hook with 16
+        production call sites; context/settings/useSettings.ts (sibling
+        in this directory) is structurally a duplicate with 0 production
+        consumers (test-only). → ST-APP9.</li>
+        </ul>
         <h2 id="variables">Variables</h2>
         <ul>
         <li><a
@@ -164,6 +193,8 @@ context/settings/SettingsContext/README · Smart Supply Pro · API</title>
       <li><a href="#contextsettingssettingscontext"
       id="toc-contextsettingssettingscontext">context/settings/SettingsContext</a>
       <ul>
+      <li><a href="#file" id="toc-file">File</a></li>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       <li><a href="#variables" id="toc-variables">Variables</a></li>
       <li><a href="#references" id="toc-references">References</a>
       <ul>

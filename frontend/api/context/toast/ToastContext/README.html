@@ -122,25 +122,19 @@ context/toast/ToastContext/README · Smart Supply Pro · API</title>
         <p>ToastContext.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Provides a simple callback interface for toast
-        notifications</li>
-        <li>Used by both authenticated (AppShell) and unauthenticated
-        (AppPublicShell) shells</li>
-        <li>Consumed by page components and dialogs via useToast()
-        hook</li>
-        <li>No-op default context to prevent errors if used outside
-        provider</li>
-        <li>Type-safe severity levels matching MUI Alert component</li>
+        <li>Consumed by BOTH shells: AppShell.tsx (authenticated) and
+        AppPublicShell.tsx (unauthenticated), each providing its own
+        implementation via ToastContext.Provider value. The context here
+        defines only the SHAPE — no implementation.</li>
+        <li>Default value is a no-op function (NOT undefined).
+        Intentional: tolerates render outside a provider without
+        throwing — useful for tests and isolated component renders.
+        Trade-off: a missing provider in production silently swallows
+        toast calls.</li>
+        <li>Severity union ('success' | 'info' | 'warning' | 'error')
+        matches MUI Alert's severity prop for visual consistency without
+        importing MUI Alert types here (kept dependency-light).</li>
         </ul>
-        <h2 id="example">Example</h2>
-        <pre class="tsx"><code>// In a shell:
-&lt;ToastContext.Provider value={(msg, severity) =&gt; showToast(msg, severity)}&gt;
-  {children}
-&lt;/ToastContext.Provider&gt;
-
-// In a component:
-const toast = useToast();
-toast(&#39;Operation successful&#39;, &#39;success&#39;);</code></pre>
         <h2 id="type-aliases">Type Aliases</h2>
         <ul>
         <li><a href="type-aliases/ToastFn.html">ToastFn</a></li>
@@ -164,7 +158,6 @@ toast(&#39;Operation successful&#39;, &#39;success&#39;);</code></pre>
       <ul>
       <li><a href="#file" id="toc-file">File</a></li>
       <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
-      <li><a href="#example" id="toc-example">Example</a></li>
       <li><a href="#type-aliases" id="toc-type-aliases">Type
       Aliases</a></li>
       <li><a href="#variables" id="toc-variables">Variables</a></li>

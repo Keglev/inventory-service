@@ -118,6 +118,27 @@ context/settings/SettingsContext.types/README · Smart Supply Pro · API</title>
         context/settings/SettingsContext.types</p>
         <h1
         id="contextsettingssettingscontexttypes">context/settings/SettingsContext.types</h1>
+        <h2 id="file">File</h2>
+        <p>SettingsContext.types.ts</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>File hosts non-component exports (interfaces + the
+        SettingsContext object) so SettingsContext.tsx exports component
+        values only and preserves fast- refresh HMR. Same pattern as
+        HelpContext.types.ts.</li>
+        <li>The SystemInfo interface declares a contract that EXCEEDS
+        what the backend /api/health endpoint actually returns.
+        apiVersion, buildDate, uptime, and version fields are FABRICATED
+        upstream by utils/systemInfo.ts (per MASTER CB-APP18). The
+        interface will shrink when CB-APP18 closes.</li>
+        <li>DateFormat / NumberFormat values are APP-INTERNAL codes, NOT
+        BCP-47 locale tags. 'DE' and 'EN_US' map to actual locales in
+        the formatter layer (utils/formatters.ts).</li>
+        <li>SettingsContext defaults to <code>undefined</code>. The
+        consumer hook (either hooks/useSettings.ts or this directory's
+        useSettings.ts — see ST-APP9) throws when undefined, enforcing
+        provider-wrapped usage.</li>
+        </ul>
         <h2 id="interfaces">Interfaces</h2>
         <ul>
         <li><a
@@ -148,6 +169,8 @@ context/settings/SettingsContext.types/README · Smart Supply Pro · API</title>
       <li><a href="#contextsettingssettingscontexttypes"
       id="toc-contextsettingssettingscontexttypes">context/settings/SettingsContext.types</a>
       <ul>
+      <li><a href="#file" id="toc-file">File</a></li>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       <li><a href="#interfaces" id="toc-interfaces">Interfaces</a></li>
       <li><a href="#type-aliases" id="toc-type-aliases">Type
       Aliases</a></li>

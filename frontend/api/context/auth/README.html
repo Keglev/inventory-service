@@ -115,22 +115,41 @@ context/auth/README · Smart Supply Pro · API</title>
         <hr />
         <p><a href="../../README.html">frontend</a> / context/auth</p>
         <h1 id="contextauth">context/auth</h1>
-        <h2 id="references">References</h2>
-        <h3 id="appuser">AppUser</h3>
-        <p>Re-exports <a
-        href="authTypes/interfaces/AppUser.html">AppUser</a></p>
-        <hr />
-        <h3 id="authcontext">AuthContext</h3>
-        <p>Re-exports <a
-        href="AuthContext/variables/AuthContext.html">AuthContext</a></p>
-        <hr />
-        <h3 id="authcontexttype">AuthContextType</h3>
-        <p>Re-exports <a
-        href="authTypes/interfaces/AuthContextType.html">AuthContextType</a></p>
-        <hr />
-        <h3 id="authprovider">AuthProvider</h3>
-        <p>Re-exports <a
-        href="AuthContext/variables/AuthProvider.html">AuthProvider</a></p>
+        <h2 id="file">File</h2>
+        <p>AuthContext.ts</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>Dual session model: (1) DEMO session, client-only, persisted
+        to localStorage under 'ssp.demo.session'; enables deep-links for
+        recruiter/portfolio walkthroughs without backend. (2) SERVER
+        session, hydrated via GET /api/me on app start using the shared
+        httpClient (cookie auth). On success, the response is narrowed:
+        only email/fullName/role are copied to local state — isDemo is
+        intentionally dropped (server sessions are never demo).</li>
+        <li>Hydration order: DEMO check first, then /api/me. Demo
+        short-circuits the network call.</li>
+        <li>OAuth2 login() redirects to backend with
+        <code>return=origin</code>. The backend validates that origin
+        against an allow-list before its success redirect to /auth (NOT
+        /dashboard).</li>
+        <li>Logout is CLIENT-ONLY here. HTTP logout (cookie revocation)
+        is owned by LogoutPage. logout() clears local state and
+        broadcasts to other tabs via the 'ssp:forceLogout' localStorage
+        write+delete pattern (storage events fire only in OTHER
+        tabs).</li>
+        <li>File is .ts (not .tsx) by intent: uses React.createElement
+        for the Provider return so no JSX pragma is needed.
+        AuthProvider.tsx is a re-export shim giving consumers a .tsx
+        import surface.</li>
+        <li>logoutInProgress is a UX flag (4s safety-valve timer) to
+        prevent auth-guard flicker between local clear and the
+        subsequent navigation/redirect.</li>
+        </ul>
+        <h2 id="variables">Variables</h2>
+        <ul>
+        <li><a href="variables/AuthContext.html">AuthContext</a></li>
+        <li><a href="variables/AuthProvider.html">AuthProvider</a></li>
+        </ul>
       </article>
     </main>
 
@@ -139,16 +158,9 @@ context/auth/README · Smart Supply Pro · API</title>
       <ul>
       <li><a href="#contextauth" id="toc-contextauth">context/auth</a>
       <ul>
-      <li><a href="#references" id="toc-references">References</a>
-      <ul>
-      <li><a href="#appuser" id="toc-appuser">AppUser</a></li>
-      <li><a href="#authcontext"
-      id="toc-authcontext">AuthContext</a></li>
-      <li><a href="#authcontexttype"
-      id="toc-authcontexttype">AuthContextType</a></li>
-      <li><a href="#authprovider"
-      id="toc-authprovider">AuthProvider</a></li>
-      </ul></li>
+      <li><a href="#file" id="toc-file">File</a></li>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
+      <li><a href="#variables" id="toc-variables">Variables</a></li>
       </ul></li>
       </ul>
     </nav>

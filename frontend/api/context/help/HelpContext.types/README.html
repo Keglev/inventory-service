@@ -118,6 +118,21 @@ context/help/HelpContext.types/README · Smart Supply Pro · API</title>
         context/help/HelpContext.types</p>
         <h1
         id="contexthelphelpcontexttypes">context/help/HelpContext.types</h1>
+        <h2 id="file">File</h2>
+        <p>HelpContext.types.ts</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>File exists solely to host non-component exports (the
+        HelpContextType interface and the HelpContext object) so the
+        sibling HelpContext.tsx can export only component values and
+        preserve Vite's fast-refresh HMR.</li>
+        <li>HelpContext defaults to <code>undefined</code>. The
+        <code>useHelp</code> hook (frontend/src/hooks/useHelp.ts, built
+        via createContextHook) throws when ctx is undefined, enforcing
+        provider-wrapped usage. This contrasts with ToastContext's no-op
+        default — intentional: help misuse should surface loudly, toast
+        misuse should not crash.</li>
+        </ul>
         <h2 id="interfaces">Interfaces</h2>
         <ul>
         <li><a
@@ -136,6 +151,8 @@ context/help/HelpContext.types/README · Smart Supply Pro · API</title>
       <li><a href="#contexthelphelpcontexttypes"
       id="toc-contexthelphelpcontexttypes">context/help/HelpContext.types</a>
       <ul>
+      <li><a href="#file" id="toc-file">File</a></li>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       <li><a href="#interfaces" id="toc-interfaces">Interfaces</a></li>
       <li><a href="#variables" id="toc-variables">Variables</a></li>
       </ul></li>

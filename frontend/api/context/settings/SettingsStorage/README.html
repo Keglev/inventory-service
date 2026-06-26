@@ -118,6 +118,27 @@ context/settings/SettingsStorage/README · Smart Supply Pro · API</title>
         context/settings/SettingsStorage</p>
         <h1
         id="contextsettingssettingsstorage">context/settings/SettingsStorage</h1>
+        <h2 id="file">File</h2>
+        <p>SettingsStorage.ts</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>Pure persistence layer — no React, no context. Used only by
+        SettingsContext.tsx (Provider) and index.ts (re-export for
+        advanced consumers; no production caller verified).</li>
+        <li>All three I/O helpers swallow exceptions and log warnings.
+        Rationale: localStorage can throw (Safari private mode, quota
+        exceeded, disabled storage); preference persistence is
+        best-effort and must not block app startup or settings
+        updates.</li>
+        <li>getDefaultPreferences is language-aware: German locales get
+        DD.MM.YYYY + DE number format; everything else gets MM/DD/YYYY +
+        EN_US. Locale detection is naive (startsWith('de')) but matches
+        the i18n supportedLngs ['de', 'en'] contract.</li>
+        <li>loadPreferencesFromStorage uses
+        <code>as UserPreferences</code> without runtime validation —
+        corrupt storage with wrong shape passes through silently.
+        Acceptable today; could harden later if shape changes.</li>
+        </ul>
         <h2 id="functions">Functions</h2>
         <ul>
         <li><a
@@ -138,6 +159,8 @@ context/settings/SettingsStorage/README · Smart Supply Pro · API</title>
       <li><a href="#contextsettingssettingsstorage"
       id="toc-contextsettingssettingsstorage">context/settings/SettingsStorage</a>
       <ul>
+      <li><a href="#file" id="toc-file">File</a></li>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       <li><a href="#functions" id="toc-functions">Functions</a></li>
       </ul></li>
       </ul>

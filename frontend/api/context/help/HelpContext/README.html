@@ -117,6 +117,25 @@ context/help/HelpContext/README · Smart Supply Pro · API</title>
         <p><a href="../../../README.html">frontend</a> /
         context/help/HelpContext</p>
         <h1 id="contexthelphelpcontext">context/help/HelpContext</h1>
+        <h2 id="file">File</h2>
+        <p>HelpContext.tsx</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>Mounted ONCE at the app composition root (App.tsx — same
+        level as HelpPanel, which subscribes via useHelp()).</li>
+        <li>The .tsx/.types.ts split is required by Vite's fast refresh:
+        files exporting React components must not also export non-
+        component values. The Context OBJECT lives in
+        HelpContext.types.ts so HelpProvider edits trigger HMR
+        cleanly.</li>
+        <li>closeHelp() defers clearing currentTopicId by 300ms to let
+        the drawer fade out before the topic content unmounts (prevents
+        a blank flash mid-animation). The 300ms is NOT tied to any MUI
+        Drawer constant — see CB-APP27.</li>
+        <li>State is intentionally simple (id + boolean). Topic content
+        resolution lives in HelpPanel (via getHelpTopic and i18n) — this
+        provider holds NO topic content, only navigation state.</li>
+        </ul>
         <h2 id="variables">Variables</h2>
         <ul>
         <li><a href="variables/HelpProvider.html">HelpProvider</a></li>
@@ -142,6 +161,8 @@ context/help/HelpContext/README · Smart Supply Pro · API</title>
       <li><a href="#contexthelphelpcontext"
       id="toc-contexthelphelpcontext">context/help/HelpContext</a>
       <ul>
+      <li><a href="#file" id="toc-file">File</a></li>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       <li><a href="#variables" id="toc-variables">Variables</a></li>
       <li><a href="#references" id="toc-references">References</a>
       <ul>

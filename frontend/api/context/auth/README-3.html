@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-context/auth/AuthContext/variables/AuthProvider · Smart Supply Pro · API</title>
+context/auth/README-3 · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -111,29 +111,40 @@ context/auth/AuthContext/variables/AuthProvider · Smart Supply Pro · API</titl
     </aside>
     <main class="content" id="main">
       <article class="doc-body">
-        <p><a
-        href="../../../../README.html"><strong>frontend</strong></a></p>
+        <p><a href="../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">context/auth/AuthContext</a> /
-        AuthProvider</p>
-        <h1 id="variable-authprovider">Variable: AuthProvider</h1>
-        <blockquote>
-        <p><code>const</code> <strong>AuthProvider</strong>:
-        <code>React.FC</code>&lt;<code>React.PropsWithChildren</code>&gt;</p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/98c1fdde374fcb235c4b95650d450f23436493c4/frontend/src/context/auth/AuthContext.ts#L38">context/auth/AuthContext.ts:38</a></p>
-        <p>AuthProvider component. Wrap your application with this
-        provider to access auth state via <code>useAuth()</code>.</p>
+        <p><a href="../../README.html">frontend</a> / context/auth</p>
+        <h1 id="contextauth">context/auth</h1>
+        <h2 id="file">File</h2>
+        <p>AuthProvider.tsx</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>Exists so consumers expecting
+        <code>import AuthProvider from '.../AuthProvider'</code> (a .tsx
+        Provider convention) get a stable import path. The actual
+        implementation stays in AuthContext.ts to keep the auth context
+        module .ts-only (no JSX pragma needed — see AuthContext.ts
+        @enterprise).</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <h3 id="default">default</h3>
+        <p>Renames and re-exports <a
+        href="variables/AuthProvider.html">AuthProvider</a></p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#variable-authprovider"
-      id="toc-variable-authprovider">Variable: AuthProvider</a></li>
+      <li><a href="#contextauth" id="toc-contextauth">context/auth</a>
+      <ul>
+      <li><a href="#file" id="toc-file">File</a></li>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
+      <li><a href="#references" id="toc-references">References</a>
+      <ul>
+      <li><a href="#default" id="toc-default">default</a></li>
+      </ul></li>
+      </ul></li>
       </ul>
     </nav>
       </div>

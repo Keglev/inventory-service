@@ -118,6 +118,22 @@ context/settings/useSettings/README · Smart Supply Pro · API</title>
         context/settings/useSettings</p>
         <h1
         id="contextsettingsusesettings">context/settings/useSettings</h1>
+        <h2 id="file">File</h2>
+        <p>useSettings.ts</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>DUPLICATE EXPORT. The canonical consumer hook is
+        frontend/src/hooks/useSettings.ts (16 production call sites,
+        built via createContextHook). This file has 0 production
+        consumers — only 2 test files import it directly.</li>
+        <li>Error messages diverge across twins: this file: "useSettings
+        must be used within a SettingsProvider" factory: "useSettings
+        must be used within the corresponding provider" Dev-only
+        divergence; not user-facing.</li>
+        <li>Kept until ST-APP9 closes — deletion is a behavior change
+        (the 2 test imports + the barrel re-export would break and need
+        redirecting).</li>
+        </ul>
         <h2 id="functions">Functions</h2>
         <ul>
         <li><a href="functions/useSettings.html">useSettings</a></li>
@@ -131,6 +147,8 @@ context/settings/useSettings/README · Smart Supply Pro · API</title>
       <li><a href="#contextsettingsusesettings"
       id="toc-contextsettingsusesettings">context/settings/useSettings</a>
       <ul>
+      <li><a href="#file" id="toc-file">File</a></li>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       <li><a href="#functions" id="toc-functions">Functions</a></li>
       </ul></li>
       </ul>
