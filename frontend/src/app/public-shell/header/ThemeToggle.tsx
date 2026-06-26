@@ -1,14 +1,13 @@
 /**
  * @file ThemeToggle.tsx
- * @description
- * Theme mode toggle button (light/dark) for the public shell header.
- * Displays appropriate icon based on current mode and persists selection.
+ * @module ThemeToggle
+ * @summary Public-shell theme toggle button (light/dark); a stateless IconButton
+ * driven by parent callbacks.
  *
  * @enterprise
- * - Clean MUI IconButton with smooth transitions
- * - Accessible tooltip for user guidance
- * - Icon changes based on current theme mode
- * - Color coding: warning.main (light), info.main (dark)
+ * - Distinct from the HamburgerMenu ThemeToggle twin: this component accepts a
+ *   plain callback and uses hardcoded EN labels; the authenticated-shell twin owns
+ *   i18n side-effects and calls t() for its label. Do not merge until ST-APP4.
  *
  * @example
  * ```tsx
@@ -24,22 +23,16 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 
 interface ThemeToggleProps {
-  /** Current theme mode: 'light' or 'dark' */
   themeMode: 'light' | 'dark';
-  /** Preferred callback when toggle is clicked */
   onToggle?: () => void;
-  /** Backwards-compat callback name used by orchestrator components */
+  // BUCKET: dead dual-callback backwards-compat shim; only one caller, collapse to single prop (CB-APP11)
   onThemeToggle?: () => void;
 }
 
-/**
- * ThemeToggle component
- * @param themeMode - Current theme mode ('light' | 'dark')
- * @param onToggle - Callback function to toggle theme
- * @returns Theme toggle button with appropriate icon
- */
 const ThemeToggle: React.FC<ThemeToggleProps> = ({ themeMode, onToggle, onThemeToggle }) => {
+  // BUCKET: hardcoded label bypasses t() (CB-APP10)
   const label = themeMode === 'light' ? 'Dark mode' : 'Light mode';
+  // BUCKET: dead dual-callback backwards-compat shim; only one caller, collapse to single prop (CB-APP11)
   const handleToggle = onToggle ?? onThemeToggle;
 
   return (

@@ -1,14 +1,12 @@
 /**
  * @file PublicShellContent.tsx
- * @description
- * Main content area for public shell with Suspense fallback.
- * Renders outlet for unauthenticated routes (Home, Login, LogoutSuccess).
+ * @module PublicShellContent
+ * @summary Main content region for public routes; owns the sole React.Suspense
+ * boundary in this directory, wrapping the lazy-loaded route <Outlet />.
  *
  * @enterprise
- * - Responsive spacing (xs: 2, md: 3)
- * - Suspense boundary with loading fallback
- * - Proper spacing below fixed AppBar via Toolbar
- * - Full viewport height with scrollable content
+ * - Suspense is scoped here (not in AppPublicShell) so the header remains
+ *   interactive while a lazy route chunk is loading.
  *
  * @example
  * ```tsx
@@ -19,24 +17,18 @@ import * as React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Box, Toolbar, Typography } from '@mui/material';
 
-/**
- * Fallback component while pages load
- */
 const Fallback: React.FC = () => (
   <Box sx={{ textAlign: 'center', py: 8 }}>
+    {/* BUCKET: hardcoded fallback string bypasses t() (CB-APP10) */}
     <Typography variant="body2" color="text.secondary">
       Loading...
     </Typography>
   </Box>
 );
 
-/**
- * PublicShellContent component
- * @returns Main content area with route outlet
- */
 const PublicShellContent: React.FC = () => (
   <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, overflowY: 'auto' }}>
-    <Toolbar /> {/* Spacing below fixed AppBar */}
+    <Toolbar /> {/* matches AppBar height so content isn't hidden beneath the fixed header */}
 
     <React.Suspense fallback={<Fallback />}>
       <Outlet />

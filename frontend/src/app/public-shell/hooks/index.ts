@@ -1,6 +1,8 @@
 /**
  * @file public-shell/hooks/index.ts
- * @description Barrel export for public shell hooks
+ * @module hooks
+ * @summary Barrel export for public-shell hooks; re-exports the canonical Toast
+ * type from usePublicShellToast.
  */
 export { useThemeMode } from './useThemeMode';
 export { useLocale } from './useLocale';

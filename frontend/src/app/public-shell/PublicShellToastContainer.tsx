@@ -1,14 +1,11 @@
 /**
  * @file PublicShellToastContainer.tsx
- * @description
- * Toast notification container for public shell.
- * Displays Snackbar with Alert based on toast state.
+ * @module PublicShellToastContainer
+ * @summary Presentational Snackbar/Alert renderer for public-shell toasts;
+ * owns no state — all toast state lives in usePublicShellToast.
  *
  * @enterprise
- * - Fixed position at bottom-right (standard notification placement)
- * - Auto-hide after 2.5 seconds
- * - Supports success, info, warning, error severity levels
- * - Filled variant Alert for better visibility
+ * - Pure render layer so toast behaviour can be tested without mounting Snackbar.
  *
  * @example
  * ```tsx
@@ -24,18 +21,10 @@ import type { SnackbarCloseReason } from '@mui/material/Snackbar';
 import type { Toast } from './hooks';
 
 interface PublicShellToastContainerProps {
-  /** Toast state object or null if not visible */
   toast: Toast | null;
-  /** Callback when toast should close */
   onClose: () => void;
 }
 
-/**
- * PublicShellToastContainer component
- * @param toast - Toast state
- * @param onClose - Close callback
- * @returns Snackbar with Alert notification
- */
 const PublicShellToastContainer: React.FC<PublicShellToastContainerProps> = ({ toast, onClose }) => {
   const handleClose = React.useCallback(
     (_event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
@@ -55,6 +44,7 @@ const PublicShellToastContainer: React.FC<PublicShellToastContainerProps> = ({ t
       autoHideDuration={2500}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     >
+      {/* BUCKET: hardcoded closeText bypasses t() (CB-APP10) */}
       <Alert
         severity={toast?.severity || 'success'}
         elevation={1}

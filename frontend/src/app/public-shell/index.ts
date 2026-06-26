@@ -1,6 +1,8 @@
 /**
  * @file public-shell/index.ts
- * @description Barrel export for public shell components and hooks
+ * @module public-shell
+ * @summary Single entry point for the public (unauthenticated) shell; re-exports
+ * AppPublicShell, its sub-components, and all hooks.
  */
 export { default as AppPublicShell } from './AppPublicShell';
 export { PublicShellHeader } from './header';

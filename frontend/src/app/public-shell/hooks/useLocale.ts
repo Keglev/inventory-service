@@ -1,23 +1,21 @@
 /**
  * @file useLocale.ts
- * @description
- * Custom hook for managing locale (de/en) with localStorage and i18n synchronization.
- * Keeps locale state in sync with i18next language changes.
+ * @module useLocale
+ * @summary Manages locale state (de/en) with localStorage and i18next synchronization.
  *
  * @enterprise
- * - localStorage persistence key: 'i18nextLng'
- * - Synchronizes with i18next 'languageChanged' event
- * - Normalizes language codes (e.g., 'de-DE' -> 'de', 'en-US' -> 'en')
- * - Provides toggle function for language switching
- * - Automatic i18n changeLanguage calls
+ * - Uses LS key 'i18nextLng' — the same key i18next writes natively — so this hook
+ *   and i18next always read from the same source of truth.
+ * - Normalizes regional codes (e.g. 'de-DE' → 'de') because browsers and OS settings
+ *   often produce BCP-47 regional variants that the theme's SupportedLocale doesn't
+ *   accept.
+ * - Subscribes to i18next 'languageChanged' so locale state stays consistent when
+ *   i18next changes language from outside this hook.
  *
  * @example
  * ```tsx
  * const { locale, changeLocale, toggleLocale } = useLocale(i18n);
  * ```
- *
- * @param i18n - i18next instance for language change integration
- * @returns Object with locale state, change function, and toggle function
  */
 import * as React from 'react';
 import type { i18n } from 'i18next';
@@ -25,31 +23,18 @@ import type { SupportedLocale } from '../../../theme';
 
 const LS_KEY = 'i18nextLng';
 
-/**
- * Normalize i18n language code to SupportedLocale
- * Examples: 'de-DE' -> 'de', 'en-US' -> 'en'
- */
 const normalize = (lng?: string): SupportedLocale => (lng?.startsWith('en') ? 'en' : 'de');
 
 interface UseLocaleReturn {
-  /** Current locale */
   locale: SupportedLocale;
-  /** Change locale and trigger i18n language change */
   changeLocale: (locale: SupportedLocale) => void;
-  /** Toggle between de and en */
   toggleLocale: () => void;
 }
 
-/**
- * useLocale hook
- * @param i18n - i18next instance
- * @returns Locale state and control functions
- */
 export const useLocale = (i18n: i18n): UseLocaleReturn => {
   const initial = normalize(localStorage.getItem(LS_KEY) || i18n.resolvedLanguage || 'de');
   const [locale, setLocaleState] = React.useState<SupportedLocale>(initial);
 
-  // Keep locale state in sync with i18n language changes
   React.useEffect(() => {
     const handler = (lng: string) => setLocaleState(normalize(lng));
     i18n.on('languageChanged', handler);

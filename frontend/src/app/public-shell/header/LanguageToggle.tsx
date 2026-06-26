@@ -1,14 +1,13 @@
 /**
  * @file LanguageToggle.tsx
- * @description
- * Language toggle button (DE/EN) for the public shell header.
- * Displays flag icon for current language and triggers language change.
+ * @module LanguageToggle
+ * @summary Public-shell language toggle button (DE/EN); a stateless IconButton
+ * that delegates locale state entirely to its parent via onToggle.
  *
  * @enterprise
- * - Flag icons for visual language indication
- * - Clean MUI IconButton with accessibility
- * - Responsive icon sizing
- * - Integrates with i18next and toast notifications
+ * - Distinct from the HamburgerMenu LanguageToggle twin: this component makes no
+ *   i18n calls and owns no side-effects — the authenticated-shell twin calls
+ *   i18next directly and manages its own toast. Do not merge until ST-APP4.
  *
  * @example
  * ```tsx
@@ -27,21 +26,11 @@ const DE_FLAG = '/flags/de.svg';
 const US_FLAG = '/flags/us.svg';
 
 interface LanguageToggleProps {
-  /** Current locale: 'de' or 'en' */
   locale: SupportedLocale;
-  /** Callback when toggle is clicked */
   onToggle: () => void;
-  /** Tooltip text for accessibility */
   tooltip: string;
 }
 
-/**
- * LanguageToggle component
- * @param locale - Current locale ('de' | 'en')
- * @param onToggle - Callback function to toggle language
- * @param tooltip - Accessibility tooltip text
- * @returns Language toggle button with flag icon
- */
 const LanguageToggle: React.FC<LanguageToggleProps> = ({ locale, onToggle, tooltip }) => (
   <Tooltip title={tooltip}>
     <IconButton onClick={onToggle}>
