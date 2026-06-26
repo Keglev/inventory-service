@@ -1,17 +1,25 @@
 /**
  * @file HelpContext.tsx
- * @description
- * Global help context provider for managing help panel state and topic navigation.
- * Provides centralized state for opening/closing help and tracking current topic.
+ * @module context/help/HelpContext
+ *
+ * @summary
+ * HelpProvider component owning help drawer state (current topic
+ * id + open/close) for the help system.
  *
  * @enterprise
- * - Single source of truth for help state
- * - Close on Escape key for better UX
- * - Type-safe context with clear API
- *
- * @usage
- * Wrap App with <HelpProvider>
- * Access anywhere with: const { openHelp, closeHelp, isOpen } = useHelp()
+ * - Mounted ONCE at the app composition root (App.tsx — same level
+ *   as HelpPanel, which subscribes via useHelp()).
+ * - The .tsx/.types.ts split is required by Vite's fast refresh:
+ *   files exporting React components must not also export non-
+ *   component values. The Context OBJECT lives in HelpContext.types.ts
+ *   so HelpProvider edits trigger HMR cleanly.
+ * - closeHelp() defers clearing currentTopicId by 300ms to let the
+ *   drawer fade out before the topic content unmounts (prevents a
+ *   blank flash mid-animation). The 300ms is NOT tied to any MUI
+ *   Drawer constant — see CB-APP27.
+ * - State is intentionally simple (id + boolean). Topic content
+ *   resolution lives in HelpPanel (via getHelpTopic and i18n) —
+ *   this provider holds NO topic content, only navigation state.
  */
 import * as React from 'react';
 import { HelpContext, type HelpContextType } from './HelpContext.types';
@@ -20,36 +28,25 @@ import { HelpContext, type HelpContextType } from './HelpContext.types';
 export type { HelpContextType } from './HelpContext.types';
 export { HelpContext } from './HelpContext.types';
 
-/**
- * HelpProvider: Wrap around App root
- * Manages help panel state and provides context to all components
- */
 export const HelpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentTopicId, setCurrentTopicId] = React.useState<string | null>(null);
   const [isOpen, setIsOpen] = React.useState(false);
 
-  /**
-   * Open help with specific topic
-   */
   const openHelp = React.useCallback((topicId: string) => {
     setCurrentTopicId(topicId);
     setIsOpen(true);
   }, []);
 
-  /**
-   * Close help panel
-   */
   const closeHelp = React.useCallback(() => {
     setIsOpen(false);
-    // Keep topic ID so it can fade out smoothly, clear after animation
+    // WHY: keep topic id mounted while the Drawer fades out so the body text does not blank mid-animation
+    // BUCKET: 300ms is not tied to any MUI Drawer transitionDuration constant (MUI defaults ~195-225ms); align via shared constant or document why 300 is safe (CB-APP27)
     setTimeout(() => {
       setCurrentTopicId(null);
     }, 300);
   }, []);
 
-  /**
-   * Close help on Escape key press
-   */
+  // BUCKET: redundant with MUI Drawer's built-in Escape→onClose (=closeHelp) — fires closeHelp twice per Escape press; idempotent today but contradicts HelpPanel @enterprise documentation (CB-APP28)
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {

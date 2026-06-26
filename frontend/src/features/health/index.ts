@@ -1,8 +1,7 @@
 /**
  * @file features/health/index.ts
- * @description
- * Barrel export for health monitoring feature.
- * Exports components and hooks for application health checks.
+ * @module features/health
+ * @summary Barrel re-export for the health feature module.
  */
 
 export { useHealthCheck } from './hooks/useHealthCheck';

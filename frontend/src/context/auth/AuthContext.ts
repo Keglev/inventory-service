@@ -1,21 +1,35 @@
 /**
  * @file AuthContext.ts
- * @description
- * Authentication context for Smart Supply Pro.
- *
- * @responsibilities
- * - Hydrate session state on app start (GET /api/me).
- * - Expose { user, setUser, login, logout, loading } to the app.
- * - Provide a single source of truth for the authenticated user.
- *
- * @nonGoals
- * - No HTTP logout here (that is handled by the dedicated LogoutPage).
- * - No routing here (consumers navigate as needed).
+ * @module context/auth
+ * @summary
+ * AuthProvider component owning the dual-session auth model (server
+ * /api/me + client-only DEMO) plus cross-tab logout broadcast.
  *
  * @enterprise
- * - Uses the same API base as the HTTP client for OAuth redirects.
- * - Supports cross-tab logout via a `localStorage` broadcast flag.
- * - DEMO session is persisted to localStorage to enable deep-links (/analytics/...).
+ * - Dual session model:
+ *   (1) DEMO session, client-only, persisted to localStorage under
+ *       'ssp.demo.session'; enables deep-links for recruiter/portfolio
+ *       walkthroughs without backend.
+ *   (2) SERVER session, hydrated via GET /api/me on app start using
+ *       the shared httpClient (cookie auth). On success, the response
+ *       is narrowed: only email/fullName/role are copied to local
+ *       state — isDemo is intentionally dropped (server sessions are
+ *       never demo).
+ * - Hydration order: DEMO check first, then /api/me. Demo
+ *   short-circuits the network call.
+ * - OAuth2 login() redirects to backend with `return=origin`. The
+ *   backend validates that origin against an allow-list before its
+ *   success redirect to /auth (NOT /dashboard).
+ * - Logout is CLIENT-ONLY here. HTTP logout (cookie revocation) is
+ *   owned by LogoutPage. logout() clears local state and broadcasts
+ *   to other tabs via the 'ssp:forceLogout' localStorage write+delete
+ *   pattern (storage events fire only in OTHER tabs).
+ * - File is .ts (not .tsx) by intent: uses React.createElement for
+ *   the Provider return so no JSX pragma is needed. AuthProvider.tsx
+ *   is a re-export shim giving consumers a .tsx import surface.
+ * - logoutInProgress is a UX flag (4s safety-valve timer) to prevent
+ *   auth-guard flicker between local clear and the subsequent
+ *   navigation/redirect.
  */
 
 import React, { createContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -23,7 +37,7 @@ import type { AuthContextType, AppUser } from './authTypes';
 import httpClient, { API_BASE } from '../../api/httpClient';
 
 const STORAGE_FLAG = 'ssp:forceLogout';
-const DEMO_KEY = 'ssp.demo.session'; // ✨ NEW
+const DEMO_KEY = 'ssp.demo.session';
 
 /**
  * Global authentication context.
@@ -31,24 +45,14 @@ const DEMO_KEY = 'ssp.demo.session'; // ✨ NEW
  */
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/**
- * AuthProvider component.
- * Wrap your application with this provider to access auth state via `useAuth()`.
- */
 export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [logoutInProgress, setLogoutInProgress] = useState<boolean>(false);
   const logoutTimerRef = useRef<number | null>(null);
 
-  /**
-   * One-time session hydration on app load.
-   * Order:
-   * 1) If a DEMO session exists, restore it and skip network.
-   * 2) Otherwise, try /api/me (server session).
-   */
+  /** One-time session hydration: tries DEMO first, then /api/me. */
   useEffect(() => {
-    // 1) Try restoring demo first
     try {
       const raw = localStorage.getItem(DEMO_KEY);
       if (raw) {
@@ -60,10 +64,9 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         }
       }
     } catch {
-      // ignore bad JSON or storage unavailability
+      // WHY: localStorage can throw (Safari private mode, quota exceeded, disabled storage) or hold corrupt JSON from prior versions; either failure must not block server hydration.
     }
 
-    // 2) Fall back to server hydration (/api/me)
     const ac = new AbortController();
     (async () => {
       try {
@@ -78,21 +81,12 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     return () => ac.abort();
   }, []);
 
-  /**
-   * Initiates Google OAuth2 on the backend (full-page redirect).
-   * Includes return URL to redirect back to AuthCallback after successful authentication.
-   */
   const login = () => {
     const origin = window.location.origin;
     const url = `${API_BASE}/oauth2/authorization/google?return=${encodeURIComponent(origin)}`;
     window.location.assign(url);
   };
 
-  /**
-   * Starts a client-only DEMO session.
-   * - No network calls; sets a synthetic user with role "DEMO".
-   * - Persists to localStorage for deep-links.
-   */
   const loginAsDemo = () => {
     const demoUser: AppUser = {
       email: 'demo@smartsupplypro.local',
@@ -102,17 +96,14 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     };
     try {
       localStorage.setItem(DEMO_KEY, JSON.stringify(demoUser));
-    } catch {/* ignore storage failures */}
+    } catch {
+      // WHY: storage failures (private mode, quota) are tolerable — in-memory user state still works; deep-link persistence is best-effort.
+    }
     setUser(demoUser);
   };
 
-  /**
-   * Clears only the client-side user state.
-   * - Broadcasts a logout signal to other tabs.
-   * - Removes DEMO persistence if present.
-   */
   const logout = () => {
-    // Debug: auth.logout invoked
+    // BUCKET: unguarded console.debug ships to production; wrap in import.meta.env.DEV or remove (CB-APP29)
     // eslint-disable-next-line no-console
     console.debug('[AuthContext] logout() called');
     setLogoutInProgress(true);
@@ -121,18 +112,20 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       logoutTimerRef.current = null;
     }
     try {
+      // BUCKET: localStorage write+delete fires a `storage` event in OTHER tabs only; the receiving listener is NOT in this file — verify a listener for 'ssp:forceLogout' exists in the app, otherwise the broadcast is dead code (CB-APP30)
       localStorage.setItem(STORAGE_FLAG, '1');
       localStorage.removeItem(STORAGE_FLAG);
-      localStorage.removeItem(DEMO_KEY); // ✨ ensure demo session is cleared
+      localStorage.removeItem(DEMO_KEY);
     } catch {
       // ignore storage failures
     }
     setUser(null);
-    // Safety valve: clear the in-progress flag after a short interval in case navigation stalls
+    // WHY: prevents auth-guard flicker if navigation/redirect stalls after logout — flag must eventually drop.
+    // BUCKET: 4000ms is arbitrary; either name a constant (e.g. LOGOUT_GUARD_MS) or document why 4s is the right ceiling (CB-APP31)
     logoutTimerRef.current = window.setTimeout(() => setLogoutInProgress(false), 4000);
   };
 
-  // If a user is set (hydration or login), ensure we drop any stale logout flag
+  // WHY: a successful re-login (server or demo) after logout must clear logoutInProgress so guards stop suppressing routes; also cancels any pending safety-valve timer.
   useEffect(() => {
     if (user) {
       setLogoutInProgress(false);
@@ -143,6 +136,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     }
   }, [user]);
 
+  // WHY: on unmount, clear the safety-valve timer so it never fires against a stale state setter.
   useEffect(() => () => {
     if (logoutTimerRef.current) {
       clearTimeout(logoutTimerRef.current);

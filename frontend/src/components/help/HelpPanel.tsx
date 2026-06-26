@@ -1,18 +1,22 @@
 /**
  * @file HelpPanel.tsx
- * @description
- * Global help drawer component that displays help topics.
- * Renders as a right-side drawer and can be opened/closed from anywhere.
+ * @module components/help/HelpPanel
+ * @summary Global help drawer subscribing to HelpContext; renders an MUI
+ * Drawer with topic title, body, and optional documentation link.
  *
  * @enterprise
- * - Right-side drawer (non-intrusive)
- * - Smooth transitions
- * - Responsive on mobile (full width)
- * - Close button and Escape key support
- *
- * @usage
- * Place at root of AppShell or layout:
- * <HelpPanel />
+ * - Mounted ONCE at the app composition root (App.tsx), NOT inside AppShell.
+ *   Single instance for the whole app; HelpProvider's state determines what
+ *   (if anything) it renders.
+ * - Render gated: returns null when no topic is selected, when the drawer is
+ *   closed, or when the topic id is not registered in help/topics.ts. Safe to
+ *   render unconditionally from App.tsx.
+ * - Topic content is i18n-resolved at render time. Topic keys come from a
+ *   runtime registry (help/topics.ts), not the typed i18next augmentation —
+ *   see the translate() helper for the deliberate type bypass.
+ * - Drawer width is responsive (full-width on xs, configurable on sm+);
+ *   Escape-to-close is provided by MUI Drawer's default onClose behavior,
+ *   not custom code.
  */
 import * as React from 'react';
 import {
@@ -37,23 +41,19 @@ interface HelpPanelProps {
   position?: 'right' | 'left';
 }
 
-/**
- * HelpPanel: Global help drawer component
- * Displays help topic content retrieved from context
- */
 const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }) => {
   const { currentTopicId, isOpen, closeHelp } = useHelp();
   const { t } = useTranslation('help');
 
-  // Allow runtime topic keys from registry while keeping `t` strongly typed
+  // WHY: topic keys are runtime strings from help/topics.ts and cannot satisfy i18next's typed key
+  // union (CustomTypeOptions in resources.d.ts) — double-cast preserves return type while bypassing
+  // the augmentation.
   const translate = (key: string): string => (t as unknown as (k: string) => string)(key);
 
-  // If no topic selected or drawer is closed, don't render
   if (!currentTopicId || !isOpen) {
     return null;
   }
 
-  // Get topic metadata
   const topic = getHelpTopic(currentTopicId);
   if (!topic) {
     return null;
@@ -74,7 +74,6 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
         },
       }}
     >
-      {/* Header with title and close button */}
       <Box
         sx={{
           display: 'flex',
@@ -97,9 +96,7 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
         </IconButton>
       </Box>
 
-      {/* Content */}
       <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {/* Help body text */}
         <Typography 
           variant="body2" 
           color="text.secondary" 
@@ -108,7 +105,7 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
           {translate(topic.bodyKey)}
         </Typography>
 
-        {/* Optional: documentation link */}
+        {/* WHY: rendered only when topic.linkKey is present in the registry; many topics have no external docs */}
         {topic.linkKey && (
           <>
             <Divider />
@@ -118,7 +115,7 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
                 size="small"
                 endIcon={<OpenInNewIcon />}
                 onClick={() => {
-                  // Future: Open documentation URL
+                  // BUCKET: documentation-link button onClick only closes the drawer; either wire to a real URL or remove the button (CB-APP25)
                   closeHelp();
                 }}
                 sx={{ textTransform: 'none' }}
@@ -130,10 +127,9 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
         )}
       </Box>
 
-      {/* Footer spacer */}
       <Box sx={{ flex: 1 }} />
 
-      {/* Footer hint */}
+      {/* BUCKET: hardcoded English fallback in DE-default app — verify de/help.json has general.closeHint or remove fallback (CM-APP7) */}
       <Box
         sx={{
           p: 2,

@@ -1,7 +1,20 @@
 /**
  * @file authTypes.ts
+ * @module context/auth
+ * @summary
+ * Core authentication type shapes (AppUser + AuthContextType)
+ * consumed by AuthContext, useAuth, and auth-related guards/pages.
+ *
  * @enterprise
- * Core authentication shapes for SmartSupplyPro.
+ * - AppUser is a deliberate CLIENT-SIDE SUBSET of the /api/me
+ *   server payload. Server-internal fields must not leak here.
+ *   Extend only with fields the client genuinely needs.
+ * - The `isDemo?` flag is set only by client-side demo session
+ *   creation in AuthContext.loginAsDemo(). Server hydration
+ *   intentionally drops any incoming isDemo value (see AuthContext
+ *   @enterprise).
+ * - AuthContextType is consumed via the useAuth hook (built on
+ *   createContextHook). 14 production call sites (B2 audit).
  */
 
 /**

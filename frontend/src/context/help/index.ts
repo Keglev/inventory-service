@@ -1,8 +1,9 @@
 /**
  * @file index.ts
- * @description
- * Barrel export for the help context module.
- * Allows consumers to import from `context/help` directly.
+ * @module context/help
+ *
+ * @summary
+ * Barrel re-export for the help context module.
  */
 export { HelpProvider, HelpContext } from './HelpContext';
 export type { HelpContextType } from './HelpContext.types';

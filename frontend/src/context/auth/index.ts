@@ -1,8 +1,8 @@
 /**
  * @file index.ts
- * @description
- * Barrel export for the auth context module.
- * Allows consumers to import from `context/auth` directly.
+ * @module context/auth
+ * @summary
+ * Barrel re-export for the auth context module.
  */
 export { AuthProvider, AuthContext } from './AuthContext';
 export type { AuthContextType, AppUser } from './authTypes';

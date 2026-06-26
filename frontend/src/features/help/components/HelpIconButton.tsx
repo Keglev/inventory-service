@@ -1,49 +1,40 @@
 /**
- * HelpIconButton.tsx
- * 
- * A reusable help icon button component that opens context-specific help topics.
- * 
+ * @file features/help/components/HelpIconButton.tsx
  * @module features/help/components/HelpIconButton
- * @summary
- * Provides a standardized help icon button for opening help topics.
- * Integrates with the useHelp hook for topic management.
+ * @summary Standardized icon button that opens a help topic on click —
+ * the canonical surface for exposing context-sensitive help.
  * @enterprise
- * - Consistent help icon UI across the application
- * - Easy integration with help system via topic IDs
- * - Tooltip support for better UX
- * - Fully typed with TypeScript and documented with TypeDoc
- * @usage
- * ```tsx
- * import { HelpIconButton } from '@/features/help/components/HelpIconButton';
- * 
- * function MyComponent() {
- *  return (
- *   <div>
- *    <HelpIconButton topicId="app.main" tooltip="Get help on the main app" />
- *  </div>
- * );
- * }
- * ```
+ * - Six production call sites split across layout chrome (sidebar,
+ *   toolbar) and page content (analytics, dashboard, inventory
+ *   board, one inventory dialog). The standard surface for
+ *   exposing help topics — callers pass a topic id string from
+ *   help/topics.ts.
+ * - Click delegates to openHelp() on the canonical useHelp hook
+ *   (hooks/useHelp.ts). HelpPanel.tsx (mounted in App.tsx)
+ *   resolves the topic and renders the drawer.
+ * - Topic id validation is downstream: an unknown id returns null
+ *   at HelpPanel and the drawer silently renders nothing. Callers
+ *   are responsible for passing registry-valid ids.
+ * - Default tooltip + aria-label are hardcoded English — see
+ *   CM-APP8 for the i18n threading fix.
  */
 import * as React from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useHelp } from '../../../hooks/useHelp';
 
-/** Props for HelpIconButton component */
 interface HelpIconButtonProps {
   /** ID from HELP_TOPICS (e.g. "app.main", "analytics.overview") */
   topicId: string;
   tooltip?: string;
 }
 
-/** Help icon button that opens a help topic when clicked */
 export const HelpIconButton: React.FC<HelpIconButtonProps> = ({ topicId, tooltip }) => {
   const { openHelp } = useHelp();
 
+  // BUCKET: hardcoded English defaults — tooltip 'Help' and aria-label 'Open help' visible to DE users when callers omit translated props; thread useTranslation and add common namespace keys (CM-APP8)
   return (
     <Tooltip title={tooltip ?? 'Help'}>
-      {/* Help icon button */}
       <IconButton
         size="small"
         onClick={() => openHelp(topicId)}

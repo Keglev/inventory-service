@@ -1,13 +1,17 @@
 /**
  * @file useDebounced.ts
- * @description
- * Generic debounce hook for delaying value updates.
- * Useful for debouncing search queries, text input, or any value type.
- * Reduces server chatter and UI updates while user is typing.
- *
- * @usage
- * const debouncedSearchTerm = useDebounced(searchTerm, 350)
- * const debouncedQuery = useDebounced(itemQuery, 250)
+ * @module hooks/useDebounced
+ * @summary Generic value debouncer: delays propagation of a changing value by N
+ *   milliseconds using useState + useEffect + setTimeout.
+ * @enterprise
+ * - Outlier in /hooks: NOT a context bridge. Pure behavioral hook.
+ * - One production consumer: pages/analytics/blocks/PriceTrendCard.tsx
+ *   (debounces the chart's interactive filter to reduce re-render chatter;
+ *   default 250 ms is overridden per-call site).
+ * - Generic over T — value identity drives the effect dependency, so
+ *   reference-stable inputs are the caller's responsibility.
+ * - Cleanup clears the pending timeout on value or delay change, preventing
+ *   stale-value writes.
  */
 
 import * as React from 'react';
@@ -18,17 +22,14 @@ import * as React from 'react';
  * @param value - The value to debounce
  * @param delayMs - Delay in milliseconds (default: 250)
  * @returns The debounced value
- * @example
- * const debouncedSearch = useDebounced(searchInput, 500)
  */
 export function useDebounced<T>(value: T, delayMs: number = 250): T {
   const [debouncedValue, setDebouncedValue] = React.useState(value);
-  // Update debounced value after delay
   React.useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delayMs);
-    // Cleanup timeout if value or delay changes
+    // WHY: clear pending timeout so a rapid value change does not flush a stale prior value after the new effect schedules.
     return () => clearTimeout(handler);
   }, [value, delayMs]);
 

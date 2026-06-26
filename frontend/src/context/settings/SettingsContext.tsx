@@ -1,22 +1,35 @@
 /**
  * @file SettingsContext.tsx
- * @description Settings context provider for application-wide settings
- * 
- * Manages user preferences (date/number formats, table density) and system info.
- * Loads preferences from localStorage on mount and fetches system info from backend.
- * Synchronizes preferences with i18n language changes.
- * 
- * Usage:
- * ```tsx
- * <SettingsProvider>
- *   <App />
- * </SettingsProvider>
- * ```
+ * @module context/settings/SettingsContext
+ * @summary SettingsProvider component owning user preferences (date/number
+ * formats, table density) and runtime system info from /api/health,
+ * with language-aware defaults and localStorage persistence.
+ * @enterprise
+ * - Two concerns bridged in one context: USER PREFERENCES (locale-sensitive,
+ *   persisted to localStorage under 'appSettings') and RUNTIME SYSTEM INFO
+ *   (database flavor + health status from /api/health). See CB-APP1 (re-scoped
+ *   in MASTER) for the open question of splitting these into separate sources
+ *   of truth.
+ * - SINGLE production consumer of getSystemInfo() (utils/systemInfo). The
+ *   fetched object's apiVersion/buildDate/uptime/version/environment fields
+ *   are FABRICATIONS — see CB-APP18 in MASTER. This file applies a SECOND
+ *   layer of fallbacks on top.
+ * - Language-sync effect: on i18n.language change, format defaults are
+ *   silently rewritten to match locale. KNOWN BUGS — see CB-APP33 (overwrites
+ *   explicit user choice) and CB-APP34 (in-memory only, not persisted).
+ * - On /api/health fetch failure, fallback values are HARDCODED
+ *   (database: 'Oracle ADB', environment: 'production'). These ship to the UI
+ *   as assertions — particularly suspect because fetch failures are more likely
+ *   in dev. → CB-APP32.
+ * - Consumed via useSettings — note the TWIN: hooks/useSettings.ts is the
+ *   factory-built consumer hook with 16 production call sites;
+ *   context/settings/useSettings.ts (sibling in this directory) is structurally
+ *   a duplicate with 0 production consumers (test-only). → ST-APP9.
  */
 
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { getSystemInfo } from '../../utils/systemInfo.js';
+import { getSystemInfo } from '../../utils/systemInfo';
 import {
   SettingsContext,
   type SettingsContextType,
@@ -33,55 +46,16 @@ import {
 export type { DateFormat, NumberFormat, TableDensity, UserPreferences, SystemInfo, SettingsContextType } from './SettingsContext.types';
 export { SettingsContext };
 
-/**
- * SettingsProvider component
- *
- * Provides global settings context to the application.
- * Responsibilities:
- * - Load user preferences from localStorage on mount
- * - Fetch system info from backend on mount (with fallbacks)
- * - Sync preferences with i18n language changes
- * - Persist preference changes to localStorage
- * - Provide reset-to-defaults functionality
- *
- * @param children - React components to wrap
- * @returns JSX with SettingsContext.Provider wrapping children
- *
- * @example
- * ```tsx
- * import { SettingsProvider } from './context/settings';
- *
- * export default function App() {
- *   return (
- *     <SettingsProvider>
- *       <Router />
- *     </SettingsProvider>
- *   );
- * }
- * ```
- */
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { i18n } = useTranslation('common');
 
-  // Track whether system info is being fetched from backend
   const [isLoading, setIsLoading] = React.useState(true);
-  
-  // System information from backend (null while loading)
   const [systemInfo, setSystemInfo] = React.useState<SystemInfo | null>(null);
-  
-  // User preferences with language-aware defaults on first load
   const [userPreferences, setUserPreferencesState] = React.useState<UserPreferences>(() =>
     loadPreferencesFromStorage(i18n.language)
   );
 
-  /**
-   * Fetch system information from backend on component mount
-   *
-   * Runs once when provider mounts. If fetch fails, uses sensible fallback values
-   * to ensure systemInfo is always available (never null).
-   *
-   * This prevents the app from breaking if backend is temporarily down.
-   */
+  /** One-time fetch on mount; fallbacks ensure systemInfo is never null. See CB-APP32 for fallback concerns. */
   React.useEffect(() => {
     const fetchSystemInfo = async () => {
       try {
@@ -97,10 +71,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         };
         setSystemInfo(info);
       } catch (error) {
-        // Log warning but continue - graceful degradation if backend is down
+        // BUCKET: unguarded console.warn ships to production; wrap in import.meta.env.DEV or remove (CB-APP35 — also at SettingsStorage.ts lines 47, 65, 79)
         console.warn('Failed to fetch system info:', error);
-        
-        // Use fallback values so systemInfo is never null
+
+        // BUCKET: hardcoded fallbacks ship to UI on fetch failure — database: 'Oracle ADB' and environment: 'production' are strong assertions, particularly suspect since fetch failure is more likely in dev (CB-APP32)
         setSystemInfo({
           database: 'Oracle ADB',
           version: 'dev',
@@ -111,37 +85,23 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           status: 'UNKNOWN',
         });
       } finally {
-        // Mark loading complete regardless of success/failure
         setIsLoading(false);
       }
     };
 
-    // Only fetch once on mount
     fetchSystemInfo();
   }, []);
 
-  /**
-   * Sync user preferences with i18n language changes
-   *
-   * When user changes language, update date/number format defaults to match
-   * the new language while preserving table density preference.
-   *
-   * Example: Changing from German to English updates:
-   * - dateFormat: DD.MM.YYYY → MM/DD/YYYY
-   * - numberFormat: DE → EN_US
-   * - tableDensity: (unchanged)
-   */
+  /** Sync format defaults to current i18n language on language change. */
   React.useEffect(() => {
     setUserPreferencesState((prev) => {
       const updated = { ...prev };
-      
-      // If language changed to German, ensure formats match German locale
+      // BUCKET: silently overwrites explicit user-chosen formats (e.g. ISO YYYY-MM-DD survives but MM/DD/YYYY in a German UI gets overwritten on language change) — explicit preferences should be sticky (CB-APP33)
+      // BUCKET: mutates state only; does NOT call savePreferencesToStorage, so next mount reloads old prefs from storage until something else triggers persistence (CB-APP34)
       if (i18n.language.startsWith('de')) {
         if (updated.dateFormat === 'MM/DD/YYYY') updated.dateFormat = 'DD.MM.YYYY';
         if (updated.numberFormat === 'EN_US') updated.numberFormat = 'DE';
-      }
-      // If language changed to English, ensure formats match English locale
-      else {
+      } else {
         if (updated.dateFormat === 'DD.MM.YYYY') updated.dateFormat = 'MM/DD/YYYY';
         if (updated.numberFormat === 'DE') updated.numberFormat = 'EN_US';
       }
@@ -150,60 +110,29 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   }, [i18n.language]);
 
-  /**
-   * Update user preferences and persist to localStorage
-   *
-   * Merges the new preferences with existing ones (partial update)
-   * and automatically saves to localStorage.
-   *
-   * @param prefs - Partial preferences to update
-   *
-   * @example
-   * ```tsx
-   * // Only updates dateFormat, preserves other settings
-   * setUserPreferences({ dateFormat: 'YYYY-MM-DD' });
-   * ```
-   */
+  /** Update preferences with partial merge; persists to localStorage. */
   const setUserPreferences = (prefs: Partial<UserPreferences>) => {
     setUserPreferencesState((prev) => {
-      // Merge new preferences with existing ones
       const updated = { ...prev, ...prefs };
-      
-      // Persist to localStorage (logs warning on failure, non-blocking)
+      // WHY: persistence failure is non-blocking — in-memory state still applies; user re-edits will re-attempt save.
       savePreferencesToStorage(updated);
       
       return updated;
     });
   };
 
-  /**
-   * Reset all preferences to language-appropriate defaults
-   *
-   * Clears localStorage entirely and resets preferences to defaults
-   * for the current i18n language.
-   *
-   * Useful for troubleshooting and user-facing "Reset" buttons.
-   */
+  /** Clear stored preferences and restore language-appropriate defaults. */
   const resetToDefaults = () => {
-    // Clear entire localStorage entry
     clearPreferencesFromStorage();
-    
-    // Reset state to fresh defaults for current language
     setUserPreferencesState(getDefaultPreferences(i18n.language));
   };
 
-  /**
-   * Construct the context value object
-   *
-   * This is passed to all consumers via useSettings() hook.
-   * Contains current state and all control functions.
-   */
   const value: SettingsContextType = {
-    userPreferences,    // Current date/number formats, table density
-    systemInfo,         // Backend system info or fallback values
-    setUserPreferences, // Update and persist preferences
-    resetToDefaults,    // Clear storage and restore defaults
-    isLoading,          // Whether systemInfo fetch is in progress
+    userPreferences,
+    systemInfo,
+    setUserPreferences,
+    resetToDefaults,
+    isLoading,
   };
 
   return (

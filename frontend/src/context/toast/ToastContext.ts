@@ -3,64 +3,40 @@
  * @module context/toast/ToastContext
  *
  * @summary
- * Ultra-light toast context: exposes a single function for ephemeral notifications.
- * Kept separate to satisfy react-refresh and to allow reuse across shells (AppShell, AppPublicShell).
+ * Context object + useToast hook for ephemeral notifications,
+ * shared between authenticated and unauthenticated shells.
  *
  * @enterprise
- * - Provides a simple callback interface for toast notifications
- * - Used by both authenticated (AppShell) and unauthenticated (AppPublicShell) shells
- * - Consumed by page components and dialogs via useToast() hook
- * - No-op default context to prevent errors if used outside provider
- * - Type-safe severity levels matching MUI Alert component
- *
- * @example
- * ```tsx
- * // In a shell:
- * <ToastContext.Provider value={(msg, severity) => showToast(msg, severity)}>
- *   {children}
- * </ToastContext.Provider>
- *
- * // In a component:
- * const toast = useToast();
- * toast('Operation successful', 'success');
- * ```
+ * - Consumed by BOTH shells: AppShell.tsx (authenticated) and
+ *   AppPublicShell.tsx (unauthenticated), each providing its own
+ *   implementation via ToastContext.Provider value. The context
+ *   here defines only the SHAPE — no implementation.
+ * - Default value is a no-op function (NOT undefined). Intentional:
+ *   tolerates render outside a provider without throwing — useful
+ *   for tests and isolated component renders. Trade-off: a missing
+ *   provider in production silently swallows toast calls.
+ * - Severity union ('success' | 'info' | 'warning' | 'error')
+ *   matches MUI Alert's severity prop for visual consistency
+ *   without importing MUI Alert types here (kept dependency-light).
  */
 
 import * as React from 'react';
 
-/**
- * Toast function type: message + optional severity level
- * Severity levels match MUI Alert component for consistency
- */
+/** Toast function type: message + optional severity level */
 export type ToastFn = (msg: string, severity?: 'success' | 'info' | 'warning' | 'error') => void;
 
-/**
- * Global toast context (no-op default).
- * Provides a simple callback to display transient notifications.
- *
- * @remarks
- * Default value is a no-op function to gracefully handle usage outside provider.
- * Actual implementation should check for errors in strict mode.
- */
+/** Global toast context (no-op default). */
 export const ToastContext = React.createContext<ToastFn>(() => {});
 
 /**
  * Access the toast function provided by AppShell or AppPublicShell.
- *
- * @throws Error if used outside of a matching provider
- *
- * @example
- * ```tsx
- * const toast = useToast();
- * toast('Success!', 'success');
- * toast('Warning!', 'warning');
- * ```
  *
  * @returns Toast function to display notifications with optional severity
  */
 export const useToast = (): ToastFn => {
   const ctx = React.useContext(ToastContext);
   if (!ctx) {
+    // BUCKET: dead check — ToastContext defaults to a no-op function, not undefined, so ctx is never falsy; the throw is unreachable and the @throws claim is false (CB-APP26)
     throw new Error('useToast must be used within a ToastContext.Provider');
   }
   return ctx;

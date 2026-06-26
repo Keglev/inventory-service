@@ -1,12 +1,15 @@
 /**
  * @file createContextHook.ts
- * @description
- * Factory function for creating type-safe context access hooks.
- * Eliminates boilerplate by providing a reusable pattern for context consumption.
- *
- * @usage
- * const useMyContext = createContextHook(MyContext, 'useMyContext')
- * const value = useMyContext()
+ * @module hooks/createContextHook
+ * @summary Factory that builds a type-safe context-access hook with a guarded
+ *   null-check and consistent error messaging.
+ * @enterprise
+ * - Used ONLY by 3 sibling hooks (useAuth, useHelp, useSettings) to eliminate
+ *   the useContext + null-check + throw triplet repeated per context.
+ * - Returns a closure capturing hookName so each derived hook throws with its
+ *   own identity ("useAuth must be used within...").
+ * - Generic factory: callers parameterize T and pass a Context<T|undefined>.
+ *   Provider is responsible for never passing undefined as value.
  */
 
 import { useContext, type Context } from 'react';
@@ -22,9 +25,9 @@ export function createContextHook<T>(
   context: Context<T | undefined>,
   hookName: string,
 ): () => T {
-  // Return a hook function
   return (): T => {
     const value = useContext(context) as T | undefined;
+    // BUCKET: strict undefined check — primitive-valued contexts (0, '', false) would throw spuriously (CB-APP24)
     if (!value) {
       throw new Error(`${hookName} must be used within the corresponding provider`);
     }

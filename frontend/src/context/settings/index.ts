@@ -1,13 +1,15 @@
 /**
  * @file settings/index.ts
- * @description Barrel export for settings context and utilities
- * 
- * Exports all public APIs from the settings context module:
- * - SettingsProvider: Component to wrap app with settings context
- * - useSettings: Hook to access settings anywhere
- * - SettingsContext: Raw context object (rarely needed directly)
- * - Types: DateFormat, NumberFormat, TableDensity, UserPreferences, SystemInfo
- * - Utilities: Storage functions for testing/advanced usage
+ * @module context/settings
+ * @summary Barrel re-export for the settings context module: Provider,
+ * Context, useSettings (twin — see ST-APP9), all types, and storage helpers.
+ * @enterprise
+ * - Re-exports the context-twin useSettings (./useSettings). Verified by
+ *   grep: NO production file imports useSettings via this barrel. The
+ *   re-export survives only because the twin survives. Will be cleaned up
+ *   when ST-APP9 closes.
+ * - Storage helpers are exported for tests + the AppSettings dialog advanced
+ *   features.
  */
 export { SettingsProvider, SettingsContext } from './SettingsContext';
 export { useSettings } from './useSettings';

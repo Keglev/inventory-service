@@ -1,6 +1,9 @@
 /**
  * @file toast/index.ts
- * @description Barrel export for toast context
+ * @module context/toast
+ *
+ * @summary
+ * Barrel re-export for the toast context module.
  */
 export { ToastContext, useToast } from './ToastContext';
 export type { ToastFn } from './ToastContext';

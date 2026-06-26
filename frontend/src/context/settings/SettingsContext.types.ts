@@ -1,9 +1,22 @@
 /**
  * @file SettingsContext.types.ts
- * @description Type definitions and context object for application settings
- * 
- * Centralizes all types related to user preferences (date/number formats, table density)
- * and system information fetched from backend.
+ * @module context/settings/SettingsContext.types
+ * @summary Type definitions and the SettingsContext object — split from the
+ * Provider component to comply with Vite fast refresh constraints.
+ * @enterprise
+ * - File hosts non-component exports (interfaces + the SettingsContext object)
+ *   so SettingsContext.tsx exports component values only and preserves fast-
+ *   refresh HMR. Same pattern as HelpContext.types.ts.
+ * - The SystemInfo interface declares a contract that EXCEEDS what the backend
+ *   /api/health endpoint actually returns. apiVersion, buildDate, uptime, and
+ *   version fields are FABRICATED upstream by utils/systemInfo.ts (per MASTER
+ *   CB-APP18). The interface will shrink when CB-APP18 closes.
+ * - DateFormat / NumberFormat values are APP-INTERNAL codes, NOT BCP-47 locale
+ *   tags. 'DE' and 'EN_US' map to actual locales in the formatter layer
+ *   (utils/formatters.ts).
+ * - SettingsContext defaults to `undefined`. The consumer hook (either
+ *   hooks/useSettings.ts or this directory's useSettings.ts — see ST-APP9)
+ *   throws when undefined, enforcing provider-wrapped usage.
  */
 
 import * as React from 'react';
@@ -59,15 +72,12 @@ export interface SystemInfo {
  * Provides access to preferences and system info, plus control functions
  */
 export interface SettingsContextType {
-  userPreferences: UserPreferences;      // Current user settings
-  systemInfo: SystemInfo | null;         // Backend system info (null while loading)
-  setUserPreferences: (prefs: Partial<UserPreferences>) => void; // Update & persist
-  resetToDefaults: () => void;           // Clear storage and restore defaults
-  isLoading: boolean;                    // Whether systemInfo is being fetched
+  userPreferences: UserPreferences;
+  systemInfo: SystemInfo | null;
+  setUserPreferences: (prefs: Partial<UserPreferences>) => void;
+  resetToDefaults: () => void;
+  isLoading: boolean;
 }
 
-/**
- * Settings context React Context object
- * Initialized with undefined for strict type-checking with hooks
- */
+/** Settings context (defaults to undefined; consumer hook throws when unwrapped). */
 export const SettingsContext = React.createContext<SettingsContextType | undefined>(undefined);

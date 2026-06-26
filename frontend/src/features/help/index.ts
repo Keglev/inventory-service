@@ -1,8 +1,7 @@
 /**
  * @file features/help/index.ts
- * @description
- * Barrel export for help feature.
- * Exports components and hooks for help functionality.
+ * @module features/help
+ * @summary Barrel re-export for the help feature module.
  */
 
 export { HelpIconButton } from './components/HelpIconButton';
