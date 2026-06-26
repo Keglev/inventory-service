@@ -3,12 +3,18 @@
  * @module app/HamburgerMenu/ProfileSettings/ProfileRoleDisplay
  *
  * @summary
- * Displays user's role with optional demo badge.
- * Capitalizes role name and shows demo indicator if applicable.
+ * Read-only role row; renders the role string and a demo Chip when `isDemo` is true.
+ *
+ * @enterprise
+ * - Props-only leaf: data flows from ProfileMenuSection (which reads useAuth);
+ *   no state or data-fetching hooks in this component.
+ * - The capitalization expression `role.charAt(0).toUpperCase() + role.slice(1)`
+ *   is a no-op for the actual inputs (backend sends "ADMIN"/"USER" via
+ *   Role.name(); demo session uses "DEMO") — see CB-APP13.
  *
  * @example
  * ```tsx
- * <ProfileRoleDisplay role="admin" isDemo={true} />
+ * <ProfileRoleDisplay role="ADMIN" isDemo={true} />
  * ```
  */
 
@@ -16,25 +22,14 @@ import { Box, Stack, Typography, Chip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 interface ProfileRoleDisplayProps {
-  /** User's role string */
   role?: string;
-
-  /** Whether this is a demo account */
   isDemo: boolean;
 }
 
-/**
- * Profile role display component.
- *
- * Displays capitalized role with demo badge if user is on demo account.
- *
- * @param props - Component props
- * @returns JSX element displaying role and demo badge
- */
 export default function ProfileRoleDisplay({ role, isDemo }: ProfileRoleDisplayProps) {
   const { t } = useTranslation(['common', 'auth']);
 
-  // Capitalize role: convert "admin" to "Admin"
+  // BUCKET: dead capitalization — backend sends uppercase "ADMIN"/"USER" via Role.name(), demo uses "DEMO"; transformation is a no-op (CB-APP13)
   const displayRole = role ? role.charAt(0).toUpperCase() + role.slice(1) : 'User';
 
   return (

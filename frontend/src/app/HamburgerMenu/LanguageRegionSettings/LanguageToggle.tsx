@@ -3,8 +3,15 @@
  * @module app/HamburgerMenu/LanguageRegionSettings/LanguageToggle
  *
  * @summary
- * Language selection toggle component displaying Deutsch/English options with flag icons.
- * Handles language switching via i18n integration and locale callback.
+ * Controlled locale picker (DE/EN) rendered as a flag-labeled ToggleButtonGroup.
+ *
+ * @enterprise
+ * - Controlled component: accepts `locale` + `onLocaleChange`; calls
+ *   `i18n.changeLanguage` internally on every change — this is the i18n mutation
+ *   boundary for the HamburgerMenu locale surface.
+ * - Distinct from `public-shell/header/LanguageToggle`: that sibling is a stateless
+ *   IconButton that delegates all state and i18n side-effects up; this version drives
+ *   both the parent callback and the i18n runtime directly.
  *
  * @example
  * ```tsx
@@ -25,19 +32,10 @@ const DE_FLAG = '/flags/de.svg';
 const US_FLAG = '/flags/us.svg';
 
 interface LanguageToggleProps {
-  /** Current locale setting (de or en) */
   locale: SupportedLocale;
-
-  /** Callback fired when locale is changed */
   onLocaleChange: (locale: SupportedLocale) => void;
 }
 
-/**
- * Language toggle component with flag icons.
- *
- * @param props - Component props
- * @returns JSX element rendering language toggle buttons
- */
 export default function LanguageToggle({
   locale,
   onLocaleChange,

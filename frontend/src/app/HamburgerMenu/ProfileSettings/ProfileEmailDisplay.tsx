@@ -3,8 +3,15 @@
  * @module app/HamburgerMenu/ProfileSettings/ProfileEmailDisplay
  *
  * @summary
- * Displays user's email or demo account message.
- * Handles both regular and demo user scenarios.
+ * Read-only email row; branches on `isDemo` to show a demo-mode placeholder
+ * instead of the real email address.
+ *
+ * @enterprise
+ * - The `isDemo` branch is the only non-trivial logic: demo accounts have no
+ *   real email, so the branch prevents a blank field and shows a user-friendly
+ *   message instead.
+ * - Props-only leaf: data flows from ProfileMenuSection (which reads useAuth);
+ *   no state or data-fetching hooks in this component.
  *
  * @example
  * ```tsx
@@ -16,21 +23,10 @@ import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 interface ProfileEmailDisplayProps {
-  /** User's email address */
   email?: string;
-
-  /** Whether this is a demo account */
   isDemo: boolean;
 }
 
-/**
- * Profile email display component.
- *
- * Shows either user's email or demo account message depending on account type.
- *
- * @param props - Component props
- * @returns JSX element displaying email or demo message
- */
 export default function ProfileEmailDisplay({ email, isDemo }: ProfileEmailDisplayProps) {
   const { t } = useTranslation(['common', 'auth']);
 

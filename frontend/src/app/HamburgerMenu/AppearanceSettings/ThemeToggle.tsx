@@ -3,8 +3,14 @@
  * @module app/HamburgerMenu/AppearanceSettings/ThemeToggle
  *
  * @summary
- * Theme mode toggle component with light/dark mode icons.
- * Displays current theme and allows switching between light and dark modes.
+ * Controlled light/dark mode picker rendered as a labeled two-IconButton Stack.
+ *
+ * @enterprise
+ * - Controlled component: accepts `themeMode` + `onThemeModeChange`; no local state;
+ *   persistence is owned by the parent section coordinator (AppearanceMenuSection).
+ * - Distinct from `public-shell/header/ThemeToggle`: that sibling is a stateless
+ *   IconButton that delegates all state up and has no translation calls; this version
+ *   owns its `useTranslation` call and renders a labeled Stack with two IconButtons.
  *
  * @example
  * ```tsx
@@ -18,22 +24,10 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { useTranslation } from 'react-i18next';
 
 interface ThemeToggleProps {
-  /** Current theme mode (light or dark) */
   themeMode: 'light' | 'dark';
-
-  /** Callback when theme mode changes */
   onThemeModeChange: (mode: 'light' | 'dark') => void;
 }
 
-/**
- * Theme toggle component.
- *
- * Displays light/dark mode icons as clickable buttons.
- * Shows current mode label between the buttons.
- *
- * @param props - Component props
- * @returns JSX element rendering theme toggle buttons
- */
 export default function ThemeToggle({
   themeMode,
   onThemeModeChange,

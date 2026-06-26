@@ -3,8 +3,13 @@
  * @module app/HamburgerMenu/AppearanceSettings/TableDensitySetting
  *
  * @summary
- * Table density setting component with comfortable/compact toggle buttons.
- * Persists preference via useSettings hook.
+ * Controlled density picker (comfortable/compact) rendered as a ToggleButtonGroup.
+ *
+ * @enterprise
+ * - Controlled component: accepts `tableDensity` + `onChange`; no local state;
+ *   persistence is owned by the parent section coordinator (AppearanceMenuSection).
+ * - Density is editable from both this HamburgerMenu surface and the settings dialog;
+ *   this component is the HamburgerMenu surface of ST-APP4.
  *
  * @example
  * ```tsx
@@ -16,21 +21,10 @@ import { Box, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { useTranslation } from 'react-i18next';
 
 interface TableDensitySettingProps {
-  /** Current table density setting (comfortable or compact) */
   tableDensity: string;
-
-  /** Callback when table density changes */
   onChange: (newDensity: 'compact' | 'comfortable') => void;
 }
 
-/**
- * Table density setting component.
- *
- * Provides toggle between comfortable and compact table display modes.
- *
- * @param props - Component props
- * @returns JSX element rendering density toggle buttons
- */
 export default function TableDensitySetting({
   tableDensity,
   onChange,

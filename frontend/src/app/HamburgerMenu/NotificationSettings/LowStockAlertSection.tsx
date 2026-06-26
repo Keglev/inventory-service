@@ -3,8 +3,13 @@
  * @module app/HamburgerMenu/NotificationSettings/LowStockAlertSection
  *
  * @summary
- * Displays low-stock alert with warning styling and item count.
- * Shows when low-stock items exist in inventory.
+ * DEAD IN PRODUCTION — NotificationsMenuSection reimplements this JSX inline and does
+ * not import this component; only test files consume it. Would render the warning Stack
+ * + chip with low-stock item count.
+ *
+ * @enterprise
+ * - Zero production importers; NotificationsMenuSection duplicates this JSX inline
+ *   instead of importing (see CB-APP12).
  *
  * @example
  * ```tsx
@@ -17,24 +22,15 @@ import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { useTranslation } from 'react-i18next';
 
 interface LowStockAlertSectionProps {
-  /** Number of items with low stock */
   lowStockCount: number;
 }
 
-/**
- * Low-stock alert display component.
- *
- * Shows alert box with warning styling and chip with item count.
- *
- * @param props - Component props
- * @returns JSX element displaying low-stock alert
- */
 export default function LowStockAlertSection({ lowStockCount }: LowStockAlertSectionProps) {
+  // BUCKET: dead in production — NotificationsMenuSection reimplements this JSX inline; either wire it or delete the dir (CB-APP12)
   const { t } = useTranslation('common');
 
   return (
     <>
-      {/* Alert Box */}
       <Stack spacing={0.5} sx={{ p: 1, bgcolor: 'warning.light', borderRadius: 1 }}>
         <Stack direction="row" spacing={1} alignItems="center">
           <NotificationsActiveIcon sx={{ fontSize: 20, color: 'warning.main' }} />
@@ -51,7 +47,6 @@ export default function LowStockAlertSection({ lowStockCount }: LowStockAlertSec
         </Typography>
       </Stack>
 
-      {/* Quick Stats Chip */}
       <Stack sx={{ mt: 1 }}>
         <Chip
           size="small"

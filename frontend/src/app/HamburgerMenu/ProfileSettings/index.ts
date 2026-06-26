@@ -3,8 +3,8 @@
  * @module app/HamburgerMenu/ProfileSettings
  *
  * @summary
- * Barrel export for ProfileSettings sub-components.
- * Provides centralized access to all profile display UI components.
+ * Barrel for ProfileSettings leaf components: ProfileNameDisplay, ProfileEmailDisplay,
+ * and ProfileRoleDisplay.
  */
 
 export { default as ProfileNameDisplay } from './ProfileNameDisplay';

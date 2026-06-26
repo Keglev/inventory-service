@@ -3,8 +3,8 @@
  * @module app/HamburgerMenu/LanguageRegionSettings
  *
  * @summary
- * Barrel export for LanguageRegionSettings sub-components.
- * Provides centralized access to all language and region setting UI components.
+ * Barrel for LanguageRegionSettings leaf components: LanguageToggle, DateFormatSetting,
+ * and NumberFormatSetting.
  */
 
 export { default as LanguageToggle } from './LanguageToggle';

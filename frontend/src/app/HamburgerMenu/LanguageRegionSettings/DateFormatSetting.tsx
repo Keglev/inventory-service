@@ -3,8 +3,11 @@
  * @module app/HamburgerMenu/LanguageRegionSettings/DateFormatSetting
  *
  * @summary
- * Date format setting component allowing selection between DD.MM.YYYY and YYYY-MM-DD formats.
- * Persists preference via useSettings hook.
+ * Controlled date-format radio picker (DD.MM.YYYY / YYYY-MM-DD).
+ *
+ * @enterprise
+ * - Controlled component: accepts `dateFormat` + `onChange`; no local state;
+ *   persistence is owned by the parent section coordinator (LanguageRegionMenuSection).
  *
  * @example
  * ```tsx
@@ -23,21 +26,10 @@ import {
 import { useTranslation } from 'react-i18next';
 
 interface DateFormatSettingProps {
-  /** Current date format setting (DD.MM.YYYY or YYYY-MM-DD) */
   dateFormat: string;
-
-  /** Callback fired when date format is changed */
   onChange: (newFormat: 'DD.MM.YYYY' | 'YYYY-MM-DD') => void;
 }
 
-/**
- * Date format radio selection component.
- *
- * Provides two standard date format options with visual examples.
- *
- * @param props - Component props
- * @returns JSX element rendering date format radio buttons
- */
 export default function DateFormatSetting({
   dateFormat,
   onChange,

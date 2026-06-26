@@ -3,8 +3,11 @@
  * @module app/HamburgerMenu/ProfileSettings/ProfileNameDisplay
  *
  * @summary
- * Displays user's full name in the profile section.
- * Read-only display component with label.
+ * Read-only name row driven entirely by props; no hooks beyond useTranslation.
+ *
+ * @enterprise
+ * - Props-only leaf: data flows from ProfileMenuSection (which reads useAuth);
+ *   no state or data-fetching hooks in this component.
  *
  * @example
  * ```tsx
@@ -16,16 +19,9 @@ import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 interface ProfileNameDisplayProps {
-  /** User's full name to display */
   fullName?: string;
 }
 
-/**
- * Profile name display component.
- *
- * @param props - Component props
- * @returns JSX element displaying user's name
- */
 export default function ProfileNameDisplay({ fullName }: ProfileNameDisplayProps) {
   const { t } = useTranslation(['common']);
 

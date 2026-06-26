@@ -3,8 +3,7 @@
  * @module app/HamburgerMenu/AppearanceSettings
  *
  * @summary
- * Barrel export for AppearanceSettings sub-components.
- * Provides centralized access to all appearance setting UI components.
+ * Barrel for AppearanceSettings leaf components: ThemeToggle and TableDensitySetting.
  */
 
 export { default as ThemeToggle } from './ThemeToggle';
