@@ -7,12 +7,8 @@
  * Shows database, environment, version, status, and build date information.
  *
  * @enterprise
- * - Displays read-only system information
- * - Loading state with spinner
- * - Color-coded environment badge (production vs others)
- * - Graceful fallback for unavailable system info
- * - i18n support for labels
- * - Full TypeDoc coverage for system preferences display
+ * - Read-only display: data is fetched by useSettings, surfaced here without user interaction
+ * - Source of truth for runtime environment; helps users confirm which backend/DB the UI is talking to
  */
 
 import {
@@ -24,6 +20,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
+// BUCKET: SystemInfo re-declared locally — import the exported context/settings type, drop this copy (ST-APP6)
 interface SystemInfo {
   database: string;
   environment: string;
@@ -81,7 +78,6 @@ export default function SystemPreferencesSection({
 
   return (
     <Stack spacing={1.5}>
-      {/* Database Information */}
       <Box>
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
           {t('settings.database', 'Database')}
@@ -89,12 +85,12 @@ export default function SystemPreferencesSection({
         <Typography variant="body2">{systemInfo.database}</Typography>
       </Box>
 
-      {/* Environment Information */}
       <Box>
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
           {t('settings.environment', 'Environment')}
         </Typography>
         <Box sx={{ mt: 0.5 }}>
+          {/* 'error' (red) for production is intentional — a caution signal; non-prod gets 'success' (green). Inverted on purpose, not a bug. */}
           <Chip
             label={systemInfo.environment}
             size="small"
@@ -104,7 +100,6 @@ export default function SystemPreferencesSection({
         </Box>
       </Box>
 
-      {/* Version Information */}
       <Box>
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
           {t('settings.version', 'Version')}
@@ -112,7 +107,6 @@ export default function SystemPreferencesSection({
         <Typography variant="body2">{systemInfo.version}</Typography>
       </Box>
 
-      {/* Status Information */}
       <Box>
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
           {t('settings.status', 'Status')}
@@ -120,7 +114,6 @@ export default function SystemPreferencesSection({
         <Typography variant="body2">{systemInfo.status}</Typography>
       </Box>
 
-      {/* Build Date Information */}
       <Box>
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
           {t('settings.buildDate', 'Build Date')}

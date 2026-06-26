@@ -7,13 +7,10 @@
  * Orchestrates all settings sections and manages form state through callbacks.
  *
  * @enterprise
- * - Thin orchestrator delegating to focused settings sections
- * - Manages form layout and section organization
- * - Handles reset to defaults and form submission
- * - Consistent paper styling for all sections
- * - i18n support for section headers
- * - Full TypeDoc coverage for form orchestration
+ * - Orchestrator only: receives all state as props, no local state or side effects
+ * - Sections are independently tested; this component owns only layout and section composition
  */
+// BUCKET: file exceeds ~150-line guideline — review for extract/split (ST-APP2)
 
 import {
   Box,
@@ -31,6 +28,7 @@ import {
 } from './sections';
 import type { DateFormat, NumberFormat, TableDensity } from '../../context/settings';
 
+// BUCKET: SystemInfo re-declared locally — import the exported context/settings type, drop this copy (ST-APP6)
 interface SystemInfo {
   database: string;
   environment: string;
@@ -103,7 +101,7 @@ export default function AppSettingsForm({
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       
-      {/* User Preferences Section */}
+      {/* BUCKET: identical section-card block repeated 3× — extract a SettingsSectionCard wrapper (ST-APP7) */}
       <Box>
         <Typography
           variant="subtitle2"
@@ -129,7 +127,6 @@ export default function AppSettingsForm({
           }}
         >
           <Stack spacing={2}>
-            {/* Language & Region Settings */}
             <LanguageRegionSettingsSection
               dateFormat={dateFormat}
               onDateFormatChange={onDateFormatChange}
@@ -137,7 +134,6 @@ export default function AppSettingsForm({
               onNumberFormatChange={onNumberFormatChange}
             />
 
-            {/* Appearance Settings */}
             <AppearanceSettingsSection
               tableDensity={tableDensity}
               onTableDensityChange={onTableDensityChange}
@@ -148,7 +144,6 @@ export default function AppSettingsForm({
 
       <Divider />
 
-      {/* System Info Section */}
       <Box>
         <Typography
           variant="subtitle2"
@@ -179,7 +174,6 @@ export default function AppSettingsForm({
 
       <Divider />
 
-      {/* Notifications Section */}
       <Box>
         <Typography
           variant="subtitle2"

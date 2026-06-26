@@ -7,11 +7,7 @@
  * Reserved for future notification preferences configuration.
  *
  * @enterprise
- * - Extensible placeholder for notification settings
- * - Maintains consistent section structure and styling
- * - Ready for future feature implementation
- * - i18n support for labels
- * - Full TypeDoc coverage
+ * - Live placeholder: section is visible in the dialog but has no functional controls yet (see CB-APP9)
  */
 
 import { Box, Typography } from '@mui/material';
@@ -35,6 +31,7 @@ export default function NotificationsSettingsSection() {
 
   return (
     <Box>
+      {/* BUCKET: live empty placeholder section — implement, hide, or remove until real (CB-APP9) */}
       <Typography variant="body2" color="text.secondary">
         {t('settings.notificationsConfigured', 'Notification settings will be configured here')}
       </Typography>

@@ -7,13 +7,10 @@
  * Manages date format and number format preferences with preview examples.
  *
  * @enterprise
- * - Focused on language and region settings
- * - Real-time preview examples for date and number formats
- * - Radio button groups for format selection
- * - i18n support for labels and descriptions
- * - Type-safe format selection
- * - Full TypeDoc coverage for locale settings
+ * - Scoped to date/number FORMAT only; locale/language switching is handled by toolbar/sidebar/hamburger toggles
+ * - Live preview examples surface formatter output directly, making format choices self-documenting in the UI
  */
+// BUCKET: file exceeds ~150-line guideline — review for extract/split (ST-APP2)
 
 import {
   FormControl,
@@ -72,7 +69,6 @@ export default function LanguageRegionSettingsSection({
 
   return (
     <Stack spacing={2}>
-      {/* Date Format Selector */}
       <FormControl>
         <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
           {t('settings.dateFormat', 'Date Format')}
@@ -120,7 +116,6 @@ export default function LanguageRegionSettingsSection({
         </RadioGroup>
       </FormControl>
 
-      {/* Number Format Selector */}
       <FormControl>
         <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
           {t('settings.numberFormat', 'Number Format')}

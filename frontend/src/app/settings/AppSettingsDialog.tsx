@@ -7,12 +7,8 @@
  * Manages dialog open/close state and delegates form rendering to AppSettingsForm.
  *
  * @enterprise
- * - Thin container: dialog state and layout only
- * - Delegates form orchestration to AppSettingsForm
- * - Uses custom hook (useAppSettingsForm) for state management
- * - Consistent MUI dialog styling and animations
- * - Responsive design with mobile full-width support
- * - Full TypeDoc coverage for dialog orchestration
+ * - Thin dialog shell: owns only open/close state and layout; all form logic lives in AppSettingsForm + useAppSettingsForm
+ * - Entry point for the settings flow; keeps the dialog surface isolated so it can be opened from any trigger
  */
 
 import {
@@ -82,12 +78,10 @@ export default function AppSettingsDialog({
         },
       }}
     >
-      {/* Dialog Title */}
       <DialogTitle sx={{ fontWeight: 700, fontSize: '1.25rem', pb: 1 }}>
         {t('settings.title', 'Settings')}
       </DialogTitle>
 
-      {/* Dialog Content - Settings Form */}
       <DialogContent dividers sx={{ py: 3 }}>
         <AppSettingsForm
           dateFormat={formState.dateFormat}
@@ -101,7 +95,6 @@ export default function AppSettingsDialog({
         />
       </DialogContent>
 
-      {/* Dialog Actions */}
       <DialogActions sx={{ p: 2, gap: 1 }}>
         <Button
           onClick={handleResetDefaults}

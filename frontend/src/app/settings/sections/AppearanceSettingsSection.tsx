@@ -7,11 +7,8 @@
  * Manages table density preferences with radio button group.
  *
  * @enterprise
- * - Focused on single concern: table density management
- * - Type-safe density selection
- * - i18n support for labels and descriptions
- * - Consistent styling with settings form design
- * - Full TypeDoc coverage for appearance settings
+ * - Owns table density selection for the settings dialog surface only
+ * - Density is also settable from HamburgerMenu/AppearanceSettings (duplicate surface, see ST-APP4) — changes here must stay in sync with that path
  */
 
 import {

@@ -7,11 +7,8 @@
  * Encapsulates user preferences and system info state management.
  *
  * @enterprise
- * - Separates form logic from UI components
- * - Integrates with useSettings hook for data persistence
- * - Provides callbacks for form submission and defaults reset
- * - Type-safe form state management
- * - Full TypeDoc coverage for all exported functions
+ * - Separates form logic from UI, keeping form components stateless
+ * - Delegates read/write to useSettings; this hook does not own persistence — the settings context does
  */
 
 import { useSettings } from '../../../hooks/useSettings';
@@ -40,9 +37,6 @@ export function useAppSettingsForm() {
   const { userPreferences, systemInfo, setUserPreferences, resetToDefaults, isLoading } =
     useSettings();
 
-  /**
-   * Current form state derived from user preferences.
-   */
   const formState: FormState = {
     dateFormat: userPreferences.dateFormat,
     numberFormat: userPreferences.numberFormat,
@@ -50,8 +44,7 @@ export function useAppSettingsForm() {
   };
 
   /**
-   * Handle date format change.
-   * Updates user preferences and persists to storage.
+   * Updates date format preference via the settings context; persistence is owned by the context.
    *
    * @param newFormat - New date format value
    */
@@ -60,8 +53,7 @@ export function useAppSettingsForm() {
   };
 
   /**
-   * Handle number format change.
-   * Updates user preferences and persists to storage.
+   * Updates number format preference via the settings context; persistence is owned by the context.
    *
    * @param newFormat - New number format value
    */
@@ -70,8 +62,7 @@ export function useAppSettingsForm() {
   };
 
   /**
-   * Handle table density change.
-   * Updates user preferences and persists to storage.
+   * Updates table density preference via the settings context; persistence is owned by the context.
    *
    * @param newDensity - New table density value
    */
@@ -79,10 +70,6 @@ export function useAppSettingsForm() {
     setUserPreferences({ tableDensity: newDensity });
   };
 
-  /**
-   * Reset all settings to default values.
-   * Clears user preferences and resets to application defaults.
-   */
   const handleResetDefaults = () => {
     resetToDefaults();
   };
