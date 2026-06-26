@@ -3,13 +3,15 @@
  * @module app/HamburgerMenu/AppearanceMenuSection
  *
  * @summary
- * Appearance menu section coordinator that composes theme and density settings.
- * Acts as a thin container orchestrating sub-components from AppearanceSettings subdirectory.
+ * Section coordinator that composes ThemeToggle and TableDensitySetting into
+ * the appearance block of the hamburger menu.
  *
  * @enterprise
- * - Delegates individual settings to focused sub-components
- * - Integrates with useSettings hook for persistence
- * - Maintains clean separation of concerns
+ * Split persistence boundary: tableDensity is a global user preference persisted
+ * here via useSettings; theme state is shell-owned (HamburgerMenu → AppToolbarActions)
+ * and only passed through as props. The two different ownership models are
+ * intentional — density belongs to data display, theme belongs to shell chrome.
+ * Mounted exclusively by MenuContent/MenuSectionsRenderer.
  */
 
 import { Box, Typography, Stack } from '@mui/material';
@@ -25,16 +27,6 @@ interface AppearanceMenuSectionProps {
   onThemeModeChange: (mode: 'light' | 'dark') => void;
 }
 
-/**
- * Appearance menu section component.
- *
- * Coordinates two distinct appearance setting controls:
- * 1. Theme toggle (light/dark mode with icons)
- * 2. Table density radio group (comfortable vs compact)
- *
- * @param props - Component props
- * @returns JSX element rendering the appearance settings section
- */
 export default function AppearanceMenuSection({
   themeMode,
   onThemeModeChange,
@@ -42,7 +34,6 @@ export default function AppearanceMenuSection({
   const { t } = useTranslation(['common']);
   const { userPreferences, setUserPreferences } = useSettings();
 
-  // Handler for density changes - persists to user preferences
   const handleDensityChange = (newDensity: 'compact' | 'comfortable') => {
     setUserPreferences({ tableDensity: newDensity });
   };
@@ -54,10 +45,7 @@ export default function AppearanceMenuSection({
       </Typography>
 
       <Stack spacing={1.5}>
-        {/* Theme Toggle Component */}
         <ThemeToggle themeMode={themeMode} onThemeModeChange={onThemeModeChange} />
-
-        {/* Table Density Setting Component */}
         <TableDensitySetting
           tableDensity={userPreferences.tableDensity}
           onChange={handleDensityChange}

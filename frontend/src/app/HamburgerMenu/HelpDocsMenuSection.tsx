@@ -3,12 +3,15 @@
  * @module app/HamburgerMenu/HelpDocsMenuSection
  *
  * @summary
- * Help & Documentation section with links to GitHub README, API Docs, and Frontend Docs.
- * Provides quick access to key resources for users. It has been designed to be easily extendable for future additions.
- * @example
- * ```tsx
- * <HelpDocsMenuSection />
- * ```
+ * Static links section; no hooks beyond useTranslation. Renders three
+ * documentation links, all opened in a new tab with rel="noopener noreferrer".
+ *
+ * @enterprise
+ * Two hrefs are relative paths (/docs/api, /docs/frontend) that target the
+ * GitHub Pages docs site — these are real destinations. The third is an
+ * absolute GitHub URL. Contrast with FooterLinks (CB-APP2) where three of
+ * four hrefs are '#' placeholders. Mounted exclusively by
+ * MenuContent/MenuSectionsRenderer.
  */
 
 import {

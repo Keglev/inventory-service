@@ -3,13 +3,16 @@
  * @module app/HamburgerMenu/LanguageRegionMenuSection
  *
  * @summary
- * Language & Region settings section coordinator that composes language, date format, and number format settings.
- * Acts as a thin container orchestrating sub-components from LanguageRegionSettings subdirectory.
+ * Section coordinator that composes LanguageToggle, DateFormatSetting, and
+ * NumberFormatSetting into the language/region block of the hamburger menu.
  *
  * @enterprise
- * - Delegates individual settings to focused sub-components
- * - Integrates with useSettings hook for persistence
- * - Maintains clean separation of concerns
+ * Same split-persistence pattern as AppearanceMenuSection: dateFormat and
+ * numberFormat are persisted here via useSettings; locale state is owned
+ * upstream (HamburgerMenu → AppToolbarActions) and passed through as props.
+ * i18n.changeLanguage is intentionally NOT called here — LanguageToggle owns
+ * that side-effect to keep this coordinator side-effect-free.
+ * Mounted exclusively by MenuContent/MenuSectionsRenderer.
  */
 
 import { Box, Typography, Stack } from '@mui/material';
@@ -30,17 +33,6 @@ interface LanguageRegionMenuSectionProps {
   onLocaleChange: (locale: SupportedLocale) => void;
 }
 
-/**
- * Language & Region menu section component.
- *
- * Coordinates three distinct setting controls:
- * 1. Language toggle (Deutsch/English with flags)
- * 2. Date format radio group (DD.MM.YYYY vs YYYY-MM-DD)
- * 3. Number format radio group (German vs US style)
- *
- * @param props - Component props
- * @returns JSX element rendering the language and region settings section
- */
 export default function LanguageRegionMenuSection({
   locale,
   onLocaleChange,
@@ -48,12 +40,10 @@ export default function LanguageRegionMenuSection({
   const { t } = useTranslation(['common']);
   const { userPreferences, setUserPreferences } = useSettings();
 
-  // Handler for date format changes - persists to user preferences
   const handleDateFormatChange = (newFormat: 'DD.MM.YYYY' | 'YYYY-MM-DD') => {
     setUserPreferences({ dateFormat: newFormat });
   };
 
-  // Handler for number format changes - persists to user preferences
   const handleNumberFormatChange = (newFormat: 'DE' | 'EN_US') => {
     setUserPreferences({ numberFormat: newFormat });
   };
@@ -65,16 +55,11 @@ export default function LanguageRegionMenuSection({
       </Typography>
 
       <Stack spacing={1.5}>
-        {/* Language Selection Component */}
         <LanguageToggle locale={locale} onLocaleChange={onLocaleChange} />
-
-        {/* Date Format Selection Component */}
         <DateFormatSetting
           dateFormat={userPreferences.dateFormat}
           onChange={handleDateFormatChange}
         />
-
-        {/* Number Format Selection Component */}
         <NumberFormatSetting
           numberFormat={userPreferences.numberFormat}
           onChange={handleNumberFormatChange}

@@ -3,15 +3,13 @@
  * @module app/HamburgerMenu/ProfileMenuSection
  *
  * @summary
- * Profile menu section coordinator that composes user profile display components.
- * Acts as a thin container orchestrating sub-components from ProfileSettings subdirectory.
- * Displays name, email (or demo message), and role with demo badge if applicable.
+ * Section coordinator that composes the three ProfileSettings leaf components
+ * (name, email, role) into the profile block of the hamburger menu.
  *
  * @enterprise
- * - Delegates individual profile fields to focused sub-components
- * - Integrates with useAuth hook for user data
- * - Maintains clean separation of concerns
- * - Read-only display section (no editing in this UI)
+ * Sole consumer of useAuth for profile display; leaves are props-only so they
+ * can be unit-tested without an auth context. Mounted exclusively by
+ * MenuContent/MenuSectionsRenderer — no other consumer.
  */
 
 import { Box, Typography, Stack } from '@mui/material';
@@ -23,16 +21,6 @@ import {
   ProfileRoleDisplay,
 } from './ProfileSettings';
 
-/**
- * Profile menu section component.
- *
- * Coordinates three distinct profile display components:
- * 1. User's full name
- * 2. Email or demo account message
- * 3. Role with optional demo badge
- *
- * @returns JSX element rendering the profile information section
- */
 export default function ProfileMenuSection() {
   const { t } = useTranslation(['auth']);
   const { user } = useAuth();
@@ -45,13 +33,8 @@ export default function ProfileMenuSection() {
       </Typography>
 
       <Stack spacing={0.75}>
-        {/* Name Display Component */}
         <ProfileNameDisplay fullName={user?.fullName} />
-
-        {/* Email or Demo Message Component */}
         <ProfileEmailDisplay email={user?.email} isDemo={isDemo} />
-
-        {/* Role with Demo Badge Component */}
         <ProfileRoleDisplay role={user?.role} isDemo={isDemo} />
       </Stack>
     </Box>

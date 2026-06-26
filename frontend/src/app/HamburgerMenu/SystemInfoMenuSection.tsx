@@ -3,7 +3,15 @@
  * @module app/HamburgerMenu/SystemInfoMenuSection
  *
  * @summary
- * System Information section displaying environment, backend URL, and frontend version.
+ * System info section coordinator; reads backend health status from useHealthCheck
+ * and displays environment, backend URL (with copy button), and frontend build info.
+ *
+ * @enterprise
+ * Data origin: features/health (useHealthCheck) for backend online/offline status;
+ * all other values are hardcoded constants (see CB-APP1 marker below).
+ * The optional `clipboard` prop is dependency injection for tests — defaults to
+ * navigator.clipboard so production callers need not pass it.
+ * Mounted exclusively by MenuContent/MenuSectionsRenderer.
  */
 
 import * as React from 'react';
@@ -30,9 +38,9 @@ export default function SystemInfoMenuSection({ clipboard = typeof navigator !==
   const { health } = useHealthCheck();
   const [copied, setCopied] = React.useState(false);
 
-  // System info (from footer and environment)
+  // BUCKET: hardcoded build/env values duplicated from footer + SidebarEnvironment; single source of truth needed (CB-APP1)
   const environment = 'Production (Koyeb)';
-  const backendUrl = '/api'; // Can be enhanced to show full URL
+  const backendUrl = '/api';
   const frontendVersion = '1.0.0';
   const commitHash = '4a9c12f';
 
@@ -58,7 +66,6 @@ export default function SystemInfoMenuSection({ clipboard = typeof navigator !==
       </Typography>
 
       <Stack spacing={1}>
-        {/* Environment */}
         <Box>
           <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}>
             {t('systemInfo.environment', 'Environment')}
@@ -66,7 +73,6 @@ export default function SystemInfoMenuSection({ clipboard = typeof navigator !==
           <Typography variant="body2">{environment}</Typography>
         </Box>
 
-        {/* Backend Status & URL */}
         <Box>
           <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}>
             {t('systemInfo.backend', 'Backend')}
@@ -99,7 +105,6 @@ export default function SystemInfoMenuSection({ clipboard = typeof navigator !==
           </Typography>
         </Box>
 
-        {/* Frontend Version & Build */}
         <Box>
           <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}>
             {t('systemInfo.frontend', 'Frontend')}

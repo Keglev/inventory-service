@@ -3,8 +3,14 @@
  * @module app/HamburgerMenu/NotificationsMenuSection
  *
  * @summary
- * Notifications section with low-stock alerts.
- * Fetches low-stock item count from dashboard metrics hook and displays notification status.
+ * Notification section coordinator; reads lowStockCount from useDashboardMetrics
+ * and renders one of three states: loading skeleton, low-stock alert, or all-clear.
+ *
+ * @enterprise
+ * Data origin: api/analytics/hooks (useDashboardMetrics); only .data?.lowStockCount
+ * is consumed. Mounted exclusively by MenuContent/MenuSectionsRenderer.
+ * This file is the duplicate rendering site flagged as CB-APP12 — the
+ * NotificationSettings/* directory exports the same states as components.
  */
 
 import { Box, Typography, Stack, Chip, Skeleton } from '@mui/material';
@@ -14,11 +20,9 @@ import { useTranslation } from 'react-i18next';
 import { useDashboardMetrics } from '../../api/analytics/hooks';
 
 export default function NotificationsMenuSection() {
-  // Only need the common namespace here; remove mixed namespace lookups to avoid fallbacks.
   const { t } = useTranslation('common');
-
-  // Fetch dashboard metrics (includes low-stock count) with consolidated cache management
   const q = useDashboardMetrics();
+  // BUCKET: this file reimplements JSX that NotificationSettings/* already exports as components; either import them or delete the dir (CB-APP12)
 
   const lowStockCount = q.data?.lowStockCount ?? 0;
   const hasLowStock = !q.isLoading && lowStockCount > 0;
@@ -36,7 +40,6 @@ export default function NotificationsMenuSection() {
     <>
       {hasLowStock ? (
         <>
-          {/* ALERT SECTION */}
           <Stack spacing={0.5} sx={{ p: 1, bgcolor: 'warning.light', borderRadius: 1 }}>
             <Stack direction="row" spacing={1} alignItems="center">
               <NotificationsActiveIcon sx={{ fontSize: 20, color: 'warning.main' }} />
@@ -53,7 +56,6 @@ export default function NotificationsMenuSection() {
             </Typography>
           </Stack>
 
-          {/* QUICK STATS */}
           <Box sx={{ mt: 1 }}>
             <Chip
               size="small"
