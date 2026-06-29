@@ -3,13 +3,35 @@
  * @module pages/inventory/hooks/useInventoryData
  *
  * @summary
- * Data fetching and processing for inventory page.
- * Handles backend queries, client-side filtering, and derived computations.
+ * Inventory data orchestration: composes the api-layer suppliers query
+ * and inventory page fetch, applies client-side filters, and exposes
+ * column definitions and row styling for the DataGrid.
  *
  * @enterprise
- * - Separates data concerns from UI state
- * - Encapsulates backend API calls and error handling
- * - Provides processed data ready for rendering
+ * - Composition over duplication. This hook composes the api-layer
+ *   useSuppliersQuery and getInventoryPage; it does not re-implement
+ *   transport. Tracked under ST-1 (twin file with the same name in
+ *   api/inventory/hooks -- composition, not duplication).
+ * - serverPage parameter is 1-based by this hook's current contract,
+ *   but the inventory backend is 0-based Spring Pageable. The +1
+ *   conversion happens at the caller (useDataFetchingLogic). Tracked
+ *   under CB-F -- the caller adds +1 to a grid page that is already
+ *   0-based, so page 0 in the grid asks the backend for page 1, which
+ *   skips the first server page. Fix is to normalize this parameter to
+ *   0-based and drop the +1 in the refactor phase.
+ * - Client-side supplier filtering is a defensive safeguard: the backend
+ *   already filters by supplierId, but the client re-filters in case
+ *   the response leaks cross-supplier rows. Same defensive posture as
+ *   PriceTrendCard in analytics.
+ * - Below-minimum threshold uses a fallback of 5 when minQty is absent
+ *   or non-positive. This is the same low-stock business rule that
+ *   drives LowStockTable's critical chip. Tracked under CB-APP42 --
+ *   the literal 5 is duplicated across three sites (this file,
+ *   useInventoryRowStyling, and analytics LowStockTable) and should be
+ *   extracted to a shared constant in the refactor phase.
+ * - console.error on load failure is unguarded and ships to production
+ *   browser devtools. Tracked under CB-APP45 (same class as CB-APP29 /
+ *   CB-APP35 / CB-APP37).
  */
 
 import * as React from 'react';
@@ -99,6 +121,7 @@ export const useInventoryData = (
       });
       setServer(res);
     } catch (err) {
+      // BUCKET: CB-APP45 -- unguarded console.error ships to production devtools.
       console.error('Failed to load inventory:', err);
       setServer({ items: [], total: 0, page: serverPage, pageSize });
     } finally {
@@ -135,6 +158,7 @@ export const useInventoryData = (
     if (belowMinOnly) {
       rows = rows.filter((r) => {
         const minRaw = Number(r.minQty ?? 0);
+        // BUCKET: CB-APP42 -- duplicated low-stock threshold (5). Extract to shared constant.
         const min = Number.isFinite(minRaw) && minRaw > 0 ? minRaw : 5;
         const onHand = Number(r.onHand ?? 0);
         return onHand < min;

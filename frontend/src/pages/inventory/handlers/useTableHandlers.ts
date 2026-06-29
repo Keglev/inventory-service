@@ -3,12 +3,16 @@
  * @module pages/inventory/handlers/useTableHandlers
  *
  * @summary
- * Custom hook that provides table event handlers for InventoryBoard.
- * Manages: Row click selection, pagination changes, sort changes.
+ * Thin DataGrid event handlers: row click selection, pagination change,
+ * sort change.
  *
  * @enterprise
- * - Separation of concerns: handler logic isolated from component
- * - Clean orchestrator interface
+ * - Kept as a hook (rather than inline callbacks in the board) so
+ *   InventoryBoard receives the same shape from every handler module --
+ *   one object of handlers per concern, returned by a hook.
+ * - No side effects on row click: selection is decoupled from any
+ *   dialog. The toolbar handlers decide when to act on the current
+ *   selection.
  */
 
 import { useCallback } from 'react';
@@ -22,11 +26,6 @@ type InventoryStateReturn = InventoryState & InventoryStateSetters;
  *
  * @param state - Inventory board state object
  * @returns Object with handler functions for table actions
- *
- * @example
- * ```tsx
- * const { handleRowClick, handlePaginationChange, handleSortChange } = useTableHandlers(state);
- * ```
  */
 export function useTableHandlers(state: InventoryStateReturn) {
   const handleRowClick = useCallback(

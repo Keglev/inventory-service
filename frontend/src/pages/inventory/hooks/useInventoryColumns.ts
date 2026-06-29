@@ -3,13 +3,23 @@
  * @module pages/inventory/hooks/useInventoryColumns
  *
  * @summary
- * Column definitions and formatting for inventory DataGrid.
- * Extracted from useInventoryData for single responsibility.
+ * Memoized MUI DataGrid column definitions for the inventory table,
+ * with locale-aware number and date formatting.
  *
  * @enterprise
- * - Memoized column definitions with proper formatting
- * - Handles multiple field name variations from backend
- * - Number and date formatting via user preferences
+ * - Memoized on t() and userPreferences (numberFormat, dateFormat) so
+ *   locale and format changes re-render columns. Field identifiers stay
+ *   constant across renders so DataGrid's internal column-key cache is
+ *   stable.
+ * - Multiple backend field-name tolerance is preserved at value-getter
+ *   level: onHand falls back to quantity, minQty falls back to
+ *   minimumQuantity, updatedAt falls back to createdAt then created_at.
+ *   Tracked under CB-B (dead multi-field tolerance vs single-shape
+ *   backend) and CB-CD (updatedAt is misnamed end-to-end -- the backend
+ *   has no update timestamp at all).
+ * - Placeholder glyph is rendered for missing or unparseable values so
+ *   columns hold visual rhythm during partial loads rather than showing
+ *   empty cells.
  */
 
 import * as React from 'react';

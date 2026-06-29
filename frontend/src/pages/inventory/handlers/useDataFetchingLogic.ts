@@ -3,13 +3,22 @@
  * @module pages/inventory/handlers/useDataFetchingLogic
  *
  * @summary
- * Custom hook that prepares data fetching parameters from board state.
- * Transforms UI state into server-compatible query parameters.
+ * Adapter between InventoryBoard state and useInventoryData. Owns the
+ * pagination and sort-model transformations.
  *
  * @enterprise
- * - Separation of concerns: data parameter transformation isolated
- * - Single responsibility: converts state to API query format
- * - Memoized calculations for sorting
+ * - Two transformations live here: pagination 0-based (MUI grid) to
+ *   1-based (useInventoryData's documented contract), and sort-model
+ *   array to comma-separated server query string.
+ * - Confirmed caller site for CB-F. useInventoryData's serverPage is
+ *   documented as 1-based, but the inventory backend is 0-based Spring
+ *   Pageable. The net effect at this site is an off-by-one: page 0 in
+ *   the grid asks the backend for page 1, skipping the first server
+ *   page. Fix in the refactor phase is to normalize useInventoryData
+ *   to 0-based and remove the +1 here.
+ * - Sort fallback 'name,asc' matches useInventoryState's default sort
+ *   model so the first request matches the visible sort state without
+ *   a re-render.
  */
 
 import { useMemo } from 'react';
@@ -28,11 +37,6 @@ type InventoryStateReturn = InventoryState & InventoryStateSetters;
  *
  * @param state - Inventory board state object
  * @returns Data fetching result from useInventoryData
- *
- * @example
- * ```tsx
- * const data = useDataFetchingLogic(state);
- * ```
  */
 export function useDataFetchingLogic(state: InventoryStateReturn) {
   // Prepare sort parameter for server
@@ -47,6 +51,7 @@ export function useDataFetchingLogic(state: InventoryStateReturn) {
     state.supplierId,
     state.q,
     state.belowMinOnly,
+    // BUCKET: CB-F -- confirmed off-by-one. Caller is 0-based; useInventoryData hook param doc says 1-based; backend is 0-based. Drop +1 once hook param is normalized.
     state.paginationModel.page + 1, // Convert 0-based to 1-based
     state.paginationModel.pageSize,
     serverSort

@@ -3,12 +3,18 @@
  * @module pages/inventory/handlers/useToolbarHandlers
  *
  * @summary
- * Custom hook that provides toolbar action event handlers for InventoryBoard.
- * Manages: Add New, Edit, Delete, Adjust Quantity, Change Price button handlers.
+ * Toolbar action handlers: open the corresponding dialog for Add,
+ * Edit, Delete, Adjust Quantity, Change Price.
  *
  * @enterprise
- * - Separation of concerns: handler logic isolated from component
- * - Clean orchestrator interface
+ * - Five open-dialog setters mapped to toolbar buttons. handleEdit
+ *   opens the rename dialog (openEditName), not the broader edit
+ *   dialog (openEdit) -- the visible "Edit" button only allows name
+ *   changes, reflecting the backend rule that only ADMIN users can
+ *   rename items and the rename flow needs its own validation.
+ * - No close logic here. Dialog components own their own close via
+ *   setters from the same state bag, so this hook only handles the
+ *   open side of the toggle.
  */
 
 import { useCallback } from 'react';
@@ -21,11 +27,6 @@ type InventoryStateReturn = InventoryState & InventoryStateSetters;
  *
  * @param state - Inventory board state object
  * @returns Object with handler functions for toolbar actions
- *
- * @example
- * ```tsx
- * const { handleAddNew, handleEdit, handleDelete, handleAdjustQty, handleChangePrice } = useToolbarHandlers(state);
- * ```
  */
 export function useToolbarHandlers(state: InventoryStateReturn) {
   const handleAddNew = useCallback(() => {

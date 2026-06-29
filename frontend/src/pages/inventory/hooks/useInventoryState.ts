@@ -3,13 +3,23 @@
  * @module pages/inventory/hooks/useInventoryState
  *
  * @summary
- * Centralized state management for inventory page.
- * Manages filters, pagination, sorting, dialog toggles, and selection.
+ * Centralized state bag for the inventory page: filters, DataGrid models,
+ * row selection, and six dialog open/close flags, plus their setters.
  *
  * @enterprise
- * - Single source of truth for UI state
- * - Separated from data fetching and processing logic
- * - Allows components to be pure and testable
+ * - Single useState-bag lets handler hooks receive one state object
+ *   instead of threading individual setters. The cost is a wider
+ *   re-render surface; the benefit is a stable handler signature across
+ *   all five handler modules.
+ * - paginationModel uses MUI's 0-based page convention. The 1-based
+ *   conversion for the backend happens later in useDataFetchingLogic
+ *   (see CB-F).
+ * - Defaults are deliberate. Sort 'name,asc' matches the alphabetical
+ *   mental model for inventory browse; page size 10 fits one viewport
+ *   on standard laptops without vertical scroll.
+ * - Six independent dialog flags rather than one discriminated union.
+ *   Dialogs may overlap (selection survives across open/close cycles)
+ *   and an exclusive-open invariant would not match the UX.
  */
 
 import * as React from 'react';

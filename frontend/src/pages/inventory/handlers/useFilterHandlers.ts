@@ -3,12 +3,20 @@
  * @module pages/inventory/handlers/useFilterHandlers
  *
  * @summary
- * Custom hook that provides filter panel event handlers for InventoryBoard.
- * Manages: Search input, supplier selection, below minimum toggle.
+ * Filter-panel event handlers: search input, supplier selection,
+ * below-minimum toggle.
  *
  * @enterprise
- * - Separation of concerns: handler logic isolated from component
- * - Each handler manages its state updates and side effects
+ * - Three filter handlers with intentional side effects.
+ *   handleSupplierChange clears selection, search, and pagination
+ *   because the previously selected item and the search text do not
+ *   apply to the new supplier. handleBelowMinChange clears pagination
+ *   because the filtered row count usually changes. handleSearchChange
+ *   is a pure setter -- debounce is handled upstream in the input
+ *   control.
+ * - Pagination reset preserves the user's pageSize choice and only
+ *   resets the page index. Row-density preference survives filter
+ *   changes.
  */
 
 import { useCallback } from 'react';
@@ -21,11 +29,6 @@ type InventoryStateReturn = InventoryState & InventoryStateSetters;
  *
  * @param state - Inventory board state object
  * @returns Object with handler functions for filter actions
- *
- * @example
- * ```tsx
- * const { handleSearchChange, handleSupplierChange, handleBelowMinChange } = useFilterHandlers(state);
- * ```
  */
 export function useFilterHandlers(state: InventoryStateReturn) {
   const handleSearchChange = useCallback(

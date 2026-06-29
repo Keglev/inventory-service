@@ -3,14 +3,26 @@
  * @module pages/inventory/validation/inventoryValidation
  *
  * @summary
- * Centralized validation schemas for inventory management forms.
- * Zod schemas for inventory create/edit, quantity adjustment, and price change.
- *
- * Uses Zod for type-safe validation with custom error messages.
+ * Zod schemas for the five inventory-mutation flows: create/update item,
+ * adjust quantity, change price, edit name, delete item.
  *
  * @enterprise
- * - Uses z.coerce.number() so inputs can be strings (from text fields) or numbers.
- * - No any. Clear, field-level error messages suitable for form mapping.
+ * - Five-flow split. Each mutation owns its schema with no cross-schema
+ *   reuse. This keeps the boundary mapping to the backend one-to-one and
+ *   makes flow-specific tightening (e.g. reason rules) a local change.
+ * - Reason field is intentionally asymmetric across flows. itemFormSchema
+ *   constrains reason to the 2-value subset INITIAL_STOCK | MANUAL_UPDATE
+ *   because creation and bulk edits only ever justify with these two.
+ *   quantityAdjustSchema takes a loose z.string() so the broader
+ *   StockChangeReason set (e.g. SCRAPPED, LOST, RETURNED_TO_SUPPLIER)
+ *   flows through; the backend StockHistoryValidator is the authoritative
+ *   check. price-change, edit-name, and delete carry no reason field at
+ *   all because the backend does not record one for those flows.
+ * - Tracked: CB-E (frontend looser than backend on quantity-adjust).
+ *   Tightening is a deliberate refactor decision, not a comment-pass change.
+ * - z.coerce.number() is used so text-input strings from MUI TextField
+ *   are accepted without explicit conversion at the caller. Error messages
+ *   are field-level so a form library can bind them directly.
  */
 
 import { z } from 'zod';
@@ -45,14 +57,11 @@ export const quantityAdjustSchema = z.object({
 export type QuantityAdjustForm = z.infer<typeof quantityAdjustSchema>;
 
 /**
- * Schema for changing item prices.
- * Used in price change dialogs.
- * 
- * @validation
- * - itemId: Required, identifies which item to update
- * - newPrice: Must be positive (> 0), backend validates this as well
- * 
- * @note Backend does not require a "reason" parameter for price changes
+ * Schema for changing item prices, used in price-change dialogs.
+ *
+ * Fields: itemId (required, identifies the item) and newPrice (must be
+ * > 0; backend re-validates). No reason field -- backend does not record
+ * one for this flow.
  */
 export const priceChangeSchema = z.object({
   itemId: z.string().min(1, 'Item selection is required'),
@@ -62,15 +71,11 @@ export const priceChangeSchema = z.object({
 export type PriceChangeForm = z.infer<typeof priceChangeSchema>;
 
 /**
- * Schema for editing item names.
- * Used in edit item dialogs.
- * 
- * @validation
- * - itemId: Required, identifies which item to update
- * - newName: Must not be empty, should be different from current name
- * 
- * @note Backend validates that the new name is not a duplicate for the same supplier
- * @note Only ADMIN users can change item names
+ * Schema for editing item names, used in edit-item dialogs.
+ *
+ * Fields: itemId (required) and newName (non-empty; should differ from
+ * the current name). Backend rejects duplicate names within the same
+ * supplier, and only ADMIN users can rename items.
  */
 export const editItemSchema = z.object({
   itemId: z.string().min(1, 'Item selection is required'),
@@ -80,14 +85,10 @@ export const editItemSchema = z.object({
 export type EditItemForm = z.infer<typeof editItemSchema>;
 
 /**
- * Schema for deleting inventory items.
- * Used in delete item dialogs.
- * 
- * @validation
- * - itemId: Required, identifies which item to delete
- * 
- * @note Backend validates that item quantity is 0 before allowing deletion
- * @note Only ADMIN users can delete items
+ * Schema for deleting inventory items, used in delete-item dialogs.
+ *
+ * Fields: itemId (required). Backend rejects deletion if the item's
+ * quantity is not 0, and only ADMIN users can delete items.
  */
 export const deleteItemSchema = z.object({
   itemId: z.string().min(1, 'Item selection is required'),
