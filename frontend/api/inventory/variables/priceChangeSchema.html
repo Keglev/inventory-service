@@ -125,18 +125,15 @@ inventory/variables/priceChangeSchema · Smart Supply Pro · API</title>
         <code>ZodNumber</code>; }, <code>$strip</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/296ba6ee9fcc920d0539248f786beb2ef2e5311d/frontend/src/pages/inventory/validation/inventoryValidation.ts#L57">pages/inventory/validation/inventoryValidation.ts:57</a></p>
-        <p>Schema for changing item prices. Used in price change
+        href="https://github.com/Keglev/inventory-service/blob/20873f8b973b51af67d1381b75d13d10181782bd/frontend/src/pages/inventory/validation/inventoryValidation.ts#L66">pages/inventory/validation/inventoryValidation.ts:66</a></p>
+        <p>Schema for changing item prices, used in price-change
         dialogs.</p>
-        <h2 id="validation">Validation</h2>
-        <ul>
-        <li>itemId: Required, identifies which item to update</li>
-        <li>newPrice: Must be positive (&gt; 0), backend validates this
-        as well</li>
-        </ul>
-        <h2 id="note">Note</h2>
-        <p>Backend does not require a "reason" parameter for price
-        changes</p>
+        <p>Fields: itemId (required, identifies the item) and newPrice
+        (must be</p>
+        <blockquote>
+        <p>0; backend re-validates). No reason field -- backend does not
+        record one for this flow.</p>
+        </blockquote>
       </article>
     </main>
 
@@ -145,11 +142,7 @@ inventory/variables/priceChangeSchema · Smart Supply Pro · API</title>
       <ul>
       <li><a href="#variable-pricechangeschema"
       id="toc-variable-pricechangeschema">Variable:
-      priceChangeSchema</a>
-      <ul>
-      <li><a href="#validation" id="toc-validation">Validation</a></li>
-      <li><a href="#note" id="toc-note">Note</a></li>
-      </ul></li>
+      priceChangeSchema</a></li>
       </ul>
     </nav>
       </div>

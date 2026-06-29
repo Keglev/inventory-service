@@ -124,18 +124,12 @@ inventory/variables/deleteItemSchema · Smart Supply Pro · API</title>
         <code>ZodString</code>; }, <code>$strip</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/296ba6ee9fcc920d0539248f786beb2ef2e5311d/frontend/src/pages/inventory/validation/inventoryValidation.ts#L92">pages/inventory/validation/inventoryValidation.ts:92</a></p>
-        <p>Schema for deleting inventory items. Used in delete item
+        href="https://github.com/Keglev/inventory-service/blob/20873f8b973b51af67d1381b75d13d10181782bd/frontend/src/pages/inventory/validation/inventoryValidation.ts#L93">pages/inventory/validation/inventoryValidation.ts:93</a></p>
+        <p>Schema for deleting inventory items, used in delete-item
         dialogs.</p>
-        <h2 id="validation">Validation</h2>
-        <ul>
-        <li>itemId: Required, identifies which item to delete</li>
-        </ul>
-        <h2 id="note">Note</h2>
-        <p>Backend validates that item quantity is 0 before allowing
-        deletion</p>
-        <h2 id="note-1">Note</h2>
-        <p>Only ADMIN users can delete items</p>
+        <p>Fields: itemId (required). Backend rejects deletion if the
+        item's quantity is not 0, and only ADMIN users can delete
+        items.</p>
       </article>
     </main>
 
@@ -143,12 +137,8 @@ inventory/variables/deleteItemSchema · Smart Supply Pro · API</title>
       <p class="toc-title">On this page</p>
       <ul>
       <li><a href="#variable-deleteitemschema"
-      id="toc-variable-deleteitemschema">Variable: deleteItemSchema</a>
-      <ul>
-      <li><a href="#validation" id="toc-validation">Validation</a></li>
-      <li><a href="#note" id="toc-note">Note</a></li>
-      <li><a href="#note-1" id="toc-note-1">Note</a></li>
-      </ul></li>
+      id="toc-variable-deleteitemschema">Variable:
+      deleteItemSchema</a></li>
       </ul>
     </nav>
       </div>
