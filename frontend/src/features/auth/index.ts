@@ -1,8 +1,8 @@
 /**
  * @file features/auth/index.ts
- * @description
- * Barrel export for authentication feature.
- * Exports guards, hooks, and components for authentication functionality.
+ * @module features/auth
+ * @summary
+ * Barrel re-export for the auth feature module (RequireAuth guard + useSessionTimeout hook).
  */
 
 export { RequireAuth } from './guards/RequireAuth';

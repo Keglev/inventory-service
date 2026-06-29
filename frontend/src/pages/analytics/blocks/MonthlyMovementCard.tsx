@@ -1,10 +1,20 @@
 /**
-* @file MonthlyMovementCard.tsx
-* @module pages/analytics/blocks/MonthlyMovementCard
-*
-* @summary
-* Card that renders monthly stock movement (A2).
-*/
+ * @file MonthlyMovementCard.tsx
+ * @module pages/analytics/blocks/MonthlyMovementCard
+ *
+ * @summary
+ * Card that renders monthly stock movement as a grouped bar chart (Stock In
+ * vs Stock Out) for the selected date range and supplier.
+ *
+ * @enterprise
+ * - One of two visual variants over the same API (paired with MovementLineCard).
+ *   The bar version is the default in the overview section; the line version
+ *   is available where a trend reading is more useful than monthly totals.
+ * - The query key includes the supplier so the cache does not leak between
+ *   different supplier selections during the same session.
+ * - Hook order is stable: useQuery is declared unconditionally; filter values
+ *   flow through the query key, not through conditional hook calls.
+ */
 import { useCallback } from 'react';
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';

@@ -1,7 +1,16 @@
 /**
  * @file index.ts
- * @description
- * Barrel export for filters components
+ * @module pages/analytics/components/filters
+ *
+ * @summary
+ * Public barrel for the analytics filters subdirectory. Parent modules
+ * import from here rather than reaching into individual files.
+ *
+ * @enterprise
+ * - Single import path keeps the parent (`Analytics.tsx`) decoupled from
+ *   the internal file layout of the filter subdirectory.
+ * - Re-exports both components and their type contracts so consumers do
+ *   not need a second import line for types.
  */
 
 export { Filters } from './Filters';

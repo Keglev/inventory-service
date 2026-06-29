@@ -1,11 +1,19 @@
 /**
-* @file StockValueCard.tsx
-* @module pages/analytics/blocks/StockValueCard
-*
-* @summary
-* Card that renders the stock value over time (A1).
-* Fetching is resilient and sorts data client-side for deterministic charts.
-*/
+ * @file StockValueCard.tsx
+ * @module pages/analytics/blocks/StockValueCard
+ *
+ * @summary
+ * Card that renders the stock value over time (A1). Fetching is resilient
+ * and sorts data client-side for deterministic charts.
+ *
+ * @enterprise
+ * - The fetched series is sorted client-side by date string so the chart is
+ *   deterministic regardless of backend ordering.
+ * - `staleTime: 60_000` keeps the chart stable during quick navigation
+ *   between analytics sections without flicker.
+ * - `retry: 0` because an empty result is a valid state for the cold-start
+ *   case (no items yet) — no point spamming retries.
+ */
 import * as React from 'react';
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';

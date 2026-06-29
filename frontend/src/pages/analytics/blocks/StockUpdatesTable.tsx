@@ -1,11 +1,20 @@
 /**
-* @file StockUpdatesTable.tsx
-* @module pages/analytics/blocks/StockUpdatesTable
-*
-* @summary
-* Recent stock updates (auditable changes) for the current filters. Minimal table
-* with resilient parsing; shows an empty-state when nothing matches.
-*/
+ * @file StockUpdatesTable.tsx
+ * @module pages/analytics/blocks/StockUpdatesTable
+ *
+ * @summary
+ * Recent stock updates (auditable changes) for the current filters. Minimal
+ * table with resilient parsing; shows an empty-state when nothing matches.
+ *
+ * @enterprise
+ * - Fixed `limit: 25` — this is a "recent updates" view, not the full audit
+ *   log; pagination belongs in a dedicated audit page if/when needed.
+ * - Reason codes pass through a label mapper to render human-readable text.
+ *   The current mapper is provisional and tracked for replacement with an
+ *   i18n-resource lookup in the refactor phase.
+ * - Column widths are fixed (`tableLayout: 'fixed'`) so the layout does not
+ *   shift between the skeleton state and the loaded state.
+ */
 import { Card, CardContent, Typography, Skeleton, Box, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';

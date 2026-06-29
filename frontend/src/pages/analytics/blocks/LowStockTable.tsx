@@ -1,19 +1,28 @@
 /**
  * @file LowStockTable.tsx
  * @module pages/analytics/blocks/LowStockTable
- * @category Analytics
  *
  * @summary
- * Renders a low-stock table for a selected supplier. The table shows
- * item name, current quantity, minimum threshold, a computed “deficit”,
- * and a status chip (OK / Warning / Critical).
+ * Low-stock table for a selected supplier. Shows item name, current
+ * quantity, minimum threshold, computed deficit, and a status chip
+ * (OK / Warning / Critical) -- ordered by most severe deficit first.
  *
- * @remarks
- * - Data source: `GET /api/analytics/low-stock-items?supplierId=...&start=...&end=...`
- * - Query is disabled when no supplierId is provided (via React Query `enabled`).
- * - DTOs are normalized in the API layer; this component assumes:
- *   `{ itemName: string, quantity: number, minimumQuantity: number }`.
- * - Uses plain MUI Table for portability.
+ * @enterprise
+ * - BUSINESS RULE: an item is considered "low stock" when its deficit
+ *   (`minimumQuantity - quantity`) is >= 5 units. This drives the
+ *   Critical chip. The threshold is currently inline; extraction to
+ *   a named constant is tracked for the refactor phase.
+ * - The deficit is computed client-side from `quantity` and
+ *   `minimumQuantity`; the backend does NOT pre-compute it. Rows are
+ *   ordered by deficit descending so the most urgent items are at top.
+ * - The hook is unconditional and gated via `enabled = !!supplierId`
+ *   to comply with the Rules of Hooks. The query key includes
+ *   supplier + date window so the cache stays correct across changes.
+ * - The optional `limit` prop caps the visible rows (default 12; pass
+ *   0 to show all). A "Showing n of m" footer appears whenever the
+ *   list is capped, so the cap is never silent.
+ * - Sticky header plus horizontal overflow handle long item names and
+ *   narrow viewports without column collapse.
  */
 
 import { useCallback, type JSX } from 'react';
@@ -63,10 +72,9 @@ function narrowParams(p: Pick<AnalyticsParams, 'from' | 'to'>): AnalyticsParams 
 /**
  * LowStockTable
  *
- * @description
- * Displays items at or below minimum quantity for a given supplier. The query
- * is **always declared** (top-level Hook) and **conditionally enabled** using
- * React Query’s `enabled` flag, thereby complying with the Rules of Hooks.
+ * Displays items at or below minimum quantity for a given supplier. The
+ * query is always declared at the top level and conditionally enabled via
+ * React Query's `enabled` flag, which complies with the Rules of Hooks.
  *
  * @example
  * ```tsx

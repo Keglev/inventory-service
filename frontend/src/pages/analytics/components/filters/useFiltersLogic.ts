@@ -1,7 +1,18 @@
 /**
  * @file useFiltersLogic.ts
- * @description
- * Custom hook for date range and filter management
+ * @module pages/analytics/components/filters/useFiltersLogic
+ *
+ * @summary
+ * Pure helpers and a small hook for the analytics filter panel: ISO date
+ * parsing/formatting, quick-range computation, and date-order validation.
+ *
+ * @enterprise
+ * - All dates are normalized to UTC so that "last 30 days" yields the
+ *   same window regardless of the browser timezone.
+ * - Date range is inclusive (`from <= to`); equal bounds are valid (a
+ *   single-day window).
+ * - Quick presets are computed against the current UTC day, not local
+ *   midnight, so day-boundary edge cases are deterministic.
  */
 
 import { useMemo } from 'react';

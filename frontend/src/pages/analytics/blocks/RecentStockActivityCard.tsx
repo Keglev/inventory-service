@@ -3,8 +3,20 @@
  * @module pages/analytics/blocks/RecentStockActivityCard
  *
  * @summary
- * Stacked bar view of recent stock updates grouped by day and reason. Replaces the
- * verbose table for a faster visual scan while reusing the same backing API.
+ * Stacked-bar view of recent stock updates grouped by day and reason.
+ * Visual alternative to the table view that uses the same backing API.
+ *
+ * @enterprise
+ * - One of two visual variants over `getStockUpdates` (paired with
+ *   `StockUpdatesTable`); pure presentation alternative.
+ * - Reason codes are normalized via substring matching, resilient to
+ *   spelling drift in the backend enum. Final labels are i18n-keyed
+ *   so localization happens at the resource layer, not in code.
+ * - Fetch limit is intentionally higher than the table variant (200 vs
+ *   25) because daily aggregation collapses many rows into few bars,
+ *   so a small limit would visibly truncate days.
+ * - Day buckets group by UTC date so day boundaries are stable
+ *   regardless of the browser timezone.
  */
 import * as React from 'react';
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';

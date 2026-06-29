@@ -1,11 +1,35 @@
 /**
-* @file Analytics.tsx
-* @module pages/analytics/Analytics
-*
-* @summary
-* Orchestrates Analytics blocks with a global filter bar and URL sync.
-* Splitting into blocks keeps this file under ~200 lines and easier to reason.
-*/
+ * @file Analytics.tsx
+ * @module pages/analytics/Analytics
+ *
+ * @summary
+ * Orchestrates the Analytics page: a global filter bar, route-driven
+ * section navigation, and a responsive grid of analytics blocks. The
+ * file is intentionally kept thin (under ~200 lines) by delegating each
+ * visual concern to a dedicated block component.
+ *
+ * @enterprise
+ * - URL is the single source of truth for filters. State is hydrated
+ *   from the URL on mount and synced back to the URL on every filter
+ *   change (one-way state -> URL effect). This keeps deep-links and
+ *   browser back/forward navigation correct.
+ * - Default window is 180 days back. URL params override the defaults
+ *   only when both `from` and `to` are present; otherwise defaults
+ *   apply and the quick selector is set to '180'.
+ * - Section is read from the route segment `/analytics/:section?`.
+ *   Valid values: 'overview' | 'pricing' | 'inventory' | 'finance'.
+ *   Any unknown value falls back to 'overview'.
+ * - The suppliers list is fetched once with a 5-minute staleTime and
+ *   is reused by both the supplier filter dropdown and the price-trend
+ *   item search inside PriceTrendCard.
+ * - Each section renders a different subset of blocks; the grid uses
+ *   `auto-fit` + `minmax(320px, 1fr)` so the layout reflows from one
+ *   column on mobile to multiple columns on wide viewports.
+ * - The eslint-disable on the URL-sync effect is deliberate:
+ *   `setSearchParams` is referentially stable per React Router but
+ *   ESLint cannot prove it. Including it in the dep array would
+ *   trigger an extra re-sync without changing behavior.
+ */
 import * as React from 'react';
 import type { JSX } from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';

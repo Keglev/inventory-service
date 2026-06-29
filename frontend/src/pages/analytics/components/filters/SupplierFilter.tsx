@@ -1,7 +1,19 @@
 /**
  * @file SupplierFilter.tsx
- * @description
- * Supplier dropdown filter component
+ * @module pages/analytics/components/filters/SupplierFilter
+ *
+ * @summary
+ * Single-supplier dropdown for the analytics filter panel. Empty value
+ * means "all suppliers" — encoded as `supplierId === undefined`.
+ *
+ * @enterprise
+ * - Caller passes the supplier list; this component does not fetch. The
+ *   parent reuses the same list for filtering price-trend item lookups
+ *   and for the supplier dropdown here.
+ * - "All suppliers" is represented as `undefined` (not empty string) so
+ *   the serialized URL omits the parameter entirely.
+ * - Rendered with a native `<select>` rather than MUI Select; visual
+ *   divergence from sibling filter components is tracked separately.
  */
 
 import { useTranslation } from 'react-i18next';

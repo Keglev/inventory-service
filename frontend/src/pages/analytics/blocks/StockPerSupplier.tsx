@@ -1,11 +1,18 @@
 /**
  * @file StockPerSupplier.tsx
- * @description
- * Current total stock grouped by supplier (QUANTITY ONLY).
+ * @module pages/analytics/blocks/StockPerSupplier
+ *
+ * @summary
+ * Current total stock grouped by supplier, rendered as a bar chart
+ * (quantity only — value semantics are deliberately out of scope here).
  *
  * @enterprise
- * - Mirrors backend StockPerSupplierDTO (supplierName, totalQuantity).
- * - Keeps the component minimal until we add "value" semantics.
+ * - Mirrors the backend StockPerSupplierDTO contract (supplierName,
+ *   totalQuantity) one-to-one — no client-side derivation.
+ * - One of two visual variants over the same API (paired with the donut
+ *   version); both consume getStockPerSupplier without parameters.
+ * - Kept intentionally minimal: when "value" semantics are added later they
+ *   will arrive via a new endpoint, not by deriving them here.
  */
 
 import type { JSX } from 'react';

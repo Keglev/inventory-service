@@ -3,13 +3,20 @@
  * @module pages/analytics/blocks/FinancialSummaryCard
  *
  * @summary
- * Displays WAC-based financial summary for the selected period and supplier.
- * KPI row (Opening/Ending) + a categorical bar chart (Purchases, COGS, Write-offs, Returns).
+ * WAC-based financial summary for the selected period and supplier:
+ * an Opening/Ending KPI row plus a categorical bar chart (Purchases,
+ * COGS, Write-offs, Returns).
  *
  * @enterprise
- * - This endpoint requires a supplier on your BE → we keep the hook unconditional,
- *   but gate the request via `enabled` and render a helper if no supplier is chosen.
- * - Field names vary across deployments; API layer maps multiple candidates.
+ * - The finance endpoint is supplier-gated on this backend; calling it
+ *   without a supplier returns errors. The hook is therefore declared
+ *   unconditionally and gated via `enabled = !!supplierId`, complying
+ *   with the Rules of Hooks while avoiding pointless requests.
+ * - An all-zero result triggers a distinct empty-state, separate from
+ *   the no-supplier helper card, so the user can tell "no supplier"
+ *   apart from "nothing happened in this period".
+ * - DTO field-name drift across deployments is absorbed in the API
+ *   layer; this component consumes a single normalized shape.
  */
 import { Card, CardContent, Typography, Skeleton, Box, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';

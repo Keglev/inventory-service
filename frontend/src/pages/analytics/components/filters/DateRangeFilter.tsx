@@ -1,7 +1,18 @@
 /**
  * @file DateRangeFilter.tsx
- * @description
- * Date range picker with quick presets (30/90/180 days)
+ * @module pages/analytics/components/filters/DateRangeFilter
+ *
+ * @summary
+ * Date range picker for the analytics filter panel. Offers 30/90/180-day
+ * quick presets plus a custom mode with explicit from/to inputs.
+ *
+ * @enterprise
+ * - Filter state is shaped for URL serialization: a `quick` discriminator
+ *   ('30' | '90' | '180' | 'custom') plus ISO YYYY-MM-DD `from`/`to`.
+ * - Any manual edit to the date inputs forces `quick` back to `'custom'`,
+ *   so the highlighted preset cannot misrepresent the active range.
+ * - `onReset` is rendered inline with the preset row when provided, so
+ *   the panel does not need a separate reset surface on mobile.
  */
 
 import { useState } from 'react';

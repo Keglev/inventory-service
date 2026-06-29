@@ -1,7 +1,17 @@
 /**
  * @file Filters.types.ts
- * @description
- * Type definitions for analytics filters
+ * @module pages/analytics/components/filters/Filters.types
+ *
+ * @summary
+ * Shared type contracts for the analytics filter panel — the serializable
+ * filter state plus the props of the orchestrating `Filters` component.
+ *
+ * @enterprise
+ * - Every field is optional; an empty object means "no filter applied".
+ * - `quick` is a string literal union so URL-deserialized values are
+ *   validated at compile time and at the boundary.
+ * - Dates stay as ISO YYYY-MM-DD strings (not `Date` objects) so the state
+ *   round-trips through URL query params without conversion.
  */
 
 import type { SupplierRef } from '../../../../api/analytics/types';

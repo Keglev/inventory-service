@@ -1,7 +1,18 @@
 /**
  * @file Filters.tsx
- * @description
- * Main analytics filters component - orchestrates date range and supplier filters
+ * @module pages/analytics/components/filters/Filters
+ *
+ * @summary
+ * Analytics filter panel — orchestrates the date range picker and the
+ * supplier dropdown into a single controlled component.
+ *
+ * @enterprise
+ * - Parent owns filter state; this component is fully controlled via
+ *   `value` / `onChange` so URL-sync logic lives in the page, not here.
+ * - Reset returns to the 180-day window and clears the supplier selection
+ *   (180 mirrors the default initial state used by `Analytics.tsx`).
+ * - Layout stacks vertically on mobile and side-by-side on desktop so the
+ *   supplier dropdown does not push the preset row off-screen on phones.
  */
 
 import { Stack, Paper, Typography, Box } from '@mui/material';

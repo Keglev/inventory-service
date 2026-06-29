@@ -1,30 +1,30 @@
 /**
  * @file useSessionTimeout.ts
- * @description
- * Proactive session management hook. Detects expired/invalid sessions and
- * navigates the user to the dedicated logout flow.
+ * @module features/auth/hooks/useSessionTimeout
+ * @summary
+ * Proactive session management for authenticated layout: heartbeat /api/me on
+ * visibility + interval, optional idle-timeout logout, cross-tab logout listener.
  *
  * @enterprise
- * - Dual strategy:
- *   1) **Heartbeat**: ping a lightweight endpoint (e.g., `/api/me`) on a schedule
- *      and when the tab becomes visible to detect server-side session invalidation.
- *   2) **Idle timeout (optional)**: if enabled, logs the user out after a period
- *      of user inactivity (keyboard/mouse). This is off by default; enable for
- *      stricter environments.
- * - Cross-tab sync: leverages `storage` events to ensure logout across tabs.
- * - Does not throw UI; it **navigates to `/logout`** (LogoutPage does the cleanup).
- *
- * @usage
- * Call once inside your authenticated layout (e.g., `AppShell`) or an auth gate:
- *
- * ```tsx
- * useSessionTimeout({
- *   pingEndpoint: '/api/me',
- *   pingIntervalMs: 60_000,
- *   enableIdleTimeout: false,
- *   idleTimeoutMs: 15 * 60_000,
- * });
- * ```
+ * - Single production consumer: app/layout/AppShell.tsx — mounted once inside
+ *   the authenticated layout, options passed in. Covers all authenticated routes
+ *   via the shell.
+ * - Three concerns in three effects:
+ *   (1) HEARTBEAT — pings pingEndpoint (default /api/me) on tab visibility +
+ *       interval. DEMO sessions skip heartbeat entirely (no server cookie to
+ *       validate). A 401/403/network failure forces /logout via
+ *       forceLogoutAcrossTabs + navigate.
+ *   (2) IDLE TIMEOUT (opt-in) — when enableIdleTimeout, resets a timer on
+ *       mouse/keyboard/wheel/touch events; firing the timer forces /logout.
+ *       OFF by default — enable for strict environments.
+ *   (3) CROSS-TAB LISTENER — reacts to a `storage` event with key ===
+ *       STORAGE_FLAG and newValue === '1' and navigates to /logout. THIS IS
+ *       THE LISTENER for AuthContext's logout broadcast (CB-APP30 — answered;
+ *       concern shifts to CB-APP38).
+ * - Does NOT clear AuthContext state directly — navigates to /logout and lets
+ *   LogoutPage own cleanup (HTTP logout + cookie revocation). Single source of
+ *   truth for logout side effects.
+ * - 'ssp:forceLogout' magic string is DUPLICATED with AuthContext.ts — see CB-APP38.
  */
 
 import * as React from 'react';
@@ -44,34 +44,9 @@ type UseSessionTimeoutOptions = {
   idleTimeoutMs?: number;
 };
 
+// BUCKET: 'ssp:forceLogout' magic string is duplicated in AuthContext.ts; extract to a shared constants module to prevent drift between broadcaster and listener (CB-APP38)
 const STORAGE_FLAG = 'ssp:forceLogout';
 
-/**
- * @description
- * Proactive session management hook. Detects expired/invalid sessions and
- * navigates the user to the dedicated logout flow.
- * 
- * @enterprise
- * - Dual strategy:
- *  1) **Heartbeat**: ping a lightweight endpoint (e.g., `/api/me`) on a schedule
- *    and when the tab becomes visible to detect server-side session invalidation.
- * 2) **Idle timeout (optional)**: if enabled, logs the user out after a period
- *   of user inactivity (keyboard/mouse). This is off by default; enable for
- *  stricter environments.
- * - Cross-tab sync: leverages `storage` events to ensure logout across tabs.
- * - Does not throw UI; it **navigates to `/logout`** (LogoutPage does the cleanup).
- * 
- * @param options - Configuration options for session timeout behavior.
- * @example
- * ```tsx
- * useSessionTimeout({
- *  pingEndpoint: '/api/me',
- *  pingIntervalMs: 60_000,
- * enableIdleTimeout: false,
- * idleTimeoutMs: 15 * 60_000,
- * });
- * ```
- */
 export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   const {
     pingEndpoint = '/api/me',
@@ -81,7 +56,8 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   } = options;
 
   const navigate = useNavigate();
-  const { user } = useAuth(); // to reset timers on user change
+  // WHY: re-subscribe heartbeat/idle effects when isDemo flips (login/logout transitions) so DEMO short-circuits apply correctly.
+  const { user } = useAuth();
 
   // ---- Heartbeat: detect server-side invalidation ----
   React.useEffect(() => {
@@ -92,7 +68,6 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
     const ping = async () => {
       try {
         await httpClient.get(pingEndpoint, { withCredentials: true });
-        // session valid -> nothing to do
       } catch {
         // Likely 401/403/network -> force logout route (centralized cleanup there)
         forceLogoutAcrossTabs();
@@ -103,7 +78,6 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
     const start = () => {
       // immediate check when becoming visible
       ping();
-      // periodic checks while visible
       timer = window.setInterval(ping, pingIntervalMs);
     };
     const stop = () => {
@@ -113,7 +87,7 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
       }
     };
 
-    // Run heartbeat only when tab is visible (saves resources)
+    // WHY: pause heartbeat while tab is hidden — avoids ping load + reduces noise from background tabs that may have already lost session.
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') start();
       else stop();
@@ -131,7 +105,6 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   // ---- Idle timeout (optional) ----
   React.useEffect(() => {
 
-    // Skip idle logic for demo too
     if (!enableIdleTimeout || user?.isDemo) return;
 
     let idleTimer: number;
@@ -144,12 +117,10 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
       }, idleTimeoutMs);
     };
 
-    // Monitor user activity to reset idle timer
     const events = ['mousemove', 'keydown', 'wheel', 'touchstart'];
     events.forEach((e) => window.addEventListener(e, resetIdle, { passive: true }));
     resetIdle();
 
-    // Cleanup on unmount
     return () => {
       if (idleTimer) window.clearTimeout(idleTimer);
       events.forEach((e) => window.removeEventListener(e, resetIdle));
@@ -160,7 +131,7 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   React.useEffect(() => {
     const onStorage = (ev: StorageEvent) => {
       if (ev.key === STORAGE_FLAG && ev.newValue === '1') {
-        // Another tab triggered logout; follow suit.
+        // WHY: AuthContext.logout in another tab wrote STORAGE_FLAG=1; mirror the navigation here so all tabs converge on /logout.
         navigate('/logout', { replace: true });
       }
     };
@@ -169,17 +140,7 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   }, [navigate]);
 }
 
-/**
- * Signal all tabs to navigate to /logout via localStorage event.
- * @private
- * @enterprise
- * - Uses localStorage to trigger cross-tab logout.
- * - Quickly removes the flag to keep storage clean while still triggering event.
- * @example
- * ```typescript
- * forceLogoutAcrossTabs();
- * ```
- */
+/** Broadcast a /logout signal to other tabs via the STORAGE_FLAG localStorage write+delete pattern. Caller is responsible for navigating this tab. */
 function forceLogoutAcrossTabs() {
   try {
     localStorage.setItem(STORAGE_FLAG, '1');

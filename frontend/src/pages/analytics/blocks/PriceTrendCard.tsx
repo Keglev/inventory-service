@@ -3,13 +3,25 @@
  * @module pages/analytics/blocks/PriceTrendCard
  *
  * @summary
- * Supplier-aware type-ahead + price trend chart (A3).
+ * Supplier-aware item typeahead + price trend line chart (A3). User
+ * picks an item from the typeahead; the chart fetches and renders
+ * only after an explicit selection.
  *
- * Enterprise rules
- * - Never let cross-supplier selections through when a supplier is chosen.
- * - Debounced queries; the chart fetches only after an explicit selection.
- * - If supplier-scoped search is unsupported server-side, keep options empty
- *   (no silent global downgrade) so the UI can message clearly.
+ * @enterprise
+ * - Cross-supplier leak prevention is double-locked: (a) selection and
+ *   query text reset whenever the supplier prop changes; (b) the
+ *   client filters options by supplier even if the backend returns
+ *   cross-supplier results. Belt-and-suspenders by design.
+ * - The typeahead is debounced at 250 ms and gated by `enabled`, so
+ *   requests do not fire on every keystroke.
+ * - The chart query is enabled only after an explicit item selection;
+ *   typing alone never triggers a price-trend fetch.
+ * - The selected item is held as an object (not just an id) so it
+ *   stays visible in the Autocomplete even when a refetch reshuffles
+ *   the options list.
+ * - If supplier-scoped search is unsupported server-side, options
+ *   stay empty rather than silently downgrading to a global search;
+ *   the helperText messages the situation clearly to the user.
  */
 
 import * as React from 'react';
