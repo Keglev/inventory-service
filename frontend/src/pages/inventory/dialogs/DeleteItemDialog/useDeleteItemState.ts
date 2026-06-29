@@ -1,8 +1,27 @@
 /**
- * useDeleteItemState - Selection and dialog state management
+ * @file useDeleteItemState.ts
+ * @module pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState
  *
- * Manages: supplier selection, item selection, search query, deletion reason, error/confirmation states
- * Responsibility: Pure state management with dependency effects
+ * @summary
+ * Local selection and dialog state for the delete flow: selected supplier
+ * and item, search query, deletion reason, error and confirmation flags,
+ * plus a react-hook-form instance used as a validation mirror.
+ *
+ * @enterprise
+ * - The selectedItem / selectedSupplier React state is the source of
+ *   truth. The react-hook-form instance is a shadow mirror: its itemId
+ *   value is pushed via setValue whenever selectedItem changes, and its
+ *   handleSubmit is used only to wrap onSubmit. The primary gate against
+ *   submitting without a selection is the Delete button's disabled prop
+ *   on the parent dialog, not the form's zod schema. Tracked under
+ *   CB-APP49 -- either make the form authoritative (drop the local React
+ *   state) or remove the form wiring entirely.
+ * - Two effects: one resets dependent state when the supplier changes
+ *   (item, query, form, error, confirmation flag) so a supplier swap
+ *   starts a clean flow; one keeps the form's itemId mirroring the
+ *   selected item.
+ * - resetAll is exposed for the handler to call on dialog close, so the
+ *   next open starts from a known state.
  */
 
 import * as React from 'react';

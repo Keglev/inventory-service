@@ -1,8 +1,21 @@
 /**
  * @file DeleteItemDialog.types.ts
- * @description
- * Type definitions for DeleteItemDialog component and hook.
- * Centralizes all interfaces and types to keep other files focused.
+ * @module pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types
+ *
+ * @summary
+ * Shared type surface for the DeleteItemDialog feature module. Centralizes
+ * dialog props, content props, and the orchestrator-hook return shape.
+ *
+ * @enterprise
+ * - UseDeleteItemDialogReturn is the contract every view and field
+ *   component consumes. Specialized sub-hooks (state, queries, handlers)
+ *   flow up into this single shape so callers do not thread three objects.
+ * - Query types are derived via ReturnType<typeof useSuppliersQuery>
+ *   rather than re-declared, so a backend or hook signature change
+ *   propagates here automatically.
+ * - readOnly on DeleteItemDialogProps is the demo-mode flag: the form
+ *   flow stays interactive but the final DELETE call is blocked at the
+ *   handler.
  */
 
 import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';

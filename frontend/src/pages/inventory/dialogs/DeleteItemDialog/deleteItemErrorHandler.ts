@@ -1,9 +1,23 @@
 /**
  * @file deleteItemErrorHandler.ts
- * @description
- * Error handling logic for delete item operations.
- * Maps backend errors to user-friendly messages.
- * Separated from hook to keep logic testable and reusable.
+ * @module pages/inventory/dialogs/DeleteItemDialog/deleteItemErrorHandler
+ *
+ * @summary
+ * Maps a backend error message string to a user-facing message and
+ * severity. Used by useDeleteItemHandlers when deleteItem returns
+ * ok: false.
+ *
+ * @enterprise
+ * - Three rules in priority order: quantity-must-be-zero (the dominant
+ *   delete failure), admin-only access, and item-not-found. A generic
+ *   fallback message covers anything else.
+ * - Implementation matches on substrings of the freeform backend message
+ *   text ('still have', 'admin', '404', etc.). This is fragile: the
+ *   locked error shape exposes a structured token via the error field
+ *   (HttpStatus.name().toLowerCase()), and the backend's business-rule
+ *   identifiers do not change as easily as English message text. Tracked
+ *   under CB-APP48 -- switch to matching on the structured error field
+ *   or on a backend-supplied rule code instead of message substrings.
  */
 
 import type { TFunction } from 'i18next';
@@ -30,11 +44,6 @@ export interface DeleteErrorResult {
  * @param t - i18n translation function
  * @returns Categorized error result with message and severity
  *
- * @example
- * ```ts
- * const error = handleDeleteError('You still have merchandise', t);
- * // Returns: { message: '...translated message...', severity: 'error' }
- * ```
  */
 export function handleDeleteError(
   errorText: string | undefined,
@@ -47,6 +56,7 @@ export function handleDeleteError(
     };
   }
 
+  // BUCKET: CB-APP48 -- substring matching on freeform backend message text is fragile. Switch to the structured error field per locked error shape.
   const lowerError = errorText.toLowerCase();
 
   // ============================================

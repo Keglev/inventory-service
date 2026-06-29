@@ -1,23 +1,28 @@
 /**
- * DeleteFormFields - Isolated field components for delete workflow
- * 
- * @module dialogs/DeleteItemDialog/DeleteFormFields
- * @description
- * Individual form field components for the 4-step delete item workflow.
- * Each field is isolated for easier testing, reuse, and composition.
- * 
+ * @file DeleteFormFields.tsx
+ * @module pages/inventory/dialogs/DeleteItemDialog/DeleteFormFields
+ *
+ * @summary
+ * Four field components for the four steps of the delete flow:
+ * SupplierSelectField, ItemSelectField, DeletionReasonField, and
+ * ItemInfoDisplay.
+ *
  * @enterprise
- * - Single Responsibility: each component manages one field
- * - Testable: can be tested independently with mock state
- * - Reusable: can be composed into custom forms
- * - Type-safe: all props are strictly typed
- * - i18n-ready: all labels and messages are translated
- * 
- * @components
- * - SupplierSelectField: Step 1 - Choose supplier from dropdown
- * - ItemSelectField: Step 2 - Search and autocomplete select item
- * - DeletionReasonField: Step 3 - Choose predefined deletion reason
- * - ItemInfoDisplay: Step 4 - Show item details for confirmation
+ * - Each field consumes the shared UseDeleteItemDialogReturn state object
+ *   instead of threading individual props. Trade-off: state coupling at
+ *   compile time, easier mounting at test time.
+ * - ItemSelectField uses key={state.selectedSupplier?.id} to force an
+ *   Autocomplete remount on supplier change, so the input clears cleanly.
+ * - DeletionReasonField hardcodes a 6-value subset of the locked 11-value
+ *   StockChangeReason enum: SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST,
+ *   RETURNED_TO_SUPPLIER. This is the backend-enforced delete subset --
+ *   ServiceImpl rejects the other 5 (INITIAL_STOCK, MANUAL_UPDATE,
+ *   PRICE_CHANGE, SOLD, RETURNED_BY_CUSTOMER) because they do not
+ *   describe a removal. CM-2 closure: subset is intentional and
+ *   backend-authoritative.
+ * - The 2-character minimum, debounce, and supplier scoping for item
+ *   search live in upstream useItemSearchQuery; this file only exposes
+ *   the visible state.
  */
 
 import {
@@ -247,7 +252,7 @@ export function DeletionReasonField({ state }: { state: UseDeleteItemDialogRetur
  * @styling
  * - Light background (action.hover) to visually separate from form
  * - Padding and border radius for readable presentation
- * - Typography hierarchy: label → value for clarity
+ * - Typography hierarchy: label -> value for clarity
  */
 export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['inventory']);

@@ -1,9 +1,19 @@
 /**
- * DeleteConfirmationView - Confirmation presentation component
+ * @file DeleteConfirmationView.tsx
+ * @module pages/inventory/dialogs/DeleteItemDialog/DeleteConfirmationView
  *
- * Renders: Warning + item details + confirmation prompt
- * Responsibility: Final review before irreversible deletion
- * Props: state object from useDeleteItemDialog hook
+ * @summary
+ * Confirmation step of the delete flow. Renders the irreversible-action
+ * warning, the confirmation prompt, the item-details review, and any
+ * post-submit error.
+ *
+ * @enterprise
+ * - Warning comes BEFORE the confirmation prompt by design. The user reads
+ *   the consequences before being asked to confirm, not after.
+ * - Item details are re-rendered here, not just at the form step, so the
+ *   user verifies the target at the irreversible moment.
+ * - formError is rendered last so a failed deletion attempt surfaces under
+ *   the same review block, keeping context for retry.
  */
 
 import { Box, Alert, Typography } from '@mui/material';

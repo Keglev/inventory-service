@@ -1,31 +1,20 @@
 /**
- * DeleteItemDialog Module - Barrel exports
- * 
- * @module dialogs/DeleteItemDialog
- * @description
- * Public API for the DeleteItemDialog feature module.
- * Exports organized by responsibility:
- * - Main dialog component for easy integration
- * - Orchestrator hook (useDeleteItemDialog) for backwards compatibility
- * - Specialized hooks for advanced composition and testing
- * - View components for custom layouts
- * - Field components for testing and reuse
- * - Error handling utilities
- * 
+ * @file index.ts
+ * @module pages/inventory/dialogs/DeleteItemDialog
+ *
+ * @summary
+ * Public barrel for the DeleteItemDialog feature module. Exposes the main
+ * component, the orchestrator hook, the three specialized sub-hooks, the
+ * view and field components, and the error-mapping utility.
+ *
  * @enterprise
- * - Single entry point: consumers import from 'dialogs/DeleteItemDialog'
- * - Hierarchical exports: main component first, internals last
- * - Type-safe: all exports are typed
- * - Testable: specialized hooks can be imported individually
- * 
- * @example
- * ```tsx
- * // Simple usage
- * import { DeleteItemDialog } from './dialogs/DeleteItemDialog';
- * 
- * // Advanced usage with custom hooks
- * import { useDeleteItemState, useDeleteItemQueries } from './dialogs/DeleteItemDialog';
- * ```
+ * - Two entry points by intent. Most consumers import DeleteItemDialog and
+ *   forget the internals; tests and advanced compositions reach for the
+ *   specialized hooks (useDeleteItemState, useDeleteItemQueries,
+ *   useDeleteItemHandlers) directly through this same barrel.
+ * - Field components (SupplierSelectField, ItemSelectField,
+ *   DeletionReasonField, ItemInfoDisplay) are exported individually so
+ *   tests can mount them in isolation against a hand-built state object.
  */
 
 // ============================================

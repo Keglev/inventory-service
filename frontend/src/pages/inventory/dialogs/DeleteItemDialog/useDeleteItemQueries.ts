@@ -1,9 +1,19 @@
 /**
- * useDeleteItemQueries - Data query coordination
+ * @file useDeleteItemQueries.ts
+ * @module pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries
  *
- * Manages: supplier list query, item search query, item details query
- * Responsibility: React Query orchestration with smart dependencies
- * Pattern: Queries only fire when parent state requires them
+ * @summary
+ * Composes the three React Query hooks the delete flow needs: suppliers,
+ * item search, and item details.
+ *
+ * @enterprise
+ * - Lazy firing by design. Each underlying hook owns its own enable
+ *   predicate: suppliers fires when the dialog opens; item search fires
+ *   when a supplier is selected and the query is long enough; item
+ *   details fires only when an item is picked.
+ * - This file does not transport data itself; it only coordinates which
+ *   queries are active. Keeps the orchestrator hook thin and the query
+ *   layer testable in isolation.
  */
 
 import type { SupplierOption } from '../../../../api/analytics/types';

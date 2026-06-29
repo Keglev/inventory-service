@@ -1,9 +1,20 @@
 /**
- * DeleteFormView - Form presentation component
+ * @file DeleteFormView.tsx
+ * @module pages/inventory/dialogs/DeleteItemDialog/DeleteFormView
  *
- * Renders: 4-step form (supplier → item → reason → preview)
- * Responsibility: Layout and field composition with inline commenting
- * Props: state object from useDeleteItemDialog hook
+ * @summary
+ * Four-step form layout for the delete flow: supplier, item, reason, and
+ * item-info preview, each presented with a numbered step indicator.
+ *
+ * @enterprise
+ * - Progressive disclosure: each step renders only after the previous step
+ *   produces the value it depends on. Supplier selection unlocks item
+ *   search; item selection unlocks reason and the info preview.
+ * - The numbered step badges scaffold the user through an irreversible
+ *   operation, slowing the flow deliberately.
+ * - StepSection helper is defined inline in this file rather than
+ *   extracted, and the file's import statements are split by the function
+ *   declaration. Tracked under ST-APP13.
  */
 
 import { Box, Alert, Typography } from '@mui/material';
@@ -19,6 +30,7 @@ import {
  * StepSection - Reusable step indicator and content wrapper
  * Renders: Numbered badge with title + indented content
  */
+// BUCKET: ST-APP13 -- inline component splits the file's imports. Extract to its own module in refactor.
 function StepSection({
   title,
   number,

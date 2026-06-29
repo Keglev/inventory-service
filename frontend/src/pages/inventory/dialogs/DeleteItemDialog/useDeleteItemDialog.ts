@@ -1,9 +1,20 @@
 /**
- * useDeleteItemDialog - Orchestrator hook for delete workflow
+ * @file useDeleteItemDialog.ts
+ * @module pages/inventory/dialogs/DeleteItemDialog/useDeleteItemDialog
  *
- * Composition: Coordinates state, queries, and handlers into single hook
- * Purpose: Provides backwards-compatible interface for DeleteItemDialog components
- * Pattern: Thin wrapper that delegates to specialized sub-hooks
+ * @summary
+ * Orchestrator hook for the delete flow. Composes useDeleteItemState,
+ * useDeleteItemQueries, and useDeleteItemHandlers into a single
+ * UseDeleteItemDialogReturn object consumed by every view and field.
+ *
+ * @enterprise
+ * - Composition over a god-hook. Each sub-hook owns one concern (state,
+ *   data, behavior). This file is the only place that knows about all
+ *   three.
+ * - The returned shape is what the views and field components depend on,
+ *   so adding a new piece of state means updating both the sub-hook and
+ *   the explicit composition list here. The trade-off keeps the contract
+ *   visible at one site.
  */
 
 import { useDeleteItemState } from './useDeleteItemState';

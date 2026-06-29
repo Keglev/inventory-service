@@ -1,9 +1,34 @@
 /**
- * useDeleteItemHandlers - Event handlers and deletion workflow
+ * @file useDeleteItemHandlers.ts
+ * @module pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers
  *
- * Manages: form submission, deletion confirmation, API call execution
- * Responsibility: Business logic orchestration with error handling
- * Dependencies: state setters, queries, API mutations, error handler
+ * @summary
+ * Event handlers for the delete flow: close, cancel-confirmation, submit
+ * (form -> confirmation), and confirmed-delete (calls deleteItem).
+ *
+ * @enterprise
+ * - onConfirmedDelete is the only site that actually calls the backend.
+ *   The two-dialog architecture funnels every Delete path through this
+ *   single function so error-handling, toast, and reset behavior live in
+ *   one place.
+ * - readOnly short-circuits the delete call but allows the entire UI flow
+ *   to proceed. The short-circuit happens after validation so a demo
+ *   user sees the same errors a real user would.
+ * - Error mapping is delegated to deleteItemErrorHandler so the handler
+ *   stays focused on flow control. The mapper itself uses fragile
+ *   substring matching on the backend message text; tracked under
+ *   CB-APP48.
+ * - Tracked buckets touching this file:
+ *   * CB-APP47 -- unguarded console.error ships to production devtools.
+ *   * CM-APP10 -- t('common.demoDisabled') uses dot instead of colon
+ *     for the namespace separator; the call silently falls back to the
+ *     English string and misses the resource.
+ *   * ST-APP12 -- the _queries parameter is prefixed _ and never used.
+ *     Either drop from the signature or consume.
+ *   * CB-E (existing) -- the handler passes deletionReason to deleteItem
+ *     but deleteItemSchema validates only itemId. The schema does not
+ *     reject empty or invalid reasons; the runtime explicit check inside
+ *     onConfirmedDelete is the only guard.
  */
 
 import * as React from 'react';
@@ -16,6 +41,7 @@ import type { UseDeleteItemQueriesReturn } from './useDeleteItemQueries';
 
 export function useDeleteItemHandlers(
   state: UseDeleteItemStateReturn,
+  // BUCKET: ST-APP12 -- _queries is never read. Drop from signature or consume.
   _queries: UseDeleteItemQueriesReturn,
   onClose: () => void,
   onItemDeleted: () => void,
@@ -92,6 +118,7 @@ export function useDeleteItemHandlers(
     // Guard: readonly mode blocks actual deletion
     if (readOnly) {
       state.setFormError(
+      // BUCKET: CM-APP10 -- namespace uses '.' instead of ':'. Should be t('common:demoDisabled', ...).
         t('common.demoDisabled', 'You are in demo mode and cannot perform this operation.')
       );
       return;
@@ -103,6 +130,7 @@ export function useDeleteItemHandlers(
 
     try {
       // Execute deletion: calls DELETE /api/inventory/{id}?reason=...
+    // BUCKET: CB-E -- deletionReason flows to the API but is not in deleteItemSchema. Runtime check above is the only frontend guard; backend StockHistoryValidator is authoritative.
       const success = await deleteItem(state.selectedItem.id, state.deletionReason);
 
       if (success.ok) {
@@ -123,6 +151,7 @@ export function useDeleteItemHandlers(
         state.setShowConfirmation(false);
       }
     } catch (error) {
+      // BUCKET: CB-APP47 -- unguarded console.error ships to production devtools.
       console.error('Delete item error:', error);
       state.setFormError(
         t('errors:inventory.requests.failedToDeleteItem', 'Failed to delete item. Please try again.')
