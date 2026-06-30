@@ -19,15 +19,7 @@ import {
   Chip,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-
-// BUCKET: SystemInfo re-declared locally — import the exported context/settings type, drop this copy (ST-APP6)
-interface SystemInfo {
-  database: string;
-  environment: string;
-  version: string;
-  status: string;
-  buildDate: string;
-}
+import type { SystemInfo } from '../../../context/settings';
 
 interface SystemPreferencesSectionProps {
   /** System information data */

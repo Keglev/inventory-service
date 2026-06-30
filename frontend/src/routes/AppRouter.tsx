@@ -22,7 +22,7 @@ import { Box, CircularProgress } from '@mui/material';
 
 import { useAuth } from '../hooks/useAuth';
 import { RequireAuth } from '../features/auth';
-import AppShell from '../app/layout/AppShell';
+import { AppShell } from '../app/layout';
 
 // Public pages
 import Home from '../pages/home/Home';                       

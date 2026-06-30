@@ -26,16 +26,7 @@ import {
   SystemPreferencesSection,
   NotificationsSettingsSection,
 } from './sections';
-import type { DateFormat, NumberFormat, TableDensity } from '../../context/settings';
-
-// BUCKET: SystemInfo re-declared locally — import the exported context/settings type, drop this copy (ST-APP6)
-interface SystemInfo {
-  database: string;
-  environment: string;
-  version: string;
-  status: string;
-  buildDate: string;
-}
+import type { DateFormat, NumberFormat, TableDensity, SystemInfo } from '../../context/settings';
 
 interface AppSettingsFormProps {
   /** Current date format value */

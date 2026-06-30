@@ -5,3 +5,4 @@
  */
 
 export { useHealthCheck } from './hooks/useHealthCheck';
+export type { HealthStatus } from './hooks/useHealthCheck';

@@ -9,23 +9,16 @@
  * @enterprise
  * - Pure presentational leaf: props-only, no state. Receives a HealthStatus prop
  *   sourced from useFooterState (which reads it from useHealthCheck).
- * - Local HealthStatus interface duplicates the exported one in
- *   features/health/hooks/useHealthCheck.ts; barrel gap: features/health/index.ts
- *   does not re-export the type (see ST-APP1).
+ * - HealthStatus is imported from the features/health barrel (single source
+ *   of truth in useHealthCheck). The component reads only status/responseTime/
+ *   database; the canonical timestamp field is unused here.
  * - 'Online'/'Oracle ADB' labels are hardcoded; 'Offline' is translated. Status-dot
  *   colors use raw hex while Chip borders use theme tokens (see CB-APP3).
  */
 
 import { Box, Chip, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-
-// BUCKET: (ST-APP1) import HealthStatus from features/health barrel once it re-exports
-//         the type; drop this local duplicate.
-interface HealthStatus {
-  status: 'online' | 'offline';
-  responseTime: number;
-  database: 'online' | 'offline';
-}
+import type { HealthStatus } from '@/features/health';
 
 interface HealthStatusDisplayProps {
   /** Health status data */
@@ -43,7 +36,7 @@ interface HealthStatusDisplayProps {
  *
  * @example
  * ```tsx
- * <HealthStatusDisplay health={{ status: 'online', responseTime: 125, database: 'online' }} />
+ * <HealthStatusDisplay health={{ status: 'online', responseTime: 125, database: 'online', timestamp: 0 }} />
  * ```
  */
 export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps) {

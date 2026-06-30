@@ -19,6 +19,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import SystemPreferencesSection from '../../../../app/settings/sections/SystemPreferencesSection';
+import type { SystemInfo } from '@/context/settings/SettingsContext.types';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -32,12 +33,14 @@ describe('SystemPreferencesSection', () => {
     vi.clearAllMocks();
   });
 
-  const systemInfo = {
+  const systemInfo: SystemInfo = {
     database: 'Oracle',
     environment: 'production',
     version: '1.0.0',
-    status: 'healthy',
+    apiVersion: 'v1',
     buildDate: '2025-12-22',
+    uptime: '24h',
+    status: 'ONLINE',
   };
 
   function renderSection(params?: {

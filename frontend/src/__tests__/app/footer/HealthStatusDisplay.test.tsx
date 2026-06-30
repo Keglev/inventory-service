@@ -32,6 +32,7 @@ type Health = {
   status: 'online' | 'offline';
   responseTime: number;
   database: 'online' | 'offline';
+  timestamp: number;
 };
 
 describe('HealthStatusDisplay', () => {
@@ -39,6 +40,7 @@ describe('HealthStatusDisplay', () => {
     status: 'online',
     responseTime: 125,
     database: 'online',
+    timestamp: 0,
   };
 
   /**
