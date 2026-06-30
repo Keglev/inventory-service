@@ -43,8 +43,7 @@ export interface QuantityAdjustFormQueries {
 }
 
 export const useQuantityAdjustFormQueries = (
-  state: QuantityAdjustFormState,
-  setters: QuantityAdjustFormStateSetters,
+  state: QuantityAdjustFormState & QuantityAdjustFormStateSetters,
   setValue: UseFormSetValue<QuantityAdjustForm>,
   isDialogOpen: boolean
 ): QuantityAdjustFormQueries => {
@@ -83,7 +82,7 @@ export const useQuantityAdjustFormQueries = (
   // Destructure individual setters so the dependency array uses stable
   // React useState setter references instead of the whole `setters` object
   // (which is recreated on every render, causing the effect to fire every render).
-  const { setSelectedItem, setItemQuery, setFormError } = setters;
+  const { setSelectedItem, setItemQuery, setFormError } = state;
 
   /**
    * Reset item search when supplier changes.

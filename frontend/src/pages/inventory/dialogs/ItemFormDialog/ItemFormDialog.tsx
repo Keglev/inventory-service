@@ -20,8 +20,6 @@
  *   CB-APP54 -- switch to useHelp for consistency, and the tooltip
  *   key t('common:help', 'Help') still carries an English fallback
  *   (CM-APP9 / CM-APP11 territory).
- * - dialogRef is declared via useRef and passed to <Dialog ref={...}>
- *   but never read. Tracked under ST-APP15 -- dead code, remove.
  * - Submit fires via state.handleSubmit(state.onSubmit)(e) rather than
  *   state.onSubmit directly because onSubmit is already wrapped by
  *   react-hook-form internally; the chained call here is redundant
@@ -41,7 +39,6 @@ import {
 } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
-import { useRef } from 'react';
 import { ItemForm } from './ItemForm';
 import { useItemForm } from './useItemForm';
 import type { ItemFormDialogProps } from './ItemFormDialog.types';
@@ -63,8 +60,6 @@ export function ItemFormDialog({
   onSaved,
 }: ItemFormDialogProps) {
   const { t } = useTranslation(['common', 'inventory']);
-  // BUCKET: ST-APP15 -- dialogRef is never read. Remove the useRef and the ref prop on Dialog.
-  const dialogRef = useRef<HTMLDivElement>(null);
 
   // All form state and handlers delegated to hook
   const state = useItemForm({ isOpen, onClose, initial, onSaved });
@@ -81,7 +76,6 @@ export function ItemFormDialog({
 
   return (
     <Dialog
-      ref={dialogRef}
       open={isOpen}
       onClose={() => state.handleClose()}
       maxWidth="sm"

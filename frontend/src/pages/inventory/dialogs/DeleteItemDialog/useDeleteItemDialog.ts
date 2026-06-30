@@ -51,7 +51,6 @@ export function useDeleteItemDialog(
   // Step 3: Bind event handlers with state and queries
   const handlers = useDeleteItemHandlers(
     state,
-    queries,
     onClose,
     onItemDeleted,
     readOnly

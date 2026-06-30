@@ -11,9 +11,9 @@
  *   contract as usePriceChangeFormState. Tests mount the
  *   orchestrator's behavior with a hand-built state replacement.
  * - The state hook returns both values and setters from the same
- *   call, so consumers can pull either or both. This convenience
- *   is what made ST-APP16 possible -- the same return is passed
- *   in two argument slots by the orchestrator.
+ *   call (a QuantityAdjustFormState & ...Setters intersection), so
+ *   consumers can pull either or both. The queries hook takes this
+ *   combined object as a single parameter.
  */
 
 import * as React from 'react';

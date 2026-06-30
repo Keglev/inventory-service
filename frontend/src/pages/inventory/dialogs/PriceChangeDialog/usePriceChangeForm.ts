@@ -24,9 +24,6 @@
  * - console.error on submission failure is unguarded and ships to
  *   production browser devtools. Tracked under CB-APP55 (same class
  *   as CB-APP47, CB-APP51, etc.).
- * - handleClose is referenced inside onSubmit but declared after it.
- *   The file works due to closure semantics but reads confusingly.
- *   Tracked under ST-APP17.
  */
 
 import { useForm, type UseFormRegister, type UseFormSetError, type UseFormClearErrors, type UseFormHandleSubmit, type Control, type UseFormStateReturn, type UseFormSetValue } from 'react-hook-form';
@@ -95,6 +92,15 @@ export function usePriceChangeForm({
     clearErrors
   );
 
+  const handleClose = () => {
+    state.setSelectedSupplier(null);
+    state.setSelectedItem(null);
+    state.setItemQuery('');
+    state.setFormError(null);
+    reset();
+    onClose();
+  };
+
   /**
    * Submit form with price change
    */
@@ -143,16 +149,6 @@ export function usePriceChangeForm({
       );
     }
   });
-
-  // BUCKET: ST-APP17 -- declared after onSubmit which references it. Move above onSubmit in refactor for readability.
-  const handleClose = () => {
-    state.setSelectedSupplier(null);
-    state.setSelectedItem(null);
-    state.setItemQuery('');
-    state.setFormError(null);
-    reset();
-    onClose();
-  };
 
   return {
     // State

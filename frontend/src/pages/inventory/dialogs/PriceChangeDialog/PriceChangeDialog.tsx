@@ -21,9 +21,6 @@
  *   the in-app useHelp() drawer. Same divergence as ItemFormDialog
  *   tracked under CB-APP54; this site is tracked under CB-APP57 as a
  *   sibling.
- * - dialogRef is declared via useRef but never read. Sibling of the
- *   same dead-ref pattern in ItemFormDialog. Tracked under ST-APP15
- *   (extended to cover both sites).
  * - There is no substring error-mapping in this flow. Failures get a
  *   single generic message regardless of cause (admin-only, validation,
  *   conflict). Tracked under CB-APP56 -- either add structured error
@@ -45,7 +42,6 @@ import {
 } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
-import { useRef } from 'react';
 import { PriceChangeForm } from './PriceChangeForm';
 import { usePriceChangeForm } from './usePriceChangeForm';
 import type { PriceChangeDialogProps } from './PriceChangeDialog.types';
@@ -57,15 +53,12 @@ export function PriceChangeDialog({
   readOnly = false,
 }: PriceChangeDialogProps) {
   const { t } = useTranslation(['common', 'inventory']);
-  // BUCKET: ST-APP15 (extended) -- dialogRef is never read. Remove the useRef and the ref prop on Dialog. Same as ItemFormDialog.
-  const dialogRef = useRef<HTMLDivElement>(null);
 
   // All form state and handlers delegated to hook
   const state = usePriceChangeForm({ isOpen: open, onClose, onPriceChanged, readOnly });
 
   return (
     <Dialog
-      ref={dialogRef}
       open={open}
       onClose={() => state.handleClose()}
       maxWidth="sm"

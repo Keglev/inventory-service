@@ -104,7 +104,7 @@ function setup(args: SetupArgs = {}) {
   const onItemDeleted = args.onItemDeleted ?? vi.fn();
   const readOnly = args.readOnly ?? false;
 
-  const hook = renderHook(() => useDeleteItemHandlers(state, queries, onClose, onItemDeleted, readOnly));
+  const hook = renderHook(() => useDeleteItemHandlers(state, onClose, onItemDeleted, readOnly));
 
   return { state, queries, onClose, onItemDeleted, ...hook };
 }

@@ -23,8 +23,6 @@
  *   * CM-APP10 -- t('common.demoDisabled') uses dot instead of colon
  *     for the namespace separator; the call silently falls back to the
  *     English string and misses the resource.
- *   * ST-APP12 -- the _queries parameter is prefixed _ and never used.
- *     Either drop from the signature or consume.
  *   * CB-E (existing) -- the handler passes deletionReason to deleteItem
  *     but deleteItemSchema validates only itemId. The schema does not
  *     reject empty or invalid reasons; the runtime explicit check inside
@@ -37,12 +35,9 @@ import { useToast } from '../../../../context/toast';
 import { deleteItem } from '../../../../api/inventory/mutations';
 import { handleDeleteError } from './deleteItemErrorHandler';
 import type { UseDeleteItemStateReturn } from './useDeleteItemState';
-import type { UseDeleteItemQueriesReturn } from './useDeleteItemQueries';
 
 export function useDeleteItemHandlers(
   state: UseDeleteItemStateReturn,
-  // BUCKET: ST-APP12 -- _queries is never read. Drop from signature or consume.
-  _queries: UseDeleteItemQueriesReturn,
   onClose: () => void,
   onItemDeleted: () => void,
   readOnly: boolean = false

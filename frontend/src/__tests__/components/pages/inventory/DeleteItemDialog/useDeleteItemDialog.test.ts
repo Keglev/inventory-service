@@ -135,7 +135,6 @@ describe('useDeleteItemDialog', () => {
 
     expect(mockUseDeleteItemHandlers).toHaveBeenCalledWith(
       state,
-      queries,
       onClose,
       onItemDeleted,
       false,
@@ -164,7 +163,6 @@ describe('useDeleteItemDialog', () => {
 
     expect(mockUseDeleteItemHandlers).toHaveBeenCalledWith(
       state,
-      queries,
       expect.any(Function),
       expect.any(Function),
       true,

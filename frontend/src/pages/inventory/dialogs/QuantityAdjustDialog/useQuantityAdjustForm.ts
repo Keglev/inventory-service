@@ -28,10 +28,9 @@
  *   resource. Same class as CM-APP10 in DeleteItemDialog.
  *   Tracked under CB-APP61 alongside the unguarded console.error
  *   in this file.
- * - useQuantityAdjustFormQueries is called with the state object
- *   passed BOTH as the state arg and the setters arg. The setters
- *   come through because the hook return spreads both, but the
- *   signature reads ambiguously. Tracked under ST-APP16.
+ * - useQuantityAdjustFormQueries receives the combined state object
+ *   (QuantityAdjustFormState & QuantityAdjustFormStateSetters) as a
+ *   single parameter, eliminating the prior two-slot ambiguity.
  * - console.error on submission failure is unguarded and ships to
  *   production browser devtools. Tracked under CB-APP61.
  */
@@ -88,8 +87,7 @@ export const useQuantityAdjustForm = (
   // ================================
   // Composition: Query Management
   // ================================
-  // BUCKET: ST-APP16 -- state passed as both state and setters args. The state hook returns both shapes so the call works, but the signature is ambiguous. Pass them as distinct objects in refactor.
-  const queries = useQuantityAdjustFormQueries(state, state, setValue, open);
+  const queries = useQuantityAdjustFormQueries(state, setValue, open);
 
   // ================================
   // Event Handlers

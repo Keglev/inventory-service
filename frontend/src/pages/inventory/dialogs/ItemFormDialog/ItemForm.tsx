@@ -17,9 +17,8 @@
  *   exact 2-value subset enforced by itemFormSchema and by the backend
  *   for create/upsert. The locked 11-value StockChangeReason enum covers
  *   removals and other flows; those reasons do not apply to creation.
- * - CREATE_REASON_OPTIONS is declared inside the component body and
- *   re-created on every render. Tracked under ST-APP14 -- hoist to a
- *   module-level const (or a shared constants module if reused).
+ * - CREATE_REASON_OPTIONS is a module-level const (the create-mode
+ *   reason subset is static and never recreated per render).
  * - Code field is render-only with a "Optional for now" tooltip,
  *   reflecting the current backend behavior that codes are not yet
  *   user-editable. Will revisit if the backend exposes code edits.
@@ -57,6 +56,11 @@ import type { UseItemFormReturn } from './useItemForm';
  * - Quantity and price with numeric constraints
  * - Reason dropdown only shown in create mode (no initial?.id)
  */
+const CREATE_REASON_OPTIONS = [
+  { value: 'INITIAL_STOCK', i18nKey: 'stockReasons.initial_stock' },
+  { value: 'MANUAL_UPDATE', i18nKey: 'stockReasons.manual_update' },
+] as const;
+
 export function ItemForm({
   state,
   initial,
@@ -65,12 +69,6 @@ export function ItemForm({
   initial?: InventoryRow | null;
 }) {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
-
-  // BUCKET: ST-APP14 -- constant declared inside component body, re-created every render. Hoist to module scope.
-  const CREATE_REASON_OPTIONS = [
-    { value: 'INITIAL_STOCK', i18nKey: 'stockReasons.initial_stock' },
-    { value: 'MANUAL_UPDATE', i18nKey: 'stockReasons.manual_update' },
-  ] as const;
 
   return (
     <Box sx={{ display: 'grid', gap: 2, mt: 1 }}>
