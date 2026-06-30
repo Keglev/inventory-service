@@ -1,16 +1,20 @@
 /**
  * @file QuantityAdjustItemSelect.tsx
- * @module dialogs/QuantityAdjustDialog/QuantityAdjustItemSelect
+ * @module pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemSelect
  *
  * @summary
- * Specialized component for item selection step.
- * Pure presentation component with autocomplete search.
+ * Step 2 of the quantity-adjust form: Autocomplete for selecting an
+ * item, gated by a selected supplier.
  *
  * @enterprise
- * - Single responsibility: render item autocomplete only
- * - Handles search input and item selection
- * - Conditional rendering: disabled until supplier is selected
- * - Provides helpful placeholder and search hints
+ * - Mirrors the pattern in DeleteFormFields.ItemSelectField but extracted
+ *   to a standalone component instead of bundled in a multi-field file.
+ *   The trade-off is more files; the benefit is independent unit tests
+ *   for each step.
+ * - Disabled when no supplier is selected, with a placeholder hint that
+ *   tells the user why. The 2-character search minimum lives in the
+ *   upstream useItemSearchQuery hook; this component only exposes the
+ *   visible state.
  */
 
 import * as React from 'react';
@@ -18,18 +22,6 @@ import { Autocomplete, TextField, CircularProgress, Box, Typography } from '@mui
 import { useTranslation } from 'react-i18next';
 import type { ItemOption, SupplierOption } from '../../../../api/analytics/types';
 
-/**
- * Props for QuantityAdjustItemSelect component.
- * 
- * @interface QuantityAdjustItemSelectProps
- * @property {ItemOption | null} selectedItem - Currently selected item
- * @property {(item: ItemOption | null) => void} onItemChange - Item selection handler
- * @property {string} searchQuery - Current search query text
- * @property {(query: string) => void} onSearchChange - Search query change handler
- * @property {ItemOption[] | undefined} items - Available items filtered by supplier
- * @property {boolean} loading - Whether items are loading
- * @property {SupplierOption | null} selectedSupplier - Selected supplier (for disable logic)
- */
 interface QuantityAdjustItemSelectProps {
   selectedItem: ItemOption | null;
   onItemChange: (item: ItemOption | null) => void;
@@ -40,30 +32,6 @@ interface QuantityAdjustItemSelectProps {
   selectedSupplier: SupplierOption | null;
 }
 
-/**
- * Step 2: Item selection component.
- * 
- * Renders an autocomplete field for searching and selecting items.
- * Only enabled after a supplier is selected.
- * Provides search hints and loading indicators.
- * 
- * @component
- * @param props - Component props
- * @returns JSX element for item autocomplete
- * 
- * @example
- * ```tsx
- * <QuantityAdjustItemSelect
- *   selectedItem={form.selectedItem}
- *   onItemChange={form.setSelectedItem}
- *   searchQuery={form.itemQuery}
- *   onSearchChange={form.setItemQuery}
- *   items={form.items}
- *   loading={form.itemsLoading}
- *   selectedSupplier={form.selectedSupplier}
- * />
- * ```
- */
 export const QuantityAdjustItemSelect: React.FC<QuantityAdjustItemSelectProps> = ({
   selectedItem,
   onItemChange,

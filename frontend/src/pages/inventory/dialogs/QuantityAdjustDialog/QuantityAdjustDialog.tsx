@@ -1,17 +1,25 @@
 /**
  * @file QuantityAdjustDialog.tsx
- * @module dialogs/QuantityAdjustDialog/QuantityAdjustDialog
+ * @module pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustDialog
  *
  * @summary
- * Container component for quantity adjustment dialog.
- * Manages dialog lifecycle and delegates all state/form logic to orchestrator hook.
+ * Root dialog for the quantity-adjust flow. Title, form body, and
+ * cancel/apply actions. All state and submission live in
+ * useQuantityAdjustForm.
  *
  * @enterprise
- * - Thin container component focused on UI structure only
- * - Delegates all business logic to useQuantityAdjustForm orchestrator hook
- * - Manages dialog lifecycle: open/close with proper cleanup
- * - Provides help button with topic ID for contextual assistance
- * - Accessible form with proper semantic HTML and ARIA attributes
+ * - Single-dialog architecture. A quantity adjustment is reversible
+ *   by another adjustment, so no second confirmation step is offered.
+ *   Same pattern as EditItemDialog and PriceChangeDialog.
+ * - This is the reference dialog for the canonical help-icon wiring:
+ *   it uses the shared HelpIconButton component, not raw IconButton
+ *   + HelpOutlineIcon. ItemFormDialog (CB-APP54), PriceChangeDialog
+ *   (CB-APP57), and DeleteItemDialog (CM-APP11), and EditItemDialog
+ *   should all converge on this pattern.
+ * - Backend invariant: the reason must belong to the StockChangeReason
+ *   enum that quantitative adjustments actually support; backend
+ *   StockHistoryValidator is the authority. The form currently exposes
+ *   all 11 enum values; CB-APP60 tracks the over-broad client offering.
  */
 
 import * as React from 'react';
@@ -31,48 +39,6 @@ import { QuantityAdjustForm } from './QuantityAdjustForm';
 import { useQuantityAdjustForm } from './useQuantityAdjustForm';
 import type { QuantityAdjustDialogProps } from './QuantityAdjustDialog.types';
 
-/**
- * Enterprise-level quantity adjustment dialog component.
- * 
- * Provides a guided workflow for adjusting inventory quantities with proper
- * validation, audit trails, and user experience optimizations.
- * 
- * Workflow:
- * 1. User selects supplier from dropdown
- * 2. System loads available items for that supplier
- * 3. User selects specific item to adjust
- * 4. System fetches full item details
- * 5. User enters new quantity (≥ 0) and selects business reason
- * 6. System validates and applies quantity change with audit trail
- * 
- * Validation:
- * - Supplier must be selected before item selection is enabled
- * - Item must be selected before quantity adjustment is enabled
- * - New quantity must be non-negative (≥ 0)
- * - Business reason must be selected from predefined options
- * 
- * @component
- * @param props - Component props
- * @example
- * ```tsx
- * <QuantityAdjustDialog
- *   open={isDialogOpen}
- *   onClose={() => setIsDialogOpen(false)}
- *   onAdjusted={() => {
- *     refreshInventoryList();
- *     showSuccessMessage();
- *   }}
- * />
- * ```
- * 
- * @enterprise
- * - Implements step-by-step validation to prevent user errors
- * - Provides clear feedback on current item state (current quantity)
- * - Maintains audit trail through mandatory reason selection
- * - Prevents negative quantities that would cause system inconsistencies
- * - Supports internationalization for global deployment
- * - Uses shared data hooks for consistent behavior across dialogs
- */
 export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   open,
   onClose,

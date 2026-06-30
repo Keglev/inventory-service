@@ -3,15 +3,40 @@
  * @module pages/inventory/InventoryBoard
  *
  * @summary
- * Orchestrator component for the Inventory Management page.
- * Composes: useInventoryState hook, useInventoryData hook, and specialized UI components.
+ * Root orchestrator for the inventory management page. Composes the
+ * state hook, five handler hooks, the data-fetching hook, and the
+ * presentation components into a single page layout.
  *
  * @enterprise
- * - Separation of concerns: state (useInventoryState) + data (useInventoryData) + UI (components)
- * - Server-side pagination and sorting with client-side fallback for filtering
- * - Row selection via click, with dialog management
- * - All dialogs (ItemForm, Edit, Delete, QuantityAdjust, PriceChange) managed here
- * - Full TypeScript type safety, no implicit any types
+ * - Composition layout: state (useInventoryState) -> handlers (five
+ *   *Handlers hooks) -> data (useDataFetchingLogic) -> UI components
+ *   (InventoryToolbar, InventoryFilterPanel, InventoryTable,
+ *   InventoryDialogs). The board owns no useState or useEffect of its
+ *   own; every piece of state lives in a sub-hook.
+ * - selectedRow is DERIVED from data.server.items via .find on
+ *   state.selectedId. This means the derivation is bound to the
+ *   currently visible server page: if a filter or pagination change
+ *   removes the selected item from the visible rows, selectedRow
+ *   becomes null while state.selectedId remains set. Toolbar buttons
+ *   that depend on the selection then operate on a stale id with no
+ *   visible feedback. Tracked under CB-APP65 -- either clear
+ *   selectedId when a filter/pagination change is about to evict the
+ *   selected row, or treat selectedRow === null as a guard at every
+ *   handler that consumes the selection.
+ * - This is the reference site for HelpIconButton wiring: the help
+ *   icon next to the page title uses the shared component with the
+ *   topicId 'inventory.overview', matching QuantityAdjustDialog's
+ *   pattern. Dialogs that still use raw IconButton + HelpOutlineIcon
+ *   or window.open should converge on this pattern (CB-APP54,
+ *   CB-APP57, CM-APP11).
+ * - The "select a supplier to view items" placeholder is mandatory
+ *   UX: the inventory page intentionally renders nothing until a
+ *   supplier is chosen, because the backend item-search endpoint is
+ *   supplier-gated for performance and the page would otherwise
+ *   request a full unfiltered list on mount.
+ * - Demo mode (isDemo from useAuth) flows down to the three dialogs
+ *   that support readOnly (delete, quantity-adjust, price-change)
+ *   via InventoryDialogs.
  */
 
 import * as React from 'react';
@@ -34,26 +59,6 @@ import {
   useDataFetchingLogic,
 } from './handlers';
 
-/**
- * Inventory Management Board - main page orchestrator.
- * 
- * Responsibilities:
- * - Compose state hook (useInventoryState) for all UI state management
- * - Compose data hook (useInventoryData) for data fetching and processing
- * - Render UI components (Toolbar, FilterPanel, Table)
- * - Manage dialog visibility and state
- * - Handle row selection and actions
- * 
- * @component
- * @returns JSX element with complete inventory management interface
- * 
- * @example
- * ```tsx
- * export default function InventoryPage() {
- *   return <InventoryBoard />;
- * }
- * ```
- */
 const InventoryBoard: React.FC = () => {
   const { t } = useTranslation(['common', 'auth', 'analytics', 'inventory']);
   const { user } = useAuth();
@@ -82,6 +87,7 @@ const InventoryBoard: React.FC = () => {
   // =====================
   // Selected Row
   // =====================
+  // BUCKET: CB-APP65 -- selectedRow derived from visible page only. Stale state.selectedId persists if a filter/pagination change evicts the row. Either clear selectedId on eviction or guard selectedRow === null at every consumer.
   const selectedRow = data.server.items.find((r) => r.id === state.selectedId) ?? null;
 
   // =====================

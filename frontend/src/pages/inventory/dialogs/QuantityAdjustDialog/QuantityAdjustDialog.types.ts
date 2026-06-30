@@ -1,21 +1,17 @@
 /**
  * @file QuantityAdjustDialog.types.ts
- * @module dialogs/QuantityAdjustDialog/QuantityAdjustDialog.types
+ * @module pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustDialog.types
  *
  * @summary
- * TypeScript type definitions for QuantityAdjustDialog component.
- * Defines the component's public interface and prop contracts.
+ * Props type for the QuantityAdjustDialog component.
+ *
+ * @enterprise
+ * - readOnly enables demo mode: the user can walk every form step but
+ *   the actual mutation is short-circuited inside
+ *   useQuantityAdjustForm.onSubmit.
+ * - onAdjusted is a refresh signal, not a value-carrying callback.
  */
 
-/**
- * Props for the QuantityAdjustDialog component.
- * 
- * @interface QuantityAdjustDialogProps
- * @property {boolean} open - Controls dialog visibility
- * @property {() => void} onClose - Callback when dialog is closed
- * @property {() => void} onAdjusted - Callback when quantity is successfully adjusted
- * @property {boolean} [readOnly=false] - When true, dialog behaves as demo-readonly
- */
 export interface QuantityAdjustDialogProps {
   /** Controls dialog visibility state */
   open: boolean;

@@ -1,15 +1,35 @@
 /**
- * useEditItemForm - Orchestrator hook for edit item form workflow
- * 
- * @module dialogs/EditItemDialog/useEditItemForm
- * @description
- * Manages all state, queries, and form handling for the edit item workflow:
- * supplier selection → item search → name change validation.
- * 
- * Composes three specialized concerns into a single hook return:
- * - State: supplier, item, search query, error message
- * - Queries: suppliers, items, item details (with smart dependency-driven firing)
- * - Handlers: form submission with validation and API communication
+ * @file useEditItemForm.ts
+ * @module pages/inventory/dialogs/EditItemDialog/useEditItemForm
+ *
+ * @summary
+ * Orchestrator hook for the rename flow. Owns selection state, the
+ * three React Query hooks (suppliers, item search, item details), and
+ * the submit handler that calls renameItem.
+ *
+ * @enterprise
+ * - Single hook rather than the three-way split used in DeleteItemDialog.
+ *   The rename flow has no two-stage confirmation, no error-mapping
+ *   utility worth extracting, and one mutation -- the cost of splitting
+ *   would exceed the benefit.
+ * - Two effects: one resets dependent state when the supplier changes
+ *   so a supplier swap starts a clean flow; one pre-fills the new-name
+ *   field with the freshest known name (details query if present, search
+ *   result otherwise) so the user edits an actual value, not an empty
+ *   field.
+ * - Submission delegates only to renameItem. Error handling is inline
+ *   substring matching on the backend message text (Admin / Access
+ *   denied / duplicate / already exists), which is the same fragile
+ *   pattern as deleteItemErrorHandler. Tracked under CB-APP50 -- switch
+ *   to matching on the structured error field per the locked error shape.
+ * - console.error on submission failure is unguarded and ships to
+ *   production browser devtools. Tracked under CB-APP51 (same class as
+ *   CB-APP29 / CB-APP35 / CB-APP37 / CB-APP45 / CB-APP47).
+ * - editItemSchema validates only itemId + newName; rename does not
+ *   write a StockHistory row, so no reason field is needed. This is
+ *   different from itemFormSchema (create/upsert, strict 2-value reason
+ *   enum) and quantityAdjustSchema (loose reason string) -- the CB-E
+ *   asymmetry does not surface in this file.
  */
 
 import * as React from 'react';
@@ -29,7 +49,7 @@ import {
 /**
  * Complete edit item form state and handlers
  * 
- * @interface UseEditItemFormReturn
+
  */
 export interface UseEditItemFormReturn {
   selectedSupplier: SupplierOption | null;
@@ -184,6 +204,7 @@ export function useEditItemForm(
         toast(t('inventory:status.itemRenamed', 'Item name changed successfully!'), 'success');
         onItemRenamed();
         handleClose();
+      // BUCKET: CB-APP50 -- substring matching on freeform backend message text. Switch to structured error field per locked error shape.
       } else if (success.error?.includes('Admin') || success.error?.includes('Access denied')) {
         setFormError(t('errors:inventory.adminOnly', 'Only administrators can rename items.'));
       } else if (success.error?.includes('duplicate') || success.error?.includes('already exists')) {
@@ -192,6 +213,7 @@ export function useEditItemForm(
         setFormError(success.error || t('errors:inventory.requests.failedToRenameItem', 'Failed to rename item. Please try again.'));
       }
     } catch (error) {
+      // BUCKET: CB-APP51 -- unguarded console.error ships to production devtools.
       console.error('Edit item error:', error);
       setFormError(t('errors:inventory.requests.failedToRenameItem', 'Failed to rename item. Please try again.'));
     }

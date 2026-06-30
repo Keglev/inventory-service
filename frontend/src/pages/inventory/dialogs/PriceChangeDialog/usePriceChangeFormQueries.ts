@@ -1,14 +1,24 @@
 /**
- * usePriceChangeFormQueries - Query hooks for price change workflow
- * 
- * @module dialogs/PriceChangeDialog/usePriceChangeFormQueries
- * @description
- * Manages all data fetching via react-query:
- * suppliers list, items with search filtering, item details with current price.
- * 
- * Includes smart effects:
- * - Resets item selection when supplier changes (prevents cross-supplier errors)
- * - Refreshes form when dialog opens/closes
+ * @file usePriceChangeFormQueries.ts
+ * @module pages/inventory/dialogs/PriceChangeDialog/usePriceChangeFormQueries
+ *
+ * @summary
+ * Query coordinator for the price-change flow: suppliers, item search,
+ * item details. Owns two sync effects that keep react-hook-form state
+ * coherent with selection state.
+ *
+ * @enterprise
+ * - Same lazy-firing pattern as DeleteItemDialog and EditItemDialog:
+ *   suppliers fires when the dialog opens; item search fires when a
+ *   supplier is selected and the query is long enough; item details
+ *   fires only when an item is picked.
+ * - Two effects: supplier-change resets itemId, newPrice, and clears
+ *   form errors so a clean flow restarts; item-pick mirrors the
+ *   itemId into the form and pre-fills newPrice with the freshest
+ *   known value (details query if loaded, search result otherwise).
+ * - effectiveCurrentPrice and effectiveCurrentQty are derived once and
+ *   passed to the form so the presentation never needs to chain the
+ *   fallback logic.
  */
 
 import * as React from 'react';
@@ -17,9 +27,6 @@ import type { SupplierOption, ItemOption } from '../../../../api/analytics/types
 import type { UseFormSetValue, UseFormClearErrors } from 'react-hook-form';
 import type { PriceChangeForm } from '../../../../api/inventory/validation';
 
-/**
- * Query results and loading states
- */
 export interface PriceChangeFormQueries {
   suppliers: SupplierOption[];
   items: ItemOption[];
@@ -30,16 +37,6 @@ export interface PriceChangeFormQueries {
   effectiveCurrentQty: number;
 }
 
-/**
- * Hook managing all price change queries with intelligent effects
- * 
- * @param isOpen - Whether dialog is open (controls supplier query firing)
- * @param selectedSupplier - Currently selected supplier (filters items)
- * @param itemQuery - Search query for item filtering
- * @param selectedItem - Currently selected item (fetches details)
- * @param setValue - RHF setValue for auto-filling form
- * @param clearErrors - RHF clearErrors for clearing validation
- */
 export function usePriceChangeFormQueries(
   isOpen: boolean,
   selectedSupplier: SupplierOption | null,

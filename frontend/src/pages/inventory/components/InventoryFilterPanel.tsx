@@ -3,13 +3,23 @@
  * @module pages/inventory/components/InventoryFilterPanel
  *
  * @summary
- * Filter controls for inventory filtering and search.
- * Includes: supplier dropdown, search field, below-minimum-quantity checkbox.
+ * Filter controls for the inventory table: supplier dropdown, search
+ * field, and below-minimum-quantity checkbox. Responsive column on
+ * mobile, row on desktop.
  *
  * @enterprise
- * - Pure presentation component with callback props
- * - No internal state or business logic
- * - Accessible form controls with proper labels
+ * - Pure presentation, callback props only. No useState, no useEffect.
+ *   Filter state lives in useInventoryState; this component just
+ *   reflects and dispatches.
+ * - "All suppliers" is encoded as the empty-string MenuItem value (no
+ *   selection); the parent setter receives null when that option is
+ *   picked. Different from the AnalyticsFilters convention
+ *   (supplierId === undefined for "all"); both encode "no filter" but
+ *   the wire shape differs.
+ * - belowMinOnly is the client-side critical-stock filter. It is NOT
+ *   the same as the analytics LowStockTable view: this one filters the
+ *   visible rows; LowStockTable shows a curated descending-deficit
+ *   list with its own threshold business rule (CB-APP42).
  */
 
 import * as React from 'react';
@@ -27,19 +37,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { SupplierOption } from '../../../api/analytics/types';
 
-/**
- * Props for InventoryFilterPanel component.
- * 
- * @interface InventoryFilterPanelProps
- * @property {string} q - Current search query
- * @property {(q: string) => void} setQ - Callback to update search query
- * @property {string | null} supplierId - Currently selected supplier ID (null = all)
- * @property {(supplierId: string | null) => void} setSupplierId - Callback to update supplier filter
- * @property {boolean} belowMinOnly - Whether to show only items below minimum quantity
- * @property {(belowMinOnly: boolean) => void} setBelowMinOnly - Callback to toggle below-min filter
- * @property {InventorySupplier[]} suppliers - Available suppliers for dropdown
- * @property {boolean} supplierLoading - Whether supplier list is loading
- */
 interface InventoryFilterPanelProps {
   q: string;
   setQ: (q: string) => void;
@@ -51,32 +48,6 @@ interface InventoryFilterPanelProps {
   supplierLoading: boolean;
 }
 
-/**
- * Filter panel for inventory search and filtering.
- * 
- * Provides:
- * - Text search field for item name/code
- * - Supplier dropdown selector
- * - Below-minimum-quantity toggle checkbox
- * 
- * @component
- * @param props - Component props
- * @returns JSX element with filter controls
- * 
- * @example
- * ```tsx
- * <InventoryFilterPanel
- *   q={searchQuery}
- *   setQ={setSearchQuery}
- *   supplierId={selectedSupplierId}
- *   setSupplierId={setSelectedSupplierId}
- *   belowMinOnly={showOnlyBelowMin}
- *   setBelowMinOnly={setShowOnlyBelowMin}
- *   suppliers={supplierList}
- *   supplierLoading={isLoading}
- * />
- * ```
- */
 export const InventoryFilterPanel: React.FC<InventoryFilterPanelProps> = ({
   q,
   setQ,

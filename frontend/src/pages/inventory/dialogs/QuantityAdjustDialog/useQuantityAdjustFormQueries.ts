@@ -1,17 +1,28 @@
 /**
  * @file useQuantityAdjustFormQueries.ts
- * @module dialogs/QuantityAdjustDialog/useQuantityAdjustFormQueries
+ * @module pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustFormQueries
  *
  * @summary
- * Query management hook for quantity adjustment form.
- * Handles data fetching: suppliers, items, and item details with intelligent effects.
+ * Query coordinator for the quantity-adjust flow: suppliers, item
+ * search, item details, and item price. Owns two sync effects that
+ * keep react-hook-form coherent with selection state.
  *
  * @enterprise
- * - Separates query/fetch logic from state and form concerns
- * - Intelligent effects reset form state on supplier changes
- * - Pre-fills quantity field with current item quantity
- * - Provides loading states for async data
- * - Uses shared hooks for consistent caching and error handling
+ * - Four queries, more than any other dialog in this family. The fourth
+ *   (useItemPriceQuery) exists because the inventory item details
+ *   endpoint does not return a guaranteed current price; analytics
+ *   price-trend is the authoritative source for the most recent price.
+ * - Two effects: supplier-change resets item, query, itemId, newQuantity,
+ *   and clears errors; item-pick mirrors the itemId and pre-fills
+ *   newQuantity from the details query's onHand.
+ * - effectiveCurrentQty and effectiveCurrentPrice are derived with
+ *   defensive fallbacks (details first, then search-result, then 0
+ *   for quantity / null for price). The downstream presentation
+ *   never needs to chain the fallback logic.
+ * - The setters object passed in by the orchestrator is destructured
+ *   so the supplier-change effect depends on stable useState setters,
+ *   not the recreated-each-render setters object. Without the
+ *   destructuring the effect fires every render.
  */
 
 import * as React from 'react';
@@ -21,18 +32,6 @@ import type { QuantityAdjustFormState, QuantityAdjustFormStateSetters } from './
 import type { UseFormSetValue } from 'react-hook-form';
 import type { QuantityAdjustForm } from '../../../../api/inventory/validation';
 
-/**
- * Query results and data loading states.
- * 
- * @interface QuantityAdjustFormQueries
- * @property {Object[]} suppliers - Array of supplier options
- * @property {boolean} suppliersLoading - Loading state for suppliers query
- * @property {Object[]} items - Array of item options filtered by supplier
- * @property {boolean} itemsLoading - Loading state for items query
- * @property {number | null} effectiveCurrentQty - Current item quantity (from details or search)
- * @property {number | null} effectiveCurrentPrice - Current item price (from trend or selected)
- * @property {boolean} itemDetailsLoading - Loading state for item details query
- */
 export interface QuantityAdjustFormQueries {
   suppliers: ReturnType<typeof useSuppliersQuery>['data'];
   suppliersLoading: boolean;
@@ -43,37 +42,6 @@ export interface QuantityAdjustFormQueries {
   itemDetailsLoading: boolean;
 }
 
-/**
- * Query management hook for quantity adjustment form.
- * 
- * Provides all query/fetch logic:
- * - Suppliers list (shared hook)
- * - Items filtered by supplier (shared hook)
- * - Item details including current quantity (shared hook)
- * - Item price trend (analytics API)
- * 
- * Intelligent effects:
- * - Reset item search/selection when supplier changes
- * - Pre-fill quantity field with current item quantity
- * 
- * @param state - Current form state (supplier/item selection)
- * @param setters - State setter functions
- * @param setValue - react-hook-form's setValue for syncing form state
- * @param isDialogOpen - Whether dialog is open (disables queries when closed)
- * @returns Query results and loading states
- * 
- * @example
- * ```ts
- * const queries = useQuantityAdjustFormQueries(state, setters, setValue, open);
- * return (
- *   <>
- *     <Suppliers data={queries.suppliers} loading={queries.suppliersLoading} />
- *     <Items data={queries.items} loading={queries.itemsLoading} />
- *     <CurrentQty>{queries.effectiveCurrentQty}</CurrentQty>
- *   </>
- * );
- * ```
- */
 export const useQuantityAdjustFormQueries = (
   state: QuantityAdjustFormState,
   setters: QuantityAdjustFormStateSetters,

@@ -1,15 +1,48 @@
 /**
- * useItemForm - Orchestrator hook for create/edit item workflow
- * 
- * @module dialogs/ItemFormDialog/useItemForm
- * @description
- * Manages all state, queries, and form handling for item creation/editing:
- * supplier selection → item details → validation → API submission.
- * 
- * Composes three specialized concerns:
- * - State: supplier, form values, errors, controlled Autocomplete value
- * - Queries: suppliers with 5-minute cache via useSuppliersQuery
- * - Handlers: form submission with error mapping and demo mode support
+ * @file useItemForm.ts
+ * @module pages/inventory/dialogs/ItemFormDialog/useItemForm
+ *
+ * @summary
+ * Orchestrator hook for the create-or-edit item flow. Owns the
+ * react-hook-form instance, the suppliers query, two sync effects, and
+ * the submit pipeline (validate, map to UpsertItemRequest, call
+ * upsertItem, map errors).
+ *
+ * @enterprise
+ * - itemFormSchema constrains reason to the 2-value subset
+ *   INITIAL_STOCK | MANUAL_UPDATE. The backend enforces the same subset
+ *   for create/upsert. The locked 11-value StockChangeReason enum covers
+ *   removals and other flows that do not belong on creation. CM-3
+ *   closure: subset is intentional and backend-authoritative.
+ * - Two effects keep state coherent. The supplier-alignment effect
+ *   addresses a real race: defaultValues are set before suppliers
+ *   load, so the controlled Autocomplete needs to be re-aligned to
+ *   the loaded SupplierOption once the list arrives. The reset-on-open
+ *   effect guarantees a clean state on every open, so a previous edit
+ *   session does not leak into a new create.
+ * - Submit pipeline maps form values to UpsertItemRequest:
+ *   reason -> notes (backend stores the reason as the StockHistory
+ *   notes column for this flow), and minQty is hardcoded to 5.
+ *   The minQty value is the same low-stock baseline that drives
+ *   LowStockTable's critical chip and useInventoryRowStyling.
+ *   Tracked under CB-APP42 -- this is the fourth site of the literal
+ *   5; extract to a shared constant in the refactor phase.
+ * - createdBy is hardcoded to 'user'. The backend should overwrite
+ *   this from the authenticated session, so the literal is effectively
+ *   ignored, but the placeholder is misleading at the call site.
+ *   Tracked under CB-APP53 -- verify backend overwrite, then either
+ *   drop the field from the client payload or pull the real user from
+ *   AuthContext.
+ * - applyServerError uses substring matching on the freeform backend
+ *   error text (duplicate / exists / name / code / sku / supplier) to
+ *   choose between field-level and form-level errors. Same fragile
+ *   pattern as deleteItemErrorHandler (CB-APP48) and useEditItemForm
+ *   (CB-APP50). Tracked under CB-APP52 -- switch to matching on the
+ *   structured error field per the locked error shape, or have the
+ *   backend return fieldErrors for inline display.
+ * - Demo mode (readOnly) short-circuits before the mutation so a demo
+ *   user sees the same disabled-action message regardless of validation
+ *   state.
  */
 
 import * as React from 'react';
@@ -26,7 +59,7 @@ import { useSuppliersQuery } from '../../../../api/inventory/hooks/useInventoryD
 /**
  * Complete item form state and handlers
  * 
- * @interface UseItemFormReturn
+
  */
 export interface UseItemFormReturn {
   // State
@@ -168,6 +201,7 @@ export function useItemForm({
    * Uses readable heuristics (duplicate name/code, supplier issues)
    * Can be replaced by structured fieldErrors in future
    */
+  // BUCKET: CB-APP52 -- substring matching on freeform backend message text. Switch to structured error field or backend-returned fieldErrors.
   function applyServerError(message?: string | null): void {
     if (!message) return;
     const msg = message.toLowerCase();
@@ -202,7 +236,7 @@ export function useItemForm({
    * 
    * @enterprise
    * - Honors readOnly (demo mode) flag
-   * - Maps form values to UpsertItemRequest (reason → notes, onHand → quantity)
+   * - Maps form values to UpsertItemRequest (reason -> notes, onHand -> quantity)
    * - Auto-sets minQty to 5 and createdBy to 'user'
    * - Maps field-level and generic errors from backend
    * - Triggers onSaved callback and closes on success
@@ -224,8 +258,10 @@ export function useItemForm({
       supplierId: values.supplierId,
       quantity: values.quantity,
       price: values.price,
+      // BUCKET: CB-APP42 -- duplicated low-stock threshold (5). Extract to shared constant.
       minQty: 5,
       notes: values.reason,
+      // BUCKET: CB-APP53 -- hardcoded placeholder. Verify backend overwrite from session, then drop field or wire to AuthContext.
       createdBy: 'user',
     };
 

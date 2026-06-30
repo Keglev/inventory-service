@@ -3,11 +3,28 @@
  * @module pages/inventory/InventoryFilters
  *
  * @summary
- * Reusable filter component for inventory list view.
- * Handles supplier selection and item search with proper UX.
- * 
- * @refactored
- * Uses shared SupplierOption type from types/inventory-dialog.types.ts
+ * Reusable supplier + search filter component. Renders a supplier
+ * dropdown (with All Suppliers option) and a search text field, with
+ * an optional gate disabling search until a supplier is chosen.
+ *
+ * @enterprise
+ * - Appears to be a parallel filter component to
+ *   components/InventoryFilterPanel. The page-level board
+ *   (InventoryBoard) wires InventoryFilterPanel, not this file --
+ *   making this a dead-code candidate. Tracked under ST-APP18:
+ *   verify zero production callers across the frontend; if confirmed,
+ *   delete in the refactor phase. The supplier+search interface here
+ *   diverges from InventoryFilterPanel (no below-min toggle, different
+ *   "all suppliers" encoding via empty-string value), so the two
+ *   files have actually drifted -- not pure duplicates.
+ * - SupplierOption is re-exported for "backward compatibility" with
+ *   callers that import from this file. If ST-APP18 confirms dead
+ *   code, the re-export and any backward-compat assumption can go
+ *   together.
+ * - disableSearchUntilSupplier toggle exists to model the "must pick
+ *   a supplier first" UX explicitly, rather than relying on the
+ *   parent to coordinate the gate. The current consumer (if any)
+ *   would dictate whether the gate is useful.
  */
 
 import * as React from 'react';
@@ -24,6 +41,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { SupplierOption } from '../../api/analytics/types';
 
+// BUCKET: ST-APP18 -- file appears to be a dead/parallel filter component (InventoryBoard uses InventoryFilterPanel instead). Verify zero production callers, then delete.
 // Re-export for backward compatibility
 export type { SupplierOption };
 

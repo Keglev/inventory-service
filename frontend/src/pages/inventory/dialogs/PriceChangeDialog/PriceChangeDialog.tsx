@@ -1,16 +1,34 @@
 /**
- * PriceChangeDialog - Main dialog container for price adjustment
- * 
- * @module dialogs/PriceChangeDialog/PriceChangeDialog
- * @description
- * Manages dialog lifecycle (title, open/close, actions).
- * Delegates all form logic to usePriceChangeForm hook.
- * 
+ * @file PriceChangeDialog.tsx
+ * @module pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog
+ *
+ * @summary
+ * Root dialog for the price-change flow. Renders title, the
+ * PriceChangeForm body, and the cancel/apply actions. All state and
+ * submission live in usePriceChangeForm.
+ *
  * @enterprise
- * - Thin container following separation of concerns
- * - Help button links to price change documentation
- * - Cancel button dismisses without changes
- * - Apply button triggers submission with loading state
+ * - Single-dialog architecture. Price change is reversible by another
+ *   price change, so no second confirmation step is offered. Same
+ *   pattern as EditItemDialog (rename), different from DeleteItemDialog
+ *   (two-dialog with confirmation).
+ * - Backend invariants surfaced in the UI:
+ *   (1) newPrice must be > 0 (priceChangeSchema enforces, backend
+ *       re-validates);
+ *   (2) backend does not record a reason for price changes, so the form
+ *       carries no reason field.
+ * - Help-icon wiring uses window.open('#/help?section=...') instead of
+ *   the in-app useHelp() drawer. Same divergence as ItemFormDialog
+ *   tracked under CB-APP54; this site is tracked under CB-APP57 as a
+ *   sibling.
+ * - dialogRef is declared via useRef but never read. Sibling of the
+ *   same dead-ref pattern in ItemFormDialog. Tracked under ST-APP15
+ *   (extended to cover both sites).
+ * - There is no substring error-mapping in this flow. Failures get a
+ *   single generic message regardless of cause (admin-only, validation,
+ *   conflict). Tracked under CB-APP56 -- either add structured error
+ *   mapping consistent with delete/rename/create flows, or accept the
+ *   generic message as policy.
  */
 
 import {
@@ -32,17 +50,6 @@ import { PriceChangeForm } from './PriceChangeForm';
 import { usePriceChangeForm } from './usePriceChangeForm';
 import type { PriceChangeDialogProps } from './PriceChangeDialog.types';
 
-/**
- * PriceChangeDialog - Main dialog component
- * 
- * Opens when open is true. Renders PriceChangeForm and manages dialog actions.
- * All form state/queries/validation delegated to usePriceChangeForm hook.
- * 
- * @param open - Whether dialog is visible
- * @param onClose - Called on cancel or successful save
- * @param onPriceChanged - Called after successful price change
- * @param readOnly - Demo mode flag (disables submission)
- */
 export function PriceChangeDialog({
   open,
   onClose,
@@ -50,6 +57,7 @@ export function PriceChangeDialog({
   readOnly = false,
 }: PriceChangeDialogProps) {
   const { t } = useTranslation(['common', 'inventory']);
+  // BUCKET: ST-APP15 (extended) -- dialogRef is never read. Remove the useRef and the ref prop on Dialog. Same as ItemFormDialog.
   const dialogRef = useRef<HTMLDivElement>(null);
 
   // All form state and handlers delegated to hook
@@ -67,6 +75,7 @@ export function PriceChangeDialog({
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Box>{t('inventory:toolbar.changePrice', 'Change Price')}</Box>
+          {/* BUCKET: CB-APP57 -- raw window.open bypasses in-app help. Switch to useHelp() to match EditItemDialog and DeleteItemDialog. Sibling of CB-APP54. */}
           <Tooltip title={t('common:help', 'Help')}>
             <IconButton
               size="small"

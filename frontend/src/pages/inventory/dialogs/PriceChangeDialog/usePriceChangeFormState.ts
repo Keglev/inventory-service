@@ -1,18 +1,22 @@
 /**
- * usePriceChangeFormState - State management for price change workflow
- * 
- * @module dialogs/PriceChangeDialog/usePriceChangeFormState
- * @description
- * Manages all component state for price change dialog:
- * selected supplier, selected item, search query, and form errors.
+ * @file usePriceChangeFormState.ts
+ * @module pages/inventory/dialogs/PriceChangeDialog/usePriceChangeFormState
+ *
+ * @summary
+ * Pure local-state hook for the price-change flow: selected supplier,
+ * selected item, search query, and form error.
+ *
+ * @enterprise
+ * - No effects, no queries, no react-hook-form. Pure useState. This
+ *   isolation lets tests mount the orchestrator's behavior with a
+ *   hand-built state replacement.
+ * - Type-level split between values and setters makes the consumer
+ *   contract explicit at the interface boundary.
  */
 
 import * as React from 'react';
 import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
 
-/**
- * Price change form state
- */
 export interface PriceChangeFormState {
   selectedSupplier: SupplierOption | null;
   selectedItem: ItemOption | null;
@@ -20,9 +24,6 @@ export interface PriceChangeFormState {
   formError: string | null;
 }
 
-/**
- * State setters
- */
 export interface PriceChangeFormStateSetters {
   setSelectedSupplier: (supplier: SupplierOption | null) => void;
   setSelectedItem: (item: ItemOption | null) => void;
@@ -30,9 +31,6 @@ export interface PriceChangeFormStateSetters {
   setFormError: (error: string | null) => void;
 }
 
-/**
- * Hook managing all price change form state
- */
 export function usePriceChangeFormState(): PriceChangeFormState & PriceChangeFormStateSetters {
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierOption | null>(null);
   const [selectedItem, setSelectedItem] = React.useState<ItemOption | null>(null);

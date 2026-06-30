@@ -3,13 +3,28 @@
  * @module pages/inventory/components/InventoryDialogs
  *
  * @summary
- * Dialog components for inventory management operations.
- * Extracted from InventoryBoard for cleaner orchestration.
+ * Collection of inventory mutation dialogs (create, rename, delete,
+ * edit, quantity-adjust, price-change), all controlled by visibility
+ * flags and a single shared onReload callback.
  *
  * @enterprise
- * - Pure presentation component for dialogs
- * - No internal state, all controlled via props
- * - Single responsibility: render dialog collection
+ * - Stateless dialog host. Every flag and selection is provided by
+ *   the parent (InventoryBoard via useInventoryState), so this file
+ *   carries no useState/useEffect.
+ * - Renders TWO <ItemFormDialog> instances: one for create (openNew),
+ *   one for edit (openEdit, gated on selectedRow). The component
+ *   itself supports both modes via the `initial` prop, so mounting
+ *   two instances is redundant. Tracked under CB-APP64 -- collapse to
+ *   one instance with mode keyed off `initial` in the refactor phase.
+ * - onReload is the single refresh path used by all six dialogs. It
+ *   wires to useRefreshHandler in the parent, which triggers a refetch
+ *   by resetting paginationModel -- and is a no-op when the user is
+ *   already on page 0 (CB-APP46). Every successful inventory mutation
+ *   currently exhibits this silent-no-refresh edge case on page 0.
+ * - isDemo flows through to readOnly on the three dialogs that
+ *   support it (delete, quantity-adjust, price-change). Edit and
+ *   rename do not currently honor demo mode -- the dialog props
+ *   omit readOnly.
  */
 
 import * as React from 'react';
@@ -20,26 +35,6 @@ import { QuantityAdjustDialog } from '../dialogs/QuantityAdjustDialog';
 import { PriceChangeDialog } from '../dialogs/PriceChangeDialog';
 import type { InventoryRow } from '../../../api/inventory/types';
 
-/**
- * Props for InventoryDialogs component.
- * 
- * @interface InventoryDialogsProps
- * @property {boolean} openNew - ItemFormDialog visibility for new item
- * @property {() => void} setOpenNew - Callback to toggle new item dialog
- * @property {boolean} openEditName - EditItemDialog visibility
- * @property {() => void} setOpenEditName - Callback to toggle edit name dialog
- * @property {boolean} openDelete - DeleteItemDialog visibility
- * @property {() => void} setOpenDelete - Callback to toggle delete dialog
- * @property {boolean} openEdit - ItemFormDialog visibility for edit existing
- * @property {() => void} setOpenEdit - Callback to toggle edit item dialog
- * @property {boolean} openAdjust - QuantityAdjustDialog visibility
- * @property {() => void} setOpenAdjust - Callback to toggle adjust quantity dialog
- * @property {boolean} openPrice - PriceChangeDialog visibility
- * @property {() => void} setOpenPrice - Callback to toggle price change dialog
- * @property {InventoryRow | null} selectedRow - Currently selected inventory item
- * @property {() => void} onReload - Callback when dialog mutation completes
- * @property {boolean} isDemo - Whether user is in demo mode (read-only)
- */
 interface InventoryDialogsProps {
   openNew: boolean;
   setOpenNew: (open: boolean) => void;
@@ -58,33 +53,6 @@ interface InventoryDialogsProps {
   isDemo: boolean;
 }
 
-/**
- * Inventory dialog collection component.
- * 
- * Renders all 5 inventory management dialogs:
- * - ItemForm (create new item)
- * - EditItemDialog (rename item)
- * - DeleteItemDialog (delete item)
- * - ItemForm (edit existing item)
- * - QuantityAdjustDialog
- * - PriceChangeDialog
- * 
- * @component
- * @param props - Component props
- * @returns JSX element with all dialogs
- * 
- * @example
- * ```tsx
- * <InventoryDialogs
- *   openNew={state.openNew}
- *   setOpenNew={state.setOpenNew}
- *   selectedRow={selectedRow}
- *   onReload={handleReload}
- *   isDemo={isDemo}
- *   {...otherDialogProps}
- * />
- * ```
- */
 export const InventoryDialogs: React.FC<InventoryDialogsProps> = ({
   openNew,
   setOpenNew,
@@ -123,6 +91,7 @@ export const InventoryDialogs: React.FC<InventoryDialogsProps> = ({
         readOnly={isDemo}
       />
 
+      {/* BUCKET: CB-APP64 -- two ItemFormDialog instances (create + edit). Collapse to one instance keyed off `initial` prop in refactor. */}
       {selectedRow && (
         <ItemFormDialog
           isOpen={openEdit}

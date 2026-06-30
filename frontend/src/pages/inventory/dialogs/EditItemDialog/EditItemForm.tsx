@@ -1,15 +1,25 @@
 /**
- * EditItemForm - Three-step form for renaming inventory items
- * 
- * @module dialogs/EditItemDialog/EditItemForm
- * @description
- * Renders the guided workflow form with three steps:
- * 1. Supplier selection via dropdown
- * 2. Item search and selection via autocomplete
- * 3. Name change with current name display and validation
- * 
- * Each step is conditionally visible based on previous steps.
- * Uses shared form state from useEditItemForm hook.
+ * @file EditItemForm.tsx
+ * @module pages/inventory/dialogs/EditItemDialog/EditItemForm
+ *
+ * @summary
+ * Three-step rename form: supplier select, item autocomplete, new-name
+ * input. Each step renders only after the previous one produces the
+ * value it depends on.
+ *
+ * @enterprise
+ * - Progressive disclosure mirrors DeleteFormView's pattern but inline
+ *   in one file -- the rename flow is smaller and a StepSection helper
+ *   would be over-extracted.
+ * - Item-name display uses
+ *   itemDetailsQuery.data?.name ?? selectedItem.name
+ *   so the fresh backend name wins as soon as the details query lands,
+ *   and the search-result name carries the UI until then.
+ * - Autocomplete is re-keyed with key={selectedSupplier?.id} so its
+ *   internal state resets cleanly when the user switches suppliers --
+ *   same pattern as DeleteFormFields ItemSelectField.
+ * - Errors render at the top with a dismiss control; the rest of the
+ *   form stays interactive while the user reads the message.
  */
 
 import {

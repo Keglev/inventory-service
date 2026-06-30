@@ -1,7 +1,17 @@
 /**
- * ItemFormDialog type definitions
- * 
- * @module dialogs/ItemFormDialog/ItemFormDialog.types
+ * @file ItemFormDialog.types.ts
+ * @module pages/inventory/dialogs/ItemFormDialog/ItemFormDialog.types
+ *
+ * @summary
+ * Props type for the ItemFormDialog component.
+ *
+ * @enterprise
+ * - initial is the create-vs-edit switch. Omitting it (or passing null
+ *   or undefined) puts the dialog in create mode; passing an
+ *   InventoryRow puts it in edit mode and pre-fills the form fields.
+ * - onSaved is optional and intentionally decoupled from onClose; the
+ *   parent decides whether to refresh its data on close, on save, or
+ *   on both.
  */
 
 import type { InventoryRow } from '../../../../api/inventory';

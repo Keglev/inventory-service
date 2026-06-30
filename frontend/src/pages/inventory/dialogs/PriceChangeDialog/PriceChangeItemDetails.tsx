@@ -1,24 +1,25 @@
 /**
- * PriceChangeItemDetails - Selected item details panel component
- * 
- * @module dialogs/PriceChangeDialog/PriceChangeItemDetails
- * @description
- * Displays current price and quantity for selected item in a highlighted panel.
- * Only renders when an item is selected.
+ * @file PriceChangeItemDetails.tsx
+ * @module pages/inventory/dialogs/PriceChangeDialog/PriceChangeItemDetails
+ *
+ * @summary
+ * Reference panel rendered above the new-price input: shows the selected
+ * item's name, current price, and current on-hand quantity, with skeleton
+ * spinners while the details query is loading.
+ *
+ * @enterprise
+ * - Renders nothing when no item is selected, by design. The new-price
+ *   input is disabled in that state, so the panel would carry no useful
+ *   information.
+ * - Pure presentation. All numbers come from the parent hook's
+ *   effective-* derivations, so backend-shape drift is absorbed upstream
+ *   not here.
  */
 
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { ItemOption } from '../../../../api/analytics/types';
 
-/**
- * PriceChangeItemDetails - Render selected item details
- * 
- * @param item - Currently selected item
- * @param currentPrice - Current item price (from API)
- * @param currentQty - Current item quantity (from API)
- * @param loading - Whether details are still loading
- */
 export function PriceChangeItemDetails({
   item,
   currentPrice,

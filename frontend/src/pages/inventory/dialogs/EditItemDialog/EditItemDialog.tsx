@@ -1,30 +1,28 @@
 /**
- * EditItemDialog - Main dialog container for item rename workflow
- * 
- * @module dialogs/EditItemDialog/EditItemDialog
- * @description
- * Enterprise dialog for editing inventory item names.
- * Orchestrates guided workflow: supplier → item → name change.
- * 
- * Delegates all business logic to useEditItemForm hook and renders
- * form via EditItemForm component. Manages only dialog lifecycle and layout.
- * 
- * @workflow
- * 1. User selects supplier from dropdown
- * 2. System enables item search for that supplier
- * 3. User searches and selects specific item
- * 4. System fetches and displays current item details
- * 5. User enters new item name and submits
- * 6. Backend updates name (ADMIN-only operation)
- * 
- * @validation
- * - Supplier must be selected before item search enabled
- * - Item must be selected before name change enabled
- * - New name must not be empty and differ from current name
- * - New name cannot be duplicate (checked by backend)
- * 
- * @authorization
- * PATCH /api/inventory/{id}/name?name={newName} - ADMIN only
+ * @file EditItemDialog.tsx
+ * @module pages/inventory/dialogs/EditItemDialog/EditItemDialog
+ *
+ * @summary
+ * Root dialog for the item-rename flow. Renders the title, the
+ * EditItemForm body, and the cancel/change actions, and delegates all
+ * state, queries, and submission to useEditItemForm.
+ *
+ * @enterprise
+ * - Single-dialog architecture. Unlike DeleteItemDialog (two dialogs,
+ *   form + confirmation), rename is a single modal because the change is
+ *   reversible by another rename. No second confirmation step is offered.
+ * - Backend invariants surfaced to users:
+ *   (1) only ADMIN users can rename items (PATCH /api/inventory/{id}/name
+ *       is admin-gated);
+ *   (2) the new name must be unique within the same supplier; the
+ *       backend rejects duplicates with a structured error;
+ *   (3) the rename does not change inventory quantity or write a
+ *       StockHistory row, so the schema carries no reason field.
+ * - Help-icon wiring uses a raw IconButton + HelpOutlineIcon and a
+ *   tooltip key with an English fallback. Same pattern as DeleteItemDialog
+ *   tracked under CM-APP11; not duplicated here as a new bucket.
+ * - Hook orchestration is in useEditItemForm; this file holds layout
+ *   only, no business logic.
  */
 
 import * as React from 'react';
@@ -46,11 +44,6 @@ import { useHelp } from '../../../../hooks/useHelp';
 import { useEditItemForm } from './useEditItemForm';
 import { EditItemForm } from './EditItemForm';
 
-/**
- * Props for EditItemDialog component
- * 
- * @interface EditItemDialogProps
- */
 export interface EditItemDialogProps {
   /** Whether dialog is currently visible */
   open: boolean;
@@ -60,33 +53,6 @@ export interface EditItemDialogProps {
   onItemRenamed: () => void;
 }
 
-/**
- * Enterprise dialog for renaming inventory items
- * 
- * Provides guided workflow with proper validation and UX optimizations.
- * Integrates with useEditItemForm for complete state and mutation management.
- * 
- * @component
- * @example
- * ```tsx
- * <EditItemDialog
- *   open={isDialogOpen}
- *   onClose={() => setIsDialogOpen(false)}
- *   onItemRenamed={() => {
- *     refreshInventoryList();
- *     showSuccessMessage();
- *   }}
- * />
- * ```
- * 
- * @enterprise
- * - Step-by-step validation prevents user errors
- * - Clear feedback on current item state
- * - Prevents duplicate names (backend enforced)
- * - ADMIN-only authorization with clear error messaging
- * - Internationalized for global deployment
- * - Consistent with DeleteItemDialog patterns
- */
 export const EditItemDialog: React.FC<EditItemDialogProps> = ({
   open,
   onClose,

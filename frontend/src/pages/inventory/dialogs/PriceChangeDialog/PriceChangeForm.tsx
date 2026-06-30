@@ -1,15 +1,22 @@
 /**
- * PriceChangeForm - Multi-step form for changing inventory item prices
- * 
- * @module dialogs/PriceChangeDialog/PriceChangeForm
- * @description
- * Renders three-step workflow: supplier selection → item search → price adjustment.
- * 
- * Step 1: Select supplier from dropdown (enables item search)
- * Step 2: Search and select item via Autocomplete (enables price change)
- * Step 3: Enter new price with current price display
- * 
- * Uses shared form state from usePriceChangeForm hook.
+ * @file PriceChangeForm.tsx
+ * @module pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm
+ *
+ * @summary
+ * Three-step form for changing prices: supplier select, item
+ * autocomplete, new-price input with current-price reference panel.
+ *
+ * @enterprise
+ * - Progressive disclosure: supplier required before item search;
+ *   item required before price input is enabled. Same scaffolding
+ *   pattern as EditItemForm and the QuantityAdjustForm.
+ * - The current/effective price comes from the orchestrator hook's
+ *   itemDetailsQuery, with a fallback to the search-result price. The
+ *   selected-item panel renders the live values; the helper text under
+ *   the new-price field shows the from/to delta.
+ * - newPrice input is gated by selectedItem -- typing in the box without
+ *   a selected item is impossible. The button disabled state on the
+ *   parent dialog is the redundant final gate.
  */
 
 import {
@@ -30,19 +37,6 @@ import { useTranslation } from 'react-i18next';
 import { PriceChangeItemDetails } from './PriceChangeItemDetails';
 import type { UsePriceChangeFormReturn } from './usePriceChangeForm';
 
-/**
- * PriceChangeForm - Render all form fields
- * 
- * @param state - Complete form state and handlers from usePriceChangeForm
- * 
- * @enterprise
- * - Step-by-step validation: each step enables the next
- * - Supplier selection dropdown with loading state
- * - Item Autocomplete with search (min 2 chars) and loading state
- * - Selected item details panel (current price, quantity)
- * - New price field with helper text showing price change
- * - Error banner for non-field errors
- */
 export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
 

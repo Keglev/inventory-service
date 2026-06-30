@@ -1,28 +1,24 @@
 /**
  * @file useQuantityAdjustFormState.ts
- * @module dialogs/QuantityAdjustDialog/useQuantityAdjustFormState
+ * @module pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustFormState
  *
  * @summary
- * Pure state management hook for quantity adjustment form.
- * Manages UI state: supplier selection, item selection, search query, and form errors.
+ * Pure local-state hook for the quantity-adjust flow: selected
+ * supplier, selected item, search query, and form error.
  *
  * @enterprise
- * Separates state concerns from query/fetch logic for cleaner testing and composition.
- * All state updates are deterministic and testable without HTTP calls.
+ * - No effects, no queries, no react-hook-form. Same isolation
+ *   contract as usePriceChangeFormState. Tests mount the
+ *   orchestrator's behavior with a hand-built state replacement.
+ * - The state hook returns both values and setters from the same
+ *   call, so consumers can pull either or both. This convenience
+ *   is what made ST-APP16 possible -- the same return is passed
+ *   in two argument slots by the orchestrator.
  */
 
 import * as React from 'react';
 import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
 
-/**
- * State values for quantity adjustment form.
- * 
- * @interface QuantityAdjustFormState
- * @property {SupplierOption | null} selectedSupplier - Currently selected supplier
- * @property {ItemOption | null} selectedItem - Currently selected item
- * @property {string} itemQuery - Search query for item filtering
- * @property {string} formError - Form-level error message
- */
 export interface QuantityAdjustFormState {
   selectedSupplier: SupplierOption | null;
   selectedItem: ItemOption | null;
@@ -30,11 +26,6 @@ export interface QuantityAdjustFormState {
   formError: string;
 }
 
-/**
- * Setter functions for state management.
- * 
- * @interface QuantityAdjustFormStateSetters
- */
 export interface QuantityAdjustFormStateSetters {
   setSelectedSupplier: (supplier: SupplierOption | null) => void;
   setSelectedItem: (item: ItemOption | null) => void;
@@ -42,20 +33,6 @@ export interface QuantityAdjustFormStateSetters {
   setFormError: (error: string) => void;
 }
 
-/**
- * Pure state management hook for quantity adjustment form.
- * 
- * Provides separated state and setter functions without any async/query logic.
- * This allows for easy composition with other hooks and clean testing.
- * 
- * @returns State object and setter functions
- * 
- * @example
- * ```ts
- * const { selectedSupplier, selectedItem, ...state } = useQuantityAdjustFormState();
- * const { setSelectedSupplier, setSelectedItem, ...setters } = useQuantityAdjustFormState();
- * ```
- */
 export const useQuantityAdjustFormState = (): QuantityAdjustFormState &
   QuantityAdjustFormStateSetters => {
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierOption | null>(null);

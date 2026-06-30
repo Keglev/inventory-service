@@ -1,17 +1,39 @@
 /**
  * @file useQuantityAdjustForm.ts
- * @module dialogs/QuantityAdjustDialog/useQuantityAdjustForm
+ * @module pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm
  *
  * @summary
- * Thin orchestrator hook composing state, queries, and form management.
- * Provides unified interface for quantity adjustment workflow.
+ * Orchestrator hook for the quantity-adjust flow. Composes state,
+ * queries, and react-hook-form. Owns the submit pipeline that
+ * computes a delta and calls adjustQuantity.
  *
  * @enterprise
- * - Composes specialized hooks (state + queries + form) into single interface
- * - Handles form submission with validation and mutation
- * - Manages dialog lifecycle (open/close with cleanup)
- * - Enforces demo-mode restrictions (readOnly)
- * - Provides comprehensive error handling with user feedback
+ * - Three-way composition same as PriceChangeDialog and
+ *   DeleteItemDialog. Sub-hooks are independently exported.
+ * - Submission pipeline:
+ *     newQuantity - actualCurrentQuantity = delta
+ *     adjustQuantity({ id, delta, reason })
+ *   The backend expects a delta, not an absolute. actualCurrentQuantity
+ *   comes from the live itemDetailsQuery to avoid double-counting if
+ *   the user holds the dialog open while the item changes elsewhere.
+ * - quantityAdjustSchema uses z.string().min(1) for the reason -- the
+ *   primary site of CB-E. The frontend offers all 11
+ *   StockChangeReason values via QuantityAdjustQuantityInput's
+ *   STOCK_CHANGE_REASONS list (CB-APP60); the backend
+ *   StockHistoryValidator is the only real authority.
+ * - Two t() calls use dot instead of colon as the namespace
+ *   separator: 'common.demoDisabled' and
+ *   'errors.inventory.requests.failedToAdjustQuantity' (x2).
+ *   They silently fall back to the English literal and miss the
+ *   resource. Same class as CM-APP10 in DeleteItemDialog.
+ *   Tracked under CB-APP61 alongside the unguarded console.error
+ *   in this file.
+ * - useQuantityAdjustFormQueries is called with the state object
+ *   passed BOTH as the state arg and the setters arg. The setters
+ *   come through because the hook return spreads both, but the
+ *   signature reads ambiguously. Tracked under ST-APP16.
+ * - console.error on submission failure is unguarded and ships to
+ *   production browser devtools. Tracked under CB-APP61.
  */
 
 import { useForm } from 'react-hook-form';
@@ -26,19 +48,6 @@ import { useQuantityAdjustFormQueries } from './useQuantityAdjustFormQueries';
 import type { QuantityAdjustFormState, QuantityAdjustFormStateSetters } from './useQuantityAdjustFormState';
 import type { QuantityAdjustFormQueries } from './useQuantityAdjustFormQueries';
 
-/**
- * Complete form interface combining state, queries, and form management.
- * 
- * @interface UseQuantityAdjustFormReturn
- * @extends QuantityAdjustFormState - Current state values
- * @extends QuantityAdjustFormStateSetters - State mutation functions
- * @extends QuantityAdjustFormQueries - Query results and data
- * @property {Control<QuantityAdjustForm>} control - react-hook-form control object
- * @property {UseFormStateReturn<QuantityAdjustForm>} formState - Form state (errors, dirty, etc.)
- * @property {UseFormSetValue<QuantityAdjustForm>} setValue - Update form field values
- * @property {() => void} onSubmit - Handle form submission
- * @property {() => void} handleClose - Handle dialog close with cleanup
- */
 export interface UseQuantityAdjustFormReturn
   extends QuantityAdjustFormState,
     QuantityAdjustFormStateSetters,
@@ -50,38 +59,6 @@ export interface UseQuantityAdjustFormReturn
   handleClose: () => void;
 }
 
-/**
- * Thin orchestrator hook for quantity adjustment form.
- * 
- * Composes:
- * - State management (supplier, item, query, error)
- * - Query management (suppliers, items, details, price)
- * - Form management (validation, submission, error handling)
- * 
- * Provides unified interface combining all concerns:
- * - All state values and setters
- * - All query results
- * - Form control, state, and handlers
- * 
- * @param open - Whether dialog is open
- * @param onClose - Callback when dialog should close
- * @param onAdjusted - Callback when quantity is successfully adjusted
- * @param readOnly - Whether dialog is in demo/readonly mode
- * @returns Unified form interface combining all concerns
- * 
- * @example
- * ```ts
- * const form = useQuantityAdjustForm(open, onClose, onAdjusted);
- * return (
- *   <>
- *     <Supplier suppliers={form.suppliers} onSelect={form.setSelectedSupplier} />
- *     <Item items={form.items} onSelect={form.setSelectedItem} />
- *     <QuantityInput control={form.control} />
- *     <Button onClick={form.onSubmit}>Apply</Button>
- *   </>
- * );
- * ```
- */
 export const useQuantityAdjustForm = (
   open: boolean,
   onClose: () => void,
@@ -111,6 +88,7 @@ export const useQuantityAdjustForm = (
   // ================================
   // Composition: Query Management
   // ================================
+  // BUCKET: ST-APP16 -- state passed as both state and setters args. The state hook returns both shapes so the call works, but the signature is ambiguous. Pass them as distinct objects in refactor.
   const queries = useQuantityAdjustFormQueries(state, state, setValue, open);
 
   // ================================
@@ -154,7 +132,8 @@ export const useQuantityAdjustForm = (
     // Demo guard: allow exploration but block mutation
     if (readOnly) {
       state.setFormError(
-        t('common.demoDisabled', 'You are in demo mode and cannot perform this operation.')
+        // BUCKET: CB-APP61 -- namespace uses '.' instead of ':'. Should be t('common:demoDisabled', ...).
+      t('common.demoDisabled', 'You are in demo mode and cannot perform this operation.')
       );
       return;
     }
@@ -186,6 +165,7 @@ export const useQuantityAdjustForm = (
         handleDialogClose();
       } else {
         state.setFormError(
+          // BUCKET: CB-APP61 -- namespace uses '.' instead of ':'. Should be t('errors:inventory.requests.failedToAdjustQuantity', ...).
           t(
             'errors.inventory.requests.failedToAdjustQuantity',
             'Failed to adjust quantity. Please try again.'
@@ -193,6 +173,7 @@ export const useQuantityAdjustForm = (
         );
       }
     } catch (error) {
+      // BUCKET: CB-APP61 -- unguarded console.error ships to production devtools.
       console.error('Quantity adjustment error:', error);
       state.setFormError(
         t(

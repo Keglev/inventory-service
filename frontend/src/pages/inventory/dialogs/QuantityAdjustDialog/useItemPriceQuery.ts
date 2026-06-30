@@ -1,40 +1,30 @@
 /**
  * @file useItemPriceQuery.ts
- * @module dialogs/QuantityAdjustDialog/useItemPriceQuery
+ * @module pages/inventory/dialogs/QuantityAdjustDialog/useItemPriceQuery
  *
  * @summary
- * Specialized hook for fetching item price from analytics API.
- * Isolates price trend logic from form state.
+ * Specialized React Query hook that fetches the most recent price for
+ * an item via the analytics price-trend endpoint, with a fallback to
+ * the item's own price field.
  *
  * @enterprise
- * - Extracts price query into focused hook for single responsibility
- * - Handles price trend API calls and fallback logic
- * - Provides loading state for async operations
+ * - Exists because the inventory item details endpoint does not
+ *   guarantee a current price -- the analytics price trend is the
+ *   authoritative source for the most recent observed price. The
+ *   selectedItem.price fallback handles the empty-trend case.
+ * - 30-second staleTime keeps re-mounts cheap during a dialog session
+ *   while still picking up fresh prices on a longer browsing window.
+ * - console.error on trend-fetch failure is unguarded and ships to
+ *   production devtools. Tracked under CB-APP62 (same class as
+ *   CB-APP47, CB-APP51, CB-APP55, etc.).
+ * - Exported through the QuantityAdjustDialog barrel because the
+ *   price-trend lookup is generic and reusable outside this dialog.
  */
 
 import { useQuery } from '@tanstack/react-query';
 import { getPriceTrend } from '../../../../api/analytics/priceTrend';
 import type { ItemOption } from '../../../../api/analytics/types';
 
-/**
- * Hook for fetching and caching item price from analytics API.
- * 
- * Features:
- * - Fetches most recent price from price trend data
- * - Falls back to item's listed price if trend unavailable
- * - Caches results for 30 seconds
- * - Only queries when item is selected
- * 
- * @param selectedItem - Currently selected item (null if not selected)
- * @param selectedSupplierId - Optional supplier ID for price filtering
- * @returns Query result with price value and loading state
- * 
- * @example
- * ```ts
- * const priceQuery = useItemPriceQuery(selectedItem, selectedSupplier?.id);
- * return <div>{priceQuery.data?.toFixed(2) || 'Loading...'}</div>;
- * ```
- */
 export const useItemPriceQuery = (
   selectedItem: ItemOption | null,
   selectedSupplierId?: string | number
@@ -58,6 +48,7 @@ export const useItemPriceQuery = (
 
         return selectedItem.price;
       } catch (error) {
+        // BUCKET: CB-APP62 -- unguarded console.error ships to production devtools.
         console.error('Failed to fetch item price:', error);
         return selectedItem.price;
       }

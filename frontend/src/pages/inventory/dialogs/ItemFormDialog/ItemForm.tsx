@@ -1,14 +1,30 @@
 /**
- * ItemForm - Multi-field form for creating/editing inventory items
- * 
- * @module dialogs/ItemFormDialog/ItemForm
- * @description
- * Renders form fields for item creation/editing:
- * supplier (Autocomplete) → name → code → quantity → price → reason (create only).
- * 
- * Each field connects to RHF control with validation errors displayed inline.
- * Reason dropdown only visible in create mode (when !initial?.id).
- * Uses shared form state from useItemForm hook.
+ * @file ItemForm.tsx
+ * @module pages/inventory/dialogs/ItemFormDialog/ItemForm
+ *
+ * @summary
+ * Field layout for the create-or-edit item flow: supplier, name, code,
+ * quantity, price, and (create-mode only) reason. Wired to the shared
+ * react-hook-form instance from useItemForm.
+ *
+ * @enterprise
+ * - Reason dropdown renders only in create mode (gated by !initial?.id).
+ *   In edit mode the existing item already has a creation reason on its
+ *   StockHistory and re-prompting would be misleading; price/quantity
+ *   edits go through dedicated dialogs (PriceChangeDialog,
+ *   QuantityAdjustDialog) with their own reason flows.
+ * - Reason options are limited to INITIAL_STOCK | MANUAL_UPDATE -- the
+ *   exact 2-value subset enforced by itemFormSchema and by the backend
+ *   for create/upsert. The locked 11-value StockChangeReason enum covers
+ *   removals and other flows; those reasons do not apply to creation.
+ * - CREATE_REASON_OPTIONS is declared inside the component body and
+ *   re-created on every render. Tracked under ST-APP14 -- hoist to a
+ *   module-level const (or a shared constants module if reused).
+ * - Code field is render-only with a "Optional for now" tooltip,
+ *   reflecting the current backend behavior that codes are not yet
+ *   user-editable. Will revisit if the backend exposes code edits.
+ * - Price field uses a Euro adornment, consistent with the German-first
+ *   appearance policy.
  */
 
 import {
@@ -50,6 +66,7 @@ export function ItemForm({
 }) {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
 
+  // BUCKET: ST-APP14 -- constant declared inside component body, re-created every render. Hoist to module scope.
   const CREATE_REASON_OPTIONS = [
     { value: 'INITIAL_STOCK', i18nKey: 'stockReasons.initial_stock' },
     { value: 'MANUAL_UPDATE', i18nKey: 'stockReasons.manual_update' },

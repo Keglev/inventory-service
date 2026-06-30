@@ -1,16 +1,31 @@
 /**
  * @file QuantityAdjustQuantityInput.tsx
- * @module dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput
+ * @module pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput
  *
  * @summary
- * Specialized component for quantity and reason input.
- * Pure presentation component with form field rendering.
+ * Step 3 of the quantity-adjust form: new-quantity numeric input and
+ * reason dropdown.
  *
  * @enterprise
- * - Single responsibility: render quantity input and reason selector
- * - Accepts control from react-hook-form
- * - Displays validation errors and helpful hints
- * - Disabled until item is selected
+ * - STOCK_CHANGE_REASONS lists ALL 11 values of the locked
+ *   StockChangeReason enum, including reasons that do not fit the
+ *   quantity-adjust semantics: INITIAL_STOCK is for item creation, and
+ *   the removal cluster (SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST,
+ *   RETURNED_TO_SUPPLIER) overlaps with the delete flow's authoritative
+ *   subset. The backend StockHistoryValidator decides what actually
+ *   reaches StockHistory, so offering all 11 is fail-loose -- some
+ *   selections will be rejected at the API boundary.
+ *   Tracked under CB-APP60 -- restrict the list to the adjustment-valid
+ *   subset (e.g. MANUAL_UPDATE, SOLD, RETURNED_BY_CUSTOMER, plus any
+ *   reasons the backend genuinely accepts here).
+ * - This is the visible site for CB-E's loose-reason policy:
+ *   quantityAdjustSchema uses z.string().min(1) rather than an enum,
+ *   so the schema does not constrain the value; the backend is the
+ *   only authority.
+ * - Reason labels are derived from the enum value via lower-casing,
+ *   replacing underscores, and looking up the key in
+ *   inventory:stockReasons.* with the value as the English fallback.
+ *   English fallback is CM-APP9 territory; per-key audit at refactor.
  */
 
 import * as React from 'react';
@@ -19,10 +34,7 @@ import { Controller, type Control, type FieldErrors } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import type { QuantityAdjustForm } from '../../../../api/inventory/validation';
 
-/**
- * Stock change reason options.
- * Mirrors the backend StockChangeReason enum for audit trail consistency.
- */
+// BUCKET: CB-APP60 -- all 11 enum values exposed including non-adjust-valid ones. Restrict to backend-accepted subset.
 const STOCK_CHANGE_REASONS = [
   'INITIAL_STOCK',
   'MANUAL_UPDATE',
@@ -36,15 +48,6 @@ const STOCK_CHANGE_REASONS = [
   'RETURNED_BY_CUSTOMER',
 ] as const;
 
-/**
- * Props for QuantityAdjustQuantityInput component.
- * 
- * @interface QuantityAdjustQuantityInputProps
- * @property {Control<QuantityAdjustForm>} control - react-hook-form control
- * @property {FieldErrors<QuantityAdjustForm>} errors - Form validation errors
- * @property {boolean} disabled - Whether inputs are disabled
- * @property {number} currentQty - Current quantity for hint text
- */
 interface QuantityAdjustQuantityInputProps {
   control: Control<QuantityAdjustForm>;
   errors: FieldErrors<QuantityAdjustForm>;
@@ -52,33 +55,6 @@ interface QuantityAdjustQuantityInputProps {
   currentQty: number;
 }
 
-/**
- * Step 3: Quantity and reason input component.
- * 
- * Renders:
- * - Number input for new quantity (must be ≥ 0)
- * - Dropdown for selecting stock change reason
- * 
- * Validation:
- * - Shows field-level errors from Zod validation
- * - Provides helpful hint showing quantity change delta
- * - Disables fields until item is selected
- * 
- * @component
- * @param props - Component props
- * @returns JSX element for quantity and reason inputs
- * 
- * @example
- * ```tsx
- * <QuantityAdjustQuantityInput
- *   control={form.control}
- *   errors={form.formState.errors}
- *   disabled={!form.selectedItem}
- *   currentQty={form.effectiveCurrentQty}
- *   newQty={newQuantityValue}
- * />
- * ```
- */
 export const QuantityAdjustQuantityInput: React.FC<QuantityAdjustQuantityInputProps> = ({
   control,
   errors,

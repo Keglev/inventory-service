@@ -3,13 +3,29 @@
  * @module pages/inventory/components/InventoryTable
  *
  * @summary
- * DataGrid table component for displaying inventory items.
- * Handles: pagination, sorting, row selection, and visual styling.
+ * DataGrid wrapper for the inventory list with server-side pagination
+ * and sorting, row selection by click, and stock-level row coloring.
  *
  * @enterprise
- * - Pure presentation component with minimal state
- * - Server-side pagination and sorting support
- * - Row styling based on stock levels (critical/warning/normal)
+ * - Server-side pagination is reflected via paginationModel +
+ *   rowCount. The 0-based-vs-1-based conversion is centralized in
+ *   useDataFetchingLogic (CB-F site); this component sends MUI's
+ *   native 0-based model up untouched.
+ * - Row classification (row-critical / row-warning) is delegated to
+ *   getRowClassName from useInventoryRowStyling. The CSS in this file
+ *   only paints the classes; the threshold rule (deficit >= 5) lives
+ *   upstream.
+ * - Row background colors are hardcoded hex values (#fff3e0, #ffe0b2,
+ *   #ffebee, #ffcdd2, #e3f2fd, #bbdefb) inside the sx prop, bypassing
+ *   the MUI theme palette. These will not adapt to dark mode and
+ *   diverge from the rest of the app's themed surfaces. Tracked under
+ *   CB-APP63 -- same class as CB-APP3 (footer) and CB-APP7
+ *   (HealthBadge); resolve together.
+ * - Loading overlay uses a separate absolute-positioned Stack rather
+ *   than relying on DataGrid's built-in loading prop alone. The double
+ *   indicator is intentional: it keeps the page interactive shape
+ *   stable during long fetches when DataGrid would otherwise show a
+ *   minimal bar.
  */
 
 import * as React from 'react';
@@ -18,22 +34,6 @@ import type { GridColDef, GridPaginationModel, GridSortModel } from '@mui/x-data
 import { Box, CircularProgress, Stack } from '@mui/material';
 import type { InventoryRow } from '../../../api/inventory/types';
 
-/**
- * Props for InventoryTable component.
- * 
- * @interface InventoryTableProps
- * @property {InventoryItem[]} rows - Inventory items to display
- * @property {GridColDef[]} columns - Column definitions for DataGrid
- * @property {GridPaginationModel} paginationModel - Current pagination state (page, pageSize)
- * @property {(model: GridPaginationModel) => void} onPaginationChange - Callback for pagination changes
- * @property {GridSortModel} sortModel - Current sort state
- * @property {(model: GridSortModel) => void} onSortChange - Callback for sort changes
- * @property {string | null} selectedId - ID of currently selected row
- * @property {(id: string) => void} onRowClick - Callback when row is clicked
- * @property {(id: string) => string} getRowClassName - Function to determine CSS class for row styling
- * @property {boolean} loading - Whether data is currently loading
- * @property {number} rowCount - Total number of rows (for server-side pagination)
- */
 interface InventoryTableProps {
   rows: InventoryRow[];
   columns: GridColDef[];
@@ -48,37 +48,6 @@ interface InventoryTableProps {
   rowCount: number;
 }
 
-/**
- * Inventory items DataGrid table.
- * 
- * Features:
- * - Server-side pagination and sorting
- * - Row selection by click
- * - Row styling based on stock levels
- * - Loading state indicator
- * - Responsive column sizing
- * 
- * @component
- * @param props - Component props
- * @returns JSX element with DataGrid
- * 
- * @example
- * ```tsx
- * <InventoryTable
- *   rows={items}
- *   columns={columnDefs}
- *   paginationModel={pagination}
- *   onPaginationChange={setPagination}
- *   sortModel={sorting}
- *   onSortChange=setSorting}
- *   selectedId={selected}
- *   onRowClick={setSelected}
- *   getRowClassName={getRowClass}
- *   loading={isLoading}
- *   rowCount={totalRows}
- * />
- * ```
- */
 export const InventoryTable: React.FC<InventoryTableProps> = ({
   rows,
   columns,
@@ -131,6 +100,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
         }}
         onRowClick={(params) => onRowClick(params.row.id)}
         sx={{
+          // BUCKET: CB-APP63 -- hardcoded hex colors bypass MUI theme. Switch to theme palette tokens; resolve with CB-APP3 and CB-APP7.
           '& .row-selected': {
             backgroundColor: '#e3f2fd !important',
             '&:hover': {

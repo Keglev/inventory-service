@@ -1,18 +1,19 @@
 /**
  * @file QuantityAdjustForm.tsx
- * @module dialogs/QuantityAdjustDialog/QuantityAdjustForm
+ * @module pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustForm
  *
  * @summary
- * Form view component for quantity adjustment workflow.
- * Implements 3-step guided workflow: supplier selection → item selection → quantity adjustment.
+ * Three-step form layout for quantity adjustment: supplier select,
+ * item select, quantity input. Each step is its own sub-component.
  *
  * @enterprise
- * - Pure presentation component with zero business logic
- * - Accepts state object instead of individual props (cleaner interfaces)
- * - Conditional step rendering based on selection state
- * - Comprehensive validation error display
- * - Accessibility: proper labels, error states, keyboard navigation
- * - Internationalization: complete i18n support
+ * - Most extracted form layout in the codebase. Where other dialogs
+ *   inline their step controls, this one delegates every visible
+ *   block to a dedicated sub-component (QuantityAdjustSupplierSelect,
+ *   QuantityAdjustItemSelect, QuantityAdjustItemDetails,
+ *   QuantityAdjustQuantityInput). The split makes each step swappable.
+ * - The form component is pure presentation: every prop is plumbed
+ *   from the orchestrator hook; no useState, no useEffect.
  */
 
 import * as React from 'react';
@@ -23,40 +24,10 @@ import { QuantityAdjustItemDetails } from './QuantityAdjustItemDetails';
 import { QuantityAdjustQuantityInput } from './QuantityAdjustQuantityInput';
 import type { UseQuantityAdjustFormReturn } from './useQuantityAdjustForm';
 
-/**
- * Props for QuantityAdjustForm component.
- * 
- * @interface QuantityAdjustFormProps
- * @property {UseQuantityAdjustFormReturn} form - Complete form interface from orchestrator hook
- */
 interface QuantityAdjustFormProps {
   form: UseQuantityAdjustFormReturn;
 }
 
-/**
- * Form view component for quantity adjustment workflow.
- * 
- * Implements 3-step workflow:
- * 1. **Supplier Selection** - Choose supplier from dropdown
- * 2. **Item Selection** - Search and select specific item
- * 3. **Quantity Adjustment** - Enter new quantity and reason
- * 
- * Features:
- * - Delegates each step to specialized components
- * - Error display at top of form
- * - Current item details panel (shows name, current qty, price)
- * - Comprehensive form with all validations
- * 
- * @component
- * @param props - Component props containing form interface
- * @returns JSX element rendering the complete form
- * 
- * @example
- * ```tsx
- * const form = useQuantityAdjustForm(open, onClose, onAdjusted);
- * <QuantityAdjustForm form={form} />
- * ```
- */
 export const QuantityAdjustForm: React.FC<QuantityAdjustFormProps> = ({ form }) => {
 
   return (

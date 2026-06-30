@@ -1,10 +1,17 @@
 /**
- * EditItemDialog type definitions
- * 
- * @module dialogs/EditItemDialog/EditItemDialog.types
- * @description
- * Centralized type definitions for edit item dialog module.
- * Ensures type safety across form, hook, and component boundaries.
+ * @file EditItemDialog.types.ts
+ * @module pages/inventory/dialogs/EditItemDialog/EditItemDialog.types
+ *
+ * @summary
+ * Props type for the EditItemDialog component.
+ *
+ * @enterprise
+ * - Kept as a separate file so the dialog component and any future
+ *   sub-hooks share the same prop contract without circular imports.
+ * - onItemRenamed is a refresh callback, not a value-carrying signal --
+ *   the parent reloads its inventory data instead of relying on the
+ *   renamed payload, which keeps this contract independent of the
+ *   backend response shape.
  */
 
 /**

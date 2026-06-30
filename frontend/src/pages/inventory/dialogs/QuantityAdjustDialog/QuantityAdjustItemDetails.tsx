@@ -1,31 +1,30 @@
 /**
  * @file QuantityAdjustItemDetails.tsx
- * @module dialogs/QuantityAdjustDialog/QuantityAdjustItemDetails
+ * @module pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemDetails
  *
  * @summary
- * Specialized component displaying current item details.
- * Shows selected item name, current quantity, and current price in a formatted panel.
+ * Reference panel above the quantity input: selected item name,
+ * current quantity, current price, with spinners while loading.
  *
  * @enterprise
- * - Isolated component for single responsibility
- * - Only renders when item is selected (conditional)
- * - Accepts state as object for cleaner prop drilling
- * - Handles loading states elegantly
+ * - Renders nothing when no item is selected (the quantity input is
+ *   disabled in that state, so the panel would carry no useful
+ *   information).
+ * - Three hardcoded English strings ('Selected Item:', 'Current
+ *   Quantity:', 'Current Price:') bypass t() and ship as-is to
+ *   German users. The currency symbol is hardcoded '$' while the rest
+ *   of the app uses Euro (see ItemForm.tsx price field). Tracked under
+ *   CB-APP59 -- thread useTranslation, add the three keys to
+ *   inventory.json, replace '$' with the locale-aware currency
+ *   formatter from utils/formatters.
+ * - Pure presentation. All numbers come from the parent hook's
+ *   effective-* derivations.
  */
 
 import * as React from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import type { ItemOption } from '../../../../api/analytics/types';
 
-/**
- * Props for QuantityAdjustItemDetails component.
- * 
- * @interface QuantityAdjustItemDetailsProps
- * @property {ItemOption | null} item - Selected item (null if not selected)
- * @property {number} currentQty - Current item quantity
- * @property {number | null} currentPrice - Current item price
- * @property {boolean} loading - Whether details are loading
- */
 interface QuantityAdjustItemDetailsProps {
   item: ItemOption | null;
   currentQty: number;
@@ -33,30 +32,6 @@ interface QuantityAdjustItemDetailsProps {
   loading: boolean;
 }
 
-/**
- * Details panel for selected inventory item.
- * 
- * Displays:
- * - Selected item name
- * - Current quantity (with loading state)
- * - Current price (with loading state)
- * 
- * Only renders when item is selected to keep UI clean and focused.
- * 
- * @component
- * @param props - Component props
- * @returns Details panel or null if no item selected
- * 
- * @example
- * ```tsx
- * <QuantityAdjustItemDetails
- *   item={selectedItem}
- *   currentQty={effectiveCurrentQty}
- *   currentPrice={effectiveCurrentPrice}
- *   loading={itemDetailsLoading}
- * />
- * ```
- */
 export const QuantityAdjustItemDetails: React.FC<QuantityAdjustItemDetailsProps> = ({
   item,
   currentQty,
@@ -70,6 +45,7 @@ export const QuantityAdjustItemDetails: React.FC<QuantityAdjustItemDetailsProps>
 
   return (
     <Box sx={{ display: 'grid', gap: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, mb: 2 }}>
+      {/* BUCKET: CB-APP59 -- hardcoded English strings + '$' currency in Euro app. Thread useTranslation and use locale-aware currency formatter. */}
       <Typography variant="subtitle2" color="primary">
         Selected Item: {item.name}
       </Typography>

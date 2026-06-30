@@ -1,17 +1,31 @@
 /**
- * ItemFormDialog - Main dialog container for item creation/editing
- * 
- * @module dialogs/ItemFormDialog/ItemFormDialog
- * @description
- * Manages dialog lifecycle (title, open/close, actions).
- * Delegates all form logic to useItemForm hook.
- * 
+ * @file ItemFormDialog.tsx
+ * @module pages/inventory/dialogs/ItemFormDialog/ItemFormDialog
+ *
+ * @summary
+ * Root dialog for create-or-edit item. Title, body (ItemForm), and
+ * actions change based on whether `initial?.id` is set. Delegates all
+ * state and submission to useItemForm.
+ *
  * @enterprise
- * - Thin container following separation of concerns
- * - Dialog title changes: "Create Item" for new / "Edit Item" for existing
- * - Help button links to appropriate documentation section
- * - Cancel button dismisses without changes
- * - Save/Create button triggers submission with loading state
+ * - One dialog, two modes. Create vs edit is decided by initial?.id;
+ *   the dialog title, submit label, and the visibility of the reason
+ *   field all key off this single check. Splitting into two components
+ *   would duplicate the form-field layout and the supplier alignment
+ *   effect.
+ * - Help-icon wiring is inconsistent with the sibling dialogs.
+ *   EditItemDialog and DeleteItemDialog use useHelp() to open the help
+ *   drawer; this file uses window.open('#/help?section=...') instead,
+ *   which bypasses the in-app help panel entirely. Tracked under
+ *   CB-APP54 -- switch to useHelp for consistency, and the tooltip
+ *   key t('common:help', 'Help') still carries an English fallback
+ *   (CM-APP9 / CM-APP11 territory).
+ * - dialogRef is declared via useRef and passed to <Dialog ref={...}>
+ *   but never read. Tracked under ST-APP15 -- dead code, remove.
+ * - Submit fires via state.handleSubmit(state.onSubmit)(e) rather than
+ *   state.onSubmit directly because onSubmit is already wrapped by
+ *   react-hook-form internally; the chained call here is redundant
+ *   but harmless. Documented for the refactor decision.
  */
 
 import {
@@ -49,6 +63,7 @@ export function ItemFormDialog({
   onSaved,
 }: ItemFormDialogProps) {
   const { t } = useTranslation(['common', 'inventory']);
+  // BUCKET: ST-APP15 -- dialogRef is never read. Remove the useRef and the ref prop on Dialog.
   const dialogRef = useRef<HTMLDivElement>(null);
 
   // All form state and handlers delegated to hook
@@ -81,6 +96,7 @@ export function ItemFormDialog({
         }}
       >
         <span>{dialogTitle}</span>
+        {/* BUCKET: CB-APP54 -- raw window.open bypasses the in-app help panel. Switch to useHelp() to match EditItemDialog and DeleteItemDialog. */}
         <Tooltip title={t('common:help', 'Help')}>
           <IconButton
             size="small"

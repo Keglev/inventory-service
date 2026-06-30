@@ -3,29 +3,27 @@
  * @module pages/inventory/components/InventoryToolbar
  *
  * @summary
- * Toolbar component with action buttons for inventory management.
- * Renders: Add New, Edit, Delete, Adjust Quantity, Change Price buttons.
+ * Action buttons row above the inventory table: Add new item, Edit,
+ * Delete, Adjust quantity, Change price.
  *
  * @enterprise
- * - Pure presentation component with callback props
- * - No internal state or business logic
- * - Accessible button layout with proper spacing
+ * - Pure presentation. Each button is a callback; no disabled logic
+ *   here. The parent (InventoryBoard) decides which actions are
+ *   meaningful given the current selection.
+ * - "Edit" opens the rename dialog (openEditName), not the broader
+ *   edit form (openEdit) -- intentional, per the rule documented in
+ *   useToolbarHandlers: only ADMIN can rename, and the toolbar
+ *   surfaces only the rename path. The broader edit dialog is reached
+ *   via other entry points.
+ * - All five labels carry English fallbacks, consistent with the
+ *   CM-APP9 directory-wide policy of cleaning these in a single
+ *   refactor pass rather than ad hoc per file.
  */
 
 import * as React from 'react';
 import { Stack, Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-/**
- * Props for InventoryToolbar component.
- * 
- * @interface InventoryToolbarProps
- * @property {() => void} onAddNew - Callback when "Add new item" button clicked
- * @property {() => void} onEdit - Callback when "Edit" button clicked
- * @property {() => void} onDelete - Callback when "Delete" button clicked
- * @property {() => void} onAdjustQty - Callback when "Adjust quantity" button clicked
- * @property {() => void} onChangePrice - Callback when "Change price" button clicked
- */
 interface InventoryToolbarProps {
   onAddNew: () => void;
   onEdit: () => void;
@@ -34,31 +32,6 @@ interface InventoryToolbarProps {
   onChangePrice: () => void;
 }
 
-/**
- * Action buttons toolbar for inventory management.
- * 
- * Renders buttons for:
- * - Add new item (primary variant)
- * - Edit item name
- * - Delete item
- * - Adjust quantity
- * - Change price
- * 
- * @component
- * @param props - Component props
- * @returns JSX element with action buttons
- * 
- * @example
- * ```tsx
- * <InventoryToolbar
- *   onAddNew={() => setOpenNew(true)}
- *   onEdit={() => setOpenEdit(true)}
- *   onDelete={() => setOpenDelete(true)}
- *   onAdjustQty={() => setOpenAdjust(true)}
- *   onChangePrice={() => setOpenPrice(true)}
- * />
- * ```
- */
 export const InventoryToolbar: React.FC<InventoryToolbarProps> = ({
   onAddNew,
   onEdit,

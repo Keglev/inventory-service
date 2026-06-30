@@ -1,12 +1,17 @@
 /**
- * PriceChangeDialog type definitions
- * 
- * @module dialogs/PriceChangeDialog/PriceChangeDialog.types
+ * @file PriceChangeDialog.types.ts
+ * @module pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog.types
+ *
+ * @summary
+ * Props type for the PriceChangeDialog component.
+ *
+ * @enterprise
+ * - readOnly enables demo mode: form is interactive but submission is
+ *   short-circuited inside usePriceChangeForm.onSubmit.
+ * - onPriceChanged is a refresh signal, not a value-carrying callback;
+ *   the parent reloads its inventory data on success.
  */
 
-/**
- * PriceChangeDialogProps - Main dialog component props
- */
 export interface PriceChangeDialogProps {
   /** Whether dialog is visible */
   open: boolean;
