@@ -17,7 +17,7 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../../hooks/useAuth';
 import { deleteSupplier } from '../../../../api/suppliers';
-import { useSupplierSearch } from './useSupplierSearch';
+import { useSupplierSearch } from '../../hooks/useSupplierSearch';
 import type { SupplierRow } from '../../../../api/suppliers/types';
 
 /**

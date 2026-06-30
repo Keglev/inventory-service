@@ -1,6 +1,6 @@
 /**
  * @file useSupplierSearch.ts
- * @module dialogs/DeleteSupplierDialog/useSupplierSearch
+ * @module pages/suppliers/hooks/useSupplierSearch
  *
  * @summary
  * Hook for supplier search functionality.
@@ -13,12 +13,12 @@
  */
 
 import * as React from 'react';
-import { getSuppliersPage } from '../../../../api/suppliers';
-import type { SupplierRow } from '../../../../api/suppliers/types';
+import { getSuppliersPage } from '../../../api/suppliers';
+import type { SupplierRow } from '../../../api/suppliers/types';
 
 /**
  * Hook return type for supplier search.
- * 
+ *
  * @interface UseSupplierSearchReturn
  */
 export interface UseSupplierSearchReturn {

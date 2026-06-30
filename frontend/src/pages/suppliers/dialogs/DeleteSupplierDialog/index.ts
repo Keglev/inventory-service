@@ -15,4 +15,4 @@
 export { DeleteSupplierDialog, default } from './DeleteSupplierDialog';
 export type { DeleteSupplierDialogProps } from './DeleteSupplierDialog.types';
 export { useDeleteSupplierForm } from './useDeleteSupplierForm';
-export { useSupplierSearch } from './useSupplierSearch';
+export { useSupplierSearch } from '../../hooks/useSupplierSearch';

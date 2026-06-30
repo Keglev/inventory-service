@@ -1,6 +1,6 @@
 /**
  * @file useSupplierSearch.test.ts
- * @module __tests__/components/pages/suppliers/DeleteSupplierDialog/useSupplierSearch
+ * @module __tests__/components/pages/suppliers/hooks/useSupplierSearch
  * @description Orchestration tests for the `useSupplierSearch` hook.
  *
  * Contract under test:
@@ -31,7 +31,7 @@ vi.mock('../../../../../api/suppliers', () => ({
   getSuppliersPage: (...args: [unknown]) => mocks.getSuppliersPage(...args),
 }));
 
-import { useSupplierSearch } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/useSupplierSearch';
+import { useSupplierSearch } from '../../../../../pages/suppliers/hooks/useSupplierSearch';
 
 describe('useSupplierSearch', () => {
   beforeEach(() => {

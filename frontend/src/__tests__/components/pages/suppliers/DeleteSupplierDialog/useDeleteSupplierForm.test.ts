@@ -28,7 +28,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
-import type { UseSupplierSearchReturn } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/useSupplierSearch';
+import type { UseSupplierSearchReturn } from '../../../../../pages/suppliers/hooks/useSupplierSearch';
 
 const mocks = vi.hoisted(() => ({
   deleteSupplier: vi.fn(),
@@ -51,7 +51,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/useSupplierSearch', () => ({
+vi.mock('../../../../../pages/suppliers/hooks/useSupplierSearch', () => ({
   useSupplierSearch: () => mocks.useSupplierSearch(),
 }));
 

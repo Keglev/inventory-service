@@ -62,7 +62,7 @@ vi.mock('../../../../../hooks/useAuth', () => ({
   useAuth: () => mocks.useAuth(),
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/useSupplierSearch', () => ({
+vi.mock('../../../../../pages/suppliers/hooks/useSupplierSearch', () => ({
   useSupplierSearch: () => mocks.useSupplierSearch(),
 }));
 

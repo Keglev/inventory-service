@@ -4,6 +4,14 @@
  * Low-level helpers for the analytics API layer: defensive numeric coercion,
  * tolerant backend-response parsing, and filter-parameter normalisation for
  * /api/analytics endpoints. Re-exported from the analytics barrel (index.ts).
+ *
+ * @enterprise
+ * - pickString/pickNumber here are a multi-key, default-returning family (try a
+ *   list of keys, return ''/0 on miss), distinct by design from the single-key,
+ *   undefined-returning pickString/pickNumber in @/api/shared. The two families
+ *   are partitioned by directory and never imported into the same module, so the
+ *   shared name carries no collision risk. Kept separate intentionally
+ *   (ST-APP17-w3b, closed by decision) -- do not consolidate; the contracts differ.
  */
 import type { AnalyticsParams } from './validation';
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';

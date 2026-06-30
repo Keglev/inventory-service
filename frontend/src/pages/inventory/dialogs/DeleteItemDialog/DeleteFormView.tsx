@@ -12,12 +12,11 @@
  *   search; item selection unlocks reason and the info preview.
  * - The numbered step badges scaffold the user through an irreversible
  *   operation, slowing the flow deliberately.
- * - StepSection helper is defined inline in this file rather than
- *   extracted, and the file's import statements are split by the function
- *   declaration. Tracked under ST-APP13.
+ * - StepSection (numbered step wrapper) is extracted to its own module
+ *   (./StepSection) and imported here, keeping the import block intact.
  */
 
-import { Box, Alert, Typography } from '@mui/material';
+import { Box, Alert } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import {
   SupplierSelectField,
@@ -25,58 +24,15 @@ import {
   DeletionReasonField,
   ItemInfoDisplay,
 } from './DeleteFormFields';
-
-/**
- * StepSection - Reusable step indicator and content wrapper
- * Renders: Numbered badge with title + indented content
- */
-// BUCKET: ST-APP13 -- inline component splits the file's imports. Extract to its own module in refactor.
-function StepSection({
-  title,
-  number,
-  children,
-}: {
-  title: string;
-  number: number;
-  children: React.ReactNode;
-}) {
-  return (
-    <Box>
-      {/* Step header: numbered badge + title */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 24,
-            height: 24,
-            borderRadius: '50%',
-            bgcolor: 'primary.main',
-            color: 'white',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-          }}
-        >
-          {number}
-        </Box>
-        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-          {title}
-        </Typography>
-      </Box>
-      {/* Step content: indented to show hierarchy */}
-      <Box sx={{ pl: 4 }}>{children}</Box>
-    </Box>
-  );
-}
 import type { UseDeleteItemDialogReturn } from './DeleteItemDialog.types';
+import { StepSection } from './StepSection';
 
 export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['inventory']);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {/* 
+      {/*
         STEP 1: Supplier Selection
         - Always visible - user must choose supplier first
         - Enables subsequent item search by filtering supplier context
@@ -89,7 +45,7 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
         <SupplierSelectField state={state} />
       </StepSection>
 
-      {/* 
+      {/*
         STEP 2: Item Search
         - Only visible after supplier selected
         - Autocomplete with 2+ character minimum search requirement
@@ -104,7 +60,7 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
         </StepSection>
       )}
 
-      {/* 
+      {/*
         STEP 3: Deletion Reason
         - Only visible after item selected
         - Predefined business reasons: SCRAPPED, DESTROYED, DAMAGED, etc.
@@ -119,7 +75,7 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
         </StepSection>
       )}
 
-      {/* 
+      {/*
         STEP 4: Item Information Preview
         - Only visible after item details are loaded from API
         - Shows name and on-hand quantity for final confirmation
@@ -134,7 +90,7 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
         </StepSection>
       )}
 
-      {/* 
+      {/*
         Form-level error display
         - Shows validation errors from form submission attempt
         - Prevents proceeding to confirmation without valid selections

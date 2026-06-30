@@ -14,8 +14,6 @@
 
 import {
   Box,
-  Paper,
-  Typography,
   Divider,
   Stack,
 } from '@mui/material';
@@ -26,6 +24,7 @@ import {
   SystemPreferencesSection,
   NotificationsSettingsSection,
 } from './sections';
+import { SettingsSectionCard } from './SettingsSectionCard';
 import type { DateFormat, NumberFormat, TableDensity, SystemInfo } from '../../context/settings';
 
 interface AppSettingsFormProps {
@@ -92,106 +91,33 @@ export default function AppSettingsForm({
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       
-      {/* BUCKET: identical section-card block repeated 3× — extract a SettingsSectionCard wrapper (ST-APP7) */}
-      <Box>
-        <Typography
-          variant="subtitle2"
-          sx={{
-            fontWeight: 700,
-            mb: 1.5,
-            color: 'primary.main',
-            textTransform: 'uppercase',
-            fontSize: '0.875rem',
-            letterSpacing: 0.5,
-          }}
-        >
-          {t('settings.userPreferences', 'User Preferences')}
-        </Typography>
+      <SettingsSectionCard title={t('settings.userPreferences', 'User Preferences')}>
+        <Stack spacing={2}>
+          <LanguageRegionSettingsSection
+            dateFormat={dateFormat}
+            onDateFormatChange={onDateFormatChange}
+            numberFormat={numberFormat}
+            onNumberFormatChange={onNumberFormatChange}
+          />
 
-        <Paper
-          variant="outlined"
-          sx={{
-            p: 2,
-            bgcolor: 'background.default',
-            border: '1px solid',
-            borderColor: 'divider',
-          }}
-        >
-          <Stack spacing={2}>
-            <LanguageRegionSettingsSection
-              dateFormat={dateFormat}
-              onDateFormatChange={onDateFormatChange}
-              numberFormat={numberFormat}
-              onNumberFormatChange={onNumberFormatChange}
-            />
-
-            <AppearanceSettingsSection
-              tableDensity={tableDensity}
-              onTableDensityChange={onTableDensityChange}
-            />
-          </Stack>
-        </Paper>
-      </Box>
+          <AppearanceSettingsSection
+            tableDensity={tableDensity}
+            onTableDensityChange={onTableDensityChange}
+          />
+        </Stack>
+      </SettingsSectionCard>
 
       <Divider />
 
-      <Box>
-        <Typography
-          variant="subtitle2"
-          sx={{
-            fontWeight: 700,
-            mb: 1.5,
-            color: 'primary.main',
-            textTransform: 'uppercase',
-            fontSize: '0.875rem',
-            letterSpacing: 0.5,
-          }}
-        >
-          {t('settings.systemInfo', 'System Info')}
-        </Typography>
-
-        <Paper
-          variant="outlined"
-          sx={{
-            p: 2,
-            bgcolor: 'background.default',
-            border: '1px solid',
-            borderColor: 'divider',
-          }}
-        >
-          <SystemPreferencesSection systemInfo={systemInfo} isLoading={isLoading} />
-        </Paper>
-      </Box>
+      <SettingsSectionCard title={t('settings.systemInfo', 'System Info')}>
+        <SystemPreferencesSection systemInfo={systemInfo} isLoading={isLoading} />
+      </SettingsSectionCard>
 
       <Divider />
 
-      <Box>
-        <Typography
-          variant="subtitle2"
-          sx={{
-            fontWeight: 700,
-            mb: 1.5,
-            color: 'primary.main',
-            textTransform: 'uppercase',
-            fontSize: '0.875rem',
-            letterSpacing: 0.5,
-          }}
-        >
-          {t('settings.notifications', 'Notifications')}
-        </Typography>
-
-        <Paper
-          variant="outlined"
-          sx={{
-            p: 2,
-            bgcolor: 'background.default',
-            border: '1px solid',
-            borderColor: 'divider',
-          }}
-        >
-          <NotificationsSettingsSection />
-        </Paper>
-      </Box>
+      <SettingsSectionCard title={t('settings.notifications', 'Notifications')}>
+        <NotificationsSettingsSection />
+      </SettingsSectionCard>
 
     </Box>
   );

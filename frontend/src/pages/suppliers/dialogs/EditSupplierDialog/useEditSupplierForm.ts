@@ -20,8 +20,7 @@ import type { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../../hooks/useAuth';
 import { updateSupplier, type EditSupplierForm } from '../../../../api/suppliers';
-// ST-APP20: cross-directory import — useSupplierSearch is shared but currently nested inside DeleteSupplierDialog/. Move to a shared location in refactor pass.
-import { useSupplierSearch } from '../DeleteSupplierDialog/useSupplierSearch';
+import { useSupplierSearch } from '../../hooks/useSupplierSearch';
 import { useEditSupplierFormState } from './useEditSupplierFormState';
 import { useEditSupplierConfirmation } from './useEditSupplierConfirmation';
 import { mapSupplierError } from './mapSupplierErrors';
