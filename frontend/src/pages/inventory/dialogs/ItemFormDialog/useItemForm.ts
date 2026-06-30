@@ -54,7 +54,7 @@ import { upsertItem } from '../../../../api/inventory/mutations';
 import { itemFormSchema, type UpsertItemForm } from '../../../../api/inventory/validation';
 import type { UpsertItemRequest, InventoryRow } from '../../../../api/inventory';
 import type { SupplierOption } from '../../../../api/analytics/types';
-import { useSuppliersQuery } from '../../../../api/inventory/hooks/useInventoryData';
+import { useSuppliersQuery } from '../../../../api/inventory/hooks';
 
 /**
  * Complete item form state and handlers

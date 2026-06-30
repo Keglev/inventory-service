@@ -34,7 +34,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useInventoryData', () => ({
+vi.mock('../../../../../api/inventory/hooks', () => ({
   useSuppliersQuery: mockUseSuppliersQuery,
 }));
 

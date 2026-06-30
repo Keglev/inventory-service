@@ -21,7 +21,7 @@ import {
   useSuppliersQuery,
   useItemSearchQuery,
   useItemDetailsQuery,
-} from '../../../../api/inventory/hooks/useInventoryData';
+} from '../../../../api/inventory/hooks';
 
 export function useDeleteItemQueries(
   dialogOpen: boolean,

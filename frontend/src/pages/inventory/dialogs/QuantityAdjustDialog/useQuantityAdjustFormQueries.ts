@@ -26,7 +26,7 @@
  */
 
 import * as React from 'react';
-import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '../../../../api/inventory/hooks/useInventoryData';
+import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '../../../../api/inventory/hooks';
 import { useItemPriceQuery } from './useItemPriceQuery';
 import type { QuantityAdjustFormState, QuantityAdjustFormStateSetters } from './useQuantityAdjustFormState';
 import type { UseFormSetValue } from 'react-hook-form';

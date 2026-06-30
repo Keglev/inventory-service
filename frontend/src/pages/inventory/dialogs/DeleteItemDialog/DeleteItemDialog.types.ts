@@ -23,7 +23,7 @@ import type {
   useSuppliersQuery,
   useItemSearchQuery,
   useItemDetailsQuery,
-} from '../../../../api/inventory/hooks/useInventoryData';
+} from '../../../../api/inventory/hooks';
 
 /**
  * Props for DeleteItemDialog component

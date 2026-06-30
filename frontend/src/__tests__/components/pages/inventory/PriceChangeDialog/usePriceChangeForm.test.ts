@@ -27,7 +27,7 @@ vi.mock('../../../../../api/inventory/mutations.ts', () => ({
   changePrice: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useInventoryData.ts', () => ({
+vi.mock('../../../../../api/inventory/hooks', () => ({
   useSuppliersQuery: mockUseSuppliersQuery,
   useItemSearchQuery: mockUseItemSearchQuery,
   useItemDetailsQuery: mockUseItemDetailsQuery,

@@ -22,7 +22,7 @@
  */
 
 import * as React from 'react';
-import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '../../../../api/inventory/hooks/useInventoryData';
+import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '../../../../api/inventory/hooks';
 import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
 import type { UseFormSetValue, UseFormClearErrors } from 'react-hook-form';
 import type { PriceChangeForm } from '../../../../api/inventory/validation';

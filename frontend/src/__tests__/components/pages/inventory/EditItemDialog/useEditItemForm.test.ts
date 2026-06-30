@@ -15,7 +15,7 @@ import {
   useSuppliersQuery,
   useItemSearchQuery,
   useItemDetailsQuery,
-} from '../../../../../api/inventory/hooks/useInventoryData';
+} from '../../../../../api/inventory/hooks';
 import { renameItem } from '../../../../../api/inventory/mutations';
 
 // Mock dependencies
@@ -23,7 +23,7 @@ vi.mock('../../../../../api/inventory/mutations', () => ({
   renameItem: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useInventoryData', () => ({
+vi.mock('../../../../../api/inventory/hooks', () => ({
   useSuppliersQuery: vi.fn(),
   useItemSearchQuery: vi.fn(),
   useItemDetailsQuery: vi.fn(),

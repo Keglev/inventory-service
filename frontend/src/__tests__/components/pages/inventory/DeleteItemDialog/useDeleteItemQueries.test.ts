@@ -26,7 +26,7 @@ const useSuppliersQueryMock = vi.hoisted(() => vi.fn());
 const useItemSearchQueryMock = vi.hoisted(() => vi.fn());
 const useItemDetailsQueryMock = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../../../api/inventory/hooks/useInventoryData', () => ({
+vi.mock('../../../../../api/inventory/hooks', () => ({
   useSuppliersQuery: (...args: unknown[]) => useSuppliersQueryMock(...args),
   useItemSearchQuery: (...args: unknown[]) => useItemSearchQueryMock(...args),
   useItemDetailsQuery: (...args: unknown[]) => useItemDetailsQueryMock(...args),

@@ -44,7 +44,7 @@ import {
   useSuppliersQuery,
   useItemSearchQuery,
   useItemDetailsQuery,
-} from '../../../../api/inventory/hooks/useInventoryData';
+} from '../../../../api/inventory/hooks';
 
 /**
  * Complete edit item form state and handlers

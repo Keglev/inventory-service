@@ -36,7 +36,7 @@
  */
 
 import * as React from 'react';
-import { useSuppliersQuery } from '../../../api/inventory/hooks/useInventoryData';
+import { useSuppliersQuery } from '../../../api/inventory/hooks';
 import { getInventoryPage, type InventoryListResponse, type InventoryRow } from '../../../api/inventory';
 import type { GridColDef } from '@mui/x-data-grid';
 import { useInventoryColumns } from './useInventoryColumns';
