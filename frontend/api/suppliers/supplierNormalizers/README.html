@@ -122,8 +122,8 @@ suppliers/supplierNormalizers/README · Smart Supply Pro · API</title>
         <p>supplierNormalizers.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>pickString and pickNumber are borrowed from
-        api/inventory/utils — not supplier-owned helpers.</li>
+        <li>pickString and pickNumber are borrowed from api/shared — not
+        supplier-owned helpers.</li>
         <li>Returns null for any DTO missing id or name so callers can
         filter invalid records without throwing.</li>
         <li>id is coerced from number to string defensively; the backend

@@ -126,8 +126,8 @@ suppliers/supplierListFetcher/README · Smart Supply Pro · API</title>
         Spring Page envelope, no server-side pagination.</li>
         <li>page/pageSize/q/sort are forwarded as query params but are
         not processed server-side.</li>
-        <li>extractArray and pickNumber are borrowed from
-        api/inventory/utils — not supplier-owned helpers.</li>
+        <li>extractArray and pickNumber are borrowed from api/shared —
+        not supplier-owned helpers.</li>
         <li>On network failure the fetcher returns an empty page so the
         UI degrades cleanly rather than throwing.</li>
         </ul>
