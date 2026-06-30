@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-inventory/priceMutations/variables/INVENTORY_BASE · Smart Supply Pro · API</title>
+shared/constants/README · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -112,28 +112,34 @@ inventory/priceMutations/variables/INVENTORY_BASE · Smart Supply Pro · API</ti
     <main class="content" id="main">
       <article class="doc-body">
         <p><a
-        href="../../../../README.html"><strong>frontend</strong></a></p>
+        href="../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/inventory/priceMutations</a> /
-        INVENTORY_BASE</p>
-        <h1 id="variable-inventory_base">Variable: INVENTORY_BASE</h1>
-        <blockquote>
-        <p><code>const</code> <strong>INVENTORY_BASE</strong>:
-        <code>"/api/inventory"</code> =
-        <code>'/api/inventory'</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/c2bd6000a924a425f8a00344808af608b3e8c216/frontend/src/api/inventory/priceMutations.ts#L13">api/inventory/priceMutations.ts:13</a></p>
-        <p>Centralized endpoint base.</p>
+        <p><a href="../../../README.html">frontend</a> /
+        api/shared/constants</p>
+        <h1 id="apisharedconstants">api/shared/constants</h1>
+        <h2 id="enterprise">Enterprise</h2>
+        <p>Centralizing API base paths prevents drift between modules
+        that hit the same backend resource. Each constant is the single
+        source of truth for its endpoint family; route literals built
+        from these constants stay in lockstep with backend controller
+        mappings.</p>
+        <h2 id="variables">Variables</h2>
+        <ul>
+        <li><a
+        href="variables/INVENTORY_BASE.html">INVENTORY_BASE</a></li>
+        </ul>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#variable-inventory_base"
-      id="toc-variable-inventory_base">Variable: INVENTORY_BASE</a></li>
+      <li><a href="#apisharedconstants"
+      id="toc-apisharedconstants">api/shared/constants</a>
+      <ul>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
+      <li><a href="#variables" id="toc-variables">Variables</a></li>
+      </ul></li>
       </ul>
     </nav>
       </div>
