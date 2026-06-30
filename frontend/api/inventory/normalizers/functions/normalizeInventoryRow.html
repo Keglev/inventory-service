@@ -125,11 +125,10 @@ inventory/normalizers/functions/normalizeInventoryRow · Smart Supply Pro · API
         | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/b80c26cc79dcf16c9b8307707fa2eb1a0df1bb45/frontend/src/api/inventory/normalizers.ts#L23">api/inventory/normalizers.ts:23</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fe92bb9b02503383b9c17aafa4639c14e2512f1f/frontend/src/api/inventory/normalizers.ts#L30">api/inventory/normalizers.ts:30</a></p>
         <p>Normalizes a raw backend response into a typed InventoryRow.
-        Returns null (never throws) when the required <code>id</code>
-        field is absent. Tries multiple field-name variants per field to
-        tolerate backend naming inconsistencies.</p>
+        Returns null (never throws) when the input is not a record or
+        the required <code>id</code> is absent.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="raw">raw</h3>
         <p><code>unknown</code></p>
@@ -138,8 +137,7 @@ inventory/normalizers/functions/normalizeInventoryRow · Smart Supply Pro · API
         <p><a
         href="../../types/interfaces/InventoryRow.html"><code>InventoryRow</code></a>
         | <code>null</code></p>
-        <p>Normalized InventoryRow, or null if <code>id</code> is
-        missing</p>
+        <p>Normalized InventoryRow, or null if invalid</p>
       </article>
     </main>
 
