@@ -17,12 +17,13 @@ vi.mock('@tanstack/react-query', () => ({
   useQuery: vi.fn(),
 }));
 
-vi.mock('@/api/analytics/search', () => ({
-  searchItemsForSupplier: vi.fn(),
-}));
+vi.mock('@/api/shared', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/api/shared')>();
+  return { ...actual, searchItemsForSupplier: vi.fn() };
+});
 
 import { useQuery } from '@tanstack/react-query';
-import { searchItemsForSupplier } from '@/api/analytics/search';
+import { searchItemsForSupplier } from '@/api/shared';
 import { useItemSearchQuery } from '@/api/inventory/hooks/useItemSearchQuery';
 import type { SupplierOption } from '@/api/analytics/types';
 

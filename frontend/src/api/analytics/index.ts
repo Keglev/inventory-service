@@ -11,7 +11,6 @@ export * from './stock';
 export * from './priceTrend';
 export * from './suppliers';
 export * from './lowStock';
-export * from './search';
 export * from './finance';
 export * from './frequency';
 export * from './updates';

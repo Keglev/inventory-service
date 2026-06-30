@@ -33,11 +33,9 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   getPriceTrend,
-  searchItemsForSupplier,
-  searchItemsGlobal,
-  type ItemRef,
   type PricePoint,
 } from '../../../api/analytics';
+import { searchItemsForSupplier, searchItemsGlobal, type ItemRef } from '@/api/shared';
 import { useDebounced } from '../../../hooks/useDebounced';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
 import { useSettings } from '../../../hooks/useSettings';

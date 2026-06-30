@@ -1,7 +1,7 @@
 /**
- * @file util.normalizeItemsList.test.ts
- * @module tests/unit/api/analytics/util.normalizeItemsList
- * @what_is_under_test normalizeItemsList (api/analytics/util)
+ * @file itemSearch.normalizeItemsList.test.ts
+ * @module tests/unit/api/shared/itemSearch.normalizeItemsList
+ * @what_is_under_test normalizeItemsList (api/shared)
  * @responsibility
  * - Guarantees item-like payloads are normalized into stable {id,name,supplierId} objects
  * - Guarantees invalid entries are filtered out rather than producing partial/unsafe DTOs
@@ -11,7 +11,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { normalizeItemsList } from '@/api/analytics/util';
+import { normalizeItemsList } from '@/api/shared';
 
 describe('normalizeItemsList', () => {
   it('normalizes items with id and name', () => {

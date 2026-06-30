@@ -9,7 +9,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { searchItemsForSupplier } from '../../analytics/search';
+import { searchItemsForSupplier } from '@/api/shared';
 import type { SupplierOption, ItemOption } from '../../analytics/types';
 
 /**

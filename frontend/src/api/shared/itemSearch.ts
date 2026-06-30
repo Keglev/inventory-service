@@ -1,33 +1,54 @@
 /**
- * @module api/analytics/search
+ * @module api/shared/itemSearch
  *
- * Item search and list fetches against /api/inventory and
- * /api/suppliers/{id}/items. The backend's search parameter name varies
- * (search|q|query|name), so the first successful name is cached in
- * INVENTORY_SEARCH_PARAM for the session to avoid probing on every keystroke.
- * Supplier-scoped searches are never silently downgraded to global.
- * All functions return `[]` on any error to keep typeahead UIs functional.
+ * @summary
+ * Item-search primitives shared by the inventory and analytics layers.
+ * Two supplier-aware fetch strategies (global and supplier-scoped) against
+ * GET /api/inventory, plus the normalization and client-filter helpers they
+ * depend on.
+ *
+ * @enterprise
+ * - Co-located here (rather than under analytics, where they originated)
+ *   because both the inventory type-ahead hook (useItemSearchQuery) and the
+ *   analytics PriceTrendCard consume them. A single physical home removes
+ *   the cross-layer import that previously had an inventory hook reaching
+ *   into the analytics module.
+ * - The backend's search parameter name is not stable (search | q | query |
+ *   name). The first name that yields results is cached in
+ *   INVENTORY_SEARCH_PARAM for the session so subsequent keystrokes do not
+ *   re-probe. This is module-level mutable state; tracked under ST-APP18 for
+ *   a future review of whether a session cache belongs in a shared module.
+ * - Supplier-scoped search never silently downgrades to a global search: an
+ *   empty result for a supplier is returned as empty, not refilled with
+ *   cross-supplier rows.
+ * - Every function returns [] on any error to keep type-ahead UIs functional
+ *   rather than throwing into a render path.
  */
 
 import http from '../httpClient';
-import { INVENTORY_BASE } from '@/api/shared';
-import { clientFilter, normalizeItemsList } from './util';
+import { INVENTORY_BASE } from './constants';
 import type { ItemRef } from './types';
 
 // Session cache for the working search parameter name used by /api/inventory search.
 let INVENTORY_SEARCH_PARAM: 'search' | 'q' | 'query' | 'name' | null = null;
 
-/** Fetch a small list of items for dropdowns; optionally scoped to a supplier. */
-export async function getTopItems(opts?: { supplierId?: string; limit?: number }): Promise<ItemRef[]> {
-    const limit = opts?.limit ?? 20;
-    try {
-        const params: Record<string, string | number> = { limit };
-        if (opts?.supplierId) params.supplierId = opts.supplierId;
-        const { data } = await http.get<unknown>(INVENTORY_BASE, { params });
-        return normalizeItemsList(data);
-    } catch {
-        return [];
-    }
+/** Absorbs field-name variations (`id`/`itemId`, `name`/`itemName`) across backend endpoints so callers always receive a uniform ItemRef[]. */
+export function normalizeItemsList(data: unknown): ItemRef[] {
+    if (!Array.isArray(data)) return [];
+    return (data as Array<{ id?: string | number; itemId?: string | number; name?: string; itemName?: string; supplierId?: string | number | null }>)
+    .map((d) => ({
+        id: String(d.id ?? d.itemId ?? ''),
+        name: String(d.name ?? d.itemName ?? ''),
+        supplierId: typeof d.supplierId === 'string' || typeof d.supplierId === 'number' ? String(d.supplierId) : undefined,
+    }))
+    .filter((it) => it.id && it.name);
+}
+
+/** Safety net for when the backend ignores the search query param; filters and caps results client-side. Returns the first `limit` items when `q` is blank. */
+export function clientFilter(items: ItemRef[], q: string, limit: number): ItemRef[] {
+    const needle = q.trim().toLowerCase();
+    if (!needle) return items.slice(0, limit);
+    return items.filter((it) => it.name.toLowerCase().includes(needle)).slice(0, limit);
 }
 
 /** Global item search against /api/inventory (no supplier filter). */
@@ -68,33 +89,6 @@ export async function searchItemsGlobal(q: string, limit: number = 50): Promise<
     }
 
     return [];
-}
-
-/** Fetch items scoped to a supplier. Tries /api/suppliers/{id}/items first,
- * falls back to /api/inventory with supplierId filter if the nested endpoint
- * is absent.
- */
-export async function getItemsForSupplier(supplierId: string, limit: number = 500): Promise<ItemRef[]> {
-    if (!supplierId) return [];
-
-    // 1) Preferred nested endpoint
-    try {
-        const { data } = await http.get<unknown>(`/api/suppliers/${encodeURIComponent(supplierId)}/items`, {
-            params: { limit },
-        });
-        const rows = normalizeItemsList(data);
-        if (rows.length) return rows;
-    } catch {
-        /* continue */
-    }
-
-    // 2) Fallback: inventory endpoint that accepts supplierId as a filter
-    try {
-        const { data } = await http.get<unknown>(INVENTORY_BASE, { params: { supplierId, limit } });
-        return normalizeItemsList(data);
-    } catch {
-        return [];
-    }
 }
 
 /** Supplier-scoped item search against /api/inventory (does not silently downgrade to global). */

@@ -6,7 +6,6 @@
  * /api/analytics endpoints. Re-exported from the analytics barrel (index.ts).
  */
 import type { AnalyticsParams } from './validation';
-import type { ItemRef } from './types';
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
 import { isRecord } from '@/api/shared';
 
@@ -44,25 +43,6 @@ export function pickNumber(r: Rec, keys: string[]): number {
         if (k in r) return asNumber(r[k]);
     }
     return 0;
-}
-
-/** Absorbs field-name variations (`id`/`itemId`, `name`/`itemName`) across backend endpoints so callers always receive a uniform ItemRef[]. */
-export function normalizeItemsList(data: unknown): ItemRef[] {
-    if (!Array.isArray(data)) return [];
-    return (data as Array<{ id?: string | number; itemId?: string | number; name?: string; itemName?: string; supplierId?: string | number | null }>)
-    .map((d) => ({
-        id: String(d.id ?? d.itemId ?? ''),
-        name: String(d.name ?? d.itemName ?? ''),
-        supplierId: typeof d.supplierId === 'string' || typeof d.supplierId === 'number' ? String(d.supplierId) : undefined,
-    }))
-    .filter((it) => it.id && it.name);
-}
-
-/** Safety net for when the backend ignores the search query param; filters and caps results client-side. Returns the first `limit` items when `q` is blank. */
-export function clientFilter(items: ItemRef[], q: string, limit: number): ItemRef[] {
-    const needle = q.trim().toLowerCase();
-    if (!needle) return items.slice(0, limit);
-    return items.filter((it) => it.name.toLowerCase().includes(needle)).slice(0, limit);
 }
 
 /**

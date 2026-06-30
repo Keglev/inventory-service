@@ -1,7 +1,7 @@
 /**
  * @file supplierQueries.test.ts
  * @module tests/unit/api/inventory/supplierQueries
- * @what_is_under_test listSuppliers / searchItemsBySupplier
+ * @what_is_under_test listSuppliers
  * @responsibility
  * Guarantees supplier query contracts: stable route/param wiring, tolerant field extraction
  * from heterogeneous payloads, and safe empty-array fallbacks on failures.
@@ -22,10 +22,8 @@ vi.mock('../../../../api/httpClient', () => ({
 import http from '../../../../api/httpClient';
 import {
   listSuppliers,
-  searchItemsBySupplier,
   SUPPLIERS_BASE,
 } from '../../../../api/inventory/supplierQueries';
-import { INVENTORY_BASE } from '@/api/shared';
 
 type HttpMock = {
   get: ReturnType<typeof vi.fn>;
@@ -74,40 +72,4 @@ describe('supplierQueries', () => {
     });
   });
 
-  describe('searchItemsBySupplier', () => {
-    describe('success paths', () => {
-      it('maps search results with tolerant field handling', async () => {
-        httpMock.get.mockResolvedValue({
-          data: {
-            content: [
-              { id: 'ITEM-1', name: 'Widget', supplierId: 'SUP-1' },
-              { itemId: 'ITEM-2', itemName: 'Gadget', supplier_id: 'SUP-2' },
-              { id: 'ITEM-3' },
-            ],
-          },
-        });
-
-        const result = await searchItemsBySupplier('SUP-DEFAULT', 'bolt');
-
-        expect(httpMock.get).toHaveBeenCalledWith(`${INVENTORY_BASE}/search`, {
-          params: { supplierId: 'SUP-DEFAULT', q: 'bolt' },
-        });
-        expect(result).toEqual([
-          { id: 'ITEM-1', name: 'Widget', supplierId: 'SUP-1' },
-          { id: 'ITEM-2', name: 'Gadget', supplierId: 'SUP-2' },
-          { id: 'ITEM-3', name: '—', supplierId: 'SUP-DEFAULT' },
-        ]);
-      });
-    });
-
-    describe('failure paths', () => {
-      it('returns empty array when search call fails', async () => {
-        httpMock.get.mockRejectedValue(new Error('server down'));
-
-        const result = await searchItemsBySupplier('SUP-1', 'gear');
-
-        expect(result).toEqual([]);
-      });
-    });
-  });
 });

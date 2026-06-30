@@ -3,8 +3,8 @@
  *
  * Barrel facade for inventory write operations and supporting types.
  * Re-exports item lifecycle mutations from itemMutations, stock quantity adjustments
- * from stockMutations, price changes from priceMutations, supplier and item search
- * queries from supplierQueries, row normalization from normalizers, and request/response
+ * from stockMutations, price changes from priceMutations, supplier queries from
+ * supplierQueries, row normalization from normalizers, and request/response
  * types from types — providing a single stable import path that is decoupled from
  * the internal module split.
  */
@@ -23,10 +23,9 @@ export { adjustQuantity } from './stockMutations';
 // Price change mutations
 export { changePrice } from './priceMutations';
 
-// Supplier and item search queries
+// Supplier queries
 export {
   listSuppliers,
-  searchItemsBySupplier,
   SUPPLIERS_BASE,
 } from './supplierQueries';
 

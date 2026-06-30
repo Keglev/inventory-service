@@ -9,6 +9,8 @@
  * validation logic.
  */
 
+import type { ItemRef } from '@/api/shared';
+
 /** Tracks aggregate portfolio value at a point in time; drives the stock-value trend chart. */
 export type StockValuePoint = { date: string; totalValue: number };
 
@@ -17,9 +19,6 @@ export type MonthlyMovement = { month: string; stockIn: number; stockOut: number
 
 /** Represents a single price sample in an item's history; used by price-trend charts. */
 export type PricePoint = { date: string; price: number };
-
-/** Minimal item identity for type-ahead and dropdown controls; optional fields are included when callers need richer context (on-hand stock, price). */
-export type ItemRef = { id: string; name: string; supplierId?: string | null; onHand?: number; price?: number };
 
 /** Minimal supplier identity for selector controls that only need id and name. */
 export type SupplierRef = { id: string; name: string };

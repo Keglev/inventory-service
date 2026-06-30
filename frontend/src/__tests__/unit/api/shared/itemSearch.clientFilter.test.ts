@@ -1,7 +1,7 @@
 /**
- * @file util.clientFilter.test.ts
- * @module tests/unit/api/analytics/util.clientFilter
- * @what_is_under_test clientFilter (api/analytics/util)
+ * @file itemSearch.clientFilter.test.ts
+ * @module tests/unit/api/shared/itemSearch.clientFilter
+ * @what_is_under_test clientFilter (api/shared)
  * @responsibility
  * - Guarantees filtering is case-insensitive and returns only items matching the query
  * - Guarantees limit is applied to the returned list
@@ -11,7 +11,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { clientFilter } from '@/api/analytics/util';
+import { clientFilter } from '@/api/shared';
 
 describe('clientFilter', () => {
   const items = [

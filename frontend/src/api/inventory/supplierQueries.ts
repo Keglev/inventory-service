@@ -9,7 +9,6 @@
  */
 
 import http from '../httpClient';
-import type { ItemRef } from '../analytics/types';
 import { isRecord, pickString, pickNumber, resDataOrEmpty, extractArray, INVENTORY_BASE } from '@/api/shared';
 
 export { INVENTORY_BASE };
@@ -55,65 +54,6 @@ export async function listSuppliers(): Promise<Array<{ id: string | number; name
         pickString(entry, 'supplier');
 
       if (id != null && name) out.push({ id, name });
-    }
-    return out;
-  } catch {
-    return [];
-  }
-}
-
-/**
- * Searches inventory items by supplier via GET /api/inventory/search,
- * used for type-ahead item pickers filtered to a specific supplier.
- * Tolerant parsing handles multiple field-name conventions from the backend.
- *
- * @param supplierId - Supplier to scope the search to
- * @param q - Search query string for type-ahead matching
- * @returns Matching ItemRef array, or [] on any error
- *
- * @example
- * ```typescript
- * const items = await searchItemsBySupplier('SUP-001', 'widget');
- * // [{ id: 'ITEM-123', name: 'Widget A', supplierId: 'SUP-001' }, ...]
- * ```
- */
-export async function searchItemsBySupplier(
-  supplierId: string | number,
-  q: string
-): Promise<ItemRef[]> {
-  try {
-    const resData = resDataOrEmpty(
-      await http.get(`${INVENTORY_BASE}/search`, { params: { supplierId, q } })
-    );
-    const candidates = Array.isArray(resData)
-      ? (resData as unknown[])
-      : extractArray(resData, ['items', 'content']);
-
-    const out: ItemRef[] = [];
-    for (const entry of candidates) {
-      if (!isRecord(entry)) continue;
-
-      const id =
-        pickString(entry, 'id') ??
-        pickString(entry, 'itemId') ??
-        pickString(entry, 'item_id');
-      if (!id) continue;
-
-      const name =
-        pickString(entry, 'name') ??
-        pickString(entry, 'itemName') ??
-        '—';
-
-      const sIdStr =
-        pickString(entry, 'supplierId') ??
-        pickString(entry, 'supplier_id');
-      const sIdNum = pickNumber(entry, 'supplierId');
-
-      out.push({
-        id,
-        name,
-        supplierId: sIdStr ?? (typeof sIdNum === 'number' ? sIdNum : supplierId),
-      } as ItemRef);
     }
     return out;
   } catch {
