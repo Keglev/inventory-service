@@ -13,7 +13,7 @@
  *   the analytics LowStockTable: critical when deficit >= 5, warning
  *   when deficit is 1-4, default otherwise. Tracked under CB-APP42 --
  *   the literal 5 appears here twice (fallback and threshold) and again
- *   in useInventoryData; extract to a shared constant in the refactor
+ *   in useInventoryPageData; extract to a shared constant in the refactor
  *   phase.
  * - Empty-string return for the default case keeps DataGrid's row class
  *   list empty for normal rows, avoiding a CSS rule for the default.

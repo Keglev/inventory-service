@@ -1,6 +1,6 @@
 /**
- * @file useInventoryData.ts
- * @module pages/inventory/hooks/useInventoryData
+ * @file useInventoryPageData.ts
+ * @module pages/inventory/hooks/useInventoryPageData
  *
  * @summary
  * Inventory data orchestration: composes the api-layer suppliers query
@@ -10,8 +10,9 @@
  * @enterprise
  * - Composition over duplication. This hook composes the api-layer
  *   useSuppliersQuery and getInventoryPage; it does not re-implement
- *   transport. Tracked under ST-1 (twin file with the same name in
- *   api/inventory/hooks -- composition, not duplication).
+ *   transport. The api-layer useInventoryData remains the transport-
+ *   facing hook; this pages-layer hook adapts it for the inventory
+ *   board.
  * - serverPage parameter is 1-based by this hook's current contract,
  *   but the inventory backend is 0-based Spring Pageable. The +1
  *   conversion happens at the caller (useDataFetchingLogic). Tracked
@@ -43,10 +44,10 @@ import { useInventoryRowStyling } from './useInventoryRowStyling';
 
 /**
  * Inventory data loading and processing results.
- * 
- * @interface InventoryDataResult
+ *
+ * @interface InventoryPageDataResult
  */
-export interface InventoryDataResult {
+export interface InventoryPageDataResult {
   // Raw data from backend
   server: InventoryListResponse;
   loading: boolean;
@@ -67,14 +68,14 @@ export interface InventoryDataResult {
 
 /**
  * Hook for inventory data fetching and processing.
- * 
+ *
  * Handles:
  * - Loading inventory from backend with filters/pagination/sorting
  * - Loading suppliers for filter dropdown
  * - Client-side filtering by search query and below-min threshold
  * - Column definitions with proper formatting
  * - Row classification for visual styling
- * 
+ *
  * @param supplierId - Selected supplier ID (null to not load)
  * @param q - Search query (debounced)
  * @param belowMinOnly - Whether to filter for below-min items only
@@ -83,14 +84,14 @@ export interface InventoryDataResult {
  * @param serverSort - Sort string (field,direction)
  * @returns Data loading results
  */
-export const useInventoryData = (
+export const useInventoryPageData = (
   supplierId: string | number | null,
   q: string,
   belowMinOnly: boolean,
   serverPage: number,
   pageSize: number,
   serverSort: string
-): InventoryDataResult => {
+): InventoryPageDataResult => {
   const [server, setServer] = React.useState<InventoryListResponse>({
     items: [],
     total: 0,

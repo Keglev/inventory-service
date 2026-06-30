@@ -7,7 +7,7 @@
  *
  * @enterprise
  * - Refresh triggers a refetch by mutating paginationModel back to
- *   page 0. This relies on useInventoryData's effect dependency on
+ *   page 0. This relies on useInventoryPageData's effect dependency on
  *   serverPage to re-fire the load. Tracked under CB-APP46: when the
  *   user is already on page 0, paginationModel does not actually
  *   change (React bails out on the setter), so the refresh button is
@@ -27,7 +27,7 @@ type InventoryStateReturn = InventoryState & InventoryStateSetters;
  * Hook providing data refresh handler.
  *
  * Triggers data reload by resetting pagination to first page.
- * This causes useInventoryData to refetch data.
+ * This causes useInventoryPageData to refetch data.
  *
  * @param state - Inventory board state object
  * @returns Object with handler function for refresh action
