@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frontend API ·
-inventory/utils/typeGuards/functions/isRecord · Smart Supply Pro · API</title>
+  <title>Frontend API · shared/README · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -111,52 +110,66 @@ inventory/utils/typeGuards/functions/isRecord · Smart Supply Pro · API</title>
     </aside>
     <main class="content" id="main">
       <article class="doc-body">
-        <p><a
-        href="../../../../../README.html"><strong>frontend</strong></a></p>
+        <p><a href="../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../../README.html">frontend</a> / <a
-        href="../README.html">api/inventory/utils/typeGuards</a> /
-        isRecord</p>
-        <h1 id="function-isrecord">Function: isRecord()</h1>
-        <blockquote>
-        <p><strong>isRecord</strong>(<code>v</code>):
-        <code>v is Record&lt;string, unknown&gt;</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/2f2f39b43b898e4d5b9c6bacc89cddaffdfeda2d/frontend/src/api/inventory/utils/typeGuards.ts#L24">api/inventory/utils/typeGuards.ts:24</a></p>
-        <p>Narrows <code>v</code> to
-        <code>Record&lt;string, unknown&gt;</code> when it is a non-null
-        object. Arrays also pass this check — call sites needing plain
-        objects must additionally guard with
-        <code>!Array.isArray</code>.</p>
-        <h2 id="parameters">Parameters</h2>
-        <h3 id="v">v</h3>
-        <p><code>unknown</code></p>
-        <p>Value to test</p>
-        <h2 id="returns">Returns</h2>
-        <p><code>v is Record&lt;string, unknown&gt;</code></p>
-        <p><code>true</code> when <code>typeof v === 'object'</code> and
-        <code>v !== null</code></p>
-        <h2 id="example">Example</h2>
-        <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">isRecord</span>(data)) {</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(data<span class="op">.</span><span class="at">name</span>)<span class="op">;</span> <span class="co">// TypeScript knows data is a Record</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <p><a href="../../README.html">frontend</a> / api/shared</p>
+        <h1 id="apishared">api/shared</h1>
+        <h2 id="references">References</h2>
+        <h3 id="errormessage">errorMessage</h3>
+        <p>Re-exports <a
+        href="errorHandling/functions/errorMessage.html">errorMessage</a></p>
+        <hr />
+        <h3 id="extractarray">extractArray</h3>
+        <p>Re-exports <a
+        href="responseExtraction/functions/extractArray.html">extractArray</a></p>
+        <hr />
+        <h3 id="isrecord">isRecord</h3>
+        <p>Re-exports <a
+        href="typeGuards/functions/isRecord.html">isRecord</a></p>
+        <hr />
+        <h3 id="picknumber">pickNumber</h3>
+        <p>Re-exports <a
+        href="fieldPickers/functions/pickNumber.html">pickNumber</a></p>
+        <hr />
+        <h3 id="picknumberfromlist">pickNumberFromList</h3>
+        <p>Re-exports <a
+        href="fieldPickers/functions/pickNumberFromList.html">pickNumberFromList</a></p>
+        <hr />
+        <h3 id="pickstring">pickString</h3>
+        <p>Re-exports <a
+        href="fieldPickers/functions/pickString.html">pickString</a></p>
+        <hr />
+        <h3 id="pickstringfromlist">pickStringFromList</h3>
+        <p>Re-exports <a
+        href="fieldPickers/functions/pickStringFromList.html">pickStringFromList</a></p>
+        <hr />
+        <h3 id="resdataorempty">resDataOrEmpty</h3>
+        <p>Re-exports <a
+        href="responseExtraction/functions/resDataOrEmpty.html">resDataOrEmpty</a></p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-isrecord"
-      id="toc-function-isrecord">Function: isRecord()</a>
+      <li><a href="#apishared" id="toc-apishared">api/shared</a>
       <ul>
-      <li><a href="#parameters" id="toc-parameters">Parameters</a>
+      <li><a href="#references" id="toc-references">References</a>
       <ul>
-      <li><a href="#v" id="toc-v">v</a></li>
+      <li><a href="#errormessage"
+      id="toc-errormessage">errorMessage</a></li>
+      <li><a href="#extractarray"
+      id="toc-extractarray">extractArray</a></li>
+      <li><a href="#isrecord" id="toc-isrecord">isRecord</a></li>
+      <li><a href="#picknumber" id="toc-picknumber">pickNumber</a></li>
+      <li><a href="#picknumberfromlist"
+      id="toc-picknumberfromlist">pickNumberFromList</a></li>
+      <li><a href="#pickstring" id="toc-pickstring">pickString</a></li>
+      <li><a href="#pickstringfromlist"
+      id="toc-pickstringfromlist">pickStringFromList</a></li>
+      <li><a href="#resdataorempty"
+      id="toc-resdataorempty">resDataOrEmpty</a></li>
       </ul></li>
-      <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>
     </nav>

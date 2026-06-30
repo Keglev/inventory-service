@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-inventory/utils/responseExtraction/functions/resDataOrEmpty · Smart Supply Pro · API</title>
+shared/errorHandling/functions/errorMessage · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -112,45 +112,53 @@ inventory/utils/responseExtraction/functions/resDataOrEmpty · Smart Supply Pro 
     <main class="content" id="main">
       <article class="doc-body">
         <p><a
-        href="../../../../../README.html"><strong>frontend</strong></a></p>
+        href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../../README.html">frontend</a> / <a
-        href="../README.html">api/inventory/utils/responseExtraction</a>
-        / resDataOrEmpty</p>
-        <h1 id="function-resdataorempty">Function: resDataOrEmpty()</h1>
+        <p><a href="../../../../README.html">frontend</a> / <a
+        href="../README.html">api/shared/errorHandling</a> /
+        errorMessage</p>
+        <h1 id="function-errormessage">Function: errorMessage()</h1>
         <blockquote>
-        <p><strong>resDataOrEmpty</strong>(<code>resp</code>):
-        <code>unknown</code></p>
+        <p><strong>errorMessage</strong>(<code>e</code>):
+        <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/2f2f39b43b898e4d5b9c6bacc89cddaffdfeda2d/frontend/src/api/inventory/utils/responseExtraction.ts#L28">api/inventory/utils/responseExtraction.ts:28</a></p>
-        <p>Safely unwraps the .data property that Axios attaches to
-        every response; returns an empty object when the property is
-        absent so callers can destructure or pass the result to
-        extractArray without null-guarding.</p>
+        href="https://github.com/Keglev/inventory-service/blob/c2bd6000a924a425f8a00344808af608b3e8c216/frontend/src/api/shared/errorHandling.ts#L32">api/shared/errorHandling.ts:32</a></p>
+        <p>Extracts a user-friendly error message from a network
+        error.</p>
+        <p>Used by both <code>itemMutations</code> (inventory) and
+        <code>supplierMutations</code> to normalize Axios error shapes
+        into strings the UI can display directly. Prefers
+        <code>response.data.message</code> or
+        <code>response.data.error</code> from the backend; falls back to
+        status-specific strings when no body message is present.</p>
         <h2 id="parameters">Parameters</h2>
-        <h3 id="resp">resp</h3>
+        <h3 id="e">e</h3>
         <p><code>unknown</code></p>
-        <p>Value to unwrap (typically an Axios response)</p>
+        <p>Error from a network call (Axios error or generic
+        <code>Error</code>)</p>
         <h2 id="returns">Returns</h2>
-        <p><code>unknown</code></p>
-        <p><code>resp.data</code> if present, <code>{}</code>
-        otherwise</p>
+        <p><code>string</code></p>
+        <p>User-friendly error message string</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> data <span class="op">=</span> <span class="fu">resDataOrEmpty</span>(response)<span class="op">;</span> <span class="co">// Safe access to response.data</span></span></code></pre></div>
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">await</span> http<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/api/suppliers&#39;</span><span class="op">,</span> data)<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">catch</span> (error) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> msg <span class="op">=</span> <span class="fu">errorMessage</span>(error)<span class="op">;</span> <span class="co">// &quot;Access denied - Admin permission required&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-resdataorempty"
-      id="toc-function-resdataorempty">Function: resDataOrEmpty()</a>
+      <li><a href="#function-errormessage"
+      id="toc-function-errormessage">Function: errorMessage()</a>
       <ul>
       <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
-      <li><a href="#resp" id="toc-resp">resp</a></li>
+      <li><a href="#e" id="toc-e">e</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
       <li><a href="#example" id="toc-example">Example</a></li>

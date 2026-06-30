@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-analytics/util/functions/isRecord · Smart Supply Pro · API</title>
+shared/typeGuards/functions/isRecord · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -115,22 +115,31 @@ analytics/util/functions/isRecord · Smart Supply Pro · API</title>
         href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
         <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/analytics/util</a> / isRecord</p>
+        href="../README.html">api/shared/typeGuards</a> / isRecord</p>
         <h1 id="function-isrecord">Function: isRecord()</h1>
         <blockquote>
-        <p><strong>isRecord</strong>(<code>x</code>):
-        <code>x is Rec</code></p>
+        <p><strong>isRecord</strong>(<code>v</code>):
+        <code>v is Record&lt;string, unknown&gt;</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/2f2f39b43b898e4d5b9c6bacc89cddaffdfeda2d/frontend/src/api/analytics/util.ts#L26">api/analytics/util.ts:26</a></p>
-        <p>Narrows <code>unknown</code> to a plain record; explicitly
-        excludes null and arrays, which <code>typeof</code> also reports
-        as <code>'object'</code>.</p>
+        href="https://github.com/Keglev/inventory-service/blob/c2bd6000a924a425f8a00344808af608b3e8c216/frontend/src/api/shared/typeGuards.ts#L24">api/shared/typeGuards.ts:24</a></p>
+        <p>Narrows <code>v</code> to
+        <code>Record&lt;string, unknown&gt;</code> when it is a non-null
+        object. Arrays do NOT pass this check; the guard is safe to use
+        directly when the caller needs a plain object.</p>
         <h2 id="parameters">Parameters</h2>
-        <h3 id="x">x</h3>
+        <h3 id="v">v</h3>
         <p><code>unknown</code></p>
+        <p>Value to test</p>
         <h2 id="returns">Returns</h2>
-        <p><code>x is Rec</code></p>
+        <p><code>v is Record&lt;string, unknown&gt;</code></p>
+        <p><code>true</code> when <code>typeof v === 'object'</code> and
+        <code>v !== null</code></p>
+        <h2 id="example">Example</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">isRecord</span>(data)) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(data<span class="op">.</span><span class="at">name</span>)<span class="op">;</span> <span class="co">// TypeScript knows data is a Record</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
       </article>
     </main>
 
@@ -142,9 +151,10 @@ analytics/util/functions/isRecord · Smart Supply Pro · API</title>
       <ul>
       <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
-      <li><a href="#x" id="toc-x">x</a></li>
+      <li><a href="#v" id="toc-v">v</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
+      <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>
     </nav>

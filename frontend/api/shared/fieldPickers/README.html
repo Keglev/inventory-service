@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-inventory/utils/fieldPickers/functions/pickString · Smart Supply Pro · API</title>
+shared/fieldPickers/README · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -112,52 +112,30 @@ inventory/utils/fieldPickers/functions/pickString · Smart Supply Pro · API</ti
     <main class="content" id="main">
       <article class="doc-body">
         <p><a
-        href="../../../../../README.html"><strong>frontend</strong></a></p>
+        href="../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../../README.html">frontend</a> / <a
-        href="../README.html">api/inventory/utils/fieldPickers</a> /
-        pickString</p>
-        <h1 id="function-pickstring">Function: pickString()</h1>
-        <blockquote>
-        <p><strong>pickString</strong>(<code>r</code>, <code>k</code>):
-        <code>string</code> | <code>undefined</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/2f2f39b43b898e4d5b9c6bacc89cddaffdfeda2d/frontend/src/api/inventory/utils/fieldPickers.ts#L27">api/inventory/utils/fieldPickers.ts:27</a></p>
-        <p>Returns the value at key <code>k</code> only when it is
-        already a string; returns undefined for numbers, booleans, and
-        all other types. Avoids implicit coercions that could silently
-        produce unexpected data.</p>
-        <h2 id="parameters">Parameters</h2>
-        <h3 id="r">r</h3>
-        <p><code>Record</code>&lt;<code>string</code>,
-        <code>unknown</code>&gt;</p>
-        <p>Record to extract from</p>
-        <h3 id="k">k</h3>
-        <p><code>string</code></p>
-        <p>Key to look up</p>
-        <h2 id="returns">Returns</h2>
-        <p><code>string</code> | <code>undefined</code></p>
-        <p>String value if present, undefined otherwise</p>
-        <h2 id="example">Example</h2>
-        <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> name <span class="op">=</span> <span class="fu">pickString</span>(obj<span class="op">,</span> <span class="st">&#39;name&#39;</span>)<span class="op">;</span> <span class="co">// returns string or undefined</span></span></code></pre></div>
+        <p><a href="../../../README.html">frontend</a> /
+        api/shared/fieldPickers</p>
+        <h1 id="apisharedfieldpickers">api/shared/fieldPickers</h1>
+        <h2 id="functions">Functions</h2>
+        <ul>
+        <li><a href="functions/pickNumber.html">pickNumber</a></li>
+        <li><a
+        href="functions/pickNumberFromList.html">pickNumberFromList</a></li>
+        <li><a href="functions/pickString.html">pickString</a></li>
+        <li><a
+        href="functions/pickStringFromList.html">pickStringFromList</a></li>
+        </ul>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-pickstring"
-      id="toc-function-pickstring">Function: pickString()</a>
+      <li><a href="#apisharedfieldpickers"
+      id="toc-apisharedfieldpickers">api/shared/fieldPickers</a>
       <ul>
-      <li><a href="#parameters" id="toc-parameters">Parameters</a>
-      <ul>
-      <li><a href="#r" id="toc-r">r</a></li>
-      <li><a href="#k" id="toc-k">k</a></li>
-      </ul></li>
-      <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#example" id="toc-example">Example</a></li>
+      <li><a href="#functions" id="toc-functions">Functions</a></li>
       </ul></li>
       </ul>
     </nav>
