@@ -1,17 +1,27 @@
 /**
  * @file Home.tsx
- * @description
- * Landing hub for the root route (/):
- * - If authenticated, redirect to /dashboard.
- * - If not authenticated, show a small landing card with:
- *    • “Sign in” → /login
- *    • “Continue in Demo Mode” → starts a local DEMO session and opens /analytics/overview
- * - While auth state is hydrating, show a loading spinner.
+ * @module pages/home/Home
+ *
+ * @summary
+ * Landing hub for the root route (/). Three states:
+ *  - Auth hydrating: centered spinner.
+ *  - Authenticated: redirect to /dashboard with history replace.
+ *  - Unauthenticated: landing card with “Sign in” and “Continue in Demo Mode”.
  *
  * @enterprise
- * - Uses useAuth() to access auth state and start a DEMO session.
- * - Keeps history clean on redirects via <Navigate replace>.
- * - Minimal dependencies; no HTTP or side-effects beyond starting demo.
+ * - Uses Navigate replace on the authenticated branch so the root URL never
+ *   accumulates in browser history once a session exists.
+ * - Demo Mode is a client-only read-only session started via useAuth; it
+ *   does not call the backend and is acceptable for portfolio walkthroughs
+ *   without provisioning a real account.
+ * - Minimal dependencies: no HTTP, no global side effects beyond starting
+ *   the demo session and navigating.
+ *
+ * @i18n
+ * Uses 'auth' namespace. Keys: welcome, or, signIn, continueDemo, ssoHint.
+ *
+ * CB-APP66: t('continueDemo') retains an English fallback string at the JSX
+ * site — tracked for i18n cleanup.
  */
 
 import * as React from 'react';
@@ -21,7 +31,8 @@ import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 
 /**
- * Home component
+ * Home component.
+ * Routes the user based on auth state and offers a demo-session entry point.
  */
 const Home: React.FC = () => {
   const { user, loading, loginAsDemo } = useAuth();
@@ -40,7 +51,7 @@ const Home: React.FC = () => {
   // If already authenticated, redirect to dashboard
   if (user) return <Navigate to="/dashboard" replace />;
 
-  // Unauthenticated → show landing card with sign-in and demo options
+  // Unauthenticated: show landing card with sign-in and demo options.
   const handleDemo = () => {
     loginAsDemo();
     navigate('/dashboard', { replace: true });

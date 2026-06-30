@@ -1,8 +1,21 @@
 /**
  * @file AuthCallback.tsx
- * @description 
- * -OAuth2 redirect target. Verifies session via api/me, hydrates AuthContext,
- * then redirects to /dashboard. On failure goes abck to /login with error.
+ * @module pages/auth/AuthCallback
+ *
+ * @summary
+ * OAuth2 redirect target. Verifies the session via GET /api/me, hydrates
+ * AuthContext with the returned profile, then redirects to /dashboard.
+ * On failure, redirects to /login?error=session.
+ *
+ * @enterprise
+ * - Session verification is mount-only and guarded against unmount races
+ *   via a cancelled flag, preventing setState on an unmounted component.
+ * - Backend contract (AuthController.me): { email, fullName, role, pictureUrl }.
+ *   pictureUrl is currently not consumed by AuthContext (acceptable; avatar
+ *   surfaces fetch separately).
+ *
+ * @i18n
+ * Uses 'auth' namespace. Key: verifying.
  */
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -13,15 +26,16 @@ import httpClient from '../../api/httpClient';
 import { useAuth } from '../../hooks/useAuth';
 
 /**
- * AuthCallback component
- * Handles the OAuth2 authentication callback and verifies the user session.
+ * AuthCallback component.
+ * Renders a centered spinner while session verification is in flight.
  */
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
   const { setUser } = useAuth();
   const { t } = useTranslation('auth');
 
-  // On mount, verify the session by calling /api/me
+  // CB-APP66: t('verifying') has English fallback at JSX site — track via MASTER.
+  // Verify session on mount; cancelled flag prevents setState after unmount.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -38,9 +52,6 @@ const AuthCallback: React.FC = () => {
     return () => { cancelled = true; };
   }, [navigate, setUser]);
 
-  /**
-   * Render the loading state while verifying the user session.
-   */
   return (
     <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
       <Box textAlign="center">

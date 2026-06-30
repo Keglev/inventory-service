@@ -1,18 +1,25 @@
 /**
  * @file LogoutPage.tsx
- * @description
- * Public route that performs logout without XHR:
- *  - Clears React Query cache and AuthContext immediately (client-side).
- *  - Submits a top-level POST form to `${API_BASE}/logout?return=<origin>/logout-success`.
- *  - Avoids CORS/XHR redirect issues and guarantees server-side session invalidation.
+ * @module pages/auth/LogoutPage
+ *
+ * @summary
+ * Public route that performs logout via a top-level form POST to
+ * `${API_BASE}/logout?return=<origin>/logout-success`. Clears React Query
+ * cache and AuthContext on mount, then navigates the browser away.
  *
  * @enterprise
- * - Uses form POST navigation to bypass CORS on /logout.
- * - Works when CSRF is disabled. If CSRF is enabled in future, allow GET logout
- *   or include the CSRF token as a hidden field.
+ * - Form-POST navigation (not XHR) avoids CORS/XHR-redirect issues on the
+ *   Spring Security default /logout endpoint and guarantees server-side
+ *   session invalidation followed by a clean cross-origin redirect.
+ * - Assumes CSRF is disabled on /logout. If CSRF protection is enabled in
+ *   the future, either allow GET logout or include the CSRF token as a
+ *   hidden field on the form.
+ * - Distinct from POST /api/auth/logout (AuthController.apiLogout), which is
+ *   the JSON 204 endpoint for SPA/mobile clients that cannot follow a
+ *   browser-level form POST.
  *
  * @i18n
- * - Uses 'auth' namespace: logoutSigningOut.
+ * Uses 'auth' namespace. Key: logoutSigningOut.
  */
 
 import * as React from 'react';
@@ -29,6 +36,7 @@ const LogoutPage: React.FC = () => {
   const { logout } = useAuth();
 
   useEffect(() => {
+    // CM-APP12: unguarded console.debug in production code path.
     console.debug('[LogoutPage] effect start, posting to backend logout');
     // 1) Clear client-side state immediately
     queryClient.clear();
@@ -41,6 +49,7 @@ const LogoutPage: React.FC = () => {
     form.action = `${API_BASE}/logout?return=${encodeURIComponent(returnUrl)}`;
     form.style.display = 'none';
     document.body.appendChild(form);
+    // CM-APP12: unguarded console.debug in production code path.
       console.debug('[LogoutPage] submitting logout form to', form.action);
     form.submit();
 

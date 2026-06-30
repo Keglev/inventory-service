@@ -1,26 +1,29 @@
 /**
  * @file Dashboard.tsx
- * @module pages/dashboard
+ * @module pages/dashboard/Dashboard
  *
- * @description
- * Main dashboard page providing system overview and quick navigation.
- * Displays KPI cards (inventory count, suppliers, low stock items) and a 90-day
- * stock movement chart. Includes resilient error handling: if API endpoints
- * are unavailable, cards gracefully show "—" instead of breaking the page.
+ * @summary
+ * Authenticated landing page. Renders three KPI cards (inventory count,
+ * suppliers count, low-stock count), a 90-day stock-movement mini chart,
+ * and primary navigation buttons for the core workflows.
  *
- * @responsibilities
- * - Fetch and display key metrics via useDashboardMetrics hook
- * - Render KPI stat cards with loading states
- * - Display monthly stock movement chart
- * - Provide action buttons for quick navigation to main features
- * - Support help system integration
+ * @enterprise
+ * - Resilience: KPI cards degrade to em-dash placeholders when their data
+ *   source is unavailable, so a partial backend outage does not blank the
+ *   page or fall through to an error boundary.
+ * - The mini chart reuses the analytics API (getMonthlyStockMovement) rather
+ *   than a dashboard-specific endpoint, keeping a single source of truth
+ *   for stock-movement aggregation logic.
+ * - Help-icon integration uses the shared HelpIconButton with topicId
+ *   "app.main"; topic content lives in the help registry, not in this page.
  *
  * @i18n
- * Uses 'common' namespace for all translations:
- * - dashboard.title: Page title
- * - dashboard.kpi.*: KPI card labels
- * - dashboard.actions.*: Button labels
- * - actions.help: Help button tooltip
+ * Uses 'common' namespace. Keys: dashboard.title, dashboard.kpi.totalItems,
+ * dashboard.kpi.suppliers, dashboard.kpi.lowStock, dashboard.actions.*,
+ * actions.help.
+ *
+ * CB-APP66: t('actions.help', 'Help') retains an English fallback string at
+ * the JSX site — tracked for the i18n cleanup pass.
  */
 import * as React from 'react';
 import { Box, Grid, Button, Stack, Typography, Paper } from '@mui/material';

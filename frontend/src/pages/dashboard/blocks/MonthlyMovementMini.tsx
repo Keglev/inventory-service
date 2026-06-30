@@ -3,21 +3,25 @@
  * @module pages/dashboard/blocks/MonthlyMovementMini
  *
  * @summary
- * Compact monthly stock movement chart for the Dashboard.
- * Displays inbound and outbound stock movements over the last 90 days.
- * Reuses the same API as the full Analytics page.
+ * Compact 90-day monthly stock-movement bar chart shown on the Dashboard.
+ * Inbound (stockIn) and outbound (stockOut) bars share the analytics API
+ * used by the full Analytics page.
  *
- * @responsibilities
- * - Fetch monthly aggregated stock movement data (90-day window)
- * - Display dual-bar chart with color-coded inbound (success) and outbound (error) bars
- * - Show loading skeleton while data is being fetched
- * - Apply theme colors for visual consistency
- *
- * @usage
- * <MonthlyMovementMini />
+ * @enterprise
+ * - Reuses getMonthlyStockMovement rather than a dashboard-specific endpoint
+ *   to keep a single source of truth for stock-movement aggregation and to
+ *   benefit from any caching the analytics layer applies.
+ * - Bar colors are bound to MUI theme tokens (success.main / error.main) so
+ *   palette changes (light/dark mode, brand recolor) propagate without
+ *   touching this component.
+ * - Window is a rolling 90 days computed at render time; not memoized
+ *   because the cost is trivial and the values are stable per day.
  *
  * @i18n
- * Uses translation key: dashboard.kpi.movementTitle
+ * Uses 'common' namespace. Key: dashboard.kpi.movementTitle.
+ *
+ * CB-APP66: t('dashboard.kpi.movementTitle', 'Stock movement (90d)') retains
+ * an English fallback string at the JSX site — tracked for i18n cleanup.
  */
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';

@@ -1,13 +1,20 @@
 /**
  * @file NotFoundPage.tsx
- * @description
- * Generic 404 page for unknown routes. Keep intentionally lightweight and neutral.
+ * @module pages/system/NotFoundPage
+ *
+ * @summary
+ * Generic 404 page for unknown routes. Intentionally lightweight and
+ * neutral — no telemetry, no diagnostics, no branded illustration.
  *
  * @enterprise
- * - Internationalized copy (uses i18n).
- * - Offers clear next steps: go to Dashboard if logged in, otherwise to Login.
- * - This page can be extended with error correlation IDs when backed by a router
- *   that collects diagnostics.
+ * - Primary action adapts to auth state: routes to /dashboard for an
+ *   authenticated user, /login otherwise. Avoids an extra hop through
+ *   Home for the common signed-in case.
+ * - Uses three namespaces (system, common, auth) directly rather than a
+ *   single nested key path, keeping translation files cleanly scoped per
+ *   feature and avoiding cross-namespace key collisions.
+ * - Extension point: when a router-level diagnostic correlation layer is
+ *   added, this page can surface a correlation ID without behavior change.
  */
 
 import * as React from 'react';

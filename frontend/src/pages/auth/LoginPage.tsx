@@ -1,17 +1,25 @@
 /**
  * @file LoginPage.tsx
- * @description
- * Public login screen for Google OAuth2 SSO (SSO-only UX).
- * Local email/password fields are intentionally removed to avoid confusion.
+ * @module pages/auth/LoginPage
  *
- * @features
- * - Google SSO button that redirects to backend OAuth2 endpoint.
- * - Error banner if `?error=` is present (e.g., user canceled consent).
- * - Optional: “Continue in Demo Mode” (client-only, read-only KPIs/Analytics).
+ * @summary
+ * Public login screen for Google OAuth2 SSO (SSO-only UX). Local
+ * email/password fields are intentionally absent to keep the auth model
+ * unambiguous in the portfolio.
+ *
+ * @enterprise
+ * - SSO-only by design: removes credential-handling responsibility from the
+ *   frontend and shifts it to the IdP. Demo Mode is a client-only read-only
+ *   session and does not call the backend.
+ * - Renders an error banner when ?error= is present in the URL (typical when
+ *   the user cancels Google consent or the OAuth2 callback fails).
  *
  * @i18n
- * - Uses react-i18next ('auth' namespace). See /public/locales for JSON files.
- * - Keys used: signIn, welcome, or, signInGoogle, ssoHint, errorTitle, continueDemo.
+ * Uses 'auth' namespace. Keys: signIn, welcome, or, signInGoogle, ssoHint,
+ * errorTitle, continueDemo.
+ *
+ * CB-APP66: t('continueDemo') retains an English fallback string at the JSX
+ * site — tracked for the i18n cleanup pass (no behavior change here).
  */
 
 import {

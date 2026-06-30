@@ -1,15 +1,20 @@
 /**
  * @file LogoutSuccess.tsx
- * @description
- * Public confirmation screen shown after a successful logout.
- * Side-effects happen exclusively in LogoutPage.
+ * @module pages/auth/LogoutSuccess
  *
- * @responsibilities
- * - Display a confirmation message after successful logout.
- * - Provide a button to navigate back to the login page.
+ * @summary
+ * Public confirmation screen shown after a successful server-side logout.
+ * Pure UI — no side effects; all logout work happens in LogoutPage.
+ *
+ * @enterprise
+ * - Separating the success view from the logout effect keeps the
+ *   navigation-after-form-POST flow deterministic: the backend redirects
+ *   the browser to /logout-success, which then renders this static page.
+ * - Re-entry to /login is an explicit user action, not an auto-redirect,
+ *   to avoid loops if the user lands here directly.
  *
  * @i18n
- * - Uses 'auth' namespace: logoutSuccessTitle, logoutSuccessBody, signIn.
+ * Uses 'auth' namespace. Keys: logoutSuccessTitle, logoutSuccessBody, signIn.
  */
 
 import * as React from 'react';
