@@ -72,6 +72,8 @@ export const useSupplierSearch = (): UseSupplierSearchReturn => {
 
     setSearchLoading(true);
     try {
+      // ST-APP19: duplicate search infrastructure — board uses useSupplierSearchQuery against GET /api/suppliers/search; this hook calls the paginated list endpoint with a `q` param. Consolidate in refactor pass.
+      // CB-APP67: page: 1 sent to a 0-based Spring Pageable. Verify whether getSuppliersPage adapts this internally; refactor pass.
       const response = await getSuppliersPage({ page: 1, pageSize: 10, q: query });
       setSearchResults(response.items);
     } catch {

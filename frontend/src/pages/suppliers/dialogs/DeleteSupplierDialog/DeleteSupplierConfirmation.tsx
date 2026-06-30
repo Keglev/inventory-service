@@ -87,6 +87,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
       <DialogContent>
         {/* Warning Alert */}
         <Alert severity="warning" sx={{ mb: 2 }}>
+          {/* CM-APP18: grammar error in English fallback ("sure do you want"). Fix in JSON when removing fallback under CB-APP66. */}
           <Typography variant="body2" fontWeight={500}>
             {t(
               'suppliers:dialogs.delete.confirmation.warning',
@@ -96,6 +97,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
         </Alert>
 
         {/* Selected Supplier Info */}
+        {/* Theme-color bucket: '#fafafa' + '#e0e0e0' hardcoded — migrate to MUI theme tokens in refactor pass. */}
         <Paper
           variant="outlined"
           sx={{
@@ -163,6 +165,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
           disabled={isDeleting}
           startIcon={isDeleting ? <CircularProgress size={20} /> : undefined}
         >
+          {/* CM-APP17: key 'common:deleting' breaks the 'common:actions.*' convention used elsewhere. Tracked. */}
           {isDeleting ? t('common:deleting', 'Deleting...') : t('common:actions.yes', 'Yes')}
         </Button>
       </DialogActions>

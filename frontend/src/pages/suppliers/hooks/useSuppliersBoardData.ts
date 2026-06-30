@@ -8,7 +8,7 @@
  *
  * @enterprise
  * - Server-side pagination and sorting
- * - Client-side search with debouncing
+ * - Search query is forwarded to useSupplierSearchQuery; debouncing is handled inside that query hook, not in this file
  * - Loading and error states
  * - Type-safe data transformations
  */
@@ -41,7 +41,7 @@ export interface SuppliersBoardData {
  *
  * Manages:
  * - Paginated suppliers list from server
- * - Search results with debouncing
+ * - Search results from useSupplierSearchQuery (debouncing handled inside that query hook, not here)
  * - Loading and error states
  * - Data synchronization
  *
@@ -63,6 +63,7 @@ export const useSuppliersBoardData = (
   searchQuery: string,
   showAllSuppliers: boolean = true
 ): SuppliersBoardData => {
+  // CM-APP12: debug console.log — remove in refactor pass.
   console.log('[useSuppliersBoardData] CALLED with:', { page, pageSize, sort, searchQuery, showAllSuppliers });
   
   // Fetch paginated suppliers list
@@ -77,6 +78,7 @@ export const useSuppliersBoardData = (
     true
   );
 
+  // CM-APP12: debug console.log — remove in refactor pass.
   console.log('[useSuppliersBoardData] suppliersQuery data identity:', suppliersQuery.data);
 
   // Search suppliers by query - always available regardless of showAllSuppliers flag
@@ -85,12 +87,14 @@ export const useSuppliersBoardData = (
     true
   );
 
+  // CM-APP12: debug console.log — remove in refactor pass.
   console.log('[useSuppliersBoardData] about to return, will create new object');
 
   // Memoize the return object to prevent creating new reference on every render
   // This is critical to avoid infinite re-render loops that freeze router updates
   return React.useMemo(
     () => {
+      // CM-APP12: debug console.log — remove in refactor pass.
       console.log('[useSuppliersBoardData] useMemo RUNNING - creating new data object');
       return {
         suppliers: suppliersQuery.data?.items ?? [],

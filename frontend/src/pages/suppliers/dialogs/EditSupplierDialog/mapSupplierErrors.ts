@@ -38,6 +38,7 @@ export const mapSupplierError = (errorMsg: string | null | undefined, t: TFuncti
     return t('errors:supplier.requests.failedToUpdateSupplier', 'Failed to update supplier. Please try again.');
   }
 
+  // Structured-error bucket: substring matching on free-text server message — replace with structured-error contract ({error, message, timestamp}) in refactor pass.
   const msg = errorMsg.toLowerCase();
 
   // Admin-only error (403 Forbidden)

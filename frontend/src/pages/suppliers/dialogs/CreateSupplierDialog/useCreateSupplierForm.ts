@@ -78,6 +78,7 @@ export const useCreateSupplierForm = (
    * Uses heuristics to improve UX by pinpointing issues.
    */
   const applyServerError = (message?: string | null): void => {
+    // Structured-error bucket: substring matching on free-text server message — replace with structured-error contract ({error, message, timestamp}) in refactor pass.
     if (!message) return;
     const msg = message.toLowerCase();
 
@@ -103,7 +104,7 @@ export const useCreateSupplierForm = (
   };
 
   /**
-   * Submit form: validate → POST → notify parent.
+   * Submit form: validate -> POST -> notify parent.
    */
   const onSubmit = async (data: CreateSupplierForm): Promise<{ success: boolean }> => {
     setFormError(null);

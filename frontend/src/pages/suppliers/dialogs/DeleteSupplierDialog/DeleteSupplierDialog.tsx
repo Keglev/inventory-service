@@ -8,7 +8,7 @@
  *
  * @enterprise
  * - Separation of concerns: Dialog wrapper, form logic, view components
- * - Two-step workflow: search → confirm deletion
+ * - Two-step workflow: search -> confirm deletion
  * - Orchestrates lifecycle (open/close/reset)
  * - Clean, readable component hierarchy
  */

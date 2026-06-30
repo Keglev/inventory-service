@@ -25,10 +25,10 @@ import { useTranslation } from 'react-i18next';
 export interface SuppliersToolbarProps {
   /** Whether Create action is enabled */
   onCreateClick: () => void;
-  /** Whether Edit action is enabled (requires selection) */
+  /** Whether Edit action is enabled (selection OR demo session OR ADMIN role) */
   editEnabled: boolean;
   onEditClick: () => void;
-  /** Whether Delete action is enabled (requires selection) */
+  /** Whether Delete action is enabled (selection OR demo session OR ADMIN role) */
   deleteEnabled: boolean;
   onDeleteClick: () => void;
 }
@@ -38,8 +38,8 @@ export interface SuppliersToolbarProps {
  *
  * Displays title and action buttons:
  * - Add Supplier (always enabled)
- * - Edit Supplier (enabled when supplier selected)
- * - Delete Supplier (enabled when supplier selected)
+ * - Edit Supplier (enabled by selection, demo session, or ADMIN role — gate is decided by parent)
+ * - Delete Supplier (enabled by selection, demo session, or ADMIN role — gate is decided by parent)
  *
  * @component
  * @example

@@ -102,6 +102,7 @@ export const useDeleteSupplierForm = (
         return t('errors:supplier.requests.failedToDeleteSupplier', 'Failed to delete supplier. Please try again.');
       }
 
+      // Structured-error bucket: substring matching on free-text server message (including German 'verknüpften') — replace with structured-error contract in refactor pass.
       const msg = errorMsg.toLowerCase();
 
       // Linked items error (409 Conflict)
@@ -159,6 +160,7 @@ export const useDeleteSupplierForm = (
     } catch (err) {
       const errorMessage = mapServerError(err instanceof Error ? err.message : undefined);
       setError(errorMessage);
+      // Shared-logger bucket: production console.error — replace with centralized logger in refactor pass.
       console.error('Delete failed:', err);
     } finally {
       setIsDeleting(false);

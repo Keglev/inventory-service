@@ -4,6 +4,11 @@
  *
  * @summary
  * Barrel exports for all supplier board event handler hooks.
+ *
+ * @enterprise
+ * - Single re-export point for all SuppliersBoard event-handler hooks
+ * - Keeps orchestrator import block flat (one path, multiple hooks)
+ * - Each handler hook is a thin closure over the shared state object
  */
 
 export { useToolbarHandlers } from './useToolbarHandlers';

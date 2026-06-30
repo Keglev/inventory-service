@@ -96,7 +96,7 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
   const { t } = useTranslation(['common', 'suppliers']);
   const { userPreferences } = useSettings();
 
-  // Define grid columns (no memoization needed - same as InventoryTable)
+  // Grid columns are recomputed each render — the array is small and the work is cheap; no memoization needed.
   const columns: GridColDef<SupplierRow>[] = [
     {
       field: 'name',

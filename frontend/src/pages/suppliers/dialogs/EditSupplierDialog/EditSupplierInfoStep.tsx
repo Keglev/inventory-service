@@ -8,7 +8,7 @@
  *
  * @enterprise
  * - Pure presentation component
- * - Supplier name is read-only (immutable constraint)
+ * - Supplier name field is read-only in this UI by design; backend permits name updates (CM-APP19 — see MASTER)
  * - Editable fields: contactName, phone, email
  * - React Hook Form integration
  */
@@ -46,7 +46,7 @@ interface EditSupplierInfoStepProps {
  * Step 2: Edit supplier contact information.
  *
  * Displays form fields for editable supplier info.
- * Supplier name is displayed but read-only.
+ * Supplier name is displayed but read-only in this UI (not a backend constraint).
  *
  * @component
  * @param props - Component props
@@ -92,6 +92,7 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
         <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
           {selectedSupplier.name}
         </Typography>
+          {/* CM-APP20: i18n key text "(Cannot be changed)" mischaracterizes a UI-only constraint as a backend constraint. Revise key text in CB-APP66 work. */}
         <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
           {t('suppliers:hints.nameCannotBeChanged', '(Cannot be changed)')}
         </Typography>

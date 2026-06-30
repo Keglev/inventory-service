@@ -19,7 +19,7 @@ import type { UseSuppliersBoardStateReturn } from '../hooks/useSuppliersBoardSta
  * Hook that prepares and executes data fetching with transformed state parameters.
  *
  * Responsibilities:
- * - Convert 0-based pagination to 1-based for server
+ * - Currently increments paginationModel.page by 1 before forwarding. NOTE: backend Pageable is 0-based — this conversion is incorrect and is tracked as CB-F.
  * - Format sort model into server query string
  * - Execute useSuppliersBoardData with prepared parameters
  *
@@ -32,9 +32,11 @@ import type { UseSuppliersBoardStateReturn } from '../hooks/useSuppliersBoardSta
  * ```
  */
 export function useDataFetchingLogic(state: UseSuppliersBoardStateReturn) {
+  // CM-APP12: debug console.log — remove in refactor pass.
   console.log('[DATA FETCHING LOGIC] called with pagination:', state.paginationModel);
-  
+
   // Prepare parameters for data hook (no memoization needed)
+  // CB-F: off-by-one — backend Pageable is 0-based; this +1 produces a 1-based page number. Tracked for refactor.
   const serverPage = state.paginationModel.page + 1;
 
   const serverSort = state.sortModel.length
@@ -51,6 +53,7 @@ export function useDataFetchingLogic(state: UseSuppliersBoardStateReturn) {
     state.showAllSuppliers  // Pass this flag so the hook knows whether to filter paginated results
   );
 
+  // CM-APP12: debug console.log — remove in refactor pass.
   console.log('[DATA FETCHING LOGIC] returning data, suppliers count:', data.suppliers.length);
   return data;
 }

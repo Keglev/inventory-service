@@ -71,6 +71,7 @@ export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
   const renderCount = React.useRef(0);
   renderCount.current++;
   if (renderCount.current > 100) {
+    // CM-APP12: dev render-loop canary — remove or replace with React DevTools-based detection in refactor pass.
     console.error('[SUPPLIERS STATE] INFINITE RENDER DETECTED - over 100 renders!');
   }
   
@@ -110,6 +111,7 @@ export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
     setOpenDelete,
   };
 
+  // CM-APP12: debug render-counter log — remove in refactor pass.
   console.log(`[SUPPLIERS STATE RENDER #${renderCount.current}] paginationModel:`, paginationModel);
   
   return stateObject;

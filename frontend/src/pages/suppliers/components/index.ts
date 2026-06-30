@@ -4,6 +4,11 @@
  *
  * @summary
  * Barrel export for suppliers board components.
+ *
+ * @enterprise
+ * - Single re-export point for all suppliers-board UI components
+ * - Keeps SuppliersBoard import block flat (one path, multiple symbols)
+ * - Re-exports component prop types alongside components for downstream typing
  */
 
 export { SuppliersToolbar, type SuppliersToolbarProps } from './SuppliersToolbar';

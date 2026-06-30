@@ -9,7 +9,7 @@
  * @enterprise
  * - Separation of concerns: state (useSuppliersBoardState) + data (useSuppliersBoardData) + UI (components)
  * - Server-side pagination and sorting
- * - Client-side search with debouncing
+ * - Search input is wired to the suppliers query layer; debouncing lives in the api/suppliers query layer, not here
  * - Row selection via click, with dialog management
  * - All dialogs (Create, Edit, Delete) managed here
  * - Full TypeScript type safety, no implicit any types
@@ -175,6 +175,7 @@ const SuppliersBoard: React.FC = () => {
       </Paper>
 
       {/* Dialogs */}
+      {/* CM-APP14: leftover dev marker — clean up in refactor pass. */}
       {/* Step 3: Testing Dialogs */}
       <SuppliersDialogs
         openCreate={state.openCreate}

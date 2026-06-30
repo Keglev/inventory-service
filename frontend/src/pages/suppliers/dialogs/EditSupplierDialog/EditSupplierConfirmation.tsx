@@ -8,8 +8,8 @@
  *
  * @enterprise
  * - Pure presentation component
- * - Shows supplier info (name is read-only)
- * - Displays what will change (before → after)
+ * - Shows supplier info (name field is read-only in this UI; not a backend constraint — CM-APP19)
+ * - Displays what will change (before -> after)
  * - Requires user confirmation before proceeding
  */
 
@@ -112,6 +112,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
                 <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
                   {supplier.name}
                 </Typography>
+                {/* CM-APP20: i18n key text "(Cannot be changed)" mischaracterizes a UI-only constraint as a backend constraint. Revise key text in CB-APP66 work. */}
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
                   {t('suppliers:hints.nameCannotBeChanged', '(Cannot be changed)')}
                 </Typography>
@@ -175,6 +176,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
           {isSubmitting ? (
             <>
               <CircularProgress size={16} sx={{ mr: 1 }} />
+              {/* CM-APP17: key 'common:saving' breaks the 'common:actions.*' convention used elsewhere. Tracked. */}
               {t('common:saving', 'Saving...')}
             </>
           ) : (

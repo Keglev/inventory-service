@@ -55,6 +55,7 @@ export const DeleteSupplierSearchResults: React.FC<DeleteSupplierSearchResultsPr
   }
 
   return (
+    // Theme-color bucket: '#fafafa', '#e0e0e0' (border), '#e3f2fd' (hover) hardcoded — migrate to MUI theme tokens in refactor pass.
     <Paper
       variant="outlined"
       sx={{

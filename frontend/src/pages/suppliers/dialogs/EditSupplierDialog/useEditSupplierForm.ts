@@ -7,7 +7,7 @@
  * Orchestrates form state, search, confirmation, and submission.
  *
  * @enterprise
- * - Two-step workflow: search/select → edit info
+ * - Two-step workflow: search/select -> edit info
  * - Delegates form state to useEditSupplierFormState
  * - Delegates confirmation to useEditSupplierConfirmation
  * - Uses mapSupplierError utility for error handling
@@ -20,6 +20,7 @@ import type { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../../hooks/useAuth';
 import { updateSupplier, type EditSupplierForm } from '../../../../api/suppliers';
+// ST-APP20: cross-directory import — useSupplierSearch is shared but currently nested inside DeleteSupplierDialog/. Move to a shared location in refactor pass.
 import { useSupplierSearch } from '../DeleteSupplierDialog/useSupplierSearch';
 import { useEditSupplierFormState } from './useEditSupplierFormState';
 import { useEditSupplierConfirmation } from './useEditSupplierConfirmation';
@@ -138,6 +139,7 @@ export const useEditSupplierForm = (
       );
       setFormError(errorMessage);
       confirmation.setShowConfirmation(false);
+      // Shared-logger bucket: production console.error — replace with centralized logger in refactor pass.
       console.error('Update failed:', err);
     }
   }, [confirmation, selectedSupplier, user?.email, onUpdated, t]);
