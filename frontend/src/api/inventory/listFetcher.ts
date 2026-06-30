@@ -16,7 +16,7 @@
 import http from '../httpClient';
 import type { InventoryListParams, InventoryListResponse, InventoryRow } from './types';
 import { toInventoryRow } from './rowNormalizers';
-import { pickNumber } from '@/api/shared';
+import { pickNumber, INVENTORY_BASE } from '@/api/shared';
 
 /**
  * Extract an array of rows from the response envelope. The backend returns a
@@ -67,7 +67,7 @@ export const getInventoryPage = async (
   try {
     const { page, pageSize, q, supplierId, sort } = params;
 
-    const resp = await http.get('/api/inventory', {
+    const resp = await http.get(INVENTORY_BASE, {
       params: {
         page,
         pageSize,

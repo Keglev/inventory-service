@@ -9,6 +9,7 @@
  */
 
 import http from '../httpClient';
+import { INVENTORY_BASE } from '@/api/shared';
 
 /**
  * Total number of inventory items currently stored in the system.
@@ -17,7 +18,7 @@ import http from '../httpClient';
  */
 export async function getItemCount(): Promise<number> {
   try {
-    const { data } = await http.get<number>('/api/inventory/count');
+    const { data } = await http.get<number>(`${INVENTORY_BASE}/count`);
     return Number(data ?? 0);
   } catch {
     return 0;

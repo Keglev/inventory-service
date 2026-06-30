@@ -10,6 +10,7 @@
  */
 
 import http from '../httpClient';
+import { INVENTORY_BASE } from '@/api/shared';
 import { clientFilter, normalizeItemsList } from './util';
 import type { ItemRef } from './types';
 
@@ -22,7 +23,7 @@ export async function getTopItems(opts?: { supplierId?: string; limit?: number }
     try {
         const params: Record<string, string | number> = { limit };
         if (opts?.supplierId) params.supplierId = opts.supplierId;
-        const { data } = await http.get<unknown>('/api/inventory', { params });
+        const { data } = await http.get<unknown>(INVENTORY_BASE, { params });
         return normalizeItemsList(data);
     } catch {
         return [];
@@ -39,7 +40,7 @@ export async function searchItemsGlobal(q: string, limit: number = 50): Promise<
         try {
             const params: Record<string, string | number> = { limit };
             params[paramKey] = text;
-            const { data } = await http.get<unknown>('/api/inventory', { params });
+            const { data } = await http.get<unknown>(INVENTORY_BASE, { params });
             const rows = normalizeItemsList(data);
             if (rows.length > 0) {
                 const narrowed = clientFilter(rows, text, limit);
@@ -89,7 +90,7 @@ export async function getItemsForSupplier(supplierId: string, limit: number = 50
 
     // 2) Fallback: inventory endpoint that accepts supplierId as a filter
     try {
-        const { data } = await http.get<unknown>('/api/inventory', { params: { supplierId, limit } });
+        const { data } = await http.get<unknown>(INVENTORY_BASE, { params: { supplierId, limit } });
         return normalizeItemsList(data);
     } catch {
         return [];
@@ -110,7 +111,7 @@ export async function searchItemsForSupplier(
         try {
             const params: Record<string, string | number> = { supplierId, limit };
             params[paramKey] = text;
-            const { data } = await http.get<unknown>('/api/inventory', { params });
+            const { data } = await http.get<unknown>(INVENTORY_BASE, { params });
             const rows = normalizeItemsList(data);
             if (rows.length > 0) {
                 const narrowed = clientFilter(rows, text, limit);
