@@ -10,7 +10,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import http from '../../httpClient';
-import { isRecord, pickNumberFromList } from '../utils';
+import { pickNumberFromList } from '../utils';
+import { isRecord } from '@/api/shared';
 import type { ItemDetails } from '../types';
 
 /**

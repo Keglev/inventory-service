@@ -11,7 +11,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { isRecord, isArrayOfRecords } from '@/api/analytics/util';
+import { isArrayOfRecords } from '@/api/analytics/util';
+import { isRecord } from '@/api/shared';
 
 describe('isRecord', () => {
   it('returns true for plain objects', () => {

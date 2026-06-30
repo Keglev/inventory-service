@@ -1,6 +1,6 @@
 /**
  * @file typeGuards.test.ts
- * @module tests/unit/api/inventory/utils/typeGuards
+ * @module tests/unit/api/shared/typeGuards
  * @what_is_under_test isRecord
  * @responsibility
  * Guarantees the type guard’s boundary contract used by inventory parsing utilities:
@@ -13,7 +13,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { isRecord } from '@/api/inventory/utils/typeGuards';
+import { isRecord } from '@/api/shared';
 
 describe('typeGuards', () => {
   describe('isRecord()', () => {
@@ -24,10 +24,16 @@ describe('typeGuards', () => {
         expect(isRecord({ a: 1, b: 2 })).toBe(true);
       });
 
-      it('returns true for arrays and instances (they are objects at runtime)', () => {
+      // Tightened contract (Wave 2 ST-5 consolidation): isRecord now excludes arrays
+      // to match the analytics-side semantics. Inventory call sites already guarded
+      // arrays separately, so no production behavior changes.
+      it('returns false for arrays', () => {
+        expect(isRecord([])).toBe(false);
+        expect(isRecord([1, 2, 3])).toBe(false);
+      });
+
+      it('returns true for class and built-in instances (they are non-array objects)', () => {
         class TestClass {}
-        expect(isRecord([])).toBe(true);
-        expect(isRecord([1, 2, 3])).toBe(true);
         expect(isRecord(new Date())).toBe(true);
         expect(isRecord(new TestClass())).toBe(true);
       });

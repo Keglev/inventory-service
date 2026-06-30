@@ -10,7 +10,7 @@
 import http from '../httpClient';
 import { normalizeInventoryRow } from './normalizers';
 import type { UpsertItemRequest, UpsertItemResponse } from './types';
-import { errorMessage } from './utils';
+import { errorMessage } from '@/api/shared';
 
 /** Centralized endpoint base (adjust to match your controller if needed). */
 export const INVENTORY_BASE = '/api/inventory';

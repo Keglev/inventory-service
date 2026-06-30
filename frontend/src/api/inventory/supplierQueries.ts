@@ -13,13 +13,7 @@
 
 import http from '../httpClient';
 import type { ItemRef } from '../analytics/types';
-import {
-  isRecord,
-  pickString,
-  pickNumber,
-  resDataOrEmpty,
-  extractArray,
-} from './utils';
+import { isRecord, pickString, pickNumber, resDataOrEmpty, extractArray } from '@/api/shared';
 
 /** Inventory API base path; duplicated from other inventory modules pending a shared constants file. */
 export const INVENTORY_BASE = '/api/inventory';

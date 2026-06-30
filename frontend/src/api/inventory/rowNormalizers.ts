@@ -14,7 +14,7 @@
  */
 
 import type { InventoryRow } from './types';
-import { pickString, pickNumber } from './utils';
+import { pickString, pickNumber } from '@/api/shared';
 
 /**
  * Normalize a raw API response object into a strongly-typed InventoryRow.

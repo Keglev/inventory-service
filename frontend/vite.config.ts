@@ -22,6 +22,11 @@ const httpsConfig = useHttps
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
   build: {
     // MUI's combined bundle exceeds Vite's 500 KB default; raised to suppress noise
     // while keeping the warning active for other chunks.

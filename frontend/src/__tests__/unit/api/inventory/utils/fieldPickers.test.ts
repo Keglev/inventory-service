@@ -1,6 +1,6 @@
 /**
  * @file fieldPickers.test.ts
- * @module tests/unit/api/inventory/utils/fieldPickers
+ * @module tests/unit/api/shared/fieldPickers
  * @what_is_under_test fieldPickers
  * @responsibility
  * Guarantees defensive field extraction and coercion contracts used by inventory DTO normalizers,
@@ -18,7 +18,7 @@ import {
   pickNumber,
   pickNumberFromList,
   pickStringFromList,
-} from '@/api/inventory/utils/fieldPickers';
+} from '@/api/shared';
 
 describe('fieldPickers', () => {
   describe('pickString()', () => {

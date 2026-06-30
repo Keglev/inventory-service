@@ -23,14 +23,14 @@ vi.mock('@/api/suppliers/supplierNormalizers', () => ({
   toSupplierRow: vi.fn(),
 }));
 
-vi.mock('@/api/inventory/utils', () => ({
+vi.mock('@/api/shared', () => ({
   pickNumber: vi.fn(),
   extractArray: vi.fn(),
 }));
 
 import http from '@/api/httpClient';
 import { toSupplierRow } from '@/api/suppliers/supplierNormalizers';
-import { pickNumber, extractArray } from '@/api/inventory/utils';
+import { pickNumber, extractArray } from '@/api/shared';
 import { getSuppliersPage, SUPPLIERS_BASE } from '@/api/suppliers/supplierListFetcher';
 
 const httpMock = http as unknown as { get: ReturnType<typeof vi.fn> };

@@ -1,5 +1,5 @@
 /**
- * @module api/inventory/utils/fieldPickers
+ * @module api/shared/fieldPickers
  *
  * Field extraction helpers for records of unknown shape coming from the backend.
  * pickNumber coerces string representations of numbers; pickString requires the

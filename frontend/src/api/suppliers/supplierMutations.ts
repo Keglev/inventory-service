@@ -14,7 +14,7 @@
 import http from '../httpClient';
 import type { SupplierRow, SupplierDTO } from './types';
 import { toSupplierRow } from './supplierNormalizers';
-import { errorMessage } from '../inventory/utils'; // BUCKET: errorMessage 404 returns inventory wording "Item not found"; make domain-agnostic for supplier callers (B#6)
+import { errorMessage } from '@/api/shared';
 import { SUPPLIERS_BASE } from './supplierListFetcher';
 
 /**

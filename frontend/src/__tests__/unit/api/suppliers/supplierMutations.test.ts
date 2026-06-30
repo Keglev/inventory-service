@@ -25,13 +25,13 @@ vi.mock('@/api/suppliers/supplierNormalizers', () => ({
   toSupplierRow: vi.fn(),
 }));
 
-vi.mock('@/api/inventory/utils', () => ({
+vi.mock('@/api/shared', () => ({
   errorMessage: vi.fn(),
 }));
 
 import http from '@/api/httpClient';
 import { toSupplierRow } from '@/api/suppliers/supplierNormalizers';
-import { errorMessage } from '@/api/inventory/utils';
+import { errorMessage } from '@/api/shared';
 import { SUPPLIERS_BASE } from '@/api/suppliers/supplierListFetcher';
 import {
   createSupplier,

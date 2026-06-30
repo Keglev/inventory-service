@@ -1,5 +1,5 @@
 /**
- * @module api/inventory/utils/responseExtraction
+ * @module api/shared/responseExtraction
  *
  * Response parsing utilities that unwrap common backend envelope formats.
  * resDataOrEmpty handles the Axios .data wrapper; extractArray handles Spring

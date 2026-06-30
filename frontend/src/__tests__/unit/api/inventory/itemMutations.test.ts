@@ -26,13 +26,13 @@ vi.mock('../../../../api/inventory/normalizers', () => ({
   normalizeInventoryRow: vi.fn(),
 }));
 
-vi.mock('../../../../api/inventory/utils', () => ({
+vi.mock('@/api/shared', () => ({
   errorMessage: vi.fn(),
 }));
 
 import http from '../../../../api/httpClient';
 import { normalizeInventoryRow } from '../../../../api/inventory/normalizers';
-import { errorMessage } from '../../../../api/inventory/utils';
+import { errorMessage } from '@/api/shared';
 import { deleteItem, INVENTORY_BASE, renameItem, upsertItem } from '../../../../api/inventory/itemMutations';
 import type { InventoryRow } from '../../../../api/inventory/types';
 

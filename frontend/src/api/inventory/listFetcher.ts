@@ -16,7 +16,7 @@
 import http from '../httpClient';
 import type { InventoryListParams, InventoryListResponse, InventoryRow } from './types';
 import { toInventoryRow } from './rowNormalizers';
-import { pickNumber } from './utils';
+import { pickNumber } from '@/api/shared';
 
 /**
  * Extract an array of rows from the response envelope. The backend returns a

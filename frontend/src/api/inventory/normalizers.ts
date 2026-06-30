@@ -10,13 +10,8 @@
  */
 
 import type { InventoryRow } from './types';
-import {
-  isRecord,
-  pickString,
-  pickNumber,
-  pickNumberFromList,
-  pickStringFromList,
-} from './utils';
+import { isRecord, pickString, pickNumber } from '@/api/shared';
+import { pickNumberFromList, pickStringFromList } from './utils';
 
 /**
  * Normalizes a raw backend response into a typed InventoryRow.

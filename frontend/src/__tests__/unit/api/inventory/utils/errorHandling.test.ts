@@ -1,6 +1,6 @@
 /**
  * @file errorHandling.test.ts
- * @module tests/unit/api/inventory/utils/errorHandling
+ * @module tests/unit/api/shared/errorHandling
  * @what_is_under_test errorMessage
  * @responsibility
  * Guarantees a stable, user-facing error string contract for inventory mutation flows,
@@ -13,7 +13,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { errorMessage } from '@/api/inventory/utils/errorHandling';
+import { errorMessage } from '@/api/shared';
 
 const makeAxiosError = (payload: unknown): unknown => ({
   response: payload,

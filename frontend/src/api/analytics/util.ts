@@ -8,6 +8,7 @@
 import type { AnalyticsParams } from './validation';
 import type { ItemRef } from './types';
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
+import { isRecord } from '@/api/shared';
 
 /** Guards numeric fields from the backend against NaN, Infinity, and non-numeric strings so callers never silently accumulate bad values. */
 export function asNumber(v: unknown): number {
@@ -21,11 +22,6 @@ export function asNumber(v: unknown): number {
 
 /** Named record alias so all narrowing helpers share a single consistent type target. */
 export type Rec = Record<string, unknown>;
-
-/** Narrows `unknown` to a plain record; explicitly excludes null and arrays, which `typeof` also reports as `'object'`. */
-export function isRecord(x: unknown): x is Rec {
-    return !!x && typeof x === 'object' && !Array.isArray(x);
-}
 
 /** Narrows `unknown` to a homogeneous array of plain records; useful before mapping list-endpoint responses to domain types. */
 export function isArrayOfRecords(x: unknown): x is Rec[] {

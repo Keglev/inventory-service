@@ -1,5 +1,5 @@
 /**
- * @module api/inventory/utils/errorHandling
+ * @module api/shared/errorHandling
  *
  * Shared error extraction utilities used by both the inventory and supplier API layers.
  * Converts Axios error shapes into user-friendly strings for UI display, with

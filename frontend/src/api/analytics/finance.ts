@@ -9,7 +9,8 @@
  */
 
 import http from '../httpClient';
-import { isRecord, pickNumber } from './util';
+import { pickNumber } from './util';
+import { isRecord } from '@/api/shared';
 import type { Rec } from './util';
 
 /**

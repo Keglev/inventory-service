@@ -15,7 +15,7 @@
 import http from '../httpClient';
 import type { SupplierListParams, SupplierListResponse, SupplierRow } from './types';
 import { toSupplierRow } from './supplierNormalizers';
-import { pickNumber, extractArray } from '../inventory/utils';
+import { pickNumber, extractArray } from '@/api/shared';
 
 /** Centralized endpoint base. */
 export const SUPPLIERS_BASE = '/api/suppliers';

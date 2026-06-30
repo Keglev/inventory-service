@@ -7,14 +7,4 @@
  * can import from a single stable path (`@/api/inventory/utils`) regardless of internal restructuring.
  */
 
-// Type narrowing helpers
-export { isRecord } from './utils/typeGuards';
-
-// Field extraction with safe coercion
-export { pickString, pickNumber, pickNumberFromList, pickStringFromList } from './utils/fieldPickers';
-
-// Error extraction and user-friendly messages
-export { errorMessage } from './utils/errorHandling';
-
-// Response envelope parsing
-export { resDataOrEmpty, extractArray } from './utils/responseExtraction';
+export { isRecord, pickString, pickNumber, pickNumberFromList, pickStringFromList, errorMessage, resDataOrEmpty, extractArray } from '@/api/shared';

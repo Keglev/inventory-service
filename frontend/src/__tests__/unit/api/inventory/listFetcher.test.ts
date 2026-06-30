@@ -23,13 +23,13 @@ vi.mock('../../../../api/inventory/rowNormalizers', () => ({
   toInventoryRow: vi.fn(),
 }));
 
-vi.mock('../../../../api/inventory/utils', () => ({
+vi.mock('@/api/shared', () => ({
   pickNumber: vi.fn(),
 }));
 
 import http from '../../../../api/httpClient';
 import { toInventoryRow } from '../../../../api/inventory/rowNormalizers';
-import { pickNumber } from '../../../../api/inventory/utils';
+import { pickNumber } from '@/api/shared';
 import { getInventoryPage } from '../../../../api/inventory/listFetcher';
 
 type HttpGetMock = ReturnType<typeof vi.fn>;

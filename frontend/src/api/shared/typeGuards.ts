@@ -1,5 +1,5 @@
 /**
- * @module api/inventory/utils/typeGuards
+ * @module api/shared/typeGuards
  *
  * Type narrowing helpers for safe type checking.
  * Re-exported through api/inventory/utils, which is consumed by
@@ -8,8 +8,8 @@
 
 /**
  * Narrows `v` to `Record<string, unknown>` when it is a non-null object.
- * Arrays also pass this check — call sites needing plain objects must
- * additionally guard with `!Array.isArray`.
+ * Arrays do NOT pass this check; the guard is safe to use directly when
+ * the caller needs a plain object.
  *
  * @param v - Value to test
  * @returns `true` when `typeof v === 'object'` and `v !== null`
@@ -22,4 +22,4 @@
  * ```
  */
 export const isRecord = (v: unknown): v is Record<string, unknown> =>
-  typeof v === 'object' && v !== null;
+  typeof v === 'object' && v !== null && !Array.isArray(v);
