@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-analytics/util/functions/clientFilter · Smart Supply Pro · API</title>
+shared/itemSearch/functions/searchItemsGlobal · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -115,41 +115,39 @@ analytics/util/functions/clientFilter · Smart Supply Pro · API</title>
         href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
         <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/analytics/util</a> / clientFilter</p>
-        <h1 id="function-clientfilter">Function: clientFilter()</h1>
+        href="../README.html">api/shared/itemSearch</a> /
+        searchItemsGlobal</p>
+        <h1 id="function-searchitemsglobal">Function:
+        searchItemsGlobal()</h1>
         <blockquote>
-        <p><strong>clientFilter</strong>(<code>items</code>,
-        <code>q</code>, <code>limit</code>): <a
-        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]</p>
+        <p><strong>searchItemsGlobal</strong>(<code>q</code>,
+        <code>limit</code>): <code>Promise</code>&lt;<a
+        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/87dd79c95b84837a81f431d15bcdbf6188d5ed1a/frontend/src/api/analytics/util.ts#L62">api/analytics/util.ts:62</a></p>
-        <p>Safety net for when the backend ignores the search query
-        param; filters and caps results client-side. Returns the first
-        <code>limit</code> items when <code>q</code> is blank.</p>
+        href="https://github.com/Keglev/inventory-service/blob/a4f594d534b029dd7f616421b5bb7f6201c4d663/frontend/src/api/shared/itemSearch.ts#L55">api/shared/itemSearch.ts:55</a></p>
+        <p>Global item search against /api/inventory (no supplier
+        filter).</p>
         <h2 id="parameters">Parameters</h2>
-        <h3 id="items">items</h3>
-        <p><a
-        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]</p>
         <h3 id="q">q</h3>
         <p><code>string</code></p>
         <h3 id="limit">limit</h3>
-        <p><code>number</code></p>
+        <p><code>number</code> = <code>50</code></p>
         <h2 id="returns">Returns</h2>
-        <p><a
-        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]</p>
+        <p><code>Promise</code>&lt;<a
+        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-clientfilter"
-      id="toc-function-clientfilter">Function: clientFilter()</a>
+      <li><a href="#function-searchitemsglobal"
+      id="toc-function-searchitemsglobal">Function:
+      searchItemsGlobal()</a>
       <ul>
       <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
-      <li><a href="#items" id="toc-items">items</a></li>
       <li><a href="#q" id="toc-q">q</a></li>
       <li><a href="#limit" id="toc-limit">limit</a></li>
       </ul></li>

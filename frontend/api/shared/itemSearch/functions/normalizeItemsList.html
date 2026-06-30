@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-analytics/types/type-aliases/ItemRef · Smart Supply Pro · API</title>
+shared/itemSearch/functions/normalizeItemsList · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -115,71 +115,41 @@ analytics/types/type-aliases/ItemRef · Smart Supply Pro · API</title>
         href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
         <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/analytics/types</a> / ItemRef</p>
-        <h1 id="type-alias-itemref">Type Alias: ItemRef</h1>
+        href="../README.html">api/shared/itemSearch</a> /
+        normalizeItemsList</p>
+        <h1 id="function-normalizeitemslist">Function:
+        normalizeItemsList()</h1>
         <blockquote>
-        <p><strong>ItemRef</strong> = <code>object</code></p>
+        <p><strong>normalizeItemsList</strong>(<code>data</code>): <a
+        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/87dd79c95b84837a81f431d15bcdbf6188d5ed1a/frontend/src/api/analytics/types.ts#L22">api/analytics/types.ts:22</a></p>
-        <p>Minimal item identity for type-ahead and dropdown controls;
-        optional fields are included when callers need richer context
-        (on-hand stock, price).</p>
-        <h2 id="properties">Properties</h2>
-        <h3 id="id">id</h3>
-        <blockquote>
-        <p><strong>id</strong>: <code>string</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/87dd79c95b84837a81f431d15bcdbf6188d5ed1a/frontend/src/api/analytics/types.ts#L22">api/analytics/types.ts:22</a></p>
-        <hr />
-        <h3 id="name">name</h3>
-        <blockquote>
-        <p><strong>name</strong>: <code>string</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/87dd79c95b84837a81f431d15bcdbf6188d5ed1a/frontend/src/api/analytics/types.ts#L22">api/analytics/types.ts:22</a></p>
-        <hr />
-        <h3 id="onhand">onHand?</h3>
-        <blockquote>
-        <p><code>optional</code> <strong>onHand</strong>:
-        <code>number</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/87dd79c95b84837a81f431d15bcdbf6188d5ed1a/frontend/src/api/analytics/types.ts#L22">api/analytics/types.ts:22</a></p>
-        <hr />
-        <h3 id="price">price?</h3>
-        <blockquote>
-        <p><code>optional</code> <strong>price</strong>:
-        <code>number</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/87dd79c95b84837a81f431d15bcdbf6188d5ed1a/frontend/src/api/analytics/types.ts#L22">api/analytics/types.ts:22</a></p>
-        <hr />
-        <h3 id="supplierid">supplierId?</h3>
-        <blockquote>
-        <p><code>optional</code> <strong>supplierId</strong>:
-        <code>string</code> | <code>null</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/87dd79c95b84837a81f431d15bcdbf6188d5ed1a/frontend/src/api/analytics/types.ts#L22">api/analytics/types.ts:22</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/a4f594d534b029dd7f616421b5bb7f6201c4d663/frontend/src/api/shared/itemSearch.ts#L36">api/shared/itemSearch.ts:36</a></p>
+        <p>Absorbs field-name variations
+        (<code>id</code>/<code>itemId</code>,
+        <code>name</code>/<code>itemName</code>) across backend
+        endpoints so callers always receive a uniform ItemRef[].</p>
+        <h2 id="parameters">Parameters</h2>
+        <h3 id="data">data</h3>
+        <p><code>unknown</code></p>
+        <h2 id="returns">Returns</h2>
+        <p><a
+        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]</p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#type-alias-itemref" id="toc-type-alias-itemref">Type
-      Alias: ItemRef</a>
+      <li><a href="#function-normalizeitemslist"
+      id="toc-function-normalizeitemslist">Function:
+      normalizeItemsList()</a>
       <ul>
-      <li><a href="#properties" id="toc-properties">Properties</a>
+      <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
-      <li><a href="#id" id="toc-id">id</a></li>
-      <li><a href="#name" id="toc-name">name</a></li>
-      <li><a href="#onhand" id="toc-onhand">onHand?</a></li>
-      <li><a href="#price" id="toc-price">price?</a></li>
-      <li><a href="#supplierid" id="toc-supplierid">supplierId?</a></li>
+      <li><a href="#data" id="toc-data">data</a></li>
       </ul></li>
+      <li><a href="#returns" id="toc-returns">Returns</a></li>
       </ul></li>
       </ul>
     </nav>

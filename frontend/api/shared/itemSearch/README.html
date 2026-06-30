@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-analytics/search/functions/getTopItems · Smart Supply Pro · API</title>
+shared/itemSearch/README · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -112,43 +112,52 @@ analytics/search/functions/getTopItems · Smart Supply Pro · API</title>
     <main class="content" id="main">
       <article class="doc-body">
         <p><a
-        href="../../../../README.html"><strong>frontend</strong></a></p>
+        href="../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/analytics/search</a> / getTopItems</p>
-        <h1 id="function-gettopitems">Function: getTopItems()</h1>
-        <blockquote>
-        <p><strong>getTopItems</strong>(<code>opts?</code>):
-        <code>Promise</code>&lt;<a
-        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/87dd79c95b84837a81f431d15bcdbf6188d5ed1a/frontend/src/api/analytics/search.ts#L21">api/analytics/search.ts:21</a></p>
-        <p>Fetch a small list of items for dropdowns; optionally scoped
-        to a supplier.</p>
-        <h2 id="parameters">Parameters</h2>
-        <h3 id="opts">opts?</h3>
-        <h4 id="limit">limit?</h4>
-        <p><code>number</code></p>
-        <h4 id="supplierid">supplierId?</h4>
-        <p><code>string</code></p>
-        <h2 id="returns">Returns</h2>
-        <p><code>Promise</code>&lt;<a
-        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
+        <p><a href="../../../README.html">frontend</a> /
+        api/shared/itemSearch</p>
+        <h1 id="apishareditemsearch">api/shared/itemSearch</h1>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>Co-located here (rather than under analytics, where they
+        originated) because both the inventory type-ahead hook
+        (useItemSearchQuery) and the analytics PriceTrendCard consume
+        them. A single physical home removes the cross-layer import that
+        previously had an inventory hook reaching into the analytics
+        module.</li>
+        <li>The backend's search parameter name is not stable (search |
+        q | query | name). The first name that yields results is cached
+        in INVENTORY_SEARCH_PARAM for the session so subsequent
+        keystrokes do not re-probe. This is module-level mutable state;
+        tracked under ST-APP18 for a future review of whether a session
+        cache belongs in a shared module.</li>
+        <li>Supplier-scoped search never silently downgrades to a global
+        search: an empty result for a supplier is returned as empty, not
+        refilled with cross-supplier rows.</li>
+        <li>Every function returns [] on any error to keep type-ahead
+        UIs functional rather than throwing into a render path.</li>
+        </ul>
+        <h2 id="functions">Functions</h2>
+        <ul>
+        <li><a href="functions/clientFilter.html">clientFilter</a></li>
+        <li><a
+        href="functions/normalizeItemsList.html">normalizeItemsList</a></li>
+        <li><a
+        href="functions/searchItemsForSupplier.html">searchItemsForSupplier</a></li>
+        <li><a
+        href="functions/searchItemsGlobal.html">searchItemsGlobal</a></li>
+        </ul>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-gettopitems"
-      id="toc-function-gettopitems">Function: getTopItems()</a>
+      <li><a href="#apishareditemsearch"
+      id="toc-apishareditemsearch">api/shared/itemSearch</a>
       <ul>
-      <li><a href="#parameters" id="toc-parameters">Parameters</a>
-      <ul>
-      <li><a href="#opts" id="toc-opts">opts?</a></li>
-      </ul></li>
-      <li><a href="#returns" id="toc-returns">Returns</a></li>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
+      <li><a href="#functions" id="toc-functions">Functions</a></li>
       </ul></li>
       </ul>
     </nav>

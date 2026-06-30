@@ -122,15 +122,15 @@ inventory/hooks/useItemSearchQuery/functions/useItemSearchQuery · Smart Supply 
         <blockquote>
         <p><strong>useItemSearchQuery</strong>(<code>selectedSupplier</code>,
         <code>searchQuery</code>): <code>UseQueryResult</code>&lt;<a
-        href="../../../../analytics/types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[],
+        href="../../../../shared/types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[],
         <code>Error</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/87dd79c95b84837a81f431d15bcdbf6188d5ed1a/frontend/src/api/inventory/hooks/useItemSearchQuery.ts#L42">api/inventory/hooks/useItemSearchQuery.ts:42</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/a4f594d534b029dd7f616421b5bb7f6201c4d663/frontend/src/api/inventory/hooks/useItemSearchQuery.ts#L42">api/inventory/hooks/useItemSearchQuery.ts:42</a></p>
         <p>Type-ahead item search scoped to the selected supplier.</p>
         <p>Fetches up to 500 candidates from
         <code>GET /api/inventory</code> via <a
-        href="../../../../analytics/search/functions/searchItemsForSupplier.html">searchItemsForSupplier</a>,
+        href="../../../../shared/itemSearch/functions/searchItemsForSupplier.html">searchItemsForSupplier</a>,
         then applies a client-side filter to remove items belonging to
         other suppliers. The backend does not reliably honour
         <code>supplierId</code> as a search-time filter; the dedicated
@@ -157,7 +157,7 @@ inventory/hooks/useItemSearchQuery/functions/useItemSearchQuery · Smart Supply 
         keystroke.</p>
         <h2 id="returns">Returns</h2>
         <p><code>UseQueryResult</code>&lt;<a
-        href="../../../../analytics/types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[],
+        href="../../../../shared/types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[],
         <code>Error</code>&gt;</p>
         <p>React Query result whose <code>data</code> is an
         <code>ItemOption[]</code> scoped to the selected supplier.</p>
