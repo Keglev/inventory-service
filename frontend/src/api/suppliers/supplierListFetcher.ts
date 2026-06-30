@@ -8,7 +8,7 @@
  * @enterprise
  * - Backend returns a plain JSON array (List<SupplierDTO>) — no Spring Page envelope, no server-side pagination.
  * - page/pageSize/q/sort are forwarded as query params but are not processed server-side.
- * - extractArray and pickNumber are borrowed from api/inventory/utils — not supplier-owned helpers.
+ * - extractArray and pickNumber are borrowed from api/shared — not supplier-owned helpers.
  * - On network failure the fetcher returns an empty page so the UI degrades cleanly rather than throwing.
  */
 

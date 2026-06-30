@@ -51,7 +51,7 @@ describe('errorMessage', () => {
 
       expect(errorMessage(forbidden)).toBe('Access denied - Admin permission required');
       expect(errorMessage(unauthorized)).toBe('Not authenticated - Please log in');
-      expect(errorMessage(notFound)).toBe('Item not found');
+      expect(errorMessage(notFound)).toBe('Not found');
       expect(errorMessage(conflict)).toBe('Conflict - Name already exists');
       expect(errorMessage(badRequest)).toBe('Invalid input');
     });

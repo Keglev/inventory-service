@@ -6,7 +6,7 @@
  * Converts raw SupplierDTO objects from GET /api/suppliers into strongly-typed SupplierRow values.
  *
  * @enterprise
- * - pickString and pickNumber are borrowed from api/inventory/utils — not supplier-owned helpers.
+ * - pickString and pickNumber are borrowed from api/shared — not supplier-owned helpers.
  * - Returns null for any DTO missing id or name so callers can filter invalid records without throwing.
  * - id is coerced from number to string defensively; the backend declares id as String but raw JSON
  *   may emit it as a number in legacy or test fixtures.

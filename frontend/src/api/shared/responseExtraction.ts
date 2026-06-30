@@ -6,7 +6,7 @@
  * Page responses (content key), arbitrary key envelopes (items, results), and
  * any other record shape the caller supplies key names for. Both functions
  * return safe defaults ({} / []) rather than throwing when the expected shape
- * is absent. Re-exported through api/inventory/utils and consumed by both the
+ * is absent. Consumed by both the
  * inventory and supplier API layers.
  */
 

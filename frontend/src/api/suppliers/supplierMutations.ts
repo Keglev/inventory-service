@@ -6,7 +6,7 @@
  * POST / PUT / DELETE operations for the supplier resource.
  *
  * @enterprise
- * - errorMessage is borrowed from api/inventory/utils — not a supplier-owned helper.
+ * - errorMessage is borrowed from api/shared — not a supplier-owned helper.
  * - Error shape from the backend is {error, message, timestamp}; errorMessage extracts the message field.
  * - All three functions return {success, error?} so callers never need to catch; errors surface as strings.
  */

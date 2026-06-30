@@ -6,7 +6,7 @@
  * value to already be a string — it never coerces. The *FromList variants try
  * keys in priority order to handle backend field-name variations. All functions
  * return undefined rather than throwing on missing or invalid fields.
- * Re-exported through api/inventory/utils and consumed by both the inventory
+ * Consumed by both the inventory
  * and supplier API layers.
  */
 

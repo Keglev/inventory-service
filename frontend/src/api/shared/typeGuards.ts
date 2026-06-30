@@ -2,7 +2,7 @@
  * @module api/shared/typeGuards
  *
  * Type narrowing helpers for safe type checking.
- * Re-exported through api/inventory/utils, which is consumed by
+ * Consumed by
  * both the inventory and supplier API layers.
  */
 

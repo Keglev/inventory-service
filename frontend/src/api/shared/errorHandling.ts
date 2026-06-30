@@ -44,7 +44,7 @@ export const errorMessage = (e: unknown): string => {
     // HTTP status-specific fallbacks when backend sends no body message
     if (status === 403) return 'Access denied - Admin permission required';
     if (status === 401) return 'Not authenticated - Please log in';
-    if (status === 404) return 'Item not found';
+    if (status === 404) return 'Not found';
     if (status === 409) return 'Conflict - Name already exists';
     if (status === 400) return 'Invalid input';
   }
