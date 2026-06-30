@@ -1,0 +1,59 @@
+SECTION 1 — New import lines per file
+======================================
+
+itemMutations.test.ts:
+  36: import { deleteItem, renameItem, upsertItem } from '../../../../api/inventory/itemMutations';
+  37: import { INVENTORY_BASE } from '@/api/shared';
+
+priceMutations.test.ts:
+  23: import { changePrice } from '../../../../api/inventory/priceMutations';
+  24: import { INVENTORY_BASE } from '@/api/shared';
+
+stockMutations.test.ts:
+  23: import { adjustQuantity } from '../../../../api/inventory/stockMutations';
+  24: import { INVENTORY_BASE } from '@/api/shared';
+
+supplierQueries.test.ts:
+  23: import {
+  24:   listSuppliers,
+  25:   searchItemsBySupplier,
+  26:   SUPPLIERS_BASE,
+  27: } from '../../../../api/inventory/supplierQueries';
+  28: import { INVENTORY_BASE } from '@/api/shared';
+
+
+SECTION 2 — grep INVENTORY_BASE across src/__tests__/
+======================================================
+All 11 occurrences across 4 files:
+
+priceMutations.test.ts:24:  import { INVENTORY_BASE } from '@/api/shared';          [IMPORT — canonical]
+priceMutations.test.ts:44:  `${INVENTORY_BASE}/ITEM%201/price`,                      [USAGE — template literal]
+
+itemMutations.test.ts:37:   import { INVENTORY_BASE } from '@/api/shared';           [IMPORT — canonical]
+itemMutations.test.ts:84:   `${INVENTORY_BASE}`,                                     [USAGE — template literal]
+itemMutations.test.ts:96:   `${INVENTORY_BASE}/ITEM-1`,                              [USAGE — template literal]
+itemMutations.test.ts:122:  `${INVENTORY_BASE}/ITEM%201/name`,                       [USAGE — template literal]
+itemMutations.test.ts:148:  `${INVENTORY_BASE}/ITEM%201`,                            [USAGE — template literal]
+
+supplierQueries.test.ts:28: import { INVENTORY_BASE } from '@/api/shared';           [IMPORT — canonical]
+supplierQueries.test.ts:92: `${INVENTORY_BASE}/search`,                              [USAGE — template literal]
+
+stockMutations.test.ts:24:  import { INVENTORY_BASE } from '@/api/shared';           [IMPORT — canonical]
+stockMutations.test.ts:44:  `${INVENTORY_BASE}/ITEM%201/quantity`,                   [USAGE — template literal]
+
+Result: ZERO references to any per-module path (itemMutations, priceMutations,
+stockMutations, supplierQueries) for INVENTORY_BASE. All imports resolve to '@/api/shared'.
+
+
+SECTION 3 — supplierQueries.test.ts multi-line import block check
+==================================================================
+Current import block (lines 23-27):
+
+  import {
+    listSuppliers,
+    searchItemsBySupplier,
+    SUPPLIERS_BASE,
+  } from '../../../../api/inventory/supplierQueries';
+
+INVENTORY_BASE is NOT present inside this block. PASS.
+INVENTORY_BASE now appears only on line 28 as a separate import from '@/api/shared'.

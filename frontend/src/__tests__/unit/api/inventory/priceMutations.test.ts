@@ -20,7 +20,8 @@ vi.mock('../../../../api/httpClient', () => ({
 }));
 
 import http from '../../../../api/httpClient';
-import { changePrice, INVENTORY_BASE } from '../../../../api/inventory/priceMutations';
+import { changePrice } from '../../../../api/inventory/priceMutations';
+import { INVENTORY_BASE } from '@/api/shared';
 
 type HttpMock = {
   patch: ReturnType<typeof vi.fn>;

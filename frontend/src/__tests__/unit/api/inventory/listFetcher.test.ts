@@ -23,9 +23,13 @@ vi.mock('../../../../api/inventory/rowNormalizers', () => ({
   toInventoryRow: vi.fn(),
 }));
 
-vi.mock('@/api/shared', () => ({
-  pickNumber: vi.fn(),
-}));
+vi.mock('@/api/shared', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/api/shared')>();
+  return {
+    ...actual,
+    pickNumber: vi.fn(),
+  };
+});
 
 import http from '../../../../api/httpClient';
 import { toInventoryRow } from '../../../../api/inventory/rowNormalizers';

@@ -24,8 +24,8 @@ import {
   listSuppliers,
   searchItemsBySupplier,
   SUPPLIERS_BASE,
-  INVENTORY_BASE,
 } from '../../../../api/inventory/supplierQueries';
+import { INVENTORY_BASE } from '@/api/shared';
 
 type HttpMock = {
   get: ReturnType<typeof vi.fn>;

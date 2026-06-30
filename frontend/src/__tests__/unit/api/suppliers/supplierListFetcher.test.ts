@@ -23,10 +23,14 @@ vi.mock('@/api/suppliers/supplierNormalizers', () => ({
   toSupplierRow: vi.fn(),
 }));
 
-vi.mock('@/api/shared', () => ({
-  pickNumber: vi.fn(),
-  extractArray: vi.fn(),
-}));
+vi.mock('@/api/shared', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/api/shared')>();
+  return {
+    ...actual,
+    pickNumber: vi.fn(),
+    extractArray: vi.fn(),
+  };
+});
 
 import http from '@/api/httpClient';
 import { toSupplierRow } from '@/api/suppliers/supplierNormalizers';

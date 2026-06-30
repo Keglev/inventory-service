@@ -10,10 +10,9 @@
 import http from '../httpClient';
 import { normalizeInventoryRow } from './normalizers';
 import type { UpsertItemRequest, UpsertItemResponse } from './types';
-import { errorMessage } from '@/api/shared';
+import { errorMessage, INVENTORY_BASE } from '@/api/shared';
 
-/** Centralized endpoint base (adjust to match your controller if needed). */
-export const INVENTORY_BASE = '/api/inventory';
+export { INVENTORY_BASE };
 
 /**
  * Collapses POST (create) and PUT (update) into one call — presence of `id` selects the verb.

@@ -8,9 +8,9 @@
 
 import http from '../httpClient';
 import type { ChangePriceRequest } from './types';
+import { INVENTORY_BASE } from '@/api/shared';
 
-/** Centralized endpoint base. */
-export const INVENTORY_BASE = '/api/inventory';
+export { INVENTORY_BASE };
 
 /**
  * Sends the new unit price to PATCH /api/inventory/{id}/price via query param.

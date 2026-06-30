@@ -6,17 +6,13 @@
  * GET /api/inventory/search for supplier-scoped item type-ahead.
  * Both functions absorb response-shape variations and never throw,
  * making them safe to use directly with React Query without extra guards.
- *
- * Note: INVENTORY_BASE is duplicated from other inventory modules;
- * consolidation is a deferred structural item.
  */
 
 import http from '../httpClient';
 import type { ItemRef } from '../analytics/types';
-import { isRecord, pickString, pickNumber, resDataOrEmpty, extractArray } from '@/api/shared';
+import { isRecord, pickString, pickNumber, resDataOrEmpty, extractArray, INVENTORY_BASE } from '@/api/shared';
 
-/** Inventory API base path; duplicated from other inventory modules pending a shared constants file. */
-export const INVENTORY_BASE = '/api/inventory';
+export { INVENTORY_BASE };
 /** Suppliers domain API base path. */
 export const SUPPLIERS_BASE = '/api/suppliers';
 

@@ -8,9 +8,9 @@
 
 import http from '../httpClient';
 import type { AdjustQuantityRequest } from './types';
+import { INVENTORY_BASE } from '@/api/shared';
 
-/** Centralized endpoint base. */
-export const INVENTORY_BASE = '/api/inventory';
+export { INVENTORY_BASE };
 
 /**
  * Records a stock quantity change via PATCH /api/inventory/{id}/quantity.
