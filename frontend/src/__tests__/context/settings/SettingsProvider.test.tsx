@@ -22,7 +22,7 @@ import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { SettingsProvider } from '../../../context/settings/SettingsContext';
-import { useSettings } from '../../../context/settings/useSettings';
+import { useSettings } from '@/hooks/useSettings';
 
 const i18nMock = vi.hoisted(() => ({ language: 'en' }));
 const getSystemInfoMock = vi.hoisted(() => vi.fn());

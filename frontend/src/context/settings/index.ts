@@ -12,6 +12,5 @@
  *   features.
  */
 export { SettingsProvider, SettingsContext } from './SettingsContext';
-export { useSettings } from './useSettings';
 export type { DateFormat, NumberFormat, TableDensity, UserPreferences, SystemInfo, SettingsContextType } from './SettingsContext.types';
 export { getDefaultPreferences, loadPreferencesFromStorage, savePreferencesToStorage, clearPreferencesFromStorage } from './SettingsStorage';

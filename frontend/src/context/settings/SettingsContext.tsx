@@ -21,10 +21,9 @@
  *   (database: 'Oracle ADB', environment: 'production'). These ship to the UI
  *   as assertions — particularly suspect because fetch failures are more likely
  *   in dev. → CB-APP32.
- * - Consumed via useSettings — note the TWIN: hooks/useSettings.ts is the
- *   factory-built consumer hook with 16 production call sites;
- *   context/settings/useSettings.ts (sibling in this directory) is structurally
- *   a duplicate with 0 production consumers (test-only). → ST-APP9.
+ * - Consumed via hooks/useSettings.ts — the factory-built consumer hook with
+ *   16 production call sites. The former sibling duplicate
+ *   context/settings/useSettings.ts has been removed. → ST-APP9.
  */
 
 import * as React from 'react';
