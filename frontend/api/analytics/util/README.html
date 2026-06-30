@@ -117,6 +117,17 @@ analytics/util/README · Smart Supply Pro · API</title>
         <p><a href="../../../README.html">frontend</a> /
         api/analytics/util</p>
         <h1 id="apianalyticsutil">api/analytics/util</h1>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>pickString/pickNumber here are a multi-key,
+        default-returning family (try a list of keys, return ''/0 on
+        miss), distinct by design from the single-key,
+        undefined-returning pickString/pickNumber in @/api/shared. The
+        two families are partitioned by directory and never imported
+        into the same module, so the shared name carries no collision
+        risk. Kept separate intentionally (ST-APP17-w3b, closed by
+        decision) -- do not consolidate; the contracts differ.</li>
+        </ul>
         <h2 id="type-aliases">Type Aliases</h2>
         <ul>
         <li><a href="type-aliases/Rec.html">Rec</a></li>
@@ -139,6 +150,7 @@ analytics/util/README · Smart Supply Pro · API</title>
       <li><a href="#apianalyticsutil"
       id="toc-apianalyticsutil">api/analytics/util</a>
       <ul>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       <li><a href="#type-aliases" id="toc-type-aliases">Type
       Aliases</a></li>
       <li><a href="#functions" id="toc-functions">Functions</a></li>
