@@ -18,11 +18,11 @@ vi.mock('@tanstack/react-query', () => ({
 }));
 
 vi.mock('@/api/suppliers/supplierListFetcher', () => ({
-  getSuppliersPage: vi.fn(),
+  getSupplierById: vi.fn(),
 }));
 
 import { useQuery } from '@tanstack/react-query';
-import { getSuppliersPage } from '@/api/suppliers/supplierListFetcher';
+import { getSupplierById } from '@/api/suppliers/supplierListFetcher';
 import { useSupplierByIdQuery } from '@/api/suppliers/hooks/useSupplierByIdQuery';
 import type { SupplierRow } from '@/api/suppliers/types';
 import {
@@ -31,12 +31,12 @@ import {
 } from '../../../utils/reactQueryCapture';
 
 const useQueryMock = useQuery as unknown as ReturnType<typeof vi.fn>;
-const getSuppliersPageMock = getSuppliersPage as ReturnType<typeof vi.fn>;
+const getSupplierByIdMock = getSupplierById as ReturnType<typeof vi.fn>;
 
 describe('useSupplierByIdQuery', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
-    getSuppliersPageMock.mockReset();
+    getSupplierByIdMock.mockReset();
   });
 
   it('builds query configuration and surfaces the matching supplier row', async () => {
@@ -45,15 +45,7 @@ describe('useSupplierByIdQuery', () => {
       { data: null },
     );
 
-    getSuppliersPageMock.mockResolvedValue({
-      items: [
-        { id: 'SUP-1', name: 'Acme Supply Co.' },
-        { id: 'SUP-2', name: 'Beta Parts' },
-      ],
-      total: 2,
-      page: 1,
-      pageSize: 100,
-    });
+    getSupplierByIdMock.mockResolvedValue({ id: 'SUP-1', name: 'Acme Supply Co.' });
 
     const hookReturn = useSupplierByIdQuery('SUP-1');
 
@@ -68,11 +60,7 @@ describe('useSupplierByIdQuery', () => {
 
     const resolved = await capturedConfig.queryFn();
     expect(resolved).toEqual({ id: 'SUP-1', name: 'Acme Supply Co.' });
-    expect(getSuppliersPageMock).toHaveBeenCalledWith({
-      page: 1,
-      pageSize: 100,
-      q: 'SUP-1',
-    });
+    expect(getSupplierByIdMock).toHaveBeenCalledWith('SUP-1');
     expect(hookReturn).toBe(queryResult);
   });
 
@@ -90,6 +78,6 @@ describe('useSupplierByIdQuery', () => {
       queryKey: ['suppliers', 'byId', 'SUP-9'],
       enabled: false,
     });
-    expect(getSuppliersPageMock).not.toHaveBeenCalled();
+    expect(getSupplierByIdMock).not.toHaveBeenCalled();
   });
 });

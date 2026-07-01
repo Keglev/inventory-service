@@ -6,14 +6,13 @@
  * React Query hook that loads a single supplier by ID, used in edit dialogs and detail views.
  *
  * @enterprise
- * - A dedicated GET /api/suppliers/:id exists (SupplierController.getById) but this hook does not
- *   use it — it loads the list via getSuppliersPage and finds the row client-side, which works but
- *   is inefficient.
+ * - Loads a single supplier via the dedicated GET /api/suppliers/:id
+ *   (SupplierController.getById), not by scanning the full list.
  * - Returns null (not an error) when the supplier is not found, so callers can handle gracefully.
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { getSuppliersPage } from '../supplierListFetcher';
+import { getSupplierById } from '../supplierListFetcher';
 import type { SupplierRow } from '../types';
 
 /**
@@ -39,14 +38,7 @@ export const useSupplierByIdQuery = (
     queryFn: async () => {
       if (!supplierId) return null;
 
-      // BUCKET: switch to the existing GET /api/suppliers/:id instead of scanning the full list (B#5)
-      const response = await getSuppliersPage({
-        page: 1,
-        pageSize: 100,
-        q: supplierId,
-      });
-
-      return response.items.find((s) => s.id === supplierId) ?? null;
+      return await getSupplierById(supplierId);
     },
     enabled: enabled && !!supplierId,
     staleTime: 60_000,  // 1 min

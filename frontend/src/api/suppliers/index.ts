@@ -11,7 +11,7 @@
  */
 
 // list fetcher and endpoint constant
-export { getSuppliersPage, searchSuppliersByName, SUPPLIERS_BASE } from './supplierListFetcher';
+export { getSuppliersPage, searchSuppliersByName, getSupplierById, SUPPLIERS_BASE } from './supplierListFetcher';
 
 // create / update / delete
 export { createSupplier, updateSupplier, deleteSupplier } from './supplierMutations';
