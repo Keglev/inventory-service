@@ -23,24 +23,12 @@ vi.mock('@/api/suppliers/supplierNormalizers', () => ({
   toSupplierRow: vi.fn(),
 }));
 
-vi.mock('@/api/shared', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/api/shared')>();
-  return {
-    ...actual,
-    pickNumber: vi.fn(),
-    extractArray: vi.fn(),
-  };
-});
-
 import http from '@/api/httpClient';
 import { toSupplierRow } from '@/api/suppliers/supplierNormalizers';
-import { pickNumber, extractArray } from '@/api/shared';
 import { getSuppliersPage, SUPPLIERS_BASE } from '@/api/suppliers/supplierListFetcher';
 
 const httpMock = http as unknown as { get: ReturnType<typeof vi.fn> };
 const toSupplierRowMock = toSupplierRow as ReturnType<typeof vi.fn>;
-const pickNumberMock = pickNumber as ReturnType<typeof vi.fn>;
-const extractArrayMock = extractArray as ReturnType<typeof vi.fn>;
 
 describe('getSuppliersPage', () => {
   const params = { page: 1, pageSize: 25, q: 'acme', sort: 'name,asc' } as const;
@@ -73,23 +61,6 @@ describe('getSuppliersPage', () => {
       });
     });
 
-    it('prefers totalElements when available and tolerates envelope formats', async () => {
-      extractArrayMock.mockReturnValue([{ id: 'SUP-2' }]);
-      httpMock.get.mockResolvedValue({
-        data: { content: [{ id: 'SUP-2' }], totalElements: 15, total: 99 },
-      });
-      toSupplierRowMock.mockReturnValue({ id: 'SUP-2' });
-      pickNumberMock.mockImplementation((_, key) => (key === 'totalElements' ? 15 : 99));
-
-      const result = await getSuppliersPage({ page: 2, pageSize: 10 });
-
-      expect(result).toEqual({
-        items: [{ id: 'SUP-2' }],
-        total: 15,
-        page: 2,
-        pageSize: 10,
-      });
-    });
   });
 
   describe('failure paths', () => {

@@ -7,40 +7,30 @@
  *
  * @enterprise
  * - Backend returns a plain JSON array (List<SupplierDTO>) — no Spring Page envelope, no server-side pagination.
- * - page/pageSize/q/sort are forwarded as query params but are not processed server-side.
- * - extractArray and pickNumber are borrowed from api/shared — not supplier-owned helpers.
+ * - page/pageSize/q/sort are forwarded as query params but are ignored server-side (tracked as CB-P1 / CB-APP67).
  * - On network failure the fetcher returns an empty page so the UI degrades cleanly rather than throwing.
  */
 
 import http from '../httpClient';
 import type { SupplierListParams, SupplierListResponse, SupplierRow } from './types';
 import { toSupplierRow } from './supplierNormalizers';
-import { pickNumber, extractArray } from '@/api/shared';
 
 /** Centralized endpoint base. */
 export const SUPPLIERS_BASE = '/api/suppliers';
 
 /**
  * Extracts the raw DTO array from the GET /api/suppliers response body.
+ * The backend returns a plain array, so a non-array body yields [].
  *
- * @param data - Response body from GET /api/suppliers; expected to be a bare JSON array.
+ * @param data - Response body from GET /api/suppliers (a bare JSON array).
  * @returns Array of raw DTO objects to normalize
- *
- * @backend GET /api/suppliers returns a plain array — the `Array.isArray` branch is the only live path.
- * @note The `content` / `items` / `results` object-key fallbacks via extractArray are defensive dead code
- *   for the current backend; retained in case the endpoint shape ever changes.
  *
  * @example
  * ```typescript
  * const rows = extractSupplierRows(response.data);
  * ```
  */
-const extractSupplierRows = (data: unknown): unknown[] => {
-  if (Array.isArray(data)) return data;
-  if (typeof data !== 'object' || data === null) return [];
-
-  return extractArray(data, ['content', 'items', 'results']); // BUCKET: object-key paths unreachable; backend returns a plain array only (B#1)
-};
+const extractSupplierRows = (data: unknown): unknown[] => (Array.isArray(data) ? data : []);
 
 /**
  * Fetches suppliers from GET /api/suppliers and returns a SupplierListResponse envelope.
@@ -110,23 +100,8 @@ export const getSuppliersPage = async (
       .map(toSupplierRow)
       .filter((r): r is Exclude<ReturnType<typeof toSupplierRow>, null> => r !== null);
 
-    // Backend returns a plain array so total is always data.length; the object branch is dead code for the current backend.
-    let total = 0;
-    if (Array.isArray(data)) {
-      total = data.length;
-    } else if (typeof data === 'object' && data !== null) {
-      const r = data as Record<string, unknown>;
-      const totalElements = pickNumber(r, 'totalElements'); // BUCKET: totalElements never present; GET /api/suppliers is not a Spring Page (B#2)
-      const totalField = pickNumber(r, 'total'); // BUCKET: total field absent from backend response shape (B#3)
-
-      if (typeof totalElements === 'number') {
-        total = totalElements;
-      } else if (typeof totalField === 'number') {
-        total = totalField;
-      } else {
-        total = rowsRaw.length;
-      }
-    }
+    // Backend returns a plain array, so total is the row count.
+    const total = rowsRaw.length;
 
     return {
       items,
