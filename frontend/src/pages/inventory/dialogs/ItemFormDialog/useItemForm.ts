@@ -27,12 +27,10 @@
  *   LowStockTable's critical chip and useInventoryRowStyling.
  *   Tracked under CB-APP42 -- this is the fourth site of the literal
  *   5; extract to a shared constant in the refactor phase.
- * - createdBy is hardcoded to 'user'. The backend should overwrite
- *   this from the authenticated session, so the literal is effectively
- *   ignored, but the placeholder is misleading at the call site.
- *   Tracked under CB-APP53 -- verify backend overwrite, then either
- *   drop the field from the client payload or pull the real user from
- *   AuthContext.
+ * - createdBy is intentionally not sent. The backend always sets it
+ *   from the authenticated session (server-authoritative audit field),
+ *   so any client value is ignored; sending a placeholder was
+ *   misleading and has been removed.
  * - applyServerError uses substring matching on the freeform backend
  *   error text (duplicate / exists / name / code / sku / supplier) to
  *   choose between field-level and form-level errors. Same fragile
@@ -237,7 +235,7 @@ export function useItemForm({
    * @enterprise
    * - Honors readOnly (demo mode) flag
    * - Maps form values to UpsertItemRequest (reason -> notes, onHand -> quantity)
-   * - Auto-sets minQty to 5 and createdBy to 'user'
+   * - Auto-sets minQty to 5
    * - Maps field-level and generic errors from backend
    * - Triggers onSaved callback and closes on success
    */
@@ -261,8 +259,6 @@ export function useItemForm({
       // BUCKET: CB-APP42 -- duplicated low-stock threshold (5). Extract to shared constant.
       minQty: 5,
       notes: values.reason,
-      // BUCKET: CB-APP53 -- hardcoded placeholder. Verify backend overwrite from session, then drop field or wire to AuthContext.
-      createdBy: 'user',
     };
 
     const res = await upsertItem(requestData);

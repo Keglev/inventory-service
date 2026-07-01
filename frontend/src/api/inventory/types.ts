@@ -86,8 +86,6 @@ export interface UpsertItemRequest {
   minQty?: number | null;
   /** Notes/reason for creation */
   notes?: string | null;
-  /** Audit field; always populated by the form layer before submission. */
-  createdBy?: string;
 }
 
 /**
