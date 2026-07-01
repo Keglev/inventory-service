@@ -3,43 +3,33 @@
  * @module pages/inventory/handlers/useRefreshHandler
  *
  * @summary
- * Refresh handler for the inventory board's reload button.
+ * Refresh handler for the inventory board's reload button and for the
+ * success callback shared by all six inventory mutation dialogs.
  *
  * @enterprise
- * - Refresh triggers a refetch by mutating paginationModel back to
- *   page 0. This relies on useInventoryPageData's effect dependency on
- *   serverPage to re-fire the load. Tracked under CB-APP46: when the
- *   user is already on page 0, paginationModel does not actually
- *   change (React bails out on the setter), so the refresh button is
- *   a no-op on the first page. The proper fix is a dedicated
- *   invalidation path (e.g. a refetch ref or a query-cache invalidation)
- *   rather than piggy-backing on pagination.
- * - pageSize is preserved across the reset so the user's row-density
- *   preference survives the refresh.
+ * - Refresh calls a dedicated reload function that re-runs the current
+ *   inventory query directly. It no longer pokes paginationModel back to
+ *   page 0: that approach silently no-opped when the user was already on
+ *   page 0 (React bails on an equal setState), so the refresh button and
+ *   every mutation-success callback failed to refetch on the first page.
+ * - The reload preserves the user's current page, page size, and filters,
+ *   so a mutation refetches the view the user is looking at rather than
+ *   jumping them back to the first page.
  */
 
 import { useCallback } from 'react';
-import type { InventoryState, InventoryStateSetters } from '../hooks/useInventoryState';
-
-type InventoryStateReturn = InventoryState & InventoryStateSetters;
 
 /**
- * Hook providing data refresh handler.
+ * Hook providing the data refresh handler.
  *
- * Triggers data reload by resetting pagination to first page.
- * This causes useInventoryPageData to refetch data.
- *
- * @param state - Inventory board state object
- * @returns Object with handler function for refresh action
+ * @param reload - Refetch function from the data-fetching hook that re-runs
+ *   the current inventory query.
+ * @returns Object with the handler function for the refresh action.
  */
-export function useRefreshHandler(state: InventoryStateReturn) {
+export function useRefreshHandler(reload: () => void) {
   const handleReload = useCallback(() => {
-    // Trigger data reload by resetting pagination
-    // Since hooks can't be called conditionally, reload happens via dependency changes
-    // Force reload by resetting pagination to first page
-    // BUCKET: CB-APP46 -- no-op on page 0. React bails out when the new state equals the current state, so the refetch never fires.
-    state.setPaginationModel({ page: 0, pageSize: state.paginationModel.pageSize });
-  }, [state]);
+    reload();
+  }, [reload]);
 
   return {
     handleReload,

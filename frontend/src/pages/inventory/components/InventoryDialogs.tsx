@@ -17,10 +17,10 @@
  *   two instances is redundant. Tracked under CB-APP64 -- collapse to
  *   one instance with mode keyed off `initial` in the refactor phase.
  * - onReload is the single refresh path used by all six dialogs. It
- *   wires to useRefreshHandler in the parent, which triggers a refetch
- *   by resetting paginationModel -- and is a no-op when the user is
- *   already on page 0 (CB-APP46). Every successful inventory mutation
- *   currently exhibits this silent-no-refresh edge case on page 0.
+ *   wires to useRefreshHandler in the parent, which re-runs the current
+ *   inventory query directly via the data hook's reload rather than
+ *   resetting paginationModel, so refresh works on page 0 as well as
+ *   any other page.
  * - isDemo flows through to readOnly on the three dialogs that
  *   support it (delete, quantity-adjust, price-change). Edit and
  *   rename do not currently honor demo mode -- the dialog props

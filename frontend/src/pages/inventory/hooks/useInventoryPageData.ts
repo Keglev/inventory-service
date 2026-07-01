@@ -60,6 +60,9 @@ export interface InventoryPageDataResult {
 
   // Row styling function
   getRowClassName: (onHand: number, minQty: number) => string;
+
+  // Explicit refetch of the current query (page/size/filters preserved)
+  reload: () => void;
 }
 
 /**
@@ -134,6 +137,14 @@ export const useInventoryPageData = (
     }
   }, [supplierId, load]);
 
+  // Explicit refresh path. Re-runs the current query directly rather than
+  // poking paginationModel back to page 0, which no-opped when the user was
+  // already on page 0 (React bails on an equal setState). Guarded on
+  // supplierId to preserve the "no supplier -> no unfiltered fetch" invariant.
+  const reload = React.useCallback(() => {
+    if (supplierId) void load();
+  }, [supplierId, load]);
+
   // Client-side filtering by supplier (fallback)
   const supplierFiltered = React.useMemo(() => {
     if (!supplierId) return server.items;
@@ -173,5 +184,6 @@ export const useInventoryPageData = (
     filteredItems,
     columns,
     getRowClassName,
+    reload,
   };
 };

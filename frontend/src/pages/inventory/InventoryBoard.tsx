@@ -77,12 +77,15 @@ const InventoryBoard: React.FC = () => {
   const { handleSearchChange, handleSupplierChange, handleBelowMinChange } =
     useFilterHandlers(state);
   const { handleRowClick, handlePaginationChange, handleSortChange } = useTableHandlers(state);
-  const { handleReload } = useRefreshHandler(state);
 
   // =====================
   // Data Fetching & Processing
   // =====================
   const data = useDataFetchingLogic(state);
+
+  // Refresh + all six mutation-success callbacks re-run the current query
+  // via the data hook's reload (fixes the page-0 no-op).
+  const { handleReload } = useRefreshHandler(data.reload);
 
   // =====================
   // Selected Row

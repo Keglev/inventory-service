@@ -105,6 +105,7 @@ vi.mock('@/pages/inventory/handlers', () => ({
       { id: 2, label: 'Supplier 2' },
     ],
     supplierLoading: false,
+    reload: vi.fn(),
   })),
 }));
 
