@@ -124,14 +124,15 @@ inventory/rowNormalizers/functions/toInventoryRow · Smart Supply Pro · API</ti
         | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/d3698f919648c877bac79f8a6ef2870df1704cbc/frontend/src/api/inventory/rowNormalizers.ts#L37">api/inventory/rowNormalizers.ts:37</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/760c36df14e49b4939eadeddf373adc487824e48/frontend/src/api/inventory/rowNormalizers.ts#L37">api/inventory/rowNormalizers.ts:37</a></p>
         <p>Normalize a raw API response object into a strongly-typed
         InventoryRow. Maps backend fields:</p>
         <ul>
         <li>id → itemId</li>
         <li>quantity → onHand</li>
         <li>minimumQuantity → minQty</li>
-        <li>createdAt → updatedAt</li>
+        <li>createdAt → createdAt (creation timestamp; backend has no
+        update field)</li>
         </ul>
         <h2 id="parameters">Parameters</h2>
         <h3 id="raw">raw</h3>

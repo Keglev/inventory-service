@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-inventory/rowFieldExtractors/functions/extractUpdatedAt · Smart Supply Pro · API</title>
+inventory/rowFieldExtractors/functions/extractCreatedAt · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -116,18 +116,20 @@ inventory/rowFieldExtractors/functions/extractUpdatedAt · Smart Supply Pro · A
         <hr />
         <p><a href="../../../../README.html">frontend</a> / <a
         href="../README.html">api/inventory/rowFieldExtractors</a> /
-        extractUpdatedAt</p>
-        <h1 id="function-extractupdatedat">Function:
-        extractUpdatedAt()</h1>
+        extractCreatedAt</p>
+        <h1 id="function-extractcreatedat">Function:
+        extractCreatedAt()</h1>
         <blockquote>
-        <p><strong>extractUpdatedAt</strong>(<code>raw</code>):
+        <p><strong>extractCreatedAt</strong>(<code>raw</code>):
         <code>string</code> | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/d3698f919648c877bac79f8a6ef2870df1704cbc/frontend/src/api/inventory/rowFieldExtractors.ts#L96">api/inventory/rowFieldExtractors.ts:96</a></p>
-        <p>"Last updated" timestamp. Backend has no updatedAt field; the
-        fallback chain surfaces the creation timestamp for the grid's
-        "last updated" column.</p>
+        href="https://github.com/Keglev/inventory-service/blob/760c36df14e49b4939eadeddf373adc487824e48/frontend/src/api/inventory/rowFieldExtractors.ts#L96">api/inventory/rowFieldExtractors.ts:96</a></p>
+        <p>Creation timestamp for the grid's "Created" column. The
+        backend (InventoryItemDTO) sends <code>createdAt</code>; the
+        alias list tolerates alternate creation-key spellings from
+        non-canonical producers. The backend model has no update
+        timestamp.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="raw">raw</h3>
         <p><code>Record</code>&lt;<code>string</code>,
@@ -140,9 +142,9 @@ inventory/rowFieldExtractors/functions/extractUpdatedAt · Smart Supply Pro · A
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-extractupdatedat"
-      id="toc-function-extractupdatedat">Function:
-      extractUpdatedAt()</a>
+      <li><a href="#function-extractcreatedat"
+      id="toc-function-extractcreatedat">Function:
+      extractCreatedAt()</a>
       <ul>
       <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
