@@ -56,9 +56,9 @@ describe('extractQuantities', () => {
   it('defaults onHand to 0 and minQty to null', () => {
     expect(extractQuantities({})).toEqual({ onHand: 0, minQty: null });
   });
-  it('reads onHand from any tolerated variant', () => {
-    expect(extractQuantities({ stock: 12 }).onHand).toBe(12);
+  it('reads onHand from the backend quantity field only', () => {
     expect(extractQuantities({ quantity: 3 }).onHand).toBe(3);
+    expect(extractQuantities({ stock: 12 }).onHand).toBe(0);
   });
 });
 

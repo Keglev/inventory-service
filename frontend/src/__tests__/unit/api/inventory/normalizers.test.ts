@@ -58,8 +58,8 @@ describe('normalizeInventoryRow', () => {
         itemCode: 'ALT-001',
         supplier_id: 'SUP-2',
         supplier: 'Bravo',
-        availableQuantity: '30',
-        reorderLevel: '7',
+        quantity: '30',
+        minimumQuantity: '7',
         createdDate: '2024-02-02T10:00:00Z',
       });
 
@@ -82,7 +82,7 @@ describe('normalizeInventoryRow', () => {
         id: 'ITEM-3',
         name: 'Numeric Supplier',
         supplierId: 123,
-        stockQuantity: 4,
+        quantity: 4,
       });
 
       expect(row).toEqual({

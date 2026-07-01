@@ -10,7 +10,7 @@
  * each backend-contract concern a single, testable touch point (ST-6).
  */
 
-import { pickString, pickNumber, pickNumberFromList, pickStringFromList } from '@/api/shared';
+import { pickString, pickNumber, pickStringFromList } from '@/api/shared';
 
 /** Required identity. Tries id / itemId / item_id; undefined when none present. */
 export function extractId(raw: Record<string, unknown>): string | undefined {
@@ -61,33 +61,14 @@ export function extractSupplier(raw: Record<string, unknown>): {
   return { supplierId, supplierName };
 }
 
-/** On-hand stock (defaults 0) and optional minimum/reorder level. */
+/** On-hand stock from backend `quantity` (defaults 0) and `minimumQuantity` (nullable). */
 export function extractQuantities(raw: Record<string, unknown>): {
   onHand: number;
   minQty: number | null;
 } {
-  const onHand = pickNumberFromList(raw, [
-    'quantity',
-    'onHand',
-    'availableQuantity',
-    'stockQuantity',
-    'stockQty',
-    'qty',
-    'currentQuantity',
-    'currentQty',
-    'quantityOnHand',
-    'onHandQuantity',
-    'stock',
-  ]) ?? 0;
+  const onHand = pickNumber(raw, 'quantity') ?? 0;
 
-  const minQty =
-    pickNumberFromList(raw, [
-      'minimumQuantity',
-      'minQty',
-      'min_quantity',
-      'minimum',
-      'reorderLevel',
-    ]) ?? null;
+  const minQty = pickNumber(raw, 'minimumQuantity') ?? null;
 
   return { onHand, minQty };
 }

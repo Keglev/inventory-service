@@ -47,8 +47,8 @@ describe('useItemDetailsQuery', () => {
         name: 'Precision Widget',
         code: 'SKU-9',
         supplierId: 42,
-        onHand: '7',
-        currentPrice: '19.50',
+        quantity: '7',
+        price: '19.50',
       },
     });
 
