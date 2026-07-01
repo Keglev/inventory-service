@@ -7,13 +7,11 @@
  * Delegates rendering to focused sub-components (header, sidebar, main).
  *
  * @enterprise
- * - Owns the only mutable copies of themeMode and locale; all sub-components receive them as props, enforcing top-down data flow.
- * - LocalStorage persistence lives here so no child needs storage access; they only see callbacks.
+ * - Theme mode, locale, localStorage persistence, and theme building are owned by useShellSettings; AppShell wires the resulting state and callbacks to sub-components, enforcing top-down data flow.
  * - Session keep-alive ping fires at shell level so it runs regardless of which page route is active.
  * - Single Snackbar instance prevents duplicate toasts from concurrent state changes across sub-components.
  * - Delegates all rendering to AppHeader, AppSidebar, AppMain — this file coordinates, not renders.
  */
-// BUCKET: file exceeds ~150-line guideline — review for extract/split (ST-APP2)
 
 import * as React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -24,35 +22,17 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSessionTimeout } from '../../features/auth';
 import { ToastContext } from '../../context/toast';
-import { buildTheme } from '../../theme';
-import type { SupportedLocale } from '../../theme';
 import { useAuth } from '../../hooks/useAuth';
-import { API_BASE } from '../../api/httpClient';
+import { useShellLogout } from './useShellLogout';
 import { AppSettingsDialog } from '../settings';
 import AppHeader from './AppHeader';
 import AppSidebar from './AppSidebar';
 import AppMain from './AppMain';
 import { getHelpTopicForRoute } from './navConfig';
-
-/* LocalStorage keys for persistence */
-const LS_THEME_KEY = 'themeMode';
-const LS_LANGUAGE_KEY = 'i18nextLng';
-
-/**
- * Normalize i18n language string to SupportedLocale enum.
- *
- * Converts language tags like 'de-DE' or 'en-US' to simple 'de' or 'en'.
- *
- * @param lng - Language string from i18n or localStorage
- * @returns Normalized locale ('de' or 'en')
- */
-function normalizeLocale(lng?: string): SupportedLocale {
-  return lng?.startsWith('en') ? 'en' : 'de';
-}
+import { useShellSettings } from './useShellSettings';
 
 /**
  * Application shell component.
@@ -72,117 +52,32 @@ function normalizeLocale(lng?: string): SupportedLocale {
  * @returns JSX element rendering the application shell layout
  */
 export default function AppShell() {
-  const { i18n } = useTranslation(['common', 'auth']);
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
-  const { user, logout } = useAuth(); 
+  const { user, logout } = useAuth();
   const isDemo = Boolean(user?.isDemo);
 
   // Get current help topic based on route
   const helpTopic = getHelpTopicForRoute(location.pathname);
 
-  /**
-   * Initialize locale from localStorage or i18n default.
-   * Listens to i18n language changes to keep state in sync.
-   */
-  const initial = normalizeLocale(localStorage.getItem(LS_LANGUAGE_KEY) || i18n.resolvedLanguage || 'de');
-  const [locale, setLocale] = React.useState<SupportedLocale>(initial);
+  // Toast notification state
+  const [toast, setToast] = React.useState<{
+    open: boolean;
+    msg: string;
+    severity: 'success' | 'info' | 'warning' | 'error';
+  } | null>(null);
 
-  React.useEffect(() => {
-    // Sync locale state with i18n language changes
-    const handler = (lng: string) => setLocale(normalizeLocale(lng));
-    i18n.on('languageChanged', handler);
-    return () => {
-      i18n.off('languageChanged', handler);
-    };
-  }, [i18n]);
+  // Emit a toast; shared by ToastContext consumers and the shell's own handlers.
+  const notify = (msg: string, severity: 'success' | 'info' | 'warning' | 'error' = 'success') =>
+    setToast({ open: true, msg, severity });
 
-  /**
-   * Initialize theme mode from localStorage.
-   * Defaults to 'light' if not previously set.
-   */
-  const [themeMode, setThemeMode] = React.useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem(LS_THEME_KEY) as 'light' | 'dark' | null;
-    return saved || 'light';
-  });
+  // Theme mode, locale, localStorage persistence, and the MUI theme.
+  const { locale, themeMode, theme, handleThemeModeChange, handleLocaleChange } =
+    useShellSettings(notify);
 
-  /**
-   * Build MUI theme object based on current locale and theme mode.
-   * Recreated when either locale or themeMode changes.
-   */
-  const theme = React.useMemo(() => buildTheme(locale, themeMode), [locale, themeMode]);
-
-  /**
-   * Apply a specific theme mode.
-   * Persists choice to localStorage and shows toast notification when mode changes.
-   */
-  const handleThemeModeChange = (nextMode: 'light' | 'dark') => {
-    setThemeMode((prev) => {
-      if (prev === nextMode) {
-        return prev;
-      }
-
-      localStorage.setItem(LS_THEME_KEY, nextMode);
-      setToast({
-        open: true,
-        // BUCKET: hardcoded string bypasses i18n — route through t() (CB-APP6)
-        msg: nextMode === 'dark' ? 'Dark mode enabled' : 'Light mode enabled',
-        severity: 'info',
-      });
-
-      return nextMode;
-    });
-  };
-
-  /**
-   * Change locale and sync with i18n.
-   * Persists choice to localStorage and shows toast notification.
-   */
-  const handleLocaleChange = (next: SupportedLocale) => {
-    localStorage.setItem(LS_LANGUAGE_KEY, next);
-    setLocale(next);
-    i18n.changeLanguage(next);
-    setToast({
-      open: true,
-      // BUCKET: hardcoded string bypasses i18n — route through t() (CB-APP6)
-      msg: next === 'de' ? 'Sprache: Deutsch' : 'Language: English',
-      severity: 'info',
-    });
-  };
-
-  /**
-   * Handle logout action.
-   * Clears client state and then triggers backend logout (for real users)
-   * or a simple client-side redirect (for demo users).
-   */
-  const handleLogout = () => {
-    // BUCKET: ungated console.debug in prod — gate behind 'debugRouting' flag or remove (CB-APP5)
-    console.debug('[AppShell] handleLogout invoked at', location.pathname, {
-      hasUser: Boolean(user),
-    });
-
-    // Demo mode: clear client state and route directly to logout-success
-    if (isDemo) {
-      queryClient.clear();
-      logout();
-      // BUCKET: ungated console.debug in prod — gate behind 'debugRouting' flag or remove (CB-APP5)
-      console.debug('[AppShell] demo logout → redirecting to /logout-success');
-      navigate('/logout-success', { replace: true });
-      return;
-    }
-
-    // Real user: trigger backend logout via POST redirect, avoid SPA guard flicker
-    const form = document.createElement('form');
-    form.method = 'POST';
-    const returnUrl = `${window.location.origin}/logout-success`;
-    form.action = `${API_BASE}/logout?return=${encodeURIComponent(returnUrl)}`;
-    form.style.display = 'none';
-    document.body.appendChild(form);
-    // BUCKET: ungated console.debug in prod — gate behind 'debugRouting' flag or remove (CB-APP5)
-    console.debug('[AppShell] submitting logout form to', form.action);
-    form.submit();
-  };
+  // Logout flow (demo redirect vs real POST-form logout) lives in useShellLogout.
+  const handleLogout = useShellLogout({ isDemo, user, location, logout, queryClient, navigate });
 
   // Idle timeout is intentionally disabled (enableIdleTimeout: false); this hook only pings
   // the backend to keep the session alive, not to enforce inactivity logout.
@@ -197,19 +92,10 @@ export default function AppShell() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
 
-  // Toast notification state
-  const [toast, setToast] = React.useState<{
-    open: boolean;
-    msg: string;
-    severity: 'success' | 'info' | 'warning' | 'error';
-  } | null>(null);
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <ToastContext.Provider
-        value={(msg: string, severity: 'success' | 'info' | 'warning' | 'error' = 'success') => setToast({ open: true, msg, severity })}
-      >
+      <ToastContext.Provider value={notify}>
         {/* Application Header (fixed) */}
         <AppHeader
           themeMode={themeMode}

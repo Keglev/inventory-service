@@ -7,30 +7,15 @@
  * Thin orchestrator delegating to focused sub-components for navigation, profile, and actions.
  *
  * @enterprise
- * - Two Drawer variants (temporary on mobile, permanent on desktop) share one content tree via `drawerContent`, avoiding JSX duplication for each breakpoint.
- * - Delegates all content areas to sub-components (SidebarNavList, SidebarUserProfile, SidebarEnvironment, SidebarActions) so this file only controls drawer chrome.
+ * - Two Drawer variants (temporary on mobile, permanent on desktop) share one content tree via SidebarDrawerContent, avoiding JSX duplication for each breakpoint.
+ * - Delegates all content areas to sub-components (SidebarNavList, SidebarUserProfile, SidebarEnvironment, SidebarActions) through SidebarDrawerContent so this file only controls drawer chrome.
  * - Receives state via props from AppShell, which is the single state owner; sidebar never reads localStorage directly.
- * - helpTopic is re-derived from location here (not forwarded from AppShell) because the sidebar needs it independently for its own help button.
+ * - helpTopic is re-derived from location inside SidebarDrawerContent (not forwarded from AppShell) because the sidebar needs it independently for its own help button.
  */
-// BUCKET: file exceeds ~150-line guideline — review for extract/split (ST-APP2)
 
-import {
-  Box,
-  Drawer,
-  Toolbar,
-  Typography,
-  Divider,
-} from '@mui/material';
-import { useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { getHelpTopicForRoute } from './navConfig';
+import { Box, Drawer } from '@mui/material';
 import type { SupportedLocale } from '../../theme';
-import {
-  SidebarNavList,
-  SidebarUserProfile,
-  SidebarEnvironment,
-  SidebarActions,
-} from './sidebar';
+import { SidebarDrawerContent } from './SidebarDrawerContent';
 
 const drawerWidth = 248;
 
@@ -87,56 +72,16 @@ export default function AppSidebar({
   onSettingsOpen,
   user,
 }: AppSidebarProps) {
-  const { t } = useTranslation(['common']);
-  const location = useLocation();
-
-  // Get current help topic based on route
-  const helpTopic = getHelpTopicForRoute(location.pathname);
-
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Drawer Header - App Title */}
-      <Toolbar>
-        <Typography variant="subtitle1" fontWeight={700}>
-          {t('app.branding', 'Smart Supply Pro')}
-        </Typography>
-      </Toolbar>
-      <Divider />
-
-      {/* Navigation Items */}
-      <SidebarNavList onLogout={onLogout} />
-
-      {/* Footer: User Info & Settings Section */}
-      <Box sx={{ mt: 'auto' }}>
-        <Divider />
-        <Box
-          sx={{
-            p: 1.25,
-            pb: 0.75,
-            mt: 0.5,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 0.75,
-          }}
-        >
-          {/* User Profile Info */}
-          <SidebarUserProfile user={user} />
-
-          {/* Environment & Version */}
-          <SidebarEnvironment />
-
-          {/* Settings Actions Row: Theme, Language, Settings, Help */}
-          <SidebarActions
-            themeMode={themeMode}
-            onThemeModeChange={onThemeModeChange}
-            locale={locale}
-            onLocaleChange={onLocaleChange}
-            onSettingsOpen={onSettingsOpen}
-            helpTopic={helpTopic}
-          />
-        </Box>
-      </Box>
-    </Box>
+    <SidebarDrawerContent
+      themeMode={themeMode}
+      onThemeModeChange={onThemeModeChange}
+      locale={locale}
+      onLocaleChange={onLocaleChange}
+      onLogout={onLogout}
+      onSettingsOpen={onSettingsOpen}
+      user={user}
+    />
   );
 
   return (
