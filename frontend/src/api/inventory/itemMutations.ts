@@ -10,7 +10,7 @@
 import http from '../httpClient';
 import { normalizeInventoryRow } from './normalizers';
 import type { UpsertItemRequest, UpsertItemResponse } from './types';
-import { errorMessage, INVENTORY_BASE } from '@/api/shared';
+import { errorMessage, extractApiError, INVENTORY_BASE } from '@/api/shared';
 
 export { INVENTORY_BASE };
 
@@ -53,7 +53,8 @@ export async function upsertItem(req: UpsertItemRequest): Promise<UpsertItemResp
       return { ok: true, item: row ?? undefined };
     }
   } catch (e: unknown) {
-    return { ok: false, error: errorMessage(e) };
+    const apiError = extractApiError(e);
+    return { ok: false, error: errorMessage(e), errorToken: apiError.token, status: apiError.status };
   }
 }
 
@@ -83,7 +84,8 @@ export async function renameItem(req: { id: string; newName: string }): Promise<
     const row = normalizeInventoryRow(res?.data as unknown);
     return { ok: true, item: row ?? undefined };
   } catch (e: unknown) {
-    return { ok: false, error: errorMessage(e) };
+    const apiError = extractApiError(e);
+    return { ok: false, error: errorMessage(e), errorToken: apiError.token, status: apiError.status };
   }
 }
 
@@ -112,6 +114,7 @@ export async function deleteItem(id: string, reason: string): Promise<UpsertItem
     );
     return { ok: true };
   } catch (e: unknown) {
-    return { ok: false, error: errorMessage(e) };
+    const apiError = extractApiError(e);
+    return { ok: false, error: errorMessage(e), errorToken: apiError.token, status: apiError.status };
   }
 }

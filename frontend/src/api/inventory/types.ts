@@ -95,6 +95,15 @@ export interface UpsertItemResponse {
   ok: boolean;
   item?: InventoryRow;
   error?: string;
+  /**
+   * Normalized backend status token (HttpStatus.name().toLowerCase()), e.g.
+   * 'not_found', 'conflict', 'forbidden'. Present on failures that originate
+   * from an Axios response error; enables token-based error mapping instead of
+   * matching substrings of the freeform message.
+   */
+  errorToken?: string | null;
+  /** Numeric HTTP status on failure, when available. */
+  status?: number | null;
 }
 
 /**

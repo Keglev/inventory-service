@@ -13,7 +13,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { errorMessage } from '@/api/shared';
+import { errorMessage, extractApiError } from '@/api/shared';
 
 const makeAxiosError = (payload: unknown): unknown => ({
   response: payload,
@@ -69,5 +69,51 @@ describe('errorMessage', () => {
       expect(errorMessage({})).toBe('Request failed');
       expect(errorMessage({ message: 'No response' })).toBe('Request failed');
     });
+  });
+});
+
+describe('extractApiError', () => {
+  it('extracts token, status, and message from a structured Axios error', () => {
+    const err = makeAxiosError({
+      status: 409,
+      data: { error: 'conflict', message: 'Name already exists' },
+    });
+    expect(extractApiError(err)).toEqual({
+      token: 'conflict',
+      status: 409,
+      message: 'Name already exists',
+    });
+  });
+
+  it('uses the error token as the message when message is absent', () => {
+    const err = makeAxiosError({ status: 404, data: { error: 'not_found' } });
+    expect(extractApiError(err)).toEqual({
+      token: 'not_found',
+      status: 404,
+      message: 'not_found',
+    });
+  });
+
+  it('returns the status with a null token when the body has no fields', () => {
+    const err = makeAxiosError({ status: 403, data: null });
+    expect(extractApiError(err)).toEqual({
+      token: null,
+      status: 403,
+      message: 'Request failed',
+    });
+  });
+
+  it('returns the native Error message with null token and status', () => {
+    expect(extractApiError(new Error('Network timeout'))).toEqual({
+      token: null,
+      status: null,
+      message: 'Network timeout',
+    });
+  });
+
+  it('returns stable defaults for non-error inputs', () => {
+    expect(extractApiError('nope')).toEqual({ token: null, status: null, message: 'Request failed' });
+    expect(extractApiError(null)).toEqual({ token: null, status: null, message: 'Request failed' });
+    expect(extractApiError(undefined)).toEqual({ token: null, status: null, message: 'Request failed' });
   });
 });

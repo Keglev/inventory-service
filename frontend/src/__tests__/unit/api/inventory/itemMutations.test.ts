@@ -109,7 +109,7 @@ describe('itemMutations', () => {
       const result = await upsertItem({ ...baseRequest });
 
       expect(errorMessageMock).toHaveBeenCalledWith(failure);
-      expect(result).toEqual({ ok: false, error: 'Network offline' });
+      expect(result).toEqual({ ok: false, error: 'Network offline', errorToken: null, status: null });
     });
   });
 
@@ -138,7 +138,7 @@ describe('itemMutations', () => {
       const result = await renameItem({ id: 'ITEM-1', newName: 'Renamed' });
 
       expect(errorMessageMock).toHaveBeenCalledWith(failure);
-      expect(result).toEqual({ ok: false, error: 'Forbidden' });
+      expect(result).toEqual({ ok: false, error: 'Forbidden', errorToken: null, status: null });
     });
   });
 
@@ -163,7 +163,7 @@ describe('itemMutations', () => {
       const result = await deleteItem('ITEM-1', 'EXPIRED');
 
       expect(errorMessageMock).toHaveBeenCalledWith(failure);
-      expect(result).toEqual({ ok: false, error: 'Cannot delete' });
+      expect(result).toEqual({ ok: false, error: 'Cannot delete', errorToken: null, status: null });
     });
   });
 });

@@ -51,3 +51,53 @@ export const errorMessage = (e: unknown): string => {
   if (e instanceof Error) return e.message;
   return 'Request failed';
 };
+
+/**
+ * Structured view of a backend error, extracted from an Axios error shape.
+ *
+ * Where `errorMessage` collapses an error to a single display string, this
+ * preserves the machine-readable pieces callers need for reliable branching:
+ * the normalized status token the backend places in the `error` field
+ * (HttpStatus.name().toLowerCase(), e.g. `not_found`, `conflict`) and the numeric
+ * HTTP status. Consumers should branch on `token`, never on substrings of the
+ * freeform `message`.
+ */
+export interface ApiErrorInfo {
+  /** Normalized backend status token (e.g. 'not_found', 'conflict'); null when absent. */
+  token: string | null;
+  /** Numeric HTTP status; null when the error is not an Axios response error. */
+  status: number | null;
+  /** Best available human-readable message. */
+  message: string;
+}
+
+/**
+ * Extracts the structured token, status, and message from a network error.
+ *
+ * Complements `errorMessage` (which returns only a display string). Prefers the
+ * backend body's `error` token and `message`; falls back to the numeric status
+ * and the native Error message. Never throws.
+ *
+ * @param e - Error from a network call (Axios error or generic `Error`)
+ * @returns Structured error info for token-based branching
+ */
+export const extractApiError = (e: unknown): ApiErrorInfo => {
+  if (isRecord(e) && isRecord(e.response)) {
+    const resp = e.response as Record<string, unknown>;
+    const status = pickNumber(resp, 'status');
+    let token: string | null = null;
+    let message: string | null = null;
+    if (isRecord(resp.data)) {
+      const d = resp.data as Record<string, unknown>;
+      token = pickString(d, 'error') ?? null;
+      message = pickString(d, 'message') ?? pickString(d, 'error') ?? null;
+    }
+    return {
+      token,
+      status: status ?? null,
+      message: message ?? 'Request failed',
+    };
+  }
+  if (e instanceof Error) return { token: null, status: null, message: e.message };
+  return { token: null, status: null, message: 'Request failed' };
+};
