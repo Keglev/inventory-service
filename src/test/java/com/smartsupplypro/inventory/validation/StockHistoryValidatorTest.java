@@ -18,8 +18,9 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
  * Unit tests for {@link StockHistoryValidator}.
  *
  * <p>Covers required-field rejection, the zero-delta cross-field rule,
- * PRICE_CHANGE-specific branches, and the {@code validateEnum} whitelist.
- * All tests are pure unit tests with no Spring context.</p>
+ * PRICE_CHANGE-specific branches, and {@code validateEnum} (accepts every
+ * reason constant, rejects only null). All tests are pure unit tests with
+ * no Spring context.</p>
  */
 class StockHistoryValidatorTest {
 
@@ -161,15 +162,18 @@ class StockHistoryValidatorTest {
         }
 
         @Test
-        void should_validate_enum_method_correctly() {
-            assertDoesNotThrow(() -> StockHistoryValidator.validateEnum(StockChangeReason.SOLD));
+        void should_accept_every_reason_and_reject_only_null() {
+            // validateEnum is an explicit allow-list covering all current
+            // reasons; disposal reasons (DESTROYED/DAMAGED/EXPIRED/LOST) are
+            // accepted so they can back stock reductions and deletions. Only
+            // null is rejected.
+            for (StockChangeReason reason : StockChangeReason.values()) {
+                assertDoesNotThrow(() -> StockHistoryValidator.validateEnum(reason));
+            }
             IllegalArgumentException nullEx = assertThrows(IllegalArgumentException.class,
                     () -> StockHistoryValidator.validateEnum(null));
             assertNotNull(nullEx.getMessage());
             assertTrue(nullEx.getMessage().contains("Invalid stock change reason"));
-            IllegalArgumentException invalidEx = assertThrows(IllegalArgumentException.class,
-                    () -> StockHistoryValidator.validateEnum(StockChangeReason.DESTROYED));
-            assertTrue(invalidEx.getMessage().contains("Invalid stock change reason"));
         }
     }
 }
