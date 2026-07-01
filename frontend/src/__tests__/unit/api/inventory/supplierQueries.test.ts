@@ -40,14 +40,12 @@ describe('supplierQueries', () => {
     describe('success paths', () => {
       it('returns normalized supplier entries from varied payloads', async () => {
         httpMock.get.mockResolvedValue({
-          data: {
-            items: [
-              { supplierId: 'SUP-1', name: 'Acme' },
-              { supplier_id: 'SUP-2', supplier: 'Bravo Co' },
-              { supplierId: 3, supplierName: 'Charlie' },
-              { supplierId: null, name: 'Invalid' },
-            ],
-          },
+          data: [
+            { supplierId: 'SUP-1', name: 'Acme' },
+            { supplier_id: 'SUP-2', supplier: 'Bravo Co' },
+            { supplierId: 3, supplierName: 'Charlie' },
+            { supplierId: null, name: 'Invalid' },
+          ],
         });
 
         const result = await listSuppliers();

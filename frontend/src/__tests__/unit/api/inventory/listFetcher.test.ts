@@ -23,24 +23,14 @@ vi.mock('../../../../api/inventory/rowNormalizers', () => ({
   toInventoryRow: vi.fn(),
 }));
 
-vi.mock('@/api/shared', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/api/shared')>();
-  return {
-    ...actual,
-    pickNumber: vi.fn(),
-  };
-});
-
 import http from '../../../../api/httpClient';
 import { toInventoryRow } from '../../../../api/inventory/rowNormalizers';
-import { pickNumber } from '@/api/shared';
 import { getInventoryPage } from '../../../../api/inventory/listFetcher';
 
 type HttpGetMock = ReturnType<typeof vi.fn>;
 
 const httpMock = http as unknown as { get: HttpGetMock };
 const toInventoryRowMock = toInventoryRow as ReturnType<typeof vi.fn>;
-const pickNumberMock = pickNumber as ReturnType<typeof vi.fn>;
 
 describe('getInventoryPage', () => {
   const params = {
@@ -78,18 +68,6 @@ describe('getInventoryPage', () => {
         page: params.page,
         pageSize: params.pageSize,
       });
-    });
-
-    it('uses totalElements field when provided', async () => {
-      const row = { id: 'ITEM-1' };
-      httpMock.get.mockResolvedValue({ data: { content: [{}], totalElements: 15 } });
-      toInventoryRowMock.mockReturnValue(row);
-      pickNumberMock.mockImplementation((_, key) => (key === 'totalElements' ? 15 : undefined));
-
-      const result = await getInventoryPage(params);
-
-      expect(result.total).toBe(15);
-      expect(result.items).toEqual([row]);
     });
   });
 

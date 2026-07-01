@@ -9,7 +9,7 @@
  */
 
 import http from '../httpClient';
-import { isRecord, pickString, pickNumber, resDataOrEmpty, extractArray, INVENTORY_BASE } from '@/api/shared';
+import { isRecord, pickString, pickNumber, resDataOrEmpty, INVENTORY_BASE } from '@/api/shared';
 
 export { INVENTORY_BASE };
 /** Suppliers domain API base path. */
@@ -19,7 +19,7 @@ export const SUPPLIERS_BASE = '/api/suppliers';
  * Fetches all suppliers from GET /api/suppliers for use in selection dropdowns.
  * Requests pageSize=1000 to load all suppliers in a single call, avoiding
  * pagination complexity in dropdown controls.
- * Accepts raw array or envelopes { items: [...] } / { content: [...] }.
+ * GET /api/suppliers returns a plain array (List<SupplierDTO>).
  *
  * @returns Array of supplier options with id and name, or [] on any error
  *
@@ -32,9 +32,7 @@ export const SUPPLIERS_BASE = '/api/suppliers';
 export async function listSuppliers(): Promise<Array<{ id: string | number; name: string }>> {
   try {
     const resData = resDataOrEmpty(await http.get(SUPPLIERS_BASE, { params: { pageSize: 1000 } }));
-    const candidates: unknown[] = Array.isArray(resData)
-      ? resData
-      : extractArray(resData, ['items', 'content']);
+    const candidates: unknown[] = Array.isArray(resData) ? resData : [];
 
     const out: Array<{ id: string | number; name: string }> = [];
     for (const entry of candidates) {

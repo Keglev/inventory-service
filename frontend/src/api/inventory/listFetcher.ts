@@ -7,40 +7,26 @@
  * Handles HTTP request, response envelope parsing, and error recovery.
  *
  * @enterprise
- * - Single API endpoint: GET /api/inventory with pagination params
- * - Tolerant of response envelope variations (plain array, Spring Page format)
- * - Graceful error handling: returns empty page on network failure
- * - Type-safe response structure
+ * - Single API endpoint: GET /api/inventory (getAll), which returns a plain
+ *   JSON array (List<InventoryItemDTO>) and does not paginate. Pagination
+ *   params are accepted by this client but ignored by the backend (CB-APP68).
+ * - Graceful error handling: returns an empty page on network failure.
+ * - Type-safe response structure.
  */
 
 import http from '../httpClient';
 import type { InventoryListParams, InventoryListResponse, InventoryRow } from './types';
 import { toInventoryRow } from './rowNormalizers';
-import { pickNumber, INVENTORY_BASE } from '@/api/shared';
+import { INVENTORY_BASE } from '@/api/shared';
 
 /**
- * Extract an array of rows from the response envelope. The backend returns a
- * Spring Page envelope; the authoritative path is the `content` field.
- * The plain-array and `items` branches are dead paths against the current
- * backend, retained pending a separate cleanup.
+ * Extract the array of rows from the response. GET /api/inventory returns a
+ * plain array, so a non-array response (error / empty object) yields [].
  *
  * @param data - Response data from /api/inventory
  * @returns Array of raw DTO objects to normalize
  */
-const extractRows = (data: unknown): unknown[] => {
-  if (Array.isArray(data)) return data;
-  if (typeof data !== 'object' || data === null) return [];
-
-  const r = data as Record<string, unknown>;
-
-  // Try Spring Page 'content' field
-  if (Array.isArray(r.content)) return r.content;
-
-  // Try custom 'items' field
-  if (Array.isArray(r.items)) return r.items;
-
-  return [];
-};
+const extractRows = (data: unknown): unknown[] => (Array.isArray(data) ? data : []);
 
 /**
  * Fetch a page of inventory items from the backend.
@@ -84,25 +70,8 @@ export const getInventoryPage = async (
 
     const rowsRaw = extractRows(data);
 
-    // Calculate total count from response
-    let total = 0;
-    if (Array.isArray(data)) {
-      // Plain array: total = array length
-      total = data.length;
-    } else if (typeof data === 'object' && data !== null) {
-      const r = data as Record<string, unknown>;
-      // Total count comes from the Spring Page `totalElements` field; the `total` fallback is a dead path against the current backend
-      const totalElements = pickNumber(r, 'totalElements');
-      const totalField = pickNumber(r, 'total');
-
-      if (typeof totalElements === 'number') {
-        total = totalElements;
-      } else if (typeof totalField === 'number') {
-        total = totalField;
-      } else {
-        total = rowsRaw.length;
-      }
-    }
+    // GET /api/inventory returns a plain array, so the total is its length.
+    const total = rowsRaw.length;
 
     // Normalize all rows and filter out failed normalizations
     const items: InventoryRow[] = rowsRaw
