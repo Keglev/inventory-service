@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-inventory/types/type-aliases/ServerSort · Smart Supply Pro · API</title>
+shared/errorHandling/functions/extractApiError · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -115,23 +115,46 @@ inventory/types/type-aliases/ServerSort · Smart Supply Pro · API</title>
         href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
         <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/inventory/types</a> / ServerSort</p>
-        <h1 id="type-alias-serversort">Type Alias: ServerSort</h1>
+        href="../README.html">api/shared/errorHandling</a> /
+        extractApiError</p>
+        <h1 id="function-extractapierror">Function:
+        extractApiError()</h1>
         <blockquote>
-        <p><strong>ServerSort</strong> = <code>string</code></p>
+        <p><strong>extractApiError</strong>(<code>e</code>): <a
+        href="../interfaces/ApiErrorInfo.html"><code>ApiErrorInfo</code></a></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/inventory/types.ts#L10">api/inventory/types.ts:10</a></p>
-        <p>Server sort expression (e.g., "name,asc" or
-        "onHand,desc").</p>
+        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/shared/errorHandling.ts#L84">api/shared/errorHandling.ts:84</a></p>
+        <p>Extracts the structured token, status, and message from a
+        network error.</p>
+        <p>Complements <code>errorMessage</code> (which returns only a
+        display string). Prefers the backend body's <code>error</code>
+        token and <code>message</code>; falls back to the numeric status
+        and the native Error message. Never throws.</p>
+        <h2 id="parameters">Parameters</h2>
+        <h3 id="e">e</h3>
+        <p><code>unknown</code></p>
+        <p>Error from a network call (Axios error or generic
+        <code>Error</code>)</p>
+        <h2 id="returns">Returns</h2>
+        <p><a
+        href="../interfaces/ApiErrorInfo.html"><code>ApiErrorInfo</code></a></p>
+        <p>Structured error info for token-based branching</p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#type-alias-serversort"
-      id="toc-type-alias-serversort">Type Alias: ServerSort</a></li>
+      <li><a href="#function-extractapierror"
+      id="toc-function-extractapierror">Function: extractApiError()</a>
+      <ul>
+      <li><a href="#parameters" id="toc-parameters">Parameters</a>
+      <ul>
+      <li><a href="#e" id="toc-e">e</a></li>
+      </ul></li>
+      <li><a href="#returns" id="toc-returns">Returns</a></li>
+      </ul></li>
       </ul>
     </nav>
       </div>

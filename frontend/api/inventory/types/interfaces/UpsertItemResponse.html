@@ -120,7 +120,7 @@ inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</title>
         <h1 id="interface-upsertitemresponse">Interface:
         UpsertItemResponse</h1>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/e56e4bb3b818974577bcaf33e93bf203081981ec/frontend/src/api/inventory/types.ts#L94">api/inventory/types.ts:94</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/inventory/types.ts#L94">api/inventory/types.ts:94</a></p>
         <p>Upsert operation response with item data or error.</p>
         <h2 id="properties">Properties</h2>
         <h3 id="error">error?</h3>
@@ -129,7 +129,20 @@ inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</title>
         <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/e56e4bb3b818974577bcaf33e93bf203081981ec/frontend/src/api/inventory/types.ts#L97">api/inventory/types.ts:97</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/inventory/types.ts#L97">api/inventory/types.ts:97</a></p>
+        <hr />
+        <h3 id="errortoken">errorToken?</h3>
+        <blockquote>
+        <p><code>optional</code> <strong>errorToken</strong>:
+        <code>string</code> | <code>null</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/inventory/types.ts#L104">api/inventory/types.ts:104</a></p>
+        <p>Normalized backend status token
+        (HttpStatus.name().toLowerCase()), e.g. 'not_found', 'conflict',
+        'forbidden'. Present on failures that originate from an Axios
+        response error; enables token-based error mapping instead of
+        matching substrings of the freeform message.</p>
         <hr />
         <h3 id="item">item?</h3>
         <blockquote>
@@ -137,14 +150,23 @@ inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</title>
         href="InventoryRow.html"><code>InventoryRow</code></a></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/e56e4bb3b818974577bcaf33e93bf203081981ec/frontend/src/api/inventory/types.ts#L96">api/inventory/types.ts:96</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/inventory/types.ts#L96">api/inventory/types.ts:96</a></p>
         <hr />
         <h3 id="ok">ok</h3>
         <blockquote>
         <p><strong>ok</strong>: <code>boolean</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/e56e4bb3b818974577bcaf33e93bf203081981ec/frontend/src/api/inventory/types.ts#L95">api/inventory/types.ts:95</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/inventory/types.ts#L95">api/inventory/types.ts:95</a></p>
+        <hr />
+        <h3 id="status">status?</h3>
+        <blockquote>
+        <p><code>optional</code> <strong>status</strong>:
+        <code>number</code> | <code>null</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/inventory/types.ts#L106">api/inventory/types.ts:106</a></p>
+        <p>Numeric HTTP status on failure, when available.</p>
       </article>
     </main>
 
@@ -158,8 +180,10 @@ inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</title>
       <li><a href="#properties" id="toc-properties">Properties</a>
       <ul>
       <li><a href="#error" id="toc-error">error?</a></li>
+      <li><a href="#errortoken" id="toc-errortoken">errorToken?</a></li>
       <li><a href="#item" id="toc-item">item?</a></li>
       <li><a href="#ok" id="toc-ok">ok</a></li>
+      <li><a href="#status" id="toc-status">status?</a></li>
       </ul></li>
       </ul></li>
       </ul>

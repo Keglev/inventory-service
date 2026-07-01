@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-inventory/types/type-aliases/ServerSort · Smart Supply Pro · API</title>
+shared/errorHandling/interfaces/ApiErrorInfo · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -115,23 +115,65 @@ inventory/types/type-aliases/ServerSort · Smart Supply Pro · API</title>
         href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
         <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/inventory/types</a> / ServerSort</p>
-        <h1 id="type-alias-serversort">Type Alias: ServerSort</h1>
+        href="../README.html">api/shared/errorHandling</a> /
+        ApiErrorInfo</p>
+        <h1 id="interface-apierrorinfo">Interface: ApiErrorInfo</h1>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/shared/errorHandling.ts#L65">api/shared/errorHandling.ts:65</a></p>
+        <p>Structured view of a backend error, extracted from an Axios
+        error shape.</p>
+        <p>Where <code>errorMessage</code> collapses an error to a
+        single display string, this preserves the machine-readable
+        pieces callers need for reliable branching: the normalized
+        status token the backend places in the <code>error</code> field
+        (HttpStatus.name().toLowerCase(), e.g. <code>not_found</code>,
+        <code>conflict</code>) and the numeric HTTP status. Consumers
+        should branch on <code>token</code>, never on substrings of the
+        freeform <code>message</code>.</p>
+        <h2 id="properties">Properties</h2>
+        <h3 id="message">message</h3>
         <blockquote>
-        <p><strong>ServerSort</strong> = <code>string</code></p>
+        <p><strong>message</strong>: <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/inventory/types.ts#L10">api/inventory/types.ts:10</a></p>
-        <p>Server sort expression (e.g., "name,asc" or
-        "onHand,desc").</p>
+        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/shared/errorHandling.ts#L71">api/shared/errorHandling.ts:71</a></p>
+        <p>Best available human-readable message.</p>
+        <hr />
+        <h3 id="status">status</h3>
+        <blockquote>
+        <p><strong>status</strong>: <code>number</code> |
+        <code>null</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/shared/errorHandling.ts#L69">api/shared/errorHandling.ts:69</a></p>
+        <p>Numeric HTTP status; null when the error is not an Axios
+        response error.</p>
+        <hr />
+        <h3 id="token">token</h3>
+        <blockquote>
+        <p><strong>token</strong>: <code>string</code> |
+        <code>null</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/1a3688be97cb4e389616b5fba354259465953f87/frontend/src/api/shared/errorHandling.ts#L67">api/shared/errorHandling.ts:67</a></p>
+        <p>Normalized backend status token (e.g. 'not_found',
+        'conflict'); null when absent.</p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#type-alias-serversort"
-      id="toc-type-alias-serversort">Type Alias: ServerSort</a></li>
+      <li><a href="#interface-apierrorinfo"
+      id="toc-interface-apierrorinfo">Interface: ApiErrorInfo</a>
+      <ul>
+      <li><a href="#properties" id="toc-properties">Properties</a>
+      <ul>
+      <li><a href="#message" id="toc-message">message</a></li>
+      <li><a href="#status" id="toc-status">status</a></li>
+      <li><a href="#token" id="toc-token">token</a></li>
+      </ul></li>
+      </ul></li>
       </ul>
     </nav>
       </div>
