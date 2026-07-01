@@ -22,7 +22,7 @@ import { pickString, pickNumber } from '@/api/shared';
  *  - id → itemId
  *  - quantity → onHand
  *  - minimumQuantity → minQty
- *  - createdAt → updatedAt
+ *  - createdAt → createdAt (creation timestamp; backend has no update field)
  *
  * @param raw - Raw DTO from API response
  * @returns InventoryRow with all fields safely extracted and coerced, or null if invalid
@@ -57,8 +57,8 @@ export const toInventoryRow = (raw: unknown): InventoryRow | null => {
   // minimumQuantity → minQty
   const minQty = pickNumber(r, 'minimumQuantity') ?? null;
 
-  // createdAt → updatedAt (for display)
-  const updatedAt = pickString(r, 'createdAt') ?? null;
+  // createdAt → createdAt (creation timestamp for display)
+  const createdAt = pickString(r, 'createdAt') ?? null;
 
   return {
     id,
@@ -68,6 +68,6 @@ export const toInventoryRow = (raw: unknown): InventoryRow | null => {
     supplierName,
     onHand,
     minQty,
-    updatedAt,
+    createdAt,
   };
 };

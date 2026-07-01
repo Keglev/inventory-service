@@ -12,7 +12,7 @@
     "quantity": "Initial Quantity",
     "onHand": "On Hand",
     "minQty": "Minimum Quantity",
-    "updated": "Updated",
+    "created": "Created",
     "notes": "Notes"
   },
 

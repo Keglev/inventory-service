@@ -60,7 +60,7 @@ const buildRow = (overrides: Partial<InventoryRow> = {}): InventoryRow => ({
   supplierId: null,
   supplierName: null,
   minQty: null,
-  updatedAt: null,
+  createdAt: null,
   ...overrides,
 });
 

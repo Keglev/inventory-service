@@ -11,12 +11,11 @@
  *   locale and format changes re-render columns. Field identifiers stay
  *   constant across renders so DataGrid's internal column-key cache is
  *   stable.
- * - Multiple backend field-name tolerance is preserved at value-getter
- *   level: onHand falls back to quantity, minQty falls back to
- *   minimumQuantity, updatedAt falls back to createdAt then created_at.
- *   Tracked under CB-B (dead multi-field tolerance vs single-shape
- *   backend) and CB-CD (updatedAt is misnamed end-to-end -- the backend
- *   has no update timestamp at all).
+ * - Value-getter field-name tolerance for onHand (falls back to quantity)
+ *   and minQty (falls back to minimumQuantity) is retained here; tracked
+ *   under CB-B (dead multi-field tolerance vs single-shape backend).
+ * - The date column shows the backend's createdAt (InventoryItemDTO); the
+ *   backend has no update timestamp, so the column is labeled "Created".
  * - Placeholder glyph is rendered for missing or unparseable values so
  *   columns hold visual rhythm during partial loads rather than showing
  *   empty cells.
@@ -104,12 +103,12 @@ export const useInventoryColumns = (): GridColDef[] => {
         },
       },
       {
-        field: 'updatedAt',
-        headerName: t('inventory:table.updated', 'Updated'),
+        field: 'createdAt',
+        headerName: t('inventory:table.created'),
         width: 190,
-        valueGetter: (_value: unknown, row: (InventoryRow & { createdAt?: string | null; created_at?: string | null }) | null) => {
+        valueGetter: (_value: unknown, row: InventoryRow | null) => {
           if (!row) return null;
-          return row.updatedAt ?? row.createdAt ?? row.created_at ?? null;
+          return row.createdAt ?? null;
         },
         valueFormatter: (value: unknown) => {
           if (value === null || value === undefined || value === '') {

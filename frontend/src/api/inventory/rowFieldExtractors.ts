@@ -92,16 +92,9 @@ export function extractQuantities(raw: Record<string, unknown>): {
   return { onHand, minQty };
 }
 
-/** "Last updated" timestamp. Backend has no updatedAt field; the fallback chain surfaces the creation timestamp for the grid's "last updated" column. */
-export function extractUpdatedAt(raw: Record<string, unknown>): string | null {
+/** Creation timestamp for the grid's "Created" column. The backend (InventoryItemDTO) sends `createdAt`; the alias list tolerates alternate creation-key spellings from non-canonical producers. The backend model has no update timestamp. */
+export function extractCreatedAt(raw: Record<string, unknown>): string | null {
   return pickStringFromList(raw, [
-    'updatedAt',
-    'updated_at',
-    'lastUpdate',
-    'lastModified',
-    'lastModifiedDate',
-    'modifiedAt',
-    'modified_at',
     'createdAt',
     'created_at',
     'createdDate',

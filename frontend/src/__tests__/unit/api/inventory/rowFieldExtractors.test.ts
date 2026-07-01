@@ -1,7 +1,7 @@
 /**
  * @file rowFieldExtractors.test.ts
  * @module tests/unit/api/inventory/rowFieldExtractors
- * @what_is_under_test extractId, extractName, extractCode, extractSupplier, extractQuantities, extractUpdatedAt
+ * @what_is_under_test extractId, extractName, extractCode, extractSupplier, extractQuantities, extractCreatedAt
  */
 
 import { describe, it, expect } from 'vitest';
@@ -11,7 +11,7 @@ import {
   extractCode,
   extractSupplier,
   extractQuantities,
-  extractUpdatedAt,
+  extractCreatedAt,
 } from '../../../../api/inventory/rowFieldExtractors';
 
 describe('extractId', () => {
@@ -62,9 +62,9 @@ describe('extractQuantities', () => {
   });
 });
 
-describe('extractUpdatedAt', () => {
-  it('falls back to a creation timestamp when no update field exists', () => {
-    expect(extractUpdatedAt({ createdAt: '2024-01-01' })).toBe('2024-01-01');
-    expect(extractUpdatedAt({})).toBeNull();
+describe('extractCreatedAt', () => {
+  it('reads the createdAt creation timestamp, else null', () => {
+    expect(extractCreatedAt({ createdAt: '2024-01-01' })).toBe('2024-01-01');
+    expect(extractCreatedAt({})).toBeNull();
   });
 });

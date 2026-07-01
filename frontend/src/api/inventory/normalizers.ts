@@ -17,7 +17,7 @@ import {
   extractCode,
   extractSupplier,
   extractQuantities,
-  extractUpdatedAt,
+  extractCreatedAt,
 } from './rowFieldExtractors';
 
 /**
@@ -44,6 +44,6 @@ export function normalizeInventoryRow(raw: unknown): InventoryRow | null {
     supplierName,
     onHand,
     minQty,
-    updatedAt: extractUpdatedAt(raw),
+    createdAt: extractCreatedAt(raw),
   };
 }

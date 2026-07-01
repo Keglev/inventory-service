@@ -12,7 +12,7 @@
     "quantity": "Anfangsbestand",
     "onHand": "Bestand",
     "minQty": "Mindestmenge",
-    "updated": "Aktualisiert",
+    "created": "Erstellt",
     "notes": "Notizen"
   },
 

@@ -47,7 +47,7 @@ describe('normalizeInventoryRow', () => {
         supplierName: 'Acme',
         onHand: 25,
         minQty: 5,
-        updatedAt: '2024-01-01T00:00:00Z',
+        createdAt: '2024-01-01T00:00:00Z',
       });
     });
 
@@ -60,7 +60,7 @@ describe('normalizeInventoryRow', () => {
         supplier: 'Bravo',
         availableQuantity: '30',
         reorderLevel: '7',
-        lastModifiedDate: '2024-02-02T10:00:00Z',
+        createdDate: '2024-02-02T10:00:00Z',
       });
 
       expect(row).toEqual({
@@ -71,7 +71,7 @@ describe('normalizeInventoryRow', () => {
         supplierName: 'Bravo',
         onHand: 30,
         minQty: 7,
-        updatedAt: '2024-02-02T10:00:00Z',
+        createdAt: '2024-02-02T10:00:00Z',
       });
     });
   });
@@ -93,7 +93,7 @@ describe('normalizeInventoryRow', () => {
         supplierName: null,
         onHand: 4,
         minQty: null,
-        updatedAt: null,
+        createdAt: null,
       });
     });
   });

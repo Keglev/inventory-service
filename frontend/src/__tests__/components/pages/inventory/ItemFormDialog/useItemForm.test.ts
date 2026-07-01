@@ -136,7 +136,7 @@ describe('useItemForm', () => {
       supplierId: 'sup-2',
       onHand: 5,
       minQty: 0,
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     };
 
     const { result } = renderUseItemForm({ initial });

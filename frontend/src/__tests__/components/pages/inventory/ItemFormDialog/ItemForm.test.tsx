@@ -146,7 +146,7 @@ describe('ItemForm', () => {
       name: 'Existing Item',
       code: 'EX-001',
       onHand: 10,
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     };
 
     renderItemForm(state, initial);

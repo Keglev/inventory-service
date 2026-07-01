@@ -46,7 +46,7 @@ describe('toInventoryRow', () => {
         supplierName: 'Acme',
         onHand: 15,
         minQty: 3,
-        updatedAt: '2024-03-03T00:00:00Z',
+        createdAt: '2024-03-03T00:00:00Z',
       });
     });
   });
@@ -67,7 +67,7 @@ describe('toInventoryRow', () => {
         supplierName: null,
         onHand: 0,
         minQty: null,
-        updatedAt: null,
+        createdAt: null,
       });
     });
   });

@@ -64,7 +64,7 @@ describe('InventoryDialogs', () => {
     supplierId: '999',
     onHand: 50,
     minQty: 10,
-    updatedAt: '2024-01-01',
+    createdAt: '2024-01-01',
   };
 
   const baseProps: Props = {

@@ -92,7 +92,7 @@ describe('useInventoryColumns', () => {
     expect(fields).toContain('code');
     expect(fields).toContain('onHand');
     expect(fields).toContain('minQty');
-    expect(fields).toContain('updatedAt');
+    expect(fields).toContain('createdAt');
   });
 
   it('configures the name column with expected flex sizing defaults', () => {
@@ -190,56 +190,43 @@ describe('useInventoryColumns', () => {
     expect(minQtyCol?.valueGetter?.(undefined, rowDefaultZero)).toBe(0);
   });
 
-  it('normalizes the updatedAt column from updatedAt → createdAt → null', () => {
+  it('reads the createdAt column value, else null', () => {
     const { result } = setup();
 
-    const updatedCol = getColumnByField(result.current, 'updatedAt') as
-      | {
-          valueGetter?: ValueGetter<InventoryRow & { createdAt?: string }>;
-        }
+    const createdCol = getColumnByField(result.current, 'createdAt') as
+      | { valueGetter?: ValueGetter<InventoryRow> }
       | undefined;
 
-    expect(updatedCol).toBeDefined();
-    expect(updatedCol?.valueGetter).toBeTypeOf('function');
+    expect(createdCol).toBeDefined();
+    expect(createdCol?.valueGetter).toBeTypeOf('function');
 
-    const rowUpdatedAt: InventoryRow = {
+    const rowCreatedAt: InventoryRow = {
       id: '1',
       name: 'Test',
       onHand: 10,
       minQty: 5,
-      updatedAt: '2023-12-01T10:00:00Z',
-    };
-    expect(updatedCol?.valueGetter?.(undefined, rowUpdatedAt)).toBe(
-      '2023-12-01T10:00:00Z',
-    );
-
-    const rowCreatedAt = {
-      id: '2',
-      name: 'Test',
-      onHand: 10,
-      minQty: 5,
       createdAt: '2023-11-01T10:00:00Z',
-    } as InventoryRow & { createdAt: string };
-    expect(updatedCol?.valueGetter?.(undefined, rowCreatedAt)).toBe(
+    };
+    expect(createdCol?.valueGetter?.(undefined, rowCreatedAt)).toBe(
       '2023-11-01T10:00:00Z',
     );
 
     const rowNull: InventoryRow = { id: '3', name: 'Test', onHand: 10, minQty: 5 };
-    expect(updatedCol?.valueGetter?.(undefined, rowNull)).toBeNull();
+    expect(createdCol?.valueGetter?.(undefined, rowNull)).toBeNull();
   });
 
-  it('formats updatedAt as a placeholder when the value is empty', () => {
+  it('formats createdAt as a placeholder when the value is empty', () => {
     const { result } = setup();
 
-    const updatedCol = getColumnByField(result.current, 'updatedAt') as
+    const createdCol = getColumnByField(result.current, 'createdAt') as
       | { valueFormatter?: ValueFormatter }
       | undefined;
 
-    expect(updatedCol).toBeDefined();
+    expect(createdCol).toBeDefined();
 
     // The formatter is responsible for the UI placeholder on missing dates.
-    expect(updatedCol?.valueFormatter?.(null)).toBe('—');
-    expect(updatedCol?.valueFormatter?.(undefined)).toBe('—');
+    expect(createdCol?.valueFormatter?.(null)).toBe('—');
+    expect(createdCol?.valueFormatter?.(undefined)).toBe('—');
   });
 
   it('keeps the same column array reference across re-renders (memoization)', () => {

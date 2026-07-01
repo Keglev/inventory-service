@@ -32,7 +32,7 @@ export interface InventoryRow {
   supplierId?: string | number | null;
   onHand: number;        // current stock
   minQty?: number | null;
-  updatedAt?: string | null; // ISO datetime
+  createdAt?: string | null; // ISO datetime (backend createdAt; no update timestamp exists)
 }
 
 /** Paged response envelope. */
