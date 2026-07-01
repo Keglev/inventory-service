@@ -121,13 +121,13 @@ inventory/listFetcher/README · Smart Supply Pro · API</title>
         <p>listFetcher.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Single API endpoint: GET /api/inventory with pagination
-        params</li>
-        <li>Tolerant of response envelope variations (plain array,
-        Spring Page format)</li>
-        <li>Graceful error handling: returns empty page on network
-        failure</li>
-        <li>Type-safe response structure</li>
+        <li>Single API endpoint: GET /api/inventory (getAll), which
+        returns a plain JSON array (List<InventoryItemDTO>) and does not
+        paginate. Pagination params are accepted by this client but
+        ignored by the backend (CB-APP68).</li>
+        <li>Graceful error handling: returns an empty page on network
+        failure.</li>
+        <li>Type-safe response structure.</li>
         </ul>
         <h2 id="functions">Functions</h2>
         <ul>

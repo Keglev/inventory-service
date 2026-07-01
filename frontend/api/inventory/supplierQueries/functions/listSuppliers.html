@@ -123,12 +123,12 @@ inventory/supplierQueries/functions/listSuppliers · Smart Supply Pro · API</ti
         <code>Promise</code>&lt;<code>object</code>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/760c36df14e49b4939eadeddf373adc487824e48/frontend/src/api/inventory/supplierQueries.ts#L32">api/inventory/supplierQueries.ts:32</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/4595255ee3c2aeadfe42151a146c12ee21f11487/frontend/src/api/inventory/supplierQueries.ts#L32">api/inventory/supplierQueries.ts:32</a></p>
         <p>Fetches all suppliers from GET /api/suppliers for use in
         selection dropdowns. Requests pageSize=1000 to load all
         suppliers in a single call, avoiding pagination complexity in
-        dropdown controls. Accepts raw array or envelopes { items: [...]
-        } / { content: [...] }.</p>
+        dropdown controls. GET /api/suppliers returns a plain array
+        (List<SupplierDTO>).</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<code>object</code>[]&gt;</p>
         <p>Array of supplier options with id and name, or [] on any
