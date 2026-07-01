@@ -75,7 +75,7 @@ describe('useDataFetchingLogic', () => {
     {
       name: 'converts 0-based pagination to 1-based for server',
       state: createState({ paginationModel: { page: 0, pageSize: 10 } }),
-      expected: [1, 10, 'name,asc', '', false] as const,
+      expected: [1, 10, 'name,asc', ''] as const,
     },
     {
       name: 'formats sort from sortModel when present',
@@ -83,9 +83,8 @@ describe('useDataFetchingLogic', () => {
         paginationModel: { page: 2, pageSize: 25 },
         sortModel: [{ field: 'lastContact', sort: 'desc' }],
         searchQuery: 'abc',
-        showAllSuppliers: true,
       }),
-      expected: [3, 25, 'lastContact,desc', 'abc', true] as const,
+      expected: [3, 25, 'lastContact,desc', 'abc'] as const,
     },
     {
       name: 'defaults sort direction to asc when sort is missing',
@@ -95,16 +94,15 @@ describe('useDataFetchingLogic', () => {
         sortModel: [{ field: 'name', sort: null }],
         searchQuery: 'test',
       }),
-      expected: [2, 15, 'name,asc', 'test', false] as const,
+      expected: [2, 15, 'name,asc', 'test'] as const,
     },
     {
-      name: 'passes searchQuery and showAllSuppliers through unchanged',
+      name: 'passes searchQuery through unchanged',
       state: createState({
         paginationModel: { page: 5, pageSize: 50 },
         searchQuery: 'supplier',
-        showAllSuppliers: true,
       }),
-      expected: [6, 50, 'name,asc', 'supplier', true] as const,
+      expected: [6, 50, 'name,asc', 'supplier'] as const,
     },
   ])('$name', ({ state, expected }) => {
     renderHook(() => useDataFetchingLogic(state));
