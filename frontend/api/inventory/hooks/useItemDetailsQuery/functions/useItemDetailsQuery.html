@@ -126,17 +126,14 @@ inventory/hooks/useItemDetailsQuery/functions/useItemDetailsQuery · Smart Suppl
         | <code>null</code>, <code>Error</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/4595255ee3c2aeadfe42151a146c12ee21f11487/frontend/src/api/inventory/hooks/useItemDetailsQuery.ts#L35">api/inventory/hooks/useItemDetailsQuery.ts:35</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/6a9cb656e187da01fd5a0a0bd11181e31236f20c/frontend/src/api/inventory/hooks/useItemDetailsQuery.ts#L34">api/inventory/hooks/useItemDetailsQuery.ts:34</a></p>
         <p>Fetches full details for a single inventory item by ID.</p>
         <p>Disabled until <code>itemId</code> is truthy — prevents a
         fetch with a null/undefined key. 30 s stale time keeps data
         fresh during a typical edit session while avoiding redundant
         re-fetches if the user reopens the same item shortly after.</p>
-        <p>The backend response may use several field names for stock
-        quantity (<code>onHand</code>, <code>quantity</code>,
-        <code>qty</code>, <code>currentQuantity</code>,
-        <code>stock</code>); <code>pickNumberFromList</code> tries all
-        of them in priority order.</p>
+        <p>The backend (InventoryItemDTO) sends the stock quantity as
+        <code>quantity</code> and the price as <code>price</code>.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="itemid">itemId</h3>
         <p>ID of the item to fetch; pass null or undefined when no item
