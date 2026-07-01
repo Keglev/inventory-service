@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-inventory/rowFieldExtractors/functions/extractSupplier · Smart Supply Pro · API</title>
+suppliers/supplierListFetcher/functions/getSupplierById · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -115,52 +115,52 @@ inventory/rowFieldExtractors/functions/extractSupplier · Smart Supply Pro · AP
         href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
         <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/inventory/rowFieldExtractors</a> /
-        extractSupplier</p>
-        <h1 id="function-extractsupplier">Function:
-        extractSupplier()</h1>
+        href="../README.html">api/suppliers/supplierListFetcher</a> /
+        getSupplierById</p>
+        <h1 id="function-getsupplierbyid">Function:
+        getSupplierById()</h1>
         <blockquote>
-        <p><strong>extractSupplier</strong>(<code>raw</code>):
-        <code>object</code></p>
+        <p><strong>getSupplierById</strong>(<code>id</code>):
+        <code>Promise</code>&lt;<a
+        href="../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>
+        | <code>null</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/4215b368e5cb4680df45f6805e29ec1c3d2b0c98/frontend/src/api/inventory/rowFieldExtractors.ts#L45">api/inventory/rowFieldExtractors.ts:45</a></p>
-        <p>Supplier id (string or numeric) and name.</p>
+        href="https://github.com/Keglev/inventory-service/blob/4215b368e5cb4680df45f6805e29ec1c3d2b0c98/frontend/src/api/suppliers/supplierListFetcher.ts#L91">api/suppliers/supplierListFetcher.ts:91</a></p>
+        <p>Fetches a single supplier by id via GET
+        /api/suppliers/:id.</p>
         <h2 id="parameters">Parameters</h2>
-        <h3 id="raw">raw</h3>
-        <p><code>Record</code>&lt;<code>string</code>,
-        <code>unknown</code>&gt;</p>
+        <h3 id="id">id</h3>
+        <p><code>string</code></p>
+        <p>Supplier id</p>
         <h2 id="returns">Returns</h2>
-        <p><code>object</code></p>
-        <h3 id="supplierid">supplierId</h3>
-        <blockquote>
-        <p><strong>supplierId</strong>: <code>string</code> |
-        <code>number</code> | <code>null</code></p>
-        </blockquote>
-        <h3 id="suppliername">supplierName</h3>
-        <blockquote>
-        <p><strong>supplierName</strong>: <code>string</code> |
-        <code>null</code></p>
-        </blockquote>
+        <p><code>Promise</code>&lt;<a
+        href="../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>
+        | <code>null</code>&gt;</p>
+        <p>The normalized SupplierRow, or null when not found / on
+        error</p>
+        <h2 id="backend">Backend</h2>
+        <p>GET /api/suppliers/:id (SupplierController.getById) → single
+        SupplierDTO; 404 when absent.</p>
+        <h2 id="example">Example</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> supplier <span class="op">=</span> <span class="cf">await</span> <span class="fu">getSupplierById</span>(<span class="st">&#39;SUP-1&#39;</span>)<span class="op">;</span></span></code></pre></div>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-extractsupplier"
-      id="toc-function-extractsupplier">Function: extractSupplier()</a>
+      <li><a href="#function-getsupplierbyid"
+      id="toc-function-getsupplierbyid">Function: getSupplierById()</a>
       <ul>
       <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
-      <li><a href="#raw" id="toc-raw">raw</a></li>
+      <li><a href="#id" id="toc-id">id</a></li>
       </ul></li>
-      <li><a href="#returns" id="toc-returns">Returns</a>
-      <ul>
-      <li><a href="#supplierid" id="toc-supplierid">supplierId</a></li>
-      <li><a href="#suppliername"
-      id="toc-suppliername">supplierName</a></li>
-      </ul></li>
+      <li><a href="#returns" id="toc-returns">Returns</a></li>
+      <li><a href="#backend" id="toc-backend">Backend</a></li>
+      <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>
     </nav>

@@ -122,10 +122,9 @@ suppliers/hooks/useSupplierByIdQuery/README · Smart Supply Pro · API</title>
         <p>useSupplierByIdQuery.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>A dedicated GET /api/suppliers/:id exists
-        (SupplierController.getById) but this hook does not use it — it
-        loads the list via getSuppliersPage and finds the row
-        client-side, which works but is inefficient.</li>
+        <li>Loads a single supplier via the dedicated GET
+        /api/suppliers/:id (SupplierController.getById), not by scanning
+        the full list.</li>
         <li>Returns null (not an error) when the supplier is not found,
         so callers can handle gracefully.</li>
         </ul>
