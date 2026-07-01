@@ -7,13 +7,17 @@
  * Handles search query, results, and loading state.
  *
  * @enterprise
- * - Encapsulates all search-related logic
- * - Reusable for other supplier search scenarios
- * - Minimum 2 characters required for API call
+ * - Thin stateful adapter over useSupplierSearchQuery — the single supplier-search
+ *   implementation (GET /api/suppliers/search). This hook owns only the query
+ *   string; results, loading, the >= 2-char gating, caching, and error handling
+ *   all live in useSupplierSearchQuery.
+ * - Preserves the imperative { searchQuery, setSearchQuery, searchResults,
+ *   searchLoading, handleSearchQueryChange, resetSearch } shape the Edit/Delete
+ *   supplier dialogs consume.
  */
 
 import * as React from 'react';
-import { getSuppliersPage } from '../../../api/suppliers';
+import { useSupplierSearchQuery } from '../../../api/suppliers';
 import type { SupplierRow } from '../../../api/suppliers/types';
 
 /**
@@ -54,48 +58,27 @@ export interface UseSupplierSearchReturn {
  */
 export const useSupplierSearch = (): UseSupplierSearchReturn => {
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [searchResults, setSearchResults] = React.useState<SupplierRow[]>([]);
-  const [searchLoading, setSearchLoading] = React.useState(false);
 
-  /**
-   * Search for suppliers by name.
-   * Requires minimum 2 characters.
-   * Clears results if query is too short.
-   */
+  // Delegate fetching, the >= 2-char gating, caching, and error handling to the
+  // single supplier-search implementation (GET /api/suppliers/search). This hook
+  // owns only the query string; results are derived reactively.
+  const { data, isFetching } = useSupplierSearchQuery(searchQuery);
+  const searchResults: SupplierRow[] = data ?? [];
+
+  // Kept async (Promise<void>) so the dialogs' consuming signature is unchanged.
   const handleSearchQueryChange = React.useCallback(async (query: string) => {
     setSearchQuery(query);
-
-    if (query.trim().length < 2) {
-      setSearchResults([]);
-      return;
-    }
-
-    setSearchLoading(true);
-    try {
-      // ST-APP19: duplicate search infrastructure — board uses useSupplierSearchQuery against GET /api/suppliers/search; this hook calls the paginated list endpoint with a `q` param. Consolidate in refactor pass.
-      // CB-APP67: page: 1 sent to a 0-based Spring Pageable. Verify whether getSuppliersPage adapts this internally; refactor pass.
-      const response = await getSuppliersPage({ page: 1, pageSize: 10, q: query });
-      setSearchResults(response.items);
-    } catch {
-      setSearchResults([]);
-    } finally {
-      setSearchLoading(false);
-    }
   }, []);
 
-  /**
-   * Reset search to initial state.
-   */
   const resetSearch = React.useCallback(() => {
     setSearchQuery('');
-    setSearchResults([]);
   }, []);
 
   return {
     searchQuery,
     setSearchQuery,
     searchResults,
-    searchLoading,
+    searchLoading: isFetching,
     handleSearchQueryChange,
     resetSearch,
   };

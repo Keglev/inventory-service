@@ -1,22 +1,15 @@
 /**
  * @file useSupplierSearch.test.ts
  * @module __tests__/components/pages/suppliers/hooks/useSupplierSearch
- * @description Orchestration tests for the `useSupplierSearch` hook.
+ * @description Orchestration tests for the `useSupplierSearch` adapter.
  *
  * Contract under test:
- * - Maintains a search query, results list, and loading flag.
- * - Does not call the API until a minimum query length is met (>= 2 trimmed characters).
- * - When query is valid, calls `getSuppliersPage` with the expected paging parameters.
- * - On API success, surfaces the returned `items`.
- * - On API failure, clears results and resets loading.
+ * - Holds the search query string and exposes setter/reset.
+ * - Forwards the current query to `useSupplierSearchQuery` (the single search
+ *   implementation) and maps its `data`/`isFetching` to `searchResults`/`searchLoading`.
  *
- * Out of scope:
- * - UI rendering (covered by component tests).
- * - Supplier filtering/sorting behavior beyond what the API returns.
- *
- * Test strategy:
- * - Deterministic, hoisted mock for the API layer.
- * - Assertions focus on observable state + API calls, not React state implementation details.
+ * Out of scope (covered by useSupplierSearchQuery.test.ts):
+ * - The >= 2-char gating, the /search endpoint call, caching, and error handling.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -24,11 +17,11 @@ import { act, renderHook } from '@testing-library/react';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 const mocks = vi.hoisted(() => ({
-  getSuppliersPage: vi.fn(),
+  useSupplierSearchQuery: vi.fn(),
 }));
 
 vi.mock('../../../../../api/suppliers', () => ({
-  getSuppliersPage: (...args: [unknown]) => mocks.getSuppliersPage(...args),
+  useSupplierSearchQuery: (...args: unknown[]) => mocks.useSupplierSearchQuery(...args),
 }));
 
 import { useSupplierSearch } from '../../../../../pages/suppliers/hooks/useSupplierSearch';
@@ -36,6 +29,7 @@ import { useSupplierSearch } from '../../../../../pages/suppliers/hooks/useSuppl
 describe('useSupplierSearch', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.useSupplierSearchQuery.mockReturnValue({ data: [], isFetching: false });
   });
 
   it('initializes with empty state', () => {
@@ -45,67 +39,40 @@ describe('useSupplierSearch', () => {
     expect(result.current.searchLoading).toBe(false);
   });
 
-  it('does not call API when query is shorter than 2 characters', async () => {
+  it('forwards the query to useSupplierSearchQuery', () => {
     const { result } = renderHook(() => useSupplierSearch());
 
-    await act(async () => {
-      await result.current.handleSearchQueryChange('a');
+    act(() => {
+      void result.current.handleSearchQueryChange('ac');
     });
 
-    expect(mocks.getSuppliersPage).not.toHaveBeenCalled();
-    expect(result.current.searchQuery).toBe('a');
-    expect(result.current.searchResults).toEqual([]);
-    expect(result.current.searchLoading).toBe(false);
+    expect(result.current.searchQuery).toBe('ac');
+    expect(mocks.useSupplierSearchQuery).toHaveBeenLastCalledWith('ac');
   });
 
-  it('calls API and surfaces results when query is valid', async () => {
+  it('surfaces results and loading from useSupplierSearchQuery', () => {
     const items: SupplierRow[] = [
       { id: '1', name: 'Acme', contactName: null, email: null, phone: null },
     ];
-    mocks.getSuppliersPage.mockResolvedValue({ items });
+    mocks.useSupplierSearchQuery.mockReturnValue({ data: items, isFetching: true });
 
     const { result } = renderHook(() => useSupplierSearch());
 
-    await act(async () => {
-      await result.current.handleSearchQueryChange('ac');
-    });
-
-    expect(mocks.getSuppliersPage).toHaveBeenCalledWith({ page: 1, pageSize: 10, q: 'ac' });
     expect(result.current.searchResults).toEqual(items);
-    expect(result.current.searchLoading).toBe(false);
+    expect(result.current.searchLoading).toBe(true);
   });
 
-  it('clears results when API call fails', async () => {
-    mocks.getSuppliersPage.mockRejectedValue(new Error('network'));
-
+  it('resets the query', () => {
     const { result } = renderHook(() => useSupplierSearch());
 
-    await act(async () => {
-      await result.current.handleSearchQueryChange('ac');
-    });
-
-    expect(result.current.searchResults).toEqual([]);
-    expect(result.current.searchLoading).toBe(false);
-  });
-
-  it('resets query and results', async () => {
-    const items: SupplierRow[] = [
-      { id: '1', name: 'Acme', contactName: null, email: null, phone: null },
-    ];
-    mocks.getSuppliersPage.mockResolvedValue({ items });
-
-    const { result } = renderHook(() => useSupplierSearch());
-
-    await act(async () => {
-      await result.current.handleSearchQueryChange('ac');
+    act(() => {
+      void result.current.handleSearchQueryChange('ac');
     });
     expect(result.current.searchQuery).toBe('ac');
-    expect(result.current.searchResults).toEqual(items);
 
     act(() => {
       result.current.resetSearch();
     });
     expect(result.current.searchQuery).toBe('');
-    expect(result.current.searchResults).toEqual([]);
   });
 });
