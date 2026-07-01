@@ -8,10 +8,10 @@
  *
  * @enterprise
  * - Five open-dialog setters mapped to toolbar buttons. handleEdit
- *   opens the rename dialog (openEditName), not the broader edit
- *   dialog (openEdit) -- the visible "Edit" button only allows name
- *   changes, reflecting the backend rule that only ADMIN users can
- *   rename items and the rename flow needs its own validation.
+ *   opens the rename dialog (openEditName) -- the visible "Edit"
+ *   button only allows name changes, reflecting the backend rule that
+ *   only ADMIN users can rename items and the rename flow needs its
+ *   own validation.
  * - No close logic here. Dialog components own their own close via
  *   setters from the same state bag, so this hook only handles the
  *   open side of the toggle.

@@ -27,7 +27,6 @@ export function makeInventoryState(overrides: Partial<InventoryTestState> = {}):
     openNew: false,
     openEditName: false,
     openDelete: false,
-    openEdit: false,
     openAdjust: false,
     openPrice: false,
 
@@ -40,7 +39,6 @@ export function makeInventoryState(overrides: Partial<InventoryTestState> = {}):
     setOpenNew: vi.fn(),
     setOpenEditName: vi.fn(),
     setOpenDelete: vi.fn(),
-    setOpenEdit: vi.fn(),
     setOpenAdjust: vi.fn(),
     setOpenPrice: vi.fn(),
 

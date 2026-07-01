@@ -42,7 +42,6 @@ describe('useInventoryState', () => {
     expect(result.current.selectedId).toBeNull();
 
     expect(result.current.openNew).toBe(false);
-    expect(result.current.openEdit).toBe(false);
     expect(result.current.openEditName).toBe(false);
     expect(result.current.openDelete).toBe(false);
     expect(result.current.openAdjust).toBe(false);
@@ -117,7 +116,6 @@ describe('useInventoryState', () => {
 
     type DialogKey =
       | 'openNew'
-      | 'openEdit'
       | 'openEditName'
       | 'openDelete'
       | 'openAdjust'
@@ -125,7 +123,6 @@ describe('useInventoryState', () => {
 
     const openSetters: Record<DialogKey, (open: boolean) => void> = {
       openNew: result.current.setOpenNew,
-      openEdit: result.current.setOpenEdit,
       openEditName: result.current.setOpenEditName,
       openDelete: result.current.setOpenDelete,
       openAdjust: result.current.setOpenAdjust,
@@ -139,13 +136,13 @@ describe('useInventoryState', () => {
       openSetters.openNew(true);
     });
     expect(result.current.openNew).toBe(true);
-    expect(result.current.openEdit).toBe(false);
+    expect(result.current.openEditName).toBe(false);
 
     act(() => {
-      openSetters.openEdit(true);
+      openSetters.openEditName(true);
     });
     expect(result.current.openNew).toBe(true);
-    expect(result.current.openEdit).toBe(true);
+    expect(result.current.openEditName).toBe(true);
 
     // Close all and confirm all flags are false (no shared coupling).
     act(() => {

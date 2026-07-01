@@ -13,35 +13,34 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import type { ComponentProps } from 'react';
-import type { InventoryRow } from '../../../../api/inventory/types';
 
 // Mock dialog implementations: keep this suite focused on wiring/flags.
 vi.mock('../../../../pages/inventory/dialogs/ItemFormDialog', () => ({
-  ItemFormDialog: vi.fn(({ isOpen }: { isOpen: boolean }) => 
+  ItemFormDialog: vi.fn(({ isOpen }: { isOpen: boolean }) =>
     isOpen ? <div data-testid="item-form-dialog">ItemFormDialog</div> : null
   ),
 }));
 
 vi.mock('../../../../pages/inventory/dialogs/EditItemDialog', () => ({
-  EditItemDialog: vi.fn(({ open }: { open: boolean }) => 
+  EditItemDialog: vi.fn(({ open }: { open: boolean }) =>
     open ? <div data-testid="edit-item-dialog">EditItemDialog</div> : null
   ),
 }));
 
 vi.mock('../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog', () => ({
-  default: vi.fn(({ open }: { open: boolean }) => 
+  default: vi.fn(({ open }: { open: boolean }) =>
     open ? <div data-testid="delete-item-dialog">DeleteItemDialog</div> : null
   ),
 }));
 
 vi.mock('../../../../pages/inventory/dialogs/QuantityAdjustDialog', () => ({
-  QuantityAdjustDialog: vi.fn(({ open }: { open: boolean }) => 
+  QuantityAdjustDialog: vi.fn(({ open }: { open: boolean }) =>
     open ? <div data-testid="quantity-adjust-dialog">QuantityAdjustDialog</div> : null
   ),
 }));
 
 vi.mock('../../../../pages/inventory/dialogs/PriceChangeDialog', () => ({
-  PriceChangeDialog: vi.fn(({ open }: { open: boolean }) => 
+  PriceChangeDialog: vi.fn(({ open }: { open: boolean }) =>
     open ? <div data-testid="price-change-dialog">PriceChangeDialog</div> : null
   ),
 }));
@@ -57,16 +56,6 @@ import { PriceChangeDialog } from '../../../../pages/inventory/dialogs/PriceChan
 type Props = ComponentProps<typeof InventoryDialogs>;
 
 describe('InventoryDialogs', () => {
-  const mockSelectedRow: InventoryRow = {
-    id: 'item-123',
-    name: 'Test Item',
-    code: 'TEST-001',
-    supplierId: '999',
-    onHand: 50,
-    minQty: 10,
-    createdAt: '2024-01-01',
-  };
-
   const baseProps: Props = {
     openNew: false,
     setOpenNew: vi.fn(),
@@ -74,13 +63,10 @@ describe('InventoryDialogs', () => {
     setOpenEditName: vi.fn(),
     openDelete: false,
     setOpenDelete: vi.fn(),
-    openEdit: false,
-    setOpenEdit: vi.fn(),
     openAdjust: false,
     setOpenAdjust: vi.fn(),
     openPrice: false,
     setOpenPrice: vi.fn(),
-    selectedRow: null,
     onReload: vi.fn(),
     isDemo: false,
   };
@@ -124,19 +110,6 @@ describe('InventoryDialogs', () => {
     expect(baseProps.setOpenPrice).toHaveBeenCalledWith(false);
   });
 
-  it('wires the edit ItemFormDialog onClose to setOpenEdit(false) when selectedRow is present', () => {
-    renderDialogs({ openEdit: true, selectedRow: mockSelectedRow });
-
-    const itemFormDialogMock = vi.mocked(ItemFormDialog);
-    const editCall = itemFormDialogMock.mock.calls.find(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (call) => Boolean((call?.[0] as any)?.initial),
-    );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (editCall?.[0] as any).onClose();
-    expect(baseProps.setOpenEdit).toHaveBeenCalledWith(false);
-  });
-
   it('renders no dialogs when all are closed', () => {
     const { queryByTestId } = renderDialogs();
     expect(queryByTestId('item-form-dialog')).not.toBeInTheDocument();
@@ -155,14 +128,6 @@ describe('InventoryDialogs', () => {
   ] as const)('renders %s dialog', (openProp, testId) => {
     const { getByTestId } = renderDialogs({ [openProp]: true } as Partial<typeof baseProps>);
     expect(getByTestId(testId)).toBeInTheDocument();
-  });
-
-  it('renders edit ItemFormDialog only when selectedRow is present', () => {
-    const closed = renderDialogs({ openEdit: true, selectedRow: null });
-    expect(closed.queryByTestId('item-form-dialog')).not.toBeInTheDocument();
-
-    const open = renderDialogs({ openEdit: true, selectedRow: mockSelectedRow });
-    expect(open.getByTestId('item-form-dialog')).toBeInTheDocument();
   });
 
   it('can render multiple dialogs simultaneously', () => {

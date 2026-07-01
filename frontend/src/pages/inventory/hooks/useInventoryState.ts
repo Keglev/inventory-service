@@ -4,7 +4,7 @@
  *
  * @summary
  * Centralized state bag for the inventory page: filters, DataGrid models,
- * row selection, and six dialog open/close flags, plus their setters.
+ * row selection, and five dialog open/close flags, plus their setters.
  *
  * @enterprise
  * - Single useState-bag lets handler hooks receive one state object
@@ -17,7 +17,7 @@
  * - Defaults are deliberate. Sort 'name,asc' matches the alphabetical
  *   mental model for inventory browse; page size 10 fits one viewport
  *   on standard laptops without vertical scroll.
- * - Six independent dialog flags rather than one discriminated union.
+ * - Five independent dialog flags rather than one discriminated union.
  *   Dialogs may overlap (selection survives across open/close cycles)
  *   and an exclusive-open invariant would not match the UX.
  */
@@ -27,7 +27,7 @@ import type { GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 
 /**
  * Complete inventory page state interface.
- * 
+ *
  * @interface InventoryState
  */
 export interface InventoryState {
@@ -45,7 +45,6 @@ export interface InventoryState {
 
   // Dialog toggles
   openNew: boolean;
-  openEdit: boolean;
   openEditName: boolean;
   openDelete: boolean;
   openAdjust: boolean;
@@ -63,7 +62,6 @@ export interface InventoryStateSetters {
   setSortModel: (model: GridSortModel) => void;
   setSelectedId: (id: string | null) => void;
   setOpenNew: (open: boolean) => void;
-  setOpenEdit: (open: boolean) => void;
   setOpenEditName: (open: boolean) => void;
   setOpenDelete: (open: boolean) => void;
   setOpenAdjust: (open: boolean) => void;
@@ -72,9 +70,9 @@ export interface InventoryStateSetters {
 
 /**
  * Hook for managing inventory page state.
- * 
+ *
  * Returns unified state object and setter functions.
- * 
+ *
  * @returns State and setter functions
  */
 export const useInventoryState = (): InventoryState & InventoryStateSetters => {
@@ -90,7 +88,6 @@ export const useInventoryState = (): InventoryState & InventoryStateSetters => {
   ]);
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [openNew, setOpenNew] = React.useState(false);
-  const [openEdit, setOpenEdit] = React.useState(false);
   const [openEditName, setOpenEditName] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
   const [openAdjust, setOpenAdjust] = React.useState(false);
@@ -104,7 +101,6 @@ export const useInventoryState = (): InventoryState & InventoryStateSetters => {
     sortModel,
     selectedId,
     openNew,
-    openEdit,
     openEditName,
     openDelete,
     openAdjust,
@@ -116,7 +112,6 @@ export const useInventoryState = (): InventoryState & InventoryStateSetters => {
     setSortModel,
     setSelectedId,
     setOpenNew,
-    setOpenEdit,
     setOpenEditName,
     setOpenDelete,
     setOpenAdjust,

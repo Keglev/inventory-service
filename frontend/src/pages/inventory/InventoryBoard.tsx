@@ -13,16 +13,6 @@
  *   (InventoryToolbar, InventoryFilterPanel, InventoryTable,
  *   InventoryDialogs). The board owns no useState or useEffect of its
  *   own; every piece of state lives in a sub-hook.
- * - selectedRow is DERIVED from data.server.items via .find on
- *   state.selectedId. This means the derivation is bound to the
- *   currently visible server page: if a filter or pagination change
- *   removes the selected item from the visible rows, selectedRow
- *   becomes null while state.selectedId remains set. Toolbar buttons
- *   that depend on the selection then operate on a stale id with no
- *   visible feedback. Tracked under CB-APP65 -- either clear
- *   selectedId when a filter/pagination change is about to evict the
- *   selected row, or treat selectedRow === null as a guard at every
- *   handler that consumes the selection.
  * - This is the reference site for HelpIconButton wiring: the help
  *   icon next to the page title uses the shared component with the
  *   topicId 'inventory.overview', matching QuantityAdjustDialog's
@@ -83,15 +73,9 @@ const InventoryBoard: React.FC = () => {
   // =====================
   const data = useDataFetchingLogic(state);
 
-  // Refresh + all six mutation-success callbacks re-run the current query
+  // Refresh + all five mutation-success callbacks re-run the current query
   // via the data hook's reload (fixes the page-0 no-op).
   const { handleReload } = useRefreshHandler(data.reload);
-
-  // =====================
-  // Selected Row
-  // =====================
-  // BUCKET: CB-APP65 -- selectedRow derived from visible page only. Stale state.selectedId persists if a filter/pagination change evicts the row. Either clear selectedId on eviction or guard selectedRow === null at every consumer.
-  const selectedRow = data.server.items.find((r) => r.id === state.selectedId) ?? null;
 
   // =====================
   // Render
@@ -195,13 +179,10 @@ const InventoryBoard: React.FC = () => {
         setOpenEditName={state.setOpenEditName}
         openDelete={state.openDelete}
         setOpenDelete={state.setOpenDelete}
-        openEdit={state.openEdit}
-        setOpenEdit={state.setOpenEdit}
         openAdjust={state.openAdjust}
         setOpenAdjust={state.setOpenAdjust}
         openPrice={state.openPrice}
         setOpenPrice={state.setOpenPrice}
-        selectedRow={selectedRow}
         onReload={handleReload}
         isDemo={isDemo}
       />

@@ -4,27 +4,24 @@
  *
  * @summary
  * Collection of inventory mutation dialogs (create, rename, delete,
- * edit, quantity-adjust, price-change), all controlled by visibility
- * flags and a single shared onReload callback.
+ * quantity-adjust, price-change), all controlled by visibility flags and
+ * a single shared onReload callback.
  *
  * @enterprise
- * - Stateless dialog host. Every flag and selection is provided by
- *   the parent (InventoryBoard via useInventoryState), so this file
- *   carries no useState/useEffect.
- * - Renders TWO <ItemFormDialog> instances: one for create (openNew),
- *   one for edit (openEdit, gated on selectedRow). The component
- *   itself supports both modes via the `initial` prop, so mounting
- *   two instances is redundant. Tracked under CB-APP64 -- collapse to
- *   one instance with mode keyed off `initial` in the refactor phase.
- * - onReload is the single refresh path used by all six dialogs. It
+ * - Stateless dialog host. Every flag is provided by the parent
+ *   (InventoryBoard via useInventoryState), so this file carries no
+ *   useState/useEffect.
+ * - Each mutation dialog selects its own target internally (supplier ->
+ *   product), so the host passes no selected-row data. The board's row
+ *   selection drives grid highlighting only, not the dialogs.
+ * - onReload is the single refresh path used by all five dialogs. It
  *   wires to useRefreshHandler in the parent, which re-runs the current
  *   inventory query directly via the data hook's reload rather than
  *   resetting paginationModel, so refresh works on page 0 as well as
  *   any other page.
- * - isDemo flows through to readOnly on the three dialogs that
- *   support it (delete, quantity-adjust, price-change). Edit and
- *   rename do not currently honor demo mode -- the dialog props
- *   omit readOnly.
+ * - isDemo flows through to readOnly on the three dialogs that support
+ *   it (delete, quantity-adjust, price-change). Rename does not
+ *   currently honor demo mode -- the dialog props omit readOnly.
  */
 
 import * as React from 'react';
@@ -33,7 +30,6 @@ import { EditItemDialog } from '../dialogs/EditItemDialog';
 import DeleteItemDialog from '../dialogs/DeleteItemDialog/DeleteItemDialog';
 import { QuantityAdjustDialog } from '../dialogs/QuantityAdjustDialog';
 import { PriceChangeDialog } from '../dialogs/PriceChangeDialog';
-import type { InventoryRow } from '../../../api/inventory/types';
 
 interface InventoryDialogsProps {
   openNew: boolean;
@@ -42,13 +38,10 @@ interface InventoryDialogsProps {
   setOpenEditName: (open: boolean) => void;
   openDelete: boolean;
   setOpenDelete: (open: boolean) => void;
-  openEdit: boolean;
-  setOpenEdit: (open: boolean) => void;
   openAdjust: boolean;
   setOpenAdjust: (open: boolean) => void;
   openPrice: boolean;
   setOpenPrice: (open: boolean) => void;
-  selectedRow: InventoryRow | null;
   onReload: () => void;
   isDemo: boolean;
 }
@@ -60,13 +53,10 @@ export const InventoryDialogs: React.FC<InventoryDialogsProps> = ({
   setOpenEditName,
   openDelete,
   setOpenDelete,
-  openEdit,
-  setOpenEdit,
   openAdjust,
   setOpenAdjust,
   openPrice,
   setOpenPrice,
-  selectedRow,
   onReload,
   isDemo,
 }) => {
@@ -90,22 +80,6 @@ export const InventoryDialogs: React.FC<InventoryDialogsProps> = ({
         onItemDeleted={onReload}
         readOnly={isDemo}
       />
-
-      {/* BUCKET: CB-APP64 -- two ItemFormDialog instances (create + edit). Collapse to one instance keyed off `initial` prop in refactor. */}
-      {selectedRow && (
-        <ItemFormDialog
-          isOpen={openEdit}
-          initial={{
-            id: selectedRow.id,
-            name: selectedRow.name,
-            code: selectedRow.code ?? '',
-            supplierId: selectedRow.supplierId,
-            onHand: selectedRow.onHand,
-          }}
-          onClose={() => setOpenEdit(false)}
-          onSaved={onReload}
-        />
-      )}
 
       <QuantityAdjustDialog
         open={openAdjust}

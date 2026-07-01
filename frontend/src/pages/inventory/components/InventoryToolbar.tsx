@@ -10,11 +10,10 @@
  * - Pure presentation. Each button is a callback; no disabled logic
  *   here. The parent (InventoryBoard) decides which actions are
  *   meaningful given the current selection.
- * - "Edit" opens the rename dialog (openEditName), not the broader
- *   edit form (openEdit) -- intentional, per the rule documented in
- *   useToolbarHandlers: only ADMIN can rename, and the toolbar
- *   surfaces only the rename path. The broader edit dialog is reached
- *   via other entry points.
+ * - "Edit" opens the rename dialog (openEditName) -- intentional, per
+ *   the rule documented in useToolbarHandlers: only ADMIN can rename,
+ *   and the toolbar surfaces only the rename path. Every other
+ *   mutation dialog selects its own target internally.
  * - All five labels carry English fallbacks, consistent with the
  *   CM-APP9 directory-wide policy of cleaning these in a single
  *   refactor pass rather than ad hoc per file.
