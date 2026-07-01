@@ -129,7 +129,7 @@ describe('useSuppliersBoardData', () => {
     });
 
     const { result } = renderHook(() =>
-      useSuppliersBoardData(1, 10, 'name,asc', '', false)
+      useSuppliersBoardData(1, 10, 'name,asc', '')
     );
 
     expect(result.current.suppliers).toEqual(mockSuppliers);
@@ -143,7 +143,7 @@ describe('useSuppliersBoardData', () => {
     mockSupplierSearchQuery({ data: searchResults });
 
     const { result } = renderHook(() =>
-      useSuppliersBoardData(1, 10, 'name,asc', 'acme', false)
+      useSuppliersBoardData(1, 10, 'name,asc', 'acme')
     );
 
     expect(result.current.searchResults).toEqual(searchResults);
@@ -191,43 +191,19 @@ describe('useSuppliersBoardData', () => {
     arrange();
 
     const { result } = renderHook(() =>
-      useSuppliersBoardData(1, 10, 'name,asc', 'test', false)
+      useSuppliersBoardData(1, 10, 'name,asc', 'test')
     );
 
     assert(result.current);
   });
 
-  it.each([
-    {
-      name: 'includes q when showAllSuppliers is true and query length >= 2',
-      showAllSuppliers: true,
-      searchQuery: 'test',
-      expectedQ: 'test',
-    },
-    {
-      name: 'omits q when showAllSuppliers is false',
-      showAllSuppliers: false,
-      searchQuery: 'test',
-      expectedQ: undefined,
-    },
-    {
-      name: 'omits q when query length < 2',
-      showAllSuppliers: true,
-      searchQuery: 't',
-      expectedQ: undefined,
-    },
-  ])('wires pagination params ($name)', ({ showAllSuppliers, searchQuery, expectedQ }) => {
+  it('wires pagination params to the page query without a search q', () => {
     renderHook(() =>
-      useSuppliersBoardData(2, 25, 'lastContact,desc', searchQuery, showAllSuppliers)
+      useSuppliersBoardData(2, 25, 'lastContact,desc', 'test')
     );
 
     expect(mocks.useSuppliersPageQuery).toHaveBeenCalledWith(
-      expect.objectContaining({
-        page: 2,
-        pageSize: 25,
-        sort: 'lastContact,desc',
-        q: expectedQ,
-      }),
+      { page: 2, pageSize: 25, sort: 'lastContact,desc' },
       true
     );
   });
@@ -238,7 +214,7 @@ describe('useSuppliersBoardData', () => {
     { name: 'passes empty string when empty', searchQuery: '', expectedQueryArg: '' },
   ])('wires search query arg ($name)', ({ searchQuery, expectedQueryArg }) => {
     renderHook(() =>
-      useSuppliersBoardData(1, 10, 'name,asc', searchQuery, true)
+      useSuppliersBoardData(1, 10, 'name,asc', searchQuery)
     );
 
     expect(mocks.useSupplierSearchQuery).toHaveBeenCalledWith(expectedQueryArg, true);

@@ -32,9 +32,6 @@ import type { UseSuppliersBoardStateReturn } from '../hooks/useSuppliersBoardSta
  * ```
  */
 export function useDataFetchingLogic(state: UseSuppliersBoardStateReturn) {
-  // CM-APP12: debug console.log — remove in refactor pass.
-  console.log('[DATA FETCHING LOGIC] called with pagination:', state.paginationModel);
-
   // Prepare parameters for data hook (no memoization needed)
   // CB-F: off-by-one — backend Pageable is 0-based; this +1 produces a 1-based page number. Tracked for refactor.
   const serverPage = state.paginationModel.page + 1;
@@ -49,11 +46,8 @@ export function useDataFetchingLogic(state: UseSuppliersBoardStateReturn) {
     serverPage,
     state.paginationModel.pageSize,
     serverSort,
-    state.searchQuery,
-    state.showAllSuppliers  // Pass this flag so the hook knows whether to filter paginated results
+    state.searchQuery
   );
 
-  // CM-APP12: debug console.log — remove in refactor pass.
-  console.log('[DATA FETCHING LOGIC] returning data, suppliers count:', data.suppliers.length);
   return data;
 }
