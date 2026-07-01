@@ -13,13 +13,9 @@
  *   transport. The api-layer useInventoryData remains the transport-
  *   facing hook; this pages-layer hook adapts it for the inventory
  *   board.
- * - serverPage parameter is 1-based by this hook's current contract,
- *   but the inventory backend is 0-based Spring Pageable. The +1
- *   conversion happens at the caller (useDataFetchingLogic). Tracked
- *   under CB-F -- the caller adds +1 to a grid page that is already
- *   0-based, so page 0 in the grid asks the backend for page 1, which
- *   skips the first server page. Fix is to normalize this parameter to
- *   0-based and drop the +1 in the refactor phase.
+ * - serverPage is 0-based (Spring Pageable), matching the MUI grid's own
+ *   0-based page model; it is forwarded to getInventoryPage unchanged.
+ *   No index conversion occurs anywhere in this path.
  * - Client-side supplier filtering is a defensive safeguard: the backend
  *   already filters by supplierId, but the client re-filters in case
  *   the response leaks cross-supplier rows. Same defensive posture as
@@ -79,7 +75,7 @@ export interface InventoryPageDataResult {
  * @param supplierId - Selected supplier ID (null to not load)
  * @param q - Search query (debounced)
  * @param belowMinOnly - Whether to filter for below-min items only
- * @param serverPage - Current page (1-based)
+ * @param serverPage - Current page (0-based, Spring Pageable)
  * @param pageSize - Items per page
  * @param serverSort - Sort string (field,direction)
  * @returns Data loading results
@@ -95,7 +91,7 @@ export const useInventoryPageData = (
   const [server, setServer] = React.useState<InventoryListResponse>({
     items: [],
     total: 0,
-    page: 1,
+    page: 0,
     pageSize: 10,
   });
   const [loading, setLoading] = React.useState(false);

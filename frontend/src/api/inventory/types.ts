@@ -11,7 +11,7 @@ export type ServerSort = string;
 
 /** Filter & pagination params accepted by the list endpoint. */
 export interface InventoryListParams {
-  /** 1-based page index expected by the backend. */
+  /** 0-based page index (Spring Pageable). */
   page: number;
   /** Page size (rows per page). */
   pageSize: number;
@@ -39,7 +39,7 @@ export interface InventoryRow {
 export interface InventoryListResponse {
   items: InventoryRow[];
   total: number;
-  page: number;      // echo of the 1-based page index
+  page: number;      // echo of the 0-based page index
   pageSize: number;  // echo of page size
 }
 
