@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-inventory/normalizers/functions/normalizeInventoryRow · Smart Supply Pro · API</title>
+inventory/variables/DECREASE_ADJUST_REASONS · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -112,48 +112,32 @@ inventory/normalizers/functions/normalizeInventoryRow · Smart Supply Pro · API
     <main class="content" id="main">
       <article class="doc-body">
         <p><a
-        href="../../../../README.html"><strong>frontend</strong></a></p>
+        href="../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/inventory/normalizers</a> /
-        normalizeInventoryRow</p>
-        <h1 id="function-normalizeinventoryrow">Function:
-        normalizeInventoryRow()</h1>
+        <p><a href="../../../README.html">frontend</a> / <a
+        href="../README.html">api/inventory</a> /
+        DECREASE_ADJUST_REASONS</p>
+        <h1 id="variable-decrease_adjust_reasons">Variable:
+        DECREASE_ADJUST_REASONS</h1>
         <blockquote>
-        <p><strong>normalizeInventoryRow</strong>(<code>raw</code>): <a
-        href="../../types/interfaces/InventoryRow.html"><code>InventoryRow</code></a>
-        | <code>null</code></p>
+        <p><code>const</code> <strong>DECREASE_ADJUST_REASONS</strong>:
+        readonly [<code>"SOLD"</code>, <code>"SCRAPPED"</code>,
+        <code>"DESTROYED"</code>, <code>"DAMAGED"</code>,
+        <code>"EXPIRED"</code>, <code>"LOST"</code>,
+        <code>"RETURNED_TO_SUPPLIER"</code>,
+        <code>"MANUAL_UPDATE"</code>]</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/e56e4bb3b818974577bcaf33e93bf203081981ec/frontend/src/api/inventory/normalizers.ts#L30">api/inventory/normalizers.ts:30</a></p>
-        <p>Normalizes a raw backend response into a typed InventoryRow.
-        Returns null (never throws) when the input is not a record or
-        the required <code>id</code> is absent.</p>
-        <h2 id="parameters">Parameters</h2>
-        <h3 id="raw">raw</h3>
-        <p><code>unknown</code></p>
-        <p>Unknown backend response data</p>
-        <h2 id="returns">Returns</h2>
-        <p><a
-        href="../../types/interfaces/InventoryRow.html"><code>InventoryRow</code></a>
-        | <code>null</code></p>
-        <p>Normalized InventoryRow, or null if invalid</p>
+        href="https://github.com/Keglev/inventory-service/blob/e56e4bb3b818974577bcaf33e93bf203081981ec/frontend/src/pages/inventory/validation/inventoryValidation.ts#L60">pages/inventory/validation/inventoryValidation.ts:60</a></p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-normalizeinventoryrow"
-      id="toc-function-normalizeinventoryrow">Function:
-      normalizeInventoryRow()</a>
-      <ul>
-      <li><a href="#parameters" id="toc-parameters">Parameters</a>
-      <ul>
-      <li><a href="#raw" id="toc-raw">raw</a></li>
-      </ul></li>
-      <li><a href="#returns" id="toc-returns">Returns</a></li>
-      </ul></li>
+      <li><a href="#variable-decrease_adjust_reasons"
+      id="toc-variable-decrease_adjust_reasons">Variable:
+      DECREASE_ADJUST_REASONS</a></li>
       </ul>
     </nav>
       </div>

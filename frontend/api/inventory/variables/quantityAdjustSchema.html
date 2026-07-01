@@ -121,15 +121,34 @@ inventory/variables/quantityAdjustSchema · Smart Supply Pro · API</title>
         quantityAdjustSchema</h1>
         <blockquote>
         <p><code>const</code> <strong>quantityAdjustSchema</strong>:
-        <code>ZodObject</code>&lt;{ <code>itemId</code>:
+        <code>ZodObject</code>&lt;{ <code>currentQuantity</code>:
+        <code>ZodNumber</code>; <code>itemId</code>:
         <code>ZodString</code>; <code>newQuantity</code>:
         <code>ZodNumber</code>; <code>reason</code>:
-        <code>ZodString</code>; }, <code>$strip</code>&gt;</p>
+        <code>ZodEnum</code>&lt;{ <code>DAMAGED</code>:
+        <code>"DAMAGED"</code>; <code>DESTROYED</code>:
+        <code>"DESTROYED"</code>; <code>EXPIRED</code>:
+        <code>"EXPIRED"</code>; <code>INITIAL_STOCK</code>:
+        <code>"INITIAL_STOCK"</code>; <code>LOST</code>:
+        <code>"LOST"</code>; <code>MANUAL_UPDATE</code>:
+        <code>"MANUAL_UPDATE"</code>; <code>RETURNED_BY_CUSTOMER</code>:
+        <code>"RETURNED_BY_CUSTOMER"</code>;
+        <code>RETURNED_TO_SUPPLIER</code>:
+        <code>"RETURNED_TO_SUPPLIER"</code>; <code>SCRAPPED</code>:
+        <code>"SCRAPPED"</code>; <code>SOLD</code>: <code>"SOLD"</code>;
+        }&gt;; }, <code>$strip</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/7854fe6ac8a7089755775e75a2ee49c23b52f42e/frontend/src/pages/inventory/validation/inventoryValidation.ts#L51">pages/inventory/validation/inventoryValidation.ts:51</a></p>
-        <p>Schema for adjusting item quantities. Used in quantity
-        adjustment dialogs.</p>
+        href="https://github.com/Keglev/inventory-service/blob/e56e4bb3b818974577bcaf33e93bf203081981ec/frontend/src/pages/inventory/validation/inventoryValidation.ts#L97">pages/inventory/validation/inventoryValidation.ts:97</a></p>
+        <p>Schema for adjusting item quantities, used in the
+        quantity-adjust dialog.</p>
+        <p>currentQuantity is the item's live on-hand quantity
+        (populated from the details query); it is not user-editable but
+        is carried in the form so the refinements can derive the change
+        direction. Rules: reason must match the direction, and the new
+        quantity must differ from the current one (a zero-delta write is
+        rejected by the backend for every reason except PRICE_CHANGE,
+        which this flow never sends).</p>
       </article>
     </main>
 
