@@ -4,8 +4,9 @@
  * @description Unit tests for handleDeleteError utility.
  *
  * Contract under test:
- * - Maps backend/API error text into a user-friendly message + severity.
- * - Uses i18n keys with fallback strings (so UI remains usable even if translations are missing).
+ * - Maps the backend's structured status token into a user-friendly message + severity.
+ * - Requests i18n keys with a defaultValue (required by the typed TFunction for
+ *   cross-namespace 'errors:' keys).
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -20,9 +21,7 @@ import { handleDeleteError } from '../../../../../pages/inventory/dialogs/Delete
 type TSpy = ReturnType<typeof vi.fn<[key: string, fallback?: string], string>>;
 
 /**
- * Translation stub:
- * - returns fallback when provided
- * - otherwise returns the key
+ * Translation stub: returns the defaultValue when provided, otherwise the key.
  */
 function createT(): { t: TFunction; spy: TSpy } {
   const spy: TSpy = vi.fn((key: string, fallback?: string) => fallback ?? key);
@@ -30,7 +29,7 @@ function createT(): { t: TFunction; spy: TSpy } {
 }
 
 describe('handleDeleteError', () => {
-  it('returns a generic message when error text is missing', () => {
+  it('returns a generic message when no token is present', () => {
     const { t, spy } = createT();
 
     const result = handleDeleteError(undefined, t);
@@ -39,86 +38,77 @@ describe('handleDeleteError', () => {
       message: 'Failed to delete item. Please try again.',
       severity: 'error',
     });
-
     expect(spy).toHaveBeenCalledWith(
       'errors:inventory.requests.failedToDeleteItem',
-      'Failed to delete item. Please try again.',
+      'Failed to delete item. Please try again.'
     );
   });
 
-  it('maps quantity rule violation to error severity', () => {
+  it('maps the conflict token to the quantity rule with error severity', () => {
     const { t, spy } = createT();
 
-    const result = handleDeleteError('You still have merchandise in stock', t);
+    const result = handleDeleteError({ errorToken: 'conflict' }, t);
 
     expect(result).toEqual({
       message:
         'You still have merchandise in stock. You need to first remove items from stock by changing quantity.',
       severity: 'error',
     });
-
     expect(spy).toHaveBeenCalledWith(
       'errors:inventory.businessRules.quantityMustBeZero',
-      'You still have merchandise in stock. You need to first remove items from stock by changing quantity.',
+      'You still have merchandise in stock. You need to first remove items from stock by changing quantity.'
     );
   });
 
-  it('maps admin permission failure to warning severity', () => {
+  it('maps the forbidden token to admin-only with warning severity', () => {
     const { t, spy } = createT();
 
-    const result = handleDeleteError('Access denied: admin required', t);
+    const result = handleDeleteError({ errorToken: 'forbidden' }, t);
 
     expect(result).toEqual({
       message: 'Only administrators can delete items.',
       severity: 'warning',
     });
-
     expect(spy).toHaveBeenCalledWith(
       'errors:inventory.businessRules.adminOnly',
-      'Only administrators can delete items.',
+      'Only administrators can delete items.'
     );
   });
 
-  it('maps not found errors to warning severity with explanation', () => {
+  it('maps the not_found token to item-not-found with warning severity', () => {
     const { t, spy } = createT();
 
-    const result = handleDeleteError('404 Not Found', t);
+    const result = handleDeleteError({ errorToken: 'not_found' }, t);
 
     expect(result).toEqual({
       message: 'Item not found. It may have been deleted by another user.',
       severity: 'warning',
     });
-
     expect(spy).toHaveBeenCalledWith(
       'errors:inventory.businessRules.itemNotFound',
-      'Item not found. It may have been deleted by another user.',
+      'Item not found. It may have been deleted by another user.'
     );
   });
 
-  it('falls back to the generic message for unclassified errors', () => {
-    const { t, spy } = createT();
+  it('falls back to the generic message for an unmapped token', () => {
+    const { t } = createT();
 
-    const result = handleDeleteError('Unexpected error occurred', t);
+    const result = handleDeleteError({ errorToken: 'internal_server_error' }, t);
 
     expect(result).toEqual({
       message: 'Failed to delete item. Please try again.',
       severity: 'error',
     });
-
-    expect(spy).toHaveBeenCalledWith(
-      'errors:inventory.requests.failedToDeleteItem',
-      'Failed to delete item. Please try again.',
-    );
   });
 
-  it('is deterministic when multiple keywords are present (mapping precedence)', () => {
+  it('falls back to the generic message when errorToken is null', () => {
     const { t } = createT();
 
-    const result = handleDeleteError('404 Not Found - admin required', t);
+    const result = handleDeleteError({ errorToken: null }, t);
 
     expect(result).toEqual({
-      message: 'Only administrators can delete items.',
-      severity: 'warning',
+      message: 'Failed to delete item. Please try again.',
+      severity: 'error',
     });
   });
 });

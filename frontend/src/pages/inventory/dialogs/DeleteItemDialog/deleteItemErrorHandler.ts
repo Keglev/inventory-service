@@ -3,24 +3,32 @@
  * @module pages/inventory/dialogs/DeleteItemDialog/deleteItemErrorHandler
  *
  * @summary
- * Maps a backend error message string to a user-facing message and
- * severity. Used by useDeleteItemHandlers when deleteItem returns
- * ok: false.
+ * Maps a failed delete response to a user-facing message and severity.
+ * Used by useDeleteItemHandlers when deleteItem returns ok: false.
  *
  * @enterprise
- * - Three rules in priority order: quantity-must-be-zero (the dominant
- *   delete failure), admin-only access, and item-not-found. A generic
- *   fallback message covers anything else.
- * - Implementation matches on substrings of the freeform backend message
- *   text ('still have', 'admin', '404', etc.). This is fragile: the
- *   locked error shape exposes a structured token via the error field
- *   (HttpStatus.name().toLowerCase()), and the backend's business-rule
- *   identifiers do not change as easily as English message text. Tracked
- *   under CB-APP48 -- switch to matching on the structured error field
- *   or on a backend-supplied rule code instead of message substrings.
+ * - Branches on the backend's structured status token (errorToken =
+ *   HttpStatus.name().toLowerCase()) rather than on substrings of the freeform
+ *   message. The three delete failure categories map to distinct tokens:
+ *   remaining stock -> 'conflict' (the backend guards deletion at quantity 0),
+ *   insufficient permission -> 'forbidden', and a vanished item -> 'not_found'.
+ *   Anything else (including a network failure with no response) falls through
+ *   to a generic message.
+ * - Message text is sourced from i18n keys. The shared TFunction is typed against
+ *   the default namespace, so cross-namespace 'errors:' keys require a defaultValue
+ *   argument to satisfy the typed overload; the canonical English is passed there,
+ *   but the resource bundle value is authoritative at runtime.
  */
 
 import type { TFunction } from 'i18next';
+
+/**
+ * Minimal shape consumed from a failed mutation response.
+ */
+export interface DeleteErrorInput {
+  /** Normalized backend status token (e.g. 'not_found', 'conflict', 'forbidden'). */
+  errorToken?: string | null;
+}
 
 /**
  * Categorized error response from deleteItem API
@@ -33,36 +41,25 @@ export interface DeleteErrorResult {
 }
 
 /**
- * Process API error response and return user-friendly message.
+ * Process a failed delete response and return a user-friendly message.
  *
- * Handles specific business rules:
- * - Quantity must be 0 before deletion
- * - Only admins can delete items
- * - Item not found scenarios
+ * Handles the specific business rules the backend enforces:
+ * - Quantity must be 0 before deletion ('conflict')
+ * - Only admins can delete items ('forbidden')
+ * - Item no longer exists ('not_found')
  *
- * @param errorText - Error text from API
+ * @param result - Failed mutation response (or undefined)
  * @param t - i18n translation function
  * @returns Categorized error result with message and severity
- *
  */
 export function handleDeleteError(
-  errorText: string | undefined,
+  result: DeleteErrorInput | undefined,
   t: TFunction
 ): DeleteErrorResult {
-  if (!errorText) {
-    return {
-      message: t('errors:inventory.requests.failedToDeleteItem', 'Failed to delete item. Please try again.'),
-      severity: 'error',
-    };
-  }
+  const token = result?.errorToken ?? null;
 
-  // BUCKET: CB-APP48 -- substring matching on freeform backend message text is fragile. Switch to the structured error field per locked error shape.
-  const lowerError = errorText.toLowerCase();
-
-  // ============================================
-  // Business Rule: Quantity must be zero
-  // ============================================
-  if (lowerError.includes('still have') || lowerError.includes('merchandise') || lowerError.includes('stock')) {
+  // Business rule: item still has stock (deletion is only allowed at quantity 0).
+  if (token === 'conflict') {
     return {
       message: t(
         'errors:inventory.businessRules.quantityMustBeZero',
@@ -72,23 +69,16 @@ export function handleDeleteError(
     };
   }
 
-  // ============================================
-  // Authorization: Admin only
-  // ============================================
-  if (lowerError.includes('admin') || lowerError.includes('access denied')) {
+  // Authorization: only administrators may delete items.
+  if (token === 'forbidden') {
     return {
-      message: t(
-        'errors:inventory.businessRules.adminOnly',
-        'Only administrators can delete items.'
-      ),
+      message: t('errors:inventory.businessRules.adminOnly', 'Only administrators can delete items.'),
       severity: 'warning',
     };
   }
 
-  // ============================================
-  // Not Found: Item no longer exists
-  // ============================================
-  if (lowerError.includes('404') || lowerError.includes('not found')) {
+  // Not found: the item no longer exists.
+  if (token === 'not_found') {
     return {
       message: t(
         'errors:inventory.businessRules.itemNotFound',
@@ -98,9 +88,7 @@ export function handleDeleteError(
     };
   }
 
-  // ============================================
-  // Generic error fallback
-  // ============================================
+  // Generic fallback (network failure or an unmapped status).
   return {
     message: t('errors:inventory.requests.failedToDeleteItem', 'Failed to delete item. Please try again.'),
     severity: 'error',

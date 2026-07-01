@@ -231,7 +231,7 @@ describe('useDeleteItemHandlers', () => {
     });
 
     it('maps API failure response to a user-friendly error and exits confirmation', async () => {
-      deleteItemSpy.mockResolvedValue({ ok: false, error: 'Still have stock' });
+      deleteItemSpy.mockResolvedValue({ ok: false, error: 'Still have stock', errorToken: 'conflict' });
       handleDeleteErrorSpy.mockReturnValue({ message: 'Friendly error', severity: 'error' });
 
       const { result, state } = setup({
@@ -245,7 +245,7 @@ describe('useDeleteItemHandlers', () => {
         await result.current.onConfirmedDelete();
       });
 
-      expect(handleDeleteErrorSpy).toHaveBeenCalledWith('Still have stock', tSpy as unknown as TFunction);
+      expect(handleDeleteErrorSpy).toHaveBeenCalledWith({ ok: false, error: 'Still have stock', errorToken: 'conflict' }, tSpy as unknown as TFunction);
       expect(state.setFormError).toHaveBeenCalledWith('Friendly error');
       expect(state.setShowConfirmation).toHaveBeenCalledWith(false);
     });

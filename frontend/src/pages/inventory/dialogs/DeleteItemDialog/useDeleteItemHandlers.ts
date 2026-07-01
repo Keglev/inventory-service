@@ -141,7 +141,7 @@ export function useDeleteItemHandlers(
         handleClose();
       } else {
         // Error path: use error handler to map backend error to user message
-        const errorResult = handleDeleteError(success.error, t);
+        const errorResult = handleDeleteError(success, t);
         state.setFormError(errorResult.message);
         state.setShowConfirmation(false);
       }
