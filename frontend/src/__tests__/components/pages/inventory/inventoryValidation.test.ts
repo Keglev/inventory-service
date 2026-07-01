@@ -126,42 +126,71 @@ describe('inventoryValidation', () => {
   });
 
   describe('quantityAdjustSchema', () => {
-    it('should validate valid quantity adjustment data', () => {
+    it('accepts an increase with an increase-valid reason', () => {
       expectValid(quantityAdjustSchema, {
         itemId: 'item-123',
-        newQuantity: 50,
-        reason: 'Stock replenishment',
+        currentQuantity: 10,
+        newQuantity: 15,
+        reason: 'INITIAL_STOCK',
       });
     });
 
-    it('should allow zero quantity', () => {
-      const data = {
-        itemId: 'item-456',
-        newQuantity: 0,
-        reason: 'Sold out',
-      };
+    it('accepts a reduction with a disposal reason', () => {
+      expectValid(quantityAdjustSchema, {
+        itemId: 'item-123',
+        currentQuantity: 20,
+        newQuantity: 5,
+        reason: 'DESTROYED',
+      });
+    });
 
-      const result = quantityAdjustSchema.safeParse(data);
-      expectValid(quantityAdjustSchema, data, result.success ? result.data : undefined);
+    it('accepts MANUAL_UPDATE in either direction', () => {
+      expectValid(quantityAdjustSchema, {
+        itemId: 'item-123',
+        currentQuantity: 5,
+        newQuantity: 12,
+        reason: 'MANUAL_UPDATE',
+      });
+      expectValid(quantityAdjustSchema, {
+        itemId: 'item-123',
+        currentQuantity: 12,
+        newQuantity: 5,
+        reason: 'MANUAL_UPDATE',
+      });
     });
 
     it.each([
       [
         'empty itemId',
-        { itemId: '', newQuantity: 50, reason: 'Adjustment' },
+        { itemId: '', currentQuantity: 10, newQuantity: 15, reason: 'INITIAL_STOCK' },
         'Item selection is required',
       ],
       [
         'negative quantity',
-        { itemId: 'item-123', newQuantity: -10, reason: 'Adjustment' },
+        { itemId: 'item-123', currentQuantity: 10, newQuantity: -10, reason: 'SOLD' },
         'Quantity cannot be negative',
       ],
       [
-        'empty reason',
-        { itemId: 'item-123', newQuantity: 50, reason: '' },
+        'unknown reason',
+        { itemId: 'item-123', currentQuantity: 10, newQuantity: 15, reason: 'DONATED' },
         'Reason is required',
       ],
-    ])('should reject %s', (_, data, message) => {
+      [
+        'zero-delta change',
+        { itemId: 'item-123', currentQuantity: 10, newQuantity: 10, reason: 'MANUAL_UPDATE' },
+        'New quantity must differ from the current quantity',
+      ],
+      [
+        'increase with a reduce-only reason',
+        { itemId: 'item-123', currentQuantity: 5, newQuantity: 12, reason: 'SOLD' },
+        'Select a reason valid for increasing stock',
+      ],
+      [
+        'reduction with an increase-only reason',
+        { itemId: 'item-123', currentQuantity: 12, newQuantity: 5, reason: 'RETURNED_BY_CUSTOMER' },
+        'Select a reason valid for reducing stock',
+      ],
+    ])('rejects %s', (_, data, message) => {
       expectInvalidMessage(quantityAdjustSchema, data, message);
     });
   });

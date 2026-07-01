@@ -13,13 +13,14 @@
  * - Reason field is intentionally asymmetric across flows. itemFormSchema
  *   constrains reason to the 2-value subset INITIAL_STOCK | MANUAL_UPDATE
  *   because creation and bulk edits only ever justify with these two.
- *   quantityAdjustSchema takes a loose z.string() so the broader
- *   StockChangeReason set (e.g. SCRAPPED, LOST, RETURNED_TO_SUPPLIER)
- *   flows through; the backend StockHistoryValidator is the authoritative
- *   check. price-change, edit-name, and delete carry no reason field at
- *   all because the backend does not record one for those flows.
- * - Tracked: CB-E (frontend looser than backend on quantity-adjust).
- *   Tightening is a deliberate refactor decision, not a comment-pass change.
+ *   quantityAdjustSchema constrains reason to the direction-aware adjust
+ *   set: increasing stock allows INITIAL_STOCK, RETURNED_BY_CUSTOMER and
+ *   MANUAL_UPDATE; reducing stock allows SOLD, SCRAPPED, DESTROYED,
+ *   DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER and MANUAL_UPDATE. It
+ *   mirrors the backend StockHistoryValidator's accepted set and also
+ *   rejects a no-op change (new quantity equal to current). price-change,
+ *   edit-name, and delete carry no reason field at all because the backend
+ *   does not record one for those flows.
  * - z.coerce.number() is used so text-input strings from MUI TextField
  *   are accepted without explicit conversion at the caller. Error messages
  *   are field-level so a form library can bind them directly.
@@ -45,14 +46,77 @@ export const itemFormSchema = z.object({
 export type UpsertItemForm = z.infer<typeof itemFormSchema>;
 
 /**
- * Schema for adjusting item quantities.
- * Used in quantity adjustment dialogs.
+ * Adjust-reason sets, split by the direction of the quantity change.
+ * Single source of truth shared by the schema (validation) and the dialog
+ * dropdown (which offers only the reasons valid for the current direction).
+ * Every value is accepted by the backend StockHistoryValidator.
  */
-export const quantityAdjustSchema = z.object({
-  itemId: z.string().min(1, 'Item selection is required'),
-  newQuantity: z.number().min(0, 'Quantity cannot be negative'),
-  reason: z.string().min(1, 'Reason is required'),
-});
+export const INCREASE_ADJUST_REASONS = [
+  'INITIAL_STOCK',
+  'RETURNED_BY_CUSTOMER',
+  'MANUAL_UPDATE',
+] as const;
+
+export const DECREASE_ADJUST_REASONS = [
+  'SOLD',
+  'SCRAPPED',
+  'DESTROYED',
+  'DAMAGED',
+  'EXPIRED',
+  'LOST',
+  'RETURNED_TO_SUPPLIER',
+  'MANUAL_UPDATE',
+] as const;
+
+/** Union of both directions: every reason the adjust dialog can ever offer. */
+export const ADJUST_REASONS = [
+  'INITIAL_STOCK',
+  'RETURNED_BY_CUSTOMER',
+  'MANUAL_UPDATE',
+  'SOLD',
+  'SCRAPPED',
+  'DESTROYED',
+  'DAMAGED',
+  'EXPIRED',
+  'LOST',
+  'RETURNED_TO_SUPPLIER',
+] as const;
+
+export type AdjustReason = (typeof ADJUST_REASONS)[number];
+
+/**
+ * Schema for adjusting item quantities, used in the quantity-adjust dialog.
+ *
+ * currentQuantity is the item's live on-hand quantity (populated from the
+ * details query); it is not user-editable but is carried in the form so the
+ * refinements can derive the change direction. Rules: reason must match the
+ * direction, and the new quantity must differ from the current one (a
+ * zero-delta write is rejected by the backend for every reason except
+ * PRICE_CHANGE, which this flow never sends).
+ */
+export const quantityAdjustSchema = z
+  .object({
+    itemId: z.string().min(1, 'Item selection is required'),
+    currentQuantity: z.number(),
+    newQuantity: z.number().min(0, 'Quantity cannot be negative'),
+    reason: z.enum(ADJUST_REASONS, { message: 'Reason is required' }),
+  })
+  .refine((v) => v.newQuantity !== v.currentQuantity, {
+    message: 'New quantity must differ from the current quantity',
+    path: ['newQuantity'],
+  })
+  .refine(
+    (v) =>
+      v.newQuantity <= v.currentQuantity ||
+      (INCREASE_ADJUST_REASONS as readonly string[]).includes(v.reason),
+    { message: 'Select a reason valid for increasing stock', path: ['reason'] }
+  )
+  .refine(
+    (v) =>
+      v.newQuantity >= v.currentQuantity ||
+      (DECREASE_ADJUST_REASONS as readonly string[]).includes(v.reason),
+    { message: 'Select a reason valid for reducing stock', path: ['reason'] }
+  );
 
 export type QuantityAdjustForm = z.infer<typeof quantityAdjustSchema>;
 

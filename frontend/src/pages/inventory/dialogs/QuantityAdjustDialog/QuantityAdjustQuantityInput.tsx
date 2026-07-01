@@ -7,21 +7,14 @@
  * reason dropdown.
  *
  * @enterprise
- * - STOCK_CHANGE_REASONS lists ALL 11 values of the locked
- *   StockChangeReason enum, including reasons that do not fit the
- *   quantity-adjust semantics: INITIAL_STOCK is for item creation, and
- *   the removal cluster (SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST,
- *   RETURNED_TO_SUPPLIER) overlaps with the delete flow's authoritative
- *   subset. The backend StockHistoryValidator decides what actually
- *   reaches StockHistory, so offering all 11 is fail-loose -- some
- *   selections will be rejected at the API boundary.
- *   Tracked under CB-APP60 -- restrict the list to the adjustment-valid
- *   subset (e.g. MANUAL_UPDATE, SOLD, RETURNED_BY_CUSTOMER, plus any
- *   reasons the backend genuinely accepts here).
- * - This is the visible site for CB-E's loose-reason policy:
- *   quantityAdjustSchema uses z.string().min(1) rather than an enum,
- *   so the schema does not constrain the value; the backend is the
- *   only authority.
+ * - The reason dropdown is direction-aware. It watches the live
+ *   newQuantity and compares it to the item's current quantity: increasing
+ *   stock offers the increase reasons, reducing offers the reduce reasons,
+ *   and before any change (equal quantities) it offers the full union. The
+ *   option lists come from the validation module so the dropdown and the
+ *   schema share one source of truth and cannot drift. The schema is the
+ *   authority; this filtering is the UX guard that keeps invalid options
+ *   off screen.
  * - Reason labels are derived from the enum value via lower-casing,
  *   replacing underscores, and looking up the key in
  *   inventory:stockReasons.* with the value as the English fallback.
@@ -30,23 +23,14 @@
 
 import * as React from 'react';
 import { TextField, FormControl, InputLabel, Select, MenuItem, Typography, Box } from '@mui/material';
-import { Controller, type Control, type FieldErrors } from 'react-hook-form';
+import { Controller, useWatch, type Control, type FieldErrors } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import type { QuantityAdjustForm } from '../../../../api/inventory/validation';
-
-// BUCKET: CB-APP60 -- all 11 enum values exposed including non-adjust-valid ones. Restrict to backend-accepted subset.
-const STOCK_CHANGE_REASONS = [
-  'INITIAL_STOCK',
-  'MANUAL_UPDATE',
-  'SOLD',
-  'SCRAPPED',
-  'DESTROYED',
-  'DAMAGED',
-  'EXPIRED',
-  'LOST',
-  'RETURNED_TO_SUPPLIER',
-  'RETURNED_BY_CUSTOMER',
-] as const;
+import {
+  INCREASE_ADJUST_REASONS,
+  DECREASE_ADJUST_REASONS,
+  ADJUST_REASONS,
+  type QuantityAdjustForm,
+} from '../../../../api/inventory/validation';
 
 interface QuantityAdjustQuantityInputProps {
   control: Control<QuantityAdjustForm>;
@@ -62,6 +46,14 @@ export const QuantityAdjustQuantityInput: React.FC<QuantityAdjustQuantityInputPr
   currentQty,
 }) => {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
+
+  // Watch the live new-quantity so the reason options track the direction
+  // of the change as the user types.
+  const watchedNewQty = useWatch({ control, name: 'newQuantity' });
+  const newQty = typeof watchedNewQty === 'number' ? watchedNewQty : 0;
+  const delta = newQty - currentQty;
+  const reasonOptions =
+    delta > 0 ? INCREASE_ADJUST_REASONS : delta < 0 ? DECREASE_ADJUST_REASONS : ADJUST_REASONS;
 
   return (
     <Box>
@@ -114,7 +106,7 @@ export const QuantityAdjustQuantityInput: React.FC<QuantityAdjustQuantityInputPr
               label={t('inventory:fields.reasonLabel', 'Reason')}
               error={!!errors.reason}
             >
-              {STOCK_CHANGE_REASONS.map((reason) => (
+              {reasonOptions.map((reason) => (
                 <MenuItem key={reason} value={reason}>
                   {t(`inventory:stockReasons.${reason.toLowerCase()}`, reason.replace(/_/g, ' '))}
                 </MenuItem>

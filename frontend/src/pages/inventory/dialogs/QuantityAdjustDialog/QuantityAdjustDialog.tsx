@@ -17,9 +17,10 @@
  *   (CB-APP57), and DeleteItemDialog (CM-APP11), and EditItemDialog
  *   should all converge on this pattern.
  * - Backend invariant: the reason must belong to the StockChangeReason
- *   enum that quantitative adjustments actually support; backend
- *   StockHistoryValidator is the authority. The form currently exposes
- *   all 11 enum values; CB-APP60 tracks the over-broad client offering.
+ *   enum that quantity adjustments actually support; backend
+ *   StockHistoryValidator is the authority. The dialog offers only the
+ *   reasons valid for the current change direction (see
+ *   QuantityAdjustQuantityInput and quantityAdjustSchema).
  */
 
 import * as React from 'react';

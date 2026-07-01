@@ -93,6 +93,7 @@ export const useQuantityAdjustFormQueries = (
     setItemQuery('');
     setValue('itemId', '');
     setValue('newQuantity', 0);
+    setValue('currentQuantity', 0);
     setFormError('');
   }, [state.selectedSupplier, setValue, setSelectedItem, setItemQuery, setFormError]);
 
@@ -104,6 +105,9 @@ export const useQuantityAdjustFormQueries = (
     if (state.selectedItem && itemDetailsQuery.data) {
       setValue('itemId', state.selectedItem.id);
       setValue('newQuantity', itemDetailsQuery.data.onHand);
+      // Carry the live current quantity so the schema can derive the
+      // change direction (see quantityAdjustSchema refinements).
+      setValue('currentQuantity', itemDetailsQuery.data.onHand);
     }
   }, [state.selectedItem, itemDetailsQuery.data, setValue]);
 

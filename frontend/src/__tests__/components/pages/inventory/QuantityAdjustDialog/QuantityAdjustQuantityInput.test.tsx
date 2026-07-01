@@ -25,17 +25,19 @@ type HarnessProps = {
   disabled?: boolean;
   errors?: FieldErrors<QuantityAdjustForm>;
   currentQty?: number;
+  newQuantity?: number;
 };
 
 /**
  * Test harness so useForm() is invoked legally (Rules of Hooks).
  * The component under test only requires control + errors + flags.
  */
-const TestHarness = ({ disabled = false, errors = {}, currentQty = 20 }: HarnessProps) => {
+const TestHarness = ({ disabled = false, errors = {}, currentQty = 20, newQuantity = 5 }: HarnessProps) => {
   const form = useForm<QuantityAdjustForm>({
     defaultValues: {
-      newQuantity: 5,
-      reason: 'INITIAL_STOCK',
+      newQuantity,
+      currentQuantity: currentQty,
+      reason: 'MANUAL_UPDATE',
       itemId: '',
     },
   });
@@ -89,5 +91,26 @@ describe('QuantityAdjustQuantityInput', () => {
 
     expect(screen.getByLabelText('New Quantity')).toBeDisabled();
     expect(screen.getByRole('combobox', { name: 'Reason' })).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('offers increase reasons when the new quantity is higher', () => {
+    render(<TestHarness currentQty={5} newQuantity={10} />);
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Reason' }));
+
+    expect(screen.getByRole('option', { name: 'INITIAL STOCK' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'RETURNED BY CUSTOMER' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'SOLD' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'DESTROYED' })).not.toBeInTheDocument();
+  });
+
+  it('offers reduce reasons when the new quantity is lower', () => {
+    render(<TestHarness currentQty={20} newQuantity={5} />);
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Reason' }));
+
+    expect(screen.getByRole('option', { name: 'SOLD' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'DESTROYED' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'RETURNED TO SUPPLIER' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'INITIAL STOCK' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'RETURNED BY CUSTOMER' })).not.toBeInTheDocument();
   });
 });

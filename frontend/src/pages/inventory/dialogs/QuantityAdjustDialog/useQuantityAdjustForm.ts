@@ -16,11 +16,10 @@
  *   The backend expects a delta, not an absolute. actualCurrentQuantity
  *   comes from the live itemDetailsQuery to avoid double-counting if
  *   the user holds the dialog open while the item changes elsewhere.
- * - quantityAdjustSchema uses z.string().min(1) for the reason -- the
- *   primary site of CB-E. The frontend offers all 11
- *   StockChangeReason values via QuantityAdjustQuantityInput's
- *   STOCK_CHANGE_REASONS list (CB-APP60); the backend
- *   StockHistoryValidator is the only real authority.
+ * - quantityAdjustSchema constrains the reason to the direction-aware
+ *   adjust set and rejects a zero-delta change; QuantityAdjustQuantityInput
+ *   offers only the reasons valid for the current direction. The schema
+ *   mirrors the backend StockHistoryValidator's accepted set.
  * - Two t() calls use dot instead of colon as the namespace
  *   separator: 'common.demoDisabled' and
  *   'errors.inventory.requests.failedToAdjustQuantity' (x2).
@@ -79,6 +78,7 @@ export const useQuantityAdjustForm = (
     resolver: zodResolver(quantityAdjustSchema),
     defaultValues: {
       itemId: '',
+      currentQuantity: 0,
       newQuantity: 0,
       reason: 'MANUAL_UPDATE' as const,
     },
