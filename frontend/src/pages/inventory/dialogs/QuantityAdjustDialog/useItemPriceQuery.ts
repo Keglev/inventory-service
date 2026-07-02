@@ -14,9 +14,6 @@
  *   selectedItem.price fallback handles the empty-trend case.
  * - 30-second staleTime keeps re-mounts cheap during a dialog session
  *   while still picking up fresh prices on a longer browsing window.
- * - console.error on trend-fetch failure is unguarded and ships to
- *   production devtools. Tracked under CB-APP62 (same class as
- *   CB-APP47, CB-APP51, CB-APP55, etc.).
  * - Exported through the QuantityAdjustDialog barrel because the
  *   price-trend lookup is generic and reusable outside this dialog.
  */
@@ -24,6 +21,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getPriceTrend } from '../../../../api/analytics/priceTrend';
 import type { ItemOption } from '../../../../api/analytics/types';
+import { logError } from '../../../../utils/logger';
 
 export const useItemPriceQuery = (
   selectedItem: ItemOption | null,
@@ -48,8 +46,7 @@ export const useItemPriceQuery = (
 
         return selectedItem.price;
       } catch (error) {
-        // BUCKET: CB-APP62 -- unguarded console.error ships to production devtools.
-        console.error('Failed to fetch item price:', error);
+        logError('Failed to fetch item price:', error);
         return selectedItem.price;
       }
     },

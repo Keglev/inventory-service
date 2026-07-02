@@ -23,8 +23,6 @@
  * - useQuantityAdjustFormQueries receives the combined state object
  *   (QuantityAdjustFormState & QuantityAdjustFormStateSetters) as a
  *   single parameter, eliminating the prior two-slot ambiguity.
- * - console.error on submission failure is unguarded and ships to
- *   production browser devtools. Tracked under CB-APP61.
  */
 
 import { useForm } from 'react-hook-form';
@@ -38,6 +36,7 @@ import { useQuantityAdjustFormState } from './useQuantityAdjustFormState';
 import { useQuantityAdjustFormQueries } from './useQuantityAdjustFormQueries';
 import type { QuantityAdjustFormState, QuantityAdjustFormStateSetters } from './useQuantityAdjustFormState';
 import type { QuantityAdjustFormQueries } from './useQuantityAdjustFormQueries';
+import { logError } from '../../../../utils/logger';
 
 export interface UseQuantityAdjustFormReturn
   extends QuantityAdjustFormState,
@@ -155,8 +154,7 @@ export const useQuantityAdjustForm = (
         state.setFormError(t('errors:inventory.requests.failedToAdjustQuantity'));
       }
     } catch (error) {
-      // BUCKET: CB-APP61 -- unguarded console.error ships to production devtools.
-      console.error('Quantity adjustment error:', error);
+      logError('Quantity adjustment error:', error);
       state.setFormError(
         t('errors:inventory.requests.failedToAdjustQuantity')
       );

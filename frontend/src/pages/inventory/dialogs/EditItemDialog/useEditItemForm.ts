@@ -21,9 +21,6 @@
  *   backend status token (errorToken): 'forbidden' -> admin-only, 'conflict'
  *   -> duplicate name, anything else -> a generic message. This keys on the
  *   structured error shape, never on substrings of the freeform message.
- * - console.error on submission failure is unguarded and ships to
- *   production browser devtools. Tracked under CB-APP51 (same class as
- *   CB-APP29 / CB-APP35 / CB-APP37 / CB-APP45 / CB-APP47).
  * - editItemSchema validates only itemId + newName; rename does not
  *   write a StockHistory row, so no reason field is needed. This is
  *   different from itemFormSchema (create/upsert, strict 2-value reason
@@ -44,6 +41,7 @@ import {
   useItemSearchQuery,
   useItemDetailsQuery,
 } from '../../../../api/inventory/hooks';
+import { logError } from '../../../../utils/logger';
 
 /**
  * Complete edit item form state and handlers
@@ -211,8 +209,7 @@ export function useEditItemForm(
         setFormError(t('errors:inventory.requests.failedToRenameItem'));
       }
     } catch (error) {
-      // BUCKET: CB-APP51 -- unguarded console.error ships to production devtools.
-      console.error('Edit item error:', error);
+      logError('Edit item error:', error);
       setFormError(t('errors:inventory.requests.failedToRenameItem'));
     }
   });

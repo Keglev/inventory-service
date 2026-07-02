@@ -25,6 +25,7 @@ import { useEditSupplierFormState } from './useEditSupplierFormState';
 import { useEditSupplierConfirmation } from './useEditSupplierConfirmation';
 import { mapSupplierError } from './mapSupplierErrors';
 import type { SupplierRow } from '../../../../api/suppliers/types';
+import { logError } from '../../../../utils/logger';
 
 /**
  * Hook return type for edit supplier workflow.
@@ -138,8 +139,7 @@ export const useEditSupplierForm = (
       );
       setFormError(errorMessage);
       confirmation.setShowConfirmation(false);
-      // Shared-logger bucket: production console.error — replace with centralized logger in refactor pass.
-      console.error('Update failed:', err);
+      logError('Update failed:', err);
     }
   }, [confirmation, selectedSupplier, user?.email, onUpdated, t]);
 

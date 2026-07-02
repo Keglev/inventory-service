@@ -26,9 +26,6 @@
  *   the literal 5 is duplicated across three sites (this file,
  *   useInventoryRowStyling, and analytics LowStockTable) and should be
  *   extracted to a shared constant in the refactor phase.
- * - console.error on load failure is unguarded and ships to production
- *   browser devtools. Tracked under CB-APP45 (same class as CB-APP29 /
- *   CB-APP35 / CB-APP37).
  */
 
 import * as React from 'react';
@@ -37,6 +34,7 @@ import { getInventoryPage, type InventoryListResponse, type InventoryRow } from 
 import type { GridColDef } from '@mui/x-data-grid';
 import { useInventoryColumns } from './useInventoryColumns';
 import { useInventoryRowStyling } from './useInventoryRowStyling';
+import { logError } from '../../../utils/logger';
 
 /**
  * Inventory data loading and processing results.
@@ -121,8 +119,7 @@ export const useInventoryPageData = (
       });
       setServer(res);
     } catch (err) {
-      // BUCKET: CB-APP45 -- unguarded console.error ships to production devtools.
-      console.error('Failed to load inventory:', err);
+      logError('Failed to load inventory:', err);
       setServer({ items: [], total: 0, page: serverPage, pageSize });
     } finally {
       setLoading(false);

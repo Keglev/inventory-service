@@ -21,9 +21,6 @@
  *   a generic "failed to change price" message. This keys on the
  *   structured error shape, never on substrings of the message, matching
  *   the delete/rename/create flows.
- * - console.error on submission failure is unguarded and ships to
- *   production browser devtools. Tracked under CB-APP55 (same class
- *   as CB-APP47, CB-APP51, etc.).
  */
 
 import { useForm, type UseFormRegister, type UseFormSetError, type UseFormClearErrors, type UseFormHandleSubmit, type Control, type UseFormStateReturn, type UseFormSetValue } from 'react-hook-form';
@@ -34,6 +31,7 @@ import { changePrice } from '../../../../api/inventory/mutations';
 import { priceChangeSchema, type PriceChangeForm } from '../../../../api/inventory/validation';
 import { usePriceChangeFormState, type PriceChangeFormState, type PriceChangeFormStateSetters } from './usePriceChangeFormState';
 import { usePriceChangeFormQueries, type PriceChangeFormQueries } from './usePriceChangeFormQueries';
+import { logError } from '../../../../utils/logger';
 
 export interface UsePriceChangeFormReturn extends PriceChangeFormState, PriceChangeFormStateSetters, PriceChangeFormQueries {
   register: UseFormRegister<PriceChangeForm>;
@@ -141,8 +139,7 @@ export function usePriceChangeForm({
         state.setFormError(t('errors:inventory.requests.failedToChangePrice'));
       }
     } catch (error) {
-      // BUCKET: CB-APP55 -- unguarded console.error ships to production devtools.
-      console.error('Price change error:', error);
+      logError('Price change error:', error);
       state.setFormError(t('errors:inventory.requests.failedToChangePrice'));
     }
   });

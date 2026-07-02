@@ -19,6 +19,7 @@ import { useAuth } from '../../../../hooks/useAuth';
 import { deleteSupplier } from '../../../../api/suppliers';
 import { useSupplierSearch } from '../../hooks/useSupplierSearch';
 import type { SupplierRow } from '../../../../api/suppliers/types';
+import { logError } from '../../../../utils/logger';
 
 /**
  * Hook return type for delete supplier workflow.
@@ -160,8 +161,7 @@ export const useDeleteSupplierForm = (
     } catch (err) {
       const errorMessage = mapServerError(err instanceof Error ? err.message : undefined);
       setError(errorMessage);
-      // Shared-logger bucket: production console.error — replace with centralized logger in refactor pass.
-      console.error('Delete failed:', err);
+      logError('Delete failed:', err);
     } finally {
       setIsDeleting(false);
     }

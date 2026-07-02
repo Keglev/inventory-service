@@ -18,7 +18,6 @@
  *   stays focused on flow control. The mapper branches on the backend's
  *   structured errorToken.
  * - Tracked buckets touching this file:
- *   * CB-APP47 -- unguarded console.error ships to production devtools.
  *   * CB-E (existing) -- the handler passes deletionReason to deleteItem
  *     but deleteItemSchema validates only itemId. The schema does not
  *     reject empty or invalid reasons; the runtime explicit check inside
@@ -31,6 +30,7 @@ import { useToast } from '../../../../context/toast';
 import { deleteItem } from '../../../../api/inventory/mutations';
 import { handleDeleteError } from './deleteItemErrorHandler';
 import type { UseDeleteItemStateReturn } from './useDeleteItemState';
+import { logError } from '../../../../utils/logger';
 
 export function useDeleteItemHandlers(
   state: UseDeleteItemStateReturn,
@@ -135,8 +135,7 @@ export function useDeleteItemHandlers(
         state.setShowConfirmation(false);
       }
     } catch (error) {
-      // BUCKET: CB-APP47 -- unguarded console.error ships to production devtools.
-      console.error('Delete item error:', error);
+      logError('Delete item error:', error);
       state.setFormError(t('errors:inventory.requests.failedToDeleteItem'));
     }
   }, [state, readOnly, t, toast, onItemDeleted, handleClose]);
