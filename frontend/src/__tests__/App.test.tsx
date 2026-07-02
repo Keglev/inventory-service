@@ -34,10 +34,6 @@ vi.mock('../routes/AppRouter', () => ({
   default: () => <div data-testid="app-router">Router</div>,
 }));
 
-vi.mock('../app/footer', () => ({
-  AppFooter: () => <footer data-testid="app-footer">Footer</footer>,
-}));
-
 vi.mock('../components/help/HelpPanel', () => ({
   default: () => <div data-testid="help-panel">Help Panel</div>,
 }));
@@ -61,17 +57,14 @@ describe('App', () => {
   it('renders the global layout components', () => {
     renderSubject();
     expect(screen.getByTestId('app-router')).toBeInTheDocument();
-    expect(screen.getByTestId('app-footer')).toBeInTheDocument();
     expect(screen.getByTestId('help-panel')).toBeInTheDocument();
   });
 
-  it('renders components in router -> footer -> help order', () => {
+  it('renders components in router -> help order', () => {
     renderSubject();
     const router = screen.getByTestId('app-router');
-    const footer = screen.getByTestId('app-footer');
     const helpPanel = screen.getByTestId('help-panel');
 
-    expect(router.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(footer.compareDocumentPosition(helpPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(router.compareDocumentPosition(helpPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

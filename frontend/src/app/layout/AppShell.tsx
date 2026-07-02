@@ -33,6 +33,7 @@ import AppSidebar from './AppSidebar';
 import AppMain from './AppMain';
 import { getHelpTopicForRoute } from './navConfig';
 import { useShellSettings } from './useShellSettings';
+import { AppFooter } from '../footer';
 
 /**
  * Application shell component.
@@ -133,6 +134,9 @@ export default function AppShell() {
           {/* Main Content Area */}
           <AppMain isDemo={isDemo} />
         </Box>
+
+        {/* Global footer — inside the ThemeProvider so it follows light/dark mode */}
+        <AppFooter />
 
         {/* Toast Notifications */}
         <Snackbar

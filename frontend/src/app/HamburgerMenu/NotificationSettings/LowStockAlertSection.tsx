@@ -18,6 +18,7 @@
  */
 
 import { Stack, Typography, Chip } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { useTranslation } from 'react-i18next';
 
@@ -31,10 +32,10 @@ export default function LowStockAlertSection({ lowStockCount }: LowStockAlertSec
 
   return (
     <>
-      <Stack spacing={0.5} sx={{ p: 1, bgcolor: 'warning.light', borderRadius: 1 }}>
+      <Stack spacing={0.5} sx={{ p: 1, bgcolor: (theme) => alpha(theme.palette.warning.main, 0.15), borderRadius: 1 }}>
         <Stack direction="row" spacing={1} alignItems="center">
           <NotificationsActiveIcon sx={{ fontSize: 20, color: 'warning.main' }} />
-          <Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.dark' }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.main' }}>
             {t('notifications.lowStockAlert', 'Low Stock Alert')}
           </Typography>
         </Stack>

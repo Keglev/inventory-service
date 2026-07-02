@@ -99,21 +99,24 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
         onRowClick={(params) => onRowClick(params.row.id)}
         sx={{
           '& .row-selected': {
-            backgroundColor: (theme) => `${alpha(theme.palette.info.main, 0.16)} !important`,
+            backgroundColor: (theme) => `${alpha(theme.palette.info.main, 0.24)} !important`,
+            boxShadow: (theme) => `inset 4px 0 0 ${theme.palette.info.main}`,
             '&:hover': {
-              backgroundColor: (theme) => `${alpha(theme.palette.info.main, 0.28)} !important`,
+              backgroundColor: (theme) => `${alpha(theme.palette.info.main, 0.36)} !important`,
             },
           },
           '& .row-warning': {
-            backgroundColor: (theme) => `${alpha(theme.palette.warning.main, 0.16)} !important`,
+            backgroundColor: (theme) => `${alpha(theme.palette.warning.main, 0.24)} !important`,
+            boxShadow: (theme) => `inset 4px 0 0 ${theme.palette.warning.main}`,
             '&:hover': {
-              backgroundColor: (theme) => `${alpha(theme.palette.warning.main, 0.28)} !important`,
+              backgroundColor: (theme) => `${alpha(theme.palette.warning.main, 0.36)} !important`,
             },
           },
           '& .row-critical': {
-            backgroundColor: (theme) => `${alpha(theme.palette.error.main, 0.16)} !important`,
+            backgroundColor: (theme) => `${alpha(theme.palette.error.main, 0.24)} !important`,
+            boxShadow: (theme) => `inset 4px 0 0 ${theme.palette.error.main}`,
             '&:hover': {
-              backgroundColor: (theme) => `${alpha(theme.palette.error.main, 0.28)} !important`,
+              backgroundColor: (theme) => `${alpha(theme.palette.error.main, 0.36)} !important`,
             },
           },
         }}

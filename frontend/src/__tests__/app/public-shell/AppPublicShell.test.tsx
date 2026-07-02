@@ -90,6 +90,10 @@ vi.mock('../../theme', () => ({
   buildTheme: () => ({}),
 }));
 
+vi.mock('../../../app/footer', () => ({
+  AppFooter: () => <footer data-testid="app-footer" />,
+}));
+
 describe('AppPublicShell', () => {
   beforeEach(() => {
     vi.clearAllMocks();

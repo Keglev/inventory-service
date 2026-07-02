@@ -64,6 +64,10 @@ vi.mock('@/app/settings', () => ({
   ),
 }));
 
+vi.mock('@/app/footer', () => ({
+  AppFooter: () => <footer data-testid="app-footer" />,
+}));
+
 /**
  * Theme:
  * AppShell depends on a theme builder. We return a valid MUI theme instance.

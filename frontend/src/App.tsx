@@ -1,18 +1,17 @@
 /**
  * @file App.tsx
  * @description
- * Root application component. Delegates routing to `AppRouter` and includes the
- * global Footer. Flex layout ensures footer stays at bottom on all pages.
+ * Root application component. Delegates routing to `AppRouter`. The footer is
+ * rendered inside each shell (AppShell / AppPublicShell) so it participates in
+ * the active MUI theme.
  *
  * @layout
  * - Container: flex column, full viewport height
  * - AppRouter (routes): flex-grow to fill available space
- * - Footer: visible on all pages (login, dashboard, logout, etc.)
  */
 
 import { Box } from '@mui/material';
 import AppRouter from './routes/AppRouter';
-import { AppFooter } from './app/footer';
 import { SettingsProvider } from './context/settings/SettingsContext';
 import { HelpProvider } from './context/help/HelpContext';
 import HelpPanel from './components/help/HelpPanel';
@@ -24,7 +23,6 @@ export default function App() {
       <SettingsProvider>
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
             <AppRouter />
-          <AppFooter />
           <HelpPanel />
         </Box>
       </SettingsProvider>

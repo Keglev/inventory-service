@@ -28,6 +28,7 @@ import { useThemeMode, useLocale, usePublicShellToast } from './hooks';
 import { PublicShellHeader } from './header';
 import PublicShellContent from './PublicShellContent';
 import PublicShellToastContainer from './PublicShellToastContainer';
+import { AppFooter } from '../footer';
 
 const AppPublicShell: React.FC = () => {
   const { i18n, t } = useTranslation('common');
@@ -62,7 +63,7 @@ const AppPublicShell: React.FC = () => {
       <ToastContext.Provider
         value={(msg, severity = 'success') => setToast({ open: true, msg, severity })}
       >
-        <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: 'background.default', minHeight: '100vh' }}>
           <PublicShellHeader
             appTitle={t('app.title')}
             themeMode={themeMode}
@@ -73,6 +74,8 @@ const AppPublicShell: React.FC = () => {
           />
 
           <PublicShellContent />
+
+          <AppFooter />
 
           <PublicShellToastContainer toast={toast} onClose={hideToast} />
         </Box>
