@@ -16,11 +16,11 @@
  *   changes. Different from itemFormSchema (create) and
  *   quantityAdjustSchema (adjust). CB-E asymmetry does not surface
  *   here.
- * - No substring error-mapping. On failure, the user sees a generic
- *   "failed to change price" message regardless of cause (admin-only,
- *   validation, conflict). Tracked under CB-APP56 -- consider aligning
- *   with the delete/rename/create flows once the structured-error
- *   refactor (CB-APP48/50/52 sibling cluster) lands.
+ * - Failures are classified by the backend status token: 'forbidden' ->
+ *   admin-only, 'not_found' -> item no longer exists, anything else ->
+ *   a generic "failed to change price" message. This keys on the
+ *   structured error shape, never on substrings of the message, matching
+ *   the delete/rename/create flows.
  * - console.error on submission failure is unguarded and ships to
  *   production browser devtools. Tracked under CB-APP55 (same class
  *   as CB-APP47, CB-APP51, etc.).
@@ -126,7 +126,7 @@ export function usePriceChangeForm({
         price: values.newPrice,
       });
 
-      if (success) {
+      if (success.ok) {
         toast(
           t('inventory:price.priceUpdatedTo', 'Price changed to {{price}}', {
             price: values.newPrice.toFixed(2),
@@ -135,7 +135,14 @@ export function usePriceChangeForm({
         );
         onPriceChanged();
         handleClose();
-      // BUCKET: CB-APP56 -- generic fallback message regardless of cause. Align with delete/rename/create structured error mapping in refactor.
+      } else if (success.errorToken === 'forbidden') {
+        state.setFormError(
+          t('errors:inventory.businessRules.adminOnly', 'Only administrators can perform this action.')
+        );
+      } else if (success.errorToken === 'not_found') {
+        state.setFormError(
+          t('errors:inventory.businessRules.itemNotFound', 'Item not found. It may have been deleted by another user.')
+        );
       } else {
         state.setFormError(
           t('errors:inventory.requests.failedToChangePrice', 'Failed to change price. Please try again.')

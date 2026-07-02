@@ -4,7 +4,7 @@
  * @what_is_under_test changePrice
  * @responsibility
  * Guarantees the price mutation contract: correct URL encoding + route composition for the
- * PATCH request, and a boolean success/failure surface for callers.
+ * PATCH request, and a structured success/failure surface ({ ok, error, errorToken, status }).
  * @out_of_scope
  * Server-side validation rules and error payload semantics (this unit only asserts boolean results).
  * @out_of_scope
@@ -45,7 +45,7 @@ describe('changePrice', () => {
         null,
         { params: { price: 29.99 } }
       );
-      expect(result).toBe(true);
+      expect(result).toEqual({ ok: true });
     });
   });
 
@@ -55,7 +55,7 @@ describe('changePrice', () => {
 
       const result = await changePrice({ id: 'ITEM-1', price: 10 });
 
-      expect(result).toBe(false);
+      expect(result).toEqual({ ok: false, error: 'denied', errorToken: null, status: null });
     });
   });
 });
