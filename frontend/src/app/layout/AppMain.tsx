@@ -11,7 +11,7 @@
  * - Demo banner is non-blocking (alert, no modal) so users can navigate freely; placement above content makes it unmissable on every page.
  */
 
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import {
   Box,
   Toolbar,
@@ -34,16 +34,6 @@ interface AppMainProps {
  */
 export default function AppMain({ isDemo }: AppMainProps) {
   const { t } = useTranslation(['auth']);
-  const location = useLocation();
-
-  // Gated behind the 'debugRouting' localStorage flag; intentional opt-in dev tooling — keep.
-  try {
-    if (localStorage.getItem('debugRouting') === '1') {
-      console.debug('[AppMain] render', location.pathname + location.search);
-    }
-  } catch {
-    // ignore
-  }
 
   return (
     <Box

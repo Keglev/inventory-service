@@ -77,7 +77,7 @@ export default function AppShell() {
     useShellSettings(notify);
 
   // Logout flow (demo redirect vs real POST-form logout) lives in useShellLogout.
-  const handleLogout = useShellLogout({ isDemo, user, location, logout, queryClient, navigate });
+  const handleLogout = useShellLogout({ isDemo, logout, queryClient, navigate });
 
   // Idle timeout is intentionally disabled (enableIdleTimeout: false); this hook only pings
   // the backend to keep the session alive, not to enforce inactivity logout.

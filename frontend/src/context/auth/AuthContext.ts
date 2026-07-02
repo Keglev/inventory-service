@@ -103,9 +103,6 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   };
 
   const logout = () => {
-    // BUCKET: unguarded console.debug ships to production; wrap in import.meta.env.DEV or remove (CB-APP29)
-    // eslint-disable-next-line no-console
-    console.debug('[AuthContext] logout() called');
     setLogoutInProgress(true);
     if (logoutTimerRef.current) {
       clearTimeout(logoutTimerRef.current);

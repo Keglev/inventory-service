@@ -29,9 +29,6 @@ import Backend from 'i18next-http-backend';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-// BUCKET: unguarded console.log ships to production console; move under import.meta.env.DEV guard or remove (CB-APP22)
-console.log('[i18n] boot file loaded')
-
 /** LocalStorage key used by i18next to persist the selected language. */
 export const I18N_LS_KEY = 'i18nextLng';
 
@@ -97,11 +94,6 @@ i18n
   if (import.meta.env.DEV) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).i18next = i18n;
-
-    // Helpful logs to confirm load order
-  i18n.on('initialized', (opts) => console.log('[i18n] initialized', opts?.lng, opts));
-  i18n.on('loaded', (loaded) => console.log('[i18n] bundles loaded', loaded));
-  i18n.on('languageChanged', (lng) => console.log('[i18n] languageChanged →', lng));
   }
 
 export default i18n;

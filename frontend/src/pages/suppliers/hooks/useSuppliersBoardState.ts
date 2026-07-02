@@ -68,13 +68,6 @@ export type UseSuppliersBoardStateReturn = SuppliersBoardState & SuppliersBoardS
  * @returns State and setter functions
  */
 export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
-  const renderCount = React.useRef(0);
-  renderCount.current++;
-  if (renderCount.current > 100) {
-    // CM-APP12: dev render-loop canary — remove or replace with React DevTools-based detection in refactor pass.
-    console.error('[SUPPLIERS STATE] INFINITE RENDER DETECTED - over 100 renders!');
-  }
-  
   const [searchQuery, setSearchQuery] = React.useState('');
   const [showAllSuppliers, setShowAllSuppliers] = React.useState(false);
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
@@ -111,8 +104,5 @@ export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
     setOpenDelete,
   };
 
-  // CM-APP12: debug render-counter log — remove in refactor pass.
-  console.log(`[SUPPLIERS STATE RENDER #${renderCount.current}] paginationModel:`, paginationModel);
-  
   return stateObject;
 };

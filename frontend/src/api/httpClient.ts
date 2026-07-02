@@ -94,7 +94,6 @@ httpClient.interceptors.response.use(
 
       if (onPublic || isMeProbe) return Promise.reject(error);
 
-      console.debug('[401]', resp.config?.method?.toUpperCase(), resp.config?.url);
       window.location.assign('/login');
       return;
     }

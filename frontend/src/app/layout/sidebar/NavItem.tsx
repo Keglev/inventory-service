@@ -74,16 +74,6 @@ export default function NavItem({
       return;
     }
 
-    // Gated behind the 'debugRouting' localStorage flag; intentional opt-in dev tooling.
-    try {
-      if (localStorage.getItem('debugRouting') === '1') {
-        // eslint-disable-next-line no-console
-        console.debug('[nav] click -> navigate', to, '| from', window.location.pathname);
-      }
-    } catch {
-      // ignore
-    }
-
     // Let React Router's <Link> handle the navigation.
   };
 
