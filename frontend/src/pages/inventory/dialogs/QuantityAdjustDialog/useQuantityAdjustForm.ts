@@ -20,13 +20,6 @@
  *   adjust set and rejects a zero-delta change; QuantityAdjustQuantityInput
  *   offers only the reasons valid for the current direction. The schema
  *   mirrors the backend StockHistoryValidator's accepted set.
- * - Two t() calls use dot instead of colon as the namespace
- *   separator: 'common.demoDisabled' and
- *   'errors.inventory.requests.failedToAdjustQuantity' (x2).
- *   They silently fall back to the English literal and miss the
- *   resource. Same class as CM-APP10 in DeleteItemDialog.
- *   Tracked under CB-APP61 alongside the unguarded console.error
- *   in this file.
  * - useQuantityAdjustFormQueries receives the combined state object
  *   (QuantityAdjustFormState & QuantityAdjustFormStateSetters) as a
  *   single parameter, eliminating the prior two-slot ambiguity.
@@ -121,17 +114,14 @@ export const useQuantityAdjustForm = (
    */
   const onSubmit = handleSubmit(async (values) => {
     if (!state.selectedItem) {
-      state.setFormError(
-        t('errors:inventory.selection.noItemSelected', 'Please select an item to adjust.')
-      );
+      state.setFormError(t('errors:inventory.selection.noItemSelected'));
       return;
     }
 
     // Demo guard: allow exploration but block mutation
     if (readOnly) {
       state.setFormError(
-        // BUCKET: CB-APP61 -- namespace uses '.' instead of ':'. Should be t('common:demoDisabled', ...).
-      t('common.demoDisabled', 'You are in demo mode and cannot perform this operation.')
+        t('common:demoDisabled', 'You are in demo mode and cannot perform this operation.')
       );
       return;
     }
@@ -162,22 +152,13 @@ export const useQuantityAdjustForm = (
         onAdjusted();
         handleDialogClose();
       } else {
-        state.setFormError(
-          // BUCKET: CB-APP61 -- namespace uses '.' instead of ':'. Should be t('errors:inventory.requests.failedToAdjustQuantity', ...).
-          t(
-            'errors.inventory.requests.failedToAdjustQuantity',
-            'Failed to adjust quantity. Please try again.'
-          )
-        );
+        state.setFormError(t('errors:inventory.requests.failedToAdjustQuantity'));
       }
     } catch (error) {
       // BUCKET: CB-APP61 -- unguarded console.error ships to production devtools.
       console.error('Quantity adjustment error:', error);
       state.setFormError(
-        t(
-          'errors.inventory.requests.failedToAdjustQuantity',
-          'Failed to adjust quantity. Please try again.'
-        )
+        t('errors:inventory.requests.failedToAdjustQuantity')
       );
     }
   });
