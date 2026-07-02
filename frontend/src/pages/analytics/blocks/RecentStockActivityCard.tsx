@@ -33,14 +33,6 @@ export type RecentStockActivityCardProps = { from?: string; to?: string; supplie
 type ReasonLabelKey = 'initialStock' | 'adjustment' | 'sale' | 'writeOff' | 'return' | 'other';
 
 const SERIES_ORDER: ReasonLabelKey[] = ['initialStock', 'adjustment', 'sale', 'writeOff', 'return', 'other'];
-const DEFAULT_REASON_LABEL: Record<ReasonLabelKey, string> = {
-  initialStock: 'Purchases',
-  adjustment: 'Adjustments',
-  sale: 'Sales',
-  writeOff: 'Write-offs',
-  return: 'Returns',
-  other: 'Other',
-};
 
 function normalizeReason(reason?: string): ReasonLabelKey {
   if (!reason) return 'other';
@@ -125,7 +117,7 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
   }, [reasonKeys, muiTheme]);
 
   const formatReasonLabel = React.useCallback(
-    (key: ReasonLabelKey) => t(`analytics:updates.labels.${key}`, DEFAULT_REASON_LABEL[key]),
+    (key: ReasonLabelKey) => t(`analytics:updates.labels.${key}`),
     [t]
   );
 
