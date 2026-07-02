@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-analytics/finance/functions/getFinancialSummary · Smart Supply Pro · API</title>
+context/auth/storageKeys/README · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -112,50 +112,36 @@ analytics/finance/functions/getFinancialSummary · Smart Supply Pro · API</titl
     <main class="content" id="main">
       <article class="doc-body">
         <p><a
-        href="../../../../README.html"><strong>frontend</strong></a></p>
+        href="../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/analytics/finance</a> /
-        getFinancialSummary</p>
-        <h1 id="function-getfinancialsummary">Function:
-        getFinancialSummary()</h1>
-        <blockquote>
-        <p><strong>getFinancialSummary</strong>(<code>p?</code>):
-        <code>Promise</code>&lt;<a
-        href="../type-aliases/FinancialSummary.html"><code>FinancialSummary</code></a>&gt;</p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/c95b3fc19c8143cd7901f3fbe661cad0168ff8a4/frontend/src/api/analytics/finance.ts#L53">api/analytics/finance.ts:53</a></p>
-        <p>Fetch financial summary for a date window. Backend: GET
-        /api/analytics/financial/summary?from&amp;to[&amp;supplierId]
-        Returns ZERO_FINANCE on network errors or unrecognised response
-        shapes.</p>
-        <h2 id="parameters">Parameters</h2>
-        <h3 id="p">p?</h3>
-        <h4 id="from">from?</h4>
-        <p><code>string</code></p>
-        <h4 id="supplierid">supplierId?</h4>
-        <p><code>string</code></p>
-        <h4 id="to">to?</h4>
-        <p><code>string</code></p>
-        <h2 id="returns">Returns</h2>
-        <p><code>Promise</code>&lt;<a
-        href="../type-aliases/FinancialSummary.html"><code>FinancialSummary</code></a>&gt;</p>
+        <p><a href="../../../README.html">frontend</a> /
+        context/auth/storageKeys</p>
+        <h1 id="contextauthstoragekeys">context/auth/storageKeys</h1>
+        <h2 id="file">File</h2>
+        <p>storageKeys.ts</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>The force-logout flag is the cross-tab logout wire contract:
+        writer (AuthContext / useSessionTimeout broadcast) and listener
+        must agree on the exact string, so it lives in one module.</li>
+        </ul>
+        <h2 id="variables">Variables</h2>
+        <ul>
+        <li><a
+        href="variables/FORCE_LOGOUT_FLAG.html">FORCE_LOGOUT_FLAG</a></li>
+        </ul>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-getfinancialsummary"
-      id="toc-function-getfinancialsummary">Function:
-      getFinancialSummary()</a>
+      <li><a href="#contextauthstoragekeys"
+      id="toc-contextauthstoragekeys">context/auth/storageKeys</a>
       <ul>
-      <li><a href="#parameters" id="toc-parameters">Parameters</a>
-      <ul>
-      <li><a href="#p" id="toc-p">p?</a></li>
-      </ul></li>
-      <li><a href="#returns" id="toc-returns">Returns</a></li>
+      <li><a href="#file" id="toc-file">File</a></li>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
+      <li><a href="#variables" id="toc-variables">Variables</a></li>
       </ul></li>
       </ul>
     </nav>

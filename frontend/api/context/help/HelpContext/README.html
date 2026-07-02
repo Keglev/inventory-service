@@ -128,10 +128,11 @@ context/help/HelpContext/README · Smart Supply Pro · API</title>
         component values. The Context OBJECT lives in
         HelpContext.types.ts so HelpProvider edits trigger HMR
         cleanly.</li>
-        <li>closeHelp() defers clearing currentTopicId by 300ms to let
-        the drawer fade out before the topic content unmounts (prevents
-        a blank flash mid-animation). The 300ms is NOT tied to any MUI
-        Drawer constant — see CB-APP27.</li>
+        <li>closeHelp() defers clearing currentTopicId by
+        DRAWER_EXIT_GUARD_MS to let the drawer fade out before the topic
+        content unmounts (prevents a blank flash mid-animation); the
+        margin over MUI's default exit duration is documented at the
+        constant.</li>
         <li>State is intentionally simple (id + boolean). Topic content
         resolution lives in HelpPanel (via getHelpTopic and i18n) — this
         provider holds NO topic content, only navigation state.</li>
