@@ -275,7 +275,7 @@ describe('useEditItemForm', () => {
       });
 
       expect(onItemRenamed).not.toHaveBeenCalled();
-      expect(result.current.formError).toBe('Failed to rename item. Please try again.');
+      expect(result.current.formError).toBe('errors:inventory.requests.failedToRenameItem');
     });
 
     it('maps the forbidden token to an admin-only message', async () => {
@@ -299,7 +299,7 @@ describe('useEditItemForm', () => {
       });
 
       expect(onItemRenamed).not.toHaveBeenCalled();
-      expect(result.current.formError).toBe('Only administrators can perform this action.');
+      expect(result.current.formError).toBe('errors:inventory.businessRules.adminOnly');
     });
 
     it('maps the conflict token to a duplicate-name message', async () => {
@@ -323,7 +323,7 @@ describe('useEditItemForm', () => {
       });
 
       expect(onItemRenamed).not.toHaveBeenCalled();
-      expect(result.current.formError).toBe('An item with this name already exists.');
+      expect(result.current.formError).toBe('errors:inventory.conflicts.duplicateName');
     });
   });
 });

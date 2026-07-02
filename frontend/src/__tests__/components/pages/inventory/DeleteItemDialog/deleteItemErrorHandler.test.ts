@@ -5,8 +5,8 @@
  *
  * Contract under test:
  * - Maps the backend's structured status token into a user-friendly message + severity.
- * - Requests i18n keys with a defaultValue (required by the typed TFunction for
- *   cross-namespace 'errors:' keys).
+ * - Requests i18n keys single-arg; the t stub echoes the key, so assertions
+ *   verify the exact resource key requested per token.
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -18,14 +18,14 @@ import { handleDeleteError } from '../../../../../pages/inventory/dialogs/Delete
 // Helpers
 // -------------------------------------
 
-type TSpy = ReturnType<typeof vi.fn<[key: string, fallback?: string], string>>;
+type TSpy = ReturnType<typeof vi.fn<[key: string], string>>;
 
 /**
- * Translation stub: returns the defaultValue when provided, otherwise the key.
+ * Translation stub: echoes the requested key.
  */
-function createT(): { t: TFunction; spy: TSpy } {
-  const spy: TSpy = vi.fn((key: string, fallback?: string) => fallback ?? key);
-  return { t: spy as unknown as TFunction, spy };
+function createT(): { t: TFunction<['common', 'inventory', 'errors']>; spy: TSpy } {
+  const spy: TSpy = vi.fn((key: string) => key);
+  return { t: spy as unknown as TFunction<['common', 'inventory', 'errors']>, spy };
 }
 
 describe('handleDeleteError', () => {
@@ -35,13 +35,10 @@ describe('handleDeleteError', () => {
     const result = handleDeleteError(undefined, t);
 
     expect(result).toEqual({
-      message: 'Failed to delete item. Please try again.',
+      message: 'errors:inventory.requests.failedToDeleteItem',
       severity: 'error',
     });
-    expect(spy).toHaveBeenCalledWith(
-      'errors:inventory.requests.failedToDeleteItem',
-      'Failed to delete item. Please try again.'
-    );
+    expect(spy).toHaveBeenCalledWith('errors:inventory.requests.failedToDeleteItem');
   });
 
   it('maps the conflict token to the quantity rule with error severity', () => {
@@ -50,14 +47,10 @@ describe('handleDeleteError', () => {
     const result = handleDeleteError({ errorToken: 'conflict' }, t);
 
     expect(result).toEqual({
-      message:
-        'You still have merchandise in stock. You need to first remove items from stock by changing quantity.',
+      message: 'errors:inventory.businessRules.quantityMustBeZero',
       severity: 'error',
     });
-    expect(spy).toHaveBeenCalledWith(
-      'errors:inventory.businessRules.quantityMustBeZero',
-      'You still have merchandise in stock. You need to first remove items from stock by changing quantity.'
-    );
+    expect(spy).toHaveBeenCalledWith('errors:inventory.businessRules.quantityMustBeZero');
   });
 
   it('maps the forbidden token to admin-only with warning severity', () => {
@@ -66,13 +59,10 @@ describe('handleDeleteError', () => {
     const result = handleDeleteError({ errorToken: 'forbidden' }, t);
 
     expect(result).toEqual({
-      message: 'Only administrators can delete items.',
+      message: 'errors:inventory.businessRules.adminOnly',
       severity: 'warning',
     });
-    expect(spy).toHaveBeenCalledWith(
-      'errors:inventory.businessRules.adminOnly',
-      'Only administrators can delete items.'
-    );
+    expect(spy).toHaveBeenCalledWith('errors:inventory.businessRules.adminOnly');
   });
 
   it('maps the not_found token to item-not-found with warning severity', () => {
@@ -81,13 +71,10 @@ describe('handleDeleteError', () => {
     const result = handleDeleteError({ errorToken: 'not_found' }, t);
 
     expect(result).toEqual({
-      message: 'Item not found. It may have been deleted by another user.',
+      message: 'errors:inventory.businessRules.itemNotFound',
       severity: 'warning',
     });
-    expect(spy).toHaveBeenCalledWith(
-      'errors:inventory.businessRules.itemNotFound',
-      'Item not found. It may have been deleted by another user.'
-    );
+    expect(spy).toHaveBeenCalledWith('errors:inventory.businessRules.itemNotFound');
   });
 
   it('falls back to the generic message for an unmapped token', () => {
@@ -96,7 +83,7 @@ describe('handleDeleteError', () => {
     const result = handleDeleteError({ errorToken: 'internal_server_error' }, t);
 
     expect(result).toEqual({
-      message: 'Failed to delete item. Please try again.',
+      message: 'errors:inventory.requests.failedToDeleteItem',
       severity: 'error',
     });
   });
@@ -107,7 +94,7 @@ describe('handleDeleteError', () => {
     const result = handleDeleteError({ errorToken: null }, t);
 
     expect(result).toEqual({
-      message: 'Failed to delete item. Please try again.',
+      message: 'errors:inventory.requests.failedToDeleteItem',
       severity: 'error',
     });
   });

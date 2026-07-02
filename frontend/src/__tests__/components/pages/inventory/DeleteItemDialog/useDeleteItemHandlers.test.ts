@@ -147,7 +147,7 @@ describe('useDeleteItemHandlers', () => {
         await result.current.onSubmit();
       });
 
-      expect(state.setFormError).toHaveBeenCalledWith('Please select an item.');
+      expect(state.setFormError).toHaveBeenCalledWith('errors:inventory.selection.noItemSelected');
       expect(state.setShowConfirmation).not.toHaveBeenCalledWith(true);
     });
 
@@ -172,7 +172,7 @@ describe('useDeleteItemHandlers', () => {
         await result.current.onConfirmedDelete();
       });
 
-      expect(state.setFormError).toHaveBeenCalledWith('Please select an item.');
+      expect(state.setFormError).toHaveBeenCalledWith('errors:inventory.selection.noItemSelected');
       expect(deleteItemSpy).not.toHaveBeenCalled();
     });
 
@@ -185,7 +185,7 @@ describe('useDeleteItemHandlers', () => {
         await result.current.onConfirmedDelete();
       });
 
-      expect(state.setFormError).toHaveBeenCalledWith('Please select a deletion reason.');
+      expect(state.setFormError).toHaveBeenCalledWith('errors:inventory.selection.noReasonSelected');
       expect(deleteItemSpy).not.toHaveBeenCalled();
     });
 
@@ -266,7 +266,7 @@ describe('useDeleteItemHandlers', () => {
       });
 
       expect(consoleSpy).toHaveBeenCalled();
-      expect(state.setFormError).toHaveBeenCalledWith('Failed to delete item. Please try again.');
+      expect(state.setFormError).toHaveBeenCalledWith('errors:inventory.requests.failedToDeleteItem');
 
       consoleSpy.mockRestore();
     });

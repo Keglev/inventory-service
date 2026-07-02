@@ -202,12 +202,12 @@ export function useItemForm({
   function applyServerError(result: { errorToken?: string | null }): void {
     if (result.errorToken === 'conflict') {
       setError('name', {
-        message: t('errors:inventory.conflicts.duplicateName', 'An item with this name already exists.'),
+        message: t('errors:inventory.conflicts.duplicateName'),
       });
       return;
     }
 
-    setFormError(t('errors:inventory.server.serverError', 'A server error occurred. Please try again.'));
+    setFormError(t('errors:inventory.server.serverError'));
   }
 
   /**

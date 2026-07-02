@@ -14,10 +14,9 @@
  *   insufficient permission -> 'forbidden', and a vanished item -> 'not_found'.
  *   Anything else (including a network failure with no response) falls through
  *   to a generic message.
- * - Message text is sourced from i18n keys. The shared TFunction is typed against
- *   the default namespace, so cross-namespace 'errors:' keys require a defaultValue
- *   argument to satisfy the typed overload; the canonical English is passed there,
- *   but the resource bundle value is authoritative at runtime.
+ * - Message text is sourced from i18n keys. The TFunction param is typed over the
+ *   app namespaces (including 'errors'), so 'errors:' keys type-check single-arg;
+ *   the resource bundle value is authoritative at runtime.
  */
 
 import type { TFunction } from 'i18next';
@@ -54,17 +53,14 @@ export interface DeleteErrorResult {
  */
 export function handleDeleteError(
   result: DeleteErrorInput | undefined,
-  t: TFunction
+  t: TFunction<['common', 'inventory', 'errors']>
 ): DeleteErrorResult {
   const token = result?.errorToken ?? null;
 
   // Business rule: item still has stock (deletion is only allowed at quantity 0).
   if (token === 'conflict') {
     return {
-      message: t(
-        'errors:inventory.businessRules.quantityMustBeZero',
-        'You still have merchandise in stock. You need to first remove items from stock by changing quantity.'
-      ),
+      message: t('errors:inventory.businessRules.quantityMustBeZero'),
       severity: 'error',
     };
   }
@@ -72,7 +68,7 @@ export function handleDeleteError(
   // Authorization: only administrators may delete items.
   if (token === 'forbidden') {
     return {
-      message: t('errors:inventory.businessRules.adminOnly', 'Only administrators can delete items.'),
+      message: t('errors:inventory.businessRules.adminOnly'),
       severity: 'warning',
     };
   }
@@ -80,17 +76,14 @@ export function handleDeleteError(
   // Not found: the item no longer exists.
   if (token === 'not_found') {
     return {
-      message: t(
-        'errors:inventory.businessRules.itemNotFound',
-        'Item not found. It may have been deleted by another user.'
-      ),
+      message: t('errors:inventory.businessRules.itemNotFound'),
       severity: 'warning',
     };
   }
 
   // Generic fallback (network failure or an unmapped status).
   return {
-    message: t('errors:inventory.requests.failedToDeleteItem', 'Failed to delete item. Please try again.'),
+    message: t('errors:inventory.requests.failedToDeleteItem'),
     severity: 'error',
   };
 }

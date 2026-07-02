@@ -106,9 +106,7 @@ export function usePriceChangeForm({
    */
   const onSubmit = rhfHandleSubmit(async (values: PriceChangeForm) => {
     if (!state.selectedItem) {
-      state.setFormError(
-        t('errors:inventory.selection.noItemSelected', 'Please select an item to change price.')
-      );
+      state.setFormError(t('errors:inventory.selection.noItemSelected'));
       return;
     }
 
@@ -136,24 +134,16 @@ export function usePriceChangeForm({
         onPriceChanged();
         handleClose();
       } else if (success.errorToken === 'forbidden') {
-        state.setFormError(
-          t('errors:inventory.businessRules.adminOnly', 'Only administrators can perform this action.')
-        );
+        state.setFormError(t('errors:inventory.businessRules.adminOnly'));
       } else if (success.errorToken === 'not_found') {
-        state.setFormError(
-          t('errors:inventory.businessRules.itemNotFound', 'Item not found. It may have been deleted by another user.')
-        );
+        state.setFormError(t('errors:inventory.businessRules.itemNotFound'));
       } else {
-        state.setFormError(
-          t('errors:inventory.requests.failedToChangePrice', 'Failed to change price. Please try again.')
-        );
+        state.setFormError(t('errors:inventory.requests.failedToChangePrice'));
       }
     } catch (error) {
       // BUCKET: CB-APP55 -- unguarded console.error ships to production devtools.
       console.error('Price change error:', error);
-      state.setFormError(
-        t('errors:inventory.requests.failedToChangePrice', 'Failed to change price. Please try again.')
-      );
+      state.setFormError(t('errors:inventory.requests.failedToChangePrice'));
     }
   });
 

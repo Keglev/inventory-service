@@ -15,14 +15,10 @@
  *   to proceed. The short-circuit happens after validation so a demo
  *   user sees the same errors a real user would.
  * - Error mapping is delegated to deleteItemErrorHandler so the handler
- *   stays focused on flow control. The mapper itself uses fragile
- *   substring matching on the backend message text; tracked under
- *   CB-APP48.
+ *   stays focused on flow control. The mapper branches on the backend's
+ *   structured errorToken.
  * - Tracked buckets touching this file:
  *   * CB-APP47 -- unguarded console.error ships to production devtools.
- *   * CM-APP10 -- t('common.demoDisabled') uses dot instead of colon
- *     for the namespace separator; the call silently falls back to the
- *     English string and misses the resource.
  *   * CB-E (existing) -- the handler passes deletionReason to deleteItem
  *     but deleteItemSchema validates only itemId. The schema does not
  *     reject empty or invalid reasons; the runtime explicit check inside
@@ -76,9 +72,7 @@ export function useDeleteItemHandlers(
   const onSubmit = state.handleSubmit(
     React.useCallback(async () => {
     if (!state.selectedItem) {
-      state.setFormError(
-        t('errors:inventory.selection.noItemSelected', 'Please select an item.')
-      );
+      state.setFormError(t('errors:inventory.selection.noItemSelected'));
       return;
     }
     // Validation passed: show confirmation dialog
@@ -96,25 +90,20 @@ export function useDeleteItemHandlers(
   const onConfirmedDelete = React.useCallback(async () => {
     // Validation: item required
     if (!state.selectedItem) {
-      state.setFormError(
-        t('errors:inventory.selection.noItemSelected', 'Please select an item.')
-      );
+      state.setFormError(t('errors:inventory.selection.noItemSelected'));
       return;
     }
 
     // Validation: reason required
     if (!state.deletionReason) {
-      state.setFormError(
-        t('errors:inventory.selection.noReasonSelected', 'Please select a deletion reason.')
-      );
+      state.setFormError(t('errors:inventory.selection.noReasonSelected'));
       return;
     }
 
     // Guard: readonly mode blocks actual deletion
     if (readOnly) {
       state.setFormError(
-      // BUCKET: CM-APP10 -- namespace uses '.' instead of ':'. Should be t('common:demoDisabled', ...).
-        t('common.demoDisabled', 'You are in demo mode and cannot perform this operation.')
+        t('common:demoDisabled', 'You are in demo mode and cannot perform this operation.')
       );
       return;
     }
@@ -148,9 +137,7 @@ export function useDeleteItemHandlers(
     } catch (error) {
       // BUCKET: CB-APP47 -- unguarded console.error ships to production devtools.
       console.error('Delete item error:', error);
-      state.setFormError(
-        t('errors:inventory.requests.failedToDeleteItem', 'Failed to delete item. Please try again.')
-      );
+      state.setFormError(t('errors:inventory.requests.failedToDeleteItem'));
     }
   }, [state, readOnly, t, toast, onItemDeleted, handleClose]);
 

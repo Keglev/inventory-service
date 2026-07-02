@@ -187,7 +187,7 @@ export function useEditItemForm(
    */
   const onSubmit = handleSubmit(async (values) => {
     if (!selectedItem) {
-      setFormError(t('errors:inventory.selection.noItemSelected', 'Please select an item.'));
+      setFormError(t('errors:inventory.selection.noItemSelected'));
       return;
     }
 
@@ -204,16 +204,16 @@ export function useEditItemForm(
         onItemRenamed();
         handleClose();
       } else if (success.errorToken === 'forbidden') {
-        setFormError(t('errors:inventory.businessRules.adminOnly', 'Only administrators can perform this action.'));
+        setFormError(t('errors:inventory.businessRules.adminOnly'));
       } else if (success.errorToken === 'conflict') {
-        setFormError(t('errors:inventory.conflicts.duplicateName', 'An item with this name already exists.'));
+        setFormError(t('errors:inventory.conflicts.duplicateName'));
       } else {
-        setFormError(t('errors:inventory.requests.failedToRenameItem', 'Failed to rename item. Please try again.'));
+        setFormError(t('errors:inventory.requests.failedToRenameItem'));
       }
     } catch (error) {
       // BUCKET: CB-APP51 -- unguarded console.error ships to production devtools.
       console.error('Edit item error:', error);
-      setFormError(t('errors:inventory.requests.failedToRenameItem', 'Failed to rename item. Please try again.'));
+      setFormError(t('errors:inventory.requests.failedToRenameItem'));
     }
   });
 

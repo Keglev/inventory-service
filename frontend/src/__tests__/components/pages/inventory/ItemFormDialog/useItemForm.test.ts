@@ -209,7 +209,7 @@ describe('useItemForm', () => {
 
     await waitFor(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((result.current.formState.errors as any).name?.message).toBe('An item with this name already exists.');
+      expect((result.current.formState.errors as any).name?.message).toBe('errors:inventory.conflicts.duplicateName');
     });
   });
 
@@ -220,7 +220,7 @@ describe('useItemForm', () => {
     await submitValid(result);
 
     await waitFor(() => {
-      expect(result.current.formError).toBe('A server error occurred. Please try again.');
+      expect(result.current.formError).toBe('errors:inventory.server.serverError');
     });
   });
 
@@ -231,7 +231,7 @@ describe('useItemForm', () => {
     await submitValid(result);
 
     await waitFor(() => {
-      expect(result.current.formError).toBe('A server error occurred. Please try again.');
+      expect(result.current.formError).toBe('errors:inventory.server.serverError');
     });
   });
 });
