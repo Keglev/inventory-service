@@ -59,34 +59,33 @@ describe('FooterLinks', () => {
     expect(screen.getByText('Support & Docs')).toBeInTheDocument();
   });
 
-  it('renders the documentation link (placeholder target)', () => {
+  it('renders the documentation link to the published docs in a new tab', () => {
     arrange();
     const link = getLink('Documentation');
-    expect(link).toHaveAttribute('href', '#');
+    expect(link).toHaveAttribute('href', 'https://keglev.github.io/inventory-service/');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
-  it('renders the API reference link (placeholder target)', () => {
+  it('renders the API reference link to the ReDoc page in a new tab', () => {
     arrange();
     const link = getLink('API Reference');
-    expect(link).toHaveAttribute('href', '#');
-  });
-
-  it('renders the release notes link (placeholder target)', () => {
-    arrange();
-    const link = getLink('Release Notes');
-    expect(link).toHaveAttribute('href', '#');
+    expect(link).toHaveAttribute('href', 'https://keglev.github.io/inventory-service/backend/api/index.html');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
   it('renders the contact support mailto link', () => {
     arrange();
     const link = getLink('Contact Support');
     expect(link).toHaveAttribute('href', 'mailto:support@smartsupplypro.com');
+    expect(getLink('Contact Support')).not.toHaveAttribute('target');
   });
 
   it('renders exactly four links', () => {
     // Guards against accidental addition/removal of footer navigation entries.
     arrange();
-    expect(screen.getAllByRole('link')).toHaveLength(4);
+    expect(screen.getAllByRole('link')).toHaveLength(3);
   });
 
   // ---------------------------------------------------------------------------
@@ -116,7 +115,6 @@ describe('FooterLinks', () => {
 
     expect(mockT).toHaveBeenCalledWith('footer:support.documentation', 'Documentation');
     expect(mockT).toHaveBeenCalledWith('footer:support.apiRef', 'API Reference');
-    expect(mockT).toHaveBeenCalledWith('footer:support.releaseNotes', 'Release Notes');
     expect(mockT).toHaveBeenCalledWith('footer:support.contact', 'Contact Support');
   });
 });
