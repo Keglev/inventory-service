@@ -254,9 +254,9 @@ describe('useEditItemForm', () => {
       expect(resetSpy).toHaveBeenCalled();
     });
 
-    it('surfaces an error when API returns ok:false', async () => {
+    it('surfaces a generic error when the failure has no mapped token', async () => {
       renameItemMock.mockReturnValue(
-        { ok: false, error: 'Conflict' } as unknown as ReturnType<typeof renameItem>,
+        { ok: false, error: 'Something failed' } as unknown as ReturnType<typeof renameItem>,
       );
 
       const { result } = render(true);
@@ -264,7 +264,6 @@ describe('useEditItemForm', () => {
       act(() => {
         result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
       });
-
       act(() => {
         result.current.setSelectedItem({ id: 'item-1', name: 'Old Name' });
       });
@@ -276,7 +275,55 @@ describe('useEditItemForm', () => {
       });
 
       expect(onItemRenamed).not.toHaveBeenCalled();
-      expect(result.current.formError).toBeTruthy();
+      expect(result.current.formError).toBe('Failed to rename item. Please try again.');
+    });
+
+    it('maps the forbidden token to an admin-only message', async () => {
+      renameItemMock.mockReturnValue(
+        { ok: false, error: 'nope', errorToken: 'forbidden' } as unknown as ReturnType<typeof renameItem>,
+      );
+
+      const { result } = render(true);
+
+      act(() => {
+        result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
+      });
+      act(() => {
+        result.current.setSelectedItem({ id: 'item-1', name: 'Old Name' });
+      });
+
+      formData = { itemId: 'item-1', newName: 'New Name' };
+
+      await act(async () => {
+        await result.current.onSubmit();
+      });
+
+      expect(onItemRenamed).not.toHaveBeenCalled();
+      expect(result.current.formError).toBe('Only administrators can perform this action.');
+    });
+
+    it('maps the conflict token to a duplicate-name message', async () => {
+      renameItemMock.mockReturnValue(
+        { ok: false, error: 'nope', errorToken: 'conflict' } as unknown as ReturnType<typeof renameItem>,
+      );
+
+      const { result } = render(true);
+
+      act(() => {
+        result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
+      });
+      act(() => {
+        result.current.setSelectedItem({ id: 'item-1', name: 'Old Name' });
+      });
+
+      formData = { itemId: 'item-1', newName: 'New Name' };
+
+      await act(async () => {
+        await result.current.onSubmit();
+      });
+
+      expect(onItemRenamed).not.toHaveBeenCalled();
+      expect(result.current.formError).toBe('An item with this name already exists.');
     });
   });
 });

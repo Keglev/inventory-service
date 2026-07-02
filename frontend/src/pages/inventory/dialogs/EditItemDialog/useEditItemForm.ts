@@ -17,11 +17,10 @@
  *   field with the freshest known name (details query if present, search
  *   result otherwise) so the user edits an actual value, not an empty
  *   field.
- * - Submission delegates only to renameItem. Error handling is inline
- *   substring matching on the backend message text (Admin / Access
- *   denied / duplicate / already exists), which is the same fragile
- *   pattern as deleteItemErrorHandler. Tracked under CB-APP50 -- switch
- *   to matching on the structured error field per the locked error shape.
+ * - Submission delegates only to renameItem. Failures are classified by the
+ *   backend status token (errorToken): 'forbidden' -> admin-only, 'conflict'
+ *   -> duplicate name, anything else -> a generic message. This keys on the
+ *   structured error shape, never on substrings of the freeform message.
  * - console.error on submission failure is unguarded and ships to
  *   production browser devtools. Tracked under CB-APP51 (same class as
  *   CB-APP29 / CB-APP35 / CB-APP37 / CB-APP45 / CB-APP47).
@@ -204,13 +203,12 @@ export function useEditItemForm(
         toast(t('inventory:status.itemRenamed', 'Item name changed successfully!'), 'success');
         onItemRenamed();
         handleClose();
-      // BUCKET: CB-APP50 -- substring matching on freeform backend message text. Switch to structured error field per locked error shape.
-      } else if (success.error?.includes('Admin') || success.error?.includes('Access denied')) {
-        setFormError(t('errors:inventory.adminOnly', 'Only administrators can rename items.'));
-      } else if (success.error?.includes('duplicate') || success.error?.includes('already exists')) {
+      } else if (success.errorToken === 'forbidden') {
+        setFormError(t('errors:inventory.businessRules.adminOnly', 'Only administrators can perform this action.'));
+      } else if (success.errorToken === 'conflict') {
         setFormError(t('errors:inventory.conflicts.duplicateName', 'An item with this name already exists.'));
       } else {
-        setFormError(success.error || t('errors:inventory.requests.failedToRenameItem', 'Failed to rename item. Please try again.'));
+        setFormError(t('errors:inventory.requests.failedToRenameItem', 'Failed to rename item. Please try again.'));
       }
     } catch (error) {
       // BUCKET: CB-APP51 -- unguarded console.error ships to production devtools.
