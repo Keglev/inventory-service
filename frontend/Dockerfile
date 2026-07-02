@@ -16,6 +16,11 @@ COPY frontend/ .
 # VITE_ vars are inlined into the bundle at build time; override at --build-arg for non-default targets.
 ARG VITE_API_BASE=""
 ENV VITE_API_BASE=$VITE_API_BASE
+# Build metadata injected by CI; defaults keep local docker builds working.
+ARG VITE_BUILD_ID="dev"
+ENV VITE_BUILD_ID=$VITE_BUILD_ID
+ARG VITE_APP_ENVIRONMENT="Production (Koyeb)"
+ENV VITE_APP_ENVIRONMENT=$VITE_APP_ENVIRONMENT
 
 # Runs the test suite; decoupled from build so CI can fail fast without tainting the build cache.
 # Pass --build-arg RUN_TESTS=false when tests run outside Docker (e.g. for GitHub Actions annotations).

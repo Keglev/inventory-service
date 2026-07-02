@@ -17,6 +17,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHealthCheck } from '../../features/health';
+import { APP_ENVIRONMENT, APP_VERSION, BUILD_ID } from '../../config/appMeta';
 
 /**
  * Footer configuration interface.
@@ -59,12 +60,10 @@ export function useFooterState() {
   // WHY: build metadata is hardcoded — no build-time source wired (package.json=0.0.0,
   //      no vite define / import.meta.env for version). currentLanguage is the only live
   //      value (derived from i18n.language); region is a static 'DE'.
-  // BUCKET: inject appVersion/buildId/environment from build-time env
-  //         (vite define + git SHA + package version) (CB-APP1)
   const config: FooterConfig = {
-    appVersion: '1.0.0',
-    buildId: '4a9c12f',
-    environment: 'Production (Koyeb)',
+    appVersion: APP_VERSION,
+    buildId: BUILD_ID,
+    environment: APP_ENVIRONMENT,
     currentLanguage: i18n.language.split('-')[0].toUpperCase(),
     region: 'DE',
   };

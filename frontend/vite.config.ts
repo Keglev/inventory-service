@@ -20,7 +20,13 @@ const httpsConfig = useHttps
     }
   : undefined;
 
+// App version is injected at build time from package.json so the UI can never drift from the manifest.
+const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8')) as { version: string };
+
 export default defineConfig({
+  define: {
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(pkg.version),
+  },
   plugins: [react()],
   resolve: {
     alias: {

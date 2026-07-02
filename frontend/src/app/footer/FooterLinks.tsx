@@ -8,8 +8,9 @@
  *
  * @enterprise
  * - Pure presentational leaf: props-only, no state.
- * - 3 of 4 links are dead placeholders (href:'#'): Documentation, API Reference,
- *   Release Notes. Only Contact (mailto) is a real destination (see CB-APP2).
+ * - Documentation and API Reference open the published GitHub Pages docs in a
+ *   new tab (SAP-style external-link behavior); Release Notes returns once a
+ *   GitHub Releases page exists.
  * - Labels are i18n keys in the 'footer' namespace with English fallbacks.
  */
 
@@ -32,23 +33,21 @@ import { useTranslation } from 'react-i18next';
 export default function FooterLinks() {
   const { t } = useTranslation(['footer']);
 
-  // BUCKET: wire real hrefs or remove placeholder links (CB-APP2)
   const links = [
     {
       label: t('footer:support.documentation', 'Documentation'),
-      href: '#',
+      href: 'https://keglev.github.io/inventory-service/',
+      external: true,
     },
     {
       label: t('footer:support.apiRef', 'API Reference'),
-      href: '#',
-    },
-    {
-      label: t('footer:support.releaseNotes', 'Release Notes'),
-      href: '#',
+      href: 'https://keglev.github.io/inventory-service/backend/api/index.html',
+      external: true,
     },
     {
       label: t('footer:support.contact', 'Contact Support'),
       href: 'mailto:support@smartsupplypro.com',
+      external: false,
     },
   ];
 
@@ -65,6 +64,8 @@ export default function FooterLinks() {
           <Link
             key={link.label}
             href={link.href}
+            target={link.external ? '_blank' : undefined}
+            rel={link.external ? 'noopener noreferrer' : undefined}
             underline="hover"
             variant="caption"
             sx={{ color: 'primary.main' }}

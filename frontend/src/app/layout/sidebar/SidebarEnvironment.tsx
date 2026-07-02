@@ -13,6 +13,7 @@
 
 import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { APP_ENVIRONMENT, APP_VERSION } from '../../../config/appMeta';
 
 /**
  * Environment and version metadata display component.
@@ -25,7 +26,7 @@ import { useTranslation } from 'react-i18next';
  * @example
  * ```tsx
  * <SidebarEnvironment />
- * // Displays: Environment: Production (Koyeb), Version: 1.0.0
+ * // Displays the build-time environment and version from config/appMeta
  * ```
  */
 export default function SidebarEnvironment() {
@@ -38,15 +39,13 @@ export default function SidebarEnvironment() {
         {t('footer:meta.environment', 'Environment:')}
       </Typography>
       <Typography variant="caption" color="text.secondary" display="block">
-        {/* BUCKET: env/version hardcoded as i18n fallbacks — consolidate with footer config single source (CB-APP1) */}
-        {t('app.environment', 'Production (Koyeb)')}
+        {APP_ENVIRONMENT}
       </Typography>
       <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
         {t('footer:meta.version', 'Version:')}
       </Typography>
       <Typography variant="caption" color="text.secondary" display="block">
-        {/* BUCKET: env/version hardcoded as i18n fallbacks — consolidate with footer config single source (CB-APP1) */}
-        {t('app.version', '1.0.0')}
+        {APP_VERSION}
       </Typography>
     </Box>
   );

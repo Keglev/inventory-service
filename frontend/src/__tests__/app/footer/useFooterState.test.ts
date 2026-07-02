@@ -35,6 +35,12 @@ vi.mock('../../../features/health', () => ({
   useHealthCheck: mockUseHealthCheck,
 }));
 
+vi.mock('@/config/appMeta', () => ({
+  APP_VERSION: '1.0.0',
+  BUILD_ID: '4a9c12f',
+  APP_ENVIRONMENT: 'Production (Koyeb)',
+}));
+
 type I18nLike = { language: string; changeLanguage: () => void };
 
 type Health = {

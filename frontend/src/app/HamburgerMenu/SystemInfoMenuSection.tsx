@@ -26,6 +26,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useTranslation } from 'react-i18next';
 import { useHealthCheck } from '../../features/health';
 import { logWarn } from '../../utils/logger';
+import { APP_ENVIRONMENT, APP_VERSION, BUILD_ID } from '../../config/appMeta';
 
 type ClipboardLike = Pick<Clipboard, 'writeText'>;
 
@@ -39,11 +40,10 @@ export default function SystemInfoMenuSection({ clipboard = typeof navigator !==
   const { health } = useHealthCheck();
   const [copied, setCopied] = React.useState(false);
 
-  // BUCKET: hardcoded build/env values duplicated from footer + SidebarEnvironment; single source of truth needed (CB-APP1)
-  const environment = 'Production (Koyeb)';
+  const environment = APP_ENVIRONMENT;
   const backendUrl = '/api';
-  const frontendVersion = '1.0.0';
-  const commitHash = '4a9c12f';
+  const frontendVersion = APP_VERSION;
+  const commitHash = BUILD_ID;
 
   const handleCopyUrl = async (text: string) => {
     if (!clipboard || typeof clipboard.writeText !== 'function') {

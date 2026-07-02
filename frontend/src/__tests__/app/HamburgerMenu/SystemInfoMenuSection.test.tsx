@@ -31,6 +31,12 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
+vi.mock('@/config/appMeta', () => ({
+  APP_VERSION: '1.0.0',
+  BUILD_ID: '4a9c12f',
+  APP_ENVIRONMENT: 'Production (Koyeb)',
+}));
+
 describe('SystemInfoMenuSection', () => {
   const arrange = (props?: Parameters<typeof SystemInfoMenuSection>[0]) => render(<SystemInfoMenuSection {...props} />);
 
