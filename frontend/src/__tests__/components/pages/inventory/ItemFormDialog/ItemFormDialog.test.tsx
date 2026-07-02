@@ -49,11 +49,9 @@ vi.mock('../../../../../features/help', () => ({
     return (
       <button
         type="button"
-        aria-label={props.tooltip ?? 'Help'}
+        aria-label="Open help"
         onClick={() => openHelpMock(props.topicId)}
-      >
-        Help
-      </button>
+      />
     );
   },
 }));
@@ -134,7 +132,8 @@ describe('ItemFormDialog', () => {
     render(<ItemFormDialog isOpen={true} onClose={onClose} onSaved={onSaved} />);
 
     // Mode-specific title + primary action label
-    expect(screen.getByRole('heading', { name: 'Create Item' })).toBeInTheDocument();
+    // WHY: the labeled help button inside DialogTitle contributes to the heading's accessible name.
+    expect(screen.getByRole('heading', { name: /Create Item/ })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
@@ -176,7 +175,7 @@ describe('ItemFormDialog', () => {
       />,
     );
 
-    expect(screen.getByRole('heading', { name: 'Edit Item' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Edit Item/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -208,7 +207,7 @@ describe('ItemFormDialog', () => {
       expect.objectContaining({ topicId: 'inventory.manage' }),
     );
 
-    await user.click(screen.getByLabelText(/help/i));
+    await user.click(screen.getByRole('button', { name: 'Open help' }));
     expect(openHelpMock).toHaveBeenCalledWith('inventory.manage');
   });
 
@@ -230,7 +229,7 @@ describe('ItemFormDialog', () => {
       expect.objectContaining({ topicId: 'inventory.editItem' }),
     );
 
-    await user.click(screen.getByLabelText(/help/i));
+    await user.click(screen.getByRole('button', { name: 'Open help' }));
     expect(openHelpMock).toHaveBeenCalledWith('inventory.editItem');
   });
 });
