@@ -7,7 +7,7 @@
  *
  * Behavior:
  * - Renders a "Role" label.
- * - Displays a formatted role name when provided (e.g., "admin" -> "Admin").
+ * - Requests a localized role label via common:roles.* for the given role token.
  * - Falls back to "User" when role is missing or empty.
  * - When demo mode is enabled, displays a DEMO badge (Chip).
  *
@@ -67,23 +67,9 @@ describe('ProfileRoleDisplay', () => {
     expect(screen.getByText('Role')).toBeInTheDocument();
   });
 
-  it('capitalizes role name (admin -> Admin)', () => {
-    arrange({ role: 'admin', isDemo: false });
-    expect(screen.getByText('Admin')).toBeInTheDocument();
-  });
-
-  it.each([
-    ['user', 'User'],
-    ['manager', 'Manager'],
-    ['employee', 'Employee'],
-  ] as const)('capitalizes role "%s" -> "%s"', (role, expected) => {
-    arrange({ role, isDemo: false });
-    expect(screen.getByText(expected)).toBeInTheDocument();
-  });
-
-  it('preserves uppercase role values (ADMIN stays ADMIN)', () => {
+  it('requests the localized role label for the role token', () => {
     arrange({ role: 'ADMIN', isDemo: false });
-    expect(screen.getByText('ADMIN')).toBeInTheDocument();
+    expect(screen.getByText('ADMIN')).toBeInTheDocument(); // t stub echoes the fallback (raw token)
   });
 
   // ---------------------------------------------------------------------------

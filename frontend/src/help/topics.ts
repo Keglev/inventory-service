@@ -105,14 +105,3 @@ export const HELP_TOPICS: Record<string, HelpTopic> = {
 export function getHelpTopic(id: string): HelpTopic | undefined {
   return HELP_TOPICS[id];
 }
-
-// BUCKET: no production caller — only test-consumed; dead export candidate (CB-APP17)
-export function getTopicsByCategory(category: HelpTopic['category']): HelpTopic[] {
-  return Object.values(HELP_TOPICS).filter((topic) => topic.category === category);
-}
-
-// BUCKET: no production caller — only test-consumed; dead export candidate (CB-APP17)
-export function getAllCategories(): HelpTopic['category'][] {
-  const categories = new Set(Object.values(HELP_TOPICS).map((topic) => topic.category));
-  return Array.from(categories).sort();
-}

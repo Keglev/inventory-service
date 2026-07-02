@@ -1,7 +1,7 @@
 /**
  * @file formatters.test.ts
  * @module tests/unit/utils/formatters
- * @what_is_under_test formatDate / formatNumber / getCurrencyFormat / parseFormattedNumber / getTodayIso / getDaysAgoIso
+ * @what_is_under_test formatDate / formatNumber / parseFormattedNumber / getTodayIso / getDaysAgoIso
  * @responsibility
  * Guarantees stable date/number formatting and parsing contracts used by UI rendering and filters,
  * including safe defaults for invalid inputs.
@@ -15,7 +15,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   formatDate,
   formatNumber,
-  getCurrencyFormat,
   parseFormattedNumber,
   getTodayIso,
   getDaysAgoIso,
@@ -69,16 +68,6 @@ describe('formatNumber', () => {
     it('returns empty string for non-number values', () => {
       expect(formatNumber('string' as unknown as number, 'DE')).toBe('');
     });
-  });
-});
-
-describe('getCurrencyFormat', () => {
-  it.each([
-    ['DE', { decimal: ',', thousands: '.' }],
-    ['EN_US', { decimal: '.', thousands: ',' }],
-  ])('returns %s configuration', (locale, expected) => {
-    const config = getCurrencyFormat(locale as never);
-    expect(config).toEqual(expected);
   });
 });
 

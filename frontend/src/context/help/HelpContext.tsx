@@ -48,20 +48,6 @@ export const HelpProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, DRAWER_EXIT_GUARD_MS);
   }, []);
 
-  // BUCKET: redundant with MUI Drawer's built-in Escape→onClose (=closeHelp) — fires closeHelp twice per Escape press; idempotent today but contradicts HelpPanel @enterprise documentation (CB-APP28)
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        closeHelp();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [isOpen, closeHelp]);
-
   const value: HelpContextType = {
     currentTopicId,
     isOpen,

@@ -27,8 +27,7 @@ export function createContextHook<T>(
 ): () => T {
   return (): T => {
     const value = useContext(context) as T | undefined;
-    // BUCKET: strict undefined check — primitive-valued contexts (0, '', false) would throw spuriously (CB-APP24)
-    if (!value) {
+    if (value === undefined) {
       throw new Error(`${hookName} must be used within the corresponding provider`);
     }
     return value;

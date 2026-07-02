@@ -6,8 +6,6 @@
  * Contract under test:
  * - `HELP_TOPICS` entries are internally consistent (key === topic.id) and contain valid i18n keys.
  * - `getHelpTopic(id)` returns the registry entry for known IDs and `undefined` otherwise.
- * - `getTopicsByCategory(category)` returns only topics in that category and is non-empty for all supported categories.
- * - `getAllCategories()` returns the supported categories in sorted order (unique).
  * - Backward-compat alias: `inventory.manage` intentionally maps to the same i18n keys as `inventory.overview`.
  *
  * Out of scope:
@@ -20,10 +18,9 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { HELP_TOPICS, getAllCategories, getHelpTopic, getTopicsByCategory } from '@/help/topics';
+import { HELP_TOPICS, getHelpTopic } from '@/help/topics';
 
 // Categories are treated as stable navigation buckets.
-// The public helper contract is that `getAllCategories()` returns them in sorted order.
 const CATEGORIES = ['analytics', 'general', 'inventory', 'settings', 'suppliers'] as const;
 
 describe('help topic registry', () => {
@@ -35,11 +32,6 @@ describe('help topic registry', () => {
       expect(topic.bodyKey).toMatch(/^help:/);
       expect(CATEGORIES).toContain(topic.category);
     }
-  });
-
-  it('exposes all supported categories via getAllCategories() (sorted, unique)', () => {
-    // The app treats these categories as stable navigation buckets.
-    expect(getAllCategories()).toEqual([...CATEGORIES]);
   });
 });
 
@@ -62,13 +54,5 @@ describe('getHelpTopic(id)', () => {
     expect(manage).toBeDefined();
     expect(manage?.titleKey).toBe(overview?.titleKey);
     expect(manage?.bodyKey).toBe(overview?.bodyKey);
-  });
-});
-
-describe('getTopicsByCategory(category)', () => {
-  it.each(CATEGORIES)('returns only %s topics (and the set is non-empty)', (category) => {
-    const topics = getTopicsByCategory(category);
-    expect(topics.length).toBeGreaterThan(0);
-    expect(topics.every((t) => t.category === category)).toBe(true);
   });
 });

@@ -34,10 +34,6 @@ export const ToastContext = React.createContext<ToastFn>(() => {});
  * @returns Toast function to display notifications with optional severity
  */
 export const useToast = (): ToastFn => {
-  const ctx = React.useContext(ToastContext);
-  if (!ctx) {
-    // BUCKET: dead check — ToastContext defaults to a no-op function, not undefined, so ctx is never falsy; the throw is unreachable and the @throws claim is false (CB-APP26)
-    throw new Error('useToast must be used within a ToastContext.Provider');
-  }
-  return ctx;
+  // WHY: the context default is a no-op toast, so consumers outside a provider degrade silently by design — no throw.
+  return React.useContext(ToastContext);
 };

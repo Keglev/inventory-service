@@ -8,9 +8,8 @@
  * @enterprise
  * - Props-only leaf: data flows from ProfileMenuSection (which reads useAuth);
  *   no state or data-fetching hooks in this component.
- * - The capitalization expression `role.charAt(0).toUpperCase() + role.slice(1)`
- *   is a no-op for the actual inputs (backend sends "ADMIN"/"USER" via
- *   Role.name(); demo session uses "DEMO") — see CB-APP13.
+ * - Maps the backend's uppercase role token (Role.name(): "ADMIN"/"USER"/"DEMO")
+ *   to a localized label via common:roles.*, falling back to the raw token.
  *
  * @example
  * ```tsx
@@ -29,8 +28,9 @@ interface ProfileRoleDisplayProps {
 export default function ProfileRoleDisplay({ role, isDemo }: ProfileRoleDisplayProps) {
   const { t } = useTranslation(['common', 'auth']);
 
-  // BUCKET: dead capitalization — backend sends uppercase "ADMIN"/"USER" via Role.name(), demo uses "DEMO"; transformation is a no-op (CB-APP13)
-  const displayRole = role ? role.charAt(0).toUpperCase() + role.slice(1) : 'User';
+  // WHY: backend sends Role.name() uppercase tokens (ADMIN/USER/DEMO); map to localized labels, falling back to the raw token for unknown roles.
+  const roleKey = (role || 'USER').toLowerCase();
+  const displayRole = t(`common:roles.${roleKey}`, role || 'User');
 
   return (
     <Box>

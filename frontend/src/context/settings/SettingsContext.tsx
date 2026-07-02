@@ -52,7 +52,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     loadPreferencesFromStorage(i18n.language)
   );
 
-  /** One-time fetch on mount; fallbacks ensure systemInfo is never null. See CB-APP32 for fallback concerns. */
+  /** One-time fetch on mount; fallbacks ensure systemInfo is never null. */
   React.useEffect(() => {
     const fetchSystemInfo = async () => {
       try {

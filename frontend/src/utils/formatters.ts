@@ -73,17 +73,6 @@ export const formatNumber = (num: number, format: NumberFormat, decimals: number
 
 /**
  * @example
- * const config = getCurrencyFormat('DE')  // → { decimal: ',', thousands: '.' }
- */
-// BUCKET: dead export candidate — no production caller found in formatter consumer set (CB-APP20)
-export const getCurrencyFormat = (format: NumberFormat): { decimal: string; thousands: string } => {
-  return format === 'DE'
-    ? { decimal: ',', thousands: '.' }
-    : { decimal: '.', thousands: ',' };
-};
-
-/**
- * @example
  * parseFormattedNumber('1.234,56', 'DE')   // → 1234.56
  * parseFormattedNumber('1,234.56', 'EN_US') // → 1234.56
  */

@@ -61,26 +61,3 @@ export function readParams(search: string, keys: string[]): UrlDict {
 
   return out;
 }
-
-/**
- * Serializes a patch of params back into a search string.
- *
- * @param baseSearch - The existing `location.search` (preserved unless overwritten).
- * @param patch      - Key/value pairs to upsert (undefined/empty → removed).
- * @returns          - A `?key=value&...` string, or empty string when no params.
- *
- * @example
- * writeParams('?from=2025-01-01', { supplierId: 'abc', to: '2025-02-01' })
- * // → '?from=2025-01-01&supplierId=abc&to=2025-02-01'
- */
-// BUCKET: no production caller — only test-consumed; dead export candidate (CB-APP21)
-export function writeParams(baseSearch: string, patch: UrlDict): string {
-  const sp = new URLSearchParams(baseSearch);
-  Object.entries(patch).forEach(([k, v]) => {
-    const val = v?.trim?.() ?? v;
-    if (val === undefined || val === null || val === '') sp.delete(k);
-    else sp.set(k, val);
-  });
-  const s = sp.toString();
-  return s ? `?${s}` : '';
-}

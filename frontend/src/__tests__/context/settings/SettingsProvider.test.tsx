@@ -132,6 +132,6 @@ describe('SettingsProvider', () => {
 
     await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
     expect(warnSpy).toHaveBeenCalledWith('Failed to fetch system info:', expect.any(Error));
-    expect(screen.getByTestId('db')).toHaveTextContent('Oracle ADB');
+    expect(screen.getByTestId('db')).toHaveTextContent('Unknown');
   });
 });

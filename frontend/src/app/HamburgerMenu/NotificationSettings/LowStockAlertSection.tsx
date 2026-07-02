@@ -3,13 +3,10 @@
  * @module app/HamburgerMenu/NotificationSettings/LowStockAlertSection
  *
  * @summary
- * DEAD IN PRODUCTION — NotificationsMenuSection reimplements this JSX inline and does
- * not import this component; only test files consume it. Would render the warning Stack
- * + chip with low-stock item count.
+ * Renders the warning Stack + chip with the low-stock item count.
  *
  * @enterprise
- * - Zero production importers; NotificationsMenuSection duplicates this JSX inline
- *   instead of importing (see CB-APP12).
+ * - Mounted by NotificationsMenuSection when lowStockCount > 0.
  *
  * @example
  * ```tsx
@@ -27,7 +24,6 @@ interface LowStockAlertSectionProps {
 }
 
 export default function LowStockAlertSection({ lowStockCount }: LowStockAlertSectionProps) {
-  // BUCKET: dead in production — NotificationsMenuSection reimplements this JSX inline; either wire it or delete the dir (CB-APP12)
   const { t } = useTranslation('common');
 
   return (

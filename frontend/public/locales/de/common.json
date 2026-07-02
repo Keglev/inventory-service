@@ -57,6 +57,7 @@
   "name": "Name",
   "email": "E-Mail",
   "role": "Rolle",
+  "roles": { "admin": "Administrator", "user": "Benutzer", "demo": "Demo" },
   "loggedInAs": "Angemeldet als",
   "appearance": {
     "title": "Erscheinungsbild",

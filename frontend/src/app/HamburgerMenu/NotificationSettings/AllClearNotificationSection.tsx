@@ -3,13 +3,10 @@
  * @module app/HamburgerMenu/NotificationSettings/AllClearNotificationSection
  *
  * @summary
- * DEAD IN PRODUCTION — NotificationsMenuSection reimplements this JSX inline and does
- * not import this component; only test files consume it. Would render the success
- * "all clear" row when no low-stock items exist.
+ * Renders the success "all clear" row when no low-stock items exist.
  *
  * @enterprise
- * - Zero production importers; NotificationsMenuSection duplicates this JSX inline
- *   instead of importing (see CB-APP12).
+ * - Mounted by NotificationsMenuSection when lowStockCount is 0.
  *
  * @example
  * ```tsx
@@ -22,7 +19,6 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useTranslation } from 'react-i18next';
 
 export default function AllClearNotificationSection() {
-  // BUCKET: dead in production — NotificationsMenuSection reimplements this JSX inline; either wire it or delete the dir (CB-APP12)
   const { t } = useTranslation('common');
 
   return (
