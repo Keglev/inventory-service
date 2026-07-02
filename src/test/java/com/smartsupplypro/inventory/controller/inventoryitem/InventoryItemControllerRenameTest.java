@@ -20,6 +20,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.controller.InventoryItemPatchController;
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.exception.BusinessExceptionHandler;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 
@@ -28,7 +30,7 @@ import com.smartsupplypro.inventory.service.InventoryItemService;
  * authorization, validation, and business rule scenarios using {@link MockMvc}.
  */
 @WebMvcTest(controllers = InventoryItemPatchController.class)
-@Import({ GlobalExceptionHandler.class, TestSecurityConfig.class })
+@Import({ GlobalExceptionHandler.class, BusinessExceptionHandler.class, TestSecurityConfig.class })
 class InventoryItemControllerRenameTest {
 
     @Autowired
@@ -143,7 +145,7 @@ class InventoryItemControllerRenameTest {
         @WithMockUser(roles = "ADMIN")
         void rename_duplicateName_returns409() throws Exception {
             String duplicateName = "Existing Item Name";
-            doThrow(new IllegalArgumentException(
+            doThrow(new DuplicateResourceException(
                 "An item with this name already exists for this supplier"))
                 .when(inventoryItemService).renameItem(eq("i-1"), eq(duplicateName));
 
@@ -155,7 +157,7 @@ class InventoryItemControllerRenameTest {
         @Test
         @WithMockUser(roles = "ADMIN")
         void rename_caseInsensitiveDuplicate_returns409() throws Exception {
-            doThrow(new IllegalArgumentException(
+            doThrow(new DuplicateResourceException(
                 "An item with this name already exists for this supplier"))
                 .when(inventoryItemService).renameItem(eq("i-1"), eq("monitor"));
 

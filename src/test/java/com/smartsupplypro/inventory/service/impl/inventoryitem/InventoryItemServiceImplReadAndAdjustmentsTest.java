@@ -25,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
@@ -168,7 +169,7 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
             when(validationHelper.validateExists("i-1")).thenReturn(existing);
             when(repository.findByNameIgnoreCase("Widget")).thenReturn(List.of(dup));
 
-            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
                     () -> service.renameItem("i-1", "Widget"));
             assertTrue(ex.getMessage().toLowerCase().contains("already exists"));
             verify(repository, never()).save(any());

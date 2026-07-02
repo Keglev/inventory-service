@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
@@ -184,7 +185,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         List<InventoryItem> duplicates = repository.findByNameIgnoreCase(newName.trim());
         for (InventoryItem dup : duplicates) {
             if (!dup.getId().equals(id) && dup.getSupplierId().equals(existing.getSupplierId())) {
-                throw new IllegalArgumentException("An item with this name already exists for this supplier");
+                throw new DuplicateResourceException("An item with this name already exists for this supplier");
             }
         }
 

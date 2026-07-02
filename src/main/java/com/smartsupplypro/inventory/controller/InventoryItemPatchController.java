@@ -67,8 +67,8 @@ public class InventoryItemPatchController {
      * @param id   item identifier
      * @param name new item name
      * @return updated item with new name
-     * @throws ResponseStatusException 400 if name is blank, 404 if not found,
-     *                                 409 if name already exists for the same supplier
+     * @throws ResponseStatusException     400 if name is blank, 404 if not found
+     * @throws DuplicateResourceException  409 if the name already exists for the same supplier
      */
     @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
     @PatchMapping("/{id}/name")
@@ -80,13 +80,12 @@ public class InventoryItemPatchController {
         }
     }
 
-    // Service throws IllegalArgumentException with embedded message tokens; translate to HTTP status codes
+    // Blank-name is the only IllegalArgumentException still translated here; a duplicate
+    // name is raised by the service as DuplicateResourceException (409) and handled by advice.
     private ResponseStatusException toResponseStatusException(IllegalArgumentException e) {
         String message = e.getMessage();
         if (message != null && message.contains("empty")) {
             return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
-        } else if (message != null && message.contains("already exists")) {
-            return new ResponseStatusException(HttpStatus.CONFLICT, message);
         }
         return new ResponseStatusException(HttpStatus.NOT_FOUND, message);
     }
