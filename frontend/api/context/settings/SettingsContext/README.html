@@ -129,18 +129,16 @@ context/settings/SettingsContext/README · Smart Supply Pro · API</title>
         the open question of splitting these into separate sources of
         truth.</li>
         <li>SINGLE production consumer of getSystemInfo()
-        (utils/systemInfo). The fetched object's
-        apiVersion/buildDate/uptime/version/environment fields are
-        FABRICATIONS — see CB-APP18 in MASTER. This file applies a
-        SECOND layer of fallbacks on top.</li>
+        (utils/systemInfo), which returns only
+        database/environment/status — nothing fabricated. This file
+        applies a SECOND layer of 'unknown' fallbacks on top.</li>
         <li>Language-sync effect: on i18n.language change, format
         defaults are silently rewritten to match locale. KNOWN BUGS —
         see CB-APP33 (overwrites explicit user choice) and CB-APP34
         (in-memory only, not persisted).</li>
-        <li>On /api/health fetch failure, fallback values are HARDCODED
-        (database: 'Oracle ADB', environment: 'production'). These ship
-        to the UI as assertions — particularly suspect because fetch
-        failures are more likely in dev. → CB-APP32.</li>
+        <li>On /api/health fetch failure, systemInfo falls back to
+        'unknown' values rather than asserting a guessed environment. →
+        CB-APP32 (resolved).</li>
         <li>Consumed via hooks/useSettings.ts — the factory-built
         consumer hook with 16 production call sites. The former sibling
         duplicate context/settings/useSettings.ts has been removed. →

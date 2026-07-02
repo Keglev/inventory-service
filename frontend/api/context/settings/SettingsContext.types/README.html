@@ -126,11 +126,10 @@ context/settings/SettingsContext.types/README · Smart Supply Pro · API</title>
         SettingsContext object) so SettingsContext.tsx exports component
         values only and preserves fast- refresh HMR. Same pattern as
         HelpContext.types.ts.</li>
-        <li>The SystemInfo interface declares a contract that EXCEEDS
-        what the backend /api/health endpoint actually returns.
-        apiVersion, buildDate, uptime, and version fields are FABRICATED
-        upstream by utils/systemInfo.ts (per MASTER CB-APP18). The
-        interface will shrink when CB-APP18 closes.</li>
+        <li>The SystemInfo interface mirrors exactly what
+        utils/systemInfo.ts derives from /api/health: database flavor,
+        derived environment label, and status. Build-time app metadata
+        (version, build id) lives in config/appMeta.</li>
         <li>DateFormat / NumberFormat values are APP-INTERNAL codes, NOT
         BCP-47 locale tags. 'DE' and 'EN_US' map to actual locales in
         the formatter layer (utils/formatters.ts).</li>
