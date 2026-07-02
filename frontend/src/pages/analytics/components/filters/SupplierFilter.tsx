@@ -12,10 +12,13 @@
  *   and for the supplier dropdown here.
  * - "All suppliers" is represented as `undefined` (not empty string) so
  *   the serialized URL omits the parameter entirely.
- * - Rendered with a native `<select>` rather than MUI Select; visual
- *   divergence from sibling filter components is tracked separately.
+ * - Uses an external Typography label (not a floating InputLabel) so the
+ *   dropdown aligns with the Date Range column label in the parent panel;
+ *   the Select is theme-aware (dark mode) via MUI tokens.
  */
 
+import { MenuItem, Select, Typography } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { SupplierRef } from '../../../../api/analytics/types';
 import type { AnalyticsFilters } from './Filters.types';
@@ -40,8 +43,8 @@ export function SupplierFilter({
   disabled = false,
 }: SupplierFilterProps) {
   const { t } = useTranslation(['analytics']);
-  
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+
+  const handleChange = (e: SelectChangeEvent<string>) => {
     const supplierId = e.target.value || undefined;
     onChange({
       ...value,
@@ -51,23 +54,30 @@ export function SupplierFilter({
 
   return (
     <div>
-      <label htmlFor="supplier-select" style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>
+      <Typography
+        id="supplier-select-label"
+        variant="body2"
+        sx={{ mb: 0.75, fontWeight: 500 }}
+      >
         {t('analytics:filters.supplier', 'Supplier')}
-      </label>
-      <select
+      </Typography>
+      <Select
+        labelId="supplier-select-label"
         id="supplier-select"
         value={value.supplierId || ''}
         onChange={handleChange}
         disabled={disabled}
-        style={{ width: '100%', padding: '8px 12px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px' }}
+        displayEmpty
+        fullWidth
+        size="small"
       >
-        <option value="">{t('analytics:filters.allSuppliers', 'All Suppliers')}</option>
+        <MenuItem value="">{t('analytics:filters.allSuppliers', 'All Suppliers')}</MenuItem>
         {suppliers.map((supplier) => (
-          <option key={supplier.id} value={supplier.id}>
+          <MenuItem key={supplier.id} value={supplier.id}>
             {supplier.name}
-          </option>
+          </MenuItem>
         ))}
-      </select>
+      </Select>
     </div>
   );
 }
