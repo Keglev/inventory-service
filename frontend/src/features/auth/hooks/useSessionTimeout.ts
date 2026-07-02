@@ -18,7 +18,7 @@
  *       mouse/keyboard/wheel/touch events; firing the timer forces /logout.
  *       OFF by default — enable for strict environments.
  *   (3) CROSS-TAB LISTENER — reacts to a `storage` event with key ===
- *       STORAGE_FLAG and newValue === '1' and navigates to /logout. THIS IS
+ *       FORCE_LOGOUT_FLAG and newValue === '1' and navigates to /logout. THIS IS
  *       THE LISTENER for AuthContext's logout broadcast (CB-APP30 — answered;
  *       concern shifts to CB-APP38).
  * - Does NOT clear AuthContext state directly — navigates to /logout and lets

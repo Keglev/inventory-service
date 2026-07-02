@@ -19,7 +19,7 @@
  * - belowMinOnly is the client-side critical-stock filter. It is NOT
  *   the same as the analytics LowStockTable view: this one filters the
  *   visible rows; LowStockTable shows a curated descending-deficit
- *   list with its own threshold business rule (CB-APP42).
+ *   list with its own threshold business rule (config/inventoryPolicy).
  */
 
 import * as React from 'react';

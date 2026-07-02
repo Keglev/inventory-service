@@ -17,7 +17,7 @@ import { useAuth } from '../../../hooks/useAuth';
  * - LogoutPage is INTENTIONALLY outside RequireAuth (AppRouter line 69) — avoids
  *   a guard race during logout cleanup. RequireAuth must NOT be applied to /logout.
  * - Reads three AuthContext fields: user, loading, logoutInProgress. The
- *   `logoutInProgress` guard (held by AuthContext's 4s safety valve — CB-APP31)
+ *   `logoutInProgress` guard (held by AuthContext's LOGOUT_GUARD_MS safety valve)
  *   prevents flashing the login page during the post-logout transition.
  * - Unauthenticated redirect preserves location state so LoginPage can
  *   post-login-redirect back to the originally requested route.
@@ -41,7 +41,7 @@ const RequireAuth: React.FC<Props> = ({ children, fallback, allowDemo }) => {
 
   if (loading) return (fallback ?? <DefaultLoading />);
 
-  // WHY: hold the guard during post-logout transition — AuthContext's logoutInProgress flag (4s safety valve, CB-APP31) bridges the gap between local state clear and the /logout navigation.
+  // WHY: hold the guard during post-logout transition — AuthContext's logoutInProgress flag (LOGOUT_GUARD_MS safety valve) bridges the gap between local state clear and the /logout navigation.
   if (!user && logoutInProgress) {
     return (fallback ?? <DefaultLoading />);
   }

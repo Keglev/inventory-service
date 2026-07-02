@@ -20,12 +20,9 @@
  *   already filters by supplierId, but the client re-filters in case
  *   the response leaks cross-supplier rows. Same defensive posture as
  *   PriceTrendCard in analytics.
- * - Below-minimum threshold uses a fallback of 5 when minQty is absent
- *   or non-positive. This is the same low-stock business rule that
- *   drives LowStockTable's critical chip. Tracked under CB-APP42 --
- *   the literal 5 is duplicated across three sites (this file,
- *   useInventoryRowStyling, and analytics LowStockTable) and should be
- *   extracted to a shared constant in the refactor phase.
+ * - Below-minimum filtering falls back to DEFAULT_MIN_QUANTITY
+ *   (config/inventoryPolicy) when minQty is absent or non-positive —
+ *   the same rule used by useInventoryRowStyling and LowStockTable.
  */
 
 import * as React from 'react';
@@ -35,6 +32,7 @@ import type { GridColDef } from '@mui/x-data-grid';
 import { useInventoryColumns } from './useInventoryColumns';
 import { useInventoryRowStyling } from './useInventoryRowStyling';
 import { logError } from '../../../utils/logger';
+import { DEFAULT_MIN_QUANTITY } from '../../../config/inventoryPolicy';
 
 /**
  * Inventory data loading and processing results.
@@ -163,8 +161,7 @@ export const useInventoryPageData = (
     if (belowMinOnly) {
       rows = rows.filter((r) => {
         const minRaw = Number(r.minQty ?? 0);
-        // BUCKET: CB-APP42 -- duplicated low-stock threshold (5). Extract to shared constant.
-        const min = Number.isFinite(minRaw) && minRaw > 0 ? minRaw : 5;
+        const min = Number.isFinite(minRaw) && minRaw > 0 ? minRaw : DEFAULT_MIN_QUANTITY;
         const onHand = Number(r.onHand ?? 0);
         return onHand < min;
       });
