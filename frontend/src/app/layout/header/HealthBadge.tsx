@@ -60,10 +60,6 @@ export default function HealthBadge() {
     ? t('app.health.dbDownTooltip', 'Database reachable, DB issue')
     : t('app.health.downTooltip', 'Backend not reachable');
 
-  // BUCKET: raw hex label color — use theme palette tokens like the dot does (CB-APP7)
-  const healthTextColor =
-    healthTone === 'success' ? '#1b5e20' : healthTone === 'warning' ? '#e65100' : '#b71c1c';
-
   return (
     <Box
       sx={{
@@ -100,7 +96,7 @@ export default function HealthBadge() {
             fontWeight: 700,
             '& .MuiChip-label': {
               fontWeight: 700,
-              color: healthTextColor,
+              color: `${healthTone}.dark`,
             },
           }}
         />

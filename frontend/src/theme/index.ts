@@ -21,6 +21,7 @@ import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 import { deDE as coreDeDE, enUS as coreEnUS } from '@mui/material/locale';
 import { deDE as dataGridDeDE, enUS as dataGridEnUS } from '@mui/x-data-grid/locales';
 import '@mui/x-data-grid/themeAugmentation';
+import { darkPalette, lightPalette } from './tokens';
 
 const locales = {
   en: [coreEnUS, dataGridEnUS],
@@ -46,28 +47,7 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
         h3: { fontWeight: 600 },
       },
 
-      // BUCKET: palette hex values are hardcoded — extract to a design-tokens file for cross-component consistency (CB-APP14)
-      palette: mode === 'light' ? {
-        mode: 'light',
-        primary: { main: '#1976D2' },   // Lighter enterprise blue
-        secondary: { main: '#00A3A3' }, // Teal accent
-        success: { main: '#2E7D32' },
-        warning: { main: '#ED6C02' },
-        error: { main: '#D32F2F' },
-        info: { main: '#0288D1' },
-        background: { default: '#F0F2F5', paper: '#FFFFFF' },
-        divider: 'rgba(0,0,0,0.08)',
-      } : {
-        mode: 'dark',
-        primary: { main: '#64B5F6' },   // Light blue for dark mode
-        secondary: { main: '#4DD0E1' }, // Light teal
-        success: { main: '#66BB6A' },
-        warning: { main: '#FFA726' },
-        error: { main: '#EF5350' },
-        info: { main: '#29B6F6' },
-        background: { default: '#121212', paper: '#1E1E1E' },
-        divider: 'rgba(255,255,255,0.12)',
-      },
+      palette: mode === 'light' ? lightPalette : darkPalette,
 
       components: {
         MuiButton: { defaultProps: { size: 'small' } },

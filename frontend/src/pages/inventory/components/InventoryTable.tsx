@@ -15,12 +15,9 @@
  *   getRowClassName from useInventoryRowStyling. The CSS in this file
  *   only paints the classes; the threshold rule (deficit >= 5) lives
  *   upstream.
- * - Row background colors are hardcoded hex values (#fff3e0, #ffe0b2,
- *   #ffebee, #ffcdd2, #e3f2fd, #bbdefb) inside the sx prop, bypassing
- *   the MUI theme palette. These will not adapt to dark mode and
- *   diverge from the rest of the app's themed surfaces. Tracked under
- *   CB-APP63 -- same class as CB-APP3 (footer) and CB-APP7
- *   (HealthBadge); resolve together.
+ * - Row backgrounds are translucent overlays derived from semantic
+ *   palette tokens (info/warning/error via alpha), so both light and
+ *   dark mode adapt automatically.
  * - Loading overlay uses a separate absolute-positioned Stack rather
  *   than relying on DataGrid's built-in loading prop alone. The double
  *   indicator is intentional: it keeps the page interactive shape
@@ -32,6 +29,7 @@ import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import type { GridColDef, GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 import { Box, CircularProgress, Stack } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import type { InventoryRow } from '../../../api/inventory/types';
 
 interface InventoryTableProps {
@@ -100,23 +98,22 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
         }}
         onRowClick={(params) => onRowClick(params.row.id)}
         sx={{
-          // BUCKET: CB-APP63 -- hardcoded hex colors bypass MUI theme. Switch to theme palette tokens; resolve with CB-APP3 and CB-APP7.
           '& .row-selected': {
-            backgroundColor: '#e3f2fd !important',
+            backgroundColor: (theme) => `${alpha(theme.palette.info.main, 0.16)} !important`,
             '&:hover': {
-              backgroundColor: '#bbdefb !important',
+              backgroundColor: (theme) => `${alpha(theme.palette.info.main, 0.28)} !important`,
             },
           },
           '& .row-warning': {
-            backgroundColor: '#fff3e0 !important',
+            backgroundColor: (theme) => `${alpha(theme.palette.warning.main, 0.16)} !important`,
             '&:hover': {
-              backgroundColor: '#ffe0b2 !important',
+              backgroundColor: (theme) => `${alpha(theme.palette.warning.main, 0.28)} !important`,
             },
           },
           '& .row-critical': {
-            backgroundColor: '#ffebee !important',
+            backgroundColor: (theme) => `${alpha(theme.palette.error.main, 0.16)} !important`,
             '&:hover': {
-              backgroundColor: '#ffcdd2 !important',
+              backgroundColor: (theme) => `${alpha(theme.palette.error.main, 0.28)} !important`,
             },
           },
         }}

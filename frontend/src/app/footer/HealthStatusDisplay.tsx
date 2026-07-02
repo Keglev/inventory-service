@@ -12,8 +12,8 @@
  * - HealthStatus is imported from the features/health barrel (single source
  *   of truth in useHealthCheck). The component reads only status/responseTime/
  *   database; the canonical timestamp field is unused here.
- * - 'Online'/'Oracle ADB' labels are hardcoded; 'Offline' is translated. Status-dot
- *   colors use raw hex while Chip borders use theme tokens (see CB-APP3).
+ * - All labels resolve via the footer i18n namespace; status dots and Chip
+ *   borders both use semantic theme tokens (success/error).
  */
 
 import { Box, Chip, Stack, Typography } from '@mui/material';
@@ -67,11 +67,11 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
                   width: 8,
                   height: 8,
                   borderRadius: '50%',
-                  bgcolor: backendOnline ? '#4CAF50' : '#F44336', // BUCKET: (CB-APP3) use theme palette (success.main / error.main)
+                  bgcolor: backendOnline ? 'success.main' : 'error.main',
                 }}
               />
             }
-            label={backendOnline ? 'Online' : t('footer:status.offline', 'Offline')} // BUCKET: (CB-APP3) 'Online' hardcoded — use i18n key
+            label={backendOnline ? t('footer:status.online', 'Online') : t('footer:status.offline', 'Offline')}
             size="small"
             variant="outlined"
             sx={{ borderColor: backendColor, color: backendColor }}
@@ -101,11 +101,11 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                bgcolor: databaseOnline ? '#4CAF50' : '#F44336', // BUCKET: (CB-APP3) use theme palette (success.main / error.main)
+                bgcolor: databaseOnline ? 'success.main' : 'error.main',
               }}
             />
           }
-          label={databaseOnline ? 'Oracle ADB' : t('footer:status.offline', 'Offline')} // BUCKET: (CB-APP3) 'Oracle ADB' hardcoded — use i18n key
+          label={databaseOnline ? t('footer:health.oracleAdb', 'Oracle ADB') : t('footer:status.offline', 'Offline')}
           size="small"
           variant="outlined"
           sx={{ borderColor: dbColor, color: dbColor }}
