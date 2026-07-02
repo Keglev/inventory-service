@@ -31,9 +31,7 @@ vi.mock('../../../app/settings/hooks', () => ({
     systemInfo: {
       database: 'Oracle',
       environment: 'production',
-      version: '1.0.0',
       status: 'healthy',
-      buildDate: '2025-12-22',
     },
     isLoading: false,
     handleDateFormatChange: vi.fn(),

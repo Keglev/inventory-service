@@ -114,11 +114,7 @@ describe('SettingsProvider', () => {
   it('fetches system info on mount (success path)', async () => {
     const systemInfo = {
       database: 'ADB',
-      version: '2.0',
       environment: 'stage',
-      apiVersion: 'v2',
-      buildDate: '2024-01-01',
-      uptime: '24h',
       status: 'ONLINE',
     };
     getSystemInfoMock.mockResolvedValue(systemInfo);
@@ -139,8 +135,8 @@ describe('SettingsProvider', () => {
 
     expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch system info:', expect.any(Error));
 
-    // Fallback is intentionally stable so downstream UI can render reliably.
-    expect(screen.getByTestId('db')).toHaveTextContent('Oracle ADB');
+    // Fallback asserts nothing about the environment — 'Unknown' rather than a guessed value.
+    expect(screen.getByTestId('db')).toHaveTextContent('Unknown');
     consoleSpy.mockRestore();
   });
 

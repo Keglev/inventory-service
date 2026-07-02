@@ -10,17 +10,14 @@
  *   (database flavor + health status from /api/health). See CB-APP1 (re-scoped
  *   in MASTER) for the open question of splitting these into separate sources
  *   of truth.
- * - SINGLE production consumer of getSystemInfo() (utils/systemInfo). The
- *   fetched object's apiVersion/buildDate/uptime/version/environment fields
- *   are FABRICATIONS — see CB-APP18 in MASTER. This file applies a SECOND
- *   layer of fallbacks on top.
+ * - SINGLE production consumer of getSystemInfo() (utils/systemInfo), which
+ *   returns only database/environment/status — nothing fabricated. This file
+ *   applies a SECOND layer of 'unknown' fallbacks on top.
  * - Language-sync effect: on i18n.language change, format defaults are
  *   silently rewritten to match locale. KNOWN BUGS — see CB-APP33 (overwrites
  *   explicit user choice) and CB-APP34 (in-memory only, not persisted).
- * - On /api/health fetch failure, fallback values are HARDCODED
- *   (database: 'Oracle ADB', environment: 'production'). These ship to the UI
- *   as assertions — particularly suspect because fetch failures are more likely
- *   in dev. → CB-APP32.
+ * - On /api/health fetch failure, systemInfo falls back to 'unknown' values
+ *   rather than asserting a guessed environment. → CB-APP32 (resolved).
  * - Consumed via hooks/useSettings.ts — the factory-built consumer hook with
  *   16 production call sites. The former sibling duplicate
  *   context/settings/useSettings.ts has been removed. → ST-APP9.
@@ -62,25 +59,17 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const data = await getSystemInfo();
         const info: SystemInfo = {
           database: data.database ?? 'Unknown',
-          version: data.version ?? '1.0.0',
-          environment: data.environment ?? 'production',
-          apiVersion: data.apiVersion ?? 'v1',
-          buildDate: data.buildDate ?? 'Unknown',
-          uptime: data.uptime ?? 'Unknown',
+          environment: data.environment ?? 'unknown',
           status: (data.status ?? 'UNKNOWN') as 'ONLINE' | 'DEGRADED' | 'OFFLINE' | 'UNKNOWN',
         };
         setSystemInfo(info);
       } catch (error) {
         logWarn('Failed to fetch system info:', error);
 
-        // BUCKET: hardcoded fallbacks ship to UI on fetch failure — database: 'Oracle ADB' and environment: 'production' are strong assertions, particularly suspect since fetch failure is more likely in dev (CB-APP32)
+        // WHY: on fetch failure we assert nothing — 'unknown' everywhere instead of guessing production values.
         setSystemInfo({
-          database: 'Oracle ADB',
-          version: 'dev',
-          environment: 'production',
-          apiVersion: 'unknown',
-          buildDate: 'unknown',
-          uptime: '0h',
+          database: 'Unknown',
+          environment: 'unknown',
           status: 'UNKNOWN',
         });
       } finally {

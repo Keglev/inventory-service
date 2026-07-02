@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { SystemInfo } from '../../../context/settings';
+import { APP_VERSION, BUILD_ID } from '../../../config/appMeta';
 
 interface SystemPreferencesSectionProps {
   /** System information data */
@@ -96,7 +97,7 @@ export default function SystemPreferencesSection({
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
           {t('settings.version', 'Version')}
         </Typography>
-        <Typography variant="body2">{systemInfo.version}</Typography>
+        <Typography variant="body2">{APP_VERSION}</Typography>
       </Box>
 
       <Box>
@@ -108,9 +109,9 @@ export default function SystemPreferencesSection({
 
       <Box>
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-          {t('settings.buildDate', 'Build Date')}
+          {t('settings.build', 'Build')}
         </Typography>
-        <Typography variant="body2">{systemInfo.buildDate}</Typography>
+        <Typography variant="body2">{BUILD_ID}</Typography>
       </Box>
     </Stack>
   );

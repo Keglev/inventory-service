@@ -31,11 +31,7 @@ const providerValue: SettingsContextType = {
   userPreferences: { dateFormat: 'MM/DD/YYYY', numberFormat: 'EN_US', tableDensity: 'comfortable' },
   systemInfo: {
     database: 'Oracle',
-    version: '1.2.3',
     environment: 'prod',
-    apiVersion: 'v1',
-    buildDate: '2024-01-01',
-    uptime: '12h',
     status: 'ONLINE',
   },
   setUserPreferences: vi.fn(),

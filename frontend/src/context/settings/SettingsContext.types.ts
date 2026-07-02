@@ -7,10 +7,9 @@
  * - File hosts non-component exports (interfaces + the SettingsContext object)
  *   so SettingsContext.tsx exports component values only and preserves fast-
  *   refresh HMR. Same pattern as HelpContext.types.ts.
- * - The SystemInfo interface declares a contract that EXCEEDS what the backend
- *   /api/health endpoint actually returns. apiVersion, buildDate, uptime, and
- *   version fields are FABRICATED upstream by utils/systemInfo.ts (per MASTER
- *   CB-APP18). The interface will shrink when CB-APP18 closes.
+ * - The SystemInfo interface mirrors exactly what utils/systemInfo.ts derives
+ *   from /api/health: database flavor, derived environment label, and status.
+ *   Build-time app metadata (version, build id) lives in config/appMeta.
  * - DateFormat / NumberFormat values are APP-INTERNAL codes, NOT BCP-47 locale
  *   tags. 'DE' and 'EN_US' map to actual locales in the formatter layer
  *   (utils/formatters.ts).
@@ -54,16 +53,12 @@ export interface UserPreferences {
 }
 
 /**
- * System information fetched from backend
- * Provides deployment context, versions, and health status
+ * System information derived from the backend health check
+ * Provides deployment context and health status
  */
 export interface SystemInfo {
-  database: string;              // e.g., 'Oracle ADB', 'PostgreSQL'
-  version: string;               // Application semantic version (e.g., '1.0.0')
-  environment: string;           // e.g., 'production', 'staging', 'development'
-  apiVersion: string;            // Backend API version for compatibility
-  buildDate: string;             // ISO 8601 timestamp of build
-  uptime: string;                // Duration string (e.g., '24h 30m')
+  database: string;              // e.g., 'Oracle ADB', 'Local H2'
+  environment: string;           // e.g., 'production', 'development', 'unknown'
   status: 'ONLINE' | 'DEGRADED' | 'OFFLINE' | 'UNKNOWN'; // System health status
 }
 

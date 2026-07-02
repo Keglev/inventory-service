@@ -44,11 +44,7 @@ const basePreferences: UserPreferences = {
 
 const baseSystemInfo: SystemInfo = {
   database: 'Oracle ADB',
-  version: '1.0.0',
   environment: 'production',
-  apiVersion: 'v1',
-  buildDate: '2024-01-01',
-  uptime: '24h',
   status: 'ONLINE',
 };
 

@@ -54,10 +54,6 @@ describe('AppSettingsForm', () => {
   const systemInfo: AppSettingsFormProps['systemInfo'] = {
     database: 'Oracle',
     environment: 'production',
-    version: '1.0.0',
-    apiVersion: 'v1',
-    buildDate: '2025-12-22',
-    uptime: '24h',
     status: 'ONLINE',
   };
 

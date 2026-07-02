@@ -28,6 +28,12 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+vi.mock('@/config/appMeta', () => ({
+  APP_VERSION: '1.0.0',
+  BUILD_ID: '4a9c12f',
+  APP_ENVIRONMENT: 'Production (Koyeb)',
+}));
+
 describe('SystemPreferencesSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -36,10 +42,6 @@ describe('SystemPreferencesSection', () => {
   const systemInfo: SystemInfo = {
     database: 'Oracle',
     environment: 'production',
-    version: '1.0.0',
-    apiVersion: 'v1',
-    buildDate: '2025-12-22',
-    uptime: '24h',
     status: 'ONLINE',
   };
 
@@ -61,8 +63,8 @@ describe('SystemPreferencesSection', () => {
     expect(screen.getByText(/production/i)).toBeInTheDocument();
     expect(screen.getByText(/1\.0\.0/i)).toBeInTheDocument();
 
-    // Build date may be displayed as raw value or within a labeled row.
-    expect(screen.getByText(/2025-12-22/i)).toBeInTheDocument();
+    // Build id may be displayed as raw value or within a labeled row.
+    expect(screen.getByText(/4a9c12f/i)).toBeInTheDocument();
   });
 
   it('shows a loading spinner when isLoading is true', () => {
