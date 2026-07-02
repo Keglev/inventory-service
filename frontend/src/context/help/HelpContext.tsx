@@ -13,16 +13,19 @@
  *   files exporting React components must not also export non-
  *   component values. The Context OBJECT lives in HelpContext.types.ts
  *   so HelpProvider edits trigger HMR cleanly.
- * - closeHelp() defers clearing currentTopicId by 300ms to let the
- *   drawer fade out before the topic content unmounts (prevents a
- *   blank flash mid-animation). The 300ms is NOT tied to any MUI
- *   Drawer constant — see CB-APP27.
+ * - closeHelp() defers clearing currentTopicId by DRAWER_EXIT_GUARD_MS to
+ *   let the drawer fade out before the topic content unmounts (prevents a
+ *   blank flash mid-animation); the margin over MUI's default exit
+ *   duration is documented at the constant.
  * - State is intentionally simple (id + boolean). Topic content
  *   resolution lives in HelpPanel (via getHelpTopic and i18n) —
  *   this provider holds NO topic content, only navigation state.
  */
 import * as React from 'react';
 import { HelpContext, type HelpContextType } from './HelpContext.types';
+
+/** MUI Drawer exit transition is ~195-225ms by default; 300ms adds a safety margin so the topic content never blanks mid-fade. */
+const DRAWER_EXIT_GUARD_MS = 300;
 
 // Re-export types for backward compatibility
 export type { HelpContextType } from './HelpContext.types';
@@ -40,10 +43,9 @@ export const HelpProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const closeHelp = React.useCallback(() => {
     setIsOpen(false);
     // WHY: keep topic id mounted while the Drawer fades out so the body text does not blank mid-animation
-    // BUCKET: 300ms is not tied to any MUI Drawer transitionDuration constant (MUI defaults ~195-225ms); align via shared constant or document why 300 is safe (CB-APP27)
     setTimeout(() => {
       setCurrentTopicId(null);
-    }, 300);
+    }, DRAWER_EXIT_GUARD_MS);
   }, []);
 
   // BUCKET: redundant with MUI Drawer's built-in Escape→onClose (=closeHelp) — fires closeHelp twice per Escape press; idempotent today but contradicts HelpPanel @enterprise documentation (CB-APP28)

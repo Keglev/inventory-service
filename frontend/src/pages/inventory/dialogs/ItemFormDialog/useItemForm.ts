@@ -22,11 +22,9 @@
  *   session does not leak into a new create.
  * - Submit pipeline maps form values to UpsertItemRequest:
  *   reason -> notes (backend stores the reason as the StockHistory
- *   notes column for this flow), and minQty is hardcoded to 5.
+ *   notes column for this flow), and minQty defaults to DEFAULT_MIN_QUANTITY.
  *   The minQty value is the same low-stock baseline that drives
  *   LowStockTable's critical chip and useInventoryRowStyling.
- *   Tracked under CB-APP42 -- this is the fourth site of the literal
- *   5; extract to a shared constant in the refactor phase.
  * - createdBy is intentionally not sent. The backend always sets it
  *   from the authenticated session (server-authoritative audit field),
  *   so any client value is ignored; sending a placeholder was
@@ -49,6 +47,7 @@ import { itemFormSchema, type UpsertItemForm } from '../../../../api/inventory/v
 import type { UpsertItemRequest, InventoryRow } from '../../../../api/inventory';
 import type { SupplierOption } from '../../../../api/analytics/types';
 import { useSuppliersQuery } from '../../../../api/inventory/hooks';
+import { DEFAULT_MIN_QUANTITY } from '../../../../config/inventoryPolicy';
 
 /**
  * Complete item form state and handlers
@@ -216,7 +215,7 @@ export function useItemForm({
    * @enterprise
    * - Honors readOnly (demo mode) flag
    * - Maps form values to UpsertItemRequest (reason -> notes, onHand -> quantity)
-   * - Auto-sets minQty to 5
+   * - Auto-sets minQty to DEFAULT_MIN_QUANTITY
    * - Maps field-level and generic errors from backend
    * - Triggers onSaved callback and closes on success
    */
@@ -237,8 +236,7 @@ export function useItemForm({
       supplierId: values.supplierId,
       quantity: values.quantity,
       price: values.price,
-      // BUCKET: CB-APP42 -- duplicated low-stock threshold (5). Extract to shared constant.
-      minQty: 5,
+      minQty: DEFAULT_MIN_QUANTITY,
       notes: values.reason,
     };
 

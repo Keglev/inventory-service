@@ -35,9 +35,11 @@
 import React, { createContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { AuthContextType, AppUser } from './authTypes';
 import httpClient, { API_BASE } from '../../api/httpClient';
+import { FORCE_LOGOUT_FLAG } from './storageKeys';
 
-const STORAGE_FLAG = 'ssp:forceLogout';
 const DEMO_KEY = 'ssp.demo.session';
+/** Ceiling for the logout-in-progress guard: long enough for any POST-form redirect to land, short enough that a stalled redirect cannot lock the auth guards. */
+const LOGOUT_GUARD_MS = 4000;
 
 /**
  * Global authentication context.
@@ -110,16 +112,15 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     }
     try {
       // BUCKET: localStorage write+delete fires a `storage` event in OTHER tabs only; the receiving listener is NOT in this file — verify a listener for 'ssp:forceLogout' exists in the app, otherwise the broadcast is dead code (CB-APP30)
-      localStorage.setItem(STORAGE_FLAG, '1');
-      localStorage.removeItem(STORAGE_FLAG);
+      localStorage.setItem(FORCE_LOGOUT_FLAG, '1');
+      localStorage.removeItem(FORCE_LOGOUT_FLAG);
       localStorage.removeItem(DEMO_KEY);
     } catch {
       // ignore storage failures
     }
     setUser(null);
     // WHY: prevents auth-guard flicker if navigation/redirect stalls after logout — flag must eventually drop.
-    // BUCKET: 4000ms is arbitrary; either name a constant (e.g. LOGOUT_GUARD_MS) or document why 4s is the right ceiling (CB-APP31)
-    logoutTimerRef.current = window.setTimeout(() => setLogoutInProgress(false), 4000);
+    logoutTimerRef.current = window.setTimeout(() => setLogoutInProgress(false), LOGOUT_GUARD_MS);
   };
 
   // WHY: a successful re-login (server or demo) after logout must clear logoutInProgress so guards stop suppressing routes; also cancels any pending safety-valve timer.

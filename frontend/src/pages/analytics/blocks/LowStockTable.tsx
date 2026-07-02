@@ -9,9 +9,8 @@
  *
  * @enterprise
  * - BUSINESS RULE: an item is considered "low stock" when its deficit
- *   (`minimumQuantity - quantity`) is >= 5 units. This drives the
- *   Critical chip. The threshold is currently inline; extraction to
- *   a named constant is tracked for the refactor phase.
+ *   (`minimumQuantity - quantity`) reaches LOW_STOCK_CRITICAL_THRESHOLD
+ *   (config/inventoryPolicy). This drives the Critical chip.
  * - The deficit is computed client-side from `quantity` and
  *   `minimumQuantity`; the backend does NOT pre-compute it. Rows are
  *   ordered by deficit descending so the most urgent items are at top.
@@ -45,6 +44,7 @@ import { useTranslation } from 'react-i18next';
 import { getLowStockItems, type LowStockRow, type AnalyticsParams } from '../../../api/analytics';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
+import { LOW_STOCK_CRITICAL_THRESHOLD } from '../../../config/inventoryPolicy';
 
 /**
  * Props accepted by {@link LowStockTable}.
@@ -190,8 +190,8 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
         </TableHead>
         <TableBody>
           {visible.map((r) => {
-            const critical = r.deficit >= 5; // tweak policy if needed
-            const warning = r.deficit > 0 && r.deficit < 5;
+            const critical = r.deficit >= LOW_STOCK_CRITICAL_THRESHOLD;
+            const warning = r.deficit > 0 && r.deficit < LOW_STOCK_CRITICAL_THRESHOLD;
 
             return (
               <TableRow key={r.itemName}>

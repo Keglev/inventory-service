@@ -24,13 +24,14 @@
  * - Does NOT clear AuthContext state directly — navigates to /logout and lets
  *   LogoutPage own cleanup (HTTP logout + cookie revocation). Single source of
  *   truth for logout side effects.
- * - 'ssp:forceLogout' magic string is DUPLICATED with AuthContext.ts — see CB-APP38.
+ * - FORCE_LOGOUT_FLAG is shared with AuthContext.ts via context/auth/storageKeys.
  */
 
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import httpClient from '../../../api/httpClient';
 import { useAuth } from '../../../hooks/useAuth';
+import { FORCE_LOGOUT_FLAG } from '../../../context/auth/storageKeys';
 
 
 type UseSessionTimeoutOptions = {
@@ -43,9 +44,6 @@ type UseSessionTimeoutOptions = {
   /** Idle period before logout when `enableIdleTimeout` is true. Default: 15 min. */
   idleTimeoutMs?: number;
 };
-
-// BUCKET: 'ssp:forceLogout' magic string is duplicated in AuthContext.ts; extract to a shared constants module to prevent drift between broadcaster and listener (CB-APP38)
-const STORAGE_FLAG = 'ssp:forceLogout';
 
 export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   const {
@@ -130,8 +128,8 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   // ---- Cross-tab sync for logout ----
   React.useEffect(() => {
     const onStorage = (ev: StorageEvent) => {
-      if (ev.key === STORAGE_FLAG && ev.newValue === '1') {
-        // WHY: AuthContext.logout in another tab wrote STORAGE_FLAG=1; mirror the navigation here so all tabs converge on /logout.
+      if (ev.key === FORCE_LOGOUT_FLAG && ev.newValue === '1') {
+        // WHY: AuthContext.logout in another tab wrote FORCE_LOGOUT_FLAG=1; mirror the navigation here so all tabs converge on /logout.
         navigate('/logout', { replace: true });
       }
     };
@@ -140,12 +138,12 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   }, [navigate]);
 }
 
-/** Broadcast a /logout signal to other tabs via the STORAGE_FLAG localStorage write+delete pattern. Caller is responsible for navigating this tab. */
+/** Broadcast a /logout signal to other tabs via the FORCE_LOGOUT_FLAG localStorage write+delete pattern. Caller is responsible for navigating this tab. */
 function forceLogoutAcrossTabs() {
   try {
-    localStorage.setItem(STORAGE_FLAG, '1');
+    localStorage.setItem(FORCE_LOGOUT_FLAG, '1');
     // clear quickly to keep storage clean while still triggering event
-    localStorage.removeItem(STORAGE_FLAG);
+    localStorage.removeItem(FORCE_LOGOUT_FLAG);
   } catch {
     // ignore storage failures
   }
