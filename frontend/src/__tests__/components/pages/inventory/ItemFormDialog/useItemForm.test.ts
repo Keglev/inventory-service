@@ -201,68 +201,37 @@ describe('useItemForm', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it.each([
-    [
-      'duplicate name exists',
-      'name',
-      'An item with this name already exists.',
-    ],
-    [
-      'duplicate code exists',
-      'code',
-      'An item with this code already exists.',
-    ],
-    [
-      'duplicate sku exists',
-      'code',
-      'An item with this code already exists.',
-    ],
-  ] as const)('maps server conflict errors into field errors (%s)', async (errorMsg, field, expectedMessage) => {
-    mockUpsertItem.mockResolvedValue({ ok: false, error: errorMsg });
+  it('maps a conflict token to a name field error', async () => {
+    mockUpsertItem.mockResolvedValue({ ok: false, error: 'whatever', errorToken: 'conflict' });
 
     const { result } = renderUseItemForm();
     await submitValid(result);
 
     await waitFor(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((result.current.formState.errors as any)[field]?.message).toBe(expectedMessage);
-      expect(result.current.formError).toBe('Please fix the highlighted fields.');
+      expect((result.current.formState.errors as any).name?.message).toBe('An item with this name already exists.');
     });
   });
 
-  it('does nothing when server error is an empty string (applyServerError guard)', async () => {
-    mockUpsertItem.mockResolvedValue({ ok: false, error: '' });
-
-    const { result } = renderUseItemForm();
-    await submitValid(result);
-
-    // applyServerError('') returns early, leaving no new formError.
-    await waitFor(() => {
-      expect(result.current.formError).toBeNull();
-    });
-  });
-
-  it('maps supplier-related server errors to supplierId field error', async () => {
-    mockUpsertItem.mockResolvedValue({ ok: false, error: 'Supplier not found' });
+  it('uses a generic message for a not_found token', async () => {
+    mockUpsertItem.mockResolvedValue({ ok: false, error: 'Supplier not found', errorToken: 'not_found' });
 
     const { result } = renderUseItemForm();
     await submitValid(result);
 
     await waitFor(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((result.current.formState.errors as any).supplierId?.message).toBe('Supplier not found');
-      expect(result.current.formError).toBe('Please fix the highlighted fields.');
+      expect(result.current.formError).toBe('A server error occurred. Please try again.');
     });
   });
 
-  it('uses generic fallback for non-field server errors', async () => {
+  it('uses a generic message for an unmapped failure', async () => {
     mockUpsertItem.mockResolvedValue({ ok: false, error: 'Boom' });
 
     const { result } = renderUseItemForm();
     await submitValid(result);
 
     await waitFor(() => {
-      expect(result.current.formError).toBe('Boom');
+      expect(result.current.formError).toBe('A server error occurred. Please try again.');
     });
   });
 });

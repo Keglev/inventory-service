@@ -31,13 +31,9 @@
  *   from the authenticated session (server-authoritative audit field),
  *   so any client value is ignored; sending a placeholder was
  *   misleading and has been removed.
- * - applyServerError uses substring matching on the freeform backend
- *   error text (duplicate / exists / name / code / sku / supplier) to
- *   choose between field-level and form-level errors. Same fragile
- *   pattern as deleteItemErrorHandler (CB-APP48) and useEditItemForm
- *   (CB-APP50). Tracked under CB-APP52 -- switch to matching on the
- *   structured error field per the locked error shape, or have the
- *   backend return fieldErrors for inline display.
+ * - applyServerError keys on the backend status token (errorToken), not
+ *   freeform message text, matching deleteItemErrorHandler (CB-APP48)
+ *   and useEditItemForm (CB-APP50).
  * - Demo mode (readOnly) short-circuits before the mutation so a demo
  *   user sees the same disabled-action message regardless of validation
  *   state.
@@ -195,38 +191,23 @@ export function useItemForm({
   // ================================
 
   /**
-   * Convert generic backend error string into field or form errors
-   * Uses readable heuristics (duplicate name/code, supplier issues)
-   * Can be replaced by structured fieldErrors in future
+   * Convert a failed upsert response into field or form errors.
+   *
+   * Keys on the backend status token (errorToken), not on message text. Item
+   * creation's only duplicate is the name+price pair, so a 'conflict' highlights
+   * the name field; any other failure surfaces as a form-level message. Richer
+   * per-field errors (e.g. a future SKU) are deferred to the structured
+   * fieldErrors work tracked with the SKU feature.
    */
-  // BUCKET: CB-APP52 -- substring matching on freeform backend message text. Switch to structured error field or backend-returned fieldErrors.
-  function applyServerError(message?: string | null): void {
-    if (!message) return;
-    const msg = message.toLowerCase();
-
-    // Heuristics for duplicates
-    if (msg.includes('name') && (msg.includes('duplicate') || msg.includes('exists'))) {
+  function applyServerError(result: { errorToken?: string | null }): void {
+    if (result.errorToken === 'conflict') {
       setError('name', {
         message: t('errors:inventory.conflicts.duplicateName', 'An item with this name already exists.'),
       });
-      setFormError(t('errors:inventory.validationFailed', 'Please fix the highlighted fields.'));
-      return;
-    }
-    if ((msg.includes('code') || msg.includes('sku')) && (msg.includes('duplicate') || msg.includes('exists'))) {
-      setError('code', {
-        message: t('errors:inventory.conflicts.duplicateCode', 'An item with this code already exists.'),
-      });
-      setFormError(t('errors:inventory.validationFailed', 'Please fix the highlighted fields.'));
-      return;
-    }
-    if (msg.includes('supplier')) {
-      setError('supplierId', { message });
-      setFormError(t('errors:inventory.validationFailed', 'Please fix the highlighted fields.'));
       return;
     }
 
-    // Generic fallback
-    setFormError(message || t('errors:inventory.server.serverError', 'Something went wrong. Please try again.'));
+    setFormError(t('errors:inventory.server.serverError', 'A server error occurred. Please try again.'));
   }
 
   /**
@@ -267,7 +248,7 @@ export function useItemForm({
       onSaved();
       handleClose();
     } else {
-      applyServerError(res.error ?? t('errors:inventory.server.serverError', 'Something went wrong. Please try again.'));
+      applyServerError(res);
     }
   });
 
