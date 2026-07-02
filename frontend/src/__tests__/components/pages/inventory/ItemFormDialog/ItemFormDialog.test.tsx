@@ -7,7 +7,7 @@
  * - Submits via RHF handleSubmit(state.onSubmit) when primary action is clicked.
  * - Calls state.handleClose on cancel.
  * - Shows progress and disables actions while submitting.
- * - Opens correct help section (create/edit) in a new window.
+ * - Opens the correct contextual help topic (create/edit) via HelpIconButton.
  *
  * Out of scope:
  * - useItemForm internals (validation, mutations, toast)
@@ -29,6 +29,8 @@ type ItemFormDialogProps = ComponentProps<typeof ItemFormDialog>;
 // -------------------------------------
 const itemFormPropsSpy = vi.hoisted(() => vi.fn());
 const useItemFormMock = vi.hoisted(() => vi.fn());
+const helpButtonPropsSpy = vi.hoisted(() => vi.fn());
+const openHelpMock = vi.hoisted(() => vi.fn());
 
 vi.mock('../../../../../pages/inventory/dialogs/ItemFormDialog/ItemForm', () => ({
   ItemForm: (props: unknown) => {
@@ -39,6 +41,21 @@ vi.mock('../../../../../pages/inventory/dialogs/ItemFormDialog/ItemForm', () => 
 
 vi.mock('../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm', () => ({
   useItemForm: (...args: unknown[]) => useItemFormMock(...args),
+}));
+
+vi.mock('../../../../../features/help', () => ({
+  HelpIconButton: (props: { topicId: string; tooltip?: string }) => {
+    helpButtonPropsSpy(props);
+    return (
+      <button
+        type="button"
+        aria-label={props.tooltip ?? 'Help'}
+        onClick={() => openHelpMock(props.topicId)}
+      >
+        Help
+      </button>
+    );
+  },
 }));
 
 vi.mock('react-i18next', () => ({
@@ -180,27 +197,25 @@ describe('ItemFormDialog', () => {
     expect(screen.getByRole('button', { name: 'Create' })).toBeDisabled();
   });
 
-  it('opens create help section in a new window when creating', async () => {
+  it('opens the create-item help topic when creating', async () => {
     const user = userEvent.setup();
 
     useItemFormMock.mockReturnValue(createState());
-
-    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
 
     render(<ItemFormDialog isOpen={true} onClose={vi.fn()} onSaved={vi.fn()} initial={undefined} />);
 
-    await user.click(screen.getByLabelText(/help/i));
-    expect(openSpy).toHaveBeenCalledWith('#/help?section=create_item', '_blank');
+    expect(helpButtonPropsSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ topicId: 'inventory.manage' }),
+    );
 
-    openSpy.mockRestore();
+    await user.click(screen.getByLabelText(/help/i));
+    expect(openHelpMock).toHaveBeenCalledWith('inventory.manage');
   });
 
-  it('opens edit help section in a new window when editing', async () => {
+  it('opens the edit-item help topic when editing', async () => {
     const user = userEvent.setup();
 
     useItemFormMock.mockReturnValue(createState());
-
-    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
 
     render(
       <ItemFormDialog
@@ -211,9 +226,11 @@ describe('ItemFormDialog', () => {
       />,
     );
 
-    await user.click(screen.getByLabelText(/help/i));
-    expect(openSpy).toHaveBeenCalledWith('#/help?section=edit_item', '_blank');
+    expect(helpButtonPropsSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ topicId: 'inventory.editItem' }),
+    );
 
-    openSpy.mockRestore();
+    await user.click(screen.getByLabelText(/help/i));
+    expect(openHelpMock).toHaveBeenCalledWith('inventory.editItem');
   });
 });

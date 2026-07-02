@@ -26,10 +26,9 @@
  * - readOnly enables demo-mode preview: users walk through every form
  *   step, but the actual DELETE call is blocked at
  *   useDeleteItemHandlers.onConfirmedDelete.
- * - Help-icon wiring uses a raw IconButton + HelpOutlineIcon rather than
- *   the shared HelpIconButton component, and the tooltip key
- *   t('actions.help', 'Help') carries an English fallback. Tracked under
- *   CM-APP11 (component replacement) and CM-APP9 (fallback policy).
+ * - Help opens the in-app drawer via the shared HelpIconButton component
+ *   (CM-APP11 closure), though the tooltip key t('actions.help', 'Help')
+ *   still carries an English fallback (CM-APP9).
  */
 
 import * as React from 'react';
@@ -39,15 +38,12 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  IconButton,
   Stack,
   Box,
-  Tooltip,
   CircularProgress,
 } from '@mui/material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { HelpIconButton } from '../../../../features/help';
 import { useTranslation } from 'react-i18next';
-import { useHelp } from '../../../../hooks/useHelp';
 import { DeleteItemContent } from './DeleteItemContent';
 import { useDeleteItemDialog } from './useDeleteItemDialog';
 
@@ -65,7 +61,6 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
   readOnly = false,
 }) => {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
-  const { openHelp } = useHelp();
   const state = useDeleteItemDialog(open, onClose, onItemDeleted, readOnly);
 
   return (
@@ -75,12 +70,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
         <DialogTitle>
           <Stack direction="row" alignItems="center" justifyContent="space-between">
             <Box>{t('inventory:dialogs.deleteItemTitle', 'Delete Item')}</Box>
-            {/* BUCKET: CM-APP11 -- raw IconButton + HelpOutlineIcon. Replace with HelpIconButton (per CM-APP8 plan) and drop English fallback. */}
-            <Tooltip title={t('actions.help', 'Help')}>
-              <IconButton size="small" onClick={() => openHelp('inventory.deleteItem')}>
-                <HelpOutlineIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            <HelpIconButton topicId="inventory.deleteItem" tooltip={t('actions.help', 'Help')} />
           </Stack>
         </DialogTitle>
         <DialogContent dividers>

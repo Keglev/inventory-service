@@ -45,7 +45,7 @@ export const HELP_TOPICS: Record<string, HelpTopic> = {
     category: 'inventory',
   },
   // WHY: backward-compat alias; external deep-links may still reference this key.
-  // BUCKET: no production caller found outside tests — verify and remove if dead (CB-APP16)
+  // Opened by ItemFormDialog in create mode (CB-APP16 closure).
   'inventory.manage': {
     id: 'inventory.manage',
     titleKey: 'help:inventory.overview.title',

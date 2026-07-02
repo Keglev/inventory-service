@@ -47,6 +47,24 @@ vi.mock('../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChange
   usePriceChangeForm: vi.fn(),
 }));
 
+const helpButtonPropsSpy = vi.hoisted(() => vi.fn());
+const openHelpMock = vi.hoisted(() => vi.fn());
+
+vi.mock('../../../../../features/help', () => ({
+  HelpIconButton: (props: { topicId: string; tooltip?: string }) => {
+    helpButtonPropsSpy(props);
+    return (
+      <button
+        type="button"
+        aria-label={props.tooltip ?? 'Help'}
+        onClick={() => openHelpMock(props.topicId)}
+      >
+        Help
+      </button>
+    );
+  },
+}));
+
 /**
  * Form rendering is tested separately; here we only assert it is mounted.
  */
@@ -133,6 +151,8 @@ describe('PriceChangeDialog', () => {
   beforeEach(() => {
     usePriceChangeFormMock.mockReset();
     usePriceChangeFormMock.mockReturnValue(makeFormState());
+    helpButtonPropsSpy.mockClear();
+    openHelpMock.mockClear();
   });
 
   it('renders when open=true', () => {
@@ -160,8 +180,9 @@ describe('PriceChangeDialog', () => {
   it('renders Help action', () => {
     render(<PriceChangeDialog {...defaultProps()} />);
 
-    // Contract: icon button labeled for accessibility.
-    expect(screen.getByLabelText('help')).toBeInTheDocument();
+    expect(helpButtonPropsSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ topicId: 'inventory.changePrice' }),
+    );
   });
 
   it('delegates close to the orchestration hook when Cancel is clicked', async () => {
@@ -177,17 +198,14 @@ describe('PriceChangeDialog', () => {
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 
-  it('opens help link in a new window when Help is clicked', async () => {
+  it('opens the change-price help topic when Help is clicked', async () => {
     const user = userEvent.setup();
-    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
 
     render(<PriceChangeDialog {...defaultProps()} />);
 
-    await user.click(screen.getByLabelText('help'));
+    await user.click(screen.getByLabelText('common:help'));
 
-    expect(openSpy).toHaveBeenCalledWith('#/help?section=inventory.changePrice', '_blank');
-
-    openSpy.mockRestore();
+    expect(openHelpMock).toHaveBeenCalledWith('inventory.changePrice');
   });
 
   it('renders the PriceChangeForm container', () => {

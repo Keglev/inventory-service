@@ -13,12 +13,9 @@
  *   field all key off this single check. Splitting into two components
  *   would duplicate the form-field layout and the supplier alignment
  *   effect.
- * - Help-icon wiring is inconsistent with the sibling dialogs.
- *   EditItemDialog and DeleteItemDialog use useHelp() to open the help
- *   drawer; this file uses window.open('#/help?section=...') instead,
- *   which bypasses the in-app help panel entirely. Tracked under
- *   CB-APP54 -- switch to useHelp for consistency, and the tooltip
- *   key t('common:help', 'Help') still carries an English fallback
+ * - Help opens the in-app drawer via the shared HelpIconButton component,
+ *   matching the sibling dialogs (CB-APP54 closure). The tooltip key
+ *   t('common:help', 'Help') still carries an English fallback
  *   (CM-APP9 / CM-APP11 territory).
  * - Submit fires via state.handleSubmit(state.onSubmit)(e) rather than
  *   state.onSubmit directly because onSubmit is already wrapped by
@@ -34,10 +31,8 @@ import {
   Button,
   Box,
   CircularProgress,
-  Tooltip,
-  IconButton,
 } from '@mui/material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { HelpIconButton } from '../../../../features/help';
 import { useTranslation } from 'react-i18next';
 import { ItemForm } from './ItemForm';
 import { useItemForm } from './useItemForm';
@@ -90,19 +85,10 @@ export function ItemFormDialog({
         }}
       >
         <span>{dialogTitle}</span>
-        {/* BUCKET: CB-APP54 -- raw window.open bypasses the in-app help panel. Switch to useHelp() to match EditItemDialog and DeleteItemDialog. */}
-        <Tooltip title={t('common:help', 'Help')}>
-          <IconButton
-            size="small"
-            onClick={() => {
-              const section = initial?.id ? 'edit_item' : 'create_item';
-              window.open(`#/help?section=${section}`, '_blank');
-            }}
-            aria-label="help"
-          >
-            <HelpOutlineIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+        <HelpIconButton
+          topicId={initial?.id ? 'inventory.editItem' : 'inventory.manage'}
+          tooltip={t('common:help', 'Help')}
+        />
       </DialogTitle>
 
       {/* Form content */}

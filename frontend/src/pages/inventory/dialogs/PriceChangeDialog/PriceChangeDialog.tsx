@@ -17,10 +17,9 @@
  *       re-validates);
  *   (2) backend does not record a reason for price changes, so the form
  *       carries no reason field.
- * - Help-icon wiring uses window.open('#/help?section=...') instead of
- *   the in-app useHelp() drawer. Same divergence as ItemFormDialog
- *   tracked under CB-APP54; this site is tracked under CB-APP57 as a
- *   sibling.
+ * - Help opens the in-app drawer via the shared HelpIconButton component,
+ *   matching ItemFormDialog (CB-APP54 closure). This site is tracked
+ *   under CB-APP57 as a sibling.
  * - There is no substring error-mapping in this flow. Failures get a
  *   single generic message regardless of cause (admin-only, validation,
  *   conflict). Tracked under CB-APP56 -- either add structured error
@@ -37,10 +36,8 @@ import {
   Box,
   CircularProgress,
   Stack,
-  Tooltip,
-  IconButton,
 } from '@mui/material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { HelpIconButton } from '../../../../features/help';
 import { useTranslation } from 'react-i18next';
 import { PriceChangeForm } from './PriceChangeForm';
 import { usePriceChangeForm } from './usePriceChangeForm';
@@ -68,18 +65,7 @@ export function PriceChangeDialog({
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Box>{t('inventory:toolbar.changePrice', 'Change Price')}</Box>
-          {/* BUCKET: CB-APP57 -- raw window.open bypasses in-app help. Switch to useHelp() to match EditItemDialog and DeleteItemDialog. Sibling of CB-APP54. */}
-          <Tooltip title={t('common:help', 'Help')}>
-            <IconButton
-              size="small"
-              onClick={() => {
-                window.open('#/help?section=inventory.changePrice', '_blank');
-              }}
-              aria-label="help"
-            >
-              <HelpOutlineIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <HelpIconButton topicId="inventory.changePrice" tooltip={t('common:help', 'Help')} />
         </Stack>
       </DialogTitle>
 

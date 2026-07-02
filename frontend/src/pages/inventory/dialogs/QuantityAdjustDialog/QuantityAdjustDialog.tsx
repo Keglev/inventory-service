@@ -11,11 +11,11 @@
  * - Single-dialog architecture. A quantity adjustment is reversible
  *   by another adjustment, so no second confirmation step is offered.
  *   Same pattern as EditItemDialog and PriceChangeDialog.
- * - This is the reference dialog for the canonical help-icon wiring:
+ * - This was the reference dialog for the canonical help-icon wiring:
  *   it uses the shared HelpIconButton component, not raw IconButton
- *   + HelpOutlineIcon. ItemFormDialog (CB-APP54), PriceChangeDialog
- *   (CB-APP57), and DeleteItemDialog (CM-APP11), and EditItemDialog
- *   should all converge on this pattern.
+ *   + HelpOutlineIcon. ItemFormDialog, PriceChangeDialog,
+ *   DeleteItemDialog, and EditItemDialog have all converged on this
+ *   pattern (CB-APP54, CB-APP57, CM-APP11 closures).
  * - Backend invariant: the reason must belong to the StockChangeReason
  *   enum that quantity adjustments actually support; backend
  *   StockHistoryValidator is the authority. The dialog offers only the

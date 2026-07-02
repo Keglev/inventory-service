@@ -18,9 +18,9 @@
  *       backend rejects duplicates with a structured error;
  *   (3) the rename does not change inventory quantity or write a
  *       StockHistory row, so the schema carries no reason field.
- * - Help-icon wiring uses a raw IconButton + HelpOutlineIcon and a
- *   tooltip key with an English fallback. Same pattern as DeleteItemDialog
- *   tracked under CM-APP11; not duplicated here as a new bucket.
+ * - Help opens the in-app drawer via the shared HelpIconButton component,
+ *   matching DeleteItemDialog's CM-APP11 closure. The tooltip key still
+ *   carries an English fallback.
  * - Hook orchestration is in useEditItemForm; this file holds layout
  *   only, no business logic.
  */
@@ -33,14 +33,11 @@ import {
   DialogActions,
   Button,
   Box,
-  IconButton,
   Stack,
-  Tooltip,
   CircularProgress,
 } from '@mui/material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { HelpIconButton } from '../../../../features/help';
 import { useTranslation } from 'react-i18next';
-import { useHelp } from '../../../../hooks/useHelp';
 import { useEditItemForm } from './useEditItemForm';
 import { EditItemForm } from './EditItemForm';
 
@@ -59,7 +56,6 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
   onItemRenamed,
 }) => {
   const { t } = useTranslation(['common', 'inventory']);
-  const { openHelp } = useHelp();
 
   // Orchestrate all form state, queries, and handlers
   const form = useEditItemForm(open, onClose, onItemRenamed);
@@ -70,11 +66,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Box>{t('inventory:dialogs.editItemTitle', 'Edit Item')}</Box>
-          <Tooltip title={t('actions.help', 'Help')}>
-            <IconButton size="small" onClick={() => openHelp('inventory.editItem')}>
-              <HelpOutlineIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <HelpIconButton topicId="inventory.editItem" tooltip={t('common:help', 'Help')} />
         </Stack>
       </DialogTitle>
 
