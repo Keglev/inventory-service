@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import http from '../../httpClient';
 import { isRecord, pickNumber } from '@/api/shared';
 import type { ItemDetails } from '../types';
+import { logError } from '../../../utils/logger';
 
 /**
  * Fetches full details for a single inventory item by ID.
@@ -57,7 +58,7 @@ export function useItemDetailsQuery(itemId: string | undefined | null) {
             : null,
         };
       } catch (error) {
-        console.error('Failed to fetch item details:', error);
+        logError('Failed to fetch item details:', error);
         return null;
       }
     },

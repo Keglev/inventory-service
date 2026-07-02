@@ -23,6 +23,8 @@
  *   again — tracked under CB-APP19.
  */
 
+import { logError, logWarn } from './logger';
+
 export interface SystemInfoResponse {
   status: string;
   components?: {
@@ -81,7 +83,7 @@ export const getSystemInfo = async () => {
     });
 
     if (!response.ok) {
-      console.warn(`Health endpoint returned status ${response.status}`);
+      logWarn(`Health endpoint returned status ${response.status}`);
       return fallback;
     }
 
@@ -115,7 +117,7 @@ export const getSystemInfo = async () => {
       status: data.status || 'UP',
     };
   } catch (error) {
-    console.error('Failed to fetch system info from health endpoint:', error);
+    logError('Failed to fetch system info from health endpoint:', error);
     return fallback;
   }
 };

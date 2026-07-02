@@ -10,7 +10,7 @@
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
-import { logError } from '@/utils/logger';
+import { logError, logWarn } from '@/utils/logger';
 
 describe('logError', () => {
   afterEach(() => {
@@ -31,6 +31,14 @@ describe('logError', () => {
 
     logError('Standalone message');
 
-    expect(spy).toHaveBeenCalledWith('Standalone message', undefined);
+    expect(spy).toHaveBeenCalledWith('Standalone message');
+  });
+
+  it('forwards warnings to console.warn in DEV', () => {
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    logWarn('Something looks off:', 42);
+
+    expect(spy).toHaveBeenCalledWith('Something looks off:', 42);
   });
 });

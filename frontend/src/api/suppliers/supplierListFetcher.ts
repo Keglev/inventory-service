@@ -14,6 +14,7 @@
 import http from '../httpClient';
 import type { SupplierListParams, SupplierListResponse, SupplierRow } from './types';
 import { toSupplierRow } from './supplierNormalizers';
+import { logError } from '../../utils/logger';
 
 /** Centralized endpoint base. */
 export const SUPPLIERS_BASE = '/api/suppliers';
@@ -70,7 +71,7 @@ export const searchSuppliersByName = async (name: string): Promise<SupplierRow[]
       .map(toSupplierRow)
       .filter((r): r is Exclude<ReturnType<typeof toSupplierRow>, null> => r !== null);
   } catch (error) {
-    console.error('[searchSuppliersByName] Error searching suppliers by name:', error);
+    logError('[searchSuppliersByName] Error searching suppliers by name:', error);
     return [];
   }
 };
@@ -96,7 +97,7 @@ export const getSupplierById = async (id: string): Promise<SupplierRow | null> =
       : null;
     return toSupplierRow(data);
   } catch (error) {
-    console.error('[getSupplierById] Error fetching supplier by id:', error);
+    logError('[getSupplierById] Error fetching supplier by id:', error);
     return null;
   }
 };
@@ -137,7 +138,7 @@ export const getSuppliersPage = async (
     };
   } catch (error) {
     // Return an empty page so the UI renders a zero-row state instead of crashing.
-    console.error('[getSuppliersPage] Error fetching suppliers:', error);
+    logError('[getSuppliersPage] Error fetching suppliers:', error);
     return {
       items: [],
       total: 0,

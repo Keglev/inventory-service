@@ -21,6 +21,7 @@
  */
 
 import type { UserPreferences } from './SettingsContext.types';
+import { logWarn } from '../../utils/logger';
 
 const STORAGE_KEY = 'appSettings';
 
@@ -61,8 +62,7 @@ export const loadPreferencesFromStorage = (language: string): UserPreferences =>
       return JSON.parse(stored) as UserPreferences;
     }
   } catch (error) {
-    // BUCKET: unguarded console.warn ships to production (CB-APP35)
-    console.warn('Failed to load settings from localStorage:', error);
+    logWarn('Failed to load settings from localStorage:', error);
   }
   return getDefaultPreferences(language);
 };
@@ -79,8 +79,7 @@ export const savePreferencesToStorage = (prefs: UserPreferences): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
   } catch (error) {
-    // BUCKET: unguarded console.warn ships to production (CB-APP35)
-    console.warn('Failed to save settings to localStorage:', error);
+    logWarn('Failed to save settings to localStorage:', error);
   }
 };
 
@@ -94,7 +93,6 @@ export const clearPreferencesFromStorage = (): void => {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
-    // BUCKET: unguarded console.warn ships to production (CB-APP35)
-    console.warn('Failed to clear settings from localStorage:', error);
+    logWarn('Failed to clear settings from localStorage:', error);
   }
 };

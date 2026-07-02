@@ -25,6 +25,7 @@ import {
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useTranslation } from 'react-i18next';
 import { useHealthCheck } from '../../features/health';
+import { logWarn } from '../../utils/logger';
 
 type ClipboardLike = Pick<Clipboard, 'writeText'>;
 
@@ -46,7 +47,7 @@ export default function SystemInfoMenuSection({ clipboard = typeof navigator !==
 
   const handleCopyUrl = async (text: string) => {
     if (!clipboard || typeof clipboard.writeText !== 'function') {
-      console.warn('Clipboard API not available');
+      logWarn('Clipboard API not available');
       return;
     }
 
@@ -55,7 +56,7 @@ export default function SystemInfoMenuSection({ clipboard = typeof navigator !==
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.warn('Copy to clipboard failed', error);
+      logWarn('Copy to clipboard failed', error);
     }
   };
 

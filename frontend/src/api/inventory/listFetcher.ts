@@ -18,6 +18,7 @@ import http from '../httpClient';
 import type { InventoryListParams, InventoryListResponse, InventoryRow } from './types';
 import { toInventoryRow } from './rowNormalizers';
 import { INVENTORY_BASE } from '@/api/shared';
+import { logError } from '../../utils/logger';
 
 /**
  * Extract the array of rows from the response. GET /api/inventory returns a
@@ -86,7 +87,7 @@ export const getInventoryPage = async (
     };
   } catch (error) {
     // Network error: return empty page
-    console.error('[getInventoryPage] Error fetching inventory:', error);
+    logError('[getInventoryPage] Error fetching inventory:', error);
     return {
       items: [],
       total: 0,

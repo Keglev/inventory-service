@@ -18,6 +18,7 @@
  */
 
 import * as React from 'react';
+import { logError, logWarn } from '../../../utils/logger';
 
 /** Health status structure returned by the hook. */
 export interface HealthStatus {
@@ -60,8 +61,7 @@ export const useHealthCheck = () => {
       const contentType = response.headers.get('content-type') ?? '';
       if (!contentType.includes('application/json')) {
         const text = await response.text();
-        // BUCKET: unguarded console.warn fires on every non-JSON health response (CB-APP37 — also at console.error sites in this function)
-        console.warn('Health endpoint returned non-JSON:', text);
+        logWarn('Health endpoint returned non-JSON:', text);
         throw new Error('Backend health endpoint did not return JSON');
       }
       const parsed: unknown = await response.json();
@@ -79,8 +79,7 @@ export const useHealthCheck = () => {
         );
       };
       if (!isBackendHealthResponse(parsed)) {
-        // BUCKET: see CB-APP37 marker above (this site is one of three unguarded console outputs in this function)
-        console.error('Unexpected health response structure:', parsed);
+        logError('Unexpected health response structure:', parsed);
         // WHY: shape mismatch is potentially CB-APP36 territory — frontend assumption may not match backend Actuator format; verification required.
         throw new Error('Health response does not match expected shape');
       }
@@ -94,8 +93,7 @@ export const useHealthCheck = () => {
         timestamp: parsed.timestamp,
       });
     } catch (err) {
-      // BUCKET: see CB-APP37 marker above (third unguarded console output).
-      console.error('Health check failed:', err);
+      logError('Health check failed:', err);
       setHealth({
         status: 'offline',
         responseTime: 0,

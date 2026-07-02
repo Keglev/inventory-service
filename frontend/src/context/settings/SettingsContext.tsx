@@ -41,6 +41,7 @@ import {
   savePreferencesToStorage,
   clearPreferencesFromStorage,
 } from './SettingsStorage';
+import { logWarn } from '../../utils/logger';
 
 export type { DateFormat, NumberFormat, TableDensity, UserPreferences, SystemInfo, SettingsContextType } from './SettingsContext.types';
 export { SettingsContext };
@@ -70,8 +71,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         };
         setSystemInfo(info);
       } catch (error) {
-        // BUCKET: unguarded console.warn ships to production; wrap in import.meta.env.DEV or remove (CB-APP35 — also at SettingsStorage.ts lines 47, 65, 79)
-        console.warn('Failed to fetch system info:', error);
+        logWarn('Failed to fetch system info:', error);
 
         // BUCKET: hardcoded fallbacks ship to UI on fetch failure — database: 'Oracle ADB' and environment: 'production' are strong assertions, particularly suspect since fetch failure is more likely in dev (CB-APP32)
         setSystemInfo({
