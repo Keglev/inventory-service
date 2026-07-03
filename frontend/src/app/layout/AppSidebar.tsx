@@ -88,9 +88,11 @@ export default function AppSidebar({
     <Box
       component="nav"
       sx={{
+        // Height is bounded by the viewport-fit shell row (CB-APP73/74):
+        // the sidebar must end above the footer, never overflow beneath it.
         width: { md: drawerWidth },
         flexShrink: { md: 0 },
-        minHeight: 'calc(100vh - 64px)',
+        minHeight: 0,
         display: 'flex',
         flexDirection: { md: 'column' },
       }}

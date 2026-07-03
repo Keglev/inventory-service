@@ -1,24 +1,16 @@
 /**
  * @file useFooterState.test.ts
- * @module __tests__/app/footer
- *
- * @description
- * Unit tests for `useFooterState` — footer state + metadata composition hook.
- *
- * Responsibilities of the hook:
- * - Manage UI state (details panel open/closed) via `detailsOpen` + `toggleDetails`.
- * - Compose runtime health information from `useHealthCheck`.
- * - Expose build/runtime metadata (version/build/environment).
- * - Derive localization info (language + region) from i18n state.
- *
- * Test strategy:
- * - Treat the hook as a small "composition layer": verify it passes through data from
- *   dependent hooks and formats it into a UI-friendly config object.
- * - Mock external dependencies (i18n, health) to keep tests deterministic.
+ * @module tests/app/footer/useFooterState
+ * @what_is_under_test useFooterState
+ * @responsibility
+ * Guarantees the footer data composition: health passthrough from
+ * useHealthCheck and config assembly from appMeta + live i18n language.
+ * @out_of_scope
+ * Health polling internals (features/health); appMeta build-time injection.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { useFooterState } from '../../../app/footer/useFooterState';
 
 // -----------------------------------------------------------------------------
@@ -50,10 +42,6 @@ type Health = {
 };
 
 describe('useFooterState', () => {
-  /**
-   * Scenario helpers to reduce duplication and make intent explicit.
-   * These create deterministic dependency outputs for the hook under test.
-   */
   const setI18nLanguage = (language: string) => {
     const i18n: I18nLike = { language, changeLanguage: vi.fn() };
     mockUseTranslation.mockReturnValue({
@@ -74,92 +62,37 @@ describe('useFooterState', () => {
     setHealth({ status: 'online', responseTime: 125, database: 'online' });
   });
 
-  // ---------------------------------------------------------------------------
-  // UI state: details toggle
-  // ---------------------------------------------------------------------------
-  it('returns initial state with details closed', () => {
-    // Baseline: the footer details panel is collapsed on initial render.
-    const { result } = renderHook(() => useFooterState());
-    expect(result.current.detailsOpen).toBe(false);
-  });
-
-  it('toggles details open and closed', () => {
-    const { result } = renderHook(() => useFooterState());
-
-    act(() => {
-      result.current.toggleDetails();
-    });
-    expect(result.current.detailsOpen).toBe(true);
-
-    act(() => {
-      result.current.toggleDetails();
-    });
-    expect(result.current.detailsOpen).toBe(false);
-  });
-
-  it('handles multiple toggle calls (state is consistent)', () => {
-    const { result } = renderHook(() => useFooterState());
-
-    // Multiple toggles in one act() is a common UI pattern (rapid user interactions).
-    act(() => {
-      result.current.toggleDetails();
-      result.current.toggleDetails();
-      result.current.toggleDetails();
-    });
-
-    // Odd number of toggles => final state should be open.
-    expect(result.current.detailsOpen).toBe(true);
-  });
-
-  // ---------------------------------------------------------------------------
-  // Health composition
-  // ---------------------------------------------------------------------------
-  it('exposes health status from useHealthCheck', () => {
-    const { result } = renderHook(() => useFooterState());
-
-    expect(result.current.health).toEqual({
-      status: 'online',
-      responseTime: 125,
-      database: 'online',
-    });
-  });
-
-  it('supports offline health status', () => {
-    setHealth({ status: 'offline', responseTime: 0, database: 'offline' });
+  it('passes health state through from useHealthCheck', () => {
+    const health: Health = { status: 'offline', responseTime: 0, database: 'offline' };
+    setHealth(health);
 
     const { result } = renderHook(() => useFooterState());
 
-    expect(result.current.health.status).toBe('offline');
-    expect(result.current.health.database).toBe('offline');
+    expect(result.current.health).toEqual(health);
   });
 
-  // ---------------------------------------------------------------------------
-  // Config composition (version/build/environment + locale)
-  // ---------------------------------------------------------------------------
-  it('returns build/runtime config metadata', () => {
-    // These values are typically injected via build-time env/config.
-    // This test acts as a regression guard: the hook must expose them for the footer UI.
+  it('assembles config from appMeta constants', () => {
     const { result } = renderHook(() => useFooterState());
 
-    expect(result.current.config).toMatchObject({
-      appVersion: '1.0.0',
-      buildId: '4a9c12f',
-      environment: 'Production (Koyeb)',
-      region: 'DE',
-    });
+    expect(result.current.config.appVersion).toBe('1.0.0');
+    expect(result.current.config.buildId).toBe('4a9c12f');
+    expect(result.current.config.environment).toBe('Production (Koyeb)');
+    expect(result.current.config.region).toBe('DE');
   });
 
-  it('derives current language code from i18n locale (en-US => EN)', () => {
-    setI18nLanguage('en-US');
-
-    const { result } = renderHook(() => useFooterState());
-    expect(result.current.config.currentLanguage).toBe('EN');
-  });
-
-  it('derives current language code from i18n locale (de-DE => DE)', () => {
+  it('derives currentLanguage from the live i18n language', () => {
     setI18nLanguage('de-DE');
 
     const { result } = renderHook(() => useFooterState());
+
     expect(result.current.config.currentLanguage).toBe('DE');
+  });
+
+  it('normalizes region-less language codes', () => {
+    setI18nLanguage('en');
+
+    const { result } = renderHook(() => useFooterState());
+
+    expect(result.current.config.currentLanguage).toBe('EN');
   });
 });

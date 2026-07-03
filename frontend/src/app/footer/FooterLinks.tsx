@@ -3,32 +3,26 @@
  * @module app/footer/FooterLinks
  *
  * @summary
- * Footer support and documentation links component.
- * Displays navigation links to documentation, API reference, release notes, and support.
+ * Footer documentation links rendered as a compact inline row.
  *
  * @enterprise
  * - Pure presentational leaf: props-only, no state.
  * - Documentation and API Reference open the published GitHub Pages docs in a
- *   new tab (SAP-style external-link behavior); Release Notes returns once a
- *   GitHub Releases page exists.
+ *   new tab (SAP-style external-link behavior).
  * - Labels are i18n keys in the 'footer' namespace with English fallbacks.
+ * - Impressum / Datenschutz links join this row via CB-APP84.
  */
 
-import { Box, Typography, Link, Stack } from '@mui/material';
+import { Link, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 /**
- * Footer support and documentation links component.
+ * Footer documentation links component.
  *
- * Provides navigation links to documentation, API reference, release notes,
- * and support contact. Isolated from other footer sections for independent testing.
+ * Renders documentation, API reference, and support links as a single
+ * inline row for the compact footer bar.
  *
- * @returns JSX element rendering support and documentation links
- *
- * @example
- * ```tsx
- * <FooterLinks />
- * ```
+ * @returns JSX element rendering the footer link row
  */
 export default function FooterLinks() {
   const { t } = useTranslation(['footer']);
@@ -52,28 +46,25 @@ export default function FooterLinks() {
   ];
 
   return (
-    <Box sx={{ minWidth: 0, flex: 1 }}>
-      <Typography
-        variant="caption"
-        sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}
-      >
-        {t('footer:section.support', 'Support & Docs')}
-      </Typography>
-      <Stack spacing={0.25}>
-        {links.map((link) => (
-          <Link
-            key={link.label}
-            href={link.href}
-            target={link.external ? '_blank' : undefined}
-            rel={link.external ? 'noopener noreferrer' : undefined}
-            underline="hover"
-            variant="caption"
-            sx={{ color: 'primary.main' }}
-          >
-            {link.label}
-          </Link>
-        ))}
-      </Stack>
-    </Box>
+    <Stack
+      direction="row"
+      spacing={2}
+      alignItems="center"
+      sx={{ flexShrink: 0 }}
+    >
+      {links.map((link) => (
+        <Link
+          key={link.label}
+          href={link.href}
+          target={link.external ? '_blank' : undefined}
+          rel={link.external ? 'noopener noreferrer' : undefined}
+          underline="hover"
+          variant="caption"
+          sx={{ color: 'primary.main' }}
+        >
+          {link.label}
+        </Link>
+      ))}
+    </Stack>
   );
 }

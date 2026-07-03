@@ -1,16 +1,12 @@
 /**
  * @file FooterLinks.test.tsx
- * @module __tests__/app/footer
- *
- * @description
- * Unit tests for <FooterLinks /> — the footer section that exposes support/documentation links.
- *
- * Test strategy:
- * - Validate that all expected links render with correct accessible names and destinations.
- * - Validate i18n integration by asserting translation keys are requested (without loading catalogs).
- *
- * Out of scope:
- * - Styling, layout, and icon rendering (covered by visual checks or e2e).
+ * @module tests/app/footer/FooterLinks
+ * @what_is_under_test FooterLinks
+ * @responsibility
+ * Guarantees the inline footer link row: link targets, new-tab semantics for
+ * external docs, and i18n key wiring for all labels.
+ * @out_of_scope
+ * Footer layout/composition (AppFooter suite); translation content itself.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -20,7 +16,6 @@ import FooterLinks from '../../../app/footer/FooterLinks';
 // -----------------------------------------------------------------------------
 // i18n mock
 // -----------------------------------------------------------------------------
-// Hoisted so it can be referenced safely inside vi.mock factory.
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
@@ -28,35 +23,18 @@ vi.mock('react-i18next', () => ({
 }));
 
 describe('FooterLinks', () => {
-  /**
-   * Arrange helper:
-   * Centralizes render logic so tests focus on intent rather than setup noise.
-   */
   const arrange = () => render(<FooterLinks />);
 
-  /**
-   * Convenience getter for links by their accessible name.
-   * This asserts what users (and assistive technologies) can actually perceive.
-   */
   const getLink = (name: string) => screen.getByRole('link', { name });
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Deterministic translation stub: return `defaultValue` to keep assertions stable.
+    // Deterministic translation stub: return defaultValue to keep assertions stable.
     mockUseTranslation.mockReturnValue({
       t: (_key: string, defaultValue: string) => defaultValue,
       i18n: { changeLanguage: vi.fn() },
     });
-  });
-
-  // ---------------------------------------------------------------------------
-  // Rendering: section + links
-  // ---------------------------------------------------------------------------
-  it('renders the section title', () => {
-    // Ensures the user-facing section heading is present.
-    arrange();
-    expect(screen.getByText('Support & Docs')).toBeInTheDocument();
   });
 
   it('renders the documentation link to the published docs in a new tab', () => {
@@ -82,26 +60,9 @@ describe('FooterLinks', () => {
     expect(getLink('Contact Support')).not.toHaveAttribute('target');
   });
 
-  it('renders exactly four links', () => {
-    // Guards against accidental addition/removal of footer navigation entries.
+  it('renders exactly three links', () => {
     arrange();
     expect(screen.getAllByRole('link')).toHaveLength(3);
-  });
-
-  // ---------------------------------------------------------------------------
-  // i18n wiring: verifies translation keys are requested
-  // ---------------------------------------------------------------------------
-  it('requests translation for the section title', () => {
-    const mockT = vi.fn((_key: string, defaultValue: string) => defaultValue);
-    mockUseTranslation.mockReturnValue({
-      t: mockT,
-      i18n: { changeLanguage: vi.fn() },
-    });
-
-    arrange();
-
-    // Verifies the key used by the component rather than the translated output.
-    expect(mockT).toHaveBeenCalledWith('footer:section.support', 'Support & Docs');
   });
 
   it('requests translations for all link labels', () => {

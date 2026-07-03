@@ -6,9 +6,7 @@
  */
 
 export { default as AppFooter } from './AppFooter';
-export { default as FooterLegal } from './FooterLegal';
 export { default as FooterLinks } from './FooterLinks';
 export { default as FooterMetaInfo } from './FooterMetaInfo';
 export { default as HealthStatusDisplay } from './HealthStatusDisplay';
-export { default as LocalizationDisplay } from './LocalizationDisplay';
 export { useFooterState } from './useFooterState';
