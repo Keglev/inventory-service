@@ -120,10 +120,11 @@ inventory/stockMutations/functions/adjustQuantity · Smart Supply Pro · API</ti
         <h1 id="function-adjustquantity">Function: adjustQuantity()</h1>
         <blockquote>
         <p><strong>adjustQuantity</strong>(<code>req</code>):
-        <code>Promise</code>&lt;<code>boolean</code>&gt;</p>
+        <code>Promise</code>&lt;<a
+        href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/ac9de390c8534c2ef4bcbbbf878bd464eff26e4a/frontend/src/api/inventory/stockMutations.ts#L37">api/inventory/stockMutations.ts:37</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/00f05838135cc50c61a51d587e36c96f71b7628e/frontend/src/api/inventory/stockMutations.ts#L39">api/inventory/stockMutations.ts:39</a></p>
         <p>Records a stock quantity change via PATCH
         /api/inventory/{id}/quantity. Centralises all stock mutations so
         callers get uniform error handling without catching HTTP errors
@@ -140,16 +141,17 @@ inventory/stockMutations/functions/adjustQuantity · Smart Supply Pro · API</ti
         <p>Adjustment payload with item id, delta, and business
         reason</p>
         <h2 id="returns">Returns</h2>
-        <p><code>Promise</code>&lt;<code>boolean</code>&gt;</p>
-        <p>true if the server accepted the adjustment, false on any
-        error</p>
+        <p><code>Promise</code>&lt;<a
+        href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
+        <p>UpsertItemResponse: { ok: true } on success, otherwise
+        ok:false with error details</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Mark items as sold (outbound)</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ok <span class="op">=</span> <span class="cf">await</span> <span class="fu">adjustQuantity</span>({ id<span class="op">:</span> <span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span> delta<span class="op">:</span> <span class="op">-</span><span class="dv">5</span><span class="op">,</span> reason<span class="op">:</span> <span class="st">&#39;SOLD&#39;</span> })<span class="op">;</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Inbound manual correction</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ok <span class="op">=</span> <span class="cf">await</span> <span class="fu">adjustQuantity</span>({ id<span class="op">:</span> <span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span> delta<span class="op">:</span> <span class="dv">50</span><span class="op">,</span> reason<span class="op">:</span> <span class="st">&#39;MANUAL_UPDATE&#39;</span> })<span class="op">;</span></span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="cf">await</span> <span class="fu">adjustQuantity</span>({ id<span class="op">:</span> <span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span> delta<span class="op">:</span> <span class="op">-</span><span class="dv">5</span><span class="op">,</span> reason<span class="op">:</span> <span class="st">&#39;SOLD&#39;</span> })<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="op">!</span>result<span class="op">.</span><span class="at">ok</span>) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">// branch on result.errorToken (&#39;forbidden&#39; | &#39;not_found&#39; | &#39;unprocessable_entity&#39; | null)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
       </article>
     </main>
 
