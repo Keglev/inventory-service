@@ -3,62 +3,35 @@
  * @module app/HamburgerMenu/SystemInfoMenuSection
  *
  * @summary
- * System info section coordinator; reads backend health status from useHealthCheck
- * and displays environment, backend URL (with copy button), and frontend build info.
+ * System info section coordinator; reads backend health status from
+ * useHealthCheck and displays environment, backend status, and frontend
+ * build info.
  *
  * @enterprise
- * Data origin: features/health (useHealthCheck) for backend online/offline status;
- * all other values are hardcoded constants (see CB-APP1 marker below).
- * The optional `clipboard` prop is dependency injection for tests — defaults to
- * navigator.clipboard so production callers need not pass it.
+ * Data origin: features/health (useHealthCheck) for backend online/offline
+ * status; all other values come from config/appMeta.
+ * The former backend URL row ('/api' + copy-to-clipboard) was removed
+ * (CB-APP80): the relative path carried no user value and read like a broken
+ * link. The clipboard dependency-injection prop went with it.
  * Mounted exclusively by MenuContent/MenuSectionsRenderer.
  */
 
-import * as React from 'react';
 import {
   Box,
   Typography,
   Stack,
-  IconButton,
-  Tooltip,
 } from '@mui/material';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useTranslation } from 'react-i18next';
 import { useHealthCheck } from '../../features/health';
-import { logWarn } from '../../utils/logger';
 import { APP_ENVIRONMENT, APP_VERSION, BUILD_ID } from '../../config/appMeta';
 
-type ClipboardLike = Pick<Clipboard, 'writeText'>;
-
-interface SystemInfoMenuSectionProps {
-  /** Dependency injection hook for clipboard; defaults to global navigator.clipboard */
-  clipboard?: ClipboardLike | null;
-}
-
-export default function SystemInfoMenuSection({ clipboard = typeof navigator !== 'undefined' ? navigator.clipboard : null }: SystemInfoMenuSectionProps) {
+export default function SystemInfoMenuSection() {
   const { t } = useTranslation(['common']);
   const { health } = useHealthCheck();
-  const [copied, setCopied] = React.useState(false);
 
   const environment = APP_ENVIRONMENT;
-  const backendUrl = '/api';
   const frontendVersion = APP_VERSION;
   const commitHash = BUILD_ID;
-
-  const handleCopyUrl = async (text: string) => {
-    if (!clipboard || typeof clipboard.writeText !== 'function') {
-      logWarn('Clipboard API not available');
-      return;
-    }
-
-    try {
-      await clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      logWarn('Copy to clipboard failed', error);
-    }
-  };
 
   return (
     <Box sx={{ px: 2, py: 1.5 }}>
@@ -78,28 +51,7 @@ export default function SystemInfoMenuSection({ clipboard = typeof navigator !==
           <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}>
             {t('systemInfo.backend', 'Backend')}
           </Typography>
-          <Stack direction="row" spacing={0.5} alignItems="center">
-            <Typography
-              variant="body2"
-              sx={{
-                fontFamily: 'monospace',
-                fontSize: '0.75rem',
-                wordBreak: 'break-all',
-              }}
-            >
-              {backendUrl}
-            </Typography>
-            <Tooltip title={copied ? t('systemInfo.copied', 'Copied!') : t('systemInfo.copy', 'Copy')}>
-              <IconButton
-                size="small"
-                onClick={() => handleCopyUrl(backendUrl)}
-                sx={{ p: 0.25, minWidth: 'auto' }}
-              >
-                <ContentCopyIcon sx={{ fontSize: 14 }} />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25, display: 'block' }}>
+          <Typography variant="body2">
             {health.status === 'online'
               ? t('systemInfo.backendOnline', 'Status: Online')
               : t('systemInfo.backendOffline', 'Status: Offline')}
