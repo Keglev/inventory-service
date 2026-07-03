@@ -3,38 +3,32 @@
  * @module app/layout/AppMain
  *
  * @summary
- * Main content area component rendering page content with demo notice banner.
- * Extracted from AppShell to isolate main content layout and demo mode messaging.
+ * Main content area component rendering page content.
+ * Extracted from AppShell to isolate main content layout.
  *
  * @enterprise
  * - Extracted from AppShell to keep the shell a pure orchestrator; all content-area layout lives here.
- * - Demo banner is non-blocking (alert, no modal) so users can navigate freely; placement above content makes it unmissable on every page.
+ * - The former demo-mode banner row was removed (CB-APP77): demo state is
+ *   indicated by the header DEMO badge (with explanatory tooltip), and every
+ *   mutation dialog shows the demo guard message on attempted changes. The
+ *   banner cost a full-width row on every page.
+ * - Single internal scroll region of the viewport-fit shell (CB-APP73).
  */
 
 import { Outlet } from 'react-router-dom';
 import {
   Box,
   Toolbar,
-  Alert,
 } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-
-interface AppMainProps {
-  /** Whether user is on demo account */
-  isDemo: boolean;
-}
 
 /**
  * Main content area component.
  *
- * Renders the primary application content with optional demo mode banner.
+ * Renders the primary application content inside the viewport-fit shell.
  *
- * @param props - Component props
  * @returns JSX element rendering main content area
  */
-export default function AppMain({ isDemo }: AppMainProps) {
-  const { t } = useTranslation(['auth']);
-
+export default function AppMain() {
   return (
     <Box
       component="main"
@@ -53,21 +47,6 @@ export default function AppMain({ isDemo }: AppMainProps) {
     >
       {/* Spacer to account for fixed AppBar height */}
       <Toolbar />
-
-      {/* Demo Mode Notice Banner (non-blocking, informational) */}
-      {isDemo && (
-        <Alert
-          severity="info"
-          icon={false}
-          sx={{
-            mb: 0.5,
-            borderLeft: (theme) => `4px solid ${theme.palette.info.main}`,
-            bgcolor: (theme) => theme.palette.info.light,
-          }}
-        >
-          {t('auth:demoNotice', 'You are browsing in demo mode. Changes are disabled.')}
-        </Alert>
-      )}
 
       {/* Page Content Area */}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>

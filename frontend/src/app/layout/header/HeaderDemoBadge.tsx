@@ -11,10 +11,12 @@
  * - Chip outline uses the theme `warning` palette (mode-aware), but the label color is
  *   pinned to '#000' for fixed contrast against the outlined chip — a deliberate
  *   override, not a theme-inherited value (black-on-warning can read poorly in dark mode).
- * - i18n key ('auth:demoBadge') shares the auth namespace with login/demo flows so labels stay consistent across those contexts.
+ * - The tooltip carries the former full-width demo banner text (CB-APP77):
+ *   the badge is now the single persistent demo indicator.
+ * - i18n keys ('auth:demoBadge', 'auth:demoNotice') share the auth namespace with login/demo flows.
  */
 
-import { Chip } from '@mui/material';
+import { Chip, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 interface HeaderDemoBadgeProps {
@@ -25,20 +27,11 @@ interface HeaderDemoBadgeProps {
 /**
  * Demo mode badge component.
  *
- * Displays prominent DEMO badge when user is on demo account.
- * Only renders if isDemo is true.
+ * Displays prominent DEMO badge with an explanatory tooltip when the user is
+ * on a demo account. Only renders if isDemo is true.
  *
  * @param props - Component props
  * @returns JSX element rendering demo badge, or null if not in demo mode
- *
- * @example
- * ```tsx
- * <HeaderDemoBadge isDemo={true} />
- * // Shows: Yellow "DEMO" badge
- *
- * <HeaderDemoBadge isDemo={false} />
- * // Shows: null (nothing rendered)
- * ```
  */
 export default function HeaderDemoBadge({ isDemo }: HeaderDemoBadgeProps) {
   const { t } = useTranslation(['auth']);
@@ -48,19 +41,21 @@ export default function HeaderDemoBadge({ isDemo }: HeaderDemoBadgeProps) {
   }
 
   return (
-    <Chip
-      size="small"
-      label={t('auth:demoBadge', 'DEMO')}
-      color="warning"
-      variant="outlined"
-      sx={{
-        ml: 1,
-        fontWeight: 700,
-        '& .MuiChip-label': {
+    <Tooltip title={t('auth:demoNotice', 'You are browsing in demo mode. Changes are disabled.')}>
+      <Chip
+        size="small"
+        label={t('auth:demoBadge', 'DEMO')}
+        color="warning"
+        variant="outlined"
+        sx={{
+          ml: 1,
           fontWeight: 700,
-          color: '#000',
-        },
-      }}
-    />
+          '& .MuiChip-label': {
+            fontWeight: 700,
+            color: '#000',
+          },
+        }}
+      />
+    </Tooltip>
   );
 }

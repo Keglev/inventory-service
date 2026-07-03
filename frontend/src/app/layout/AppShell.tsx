@@ -137,7 +137,7 @@ export default function AppShell() {
             />
 
             {/* Main Content Area */}
-            <AppMain isDemo={isDemo} />
+            <AppMain />
           </Box>
 
           {/* Global footer — inside the ThemeProvider so it follows light/dark mode */}
