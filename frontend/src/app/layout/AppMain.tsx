@@ -40,7 +40,8 @@ export default function AppMain({ isDemo }: AppMainProps) {
       component="main"
       sx={{
         flex: 1,
-        minHeight: 'auto',
+        minHeight: 0,
+        minWidth: 0,
         px: 0,
         pt: 0,
         pb: 0.5,

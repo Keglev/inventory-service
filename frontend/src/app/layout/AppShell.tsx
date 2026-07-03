@@ -9,6 +9,7 @@
  * @enterprise
  * - Theme mode, locale, localStorage persistence, and theme building are owned by useShellSettings; AppShell wires the resulting state and callbacks to sub-components, enforcing top-down data flow.
  * - Session keep-alive ping fires at shell level so it runs regardless of which page route is active.
+ * - Viewport-fit layout: an inner flex column bounds the shell to exactly one viewport (100dvh, overflow hidden); AppMain is the single internal scroll region, so the footer is always visible (CB-APP73). AppPublicShell keeps its own document-scroll layout and is unaffected.
  * - Single Snackbar instance prevents duplicate toasts from concurrent state changes across sub-components.
  * - Delegates all rendering to AppHeader, AppSidebar, AppMain — this file coordinates, not renders.
  */
@@ -97,46 +98,50 @@ export default function AppShell() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ToastContext.Provider value={notify}>
-        {/* Application Header (fixed) */}
-        <AppHeader
-          themeMode={themeMode}
-          onThemeModeChange={handleThemeModeChange}
-          locale={locale}
-          onLocaleChange={handleLocaleChange}
-          onLogout={handleLogout}
-          helpTopic={helpTopic}
-          isDemo={isDemo}
-          onDrawerToggle={() => setMobileOpen((v) => !v)}
-        />
-
-        {/* Main container with sidebar + content */}
-        <Box
-          sx={{
-            display: 'flex',
-            flex: 1,
-            minHeight: 0,
-            bgcolor: 'background.default',
-          }}
-        >
-          {/* Sidebar Navigation */}
-          <AppSidebar
-            mobileOpen={mobileOpen}
-            onMobileClose={() => setMobileOpen(false)}
+        {/* Viewport-fit shell (CB-APP73): bounds header + content + footer to exactly
+            one viewport; AppMain is the single internal scroll region. */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}>
+          {/* Application Header (fixed) */}
+          <AppHeader
             themeMode={themeMode}
             onThemeModeChange={handleThemeModeChange}
             locale={locale}
             onLocaleChange={handleLocaleChange}
             onLogout={handleLogout}
-            onSettingsOpen={() => setSettingsOpen(true)}
-            user={user || undefined}
+            helpTopic={helpTopic}
+            isDemo={isDemo}
+            onDrawerToggle={() => setMobileOpen((v) => !v)}
           />
 
-          {/* Main Content Area */}
-          <AppMain isDemo={isDemo} />
-        </Box>
+          {/* Main container with sidebar + content */}
+          <Box
+            sx={{
+              display: 'flex',
+              flex: 1,
+              minHeight: 0,
+              bgcolor: 'background.default',
+            }}
+          >
+            {/* Sidebar Navigation */}
+            <AppSidebar
+              mobileOpen={mobileOpen}
+              onMobileClose={() => setMobileOpen(false)}
+              themeMode={themeMode}
+              onThemeModeChange={handleThemeModeChange}
+              locale={locale}
+              onLocaleChange={handleLocaleChange}
+              onLogout={handleLogout}
+              onSettingsOpen={() => setSettingsOpen(true)}
+              user={user || undefined}
+            />
 
-        {/* Global footer — inside the ThemeProvider so it follows light/dark mode */}
-        <AppFooter />
+            {/* Main Content Area */}
+            <AppMain isDemo={isDemo} />
+          </Box>
+
+          {/* Global footer — inside the ThemeProvider so it follows light/dark mode */}
+          <AppFooter />
+        </Box>
 
         {/* Toast Notifications */}
         <Snackbar
