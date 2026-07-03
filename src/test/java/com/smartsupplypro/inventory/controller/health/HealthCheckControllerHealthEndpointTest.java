@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.controller.health;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,6 +42,9 @@ class HealthCheckControllerHealthEndpointTest {
     @Mock
     private ResultSet resultSet;
 
+    @Mock
+    private DatabaseMetaData databaseMetaData;
+
     private HealthCheckController newController() {
         return new HealthCheckController(dataSource);
     }
@@ -57,6 +61,8 @@ class HealthCheckControllerHealthEndpointTest {
         when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
         when(statement.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true);
+        when(connection.getMetaData()).thenReturn(databaseMetaData);
+        when(databaseMetaData.getDatabaseProductName()).thenReturn("Oracle");
 
         ResponseEntity<Map<String, Object>> response = newController().health();
 
@@ -65,6 +71,7 @@ class HealthCheckControllerHealthEndpointTest {
         Map<String, Object> body = requireBody(response);
         assertEquals("ok", body.get("status"));
         assertEquals("ok", body.get("database"));
+        assertEquals("Oracle", body.get("databaseProduct"));
 
         Object timestamp = body.get("timestamp");
         assertNotNull(timestamp);
@@ -83,6 +90,7 @@ class HealthCheckControllerHealthEndpointTest {
         Map<String, Object> body = requireBody(response);
         assertEquals("ok", body.get("status"));
         assertEquals("down", body.get("database"));
+        assertEquals("unknown", body.get("databaseProduct"));
     }
 
     @Test

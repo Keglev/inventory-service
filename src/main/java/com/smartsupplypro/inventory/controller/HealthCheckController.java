@@ -28,6 +28,13 @@ public class HealthCheckController {
 
     private final DataSource dataSource;
 
+    /**
+     * Cached JDBC database product name (e.g. "Oracle", "H2").
+     * Resolved once from connection metadata during a successful ping;
+     * volatile because pings may run on different request threads.
+     */
+    private volatile String databaseProduct;
+
     public HealthCheckController(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -45,6 +52,8 @@ public class HealthCheckController {
         Map<String, Object> body = new HashMap<>();
         body.put("status", "ok"); // application is up if this controller was reached
         body.put("database", dbUp ? "ok" : "down");
+        // Real DB flavor from JDBC metadata (CB-APP82); "unknown" until first successful ping.
+        body.put("databaseProduct", databaseProduct != null ? databaseProduct : "unknown");
         body.put("timestamp", now);
         HttpStatus status = dbUp ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
         return new ResponseEntity<>(body, status);
@@ -83,9 +92,29 @@ public class HealthCheckController {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement("SELECT 1 FROM DUAL");
              ResultSet rs = stmt.executeQuery()) {
+            resolveDatabaseProduct(conn);
             return rs.next();
         } catch (SQLException ex) {
             return false;
+        }
+    }
+
+    /**
+     * Resolves and caches the database product name from connection metadata.
+     * Failures are swallowed (and not cached) so a metadata hiccup never
+     * breaks the health ping; the next ping retries.
+     */
+    private void resolveDatabaseProduct(Connection conn) {
+        if (databaseProduct != null) {
+            return;
+        }
+        try {
+            String name = conn.getMetaData().getDatabaseProductName();
+            if (name != null && !name.isBlank()) {
+                databaseProduct = name;
+            }
+        } catch (Exception ex) {
+            // metadata unavailable; keep null and retry on a later ping
         }
     }
 }
