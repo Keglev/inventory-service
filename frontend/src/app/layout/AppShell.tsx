@@ -35,6 +35,7 @@ import AppMain from './AppMain';
 import { getHelpTopicForRoute } from './navConfig';
 import { useShellSettings } from './useShellSettings';
 import { AppFooter } from '../footer';
+import HelpPanel from '../../components/help/HelpPanel';
 
 /**
  * Application shell component.
@@ -142,6 +143,9 @@ export default function AppShell() {
           {/* Global footer — inside the ThemeProvider so it follows light/dark mode */}
           <AppFooter />
         </Box>
+
+        {/* Help drawer — inside the ThemeProvider so it follows light/dark mode (CB-APP83) */}
+        <HelpPanel />
 
         {/* Toast Notifications */}
         <Snackbar

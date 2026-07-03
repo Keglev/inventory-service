@@ -29,6 +29,7 @@ import { PublicShellHeader } from './header';
 import PublicShellContent from './PublicShellContent';
 import PublicShellToastContainer from './PublicShellToastContainer';
 import { AppFooter } from '../footer';
+import HelpPanel from '../../components/help/HelpPanel';
 
 const AppPublicShell: React.FC = () => {
   const { i18n, t } = useTranslation('common');
@@ -76,6 +77,9 @@ const AppPublicShell: React.FC = () => {
           <PublicShellContent />
 
           <AppFooter />
+
+          {/* Help drawer — inside the ThemeProvider so it follows light/dark mode (CB-APP83) */}
+          <HelpPanel />
 
           <PublicShellToastContainer toast={toast} onClose={hideToast} />
         </Box>

@@ -94,6 +94,15 @@ vi.mock('../../../app/footer', () => ({
   AppFooter: () => <footer data-testid="app-footer" />,
 }));
 
+/**
+ * Help panel:
+ * Stubbed because the real component calls useHelp, which throws outside
+ * HelpProvider (mounted in App.tsx, not in this test tree).
+ */
+vi.mock('../../../components/help/HelpPanel', () => ({
+  default: () => <div data-testid="help-panel" />,
+}));
+
 describe('AppPublicShell', () => {
   beforeEach(() => {
     vi.clearAllMocks();

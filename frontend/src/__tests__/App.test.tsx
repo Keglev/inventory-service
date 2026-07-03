@@ -4,16 +4,17 @@
  * @description Contract tests for the root `App` component.
  *
  * Contract under test:
- * - Renders the global layout: AppRouter, footer, and help panel.
- * - Keeps a deterministic DOM order (router -> footer -> help panel) to match the flex-column layout.
+ * - Renders the router inside the global providers (Help, Settings).
+ * - The help panel is NOT mounted here since CB-APP83; it lives inside the
+ *   shells so it receives the active theme.
  *
  * Out of scope:
  * - MUI implementation details (e.g., `Box` class names / generated styles).
- * - Router configuration and page behavior (tested elsewhere).
+ * - Router configuration, shell composition, and page behavior (tested elsewhere).
  *
  * Test strategy:
- * - Mock leaf components as stable `data-testid` markers.
- * - Assert presence and basic ordering only.
+ * - Mock providers and the router as stable `data-testid` markers.
+ * - Assert presence only.
  */
 
 import type { ReactNode } from 'react';
@@ -34,10 +35,6 @@ vi.mock('../routes/AppRouter', () => ({
   default: () => <div data-testid="app-router">Router</div>,
 }));
 
-vi.mock('../components/help/HelpPanel', () => ({
-  default: () => <div data-testid="help-panel">Help Panel</div>,
-}));
-
 import App from '../App';
 
 function renderSubject() {
@@ -54,17 +51,13 @@ describe('App', () => {
     localStorage.clear();
   });
 
-  it('renders the global layout components', () => {
+  it('renders the router inside the global providers', () => {
     renderSubject();
     expect(screen.getByTestId('app-router')).toBeInTheDocument();
-    expect(screen.getByTestId('help-panel')).toBeInTheDocument();
   });
 
-  it('renders components in router -> help order', () => {
+  it('does not mount the help panel at root (lives in the shells since CB-APP83)', () => {
     renderSubject();
-    const router = screen.getByTestId('app-router');
-    const helpPanel = screen.getByTestId('help-panel');
-
-    expect(router.compareDocumentPosition(helpPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByTestId('help-panel')).toBeNull();
   });
 });

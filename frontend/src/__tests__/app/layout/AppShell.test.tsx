@@ -69,6 +69,15 @@ vi.mock('@/app/footer', () => ({
 }));
 
 /**
+ * Help panel:
+ * Stubbed because the real component calls useHelp, which throws outside
+ * HelpProvider (mounted in App.tsx, not in this test tree).
+ */
+vi.mock('@/components/help/HelpPanel', () => ({
+  default: () => <div data-testid="help-panel" />,
+}));
+
+/**
  * Theme:
  * AppShell depends on a theme builder. We return a valid MUI theme instance.
  */
