@@ -29,7 +29,7 @@
     "create": "Lieferant hinzufügen",
     "edit": "Bearbeiten",
     "delete": "Löschen",
-    "clear": "Löschen",
+    "clear": "Auswahl aufheben",
     "yes": "Ja",
     "no": "Nein",
     "deleteSuccess": "Lieferant aus der Datenbank entfernt"

@@ -8,9 +8,10 @@
  *
  * @enterprise
  * - Pure conditional display: renders nothing when `isDemo` is false, keeping the header uncluttered for normal users.
- * - Chip outline uses the theme `warning` palette (mode-aware), but the label color is
- *   pinned to '#000' for fixed contrast against the outlined chip — a deliberate
- *   override, not a theme-inherited value (black-on-warning can read poorly in dark mode).
+ * - Chip is FILLED with the theme `warning` palette so the amber block reads
+ *   clearly on both the light and dark header (the former outlined variant
+ *   was near-invisible in dark mode); the label stays pinned '#000' for
+ *   fixed contrast on the amber fill.
  * - The tooltip carries the former full-width demo banner text (CB-APP77):
  *   the badge is now the single persistent demo indicator.
  * - i18n keys ('auth:demoBadge', 'auth:demoNotice') share the auth namespace with login/demo flows.
@@ -46,7 +47,7 @@ export default function HeaderDemoBadge({ isDemo }: HeaderDemoBadgeProps) {
         size="small"
         label={t('auth:demoBadge', 'DEMO')}
         color="warning"
-        variant="outlined"
+        variant="filled"
         sx={{
           ml: 1,
           fontWeight: 700,

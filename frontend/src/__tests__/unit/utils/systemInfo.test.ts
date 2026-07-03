@@ -3,107 +3,88 @@
  * @module tests/unit/utils/systemInfo
  * @what_is_under_test getSystemInfo
  * @responsibility
- * Guarantees system info helpers translate the health endpoint response into a stable UI-friendly
- * contract (database name, environment, and status), with safe fallbacks on failures.
+ * Guarantees the health-probe contract against the real flat /api/health
+ * response: databaseProduct passthrough, build-time environment, status
+ * passthrough, and 'unknown' fallbacks for HTTP failure, network failure,
+ * and missing fields (CB-APP82).
  * @out_of_scope
- * Backend health endpoint correctness and schema stability.
- * @out_of_scope
- * Real network behavior (timeouts, CORS, caching, and proxy/CDN effects).
+ * Backend health semantics; SettingsContext consumption.
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getSystemInfo } from '@/utils/systemInfo';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { getSystemInfo } from '../../../utils/systemInfo';
 
-function arrangeFetchStub() {
-  vi.stubGlobal('fetch', vi.fn());
-}
+vi.mock('@/config/appMeta', () => ({
+  APP_ENVIRONMENT: 'Production (Koyeb)',
+}));
 
-function mockFetchOk(payload: unknown) {
-  vi.mocked(fetch).mockResolvedValueOnce({
-    ok: true,
-    json: async () => payload,
-  } as Response);
-}
+vi.mock('../../../utils/logger', () => ({
+  logError: vi.fn(),
+  logWarn: vi.fn(),
+}));
 
-function mockFetchNotOk(status: number) {
-  vi.mocked(fetch).mockResolvedValueOnce({ ok: false, status } as Response);
-}
+const fetchMock = vi.fn();
 
-function mockFetchReject(error: unknown) {
-  vi.mocked(fetch).mockRejectedValueOnce(error);
-}
-
-describe('systemInfo', () => {
+describe('getSystemInfo', () => {
   beforeEach(() => {
-    arrangeFetchStub();
+    vi.clearAllMocks();
+    vi.stubGlobal('fetch', fetchMock);
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  describe('getSystemInfo', () => {
-    describe('success paths', () => {
-      it.each([
-        [
-          'detects Oracle ADB from a health response',
-          {
-            status: 'UP',
-            components: {
-              db: {
-                status: 'UP',
-                details: { database: 'Oracle Database 19c' },
-              },
-            },
-          },
-          { database: 'Oracle ADB', environment: 'production', status: 'UP' },
-        ],
-        [
-          'detects Local H2 for non-Oracle databases',
-          {
-            status: 'UP',
-            components: {
-              db: {
-                status: 'UP',
-                details: { database: 'H2' },
-              },
-            },
-          },
-          { database: 'Local H2', environment: 'development' },
-        ],
-        [
-          'detects Oracle from any string containing "ORACLE"',
-          { status: 'UP', message: 'Connected to ORACLE database' },
-          { database: 'Oracle ADB' },
-        ],
-      ])('%s', async (_name, payload, expectedPartial) => {
-        mockFetchOk(payload);
+  const okResponse = (body: unknown) => ({
+    ok: true,
+    json: async () => body,
+  });
 
-        const info = await getSystemInfo();
+  it('returns the backend databaseProduct and build-time environment', async () => {
+    fetchMock.mockResolvedValue(
+      okResponse({ status: 'ok', database: 'ok', databaseProduct: 'Oracle', timestamp: 1 })
+    );
 
-        expect(info).toMatchObject(expectedPartial);
-      });
+    const info = await getSystemInfo();
+
+    expect(info).toEqual({
+      database: 'Oracle',
+      environment: 'Production (Koyeb)',
+      status: 'ok',
     });
+  });
 
-    describe('failure paths', () => {
-      it('returns fallback values when fetch rejects', async () => {
-        mockFetchReject(new Error('Network error'));
+  it('falls back to unknown database when databaseProduct is missing', async () => {
+    fetchMock.mockResolvedValue(okResponse({ status: 'ok', database: 'ok', timestamp: 1 }));
 
-        const info = await getSystemInfo();
+    const info = await getSystemInfo();
 
-        expect(info.database).toBe('Local H2');
-        expect(info.environment).toBe('development');
-        expect(info.status).toBe('unknown');
-      });
+    expect(info.database).toBe('unknown');
+    expect(info.environment).toBe('Production (Koyeb)');
+    expect(info.status).toBe('ok');
+  });
 
-      it('returns fallback values when the health endpoint is not ok', async () => {
-        mockFetchNotOk(500);
+  it('returns the fallback on non-OK HTTP status', async () => {
+    fetchMock.mockResolvedValue({ ok: false, status: 503 });
 
-        const info = await getSystemInfo();
+    const info = await getSystemInfo();
 
-        expect(info.database).toBe('Local H2');
-        expect(info.environment).toBe('development');
-      });
+    expect(info).toEqual({
+      database: 'unknown',
+      environment: 'Production (Koyeb)',
+      status: 'unknown',
+    });
+  });
+
+  it('returns the fallback on network failure', async () => {
+    fetchMock.mockRejectedValue(new Error('network down'));
+
+    const info = await getSystemInfo();
+
+    expect(info).toEqual({
+      database: 'unknown',
+      environment: 'Production (Koyeb)',
+      status: 'unknown',
     });
   });
 });

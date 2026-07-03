@@ -180,17 +180,18 @@ describe('SuppliersSearchPanel', () => {
     expect(props.onResultSelect).toHaveBeenCalledWith(results[0]);
   });
 
-  it('hides dropdown and shows selected supplier details when selectedSupplier is set', () => {
+  it('hides dropdown and shows a compact selected indicator when selectedSupplier is set', () => {
     renderPanel(createProps({ searchResults: results, selectedSupplier: results[0] }));
 
     // Dropdown is hidden when a supplier is selected.
     expect(screen.queryByText('Supplier B')).not.toBeInTheDocument();
 
-    // Selected supplier card is visible.
+    // Compact indicator: name + clear action only; the detail card was
+    // removed as redundant with the table row (CB-APP78).
     expect(screen.getByText('Supplier A')).toBeInTheDocument();
-    expect(screen.getByText(/Contact:\s*John Doe/)).toBeInTheDocument();
-    expect(screen.getByText('123-456-7890')).toBeInTheDocument();
-    expect(screen.getByText('john@suppliera.com')).toBeInTheDocument();
+    expect(screen.queryByText(/Contact:\s*John Doe/)).not.toBeInTheDocument();
+    expect(screen.queryByText('123-456-7890')).not.toBeInTheDocument();
+    expect(screen.queryByText('john@suppliera.com')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument();
   });
 

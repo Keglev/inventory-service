@@ -143,51 +143,17 @@ export const SuppliersSearchPanel: React.FC<SuppliersSearchPanelProps> = ({
         )}
       </Box>
 
-      {/* Selected Supplier Info */}
+      {/* Selected supplier: compact one-line indicator with clear action.
+          The former detail card duplicated the table row below (CB-APP78). */}
       {selectedSupplier && (
-        <Paper
-          variant="outlined"
-          sx={{ p: 2, bgcolor: 'action.hover', mb: 2 }}
-        >
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="flex-start"
-          >
-            <Box>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {selectedSupplier.name}
-              </Typography>
-              {selectedSupplier.contactName && (
-                <Typography variant="caption" color="text.secondary">
-                  {t('suppliers:table.contactName', 'Contact')}:{' '}
-                  {selectedSupplier.contactName}
-                </Typography>
-              )}
-              {selectedSupplier.phone && (
-                <Typography
-                  variant="caption"
-                  display="block"
-                  color="text.secondary"
-                >
-                  {selectedSupplier.phone}
-                </Typography>
-              )}
-              {selectedSupplier.email && (
-                <Typography
-                  variant="caption"
-                  display="block"
-                  color="text.secondary"
-                >
-                  {selectedSupplier.email}
-                </Typography>
-              )}
-            </Box>
-            <Button size="small" color="error" onClick={onClearSelection}>
-              {t('suppliers:actions.clear', 'Clear')}
-            </Button>
-          </Stack>
-        </Paper>
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {selectedSupplier.name}
+          </Typography>
+          <Button size="small" color="error" onClick={onClearSelection}>
+            {t('suppliers:actions.clear', 'Clear')}
+          </Button>
+        </Stack>
       )}
     </Paper>
   );

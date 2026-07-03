@@ -59,7 +59,9 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
   rowCount,
 }) => {
   return (
-    <Box sx={{ width: '100%', height: 600, position: 'relative' }}>
+    {/* No fixed height (CB-APP78): x-data-grid v8 sizes to its rows when the
+        parent is unconstrained, removing the dead space below short pages. */}
+    <Box sx={{ width: '100%', position: 'relative' }}>
       {/* Loading Overlay */}
       {loading && (
         <Stack
