@@ -36,7 +36,7 @@ export function PriceChangeItemDetails({
   if (!item) return null;
 
   return (
-    <Box sx={{ display: 'grid', gap: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, mb: 2 }}>
+    <Box sx={{ display: 'grid', gap: 1, p: 2, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}>
       <Typography variant="subtitle2" color="primary">
         {t('inventory:selection.selectedItemLabel', 'Selected Item')}: {item.name}
       </Typography>

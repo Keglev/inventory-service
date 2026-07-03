@@ -44,7 +44,7 @@ export const QuantityAdjustItemDetails: React.FC<QuantityAdjustItemDetailsProps>
   }
 
   return (
-    <Box sx={{ display: 'grid', gap: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, mb: 2 }}>
+    <Box sx={{ display: 'grid', gap: 1, p: 2, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}>
       {/* BUCKET: CB-APP59 -- hardcoded English strings + '$' currency in Euro app. Thread useTranslation and use locale-aware currency formatter. */}
       <Typography variant="subtitle2" color="primary">
         Selected Item: {item.name}
