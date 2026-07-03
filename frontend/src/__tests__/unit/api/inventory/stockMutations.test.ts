@@ -4,7 +4,7 @@
  * @what_is_under_test adjustQuantity
  * @responsibility
  * Guarantees the stock adjustment mutation contract: URL encoding + route composition for the
- * PATCH request and a boolean success/failure surface for callers.
+ * PATCH request, and a structured success/failure surface ({ ok, error, errorToken, status }).
  * @out_of_scope
  * Backend validation and domain rules (e.g., negative stock policies, reason enforcement).
  * @out_of_scope
@@ -45,17 +45,39 @@ describe('adjustQuantity', () => {
         null,
         { params: { delta: -5, reason: 'CORRECTION' } }
       );
-      expect(result).toBe(true);
+      expect(result).toEqual({ ok: true });
     });
   });
 
   describe('failure paths', () => {
-    it('returns false when backend rejects adjustment', async () => {
+    it('returns a generic failure envelope for non-HTTP errors', async () => {
       httpMock.patch.mockRejectedValue(new Error('bad request'));
 
       const result = await adjustQuantity({ id: 'ITEM-1', delta: 10, reason: 'PURCHASE' });
 
-      expect(result).toBe(false);
+      expect(result).toEqual({ ok: false, error: 'bad request', errorToken: null, status: null });
+    });
+
+    it('surfaces the backend status token on HTTP rejection', async () => {
+      httpMock.patch.mockRejectedValue({
+        response: {
+          status: 422,
+          data: {
+            error: 'unprocessable_entity',
+            message: 'Resulting stock cannot be negative',
+            timestamp: '2026-07-02T00:00:00Z',
+          },
+        },
+      });
+
+      const result = await adjustQuantity({ id: 'ITEM-1', delta: -50, reason: 'SOLD' });
+
+      expect(result).toEqual({
+        ok: false,
+        error: 'Resulting stock cannot be negative',
+        errorToken: 'unprocessable_entity',
+        status: 422,
+      });
     });
   });
 });

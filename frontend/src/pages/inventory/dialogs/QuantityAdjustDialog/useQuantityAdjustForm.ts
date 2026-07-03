@@ -12,7 +12,10 @@
  *   DeleteItemDialog. Sub-hooks are independently exported.
  * - Submission pipeline:
  *     newQuantity - actualCurrentQuantity = delta
- *     adjustQuantity({ id, delta, reason })
+ *     adjustQuantity({ id, delta, reason }) -> UpsertItemResponse
+ *   Failures are mapped by backend errorToken: forbidden -> notAllowed,
+ *   not_found -> itemNotFound, unprocessable_entity (stale delta pushed
+ *   stock negative) -> stockCannotGoNegative, else generic.
  *   The backend expects a delta, not an absolute. actualCurrentQuantity
  *   comes from the live itemDetailsQuery to avoid double-counting if
  *   the user holds the dialog open while the item changes elsewhere.
@@ -134,13 +137,13 @@ export const useQuantityAdjustForm = (
       // Calculate the delta from the ACTUAL current quantity
       const delta = values.newQuantity - actualCurrentQty;
 
-      const success = await adjustQuantity({
+      const result = await adjustQuantity({
         id: values.itemId,
         delta,
         reason: values.reason,
       });
 
-      if (success) {
+      if (result.ok) {
         // Show success message with the new quantity
         toast(
           t('inventory:quantity.quantityUpdatedTo', 'Quantity changed to {{quantity}}', {
@@ -150,6 +153,12 @@ export const useQuantityAdjustForm = (
         );
         onAdjusted();
         handleDialogClose();
+      } else if (result.errorToken === 'forbidden') {
+        state.setFormError(t('errors:inventory.businessRules.notAllowed'));
+      } else if (result.errorToken === 'not_found') {
+        state.setFormError(t('errors:inventory.businessRules.itemNotFound'));
+      } else if (result.errorToken === 'unprocessable_entity') {
+        state.setFormError(t('errors:inventory.businessRules.stockCannotGoNegative'));
       } else {
         state.setFormError(t('errors:inventory.requests.failedToAdjustQuantity'));
       }

@@ -23,7 +23,9 @@
       "itemNotFound": "Item not found",
       "adminOnly": "Only administrators can perform this action",
       "invalidReason": "Invalid deletion reason",
-      "quantityMustBeZero": "You still have items in stock. Please adjust the quantity before deleting."
+      "quantityMustBeZero": "You still have items in stock. Please adjust the quantity before deleting.",
+      "notAllowed": "You are not allowed to perform this action",
+      "stockCannotGoNegative": "Stock cannot go negative. The item quantity has changed in the meantime - please reload and try again."
     },
     "requests": {
       "failedToLoadSuppliers": "Failed to load suppliers. Please try again.",
