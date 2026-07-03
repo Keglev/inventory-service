@@ -12,6 +12,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import AppFooter from '../../../app/footer/AppFooter';
 
 // -----------------------------
@@ -76,7 +77,12 @@ describe('AppFooter', () => {
 
   const arrange = (overrides?: FooterStateOverrides) => {
     mockUseFooterState.mockReturnValue(makeState(overrides));
-    return render(<AppFooter />);
+    // FooterLinks renders internal react-router links and needs a router context.
+    return render(
+      <MemoryRouter>
+        <AppFooter />
+      </MemoryRouter>
+    );
   };
 
   beforeEach(() => {

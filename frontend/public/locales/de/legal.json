@@ -1,0 +1,65 @@
+{
+  "back": "Zurück",
+  "impressum": {
+    "title": "Impressum",
+    "scope": "Angaben gemäß § 5 DDG",
+    "provider": {
+      "title": "Anbieter",
+      "name": "Carlos Felipe Keglevich",
+      "email": "E-Mail: carlos.keglevich@gmail.com"
+    },
+    "nature": {
+      "title": "Art der Website",
+      "body": "Diese Website ist ein privates, nicht-kommerzielles Portfolio-Projekt. Sie dient ausschließlich der Demonstration von Kenntnissen in der Softwareentwicklung im Rahmen der Arbeitssuche. Es werden keine Waren oder Dienstleistungen angeboten und keine Einnahmen erzielt. Sämtliche in der Anwendung dargestellten Geschäftsdaten sind fiktive Demonstrationsdaten."
+    },
+    "responsible": {
+      "title": "Verantwortlich für den Inhalt",
+      "body": "Verantwortlich im Sinne des § 18 Abs. 2 MStV: Carlos Felipe Keglevich (Kontakt siehe oben)."
+    },
+    "liability": {
+      "title": "Haftung für Links",
+      "body": "Diese Website enthält Links zu externen Websites Dritter (z. B. Projektdokumentation auf GitHub Pages). Auf deren Inhalte habe ich keinen Einfluss; für diese Inhalte ist stets der jeweilige Anbieter oder Betreiber verantwortlich."
+    }
+  },
+  "privacy": {
+    "title": "Datenschutzerklärung",
+    "intro": "Diese Datenschutzerklärung informiert gemäß Art. 13 DSGVO über die Verarbeitung personenbezogener Daten bei der Nutzung dieser Portfolio-Website (SmartSupplyPro).",
+    "controller": {
+      "title": "1. Verantwortlicher",
+      "body": "Carlos Felipe Keglevich\nE-Mail: carlos.keglevich@gmail.com"
+    },
+    "hosting": {
+      "title": "2. Hosting und Server-Logfiles",
+      "body": "Das Frontend dieser Website wird bei Koyeb, das Backend bei Fly.io betrieben. Beim Aufruf der Website verarbeiten die Hosting-Anbieter automatisch technisch notwendige Daten in Server-Logfiles: IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Ressource, übertragene Datenmenge und User-Agent des Browsers.\n\nRechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem sicheren, stabilen und missbrauchsfreien Betrieb). Die Logdaten werden nicht mit anderen Datenquellen zusammengeführt und nach kurzer Zeit automatisch gelöscht."
+    },
+    "oauth": {
+      "title": "3. Anmeldung über Google (OAuth 2.0)",
+      "body": "Für den Zugang zum geschützten Bereich kann eine Anmeldung über Google OAuth 2.0 erfolgen. Dabei übermittelt Google nach Ihrer Einwilligung im Google-Anmeldedialog grundlegende Profildaten (Name, E-Mail-Adresse) an diese Anwendung. Diese Daten werden ausschließlich zur Sitzungsverwaltung und Anzeige Ihres Profils verwendet und nicht an Dritte weitergegeben.\n\nRechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung der Login-Funktion auf Ihre Anfrage). Anbieter ist Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland. Weitere Informationen: https://policies.google.com/privacy"
+    },
+    "localStorage": {
+      "title": "4. Lokale Speicherung (LocalStorage)",
+      "body": "Diese Website verwendet keine Tracking- oder Analyse-Cookies. Im LocalStorage Ihres Browsers werden ausschließlich technisch erforderliche Einstellungen gespeichert (gewählte Sprache, Farbschema). Diese Speicherung ist für die Bereitstellung des von Ihnen gewünschten Dienstes erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG); ein Einwilligungsbanner ist daher nicht notwendig. Die Daten verbleiben in Ihrem Browser und können dort jederzeit gelöscht werden."
+    },
+    "demoData": {
+      "title": "5. Demo-Modus und Demonstrationsdaten",
+      "body": "Der Demo-Modus verwendet ausschließlich fiktive Daten und erfordert keine Registrierung. Es werden dabei keine personenbezogenen Daten erhoben oder gespeichert."
+    },
+    "transfer": {
+      "title": "6. Datenübermittlung in Drittländer",
+      "body": "Die eingesetzten Hosting-Anbieter (Koyeb, Fly.io) und Google können Daten in den USA verarbeiten. Die Übermittlung stützt sich auf den Angemessenheitsbeschluss der EU-Kommission zum EU-U.S. Data Privacy Framework bzw. auf EU-Standardvertragsklauseln (Art. 45, 46 DSGVO)."
+    },
+    "retention": {
+      "title": "7. Speicherdauer",
+      "body": "Personenbezogene Daten werden nur so lange gespeichert, wie es für die genannten Zwecke erforderlich ist. Server-Logs werden von den Hosting-Anbietern nach kurzer Frist gelöscht; Sitzungsdaten enden mit dem Logout bzw. Ablauf der Sitzung."
+    },
+    "rights": {
+      "title": "8. Ihre Rechte",
+      "body": "Sie haben gegenüber dem Verantwortlichen das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) sowie Widerspruch gegen Verarbeitungen auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (Art. 21). Wenden Sie sich dazu an die oben genannte E-Mail-Adresse."
+    },
+    "complaint": {
+      "title": "9. Beschwerderecht",
+      "body": "Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren (Art. 77 DSGVO), z. B. bei der Aufsichtsbehörde Ihres gewöhnlichen Aufenthaltsorts."
+    },
+    "updated": "Stand: Juli 2026"
+  }
+}

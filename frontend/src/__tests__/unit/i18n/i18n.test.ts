@@ -30,6 +30,7 @@ describe('i18n constants', () => {
       'suppliers',
       'footer',
       'help',
+      'legal',
     ]);
   });
 

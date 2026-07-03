@@ -31,6 +31,7 @@ import errors from '../../public/locales/en/errors.json';
 import suppliers from '../../public/locales/en/suppliers.json';
 import footer from '../../public/locales/en/footer.json';
 import help from '../../public/locales/en/help.json';
+import legal from '../../public/locales/en/legal.json';
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -47,6 +48,7 @@ declare module 'i18next' {
       suppliers: typeof suppliers;
       footer: typeof footer;
       help: typeof help;
+      legal: typeof legal;
     };
   }
 }

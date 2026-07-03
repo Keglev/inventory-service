@@ -30,6 +30,8 @@ import LoginPage from '../pages/auth/LoginPage';
 import AuthCallback from '../pages/auth/AuthCallback';
 import LogoutSuccess from '../pages/auth/LogoutSuccess';
 import NotFoundPage from '../pages/system/NotFoundPage';
+import ImpressumPage from '../pages/legal/ImpressumPage';
+import DatenschutzPage from '../pages/legal/DatenschutzPage';
 import { AppPublicShell } from '../app/public-shell';
 
 // Authenticated pages
@@ -65,6 +67,14 @@ const AppRouter: React.FC = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/auth" element={<AuthCallback />} />
         <Route path="/logout-success" element={<LogoutSuccess />} />
+        {/* Legal pages (CB-APP84): public, reachable from every page via the footer */}
+        <Route path="/impressum" element={<ImpressumPage />} />
+        <Route path="/datenschutz" element={<DatenschutzPage />} />
+        {/**
+         * 404 FALLBACK: unknown paths render inside the public shell so the
+         * header, footer, and legal links stay reachable (CB-APP84).
+         */}
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
       {/* Make /logout public: it's safe & avoids RequireAuth race during cleanup */}
       <Route path="/logout" element={<LogoutPage />} />
@@ -114,11 +124,6 @@ const AppRouter: React.FC = () => {
         />
       </Route>
 
-      {/**
-       * 404 FALLBACK: unknown paths (public)
-       * - Offers a button to go to Dashboard if logged-in, or Login otherwise.
-       */}
-      <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   );

@@ -4,13 +4,15 @@
  * @what_is_under_test FooterLinks
  * @responsibility
  * Guarantees the inline footer link row: link targets, new-tab semantics for
- * external docs, and i18n key wiring for all labels.
+ * external docs, internal SPA routes for the legal pages, and i18n key wiring.
  * @out_of_scope
- * Footer layout/composition (AppFooter suite); translation content itself.
+ * Footer layout/composition (AppFooter suite); translation content itself;
+ * legal page rendering (pages/legal suites).
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import FooterLinks from '../../../app/footer/FooterLinks';
 
 // -----------------------------------------------------------------------------
@@ -23,7 +25,13 @@ vi.mock('react-i18next', () => ({
 }));
 
 describe('FooterLinks', () => {
-  const arrange = () => render(<FooterLinks />);
+  // Internal legal links render via react-router Link and need a router context.
+  const arrange = () =>
+    render(
+      <MemoryRouter>
+        <FooterLinks />
+      </MemoryRouter>
+    );
 
   const getLink = (name: string) => screen.getByRole('link', { name });
 
@@ -53,16 +61,30 @@ describe('FooterLinks', () => {
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
-  it('renders the contact support mailto link', () => {
+  it('renders the contact support mailto link to the maintainer address', () => {
     arrange();
     const link = getLink('Contact Support');
-    expect(link).toHaveAttribute('href', 'mailto:support@smartsupplypro.com');
-    expect(getLink('Contact Support')).not.toHaveAttribute('target');
+    expect(link).toHaveAttribute('href', 'mailto:carlos.keglevich@gmail.com');
+    expect(link).not.toHaveAttribute('target');
   });
 
-  it('renders exactly three links', () => {
+  it('renders the Impressum link as an internal same-tab route', () => {
     arrange();
-    expect(screen.getAllByRole('link')).toHaveLength(3);
+    const link = getLink('Legal Notice');
+    expect(link).toHaveAttribute('href', '/impressum');
+    expect(link).not.toHaveAttribute('target');
+  });
+
+  it('renders the privacy policy link as an internal same-tab route', () => {
+    arrange();
+    const link = getLink('Privacy Policy');
+    expect(link).toHaveAttribute('href', '/datenschutz');
+    expect(link).not.toHaveAttribute('target');
+  });
+
+  it('renders exactly five links', () => {
+    arrange();
+    expect(screen.getAllByRole('link')).toHaveLength(5);
   });
 
   it('requests translations for all link labels', () => {
@@ -77,5 +99,7 @@ describe('FooterLinks', () => {
     expect(mockT).toHaveBeenCalledWith('footer:support.documentation', 'Documentation');
     expect(mockT).toHaveBeenCalledWith('footer:support.apiRef', 'API Reference');
     expect(mockT).toHaveBeenCalledWith('footer:support.contact', 'Contact Support');
+    expect(mockT).toHaveBeenCalledWith('footer:legal.impressum', 'Legal Notice');
+    expect(mockT).toHaveBeenCalledWith('footer:legal.privacy', 'Privacy Policy');
   });
 });

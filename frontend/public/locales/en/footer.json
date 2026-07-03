@@ -6,7 +6,9 @@
     "localization": "Language & Region"
   },
   "legal": {
-    "rights": "All rights reserved"
+    "rights": "All rights reserved",
+    "impressum": "Legal Notice",
+    "privacy": "Privacy Policy"
   },
   "meta": {
     "version": "Version",

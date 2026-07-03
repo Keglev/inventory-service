@@ -1,0 +1,65 @@
+{
+  "back": "Back",
+  "impressum": {
+    "title": "Legal Notice (Impressum)",
+    "scope": "Information pursuant to § 5 DDG (German Digital Services Act)",
+    "provider": {
+      "title": "Provider",
+      "name": "Carlos Felipe Keglevich",
+      "email": "Email: carlos.keglevich@gmail.com"
+    },
+    "nature": {
+      "title": "Nature of this website",
+      "body": "This website is a private, non-commercial portfolio project. Its sole purpose is to demonstrate software engineering skills in the context of a job search. No goods or services are offered and no revenue is generated. All business data displayed in the application is fictional demonstration data."
+    },
+    "responsible": {
+      "title": "Responsible for content",
+      "body": "Responsible within the meaning of § 18 (2) MStV (German State Media Treaty): Carlos Felipe Keglevich (contact above)."
+    },
+    "liability": {
+      "title": "Liability for links",
+      "body": "This website contains links to external third-party websites (e.g. project documentation on GitHub Pages). I have no influence over their content; the respective provider or operator is always responsible for the content of linked pages."
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": "This privacy policy explains, in accordance with Art. 13 GDPR, how personal data is processed when you use this portfolio website (SmartSupplyPro).",
+    "controller": {
+      "title": "1. Controller",
+      "body": "Carlos Felipe Keglevich\nEmail: carlos.keglevich@gmail.com"
+    },
+    "hosting": {
+      "title": "2. Hosting and server log files",
+      "body": "The frontend of this website is hosted on Koyeb; the backend runs on Fly.io. When you visit the website, the hosting providers automatically process technically necessary data in server log files: IP address, date and time of access, requested resource, transferred data volume, and browser user agent.\n\nThe legal basis is Art. 6 (1)(f) GDPR (legitimate interest in secure, stable, and abuse-free operation). Log data is not merged with other data sources and is deleted automatically after a short period."
+    },
+    "oauth": {
+      "title": "3. Sign-in with Google (OAuth 2.0)",
+      "body": "Access to the protected area is available via Google OAuth 2.0 sign-in. After you give consent in the Google sign-in dialog, Google transmits basic profile data (name, email address) to this application. This data is used exclusively for session management and displaying your profile, and is not shared with third parties.\n\nThe legal basis is Art. 6 (1)(b) GDPR (providing the login function at your request). The provider is Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland. More information: https://policies.google.com/privacy"
+    },
+    "localStorage": {
+      "title": "4. Local storage (LocalStorage)",
+      "body": "This website does not use tracking or analytics cookies. Only technically required settings (selected language, color scheme) are stored in your browser's LocalStorage. This storage is necessary to provide the service you request (§ 25 (2) no. 2 TDDDG); a consent banner is therefore not required. The data remains in your browser and can be deleted there at any time."
+    },
+    "demoData": {
+      "title": "5. Demo mode and demonstration data",
+      "body": "Demo mode uses fictional data only and requires no registration. No personal data is collected or stored in demo mode."
+    },
+    "transfer": {
+      "title": "6. Data transfers to third countries",
+      "body": "The hosting providers used (Koyeb, Fly.io) and Google may process data in the USA. Transfers are based on the EU Commission's adequacy decision for the EU-U.S. Data Privacy Framework or on EU standard contractual clauses (Art. 45, 46 GDPR)."
+    },
+    "retention": {
+      "title": "7. Retention period",
+      "body": "Personal data is stored only as long as necessary for the purposes stated above. Server logs are deleted by the hosting providers after a short period; session data ends with logout or session expiry."
+    },
+    "rights": {
+      "title": "8. Your rights",
+      "body": "You have the right to access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17), restriction of processing (Art. 18), data portability (Art. 20), and to object to processing based on Art. 6 (1)(f) GDPR (Art. 21). To exercise these rights, contact the email address above."
+    },
+    "complaint": {
+      "title": "9. Right to lodge a complaint",
+      "body": "You have the right to lodge a complaint with a data protection supervisory authority (Art. 77 GDPR), for example the authority of your habitual residence."
+    },
+    "updated": "Last updated: July 2026"
+  }
+}

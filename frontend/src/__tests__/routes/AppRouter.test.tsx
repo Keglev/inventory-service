@@ -40,6 +40,8 @@ vi.mock('../../pages/auth/AuthCallback', () => ({ default: page('Auth Callback')
 vi.mock('../../pages/auth/LogoutSuccess', () => ({ default: page('Logout Success') }));
 vi.mock('../../pages/auth/LogoutPage', () => ({ default: page('Logout Page') }));
 vi.mock('../../pages/system/NotFoundPage', () => ({ default: page('404 Not Found') }));
+vi.mock('../../pages/legal/ImpressumPage', () => ({ default: page('Impressum Page') }));
+vi.mock('../../pages/legal/DatenschutzPage', () => ({ default: page('Datenschutz Page') }));
 
 vi.mock('../../pages/dashboard/Dashboard', () => ({ default: page('Dashboard') }));
 vi.mock('../../pages/inventory/InventoryBoard', () => ({ default: page('Inventory Board') }));
@@ -106,6 +108,8 @@ describe('AppRouter', () => {
     ['/login', 'Login Page'],
     ['/auth', 'Auth Callback'],
     ['/logout-success', 'Logout Success'],
+    ['/impressum', 'Impressum Page'],
+    ['/datenschutz', 'Datenschutz Page'],
   ])('renders public route %s under PublicShell', (path, label) => {
     renderAt(path);
     expect(screen.getByTestId('public-shell')).toBeInTheDocument();
@@ -133,8 +137,9 @@ describe('AppRouter', () => {
     expect(screen.getByText(label)).toBeInTheDocument();
   });
 
-  it('renders 404 on unknown paths', () => {
+  it('renders 404 on unknown paths inside the public shell', () => {
     renderAt('/unknown-path');
+    expect(screen.getByTestId('public-shell')).toBeInTheDocument();
     expect(screen.getByText('404 Not Found')).toBeInTheDocument();
   });
 });
