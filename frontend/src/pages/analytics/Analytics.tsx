@@ -127,7 +127,14 @@ export default function Analytics(): JSX.Element {
         sx={{
           display: 'grid',
           gap: 2,
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          // CB-APP78: the inventory-health section gives the low-stock table
+          // ~3/5 of the width (its fixed-layout table needs ~640px to show the
+          // Status chips without horizontal scroll) and the donut ~2/5.
+          // Other sections keep the responsive auto-fit grid.
+          gridTemplateColumns:
+            section === 'inventory'
+              ? { xs: '1fr', md: 'minmax(0, 3fr) minmax(280px, 2fr)' }
+              : 'repeat(auto-fit, minmax(320px, 1fr))',
           alignItems: 'stretch',
         }}
       >
