@@ -25,9 +25,15 @@ spring:
       leak-detection-threshold: 60000          # 60 seconds - detect connection leaks
       keepalive-time: 120000                   # 2 minutes - keepalive ping
 
+  flyway:
+    enabled: true
+    baseline-on-migrate: true                  # Adopt the existing (pre-Flyway) schema as baseline
+    baseline-version: 1                        # Existing schema = V1; first real migration is V2
+    locations: classpath:db/migration
+
   jpa:
     hibernate:
-      ddl-auto: update                         # Note: Use Flyway/Liquibase in real enterprise apps
+      ddl-auto: validate                       # Schema is owned by Flyway; Hibernate only validates mappings
     show-sql: false                            # Disable SQL logging for performance and security
     properties:
       hibernate:

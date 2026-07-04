@@ -126,6 +126,16 @@
       <scope>runtime</scope>
     </dependency>
 
+    <!-- Flyway - versioned database migrations (versions managed by Spring Boot BOM) -->
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-oracle</artifactId>
+    </dependency>
+
     <!-- Config processor & Lombok -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

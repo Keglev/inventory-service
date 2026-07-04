@@ -16,6 +16,9 @@ spring:
     password: ${DB_PASS}
     driver-class-name: oracle.jdbc.OracleDriver
 
+  flyway:
+    enabled: false                              # Migrations run only where explicitly enabled (prod profile)
+
   security:
     oauth2:
       client:

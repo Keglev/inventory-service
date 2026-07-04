@@ -29,6 +29,9 @@ spring:
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
 
+  flyway:
+    enabled: false                # Tests use H2 create-drop; migrations are Oracle-specific
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect # Use H2 dialect for compatibility
     hibernate:
