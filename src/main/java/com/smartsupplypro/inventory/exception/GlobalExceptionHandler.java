@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.NoSuchElementException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -33,6 +35,8 @@ import jakarta.validation.ConstraintViolationException;
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /** Handles {@code @Valid} validation failures; reports every field error. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -139,6 +143,8 @@ public class GlobalExceptionHandler {
     /** Prevents stack trace exposure for unhandled exceptions. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
+        // The client gets a generic envelope; operators get the full stack trace.
+        log.error("Unhandled exception while processing request", ex);
         return respond(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error");
     }
 
