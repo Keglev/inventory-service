@@ -35,7 +35,6 @@ import {
   Select,
   MenuItem,
   Alert,
-  Tooltip,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { SupplierOption } from '../../../../api/analytics/types';
@@ -110,18 +109,15 @@ export function ItemForm({
           : ''}
       />
 
-      {/* Code field - Read-only with tooltip */}
-      <Tooltip title={t('inventory:fields.codeReadOnlyHint', 'Optional for now')}>
-        <TextField
-          label={t('inventory:table.code', 'Code / SKU')}
-          {...state.register('code')}
-          InputProps={{ readOnly: true }}
-          error={!!state.formState.errors.code}
-          helperText={typeof state.formState.errors.code?.message === 'string'
-            ? state.formState.errors.code.message
-            : ''}
-        />
-      </Tooltip>
+      {/* Code / SKU field - required, unique per item (backend-enforced) */}
+      <TextField
+        label={t('inventory:table.code', 'Code / SKU')}
+        {...state.register('code')}
+        error={!!state.formState.errors.code}
+        helperText={typeof state.formState.errors.code?.message === 'string'
+          ? state.formState.errors.code.message
+          : ''}
+      />
 
       {/* Quantity field */}
       <TextField

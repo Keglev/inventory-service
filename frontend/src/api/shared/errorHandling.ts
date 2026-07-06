@@ -69,6 +69,11 @@ export interface ApiErrorInfo {
   status: number | null;
   /** Best available human-readable message. */
   message: string;
+  /**
+   * Per-field error map from the backend envelope (field name to message);
+   * null when the response carries no fieldErrors object.
+   */
+  fieldErrors: Record<string, string> | null;
 }
 
 /**
@@ -87,17 +92,25 @@ export const extractApiError = (e: unknown): ApiErrorInfo => {
     const status = pickNumber(resp, 'status');
     let token: string | null = null;
     let message: string | null = null;
+    let fieldErrors: Record<string, string> | null = null;
     if (isRecord(resp.data)) {
       const d = resp.data as Record<string, unknown>;
       token = pickString(d, 'error') ?? null;
       message = pickString(d, 'message') ?? pickString(d, 'error') ?? null;
+      if (isRecord(d.fieldErrors)) {
+        const entries = Object.entries(d.fieldErrors).filter(
+          (pair): pair is [string, string] => typeof pair[1] === 'string'
+        );
+        if (entries.length > 0) fieldErrors = Object.fromEntries(entries);
+      }
     }
     return {
       token,
       status: status ?? null,
       message: message ?? 'Request failed',
+      fieldErrors,
     };
   }
-  if (e instanceof Error) return { token: null, status: null, message: e.message };
-  return { token: null, status: null, message: 'Request failed' };
+  if (e instanceof Error) return { token: null, status: null, message: e.message, fieldErrors: null };
+  return { token: null, status: null, message: 'Request failed', fieldErrors: null };
 };

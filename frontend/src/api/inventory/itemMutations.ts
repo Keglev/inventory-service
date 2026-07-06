@@ -54,7 +54,13 @@ export async function upsertItem(req: UpsertItemRequest): Promise<UpsertItemResp
     }
   } catch (e: unknown) {
     const apiError = extractApiError(e);
-    return { ok: false, error: errorMessage(e), errorToken: apiError.token, status: apiError.status };
+    return {
+      ok: false,
+      error: errorMessage(e),
+      errorToken: apiError.token,
+      status: apiError.status,
+      fieldErrors: apiError.fieldErrors,
+    };
   }
 }
 

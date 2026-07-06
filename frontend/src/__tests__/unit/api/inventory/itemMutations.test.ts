@@ -66,6 +66,7 @@ const buildRow = (overrides: Partial<InventoryRow> = {}): InventoryRow => ({
 
 const baseRequest = {
   name: 'Widget',
+  sku: 'SKU-WID-1',
   supplierId: 'SUP-1',
   quantity: 10,
   price: 5,
@@ -109,7 +110,31 @@ describe('itemMutations', () => {
       const result = await upsertItem({ ...baseRequest });
 
       expect(errorMessageMock).toHaveBeenCalledWith(failure);
-      expect(result).toEqual({ ok: false, error: 'Network offline', errorToken: null, status: null });
+      expect(result).toEqual({
+        ok: false, error: 'Network offline', errorToken: null, status: null, fieldErrors: null,
+      });
+    });
+
+    it('passes the backend fieldErrors map through on failure', async () => {
+      const failure = {
+        response: {
+          status: 400,
+          data: {
+            error: 'bad_request',
+            message: 'sku SKU is mandatory',
+            fieldErrors: { sku: 'SKU is mandatory' },
+          },
+        },
+      };
+      httpMock.post.mockRejectedValue(failure);
+      errorMessageMock.mockReturnValue('Bad request');
+
+      const result = await upsertItem({ ...baseRequest });
+
+      expect(result).toEqual({
+        ok: false, error: 'Bad request', errorToken: 'bad_request', status: 400,
+        fieldErrors: { sku: 'SKU is mandatory' },
+      });
     });
   });
 

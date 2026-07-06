@@ -75,8 +75,8 @@ export interface UpsertItemRequest {
   /** undefined → create, present → update */
   id?: string;
   name: string;
-  /** Code/SKU (nullable – DB may not have SKU yet) */
-  code?: string | null;
+  /** Stock Keeping Unit; required by the backend on create and update */
+  sku: string;
   supplierId: string | number;
   /** Initial quantity for new items */
   quantity: number;
@@ -104,6 +104,12 @@ export interface UpsertItemResponse {
   errorToken?: string | null;
   /** Numeric HTTP status on failure, when available. */
   status?: number | null;
+  /**
+   * Optional per-field error map from the backend envelope (field name to
+   * message), e.g. { sku: 'SKU is mandatory' }. Present only on validation
+   * or duplicate failures that attribute a field.
+   */
+  fieldErrors?: Record<string, string> | null;
 }
 
 /**

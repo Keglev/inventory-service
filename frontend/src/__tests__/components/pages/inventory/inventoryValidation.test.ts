@@ -40,9 +40,10 @@ describe('inventoryValidation', () => {
 
     it.each([
       [
-        'optional code field',
+        'a manual update reason',
         {
           name: 'Test Item',
+          code: 'TEST-002',
           supplierId: '456',
           quantity: 50,
           price: 25.0,
@@ -53,6 +54,7 @@ describe('inventoryValidation', () => {
         'numeric supplierId',
         {
           name: 'Test Item',
+          code: 'TEST-003',
           supplierId: 789,
           quantity: 10,
           price: 15.5,
@@ -69,6 +71,7 @@ describe('inventoryValidation', () => {
         'empty item name',
         {
           name: '',
+          code: 'TEST-INV',
           supplierId: '123',
           quantity: 100,
           price: 49.99,
@@ -80,6 +83,7 @@ describe('inventoryValidation', () => {
         'empty supplierId',
         {
           name: 'Test Item',
+          code: 'TEST-INV',
           supplierId: '',
           quantity: 100,
           price: 49.99,
@@ -91,6 +95,7 @@ describe('inventoryValidation', () => {
         'negative quantity',
         {
           name: 'Test Item',
+          code: 'TEST-INV',
           supplierId: '123',
           quantity: -10,
           price: 49.99,
@@ -102,6 +107,7 @@ describe('inventoryValidation', () => {
         'negative price',
         {
           name: 'Test Item',
+          code: 'TEST-INV',
           supplierId: '123',
           quantity: 100,
           price: -5.99,
@@ -113,12 +119,25 @@ describe('inventoryValidation', () => {
         'invalid reason',
         {
           name: 'Test Item',
+          code: 'TEST-INV',
           supplierId: '123',
           quantity: 100,
           price: 49.99,
           reason: 'INVALID_REASON',
         },
         'Reason is required',
+      ],
+      [
+        'empty code',
+        {
+          name: 'Test Item',
+          code: '',
+          supplierId: '123',
+          quantity: 100,
+          price: 49.99,
+          reason: 'INITIAL_STOCK',
+        },
+        'SKU is required',
       ],
     ])('should reject %s', (_, data, message) => {
       expectInvalidMessage(itemFormSchema, data, message);

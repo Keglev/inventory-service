@@ -50,6 +50,19 @@ import { useSuppliersQuery } from '../../../../api/inventory/hooks';
 import { DEFAULT_MIN_QUANTITY } from '../../../../config/inventoryPolicy';
 
 /**
+ * Backend field name to form field name. The backend calls the item code
+ * 'sku'; the form (and grid) call it 'code'. Fields absent from this map
+ * cannot be attached to an input and fall back to the form-level message.
+ */
+const SERVER_TO_FORM_FIELD: Record<string, keyof UpsertItemForm> = {
+  sku: 'code',
+  name: 'name',
+  quantity: 'quantity',
+  price: 'price',
+  supplierId: 'supplierId',
+};
+
+/**
  * Complete item form state and handlers
  * 
 
@@ -192,13 +205,28 @@ export function useItemForm({
   /**
    * Convert a failed upsert response into field or form errors.
    *
-   * Keys on the backend status token (errorToken), not on message text. Item
-   * creation's only duplicate is the name+price pair, so a 'conflict' highlights
-   * the name field; any other failure surfaces as a form-level message. Richer
-   * per-field errors (e.g. a future SKU) are deferred to the structured
-   * fieldErrors work tracked with the SKU feature.
+   * Prefers the backend's structured fieldErrors map: every entry that maps
+   * to a known form field becomes a react-hook-form field error (backend
+   * 'sku' maps to the form's 'code' field). Falls back to token-based
+   * mapping ('conflict' highlights the name field) for errors without field
+   * attribution, and to a form-level message otherwise.
    */
-  function applyServerError(result: { errorToken?: string | null }): void {
+  function applyServerError(result: {
+    errorToken?: string | null;
+    fieldErrors?: Record<string, string> | null;
+  }): void {
+    if (result.fieldErrors) {
+      let applied = false;
+      for (const [field, message] of Object.entries(result.fieldErrors)) {
+        const formField = SERVER_TO_FORM_FIELD[field];
+        if (formField) {
+          setError(formField, { message });
+          applied = true;
+        }
+      }
+      if (applied) return;
+    }
+
     if (result.errorToken === 'conflict') {
       setError('name', {
         message: t('errors:inventory.conflicts.duplicateName'),
@@ -232,7 +260,7 @@ export function useItemForm({
     // Map form values to backend request shape
     const requestData: UpsertItemRequest = {
       name: values.name,
-      code: values.code,
+      sku: values.code,
       supplierId: values.supplierId,
       quantity: values.quantity,
       price: values.price,

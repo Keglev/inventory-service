@@ -62,11 +62,12 @@ function renderUseItemForm(overrides: Partial<HookArgs> = {}) {
 }
 
 async function makeFormValid(result: { current: unknown }) {
-  // itemFormSchema requires: name, supplierId (!'' and != 0), quantity >= 0, price >= 0, reason enum.
+  // itemFormSchema requires: name, code, supplierId (!'' and != 0), quantity >= 0, price >= 0, reason enum.
   const current = result.current as UseItemFormReturn;
 
   act(() => {
     current.setValue('name', 'Test Item', { shouldValidate: true });
+    current.setValue('code', 'SKU-TST-1', { shouldValidate: true });
     current.setValue('supplierId', 'sup-1', { shouldValidate: true });
     current.setValue('quantity', 1, { shouldValidate: true });
     current.setValue('price', 1, { shouldValidate: true });
@@ -211,6 +212,27 @@ describe('useItemForm', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.current.formState.errors as any).name?.message).toBe('errors:inventory.conflicts.duplicateName');
     });
+  });
+
+  it('maps backend fieldErrors to form fields (sku maps to code)', async () => {
+    mockUpsertItem.mockResolvedValue({
+      ok: false,
+      error: 'whatever',
+      errorToken: 'conflict',
+      fieldErrors: { sku: 'Another inventory item with this SKU already exists.' },
+    });
+
+    const { result } = renderUseItemForm();
+    await submitValid(result);
+
+    await waitFor(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result.current.formState.errors as any).code?.message)
+        .toBe('Another inventory item with this SKU already exists.');
+    });
+    // token fallback must NOT also fire when a field error was applied
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((result.current.formState.errors as any).name).toBeUndefined();
   });
 
   it('uses a generic message for a not_found token', async () => {

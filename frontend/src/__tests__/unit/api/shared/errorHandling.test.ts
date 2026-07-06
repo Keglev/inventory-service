@@ -82,6 +82,7 @@ describe('extractApiError', () => {
       token: 'conflict',
       status: 409,
       message: 'Name already exists',
+      fieldErrors: null,
     });
   });
 
@@ -91,6 +92,7 @@ describe('extractApiError', () => {
       token: 'not_found',
       status: 404,
       message: 'not_found',
+      fieldErrors: null,
     });
   });
 
@@ -100,6 +102,7 @@ describe('extractApiError', () => {
       token: null,
       status: 403,
       message: 'Request failed',
+      fieldErrors: null,
     });
   });
 
@@ -108,12 +111,37 @@ describe('extractApiError', () => {
       token: null,
       status: null,
       message: 'Network timeout',
+      fieldErrors: null,
     });
   });
 
   it('returns stable defaults for non-error inputs', () => {
-    expect(extractApiError('nope')).toEqual({ token: null, status: null, message: 'Request failed' });
-    expect(extractApiError(null)).toEqual({ token: null, status: null, message: 'Request failed' });
-    expect(extractApiError(undefined)).toEqual({ token: null, status: null, message: 'Request failed' });
+    expect(extractApiError('nope')).toEqual({ token: null, status: null, message: 'Request failed', fieldErrors: null });
+    expect(extractApiError(null)).toEqual({ token: null, status: null, message: 'Request failed', fieldErrors: null });
+    expect(extractApiError(undefined)).toEqual({ token: null, status: null, message: 'Request failed', fieldErrors: null });
+  });
+
+  it('extracts a fieldErrors map with string values only', () => {
+    const err = makeAxiosError({
+      status: 400,
+      data: {
+        error: 'bad_request',
+        message: 'sku SKU is mandatory',
+        fieldErrors: { sku: 'SKU is mandatory', bogus: 42 },
+      },
+    });
+    expect(extractApiError(err)).toEqual({
+      token: 'bad_request',
+      status: 400,
+      message: 'sku SKU is mandatory',
+      fieldErrors: { sku: 'SKU is mandatory' },
+    });
+  });
+
+  it('returns a null fieldErrors when the map is empty or not an object', () => {
+    const emptyMap = makeAxiosError({ status: 400, data: { error: 'bad_request', fieldErrors: {} } });
+    expect(extractApiError(emptyMap).fieldErrors).toBeNull();
+    const notObject = makeAxiosError({ status: 400, data: { error: 'bad_request', fieldErrors: 'sku' } });
+    expect(extractApiError(notObject).fieldErrors).toBeNull();
   });
 });

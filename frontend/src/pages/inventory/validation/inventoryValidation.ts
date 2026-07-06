@@ -34,7 +34,7 @@ import { z } from 'zod';
  */
 export const itemFormSchema = z.object({
   name: z.string().min(1, "Item name is required"),
-  code: z.string().optional(),
+  code: z.string().min(1, "SKU is required"),
   supplierId: z.union([z.string(), z.number()]).refine(val => val !== "" && val !== 0, "Supplier is required"),
   quantity: z.number().min(0, "Initial stock must be non-negative"),
   price: z.number().min(0, "Price must be non-negative"),
