@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.groups.Default;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,7 +38,7 @@ public class InventoryItemDTO {
     private String name;
 
     /** Stock Keeping Unit; required on create and update, unique across items. */
-    @NotBlank(message = "SKU is mandatory")
+    @NotBlank(message = "SKU is mandatory", groups = {Default.class, Create.class})
     private String sku;
 
     @NotNull(message = "Quantity is mandatory")

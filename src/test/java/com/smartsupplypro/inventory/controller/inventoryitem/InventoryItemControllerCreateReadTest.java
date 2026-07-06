@@ -122,6 +122,19 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
+        void create_missingSku_400_withFieldErrors() throws Exception {
+            InventoryItemDTO request = withoutId();
+            request.setSku(null);
+
+            mockMvc.perform(post("/api/inventory").with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.sku").value("SKU is mandatory"));
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
         void create_duplicate_409() throws Exception {
             when(inventoryItemService.save(any()))
                 .thenThrow(new DuplicateResourceException("Item name already exists"));
