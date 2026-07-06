@@ -39,6 +39,7 @@ import { useTranslation } from 'react-i18next';
 import { readParams } from '../../utils/urlState';
 import { getSuppliersLite, type SupplierRef } from '../../api/analytics/suppliers';
 import { HelpIconButton } from '../../features/help';
+import { useAuth } from '../../hooks/useAuth';
 
 // Blocks
 import StockValueCard from './blocks/StockValueCard';
@@ -51,6 +52,7 @@ import ItemUpdateFrequencyCard from './blocks/ItemUpdateFrequencyCard';
 import RecentStockActivityCard from './blocks/RecentStockActivityCard';
 import MovementLineCard from './blocks/MovementLineCard';
 import MovementsSection from './sections/MovementsSection';
+import EmployeesSection from './sections/EmployeesSection';
 
 // Filters UI
 import { Filters, type AnalyticsFilters } from './components/filters';
@@ -61,12 +63,17 @@ import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
 export default function Analytics(): JSX.Element {
   const { t } = useTranslation(['analytics', 'common']);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  // Employees analytics is a supervision view: ADMIN role or the demo session only.
+  const showEmployees = user?.role === 'ADMIN' || user?.isDemo === true;
     // Read section from route: /analytics/:section?
   const { section: rawSection } = useParams();
   const section: AnalyticsSection =
     rawSection === 'pricing' || rawSection === 'inventory' || rawSection === 'finance' || rawSection === 'movements'
       ? (rawSection as AnalyticsSection)
-      : 'overview';
+      : rawSection === 'employees' && showEmployees
+        ? 'employees'
+        : 'overview';
   
   // URL ↔ state
   const [searchParams, setSearchParams] = useSearchParams();
@@ -120,7 +127,7 @@ export default function Analytics(): JSX.Element {
         </Stack>
       </Stack>
       {/* Submenu (tabs) */}
-        <AnalyticsNav section={section} />  
+        <AnalyticsNav section={section} showEmployees={showEmployees} />  
       <Box sx={{ mb: 2 }}>
           <Filters value={filters} onChange={setFilters} suppliers={suppliersQ.data ?? []} disabled={suppliersQ.isLoading} />
       </Box>
@@ -151,6 +158,10 @@ export default function Analytics(): JSX.Element {
 
         {section === 'movements' && (
           <MovementsSection from={filters.from} to={filters.to} supplierId={filters.supplierId} />
+        )}
+
+        {section === 'employees' && (
+          <EmployeesSection from={filters.from} to={filters.to} />
         )}
 
         {section === 'pricing' && (

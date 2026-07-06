@@ -20,14 +20,16 @@ import { Tabs, Tab, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-export type AnalyticsSection = 'overview' | 'movements' | 'pricing' | 'inventory' | 'finance';
+export type AnalyticsSection = 'overview' | 'movements' | 'pricing' | 'inventory' | 'finance' | 'employees';
 
 export type AnalyticsNavProps = {
   /** Current section (parsed from the URL). */
   section: AnalyticsSection;
+  /** Show the ADMIN/demo-only Employees tab (gated by the caller). */
+  showEmployees?: boolean;
 };
 
-export default function AnalyticsNav({ section }: AnalyticsNavProps) {
+export default function AnalyticsNav({ section, showEmployees = false }: AnalyticsNavProps) {
   const navigate = useNavigate();
   const { t } = useTranslation(['analytics']);
 
@@ -43,6 +45,7 @@ export default function AnalyticsNav({ section }: AnalyticsNavProps) {
         <Tab value="pricing"   label={t('analytics:nav.pricing', 'Pricing')} />
         <Tab value="inventory" label={t('analytics:nav.inventory', 'Inventory Health')} />
         <Tab value="finance"   label={t('analytics:nav.finance', 'Finance')} />
+        {showEmployees && <Tab value="employees" label={t('analytics:nav.employees')} />}
       </Tabs>
     </Box>
   );

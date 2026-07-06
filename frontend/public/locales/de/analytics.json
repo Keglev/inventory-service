@@ -13,7 +13,8 @@
     "pricing": "Preisgestaltung",
     "inventory": "Bestandsgesundheit",
     "finance": "Finanzen",
-    "movements": "Warenbewegungen"
+    "movements": "Warenbewegungen",
+    "employees": "Mitarbeiter"
   },
   "priceTrend": {
     "selectSupplier": "Wähle einen Lieferanten, um einen Artikel auszuwählen",
@@ -145,6 +146,25 @@
     "reasonFilter": "Gründe",
     "drilldownTitle": "Passende Bestandsänderungen",
     "empty": "Keine Bestandsänderungen im Zeitraum"
+  },
+  "employees": {
+    "chartTitle": "Änderungen pro Mitarbeiter",
+    "tableTitle": "Änderungsprotokoll",
+    "granularity": {
+      "daily": "Täglich",
+      "weekly": "Wöchentlich",
+      "monthly": "Monatlich"
+    },
+    "columns": {
+      "datetime": "Datum",
+      "employee": "Mitarbeiter",
+      "item": "Artikel",
+      "supplier": "Lieferant",
+      "change": "Δ Menge",
+      "reason": "Grund"
+    },
+    "empty": "Keine Mitarbeiteraktivität im Zeitraum",
+    "rowsPerPage": "Zeilen pro Seite"
   },
   "state": {
     "loading": "Wird geladen…",

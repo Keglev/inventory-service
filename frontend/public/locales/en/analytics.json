@@ -13,7 +13,8 @@
     "pricing": "Pricing",
     "inventory": "Inventory Health",
     "finance": "Finance",
-    "movements": "Movements"
+    "movements": "Movements",
+    "employees": "Employees"
   },
   "priceTrend": {
     "selectSupplier": "Choose a supplier to pick an item",
@@ -145,6 +146,25 @@
     "reasonFilter": "Reasons",
     "drilldownTitle": "Matching stock changes",
     "empty": "No stock changes in this period"
+  },
+  "employees": {
+    "chartTitle": "Changes per employee",
+    "tableTitle": "Change log",
+    "granularity": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly"
+    },
+    "columns": {
+      "datetime": "Date",
+      "employee": "Employee",
+      "item": "Item",
+      "supplier": "Supplier",
+      "change": "Δ Qty",
+      "reason": "Reason"
+    },
+    "empty": "No employee activity in this period",
+    "rowsPerPage": "Rows per page"
   },
   "state": {
     "loading": "Loading…",

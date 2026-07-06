@@ -18,6 +18,11 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+const { mockUseAuth } = vi.hoisted(() => ({ mockUseAuth: vi.fn() }));
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: mockUseAuth,
+}));
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, fallback?: string) => fallback ?? key,
@@ -67,6 +72,10 @@ vi.mock('@/pages/analytics/blocks/RecentStockActivityCard', () => ({
 
 vi.mock('@/pages/analytics/sections/MovementsSection', () => ({
   default: () => <div data-testid="movements-section">MovementsSection</div>,
+}));
+
+vi.mock('@/pages/analytics/sections/EmployeesSection', () => ({
+  default: () => <div data-testid="employees-section">EmployeesSection</div>,
 }));
 
 vi.mock('@/pages/analytics/blocks/MovementLineCard', () => ({
@@ -122,6 +131,7 @@ describe('Analytics', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseAuth.mockReturnValue({ user: null });
     queryClient = createClient();
   });
 
@@ -162,6 +172,24 @@ describe('Analytics', () => {
     setup(queryClient, '/analytics/movements');
     expect(screen.getByTestId('analytics-nav')).toHaveTextContent('movements');
     expect(screen.getByTestId('movements-section')).toBeInTheDocument();
+  });
+
+  it('falls back to "overview" for /analytics/employees when the user is not entitled', () => {
+    setup(queryClient, '/analytics/employees');
+    expect(screen.getByTestId('analytics-nav')).toHaveTextContent('overview');
+    expect(screen.queryByTestId('employees-section')).not.toBeInTheDocument();
+  });
+
+  it('renders the "employees" section for an ADMIN user', () => {
+    mockUseAuth.mockReturnValue({ user: { email: 'a@example.com', fullName: 'A', role: 'ADMIN' } });
+    setup(queryClient, '/analytics/employees');
+    expect(screen.getByTestId('employees-section')).toBeInTheDocument();
+  });
+
+  it('renders the "employees" section for a demo session', () => {
+    mockUseAuth.mockReturnValue({ user: { email: '', fullName: 'Demo User', role: 'DEMO', isDemo: true } });
+    setup(queryClient, '/analytics/employees');
+    expect(screen.getByTestId('employees-section')).toBeInTheDocument();
   });
 
   it('renders stock value card in the "overview" section', () => {

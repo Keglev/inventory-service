@@ -15,6 +15,7 @@ export * from './finance';
 export * from './frequency';
 export * from './updates';
 export * from './reasonBreakdown';
+export * from './employees';
 export * from './metrics';
 export * from './validation';
 export * from './hooks';
