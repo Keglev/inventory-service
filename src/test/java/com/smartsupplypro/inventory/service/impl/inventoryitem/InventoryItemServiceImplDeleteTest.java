@@ -58,6 +58,7 @@ class InventoryItemServiceImplDeleteTest {
         existing.setMinimumQuantity(5);
         existing.setPrice(new BigDecimal("10.00"));
         existing.setSupplierId("S1");
+        existing.setSku("SKU-SVC-1");
 
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
 
@@ -141,6 +142,7 @@ class InventoryItemServiceImplDeleteTest {
         i.setMinimumQuantity(src.getMinimumQuantity());
         i.setPrice(src.getPrice());
         i.setSupplierId(src.getSupplierId());
+        i.setSku(src.getSku());
         return i;
     }
 }

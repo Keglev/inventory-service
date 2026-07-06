@@ -211,6 +211,7 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
         InventoryItem i = new InventoryItem();
         i.setId(id); i.setName(name); i.setQuantity(qty);
         i.setMinimumQuantity(1); i.setPrice(price); i.setSupplierId(supplierId);
+        i.setSku("SKU-SVC-" + id);
         return i;
     }
 }

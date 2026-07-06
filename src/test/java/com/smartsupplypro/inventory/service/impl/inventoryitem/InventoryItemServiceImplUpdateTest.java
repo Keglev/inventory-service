@@ -67,6 +67,7 @@ class InventoryItemServiceImplUpdateTest {
         baseDto.setPrice(new BigDecimal("10.00"));
         baseDto.setSupplierId("S1");
         baseDto.setCreatedBy("admin");
+        baseDto.setSku("SKU-SVC-1");
 
         existing = new InventoryItem();
         existing.setId("item-1");
@@ -75,6 +76,7 @@ class InventoryItemServiceImplUpdateTest {
         existing.setMinimumQuantity(5);
         existing.setPrice(new BigDecimal("10.00"));
         existing.setSupplierId("S1");
+        existing.setSku("SKU-SVC-1");
 
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
 
@@ -123,6 +125,7 @@ class InventoryItemServiceImplUpdateTest {
         conflict.setId("other-id"); conflict.setName("Widget-2");
         conflict.setPrice(new BigDecimal("10.00"));
         conflict.setQuantity(1); conflict.setMinimumQuantity(1); conflict.setSupplierId("S1");
+        conflict.setSku("SKU-SVC-2");
         when(repository.findByNameIgnoreCase("Widget-2")).thenReturn(java.util.List.of(conflict));
 
         lenient().when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> {
@@ -218,6 +221,7 @@ class InventoryItemServiceImplUpdateTest {
         d.setName(src.getName()); d.setQuantity(src.getQuantity());
         d.setMinimumQuantity(src.getMinimumQuantity()); d.setPrice(src.getPrice());
         d.setSupplierId(src.getSupplierId()); d.setCreatedBy(src.getCreatedBy());
+        d.setSku(src.getSku());
         return d;
     }
 
@@ -227,6 +231,7 @@ class InventoryItemServiceImplUpdateTest {
         i.setName(src.getName()); i.setQuantity(src.getQuantity());
         i.setMinimumQuantity(src.getMinimumQuantity()); i.setPrice(src.getPrice());
         i.setSupplierId(src.getSupplierId());
+        i.setSku(src.getSku());
         return i;
     }
 

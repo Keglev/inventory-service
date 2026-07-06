@@ -60,6 +60,7 @@ class InventoryItemValidationHelperTest {
         void should_populate_created_by_from_security_context_when_field_is_blank() {
             authenticateAs("admin@example.com");
             InventoryItemDTO dto = dto("SSD", 5, "10.00", "sup-1", "   ");
+            dto.setSku("SKU-HLP-1");
             when(supplierRepository.existsById("sup-1")).thenReturn(true);
             when(repository.findByNameIgnoreCase("SSD")).thenReturn(Collections.emptyList());
 
@@ -72,6 +73,7 @@ class InventoryItemValidationHelperTest {
         void should_throw_when_supplier_does_not_exist() {
             authenticateAs("admin");
             InventoryItemDTO dto = dto("SSD", 5, "10.00", "missing-supplier", null);
+            dto.setSku("SKU-HLP-2");
             when(supplierRepository.existsById("missing-supplier")).thenReturn(false);
             when(repository.findByNameIgnoreCase(anyString())).thenReturn(Collections.emptyList());
 
@@ -91,6 +93,7 @@ class InventoryItemValidationHelperTest {
         void should_generate_id_set_created_by_and_default_minimum_quantity_when_missing() {
             authenticateAs("system-user");
             InventoryItem entity = entity(" ", "Widget", 1, 0, "1.00", "sup-1", null);
+            entity.setSku("SKU-HLP-3");
 
             helper.populateServerFields(entity);
 
@@ -105,6 +108,7 @@ class InventoryItemValidationHelperTest {
             SecurityContextHolder.clearContext();
             LocalDateTime createdAt = LocalDateTime.of(2026, 1, 1, 0, 0);
             InventoryItem entity = entity("item-123", "Widget", 1, 20, "1.00", "sup-1", createdAt);
+            entity.setSku("SKU-HLP-4");
 
             helper.populateServerFields(entity);
 
@@ -124,8 +128,9 @@ class InventoryItemValidationHelperTest {
         @Test
         void should_skip_repository_query_when_name_and_price_are_unchanged() {
             InventoryItem existing = existingItem("item-1", "Widget", "10.00");
+            existing.setSku("SKU-HLP-5");
             InventoryItemDTO dto = new InventoryItemDTO();
-            dto.setName("widget"); dto.setPrice(new BigDecimal("10.00"));
+            dto.setName("widget"); dto.setPrice(new BigDecimal("10.00")); dto.setSku("SKU-HLP-5");
 
             helper.validateUniquenessOnUpdate("item-1", existing, dto);
 
@@ -135,10 +140,12 @@ class InventoryItemValidationHelperTest {
         @Test
         void should_throw_duplicate_exception_when_another_item_with_same_name_and_price_exists() {
             InventoryItem existing = existingItem("item-1", "Widget", "10.00");
+            existing.setSku("SKU-HLP-6");
             InventoryItemDTO dto = new InventoryItemDTO();
-            dto.setName("NewWidget"); dto.setPrice(new BigDecimal("10.00"));
+            dto.setName("NewWidget"); dto.setPrice(new BigDecimal("10.00")); dto.setSku("SKU-HLP-6");
 
             InventoryItem other = existingItem("item-2", "NewWidget", "10.00");
+            other.setSku("SKU-HLP-7");
             when(repository.findByNameIgnoreCase("NewWidget")).thenReturn(List.of(other));
 
             DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
@@ -165,7 +172,7 @@ class InventoryItemValidationHelperTest {
         @Test
         void should_throw_illegal_state_when_item_quantity_is_not_zero_on_deletion() {
             InventoryItem item = new InventoryItem();
-            item.setId("item-1"); item.setQuantity(1);
+            item.setId("item-1"); item.setQuantity(1); item.setSku("SKU-HLP-8");
             when(repository.findById("item-1")).thenReturn(Optional.of(item));
             assertNotNull(assertThrows(IllegalStateException.class,
                     () -> helper.validateForDeletion("item-1")).getMessage());
@@ -175,12 +182,12 @@ class InventoryItemValidationHelperTest {
         void should_return_existing_item_when_update_passes_all_validation() {
             authenticateAs("admin");
             InventoryItem existing = existingItem("item-1", "Widget", "10.00");
-            existing.setSupplierId("sup-1");
+            existing.setSupplierId("sup-1"); existing.setSku("SKU-HLP-9");
 
             InventoryItemDTO dto = new InventoryItemDTO();
             dto.setName("Widget"); dto.setQuantity(5); dto.setMinimumQuantity(1);
             dto.setPrice(new BigDecimal("10.00")); dto.setSupplierId("sup-1");
-            dto.setCreatedBy("admin");
+            dto.setCreatedBy("admin"); dto.setSku("SKU-HLP-9");
 
             when(supplierRepository.existsById("sup-1")).thenReturn(true);
             when(repository.findById("item-1")).thenReturn(Optional.of(existing));

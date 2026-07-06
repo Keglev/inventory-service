@@ -42,9 +42,9 @@ class StockMetricsRepositoryImplTest {
         ).executeUpdate();
 
         em.createNativeQuery(
-            "INSERT INTO inventory_item (id, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) VALUES " +
-            "('itemA','Item A', 2.00, 2, 10, 'sup1', CURRENT_TIMESTAMP, 'test')," +
-            "('itemB','Item B', 5.00, 20, 10, 'sup2', CURRENT_TIMESTAMP, 'test')"
+            "INSERT INTO inventory_item (id, sku, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) VALUES " +
+            "('itemA','SKU-MET-A','Item A', 2.00, 2, 10, 'sup1', CURRENT_TIMESTAMP, 'test')," +
+            "('itemB','SKU-MET-B','Item B', 5.00, 20, 10, 'sup2', CURRENT_TIMESTAMP, 'test')"
         ).executeUpdate();
 
         em.createNativeQuery(

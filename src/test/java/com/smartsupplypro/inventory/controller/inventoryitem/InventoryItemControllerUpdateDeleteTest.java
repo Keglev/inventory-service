@@ -49,6 +49,7 @@ class InventoryItemControllerUpdateDeleteTest {
         dto.setQuantity(10);
         dto.setPrice(new BigDecimal("199.99"));
         dto.setSupplierId("sup-1");
+        dto.setSku("SKU-CTL-1");
         return dto;
     }
 

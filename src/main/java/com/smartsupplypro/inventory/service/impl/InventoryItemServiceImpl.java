@@ -100,6 +100,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         int quantityDiff = dto.getQuantity() - existing.getQuantity();
 
         existing.setName(dto.getName());
+        existing.setSku(dto.getSku());
         existing.setQuantity(dto.getQuantity());
         existing.setSupplierId(dto.getSupplierId());
 

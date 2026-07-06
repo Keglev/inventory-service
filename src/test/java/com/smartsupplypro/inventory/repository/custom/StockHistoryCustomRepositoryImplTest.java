@@ -53,12 +53,12 @@ class StockHistoryCustomRepositoryImplTest {
         ).executeUpdate();
 
         em.createNativeQuery(
-            "INSERT INTO inventory_item (id, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) " +
-            "VALUES ('itemA','Item A', 1.00, 0, 0, 'sup1', CURRENT_TIMESTAMP, 'test')"
+            "INSERT INTO inventory_item (id, sku, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) " +
+            "VALUES ('itemA','SKU-HIS-A','Item A', 1.00, 0, 0, 'sup1', CURRENT_TIMESTAMP, 'test')"
         ).executeUpdate();
         em.createNativeQuery(
-            "INSERT INTO inventory_item (id, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) " +
-            "VALUES ('itemB','Item B', 1.00, 0, 0, 'sup2', CURRENT_TIMESTAMP, 'test')"
+            "INSERT INTO inventory_item (id, sku, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) " +
+            "VALUES ('itemB','SKU-HIS-B','Item B', 1.00, 0, 0, 'sup2', CURRENT_TIMESTAMP, 'test')"
         ).executeUpdate();
     }
 

@@ -55,6 +55,7 @@ class InventoryItemControllerCreateReadTest {
         dto.setQuantity(10);
         dto.setPrice(new BigDecimal("199.99"));
         dto.setSupplierId("sup-1");
+        dto.setSku("SKU-CTL-1");
         return dto;
     }
 
@@ -69,6 +70,7 @@ class InventoryItemControllerCreateReadTest {
         dto.setName("");
         dto.setQuantity(-1);
         dto.setPrice(new BigDecimal("-1.00"));
+        dto.setSku("SKU-CTL-2");
         return dto;
     }
 

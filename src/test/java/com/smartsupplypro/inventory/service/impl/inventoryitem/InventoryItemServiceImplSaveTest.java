@@ -64,6 +64,7 @@ class InventoryItemServiceImplSaveTest {
         baseDto.setPrice(new BigDecimal("10.00"));
         baseDto.setSupplierId("S1");
         baseDto.setCreatedBy("admin");
+        baseDto.setSku("SKU-SVC-1");
 
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
     }
@@ -168,6 +169,7 @@ class InventoryItemServiceImplSaveTest {
         i.setMinimumQuantity(src.getMinimumQuantity());
         i.setPrice(src.getPrice());
         i.setSupplierId(src.getSupplierId());
+        i.setSku(src.getSku());
         return i;
     }
 }

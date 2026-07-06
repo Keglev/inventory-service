@@ -46,6 +46,7 @@ public class InventoryItemValidationHelper {
         }
         InventoryItemValidator.validateBase(dto);
         InventoryItemLookupValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);
+        InventoryItemLookupValidator.validateSkuNotExists(dto.getSku(), repository);
         validateSupplierExists(dto.getSupplierId());
     }
 
@@ -87,7 +88,7 @@ public class InventoryItemValidationHelper {
     }
 
     /**
-     * Validates uniqueness when the name or price changed during an update.
+     * Validates uniqueness when the name, price, or SKU changed during an update.
      * No check is performed when neither field changed.
      *
      * @param id       the item ID being updated
@@ -97,8 +98,14 @@ public class InventoryItemValidationHelper {
     public void validateUniquenessOnUpdate(String id, InventoryItem existing, InventoryItemDTO dto) {
         boolean nameChanged  = !existing.getName().equalsIgnoreCase(dto.getName());
         boolean priceChanged = !existing.getPrice().equals(dto.getPrice());
+        boolean skuChanged   = existing.getSku() == null
+                ? dto.getSku() != null
+                : !existing.getSku().equalsIgnoreCase(dto.getSku());
         if (nameChanged || priceChanged) {
             InventoryItemLookupValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);
+        }
+        if (skuChanged) {
+            InventoryItemLookupValidator.validateSkuNotExists(id, dto.getSku(), repository);
         }
     }
 

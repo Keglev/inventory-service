@@ -45,6 +45,10 @@ public class InventoryItem {
     @Column(name = "NAME", nullable = false)
     private String name;
 
+    /** Stock Keeping Unit - unique, human-readable item code (see DB migration V2/V4). */
+    @Column(name = "SKU", nullable = false, length = 32, unique = true)
+    private String sku;
+
     @Column(name = "QUANTITY", nullable = false)
     private int quantity;
 

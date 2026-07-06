@@ -46,9 +46,9 @@ class StockTrendAnalyticsRepositoryImplH2Test {
         ).executeUpdate();
 
         em.createNativeQuery(
-            "INSERT INTO inventory_item (id, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) VALUES " +
-            "('itemA','Item A', 2.00, 0, 10, 'sup1', CURRENT_TIMESTAMP, 'test')," +
-            "('itemB','Item B', 5.00, 0, 10, 'sup2', CURRENT_TIMESTAMP, 'test')"
+            "INSERT INTO inventory_item (id, sku, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) VALUES " +
+            "('itemA','SKU-TRD-A','Item A', 2.00, 0, 10, 'sup1', CURRENT_TIMESTAMP, 'test')," +
+            "('itemB','SKU-TRD-B','Item B', 5.00, 0, 10, 'sup2', CURRENT_TIMESTAMP, 'test')"
         ).executeUpdate();
 
         // itemA spans Feb and Mar; includes a price-change event on Feb 5

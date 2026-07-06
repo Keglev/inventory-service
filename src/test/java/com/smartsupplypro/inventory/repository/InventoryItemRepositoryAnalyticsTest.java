@@ -95,6 +95,7 @@ class InventoryItemRepositoryAnalyticsTest {
         InventoryItem i = new InventoryItem();
         i.setId(id != null ? id : UUID.randomUUID().toString());
         i.setName(name);
+        i.setSku("SKU-ANA-" + name);
         i.setQuantity(qty);
         i.setMinimumQuantity(minQty);
         i.setPrice(new BigDecimal(price));

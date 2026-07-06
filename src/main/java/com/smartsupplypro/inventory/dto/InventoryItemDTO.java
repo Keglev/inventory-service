@@ -36,6 +36,10 @@ public class InventoryItemDTO {
     @NotBlank(message = "Item name is mandatory")
     private String name;
 
+    /** Stock Keeping Unit; required on create and update, unique across items. */
+    @NotBlank(message = "SKU is mandatory")
+    private String sku;
+
     @NotNull(message = "Quantity is mandatory")
     @PositiveOrZero(message = "Quantity must be zero or positive")
     private int quantity;

@@ -106,4 +106,32 @@ class InventoryItemLookupValidatorTest {
                     "UniqueItem", new BigDecimal("25.00"), repo));
         }
     }
+
+    /**
+     * Uniqueness checks via {@link InventoryItemLookupValidator#validateSkuNotExists}.
+     */
+    @Nested
+    class SkuUniquenessChecks {
+        @Test
+        void validateSkuNotExists_throwsWhenAnotherItemHasSameSku() {
+            InventoryItemRepository repo = mock(InventoryItemRepository.class);
+            InventoryItem other = new InventoryItem();
+            other.setId("other-id");
+            other.setSku("SKU-DUP-1");
+            when(repo.findBySkuIgnoreCase("SKU-DUP-1")).thenReturn(List.of(other));
+            assertThrows(DuplicateResourceException.class,
+                () -> InventoryItemLookupValidator.validateSkuNotExists("self-id", "SKU-DUP-1", repo));
+        }
+
+        @Test
+        void validateSkuNotExists_passesWhenOnlySelfHasSku() {
+            InventoryItemRepository repo = mock(InventoryItemRepository.class);
+            InventoryItem self = new InventoryItem();
+            self.setId("self-id");
+            self.setSku("SKU-DUP-2");
+            when(repo.findBySkuIgnoreCase("SKU-DUP-2")).thenReturn(List.of(self));
+            assertDoesNotThrow(
+                () -> InventoryItemLookupValidator.validateSkuNotExists("self-id", "SKU-DUP-2", repo));
+        }
+    }
 }

@@ -54,12 +54,12 @@ class InventoryItemServiceImplSearchTest {
         InventoryItem e1 = new InventoryItem();
         e1.setId("i-1"); e1.setName("AAA");
         e1.setPrice(new BigDecimal("10.00")); e1.setQuantity(5);
-        e1.setMinimumQuantity(1); e1.setSupplierId("S1");
+        e1.setMinimumQuantity(1); e1.setSupplierId("S1"); e1.setSku("SKU-SVC-1");
 
         InventoryItem e2 = new InventoryItem();
         e2.setId("i-2"); e2.setName("BBB");
         e2.setPrice(new BigDecimal("20.00")); e2.setQuantity(7);
-        e2.setMinimumQuantity(1); e2.setSupplierId("S1");
+        e2.setMinimumQuantity(1); e2.setSupplierId("S1"); e2.setSku("SKU-SVC-2");
 
         when(repository.findByNameSortedByPrice(anyString(), any(org.springframework.data.domain.Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(e1, e2)));

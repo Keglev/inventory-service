@@ -80,4 +80,40 @@ public class InventoryItemLookupValidator {
             }
         }
     }
+
+    /**
+     * Duplicate SKU check that excludes the item with {@code excludeId}.
+     * Use during update operations when the incoming item's own ID is known.
+     *
+     * @param excludeId id to skip when scanning matches (prevents self-conflict)
+     * @param sku       item SKU
+     * @param repo      inventory repository
+     * @throws DuplicateResourceException if a different item shares the same SKU
+     */
+    public static void validateSkuNotExists(
+            String excludeId, String sku, InventoryItemRepository repo) {
+        List<InventoryItem> matches = repo.findBySkuIgnoreCase(sku);
+        for (InventoryItem item : matches) {
+            if (!item.getId().equals(excludeId)) {
+                throw new DuplicateResourceException(
+                    "Another inventory item with this SKU already exists."
+                );
+            }
+        }
+    }
+
+    /**
+     * Duplicate SKU check with no ID exclusion. Use during create operations.
+     *
+     * @param sku  item SKU
+     * @param repo inventory repository
+     * @throws DuplicateResourceException if any item shares the same SKU
+     */
+    public static void validateSkuNotExists(String sku, InventoryItemRepository repo) {
+        if (!repo.findBySkuIgnoreCase(sku).isEmpty()) {
+            throw new DuplicateResourceException(
+                "An inventory item with this SKU already exists."
+            );
+        }
+    }
 }

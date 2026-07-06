@@ -45,6 +45,8 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
 
     List<InventoryItem> findByNameIgnoreCase(String name);
 
+    List<InventoryItem> findBySkuIgnoreCase(String sku);
+
     /**
      * Finds items below minimum stock with optional supplier filter.
      * Returns: [name, quantity, minimum_quantity], ordered by quantity ascending.
@@ -68,7 +70,7 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     long countWithQuantityBelow(@Param("threshold") int threshold);
 
     /**
-     * Finds items by partial name with supplier pre-fetched, sorted by price ascending.
+     * Finds items by partial name or SKU with supplier pre-fetched, sorted by price ascending.
      *
      * @param name     partial item name (case-insensitive)
      * @param pageable pagination parameters
@@ -77,6 +79,7 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     @EntityGraph(attributePaths = {"supplier"})
     @Query("SELECT i FROM InventoryItem i "
         + "WHERE LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%')) "
+        + "OR LOWER(i.sku) LIKE LOWER(CONCAT('%', :name, '%')) "
         + "ORDER BY i.price ASC")
     Page<InventoryItem> findByNameSortedByPrice(@Param("name") String name, Pageable pageable);
 }

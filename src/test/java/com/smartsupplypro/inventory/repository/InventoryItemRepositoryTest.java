@@ -54,7 +54,7 @@ class InventoryItemRepositoryTest {
         @Test
         void should_find_items_by_exact_name_case_insensitive() {
             inventoryItemRepository.save(InventoryItem.builder()
-                    .id("item-1").name("Wrench").price(BigDecimal.valueOf(8))
+                    .id("item-1").name("Wrench").sku("SKU-REP-1").price(BigDecimal.valueOf(8))
                     .quantity(20).minimumQuantity(5).supplier(supplier1).build());
 
             List<InventoryItem> result = inventoryItemRepository.findByNameIgnoreCase("wrench");
@@ -65,7 +65,7 @@ class InventoryItemRepositoryTest {
         @Test
         void should_return_empty_when_name_does_not_match_exactly() {
             inventoryItemRepository.save(InventoryItem.builder()
-                    .id("item-2").name("Wrench Pro").price(BigDecimal.valueOf(12))
+                    .id("item-2").name("Wrench Pro").sku("SKU-REP-2").price(BigDecimal.valueOf(12))
                     .quantity(10).minimumQuantity(2).supplier(supplier1).build());
 
             // exact lookup must not match partial names
@@ -75,10 +75,10 @@ class InventoryItemRepositoryTest {
         @Test
         void should_return_items_sorted_by_price_ascending_for_name_filter() {
             inventoryItemRepository.save(InventoryItem.builder()
-                    .id("item-3").name("Screw").price(BigDecimal.valueOf(1))
+                    .id("item-3").name("Screw").sku("SKU-REP-3").price(BigDecimal.valueOf(1))
                     .quantity(100).minimumQuantity(10).supplier(supplier1).build());
             inventoryItemRepository.save(InventoryItem.builder()
-                    .id("item-4").name("Screw-2").price(BigDecimal.valueOf(5))
+                    .id("item-4").name("Screw-2").sku("SKU-REP-4").price(BigDecimal.valueOf(5))
                     .quantity(80).minimumQuantity(10).supplier(supplier1).build());
 
             Page<InventoryItem> result = inventoryItemRepository.findByNameSortedByPrice("screw", PageRequest.of(0, 10));
@@ -96,7 +96,7 @@ class InventoryItemRepositoryTest {
         @Test
         void should_confirm_active_stock_exists_for_supplier_above_threshold() {
             inventoryItemRepository.save(InventoryItem.builder()
-                    .id("item-5").name("Bolt").price(BigDecimal.valueOf(2))
+                    .id("item-5").name("Bolt").sku("SKU-REP-5").price(BigDecimal.valueOf(2))
                     .quantity(30).minimumQuantity(5).supplier(supplier1).build());
 
             assertTrue(inventoryItemRepository.existsActiveStockForSupplier(supplier1.getId(), 0));
@@ -105,7 +105,7 @@ class InventoryItemRepositoryTest {
         @Test
         void should_return_false_when_supplier_has_no_stock_above_threshold() {
             inventoryItemRepository.save(InventoryItem.builder()
-                    .id("item-6").name("Nut").price(BigDecimal.valueOf(1))
+                    .id("item-6").name("Nut").sku("SKU-REP-6").price(BigDecimal.valueOf(1))
                     .quantity(0).minimumQuantity(5).supplier(supplier1).build());
 
             assertFalse(inventoryItemRepository.existsActiveStockForSupplier(supplier1.getId(), 0));
@@ -121,11 +121,11 @@ class InventoryItemRepositoryTest {
         @Test
         void should_return_items_below_minimum_stock_filtered_by_supplier() {
             InventoryItem low1 = InventoryItem.builder()
-                    .id("item-low-1").name("Pen Blue").quantity(2)
+                    .id("item-low-1").name("Pen Blue").sku("SKU-REP-7").quantity(2)
                     .minimumQuantity(5).price(BigDecimal.TEN).supplier(supplier1).build();
             low1.setSupplierId(supplier1.getId());
             InventoryItem low2 = InventoryItem.builder()
-                    .id("item-low-2").name("Pen Red").quantity(1)
+                    .id("item-low-2").name("Pen Red").sku("SKU-REP-8").quantity(1)
                     .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier2).build();
             low2.setSupplierId(supplier2.getId());
             inventoryItemRepository.saveAllAndFlush(List.of(low1, low2));
@@ -138,10 +138,10 @@ class InventoryItemRepositoryTest {
         @Test
         void should_count_items_with_quantity_strictly_below_threshold() {
             inventoryItemRepository.save(InventoryItem.builder()
-                    .id("item-cnt-1").name("Pin").quantity(3)
+                    .id("item-cnt-1").name("Pin").sku("SKU-REP-9").quantity(3)
                     .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier1).build());
             inventoryItemRepository.save(InventoryItem.builder()
-                    .id("item-cnt-2").name("Clip").quantity(10)
+                    .id("item-cnt-2").name("Clip").sku("SKU-REP-10").quantity(10)
                     .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier1).build());
 
             assertEquals(1, inventoryItemRepository.countWithQuantityBelow(5));

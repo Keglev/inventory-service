@@ -59,13 +59,13 @@ class StockHistoryRepositoryAnalyticsTest {
                 .email("bob@beta.com").phone("654321").createdBy("admin").createdAt(now).build());
 
         item1 = inventoryItemRepository.save(InventoryItem.builder()
-                .id("item-1").name("Wrench").price(BigDecimal.valueOf(20))
+                .id("item-1").name("Wrench").sku("SKU-SHA-1").price(BigDecimal.valueOf(20))
                 .quantity(100).minimumQuantity(10).supplier(supplierA).createdBy("admin").build());
         item2 = inventoryItemRepository.save(InventoryItem.builder()
-                .id("item-2").name("Hammer").price(BigDecimal.valueOf(15))
+                .id("item-2").name("Hammer").sku("SKU-SHA-2").price(BigDecimal.valueOf(15))
                 .quantity(50).minimumQuantity(5).supplier(supplierB).createdBy("admin").build());
         inventoryItemRepository.save(InventoryItem.builder()
-                .id("item-3").name("Screwdriver").price(BigDecimal.valueOf(12))
+                .id("item-3").name("Screwdriver").sku("SKU-SHA-3").price(BigDecimal.valueOf(12))
                 .quantity(80).minimumQuantity(10).supplier(supplierA).createdBy("admin").build());
 
         stockHistoryRepository.save(StockHistory.builder()
