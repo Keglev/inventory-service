@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.smartsupplypro.inventory.controller.AnalyticsController;
 import com.smartsupplypro.inventory.controller.StockAnalyticsController;
+import com.smartsupplypro.inventory.controller.StockReasonAnalyticsController;
 import com.smartsupplypro.inventory.controller.StockUpdateAnalyticsController;
 import com.smartsupplypro.inventory.controller.analytics.AnalyticsControllerValidationHelper;
 import com.smartsupplypro.inventory.controller.analytics.AnalyticsDashboardHelper;
@@ -38,7 +39,8 @@ import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService
         controllers = {
             AnalyticsController.class,
             StockAnalyticsController.class,
-            StockUpdateAnalyticsController.class
+            StockUpdateAnalyticsController.class,
+            StockReasonAnalyticsController.class
         },
         excludeAutoConfiguration = {
                 OAuth2ResourceServerAutoConfiguration.class
@@ -68,6 +70,7 @@ public abstract class AbstractAnalyticsControllerSecurityTest {
             when(mock.getItemUpdateFrequency(anyString())).thenReturn(Collections.emptyList());
             when(mock.getTotalStockValueOverTime(any(LocalDate.class), any(LocalDate.class), anyString())).thenReturn(Collections.emptyList());
             when(mock.getPriceTrend(anyString(), anyString(), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+            when(mock.getReasonBreakdown(any(), any(), any(), any())).thenReturn(Collections.emptyList());
             return mock;
         }
 

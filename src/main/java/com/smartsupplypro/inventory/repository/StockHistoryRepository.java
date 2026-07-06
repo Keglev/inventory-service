@@ -77,6 +77,41 @@ public interface StockHistoryRepository
         Pageable pageable
     );
 
+    /**
+     * Aggregates stock movement per reason inside a time window, sign-split into
+     * increase (positive changes) and decrease (absolute value of negative changes).
+     *
+     * <p>All filters besides the window are optional; pass {@code null} to omit.
+     * String concatenation uses {@code ||} (portable across Oracle and H2).
+     *
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
+     * @param supplierId optional supplier filter
+     * @param itemName   optional partial item name (case-insensitive)
+     * @return rows of [reason, increase, decrease] ordered by reason ascending
+     */
+    @Query(
+        value = """
+            SELECT sh.reason,
+                   SUM(CASE WHEN sh.quantity_change > 0 THEN sh.quantity_change ELSE 0 END) AS increase_qty,
+                   SUM(CASE WHEN sh.quantity_change < 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS decrease_qty
+            FROM stock_history sh
+            JOIN inventory_item i ON sh.item_id = i.id
+            WHERE sh.created_at BETWEEN :start AND :end
+              AND (:supplierId IS NULL OR sh.supplier_id = :supplierId)
+              AND (:itemName IS NULL OR LOWER(i.name) LIKE LOWER('%' || :itemName || '%'))
+            GROUP BY sh.reason
+            ORDER BY sh.reason
+        """,
+        nativeQuery = true
+    )
+    List<Object[]> getReasonBreakdown(
+        @Param("start") LocalDateTime start,
+        @Param("end") LocalDateTime end,
+        @Param("supplierId") String supplierId,
+        @Param("itemName") String itemName
+    );
+
     List<StockHistory> findByItemIdOrderByTimestampDesc(String itemId);
 
     List<StockHistory> findByReasonOrderByTimestampDesc(StockChangeReason reason);

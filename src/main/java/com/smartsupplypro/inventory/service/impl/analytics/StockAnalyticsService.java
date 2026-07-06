@@ -11,6 +11,7 @@ import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
 import com.smartsupplypro.inventory.dto.LowStockItemDTO;
 import com.smartsupplypro.inventory.dto.MonthlyStockMovementDTO;
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
+import com.smartsupplypro.inventory.dto.ReasonBreakdownDTO;
 import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
 import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
@@ -149,6 +150,38 @@ public class StockAnalyticsService {
 
         return rows.stream()
                 .map(r -> new MonthlyStockMovementDTO(
+                        (String) r[0],
+                        asNumber(r[1]).longValue(),
+                        asNumber(r[2]).longValue()
+                ))
+                .toList();
+    }
+
+    /**
+     * Aggregates stock movement per reason (sign-split) inside a time window.
+     * Defaults to the last 30 days when bounds are null.
+     *
+     * @param startDate  inclusive start date (nullable)
+     * @param endDate    inclusive end date (nullable)
+     * @param supplierId optional supplier filter (null/blank = all suppliers)
+     * @param itemName   optional partial item name (null/blank = all items)
+     * @return per-reason increase/decrease totals ordered by reason ascending
+     * @throws InvalidRequestException if {@code startDate > endDate}
+     */
+    public List<ReasonBreakdownDTO> getReasonBreakdown(LocalDate startDate,
+                                                       LocalDate endDate,
+                                                       String supplierId,
+                                                       String itemName) {
+        LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);
+        // startOfDay/endOfDay so the inclusive bounds match TIMESTAMP column precision
+        LocalDateTime from = startOfDay(window[0]);
+        LocalDateTime to   = endOfDay(window[1]);
+
+        List<Object[]> rows = stockHistoryRepository.getReasonBreakdown(
+                from, to, blankToNull(supplierId), blankToNull(itemName));
+
+        return rows.stream()
+                .map(r -> new ReasonBreakdownDTO(
                         (String) r[0],
                         asNumber(r[1]).longValue(),
                         asNumber(r[2]).longValue()
