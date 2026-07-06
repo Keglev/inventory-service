@@ -145,7 +145,9 @@
     "itemFilter": "Filter by item name",
     "reasonFilter": "Reasons",
     "drilldownTitle": "Matching stock changes",
-    "empty": "No stock changes in this period"
+    "empty": "No stock changes in this period",
+    "typeToSearch": "Type at least 2 letters to search items",
+    "noMatches": "No matching items"
   },
   "employees": {
     "chartTitle": "Changes per employee",

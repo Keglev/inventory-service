@@ -145,7 +145,9 @@
     "itemFilter": "Nach Artikelname filtern",
     "reasonFilter": "Gründe",
     "drilldownTitle": "Passende Bestandsänderungen",
-    "empty": "Keine Bestandsänderungen im Zeitraum"
+    "empty": "Keine Bestandsänderungen im Zeitraum",
+    "typeToSearch": "Mindestens 2 Buchstaben eingeben, um Artikel zu suchen",
+    "noMatches": "Keine passenden Artikel"
   },
   "employees": {
     "chartTitle": "Änderungen pro Mitarbeiter",

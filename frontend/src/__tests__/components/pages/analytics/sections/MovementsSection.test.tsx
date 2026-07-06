@@ -50,6 +50,13 @@ vi.mock('@/api/analytics/updates', () => ({
   getStockUpdates: (...args: unknown[]) => mockGetStockUpdates(...args),
 }));
 
+const mockSearchItemsGlobal = vi.fn();
+const mockSearchItemsForSupplier = vi.fn();
+vi.mock('@/api/shared', () => ({
+  searchItemsGlobal: (...args: unknown[]) => mockSearchItemsGlobal(...args),
+  searchItemsForSupplier: (...args: unknown[]) => mockSearchItemsForSupplier(...args),
+}));
+
 const MovementsSection = (await import('@/pages/analytics/sections/MovementsSection')).default;
 
 function setup() {
@@ -71,6 +78,10 @@ describe('MovementsSection', () => {
     mockGetStockUpdates.mockResolvedValue([
       { timestamp: '2026-02-03T09:00:00', itemName: 'Item A', delta: -7, reason: 'SOLD' },
     ]);
+    mockSearchItemsGlobal.mockResolvedValue([
+      { id: 'itemA', name: 'Deep Groove Ball Bearing 6204-2RS' },
+    ]);
+    mockSearchItemsForSupplier.mockResolvedValue([]);
   });
 
   it('renders both direction cards and the drilldown from one breakdown query', async () => {
@@ -105,6 +116,30 @@ describe('MovementsSection', () => {
     // Increases card has no visible rows anymore -> shared no-data state.
     await waitFor(() => {
       expect(screen.getByText('analytics:cards.noData')).toBeInTheDocument();
+    });
+  });
+
+  it('applies the SELECTED item name to the breakdown query (selection-based filter)', async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId('reason-breakdown-card')).toHaveLength(2);
+    });
+
+    const input = screen.getByLabelText('analytics:movements.itemFilter');
+    await user.type(input, 'bear');
+
+    await waitFor(() => {
+      expect(mockSearchItemsGlobal).toHaveBeenCalledWith('bear', 50);
+    });
+
+    await user.click(await screen.findByText('Deep Groove Ball Bearing 6204-2RS'));
+
+    await waitFor(() => {
+      expect(mockGetReasonBreakdown).toHaveBeenCalledWith(
+        expect.objectContaining({ itemName: 'Deep Groove Ball Bearing 6204-2RS' }),
+      );
     });
   });
 

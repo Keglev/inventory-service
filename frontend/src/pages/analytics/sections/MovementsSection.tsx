@@ -19,10 +19,14 @@
  */
 import * as React from 'react';
 import { Box, Chip, Stack, TextField, Typography } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+import type { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getReasonBreakdown, type ReasonBreakdownRow } from '../../../api/analytics/reasonBreakdown';
+import { searchItemsForSupplier, searchItemsGlobal, type ItemRef } from '@/api/shared';
+import { useDebounced } from '../../../hooks/useDebounced';
 import ReasonBreakdownChartCard, { type ReasonBreakdownDatum } from './ReasonBreakdownChartCard';
 import MovementDrilldownTable from './MovementDrilldownTable';
 import { STOCK_CHANGE_REASONS, reasonLabel, type StockChangeReasonKey } from './reasonLabels';
@@ -33,19 +37,46 @@ export type MovementsSectionProps = {
   supplierId?: string | null;
 };
 
-const ITEM_FILTER_DEBOUNCE_MS = 400;
+const ITEM_SEARCH_MIN_CHARS = 2;
 
 export default function MovementsSection({ from, to, supplierId }: MovementsSectionProps) {
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
 
-  // Item-name filter: immediate input state, debounced applied value.
-  const [itemInput, setItemInput] = React.useState('');
-  const [itemName, setItemName] = React.useState('');
+  // Item filter is SELECTION-based (matches the app's other item pickers):
+  // the user types >= 2 letters, gets real item-name suggestions, and only an
+  // explicit selection filters the charts and drilldown. This avoids silent
+  // no-match filtering from free text that isn't a name substring.
+  const [itemQuery, setItemQuery] = React.useState('');
+  const debouncedQuery = useDebounced(itemQuery, 250);
+  const [selectedItem, setSelectedItem] = React.useState<ItemRef | null>(null);
+  const itemName = selectedItem?.name ?? '';
+
+  /** Reset text + selection when supplier changes (prevents cross-supplier leaks). */
   React.useEffect(() => {
-    const id = window.setTimeout(() => setItemName(itemInput.trim()), ITEM_FILTER_DEBOUNCE_MS);
-    return () => window.clearTimeout(id);
-  }, [itemInput]);
+    setItemQuery('');
+    setSelectedItem(null);
+  }, [supplierId]);
+
+  const itemSearchQ = useQuery<ItemRef[]>({
+    queryKey: ['analytics', 'movementsItemSearch', supplierId ?? null, debouncedQuery],
+    queryFn: async () => {
+      if (supplierId) return searchItemsForSupplier(supplierId, debouncedQuery, 50);
+      return searchItemsGlobal(debouncedQuery, 50);
+    },
+    enabled: debouncedQuery.trim().length >= ITEM_SEARCH_MIN_CHARS,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+  });
+
+  /** Keep the current selection visible even when options refetch. */
+  const itemOptions: ItemRef[] = React.useMemo(() => {
+    const base = itemSearchQ.data ?? [];
+    if (selectedItem && !base.some((o) => o.id === selectedItem.id)) {
+      return [selectedItem, ...base];
+    }
+    return base;
+  }, [itemSearchQ.data, selectedItem]);
 
   // Reason multi-select: empty selection = all reasons.
   const [selectedReasons, setSelectedReasons] = React.useState<StockChangeReasonKey[]>([]);
@@ -86,12 +117,43 @@ export default function MovementsSection({ from, to, supplierId }: MovementsSect
   return (
     <Box sx={{ gridColumn: '1 / -1', display: 'grid', gap: 2 }}>
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }}>
-        <TextField
-          size="small"
-          label={t('analytics:movements.itemFilter')}
-          value={itemInput}
-          onChange={(e) => setItemInput(e.target.value)}
-          sx={{ minWidth: 240 }}
+        <Autocomplete<ItemRef, false, false, false>
+          sx={{ minWidth: 280 }}
+          options={itemOptions}
+          getOptionLabel={(o) => o.name}
+          loading={itemSearchQ.isLoading}
+          value={selectedItem}
+          onChange={(_e, val) => {
+            setSelectedItem(val);
+            if (val) setItemQuery(val.name);
+          }}
+          inputValue={itemQuery}
+          onInputChange={(_e, val) => setItemQuery(val)}
+          forcePopupIcon={false}
+          clearOnBlur={false}
+          selectOnFocus
+          handleHomeEndKeys
+          filterOptions={(x) => x}
+          isOptionEqualToValue={(o, v) => o.id === v.id}
+          renderInput={(params: AutocompleteRenderInputParams) => {
+            const typed = debouncedQuery.trim().length >= ITEM_SEARCH_MIN_CHARS;
+            const showNoMatches = typed && !itemSearchQ.isLoading && itemOptions.length === 0;
+            return (
+              <TextField
+                {...params}
+                size="small"
+                label={t('analytics:movements.itemFilter')}
+                helperText={
+                  showNoMatches
+                    ? t('analytics:movements.noMatches')
+                    : !typed
+                    ? t('analytics:movements.typeToSearch')
+                    : ' '
+                }
+                FormHelperTextProps={{ sx: { minHeight: 20, mt: 0.5 } }}
+              />
+            );
+          }}
         />
         <Stack direction="row" spacing={0.5} useFlexGap flexWrap="wrap" alignItems="center">
           <Typography variant="body2" sx={{ mr: 0.5, color: 'text.secondary' }}>
