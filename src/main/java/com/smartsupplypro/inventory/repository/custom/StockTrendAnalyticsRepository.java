@@ -65,4 +65,17 @@ public interface StockTrendAnalyticsRepository {
      * @return daily price trend ordered by day ascending
      */
     List<PriceTrendDTO> getItemPriceTrend(String itemId, String supplierId, LocalDateTime start, LocalDateTime end);
+
+    /**
+     * Returns per-employee daily change counts inside a time window.
+     *
+     * <p>Result rows: [createdBy, day (YYYY-MM-DD string), changeCount],
+     * ordered by day ascending then creator. Weekly/monthly rollups are a
+     * service-layer concern.
+     *
+     * @param start inclusive lower bound
+     * @param end   inclusive upper bound
+     * @return raw aggregation rows
+     */
+    List<Object[]> getDailyEmployeeActivity(LocalDateTime start, LocalDateTime end);
 }

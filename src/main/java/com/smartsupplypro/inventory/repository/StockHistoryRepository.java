@@ -112,6 +112,49 @@ public interface StockHistoryRepository
         @Param("itemName") String itemName
     );
 
+    /**
+     * Paginated per-employee change list joined with item and supplier names.
+     *
+     * <p>{@code createdBy} matches case-insensitively; pass {@code null} for all
+     * employees. Ordering is fixed to newest first; callers pass an UNSORTED
+     * {@link Pageable} (page/size only) because the ORDER BY is part of the SQL.
+     *
+     * @param start     inclusive lower bound
+     * @param end       inclusive upper bound
+     * @param createdBy optional creator (email) filter
+     * @param pageable  page/size (unsorted)
+     * @return rows of [itemName, supplierName, quantityChange, reason, createdBy, createdAt]
+     */
+    @Query(
+        value = """
+            SELECT i.name AS item_name,
+                   s.name AS supplier_name,
+                   sh.quantity_change,
+                   sh.reason,
+                   sh.created_by,
+                   sh.created_at
+            FROM stock_history sh
+            JOIN inventory_item i ON sh.item_id = i.id
+            LEFT JOIN supplier s ON sh.supplier_id = s.id
+            WHERE sh.created_at BETWEEN :start AND :end
+              AND (:createdBy IS NULL OR LOWER(sh.created_by) = LOWER(:createdBy))
+            ORDER BY sh.created_at DESC
+        """,
+        countQuery = """
+            SELECT COUNT(*)
+            FROM stock_history sh
+            WHERE sh.created_at BETWEEN :start AND :end
+              AND (:createdBy IS NULL OR LOWER(sh.created_by) = LOWER(:createdBy))
+        """,
+        nativeQuery = true
+    )
+    Page<Object[]> findEmployeeChanges(
+        @Param("start") LocalDateTime start,
+        @Param("end") LocalDateTime end,
+        @Param("createdBy") String createdBy,
+        Pageable pageable
+    );
+
     List<StockHistory> findByItemIdOrderByTimestampDesc(String itemId);
 
     List<StockHistory> findByReasonOrderByTimestampDesc(StockChangeReason reason);

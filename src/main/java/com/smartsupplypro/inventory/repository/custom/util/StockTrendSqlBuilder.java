@@ -193,4 +193,50 @@ public final class StockTrendSqlBuilder {
             ORDER BY 1
         """;
     }
+
+    /**
+     * Returns the H2 SQL for per-employee daily change counts.
+     *
+     * <p>Groups by creator and calendar day using YEAR/MONTH/DAY_OF_MONTH string
+     * assembly (same technique as the monthly movement variant). Weekly and
+     * monthly rollups happen in the service layer to avoid dialect-specific
+     * week functions.
+     *
+     * @return SQL ordered by day then creator; accepts {@code :start} and {@code :end}
+     */
+    public static String buildH2DailyEmployeeActivitySql() {
+        return """
+            SELECT sh.created_by,
+                   CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
+                          LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'), '-',
+                          LPAD(CAST(DAY_OF_MONTH(sh.created_at) AS VARCHAR), 2, '0')) AS day_str,
+                   COUNT(*) AS change_count
+            FROM stock_history sh
+            WHERE sh.created_at BETWEEN :start AND :end
+            GROUP BY sh.created_by,
+                     CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
+                            LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'), '-',
+                            LPAD(CAST(DAY_OF_MONTH(sh.created_at) AS VARCHAR), 2, '0'))
+            ORDER BY 2, 1
+        """;
+    }
+
+    /**
+     * Returns the Oracle SQL for per-employee daily change counts.
+     *
+     * <p>Uses {@code TO_CHAR(..., 'YYYY-MM-DD')} for day formatting.
+     *
+     * @return SQL ordered by day then creator; accepts {@code :start} and {@code :end}
+     */
+    public static String buildOracleDailyEmployeeActivitySql() {
+        return """
+            SELECT sh.created_by,
+                   TO_CHAR(sh.created_at, 'YYYY-MM-DD') AS day_str,
+                   COUNT(*) AS change_count
+            FROM stock_history sh
+            WHERE sh.created_at BETWEEN :start AND :end
+            GROUP BY sh.created_by, TO_CHAR(sh.created_at, 'YYYY-MM-DD')
+            ORDER BY 2, 1
+        """;
+    }
 }

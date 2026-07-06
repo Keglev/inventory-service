@@ -133,6 +133,32 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Executes dialect-specific native SQL for per-employee daily change counts.
+     *
+     * <p>Passes bounds as {@code java.sql.Timestamp} for JDBC driver compatibility,
+     * mirroring the daily valuation query.
+     *
+     * @param start inclusive lower bound
+     * @param end   inclusive upper bound
+     * @return rows of [createdBy, dayString, changeCount] ordered by day then creator
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Object[]> getDailyEmployeeActivity(LocalDateTime start, LocalDateTime end) {
+        final String sql = dialectDetector.isH2()
+            ? StockTrendSqlBuilder.buildH2DailyEmployeeActivitySql()
+            : StockTrendSqlBuilder.buildOracleDailyEmployeeActivitySql();
+
+        final java.sql.Timestamp startTs = java.sql.Timestamp.valueOf(start);
+        final java.sql.Timestamp endTs = java.sql.Timestamp.valueOf(end);
+
+        return em.createNativeQuery(sql)
+                .setParameter("start", startTs)
+                .setParameter("end", endTs)
+                .getResultList();
+    }
+
     private String normalizeOptionalParam(String param) {
         return (param == null || param.isBlank()) ? null : param.trim();
     }
