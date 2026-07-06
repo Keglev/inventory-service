@@ -138,11 +138,13 @@ export default function EmployeesSection({ from, to }: EmployeesSectionProps) {
                   <YAxis allowDecimals={false} tickFormatter={formatCount} />
                   <Tooltip formatter={formatCount} />
                   <Legend />
+                  {/* Emails contain dots; Recharts resolves string dataKeys as
+                      nested paths, so each series needs a function accessor. */}
                   {employees.map((emp, idx) => (
                     <Line
                       key={emp.createdBy}
                       type="monotone"
-                      dataKey={emp.createdBy}
+                      dataKey={(row: ChartRow) => (row[emp.createdBy] as number | undefined) ?? 0}
                       name={emp.displayName}
                       stroke={seriesColors[idx]}
                       strokeWidth={2}

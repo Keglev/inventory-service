@@ -10,6 +10,8 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+const { lineProps } = vi.hoisted(() => ({ lineProps: [] as Array<Record<string, unknown>> }));
+
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => (
     <div data-testid="chart-container">{children}</div>
@@ -17,7 +19,10 @@ vi.mock('recharts', () => ({
   BarChart: ({ children }: { children?: React.ReactNode }) => <div data-testid="bar-chart">{children}</div>,
   LineChart: ({ children }: { children?: React.ReactNode }) => <div data-testid="line-chart">{children}</div>,
   Bar: () => <div data-testid="bar" />,
-  Line: () => <div data-testid="line" />,
+  Line: (props: Record<string, unknown>) => {
+    lineProps.push(props);
+    return <div data-testid="line" />;
+  },
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
   XAxis: () => <div data-testid="x-axis" />,
   YAxis: () => <div data-testid="y-axis" />,
@@ -61,6 +66,7 @@ function setup() {
 describe('EmployeesSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    lineProps.length = 0;
     mockGetEmployeeActivity.mockResolvedValue([
       { period: '2026-02', createdBy: 'jonas.weber@example.com', displayName: 'Jonas Weber', changeCount: 4 },
       { period: '2026-03', createdBy: 'jonas.weber@example.com', displayName: 'Jonas Weber', changeCount: 6 },
@@ -93,6 +99,22 @@ describe('EmployeesSection', () => {
       expect(screen.getByText('Item A')).toBeInTheDocument();
     });
     expect(screen.getByText('Supplier One')).toBeInTheDocument();
+  });
+
+  it('uses function dataKeys so email series keys are not read as dot-paths', async () => {
+    setup();
+
+    await waitFor(() => {
+      expect(lineProps.length).toBeGreaterThan(0);
+    });
+
+    const dataKey = lineProps[0].dataKey;
+    expect(typeof dataKey).toBe('function');
+    // The accessor must read the flat email key directly (Recharts would split
+    // a string key on dots and resolve undefined for every point).
+    const accessor = dataKey as (row: Record<string, unknown>) => number;
+    expect(accessor({ period: '2026-02', 'jonas.weber@example.com': 4 })).toBe(4);
+    expect(accessor({ period: '2026-03' })).toBe(0);
   });
 
   it('refetches the aggregation when the granularity toggle changes', async () => {
