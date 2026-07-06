@@ -62,7 +62,7 @@ class StockHistoryRepositoryEmployeeChangesTest {
     @Test
     void paginates_andFiltersByCreator_caseInsensitive() {
         Page<Object[]> page = stockHistoryRepository.findEmployeeChanges(
-                from, to, "ALICE@EXAMPLE.COM", PageRequest.of(0, 2));
+                from, to, "ALICE@EXAMPLE.COM", null, PageRequest.of(0, 2));
 
         assertEquals(3L, page.getTotalElements());
         assertEquals(2, page.getContent().size());
@@ -78,8 +78,19 @@ class StockHistoryRepositoryEmployeeChangesTest {
     @Test
     void nullCreator_returnsAllEmployees() {
         Page<Object[]> page = stockHistoryRepository.findEmployeeChanges(
-                from, to, null, PageRequest.of(0, 10));
+                from, to, null, null, PageRequest.of(0, 10));
 
         assertEquals(4L, page.getTotalElements());
+    }
+
+    @Test
+    void filtersBySupplier_whenSupplierIdGiven() {
+        Page<Object[]> matching = stockHistoryRepository.findEmployeeChanges(
+                from, to, null, "sup1", PageRequest.of(0, 10));
+        Page<Object[]> nonMatching = stockHistoryRepository.findEmployeeChanges(
+                from, to, null, "supX", PageRequest.of(0, 10));
+
+        assertEquals(4L, matching.getTotalElements());
+        assertEquals(0L, nonMatching.getTotalElements());
     }
 }

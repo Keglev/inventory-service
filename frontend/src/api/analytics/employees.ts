@@ -37,6 +37,8 @@ export type EmployeeActivityRow = {
 
 export type EmployeeActivityFilter = {
     granularity?: EmployeeGranularity;
+    /** Optional supplier filter (stock changes recorded for that supplier). */
+    supplierId?: string;
     /** ISO date (YYYY-MM-DD) lower bound. */
     from?: string;
     /** ISO date (YYYY-MM-DD) upper bound. */
@@ -55,6 +57,7 @@ export async function getEmployeeActivity(filter?: EmployeeActivityFilter): Prom
             granularity: filter?.granularity || undefined,
             startDate: filter?.from || undefined,
             endDate: filter?.to || undefined,
+            supplierId: filter?.supplierId || undefined,
         };
 
         const { data } = await http.get<unknown>('/api/analytics/by-employee', { params });
@@ -99,6 +102,8 @@ export type EmployeeChangesPage = {
 export type EmployeeChangesFilter = {
     /** Optional creator (email) filter, case-insensitive on the backend. */
     createdBy?: string;
+    /** Optional supplier filter (stock changes recorded for that supplier). */
+    supplierId?: string;
     from?: string;
     to?: string;
     /** Zero-based page index. */
@@ -117,6 +122,7 @@ export async function getEmployeeChanges(filter?: EmployeeChangesFilter): Promis
     try {
         const params: Record<string, string | number | undefined> = {
             createdBy: filter?.createdBy || undefined,
+            supplierId: filter?.supplierId || undefined,
             startDate: filter?.from || undefined,
             endDate: filter?.to || undefined,
             page: filter?.page ?? 0,

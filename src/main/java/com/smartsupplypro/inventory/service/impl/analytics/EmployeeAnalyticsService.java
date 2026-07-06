@@ -65,7 +65,8 @@ public class EmployeeAnalyticsService {
      */
     public List<EmployeeActivityDTO> getEmployeeActivity(String granularity,
                                                          LocalDate startDate,
-                                                         LocalDate endDate) {
+                                                         LocalDate endDate,
+                                                         String supplierId) {
         final String g = granularity == null ? "monthly" : granularity.toLowerCase(Locale.ROOT);
         if (!GRANULARITIES.contains(g)) {
             throw new InvalidRequestException("granularity must be one of: daily, weekly, monthly");
@@ -73,7 +74,7 @@ public class EmployeeAnalyticsService {
         LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);
 
         List<Object[]> rows = stockHistoryRepository.getDailyEmployeeActivity(
-                startOfDay(window[0]), endOfDay(window[1]));
+                startOfDay(window[0]), endOfDay(window[1]), blankToNull(supplierId));
         Map<String, String> displayNames = loadDisplayNames();
 
         // creator -> (period -> count); TreeMap keeps periods sorted per creator
@@ -113,10 +114,12 @@ public class EmployeeAnalyticsService {
     public Page<StockUpdateResultDTO> getEmployeeChanges(String createdBy,
                                                          LocalDate startDate,
                                                          LocalDate endDate,
+                                                         String supplierId,
                                                          Pageable pageable) {
         LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);
         Page<Object[]> page = stockHistoryRepository.findEmployeeChanges(
-                startOfDay(window[0]), endOfDay(window[1]), blankToNull(createdBy), pageable);
+                startOfDay(window[0]), endOfDay(window[1]), blankToNull(createdBy),
+                blankToNull(supplierId), pageable);
 
         return page.map(r -> new StockUpdateResultDTO(
                 (String) r[0],

@@ -58,7 +58,7 @@ class StockTrendAnalyticsRepositoryImplEmployeeH2Test {
         StockTrendAnalyticsRepositoryImpl repo = repoH2();
 
         List<Object[]> out = repo.getDailyEmployeeActivity(
-                LocalDateTime.of(2026, 2, 1, 0, 0), LocalDateTime.of(2026, 2, 28, 23, 59));
+                LocalDateTime.of(2026, 2, 1, 0, 0), LocalDateTime.of(2026, 2, 28, 23, 59), null);
 
         assertEquals(3, out.size());
         // ordered by day then creator
@@ -71,6 +71,20 @@ class StockTrendAnalyticsRepositoryImplEmployeeH2Test {
         assertEquals("bob@example.com", out.get(2)[0]);
         assertEquals("2026-02-06", out.get(2)[1]);
         assertEquals(1L, ((Number) out.get(2)[2]).longValue());
+    }
+
+    @Test
+    void filtersBySupplier_whenSupplierIdGiven() {
+        seedTestData();
+        StockTrendAnalyticsRepositoryImpl repo = repoH2();
+
+        List<Object[]> matching = repo.getDailyEmployeeActivity(
+                LocalDateTime.of(2026, 2, 1, 0, 0), LocalDateTime.of(2026, 2, 28, 23, 59), "sup1");
+        List<Object[]> nonMatching = repo.getDailyEmployeeActivity(
+                LocalDateTime.of(2026, 2, 1, 0, 0), LocalDateTime.of(2026, 2, 28, 23, 59), "supX");
+
+        assertEquals(3, matching.size());
+        assertEquals(0, nonMatching.size());
     }
 
     private StockTrendAnalyticsRepositoryImpl repoH2() {

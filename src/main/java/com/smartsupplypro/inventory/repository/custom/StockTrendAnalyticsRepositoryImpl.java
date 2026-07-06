@@ -145,7 +145,7 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
      */
     @SuppressWarnings("unchecked")
     @Override
-    public List<Object[]> getDailyEmployeeActivity(LocalDateTime start, LocalDateTime end) {
+    public List<Object[]> getDailyEmployeeActivity(LocalDateTime start, LocalDateTime end, String supplierId) {
         final String sql = dialectDetector.isH2()
             ? StockTrendSqlBuilder.buildH2DailyEmployeeActivitySql()
             : StockTrendSqlBuilder.buildOracleDailyEmployeeActivitySql();
@@ -156,6 +156,7 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
         return em.createNativeQuery(sql)
                 .setParameter("start", startTs)
                 .setParameter("end", endTs)
+                .setParameter("supplierId", normalizeOptionalParam(supplierId))
                 .getResultList();
     }
 

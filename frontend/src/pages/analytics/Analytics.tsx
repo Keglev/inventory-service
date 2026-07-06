@@ -161,7 +161,7 @@ export default function Analytics(): JSX.Element {
         )}
 
         {section === 'employees' && (
-          <EmployeesSection from={filters.from} to={filters.to} />
+          <EmployeesSection from={filters.from} to={filters.to} supplierId={filters.supplierId} />
         )}
 
         {section === 'pricing' && (

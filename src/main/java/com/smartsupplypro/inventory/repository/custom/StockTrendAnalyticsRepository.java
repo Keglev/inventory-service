@@ -77,5 +77,5 @@ public interface StockTrendAnalyticsRepository {
      * @param end   inclusive upper bound
      * @return raw aggregation rows
      */
-    List<Object[]> getDailyEmployeeActivity(LocalDateTime start, LocalDateTime end);
+    List<Object[]> getDailyEmployeeActivity(LocalDateTime start, LocalDateTime end, String supplierId);
 }

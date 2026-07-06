@@ -36,11 +36,12 @@ import { reasonLabel } from './reasonLabels';
 export type EmployeesSectionProps = {
   from?: string;
   to?: string;
+  supplierId?: string | null;
 };
 
 type ChartRow = { period: string } & Record<string, number | string>;
 
-export default function EmployeesSection({ from, to }: EmployeesSectionProps) {
+export default function EmployeesSection({ from, to, supplierId }: EmployeesSectionProps) {
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
@@ -52,17 +53,17 @@ export default function EmployeesSection({ from, to }: EmployeesSectionProps) {
   // A new window invalidates the current page position.
   React.useEffect(() => {
     setPage(0);
-  }, [from, to]);
+  }, [from, to, supplierId]);
 
   const activityQ = useQuery<EmployeeActivityRow[]>({
-    queryKey: ['analytics', 'employeeActivity', granularity, from ?? null, to ?? null],
-    queryFn: () => getEmployeeActivity({ granularity, from, to }),
+    queryKey: ['analytics', 'employeeActivity', granularity, from ?? null, to ?? null, supplierId ?? null],
+    queryFn: () => getEmployeeActivity({ granularity, from, to, supplierId: supplierId ?? undefined }),
     staleTime: 60_000,
   });
 
   const changesQ = useQuery<EmployeeChangesPage>({
-    queryKey: ['analytics', 'employeeChanges', from ?? null, to ?? null, page, rowsPerPage],
-    queryFn: () => getEmployeeChanges({ from, to, page, size: rowsPerPage }),
+    queryKey: ['analytics', 'employeeChanges', from ?? null, to ?? null, supplierId ?? null, page, rowsPerPage],
+    queryFn: () => getEmployeeChanges({ from, to, supplierId: supplierId ?? undefined, page, size: rowsPerPage }),
     staleTime: 60_000,
   });
 

@@ -97,8 +97,8 @@ class EmployeeAnalyticsControllerSecurityTest {
         @Bean
         EmployeeAnalyticsService employeeAnalyticsService() {
             EmployeeAnalyticsService mock = Mockito.mock(EmployeeAnalyticsService.class);
-            when(mock.getEmployeeActivity(any(), any(), any())).thenReturn(Collections.emptyList());
-            when(mock.getEmployeeChanges(any(), any(), any(), any())).thenReturn(Page.empty());
+            when(mock.getEmployeeActivity(any(), any(), any(), any())).thenReturn(Collections.emptyList());
+            when(mock.getEmployeeChanges(any(), any(), any(), any(), any())).thenReturn(Page.empty());
             return mock;
         }
 

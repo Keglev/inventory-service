@@ -213,6 +213,7 @@ public final class StockTrendSqlBuilder {
                    COUNT(*) AS change_count
             FROM stock_history sh
             WHERE sh.created_at BETWEEN :start AND :end
+              AND (:supplierId IS NULL OR sh.supplier_id = :supplierId)
             GROUP BY sh.created_by,
                      CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
                             LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'), '-',
@@ -235,6 +236,7 @@ public final class StockTrendSqlBuilder {
                    COUNT(*) AS change_count
             FROM stock_history sh
             WHERE sh.created_at BETWEEN :start AND :end
+              AND (:supplierId IS NULL OR sh.supplier_id = :supplierId)
             GROUP BY sh.created_by, TO_CHAR(sh.created_at, 'YYYY-MM-DD')
             ORDER BY 2, 1
         """;

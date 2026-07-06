@@ -54,11 +54,12 @@ public class EmployeeAnalyticsController {
     @GetMapping("/by-employee")
     public ResponseEntity<List<EmployeeActivityDTO>> getEmployeeActivity(
             @RequestParam(required = false) String granularity,
+            @RequestParam(required = false) String supplierId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
         return ResponseEntity.ok(
-                employeeAnalyticsService.getEmployeeActivity(granularity, startDate, endDate));
+                employeeAnalyticsService.getEmployeeActivity(granularity, startDate, endDate, supplierId));
     }
 
     /**
@@ -75,6 +76,7 @@ public class EmployeeAnalyticsController {
     @GetMapping("/employee-changes")
     public ResponseEntity<Page<StockUpdateResultDTO>> getEmployeeChanges(
             @RequestParam(required = false) String createdBy,
+            @RequestParam(required = false) String supplierId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "0") int page,
@@ -82,6 +84,6 @@ public class EmployeeAnalyticsController {
 
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));
         return ResponseEntity.ok(
-                employeeAnalyticsService.getEmployeeChanges(createdBy, startDate, endDate, pageable));
+                employeeAnalyticsService.getEmployeeChanges(createdBy, startDate, endDate, supplierId, pageable));
     }
 }

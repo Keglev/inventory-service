@@ -28,7 +28,7 @@ describe('api/analytics/employees', () => {
       await getEmployeeActivity({ granularity: 'weekly', from: '2026-01-01', to: '2026-03-31' });
 
       expect(httpGet).toHaveBeenCalledWith('/api/analytics/by-employee', {
-        params: { granularity: 'weekly', startDate: '2026-01-01', endDate: '2026-03-31' },
+        params: { granularity: 'weekly', startDate: '2026-01-01', endDate: '2026-03-31', supplierId: undefined },
       });
     });
 
@@ -79,6 +79,7 @@ describe('api/analytics/employees', () => {
       expect(httpGet).toHaveBeenCalledWith('/api/analytics/employee-changes', {
         params: {
           createdBy: undefined,
+          supplierId: undefined,
           startDate: '2026-02-01',
           endDate: '2026-02-28',
           page: 0,

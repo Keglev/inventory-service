@@ -138,6 +138,7 @@ public interface StockHistoryRepository
             LEFT JOIN supplier s ON sh.supplier_id = s.id
             WHERE sh.created_at BETWEEN :start AND :end
               AND (:createdBy IS NULL OR LOWER(sh.created_by) = LOWER(:createdBy))
+              AND (:supplierId IS NULL OR sh.supplier_id = :supplierId)
             ORDER BY sh.created_at DESC
         """,
         countQuery = """
@@ -145,6 +146,7 @@ public interface StockHistoryRepository
             FROM stock_history sh
             WHERE sh.created_at BETWEEN :start AND :end
               AND (:createdBy IS NULL OR LOWER(sh.created_by) = LOWER(:createdBy))
+              AND (:supplierId IS NULL OR sh.supplier_id = :supplierId)
         """,
         nativeQuery = true
     )
@@ -152,6 +154,7 @@ public interface StockHistoryRepository
         @Param("start") LocalDateTime start,
         @Param("end") LocalDateTime end,
         @Param("createdBy") String createdBy,
+        @Param("supplierId") String supplierId,
         Pageable pageable
     );
 
