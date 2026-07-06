@@ -54,7 +54,7 @@ public class InventoryItemLookupValidator {
         for (InventoryItem item : matches) {
             if (!item.getId().equals(excludeId) && item.getPrice().compareTo(price) == 0) {
                 throw new DuplicateResourceException(
-                    "Another inventory item with this name and price already exists."
+                    "Another inventory item with this name and price already exists.", "name"
                 );
             }
         }
@@ -75,7 +75,7 @@ public class InventoryItemLookupValidator {
         for (InventoryItem item : matches) {
             if (item.getPrice().compareTo(price) == 0) {
                 throw new DuplicateResourceException(
-                    "An inventory item with this name and price already exists."
+                    "An inventory item with this name and price already exists.", "name"
                 );
             }
         }
@@ -96,7 +96,7 @@ public class InventoryItemLookupValidator {
         for (InventoryItem item : matches) {
             if (!item.getId().equals(excludeId)) {
                 throw new DuplicateResourceException(
-                    "Another inventory item with this SKU already exists."
+                    "Another inventory item with this SKU already exists.", "sku"
                 );
             }
         }
@@ -112,7 +112,7 @@ public class InventoryItemLookupValidator {
     public static void validateSkuNotExists(String sku, InventoryItemRepository repo) {
         if (!repo.findBySkuIgnoreCase(sku).isEmpty()) {
             throw new DuplicateResourceException(
-                "An inventory item with this SKU already exists."
+                "An inventory item with this SKU already exists.", "sku"
             );
         }
     }

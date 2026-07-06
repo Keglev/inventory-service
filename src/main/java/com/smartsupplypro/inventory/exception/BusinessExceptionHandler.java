@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.exception;
 
 import java.time.Instant;
+import java.util.Map;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -27,7 +28,10 @@ public class BusinessExceptionHandler {
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex) {
         String message = ex.getMessage() != null ? ex.getMessage() : "Duplicate resource";
-        return respond(HttpStatus.CONFLICT, message);
+        Map<String, String> fieldErrors = ex.getField() != null
+            ? Map.of(ex.getField(), message)
+            : null;
+        return respond(HttpStatus.CONFLICT, message, fieldErrors);
     }
 
     @ExceptionHandler(IllegalStateException.class)
@@ -39,7 +43,13 @@ public class BusinessExceptionHandler {
     }
 
     private ResponseEntity<ErrorResponse> respond(HttpStatus status, String message) {
+        return respond(status, message, null);
+    }
+
+    private ResponseEntity<ErrorResponse> respond(HttpStatus status, String message,
+                                                  Map<String, String> fieldErrors) {
         return ResponseEntity.status(status)
-            .body(new ErrorResponse(status.name().toLowerCase(), message, Instant.now().toString()));
+            .body(new ErrorResponse(status.name().toLowerCase(), message,
+                Instant.now().toString(), fieldErrors));
     }
 }

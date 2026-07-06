@@ -119,8 +119,9 @@ class InventoryItemLookupValidatorTest {
             other.setId("other-id");
             other.setSku("SKU-DUP-1");
             when(repo.findBySkuIgnoreCase("SKU-DUP-1")).thenReturn(List.of(other));
-            assertThrows(DuplicateResourceException.class,
+            DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
                 () -> InventoryItemLookupValidator.validateSkuNotExists("self-id", "SKU-DUP-1", repo));
+            assertEquals("sku", ex.getField());
         }
 
         @Test

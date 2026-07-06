@@ -2,6 +2,8 @@ package com.smartsupplypro.inventory.exception;
 
 import java.time.Instant;
 import java.util.NoSuchElementException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -32,14 +34,18 @@ import jakarta.validation.ConstraintViolationException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /** Handles {@code @Valid} validation failures; extracts the first field error. */
+    /** Handles {@code @Valid} validation failures; reports every field error. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(fe ->
+            fieldErrors.putIfAbsent(fe.getField(), sanitize(fe.getDefaultMessage())));
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .findFirst()
                 .map(fe -> fe.getField() + " " + fe.getDefaultMessage())
                 .orElse("Validation failed");
-        return respond(HttpStatus.BAD_REQUEST, sanitize(message));
+        return respond(HttpStatus.BAD_REQUEST, sanitize(message),
+            fieldErrors.isEmpty() ? null : fieldErrors);
     }
 
     /** Handles JSR-380 constraint violations ({@code @NotNull}, {@code @Size}). */
@@ -137,8 +143,14 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ErrorResponse> respond(HttpStatus status, String message) {
+        return respond(status, message, null);
+    }
+
+    private ResponseEntity<ErrorResponse> respond(HttpStatus status, String message,
+                                                  Map<String, String> fieldErrors) {
         return ResponseEntity.status(status)
-            .body(new ErrorResponse(status.name().toLowerCase(), message, Instant.now().toString()));
+            .body(new ErrorResponse(status.name().toLowerCase(), message,
+                Instant.now().toString(), fieldErrors));
     }
 
     /** Strips file paths, class names, SQL fragments, and credentials from error messages. */

@@ -20,4 +20,17 @@ class ErrorResponseBuilderTest {
         assertEquals("Invalid input", response.message());
         assertEquals("2026-01-01T00:00:00Z", response.timestamp());
     }
+
+    @Test
+    @DisplayName("record: fieldErrors component is stored; three-arg constructor leaves it null")
+    void record_fieldErrorsComponent() {
+        ErrorResponse withFields = new ErrorResponse(
+            "conflict", "SKU exists", "2026-01-01T00:00:00Z",
+            java.util.Map.of("sku", "SKU exists"));
+        assertEquals("SKU exists", withFields.fieldErrors().get("sku"));
+
+        ErrorResponse withoutFields = new ErrorResponse(
+            "conflict", "SKU exists", "2026-01-01T00:00:00Z");
+        assertEquals(null, withoutFields.fieldErrors());
+    }
 }

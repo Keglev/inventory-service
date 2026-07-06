@@ -3,6 +3,7 @@ package com.smartsupplypro.inventory.exception;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -50,6 +51,24 @@ class BusinessExceptionHandlerTest {
             var response = handler.handleDuplicateResource(new DuplicateResourceException((String) null));
             assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
             assertEquals("Duplicate resource", body(response).message());
+        }
+
+        @Test
+        @DisplayName("duplicate with field: response carries fieldErrors map")
+        void duplicateWithField_carriesFieldErrors() {
+            var response = handler.handleDuplicateResource(
+                new DuplicateResourceException("An inventory item with this SKU already exists.", "sku"));
+            assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+            assertEquals("An inventory item with this SKU already exists.",
+                body(response).fieldErrors().get("sku"));
+        }
+
+        @Test
+        @DisplayName("duplicate without field: fieldErrors is absent")
+        void duplicateWithoutField_hasNoFieldErrors() {
+            var response = handler.handleDuplicateResource(
+                new DuplicateResourceException("Duplicate resource"));
+            assertEquals(null, body(response).fieldErrors());
         }
     }
 
