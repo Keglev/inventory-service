@@ -12,7 +12,8 @@
     "overview": "Overview",
     "pricing": "Pricing",
     "inventory": "Inventory Health",
-    "finance": "Finance"
+    "finance": "Finance",
+    "movements": "Movements"
   },
   "priceTrend": {
     "selectSupplier": "Choose a supplier to pick an item",
@@ -123,6 +124,27 @@
     },
     "exportCsv": "Export CSV",
     "empty": "No stock changes for the current filters."
+  },
+  "reasons": {
+    "INITIAL_STOCK": "Initial stock",
+    "MANUAL_UPDATE": "Manual adjustment",
+    "PRICE_CHANGE": "Price change",
+    "SOLD": "Sold",
+    "SCRAPPED": "Scrapped",
+    "DESTROYED": "Destroyed",
+    "DAMAGED": "Damaged",
+    "EXPIRED": "Expired",
+    "LOST": "Lost",
+    "RETURNED_TO_SUPPLIER": "Returned to supplier",
+    "RETURNED_BY_CUSTOMER": "Returned by customer"
+  },
+  "movements": {
+    "increasesTitle": "Stock increases by reason",
+    "decreasesTitle": "Stock decreases by reason",
+    "itemFilter": "Filter by item name",
+    "reasonFilter": "Reasons",
+    "drilldownTitle": "Matching stock changes",
+    "empty": "No stock changes in this period"
   },
   "state": {
     "loading": "Loading…",

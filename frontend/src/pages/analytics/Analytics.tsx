@@ -50,6 +50,7 @@ import FinancialSummaryCard from './blocks/FinancialSummaryCard';
 import ItemUpdateFrequencyCard from './blocks/ItemUpdateFrequencyCard';
 import RecentStockActivityCard from './blocks/RecentStockActivityCard';
 import MovementLineCard from './blocks/MovementLineCard';
+import MovementsSection from './sections/MovementsSection';
 
 // Filters UI
 import { Filters, type AnalyticsFilters } from './components/filters';
@@ -63,7 +64,7 @@ export default function Analytics(): JSX.Element {
     // Read section from route: /analytics/:section?
   const { section: rawSection } = useParams();
   const section: AnalyticsSection =
-    rawSection === 'pricing' || rawSection === 'inventory' || rawSection === 'finance'
+    rawSection === 'pricing' || rawSection === 'inventory' || rawSection === 'finance' || rawSection === 'movements'
       ? (rawSection as AnalyticsSection)
       : 'overview';
   
@@ -146,6 +147,10 @@ export default function Analytics(): JSX.Element {
             {/* A2 (Line) */}
             <MovementLineCard from={filters.from} to={filters.to} supplierId={filters.supplierId} />
           </>
+        )}
+
+        {section === 'movements' && (
+          <MovementsSection from={filters.from} to={filters.to} supplierId={filters.supplierId} />
         )}
 
         {section === 'pricing' && (

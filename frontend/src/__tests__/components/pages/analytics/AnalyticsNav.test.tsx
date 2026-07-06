@@ -33,7 +33,7 @@ const AnalyticsNav = (await import('@/pages/analytics/components/AnalyticsNav'))
 // Helpers
 // -----------------------------------------------------------------------------
 
-type Section = 'overview' | 'pricing' | 'inventory' | 'finance';
+type Section = 'overview' | 'movements' | 'pricing' | 'inventory' | 'finance';
 
 function setup(section: Section = 'overview') {
   return render(
@@ -56,9 +56,19 @@ describe('AnalyticsNav', () => {
     setup();
 
     expect(screen.getByRole('tab', { name: /overview/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /movements/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /pricing/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /inventory/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /finance/i })).toBeInTheDocument();
+  });
+
+  it('navigates to the movements route when the movements tab is clicked', async () => {
+    const user = userEvent.setup();
+
+    setup();
+
+    await user.click(screen.getByRole('tab', { name: /movements/i }));
+    expect(mockNavigate).toHaveBeenCalledWith('/analytics/movements');
   });
 
   it('marks the active tab based on the current section', () => {

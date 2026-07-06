@@ -65,6 +65,10 @@ vi.mock('@/pages/analytics/blocks/RecentStockActivityCard', () => ({
   default: () => <div data-testid="recent-stock-activity-card">RecentStockActivityCard</div>,
 }));
 
+vi.mock('@/pages/analytics/sections/MovementsSection', () => ({
+  default: () => <div data-testid="movements-section">MovementsSection</div>,
+}));
+
 vi.mock('@/pages/analytics/blocks/MovementLineCard', () => ({
   default: () => <div data-testid="movement-line-card">MovementLineCard</div>,
 }));
@@ -152,6 +156,12 @@ describe('Analytics', () => {
     setup(queryClient, '/analytics/finance');
     expect(screen.getByTestId('analytics-nav')).toHaveTextContent('finance');
     expect(screen.getByTestId('financial-summary-card')).toBeInTheDocument();
+  });
+
+  it('renders the "movements" section when route is /analytics/movements', () => {
+    setup(queryClient, '/analytics/movements');
+    expect(screen.getByTestId('analytics-nav')).toHaveTextContent('movements');
+    expect(screen.getByTestId('movements-section')).toBeInTheDocument();
   });
 
   it('renders stock value card in the "overview" section', () => {

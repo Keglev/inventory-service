@@ -12,7 +12,8 @@
     "overview": "Übersicht",
     "pricing": "Preisgestaltung",
     "inventory": "Bestandsgesundheit",
-    "finance": "Finanzen"
+    "finance": "Finanzen",
+    "movements": "Warenbewegungen"
   },
   "priceTrend": {
     "selectSupplier": "Wähle einen Lieferanten, um einen Artikel auszuwählen",
@@ -123,6 +124,27 @@
     },
     "exportCsv": "CSV exportieren",
     "empty": "Keine Bestandsänderungen für die Filter vorhanden."
+  },
+  "reasons": {
+    "INITIAL_STOCK": "Anfangsbestand",
+    "MANUAL_UPDATE": "Manuelle Korrektur",
+    "PRICE_CHANGE": "Preisänderung",
+    "SOLD": "Verkauft",
+    "SCRAPPED": "Verschrottet",
+    "DESTROYED": "Zerstört",
+    "DAMAGED": "Beschädigt",
+    "EXPIRED": "Abgelaufen",
+    "LOST": "Verloren",
+    "RETURNED_TO_SUPPLIER": "Rückgabe an Lieferant",
+    "RETURNED_BY_CUSTOMER": "Rückgabe vom Kunden"
+  },
+  "movements": {
+    "increasesTitle": "Bestandszugänge nach Grund",
+    "decreasesTitle": "Bestandsabgänge nach Grund",
+    "itemFilter": "Nach Artikelname filtern",
+    "reasonFilter": "Gründe",
+    "drilldownTitle": "Passende Bestandsänderungen",
+    "empty": "Keine Bestandsänderungen im Zeitraum"
   },
   "state": {
     "loading": "Wird geladen…",
