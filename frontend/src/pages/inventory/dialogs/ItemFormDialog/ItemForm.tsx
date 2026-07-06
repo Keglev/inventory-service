@@ -19,7 +19,7 @@
  *   removals and other flows; those reasons do not apply to creation.
  * - CREATE_REASON_OPTIONS is a module-level const (the create-mode
  *   reason subset is static and never recreated per render).
- * - Code field is render-only with a "Optional for now" tooltip,
+ * - Code / SKU field is editable and required (backend-enforced unique),
  *   reflecting the current backend behavior that codes are not yet
  *   user-editable. Will revisit if the backend exposes code edits.
  * - Price field uses a Euro adornment, consistent with the German-first
@@ -51,7 +51,7 @@ import type { UseItemFormReturn } from './useItemForm';
  * @enterprise
  * - Error banner at top for generic form errors
  * - Supplier Autocomplete fully controlled to prevent desync
- * - Code field read-only with helpful tooltip
+ * - Code / SKU field editable, required
  * - Quantity and price with numeric constraints
  * - Reason dropdown only shown in create mode (no initial?.id)
  */

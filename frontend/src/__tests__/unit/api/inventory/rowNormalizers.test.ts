@@ -49,6 +49,18 @@ describe('toInventoryRow', () => {
         createdAt: '2024-03-03T00:00:00Z',
       });
     });
+
+    it('maps the backend sku field into code', () => {
+      const result = toInventoryRow({
+        id: 'ITEM-3',
+        name: 'Widget',
+        sku: 'BRG-6204-2RS',
+        supplierId: 'SUP-1',
+        quantity: 5,
+      });
+
+      expect(result?.code).toBe('BRG-6204-2RS');
+    });
   });
 
   describe('fallbacks', () => {

@@ -15,6 +15,7 @@
 
 import type { InventoryRow } from './types';
 import { pickString, pickNumber } from '@/api/shared';
+import { extractCode } from './rowFieldExtractors';
 
 /**
  * Normalize a raw API response object into a strongly-typed InventoryRow.
@@ -44,7 +45,8 @@ export const toInventoryRow = (raw: unknown): InventoryRow | null => {
   if (!id) return null;
 
   const name = pickString(r, 'name') ?? '—';
-  const code = pickString(r, 'code') ?? null;
+  // Single source of truth for the code/SKU key chain (code, sku, itemCode)
+  const code = extractCode(r);
 
   const supplierIdStr = pickString(r, 'supplierId');
   const supplierId: string | number | null = supplierIdStr ?? null;
