@@ -6,13 +6,13 @@ import java.time.YearMonth;
 import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -138,11 +138,21 @@ public class EmployeeAnalyticsService {
         };
     }
 
+    /**
+     * Email -> display name map. Rows without an email are skipped; rows
+     * without a name fall back to the email. OAuth-provisioned users are not
+     * guaranteed to carry a name, so this must never NPE on production data.
+     */
     private Map<String, String> loadDisplayNames() {
-        return appUserRepository.findAll().stream()
-                .collect(Collectors.toMap(
-                        u -> u.getEmail().toLowerCase(Locale.ROOT),
-                        AppUser::getName,
-                        (a, b) -> a));
+        Map<String, String> names = new HashMap<>();
+        for (AppUser u : appUserRepository.findAll()) {
+            String email = u.getEmail();
+            if (email == null || email.isBlank()) {
+                continue;
+            }
+            String display = (u.getName() == null || u.getName().isBlank()) ? email : u.getName();
+            names.putIfAbsent(email.toLowerCase(Locale.ROOT), display);
+        }
+        return names;
     }
 }

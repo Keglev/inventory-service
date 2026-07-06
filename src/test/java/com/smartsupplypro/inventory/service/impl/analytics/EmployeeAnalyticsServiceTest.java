@@ -100,6 +100,18 @@ class EmployeeAnalyticsServiceTest {
     }
 
     @Test
+    void displayNameLookup_toleratesNullUserName() {
+        when(stockHistoryRepository.getDailyEmployeeActivity(any(), any()))
+                .thenReturn(List.<Object[]>of(row("ghost@example.com", "2026-02-01", 1)));
+        when(appUserRepository.findAll()).thenReturn(List.of(user("ghost@example.com", null)));
+
+        List<EmployeeActivityDTO> out = service.getEmployeeActivity(
+                "daily", LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 28));
+
+        assertEquals("ghost@example.com", out.get(0).displayName());
+    }
+
+    @Test
     void unknownGranularity_throwsInvalidRequest() {
         assertThrows(InvalidRequestException.class, () ->
                 service.getEmployeeActivity("hourly", LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 28)));
