@@ -63,7 +63,7 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
         void should_map_all_entities_to_dtos() {
             InventoryItem e1 = item("i-1", "Widget", 10, new BigDecimal("2.50"), "S1");
             InventoryItem e2 = item("i-2", "Gadget", 0,  new BigDecimal("9.99"), "S2");
-            when(repository.findAll()).thenReturn(List.of(e1, e2));
+            when(repository.findByActiveTrue()).thenReturn(List.of(e1, e2));
 
             List<InventoryItemDTO> result = service.getAll();
 
@@ -86,7 +86,7 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
 
         @Test
         void should_delegate_count_to_repository() {
-            when(repository.count()).thenReturn(123L);
+            when(repository.countByActiveTrue()).thenReturn(123L);
 
             assertEquals(123L, service.countItems());
         }

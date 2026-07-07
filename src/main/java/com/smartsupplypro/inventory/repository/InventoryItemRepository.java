@@ -30,6 +30,13 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     @NonNull
     List<InventoryItem> findAll();
 
+    /** Fetches all ACTIVE items (soft-deleted items excluded) with supplier eagerly loaded. */
+    @EntityGraph(attributePaths = {"supplier"})
+    List<InventoryItem> findByActiveTrue();
+
+    /** Counts ACTIVE items (soft-deleted items excluded). */
+    long countByActiveTrue();
+
     /**
      * Checks whether any item linked to the supplier has quantity above {@code minQty}.
      * Used to block supplier deletion when active stock remains.
@@ -54,10 +61,11 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * @param supplierId optional supplier filter (null returns all suppliers)
      * @return Object arrays with low-stock item data
      */
-    @Query(value = "SELECT name, quantity, minimum_quantity FROM inventory_item "
-        + "WHERE quantity < minimum_quantity "
-        + "AND (:supplierId IS NULL OR supplier_id = :supplierId) "
-        + "ORDER BY quantity ASC", nativeQuery = true)
+    @Query("SELECT i.name, i.quantity, i.minimumQuantity FROM InventoryItem i "
+        + "WHERE i.quantity < i.minimumQuantity "
+        + "AND i.active = true "
+        + "AND (:supplierId IS NULL OR i.supplierId = :supplierId) "
+        + "ORDER BY i.quantity ASC")
     List<Object[]> findItemsBelowMinimumStockFiltered(@Param("supplierId") String supplierId);
 
     /**
@@ -66,7 +74,7 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * @param threshold quantity threshold
      * @return count of items strictly below the threshold
      */
-    @Query("SELECT COUNT(i) FROM InventoryItem i WHERE COALESCE(i.quantity, 0) < :threshold")
+    @Query("SELECT COUNT(i) FROM InventoryItem i WHERE i.active = true AND COALESCE(i.quantity, 0) < :threshold")
     long countWithQuantityBelow(@Param("threshold") int threshold);
 
     /**
@@ -78,8 +86,9 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      */
     @EntityGraph(attributePaths = {"supplier"})
     @Query("SELECT i FROM InventoryItem i "
-        + "WHERE LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%')) "
-        + "OR LOWER(i.sku) LIKE LOWER(CONCAT('%', :name, '%')) "
+        + "WHERE i.active = true "
+        + "AND (LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%')) "
+        + "OR LOWER(i.sku) LIKE LOWER(CONCAT('%', :name, '%'))) "
         + "ORDER BY i.price ASC")
     Page<InventoryItem> findByNameSortedByPrice(@Param("name") String name, Pageable pageable);
 }

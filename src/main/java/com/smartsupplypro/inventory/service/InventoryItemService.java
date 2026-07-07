@@ -63,8 +63,9 @@ public interface InventoryItemService {
     Optional<InventoryItemDTO> update(String id, InventoryItemDTO dto);
 
     /**
-     * Deletes an inventory item. Only permitted when the item's quantity is
-     * already zero; no stock-history row is written by deletion itself.
+     * Soft-deletes an inventory item: marks it inactive instead of removing
+     * the row, preserving its stock history for auditing. Only permitted
+     * when the item's quantity is already zero.
      * @param id inventory item ID
      */
     void delete(String id);

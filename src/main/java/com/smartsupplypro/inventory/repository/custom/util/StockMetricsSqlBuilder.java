@@ -80,7 +80,8 @@ public final class StockMetricsSqlBuilder {
         return """
             SELECT i."NAME", i."QUANTITY", i."MINIMUM_QUANTITY"
             FROM "INVENTORY_ITEM" i
-            WHERE i."QUANTITY" < i."MINIMUM_QUANTITY"
+            WHERE i."ACTIVE" = 1
+              AND i."QUANTITY" < i."MINIMUM_QUANTITY"
               AND (:supplierId IS NULL OR UPPER(i."SUPPLIER_ID") = UPPER(:supplierId))
             ORDER BY i."QUANTITY" ASC
         """;
@@ -95,7 +96,8 @@ public final class StockMetricsSqlBuilder {
         return """
             SELECT i.name, i.quantity, i.minimum_quantity
             FROM inventory_item i
-            WHERE i.quantity < i.minimum_quantity
+            WHERE i.active = 1
+              AND i.quantity < i.minimum_quantity
               AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
             ORDER BY i.quantity ASC
         """;

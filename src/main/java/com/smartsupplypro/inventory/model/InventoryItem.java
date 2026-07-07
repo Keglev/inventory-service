@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -12,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import org.hibernate.type.NumericBooleanConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -66,6 +68,17 @@ public class InventoryItem {
 
     @Column(name = "CREATED_AT", nullable = false)
     private LocalDateTime createdAt;
+
+    /**
+     * Soft-delete flag (CB-APP93). Items are never physically removed;
+     * deletion marks them inactive so stock history survives for auditing.
+     * Defaults to true for new and builder-created instances; the column
+     * default covers legacy inserts that omit the field.
+     */
+    @Builder.Default
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "ACTIVE", nullable = false, columnDefinition = "NUMBER(1) DEFAULT 1")
+    private boolean active = true;
 
     // read-only join; SUPPLIER_ID is the authoritative FK column
     @ManyToOne(fetch = FetchType.LAZY)

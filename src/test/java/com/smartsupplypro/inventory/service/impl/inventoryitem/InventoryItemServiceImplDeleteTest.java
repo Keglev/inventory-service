@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -30,9 +32,10 @@ import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidati
 
 /**
  * Unit tests for {@link InventoryItemServiceImpl#delete(String)} covering the
- * not-found guard, the quantity-must-be-zero guard, and the invariant that
- * deletion writes no stock-history row (the preceding quantity adjustment is
- * the audited stock movement).
+ * not-found guard, the quantity-must-be-zero guard, and the soft-delete
+ * invariants: the row is marked inactive rather than removed, and no
+ * stock-history row is written (the preceding quantity adjustment is the
+ * audited stock movement).
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -61,6 +64,12 @@ class InventoryItemServiceImplDeleteTest {
         existing.setSku("SKU-SVC-1");
 
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
+
+        lenient().when(validationHelper.validateExists(anyString())).thenAnswer(inv -> {
+            String id = inv.getArgument(0);
+            return repository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Item not found: " + id));
+        });
 
         lenient().doAnswer(inv -> {
             String id = inv.getArgument(0);
@@ -96,14 +105,16 @@ class InventoryItemServiceImplDeleteTest {
     }
 
     @Test
-    void should_delete_without_writing_stock_history_when_quantity_is_zero() {
+    void should_soft_delete_without_writing_stock_history_when_quantity_is_zero() {
         InventoryItem found = copyOf(existing);
         found.setQuantity(0);
         when(repository.findById("item-1")).thenReturn(Optional.of(found));
 
         service.delete("item-1");
 
-        verify(repository).deleteById("item-1");
+        assertFalse(found.isActive());
+        verify(repository).save(found);
+        verify(repository, never()).deleteById(anyString());
         verifyNoInteractions(auditHelper);
         verifyNoInteractions(stockHistoryService);
     }

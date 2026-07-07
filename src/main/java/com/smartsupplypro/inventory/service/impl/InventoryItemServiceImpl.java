@@ -45,7 +45,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     /** {@inheritDoc} */
     @Override
     public List<InventoryItemDTO> getAll() {
-        return repository.findAll().stream().map(inventoryItemMapper::toDTO).toList();
+        return repository.findByActiveTrue().stream().map(inventoryItemMapper::toDTO).toList();
     }
 
     /** {@inheritDoc} */
@@ -65,7 +65,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Override
     @Transactional(readOnly = true)
     public long countItems() {
-        return repository.count();
+        return repository.countByActiveTrue();
     }
 
     /**
@@ -122,16 +122,20 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     /**
      * {@inheritDoc}
      *
-     * <p>Deletion is a pure catalog removal. It is only permitted once the
-     * quantity has already been reduced to zero, so the stock movement that
-     * emptied the item was logged by the quantity adjustment that preceded
-     * it. No additional stock-history row is written here.</p>
+     * <p>Soft delete (CB-APP93): the row is never physically removed. The
+     * item is marked inactive, which hides it from the active catalog while
+     * its full stock history stays available for auditing. Only permitted
+     * once the quantity is zero, so the movement that emptied the item was
+     * already logged by the preceding quantity adjustment. The item's SKU
+     * remains reserved by the unique constraint.</p>
      */
     @Override
     @Transactional
     public void delete(String id) {
         validationHelper.validateForDeletion(id);
-        repository.deleteById(id);
+        InventoryItem item = validationHelper.validateExists(id);
+        item.setActive(false);
+        repository.save(item);
     }
 
     /** {@inheritDoc} */
