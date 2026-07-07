@@ -20,7 +20,7 @@
 
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { SettingsProvider } from '../../../context/settings/SettingsContext';
 import { useSettings } from '@/hooks/useSettings';
 
@@ -84,13 +84,16 @@ describe('SettingsProvider', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders children', () => {
+  it('renders children', async () => {
     getSystemInfoMock.mockResolvedValue({});
     renderProvider(<div data-testid="child">child</div>);
     expect(screen.getByTestId('child')).toBeInTheDocument();
+
+    // Flush the mount-time getSystemInfo() resolution so its state update is wrapped in act.
+    await act(async () => {});
   });
 
-  it('hydrates preferences from localStorage when present', () => {
+  it('hydrates preferences from localStorage when present', async () => {
     getSystemInfoMock.mockResolvedValue({});
     getItem.mockReturnValue(
       JSON.stringify({ dateFormat: 'YYYY-MM-DD', numberFormat: 'EN_US', tableDensity: 'compact' })
@@ -99,9 +102,12 @@ describe('SettingsProvider', () => {
     renderProvider();
     expect(screen.getByTestId('date')).toHaveTextContent('YYYY-MM-DD');
     expect(screen.getByTestId('density')).toHaveTextContent('compact');
+
+    // Settle the async system-info fetch triggered on mount.
+    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
   });
 
-  it('falls back to defaults when stored preferences are corrupted', () => {
+  it('falls back to defaults when stored preferences are corrupted', async () => {
     getSystemInfoMock.mockResolvedValue({});
     getItem.mockReturnValue('not-json');
     vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -111,6 +117,9 @@ describe('SettingsProvider', () => {
     // Defaults for English locale.
     expect(screen.getByTestId('date')).toHaveTextContent('MM/DD/YYYY');
     expect(screen.getByTestId('number')).toHaveTextContent('EN_US');
+
+    // Settle the async system-info fetch triggered on mount.
+    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
   });
 
   it('fetches system info on mount (success)', async () => {

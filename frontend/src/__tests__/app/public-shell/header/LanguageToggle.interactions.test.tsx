@@ -13,7 +13,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LanguageToggle from '../../../../app/public-shell/header/LanguageToggle';
 
@@ -99,9 +99,16 @@ describe('LanguageToggle (interactions)', () => {
     renderToggle({ onToggle });
 
     const button = screen.getByRole('button');
-    button.focus();
+    await act(async () => {
+      button.focus();
+    });
     await user.keyboard('{Enter}');
 
     expect(onToggle).toHaveBeenCalledTimes(1);
+
+    // Settle MUI focus tooltip + ButtonBase ripple exit timers before unmount.
+    await act(async () => {
+      button.blur();
+    });
   });
 });

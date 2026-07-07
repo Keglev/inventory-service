@@ -17,6 +17,23 @@ import userEvent from '@testing-library/user-event';
 import type { AnalyticsFilters } from '@/pages/analytics/components/filters/Filters.types';
 import { DateRangeFilter } from '@/pages/analytics/components/filters/DateRangeFilter';
 
+// B2 (CM-APP24): provide a react-i18next mock so useTranslation resolves without an
+// i18n instance in this suite, silencing the NO_I18NEXT_INSTANCE warning. The stub
+// mirrors react-i18next's no-instance fallback exactly — it returns an explicit string
+// fallback / options.defaultValue when supplied, otherwise the key — so rendered text
+// (and therefore every assertion) is unchanged.
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, second?: unknown): string =>
+      typeof second === 'string'
+        ? second
+        : second && typeof second === 'object' && 'defaultValue' in second
+          ? String((second as { defaultValue?: unknown }).defaultValue ?? key)
+          : key,
+    i18n: { language: 'en' },
+  }),
+}));
+
 // -----------------------------------------------------------------------------
 // Test data
 // -----------------------------------------------------------------------------
