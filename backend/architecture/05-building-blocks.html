@@ -155,12 +155,11 @@
         interfaces that cover the core domain.
         <code>InventoryItemRepository</code> declares
         <code>@EntityGraph(attributePaths = {"supplier"})</code> on both
-        <code>findAll()</code> and
-        <code>findByNameSortedByPrice()</code> to eager-load the
-        supplier association in a single JOIN, preventing N+1 queries on
-        the two hot list paths. Complex analytics aggregations that
-        exceed what JPQL can express cleanly are handled by three custom
-        repository implementations:
+        <code>findAll()</code> and <code>searchActiveItems()</code> to
+        eager-load the supplier association in a single JOIN, preventing
+        N+1 queries on the two hot list paths. Complex analytics
+        aggregations that exceed what JPQL can express cleanly are
+        handled by three custom repository implementations:
         <code>StockDetailQueryRepositoryImpl</code>,
         <code>StockMetricsRepositoryImpl</code>, and
         <code>StockTrendAnalyticsRepositoryImpl</code>, each backed by
