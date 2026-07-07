@@ -3,8 +3,9 @@
  * @module tests/unit/api/inventory/listFetcher
  * @what_is_under_test getInventoryPage
  * @responsibility
- * Guarantees page fetch behavior for the inventory list: request parameter wiring, tolerant
- * response extraction, row normalization filtering, and a safe empty-page fallback on failures.
+ * Guarantees page fetch behavior for the inventory list: request parameter wiring against
+ * GET /api/inventory/search (including grid-to-entity sort field mapping), Spring Page
+ * envelope extraction, row normalization filtering, and a safe empty-page fallback on failures.
  * @out_of_scope
  * HTTP transport details (headers, auth, interceptors, retries, and timeouts).
  * @out_of_scope
@@ -46,25 +47,71 @@ describe('getInventoryPage', () => {
   });
 
   describe('success paths', () => {
-    it('returns normalized rows and total when backend responds with an array', async () => {
+    it('calls the paginated search endpoint and returns normalized rows with the Page total', async () => {
       const row = { id: 'ITEM-1' };
-      httpMock.get.mockResolvedValue({ data: [{ id: 'ITEM-1' }, { id: 'invalid' }] });
+      httpMock.get.mockResolvedValue({
+        data: { content: [{ id: 'ITEM-1' }, { id: 'invalid' }], totalElements: 42 },
+      });
       toInventoryRowMock.mockReturnValueOnce(row).mockReturnValueOnce(null);
 
       const result = await getInventoryPage(params);
 
-      expect(httpMock.get).toHaveBeenCalledWith('/api/inventory', {
+      expect(httpMock.get).toHaveBeenCalledWith('/api/inventory/search', {
         params: {
-          page: params.page,
-          pageSize: params.pageSize,
-          q: '',
+          name: '',
           supplierId: params.supplierId,
-          sort: params.sort,
+          belowMinimumOnly: false,
+          page: params.page,
+          size: params.pageSize,
+          sort: 'name,asc',
         },
       });
       expect(result).toEqual({
         items: [row],
-        total: 2,
+        total: 42,
+        page: params.page,
+        pageSize: params.pageSize,
+      });
+    });
+
+    it('maps grid sort fields to backend entity properties', async () => {
+      httpMock.get.mockResolvedValue({ data: { content: [], totalElements: 0 } });
+
+      await getInventoryPage({ ...params, sort: 'onHand,desc' });
+
+      expect(httpMock.get).toHaveBeenCalledWith('/api/inventory/search', {
+        params: expect.objectContaining({ sort: 'quantity,desc' }),
+      });
+    });
+
+    it('falls back to name,asc for unknown sort fields', async () => {
+      httpMock.get.mockResolvedValue({ data: { content: [], totalElements: 0 } });
+
+      await getInventoryPage({ ...params, sort: 'totalValue,desc' });
+
+      expect(httpMock.get).toHaveBeenCalledWith('/api/inventory/search', {
+        params: expect.objectContaining({ sort: 'name,asc' }),
+      });
+    });
+
+    it('forwards q as name and the belowMinimumOnly flag', async () => {
+      httpMock.get.mockResolvedValue({ data: { content: [], totalElements: 0 } });
+
+      await getInventoryPage({ ...params, q: 'bolt', belowMinimumOnly: true });
+
+      expect(httpMock.get).toHaveBeenCalledWith('/api/inventory/search', {
+        params: expect.objectContaining({ name: 'bolt', belowMinimumOnly: true }),
+      });
+    });
+
+    it('yields an empty page when the response is not a Spring Page envelope', async () => {
+      httpMock.get.mockResolvedValue({ data: [{ id: 'ITEM-1' }] });
+
+      const result = await getInventoryPage(params);
+
+      expect(result).toEqual({
+        items: [],
+        total: 0,
         page: params.page,
         pageSize: params.pageSize,
       });

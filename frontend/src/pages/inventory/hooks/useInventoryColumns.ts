@@ -124,6 +124,9 @@ export const useInventoryColumns = (): GridColDef[] => {
         headerName: t('inventory:table.totalValue', 'Total Value (€)'),
         type: 'number',
         width: 150,
+        // Server-computed (quantity x price); not an entity column, so it
+        // cannot participate in server-side sorting (CB-APP68).
+        sortable: false,
         valueGetter: (_value: unknown, row: InventoryRow | null) => {
           if (!row) return null;
           if (typeof row.totalValue === 'number' && Number.isFinite(row.totalValue)) {

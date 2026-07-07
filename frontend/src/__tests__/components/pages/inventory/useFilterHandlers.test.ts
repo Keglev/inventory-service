@@ -24,13 +24,14 @@ describe('useFilterHandlers', () => {
     expect(result.current.handleBelowMinChange).toBeTypeOf('function');
   });
 
-  it('updates q when searching', () => {
-    const mockState = makeInventoryState();
+  it('updates q and resets the page index when searching', () => {
+    const mockState = makeInventoryState({ paginationModel: { page: 3, pageSize: 25 } });
     const { result } = renderHook(() => useFilterHandlers(mockState));
 
     result.current.handleSearchChange('test query');
 
     expect(mockState.setQ).toHaveBeenCalledWith('test query');
+    expect(mockState.setPaginationModel).toHaveBeenCalledWith({ page: 0, pageSize: 25 });
   });
 
   it('updates supplier and resets related state', () => {

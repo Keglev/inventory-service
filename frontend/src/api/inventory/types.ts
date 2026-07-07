@@ -21,6 +21,8 @@ export interface InventoryListParams {
   supplierId?: string | number;
   /** Sort expression, e.g., "name,asc". */
   sort?: ServerSort;
+  /** When true, restrict to items whose quantity is below their minimum. */
+  belowMinimumOnly?: boolean;
 }
 
 /** Inventory row shape used by the grid. */

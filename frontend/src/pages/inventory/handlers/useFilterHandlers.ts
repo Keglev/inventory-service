@@ -12,8 +12,9 @@
  *   because the previously selected item and the search text do not
  *   apply to the new supplier. handleBelowMinChange clears pagination
  *   because the filtered row count usually changes. handleSearchChange
- *   is a pure setter -- debounce is handled upstream in the input
- *   control.
+ *   also resets the page index: with server-side pagination a changed
+ *   search term invalidates the current page position. Debounce of the
+ *   search term is handled downstream in useInventoryPageData.
  * - Pagination reset preserves the user's pageSize choice and only
  *   resets the page index. Row-density preference survives filter
  *   changes.
@@ -34,6 +35,7 @@ export function useFilterHandlers(state: InventoryStateReturn) {
   const handleSearchChange = useCallback(
     (newQ: string) => {
       state.setQ(newQ);
+      state.setPaginationModel({ page: 0, pageSize: state.paginationModel.pageSize });
     },
     [state]
   );

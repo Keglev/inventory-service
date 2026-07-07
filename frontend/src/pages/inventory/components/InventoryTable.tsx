@@ -7,10 +7,10 @@
  * and sorting, row selection by click, and stock-level row coloring.
  *
  * @enterprise
- * - Server-side pagination is reflected via paginationModel +
- *   rowCount. The 0-based-vs-1-based conversion is centralized in
- *   useDataFetchingLogic (CB-F site); this component sends MUI's
- *   native 0-based model up untouched.
+ * - Server-side pagination and sorting (paginationMode/sortingMode
+ *   "server"): the grid renders exactly the rows it is given and uses
+ *   rowCount for the pager. Both MUI and Spring Pageable are 0-based;
+ *   this component sends MUI's native 0-based model up untouched.
  * - Row classification (row-critical / row-warning) is delegated to
  *   getRowClassName from useInventoryRowStyling. The CSS in this file
  *   only paints the classes; the threshold rule (deficit >= 5) lives
@@ -85,6 +85,8 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
       <DataGrid
         rows={rows}
         columns={columns}
+        paginationMode="server"
+        sortingMode="server"
         paginationModel={paginationModel}
         onPaginationModelChange={onPaginationChange}
         sortModel={sortModel}

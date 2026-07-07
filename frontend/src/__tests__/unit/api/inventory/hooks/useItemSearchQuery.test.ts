@@ -4,7 +4,7 @@
  * @what_is_under_test useItemSearchQuery
  * @responsibility
  * Guarantees the hook’s public contract: queryKey composition, enabled gating for type-ahead UX,
- * and supplier isolation via client-side filtering when upstream results are broader than expected.
+ * and delegation to the supplier-scoped fetcher (supplier isolation is server-side, CB-APP68).
  * @out_of_scope
  * Backend search relevance/ranking correctness (server-side implementation and scoring).
  * @out_of_scope
@@ -41,11 +41,11 @@ describe('useItemSearchQuery', () => {
     vi.clearAllMocks();
   });
 
-  it('filters results client-side and maps to item options', async () => {
+  it('delegates to the supplier-scoped fetcher and maps to item options', async () => {
     arrangeUseQueryConfigCapture();
     searchItemsForSupplierMock.mockResolvedValue([
       { id: 'ITEM-1', name: 'Widget', supplierId: 'SUP-1' },
-      { id: 'ITEM-2', name: 'Other', supplierId: 'SUP-2' },
+      { id: 'ITEM-2', name: 'Wrench', supplierId: 'SUP-1' },
     ]);
 
     const result = useItemSearchQuery(supplier, 'bolt');
@@ -58,8 +58,9 @@ describe('useItemSearchQuery', () => {
     const cfg = useQueryMock.mock.calls[0][0];
     expect(await cfg.queryFn()).toEqual([
       { id: 'ITEM-1', name: 'Widget' },
+      { id: 'ITEM-2', name: 'Wrench' },
     ]);
-    expect(searchItemsForSupplierMock).toHaveBeenCalledWith('SUP-1', 'bolt', 500);
+    expect(searchItemsForSupplierMock).toHaveBeenCalledWith('SUP-1', 'bolt', 50);
     expect(result).toEqual({ data: undefined });
   });
 

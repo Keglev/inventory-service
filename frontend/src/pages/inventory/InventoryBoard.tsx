@@ -155,7 +155,7 @@ const InventoryBoard: React.FC = () => {
             </Box>
           ) : (
             <InventoryTable
-              rows={data.filteredItems}
+              rows={data.items}
               columns={data.columns}
               paginationModel={state.paginationModel}
               onPaginationChange={handlePaginationChange}

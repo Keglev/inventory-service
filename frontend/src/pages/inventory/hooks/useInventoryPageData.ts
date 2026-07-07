@@ -16,13 +16,10 @@
  * - serverPage is 0-based (Spring Pageable), matching the MUI grid's own
  *   0-based page model; it is forwarded to getInventoryPage unchanged.
  *   No index conversion occurs anywhere in this path.
- * - Client-side supplier filtering is a defensive safeguard: the backend
- *   already filters by supplierId, but the client re-filters in case
- *   the response leaks cross-supplier rows. Same defensive posture as
- *   PriceTrendCard in analytics.
- * - Below-minimum filtering falls back to DEFAULT_MIN_QUANTITY
- *   (config/inventoryPolicy) when minQty is absent or non-positive —
- *   the same rule used by useInventoryRowStyling and LowStockTable.
+ * - All filtering is server-side (CB-APP68): q, supplierId, and the
+ *   below-minimum flag are sent to GET /api/inventory/search and the
+ *   returned page is rendered as-is. The search input is debounced here
+ *   so the server is not queried on every keystroke.
  */
 
 import * as React from 'react';
@@ -32,7 +29,7 @@ import type { GridColDef } from '@mui/x-data-grid';
 import { useInventoryColumns } from './useInventoryColumns';
 import { useInventoryRowStyling } from './useInventoryRowStyling';
 import { logError } from '../../../utils/logger';
-import { DEFAULT_MIN_QUANTITY } from '../../../config/inventoryPolicy';
+import { useDebounced } from '../../../hooks/useDebounced';
 
 /**
  * Inventory data loading and processing results.
@@ -48,8 +45,8 @@ export interface InventoryPageDataResult {
   suppliers: ReturnType<typeof useSuppliersQuery>['data'];
   supplierLoading: boolean;
 
-  // Processed/filtered items
-  filteredItems: InventoryRow[];
+  // Items of the current server page (all filtering is server-side)
+  items: InventoryRow[];
 
   // Column definitions
   columns: GridColDef[];
@@ -66,8 +63,8 @@ export interface InventoryPageDataResult {
  *
  * Handles:
  * - Loading inventory from backend with filters/pagination/sorting
+ *   (search, supplier, and below-minimum filters are server-side)
  * - Loading suppliers for filter dropdown
- * - Client-side filtering by search query and below-min threshold
  * - Column definitions with proper formatting
  * - Row classification for visual styling
  *
@@ -95,6 +92,9 @@ export const useInventoryPageData = (
   });
   const [loading, setLoading] = React.useState(false);
 
+  // Debounce the search input so typing does not fire a request per keystroke
+  const debouncedQ = useDebounced(q, 300);
+
   // Load suppliers for filter dropdown
   const suppliersQuery = useSuppliersQuery(true);
 
@@ -111,9 +111,10 @@ export const useInventoryPageData = (
       const res = await getInventoryPage({
         page: serverPage,
         pageSize,
-        q,
+        q: debouncedQ,
         supplierId: supplierId ?? undefined,
         sort: serverSort,
+        belowMinimumOnly: belowMinOnly,
       });
       setServer(res);
     } catch (err) {
@@ -122,7 +123,7 @@ export const useInventoryPageData = (
     } finally {
       setLoading(false);
     }
-  }, [serverPage, pageSize, q, supplierId, serverSort]);
+  }, [serverPage, pageSize, debouncedQ, belowMinOnly, supplierId, serverSort]);
 
   React.useEffect(() => {
     if (supplierId) {
@@ -140,42 +141,12 @@ export const useInventoryPageData = (
     if (supplierId) void load();
   }, [supplierId, load]);
 
-  // Client-side filtering by supplier (fallback)
-  const supplierFiltered = React.useMemo(() => {
-    if (!supplierId) return server.items;
-    const sid = String(supplierId);
-    return server.items.filter((r) => String(r.supplierId ?? '') === sid);
-  }, [server.items, supplierId]);
-
-  // Final filtered items with search and below-min
-  const filteredItems = React.useMemo(() => {
-    let rows = supplierFiltered;
-
-    // Search by name
-    const qTrim = q.trim().toLowerCase();
-    if (qTrim.length > 0) {
-      rows = rows.filter((r) => (r.name ?? '').toLowerCase().includes(qTrim));
-    }
-
-    // Filter by below-min threshold
-    if (belowMinOnly) {
-      rows = rows.filter((r) => {
-        const minRaw = Number(r.minQty ?? 0);
-        const min = Number.isFinite(minRaw) && minRaw > 0 ? minRaw : DEFAULT_MIN_QUANTITY;
-        const onHand = Number(r.onHand ?? 0);
-        return onHand < min;
-      });
-    }
-
-    return rows;
-  }, [supplierFiltered, q, belowMinOnly]);
-
   return {
     server,
     loading,
     suppliers: suppliersQuery.data,
     supplierLoading: suppliersQuery.isLoading,
-    filteredItems,
+    items: server.items,
     columns,
     getRowClassName,
     reload,
