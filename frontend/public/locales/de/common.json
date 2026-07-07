@@ -50,6 +50,7 @@
   "loading": "Wird geladen...",
   "saving": "Wird gespeichert...",
   "deleting": "Wird gelöscht...",
+  "demoDisabled": "Sie befinden sich im Demo-Modus und können diese Aktion nicht ausführen.",
   "toast": {
     "densityStatic": "Der kompakte Dichtenmodus ist in dieser Version noch nicht vollständig implementiert"
   },
