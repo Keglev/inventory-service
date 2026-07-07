@@ -4,7 +4,7 @@
 
 # Installs npm dependencies into a cached layer; subsequent stages inherit from here
 # rather than re-running npm ci on every source change.
-FROM node:22-bullseye-slim AS base
+FROM node:24-bookworm-slim AS base
 WORKDIR /app
 
 # Build context is repo root, so package files live under frontend/ relative to context.
