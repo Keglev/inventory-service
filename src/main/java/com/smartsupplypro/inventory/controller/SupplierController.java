@@ -78,7 +78,7 @@ public class SupplierController {
      * @return 201 Created with Location header and created supplier
      * @throws ResponseStatusException 400 if ID is not null
      */
-    @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<SupplierDTO> create(@Valid @RequestBody SupplierDTO dto) {
         if (dto.getId() != null) {
@@ -98,7 +98,7 @@ public class SupplierController {
      * @throws ResponseStatusException 400 if path ID and body ID mismatch
      * @throws ResponseStatusException 404 if supplier not found
      */
-    @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<SupplierDTO> update(@PathVariable String id, @Valid @RequestBody SupplierDTO dto) {
         if (dto.getId() != null && !id.equals(dto.getId())) {
@@ -115,7 +115,7 @@ public class SupplierController {
      * @return 204 No Content on success
      * @throws ResponseStatusException 404 if supplier not found
      */
-    @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         supplierService.delete(id);

@@ -41,7 +41,6 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/iae-m")  void iaeMsg() { throw new IllegalArgumentException("Item 1 not found"); }
         @GetMapping("/auth")   void auth()   { throw new BadCredentialsException("bad"); }
         @GetMapping("/denied") void denied() { throw new AccessDeniedException("Denied"); }
-        @GetMapping("/demo")   void demo()   { throw new AccessDeniedException("principal.isDemo"); }
         @GetMapping("/data")   void data()   { throw new DataIntegrityViolationException("dup"); }
         @GetMapping("/lock")   void lock()   { throw new ObjectOptimisticLockingFailureException(Object.class, 1L); }
         @GetMapping("/rse")    void rse()    { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Supplier not found"); }
@@ -73,11 +72,6 @@ class GlobalExceptionHandlerTest {
             mockMvc.perform(get("/err/denied"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").value("You are not allowed to perform this operation."));
-        }
-        @Test void demoMode_returnsFriendlyMessage() throws Exception {
-            mockMvc.perform(get("/err/demo"))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value("You are in demo mode and cannot perform this operation."));
         }
     }
 

@@ -21,8 +21,7 @@ import jakarta.validation.constraints.Positive;
 /**
  * REST controller for partial inventory item updates (quantity, price, name).
  *
- * <p>All endpoints require a non-demo session.
- * Quantity and price adjustments require {@code ROLE_USER} or {@code ROLE_ADMIN}.
+ * <p>Quantity and price adjustments require {@code ROLE_USER} or {@code ROLE_ADMIN}.
  * Rename requires {@code ROLE_ADMIN}.</p>
  *
  * @see InventoryItemService
@@ -46,7 +45,7 @@ public class InventoryItemPatchController {
      * @param reason business reason for the stock change
      * @return updated inventory item
      */
-    @PreAuthorize("hasAnyRole('USER','ADMIN') and !@securityService.isDemo()")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PatchMapping("/{id}/quantity")
     public InventoryItemDTO adjustQuantity(@PathVariable String id,
                                            @RequestParam int delta,
@@ -54,7 +53,7 @@ public class InventoryItemPatchController {
         return inventoryItemService.adjustQuantity(id, delta, reason);
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN') and !@securityService.isDemo()")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PatchMapping("/{id}/price")
     public InventoryItemDTO updatePrice(@PathVariable String id,
                                         @RequestParam @Positive BigDecimal price) {
@@ -70,7 +69,7 @@ public class InventoryItemPatchController {
      * @throws ResponseStatusException     400 if name is blank, 404 if not found
      * @throws DuplicateResourceException  409 if the name already exists for the same supplier
      */
-    @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/name")
     public InventoryItemDTO renameItem(@PathVariable String id, @RequestParam String name) {
         try {

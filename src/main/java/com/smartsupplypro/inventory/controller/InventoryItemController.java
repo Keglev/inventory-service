@@ -29,7 +29,7 @@ import com.smartsupplypro.inventory.service.InventoryItemService;
  * REST controller for inventory item CRUD operations.
  *
  * <p>Read endpoints allow authentication or demo-readonly access.
- * Write operations require {@code ROLE_ADMIN} and a non-demo session.</p>
+ * Write operations require {@code ROLE_ADMIN}.</p>
  *
  * @see InventoryItemService
  */
@@ -96,7 +96,7 @@ public class InventoryItemController {
      * @return 201 Created with Location header and created item
      * @throws ResponseStatusException 400 if validation fails
      */
-    @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<InventoryItemDTO> create(
             @Validated(InventoryItemDTO.Create.class) @RequestBody InventoryItemDTO body) {
@@ -120,7 +120,7 @@ public class InventoryItemController {
      * @return updated inventory item
      * @throws ResponseStatusException 404 if item not found
      */
-    @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public InventoryItemDTO update(
             @PathVariable String id,
@@ -139,7 +139,7 @@ public class InventoryItemController {
      * @param id item identifier
      * @throws ResponseStatusException 404 if item not found
      */
-    @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String id) {

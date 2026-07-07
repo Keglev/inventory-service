@@ -8,8 +8,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import com.smartsupplypro.inventory.service.SecurityService;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -54,11 +52,5 @@ public class TestSecurityConfig {
             .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
-    }
-
-    /** Enables {@code @securityService.isDemo()} SpEL in {@code @PreAuthorize} during slice tests. */
-    @Bean
-    public SecurityService securityService() {
-        return new SecurityService();
     }
 }

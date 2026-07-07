@@ -91,13 +91,10 @@ public class GlobalExceptionHandler {
         return respond(HttpStatus.UNAUTHORIZED, "Authentication required");
     }
 
-    /** Returns a generic 403; detects demo-mode restriction for a user-friendly message. */
+    /** Returns a generic 403 without leaking authorization internals. */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
-        String message = (ex.getMessage() != null && ex.getMessage().contains("principal.isDemo"))
-            ? "You are in demo mode and cannot perform this operation."
-            : "You are not allowed to perform this operation.";
-        return respond(HttpStatus.FORBIDDEN, sanitize(message));
+        return respond(HttpStatus.FORBIDDEN, "You are not allowed to perform this operation.");
     }
 
     /** Handles resource lookup failures from repositories and the service layer. */
