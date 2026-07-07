@@ -13,8 +13,8 @@
  *   specialized hooks (useDeleteItemState, useDeleteItemQueries,
  *   useDeleteItemHandlers) directly through this same barrel.
  * - Field components (SupplierSelectField, ItemSelectField,
- *   DeletionReasonField, ItemInfoDisplay) are exported individually so
- *   tests can mount them in isolation against a hand-built state object.
+ *   ItemInfoDisplay) are exported individually so tests can mount them in
+ *   isolation against a hand-built state object.
  */
 
 // ============================================
@@ -39,7 +39,7 @@ export type { UseDeleteItemDialogReturn } from './DeleteItemDialog.types';
 // Focused hooks for fine-grained control and testing
 // Can be used individually or composed together
 
-/** Manages selection and dialog state: supplier, item, reason, errors */
+/** Manages selection and dialog state: supplier, item, errors */
 export { useDeleteItemState, type UseDeleteItemStateReturn } from './useDeleteItemState';
 
 /** Coordinates React Query for suppliers, item search, item details */
@@ -65,7 +65,6 @@ export { DeleteConfirmationView } from './DeleteConfirmationView';
 export {
   SupplierSelectField,
   ItemSelectField,
-  DeletionReasonField,
   ItemInfoDisplay,
 } from './DeleteFormFields';
 

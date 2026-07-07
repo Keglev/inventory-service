@@ -62,7 +62,6 @@ export function useDeleteItemDialog(
     selectedSupplier: state.selectedSupplier,
     selectedItem: state.selectedItem,
     itemQuery: state.itemQuery,
-    deletionReason: state.deletionReason,
 
     // Dialog state - from useDeleteItemState
     formError: state.formError,
@@ -80,7 +79,6 @@ export function useDeleteItemDialog(
     setItemQuery: state.setItemQuery,
     setFormError: state.setFormError,
     setShowConfirmation: state.setShowConfirmation,
-    setDeletionReason: state.setDeletionReason,
 
     // Handlers - from useDeleteItemHandlers
     handleClose: handlers.handleClose,

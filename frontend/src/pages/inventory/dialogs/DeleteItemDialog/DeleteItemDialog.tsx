@@ -16,13 +16,11 @@
  * - Backend invariants surfaced to users:
  *   (1) only ADMIN users can delete items;
  *   (2) the item's on-hand quantity must be 0 before the backend accepts
- *       the delete;
- *   (3) deletion reasons are restricted to a 6-value subset of the
- *       11-value StockChangeReason enum (SCRAPPED, DESTROYED, DAMAGED,
- *       EXPIRED, LOST, RETURNED_TO_SUPPLIER) -- ServiceImpl rejects
- *       reasons that do not describe a removal. The visible reason set
- *       in DeleteFormFields.tsx matches this enforcement exactly.
- *       CM-2 closure: subset is intentional and backend-authoritative.
+ *       the delete. The Delete button is disabled and an inline hint is
+ *       shown while the selected item still has stock (CB-APP71);
+ *   (3) deletion takes no reason: it is a pure catalog removal, and the
+ *       stock movement that emptied the item was already audited by the
+ *       preceding quantity adjustment.
  * - readOnly enables demo-mode preview: users walk through every form
  *   step, but the actual DELETE call is blocked at
  *   useDeleteItemHandlers.onConfirmedDelete.
@@ -63,6 +61,10 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const state = useDeleteItemDialog(open, onClose, onItemDeleted, readOnly);
 
+  // Pre-gate: the backend only accepts deletion at quantity zero, so the
+  // Delete button stays disabled while the selected item has stock on hand.
+  const blockedByStock = (state.itemDetailsQuery.data?.onHand ?? 0) > 0;
+
   return (
     <>
       {/* Form dialog: supplier -> item -> reason selection */}
@@ -80,12 +82,12 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
           <Button onClick={state.handleClose} disabled={state.isSubmitting}>
             {t('inventory:buttons.cancel', 'Cancel')}
           </Button>
-          {/* Delete button: disabled until item selected */}
+          {/* Delete button: disabled until item selected and quantity is zero */}
           <Button
             onClick={state.onSubmit}
             variant="contained"
             color="error"
-            disabled={!state.selectedItem || state.isSubmitting}
+            disabled={!state.selectedItem || blockedByStock || state.isSubmitting}
           >
             {state.isSubmitting ? (
               <>

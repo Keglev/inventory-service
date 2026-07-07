@@ -52,7 +52,6 @@ function createMockState(
   const base: UseDeleteItemDialogReturn = {
     selectedSupplier: null,
     selectedItem: null,
-    deletionReason: '',
     formError: '',
     itemQuery: '',
     showConfirmation: false,
@@ -63,7 +62,6 @@ function createMockState(
     setItemQuery: vi.fn(),
     setSelectedSupplier: vi.fn(),
     setSelectedItem: vi.fn(),
-    setDeletionReason: vi.fn(),
     setFormError: vi.fn(),
     setShowConfirmation: vi.fn(),
     handleClose: vi.fn(),
@@ -138,6 +136,32 @@ describe('DeleteItemDialog', () => {
     });
     expect(passedStates).toHaveLength(1);
     expect(passedStates[0]).toEqual(expect.objectContaining({ showConfirmation: true }));
+  });
+
+  it('disables the Delete button while the selected item still has stock (CB-APP71 pre-gate)', () => {
+    const state = createMockState({
+      selectedItem: { id: 'item-1', name: 'Item 1' } as unknown as UseDeleteItemDialogReturn['selectedItem'],
+      itemDetailsQuery: ({ data: { name: 'Item 1', onHand: 5 }, isLoading: false } as unknown) as UseDeleteItemDialogReturn['itemDetailsQuery'],
+    });
+
+    mockUseDeleteItemDialog.mockReturnValue(state);
+
+    renderDialog({ open: true });
+
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled();
+  });
+
+  it('enables the Delete button when the selected item has zero stock', () => {
+    const state = createMockState({
+      selectedItem: { id: 'item-1', name: 'Item 1' } as unknown as UseDeleteItemDialogReturn['selectedItem'],
+      itemDetailsQuery: ({ data: { name: 'Item 1', onHand: 0 }, isLoading: false } as unknown) as UseDeleteItemDialogReturn['itemDetailsQuery'],
+    });
+
+    mockUseDeleteItemDialog.mockReturnValue(state);
+
+    renderDialog({ open: true });
+
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled();
   });
 
   it('wires onClose into the hook call (delegation boundary)', () => {

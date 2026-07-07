@@ -96,28 +96,24 @@ export async function renameItem(req: { id: string; newName: string }): Promise<
 }
 
 /**
- * Sends DELETE /api/inventory/{id} with a StockChangeReason so the backend can audit
- * why the item was removed. The backend rejects the request if quantity is not 0.
+ * Sends DELETE /api/inventory/{id}. Deletion is a pure catalog removal: the
+ * backend only accepts it once the item's quantity is zero (409 'conflict'
+ * otherwise) and writes no stock-history row for the deletion itself.
  *
  * @param id - Item identifier to delete
- * @param reason - Must be one of the six deletion reasons the backend accepts:
- *   SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER (the backend rejects others)
  * @returns Response object with ok status and optional error message
  *
  * @example
  * ```typescript
- * const result = await deleteItem('ITEM-123', 'EXPIRED');
+ * const result = await deleteItem('ITEM-123');
  * if (!result.ok) {
  *   console.error('Deletion failed:', result.error);
  * }
  * ```
  */
-export async function deleteItem(id: string, reason: string): Promise<UpsertItemResponse> {
+export async function deleteItem(id: string): Promise<UpsertItemResponse> {
   try {
-    await http.delete(
-      `${INVENTORY_BASE}/${encodeURIComponent(id)}`,
-      { params: { reason } }
-    );
+    await http.delete(`${INVENTORY_BASE}/${encodeURIComponent(id)}`);
     return { ok: true };
   } catch (e: unknown) {
     const apiError = extractApiError(e);

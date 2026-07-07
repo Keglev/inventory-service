@@ -9,6 +9,7 @@
  * - onSubmit(): validates selection and toggles confirmation step.
  * - onConfirmedDelete(): validates preconditions, blocks in readOnly mode,
  *   performs deleteItem(), and maps failures into user-facing error messages.
+ *   Deletion takes no reason (CB-APP71).
  *
  * Out of scope:
  * - Real React Query behavior (mutations/queries are mocked or treated as inputs)
@@ -69,9 +70,6 @@ function createState(overrides: Partial<UseDeleteItemStateReturn> = {}): UseDele
 
     itemQuery: '',
     setItemQuery: vi.fn(),
-
-    deletionReason: '',
-    setDeletionReason: vi.fn(),
 
     formError: '',
     setFormError: vi.fn(),
@@ -166,7 +164,7 @@ describe('useDeleteItemHandlers', () => {
 
   describe('confirmed delete flow', () => {
     it('blocks when no item is selected', async () => {
-      const { result, state } = setup({ state: { deletionReason: 'Damaged', selectedItem: null } });
+      const { result, state } = setup({ state: { selectedItem: null } });
 
       await act(async () => {
         await result.current.onConfirmedDelete();
@@ -176,25 +174,11 @@ describe('useDeleteItemHandlers', () => {
       expect(deleteItemSpy).not.toHaveBeenCalled();
     });
 
-    it('blocks when no deletion reason is provided', async () => {
-      const { result, state } = setup({
-        state: { selectedItem: { id: 'item-1', name: 'Item 1' } as unknown as UseDeleteItemStateReturn['selectedItem'] },
-      });
-
-      await act(async () => {
-        await result.current.onConfirmedDelete();
-      });
-
-      expect(state.setFormError).toHaveBeenCalledWith('errors:inventory.selection.noReasonSelected');
-      expect(deleteItemSpy).not.toHaveBeenCalled();
-    });
-
     it('blocks when readOnly (demo mode)', async () => {
       const { result, state } = setup({
         readOnly: true,
         state: {
           selectedItem: { id: 'item-1', name: 'Item 1' } as unknown as UseDeleteItemStateReturn['selectedItem'],
-          deletionReason: 'Damaged',
         },
       });
 
@@ -214,7 +198,6 @@ describe('useDeleteItemHandlers', () => {
       const { result, state, onClose, onItemDeleted } = setup({
         state: {
           selectedItem: { id: 'item-1', name: 'Item 1' } as unknown as UseDeleteItemStateReturn['selectedItem'],
-          deletionReason: 'Damaged',
         },
       });
 
@@ -222,7 +205,7 @@ describe('useDeleteItemHandlers', () => {
         await result.current.onConfirmedDelete();
       });
 
-      expect(deleteItemSpy).toHaveBeenCalledWith('item-1', 'Damaged');
+      expect(deleteItemSpy).toHaveBeenCalledWith('item-1');
       expect(toastSpy).toHaveBeenCalledWith('Operation successful. Item was removed from inventory!', 'success');
 
       expect(onItemDeleted).toHaveBeenCalledTimes(1);
@@ -237,7 +220,6 @@ describe('useDeleteItemHandlers', () => {
       const { result, state } = setup({
         state: {
           selectedItem: { id: 'item-1', name: 'Item 1' } as unknown as UseDeleteItemStateReturn['selectedItem'],
-          deletionReason: 'Damaged',
         },
       });
 
@@ -257,7 +239,6 @@ describe('useDeleteItemHandlers', () => {
       const { result, state } = setup({
         state: {
           selectedItem: { id: 'item-1', name: 'Item 1' } as unknown as UseDeleteItemStateReturn['selectedItem'],
-          deletionReason: 'Damaged',
         },
       });
 

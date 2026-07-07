@@ -3,9 +3,8 @@
  * @module pages/inventory/dialogs/DeleteItemDialog/DeleteFormFields
  *
  * @summary
- * Four field components for the four steps of the delete flow:
- * SupplierSelectField, ItemSelectField, DeletionReasonField, and
- * ItemInfoDisplay.
+ * Three field components for the three steps of the delete flow:
+ * SupplierSelectField, ItemSelectField, and ItemInfoDisplay.
  *
  * @enterprise
  * - Each field consumes the shared UseDeleteItemDialogReturn state object
@@ -13,13 +12,10 @@
  *   compile time, easier mounting at test time.
  * - ItemSelectField uses key={state.selectedSupplier?.id} to force an
  *   Autocomplete remount on supplier change, so the input clears cleanly.
- * - DeletionReasonField hardcodes a 6-value subset of the locked 11-value
- *   StockChangeReason enum: SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST,
- *   RETURNED_TO_SUPPLIER. This is the backend-enforced delete subset --
- *   ServiceImpl rejects the other 5 (INITIAL_STOCK, MANUAL_UPDATE,
- *   PRICE_CHANGE, SOLD, RETURNED_BY_CUSTOMER) because they do not
- *   describe a removal. CM-2 closure: subset is intentional and
- *   backend-authoritative.
+ * - Deletion takes no reason: it is a pure catalog removal, only accepted
+ *   by the backend once the quantity is already zero, so the stock
+ *   movement that emptied the item was audited by the preceding quantity
+ *   adjustment (CB-APP71).
  * - The 2-character minimum, debounce, and supplier scoping for item
  *   search live in upstream useItemSearchQuery; this file only exposes
  *   the visible state.
@@ -118,7 +114,7 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
  * @visibility
  * - Visible only after Step 1 (supplier) is completed
  * - Conditional render: {state.selectedSupplier && (...)}
- * - Enables Step 3 (reason) when item is selected
+ * - Enables Step 3 (item information) when item is selected
  * 
  * @performance
  * - Debounced search (350ms) via useDebounced hook
@@ -180,60 +176,7 @@ export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn })
 }
 
 /**
- * DeletionReasonField - Step 3: Select predefined deletion reason
- * 
- * @param state - Complete dialog state from useDeleteItemDialog hook
- * 
- * @behavior
- * - Dropdown menu with 6 predefined business reasons
- * - On change: updates state.deletionReason
- * - Required for audit trail and inventory accounting
- * 
- * @visibility
- * - Visible only after Step 2 (item) is completed
- * - Conditional render: {state.selectedItem && (...)}
- * - Enables Step 4 (preview) when reason selected
- * 
- */
-export function DeletionReasonField({ state }: { state: UseDeleteItemDialogReturn }) {
-  const { t } = useTranslation(['inventory']);
-
-  return (
-    <FormControl fullWidth>
-      <InputLabel>
-        {t('inventory:deleteFlow.deletionReasonLabel', 'Deletion Reason')}
-      </InputLabel>
-      <Select
-        label={t('inventory:deleteFlow.deletionReasonLabel', 'Deletion Reason')}
-        value={state.deletionReason}
-        onChange={(e) => state.setDeletionReason(e.target.value)}
-      >
-        {/* Predefined deletion reasons with business descriptions */}
-        <MenuItem value="SCRAPPED">
-          {t('inventory:reasons.reasonScrapped', 'Scrapped - Quality control removal')}
-        </MenuItem>
-        <MenuItem value="DESTROYED">
-          {t('inventory:reasons.reasonDestroyed', 'Destroyed - Catastrophic loss')}
-        </MenuItem>
-        <MenuItem value="DAMAGED">
-          {t('inventory:reasons.reasonDamaged', 'Damaged - Quality hold')}
-        </MenuItem>
-        <MenuItem value="EXPIRED">
-          {t('inventory:reasons.reasonExpired', 'Expired - Expiration date breach')}
-        </MenuItem>
-        <MenuItem value="LOST">
-          {t('inventory:reasons.reasonLost', 'Lost - Inventory shrinkage')}
-        </MenuItem>
-        <MenuItem value="RETURNED_TO_SUPPLIER">
-          {t('inventory:reasons.reasonReturnedToSupplier', 'Returned to Supplier - Defective merchandise')}
-        </MenuItem>
-      </Select>
-    </FormControl>
-  );
-}
-
-/**
- * ItemInfoDisplay - Step 4: Show item details for final confirmation
+ * ItemInfoDisplay - Step 3: Show item details for final confirmation
  * 
  * @param state - Complete dialog state from useDeleteItemDialog hook
  * @returns Item preview card or null if no item selected/loaded
@@ -246,7 +189,7 @@ export function DeletionReasonField({ state }: { state: UseDeleteItemDialogRetur
  * 
  * @visibility
  * - Visible only after Step 2 (item) is completed
- * - Only renders if itemDetailsQuery has data
+ * - Only renders if itemDetailsQuery has data (name and on-hand quantity)
  * - Conditional render: {state.selectedItem && state.itemDetailsQuery.data && (...)}
  * 
  * @styling

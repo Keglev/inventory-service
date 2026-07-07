@@ -16,8 +16,7 @@
     },
     "selection": {
       "noItemSelected": "Please select an item",
-      "noSupplierSelected": "Please select a supplier",
-      "noReasonSelected": "Please select a deletion reason"
+      "noSupplierSelected": "Please select a supplier"
     },
     "businessRules": {
       "itemNotFound": "Item not found",

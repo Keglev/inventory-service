@@ -171,12 +171,9 @@ describe('itemMutations', () => {
     it('deletes item with encoded id', async () => {
       httpMock.delete.mockResolvedValue({});
 
-      const result = await deleteItem('ITEM 1', 'EXPIRED');
+      const result = await deleteItem('ITEM 1');
 
-      expect(httpMock.delete).toHaveBeenCalledWith(
-        `${INVENTORY_BASE}/ITEM%201`,
-        { params: { reason: 'EXPIRED' } }
-      );
+      expect(httpMock.delete).toHaveBeenCalledWith(`${INVENTORY_BASE}/ITEM%201`);
       expect(result).toEqual({ ok: true });
     });
 
@@ -185,7 +182,7 @@ describe('itemMutations', () => {
       httpMock.delete.mockRejectedValue(failure);
       errorMessageMock.mockReturnValue('Cannot delete');
 
-      const result = await deleteItem('ITEM-1', 'EXPIRED');
+      const result = await deleteItem('ITEM-1');
 
       expect(errorMessageMock).toHaveBeenCalledWith(failure);
       expect(result).toEqual({ ok: false, error: 'Cannot delete', errorToken: null, status: null });

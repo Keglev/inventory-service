@@ -50,7 +50,6 @@ export interface UseDeleteItemDialogReturn {
   selectedSupplier: SupplierOption | null;
   selectedItem: ItemOption | null;
   itemQuery: string;
-  deletionReason: string;
 
   // Dialog state
   formError: string;
@@ -68,7 +67,6 @@ export interface UseDeleteItemDialogReturn {
   setItemQuery: (query: string) => void;
   setFormError: (error: string) => void;
   setShowConfirmation: (show: boolean) => void;
-  setDeletionReason: (reason: string) => void;
 
   // Handlers
   handleClose: () => void; // Close and reset all

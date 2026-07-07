@@ -102,19 +102,13 @@
   },
 
   "deleteFlow": {
-    "deletionReasonLabel": "Löschungsgrund",
-    "confirmMessage": "Sind Sie sicher, dass Sie diesen Artikel löschen möchten?",
-    "warning": "Diese Aktion kann nicht rückgängig gemacht werden!!",
-    "noReasonSelected": "Bitte wählen Sie einen Löschungsgrund aus."
-  },
-
-  "reasons": {
-    "reasonScrapped": "Verschrottet - Qualitätskontrolle",
-    "reasonDestroyed": "Zerstört - Katastrophaler Verlust",
-    "reasonDamaged": "Beschädigt - Qualitätsprobleme",
-    "reasonExpired": "Abgelaufen - Verfallsdatum überschritten",
-    "reasonLost": "Verloren - Bestandsdifferenz",
-    "reasonReturnedToSupplier": "An Lieferant zurückgegeben - Defektes Material"
+    "step1": "Schritt 1: Lieferant auswählen",
+    "step2": "Schritt 2: Artikel auswählen",
+    "step3": "Schritt 3: Artikelinformationen",
+    "warningTitle": "Diese Aktion kann nicht rückgängig gemacht werden!",
+    "warningMessage": "Nach dem Löschen werden der Artikel und alle zugehörigen Datensätze dauerhaft aus dem System entfernt.",
+    "confirmationPrompt": "Sind Sie sicher, dass Sie fortfahren möchten?",
+    "itemBeingDeleted": "Zu löschender Artikel:"
   },
 
   "stockReasons": {

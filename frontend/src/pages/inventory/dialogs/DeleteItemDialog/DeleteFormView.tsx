@@ -3,13 +3,17 @@
  * @module pages/inventory/dialogs/DeleteItemDialog/DeleteFormView
  *
  * @summary
- * Four-step form layout for the delete flow: supplier, item, reason, and
+ * Three-step form layout for the delete flow: supplier, item, and
  * item-info preview, each presented with a numbered step indicator.
  *
  * @enterprise
  * - Progressive disclosure: each step renders only after the previous step
  *   produces the value it depends on. Supplier selection unlocks item
- *   search; item selection unlocks reason and the info preview.
+ *   search; item selection unlocks the info preview.
+ * - Deletion takes no reason (CB-APP71): it is a pure catalog removal the
+ *   backend only accepts at quantity zero. When the selected item still
+ *   has stock, an inline warning explains the quantity-zero rule; the
+ *   parent dialog additionally disables the Delete button.
  * - The numbered step badges scaffold the user through an irreversible
  *   operation, slowing the flow deliberately.
  * - StepSection (numbered step wrapper) is extracted to its own module
@@ -21,14 +25,17 @@ import { useTranslation } from 'react-i18next';
 import {
   SupplierSelectField,
   ItemSelectField,
-  DeletionReasonField,
   ItemInfoDisplay,
 } from './DeleteFormFields';
 import type { UseDeleteItemDialogReturn } from './DeleteItemDialog.types';
 import { StepSection } from './StepSection';
 
 export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) {
-  const { t } = useTranslation(['inventory']);
+  const { t } = useTranslation(['inventory', 'errors']);
+
+  // Pre-gate hint: the backend only accepts deletion at quantity zero.
+  const onHand = state.itemDetailsQuery.data?.onHand ?? 0;
+  const blockedByStock = Boolean(state.selectedItem) && onHand > 0;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -61,33 +68,30 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
       )}
 
       {/*
-        STEP 3: Deletion Reason
-        - Only visible after item selected
-        - Predefined business reasons: SCRAPPED, DESTROYED, DAMAGED, etc.
-        - Required for audit trail and inventory accounting
-      */}
-      {state.selectedItem && (
-        <StepSection
-          title={t('inventory:deleteFlow.step3', 'Step 3: Deletion Reason')}
-          number={3}
-        >
-          <DeletionReasonField state={state} />
-        </StepSection>
-      )}
-
-      {/*
-        STEP 4: Item Information Preview
+        STEP 3: Item Information Preview
         - Only visible after item details are loaded from API
         - Shows name and on-hand quantity for final confirmation
         - Helps user verify they're deleting the correct item
       */}
       {state.selectedItem && state.itemDetailsQuery.data && (
         <StepSection
-          title={t('inventory:deleteFlow.step4', 'Step 4: Item Information')}
-          number={4}
+          title={t('inventory:deleteFlow.step3', 'Step 3: Item Information')}
+          number={3}
         >
           <ItemInfoDisplay state={state} />
         </StepSection>
+      )}
+
+      {/*
+        Quantity-zero pre-gate hint
+        - Shown when the selected item still has stock on hand
+        - Mirrors the backend rule (409 'conflict' at quantity > 0)
+        - The Delete button in the parent dialog is disabled in this state
+      */}
+      {blockedByStock && (
+        <Alert severity="warning">
+          {t('errors:inventory.businessRules.quantityMustBeZero')}
+        </Alert>
       )}
 
       {/*

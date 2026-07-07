@@ -16,8 +16,7 @@
     },
     "selection": {
       "noItemSelected": "Bitte wählen Sie einen Artikel aus",
-      "noSupplierSelected": "Bitte wählen Sie einen Lieferanten aus",
-      "noReasonSelected": "Bitte wählen Sie einen Löschungsgrund aus"
+      "noSupplierSelected": "Bitte wählen Sie einen Lieferanten aus"
     },
     "businessRules": {
       "itemNotFound": "Artikel nicht gefunden",

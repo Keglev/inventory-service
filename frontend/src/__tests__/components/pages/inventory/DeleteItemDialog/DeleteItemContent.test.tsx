@@ -25,7 +25,6 @@ const createMockState = (
   const baseState: UseDeleteItemDialogReturn = {
     selectedSupplier: null,
     selectedItem: null,
-    deletionReason: '',
     formError: '',
     itemQuery: '',
     showConfirmation: false,
@@ -36,7 +35,6 @@ const createMockState = (
     setItemQuery: vi.fn(),
     setSelectedSupplier: vi.fn(),
     setSelectedItem: vi.fn(),
-    setDeletionReason: vi.fn(),
     setFormError: vi.fn(),
     setShowConfirmation: vi.fn(),
     handleClose: vi.fn(),

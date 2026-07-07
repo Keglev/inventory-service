@@ -102,19 +102,13 @@
   },
 
   "deleteFlow": {
-    "deletionReasonLabel": "Deletion Reason",
-    "confirmMessage": "Are you sure you want to delete this item?",
-    "warning": "This action cannot be undone!!",
-    "noReasonSelected": "Please select a deletion reason."
-  },
-
-  "reasons": {
-    "reasonScrapped": "Scrapped - Quality Control",
-    "reasonDestroyed": "Destroyed - Catastrophic Loss",
-    "reasonDamaged": "Damaged - Quality Issues",
-    "reasonExpired": "Expired - Exceeded Shelf Life",
-    "reasonLost": "Lost - Inventory Discrepancy",
-    "reasonReturnedToSupplier": "Returned to Supplier - Defective Material"
+    "step1": "Step 1: Select Supplier",
+    "step2": "Step 2: Select Item",
+    "step3": "Step 3: Item Information",
+    "warningTitle": "This action cannot be undone!",
+    "warningMessage": "Once deleted, the item and all associated records will be permanently removed from the system.",
+    "confirmationPrompt": "Are you sure you want to proceed?",
+    "itemBeingDeleted": "Item being deleted:"
   },
 
   "stockReasons": {

@@ -17,11 +17,6 @@
  * - Error mapping is delegated to deleteItemErrorHandler so the handler
  *   stays focused on flow control. The mapper branches on the backend's
  *   structured errorToken.
- * - Tracked buckets touching this file:
- *   * CB-E (existing) -- the handler passes deletionReason to deleteItem
- *     but deleteItemSchema validates only itemId. The schema does not
- *     reject empty or invalid reasons; the runtime explicit check inside
- *     onConfirmedDelete is the only guard.
  */
 
 import * as React from 'react';
@@ -82,8 +77,9 @@ export function useDeleteItemHandlers(
 
   /**
    * Confirmed deletion handler
-   * Validation: item selected, reason provided, not in readonly mode
-   * Action: calls DELETE API with item ID and reason
+   * Validation: item selected, not in readonly mode
+   * Action: calls DELETE API with the item ID (deletion is a pure catalog
+   * removal; the backend enforces the quantity-zero gate)
    * Response: success closes dialog, error shows message
    * Error handling: delegates to deleteItemErrorHandler for user messages
    */
@@ -91,12 +87,6 @@ export function useDeleteItemHandlers(
     // Validation: item required
     if (!state.selectedItem) {
       state.setFormError(t('errors:inventory.selection.noItemSelected'));
-      return;
-    }
-
-    // Validation: reason required
-    if (!state.deletionReason) {
-      state.setFormError(t('errors:inventory.selection.noReasonSelected'));
       return;
     }
 
@@ -113,9 +103,8 @@ export function useDeleteItemHandlers(
     state.setShowConfirmation(false);
 
     try {
-      // Execute deletion: calls DELETE /api/inventory/{id}?reason=...
-    // BUCKET: CB-E -- deletionReason flows to the API but is not in deleteItemSchema. Runtime check above is the only frontend guard; backend StockHistoryValidator is authoritative.
-      const success = await deleteItem(state.selectedItem.id, state.deletionReason);
+      // Execute deletion: calls DELETE /api/inventory/{id}
+      const success = await deleteItem(state.selectedItem.id);
 
       if (success.ok) {
         // Success path: show message + close + notify parent

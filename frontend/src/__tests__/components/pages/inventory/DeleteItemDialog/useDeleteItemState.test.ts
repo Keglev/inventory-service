@@ -67,7 +67,6 @@ describe('useDeleteItemState', () => {
     expect(result.current.selectedSupplier).toBeNull();
     expect(result.current.selectedItem).toBeNull();
     expect(result.current.itemQuery).toBe('');
-    expect(result.current.deletionReason).toBe('');
     expect(result.current.formError).toBe('');
     expect(result.current.showConfirmation).toBe(false);
     expect(result.current.isSubmitting).toBe(false);
@@ -130,7 +129,6 @@ describe('useDeleteItemState', () => {
       result.current.setItemQuery('mask');
       result.current.setFormError('error');
       result.current.setShowConfirmation(true);
-      result.current.setDeletionReason('Damaged');
 
       result.current.resetAll();
     });
@@ -140,7 +138,6 @@ describe('useDeleteItemState', () => {
     expect(result.current.itemQuery).toBe('');
     expect(result.current.formError).toBe('');
     expect(result.current.showConfirmation).toBe(false);
-    expect(result.current.deletionReason).toBe('');
 
     expect(reset).toHaveBeenCalledTimes(1);
   });

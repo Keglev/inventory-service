@@ -4,8 +4,8 @@
  *
  * @summary
  * Local selection and dialog state for the delete flow: selected supplier
- * and item, search query, deletion reason, error and confirmation flags,
- * plus a react-hook-form instance used as a validation mirror.
+ * and item, search query, error and confirmation flags, plus a
+ * react-hook-form instance used as a validation mirror.
  *
  * @enterprise
  * - The selectedItem / selectedSupplier React state is the source of
@@ -37,7 +37,6 @@ export function useDeleteItemState() {
 
   // Form inputs
   const [itemQuery, setItemQuery] = React.useState('');
-  const [deletionReason, setDeletionReason] = React.useState('');
 
   // Dialog state
   const [formError, setFormError] = React.useState('');
@@ -83,8 +82,6 @@ export function useDeleteItemState() {
     // Form inputs
     itemQuery,
     setItemQuery,
-    deletionReason,
-    setDeletionReason,
 
     // Dialog state
     formError,
@@ -104,7 +101,6 @@ export function useDeleteItemState() {
       setItemQuery('');
       setFormError('');
       setShowConfirmation(false);
-      setDeletionReason('');
       reset();
     },
   };

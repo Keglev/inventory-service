@@ -83,7 +83,6 @@ describe('useDeleteItemDialog', () => {
       selectedSupplier: { id: 'supplier-1', label: 'Supplier 1' }, // SupplierOption shape is domain-defined
       selectedItem: { id: 'item-1', name: 'Item 1' },
       itemQuery: 'gloves',
-      deletionReason: 'Damaged',
     } as unknown) as UseDeleteItemStateReturn;
 
     const queries = ({
@@ -113,7 +112,6 @@ describe('useDeleteItemDialog', () => {
     // Pass-through contract: the composed hook exposes the same references from sub-hooks.
     expect(result.current.selectedSupplier).toBe(state.selectedSupplier);
     expect(result.current.selectedItem).toBe(state.selectedItem);
-    expect(result.current.deletionReason).toBe(state.deletionReason);
 
     expect(result.current.suppliersQuery).toBe(queries.suppliersQuery);
     expect(result.current.itemsQuery).toBe(queries.itemsQuery);
