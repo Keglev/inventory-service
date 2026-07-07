@@ -106,7 +106,7 @@
     "step2": "Step 2: Select Item",
     "step3": "Step 3: Item Information",
     "warningTitle": "This action cannot be undone!",
-    "warningMessage": "Once deleted, the item and all associated records will be permanently removed from the system.",
+    "warningMessage": "Once deleted, the item is removed from the catalog. Its stock history remains available for auditing.",
     "confirmationPrompt": "Are you sure you want to proceed?",
     "itemBeingDeleted": "Item being deleted:"
   },

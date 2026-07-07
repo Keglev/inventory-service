@@ -106,7 +106,7 @@
     "step2": "Schritt 2: Artikel auswählen",
     "step3": "Schritt 3: Artikelinformationen",
     "warningTitle": "Diese Aktion kann nicht rückgängig gemacht werden!",
-    "warningMessage": "Nach dem Löschen werden der Artikel und alle zugehörigen Datensätze dauerhaft aus dem System entfernt.",
+    "warningMessage": "Nach dem Löschen wird der Artikel aus dem Katalog entfernt. Seine Bestandshistorie bleibt für Prüfzwecke erhalten.",
     "confirmationPrompt": "Sind Sie sicher, dass Sie fortfahren möchten?",
     "itemBeingDeleted": "Zu löschender Artikel:"
   },
