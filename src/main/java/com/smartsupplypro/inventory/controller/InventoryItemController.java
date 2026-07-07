@@ -70,18 +70,23 @@ public class InventoryItemController {
     }
 
     /**
-     * Searches items by name with pagination and sorting.
+     * Searches active items by name or SKU with pagination and sorting.
+     * All filters are optional; an empty name matches all items.
      *
-     * @param name     case-insensitive name substring
-     * @param pageable pagination and sorting parameters
+     * @param name             case-insensitive name/SKU substring (optional)
+     * @param supplierId       optional supplier filter
+     * @param belowMinimumOnly when true, only items below their minimum quantity
+     * @param pageable         pagination and sorting parameters
      * @return page of matching items
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/search")
     public Page<InventoryItemDTO> search(
-            @RequestParam String name,
+            @RequestParam(required = false, defaultValue = "") String name,
+            @RequestParam(required = false) String supplierId,
+            @RequestParam(required = false, defaultValue = "false") boolean belowMinimumOnly,
             @org.springframework.data.web.PageableDefault(size = 20, sort = "price") Pageable pageable) {
-        return inventoryItemService.findByNameSortedByPrice(name, pageable);
+        return inventoryItemService.searchItems(name, supplierId, belowMinimumOnly, pageable);
     }
 
     /**

@@ -15,7 +15,7 @@ import com.smartsupplypro.inventory.model.InventoryItem;
 /**
  * Repository for {@link InventoryItem} persistence operations.
  *
- * <p>Uses {@code @EntityGraph} on {@link #findAll()} and {@link #findByNameSortedByPrice}
+ * <p>Uses {@code @EntityGraph} on {@link #findAll()} and {@link #searchActiveItems}
  * to prevent N+1 queries on supplier joins. Native SQL is used for below-minimum stock
  * queries where optional supplier filtering is required.</p>
  *
@@ -78,10 +78,14 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     long countWithQuantityBelow(@Param("threshold") int threshold);
 
     /**
-     * Finds items by partial name or SKU with supplier pre-fetched, sorted by price ascending.
+     * Searches ACTIVE items by partial name or SKU (case-insensitive), with optional
+     * supplier and below-minimum-stock filters. Supplier is pre-fetched to prevent
+     * N+1 queries. Ordering comes exclusively from the {@link Pageable} sort.
      *
-     * @param name     partial item name (case-insensitive)
-     * @param pageable pagination parameters
+     * @param name             partial item name or SKU; empty string matches all items
+     * @param supplierId       optional supplier filter (null returns all suppliers)
+     * @param belowMinimumOnly when true, only items with quantity below minimumQuantity
+     * @param pageable         pagination and sorting parameters
      * @return paginated results with supplier association eagerly loaded
      */
     @EntityGraph(attributePaths = {"supplier"})
@@ -89,6 +93,10 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
         + "WHERE i.active = true "
         + "AND (LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%')) "
         + "OR LOWER(i.sku) LIKE LOWER(CONCAT('%', :name, '%'))) "
-        + "ORDER BY i.price ASC")
-    Page<InventoryItem> findByNameSortedByPrice(@Param("name") String name, Pageable pageable);
+        + "AND (:supplierId IS NULL OR i.supplierId = :supplierId) "
+        + "AND (:belowMinimumOnly = false OR i.quantity < i.minimumQuantity)")
+    Page<InventoryItem> searchActiveItems(@Param("name") String name,
+                                          @Param("supplierId") String supplierId,
+                                          @Param("belowMinimumOnly") boolean belowMinimumOnly,
+                                          Pageable pageable);
 }

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -29,7 +30,7 @@ import com.smartsupplypro.inventory.service.StockHistoryService;
 import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 
 /**
- * Unit tests for {@link InventoryItemServiceImpl#findByNameSortedByPrice(String, org.springframework.data.domain.Pageable)}
+ * Unit tests for {@link InventoryItemServiceImpl#searchItems(String, String, boolean, org.springframework.data.domain.Pageable)}
  * covering pagination delegation and DTO mapping.
  */
 @ExtendWith(MockitoExtension.class)
@@ -61,10 +62,11 @@ class InventoryItemServiceImplSearchTest {
         e2.setPrice(new BigDecimal("20.00")); e2.setQuantity(7);
         e2.setMinimumQuantity(1); e2.setSupplierId("S1"); e2.setSku("SKU-SVC-2");
 
-        when(repository.findByNameSortedByPrice(anyString(), any(org.springframework.data.domain.Pageable.class)))
+        when(repository.searchActiveItems(anyString(), any(), anyBoolean(),
+                any(org.springframework.data.domain.Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(e1, e2)));
 
-        var result = service.findByNameSortedByPrice("z", PageRequest.of(0, 10));
+        var result = service.searchItems("z", null, false, PageRequest.of(0, 10));
 
         assertEquals(2, result.getTotalElements());
         assertEquals("i-1", result.getContent().get(0).getId());
@@ -73,10 +75,11 @@ class InventoryItemServiceImplSearchTest {
 
     @Test
     void should_return_empty_page_when_repository_returns_null() {
-        when(repository.findByNameSortedByPrice(anyString(), any(org.springframework.data.domain.Pageable.class)))
+        when(repository.searchActiveItems(anyString(), any(), anyBoolean(),
+                any(org.springframework.data.domain.Pageable.class)))
                 .thenReturn(null);
 
-        Page<?> result = service.findByNameSortedByPrice("anything", PageRequest.of(0, 10));
+        Page<?> result = service.searchItems("anything", null, false, PageRequest.of(0, 10));
 
         assertEquals(0, result.getTotalElements());
         assertEquals(0, result.getContent().size());

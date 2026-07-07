@@ -56,8 +56,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     /** {@inheritDoc} */
     @Override
-    public Page<InventoryItemDTO> findByNameSortedByPrice(String name, Pageable pageable) {
-        Page<InventoryItem> page = repository.findByNameSortedByPrice(name, pageable);
+    public Page<InventoryItemDTO> searchItems(String name, String supplierId,
+                                              boolean belowMinimumOnly, Pageable pageable) {
+        Page<InventoryItem> page = repository.searchActiveItems(name, supplierId, belowMinimumOnly, pageable);
         return page == null ? Page.empty() : page.map(inventoryItemMapper::toDTO);
     }
 

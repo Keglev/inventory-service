@@ -31,7 +31,7 @@ state-mutating operation is wrapped in `@Transactional`.
 `SupplierRepository`, `InventoryItemRepository`, and `StockHistoryRepository` are
 Spring Data JPA interfaces that cover the core domain. `InventoryItemRepository`
 declares `@EntityGraph(attributePaths = {"supplier"})` on both `findAll()` and
-`findByNameSortedByPrice()` to eager-load the supplier association in a single JOIN,
+`searchActiveItems()` to eager-load the supplier association in a single JOIN,
 preventing N+1 queries on the two hot list paths. Complex analytics aggregations that
 exceed what JPQL can express cleanly are handled by three custom repository
 implementations: `StockDetailQueryRepositoryImpl`, `StockMetricsRepositoryImpl`, and

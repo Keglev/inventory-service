@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.model.InventoryItem;
@@ -81,9 +82,69 @@ class InventoryItemRepositoryTest {
                     .id("item-4").name("Screw-2").sku("SKU-REP-4").price(BigDecimal.valueOf(5))
                     .quantity(80).minimumQuantity(10).supplier(supplier1).build());
 
-            Page<InventoryItem> result = inventoryItemRepository.findByNameSortedByPrice("screw", PageRequest.of(0, 10));
+            Page<InventoryItem> result = inventoryItemRepository.searchActiveItems(
+                    "screw", null, false, PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "price")));
             assertEquals(2, result.getTotalElements());
             assertEquals(BigDecimal.valueOf(1), result.getContent().get(0).getPrice());
+        }
+
+        @Test
+        void should_match_all_active_items_when_name_is_empty() {
+            inventoryItemRepository.save(InventoryItem.builder()
+                    .id("item-e1").name("Hammer").sku("SKU-REP-E1").price(BigDecimal.valueOf(9))
+                    .quantity(10).minimumQuantity(5).supplier(supplier1).build());
+            inventoryItemRepository.save(InventoryItem.builder()
+                    .id("item-e2").name("Chisel").sku("SKU-REP-E2").price(BigDecimal.valueOf(4))
+                    .quantity(10).minimumQuantity(5).supplier(supplier2).active(false).build());
+
+            Page<InventoryItem> result = inventoryItemRepository.searchActiveItems(
+                    "", null, false, PageRequest.of(0, 10));
+            assertEquals(1, result.getTotalElements());
+            assertEquals("Hammer", result.getContent().get(0).getName());
+        }
+
+        @Test
+        void should_filter_by_supplier_when_supplierId_given() {
+            inventoryItemRepository.save(InventoryItem.builder()
+                    .id("item-s1").name("Plate").sku("SKU-REP-S1").price(BigDecimal.valueOf(3))
+                    .quantity(10).minimumQuantity(5).supplier(supplier1).supplierId("sup-1").build());
+            inventoryItemRepository.save(InventoryItem.builder()
+                    .id("item-s2").name("Plate XL").sku("SKU-REP-S2").price(BigDecimal.valueOf(6))
+                    .quantity(10).minimumQuantity(5).supplier(supplier2).supplierId("sup-2").build());
+
+            Page<InventoryItem> result = inventoryItemRepository.searchActiveItems(
+                    "plate", "sup-2", false, PageRequest.of(0, 10));
+            assertEquals(1, result.getTotalElements());
+            assertEquals("item-s2", result.getContent().get(0).getId());
+        }
+
+        @Test
+        void should_filter_below_minimum_when_flag_set() {
+            inventoryItemRepository.save(InventoryItem.builder()
+                    .id("item-b1").name("Rod low").sku("SKU-REP-B1").price(BigDecimal.valueOf(2))
+                    .quantity(3).minimumQuantity(10).supplier(supplier1).build());
+            inventoryItemRepository.save(InventoryItem.builder()
+                    .id("item-b2").name("Rod ok").sku("SKU-REP-B2").price(BigDecimal.valueOf(2))
+                    .quantity(50).minimumQuantity(10).supplier(supplier1).build());
+
+            Page<InventoryItem> result = inventoryItemRepository.searchActiveItems(
+                    "rod", null, true, PageRequest.of(0, 10));
+            assertEquals(1, result.getTotalElements());
+            assertEquals("item-b1", result.getContent().get(0).getId());
+        }
+
+        @Test
+        void should_honor_pageable_sort_over_any_default() {
+            inventoryItemRepository.save(InventoryItem.builder()
+                    .id("item-o1").name("Alpha").sku("SKU-REP-O1").price(BigDecimal.valueOf(50))
+                    .quantity(10).minimumQuantity(5).supplier(supplier1).build());
+            inventoryItemRepository.save(InventoryItem.builder()
+                    .id("item-o2").name("Beta").sku("SKU-REP-O2").price(BigDecimal.valueOf(1))
+                    .quantity(10).minimumQuantity(5).supplier(supplier1).build());
+
+            Page<InventoryItem> result = inventoryItemRepository.searchActiveItems(
+                    "", null, false, PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "name")));
+            assertEquals("Alpha", result.getContent().get(0).getName());
         }
     }
 

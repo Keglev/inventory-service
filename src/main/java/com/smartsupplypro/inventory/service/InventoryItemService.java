@@ -23,7 +23,7 @@ public interface InventoryItemService {
 
     /**
      * Retrieves all inventory items without pagination.
-     * Use {@link #findByNameSortedByPrice} for large datasets.
+     * Use {@link #searchItems} for large datasets.
      * @return all inventory items
      */
     List<InventoryItemDTO> getAll();
@@ -36,12 +36,16 @@ public interface InventoryItemService {
     Optional<InventoryItemDTO> getById(String id);
 
     /**
-     * Searches items by partial name with pagination, sorted by price ascending.
-     * @param name     search term (partial match, case-insensitive)
-     * @param pageable pagination and sorting parameters
-     * @return paginated results sorted by price
+     * Searches active items by partial name or SKU with optional supplier and
+     * below-minimum filters. Ordering is taken from the {@link Pageable} sort.
+     * @param name             search term (partial match, case-insensitive); empty matches all
+     * @param supplierId       optional supplier filter (null = all suppliers)
+     * @param belowMinimumOnly when true, only items below their minimum quantity
+     * @param pageable         pagination and sorting parameters
+     * @return paginated results
      */
-    Page<InventoryItemDTO> findByNameSortedByPrice(String name, Pageable pageable);
+    Page<InventoryItemDTO> searchItems(String name, String supplierId,
+                                       boolean belowMinimumOnly, Pageable pageable);
 
     /**
      * Creates a new inventory item with initial stock.

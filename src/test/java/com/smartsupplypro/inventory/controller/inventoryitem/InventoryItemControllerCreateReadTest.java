@@ -185,7 +185,7 @@ class InventoryItemControllerCreateReadTest {
         @Test
         @WithMockUser(roles = "USER")
         void search_pageableAndSort() throws Exception {
-            when(inventoryItemService.findByNameSortedByPrice(eq("mon"), any(Pageable.class)))
+            when(inventoryItemService.searchItems(eq("mon"), eq(null), eq(false), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(sample("i-2"))));
 
             mockMvc.perform(get("/api/inventory/search")
@@ -195,6 +195,31 @@ class InventoryItemControllerCreateReadTest {
                     .param("sort", "price,desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value("i-2"));
+        }
+
+        @Test
+        @WithMockUser(roles = "USER")
+        void search_allParamsOptional_nameOmitted() throws Exception {
+            when(inventoryItemService.searchItems(eq(""), eq(null), eq(false), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(sample("i-3"))));
+
+            mockMvc.perform(get("/api/inventory/search"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value("i-3"));
+        }
+
+        @Test
+        @WithMockUser(roles = "USER")
+        void search_forwardsSupplierIdAndBelowMinimumFlags() throws Exception {
+            when(inventoryItemService.searchItems(eq("bolt"), eq("sup-9"), eq(true), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(sample("i-4"))));
+
+            mockMvc.perform(get("/api/inventory/search")
+                    .param("name", "bolt")
+                    .param("supplierId", "sup-9")
+                    .param("belowMinimumOnly", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value("i-4"));
         }
 
         @Test
