@@ -120,16 +120,26 @@ inventory/types/interfaces/InventoryListParams · Smart Supply Pro · API</title
         <h1 id="interface-inventorylistparams">Interface:
         InventoryListParams</h1>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/7efdc51cbda99e74e613cc939798f1a9e2590c0c/frontend/src/api/inventory/types.ts#L13">api/inventory/types.ts:13</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/78b67dbc3778db454d9d98ec5d425b995b1489b7/frontend/src/api/inventory/types.ts#L13">api/inventory/types.ts:13</a></p>
         <p>Filter &amp; pagination params accepted by the list
         endpoint.</p>
         <h2 id="properties">Properties</h2>
+        <h3 id="belowminimumonly">belowMinimumOnly?</h3>
+        <blockquote>
+        <p><code>optional</code> <strong>belowMinimumOnly</strong>:
+        <code>boolean</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/78b67dbc3778db454d9d98ec5d425b995b1489b7/frontend/src/api/inventory/types.ts#L25">api/inventory/types.ts:25</a></p>
+        <p>When true, restrict to items whose quantity is below their
+        minimum.</p>
+        <hr />
         <h3 id="page">page</h3>
         <blockquote>
         <p><strong>page</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/7efdc51cbda99e74e613cc939798f1a9e2590c0c/frontend/src/api/inventory/types.ts#L15">api/inventory/types.ts:15</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/78b67dbc3778db454d9d98ec5d425b995b1489b7/frontend/src/api/inventory/types.ts#L15">api/inventory/types.ts:15</a></p>
         <p>0-based page index (Spring Pageable).</p>
         <hr />
         <h3 id="pagesize">pageSize</h3>
@@ -137,7 +147,7 @@ inventory/types/interfaces/InventoryListParams · Smart Supply Pro · API</title
         <p><strong>pageSize</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/7efdc51cbda99e74e613cc939798f1a9e2590c0c/frontend/src/api/inventory/types.ts#L17">api/inventory/types.ts:17</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/78b67dbc3778db454d9d98ec5d425b995b1489b7/frontend/src/api/inventory/types.ts#L17">api/inventory/types.ts:17</a></p>
         <p>Page size (rows per page).</p>
         <hr />
         <h3 id="q">q?</h3>
@@ -146,7 +156,7 @@ inventory/types/interfaces/InventoryListParams · Smart Supply Pro · API</title
         <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/7efdc51cbda99e74e613cc939798f1a9e2590c0c/frontend/src/api/inventory/types.ts#L19">api/inventory/types.ts:19</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/78b67dbc3778db454d9d98ec5d425b995b1489b7/frontend/src/api/inventory/types.ts#L19">api/inventory/types.ts:19</a></p>
         <p>Search term (name/code); empty string for no search.</p>
         <hr />
         <h3 id="sort">sort?</h3>
@@ -155,7 +165,7 @@ inventory/types/interfaces/InventoryListParams · Smart Supply Pro · API</title
         <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/7efdc51cbda99e74e613cc939798f1a9e2590c0c/frontend/src/api/inventory/types.ts#L23">api/inventory/types.ts:23</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/78b67dbc3778db454d9d98ec5d425b995b1489b7/frontend/src/api/inventory/types.ts#L23">api/inventory/types.ts:23</a></p>
         <p>Sort expression, e.g., "name,asc".</p>
         <hr />
         <h3 id="supplierid">supplierId?</h3>
@@ -164,7 +174,7 @@ inventory/types/interfaces/InventoryListParams · Smart Supply Pro · API</title
         <code>string</code> | <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/7efdc51cbda99e74e613cc939798f1a9e2590c0c/frontend/src/api/inventory/types.ts#L21">api/inventory/types.ts:21</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/78b67dbc3778db454d9d98ec5d425b995b1489b7/frontend/src/api/inventory/types.ts#L21">api/inventory/types.ts:21</a></p>
         <p>Filter by supplier id (string/number).</p>
       </article>
     </main>
@@ -178,6 +188,8 @@ inventory/types/interfaces/InventoryListParams · Smart Supply Pro · API</title
       <ul>
       <li><a href="#properties" id="toc-properties">Properties</a>
       <ul>
+      <li><a href="#belowminimumonly"
+      id="toc-belowminimumonly">belowMinimumOnly?</a></li>
       <li><a href="#page" id="toc-page">page</a></li>
       <li><a href="#pagesize" id="toc-pagesize">pageSize</a></li>
       <li><a href="#q" id="toc-q">q?</a></li>

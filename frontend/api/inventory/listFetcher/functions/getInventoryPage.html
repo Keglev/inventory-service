@@ -125,29 +125,19 @@ inventory/listFetcher/functions/getInventoryPage · Smart Supply Pro · API</tit
         href="../../types/interfaces/InventoryListResponse.html"><code>InventoryListResponse</code></a>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/7efdc51cbda99e74e613cc939798f1a9e2590c0c/frontend/src/api/inventory/listFetcher.ts#L51">api/inventory/listFetcher.ts:51</a></p>
-        <p>Fetch a page of inventory items from the backend. Handles
-        pagination, search, filtering, and sorting. Works with various
-        response envelope formats transparently.</p>
+        href="https://github.com/Keglev/inventory-service/blob/78b67dbc3778db454d9d98ec5d425b995b1489b7/frontend/src/api/inventory/listFetcher.ts#L71">api/inventory/listFetcher.ts:71</a></p>
+        <p>Fetch a page of inventory items from GET
+        /api/inventory/search.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="params">params</h3>
         <p><a
         href="../../types/interfaces/InventoryListParams.html"><code>InventoryListParams</code></a></p>
-        <p>Query params: page, pageSize, q (search), supplierId,
-        sort</p>
+        <p>Query params: page, pageSize, q (search), supplierId, sort
+        (grid field names), belowMinimumOnly</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
         href="../../types/interfaces/InventoryListResponse.html"><code>InventoryListResponse</code></a>&gt;</p>
         <p>Paginated response with items and total count</p>
-        <h2 id="example">Example</h2>
-        <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> <span class="fu">getInventoryPage</span>({</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  page<span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  pageSize<span class="op">:</span> <span class="dv">20</span><span class="op">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  q<span class="op">:</span> <span class="st">&#39;bolt&#39;</span><span class="op">,</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  supplierId<span class="op">:</span> <span class="dt">undefined</span><span class="op">,</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  sort<span class="op">:</span> <span class="st">&#39;name,asc&#39;</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
       </article>
     </main>
 
@@ -163,7 +153,6 @@ inventory/listFetcher/functions/getInventoryPage · Smart Supply Pro · API</tit
       <li><a href="#params" id="toc-params">params</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
-      <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>
     </nav>

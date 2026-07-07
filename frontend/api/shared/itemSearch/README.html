@@ -121,25 +121,23 @@ shared/itemSearch/README · Smart Supply Pro · API</title>
         <ul>
         <li>Co-located here (rather than under analytics, where they
         originated) because both the inventory type-ahead hook
-        (useItemSearchQuery) and the analytics PriceTrendCard consume
-        them. A single physical home removes the cross-layer import that
+        (useItemSearchQuery) and the analytics pickers consume them. A
+        single physical home removes the cross-layer import that
         previously had an inventory hook reaching into the analytics
         module.</li>
-        <li>The backend's search parameter name is not stable (search |
-        q | query | name). The first name that yields results is cached
-        in INVENTORY_SEARCH_PARAM for the session so subsequent
-        keystrokes do not re-probe. This is module-level mutable state;
-        tracked under ST-APP18 for a future review of whether a session
-        cache belongs in a shared module.</li>
-        <li>Supplier-scoped search never silently downgrades to a global
-        search: an empty result for a supplier is returned as empty, not
-        refilled with cross-supplier rows.</li>
+        <li>Backed by the paginated backend search (CB-APP68): name,
+        supplierId, and size are real server parameters, so no parameter
+        probing and no client-side re-filtering are needed. The former
+        full-catalog fetch + client filter workaround was deleted with
+        that wave.</li>
+        <li>Supplier scoping is enforced by the backend query; an empty
+        result for a supplier is returned as empty, never refilled with
+        cross-supplier rows.</li>
         <li>Every function returns [] on any error to keep type-ahead
         UIs functional rather than throwing into a render path.</li>
         </ul>
         <h2 id="functions">Functions</h2>
         <ul>
-        <li><a href="functions/clientFilter.html">clientFilter</a></li>
         <li><a
         href="functions/normalizeItemsList.html">normalizeItemsList</a></li>
         <li><a
