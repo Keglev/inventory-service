@@ -92,21 +92,6 @@ public class InventoryItemAuditHelper {
     }
 
     /**
-     * Logs full stock removal before an item is deleted.
-     * @param item   the item being deleted
-     * @param reason the deletion reason
-     */
-    public void logFullRemoval(InventoryItem item, StockChangeReason reason) {
-        stockHistoryService.logStockChange(
-                item.getId(),
-                -item.getQuantity(),
-                reason,
-                currentUsername(),
-                item.getPrice()
-        );
-    }
-
-    /**
      * Retrieves the current authenticated username from the Spring Security context.
      * Returns "system" when no authentication is present (e.g. batch jobs).
      */

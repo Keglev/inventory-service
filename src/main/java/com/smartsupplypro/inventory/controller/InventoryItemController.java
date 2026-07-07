@@ -23,7 +23,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
-import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 
 /**
@@ -128,16 +127,17 @@ public class InventoryItemController {
     }
 
     /**
-     * Deletes an inventory item with an audit reason.
+     * Deletes an inventory item. Deletion is only permitted once the item's
+     * quantity is zero; in-stock merchandise must first be reduced via a
+     * quantity adjustment, which is where the stock movement is audited.
      *
-     * @param id     item identifier
-     * @param reason business reason for deletion
+     * @param id item identifier
      * @throws ResponseStatusException 404 if item not found
      */
     @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable String id, @RequestParam StockChangeReason reason) {
-        inventoryItemService.delete(id, reason);
+    public void delete(@PathVariable String id) {
+        inventoryItemService.delete(id);
     }
 }

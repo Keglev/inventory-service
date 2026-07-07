@@ -63,11 +63,11 @@ public interface InventoryItemService {
     Optional<InventoryItemDTO> update(String id, InventoryItemDTO dto);
 
     /**
-     * Deletes an inventory item and records the removal reason in stock history.
-     * @param id     inventory item ID
-     * @param reason business reason for deletion (e.g. EXPIRED, DAMAGED)
+     * Deletes an inventory item. Only permitted when the item's quantity is
+     * already zero; no stock-history row is written by deletion itself.
+     * @param id inventory item ID
      */
-    void delete(String id, StockChangeReason reason);
+    void delete(String id);
 
     /**
      * Adjusts item quantity by delta and logs the change to stock history.

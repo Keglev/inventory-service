@@ -122,21 +122,6 @@ class InventoryItemAuditHelperTest {
         }
     }
 
-    /**
-     * Tests for {@code logFullRemoval()}.
-     */
-    @Nested
-    class LogFullRemoval {
-
-        @Test
-        void should_log_negative_quantity_with_provided_reason() {
-            authenticateAs("admin");
-            helper.logFullRemoval(item("item-1", 7, new BigDecimal("10.00")), StockChangeReason.SCRAPPED);
-            verify(stockHistoryService).logStockChange(
-                    "item-1", -7, StockChangeReason.SCRAPPED, "admin", new BigDecimal("10.00"));
-        }
-    }
-
     private static InventoryItem item(String id, int qty, BigDecimal price) {
         InventoryItem item = new InventoryItem();
         item.setId(id); item.setQuantity(qty); item.setPrice(price);

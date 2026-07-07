@@ -122,24 +122,15 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     /**
      * {@inheritDoc}
      *
-     * <p>Only deletion reasons that represent physical stock disposal are accepted;
-     * generic reasons like MANUAL_UPDATE would produce a misleading audit trail.</p>
+     * <p>Deletion is a pure catalog removal. It is only permitted once the
+     * quantity has already been reduced to zero, so the stock movement that
+     * emptied the item was logged by the quantity adjustment that preceded
+     * it. No additional stock-history row is written here.</p>
      */
     @Override
     @Transactional
-    public void delete(String id, StockChangeReason reason) {
-        if (reason != StockChangeReason.SCRAPPED &&
-            reason != StockChangeReason.DESTROYED &&
-            reason != StockChangeReason.DAMAGED &&
-            reason != StockChangeReason.EXPIRED &&
-            reason != StockChangeReason.LOST &&
-            reason != StockChangeReason.RETURNED_TO_SUPPLIER) {
-            throw new IllegalArgumentException("Invalid reason for deletion");
-        }
-
+    public void delete(String id) {
         validationHelper.validateForDeletion(id);
-        InventoryItem item = validationHelper.validateExists(id);
-        auditHelper.logFullRemoval(item, reason);
         repository.deleteById(id);
     }
 

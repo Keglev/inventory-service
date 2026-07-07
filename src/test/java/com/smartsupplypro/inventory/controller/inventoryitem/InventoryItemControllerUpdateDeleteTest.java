@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.controller.InventoryItemController;
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
-import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 
@@ -100,32 +99,22 @@ class InventoryItemControllerUpdateDeleteTest {
 
         @Test
         void delete_unauthenticated_401() throws Exception {
-            mockMvc.perform(delete("/api/inventory/i-1").with(csrf())
-                    .param("reason", StockChangeReason.SCRAPPED.name()))
+            mockMvc.perform(delete("/api/inventory/i-1").with(csrf()))
                 .andExpect(status().isUnauthorized());
         }
 
         @Test
         @WithMockUser(roles = "ADMIN")
         void delete_admin_noContent() throws Exception {
-            mockMvc.perform(delete("/api/inventory/i-1").with(csrf())
-                    .param("reason", StockChangeReason.SCRAPPED.name()))
+            mockMvc.perform(delete("/api/inventory/i-1").with(csrf()))
                 .andExpect(status().isNoContent());
         }
 
         @Test
         @WithMockUser(roles = "USER")
         void delete_user_forbidden() throws Exception {
-            mockMvc.perform(delete("/api/inventory/i-1").with(csrf())
-                    .param("reason", StockChangeReason.SCRAPPED.name()))
-                .andExpect(status().isForbidden());
-        }
-
-        @Test
-        @WithMockUser(roles = "ADMIN")
-        void delete_missingReason_badRequest() throws Exception {
             mockMvc.perform(delete("/api/inventory/i-1").with(csrf()))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
         }
     }
 }
