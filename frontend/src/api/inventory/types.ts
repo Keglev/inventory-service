@@ -32,6 +32,8 @@ export interface InventoryRow {
   supplierId?: string | number | null;
   onHand: number;        // current stock
   minQty?: number | null;
+  price?: number | null;      // unit price (backend price)
+  totalValue?: number | null; // quantity x unit price (backend totalValue)
   createdAt?: string | null; // ISO datetime (backend createdAt; no update timestamp exists)
 }
 

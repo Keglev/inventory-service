@@ -172,9 +172,13 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
                 typeof state.formState.errors.newPrice?.message === 'string'
                   ? state.formState.errors.newPrice.message
                   : state.selectedItem
-                    ? t('inventory:price.priceChange', 'Change from {{from}} to {{to}}', {
+                    ? t('inventory:price.priceChange', 'Unit price: change from {{from}} to {{to}}', {
                         from: state.effectiveCurrentPrice.toFixed(2),
                         to: Number(value).toFixed(2),
+                      }) +
+                      ' · ' +
+                      t('inventory:price.newTotalValue', 'New total value: {{total}}', {
+                        total: (Number(value) * state.effectiveCurrentQty).toFixed(2),
                       })
                     : ''
               }

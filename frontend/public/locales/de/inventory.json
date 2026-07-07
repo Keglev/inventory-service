@@ -12,6 +12,8 @@
     "quantity": "Anfangsbestand",
     "onHand": "Bestand",
     "minQty": "Mindestmenge",
+    "unitPrice": "Einzelpreis (€)",
+    "totalValue": "Gesamtwert (€)",
     "created": "Erstellt",
     "notes": "Notizen"
   },
@@ -86,6 +88,9 @@
 
   "price": {
     "newPrice": "Neuer Preis",
+    "priceChange": "Einzelpreis: Änderung von {{from}} auf {{to}}",
+    "currentTotalValue": "Aktueller Gesamtwert",
+    "newTotalValue": "Neuer Gesamtwert: {{total}}",
     "currentPrice": "Aktueller Preis",
     "setPriceHint": "Preis wird auf ${{price}} gesetzt",
     "priceUpdatedTo": "Preis wurde auf ${{price}} geändert",

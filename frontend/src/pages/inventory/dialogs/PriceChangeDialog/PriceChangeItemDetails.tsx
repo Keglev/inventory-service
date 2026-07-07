@@ -60,6 +60,16 @@ export function PriceChangeItemDetails({
           {loading ? <CircularProgress size={16} /> : currentQty}
         </Typography>
       </Box>
+
+      {/* Current Total Value = unit price x quantity */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Typography variant="body2" color="text.secondary">
+          {t('inventory:price.currentTotalValue', 'Current Total Value')}:
+        </Typography>
+        <Typography variant="body2" fontWeight="medium">
+          {loading ? <CircularProgress size={16} /> : (currentPrice * currentQty).toFixed(2)}
+        </Typography>
+      </Box>
     </Box>
   );
 }

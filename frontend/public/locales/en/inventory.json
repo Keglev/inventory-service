@@ -12,6 +12,8 @@
     "quantity": "Initial Quantity",
     "onHand": "On Hand",
     "minQty": "Minimum Quantity",
+    "unitPrice": "Unit Price (€)",
+    "totalValue": "Total Value (€)",
     "created": "Created",
     "notes": "Notes"
   },
@@ -86,6 +88,9 @@
 
   "price": {
     "newPrice": "New Price",
+    "priceChange": "Unit price: change from {{from}} to {{to}}",
+    "currentTotalValue": "Current Total Value",
+    "newTotalValue": "New total value: {{total}}",
     "currentPrice": "Current Price",
     "setPriceHint": "Price will be set to ${{price}}",
     "priceUpdatedTo": "Price updated to ${{price}}",

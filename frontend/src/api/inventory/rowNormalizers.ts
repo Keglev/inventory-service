@@ -59,6 +59,10 @@ export const toInventoryRow = (raw: unknown): InventoryRow | null => {
   // minimumQuantity → minQty
   const minQty = pickNumber(r, 'minimumQuantity') ?? null;
 
+  // price → price (unit price); totalValue → totalValue (falls back to price x onHand)
+  const price = pickNumber(r, 'price') ?? null;
+  const totalValue = pickNumber(r, 'totalValue') ?? (price != null ? price * onHand : null);
+
   // createdAt → createdAt (creation timestamp for display)
   const createdAt = pickString(r, 'createdAt') ?? null;
 
@@ -70,6 +74,8 @@ export const toInventoryRow = (raw: unknown): InventoryRow | null => {
     supplierName,
     onHand,
     minQty,
+    price,
+    totalValue,
     createdAt,
   };
 };

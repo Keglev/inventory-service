@@ -55,7 +55,7 @@ export const useInventoryColumns = (): GridColDef[] => {
         field: 'onHand',
         headerName: t('inventory:table.onHand', 'On-hand'),
         type: 'number',
-        width: 140,
+        width: 110,
         valueGetter: (_value: unknown, row: (InventoryRow & { quantity?: number | null }) | null) => {
           if (!row) return 0;
           const fromNormalized =
@@ -71,14 +71,15 @@ export const useInventoryColumns = (): GridColDef[] => {
         valueFormatter: (value: unknown) => {
           const numeric =
             typeof value === 'number' && Number.isFinite(value) ? value : 0;
-          return formatNumber(numeric, userPreferences.numberFormat);
+          // Quantities are counts: render as plain integers (no decimal places)
+          return formatNumber(numeric, userPreferences.numberFormat, 0);
         },
       },
       {
         field: 'minQty',
         headerName: t('inventory:table.minQty', 'Min. Qty'),
         type: 'number',
-        width: 140,
+        width: 120,
         valueGetter: (_value: unknown, row: (InventoryRow & { minimumQuantity?: number | string | null }) | null) => {
           if (!row) return 0;
           const raw = row.minQty ?? row.minimumQuantity ?? 0;
@@ -96,16 +97,53 @@ export const useInventoryColumns = (): GridColDef[] => {
               : typeof value === 'string' && value.trim() !== ''
               ? Number(value)
               : 0;
+          // Quantities are counts: render as plain integers (no decimal places)
           return formatNumber(
             Number.isFinite(numeric) ? numeric : 0,
             userPreferences.numberFormat,
+            0,
           );
+        },
+      },
+      {
+        field: 'price',
+        headerName: t('inventory:table.unitPrice', 'Unit Price (€)'),
+        type: 'number',
+        width: 130,
+        valueGetter: (_value: unknown, row: InventoryRow | null) => {
+          if (!row) return null;
+          return typeof row.price === 'number' && Number.isFinite(row.price) ? row.price : null;
+        },
+        valueFormatter: (value: unknown) => {
+          if (typeof value !== 'number' || !Number.isFinite(value)) return '—';
+          return formatNumber(value, userPreferences.numberFormat, 2);
+        },
+      },
+      {
+        field: 'totalValue',
+        headerName: t('inventory:table.totalValue', 'Total Value (€)'),
+        type: 'number',
+        width: 150,
+        valueGetter: (_value: unknown, row: InventoryRow | null) => {
+          if (!row) return null;
+          if (typeof row.totalValue === 'number' && Number.isFinite(row.totalValue)) {
+            return row.totalValue;
+          }
+          // Fallback: derive from unit price x on-hand when the backend omits totalValue
+          if (typeof row.price === 'number' && Number.isFinite(row.price)) {
+            return row.price * row.onHand;
+          }
+          return null;
+        },
+        valueFormatter: (value: unknown) => {
+          if (typeof value !== 'number' || !Number.isFinite(value)) return '—';
+          return formatNumber(value, userPreferences.numberFormat, 2);
         },
       },
       {
         field: 'createdAt',
         headerName: t('inventory:table.created'),
-        width: 190,
+        width: 160,
         valueGetter: (_value: unknown, row: InventoryRow | null) => {
           if (!row) return null;
           return row.createdAt ?? null;
