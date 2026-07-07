@@ -39,7 +39,10 @@
     "editItemTitle": "Artikel bearbeiten",
     "deleteItemTitle": "Artikel löschen",
     "itemInfoTitle": "Artikelinformationen",
-    "confirmDeleteTitle": "Löschung bestätigen"
+    "confirmDeleteTitle": "Löschung bestätigen",
+    "selectedItemLabel": "Ausgewählter Artikel:",
+    "currentQuantityLabel": "Aktueller Bestand:",
+    "currentPriceLabel": "Aktueller Preis:"
   },
 
   "buttons": {

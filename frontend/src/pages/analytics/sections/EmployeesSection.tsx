@@ -102,6 +102,14 @@ export default function EmployeesSection({ from, to, supplierId }: EmployeesSect
     [userPreferences.numberFormat]
   );
 
+  const formatTooltipCount = React.useCallback(
+    (value: number | string) =>
+      typeof value === 'number'
+        ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.changes', 'changes')}`
+        : String(value),
+    [userPreferences.numberFormat, t]
+  );
+
   const changes = changesQ.data ?? { rows: [], total: 0 };
 
   return (
@@ -137,7 +145,7 @@ export default function EmployeesSection({ from, to, supplierId }: EmployeesSect
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="period" tick={{ fontSize: 12 }} />
                   <YAxis allowDecimals={false} tickFormatter={formatCount} />
-                  <Tooltip formatter={formatCount} />
+                  <Tooltip formatter={formatTooltipCount} />
                   <Legend />
                   {/* Emails contain dots; Recharts resolves string dataKeys as
                       nested paths, so each series needs a function accessor. */}

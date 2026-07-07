@@ -39,7 +39,10 @@
     "editItemTitle": "Edit Item",
     "deleteItemTitle": "Delete Item",
     "itemInfoTitle": "Item Information",
-    "confirmDeleteTitle": "Confirm Deletion"
+    "confirmDeleteTitle": "Confirm Deletion",
+    "selectedItemLabel": "Selected Item:",
+    "currentQuantityLabel": "Current Quantity:",
+    "currentPriceLabel": "Current Price:"
   },
 
   "buttons": {

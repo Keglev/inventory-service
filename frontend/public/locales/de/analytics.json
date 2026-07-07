@@ -1,9 +1,11 @@
 {
   "title": "Analysen",
   "cards": {
-    "stockValue": "Bestandswert im Zeitverlauf",
-    "monthlyMovement": "Monatliche Bestandsbewegung",
-    "priceTrend": "Preisverlauf",
+    "stockValue": "Bestandswert im Zeitverlauf (€)",
+    "monthlyMovement": "Monatliche Bestandsbewegung (Stück)",
+    "stockIn": "Zugang",
+    "stockOut": "Abgang",
+    "priceTrend": "Preisverlauf (€)",
     "lowStock": "Artikel mit niedrigem Bestand",
     "noData": "Keine Daten für die ausgewählten Filter.",
     "noItems": "Keine Artikel gefunden."
@@ -23,7 +25,7 @@
     "typeToSearch": "Tippe zum Suchen…"
   },
   "finance": {
-    "title": "Finanzübersicht",
+    "title": "Finanzübersicht (€)",
     "purchases": "Einkäufe",
     "cogs": "Warenaufwand",
     "writeOffs": "Abschreibungen",
@@ -97,7 +99,7 @@
     "empty": "Keine Artikel mit niedrigem Bestand für die aktuellen Filter."
   },
   "stockPerSupplier": {
-    "title": "Bestand je Lieferant",
+    "title": "Bestand je Lieferant (Stück)",
     "metricToggle": {
       "quantity": "Menge",
       "value": "Wert"
@@ -140,8 +142,8 @@
     "RETURNED_BY_CUSTOMER": "Rückgabe vom Kunden"
   },
   "movements": {
-    "increasesTitle": "Bestandszugänge nach Grund",
-    "decreasesTitle": "Bestandsabgänge nach Grund",
+    "increasesTitle": "Bestandszugänge nach Grund (Stück)",
+    "decreasesTitle": "Bestandsabgänge nach Grund (Stück)",
     "itemFilter": "Nach Artikelname filtern",
     "reasonFilter": "Gründe",
     "drilldownTitle": "Passende Bestandsänderungen",
@@ -173,5 +175,10 @@
     "empty": "Nichts anzuzeigen.",
     "error": "Es ist ein Fehler aufgetreten.",
     "retry": "Erneut versuchen"
+  },
+  "units": {
+    "pieces": "Stk.",
+    "updates": "Aktualisierungen",
+    "changes": "Änderungen"
   }
 }

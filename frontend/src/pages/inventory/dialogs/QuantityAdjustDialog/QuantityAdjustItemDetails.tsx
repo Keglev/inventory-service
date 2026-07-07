@@ -10,19 +10,18 @@
  * - Renders nothing when no item is selected (the quantity input is
  *   disabled in that state, so the panel would carry no useful
  *   information).
- * - Three hardcoded English strings ('Selected Item:', 'Current
- *   Quantity:', 'Current Price:') bypass t() and ship as-is to
- *   German users. The currency symbol is hardcoded '$' while the rest
- *   of the app uses Euro (see ItemForm.tsx price field). Tracked under
- *   CB-APP59 -- thread useTranslation, add the three keys to
- *   inventory.json, replace '$' with the locale-aware currency
- *   formatter from utils/formatters.
+ * - Labels come from the 'inventory' namespace (dialogs.*Label keys);
+ *   prices render via formatNumber with the user's number format and a
+ *   Euro suffix, consistent with the grid columns and ItemForm.
  * - Pure presentation. All numbers come from the parent hook's
  *   effective-* derivations.
  */
 
 import * as React from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { useSettings } from '../../../../hooks/useSettings';
+import { formatNumber } from '../../../../utils/formatters';
 import type { ItemOption } from '../../../../api/analytics/types';
 
 interface QuantityAdjustItemDetailsProps {
@@ -38,6 +37,9 @@ export const QuantityAdjustItemDetails: React.FC<QuantityAdjustItemDetailsProps>
   currentPrice,
   loading,
 }) => {
+  const { t } = useTranslation(['inventory']);
+  const { userPreferences } = useSettings();
+
   // Only render when item is selected
   if (!item) {
     return null;
@@ -45,15 +47,14 @@ export const QuantityAdjustItemDetails: React.FC<QuantityAdjustItemDetailsProps>
 
   return (
     <Box sx={{ display: 'grid', gap: 1, p: 2, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}>
-      {/* BUCKET: CB-APP59 -- hardcoded English strings + '$' currency in Euro app. Thread useTranslation and use locale-aware currency formatter. */}
       <Typography variant="subtitle2" color="primary">
-        Selected Item: {item.name}
+        {t('inventory:dialogs.selectedItemLabel', 'Selected Item:')} {item.name}
       </Typography>
 
       {/* Current Quantity */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant="body2" color="text.secondary">
-          Current Quantity:
+          {t('inventory:dialogs.currentQuantityLabel', 'Current Quantity:')}
         </Typography>
         <Typography variant="body2" fontWeight="medium">
           {loading ? <CircularProgress size={16} /> : currentQty}
@@ -63,15 +64,15 @@ export const QuantityAdjustItemDetails: React.FC<QuantityAdjustItemDetailsProps>
       {/* Current Price */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant="body2" color="text.secondary">
-          Current Price:
+          {t('inventory:dialogs.currentPriceLabel', 'Current Price:')}
         </Typography>
         <Typography variant="body2" fontWeight="medium">
           {loading ? (
             <CircularProgress size={16} />
           ) : currentPrice !== null && currentPrice !== undefined ? (
-            `$${currentPrice.toFixed(2)}`
+            `${formatNumber(currentPrice, userPreferences.numberFormat, 2)} €`
           ) : (
-            `$${(item?.price ?? 0).toFixed(2)}`
+            `${formatNumber(item?.price ?? 0, userPreferences.numberFormat, 2)} €`
           )}
         </Typography>
       </Box>

@@ -14,7 +14,10 @@
     "kpi": {
       "totalItems": "Total items",
       "suppliers": "Suppliers",
-      "lowStock": "Low-stock items"
+      "lowStock": "Low-stock items",
+      "movementTitle": "Stock movement, last 90 days (pieces)",
+      "stockIn": "Stock in",
+      "stockOut": "Stock out"
     },
     "actions": {
     "manageInventory": "Manage inventory",
@@ -115,5 +118,8 @@
       "priceTrend": "Price trend"
     },
     "item": "Item"
+  },
+  "units": {
+    "pieces": "pcs"
   }
 }

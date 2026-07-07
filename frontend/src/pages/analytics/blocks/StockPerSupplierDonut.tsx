@@ -79,7 +79,7 @@ export default function StockPerSupplierDonut() {
                 <Tooltip
                   formatter={(value: number | string) =>
                     typeof value === 'number'
-                      ? formatNumber(value, userPreferences.numberFormat, 0)
+                      ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces', 'pcs')}`
                       : value
                   }
                 />

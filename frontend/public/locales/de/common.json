@@ -14,7 +14,10 @@
     "kpi": {
       "totalItems": "Artikel gesamt",
       "suppliers": "Lieferanten",
-      "lowStock": "Artikel mit niedrigem Bestand"
+      "lowStock": "Artikel mit niedrigem Bestand",
+      "movementTitle": "Bestandsbewegung, letzte 90 Tage (Stück)",
+      "stockIn": "Zugang",
+      "stockOut": "Abgang"
     },
     "actions": {
       "manageInventory": "Bestand verwalten",
@@ -109,6 +112,9 @@
     "title": "Analysen",
     "cards": { "stockValue": "Bestandswert im Zeitverlauf", "monthlyMovement": "Monatliche Bestandsbewegungen", "priceTrend": "Preisentwicklung" },
     "item": "Artikel"
+  },
+  "units": {
+    "pieces": "Stk."
   }
 }
 

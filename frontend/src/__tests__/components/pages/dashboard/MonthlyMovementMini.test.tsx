@@ -68,6 +68,17 @@ vi.mock('../../../../api/analytics', () => ({
 vi.mock('../../../../utils/formatters', () => ({
   getTodayIso: () => '2024-12-22',
   getDaysAgoIso: (days: number) => (days === 90 ? '2024-09-23' : '2024-01-01'),
+  formatNumber: (num: number) => String(num),
+}));
+
+/**
+ * Settings context is mocked: the component reads numberFormat for the
+ * axis/tooltip formatters added in CB-APP59.
+ */
+vi.mock('../../../../hooks/useSettings', () => ({
+  useSettings: () => ({
+    userPreferences: { numberFormat: 'EN_US', dateFormat: 'YYYY-MM-DD', tableDensity: 'standard' },
+  }),
 }));
 
 /**

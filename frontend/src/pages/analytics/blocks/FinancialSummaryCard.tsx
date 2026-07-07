@@ -114,7 +114,7 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
                   <Tooltip
                     formatter={(value: number | string) =>
                       typeof value === 'number'
-                        ? formatNumber(value, userPreferences.numberFormat, 2)
+                        ? `${formatNumber(value, userPreferences.numberFormat, 2)} €`
                         : value
                     }
                   />

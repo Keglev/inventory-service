@@ -20,8 +20,8 @@
  * @i18n
  * Uses 'common' namespace. Key: dashboard.kpi.movementTitle.
  *
- * CB-APP66: t('dashboard.kpi.movementTitle', 'Stock movement (90d)') retains
- * an English fallback string at the JSX site — tracked for i18n cleanup.
+ * Keys: dashboard.kpi.movementTitle, dashboard.kpi.stockIn/stockOut,
+ * units.pieces (all in the 'common' namespace; CB-APP66/CB-APP59 resolved).
  */
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
@@ -29,7 +29,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
 import { getMonthlyStockMovement } from '../../../api/analytics';
-import { getTodayIso, getDaysAgoIso } from '../../../utils/formatters';
+import { getTodayIso, getDaysAgoIso, formatNumber } from '../../../utils/formatters';
+import { useSettings } from '../../../hooks/useSettings';
 
 /**
  * Monthly stock movement chart component for dashboard KPI section.
@@ -38,6 +39,7 @@ import { getTodayIso, getDaysAgoIso } from '../../../utils/formatters';
  */
 export default function MonthlyMovementMini() {
   const { t } = useTranslation('common');
+  const { userPreferences } = useSettings();
   // Calculate 90-day window (from: 90 days ago, to: today)
   const from = getDaysAgoIso(90);
   const to = getTodayIso();
@@ -65,13 +67,29 @@ export default function MonthlyMovementMini() {
               <BarChart data={q.data ?? []}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
+                <YAxis
+                  tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)}
+                />
+                <Tooltip
+                  formatter={(value: number | string) =>
+                    typeof value === 'number'
+                      ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('units.pieces', 'pcs')}`
+                      : value
+                  }
+                />
                 <Legend />
                 {/* Green bars: inbound stock movements */}
-                <Bar dataKey="stockIn" fill={muiTheme.palette.success.main} />
+                <Bar
+                  dataKey="stockIn"
+                  name={t('dashboard.kpi.stockIn', 'Stock in')}
+                  fill={muiTheme.palette.success.main}
+                />
                 {/* Red bars: outbound stock movements */}
-                <Bar dataKey="stockOut" fill={muiTheme.palette.error.main} />
+                <Bar
+                  dataKey="stockOut"
+                  name={t('dashboard.kpi.stockOut', 'Stock out')}
+                  fill={muiTheme.palette.error.main}
+                />
               </BarChart>
             </ResponsiveContainer>
           </Box>

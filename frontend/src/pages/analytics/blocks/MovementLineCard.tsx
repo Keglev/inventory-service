@@ -71,7 +71,7 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
                   labelFormatter={(value) => formatDateLabel(value as string)}
                   formatter={(value: number | string) =>
                     typeof value === 'number'
-                      ? formatNumber(value, userPreferences.numberFormat, 0)
+                      ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces', 'pcs')}`
                       : value
                   }
                 />
@@ -79,7 +79,7 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
                 <Line
                   type="monotone"
                   dataKey="stockIn"
-                  name={t('analytics:cards.monthlyMovement') + ' • In'}
+                  name={t('analytics:cards.stockIn', 'Stock in')}
                   stroke={muiTheme.palette.success.main}
                   strokeWidth={2}
                   dot={{ r: 2 }}
@@ -89,7 +89,7 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
                 <Line
                   type="monotone"
                   dataKey="stockOut"
-                  name={t('analytics:cards.monthlyMovement') + ' • Out'}
+                  name={t('analytics:cards.stockOut', 'Stock out')}
                   stroke={muiTheme.palette.error.main}
                   strokeWidth={2}
                   dot={{ r: 2 }}

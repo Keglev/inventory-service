@@ -15,10 +15,17 @@
 // Shared deterministic mocks (i18n + toast) for this folder.
 import './testSetup';
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QuantityAdjustItemDetails } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemDetails';
 import type { ItemOption } from '../../../../../api/analytics/types';
+
+// Settings context is mocked so price formatting is deterministic (EN_US).
+vi.mock('../../../../../hooks/useSettings', () => ({
+  useSettings: () => ({
+    userPreferences: { numberFormat: 'EN_US', dateFormat: 'YYYY-MM-DD', tableDensity: 'standard' },
+  }),
+}));
 
 // Stable item fixture for deterministic formatting assertions.
 const item: ItemOption = {
@@ -45,7 +52,7 @@ describe('QuantityAdjustItemDetails', () => {
 
     expect(screen.getByText('Selected Item: Hand Sanitizer')).toBeInTheDocument();
     expect(screen.getByText('30')).toBeInTheDocument();
-    expect(screen.getByText('$8.25')).toBeInTheDocument();
+    expect(screen.getByText('8.25 €')).toBeInTheDocument();
   });
 
   it('shows spinners while loading details', () => {
@@ -61,6 +68,6 @@ describe('QuantityAdjustItemDetails', () => {
       <QuantityAdjustItemDetails item={item} currentQty={25} currentPrice={null} loading={false} />
     );
 
-    expect(screen.getByText('$7.50')).toBeInTheDocument();
+    expect(screen.getByText('7.50 €')).toBeInTheDocument();
   });
 });

@@ -1,9 +1,11 @@
 {
   "title": "Analytics",
   "cards": {
-    "stockValue": "Stock value over time",
-    "monthlyMovement": "Monthly stock movement",
-    "priceTrend": "Price trend",
+    "stockValue": "Stock value over time (€)",
+    "monthlyMovement": "Monthly stock movement (pieces)",
+    "stockIn": "Stock in",
+    "stockOut": "Stock out",
+    "priceTrend": "Price trend (€)",
     "lowStock": "Low-stock items",
     "noData": "No data for the selected filters.",
     "noItems": "No items found."
@@ -23,7 +25,7 @@
     "typeToSearch": "Start typing to search…"
   },
   "finance": {
-    "title": "Financial summary",
+    "title": "Financial summary (€)",
     "purchases": "Purchases",
     "cogs": "COGS",
     "writeOffs": "Write-offs",
@@ -97,7 +99,7 @@
     "empty": "No low-stock items for the current filters."
   },
   "stockPerSupplier": {
-    "title": "Stock per supplier",
+    "title": "Stock per supplier (pieces)",
     "metricToggle": {
       "quantity": "Quantity",
       "value": "Value"
@@ -140,8 +142,8 @@
     "RETURNED_BY_CUSTOMER": "Returned by customer"
   },
   "movements": {
-    "increasesTitle": "Stock increases by reason",
-    "decreasesTitle": "Stock decreases by reason",
+    "increasesTitle": "Stock increases by reason (pieces)",
+    "decreasesTitle": "Stock decreases by reason (pieces)",
     "itemFilter": "Filter by item name",
     "reasonFilter": "Reasons",
     "drilldownTitle": "Matching stock changes",
@@ -173,5 +175,10 @@
     "empty": "Nothing to show.",
     "error": "An error occurred.",
     "retry": "Retry"
+  },
+  "units": {
+    "pieces": "pcs",
+    "updates": "updates",
+    "changes": "changes"
   }
 }

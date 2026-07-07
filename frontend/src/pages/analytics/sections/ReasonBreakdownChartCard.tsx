@@ -43,6 +43,14 @@ export default function ReasonBreakdownChartCard({ title, data, color, loading }
     [userPreferences.numberFormat]
   );
 
+  const formatTooltipValue = React.useCallback(
+    (value: number | string) =>
+      typeof value === 'number'
+        ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces', 'pcs')}`
+        : String(value),
+    [userPreferences.numberFormat, t]
+  );
+
   return (
     <Card data-testid="reason-breakdown-card">
       <CardContent>
@@ -63,7 +71,7 @@ export default function ReasonBreakdownChartCard({ title, data, color, loading }
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="label" interval={0} angle={-25} textAnchor="end" height={70} tick={{ fontSize: 12 }} />
                 <YAxis allowDecimals={false} tickFormatter={formatValue} />
-                <Tooltip formatter={formatValue} />
+                <Tooltip formatter={formatTooltipValue} />
                 <Bar dataKey="value" fill={color} isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>

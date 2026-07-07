@@ -84,7 +84,7 @@ export default function StockValueCard({ from, to, supplierId }: StockValueCardP
                             labelFormatter={(value) => formatDateLabel(value as string)}
                             formatter={(value: number | string) =>
                                 typeof value === 'number'
-                                    ? formatNumber(value, userPreferences.numberFormat, 2)
+                                    ? `${formatNumber(value, userPreferences.numberFormat, 2)} €`
                                     : value
                             }
                         />

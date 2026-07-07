@@ -140,7 +140,9 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
                 <XAxis dataKey="dateLabel" />
                 <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
                 <Tooltip
-                  formatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)}
+                  formatter={(value) =>
+                    `${formatNumber(Number(value), userPreferences.numberFormat, 0)} ${t('analytics:units.pieces', 'pcs')}`
+                  }
                   labelFormatter={(label) => label as string}
                 />
                 <Legend />

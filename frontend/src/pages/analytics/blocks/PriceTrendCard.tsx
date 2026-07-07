@@ -227,7 +227,7 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
                   labelFormatter={(value) => formatDateLabel(value as string)}
                   formatter={(value: number | string) =>
                     typeof value === 'number'
-                      ? formatNumber(value, userPreferences.numberFormat, 2)
+                      ? `${formatNumber(value, userPreferences.numberFormat, 2)} €`
                       : value
                   }
                 />
