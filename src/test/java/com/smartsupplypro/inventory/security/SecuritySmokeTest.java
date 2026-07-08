@@ -1,12 +1,14 @@
 package com.smartsupplypro.inventory.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -119,9 +121,9 @@ class SecuritySmokeTest {
                 new org.springframework.web.filter.OncePerRequestFilter() {
                     @Override
                     protected void doFilterInternal(
-                            @org.springframework.lang.NonNull jakarta.servlet.http.HttpServletRequest req,
-                            @org.springframework.lang.NonNull jakarta.servlet.http.HttpServletResponse res,
-                            @org.springframework.lang.NonNull jakarta.servlet.FilterChain chain)
+                            jakarta.servlet.http.@NonNull HttpServletRequest req,
+                            jakarta.servlet.http.@NonNull HttpServletResponse res,
+                            jakarta.servlet.@NonNull FilterChain chain)
                             throws jakarta.servlet.ServletException, java.io.IOException {
                         chain.doFilter(req, res);
                     }

@@ -6,14 +6,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import tools.jackson.core.JacksonException;
 
 /**
  * Serializes and deserializes {@link OAuth2AuthorizationRequest} to and from
@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 final class OAuth2AuthorizationRequestCookieSerializer {
 
     private static final Logger log = LoggerFactory.getLogger(OAuth2AuthorizationRequestCookieSerializer.class);
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new JsonMapper();
 
     private OAuth2AuthorizationRequestCookieSerializer() {}
 
@@ -45,7 +45,7 @@ final class OAuth2AuthorizationRequestCookieSerializer {
             );
             return Base64.getUrlEncoder()
                     .encodeToString(MAPPER.writeValueAsString(m).getBytes(StandardCharsets.UTF_8));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return Base64.getUrlEncoder().encodeToString("{}".getBytes(StandardCharsets.UTF_8));
         }
     }
@@ -55,7 +55,7 @@ final class OAuth2AuthorizationRequestCookieSerializer {
             String json = new String(Base64.getUrlDecoder().decode(encoded), StandardCharsets.UTF_8);
             Map<String, Object> m = MAPPER.readValue(json, new TypeReference<Map<String, Object>>() {});
             return buildRequest(m);
-        } catch (IllegalArgumentException | java.io.IOException e) {
+        } catch (IllegalArgumentException | JacksonException e) {
             log.warn("Malformed authorization request cookie ignored");
             return null;
         }

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -44,9 +44,9 @@ class StockDetailQueryRepositoryImplTest {
         ).executeUpdate();
 
         em.createNativeQuery(
-            "INSERT INTO inventory_item (id, sku, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) VALUES " +
-            "('itemA','SKU-DET-A','Item A', 2.00, 2, 10, 'sup1', CURRENT_TIMESTAMP, 'test')," +
-            "('itemB','SKU-DET-B','Item B', 5.00, 20, 10, 'sup2', CURRENT_TIMESTAMP, 'test')"
+            "INSERT INTO inventory_item (id, sku, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by, active) VALUES " +
+            "('itemA','SKU-DET-A','Item A', 2.00, 2, 10, 'sup1', CURRENT_TIMESTAMP, 'test', 1)," +
+            "('itemB','SKU-DET-B','Item B', 5.00, 20, 10, 'sup2', CURRENT_TIMESTAMP, 'test', 1)"
         ).executeUpdate();
 
         em.createNativeQuery(

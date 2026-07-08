@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.15</version>
+    <version>4.0.7</version>
     <relativePath/>
   </parent>
 
@@ -41,6 +41,10 @@
   -->
   <properties>
     <java.version>21</java.version>
+    <!-- Pin H2 below 2.4: H2 2.4.240 mis-validates Hibernate-generated CHECK
+         constraints for boolean @Convert columns (h2database #4323), breaking
+         @DataJpaTest inserts. Remove once a fixed 2.4.x is released. -->
+    <h2.version>2.3.232</h2.version>
     <tomcat.version>10.1.55</tomcat.version>
     <spring-security.version>6.5.4</spring-security.version>
     <spring-framework.version>6.2.11</spring-framework.version>
@@ -58,9 +62,9 @@
     <dependencies>
       <!-- Override Jackson versions consistently (Trivy: GHSA-72hv-8253-57qq) -->
       <dependency>
-        <groupId>com.fasterxml.jackson</groupId>
+        <groupId>tools.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
-        <version>${jackson-bom.version}</version>
+        <version>3.1.5</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -68,7 +72,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>3.5.15</version>
+        <version>4.0.7</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -88,11 +92,11 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+      <artifactId>spring-boot-starter-security-oauth2-resource-server</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-oauth2-client</artifactId>
+      <artifactId>spring-boot-starter-security-oauth2-client</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -104,7 +108,7 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <artifactId>spring-boot-starter-webmvc</artifactId>
     </dependency>
 
     <!-- Devtools (runtime only, optional) -->
@@ -128,12 +132,16 @@
 
     <!-- Flyway - versioned database migrations (versions managed by Spring Boot BOM) -->
     <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-core</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-flyway</artifactId>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-oracle</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
     </dependency>
 
     <!-- Config processor & Lombok -->
@@ -161,13 +169,28 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-test</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webmvc-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jdbc-test</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -195,10 +218,37 @@
       </plugin>
 
       <!-- JaCoCo coverage at verify phase -->
+      <!-- Fail the build early, with a clear message, if the local JDK or
+           Maven is too old (avoids cryptic "release version 21 not supported"). -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-build-environment</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[21,)</version>
+                  <message>This project targets Java 21. Point JAVA_HOME at a JDK 21 or newer.</message>
+                </requireJavaVersion>
+                <requireMavenVersion>
+                  <version>[3.6.3,)</version>
+                  <message>Spring Boot 4 requires Maven 3.6.3 or newer.</message>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.12</version>
+        <version>0.8.15</version>
         <executions>
           <execution>
             <goals>

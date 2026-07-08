@@ -106,7 +106,7 @@ class InventoryItemValidatorTest {
         @ParameterizedTest
         @MethodSource("invalidPrices")
         void should_reject_invalid_price(BigDecimal price) {
-            assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT,
                     assertThrows(ResponseStatusException.class,
                             () -> InventoryItemValidator.assertPriceValid(price)).getStatusCode());
         }
@@ -119,7 +119,7 @@ class InventoryItemValidatorTest {
         @ParameterizedTest
         @ValueSource(ints = {-1, -100})
         void should_reject_negative_resulting_quantity(int qty) {
-            assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT,
                     assertThrows(ResponseStatusException.class,
                             () -> InventoryItemValidator.assertFinalQuantityNonNegative(qty)).getStatusCode());
         }

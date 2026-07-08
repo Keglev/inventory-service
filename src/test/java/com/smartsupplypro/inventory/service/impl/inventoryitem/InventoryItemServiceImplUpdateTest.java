@@ -213,7 +213,7 @@ class InventoryItemServiceImplUpdateTest {
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> service.update("id-1", updateDto));
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, ex.getStatusCode());
+        assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, ex.getStatusCode());
     }
 
     private static InventoryItemDTO copyOf(InventoryItemDTO src) {

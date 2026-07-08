@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -46,9 +46,9 @@ class StockTrendAnalyticsRepositoryImplH2Test {
         ).executeUpdate();
 
         em.createNativeQuery(
-            "INSERT INTO inventory_item (id, sku, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) VALUES " +
-            "('itemA','SKU-TRD-A','Item A', 2.00, 0, 10, 'sup1', CURRENT_TIMESTAMP, 'test')," +
-            "('itemB','SKU-TRD-B','Item B', 5.00, 0, 10, 'sup2', CURRENT_TIMESTAMP, 'test')"
+            "INSERT INTO inventory_item (id, sku, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by, active) VALUES " +
+            "('itemA','SKU-TRD-A','Item A', 2.00, 0, 10, 'sup1', CURRENT_TIMESTAMP, 'test', 1)," +
+            "('itemB','SKU-TRD-B','Item B', 5.00, 0, 10, 'sup2', CURRENT_TIMESTAMP, 'test', 1)"
         ).executeUpdate();
 
         // itemA spans Feb and Mar; includes a price-change event on Feb 5
@@ -131,13 +131,13 @@ class StockTrendAnalyticsRepositoryImplH2Test {
 
             assertEquals(3, out.size());
             // 2024-02-05: last price of day is 4.00; qty-after = 5; valuation = 20
-            assertEquals(LocalDate.of(2024, 2, 5), ((java.sql.Date) out.get(0)[0]).toLocalDate());
+            assertEquals(LocalDate.of(2024, 2, 5), toLocalDate(out.get(0)[0]));
             assertEquals(20L, ((Number) out.get(0)[1]).longValue());
             // 2024-02-06: price 2.00; qty-after = 3; valuation = 6
-            assertEquals(LocalDate.of(2024, 2, 6), ((java.sql.Date) out.get(1)[0]).toLocalDate());
+            assertEquals(LocalDate.of(2024, 2, 6), toLocalDate(out.get(1)[0]));
             assertEquals(6L, ((Number) out.get(1)[1]).longValue());
             // 2024-03-01: price 2.50; qty-after = 6; valuation = 15
-            assertEquals(LocalDate.of(2024, 3, 1), ((java.sql.Date) out.get(2)[0]).toLocalDate());
+            assertEquals(LocalDate.of(2024, 3, 1), toLocalDate(out.get(2)[0]));
             assertEquals(15L, ((Number) out.get(2)[1]).longValue());
         }
     }
@@ -185,5 +185,20 @@ class StockTrendAnalyticsRepositoryImplH2Test {
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Failed to inject EntityManager into repository under test", e);
         }
+    }
+
+    /**
+     * Normalizes a native-query date cell to {@link LocalDate}. JDBC drivers may
+     * return either {@link java.sql.Date} or {@link java.time.LocalDate} depending
+     * on version, so this avoids a hard cast that breaks across driver upgrades.
+     */
+    private static LocalDate toLocalDate(Object cell) {
+        if (cell instanceof java.sql.Date d) {
+            return d.toLocalDate();
+        }
+        if (cell instanceof LocalDate ld) {
+            return ld;
+        }
+        throw new IllegalStateException("Unexpected date type: " + (cell == null ? "null" : cell.getClass()));
     }
 }

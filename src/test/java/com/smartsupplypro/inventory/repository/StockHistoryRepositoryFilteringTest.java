@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +27,7 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
 
 /**
  * Integration tests for {@link StockHistoryRepository} filtering query correctness
- * using {@link org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest}.
+ * using {@link org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest}.
  */
 @DataJpaTest
 @ActiveProfiles("test")

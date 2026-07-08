@@ -117,7 +117,7 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
 
             ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                     () -> service.adjustQuantity("i-1", -5, StockChangeReason.MANUAL_UPDATE));
-            assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, ex.getStatusCode());
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, ex.getStatusCode());
             verify(repository, never()).save(any());
         }
     }
@@ -144,7 +144,7 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
         void should_throw_422_when_price_is_zero_or_negative() {
             ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                     () -> service.updatePrice("i-1", BigDecimal.ZERO));
-            assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, ex.getStatusCode());
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, ex.getStatusCode());
         }
     }
 

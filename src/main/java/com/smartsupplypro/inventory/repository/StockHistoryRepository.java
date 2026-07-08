@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -47,7 +48,7 @@ public interface StockHistoryRepository
      * @param pageable   pagination parameters
      * @return paginated stock history records
      */
-    @Query(
+    @NativeQuery(
         value = """
             SELECT s.*
             FROM stock_history s
@@ -66,9 +67,7 @@ public interface StockHistoryRepository
               AND (:endDate   IS NULL OR s.CREATED_AT <= :endDate)
               AND (:itemName  IS NULL OR LOWER(i.name) LIKE LOWER(CONCAT('%', :itemName, '%')))
               AND (:supplierId IS NULL OR s.SUPPLIER_ID = :supplierId)
-        """,
-        nativeQuery = true
-    )
+        """)
     Page<StockHistory> findFiltered(
         @Param("startDate") LocalDateTime startDate,
         @Param("endDate") LocalDateTime endDate,
@@ -90,8 +89,7 @@ public interface StockHistoryRepository
      * @param itemName   optional partial item name (case-insensitive)
      * @return rows of [reason, increase, decrease] ordered by reason ascending
      */
-    @Query(
-        value = """
+    @NativeQuery("""
             SELECT sh.reason,
                    SUM(CASE WHEN sh.quantity_change > 0 THEN sh.quantity_change ELSE 0 END) AS increase_qty,
                    SUM(CASE WHEN sh.quantity_change < 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS decrease_qty
@@ -102,9 +100,7 @@ public interface StockHistoryRepository
               AND (:itemName IS NULL OR LOWER(i.name) LIKE LOWER('%' || :itemName || '%'))
             GROUP BY sh.reason
             ORDER BY sh.reason
-        """,
-        nativeQuery = true
-    )
+        """)
     List<Object[]> getReasonBreakdown(
         @Param("start") LocalDateTime start,
         @Param("end") LocalDateTime end,
@@ -125,7 +121,7 @@ public interface StockHistoryRepository
      * @param pageable  page/size (unsorted)
      * @return rows of [itemName, supplierName, quantityChange, reason, createdBy, createdAt]
      */
-    @Query(
+    @NativeQuery(
         value = """
             SELECT i.name AS item_name,
                    s.name AS supplier_name,
@@ -147,9 +143,7 @@ public interface StockHistoryRepository
             WHERE sh.created_at BETWEEN :start AND :end
               AND (:createdBy IS NULL OR LOWER(sh.created_by) = LOWER(:createdBy))
               AND (:supplierId IS NULL OR sh.supplier_id = :supplierId)
-        """,
-        nativeQuery = true
-    )
+        """)
     Page<Object[]> findEmployeeChanges(
         @Param("start") LocalDateTime start,
         @Param("end") LocalDateTime end,

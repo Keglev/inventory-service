@@ -42,7 +42,7 @@ public class InventoryItemValidator {
     public static void assertPriceValid(BigDecimal price) {
         if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ResponseStatusException(
-                HttpStatus.UNPROCESSABLE_ENTITY,
+                HttpStatus.UNPROCESSABLE_CONTENT,
                 "Price must be greater than zero"
             );
         }
@@ -51,7 +51,7 @@ public class InventoryItemValidator {
     public static void assertFinalQuantityNonNegative(int resultingQuantity) {
         if (resultingQuantity < 0) {
             throw new ResponseStatusException(
-                HttpStatus.UNPROCESSABLE_ENTITY,
+                HttpStatus.UNPROCESSABLE_CONTENT,
                 "Resulting stock cannot be negative"
             );
         }

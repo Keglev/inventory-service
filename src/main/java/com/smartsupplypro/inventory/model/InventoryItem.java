@@ -77,7 +77,7 @@ public class InventoryItem {
      */
     @Builder.Default
     @Convert(converter = NumericBooleanConverter.class)
-    @Column(name = "ACTIVE", nullable = false, columnDefinition = "NUMBER(1) DEFAULT 1")
+    @Column(name = "ACTIVE", nullable = false)
     private boolean active = true;
 
     // read-only join; SUPPLIER_ID is the authoritative FK column
