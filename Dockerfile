@@ -18,7 +18,7 @@
 # 1) Dependency Warmup (optional but good for speed)
 #    Copies only pom + .mvn to leverage Docker layer cache for dependencies.
 # -----------------------------------------------------------------------------
-FROM maven:3.9.11-eclipse-temurin-17 AS deps
+FROM maven:3.9.11-eclipse-temurin-21 AS deps
 
 # Set working directory in the deps container
 WORKDIR /app
@@ -35,9 +35,9 @@ RUN mvn -q -B -DskipTests dependency:go-offline
 #    Compiles and packages the Spring Boot app. Tests run in CI already.
 # Build-stage CVEs are in Maven system packages and have no upstream fix.
 # These stages are discarded after packaging — only the JRE runtime stage is deployed.
-# Runtime image: eclipse-temurin:17-jre-alpine (no build tools, minimal attack surface).
+# Runtime image: eclipse-temurin:21-jre-alpine (no build tools, minimal attack surface).
 # -----------------------------------------------------------------------------
-FROM maven:3.9.11-eclipse-temurin-17 AS build
+FROM maven:3.9.11-eclipse-temurin-21 AS build
 WORKDIR /build
 
 # Reuse warmed dependencies from the previous stage
@@ -64,7 +64,7 @@ RUN rm -rf /root/.m2/repository || true
 # 3) Runtime Stage (JRE only, non-root)
 #    No build tools, no caches, no secrets in layers.
 # -----------------------------------------------------------------------------
-FROM eclipse-temurin:17-jre-alpine AS runtime
+FROM eclipse-temurin:21-jre-alpine AS runtime
 
 # Set working directory for runtime files (wallet + jar)
 WORKDIR /app
