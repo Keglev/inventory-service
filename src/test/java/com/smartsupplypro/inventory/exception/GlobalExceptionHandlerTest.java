@@ -21,7 +21,21 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,7 +49,9 @@ class GlobalExceptionHandlerTest {
 
     @Autowired MockMvc mockMvc;
 
+    // Endpoint parameters exist only to trigger Spring binding/validation; they are intentionally unread.
     @RestController @RequestMapping("/err")
+    @SuppressWarnings("unused")
     static class ThrowingController {
         @GetMapping("/nse")    void nse()    { throw new NoSuchElementException(); }
         @GetMapping("/iae-m")  void iaeMsg() { throw new IllegalArgumentException("Item 1 not found"); }
@@ -45,6 +61,16 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/lock")   void lock()   { throw new ObjectOptimisticLockingFailureException(Object.class, 1L); }
         @GetMapping("/rse")    void rse()    { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Supplier not found"); }
         @GetMapping("/boom")   void boom()   { throw new RuntimeException("boom"); }
+
+        @GetMapping("/param-missing") void paramMissing(@RequestParam String q) { }
+        @GetMapping("/param-type")    void paramType(@RequestParam int n) { }
+        @GetMapping("/rse-noreason")  void rseNoReason() { throw new ResponseStatusException(HttpStatus.BAD_REQUEST); }
+        @GetMapping("/rse-badstatus") void rseBadStatus() { throw new ResponseStatusException(HttpStatusCode.valueOf(499)); }
+        @GetMapping("/constraint")    void constraint() { throw new ConstraintViolationException("bad", Set.of()); }
+        @PostMapping("/parse")        void parse(@RequestBody Map<String, Object> body) { }
+        @PostMapping("/valid")        void valid(@Valid @RequestBody Sample dto) { }
+
+        record Sample(@NotBlank String name) {}
     }
 
     /** 404 Not Found responses. */
@@ -100,6 +126,50 @@ class GlobalExceptionHandlerTest {
             mockMvc.perform(get("/err/boom"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message").value("Unexpected server error"));
+        }
+    }
+
+    /** 400 Bad Request for malformed or missing request data. */
+    @Nested class WhenBadRequest {
+        @Test void missingParameter_returns400() throws Exception {
+            mockMvc.perform(get("/err/param-missing"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Missing required parameter: q"));
+        }
+        @Test void parameterTypeMismatch_returns400() throws Exception {
+            mockMvc.perform(get("/err/param-type").param("n", "abc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid parameter value: n"));
+        }
+        @Test void unreadableBody_returns400() throws Exception {
+            mockMvc.perform(post("/err/parse").contentType(MediaType.APPLICATION_JSON).content("{"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Request body is invalid or unreadable"));
+        }
+        @Test void constraintViolation_returns400() throws Exception {
+            mockMvc.perform(get("/err/constraint"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Constraint violation"));
+        }
+        @Test void beanValidation_returns400WithFieldErrors() throws Exception {
+            mockMvc.perform(post("/err/valid").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("bad_request"))
+                .andExpect(jsonPath("$.fieldErrors.name").exists());
+        }
+    }
+
+    /** Status-derivation edge cases. */
+    @Nested class WhenEdgeCases {
+        @Test void responseStatusWithoutReason_usesStatusPhrase() throws Exception {
+            mockMvc.perform(get("/err/rse-noreason"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Bad Request"));
+        }
+        @Test void responseStatusWithUnresolvableStatus_returns500() throws Exception {
+            mockMvc.perform(get("/err/rse-badstatus"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("Request failed"));
         }
     }
 }
