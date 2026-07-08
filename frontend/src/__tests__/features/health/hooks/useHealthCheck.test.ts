@@ -37,9 +37,9 @@ function makeResponse(options: {
 }
 
 describe('useHealthCheck', () => {
-  const fetchMock = vi.fn<[RequestInfo | URL, RequestInit?], Promise<Response>>();
-  let warnMock: MockInstance<Parameters<typeof console.warn>, void>;
-  let errorMock: MockInstance<Parameters<typeof console.error>, void>;
+  const fetchMock = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>();
+  let warnMock: MockInstance<typeof console.warn>;
+  let errorMock: MockInstance<typeof console.error>;
 
   beforeEach(() => {
     vi.clearAllMocks();

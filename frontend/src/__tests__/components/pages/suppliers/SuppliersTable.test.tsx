@@ -59,7 +59,7 @@ type DataGridTestProps = {
 };
 
 const dataGridMock = vi.hoisted(() => ({
-  DataGrid: vi.fn<[DataGridTestProps], null>(() => null),
+  DataGrid: vi.fn<(props: DataGridTestProps) => null>(() => null),
 }));
 
 // DataGrid test double:

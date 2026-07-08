@@ -19,7 +19,7 @@ import type { InventoryRow } from '../../../../../api/inventory';
  * Hoisted mocks ensure deterministic module initialization.
  */
 const mockUseSuppliersQuery = vi.hoisted(() =>
-  vi.fn<[boolean], { isLoading: boolean; data: SupplierOption[] }>(() => ({
+  vi.fn<(enabled: boolean) => { isLoading: boolean; data: SupplierOption[] }>(() => ({
     isLoading: false,
     data: [],
   })),

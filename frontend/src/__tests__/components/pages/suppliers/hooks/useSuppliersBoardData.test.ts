@@ -30,14 +30,8 @@ import {
 } from '../../../../../api/suppliers';
 
 const mocks = vi.hoisted(() => ({
-  useSuppliersPageQuery: vi.fn<
-    Parameters<typeof useSuppliersPageQuery>,
-    ReturnType<typeof useSuppliersPageQuery>
-  >(),
-  useSupplierSearchQuery: vi.fn<
-    Parameters<typeof useSupplierSearchQuery>,
-    ReturnType<typeof useSupplierSearchQuery>
-  >(),
+  useSuppliersPageQuery: vi.fn<typeof useSuppliersPageQuery>(),
+  useSupplierSearchQuery: vi.fn<typeof useSupplierSearchQuery>(),
 }));
 
 vi.mock('../../../../../api/suppliers', () => ({

@@ -57,11 +57,11 @@ const mockUseTranslation = vi.hoisted(() => vi.fn());
 
 // Vitest generic is <ArgsTuple, ReturnType>
 const mockMenuSectionsRenderer = vi.hoisted(() =>
-  vi.fn<[MenuSectionsRendererProps], React.ReactElement>(() => <div>Menu Sections</div>),
+  vi.fn<(props: MenuSectionsRendererProps) => React.ReactElement>(() => <div>Menu Sections</div>),
 );
 
 const mockLogoutMenuAction = vi.hoisted(() =>
-  vi.fn<[LogoutMenuActionProps], React.ReactElement>(() => <div>Logout Action</div>),
+  vi.fn<(props: LogoutMenuActionProps) => React.ReactElement>(() => <div>Logout Action</div>),
 );
 
 // Mock i18next

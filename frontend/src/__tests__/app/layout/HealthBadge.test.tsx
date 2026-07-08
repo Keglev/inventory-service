@@ -34,7 +34,7 @@ type HealthHookReturn = {
  * Keep hook + i18n deterministic and isolate state between tests.
  */
 const mockUseTranslation = vi.hoisted(() => vi.fn());
-const mockUseHealthCheck = vi.hoisted(() => vi.fn<[], HealthHookReturn>());
+const mockUseHealthCheck = vi.hoisted(() => vi.fn<() => HealthHookReturn>());
 
 vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,

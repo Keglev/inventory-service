@@ -18,7 +18,7 @@ import { handleDeleteError } from '../../../../../pages/inventory/dialogs/Delete
 // Helpers
 // -------------------------------------
 
-type TSpy = ReturnType<typeof vi.fn<[key: string], string>>;
+type TSpy = ReturnType<typeof vi.fn<(key: string) => string>>;
 
 /**
  * Translation stub: echoes the requested key.

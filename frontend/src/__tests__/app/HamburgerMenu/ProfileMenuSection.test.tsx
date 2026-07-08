@@ -41,15 +41,15 @@ const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
 const mockProfileNameDisplay = vi.hoisted(() =>
-  vi.fn<[ProfileNameDisplayProps], React.ReactElement>(() => <div>Name Display</div>),
+  vi.fn<(props: ProfileNameDisplayProps) => React.ReactElement>(() => <div>Name Display</div>),
 );
 
 const mockProfileEmailDisplay = vi.hoisted(() =>
-  vi.fn<[ProfileEmailDisplayProps], React.ReactElement>(() => <div>Email Display</div>),
+  vi.fn<(props: ProfileEmailDisplayProps) => React.ReactElement>(() => <div>Email Display</div>),
 );
 
 const mockProfileRoleDisplay = vi.hoisted(() =>
-  vi.fn<[ProfileRoleDisplayProps], React.ReactElement>(() => <div>Role Display</div>),
+  vi.fn<(props: ProfileRoleDisplayProps) => React.ReactElement>(() => <div>Role Display</div>),
 );
 
 vi.mock('../../../hooks/useAuth', () => ({

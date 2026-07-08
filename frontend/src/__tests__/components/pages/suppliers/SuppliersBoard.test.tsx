@@ -36,11 +36,11 @@ type SuppliersBoardData = {
 
 const spies = vi.hoisted(() => ({
   // Component spies: we capture props only (no UI assertions here).
-  SuppliersToolbar: vi.fn<[unknown], void>(),
-  SuppliersSearchPanel: vi.fn<[unknown], void>(),
-  SuppliersFilterPanel: vi.fn<[unknown], void>(),
-  SuppliersTable: vi.fn<[unknown], void>(),
-  SuppliersDialogs: vi.fn<[unknown], void>(),
+  SuppliersToolbar: vi.fn<(props: unknown) => void>(),
+  SuppliersSearchPanel: vi.fn<(props: unknown) => void>(),
+  SuppliersFilterPanel: vi.fn<(props: unknown) => void>(),
+  SuppliersTable: vi.fn<(props: unknown) => void>(),
+  SuppliersDialogs: vi.fn<(props: unknown) => void>(),
 }));
 
 const runtime = vi.hoisted(() => ({

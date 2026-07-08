@@ -52,11 +52,11 @@ const mockUseTranslation = vi.hoisted(() => vi.fn());
 // Child components are mocked to isolate the unit under test.
 // IMPORTANT: Vitest generics are <ArgsTuple, ReturnType>, not <FunctionType>
 const mockThemeToggle = vi.hoisted(() =>
-  vi.fn<[ThemeToggleProps], React.ReactElement>(() => <div>Theme Toggle</div>),
+  vi.fn<(props: ThemeToggleProps) => React.ReactElement>(() => <div>Theme Toggle</div>),
 );
 
 const mockTableDensitySetting = vi.hoisted(() =>
-  vi.fn<[TableDensitySettingProps], React.ReactElement>(() => <div>Density Setting</div>),
+  vi.fn<(props: TableDensitySettingProps) => React.ReactElement>(() => <div>Density Setting</div>),
 );
 
 vi.mock('../../../hooks/useSettings', () => ({

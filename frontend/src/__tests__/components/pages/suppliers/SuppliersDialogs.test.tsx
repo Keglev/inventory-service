@@ -23,9 +23,9 @@ import {
 } from '../../../../pages/suppliers/components/SuppliersDialogs';
 
 const mocks = vi.hoisted(() => ({
-  CreateSupplierDialog: vi.fn<[unknown], void>(),
-  EditSupplierDialog: vi.fn<[unknown], void>(),
-  DeleteSupplierDialog: vi.fn<[unknown], void>(),
+  CreateSupplierDialog: vi.fn<(props: unknown) => void>(),
+  EditSupplierDialog: vi.fn<(props: unknown) => void>(),
+  DeleteSupplierDialog: vi.fn<(props: unknown) => void>(),
 }));
 
 vi.mock('../../../../pages/suppliers/dialogs/CreateSupplierDialog', () => ({

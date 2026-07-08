@@ -40,7 +40,6 @@ const testAliases = isTest
   : [];
 
 export default defineConfig({
-  // @ts-expect-error - vite and vitest have different plugin types
   plugins: [react()],
   resolve: {
     alias: [
@@ -66,7 +65,7 @@ export default defineConfig({
     restoreMocks: true,
     deps: {
       optimizer: {
-        web: {
+        client: {
           // Vite's ESM optimizer can interfere with CJS modules resolved through jsdom;
           // disabling it avoids transform errors on certain MUI internals.
           enabled: false,
@@ -78,6 +77,9 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       reportsDirectory: './coverage',
+      // v4 removed coverage.all; an explicit include preserves the full-source denominator
+      // so untested files remain visible in the published report (not just test-touched files).
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
         '**/*.d.ts',
         'src/main.tsx',

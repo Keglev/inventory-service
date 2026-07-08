@@ -51,15 +51,15 @@ const mockUseTranslation = vi.hoisted(() => vi.fn());
 
 // Vitest generics are <ArgsTuple, ReturnType>, not <FunctionType>.
 const mockLanguageToggle = vi.hoisted(() =>
-  vi.fn<[LanguageToggleProps], React.ReactElement>(() => <div>Language Toggle</div>),
+  vi.fn<(props: LanguageToggleProps) => React.ReactElement>(() => <div>Language Toggle</div>),
 );
 
 const mockDateFormatSetting = vi.hoisted(() =>
-  vi.fn<[DateFormatSettingProps], React.ReactElement>(() => <div>Date Format</div>),
+  vi.fn<(props: DateFormatSettingProps) => React.ReactElement>(() => <div>Date Format</div>),
 );
 
 const mockNumberFormatSetting = vi.hoisted(() =>
-  vi.fn<[NumberFormatSettingProps], React.ReactElement>(() => <div>Number Format</div>),
+  vi.fn<(props: NumberFormatSettingProps) => React.ReactElement>(() => <div>Number Format</div>),
 );
 
 vi.mock('../../../hooks/useSettings', () => ({
