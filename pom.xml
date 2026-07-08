@@ -92,10 +92,6 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-security-oauth2-resource-server</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security-oauth2-client</artifactId>
     </dependency>
     <dependency>
@@ -243,6 +239,29 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <!-- Resolves dependency artifact paths (e.g. ${org.mockito:mockito-core:jar}) for argLine use. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>properties</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Load Mockito as a Java agent instead of self-attaching (required for JDK 21+).
+           @{argLine} preserves JaCoCo's agent; -Xshare:off silences the CDS sharing warning. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off</argLine>
+        </configuration>
       </plugin>
 
       <plugin>
