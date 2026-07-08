@@ -119,7 +119,13 @@ public class GlobalExceptionHandler {
         return respond(HttpStatus.CONFLICT, "Data conflict - constraint violation");
     }
 
-    /** Handles JPA optimistic locking failures during concurrent updates. */
+    /**
+     * Handles JPA optimistic-locking failures during concurrent updates.
+     *
+     * <p>Defensive: no entity currently declares {@code @Version}, so this path
+     * is unreachable today. It is kept to return a clean 409 if optimistic
+     * locking is introduced later.</p>
+     */
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<ErrorResponse> handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
         return respond(HttpStatus.CONFLICT, "Concurrent update detected - please refresh and retry");

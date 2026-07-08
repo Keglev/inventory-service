@@ -5,6 +5,9 @@
 # =============================================
 
 spring:
+  application:
+    name: Inventory Service
+
   profiles:
     # Do NOT force a default active profile here.
     # Let CI/Dev/Prod set SPRING_PROFILES_ACTIVE explicitly.
