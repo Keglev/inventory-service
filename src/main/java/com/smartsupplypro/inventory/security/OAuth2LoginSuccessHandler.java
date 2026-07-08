@@ -11,7 +11,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import com.smartsupplypro.inventory.config.AppProperties;
-import com.smartsupplypro.inventory.service.UserProvisioningService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -19,12 +18,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Handles successful OAuth2 authentication by provisioning
- * the user and redirecting to the frontend application.
+ * Redirects the browser to the frontend application after a successful
+ * OAuth2 login.
  *
- * <p>Delegates user creation and role assignment to
- * {@link UserProvisioningService} to keep this handler
- * focused on the authentication flow.</p>
+ * <p>User creation and role assignment happen earlier, during principal
+ * loading in the OAuth2/OIDC user services, so this handler only validates
+ * the principal attributes and resolves the redirect target.</p>
  *
  * @see CookieOAuth2AuthorizationRequestRepository
  * @see SecurityConfig
@@ -35,20 +34,17 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private static final Logger log = LoggerFactory.getLogger(OAuth2LoginSuccessHandler.class);
 
     private final AppProperties props;
-    private final UserProvisioningService userProvisioningService;
 
-    public OAuth2LoginSuccessHandler(AppProperties props, UserProvisioningService userProvisioningService) {
+    public OAuth2LoginSuccessHandler(AppProperties props) {
         this.props = props;
-        this.userProvisioningService = userProvisioningService;
     }
 
     /**
-     * Provisions the authenticated user and redirects to the frontend.
+     * Validates the authenticated principal and redirects to the frontend.
      *
      * <p>Guards against duplicate invocations in the same request cycle.
-     * Validates that email and name are present before delegating to
-     * {@link UserProvisioningService}. Redirect target is resolved from
-     * the optional {@code SSP_RETURN} cookie, validated against the
+     * Requires email and name to be present. Redirect target is resolved
+     * from the optional {@code SSP_RETURN} cookie, validated against the
      * configured CORS allowed origins.</p>
      *
      * @param request        current HTTP request
@@ -70,8 +66,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         if (email == null || name == null) {
             throw new IllegalStateException("Email or name not provided by OAuth2 provider");
         }
-
-        userProvisioningService.provisionIfAbsent(email, name);
 
         String target = resolveRedirectTarget(request, response);
         log.info("Authentication success, redirecting to: {}", target);

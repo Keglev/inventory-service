@@ -15,7 +15,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import com.smartsupplypro.inventory.config.AppProperties;
 import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
-import com.smartsupplypro.inventory.service.UserProvisioningService;
 
 /**
  * Unit tests for {@link OAuth2LoginSuccessHandler} SSP_RETURN cookie
@@ -35,9 +34,6 @@ class OAuth2LoginSuccessHandlerReturnCookieTest {
 
     @Mock
     AppProperties.Cors cors;
-
-    @Mock
-    UserProvisioningService userProvisioningService;
 
     private void stubFrontend(String baseUrl, String landingPath) {
         when(props.getFrontend()).thenReturn(frontend);
