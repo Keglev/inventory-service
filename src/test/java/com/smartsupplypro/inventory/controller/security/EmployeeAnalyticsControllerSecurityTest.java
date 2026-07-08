@@ -8,7 +8,6 @@ import org.mockito.Mockito;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -37,8 +36,7 @@ import com.smartsupplypro.inventory.service.impl.analytics.EmployeeAnalyticsServ
  * callers), so the @PreAuthorize expression carries the gating.
  */
 @WebMvcTest(
-        controllers = EmployeeAnalyticsController.class,
-        excludeAutoConfiguration = { OAuth2ResourceServerAutoConfiguration.class }
+        controllers = EmployeeAnalyticsController.class
 )
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")

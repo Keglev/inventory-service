@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -41,9 +40,6 @@ import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService
             StockAnalyticsController.class,
             StockUpdateAnalyticsController.class,
             StockReasonAnalyticsController.class
-        },
-        excludeAutoConfiguration = {
-                OAuth2ResourceServerAutoConfiguration.class
         }
 )
 @AutoConfigureMockMvc(addFilters = true)
