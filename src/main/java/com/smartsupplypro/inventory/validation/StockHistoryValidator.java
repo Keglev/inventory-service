@@ -19,6 +19,13 @@ public class StockHistoryValidator {
 
     private StockHistoryValidator() {}
 
+    /**
+     * Validates a stock-history record; required fields and quantity semantics
+     * depend on the {@code reason} (cross-field validation).
+     *
+     * @param dto the stock-history DTO to validate
+     * @throws InvalidRequestException if a required field is missing or a cross-field rule fails
+     */
     public static void validate(StockHistoryDTO dto) {
         if (dto.itemId() == null || dto.itemId().isBlank()) {
             throw new InvalidRequestException("Item ID cannot be null or empty");

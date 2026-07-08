@@ -57,12 +57,22 @@ public class InventoryItemController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found"));
     }
 
+    /**
+     * Returns all active inventory items without pagination.
+     *
+     * @return all active inventory items
+     */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping
     public List<InventoryItemDTO> getAll() {
         return inventoryItemService.getAll();
     }
 
+    /**
+     * Returns the count of active inventory items.
+     *
+     * @return number of active inventory items
+     */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/count")
     public long countItems() {

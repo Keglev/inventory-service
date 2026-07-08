@@ -35,7 +35,7 @@ public class InventoryItemValidationHelper {
 
     /**
      * Validates a DTO for item creation.
-     * Order: populate createdBy → validate base fields → check uniqueness → validate supplier.
+     * Order: populate createdBy -> validate base fields -> check uniqueness -> validate supplier.
      *
      * @param dto the inventory item DTO to validate
      * @throws IllegalArgumentException if validation fails
@@ -72,7 +72,7 @@ public class InventoryItemValidationHelper {
 
     /**
      * Validates a DTO for item update and returns the existing entity.
-     * Order: validate base fields → validate supplier → assert item exists → check permissions.
+     * Order: validate base fields -> validate supplier -> assert item exists -> check permissions.
      *
      * @param id  the item ID being updated
      * @param dto the updated inventory item data

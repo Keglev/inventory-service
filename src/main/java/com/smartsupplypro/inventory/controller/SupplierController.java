@@ -39,12 +39,22 @@ public class SupplierController {
 
     private final SupplierService supplierService;
 
+    /**
+     * Returns all suppliers as a plain list (no pagination).
+     *
+     * @return all suppliers
+     */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping
     public ResponseEntity<List<SupplierDTO>> listAll() {
         return ResponseEntity.ok(supplierService.findAll());
     }
 
+    /**
+     * Returns the total supplier count.
+     *
+     * @return number of suppliers
+     */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/count")
     public long countSuppliers() {
@@ -65,6 +75,12 @@ public class SupplierController {
                 .orElseThrow(() -> new NoSuchElementException("Supplier not found: " + id));
     }
 
+    /**
+     * Searches suppliers by name (case-insensitive partial match).
+     *
+     * @param name search term
+     * @return matching suppliers
+     */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/search")
     public ResponseEntity<List<SupplierDTO>> search(@RequestParam String name) {

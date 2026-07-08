@@ -19,12 +19,14 @@ import com.smartsupplypro.inventory.exception.dto.ErrorResponse;
 @RestControllerAdvice
 public class BusinessExceptionHandler {
 
+    /** Maps {@link InvalidRequestException} to 400 Bad Request. */
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity<ErrorResponse> handleInvalidRequest(InvalidRequestException ex) {
         String message = ex.getMessage() != null ? ex.getMessage() : "Invalid request";
         return respond(HttpStatus.BAD_REQUEST, message);
     }
 
+    /** Maps {@link DuplicateResourceException} to 409 Conflict, attaching the offending field when present. */
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex) {
         String message = ex.getMessage() != null ? ex.getMessage() : "Duplicate resource";
@@ -34,6 +36,7 @@ public class BusinessExceptionHandler {
         return respond(HttpStatus.CONFLICT, message, fieldErrors);
     }
 
+    /** Maps {@link IllegalStateException} (business-rule violation) to 409 Conflict. */
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleBusinessStateConflict(IllegalStateException ex) {
         String message = (ex.getMessage() != null && !ex.getMessage().isBlank())

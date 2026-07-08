@@ -8,7 +8,6 @@ package com.smartsupplypro.inventory.model;
  * <p><strong>Storage</strong>: Persisted as STRING via @Enumerated(EnumType.STRING).
  *
  * @see AppUser
- * @see <a href="../../../../../docs/architecture/patterns/model-patterns.md">Model Patterns</a>
  */
 public enum Role {
     ADMIN,

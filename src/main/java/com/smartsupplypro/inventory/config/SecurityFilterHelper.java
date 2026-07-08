@@ -18,6 +18,12 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class SecurityFilterHelper {
 
+    /**
+     * Builds the filter that tags JSON API requests with the {@code IS_API_REQUEST}
+     * attribute so unauthenticated calls receive 401 instead of an OAuth2 redirect.
+     *
+     * @return a request filter that marks API requests
+     */
     public OncePerRequestFilter createApiDetectionFilter() {
         return new OncePerRequestFilter() {
             @Override

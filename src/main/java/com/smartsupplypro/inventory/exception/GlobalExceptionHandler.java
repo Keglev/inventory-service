@@ -31,6 +31,10 @@ import jakarta.validation.ConstraintViolationException;
 
 /**
  * Fallback exception handler for framework-level exceptions not covered by {@link BusinessExceptionHandler}.
+ *
+ * <p>This class is intentionally the single place where framework and infrastructure
+ * exceptions are mapped to HTTP responses; its length reflects the number of distinct
+ * exception types handled, not multiple responsibilities.</p>
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @RestControllerAdvice

@@ -28,7 +28,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InventoryItemDTO {
 
+    /** Validation group applied on item creation. */
     public interface Create {}
+    /** Validation group applied on item update. */
     public interface Update {}
 
     @Null(message = "ID must be absent when creating", groups = Create.class)

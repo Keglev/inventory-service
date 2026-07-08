@@ -41,6 +41,15 @@ public class InventoryItemMapper {
                 .build();
     }
 
+    /**
+     * Converts an inventory item DTO to a persistable entity.
+     *
+     * <p>Returns {@code null} for a {@code null} input; derived response-only
+     * values such as {@code totalValue} are not part of the entity.</p>
+     *
+     * @param dto the inventory item DTO to convert
+     * @return the mapped entity, or {@code null} if {@code dto} is {@code null}
+     */
     public InventoryItem toEntity(InventoryItemDTO dto) {
         if (dto == null) {
             return null;

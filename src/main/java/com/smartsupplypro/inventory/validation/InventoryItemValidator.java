@@ -21,6 +21,12 @@ public class InventoryItemValidator {
 
     private InventoryItemValidator() {}
 
+    /**
+     * Validates required base fields on a DTO (name, quantity, price, supplier, createdBy).
+     *
+     * @param dto the inventory item DTO to validate
+     * @throws IllegalArgumentException if any base field is missing or invalid
+     */
     public static void validateBase(InventoryItemDTO dto) {
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Product name cannot be null or empty");
@@ -39,6 +45,12 @@ public class InventoryItemValidator {
         }
     }
 
+    /**
+     * Asserts the price is greater than zero.
+     *
+     * @param price the price to check
+     * @throws ResponseStatusException 422 if the price is null or not positive
+     */
     public static void assertPriceValid(BigDecimal price) {
         if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ResponseStatusException(
@@ -48,6 +60,12 @@ public class InventoryItemValidator {
         }
     }
 
+    /**
+     * Asserts the resulting stock quantity is not negative.
+     *
+     * @param resultingQuantity the post-adjustment quantity
+     * @throws ResponseStatusException 422 if the resulting quantity is negative
+     */
     public static void assertFinalQuantityNonNegative(int resultingQuantity) {
         if (resultingQuantity < 0) {
             throw new ResponseStatusException(
@@ -57,6 +75,12 @@ public class InventoryItemValidator {
         }
     }
 
+    /**
+     * Asserts an item holds no stock, a precondition for deletion.
+     *
+     * @param item the item being deleted
+     * @throws IllegalStateException if the item still has quantity in stock
+     */
     public static void assertQuantityIsZeroForDeletion(InventoryItem item) {
         if (item.getQuantity() > 0) {
             throw new IllegalStateException(
