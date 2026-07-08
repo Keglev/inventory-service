@@ -39,14 +39,30 @@ export default defineConfig({
     chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom'],
-          'vendor-mui': ['@mui/material', '@mui/icons-material', '@mui/x-data-grid'],
-          'vendor-routing': ['react-router-dom'],
-          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
-          'vendor-charts': ['recharts'],
-          'vendor-i18n': ['i18next', 'react-i18next', 'i18next-browser-languagedetector', 'i18next-http-backend'],
-          'vendor-utils': ['axios', '@tanstack/react-query', 'dayjs'],
+        // Function form (not object form). The object form let React-family
+        // modules (react, react-dom, scheduler, react-is, prop-types,
+        // use-sync-external-store) and the shared utils clsx/reselect split
+        // across vendor-mui and vendor-charts, which both depend on them. That
+        // produced a vendor-charts<->vendor-mui circular chunk and an empty
+        // vendor-react chunk. Rollup normalizes ids to forward slashes on every
+        // platform, so matching '/node_modules/<pkg>/' is safe on Windows too.
+        manualChunks(id) {
+          if (!id.includes('/node_modules/')) return undefined;
+          // React family first: consolidating the shared leaf breaks the cycle
+          // and stops react-dom being absorbed into vendor-mui (empty chunk fix).
+          if (/\/node_modules\/(react|react-dom|scheduler|react-is|prop-types|use-sync-external-store)\//.test(id))
+            return 'vendor-react';
+          if (id.includes('/node_modules/@mui/')) return 'vendor-mui';
+          // clsx + reselect are the only non-React modules shared by recharts and
+          // MUI (x-data-grid); pinning them with recharts removes the reverse
+          // vendor-mui->vendor-charts edge.
+          if (/\/node_modules\/(recharts|clsx|reselect)\//.test(id)) return 'vendor-charts';
+          if (id.includes('/node_modules/react-router')) return 'vendor-routing';
+          if (/\/node_modules\/(react-hook-form|@hookform|zod)\//.test(id)) return 'vendor-forms';
+          if (/\/node_modules\/(i18next|react-i18next|i18next-browser-languagedetector|i18next-http-backend)\//.test(id))
+            return 'vendor-i18n';
+          if (/\/node_modules\/(axios|@tanstack|dayjs)\//.test(id)) return 'vendor-utils';
+          return undefined;
         },
       },
     },
