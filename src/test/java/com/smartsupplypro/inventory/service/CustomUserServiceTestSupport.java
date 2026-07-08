@@ -60,14 +60,14 @@ final class CustomUserServiceTestSupport {
     }
 
     static CustomOAuth2UserService oauth2Service(AppUserRepository repo, OAuth2User upstream, boolean isAdmin) {
-        return new CustomOAuth2UserService(repo) {
+        return new CustomOAuth2UserService(new UserProvisioningService(repo)) {
             @Override protected OAuth2User loadFromProvider(OAuth2UserRequest request) { return upstream; }
             @Override protected boolean isAdminEmail(String email) { return isAdmin; }
         };
     }
 
     static CustomOidcUserService oidcService(AppUserRepository repo, OidcUser upstream, boolean isAdmin) {
-        return new CustomOidcUserService(repo) {
+        return new CustomOidcUserService(new UserProvisioningService(repo)) {
             @Override protected OidcUser loadFromProvider(OidcUserRequest request) { return upstream; }
             @Override protected boolean isAdminEmail(String email) { return isAdmin; }
         };

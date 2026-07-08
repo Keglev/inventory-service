@@ -1,6 +1,5 @@
 package com.smartsupplypro.inventory.service;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
@@ -22,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
-import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 /**
  * Default implementation of {@link OAuth2UserService} for OpenID Connect providers,
@@ -41,10 +38,10 @@ import com.smartsupplypro.inventory.repository.AppUserRepository;
 @Service
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
-    private final AppUserRepository userRepository;
+    private final UserProvisioningService userProvisioningService;
 
-    public CustomOidcUserService(AppUserRepository userRepository) {
-        this.userRepository = userRepository;
+    public CustomOidcUserService(UserProvisioningService userProvisioningService) {
+        this.userProvisioningService = userProvisioningService;
     }
 
     private static Set<String> readAdminAllowlist() {
@@ -89,50 +86,13 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             throw new OAuth2AuthenticationException("Email not provided by OAuth2 provider.");
         }
 
-        boolean isAdmin = isAdminEmail(email);
-        AppUser user = provisionUser(email, name, isAdmin);
+        AppUser user = userProvisioningService.provision(email, name, isAdminEmail(email));
 
         List<GrantedAuthority> authorities = new ArrayList<>(oidc.getAuthorities());
         authorities.add(new SimpleGrantedAuthority(toRoleAuthority(user.getRole())));
 
         // Email is used as the principal name so SecurityContext and logs show the user's email
         return new DefaultOidcUser(authorities, oidc.getIdToken(), oidc.getUserInfo(), "email");
-    }
-
-    /**
-     * Finds or creates the local {@link AppUser} for the given OIDC identity,
-     * and heals the role if the allow-list has changed since the last login.
-     *
-     * <p>Concurrent first-logins from the same identity are resolved by catching
-     * the unique-constraint violation and re-fetching the row the winning thread committed.</p>
-     *
-     * @param email   verified email from the OIDC provider
-     * @param name    display name from the OIDC provider (nullable)
-     * @param isAdmin whether the email is on the admin allow-list
-     * @return the persisted (and potentially role-healed) user
-     */
-    private AppUser provisionUser(String email, String name, boolean isAdmin) {
-        AppUser user = userRepository.findByEmail(email).orElseGet(() -> {
-            AppUser u = new AppUser();
-            u.setEmail(email);
-            u.setName((name == null || name.isBlank()) ? email : name);
-            u.setRole(isAdmin ? Role.ADMIN : Role.USER);
-            u.setCreatedAt(LocalDateTime.now());
-            try {
-                return userRepository.save(u);
-            } catch (DataIntegrityViolationException e) {
-                // Another concurrent request already created the user — re-fetch by email
-                return userRepository.findByEmail(email).orElseThrow(() -> e);
-            }
-        });
-
-        // Keep role in sync when APP_ADMIN_EMAILS changes between logins
-        Role desired = isAdmin ? Role.ADMIN : Role.USER;
-        if (user.getRole() != desired) {
-            user.setRole(desired);
-            userRepository.save(user);
-        }
-        return user;
     }
 
     /**
