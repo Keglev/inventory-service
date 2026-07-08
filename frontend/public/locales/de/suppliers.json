@@ -70,6 +70,7 @@
   "status": {
     "selected": "Ausgewählte Lieferanten-ID",
     "created": "Lieferant erfolgreich erstellt",
-    "updated": "Lieferanteninformationen erfolgreich aktualisiert!"
+    "updated": "Lieferanteninformationen erfolgreich aktualisiert!",
+    "deleted": "Lieferant erfolgreich gelöscht"
   }
 }

@@ -1,4 +1,5 @@
 {
+  "item": "Artikel",
   "page": {
     "title": "Bestandsverwaltung",
     "empty": "Keine Einträge für die aktuellen Filter gefunden."
@@ -37,6 +38,7 @@
 
   "dialogs": {
     "editItemTitle": "Artikel bearbeiten",
+    "createItemTitle": "Artikel anlegen",
     "deleteItemTitle": "Artikel löschen",
     "itemInfoTitle": "Artikelinformationen",
     "confirmDeleteTitle": "Löschung bestätigen",
@@ -52,8 +54,8 @@
     "applyAdjustment": "Anpassung anwenden",
     "applyPriceChange": "Preisänderung anwenden",
     "cancel": "Abbrechen",
-    "ja": "Ja",
-    "nein": "Nein"
+    "yes": "Ja",
+    "no": "Nein"
   },
 
   "filter": {

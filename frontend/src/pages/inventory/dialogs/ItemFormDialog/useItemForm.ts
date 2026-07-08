@@ -270,7 +270,7 @@ export function useItemForm({
 
     const res = await upsertItem(requestData);
     if (res.ok) {
-      toast(t('inventory:status.itemSaved', 'Item saved successfully!'), 'success');
+      toast(t('inventory:status.formSaved', 'Item saved successfully!'), 'success');
       onSaved();
       handleClose();
     } else {

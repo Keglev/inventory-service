@@ -10,6 +10,7 @@
   },
 
   "inventory": {
+    "validationFailed": "Please fix the highlighted fields.",
     "conflicts": {
       "duplicateName": "An item with this name already exists",
       "duplicateCode": "An item with this code already exists"
@@ -42,6 +43,7 @@
   },
 
   "supplier": {
+    "conflicts": { "duplicateEmail": "This email is already in use." },
     "selection": {
       "noSupplierSelected": "Please select a supplier"
     },

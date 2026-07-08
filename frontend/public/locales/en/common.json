@@ -23,9 +23,6 @@
     "manageInventory": "Manage inventory",
     "manageSuppliers": "Manage suppliers",
     "viewAnalytics": "View analytics",
-    "toggleDensity": "Toggle compact density",
-    "toggleLanguage": "Switch language",
-    "backToDashboard": "Back to dashboard",
     "cancel": "Cancel",
     "create": "Create",
     "save": "Save",
@@ -110,6 +107,8 @@
     "backendOnline": "Status: Online",
     "backendOffline": "Status: Offline"
   },
+  "error": "Error",
+  "selectOption": "Select an option",
   "analytics": {
     "title": "Analytics",
     "cards": {

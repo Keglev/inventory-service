@@ -66,7 +66,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Box>{t('inventory:dialogs.editItemTitle', 'Edit Item')}</Box>
-          <HelpIconButton topicId="inventory.editItem" tooltip={t('common:help', 'Help')} />
+          <HelpIconButton topicId="inventory.editItem" tooltip={t('common:actions.help', 'Help')} />
         </Stack>
       </DialogTitle>
 

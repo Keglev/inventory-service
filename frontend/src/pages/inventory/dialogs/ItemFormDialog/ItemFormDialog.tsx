@@ -15,7 +15,7 @@
  *   effect.
  * - Help opens the in-app drawer via the shared HelpIconButton component,
  *   matching the sibling dialogs (CB-APP54 closure). The tooltip key
- *   t('common:help', 'Help') still carries an English fallback
+ *   t('common:actions.help', 'Help') resolves to the shared actions.help leaf
  *   (CM-APP9 / CM-APP11 territory).
  * - Submit fires via state.handleSubmit(state.onSubmit)(e) rather than
  *   state.onSubmit directly because onSubmit is already wrapped by
@@ -61,8 +61,8 @@ export function ItemFormDialog({
 
   // Dialog title reflects create vs edit mode
   const dialogTitle = initial?.id
-    ? t('inventory:dialogs.editItem', 'Edit Item')
-    : t('inventory:dialogs.createItem', 'Create Item');
+    ? t('inventory:dialogs.editItemTitle', 'Edit Item')
+    : t('inventory:dialogs.createItemTitle', 'Create Item');
 
   // Button label also changes based on mode
   const submitLabel = initial?.id
@@ -87,7 +87,7 @@ export function ItemFormDialog({
         <span>{dialogTitle}</span>
         <HelpIconButton
           topicId={initial?.id ? 'inventory.editItem' : 'inventory.manage'}
-          tooltip={t('common:help', 'Help')}
+          tooltip={t('common:actions.help', 'Help')}
         />
       </DialogTitle>
 

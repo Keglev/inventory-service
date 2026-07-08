@@ -13,7 +13,8 @@
   "meta": {
     "version": "Version",
     "build": "Build",
-    "environment": "Environment"
+    "environment": "Environment",
+    "demoData": "Demo data only"
   },
   "support": {
     "documentation": "Documentation",

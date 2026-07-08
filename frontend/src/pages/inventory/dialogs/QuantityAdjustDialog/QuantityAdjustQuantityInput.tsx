@@ -82,7 +82,7 @@ export const QuantityAdjustQuantityInput: React.FC<QuantityAdjustQuantityInputPr
             helperText={
               errors.newQuantity?.message ||
               (currentQty !== undefined &&
-                t('inventory:quantity.QuantityChangeHint', 'Changing from {{current}} to {{new}}', {
+                t('inventory:quantity.quantityChangeHint', 'Changing from {{current}} to {{new}}', {
                   current: currentQty,
                   new: value,
                 }))

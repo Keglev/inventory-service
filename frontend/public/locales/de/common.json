@@ -108,6 +108,8 @@
     "backendOnline": "Status: Online",
     "backendOffline": "Status: Offline"
   },
+  "error": "Fehler",
+  "selectOption": "Option auswählen",
   "analytics": {
     "title": "Analysen",
     "cards": { "stockValue": "Bestandswert im Zeitverlauf", "monthlyMovement": "Monatliche Bestandsbewegungen", "priceTrend": "Preisentwicklung" },

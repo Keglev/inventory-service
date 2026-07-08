@@ -65,7 +65,7 @@ export function PriceChangeDialog({
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Box>{t('inventory:toolbar.changePrice', 'Change Price')}</Box>
-          <HelpIconButton topicId="inventory.changePrice" tooltip={t('common:help', 'Help')} />
+          <HelpIconButton topicId="inventory.changePrice" tooltip={t('common:actions.help', 'Help')} />
         </Stack>
       </DialogTitle>
 

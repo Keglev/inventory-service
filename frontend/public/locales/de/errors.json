@@ -10,6 +10,7 @@
   },
 
   "inventory": {
+    "validationFailed": "Bitte korrigieren Sie die markierten Felder.",
     "conflicts": {
       "duplicateName": "Ein Artikel mit diesem Namen existiert bereits",
       "duplicateCode": "Ein Artikel mit diesem Code existiert bereits"
@@ -42,6 +43,7 @@
   },
 
   "supplier": {
+    "conflicts": { "duplicateEmail": "Diese E-Mail wird bereits verwendet." },
     "selection": {
       "noSupplierSelected": "Bitte wählen Sie einen Lieferanten"
     },

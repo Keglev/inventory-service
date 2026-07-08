@@ -1,4 +1,5 @@
 {
+  "item": "Item",
   "page": {
     "title": "Inventory Management",
     "empty": "No entries found for the current filters."
@@ -37,6 +38,7 @@
 
   "dialogs": {
     "editItemTitle": "Edit Item",
+    "createItemTitle": "Create Item",
     "deleteItemTitle": "Delete Item",
     "itemInfoTitle": "Item Information",
     "confirmDeleteTitle": "Confirm Deletion",

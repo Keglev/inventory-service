@@ -203,7 +203,7 @@ describe('PriceChangeDialog', () => {
 
     render(<PriceChangeDialog {...defaultProps()} />);
 
-    await user.click(screen.getByLabelText('common:help'));
+    await user.click(screen.getByLabelText('common:actions.help'));
 
     expect(openHelpMock).toHaveBeenCalledWith('inventory.changePrice');
   });
