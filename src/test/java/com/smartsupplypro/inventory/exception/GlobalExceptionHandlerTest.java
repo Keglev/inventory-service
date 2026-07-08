@@ -61,6 +61,8 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/lock")   void lock()   { throw new ObjectOptimisticLockingFailureException(Object.class, 1L); }
         @GetMapping("/rse")    void rse()    { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Supplier not found"); }
         @GetMapping("/boom")   void boom()   { throw new RuntimeException("boom"); }
+        @GetMapping("/iae-blank") void iaeBlank() { throw new IllegalArgumentException("   "); }
+        @GetMapping("/rse-blank") void rseBlank() { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "   "); }
 
         @GetMapping("/param-missing") void paramMissing(@RequestParam String q) { }
         @GetMapping("/param-type")    void paramType(@RequestParam int n) { }
@@ -84,6 +86,11 @@ class GlobalExceptionHandlerTest {
             mockMvc.perform(get("/err/iae-m"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Item 1 not found"));
+        }
+        @Test void blankMessage_fallsBackToDefault() throws Exception {
+            mockMvc.perform(get("/err/iae-blank"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Resource not found"));
         }
     }
 
@@ -165,6 +172,11 @@ class GlobalExceptionHandlerTest {
             mockMvc.perform(get("/err/rse-noreason"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Bad Request"));
+        }
+        @Test void responseStatusWithBlankReason_usesStatusPhrase() throws Exception {
+            mockMvc.perform(get("/err/rse-blank"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Not Found"));
         }
         @Test void responseStatusWithUnresolvableStatus_returns500() throws Exception {
             mockMvc.perform(get("/err/rse-badstatus"))
