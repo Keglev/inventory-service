@@ -21,13 +21,7 @@ spring:
             client-id: test-client-id
             client-secret: test-client-secret
             scope: openid,profile,email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-        provider:
-          google:
-            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
-            token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-            user-name-attribute: sub
+            # Endpoints + redirect-uri come from Spring's CommonOAuth2Provider.GOOGLE
 
   flyway:
     enabled: false                # Tests use H2 create-drop; migrations are Oracle-specific
