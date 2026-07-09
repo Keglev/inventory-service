@@ -3,8 +3,9 @@ get:
     - System
   summary: Application and database health check
   description: |
-    Reports application liveness plus a cached database health snapshot in one flat
-    JSON body. Returns 200 when the database is reachable and 503 when it is down
+    Reports application liveness plus a live database ping in one flat JSON body
+    (only the databaseProduct name is cached after the first successful ping).
+    Returns 200 when the database is reachable and 503 when it is down
     (the body shape is identical in both cases). Used by Fly.io HTTP health checks.
 
     **Security:** publicly accessible (no authentication required).

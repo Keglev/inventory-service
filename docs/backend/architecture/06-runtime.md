@@ -187,3 +187,43 @@ sequenceDiagram
     AS-->>AC: DashboardSummaryDTO
     AC-->>Client: 200 OK — DashboardSummaryDTO
 ```
+
+## Scenario 4 — Delete Inventory Item: Soft Delete
+
+Deletion never removes the row. A business rule gates the operation: the item must
+hold zero stock, so remaining quantity is first drained through audited adjustments.
+A permitted delete flips the `active` flag; all stock history survives and the item's
+SKU stays reserved by the unique constraint.
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant SF as Spring Security Filter
+    participant IC as InventoryItemController
+    participant IS as InventoryItemService
+    participant VH as InventoryItemValidationHelper
+    participant REPO as InventoryItemRepository
+    participant DB as Oracle ADB
+
+    Client->>SF: DELETE /api/inventory/{id} (session cookie)
+    SF->>IC: authenticated request (ROLE_ADMIN required)
+    IC->>IS: delete(id)
+    IS->>VH: validateForDeletion(id)
+    VH->>REPO: load item / check quantity
+
+    alt quantity > 0
+        VH-->>IS: InvalidRequestException
+        IS-->>IC: propagate
+        IC-->>Client: 409 conflict — remove stock via quantity adjustments first
+    else quantity == 0
+        VH-->>IS: ok
+        IS->>VH: validateExists(id)
+        VH-->>IS: InventoryItem
+        IS->>REPO: save(item with active=false)
+        REPO->>DB: UPDATE INVENTORY_ITEM SET ACTIVE=0
+        DB-->>REPO: updated
+        IC-->>Client: 204 No Content
+    end
+
+    Note over IS,DB: no STOCK_HISTORY row is written by delete; history is retained, SKU stays reserved
+```

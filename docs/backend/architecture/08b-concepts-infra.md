@@ -50,9 +50,11 @@ mappings (`ddl-auto=validate`); applied migration files are immutable — checks
 any edit to an applied file a startup failure, so data changes always ship as a new
 migration.
 
-**Soft delete** — `InventoryItem` rows are never physically deleted. Deleting an item
-sets `active=false` (Flyway V5); active-catalog reads filter on the flag, while
-stock-history joins intentionally do not, preserving the audit trail. The flag is
+**Soft delete** — `InventoryItem` rows are never physically deleted. Deletion is gated
+by a business rule: the item's quantity must be zero, so remaining stock must first be
+removed through audited quantity adjustments — otherwise the request fails with 409.
+A permitted delete sets `active=false` (Flyway V5); active-catalog reads filter on the
+flag, while stock-history joins intentionally do not, preserving the audit trail. The flag is
 stored as `NUMBER(1)` via a `NumericBooleanConverter` so the same mapping works on
 Oracle and on H2 in Oracle-compatibility mode.
 

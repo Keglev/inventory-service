@@ -7,7 +7,9 @@ Eleven `@RestController` classes form the HTTP boundary, grouped by domain path 
 `InventoryItemController` (`/api/inventory`) handles create, read, delete, and list;
 `InventoryItemPatchController` (same path) handles price and quantity patch operations
 separately to keep each class focused. `StockHistoryController` (`/api/stock-history`)
-exposes paginated read and search. Five analytics controllers share `/api/analytics`: `AnalyticsController` (dashboard and financial summaries), `StockAnalyticsController` (stock-per-supplier, low-stock, movement), `StockUpdateAnalyticsController` (stock update query and post), `StockReasonAnalyticsController` (update-reason breakdown), and `EmployeeAnalyticsController` (per-employee update analytics). `HealthCheckController` (`/api/health`) reports application and database health.
+exposes paginated read and search. Five analytics controllers share `/api/analytics`: `AnalyticsController` (dashboard and financial summaries), `StockAnalyticsController` (stock-per-supplier, low-stock, movement), `StockUpdateAnalyticsController` (stock update query and post), `StockReasonAnalyticsController` (update-reason breakdown), and `EmployeeAnalyticsController` (per-employee update analytics). `HealthCheckController` (`/api/health`) reports application and database health: the
+database ping runs live on every request (503 when it fails, designed for Oracle Free
+Tier auto-pausing); only the JDBC product name is cached after the first successful ping.
 `AuthController` (`/api`) exposes `/auth/me` and logout.
 Every mutating endpoint carries `@PreAuthorize`; inbound DTOs are validated with JSR-380
 (`@Valid`) before reaching the service layer. Controllers perform DTO conversion and
@@ -157,9 +159,11 @@ erDiagram
     INVENTORY_ITEM {
         string id PK
         string name
+        string sku UK "required, stays reserved after soft delete"
         int quantity
         decimal price
         int minimumQuantity "low-stock threshold"
+        boolean active "soft-delete flag, NUMBER(1)"
         string supplierId FK
         string createdBy
         timestamp createdAt

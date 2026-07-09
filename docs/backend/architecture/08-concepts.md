@@ -13,6 +13,12 @@ heals its role against the admin allow-list on every login. `OAuth2LoginSuccessH
 then only validates the principal attributes and redirects to
 `AppProperties.frontend.baseUrl + landingPath`.
 
+The two lifecycle edges are handled explicitly. On OAuth2 failure, a dedicated
+failure handler (`OAuth2Config`) logs the cause and redirects the browser to the
+frontend login page with `?error=oauth` instead of surfacing a raw Spring error page.
+Logout is `POST /api/auth/logout`, which invalidates the server-side session and
+clears the session cookie; the frontend then returns the user to the login view.
+
 Two roles — `ADMIN` (full CRUD, analytics) and `USER` (read + basic stock ops) — are
 stored as `STRING` on `AppUser.role`. Every mutating endpoint carries `@PreAuthorize`;
 the frontend hides UI elements, but the backend enforces each rule independently and
@@ -20,7 +26,8 @@ does not trust the client's claimed role.
 
 **Demo mode**: `AppProperties.isDemoReadonly` (env `APP_DEMO_READONLY`, default `true`
 in prod) permits unauthenticated read access. The flag is evaluated inside the
-`@PreAuthorize` SpEL expression on each endpoint; it does not disable the security
+`@PreAuthorize` SpEL expression on each endpoint — `SecuritySpelBridgeConfig` exposes
+the properties bean to SpEL as `@appProperties` — and it does not disable the security
 filter chain.
 
 Session cookies are `HttpOnly`, `Secure=true`, `SameSite=None` (required because Nginx
@@ -51,6 +58,12 @@ Three tiers enforce data integrity in sequence:
    Oracle act as the final safety net. Violations surface as
    `DataIntegrityViolationException` → 409. SQL detail is stripped by
    `GlobalExceptionHandler.sanitize()` before the message reaches the client.
+
+**SKU** — every inventory item carries a Stock Keeping Unit: required on create and
+update, globally unique, enforced both in the service tier and by database constraints
+(Flyway V4). Because deletion is soft, a deleted item's SKU stays reserved by the
+unique constraint — reusing it requires a distinct value, which keeps historical
+records unambiguous.
 
 See [§5 Cross-cutting](05-building-blocks.md#cross-cutting).
 
