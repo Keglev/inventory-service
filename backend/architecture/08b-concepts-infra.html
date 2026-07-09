@@ -188,7 +188,10 @@
         applied file a startup failure, so data changes always ship as a
         new migration.</p>
         <p><strong>Soft delete</strong> — <code>InventoryItem</code>
-        rows are never physically deleted. Deleting an item sets
+        rows are never physically deleted. Deletion is gated by a
+        business rule: the item’s quantity must be zero, so remaining
+        stock must first be removed through audited quantity adjustments
+        — otherwise the request fails with 409. A permitted delete sets
         <code>active=false</code> (Flyway V5); active-catalog reads
         filter on the flag, while stock-history joins intentionally do
         not, preserving the audit trail. The flag is stored as

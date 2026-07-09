@@ -121,7 +121,10 @@
         <code>EmployeeAnalyticsController</code> (per-employee update
         analytics). <code>HealthCheckController</code>
         (<code>/api/health</code>) reports application and database
-        health. <code>AuthController</code> (<code>/api</code>) exposes
+        health: the database ping runs live on every request (503 when
+        it fails, designed for Oracle Free Tier auto-pausing); only the
+        JDBC product name is cached after the first successful ping.
+        <code>AuthController</code> (<code>/api</code>) exposes
         <code>/auth/me</code> and logout. Every mutating endpoint
         carries <code>@PreAuthorize</code>; inbound DTOs are validated
         with JSR-380 (<code>@Valid</code>) before reaching the service
@@ -299,9 +302,11 @@
             INVENTORY_ITEM {
                 string id PK
                 string name
+                string sku UK "required, stays reserved after soft delete"
                 int quantity
                 decimal price
                 int minimumQuantity "low-stock threshold"
+                boolean active "soft-delete flag, NUMBER(1)"
                 string supplierId FK
                 string createdBy
                 timestamp createdAt

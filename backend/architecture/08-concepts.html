@@ -114,6 +114,14 @@
         <code>OAuth2LoginSuccessHandler</code> then only validates the
         principal attributes and redirects to
         <code>AppProperties.frontend.baseUrl + landingPath</code>.</p>
+        <p>The two lifecycle edges are handled explicitly. On OAuth2
+        failure, a dedicated failure handler (<code>OAuth2Config</code>)
+        logs the cause and redirects the browser to the frontend login
+        page with <code>?error=oauth</code> instead of surfacing a raw
+        Spring error page. Logout is <code>POST /api/auth/logout</code>,
+        which invalidates the server-side session and clears the session
+        cookie; the frontend then returns the user to the login
+        view.</p>
         <p>Two roles — <code>ADMIN</code> (full CRUD, analytics) and
         <code>USER</code> (read + basic stock ops) — are stored as
         <code>STRING</code> on <code>AppUser.role</code>. Every mutating
@@ -125,7 +133,9 @@
         <code>APP_DEMO_READONLY</code>, default <code>true</code> in
         prod) permits unauthenticated read access. The flag is evaluated
         inside the <code>@PreAuthorize</code> SpEL expression on each
-        endpoint; it does not disable the security filter chain.</p>
+        endpoint — <code>SecuritySpelBridgeConfig</code> exposes the
+        properties bean to SpEL as <code>@appProperties</code> — and it
+        does not disable the security filter chain.</p>
         <p>Session cookies are <code>HttpOnly</code>,
         <code>Secure=true</code>, <code>SameSite=None</code> (required
         because Nginx on Koyeb proxies <code>/api/*</code> to Fly.io
@@ -165,6 +175,12 @@
         <code>GlobalExceptionHandler.sanitize()</code> before the
         message reaches the client.</p></li>
         </ol>
+        <p><strong>SKU</strong> — every inventory item carries a Stock
+        Keeping Unit: required on create and update, globally unique,
+        enforced both in the service tier and by database constraints
+        (Flyway V4). Because deletion is soft, a deleted item’s SKU
+        stays reserved by the unique constraint — reusing it requires a
+        distinct value, which keeps historical records unambiguous.</p>
         <p>See <a href="05-building-blocks.html#cross-cutting">§5
         Cross-cutting</a>.</p>
         <hr />
