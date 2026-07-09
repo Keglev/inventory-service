@@ -60,28 +60,16 @@ api/shared/itemSearch/functions/searchItemsGlobal · Smart Supply Pro · API</ti
   </header>
 
   <div class="layout">
-    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
-         partial. The site tree is maintained here only; the active link is
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+         partial. Frontend pages show only frontend links; the landing page is the
+         hub between the backend and frontend doc areas. The active link is
          marked at runtime by docs.js. Do not put template syntax in this
          comment - a partial is itself a template. -->
     <aside class="sidebar">
-      <p class="nav-title">Backend</p>
+      <p class="nav-title">Docs</p>
       <ul>
-        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
-        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
-        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
-        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
-        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
-        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
-        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
-        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
-        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
-        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
-        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
-        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
-        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
-        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
-        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+        <li><a href="/inventory-service/">Docs home</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
       </ul>
 
       <p class="nav-title">Frontend</p>
@@ -104,9 +92,7 @@ api/shared/itemSearch/functions/searchItemsGlobal · Smart Supply Pro · API</ti
 
       <p class="nav-title">Quality</p>
       <ul>
-        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
         <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
-        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
         <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
       </ul>
     </aside>
@@ -126,7 +112,7 @@ api/shared/itemSearch/functions/searchItemsGlobal · Smart Supply Pro · API</ti
         href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/shared/itemSearch.ts#L66">api/shared/itemSearch.ts:66</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/shared/itemSearch.ts#L66">api/shared/itemSearch.ts:66</a></p>
         <p>Global item search against /api/inventory/search (no supplier
         filter).</p>
         <h2 id="parameters">Parameters</h2>

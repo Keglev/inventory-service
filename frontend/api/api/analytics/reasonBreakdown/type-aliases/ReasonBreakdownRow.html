@@ -60,28 +60,16 @@ api/analytics/reasonBreakdown/type-aliases/ReasonBreakdownRow · Smart Supply Pr
   </header>
 
   <div class="layout">
-    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
-         partial. The site tree is maintained here only; the active link is
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+         partial. Frontend pages show only frontend links; the landing page is the
+         hub between the backend and frontend doc areas. The active link is
          marked at runtime by docs.js. Do not put template syntax in this
          comment - a partial is itself a template. -->
     <aside class="sidebar">
-      <p class="nav-title">Backend</p>
+      <p class="nav-title">Docs</p>
       <ul>
-        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
-        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
-        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
-        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
-        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
-        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
-        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
-        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
-        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
-        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
-        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
-        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
-        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
-        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
-        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+        <li><a href="/inventory-service/">Docs home</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
       </ul>
 
       <p class="nav-title">Frontend</p>
@@ -104,9 +92,7 @@ api/analytics/reasonBreakdown/type-aliases/ReasonBreakdownRow · Smart Supply Pr
 
       <p class="nav-title">Quality</p>
       <ul>
-        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
         <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
-        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
         <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
       </ul>
     </aside>
@@ -124,7 +110,7 @@ api/analytics/reasonBreakdown/type-aliases/ReasonBreakdownRow · Smart Supply Pr
         <p><strong>ReasonBreakdownRow</strong> = <code>object</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/analytics/reasonBreakdown.ts#L23">api/analytics/reasonBreakdown.ts:23</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/analytics/reasonBreakdown.ts#L23">api/analytics/reasonBreakdown.ts:23</a></p>
         <p>One aggregated row per stock-change reason.</p>
         <h2 id="properties">Properties</h2>
         <h3 id="decrease">decrease</h3>
@@ -132,7 +118,7 @@ api/analytics/reasonBreakdown/type-aliases/ReasonBreakdownRow · Smart Supply Pr
         <p><strong>decrease</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/analytics/reasonBreakdown.ts#L29">api/analytics/reasonBreakdown.ts:29</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/analytics/reasonBreakdown.ts#L29">api/analytics/reasonBreakdown.ts:29</a></p>
         <p>Total units removed under this reason (absolute sum of
         negative changes).</p>
         <hr />
@@ -141,7 +127,7 @@ api/analytics/reasonBreakdown/type-aliases/ReasonBreakdownRow · Smart Supply Pr
         <p><strong>increase</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/analytics/reasonBreakdown.ts#L27">api/analytics/reasonBreakdown.ts:27</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/analytics/reasonBreakdown.ts#L27">api/analytics/reasonBreakdown.ts:27</a></p>
         <p>Total units added under this reason (sum of positive
         changes).</p>
         <hr />
@@ -150,7 +136,7 @@ api/analytics/reasonBreakdown/type-aliases/ReasonBreakdownRow · Smart Supply Pr
         <p><strong>reason</strong>: <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/analytics/reasonBreakdown.ts#L25">api/analytics/reasonBreakdown.ts:25</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/analytics/reasonBreakdown.ts#L25">api/analytics/reasonBreakdown.ts:25</a></p>
         <p>Backend enum name, e.g. 'SOLD' or 'MANUAL_UPDATE'.</p>
       </article>
     </main>

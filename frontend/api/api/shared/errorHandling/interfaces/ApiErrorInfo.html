@@ -60,28 +60,16 @@ api/shared/errorHandling/interfaces/ApiErrorInfo · Smart Supply Pro · API</tit
   </header>
 
   <div class="layout">
-    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
-         partial. The site tree is maintained here only; the active link is
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+         partial. Frontend pages show only frontend links; the landing page is the
+         hub between the backend and frontend doc areas. The active link is
          marked at runtime by docs.js. Do not put template syntax in this
          comment - a partial is itself a template. -->
     <aside class="sidebar">
-      <p class="nav-title">Backend</p>
+      <p class="nav-title">Docs</p>
       <ul>
-        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
-        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
-        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
-        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
-        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
-        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
-        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
-        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
-        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
-        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
-        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
-        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
-        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
-        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
-        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+        <li><a href="/inventory-service/">Docs home</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
       </ul>
 
       <p class="nav-title">Frontend</p>
@@ -104,9 +92,7 @@ api/shared/errorHandling/interfaces/ApiErrorInfo · Smart Supply Pro · API</tit
 
       <p class="nav-title">Quality</p>
       <ul>
-        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
         <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
-        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
         <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
       </ul>
     </aside>
@@ -120,7 +106,7 @@ api/shared/errorHandling/interfaces/ApiErrorInfo · Smart Supply Pro · API</tit
         ApiErrorInfo</p>
         <h1 id="interface-apierrorinfo">Interface: ApiErrorInfo</h1>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/shared/errorHandling.ts#L65">api/shared/errorHandling.ts:65</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/shared/errorHandling.ts#L65">api/shared/errorHandling.ts:65</a></p>
         <p>Structured view of a backend error, extracted from an Axios
         error shape.</p>
         <p>Where <code>errorMessage</code> collapses an error to a
@@ -139,7 +125,7 @@ api/shared/errorHandling/interfaces/ApiErrorInfo · Smart Supply Pro · API</tit
         <code>string</code>&gt; | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/shared/errorHandling.ts#L76">api/shared/errorHandling.ts:76</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/shared/errorHandling.ts#L76">api/shared/errorHandling.ts:76</a></p>
         <p>Per-field error map from the backend envelope (field name to
         message); null when the response carries no fieldErrors
         object.</p>
@@ -149,7 +135,7 @@ api/shared/errorHandling/interfaces/ApiErrorInfo · Smart Supply Pro · API</tit
         <p><strong>message</strong>: <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/shared/errorHandling.ts#L71">api/shared/errorHandling.ts:71</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/shared/errorHandling.ts#L71">api/shared/errorHandling.ts:71</a></p>
         <p>Best available human-readable message.</p>
         <hr />
         <h3 id="status">status</h3>
@@ -158,7 +144,7 @@ api/shared/errorHandling/interfaces/ApiErrorInfo · Smart Supply Pro · API</tit
         <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/shared/errorHandling.ts#L69">api/shared/errorHandling.ts:69</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/shared/errorHandling.ts#L69">api/shared/errorHandling.ts:69</a></p>
         <p>Numeric HTTP status; null when the error is not an Axios
         response error.</p>
         <hr />
@@ -168,7 +154,7 @@ api/shared/errorHandling/interfaces/ApiErrorInfo · Smart Supply Pro · API</tit
         <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/shared/errorHandling.ts#L67">api/shared/errorHandling.ts:67</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/shared/errorHandling.ts#L67">api/shared/errorHandling.ts:67</a></p>
         <p>Normalized backend status token (e.g. 'not_found',
         'conflict'); null when absent.</p>
       </article>

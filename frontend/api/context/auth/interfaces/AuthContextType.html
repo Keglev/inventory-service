@@ -60,28 +60,16 @@ context/auth/interfaces/AuthContextType · Smart Supply Pro · API</title>
   </header>
 
   <div class="layout">
-    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
-         partial. The site tree is maintained here only; the active link is
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+         partial. Frontend pages show only frontend links; the landing page is the
+         hub between the backend and frontend doc areas. The active link is
          marked at runtime by docs.js. Do not put template syntax in this
          comment - a partial is itself a template. -->
     <aside class="sidebar">
-      <p class="nav-title">Backend</p>
+      <p class="nav-title">Docs</p>
       <ul>
-        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
-        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
-        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
-        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
-        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
-        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
-        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
-        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
-        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
-        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
-        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
-        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
-        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
-        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
-        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+        <li><a href="/inventory-service/">Docs home</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
       </ul>
 
       <p class="nav-title">Frontend</p>
@@ -104,9 +92,7 @@ context/auth/interfaces/AuthContextType · Smart Supply Pro · API</title>
 
       <p class="nav-title">Quality</p>
       <ul>
-        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
         <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
-        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
         <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
       </ul>
     </aside>
@@ -120,7 +106,7 @@ context/auth/interfaces/AuthContextType · Smart Supply Pro · API</title>
         <h1 id="interface-authcontexttype">Interface:
         AuthContextType</h1>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/auth/authTypes.ts#L35">context/auth/authTypes.ts:35</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/auth/authTypes.ts#L35">context/auth/authTypes.ts:35</a></p>
         <p>Value exposed by the AuthContext to the rest of the app.</p>
         <h2 id="properties">Properties</h2>
         <h3 id="loading">loading</h3>
@@ -128,7 +114,7 @@ context/auth/interfaces/AuthContextType · Smart Supply Pro · API</title>
         <p><strong>loading</strong>: <code>boolean</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/auth/authTypes.ts#L47">context/auth/authTypes.ts:47</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/auth/authTypes.ts#L47">context/auth/authTypes.ts:47</a></p>
         <p>True while hydrating the session on app startup.</p>
         <hr />
         <h3 id="login">login()</h3>
@@ -136,7 +122,7 @@ context/auth/interfaces/AuthContextType · Smart Supply Pro · API</title>
         <p><strong>login</strong>: () =&gt; <code>void</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/auth/authTypes.ts#L41">context/auth/authTypes.ts:41</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/auth/authTypes.ts#L41">context/auth/authTypes.ts:41</a></p>
         <p>Start OAuth2 login (full-page redirect).</p>
         <h4 id="returns">Returns</h4>
         <p><code>void</code></p>
@@ -146,7 +132,7 @@ context/auth/interfaces/AuthContextType · Smart Supply Pro · API</title>
         <p><strong>loginAsDemo</strong>: () =&gt; <code>void</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/auth/authTypes.ts#L43">context/auth/authTypes.ts:43</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/auth/authTypes.ts#L43">context/auth/authTypes.ts:43</a></p>
         <p>Begin a local demo session (no server request).</p>
         <h4 id="returns-1">Returns</h4>
         <p><code>void</code></p>
@@ -156,7 +142,7 @@ context/auth/interfaces/AuthContextType · Smart Supply Pro · API</title>
         <p><strong>logout</strong>: () =&gt; <code>void</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/auth/authTypes.ts#L45">context/auth/authTypes.ts:45</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/auth/authTypes.ts#L45">context/auth/authTypes.ts:45</a></p>
         <p>Clear client-side state only (no HTTP, no navigation).</p>
         <h4 id="returns-2">Returns</h4>
         <p><code>void</code></p>
@@ -166,7 +152,7 @@ context/auth/interfaces/AuthContextType · Smart Supply Pro · API</title>
         <p><strong>logoutInProgress</strong>: <code>boolean</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/auth/authTypes.ts#L49">context/auth/authTypes.ts:49</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/auth/authTypes.ts#L49">context/auth/authTypes.ts:49</a></p>
         <p>True immediately after logout is triggered to avoid guard
         flicker.</p>
         <hr />
@@ -176,7 +162,7 @@ context/auth/interfaces/AuthContextType · Smart Supply Pro · API</title>
         <code>void</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/auth/authTypes.ts#L39">context/auth/authTypes.ts:39</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/auth/authTypes.ts#L39">context/auth/authTypes.ts:39</a></p>
         <p>Replace/clear the current user.</p>
         <h4 id="parameters">Parameters</h4>
         <h5 id="u">u</h5>
@@ -192,7 +178,7 @@ context/auth/interfaces/AuthContextType · Smart Supply Pro · API</title>
         <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/auth/authTypes.ts#L37">context/auth/authTypes.ts:37</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/auth/authTypes.ts#L37">context/auth/authTypes.ts:37</a></p>
         <p>Current user or null if unauthenticated.</p>
       </article>
     </main>

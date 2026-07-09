@@ -60,28 +60,16 @@ api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</tit
   </header>
 
   <div class="layout">
-    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
-         partial. The site tree is maintained here only; the active link is
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+         partial. Frontend pages show only frontend links; the landing page is the
+         hub between the backend and frontend doc areas. The active link is
          marked at runtime by docs.js. Do not put template syntax in this
          comment - a partial is itself a template. -->
     <aside class="sidebar">
-      <p class="nav-title">Backend</p>
+      <p class="nav-title">Docs</p>
       <ul>
-        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
-        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
-        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
-        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
-        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
-        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
-        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
-        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
-        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
-        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
-        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
-        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
-        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
-        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
-        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+        <li><a href="/inventory-service/">Docs home</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
       </ul>
 
       <p class="nav-title">Frontend</p>
@@ -104,9 +92,7 @@ api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</tit
 
       <p class="nav-title">Quality</p>
       <ul>
-        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
         <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
-        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
         <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
       </ul>
     </aside>
@@ -121,7 +107,7 @@ api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</tit
         <h1 id="interface-upsertitemrequest">Interface:
         UpsertItemRequest</h1>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/inventory/types.ts#L78">api/inventory/types.ts:78</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/inventory/types.ts#L78">api/inventory/types.ts:78</a></p>
         <p>Create or update request shape (UI → API). When id is
         undefined, operation is create; when present, it's update.</p>
         <h2 id="properties">Properties</h2>
@@ -131,7 +117,7 @@ api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</tit
         <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/inventory/types.ts#L80">api/inventory/types.ts:80</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/inventory/types.ts#L80">api/inventory/types.ts:80</a></p>
         <p>undefined → create, present → update</p>
         <hr />
         <h3 id="minqty">minQty?</h3>
@@ -140,7 +126,7 @@ api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</tit
         <code>number</code> | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/inventory/types.ts#L90">api/inventory/types.ts:90</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/inventory/types.ts#L90">api/inventory/types.ts:90</a></p>
         <p>Minimum-stock threshold. The form layer sets this to a fixed
         baseline of 5; items below it flag as low-stock.</p>
         <hr />
@@ -149,7 +135,7 @@ api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</tit
         <p><strong>name</strong>: <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/inventory/types.ts#L81">api/inventory/types.ts:81</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/inventory/types.ts#L81">api/inventory/types.ts:81</a></p>
         <hr />
         <h3 id="notes">notes?</h3>
         <blockquote>
@@ -157,7 +143,7 @@ api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</tit
         <code>string</code> | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/inventory/types.ts#L92">api/inventory/types.ts:92</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/inventory/types.ts#L92">api/inventory/types.ts:92</a></p>
         <p>Notes/reason for creation</p>
         <hr />
         <h3 id="price">price</h3>
@@ -165,7 +151,7 @@ api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</tit
         <p><strong>price</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/inventory/types.ts#L88">api/inventory/types.ts:88</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/inventory/types.ts#L88">api/inventory/types.ts:88</a></p>
         <p>Unit price</p>
         <hr />
         <h3 id="quantity">quantity</h3>
@@ -173,7 +159,7 @@ api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</tit
         <p><strong>quantity</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/inventory/types.ts#L86">api/inventory/types.ts:86</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/inventory/types.ts#L86">api/inventory/types.ts:86</a></p>
         <p>Initial quantity for new items</p>
         <hr />
         <h3 id="sku">sku</h3>
@@ -181,7 +167,7 @@ api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</tit
         <p><strong>sku</strong>: <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/inventory/types.ts#L83">api/inventory/types.ts:83</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/inventory/types.ts#L83">api/inventory/types.ts:83</a></p>
         <p>Stock Keeping Unit; required by the backend on create and
         update</p>
         <hr />
@@ -191,7 +177,7 @@ api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</tit
         <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/api/inventory/types.ts#L84">api/inventory/types.ts:84</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/api/inventory/types.ts#L84">api/inventory/types.ts:84</a></p>
       </article>
     </main>
 

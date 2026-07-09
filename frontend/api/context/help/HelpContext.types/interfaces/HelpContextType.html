@@ -60,28 +60,16 @@ context/help/HelpContext.types/interfaces/HelpContextType · Smart Supply Pro ·
   </header>
 
   <div class="layout">
-    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
-         partial. The site tree is maintained here only; the active link is
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+         partial. Frontend pages show only frontend links; the landing page is the
+         hub between the backend and frontend doc areas. The active link is
          marked at runtime by docs.js. Do not put template syntax in this
          comment - a partial is itself a template. -->
     <aside class="sidebar">
-      <p class="nav-title">Backend</p>
+      <p class="nav-title">Docs</p>
       <ul>
-        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
-        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
-        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
-        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
-        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
-        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
-        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
-        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
-        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
-        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
-        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
-        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
-        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
-        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
-        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+        <li><a href="/inventory-service/">Docs home</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
       </ul>
 
       <p class="nav-title">Frontend</p>
@@ -104,9 +92,7 @@ context/help/HelpContext.types/interfaces/HelpContextType · Smart Supply Pro ·
 
       <p class="nav-title">Quality</p>
       <ul>
-        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
         <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
-        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
         <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
       </ul>
     </aside>
@@ -121,14 +107,14 @@ context/help/HelpContext.types/interfaces/HelpContextType · Smart Supply Pro ·
         <h1 id="interface-helpcontexttype">Interface:
         HelpContextType</h1>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/help/HelpContext.types.ts#L22">context/help/HelpContext.types.ts:22</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/help/HelpContext.types.ts#L22">context/help/HelpContext.types.ts:22</a></p>
         <h2 id="properties">Properties</h2>
         <h3 id="closehelp">closeHelp()</h3>
         <blockquote>
         <p><strong>closeHelp</strong>: () =&gt; <code>void</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/help/HelpContext.types.ts#L26">context/help/HelpContext.types.ts:26</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/help/HelpContext.types.ts#L26">context/help/HelpContext.types.ts:26</a></p>
         <h4 id="returns">Returns</h4>
         <p><code>void</code></p>
         <hr />
@@ -138,14 +124,14 @@ context/help/HelpContext.types/interfaces/HelpContextType · Smart Supply Pro ·
         <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/help/HelpContext.types.ts#L23">context/help/HelpContext.types.ts:23</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/help/HelpContext.types.ts#L23">context/help/HelpContext.types.ts:23</a></p>
         <hr />
         <h3 id="isopen">isOpen</h3>
         <blockquote>
         <p><strong>isOpen</strong>: <code>boolean</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/help/HelpContext.types.ts#L24">context/help/HelpContext.types.ts:24</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/help/HelpContext.types.ts#L24">context/help/HelpContext.types.ts:24</a></p>
         <hr />
         <h3 id="openhelp">openHelp()</h3>
         <blockquote>
@@ -153,7 +139,7 @@ context/help/HelpContext.types/interfaces/HelpContextType · Smart Supply Pro ·
         <code>void</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/704c7f78130dabbabc5d0c43601b547fd89233fc/frontend/src/context/help/HelpContext.types.ts#L25">context/help/HelpContext.types.ts:25</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/fdcebb25519b23adef2203be745859b67dc60aae/frontend/src/context/help/HelpContext.types.ts#L25">context/help/HelpContext.types.ts:25</a></p>
         <h4 id="parameters">Parameters</h4>
         <h5 id="topicid">topicId</h5>
         <p><code>string</code></p>
