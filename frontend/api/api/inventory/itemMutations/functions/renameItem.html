@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend API ·
+api/inventory/itemMutations/functions/renameItem · Smart Supply Pro · API</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+      <!-- Badge distinguishes API-reference pages from architecture pages. -->
+      <span class="badge">API</span>
+
+      <div class="topbar-tools">
+        <a href="/inventory-service/" style="font:14px sans-serif;padding:6px 12px;background:#2563eb;color:#fff;text-decoration:none;border-radius:4px;">&larr; Back to docs</a>
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <p><a
+        href="../../../../README.html"><strong>frontend</strong></a></p>
+        <hr />
+        <p><a href="../../../../README.html">frontend</a> / <a
+        href="../README.html">api/inventory/itemMutations</a> /
+        renameItem</p>
+        <h1 id="function-renameitem">Function: renameItem()</h1>
+        <blockquote>
+        <p><strong>renameItem</strong>(<code>req</code>):
+        <code>Promise</code>&lt;<a
+        href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/991daa02dcb7e46285a5432e0750599ccf3503d2/frontend/src/api/inventory/itemMutations.ts#L83">api/inventory/itemMutations.ts:83</a></p>
+        <p>Patches the item name via PATCH /api/inventory/{id}/name
+        rather than going through the full PUT update, so the backend
+        can enforce per-field authorization. Sends the new name as a
+        query param (not a body), matching the backend endpoint
+        contract.</p>
+        <h2 id="parameters">Parameters</h2>
+        <h3 id="req">req</h3>
+        <p>Rename payload with item id and new name</p>
+        <h4 id="id">id</h4>
+        <p><code>string</code></p>
+        <h4 id="newname">newName</h4>
+        <p><code>string</code></p>
+        <h2 id="returns">Returns</h2>
+        <p><code>Promise</code>&lt;<a
+        href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
+        <p>Response object with ok status, normalized item, and optional
+        error</p>
+        <h2 id="example">Example</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="cf">await</span> <span class="fu">renameItem</span>({</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  id<span class="op">:</span> <span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  newName<span class="op">:</span> <span class="st">&#39;Updated Widget Name&#39;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#function-renameitem"
+      id="toc-function-renameitem">Function: renameItem()</a>
+      <ul>
+      <li><a href="#parameters" id="toc-parameters">Parameters</a>
+      <ul>
+      <li><a href="#req" id="toc-req">req</a></li>
+      </ul></li>
+      <li><a href="#returns" id="toc-returns">Returns</a></li>
+      <li><a href="#example" id="toc-example">Example</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · API Reference · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

@@ -43,6 +43,7 @@
       <span class="badge">API</span>
 
       <div class="topbar-tools">
+        <a href="/inventory-service/" style="font:14px sans-serif;padding:6px 12px;background:#2563eb;color:#fff;text-decoration:none;border-radius:4px;">&larr; Back to docs</a>
         <!-- Client-side search input is added in the dedicated search pass. -->
         <span class="lang-switch">
           <a href="/inventory-service/" aria-current="true">EN</a>
@@ -91,7 +92,7 @@
         <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
         <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
         <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
-        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
         <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
         <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
         <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
@@ -110,12 +111,153 @@
     </aside>
     <main class="content" id="main">
       <article class="doc-body">
-        <h1 id="frontend-api">Frontend API</h1>
-        <p>Generated API reference for the Smart Supply Pro frontend.
-        Browse by module using the navigation panel.</p>
+        <p><strong>frontend</strong></p>
+        <hr />
+        <h1 id="frontend">frontend</h1>
+        <h2 id="modules">Modules</h2>
+        <ul>
+        <li><a href="api/analytics/README.html">api/analytics</a></li>
+        <li><a
+        href="api/analytics/employees/README.html">api/analytics/employees</a></li>
+        <li><a
+        href="api/analytics/finance/README.html">api/analytics/finance</a></li>
+        <li><a
+        href="api/analytics/frequency/README.html">api/analytics/frequency</a></li>
+        <li><a
+        href="api/analytics/hooks/README.html">api/analytics/hooks</a></li>
+        <li><a
+        href="api/analytics/hooks/README-1.html">api/analytics/hooks</a></li>
+        <li><a
+        href="api/analytics/hooks/README-2.html">api/analytics/hooks</a></li>
+        <li><a
+        href="api/analytics/hooks/README-3.html">api/analytics/hooks</a></li>
+        <li><a
+        href="api/analytics/hooks/README-4.html">api/analytics/hooks</a></li>
+        <li><a
+        href="api/analytics/lowStock/README.html">api/analytics/lowStock</a></li>
+        <li><a
+        href="api/analytics/metrics/README.html">api/analytics/metrics</a></li>
+        <li><a
+        href="api/analytics/priceTrend/README.html">api/analytics/priceTrend</a></li>
+        <li><a
+        href="api/analytics/reasonBreakdown/README.html">api/analytics/reasonBreakdown</a></li>
+        <li><a
+        href="api/analytics/stock/README.html">api/analytics/stock</a></li>
+        <li><a
+        href="api/analytics/suppliers/README.html">api/analytics/suppliers</a></li>
+        <li><a
+        href="api/analytics/types/README.html">api/analytics/types</a></li>
+        <li><a
+        href="api/analytics/updates/README.html">api/analytics/updates</a></li>
+        <li><a
+        href="api/analytics/util/README.html">api/analytics/util</a></li>
+        <li><a
+        href="api/analytics/validation/README.html">api/analytics/validation</a></li>
+        <li><a href="api/httpClient/README.html">api/httpClient</a></li>
+        <li><a href="api/inventory/README.html">api/inventory</a></li>
+        <li><a
+        href="api/inventory/hooks/README.html">api/inventory/hooks</a></li>
+        <li><a
+        href="api/inventory/hooks/useItemDetailsQuery/README.html">api/inventory/hooks/useItemDetailsQuery</a></li>
+        <li><a
+        href="api/inventory/hooks/useItemSearchQuery/README.html">api/inventory/hooks/useItemSearchQuery</a></li>
+        <li><a
+        href="api/inventory/hooks/useSuppliersQuery/README.html">api/inventory/hooks/useSuppliersQuery</a></li>
+        <li><a
+        href="api/inventory/itemMutations/README.html">api/inventory/itemMutations</a></li>
+        <li><a
+        href="api/inventory/list/README.html">api/inventory/list</a></li>
+        <li><a
+        href="api/inventory/listFetcher/README.html">api/inventory/listFetcher</a></li>
+        <li><a
+        href="api/inventory/mutations/README.html">api/inventory/mutations</a></li>
+        <li><a
+        href="api/inventory/normalizers/README.html">api/inventory/normalizers</a></li>
+        <li><a
+        href="api/inventory/priceMutations/README.html">api/inventory/priceMutations</a></li>
+        <li><a
+        href="api/inventory/rowFieldExtractors/README.html">api/inventory/rowFieldExtractors</a></li>
+        <li><a
+        href="api/inventory/rowNormalizers/README.html">api/inventory/rowNormalizers</a></li>
+        <li><a
+        href="api/inventory/stockMutations/README.html">api/inventory/stockMutations</a></li>
+        <li><a
+        href="api/inventory/supplierQueries/README.html">api/inventory/supplierQueries</a></li>
+        <li><a
+        href="api/inventory/types/README.html">api/inventory/types</a></li>
+        <li><a
+        href="api/inventory/validation/README.html"><del>api/inventory/validation</del></a></li>
+        <li><a href="api/shared/README.html">api/shared</a></li>
+        <li><a
+        href="api/shared/constants/README.html">api/shared/constants</a></li>
+        <li><a
+        href="api/shared/errorHandling/README.html">api/shared/errorHandling</a></li>
+        <li><a
+        href="api/shared/fieldPickers/README.html">api/shared/fieldPickers</a></li>
+        <li><a
+        href="api/shared/itemSearch/README.html">api/shared/itemSearch</a></li>
+        <li><a
+        href="api/shared/responseExtraction/README.html">api/shared/responseExtraction</a></li>
+        <li><a
+        href="api/shared/typeGuards/README.html">api/shared/typeGuards</a></li>
+        <li><a
+        href="api/shared/types/README.html">api/shared/types</a></li>
+        <li><a href="api/suppliers/README.html">api/suppliers</a></li>
+        <li><a
+        href="api/suppliers/hooks/README.html">api/suppliers/hooks</a></li>
+        <li><a
+        href="api/suppliers/hooks/useSupplierByIdQuery/README.html">api/suppliers/hooks/useSupplierByIdQuery</a></li>
+        <li><a
+        href="api/suppliers/hooks/useSupplierPageQuery/README.html">api/suppliers/hooks/useSupplierPageQuery</a></li>
+        <li><a
+        href="api/suppliers/hooks/useSupplierSearchQuery/README.html">api/suppliers/hooks/useSupplierSearchQuery</a></li>
+        <li><a
+        href="api/suppliers/supplierListFetcher/README.html">api/suppliers/supplierListFetcher</a></li>
+        <li><a
+        href="api/suppliers/supplierMutations/README.html">api/suppliers/supplierMutations</a></li>
+        <li><a
+        href="api/suppliers/supplierNormalizers/README.html">api/suppliers/supplierNormalizers</a></li>
+        <li><a
+        href="api/suppliers/types/README.html">api/suppliers/types</a></li>
+        <li><a
+        href="api/suppliers/validation/README.html">api/suppliers/validation</a></li>
+        <li><a
+        href="api/testConnection/README.html">api/testConnection</a></li>
+        <li><a href="context/auth/README.html">context/auth</a></li>
+        <li><a href="context/auth/README-1.html">context/auth</a></li>
+        <li><a href="context/auth/README-2.html">context/auth</a></li>
+        <li><a href="context/auth/README-3.html">context/auth</a></li>
+        <li><a
+        href="context/auth/storageKeys/README.html">context/auth/storageKeys</a></li>
+        <li><a href="context/help/README.html">context/help</a></li>
+        <li><a
+        href="context/help/HelpContext/README.html">context/help/HelpContext</a></li>
+        <li><a
+        href="context/help/HelpContext.types/README.html">context/help/HelpContext.types</a></li>
+        <li><a
+        href="context/settings/README.html">context/settings</a></li>
+        <li><a
+        href="context/settings/SettingsContext/README.html">context/settings/SettingsContext</a></li>
+        <li><a
+        href="context/settings/SettingsContext.types/README.html">context/settings/SettingsContext.types</a></li>
+        <li><a
+        href="context/settings/SettingsStorage/README.html">context/settings/SettingsStorage</a></li>
+        <li><a href="context/toast/README.html">context/toast</a></li>
+        <li><a
+        href="context/toast/ToastContext/README.html">context/toast/ToastContext</a></li>
+        </ul>
       </article>
     </main>
 
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#frontend" id="toc-frontend">frontend</a>
+      <ul>
+      <li><a href="#modules" id="toc-modules">Modules</a></li>
+      </ul></li>
+      </ul>
+    </nav>
       </div>
 
   <footer class="footer">

@@ -90,7 +90,7 @@
         <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
         <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
         <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
-        <li><a href="/inventory-service/frontend/architecture/domain/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
         <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
         <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
         <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
@@ -229,20 +229,12 @@
         <td>Accepted; revisit if concurrent edit volume grows</td>
         </tr>
         <tr class="even">
-        <td>TD-04</td>
-        <td>Docs build: the TypeDoc HTML step strips the api/ prefix
-        from output paths but not from intra-page links, so frontend API
-        module links point at a non-existent api/ subtree.</td>
-        <td>Low — generated doc navigation only</td>
-        <td>Fix scheduled in the docs plumbing pass</td>
-        </tr>
-        <tr class="odd">
         <td>TD-05</td>
         <td>Docs UI: double scrollbars on documentation pages.</td>
         <td>Low — cosmetic</td>
         <td>Fix in the docs cleanup pass</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>TD-07</td>
         <td><code>DatabaseDialectDetector</code> selects SQL dialect
         from the active Spring profile, not from the real datasource. An

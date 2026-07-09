@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend API ·
+api/analytics/README · Smart Supply Pro · API</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+      <!-- Badge distinguishes API-reference pages from architecture pages. -->
+      <span class="badge">API</span>
+
+      <div class="topbar-tools">
+        <a href="/inventory-service/" style="font:14px sans-serif;padding:6px 12px;background:#2563eb;color:#fff;text-decoration:none;border-radius:4px;">&larr; Back to docs</a>
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Shared sidebar navigation, included by the doc templates as a Pandoc
+         partial. The site tree is maintained here only; the active link is
+         marked at runtime by docs.js. Do not put template syntax in this
+         comment - a partial is itself a template. -->
+    <aside class="sidebar">
+      <p class="nav-title">Backend</p>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+        <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+        <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+        <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+        <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+        <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+        <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+        <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+        <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+        <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+        <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+        <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+        <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+      </ul>
+
+      <p class="nav-title">Frontend</p>
+      <ul>
+        <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+        <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
+        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+      </ul>
+
+      <p class="nav-title">Quality</p>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+      </ul>
+    </aside>
+    <main class="content" id="main">
+      <article class="doc-body">
+        <p><a href="../../README.html"><strong>frontend</strong></a></p>
+        <hr />
+        <p><a href="../../README.html">frontend</a> / api/analytics</p>
+        <h1 id="apianalytics">api/analytics</h1>
+        <h2 id="references">References</h2>
+        <h3 id="analyticsparams">AnalyticsParams</h3>
+        <p>Re-exports <a
+        href="validation/type-aliases/AnalyticsParams.html">AnalyticsParams</a></p>
+        <hr />
+        <h3 id="analyticsparamsschema">analyticsParamsSchema</h3>
+        <p>Re-exports <a
+        href="validation/variables/analyticsParamsSchema.html">analyticsParamsSchema</a></p>
+        <hr />
+        <h3 id="asnumber">asNumber</h3>
+        <p>Re-exports <a
+        href="util/functions/asNumber.html">asNumber</a></p>
+        <hr />
+        <h3 id="employeeactivityfilter">EmployeeActivityFilter</h3>
+        <p>Re-exports <a
+        href="employees/type-aliases/EmployeeActivityFilter.html">EmployeeActivityFilter</a></p>
+        <hr />
+        <h3 id="employeeactivityrow">EmployeeActivityRow</h3>
+        <p>Re-exports <a
+        href="employees/type-aliases/EmployeeActivityRow.html">EmployeeActivityRow</a></p>
+        <hr />
+        <h3 id="employeechangerow">EmployeeChangeRow</h3>
+        <p>Re-exports <a
+        href="employees/type-aliases/EmployeeChangeRow.html">EmployeeChangeRow</a></p>
+        <hr />
+        <h3 id="employeechangesfilter">EmployeeChangesFilter</h3>
+        <p>Re-exports <a
+        href="employees/type-aliases/EmployeeChangesFilter.html">EmployeeChangesFilter</a></p>
+        <hr />
+        <h3 id="employeechangespage">EmployeeChangesPage</h3>
+        <p>Re-exports <a
+        href="employees/type-aliases/EmployeeChangesPage.html">EmployeeChangesPage</a></p>
+        <hr />
+        <h3 id="employeegranularity">EmployeeGranularity</h3>
+        <p>Re-exports <a
+        href="employees/type-aliases/EmployeeGranularity.html">EmployeeGranularity</a></p>
+        <hr />
+        <h3 id="filtersstate">FiltersState</h3>
+        <p>Re-exports <a
+        href="types/type-aliases/FiltersState.html">FiltersState</a></p>
+        <hr />
+        <h3 id="financialsummary">FinancialSummary</h3>
+        <p>Re-exports <a
+        href="finance/type-aliases/FinancialSummary.html">FinancialSummary</a></p>
+        <hr />
+        <h3 id="financialsummaryparams">FinancialSummaryParams</h3>
+        <p>Re-exports <a
+        href="validation/type-aliases/FinancialSummaryParams.html">FinancialSummaryParams</a></p>
+        <hr />
+        <h3
+        id="financialsummaryparamsschema">financialSummaryParamsSchema</h3>
+        <p>Re-exports <a
+        href="validation/variables/financialSummaryParamsSchema.html">financialSummaryParamsSchema</a></p>
+        <hr />
+        <h3 id="getemployeeactivity">getEmployeeActivity</h3>
+        <p>Re-exports <a
+        href="employees/functions/getEmployeeActivity.html">getEmployeeActivity</a></p>
+        <hr />
+        <h3 id="getemployeechanges">getEmployeeChanges</h3>
+        <p>Re-exports <a
+        href="employees/functions/getEmployeeChanges.html">getEmployeeChanges</a></p>
+        <hr />
+        <h3 id="getfinancialsummary">getFinancialSummary</h3>
+        <p>Re-exports <a
+        href="finance/functions/getFinancialSummary.html">getFinancialSummary</a></p>
+        <hr />
+        <h3 id="getitemcount">getItemCount</h3>
+        <p>Re-exports <a
+        href="metrics/functions/getItemCount.html">getItemCount</a></p>
+        <hr />
+        <h3 id="getitemupdatefrequency">getItemUpdateFrequency</h3>
+        <p>Re-exports <a
+        href="frequency/functions/getItemUpdateFrequency.html">getItemUpdateFrequency</a></p>
+        <hr />
+        <h3 id="getlowstockcount">getLowStockCount</h3>
+        <p>Re-exports <a
+        href="metrics/functions/getLowStockCount.html">getLowStockCount</a></p>
+        <hr />
+        <h3 id="getlowstockitems">getLowStockItems</h3>
+        <p>Re-exports <a
+        href="lowStock/functions/getLowStockItems.html">getLowStockItems</a></p>
+        <hr />
+        <h3 id="getmonthlystockmovement">getMonthlyStockMovement</h3>
+        <p>Re-exports <a
+        href="stock/functions/getMonthlyStockMovement.html">getMonthlyStockMovement</a></p>
+        <hr />
+        <h3 id="getpricetrend">getPriceTrend</h3>
+        <p>Re-exports <a
+        href="priceTrend/functions/getPriceTrend.html">getPriceTrend</a></p>
+        <hr />
+        <h3 id="getreasonbreakdown">getReasonBreakdown</h3>
+        <p>Re-exports <a
+        href="reasonBreakdown/functions/getReasonBreakdown.html">getReasonBreakdown</a></p>
+        <hr />
+        <h3 id="getstockpersupplier">getStockPerSupplier</h3>
+        <p>Re-exports <a
+        href="stock/functions/getStockPerSupplier.html">getStockPerSupplier</a></p>
+        <hr />
+        <h3 id="getstockupdates">getStockUpdates</h3>
+        <p>Re-exports <a
+        href="updates/functions/getStockUpdates.html">getStockUpdates</a></p>
+        <hr />
+        <h3 id="getstockvalueovertime">getStockValueOverTime</h3>
+        <p>Re-exports <a
+        href="stock/functions/getStockValueOverTime.html">getStockValueOverTime</a></p>
+        <hr />
+        <h3 id="getsuppliercount">getSupplierCount</h3>
+        <p>Re-exports <a
+        href="metrics/functions/getSupplierCount.html">getSupplierCount</a></p>
+        <hr />
+        <h3 id="getsupplierslite">getSuppliersLite</h3>
+        <p>Re-exports <a
+        href="suppliers/functions/getSuppliersLite.html">getSuppliersLite</a></p>
+        <hr />
+        <h3 id="isarrayofrecords">isArrayOfRecords</h3>
+        <p>Re-exports <a
+        href="util/functions/isArrayOfRecords.html">isArrayOfRecords</a></p>
+        <hr />
+        <h3 id="itemoption">ItemOption</h3>
+        <p>Re-exports <a
+        href="types/type-aliases/ItemOption.html">ItemOption</a></p>
+        <hr />
+        <h3 id="itemupdatefrequencypoint">ItemUpdateFrequencyPoint</h3>
+        <p>Re-exports <a
+        href="frequency/type-aliases/ItemUpdateFrequencyPoint.html">ItemUpdateFrequencyPoint</a></p>
+        <hr />
+        <h3 id="lowstockrow">LowStockRow</h3>
+        <p>Re-exports <a
+        href="types/type-aliases/LowStockRow.html">LowStockRow</a></p>
+        <hr />
+        <h3 id="monthlymovement">MonthlyMovement</h3>
+        <p>Re-exports <a
+        href="types/type-aliases/MonthlyMovement.html">MonthlyMovement</a></p>
+        <hr />
+        <h3 id="paramclean">paramClean</h3>
+        <p>Re-exports <a
+        href="util/functions/paramClean.html">paramClean</a></p>
+        <hr />
+        <h3 id="picknumber">pickNumber</h3>
+        <p>Re-exports <a
+        href="util/functions/pickNumber.html">pickNumber</a></p>
+        <hr />
+        <h3 id="pickstring">pickString</h3>
+        <p>Re-exports <a
+        href="util/functions/pickString.html">pickString</a></p>
+        <hr />
+        <h3 id="pricepoint">PricePoint</h3>
+        <p>Re-exports <a
+        href="types/type-aliases/PricePoint.html">PricePoint</a></p>
+        <hr />
+        <h3 id="pricetrendparams">PriceTrendParams</h3>
+        <p>Re-exports <a
+        href="validation/type-aliases/PriceTrendParams.html">PriceTrendParams</a></p>
+        <hr />
+        <h3 id="pricetrendparamsschema">priceTrendParamsSchema</h3>
+        <p>Re-exports <a
+        href="validation/variables/priceTrendParamsSchema.html">priceTrendParamsSchema</a></p>
+        <hr />
+        <h3 id="reasonbreakdownfilter">ReasonBreakdownFilter</h3>
+        <p>Re-exports <a
+        href="reasonBreakdown/type-aliases/ReasonBreakdownFilter.html">ReasonBreakdownFilter</a></p>
+        <hr />
+        <h3 id="reasonbreakdownrow">ReasonBreakdownRow</h3>
+        <p>Re-exports <a
+        href="reasonBreakdown/type-aliases/ReasonBreakdownRow.html">ReasonBreakdownRow</a></p>
+        <hr />
+        <h3 id="rec">Rec</h3>
+        <p>Re-exports <a href="util/type-aliases/Rec.html">Rec</a></p>
+        <hr />
+        <h3 id="stockmovementparams">StockMovementParams</h3>
+        <p>Re-exports <a
+        href="validation/type-aliases/StockMovementParams.html">StockMovementParams</a></p>
+        <hr />
+        <h3
+        id="stockmovementparamsschema">stockMovementParamsSchema</h3>
+        <p>Re-exports <a
+        href="validation/variables/stockMovementParamsSchema.html">stockMovementParamsSchema</a></p>
+        <hr />
+        <h3 id="stockpersupplierpoint">StockPerSupplierPoint</h3>
+        <p>Re-exports <a
+        href="types/type-aliases/StockPerSupplierPoint.html">StockPerSupplierPoint</a></p>
+        <hr />
+        <h3 id="stockupdaterow">StockUpdateRow</h3>
+        <p>Re-exports <a
+        href="updates/type-aliases/StockUpdateRow.html">StockUpdateRow</a></p>
+        <hr />
+        <h3 id="stockupdatesfilter">StockUpdatesFilter</h3>
+        <p>Re-exports <a
+        href="updates/type-aliases/StockUpdatesFilter.html">StockUpdatesFilter</a></p>
+        <hr />
+        <h3 id="stockvaluepoint">StockValuePoint</h3>
+        <p>Re-exports <a
+        href="types/type-aliases/StockValuePoint.html">StockValuePoint</a></p>
+        <hr />
+        <h3 id="supplieroption">SupplierOption</h3>
+        <p>Re-exports <a
+        href="types/type-aliases/SupplierOption.html">SupplierOption</a></p>
+        <hr />
+        <h3 id="supplierref">SupplierRef</h3>
+        <p>Re-exports <a
+        href="types/type-aliases/SupplierRef.html">SupplierRef</a></p>
+        <hr />
+        <h3 id="usedashboardmetrics">useDashboardMetrics</h3>
+        <p>Re-exports <a
+        href="hooks/functions/useDashboardMetrics.html">useDashboardMetrics</a></p>
+        <hr />
+        <h3 id="usefinancialsummaryquery">useFinancialSummaryQuery</h3>
+        <p>Re-exports <a
+        href="hooks/functions/useFinancialSummaryQuery.html">useFinancialSummaryQuery</a></p>
+        <hr />
+        <h3 id="useitemfrequencyquery">useItemFrequencyQuery</h3>
+        <p>Re-exports <a
+        href="hooks/functions/useItemFrequencyQuery.html">useItemFrequencyQuery</a></p>
+        <hr />
+        <h3 id="uselowstockquery">useLowStockQuery</h3>
+        <p>Re-exports <a
+        href="hooks/functions/useLowStockQuery.html">useLowStockQuery</a></p>
+        <hr />
+        <h3 id="usemonthlymovementquery">useMonthlyMovementQuery</h3>
+        <p>Re-exports <a
+        href="hooks/functions/useMonthlyMovementQuery.html">useMonthlyMovementQuery</a></p>
+        <hr />
+        <h3 id="usepricetrendquery">usePriceTrendQuery</h3>
+        <p>Re-exports <a
+        href="hooks/functions/usePriceTrendQuery.html">usePriceTrendQuery</a></p>
+        <hr />
+        <h3 id="usestockpersupplierquery">useStockPerSupplierQuery</h3>
+        <p>Re-exports <a
+        href="hooks/functions/useStockPerSupplierQuery.html">useStockPerSupplierQuery</a></p>
+        <hr />
+        <h3 id="usestockvaluequery">useStockValueQuery</h3>
+        <p>Re-exports <a
+        href="hooks/functions/useStockValueQuery.html">useStockValueQuery</a></p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#apianalytics"
+      id="toc-apianalytics">api/analytics</a>
+      <ul>
+      <li><a href="#references" id="toc-references">References</a>
+      <ul>
+      <li><a href="#analyticsparams"
+      id="toc-analyticsparams">AnalyticsParams</a></li>
+      <li><a href="#analyticsparamsschema"
+      id="toc-analyticsparamsschema">analyticsParamsSchema</a></li>
+      <li><a href="#asnumber" id="toc-asnumber">asNumber</a></li>
+      <li><a href="#employeeactivityfilter"
+      id="toc-employeeactivityfilter">EmployeeActivityFilter</a></li>
+      <li><a href="#employeeactivityrow"
+      id="toc-employeeactivityrow">EmployeeActivityRow</a></li>
+      <li><a href="#employeechangerow"
+      id="toc-employeechangerow">EmployeeChangeRow</a></li>
+      <li><a href="#employeechangesfilter"
+      id="toc-employeechangesfilter">EmployeeChangesFilter</a></li>
+      <li><a href="#employeechangespage"
+      id="toc-employeechangespage">EmployeeChangesPage</a></li>
+      <li><a href="#employeegranularity"
+      id="toc-employeegranularity">EmployeeGranularity</a></li>
+      <li><a href="#filtersstate"
+      id="toc-filtersstate">FiltersState</a></li>
+      <li><a href="#financialsummary"
+      id="toc-financialsummary">FinancialSummary</a></li>
+      <li><a href="#financialsummaryparams"
+      id="toc-financialsummaryparams">FinancialSummaryParams</a></li>
+      <li><a href="#financialsummaryparamsschema"
+      id="toc-financialsummaryparamsschema">financialSummaryParamsSchema</a></li>
+      <li><a href="#getemployeeactivity"
+      id="toc-getemployeeactivity">getEmployeeActivity</a></li>
+      <li><a href="#getemployeechanges"
+      id="toc-getemployeechanges">getEmployeeChanges</a></li>
+      <li><a href="#getfinancialsummary"
+      id="toc-getfinancialsummary">getFinancialSummary</a></li>
+      <li><a href="#getitemcount"
+      id="toc-getitemcount">getItemCount</a></li>
+      <li><a href="#getitemupdatefrequency"
+      id="toc-getitemupdatefrequency">getItemUpdateFrequency</a></li>
+      <li><a href="#getlowstockcount"
+      id="toc-getlowstockcount">getLowStockCount</a></li>
+      <li><a href="#getlowstockitems"
+      id="toc-getlowstockitems">getLowStockItems</a></li>
+      <li><a href="#getmonthlystockmovement"
+      id="toc-getmonthlystockmovement">getMonthlyStockMovement</a></li>
+      <li><a href="#getpricetrend"
+      id="toc-getpricetrend">getPriceTrend</a></li>
+      <li><a href="#getreasonbreakdown"
+      id="toc-getreasonbreakdown">getReasonBreakdown</a></li>
+      <li><a href="#getstockpersupplier"
+      id="toc-getstockpersupplier">getStockPerSupplier</a></li>
+      <li><a href="#getstockupdates"
+      id="toc-getstockupdates">getStockUpdates</a></li>
+      <li><a href="#getstockvalueovertime"
+      id="toc-getstockvalueovertime">getStockValueOverTime</a></li>
+      <li><a href="#getsuppliercount"
+      id="toc-getsuppliercount">getSupplierCount</a></li>
+      <li><a href="#getsupplierslite"
+      id="toc-getsupplierslite">getSuppliersLite</a></li>
+      <li><a href="#isarrayofrecords"
+      id="toc-isarrayofrecords">isArrayOfRecords</a></li>
+      <li><a href="#itemoption" id="toc-itemoption">ItemOption</a></li>
+      <li><a href="#itemupdatefrequencypoint"
+      id="toc-itemupdatefrequencypoint">ItemUpdateFrequencyPoint</a></li>
+      <li><a href="#lowstockrow"
+      id="toc-lowstockrow">LowStockRow</a></li>
+      <li><a href="#monthlymovement"
+      id="toc-monthlymovement">MonthlyMovement</a></li>
+      <li><a href="#paramclean" id="toc-paramclean">paramClean</a></li>
+      <li><a href="#picknumber" id="toc-picknumber">pickNumber</a></li>
+      <li><a href="#pickstring" id="toc-pickstring">pickString</a></li>
+      <li><a href="#pricepoint" id="toc-pricepoint">PricePoint</a></li>
+      <li><a href="#pricetrendparams"
+      id="toc-pricetrendparams">PriceTrendParams</a></li>
+      <li><a href="#pricetrendparamsschema"
+      id="toc-pricetrendparamsschema">priceTrendParamsSchema</a></li>
+      <li><a href="#reasonbreakdownfilter"
+      id="toc-reasonbreakdownfilter">ReasonBreakdownFilter</a></li>
+      <li><a href="#reasonbreakdownrow"
+      id="toc-reasonbreakdownrow">ReasonBreakdownRow</a></li>
+      <li><a href="#rec" id="toc-rec">Rec</a></li>
+      <li><a href="#stockmovementparams"
+      id="toc-stockmovementparams">StockMovementParams</a></li>
+      <li><a href="#stockmovementparamsschema"
+      id="toc-stockmovementparamsschema">stockMovementParamsSchema</a></li>
+      <li><a href="#stockpersupplierpoint"
+      id="toc-stockpersupplierpoint">StockPerSupplierPoint</a></li>
+      <li><a href="#stockupdaterow"
+      id="toc-stockupdaterow">StockUpdateRow</a></li>
+      <li><a href="#stockupdatesfilter"
+      id="toc-stockupdatesfilter">StockUpdatesFilter</a></li>
+      <li><a href="#stockvaluepoint"
+      id="toc-stockvaluepoint">StockValuePoint</a></li>
+      <li><a href="#supplieroption"
+      id="toc-supplieroption">SupplierOption</a></li>
+      <li><a href="#supplierref"
+      id="toc-supplierref">SupplierRef</a></li>
+      <li><a href="#usedashboardmetrics"
+      id="toc-usedashboardmetrics">useDashboardMetrics</a></li>
+      <li><a href="#usefinancialsummaryquery"
+      id="toc-usefinancialsummaryquery">useFinancialSummaryQuery</a></li>
+      <li><a href="#useitemfrequencyquery"
+      id="toc-useitemfrequencyquery">useItemFrequencyQuery</a></li>
+      <li><a href="#uselowstockquery"
+      id="toc-uselowstockquery">useLowStockQuery</a></li>
+      <li><a href="#usemonthlymovementquery"
+      id="toc-usemonthlymovementquery">useMonthlyMovementQuery</a></li>
+      <li><a href="#usepricetrendquery"
+      id="toc-usepricetrendquery">usePriceTrendQuery</a></li>
+      <li><a href="#usestockpersupplierquery"
+      id="toc-usestockpersupplierquery">useStockPerSupplierQuery</a></li>
+      <li><a href="#usestockvaluequery"
+      id="toc-usestockvaluequery">useStockValueQuery</a></li>
+      </ul></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · API Reference · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>
