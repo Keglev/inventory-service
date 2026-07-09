@@ -153,6 +153,46 @@ class InventoryItemValidationHelperTest {
             assertEquals("Another inventory item with this name and price already exists.", ex.getMessage());
             verify(repository).findByNameIgnoreCase("NewWidget");
         }
+
+        @Test
+        void should_check_name_price_uniqueness_when_only_price_changed() {
+            InventoryItem existing = existingItem("item-1", "Widget", "10.00");
+            existing.setSku("SKU-1");
+            InventoryItemDTO dto = new InventoryItemDTO();
+            dto.setName("Widget"); dto.setPrice(new BigDecimal("20.00")); dto.setSku("SKU-1");
+            when(repository.findByNameIgnoreCase("Widget")).thenReturn(List.of());
+
+            helper.validateUniquenessOnUpdate("item-1", existing, dto);
+
+            verify(repository).findByNameIgnoreCase("Widget");
+            verify(repository, never()).findBySkuIgnoreCase(anyString());
+        }
+
+        @Test
+        void should_check_sku_uniqueness_when_sku_changed() {
+            InventoryItem existing = existingItem("item-1", "Widget", "10.00");
+            existing.setSku("SKU-OLD");
+            InventoryItemDTO dto = new InventoryItemDTO();
+            dto.setName("Widget"); dto.setPrice(new BigDecimal("10.00")); dto.setSku("SKU-NEW");
+            when(repository.findBySkuIgnoreCase("SKU-NEW")).thenReturn(List.of());
+
+            helper.validateUniquenessOnUpdate("item-1", existing, dto);
+
+            verify(repository).findBySkuIgnoreCase("SKU-NEW");
+            verify(repository, never()).findByNameIgnoreCase(anyString());
+        }
+
+        @Test
+        void should_check_sku_uniqueness_when_existing_sku_is_null() {
+            InventoryItem existing = existingItem("item-1", "Widget", "10.00");
+            InventoryItemDTO dto = new InventoryItemDTO();
+            dto.setName("Widget"); dto.setPrice(new BigDecimal("10.00")); dto.setSku("SKU-NEW");
+            when(repository.findBySkuIgnoreCase("SKU-NEW")).thenReturn(List.of());
+
+            helper.validateUniquenessOnUpdate("item-1", existing, dto);
+
+            verify(repository).findBySkuIgnoreCase("SKU-NEW");
+        }
     }
 
     /**
