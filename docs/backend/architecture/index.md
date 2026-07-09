@@ -29,7 +29,7 @@ Google OAuth2 with role-based access control (RBAC).
 
 | Section | Topic |
 |---|---|
-| [§2 Constraints](02-constraints.md) | Java 17, Spring Boot 3.5.x, Oracle 23ai, Maven, Docker; solo-dev and REST conventions |
+| [§2 Constraints](02-constraints.md) | Java 21, Spring Boot 4.1.x, Oracle 23ai, Maven, Docker; solo-dev and REST conventions |
 | [§3 Context & Scope](03-context.md) | Business context, external systems (React frontend, Oracle ADB, Google OAuth2), C4 L1 diagram |
 | [§4 Solution Strategy](04-solution-strategy.md) | Key strategic choices and the ADRs that justify each one |
 | [§5 Building Block View](05-building-blocks.md) | Layer breakdown — controller, service, repository, model — logical-architecture and ER diagrams |

@@ -13,7 +13,7 @@ global logging). Two profile overlays specialise it:
 |---|---|---|---|
 | (none) | No `SPRING_PROFILES_ACTIVE` | Oracle via `DB_URL` env var (H2 if unset) | DEBUG — JDBC + Hibernate SQL |
 | `test` | `SPRING_PROFILES_ACTIVE=test` | H2 `MODE=Oracle` in-memory; `ddl-auto=create-drop` | DEBUG; H2 console at `/h2-console` |
-| `prod` | `SPRING_PROFILES_ACTIVE=prod` | Oracle Autonomous DB via wallet; `ddl-auto=update` | off (`show-sql=false`, root INFO) |
+| `prod` | `SPRING_PROFILES_ACTIVE=prod` | Oracle Autonomous DB via wallet; Flyway-managed schema, `ddl-auto=validate` | off (`show-sql=false`, root INFO) |
 
 `AppProperties` (`@ConfigurationProperties(prefix="app")`) centralises all
 environment-specific knobs: demo-readonly flag, frontend base URL and landing path,
@@ -43,6 +43,18 @@ All `id` fields are UUID strings. `InventoryItem` and `Supplier` each hold a rea
 lazy `@ManyToOne` join for object navigation; the authoritative FK (`supplierId`) is a
 plain `String` column on the owning entity, and `insertable=false, updatable=false`
 prevents the join from conflicting with the scalar column.
+
+**Schema evolution** is owned by Flyway: a baseline plus migrations V2–V5 (SKU column,
+demo reseed, SKU constraints, ACTIVE flag). In production Hibernate only validates
+mappings (`ddl-auto=validate`); applied migration files are immutable — checksums make
+any edit to an applied file a startup failure, so data changes always ship as a new
+migration.
+
+**Soft delete** — `InventoryItem` rows are never physically deleted. Deleting an item
+sets `active=false` (Flyway V5); active-catalog reads filter on the flag, while
+stock-history joins intentionally do not, preserving the audit trail. The flag is
+stored as `NUMBER(1)` via a `NumericBooleanConverter` so the same mapping works on
+Oracle and on H2 in Oracle-compatibility mode.
 
 See [§5 Repository Layer](05-building-blocks.md#repository-layer).
 

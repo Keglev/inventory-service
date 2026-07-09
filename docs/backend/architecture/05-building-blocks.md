@@ -2,15 +2,13 @@
 
 ## Controller Layer
 
-Eight `@RestController` classes form the HTTP boundary, grouped by domain path.
+Eleven `@RestController` classes form the HTTP boundary, grouped by domain path (a twelfth class, `RootRedirectController`, is a plain `@Controller` that redirects the site root).
 `SupplierController` (`/api/suppliers`) handles full CRUD for suppliers.
 `InventoryItemController` (`/api/inventory`) handles create, read, delete, and list;
 `InventoryItemPatchController` (same path) handles price and quantity patch operations
 separately to keep each class focused. `StockHistoryController` (`/api/stock-history`)
-exposes paginated read and search. Three analytics controllers share `/api/analytics`:
-`AnalyticsController` (dashboard and financial summaries), `StockAnalyticsController`
-(stock-per-supplier, low-stock, movement), and `StockUpdateAnalyticsController` (stock
-update query and post). `AuthController` (`/api`) exposes `/auth/me` and logout.
+exposes paginated read and search. Five analytics controllers share `/api/analytics`: `AnalyticsController` (dashboard and financial summaries), `StockAnalyticsController` (stock-per-supplier, low-stock, movement), `StockUpdateAnalyticsController` (stock update query and post), `StockReasonAnalyticsController` (update-reason breakdown), and `EmployeeAnalyticsController` (per-employee update analytics). `HealthCheckController` (`/api/health`) reports application and database health.
+`AuthController` (`/api`) exposes `/auth/me` and logout.
 Every mutating endpoint carries `@PreAuthorize`; inbound DTOs are validated with JSR-380
 (`@Valid`) before reaching the service layer. Controllers perform DTO conversion and
 response building — no business logic lives here.
@@ -21,9 +19,7 @@ Business logic and transaction boundaries live in four service interfaces and th
 implementations: `SupplierService`, `InventoryItemService`, `StockHistoryService`, and
 `AnalyticsService` (implemented by `AnalyticsServiceImpl`, with `StockAnalyticsService`
 and `FinancialAnalyticsService` as focused sub-services for WAC and stock-movement
-calculations). `UserProvisioningService` owns the OAuth2 user-creation and
-role-assignment flow on first login; `SecurityService` exposes the current principal
-for `createdBy` stamping. All service interfaces are constructor-injected; every
+calculations). `UserProvisioningService` is the single authoritative provisioner for OAuth2 logins: `CustomOAuth2UserService` and `CustomOidcUserService` delegate to it at token load, and it finds or creates the user and heals the role against the admin allow-list on every login. All service interfaces are constructor-injected; every
 state-mutating operation is wrapped in `@Transactional`.
 
 ## Repository Layer
@@ -36,9 +32,10 @@ preventing N+1 queries on the two hot list paths. Complex analytics aggregations
 exceed what JPQL can express cleanly are handled by three custom repository
 implementations: `StockDetailQueryRepositoryImpl`, `StockMetricsRepositoryImpl`, and
 `StockTrendAnalyticsRepositoryImpl`, each backed by dedicated SQL builders in
-`repository/custom/util/`. `AppUserRepository` is used exclusively by
-`UserProvisioningService` for OAuth2 user lookup and provisioning and does not
-participate in the domain service flow.
+`repository/custom/util/`. `AppUserRepository` is written only by
+`UserProvisioningService` (OAuth2 provisioning); it is additionally read by
+`AuthController` (`/auth/me`) and `EmployeeAnalyticsService` (display names), but
+does not participate in the domain mutation flow.
 
 **Analytics/reporting repositories** with custom implementations —
 `StockDetailQueryRepository`, `StockMetricsRepository`,
@@ -62,8 +59,8 @@ stored as `STRING`).
 
 `SecurityConfig` and its helper split-classes (`SecurityFilterHelper`,
 `SecurityAuthorizationHelper`, `SecurityEntryPointHelper`) configure the Spring Security
-filter chain, OAuth2 login, and CORS. `OAuth2LoginSuccessHandler` delegates to
-`UserProvisioningService` on first login; `CookieOAuth2AuthorizationRequestRepository`
+filter chain, OAuth2 login, and CORS. `OAuth2LoginSuccessHandler` performs the post-login redirect (provisioning already
+happened at token load in the user services); `CookieOAuth2AuthorizationRequestRepository`
 serialises OAuth2 state into an HTTP-only cookie. All exceptions funnel through two
 `@ControllerAdvice` handlers: `GlobalExceptionHandler` for framework exceptions and
 `BusinessExceptionHandler` for domain exceptions (`DuplicateResourceException`,

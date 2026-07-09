@@ -14,12 +14,12 @@ Die Architektur legt den Schwerpunkt auf **Sicherheit**, **Wartbarkeit** und
 
 | Komponente       | Technologie                     | Version   |
 |------------------|---------------------------------|-----------|
-| Framework        | Spring Boot                     | 3.5.15    |
-| Sprache          | Java                            | 17        |
+| Framework        | Spring Boot                     | 4.1.0     |
+| Sprache          | Java                            | 21        |
 | Datenbank        | Oracle Autonomous Database      | 23ai      |
 | Build-Tool       | Maven                           | 3.x+      |
-| Testing          | JUnit 5, Mockito                | Aktuell   |
-| Sicherheit       | Spring Security, OAuth2         | 3.5.x     |
+| Testing          | JUnit 6 (Jupiter), Mockito      | Boot-verwaltet |
+| Sicherheit       | Spring Security, OAuth2         | 7.x       |
 | Containerisierung| Docker                          | Aktuell   |
 
 ## Architekturprinzipien

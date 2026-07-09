@@ -6,9 +6,11 @@ Authentication uses the OAuth2 Authorization Code flow with Google as the sole i
 provider. The code exchange is server-to-server; the browser never sees a token.
 `CookieOAuth2AuthorizationRequestRepository` serialises the OAuth2 state parameter into
 an HTTP-only cookie (`OAUTH2_AUTH_REQUEST`, TTL 180 s, configurable via
-`AppProperties.Cookie`). On success, `OAuth2LoginSuccessHandler` calls
-`UserProvisioningService.provisionIfAbsent(email, name)`, which inserts a new `AppUser`
-(role `USER`) on first login or retrieves the existing record, then redirects to
+`AppProperties.Cookie`). User provisioning happens at token load: `CustomOAuth2UserService` and
+`CustomOidcUserService` call `UserProvisioningService.provision(email, name, isAdmin)`
+— the single authoritative provisioner — which finds or creates the `AppUser` and
+heals its role against the admin allow-list on every login. `OAuth2LoginSuccessHandler`
+then only validates the principal attributes and redirects to
 `AppProperties.frontend.baseUrl + landingPath`.
 
 Two roles — `ADMIN` (full CRUD, analytics) and `USER` (read + basic stock ops) — are

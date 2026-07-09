@@ -11,13 +11,13 @@ single-layer slice tests, and a thin cap of full-context tests.
 
 | Layer | Annotation | Test files | Scope |
 |-------|-----------|-----------|-------|
-| Unit | `@ExtendWith(MockitoExtension.class)` / `@Mock` | 27 | Services, OAuth2 handlers, `DatabaseDialectDetector`, and dialect-selection logic — no Spring context |
-| Web slice | `@WebMvcTest` | 22 | Controllers, security endpoints, and the exception handler, with the service layer mocked |
-| Persistence slice | `@DataJpaTest` | 10 | All repositories — including the four custom analytics `*Impl` classes — against H2 |
+| Unit | `@ExtendWith(MockitoExtension.class)` / `@Mock` | 28 | Services, OAuth2 handlers, `DatabaseDialectDetector`, and dialect-selection logic — no Spring context |
+| Web slice | `@WebMvcTest` | 24 | Controllers, security endpoints, and the exception handler, with the service layer mocked |
+| Persistence slice | `@DataJpaTest` | 13 | All repositories — including the four custom analytics `*Impl` classes — against H2 |
 | Full context | `@SpringBootTest` | 2 | Application boot and wiring smoke tests |
 
 Security paths are tested as an overlay rather than a separate layer: `@WithMockUser`,
-`@WithUserDetails`, and security-context tests (10 files) cover authentication and
+`@WithUserDetails`, and security-context tests (11 files) cover authentication and
 authorization at the controller slice and in dedicated security-config tests.
 
 ## Database strategy: H2 for tests, Oracle for production

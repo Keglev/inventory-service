@@ -136,19 +136,20 @@ sequenceDiagram
     CR-->>Backend: AuthorizationRequest (state verified)
     Backend->>Google: POST /token — exchange code (server-to-server)
     Google-->>Backend: access_token + user info (email, name)
-    Backend->>SH: onAuthenticationSuccess(request, response, authentication)
-    SH->>UPS: getOrCreate(oAuth2User)
+    Note over Backend,UPS: token load — CustomOidcUserService.loadUser
+    Backend->>UPS: provision(email, name, isAdmin)
     UPS->>DB: findByEmail(email)
 
     alt first login
         DB-->>UPS: empty
-        UPS->>DB: save new AppUser (role=USER, createdAt=now)
+        UPS->>DB: save new AppUser (role from admin allow-list, createdAt=now)
         DB-->>UPS: AppUser
     else returning user
-        DB-->>UPS: AppUser
+        DB-->>UPS: AppUser (role healed against allow-list)
     end
 
-    UPS-->>SH: AppUser
+    UPS-->>Backend: AppUser
+    Backend->>SH: onAuthenticationSuccess(request, response, authentication)
     SH-->>Browser: Set-Cookie SESSION HTTP-only SameSite=None Secure, 302 to /auth
 ```
 

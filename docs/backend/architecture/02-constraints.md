@@ -4,13 +4,13 @@
 
 | Component | Technology | Version |
 |---|---|---|
-| Language | Java | 17 |
-| Framework | Spring Boot | 3.5.15 |
+| Language | Java | 21 |
+| Framework | Spring Boot | 4.1.0 |
 | Database | Oracle Autonomous Database | 23ai |
 | Build tool | Maven | 3.x+ |
-| Security | Spring Security, OAuth2 | 3.5.x |
+| Security | Spring Security, OAuth2 | 7.x (Boot-managed) |
 | Containerisation | Docker | Latest |
-| Testing | JUnit 5, Mockito | Latest |
+| Testing | JUnit 6 (Jupiter), Mockito | Boot-managed |
 
 **Oracle Autonomous Database** is the sole supported database. Local development and
 CI use H2 in Oracle-compatibility mode. There is no PostgreSQL profile.

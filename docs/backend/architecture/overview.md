@@ -14,12 +14,12 @@ well-defined layers.
 
 | Component        | Technology                     | Version   |
 |------------------|--------------------------------|-----------|
-| Framework        | Spring Boot                    | 3.5.15    |
-| Language         | Java                           | 17        |
+| Framework        | Spring Boot                    | 4.1.0     |
+| Language         | Java                           | 21        |
 | Database         | Oracle Autonomous Database     | 23ai      |
 | Build tool       | Maven                          | 3.x+      |
-| Testing          | JUnit 5, Mockito               | Latest    |
-| Security         | Spring Security, OAuth2        | 3.5.x     |
+| Testing          | JUnit 6 (Jupiter), Mockito     | Boot-managed |
+| Security         | Spring Security, OAuth2        | 7.x       |
 | Containerisation | Docker                         | Latest    |
 
 ## Key architectural principles

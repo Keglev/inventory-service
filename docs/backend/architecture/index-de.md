@@ -30,7 +30,7 @@ Zugriffskontrolle (RBAC) abgesichert.
 
 | Abschnitt | Thema |
 |---|---|
-| [§2 Randbedingungen](02-constraints.md) | Java 17, Spring Boot 3.5.x, Oracle 23ai, Maven, Docker; Einzelentwickler- und REST-Konventionen |
+| [§2 Randbedingungen](02-constraints.md) | Java 21, Spring Boot 4.1.x, Oracle 23ai, Maven, Docker; Einzelentwickler- und REST-Konventionen |
 | [§3 Kontextabgrenzung](03-context.md) | Fachlicher und technischer Kontext, externe Systeme (React-Frontend, Oracle ADB, Google OAuth2), C4-L1-Diagramm |
 | [§4 Lösungsstrategie](04-solution-strategy.md) | Wesentliche strategische Entscheidungen und die ADRs, die sie begründen |
 | [§5 Bausteinsicht](05-building-blocks.md) | Schichtaufbau — Controller, Service, Repository, Modell — Logikarchitektur- und ER-Diagramme |
