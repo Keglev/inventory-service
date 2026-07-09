@@ -1,30 +1,18 @@
 delete:
   tags:
     - Inventory
-  summary: Delete inventory item
+  summary: Delete inventory item (soft delete)
   description: |
-    Deletes an inventory item permanently. Requires ADMIN role.
-    
-    **Authorization:** 
+    Soft-deletes an inventory item: the row is marked inactive, never physically
+    removed. Stock history is retained for auditing; no history row is written by
+    the delete itself. The item's SKU remains reserved by the unique constraint.
+
+    **Authorization:**
     - Requires ROLE_ADMIN
     - Blocked in demo mode (APP_DEMO_READONLY=true) - returns 403 Forbidden
-    
-    **Business Rules:**
-    - Item must have quantity = 0 (all stock must be removed before deletion)
-    - Reason parameter is required for compliance tracking
-    - Deletion is logged in stock history with specified reason
-    
-    **Validation Flow:**
-    1. Verify item exists (404 if not found)
-    2. Enforce quantity = 0 business rule (409 if quantity > 0)
-    3. Validate deletion reason is one of allowed values
-    4. Log deletion in audit trail
-    5. Remove item from system
-    
-    **Error Response Examples:**
-    - 404: Item not found
-    - 409: Item has quantity > 0 (message: "You still have merchandise in stock. You need to first remove items from stock by changing quantity.")
-    - 400: Invalid deletion reason
+
+    **Business rule:** the item must have quantity = 0. Remove remaining stock via
+    quantity adjustments first; otherwise the request fails with 409.
   operationId: deleteInventoryItem
   security:
     - oauth2: [openid]
@@ -36,33 +24,9 @@ delete:
       schema:
         type: string
       example: "550e8400-e29b-41d4-a716-446655440000"
-    - name: reason
-      in: query
-      required: true
-      description: Business reason for deletion (audit trail). Must be one of deletion-valid reasons.
-      schema:
-        type: string
-        enum:
-          - SCRAPPED
-          - DESTROYED
-          - DAMAGED
-          - EXPIRED
-          - LOST
-          - RETURNED_TO_SUPPLIER
-      example: "SCRAPPED"
   responses:
     '204':
-      description: Inventory item deleted successfully (no content)
-    '400':
-      description: Bad Request - Invalid deletion reason or malformed request
-      content:
-        application/json:
-          schema:
-            $ref: '../../schemas/error-response.yaml'
-          example:
-            error: "Invalid reason for deletion"
-            status: 400
-            timestamp: "2025-11-20T20:00:00Z"
+      description: Inventory item deactivated successfully (no content)
     '401':
       $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
     '403':
@@ -70,14 +34,14 @@ delete:
     '404':
       $ref: '../../responses/errors.yaml#/components/responses/NotFound'
     '409':
-      description: Conflict - Item cannot be deleted due to business rule violation
+      description: Conflict - item still has stock on hand
       content:
         application/json:
           schema:
-            $ref: '../../schemas/error-response.yaml'
+            $ref: '../../schemas/common/common.yaml#/components/schemas/ErrorResponse'
           example:
-            error: "You still have merchandise in stock. You need to first remove items from stock by changing quantity."
-            status: 409
-            timestamp: "2025-11-20T20:00:00Z"
+            error: conflict
+            message: "You still have merchandise in stock. You need to first remove items from stock by changing quantity."
+            timestamp: '2026-07-09T10:30:00Z'
     '500':
       $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

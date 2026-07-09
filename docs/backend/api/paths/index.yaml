@@ -43,6 +43,10 @@ paths:
     patch:
       $ref: './inventory/update-price.yaml#/patch'
 
+  /api/inventory/{id}/name:
+    patch:
+      $ref: './inventory/rename.yaml#/patch'
+
   # Suppliers endpoints
   /api/suppliers:
     get:
@@ -127,6 +131,18 @@ paths:
   /api/analytics/financial/summary:
     get:
       $ref: './analytics/financial-summary.yaml#/get'
+
+  /api/analytics/reason-breakdown:
+    get:
+      $ref: './analytics/reason-breakdown.yaml#/get'
+
+  /api/analytics/by-employee:
+    get:
+      $ref: './analytics/by-employee.yaml#/get'
+
+  /api/analytics/employee-changes:
+    get:
+      $ref: './analytics/employee-changes.yaml#/get'
 
   # System endpoints
   /api/health:

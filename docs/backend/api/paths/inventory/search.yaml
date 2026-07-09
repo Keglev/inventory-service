@@ -1,13 +1,15 @@
 get:
   tags:
     - Inventory
-  summary: Search inventory items by name
+  summary: Search inventory items
   description: |
-    Searches for inventory items by name with pagination and sorting support.
-    Name search is case-insensitive and matches substrings.
-    
-    **Security:** Requires authentication OR demo mode enabled. If APP_DEMO_READONLY=true, 
-    unauthenticated access is allowed.
+    Server-side search over ACTIVE inventory items with pagination and sorting.
+    All filters are optional: an empty name matches all active items. Sorting is
+    fully honored via the sort parameter (no hardcoded ordering); the server-computed
+    totalValue field is not sortable.
+
+    **Security:** Requires authentication OR demo mode enabled (APP_DEMO_READONLY=true
+    permits unauthenticated read access).
   operationId: searchInventoryItems
   security:
     - oauth2: [openid]
@@ -15,40 +17,36 @@ get:
   parameters:
     - name: name
       in: query
-      required: true
-      description: Case-insensitive name substring to search for
+      required: false
+      description: Case-insensitive name substring; empty or absent matches all active items
       schema:
         type: string
+        default: ""
       example: "widget"
+    - name: supplierId
+      in: query
+      required: false
+      description: Restrict results to a single supplier
+      schema:
+        type: string
+      example: "supplier-123"
+    - name: belowMinimumOnly
+      in: query
+      required: false
+      description: When true, return only items whose quantity is below their minimum quantity
+      schema:
+        type: boolean
+        default: false
     - $ref: '../../parameters/common.yaml#/components/parameters/page'
     - $ref: '../../parameters/common.yaml#/components/parameters/size'
     - $ref: '../../parameters/common.yaml#/components/parameters/sort'
   responses:
     '200':
-      description: Paginated search results
+      description: Paginated search results (default page size 20, default sort price)
       content:
         application/json:
           schema:
             $ref: '../../schemas/inventory/inventory-item.yaml#/components/schemas/InventoryItemPageResponse'
-          example:
-            content:
-              - id: "550e8400-e29b-41d4-a716-446655440000"
-                name: "Premium Widget"
-                quantity: 150
-                price: 29.99
-                totalValue: 4498.50
-                supplierId: "supplier-123"
-                supplierName: "Acme Corp"
-                minimumQuantity: 50
-                createdBy: "admin@example.com"
-                createdAt: "2025-11-01T10:00:00Z"
-            page:
-              number: 0
-              size: 20
-              totalElements: 1
-              totalPages: 1
-    '400':
-      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
     '401':
       $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
     '500':

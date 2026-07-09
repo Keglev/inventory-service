@@ -1,0 +1,50 @@
+get:
+  tags:
+    - Analytics
+  summary: Stock-update activity per employee
+  description: |
+    Buckets stock-history activity per employee (createdBy) over time.
+    Requires ROLE_ADMIN; readable unauthenticated only in demo mode.
+  operationId: getEmployeeActivity
+  security:
+    - oauth2: [openid]
+    - {}  # Empty security allows demo mode unauthenticated access
+  parameters:
+    - name: granularity
+      in: query
+      required: false
+      description: Bucket granularity for the period field
+      schema:
+        type: string
+    - name: supplierId
+      in: query
+      required: false
+      schema:
+        type: string
+    - name: startDate
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date
+    - name: endDate
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date
+  responses:
+    '200':
+      description: Per-employee change counts per period bucket
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/EmployeeActivityDTO'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '403':
+      $ref: '../../responses/errors.yaml#/components/responses/Forbidden'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

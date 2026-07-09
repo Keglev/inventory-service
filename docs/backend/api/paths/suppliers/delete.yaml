@@ -35,10 +35,8 @@ delete:
           schema:
             $ref: '../../schemas/common/common.yaml#/components/schemas/ErrorResponse'
           example:
+            error: conflict
             message: "Cannot delete supplier with active inventory items"
-            status: 409
-            timestamp: "2025-11-18T14:30:00Z"
-            path: "/api/suppliers/550e8400-e29b-41d4-a716-446655440000"
-            errors: []
+            timestamp: "2026-07-09T14:30:00Z"
     '500':
       $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

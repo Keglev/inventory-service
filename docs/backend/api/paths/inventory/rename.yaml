@@ -1,0 +1,41 @@
+patch:
+  tags:
+    - Inventory
+  summary: Rename inventory item
+  description: |
+    Changes an item's display name. Requires ROLE_ADMIN. The new name must not be
+    blank and must be unique for the item's supplier.
+  operationId: renameInventoryItem
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: name
+      in: query
+      required: true
+      description: New item name
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Item renamed
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/inventory/inventory-item.yaml#/components/schemas/InventoryItemDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '403':
+      $ref: '../../responses/errors.yaml#/components/responses/Forbidden'
+    '404':
+      $ref: '../../responses/errors.yaml#/components/responses/NotFound'
+    '409':
+      $ref: '../../responses/errors.yaml#/components/responses/Conflict'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

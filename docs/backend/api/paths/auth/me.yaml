@@ -41,10 +41,8 @@ get:
           schema:
             $ref: '../../schemas/common/common.yaml#/components/schemas/ErrorResponse'
           example:
+            error: not_found
             message: User not found
-            status: 404
-            timestamp: '2025-11-18T10:30:00Z'
-            path: /api/me
-            errors: []
+            timestamp: '2026-07-09T10:30:00Z'
     '500':
       $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

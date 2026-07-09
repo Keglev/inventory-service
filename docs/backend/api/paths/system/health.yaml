@@ -1,25 +1,44 @@
 get:
   tags:
     - System
-  summary: Basic Application Health Check
+  summary: Application and database health check
   description: |
-    Performs a lightweight health check to verify the application is running.
-    
-    This endpoint provides a quick way to monitor application availability without
-    checking external dependencies like databases. Useful for load balancers,
-    orchestration platforms, and basic uptime monitoring.
-    
-    **Security:** This endpoint is **publicly accessible** (no authentication required).
-    Used by Fly.io HTTP health checks and container orchestration systems.
+    Reports application liveness plus a cached database health snapshot in one flat
+    JSON body. Returns 200 when the database is reachable and 503 when it is down
+    (the body shape is identical in both cases). Used by Fly.io HTTP health checks.
+
+    **Security:** publicly accessible (no authentication required).
   operationId: getHealth
   security: []
   responses:
     '200':
-      description: Application is running and healthy
+      description: Application up, database reachable
       content:
-        text/plain:
+        application/json:
           schema:
-            type: string
-            example: "OK"
-    '500':
-      $ref: '../../responses/errors.yaml#/InternalServerError'
+            type: object
+            required: [status, database, databaseProduct, timestamp]
+            properties:
+              status:
+                type: string
+                enum: [ok]
+                description: Always ok when the controller is reachable
+              database:
+                type: string
+                enum: [ok, down]
+                description: Cached database connectivity state
+              databaseProduct:
+                type: string
+                description: Database product name reported by JDBC metadata, or "unknown"
+                example: "Oracle"
+              timestamp:
+                type: integer
+                format: int64
+                description: Epoch milliseconds when the response was produced
+          example:
+            status: "ok"
+            database: "ok"
+            databaseProduct: "Oracle"
+            timestamp: 1752050000000
+    '503':
+      description: Application up, database unreachable (same body shape, database = down)

@@ -124,6 +124,41 @@ components:
           example: 250
       description: Monthly inventory flow metrics
 
+    ReasonBreakdownDTO:
+      type: object
+      required: [reason, increase, decrease]
+      properties:
+        reason:
+          type: string
+          description: StockChangeReason enum name
+          example: "SOLD"
+        increase:
+          type: integer
+          format: int64
+          description: Total units added under this reason (sum of positive changes)
+        decrease:
+          type: integer
+          format: int64
+          description: Total units removed under this reason (absolute sum of negative changes)
+
+    EmployeeActivityDTO:
+      type: object
+      required: [period, createdBy, displayName, changeCount]
+      properties:
+        period:
+          type: string
+          description: Time bucket label per the granularity parameter
+        createdBy:
+          type: string
+          description: Audit identity (email) recorded on the stock history rows
+        displayName:
+          type: string
+          description: Human-readable name for charts and tables
+        changeCount:
+          type: integer
+          format: int64
+          description: Number of stock changes in the bucket
+
     StockUpdateResultDTO:
       type: object
       properties:

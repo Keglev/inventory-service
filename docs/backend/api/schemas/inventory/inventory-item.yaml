@@ -19,6 +19,10 @@ components:
           minLength: 1
           description: Display name of the inventory item
           example: "Premium Widget"
+        sku:
+          type: string
+          description: Stock Keeping Unit - required, unique across items; stays reserved after soft delete
+          example: "ELEC-0001"
         quantity:
           type: integer
           format: int32
@@ -71,6 +75,7 @@ components:
       type: object
       required:
         - name
+        - sku
         - quantity
         - price
         - supplierId
@@ -80,6 +85,10 @@ components:
           minLength: 1
           description: Display name of the inventory item
           example: "Premium Widget"
+        sku:
+          type: string
+          description: Stock Keeping Unit - required, unique across items; stays reserved after soft delete
+          example: "ELEC-0001"
         quantity:
           type: integer
           format: int32
@@ -110,6 +119,7 @@ components:
       type: object
       required:
         - name
+        - sku
         - quantity
         - price
         - supplierId
@@ -119,6 +129,10 @@ components:
           minLength: 1
           description: Display name of the inventory item
           example: "Premium Widget (Updated)"
+        sku:
+          type: string
+          description: Stock Keeping Unit - required, unique across items; stays reserved after soft delete
+          example: "ELEC-0001"
         quantity:
           type: integer
           format: int32

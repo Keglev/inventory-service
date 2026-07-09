@@ -1,0 +1,57 @@
+get:
+  tags:
+    - Analytics
+  summary: Stock-change breakdown by reason
+  description: |
+    Aggregates stock changes per StockChangeReason in the selected window: total
+    units added (increase) and removed (decrease) per reason.
+  operationId: getReasonBreakdown
+  security:
+    - oauth2: [openid]
+    - {}  # Empty security allows demo mode unauthenticated access
+  parameters:
+    - name: startDate
+      in: query
+      required: false
+      description: Inclusive window start (ISO date)
+      schema:
+        type: string
+        format: date
+    - name: endDate
+      in: query
+      required: false
+      description: Inclusive window end (ISO date)
+      schema:
+        type: string
+        format: date
+    - name: supplierId
+      in: query
+      required: false
+      schema:
+        type: string
+    - name: itemName
+      in: query
+      required: false
+      description: Case-insensitive item-name filter
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Per-reason increase/decrease totals
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/ReasonBreakdownDTO'
+          example:
+            - reason: "SOLD"
+              increase: 0
+              decrease: 340
+            - reason: "RETURNED_BY_CUSTOMER"
+              increase: 12
+              decrease: 0
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

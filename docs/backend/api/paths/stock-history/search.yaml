@@ -110,11 +110,9 @@ get:
           schema:
             $ref: '../../schemas/common/common.yaml#/components/schemas/ErrorResponse'
           example:
+            error: bad_request
             message: "endDate must be >= startDate"
-            status: 400
-            timestamp: "2025-11-18T14:30:00Z"
-            path: "/api/stock-history/search"
-            errors: []
+            timestamp: "2026-07-09T14:30:00Z"
     '401':
       $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
     '500':

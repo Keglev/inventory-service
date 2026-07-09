@@ -3,54 +3,34 @@ components:
     ErrorResponse:
       type: object
       required:
+        - error
         - message
-        - status
         - timestamp
       properties:
+        error:
+          type: string
+          description: Normalized HTTP status token — HttpStatus.name().toLowerCase()
+          example: not_found
         message:
           type: string
-          description: Human-readable error message
+          description: Human-readable error message (sanitized)
           example: Resource not found
-        status:
-          type: integer
-          description: HTTP status code
-          example: 404
         timestamp:
           type: string
           format: date-time
           description: ISO 8601 timestamp when the error occurred
-          example: '2025-11-18T10:30:00Z'
-        path:
-          type: string
-          description: Request path that caused the error
-          example: /api/items/123
-        errors:
-          type: array
-          description: Validation errors (for 400 Bad Request)
-          items:
-            $ref: '#/components/schemas/ValidationError'
+          example: '2026-07-09T10:30:00Z'
+        fieldErrors:
+          type: object
+          additionalProperties:
+            type: string
+          description: Optional map of field name to field-specific message; present only on validation failures
+          example:
+            name: must not be blank
+            price: must be greater than 0
       description: |
-        Standard error response format used across all API endpoints.
-        Includes timestamp, status code, and detailed error information.
-
-    ValidationError:
-      type: object
-      required:
-        - field
-        - message
-      properties:
-        field:
-          type: string
-          description: The field that failed validation
-          example: email
-        message:
-          type: string
-          description: Validation error message
-          example: must be a valid email address
-        rejectedValue:
-          description: The value that was rejected
-          example: invalid-email
-      description: Individual field validation error
+        Canonical error envelope used by every endpoint. Exactly three fields plus
+        an optional fieldErrors map. There is no correlationId, status, or path field.
 
     PageMetadata:
       type: object

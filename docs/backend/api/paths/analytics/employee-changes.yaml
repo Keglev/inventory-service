@@ -1,0 +1,74 @@
+get:
+  tags:
+    - Analytics
+  summary: Paginated stock changes for an employee
+  description: |
+    Pages through individual stock-history rows, optionally filtered by employee
+    (createdBy), supplier, and date window. Requires ROLE_ADMIN; readable
+    unauthenticated only in demo mode.
+  operationId: getEmployeeChanges
+  security:
+    - oauth2: [openid]
+    - {}  # Empty security allows demo mode unauthenticated access
+  parameters:
+    - name: createdBy
+      in: query
+      required: false
+      schema:
+        type: string
+    - name: supplierId
+      in: query
+      required: false
+      schema:
+        type: string
+    - name: startDate
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date
+    - name: endDate
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date
+    - name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 0
+    - name: size
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 25
+  responses:
+    '200':
+      description: Spring Data page of stock-update rows
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              content:
+                type: array
+                items:
+                  $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/StockUpdateResultDTO'
+              totalElements:
+                type: integer
+              totalPages:
+                type: integer
+              number:
+                type: integer
+                description: Current page (0-indexed)
+              size:
+                type: integer
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '403':
+      $ref: '../../responses/errors.yaml#/components/responses/Forbidden'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'
