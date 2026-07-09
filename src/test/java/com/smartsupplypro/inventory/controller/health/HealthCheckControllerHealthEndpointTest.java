@@ -15,6 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -120,5 +122,65 @@ class HealthCheckControllerHealthEndpointTest {
         Map<String, Object> body = requireBody(response);
         assertEquals("ok", body.get("status"));
         assertEquals("down", body.get("database"));
+    }
+
+    @Test
+    void health_cachesDatabaseProduct_afterFirstSuccessfulPing() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
+        when(statement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(connection.getMetaData()).thenReturn(databaseMetaData);
+        when(databaseMetaData.getDatabaseProductName()).thenReturn("Oracle");
+
+        HealthCheckController controller = newController();
+        controller.health();                                          // first ping resolves and caches "Oracle"
+        Map<String, Object> body = requireBody(controller.health());  // second ping uses the cache
+
+        assertEquals("Oracle", body.get("databaseProduct"));
+        verify(connection, times(1)).getMetaData();                   // metadata read once, not on every ping
+    }
+
+    @Test
+    void health_whenProductNameNull_reportsUnknown() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
+        when(statement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(connection.getMetaData()).thenReturn(databaseMetaData);
+        when(databaseMetaData.getDatabaseProductName()).thenReturn(null);
+
+        Map<String, Object> body = requireBody(newController().health());
+
+        assertEquals("ok", body.get("database"));
+        assertEquals("unknown", body.get("databaseProduct"));
+    }
+
+    @Test
+    void health_whenProductNameBlank_reportsUnknown() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
+        when(statement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(connection.getMetaData()).thenReturn(databaseMetaData);
+        when(databaseMetaData.getDatabaseProductName()).thenReturn("   ");
+
+        Map<String, Object> body = requireBody(newController().health());
+
+        assertEquals("unknown", body.get("databaseProduct"));
+    }
+
+    @Test
+    void health_whenMetadataThrows_reportsUnknownButStaysUp() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
+        when(statement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(connection.getMetaData()).thenThrow(new SQLException("metadata unavailable"));
+
+        Map<String, Object> body = requireBody(newController().health());
+
+        assertEquals("ok", body.get("database"));
+        assertEquals("unknown", body.get("databaseProduct"));
     }
 }
