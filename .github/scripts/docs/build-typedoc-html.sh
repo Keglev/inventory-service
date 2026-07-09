@@ -30,7 +30,6 @@ mkdir -p "$API_OUT"
 # Convert each markdown file, preserving the relative directory structure.
 find "$TYPEDOC_MD_DIR" -type f -name "*.md" | while read -r md; do
   rel="${md#$TYPEDOC_MD_DIR/}"
-  rel="${rel#api/}"
   out="$API_OUT/${rel%.md}.html"
   mkdir -p "$(dirname "$out")"
   pandoc "$md" \
@@ -43,19 +42,27 @@ find "$TYPEDOC_MD_DIR" -type f -name "*.md" | while read -r md; do
     -o "$out"
 done
 
-# Static landing page — TypeDoc generates none in markdown mode with readme:none.
-cat > "$API_OUT/index.md" << 'MD'
-# Frontend API
-Generated API reference for the Smart Supply Pro frontend.
-Browse by module using the navigation panel.
-MD
-pandoc "$API_OUT/index.md" \
-  --from gfm --to html \
-  --data-dir="$DATA_DIR" \
-  --template "$TEMPLATE" \
-  --lua-filter "$LUA_FILTER" \
-  --metadata=title:"Frontend API" \
-  --standalone -o "$API_OUT/index.html"
-rm -f "$API_OUT/index.md"
+# Landing page: build it from TypeDoc's own root README when present — it is the
+# complete module index with working relative links. Fall back to a placeholder.
+if [ -f "$TYPEDOC_MD_DIR/README.md" ]; then
+  pandoc "$TYPEDOC_MD_DIR/README.md" \
+    --from gfm --to html \
+    --data-dir="$DATA_DIR" \
+    --template "$TEMPLATE" \
+    --lua-filter "$LUA_FILTER" \
+    --metadata=title:"Frontend API" \
+    --standalone --toc --toc-depth=3 \
+    -o "$API_OUT/index.html"
+else
+  printf '# Frontend API\nGenerated API reference for the Smart Supply Pro frontend.\n' > "$API_OUT/index.md"
+  pandoc "$API_OUT/index.md" \
+    --from gfm --to html \
+    --data-dir="$DATA_DIR" \
+    --template "$TEMPLATE" \
+    --lua-filter "$LUA_FILTER" \
+    --metadata=title:"Frontend API" \
+    --standalone -o "$API_OUT/index.html"
+  rm -f "$API_OUT/index.md"
+fi
 
 echo "✓ TypeDoc HTML complete"

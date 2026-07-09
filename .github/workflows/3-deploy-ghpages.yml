@@ -46,15 +46,17 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Preserve existing JaCoCo coverage when the current build did not regenerate it.
-          # This happens on docs-only pushes that bypass the backend CI step.
-          PRESERVE_COVERAGE=false
-          if [ ! -d "docs-site/backend/coverage" ] && [ -d "backend/coverage" ]; then
-            echo "JaCoCo not in current build — preserving existing coverage"
-            mkdir -p /tmp/coverage-backup
-            cp -R backend/coverage /tmp/coverage-backup/
-            PRESERVE_COVERAGE=true
-          fi
+          # Preserve existing coverage reports when the current build did not regenerate
+          # them. Backend coverage is absent on docs-only pushes; frontend coverage is
+          # absent on every build not triggered by frontend CI — without this backup the
+          # wipe below would delete it on each backend or docs deploy.
+          for SIDE in backend frontend; do
+            if [ ! -d "docs-site/$SIDE/coverage" ] && [ -d "$SIDE/coverage" ]; then
+              echo "$SIDE coverage not in current build — preserving existing report"
+              mkdir -p "/tmp/coverage-backup/$SIDE"
+              cp -R "$SIDE/coverage" "/tmp/coverage-backup/$SIDE/"
+            fi
+          done
 
           # Clear gh-pages content, keeping only .git and .github metadata
           find . -mindepth 1 -maxdepth 1 \
@@ -69,27 +71,28 @@ jobs:
             exit 1
           fi
 
-          if [ "$PRESERVE_COVERAGE" = true ]; then
-            mkdir -p backend/coverage
-            cp -R /tmp/coverage-backup/coverage/* backend/coverage/
-            rm -rf /tmp/coverage-backup
-            echo "Restored existing JaCoCo coverage"
-          fi
+          for SIDE in backend frontend; do
+            if [ -d "/tmp/coverage-backup/$SIDE/coverage" ]; then
+              mkdir -p "$SIDE/coverage"
+              cp -R "/tmp/coverage-backup/$SIDE/coverage/." "$SIDE/coverage/"
+              echo "Restored existing $SIDE coverage"
+            fi
+          done
+          rm -rf /tmp/coverage-backup
 
       - name: Inject back-to-docs link into coverage report
         run: |
           set -euo pipefail
-          COV="backend/coverage/index.html"
-          if [ -f "$COV" ]; then
-            if grep -q 'id="back-to-docs"' "$COV"; then
-              echo "Back-to-docs link already present — skipping"
-            else
-              sed -i 's|<body[^>]*>|&<a id="back-to-docs" href="/inventory-service/" style="position:fixed;top:8px;right:12px;z-index:9999;font:14px sans-serif;padding:6px 12px;background:#2563eb;color:#fff;text-decoration:none;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.2);">\&larr; Back to docs</a>|' "$COV"
-              echo "Back-to-docs link injected"
+          for COV in backend/coverage/index.html frontend/coverage/index.html; do
+            if [ -f "$COV" ]; then
+              if grep -q 'id="back-to-docs"' "$COV"; then
+                echo "$COV: back-to-docs link already present — skipping"
+              else
+                sed -i 's|<body[^>]*>|&<a id="back-to-docs" href="/inventory-service/" style="position:fixed;top:8px;right:12px;z-index:9999;font:14px sans-serif;padding:6px 12px;background:#2563eb;color:#fff;text-decoration:none;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.2);">\&larr; Back to docs</a>|' "$COV"
+                echo "$COV: back-to-docs link injected"
+              fi
             fi
-          else
-            echo "No coverage index.html found — skipping injection"
-          fi
+          done
           
       - name: Commit and push to gh-pages
         run: |
