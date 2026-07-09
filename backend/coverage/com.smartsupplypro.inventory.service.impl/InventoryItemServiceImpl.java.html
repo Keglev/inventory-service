@@ -123,7 +123,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     /**
      * {@inheritDoc}
      *
-     * &lt;p&gt;Soft delete (CB-APP93): the row is never physically removed. The
+     * &lt;p&gt;Soft delete: the row is never physically removed. The
      * item is marked inactive, which hides it from the active catalog while
      * its full stock history stays available for auditing. Only permitted
      * once the quantity is zero, so the movement that emptied the item was

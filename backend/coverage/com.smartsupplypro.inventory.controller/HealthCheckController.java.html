@@ -52,7 +52,7 @@ public class HealthCheckController {
 <span class="fc" id="L52">        Map&lt;String, Object&gt; body = new HashMap&lt;&gt;();</span>
 <span class="fc" id="L53">        body.put(&quot;status&quot;, &quot;ok&quot;); // application is up if this controller was reached</span>
 <span class="fc bfc" id="L54" title="All 2 branches covered.">        body.put(&quot;database&quot;, dbUp ? &quot;ok&quot; : &quot;down&quot;);</span>
-        // Real DB flavor from JDBC metadata (CB-APP82); &quot;unknown&quot; until first successful ping.
+        // Real DB flavor from JDBC metadata; &quot;unknown&quot; until first successful ping.
 <span class="fc bfc" id="L56" title="All 2 branches covered.">        body.put(&quot;databaseProduct&quot;, databaseProduct != null ? databaseProduct : &quot;unknown&quot;);</span>
 <span class="fc" id="L57">        body.put(&quot;timestamp&quot;, now);</span>
 <span class="fc bfc" id="L58" title="All 2 branches covered.">        HttpStatus status = dbUp ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;</span>
