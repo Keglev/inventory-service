@@ -25,6 +25,7 @@ The `error` token is `HttpStatus.name().toLowerCase()`. There is no `correlation
 ## Scenario 1a — Create Inventory Item: Happy Path
 
 ```mermaid
+%%{init: {"sequence": {"useMaxWidth": false}}}%%
 sequenceDiagram
     participant Client
     participant SF as Spring Security Filter
@@ -69,6 +70,7 @@ Three distinct error branches. Branch B illustrates the key correction:
 `NoSuchElementException` → 404, not 400.
 
 ```mermaid
+%%{init: {"sequence": {"useMaxWidth": false}}}%%
 sequenceDiagram
     participant Client
     participant SF as Spring Security Filter

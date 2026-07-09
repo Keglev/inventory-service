@@ -118,6 +118,7 @@ Anfrage, erstellt den Principal im `SecurityContext` und setzt RBAC über
 - `USER` — Bestandsanzeige und grundlegende Operationen
 
 ```mermaid
+%%{init: {"sequence": {"useMaxWidth": false}}}%%
 sequenceDiagram
   Client->>OAuth2Provider: Autorisierung anfordern
   OAuth2Provider->>Client: Autorisierungscode

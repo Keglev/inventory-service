@@ -71,6 +71,7 @@ serialises OAuth2 state into an HTTP-only cookie. All exceptions funnel through 
 ## Building-Block Diagram
 
 ```mermaid
+%%{init: {"flowchart": {"useMaxWidth": false}}}%%
 graph TB
     subgraph Controllers
         SC["SupplierController"]:::controller

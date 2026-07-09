@@ -118,6 +118,7 @@ request, builds the principal in `SecurityContext`, and enforces RBAC via
 - `USER` — inventory viewing and basic operations
 
 ```mermaid
+%%{init: {"sequence": {"useMaxWidth": false}}}%%
 sequenceDiagram
   Client->>OAuth2Provider: Request authorisation
   OAuth2Provider->>Client: Authorisation code

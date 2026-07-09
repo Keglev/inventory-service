@@ -58,6 +58,7 @@ Seven GitHub Actions workflows run on push to `main`:
 ### Backend Pipeline Chain
 
 ```mermaid
+%%{init: {"sequence": {"useMaxWidth": false}}}%%
 sequenceDiagram
     participant Dev as Developer
     participant GH as GitHub
