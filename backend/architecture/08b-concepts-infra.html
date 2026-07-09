@@ -149,8 +149,8 @@
         <tr class="odd">
         <td><code>prod</code></td>
         <td><code>SPRING_PROFILES_ACTIVE=prod</code></td>
-        <td>Oracle Autonomous DB via wallet;
-        <code>ddl-auto=update</code></td>
+        <td>Oracle Autonomous DB via wallet; Flyway-managed schema,
+        <code>ddl-auto=validate</code></td>
         <td>off (<code>show-sql=false</code>, root INFO)</td>
         </tr>
         </tbody>
@@ -192,6 +192,21 @@
         plain <code>String</code> column on the owning entity, and
         <code>insertable=false, updatable=false</code> prevents the join
         from conflicting with the scalar column.</p>
+        <p><strong>Schema evolution</strong> is owned by Flyway: a
+        baseline plus migrations V2–V5 (SKU column, demo reseed, SKU
+        constraints, ACTIVE flag). In production Hibernate only
+        validates mappings (<code>ddl-auto=validate</code>); applied
+        migration files are immutable — checksums make any edit to an
+        applied file a startup failure, so data changes always ship as a
+        new migration.</p>
+        <p><strong>Soft delete</strong> — <code>InventoryItem</code>
+        rows are never physically deleted. Deleting an item sets
+        <code>active=false</code> (Flyway V5); active-catalog reads
+        filter on the flag, while stock-history joins intentionally do
+        not, preserving the audit trail. The flag is stored as
+        <code>NUMBER(1)</code> via a
+        <code>NumericBooleanConverter</code> so the same mapping works
+        on Oracle and on H2 in Oracle-compatibility mode.</p>
         <p>See <a href="05-building-blocks.html#repository-layer">§5
         Repository Layer</a>.</p>
         <hr />

@@ -110,8 +110,10 @@
       <article class="doc-body">
         <h1 id="building-block-view">§5 Building Block View</h1>
         <h2 id="controller-layer">Controller Layer</h2>
-        <p>Eight <code>@RestController</code> classes form the HTTP
-        boundary, grouped by domain path.
+        <p>Eleven <code>@RestController</code> classes form the HTTP
+        boundary, grouped by domain path (a twelfth class,
+        <code>RootRedirectController</code>, is a plain
+        <code>@Controller</code> that redirects the site root).
         <code>SupplierController</code> (<code>/api/suppliers</code>)
         handles full CRUD for suppliers.
         <code>InventoryItemController</code>
@@ -120,18 +122,23 @@
         handles price and quantity patch operations separately to keep
         each class focused. <code>StockHistoryController</code>
         (<code>/api/stock-history</code>) exposes paginated read and
-        search. Three analytics controllers share
+        search. Five analytics controllers share
         <code>/api/analytics</code>: <code>AnalyticsController</code>
         (dashboard and financial summaries),
         <code>StockAnalyticsController</code> (stock-per-supplier,
-        low-stock, movement), and
+        low-stock, movement),
         <code>StockUpdateAnalyticsController</code> (stock update query
-        and post). <code>AuthController</code> (<code>/api</code>)
-        exposes <code>/auth/me</code> and logout. Every mutating
-        endpoint carries <code>@PreAuthorize</code>; inbound DTOs are
-        validated with JSR-380 (<code>@Valid</code>) before reaching the
-        service layer. Controllers perform DTO conversion and response
-        building — no business logic lives here.</p>
+        and post), <code>StockReasonAnalyticsController</code>
+        (update-reason breakdown), and
+        <code>EmployeeAnalyticsController</code> (per-employee update
+        analytics). <code>HealthCheckController</code>
+        (<code>/api/health</code>) reports application and database
+        health. <code>AuthController</code> (<code>/api</code>) exposes
+        <code>/auth/me</code> and logout. Every mutating endpoint
+        carries <code>@PreAuthorize</code>; inbound DTOs are validated
+        with JSR-380 (<code>@Valid</code>) before reaching the service
+        layer. Controllers perform DTO conversion and response building
+        — no business logic lives here.</p>
         <h2 id="service-layer">Service Layer</h2>
         <p>Business logic and transaction boundaries live in four
         service interfaces and their implementations:
@@ -142,10 +149,12 @@
         <code>StockAnalyticsService</code> and
         <code>FinancialAnalyticsService</code> as focused sub-services
         for WAC and stock-movement calculations).
-        <code>UserProvisioningService</code> owns the OAuth2
-        user-creation and role-assignment flow on first login;
-        <code>SecurityService</code> exposes the current principal for
-        <code>createdBy</code> stamping. All service interfaces are
+        <code>UserProvisioningService</code> is the single authoritative
+        provisioner for OAuth2 logins:
+        <code>CustomOAuth2UserService</code> and
+        <code>CustomOidcUserService</code> delegate to it at token load,
+        and it finds or creates the user and heals the role against the
+        admin allow-list on every login. All service interfaces are
         constructor-injected; every state-mutating operation is wrapped
         in <code>@Transactional</code>.</p>
         <h2 id="repository-layer">Repository Layer</h2>
@@ -164,10 +173,12 @@
         <code>StockMetricsRepositoryImpl</code>, and
         <code>StockTrendAnalyticsRepositoryImpl</code>, each backed by
         dedicated SQL builders in <code>repository/custom/util/</code>.
-        <code>AppUserRepository</code> is used exclusively by
-        <code>UserProvisioningService</code> for OAuth2 user lookup and
-        provisioning and does not participate in the domain service
-        flow.</p>
+        <code>AppUserRepository</code> is written only by
+        <code>UserProvisioningService</code> (OAuth2 provisioning); it
+        is additionally read by <code>AuthController</code>
+        (<code>/auth/me</code>) and
+        <code>EmployeeAnalyticsService</code> (display names), but does
+        not participate in the domain mutation flow.</p>
         <p><strong>Analytics/reporting repositories</strong> with custom
         implementations — <code>StockDetailQueryRepository</code>,
         <code>StockMetricsRepository</code>,
@@ -200,8 +211,9 @@
         <code>SecurityAuthorizationHelper</code>,
         <code>SecurityEntryPointHelper</code>) configure the Spring
         Security filter chain, OAuth2 login, and CORS.
-        <code>OAuth2LoginSuccessHandler</code> delegates to
-        <code>UserProvisioningService</code> on first login;
+        <code>OAuth2LoginSuccessHandler</code> performs the post-login
+        redirect (provisioning already happened at token load in the
+        user services);
         <code>CookieOAuth2AuthorizationRequestRepository</code>
         serialises OAuth2 state into an HTTP-only cookie. All exceptions
         funnel through two <code>@ControllerAdvice</code> handlers:

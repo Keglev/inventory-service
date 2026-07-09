@@ -138,7 +138,7 @@
         <td>Unit</td>
         <td><code>@ExtendWith(MockitoExtension.class)</code> /
         <code>@Mock</code></td>
-        <td>27</td>
+        <td>28</td>
         <td>Services, OAuth2 handlers,
         <code>DatabaseDialectDetector</code>, and dialect-selection
         logic — no Spring context</td>
@@ -146,14 +146,14 @@
         <tr class="even">
         <td>Web slice</td>
         <td><code>@WebMvcTest</code></td>
-        <td>22</td>
+        <td>24</td>
         <td>Controllers, security endpoints, and the exception handler,
         with the service layer mocked</td>
         </tr>
         <tr class="odd">
         <td>Persistence slice</td>
         <td><code>@DataJpaTest</code></td>
-        <td>10</td>
+        <td>13</td>
         <td>All repositories — including the four custom analytics
         <code>*Impl</code> classes — against H2</td>
         </tr>
@@ -167,7 +167,7 @@
         </table>
         <p>Security paths are tested as an overlay rather than a
         separate layer: <code>@WithMockUser</code>,
-        <code>@WithUserDetails</code>, and security-context tests (10
+        <code>@WithUserDetails</code>, and security-context tests (11
         files) cover authentication and authorization at the controller
         slice and in dedicated security-config tests.</p>
         <h2

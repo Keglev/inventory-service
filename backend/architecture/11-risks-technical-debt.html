@@ -137,16 +137,14 @@
         <tbody>
         <tr class="odd">
         <td>R-01</td>
-        <td>Spring Boot 3.5.x reaches <strong>OSS end-of-support on
-        2026-06-30</strong>; after that no security patches reach Maven
-        Central. The app is pinned to 3.5.15 (last free patch).</td>
-        <td>Rising, unpatched CVE exposure across the Spring portfolio
-        (Framework 6.2, Security) over time</td>
-        <td>High over time; nil at runtime on the cutoff date</td>
-        <td>Upgrade to 4.x (deferred — an 83-breaking-change migration
-        raising the baseline to JUnit 6 / Jackson 3). Interim: stay on
-        3.5.15, watch CVE advisories. Source:
-        spring.io/support-policy</td>
+        <td>The test suite pins H2 to 2.3.232 because the
+        Boot-4.1-managed H2 2.4.240 rejects Hibernate 7
+        converter-generated CHECK constraints (h2database issue #4323).
+        The pin diverges from the Boot-managed version.</td>
+        <td>Low — test-only dependency; production runs Oracle</td>
+        <td>Low</td>
+        <td>Remove the pin once a fixed H2 2.4.x ships; tracked against
+        the upstream issue</td>
         </tr>
         <tr class="even">
         <td>R-02</td>
@@ -232,31 +230,19 @@
         </tr>
         <tr class="even">
         <td>TD-04</td>
-        <td>Docs build: Lua filter rule <code>gsub("^api/","")</code> is
-        unverified and possibly incorrect.</td>
-        <td>Low — affects generated doc links only</td>
-        <td>Review during the reference/cleanup pass</td>
+        <td>Docs build: the TypeDoc HTML step strips the api/ prefix
+        from output paths but not from intra-page links, so frontend API
+        module links point at a non-existent api/ subtree.</td>
+        <td>Low — generated doc navigation only</td>
+        <td>Fix scheduled in the docs plumbing pass</td>
         </tr>
         <tr class="odd">
         <td>TD-05</td>
-        <td>Docs UI: double scrollbars on documentation pages; JaCoCo
-        report “back to docs” link is broken.</td>
-        <td>Low — cosmetic / navigation</td>
-        <td>Fix in the reference/cleanup pass</td>
+        <td>Docs UI: double scrollbars on documentation pages.</td>
+        <td>Low — cosmetic</td>
+        <td>Fix in the docs cleanup pass</td>
         </tr>
         <tr class="even">
-        <td>TD-06</td>
-        <td>Legacy duplicate doc trees (<code>layers/</code> vs flat
-        <code>controller/</code>, <code>model/</code>,
-        <code>repository/</code>, …) and the typo file
-        <code>dto-converson-inbound.md</code> coexist.</td>
-        <td>Low — reader confusion, stale content</td>
-        <td>Resolve in the reference/cleanup pass; delete the
-        non-<code>adr-</code> ADR stubs
-        (<code>0001</code>–<code>0004</code>) once migration is
-        confirmed</td>
-        </tr>
-        <tr class="odd">
         <td>TD-07</td>
         <td><code>DatabaseDialectDetector</code> selects SQL dialect
         from the active Spring profile, not from the real datasource. An

@@ -116,12 +116,15 @@
         <code>CookieOAuth2AuthorizationRequestRepository</code>
         serialises the OAuth2 state parameter into an HTTP-only cookie
         (<code>OAUTH2_AUTH_REQUEST</code>, TTL 180 s, configurable via
-        <code>AppProperties.Cookie</code>). On success,
-        <code>OAuth2LoginSuccessHandler</code> calls
-        <code>UserProvisioningService.provisionIfAbsent(email, name)</code>,
-        which inserts a new <code>AppUser</code> (role
-        <code>USER</code>) on first login or retrieves the existing
-        record, then redirects to
+        <code>AppProperties.Cookie</code>). User provisioning happens at
+        token load: <code>CustomOAuth2UserService</code> and
+        <code>CustomOidcUserService</code> call
+        <code>UserProvisioningService.provision(email, name, isAdmin)</code>
+        — the single authoritative provisioner — which finds or creates
+        the <code>AppUser</code> and heals its role against the admin
+        allow-list on every login.
+        <code>OAuth2LoginSuccessHandler</code> then only validates the
+        principal attributes and redirects to
         <code>AppProperties.frontend.baseUrl + landingPath</code>.</p>
         <p>Two roles — <code>ADMIN</code> (full CRUD, analytics) and
         <code>USER</code> (read + basic stock ops) — are stored as
