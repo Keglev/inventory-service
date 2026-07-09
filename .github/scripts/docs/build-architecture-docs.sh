@@ -30,6 +30,9 @@ mkdir -p "$OUTPUT_DIR/backend/architecture" "$OUTPUT_DIR/frontend/architecture"
 convert_arch() {
   local CONTEXT="$1"
   local SRC_DIR="$DOCS_DIR/$CONTEXT/architecture"
+  # Backend pages get the backend sidebar; everything else gets the frontend one.
+  local NAV_META=()
+  [ "$CONTEXT" = "backend" ] && NAV_META=(--metadata=backendnav:true)
   local DST_DIR="$OUTPUT_DIR/$CONTEXT/architecture"
 
   if [ ! -d "$SRC_DIR" ]; then
@@ -61,6 +64,7 @@ convert_arch() {
       --lua-filter "$LUA_FILTER" \
       --metadata=title:"${CONTEXT^} · ${rel%.md}" \
       --metadata=lang:"$lang" \
+      "${NAV_META[@]}" \
       --toc --toc-depth=3 --standalone \
       -o "$out"
     echo "  ✓ $rel ($lang)"
