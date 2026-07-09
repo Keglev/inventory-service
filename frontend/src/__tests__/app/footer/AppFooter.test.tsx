@@ -29,9 +29,9 @@ vi.mock('../../../app/footer/useFooterState', () => ({
   useFooterState: mockUseFooterState,
 }));
 
-// -----------------------------
+// ----------------------------
 // Local types for the mocked hook return
-// -----------------------------
+// ----------------------------
 type FooterHealth = {
   status: 'online' | 'offline';
   responseTime: number;
