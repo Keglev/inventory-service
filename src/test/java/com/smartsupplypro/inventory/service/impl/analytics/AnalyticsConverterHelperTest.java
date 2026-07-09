@@ -78,7 +78,7 @@ class AnalyticsConverterHelperTest {
 
         @Test
         void should_treat_null_as_zero_and_support_number_and_big_decimal() {
-            // null â†’ BigDecimal.ZERO to simplify aggregation
+            // null -> BigDecimal.ZERO to simplify aggregation
             assertEquals(BigDecimal.ZERO, (BigDecimal) AnalyticsConverterHelper.asNumber(null));
             assertEquals(3L, AnalyticsConverterHelper.asNumber(3L).longValue());
             assertEquals(5L, AnalyticsConverterHelper.asNumber(new BigDecimal("5")).longValue());

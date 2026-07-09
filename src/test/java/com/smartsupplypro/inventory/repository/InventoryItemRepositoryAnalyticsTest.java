@@ -45,10 +45,10 @@ class InventoryItemRepositoryAnalyticsTest {
         em.createNativeQuery("INSERT INTO supplier (id, name, created_at, created_by) VALUES ('S2', 'Supplier Two', CURRENT_TIMESTAMP, 'test')").executeUpdate();
         em.createNativeQuery("INSERT INTO supplier (id, name, created_at, created_by) VALUES ('default-supplier', 'Default Supplier', CURRENT_TIMESTAMP, 'test')").executeUpdate();
 
-        em.persist(item(null, "S1-low",   3,  5, "1.00")); // below Ã¢â€ â€™ included for S1
-        em.persist(item(null, "S1-eq",    5,  5, "2.00")); // equal Ã¢â€ â€™ NOT included
-        em.persist(item(null, "S1-high", 10,  5, "3.00")); // above Ã¢â€ â€™ NOT included
-        em.persist(item(null, "S2-low",   1,  2, "4.00")); // below Ã¢â€ â€™ included for S2
+        em.persist(item(null, "S1-low",   3,  5, "1.00")); // below -> included for S1
+        em.persist(item(null, "S1-eq",    5,  5, "2.00")); // equal -> NOT included
+        em.persist(item(null, "S1-high", 10,  5, "3.00")); // above -> NOT included
+        em.persist(item(null, "S2-low",   1,  2, "4.00")); // below -> included for S2
         em.flush();
 
         // set supplier_id via native UPDATE to avoid entity-mapping ambiguity

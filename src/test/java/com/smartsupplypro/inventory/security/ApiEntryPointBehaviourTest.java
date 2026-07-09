@@ -74,7 +74,7 @@ class ApiEntryPointBehaviourTest {
         }
     }
 
-    /** Minimal stub endpoints Ã¢â‚¬â€ never actually reached when unauthenticated. */
+    /** Minimal stub endpoints — never actually reached when unauthenticated. */
     @RestController
     static class StubController {
         @GetMapping("/api/protected")

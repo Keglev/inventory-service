@@ -35,7 +35,7 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 
 /**
- * Unit tests for {@link StockAnalyticsService} query methods â€” DTO mapping, repository delegation,
+ * Unit tests for {@link StockAnalyticsService} query methods — DTO mapping, repository delegation,
  * mixed numeric type coercion, and blank-to-null normalization.
  */
 @ExtendWith(MockitoExtension.class)

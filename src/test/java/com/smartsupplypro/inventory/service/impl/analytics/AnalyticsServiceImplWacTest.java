@@ -74,7 +74,7 @@ class AnalyticsServiceImplWacTest {
             var events = List.of(
                     // Pre-window: 5 units @ $4.00
                     new StockEventRowDTO("item1", "sup1", at(2024, 1, 31, 23, 0),  5, new BigDecimal("4.00"), StockChangeReason.INITIAL_STOCK),
-                    // In-window: +5 units @ $6.00 Ã¢â€ â€™ blended WAC = (20+30)/10 = $5.00
+                    // In-window: +5 units @ $6.00 -> blended WAC = (20+30)/10 = $5.00
                     new StockEventRowDTO("item1", "sup1", at(2024, 2,  1, 10, 0),  5, new BigDecimal("6.00"), StockChangeReason.INITIAL_STOCK),
                     new StockEventRowDTO("item1", "sup1", at(2024, 2,  2, 10, 0), -4, null,                   StockChangeReason.SOLD)
             );

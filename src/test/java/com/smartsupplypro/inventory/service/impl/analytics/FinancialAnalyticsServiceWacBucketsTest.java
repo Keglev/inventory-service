@@ -47,18 +47,18 @@ class FinancialAnalyticsServiceWacBucketsTest {
             // Pre-window opening replay (item1)
             new StockEventRowDTO("item1", "sup1", at(2024, 1, 31, 10, 0), +10, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),
             new StockEventRowDTO("item1", "sup1", at(2024, 1, 31, 12, 0),  -2, null,                   StockChangeReason.SOLD),
-            // null price Ã¢â€ â€™ falls back to existing WAC ($5.00)
+            // null price -> falls back to existing WAC ($5.00)
             new StockEventRowDTO("item1", "sup1", at(2024, 1, 31, 13, 0),  +2, null,                   StockChangeReason.MANUAL_UPDATE),
-            // item2: pre-window inbound with null price while state is null Ã¢â€ â€™ unit cost = 0
+            // item2: pre-window inbound with null price while state is null -> unit cost = 0
             new StockEventRowDTO("item2", "sup1", at(2024, 1, 31,  9, 0),  +3, null,                   StockChangeReason.MANUAL_UPDATE),
-            // item3: pre-window outbound while state is null Ã¢â€ â€™ issueAt(null) branch
+            // item3: pre-window outbound while state is null -> issueAt(null) branch
             new StockEventRowDTO("item3", "sup1", at(2024, 1, 31,  8, 0),  -1, null,                   StockChangeReason.SOLD),
             // In-window events (item1)
             new StockEventRowDTO("item1", "sup1", at(2024, 2,  2,  9, 0),  +4, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),
             new StockEventRowDTO("item1", "sup1", at(2024, 2,  3,  9, 0),  +1, new BigDecimal("5.00"), StockChangeReason.RETURNED_BY_CUSTOMER),
-            // null price + non-return reason Ã¢â€ â€™ NOT counted as purchase
+            // null price + non-return reason -> NOT counted as purchase
             new StockEventRowDTO("item1", "sup1", at(2024, 2,  4,  9, 0),  +2, null,                   StockChangeReason.MANUAL_UPDATE),
-            // return-to-supplier Ã¢â€ â€™ negative purchase
+            // return-to-supplier -> negative purchase
             new StockEventRowDTO("item1", "sup1", at(2024, 2,  5,  9, 0),  -3, null,                   StockChangeReason.RETURNED_TO_SUPPLIER),
             new StockEventRowDTO("item1", "sup1", at(2024, 2,  6,  9, 0),  -1, null,                   StockChangeReason.DAMAGED),
             new StockEventRowDTO("item1", "sup1", at(2024, 2,  7,  9, 0),  -2, null,                   StockChangeReason.SOLD)
@@ -66,14 +66,14 @@ class FinancialAnalyticsServiceWacBucketsTest {
 
         lenient().when(stockHistoryRepository.streamEventsForWAC(any(), any())).thenReturn(events);
 
-        // blank supplierId Ã¢â€ â€™ blankToNull("   ") Ã¢â€ â€™ null passed to repository
+        // blank supplierId -> blankToNull("   ") -> null passed to repository
         FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
                 LocalDate.parse("2024-02-01"), LocalDate.parse("2024-02-28"), "   ");
 
-        // Opening: item1=(10-2+2)=10@5.00=50.00, item2=3@0.00=0.00 Ã¢â€ â€™ 13 units, $50.00
+        // Opening: item1=(10-2+2)=10@5.00=50.00, item2=3@0.00=0.00 -> 13 units, $50.00
         assertEquals(13, dto.openingQty());
         assertMoneyEquals("50.00", dto.openingValue());
-        // Purchases: +4@5.00 then -3@5.00 return-to-supplier Ã¢â€ â€™ net +1, $5.00
+        // Purchases: +4@5.00 then -3@5.00 return-to-supplier -> net +1, $5.00
         assertEquals(1, dto.purchasesQty());
         assertMoneyEquals("5.00", dto.purchasesCost());
         // Returns-in: +1@5.00
@@ -85,7 +85,7 @@ class FinancialAnalyticsServiceWacBucketsTest {
         // COGS: 2 SOLD @5.00
         assertEquals(2, dto.cogsQty());
         assertMoneyEquals("10.00", dto.cogsCost());
-        // Ending: item1=(10+4+1+2-3-1-2)=11@5.00=55.00, item2=3@0=0 Ã¢â€ â€™ 14 units, $55.00
+        // Ending: item1=(10+4+1+2-3-1-2)=11@5.00=55.00, item2=3@0=0 -> 14 units, $55.00
         assertEquals(14, dto.endingQty());
         assertMoneyEquals("55.00", dto.endingValue());
 

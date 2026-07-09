@@ -159,6 +159,6 @@ class SecuritySmokeTest {
             return mock;
         }
 
-        // AppProperties is provided by @EnableConfigurationProperties on SecurityConfig Ã¢â‚¬â€ do not redeclare here
+        // AppProperties is provided by @EnableConfigurationProperties on SecurityConfig — do not redeclare here
     }
 }

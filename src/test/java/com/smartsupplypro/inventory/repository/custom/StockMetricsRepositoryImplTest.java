@@ -95,7 +95,7 @@ class StockMetricsRepositoryImplTest {
             assertEquals("Item A", forSup1.get(0)[0]);
             assertEquals(2L, ((Number) forSup1.get(0)[1]).longValue());
 
-            // blank normalizes to null â†’ supplier filter disabled â†’ all items returned
+            // blank normalizes to null -> supplier filter disabled -> all items returned
             List<Object[]> forAll = repo.getUpdateCountByItem("   ");
             assertTrue(forAll.size() >= 2);
             assertEquals("Item A", forAll.get(0)[0]);

@@ -14,7 +14,7 @@ import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRep
 
 /**
  * Shared test utilities for {@link CookieOAuth2AuthorizationRequestRepository} unit tests.
- * Package-private; helpers must remain deterministic and side-effect free â€” no assertions here.
+ * Package-private; helpers must remain deterministic and side-effect free — no assertions here.
  */
 final class CookieOAuth2AuthorizationRequestRepositoryTestSupport {
 

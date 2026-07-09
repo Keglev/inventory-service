@@ -71,7 +71,7 @@ class StockDetailQueryRepositoryImplTest {
             seedTestData();
             StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
 
-            // null/blank inputs normalize to SQL NULL â†’ no predicates applied
+            // null/blank inputs normalize to SQL NULL -> no predicates applied
             assertEquals(3, repo.searchStockUpdates(null, null, null, "   ", null, null, null).size());
             assertEquals(3, repo.searchStockUpdates(null, null, "   ", null, "   ", null, null).size());
 
@@ -110,7 +110,7 @@ class StockDetailQueryRepositoryImplTest {
 
             LocalDateTime end = LocalDateTime.of(2024, 12, 31, 23, 59);
 
-            // blank supplier normalizes to null â†’ supplier filter disabled â†’ all events
+            // blank supplier normalizes to null -> supplier filter disabled -> all events
             List<StockEventRowDTO> all = repo.streamEventsForWAC(end, "   ");
             assertEquals(3, all.size());
             assertEquals("itemA", all.get(0).itemId());

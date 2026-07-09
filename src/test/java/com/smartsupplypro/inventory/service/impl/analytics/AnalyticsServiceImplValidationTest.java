@@ -18,7 +18,7 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 
 /**
- * Unit tests for {@link StockAnalyticsService} input validation Ã¢â‚¬â€
+ * Unit tests for {@link StockAnalyticsService} input validation —
  * blank/null supplier IDs, invalid date ranges, and malformed filter objects.
  */
 @ExtendWith(MockitoExtension.class)

@@ -24,7 +24,7 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 
 /**
  * Unit tests for {@link StockAnalyticsService} converter helpers invoked via
- * {@code getFilteredStockUpdates} Ã¢â‚¬â€ verifying numeric and date type coercion.
+ * {@code getFilteredStockUpdates} — verifying numeric and date type coercion.
  */
 @ExtendWith(MockitoExtension.class)
 class AnalyticsServiceImplConverterTest {
