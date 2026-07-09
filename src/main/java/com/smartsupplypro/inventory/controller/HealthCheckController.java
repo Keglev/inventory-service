@@ -52,7 +52,7 @@ public class HealthCheckController {
         Map<String, Object> body = new HashMap<>();
         body.put("status", "ok"); // application is up if this controller was reached
         body.put("database", dbUp ? "ok" : "down");
-        // Real DB flavor from JDBC metadata (CB-APP82); "unknown" until first successful ping.
+        // Real DB flavor from JDBC metadata; "unknown" until first successful ping.
         body.put("databaseProduct", databaseProduct != null ? databaseProduct : "unknown");
         body.put("timestamp", now);
         HttpStatus status = dbUp ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;

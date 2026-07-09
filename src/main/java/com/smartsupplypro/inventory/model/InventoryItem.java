@@ -70,7 +70,7 @@ public class InventoryItem {
     private LocalDateTime createdAt;
 
     /**
-     * Soft-delete flag (CB-APP93). Items are never physically removed;
+     * Soft-delete flag. Items are never physically removed;
      * deletion marks them inactive so stock history survives for auditing.
      * Defaults to true for new and builder-created instances; the column
      * default covers legacy inserts that omit the field.
