@@ -66,7 +66,7 @@ jobs:
       - name: Download JaCoCo artifact
         if: >
           github.event_name == 'workflow_run' &&
-          github.event.workflow_run.name == '1️⃣ Backend CI - Build & Test'
+          github.event.workflow_run.name == '1 Backend CI - Build & Test'
         uses: actions/download-artifact@v4
         with:
           name: jacoco-html-${{ github.event.workflow_run.head_sha }}
@@ -78,7 +78,7 @@ jobs:
       - name: Download frontend coverage artifact
         if: >
           github.event_name == 'workflow_run' &&
-          github.event.workflow_run.name == '5️⃣ Frontend CI - Build & Test'
+          github.event.workflow_run.name == '5 Frontend CI - Build & Test'
         uses: actions/download-artifact@v4
         with:
           name: frontend-coverage-html-${{ github.event.workflow_run.head_sha }}
