@@ -61,6 +61,22 @@ describe('FooterLinks', () => {
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
+  it('renders the frontend docs link to the published frontend docs in a new tab', () => {
+    arrange();
+    const link = getLink('Frontend Docs');
+    expect(link).toHaveAttribute('href', 'https://keglev.github.io/inventory-service/frontend/architecture/overview.html');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('renders the release notes link to the GitHub releases page in a new tab', () => {
+    arrange();
+    const link = getLink('Release Notes');
+    expect(link).toHaveAttribute('href', 'https://github.com/Keglev/inventory-service/releases');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
   it('renders the contact support mailto link to the maintainer address', () => {
     arrange();
     const link = getLink('Contact Support');
@@ -82,9 +98,9 @@ describe('FooterLinks', () => {
     expect(link).not.toHaveAttribute('target');
   });
 
-  it('renders exactly five links', () => {
+  it('renders exactly seven links', () => {
     arrange();
-    expect(screen.getAllByRole('link')).toHaveLength(5);
+    expect(screen.getAllByRole('link')).toHaveLength(7);
   });
 
   it('requests translations for all link labels', () => {

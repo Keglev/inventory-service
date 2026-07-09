@@ -57,6 +57,16 @@ export default function FooterLinks() {
       external: true,
     },
     {
+      label: t('footer:support.frontendDocs', 'Frontend Docs'),
+      href: 'https://keglev.github.io/inventory-service/frontend/architecture/overview.html',
+      external: true,
+    },
+    {
+      label: t('footer:support.releaseNotes', 'Release Notes'),
+      href: 'https://github.com/Keglev/inventory-service/releases',
+      external: true,
+    },
+    {
       label: t('footer:support.contact', 'Contact Support'),
       href: 'mailto:carlos.keglevich@gmail.com',
       external: false,

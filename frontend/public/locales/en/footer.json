@@ -20,6 +20,7 @@
     "documentation": "Documentation",
     "apiRef": "API Reference",
     "releaseNotes": "Release Notes",
+    "frontendDocs": "Frontend Docs",
     "contact": "Contact Support"
   },
   "health": {
