@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,5 +75,17 @@ class InventoryServiceApplicationMainTest {
             assertNotNull(applicationContext, "run(..) must return the Spring application context");
             assertTrue(applicationContext.isActive(), "Context should remain active when close flag is absent");
         }
+    }
+
+    @Test
+    @DisplayName("shouldCloseAfterStartup returns false for null args")
+    void shouldCloseAfterStartup_returnsFalse_whenArgsNull() throws Exception {
+        assertFalse((boolean) shouldCloseAfterStartup.invoke(null, new Object[] { null }));
+    }
+
+    @Test
+    @DisplayName("shouldCloseAfterStartup returns false for empty args")
+    void shouldCloseAfterStartup_returnsFalse_whenArgsEmpty() throws Exception {
+        assertFalse((boolean) shouldCloseAfterStartup.invoke(null, (Object) new String[0]));
     }
 }
