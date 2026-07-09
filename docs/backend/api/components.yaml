@@ -7,6 +7,3 @@ components:
 
   responses:
     $ref: './responses/errors.yaml#/components/responses'
-
-  examples:
-    $ref: './examples/common.yaml#/components/examples'
