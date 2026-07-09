@@ -45,10 +45,6 @@ class InventoryServiceApplicationTest {
         }
     }
 
-    /**
-     * Smoke test verifying Spring context loads without errors.
-     * Validates bean wiring, JPA entity mappings, and configuration binding.
-     */
     @Test
     void contextLoads() {
         // Context load failure will automatically fail the test
