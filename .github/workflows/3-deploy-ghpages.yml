@@ -28,14 +28,14 @@ jobs:
 
     steps:
       - name: Checkout gh-pages branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       - name: Download docs-site artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: docs-site
           path: docs-site
@@ -84,7 +84,7 @@ jobs:
             if grep -q 'id="back-to-docs"' "$COV"; then
               echo "Back-to-docs link already present — skipping"
             else
-              sed -i 's|<body[^>]*>|&<a id="back-to-docs" href="/inventory-service/backend/architecture/overview.html" style="position:fixed;top:8px;right:12px;z-index:9999;font:14px sans-serif;padding:6px 12px;background:#2563eb;color:#fff;text-decoration:none;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.2);">\&larr; Back to docs</a>|' "$COV"
+              sed -i 's|<body[^>]*>|&<a id="back-to-docs" href="/inventory-service/" style="position:fixed;top:8px;right:12px;z-index:9999;font:14px sans-serif;padding:6px 12px;background:#2563eb;color:#fff;text-decoration:none;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.2);">\&larr; Back to docs</a>|' "$COV"
               echo "Back-to-docs link injected"
             fi
           else

@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       # Resolve image digest from commit SHA.
       # Deploying by digest (not tag) guarantees deterministic rollouts and safe rollbacks.
       # Docker Hub can be eventually consistent — retries reduce post-push flakiness.

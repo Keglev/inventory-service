@@ -43,7 +43,7 @@ jobs:
     steps:
       # Checkout the commit that triggered upstream CI, or HEAD for direct pushes
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 0
@@ -67,7 +67,7 @@ jobs:
         if: >
           github.event_name == 'workflow_run' &&
           github.event.workflow_run.name == '1 Backend CI - Build & Test'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: jacoco-html-${{ github.event.workflow_run.head_sha }}
           path: ${{ steps.where.outputs.dir }}/target/site/jacoco
@@ -79,7 +79,7 @@ jobs:
         if: >
           github.event_name == 'workflow_run' &&
           github.event.workflow_run.name == '5 Frontend CI - Build & Test'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: frontend-coverage-html-${{ github.event.workflow_run.head_sha }}
           path: ${{ steps.where.outputs.dir }}/target/frontend/coverage
@@ -87,7 +87,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
 
@@ -124,7 +124,7 @@ jobs:
           bash .github/scripts/docs/build-docs.sh "$PROJECT_DIR"
 
       - name: Upload docs-site artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: docs-site
           path: ${{ steps.where.outputs.dir }}/target/docs

@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Supports both monorepo (inventory-service/pom.xml) and flat (pom.xml) layouts
       - name: Resolve backend directory
@@ -66,7 +66,7 @@ jobs:
           fi
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
@@ -74,7 +74,7 @@ jobs:
 
       # Secondary cache layer — reduces cold-start time when setup-java cache misses
       - name: Cache Maven packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'inventory-service/pom.xml') }}
@@ -102,7 +102,7 @@ jobs:
 
       - name: Upload JaCoCo coverage artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jacoco-html-${{ github.sha }}
           path: ${{ env.BACKEND_DIR }}/target/site/jacoco/
