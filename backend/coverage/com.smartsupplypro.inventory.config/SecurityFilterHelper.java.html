@@ -2,7 +2,7 @@
 
 import java.io.IOException;
 
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -18,21 +18,27 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 <span class="fc" id="L19">public class SecurityFilterHelper {</span>
 
+    /**
+     * Builds the filter that tags JSON API requests with the {@code IS_API_REQUEST}
+     * attribute so unauthenticated calls receive 401 instead of an OAuth2 redirect.
+     *
+     * @return a request filter that marks API requests
+     */
     public OncePerRequestFilter createApiDetectionFilter() {
-<span class="fc" id="L22">        return new OncePerRequestFilter() {</span>
+<span class="fc" id="L28">        return new OncePerRequestFilter() {</span>
             @Override
             protected void doFilterInternal(@NonNull HttpServletRequest req,
                                             @NonNull HttpServletResponse res,
                                             @NonNull FilterChain chain)
                     throws ServletException, IOException {
-<span class="fc" id="L28">                String accept = req.getHeader(&quot;Accept&quot;);</span>
-<span class="fc bfc" id="L29" title="All 4 branches covered.">                if (req.getRequestURI().startsWith(&quot;/api/&quot;)</span>
-<span class="fc bfc" id="L30" title="All 2 branches covered.">                        &amp;&amp; accept != null &amp;&amp; accept.contains(&quot;application/json&quot;)) {</span>
-<span class="fc" id="L31">                    req.setAttribute(&quot;IS_API_REQUEST&quot;, true);</span>
+<span class="fc" id="L34">                String accept = req.getHeader(&quot;Accept&quot;);</span>
+<span class="fc bfc" id="L35" title="All 4 branches covered.">                if (req.getRequestURI().startsWith(&quot;/api/&quot;)</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">                        &amp;&amp; accept != null &amp;&amp; accept.contains(&quot;application/json&quot;)) {</span>
+<span class="fc" id="L37">                    req.setAttribute(&quot;IS_API_REQUEST&quot;, true);</span>
                 }
-<span class="fc" id="L33">                chain.doFilter(req, res);</span>
-<span class="fc" id="L34">            }</span>
+<span class="fc" id="L39">                chain.doFilter(req, res);</span>
+<span class="fc" id="L40">            }</span>
         };
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

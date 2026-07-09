@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BusinessExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.exception</a> &gt; <span class="el_source">BusinessExceptionHandler.java</span></div><h1>BusinessExceptionHandler.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.exception;
 
 import java.time.Instant;
+import java.util.Map;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -16,31 +17,43 @@ import com.smartsupplypro.inventory.exception.dto.ErrorResponse;
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice
-<span class="fc" id="L19">public class BusinessExceptionHandler {</span>
+<span class="fc" id="L20">public class BusinessExceptionHandler {</span>
 
+    /** Maps {@link InvalidRequestException} to 400 Bad Request. */
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleInvalidRequest(InvalidRequestException ex) {
-<span class="fc bfc" id="L23" title="All 2 branches covered.">        String message = ex.getMessage() != null ? ex.getMessage() : &quot;Invalid request&quot;;</span>
-<span class="fc" id="L24">        return respond(HttpStatus.BAD_REQUEST, message);</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        String message = ex.getMessage() != null ? ex.getMessage() : &quot;Invalid request&quot;;</span>
+<span class="fc" id="L26">        return respond(HttpStatus.BAD_REQUEST, message);</span>
     }
 
+    /** Maps {@link DuplicateResourceException} to 409 Conflict, attaching the offending field when present. */
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleDuplicateResource(DuplicateResourceException ex) {
-<span class="fc bfc" id="L29" title="All 2 branches covered.">        String message = ex.getMessage() != null ? ex.getMessage() : &quot;Duplicate resource&quot;;</span>
-<span class="fc" id="L30">        return respond(HttpStatus.CONFLICT, message);</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        String message = ex.getMessage() != null ? ex.getMessage() : &quot;Duplicate resource&quot;;</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        Map&lt;String, String&gt; fieldErrors = ex.getField() != null</span>
+<span class="fc" id="L34">            ? Map.of(ex.getField(), message)</span>
+<span class="fc" id="L35">            : null;</span>
+<span class="fc" id="L36">        return respond(HttpStatus.CONFLICT, message, fieldErrors);</span>
     }
 
+    /** Maps {@link IllegalStateException} (business-rule violation) to 409 Conflict. */
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleBusinessStateConflict(IllegalStateException ex) {
-<span class="fc bfc" id="L35" title="All 4 branches covered.">        String message = (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank())</span>
-<span class="fc" id="L36">            ? ex.getMessage()</span>
-<span class="fc" id="L37">            : &quot;Business rule conflict&quot;;</span>
-<span class="fc" id="L38">        return respond(HttpStatus.CONFLICT, message);</span>
+<span class="fc bfc" id="L42" title="All 4 branches covered.">        String message = (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank())</span>
+<span class="fc" id="L43">            ? ex.getMessage()</span>
+<span class="fc" id="L44">            : &quot;Business rule conflict&quot;;</span>
+<span class="fc" id="L45">        return respond(HttpStatus.CONFLICT, message);</span>
     }
 
     private ResponseEntity&lt;ErrorResponse&gt; respond(HttpStatus status, String message) {
-<span class="fc" id="L42">        return ResponseEntity.status(status)</span>
-<span class="fc" id="L43">            .body(new ErrorResponse(status.name().toLowerCase(), message, Instant.now().toString()));</span>
+<span class="fc" id="L49">        return respond(status, message, null);</span>
+    }
+
+    private ResponseEntity&lt;ErrorResponse&gt; respond(HttpStatus status, String message,
+                                                  Map&lt;String, String&gt; fieldErrors) {
+<span class="fc" id="L54">        return ResponseEntity.status(status)</span>
+<span class="fc" id="L55">            .body(new ErrorResponse(status.name().toLowerCase(), message,</span>
+<span class="fc" id="L56">                Instant.now().toString(), fieldErrors));</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -92,28 +92,13 @@ public class InventoryItemAuditHelper {
 <span class="fc" id="L92">    }</span>
 
     /**
-     * Logs full stock removal before an item is deleted.
-     * @param item   the item being deleted
-     * @param reason the deletion reason
-     */
-    public void logFullRemoval(InventoryItem item, StockChangeReason reason) {
-<span class="fc" id="L100">        stockHistoryService.logStockChange(</span>
-<span class="fc" id="L101">                item.getId(),</span>
-<span class="fc" id="L102">                -item.getQuantity(),</span>
-                reason,
-<span class="fc" id="L104">                currentUsername(),</span>
-<span class="fc" id="L105">                item.getPrice()</span>
-        );
-<span class="fc" id="L107">    }</span>
-
-    /**
      * Retrieves the current authenticated username from the Spring Security context.
      * Returns &quot;system&quot; when no authentication is present (e.g. batch jobs).
      */
     private String currentUsername() {
-<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        Authentication a = SecurityContextHolder.getContext() != null</span>
-<span class="pc" id="L115">                ? SecurityContextHolder.getContext().getAuthentication() : null;</span>
-<span class="fc bfc" id="L116" title="All 2 branches covered.">        return a != null ? a.getName() : &quot;system&quot;;</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        Authentication a = SecurityContextHolder.getContext() != null</span>
+<span class="pc" id="L100">                ? SecurityContextHolder.getContext().getAuthentication() : null;</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        return a != null ? a.getName() : &quot;system&quot;;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

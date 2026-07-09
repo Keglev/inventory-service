@@ -19,47 +19,74 @@ public class StockHistoryValidator {
 
     private StockHistoryValidator() {}
 
+    /**
+     * Validates a stock-history record; required fields and quantity semantics
+     * depend on the {@code reason} (cross-field validation).
+     *
+     * @param dto the stock-history DTO to validate
+     * @throws InvalidRequestException if a required field is missing or a cross-field rule fails
+     */
     public static void validate(StockHistoryDTO dto) {
-<span class="fc bfc" id="L23" title="All 4 branches covered.">        if (dto.itemId() == null || dto.itemId().isBlank()) {</span>
-<span class="fc" id="L24">            throw new InvalidRequestException(&quot;Item ID cannot be null or empty&quot;);</span>
+<span class="fc bfc" id="L30" title="All 4 branches covered.">        if (dto.itemId() == null || dto.itemId().isBlank()) {</span>
+<span class="fc" id="L31">            throw new InvalidRequestException(&quot;Item ID cannot be null or empty&quot;);</span>
         }
 
         final StockChangeReason reason;
         try {
-<span class="fc bfc" id="L29" title="All 2 branches covered.">            reason = dto.reason() == null ? null : StockChangeReason.valueOf(dto.reason());</span>
-<span class="fc" id="L30">        } catch (IllegalArgumentException ex) {</span>
-<span class="fc" id="L31">            throw new InvalidRequestException(&quot;Invalid stock change reason: &quot; + dto.reason());</span>
-<span class="fc" id="L32">        }</span>
-<span class="fc bfc" id="L33" title="All 2 branches covered.">        if (reason == null) throw new InvalidRequestException(&quot;Stock change reason is required&quot;);</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">            reason = dto.reason() == null ? null : StockChangeReason.valueOf(dto.reason());</span>
+<span class="fc" id="L37">        } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L38">            throw new InvalidRequestException(&quot;Invalid stock change reason: &quot; + dto.reason());</span>
+<span class="fc" id="L39">        }</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (reason == null) throw new InvalidRequestException(&quot;Stock change reason is required&quot;);</span>
 
         // zero delta is only meaningful for PRICE_CHANGE, which records no stock movement
-<span class="fc bfc" id="L36" title="All 4 branches covered.">        if (dto.change() == 0 &amp;&amp; reason != StockChangeReason.PRICE_CHANGE) {</span>
-<span class="fc" id="L37">            throw new InvalidRequestException(&quot;Zero quantity change is only allowed for PRICE_CHANGE&quot;);</span>
+<span class="fc bfc" id="L43" title="All 4 branches covered.">        if (dto.change() == 0 &amp;&amp; reason != StockChangeReason.PRICE_CHANGE) {</span>
+<span class="fc" id="L44">            throw new InvalidRequestException(&quot;Zero quantity change is only allowed for PRICE_CHANGE&quot;);</span>
         }
 
-<span class="fc bfc" id="L40" title="All 4 branches covered.">        if (dto.createdBy() == null || dto.createdBy().isBlank()) {</span>
-<span class="fc" id="L41">            throw new InvalidRequestException(&quot;CreatedBy must be provided&quot;);</span>
+<span class="fc bfc" id="L47" title="All 4 branches covered.">        if (dto.createdBy() == null || dto.createdBy().isBlank()) {</span>
+<span class="fc" id="L48">            throw new InvalidRequestException(&quot;CreatedBy must be provided&quot;);</span>
         }
 
-<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (reason == StockChangeReason.PRICE_CHANGE &amp;&amp;</span>
-<span class="fc bfc" id="L45" title="All 2 branches covered.">                dto.priceAtChange() != null &amp;&amp;</span>
-<span class="pc bpc" id="L46" title="1 of 2 branches missed.">                dto.priceAtChange().signum() &lt; 0) {</span>
-<span class="fc" id="L47">            throw new InvalidRequestException(&quot;priceAtChange must be &gt;= 0 for PRICE_CHANGE&quot;);</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (reason == StockChangeReason.PRICE_CHANGE &amp;&amp;</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">                dto.priceAtChange() != null &amp;&amp;</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">                dto.priceAtChange().signum() &lt; 0) {</span>
+<span class="fc" id="L54">            throw new InvalidRequestException(&quot;priceAtChange must be &gt;= 0 for PRICE_CHANGE&quot;);</span>
         }
-<span class="fc" id="L49">    }</span>
+<span class="fc" id="L56">    }</span>
 
+    /**
+     * Validates that a stock-change reason is one the system accepts for a
+     * stock-history write (quantity increase, decrease, disposal, or price
+     * correction).
+     *
+     * &lt;p&gt;Deliberately an explicit allow-list rather than a blanket non-null
+     * check: every current {@link StockChangeReason} is a legal history reason
+     * -- including the disposal reasons DESTROYED, DAMAGED, EXPIRED and LOST,
+     * which back stock reductions and item deletions -- but a reason constant
+     * added in the future is rejected here by default until it is reviewed and
+     * added explicitly. The only always-invalid input is {@code null}.&lt;/p&gt;
+     *
+     * @param reason the reason to validate
+     * @throws IllegalArgumentException if {@code reason} is null or not in the
+     *         accepted set
+     */
     public static void validateEnum(StockChangeReason reason) {
-<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (reason == null || !EnumSet.of(</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (reason == null || !EnumSet.of(</span>
                 StockChangeReason.SOLD,
                 StockChangeReason.SCRAPPED,
+                StockChangeReason.DESTROYED,
+                StockChangeReason.DAMAGED,
+                StockChangeReason.EXPIRED,
+                StockChangeReason.LOST,
                 StockChangeReason.RETURNED_TO_SUPPLIER,
                 StockChangeReason.RETURNED_BY_CUSTOMER,
                 StockChangeReason.INITIAL_STOCK,
                 StockChangeReason.MANUAL_UPDATE,
                 StockChangeReason.PRICE_CHANGE
-<span class="fc bfc" id="L60" title="All 2 branches covered.">        ).contains(reason)) {</span>
-<span class="fc" id="L61">            throw new IllegalArgumentException(&quot;Invalid stock change reason: &quot; + reason);</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        ).contains(reason)) {</span>
+<span class="fc" id="L88">            throw new IllegalArgumentException(&quot;Invalid stock change reason: &quot; + reason);</span>
         }
-<span class="fc" id="L63">    }</span>
+<span class="fc" id="L90">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

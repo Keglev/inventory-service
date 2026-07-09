@@ -21,49 +21,73 @@ public class InventoryItemValidator {
 
     private InventoryItemValidator() {}
 
+    /**
+     * Validates required base fields on a DTO (name, quantity, price, supplier, createdBy).
+     *
+     * @param dto the inventory item DTO to validate
+     * @throws IllegalArgumentException if any base field is missing or invalid
+     */
     public static void validateBase(InventoryItemDTO dto) {
-<span class="fc bfc" id="L25" title="All 4 branches covered.">        if (dto.getName() == null || dto.getName().trim().isEmpty()) {</span>
-<span class="fc" id="L26">            throw new IllegalArgumentException(&quot;Product name cannot be null or empty&quot;);</span>
+<span class="fc bfc" id="L31" title="All 4 branches covered.">        if (dto.getName() == null || dto.getName().trim().isEmpty()) {</span>
+<span class="fc" id="L32">            throw new IllegalArgumentException(&quot;Product name cannot be null or empty&quot;);</span>
         }
-<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (dto.getQuantity() &lt; 0) {</span>
-<span class="fc" id="L29">            throw new IllegalArgumentException(&quot;Quantity cannot be negative&quot;);</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (dto.getQuantity() &lt; 0) {</span>
+<span class="fc" id="L35">            throw new IllegalArgumentException(&quot;Quantity cannot be negative&quot;);</span>
         }
-<span class="fc bfc" id="L31" title="All 4 branches covered.">        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
-<span class="fc" id="L32">            throw new IllegalArgumentException(&quot;Price must be positive or greater than zero&quot;);</span>
+<span class="fc bfc" id="L37" title="All 4 branches covered.">        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L38">            throw new IllegalArgumentException(&quot;Price must be positive or greater than zero&quot;);</span>
         }
-<span class="pc bpc" id="L34" title="1 of 4 branches missed.">        if (dto.getSupplierId() == null || dto.getSupplierId().trim().isEmpty()) {</span>
-<span class="fc" id="L35">            throw new IllegalArgumentException(&quot;Supplier ID must be provided&quot;);</span>
+<span class="pc bpc" id="L40" title="1 of 4 branches missed.">        if (dto.getSupplierId() == null || dto.getSupplierId().trim().isEmpty()) {</span>
+<span class="fc" id="L41">            throw new IllegalArgumentException(&quot;Supplier ID must be provided&quot;);</span>
         }
-<span class="pc bpc" id="L37" title="1 of 4 branches missed.">        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {</span>
-<span class="fc" id="L38">            throw new IllegalArgumentException(&quot;CreatedBy must be provided&quot;);</span>
+<span class="pc bpc" id="L43" title="1 of 4 branches missed.">        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {</span>
+<span class="fc" id="L44">            throw new IllegalArgumentException(&quot;CreatedBy must be provided&quot;);</span>
         }
-<span class="fc" id="L40">    }</span>
+<span class="fc" id="L46">    }</span>
 
+    /**
+     * Asserts the price is greater than zero.
+     *
+     * @param price the price to check
+     * @throws ResponseStatusException 422 if the price is null or not positive
+     */
     public static void assertPriceValid(BigDecimal price) {
-<span class="fc bfc" id="L43" title="All 4 branches covered.">        if (price == null || price.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
-<span class="fc" id="L44">            throw new ResponseStatusException(</span>
-                HttpStatus.UNPROCESSABLE_ENTITY,
+<span class="fc bfc" id="L55" title="All 4 branches covered.">        if (price == null || price.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L56">            throw new ResponseStatusException(</span>
+                HttpStatus.UNPROCESSABLE_CONTENT,
                 &quot;Price must be greater than zero&quot;
             );
         }
-<span class="fc" id="L49">    }</span>
+<span class="fc" id="L61">    }</span>
 
+    /**
+     * Asserts the resulting stock quantity is not negative.
+     *
+     * @param resultingQuantity the post-adjustment quantity
+     * @throws ResponseStatusException 422 if the resulting quantity is negative
+     */
     public static void assertFinalQuantityNonNegative(int resultingQuantity) {
-<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (resultingQuantity &lt; 0) {</span>
-<span class="fc" id="L53">            throw new ResponseStatusException(</span>
-                HttpStatus.UNPROCESSABLE_ENTITY,
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (resultingQuantity &lt; 0) {</span>
+<span class="fc" id="L71">            throw new ResponseStatusException(</span>
+                HttpStatus.UNPROCESSABLE_CONTENT,
                 &quot;Resulting stock cannot be negative&quot;
             );
         }
-<span class="fc" id="L58">    }</span>
+<span class="fc" id="L76">    }</span>
 
+    /**
+     * Asserts an item holds no stock, a precondition for deletion.
+     *
+     * @param item the item being deleted
+     * @throws IllegalStateException if the item still has quantity in stock
+     */
     public static void assertQuantityIsZeroForDeletion(InventoryItem item) {
-<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (item.getQuantity() &gt; 0) {</span>
-<span class="fc" id="L62">            throw new IllegalStateException(</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (item.getQuantity() &gt; 0) {</span>
+<span class="fc" id="L86">            throw new IllegalStateException(</span>
                 &quot;You still have merchandise in stock. &quot; +
                 &quot;You need to first remove items from stock by changing quantity.&quot;
             );
         }
-<span class="fc" id="L67">    }</span>
+<span class="fc" id="L91">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

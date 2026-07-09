@@ -6,14 +6,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import tools.jackson.core.JacksonException;
 
 /**
  * Serializes and deserializes {@link OAuth2AuthorizationRequest} to and from
@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 final class OAuth2AuthorizationRequestCookieSerializer {
 
 <span class="fc" id="L27">    private static final Logger log = LoggerFactory.getLogger(OAuth2AuthorizationRequestCookieSerializer.class);</span>
-<span class="fc" id="L28">    private static final ObjectMapper MAPPER = new ObjectMapper();</span>
+<span class="fc" id="L28">    private static final ObjectMapper MAPPER = new JsonMapper();</span>
 
     private OAuth2AuthorizationRequestCookieSerializer() {}
 
@@ -45,7 +45,7 @@ final class OAuth2AuthorizationRequestCookieSerializer {
             );
 <span class="fc" id="L46">            return Base64.getUrlEncoder()</span>
 <span class="fc" id="L47">                    .encodeToString(MAPPER.writeValueAsString(m).getBytes(StandardCharsets.UTF_8));</span>
-<span class="fc" id="L48">        } catch (JsonProcessingException e) {</span>
+<span class="fc" id="L48">        } catch (JacksonException e) {</span>
 <span class="fc" id="L49">            return Base64.getUrlEncoder().encodeToString(&quot;{}&quot;.getBytes(StandardCharsets.UTF_8));</span>
         }
     }
@@ -55,7 +55,7 @@ final class OAuth2AuthorizationRequestCookieSerializer {
 <span class="fc" id="L55">            String json = new String(Base64.getUrlDecoder().decode(encoded), StandardCharsets.UTF_8);</span>
 <span class="fc" id="L56">            Map&lt;String, Object&gt; m = MAPPER.readValue(json, new TypeReference&lt;Map&lt;String, Object&gt;&gt;() {});</span>
 <span class="fc" id="L57">            return buildRequest(m);</span>
-<span class="fc" id="L58">        } catch (IllegalArgumentException | java.io.IOException e) {</span>
+<span class="fc" id="L58">        } catch (IllegalArgumentException | JacksonException e) {</span>
 <span class="fc" id="L59">            log.warn(&quot;Malformed authorization request cookie ignored&quot;);</span>
 <span class="fc" id="L60">            return null;</span>
         }
@@ -90,4 +90,4 @@ final class OAuth2AuthorizationRequestCookieSerializer {
 <span class="fc" id="L90">        return scopes;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomOidcUserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.service</a> &gt; <span class="el_source">CustomOidcUserService.java</span></div><h1>CustomOidcUserService.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.service;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
@@ -22,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
-import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 /**
  * Default implementation of {@link OAuth2UserService} for OpenID Connect providers,
@@ -41,33 +38,33 @@ import com.smartsupplypro.inventory.repository.AppUserRepository;
 @Service
 public class CustomOidcUserService implements OAuth2UserService&lt;OidcUserRequest, OidcUser&gt; {
 
-    private final AppUserRepository userRepository;
+    private final UserProvisioningService userProvisioningService;
 
-<span class="fc" id="L46">    public CustomOidcUserService(AppUserRepository userRepository) {</span>
-<span class="fc" id="L47">        this.userRepository = userRepository;</span>
-<span class="fc" id="L48">    }</span>
+<span class="fc" id="L43">    public CustomOidcUserService(UserProvisioningService userProvisioningService) {</span>
+<span class="fc" id="L44">        this.userProvisioningService = userProvisioningService;</span>
+<span class="fc" id="L45">    }</span>
 
     private static Set&lt;String&gt; readAdminAllowlist() {
-<span class="nc" id="L51">        String raw = System.getenv().getOrDefault(&quot;APP_ADMIN_EMAILS&quot;, &quot;&quot;);</span>
-<span class="nc" id="L52">        return parseAdminAllowlist(raw);</span>
+<span class="nc" id="L48">        String raw = System.getenv().getOrDefault(&quot;APP_ADMIN_EMAILS&quot;, &quot;&quot;);</span>
+<span class="nc" id="L49">        return parseAdminAllowlist(raw);</span>
     }
 
     static Set&lt;String&gt; parseAdminAllowlist(String raw) {
-<span class="fc bfc" id="L56" title="All 4 branches covered.">        if (raw == null || raw.isBlank()) return Collections.emptySet();</span>
-<span class="fc" id="L57">        return Arrays.stream(raw.split(&quot;,&quot;))</span>
-<span class="fc" id="L58">            .map(String::trim)</span>
-<span class="fc bfc" id="L59" title="All 2 branches covered.">            .filter(s -&gt; !s.isEmpty())</span>
-<span class="fc" id="L60">            .map(String::toLowerCase)</span>
-<span class="fc" id="L61">            .collect(Collectors.toCollection(LinkedHashSet::new));</span>
+<span class="fc bfc" id="L53" title="All 4 branches covered.">        if (raw == null || raw.isBlank()) return Collections.emptySet();</span>
+<span class="fc" id="L54">        return Arrays.stream(raw.split(&quot;,&quot;))</span>
+<span class="fc" id="L55">            .map(String::trim)</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">            .filter(s -&gt; !s.isEmpty())</span>
+<span class="fc" id="L57">            .map(String::toLowerCase)</span>
+<span class="fc" id="L58">            .collect(Collectors.toCollection(LinkedHashSet::new));</span>
     }
 
     protected boolean isAdminEmail(String email) {
-<span class="nc" id="L65">        return readAdminAllowlist().contains(email.toLowerCase());</span>
+<span class="nc" id="L62">        return readAdminAllowlist().contains(email.toLowerCase());</span>
     }
 
     private static String toRoleAuthority(Role role) {
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        String name = (role == null) ? &quot;USER&quot; : role.name();</span>
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        return name.startsWith(&quot;ROLE_&quot;) ? name : &quot;ROLE_&quot; + name;</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        String name = (role == null) ? &quot;USER&quot; : role.name();</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        return name.startsWith(&quot;ROLE_&quot;) ? name : &quot;ROLE_&quot; + name;</span>
     }
 
     /**
@@ -80,59 +77,22 @@ public class CustomOidcUserService implements OAuth2UserService&lt;OidcUserReque
      */
     @Override
     public OidcUser loadUser(OidcUserRequest request) throws OAuth2AuthenticationException {
-<span class="fc" id="L83">        OidcUser oidc = loadFromProvider(request);</span>
+<span class="fc" id="L80">        OidcUser oidc = loadFromProvider(request);</span>
 
-<span class="fc" id="L85">        String email = oidc.getEmail();</span>
-<span class="fc" id="L86">        String name  = oidc.getFullName();</span>
+<span class="fc" id="L82">        String email = oidc.getEmail();</span>
+<span class="fc" id="L83">        String name  = oidc.getFullName();</span>
 
-<span class="fc bfc" id="L88" title="All 4 branches covered.">        if (email == null || email.isBlank()) {</span>
-<span class="fc" id="L89">            throw new OAuth2AuthenticationException(&quot;Email not provided by OAuth2 provider.&quot;);</span>
+<span class="fc bfc" id="L85" title="All 4 branches covered.">        if (email == null || email.isBlank()) {</span>
+<span class="fc" id="L86">            throw new OAuth2AuthenticationException(&quot;Email not provided by OAuth2 provider.&quot;);</span>
         }
 
-<span class="fc" id="L92">        boolean isAdmin = isAdminEmail(email);</span>
-<span class="fc" id="L93">        AppUser user = provisionUser(email, name, isAdmin);</span>
+<span class="fc" id="L89">        AppUser user = userProvisioningService.provision(email, name, isAdminEmail(email));</span>
 
-<span class="fc" id="L95">        List&lt;GrantedAuthority&gt; authorities = new ArrayList&lt;&gt;(oidc.getAuthorities());</span>
-<span class="fc" id="L96">        authorities.add(new SimpleGrantedAuthority(toRoleAuthority(user.getRole())));</span>
+<span class="fc" id="L91">        List&lt;GrantedAuthority&gt; authorities = new ArrayList&lt;&gt;(oidc.getAuthorities());</span>
+<span class="fc" id="L92">        authorities.add(new SimpleGrantedAuthority(toRoleAuthority(user.getRole())));</span>
 
         // Email is used as the principal name so SecurityContext and logs show the user's email
-<span class="fc" id="L99">        return new DefaultOidcUser(authorities, oidc.getIdToken(), oidc.getUserInfo(), &quot;email&quot;);</span>
-    }
-
-    /**
-     * Finds or creates the local {@link AppUser} for the given OIDC identity,
-     * and heals the role if the allow-list has changed since the last login.
-     *
-     * &lt;p&gt;Concurrent first-logins from the same identity are resolved by catching
-     * the unique-constraint violation and re-fetching the row the winning thread committed.&lt;/p&gt;
-     *
-     * @param email   verified email from the OIDC provider
-     * @param name    display name from the OIDC provider (nullable)
-     * @param isAdmin whether the email is on the admin allow-list
-     * @return the persisted (and potentially role-healed) user
-     */
-    private AppUser provisionUser(String email, String name, boolean isAdmin) {
-<span class="fc" id="L115">        AppUser user = userRepository.findByEmail(email).orElseGet(() -&gt; {</span>
-<span class="fc" id="L116">            AppUser u = new AppUser();</span>
-<span class="fc" id="L117">            u.setEmail(email);</span>
-<span class="fc bfc" id="L118" title="All 4 branches covered.">            u.setName((name == null || name.isBlank()) ? email : name);</span>
-<span class="fc bfc" id="L119" title="All 2 branches covered.">            u.setRole(isAdmin ? Role.ADMIN : Role.USER);</span>
-<span class="fc" id="L120">            u.setCreatedAt(LocalDateTime.now());</span>
-            try {
-<span class="fc" id="L122">                return userRepository.save(u);</span>
-<span class="fc" id="L123">            } catch (DataIntegrityViolationException e) {</span>
-                // Another concurrent request already created the user — re-fetch by email
-<span class="fc" id="L125">                return userRepository.findByEmail(email).orElseThrow(() -&gt; e);</span>
-            }
-        });
-
-        // Keep role in sync when APP_ADMIN_EMAILS changes between logins
-<span class="fc bfc" id="L130" title="All 2 branches covered.">        Role desired = isAdmin ? Role.ADMIN : Role.USER;</span>
-<span class="fc bfc" id="L131" title="All 2 branches covered.">        if (user.getRole() != desired) {</span>
-<span class="fc" id="L132">            user.setRole(desired);</span>
-<span class="fc" id="L133">            userRepository.save(user);</span>
-        }
-<span class="fc" id="L135">        return user;</span>
+<span class="fc" id="L95">        return new DefaultOidcUser(authorities, oidc.getIdToken(), oidc.getUserInfo(), &quot;email&quot;);</span>
     }
 
     /**
@@ -140,7 +100,7 @@ public class CustomOidcUserService implements OAuth2UserService&lt;OidcUserReque
      * Extracted for testability — tests override this to avoid network calls.
      */
     protected OidcUser loadFromProvider(OidcUserRequest request) throws OAuth2AuthenticationException {
-<span class="nc" id="L143">        return new OidcUserService().loadUser(request);</span>
+<span class="nc" id="L103">        return new OidcUserService().loadUser(request);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -11,7 +11,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import com.smartsupplypro.inventory.config.AppProperties;
-import com.smartsupplypro.inventory.service.UserProvisioningService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -19,12 +18,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Handles successful OAuth2 authentication by provisioning
- * the user and redirecting to the frontend application.
+ * Redirects the browser to the frontend application after a successful
+ * OAuth2 login.
  *
- * &lt;p&gt;Delegates user creation and role assignment to
- * {@link UserProvisioningService} to keep this handler
- * focused on the authentication flow.&lt;/p&gt;
+ * &lt;p&gt;User creation and role assignment happen earlier, during principal
+ * loading in the OAuth2/OIDC user services, so this handler only validates
+ * the principal attributes and resolves the redirect target.&lt;/p&gt;
  *
  * @see CookieOAuth2AuthorizationRequestRepository
  * @see SecurityConfig
@@ -32,23 +31,20 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-<span class="fc" id="L35">    private static final Logger log = LoggerFactory.getLogger(OAuth2LoginSuccessHandler.class);</span>
+<span class="fc" id="L34">    private static final Logger log = LoggerFactory.getLogger(OAuth2LoginSuccessHandler.class);</span>
 
     private final AppProperties props;
-    private final UserProvisioningService userProvisioningService;
 
-<span class="fc" id="L40">    public OAuth2LoginSuccessHandler(AppProperties props, UserProvisioningService userProvisioningService) {</span>
-<span class="fc" id="L41">        this.props = props;</span>
-<span class="fc" id="L42">        this.userProvisioningService = userProvisioningService;</span>
-<span class="fc" id="L43">    }</span>
+<span class="fc" id="L38">    public OAuth2LoginSuccessHandler(AppProperties props) {</span>
+<span class="fc" id="L39">        this.props = props;</span>
+<span class="fc" id="L40">    }</span>
 
     /**
-     * Provisions the authenticated user and redirects to the frontend.
+     * Validates the authenticated principal and redirects to the frontend.
      *
      * &lt;p&gt;Guards against duplicate invocations in the same request cycle.
-     * Validates that email and name are present before delegating to
-     * {@link UserProvisioningService}. Redirect target is resolved from
-     * the optional {@code SSP_RETURN} cookie, validated against the
+     * Requires email and name to be present. Redirect target is resolved
+     * from the optional {@code SSP_RETURN} cookie, validated against the
      * configured CORS allowed origins.&lt;/p&gt;
      *
      * @param request        current HTTP request
@@ -58,74 +54,72 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
-<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (request.getAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;) != null) {</span>
-<span class="fc" id="L62">            log.debug(&quot;Success redirect already performed; skipping.&quot;);</span>
-<span class="fc" id="L63">            return;</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (request.getAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;) != null) {</span>
+<span class="fc" id="L58">            log.debug(&quot;Success redirect already performed; skipping.&quot;);</span>
+<span class="fc" id="L59">            return;</span>
         }
-<span class="fc" id="L65">        request.setAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;, Boolean.TRUE);</span>
+<span class="fc" id="L61">        request.setAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;, Boolean.TRUE);</span>
 
-<span class="fc" id="L67">        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;</span>
-<span class="fc" id="L68">        String email = token.getPrincipal().getAttribute(&quot;email&quot;);</span>
-<span class="fc" id="L69">        String name = token.getPrincipal().getAttribute(&quot;name&quot;);</span>
-<span class="fc bfc" id="L70" title="All 4 branches covered.">        if (email == null || name == null) {</span>
-<span class="fc" id="L71">            throw new IllegalStateException(&quot;Email or name not provided by OAuth2 provider&quot;);</span>
+<span class="fc" id="L63">        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;</span>
+<span class="fc" id="L64">        String email = token.getPrincipal().getAttribute(&quot;email&quot;);</span>
+<span class="fc" id="L65">        String name = token.getPrincipal().getAttribute(&quot;name&quot;);</span>
+<span class="fc bfc" id="L66" title="All 4 branches covered.">        if (email == null || name == null) {</span>
+<span class="fc" id="L67">            throw new IllegalStateException(&quot;Email or name not provided by OAuth2 provider&quot;);</span>
         }
 
-<span class="fc" id="L74">        userProvisioningService.provisionIfAbsent(email, name);</span>
-
-<span class="fc" id="L76">        String target = resolveRedirectTarget(request, response);</span>
-<span class="fc" id="L77">        log.info(&quot;Authentication success, redirecting to: {}&quot;, target);</span>
-<span class="fc" id="L78">        setAlwaysUseDefaultTargetUrl(true);</span>
-<span class="fc" id="L79">        setDefaultTargetUrl(URI.create(target).toString());</span>
-<span class="fc" id="L80">        super.onAuthenticationSuccess(request, response, authentication);</span>
-<span class="fc" id="L81">    }</span>
+<span class="fc" id="L70">        String target = resolveRedirectTarget(request, response);</span>
+<span class="fc" id="L71">        log.info(&quot;Authentication success, redirecting to: {}&quot;, target);</span>
+<span class="fc" id="L72">        setAlwaysUseDefaultTargetUrl(true);</span>
+<span class="fc" id="L73">        setDefaultTargetUrl(URI.create(target).toString());</span>
+<span class="fc" id="L74">        super.onAuthenticationSuccess(request, response, authentication);</span>
+<span class="fc" id="L75">    }</span>
 
     private String resolveRedirectTarget(HttpServletRequest request, HttpServletResponse response) {
-<span class="fc" id="L84">        String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();</span>
-<span class="fc" id="L85">        Cookie[] cookies = request.getCookies();</span>
-<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (cookies == null) return target;</span>
-<span class="fc bfc" id="L87" title="All 2 branches covered.">        for (Cookie c : cookies) {</span>
-<span class="fc bfc" id="L88" title="All 2 branches covered.">            if (!&quot;SSP_RETURN&quot;.equals(c.getName())) continue;</span>
-<span class="fc" id="L89">            String candidate = c.getValue();</span>
-<span class="pc bpc" id="L90" title="1 of 4 branches missed.">            if (candidate != null &amp;&amp; !candidate.isBlank()) {</span>
+<span class="fc" id="L78">        String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();</span>
+<span class="fc" id="L79">        Cookie[] cookies = request.getCookies();</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        if (cookies == null) return target;</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        for (Cookie c : cookies) {</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            if (!&quot;SSP_RETURN&quot;.equals(c.getName())) continue;</span>
+<span class="fc" id="L83">            String candidate = c.getValue();</span>
+<span class="pc bpc" id="L84" title="1 of 4 branches missed.">            if (candidate != null &amp;&amp; !candidate.isBlank()) {</span>
                 // Redirect URL construction: validate against allowed origins to prevent open redirect
-<span class="fc bfc" id="L92" title="All 2 branches covered.">                if (props.getCors().getAllowedOrigins().contains(candidate)) {</span>
-<span class="fc" id="L93">                    target = candidate + &quot;/auth&quot;;</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                if (props.getCors().getAllowedOrigins().contains(candidate)) {</span>
+<span class="fc" id="L87">                    target = candidate + &quot;/auth&quot;;</span>
                 } else {
-<span class="fc" id="L95">                    log.warn(&quot;Rejected non-allowlisted return URL: {}&quot;, candidate);</span>
+<span class="fc" id="L89">                    log.warn(&quot;Rejected non-allowlisted return URL: {}&quot;, candidate);</span>
                 }
             }
-<span class="fc" id="L98">            clearReturnCookie(request, response);</span>
-<span class="fc" id="L99">            break;</span>
+<span class="fc" id="L92">            clearReturnCookie(request, response);</span>
+<span class="fc" id="L93">            break;</span>
         }
-<span class="fc" id="L101">        return target;</span>
+<span class="fc" id="L95">        return target;</span>
     }
 
     private void clearReturnCookie(HttpServletRequest request, HttpServletResponse response) {
-<span class="fc" id="L105">        Cookie clear = new Cookie(&quot;SSP_RETURN&quot;, &quot;&quot;);</span>
-<span class="fc" id="L106">        clear.setPath(&quot;/&quot;);</span>
-<span class="fc" id="L107">        clear.setMaxAge(0);</span>
-<span class="fc" id="L108">        clear.setSecure(isSecureOrForwardedHttps(request));</span>
+<span class="fc" id="L99">        Cookie clear = new Cookie(&quot;SSP_RETURN&quot;, &quot;&quot;);</span>
+<span class="fc" id="L100">        clear.setPath(&quot;/&quot;);</span>
+<span class="fc" id="L101">        clear.setMaxAge(0);</span>
+<span class="fc" id="L102">        clear.setSecure(isSecureOrForwardedHttps(request));</span>
         // Not HttpOnly: frontend created it non-HttpOnly so clearing must match
-<span class="fc" id="L110">        clear.setHttpOnly(false);</span>
-<span class="fc" id="L111">        addCookieWithSameSite(response, clear, &quot;None&quot;);</span>
-<span class="fc" id="L112">    }</span>
+<span class="fc" id="L104">        clear.setHttpOnly(false);</span>
+<span class="fc" id="L105">        addCookieWithSameSite(response, clear, &quot;None&quot;);</span>
+<span class="fc" id="L106">    }</span>
 
     private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
-<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (request.isSecure()) return true;</span>
-<span class="fc" id="L116">        String xfProto = request.getHeader(&quot;X-Forwarded-Proto&quot;);</span>
-<span class="fc bfc" id="L117" title="All 4 branches covered.">        return xfProto != null &amp;&amp; xfProto.equalsIgnoreCase(&quot;https&quot;);</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (request.isSecure()) return true;</span>
+<span class="fc" id="L110">        String xfProto = request.getHeader(&quot;X-Forwarded-Proto&quot;);</span>
+<span class="fc bfc" id="L111" title="All 4 branches covered.">        return xfProto != null &amp;&amp; xfProto.equalsIgnoreCase(&quot;https&quot;);</span>
     }
 
     private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {
-<span class="fc" id="L121">        StringBuilder sb = new StringBuilder();</span>
-<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? &quot;&quot; : cookie.getValue());</span>
-<span class="fc bfc" id="L123" title="All 2 branches covered.">        sb.append(&quot;; Path=&quot;).append(cookie.getPath() == null ? &quot;/&quot; : cookie.getPath());</span>
-<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (cookie.getMaxAge() &gt;= 0) sb.append(&quot;; Max-Age=&quot;).append(cookie.getMaxAge());</span>
-<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (cookie.getSecure()) sb.append(&quot;; Secure&quot;);</span>
-<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (cookie.isHttpOnly()) sb.append(&quot;; HttpOnly&quot;);</span>
-<span class="pc bpc" id="L127" title="1 of 4 branches missed.">        if (sameSite != null &amp;&amp; !sameSite.isBlank()) sb.append(&quot;; SameSite=&quot;).append(sameSite);</span>
-<span class="fc" id="L128">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
-<span class="fc" id="L129">    }</span>
+<span class="fc" id="L115">        StringBuilder sb = new StringBuilder();</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? &quot;&quot; : cookie.getValue());</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        sb.append(&quot;; Path=&quot;).append(cookie.getPath() == null ? &quot;/&quot; : cookie.getPath());</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (cookie.getMaxAge() &gt;= 0) sb.append(&quot;; Max-Age=&quot;).append(cookie.getMaxAge());</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (cookie.getSecure()) sb.append(&quot;; Secure&quot;);</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (cookie.isHttpOnly()) sb.append(&quot;; HttpOnly&quot;);</span>
+<span class="pc bpc" id="L121" title="1 of 4 branches missed.">        if (sameSite != null &amp;&amp; !sameSite.isBlank()) sb.append(&quot;; SameSite=&quot;).append(sameSite);</span>
+<span class="fc" id="L122">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
+<span class="fc" id="L123">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

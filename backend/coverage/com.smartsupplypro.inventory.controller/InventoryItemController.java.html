@@ -23,14 +23,13 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
-import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 
 /**
  * REST controller for inventory item CRUD operations.
  *
  * &lt;p&gt;Read endpoints allow authentication or demo-readonly access.
- * Write operations require {@code ROLE_ADMIN} and a non-demo session.&lt;/p&gt;
+ * Write operations require {@code ROLE_ADMIN}.&lt;/p&gt;
  *
  * @see InventoryItemService
  */
@@ -41,9 +40,9 @@ public class InventoryItemController {
 
     private final InventoryItemService inventoryItemService;
 
-<span class="fc" id="L44">    public InventoryItemController(InventoryItemService inventoryItemService) {</span>
-<span class="fc" id="L45">        this.inventoryItemService = inventoryItemService;</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L43">    public InventoryItemController(InventoryItemService inventoryItemService) {</span>
+<span class="fc" id="L44">        this.inventoryItemService = inventoryItemService;</span>
+<span class="fc" id="L45">    }</span>
 
     /**
      * Gets a single inventory item by ID.
@@ -54,35 +53,50 @@ public class InventoryItemController {
      */
     @GetMapping(&quot;/{id}&quot;)
     public InventoryItemDTO getById(@PathVariable String id) {
-<span class="fc" id="L57">        return inventoryItemService.getById(id)</span>
-<span class="fc" id="L58">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
-    }
-
-    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
-    @GetMapping
-    public List&lt;InventoryItemDTO&gt; getAll() {
-<span class="fc" id="L64">        return inventoryItemService.getAll();</span>
-    }
-
-    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
-    @GetMapping(&quot;/count&quot;)
-    public long countItems() {
-<span class="fc" id="L70">        return inventoryItemService.countItems();</span>
+<span class="fc" id="L56">        return inventoryItemService.getById(id)</span>
+<span class="fc" id="L57">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
     }
 
     /**
-     * Searches items by name with pagination and sorting.
+     * Returns all active inventory items without pagination.
      *
-     * @param name     case-insensitive name substring
-     * @param pageable pagination and sorting parameters
+     * @return all active inventory items
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping
+    public List&lt;InventoryItemDTO&gt; getAll() {
+<span class="fc" id="L68">        return inventoryItemService.getAll();</span>
+    }
+
+    /**
+     * Returns the count of active inventory items.
+     *
+     * @return number of active inventory items
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/count&quot;)
+    public long countItems() {
+<span class="fc" id="L79">        return inventoryItemService.countItems();</span>
+    }
+
+    /**
+     * Searches active items by name or SKU with pagination and sorting.
+     * All filters are optional; an empty name matches all items.
+     *
+     * @param name             case-insensitive name/SKU substring (optional)
+     * @param supplierId       optional supplier filter
+     * @param belowMinimumOnly when true, only items below their minimum quantity
+     * @param pageable         pagination and sorting parameters
      * @return page of matching items
      */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/search&quot;)
     public Page&lt;InventoryItemDTO&gt; search(
-            @RequestParam String name,
+            @RequestParam(required = false, defaultValue = &quot;&quot;) String name,
+            @RequestParam(required = false) String supplierId,
+            @RequestParam(required = false, defaultValue = &quot;false&quot;) boolean belowMinimumOnly,
             @org.springframework.data.web.PageableDefault(size = 20, sort = &quot;price&quot;) Pageable pageable) {
-<span class="fc" id="L85">        return inventoryItemService.findByNameSortedByPrice(name, pageable);</span>
+<span class="fc" id="L99">        return inventoryItemService.searchItems(name, supplierId, belowMinimumOnly, pageable);</span>
     }
 
     /**
@@ -92,20 +106,20 @@ public class InventoryItemController {
      * @return 201 Created with Location header and created item
      * @throws ResponseStatusException 400 if validation fails
      */
-    @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
     @PostMapping
     public ResponseEntity&lt;InventoryItemDTO&gt; create(
             @Validated(InventoryItemDTO.Create.class) @RequestBody InventoryItemDTO body) {
 
-<span class="fc" id="L100">        InventoryItemDTO created = inventoryItemService.save(body);</span>
-<span class="fc bfc" id="L101" title="All 2 branches covered.">        if (created == null) {</span>
-<span class="fc" id="L102">            return ResponseEntity.badRequest().build();</span>
+<span class="fc" id="L114">        InventoryItemDTO created = inventoryItemService.save(body);</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (created == null) {</span>
+<span class="fc" id="L116">            return ResponseEntity.badRequest().build();</span>
         }
         URI location = ServletUriComponentsBuilder
-<span class="fc" id="L105">                .fromCurrentRequest().path(&quot;/{id}&quot;)</span>
-<span class="fc" id="L106">                .buildAndExpand(created.getId())</span>
-<span class="fc" id="L107">                .toUri();</span>
-<span class="fc" id="L108">        return ResponseEntity.created(location).body(created);</span>
+<span class="fc" id="L119">                .fromCurrentRequest().path(&quot;/{id}&quot;)</span>
+<span class="fc" id="L120">                .buildAndExpand(created.getId())</span>
+<span class="fc" id="L121">                .toUri();</span>
+<span class="fc" id="L122">        return ResponseEntity.created(location).body(created);</span>
     }
 
     /**
@@ -116,29 +130,30 @@ public class InventoryItemController {
      * @return updated inventory item
      * @throws ResponseStatusException 404 if item not found
      */
-    @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
     @PutMapping(&quot;/{id}&quot;)
     public InventoryItemDTO update(
             @PathVariable String id,
             @Validated @RequestBody InventoryItemDTO body) {
 
-<span class="fc" id="L125">        body.setId(null); // path id takes precedence; avoids conflicts in update logic</span>
-<span class="fc" id="L126">        return inventoryItemService.update(id, body)</span>
-<span class="fc" id="L127">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
+<span class="fc" id="L139">        body.setId(null); // path id takes precedence; avoids conflicts in update logic</span>
+<span class="fc" id="L140">        return inventoryItemService.update(id, body)</span>
+<span class="fc" id="L141">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
     }
 
     /**
-     * Deletes an inventory item with an audit reason.
+     * Deletes an inventory item. Deletion is only permitted once the item's
+     * quantity is zero; in-stock merchandise must first be reduced via a
+     * quantity adjustment, which is where the stock movement is audited.
      *
-     * @param id     item identifier
-     * @param reason business reason for deletion
+     * @param id item identifier
      * @throws ResponseStatusException 404 if item not found
      */
-    @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
     @DeleteMapping(&quot;/{id}&quot;)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable String id, @RequestParam StockChangeReason reason) {
-<span class="fc" id="L141">        inventoryItemService.delete(id, reason);</span>
-<span class="fc" id="L142">    }</span>
+    public void delete(@PathVariable String id) {
+<span class="fc" id="L156">        inventoryItemService.delete(id);</span>
+<span class="fc" id="L157">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -29,42 +29,53 @@ import com.smartsupplypro.inventory.model.Supplier;
 <span class="fc" id="L29">        return InventoryItemDTO.builder()</span>
 <span class="fc" id="L30">                .id(item.getId())</span>
 <span class="fc" id="L31">                .name(item.getName())</span>
-<span class="fc" id="L32">                .quantity(item.getQuantity())</span>
-<span class="fc" id="L33">                .price(item.getPrice())</span>
-<span class="fc" id="L34">                .totalValue(calculateTotalValue(item.getPrice(), item.getQuantity()))</span>
-<span class="fc" id="L35">                .supplierId(item.getSupplierId())</span>
-<span class="fc" id="L36">                .supplierName(resolveSupplierName(item.getSupplier()))</span>
-<span class="fc" id="L37">                .minimumQuantity(item.getMinimumQuantity())</span>
-<span class="fc" id="L38">                .createdBy(item.getCreatedBy())</span>
-<span class="fc" id="L39">                .createdAt(item.getCreatedAt())</span>
-<span class="fc" id="L40">                .build();</span>
+<span class="fc" id="L32">                .sku(item.getSku())</span>
+<span class="fc" id="L33">                .quantity(item.getQuantity())</span>
+<span class="fc" id="L34">                .price(item.getPrice())</span>
+<span class="fc" id="L35">                .totalValue(calculateTotalValue(item.getPrice(), item.getQuantity()))</span>
+<span class="fc" id="L36">                .supplierId(item.getSupplierId())</span>
+<span class="fc" id="L37">                .supplierName(resolveSupplierName(item.getSupplier()))</span>
+<span class="fc" id="L38">                .minimumQuantity(item.getMinimumQuantity())</span>
+<span class="fc" id="L39">                .createdBy(item.getCreatedBy())</span>
+<span class="fc" id="L40">                .createdAt(item.getCreatedAt())</span>
+<span class="fc" id="L41">                .build();</span>
     }
 
+    /**
+     * Converts an inventory item DTO to a persistable entity.
+     *
+     * &lt;p&gt;Returns {@code null} for a {@code null} input; derived response-only
+     * values such as {@code totalValue} are not part of the entity.&lt;/p&gt;
+     *
+     * @param dto the inventory item DTO to convert
+     * @return the mapped entity, or {@code null} if {@code dto} is {@code null}
+     */
     public InventoryItem toEntity(InventoryItemDTO dto) {
-<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (dto == null) {</span>
-<span class="fc" id="L45">            return null;</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (dto == null) {</span>
+<span class="fc" id="L55">            return null;</span>
         }
-<span class="fc" id="L47">        return InventoryItem.builder()</span>
-<span class="fc" id="L48">                .id(dto.getId())</span>
-<span class="fc" id="L49">                .name(dto.getName())</span>
-<span class="fc" id="L50">                .quantity(dto.getQuantity())</span>
-<span class="fc" id="L51">                .price(dto.getPrice())</span>
-<span class="fc" id="L52">                .supplierId(dto.getSupplierId())</span>
-<span class="fc" id="L53">                .minimumQuantity(dto.getMinimumQuantity())</span>
-<span class="fc" id="L54">                .createdBy(dto.getCreatedBy())    // overwritten in service if null</span>
-<span class="fc" id="L55">                .createdAt(dto.getCreatedAt())    // @PrePersist covers nulls</span>
-<span class="fc" id="L56">                .build();</span>
+<span class="fc" id="L57">        return InventoryItem.builder()</span>
+<span class="fc" id="L58">                .id(dto.getId())</span>
+<span class="fc" id="L59">                .name(dto.getName())</span>
+<span class="fc" id="L60">                .sku(dto.getSku())</span>
+<span class="fc" id="L61">                .quantity(dto.getQuantity())</span>
+<span class="fc" id="L62">                .price(dto.getPrice())</span>
+<span class="fc" id="L63">                .supplierId(dto.getSupplierId())</span>
+<span class="fc" id="L64">                .minimumQuantity(dto.getMinimumQuantity())</span>
+<span class="fc" id="L65">                .createdBy(dto.getCreatedBy())    // overwritten in service if null</span>
+<span class="fc" id="L66">                .createdAt(dto.getCreatedAt())    // @PrePersist covers nulls</span>
+<span class="fc" id="L67">                .build();</span>
     }
 
     private BigDecimal calculateTotalValue(BigDecimal price, Integer quantity) {
-<span class="pc bpc" id="L60" title="1 of 4 branches missed.">        if (price == null || quantity == null) {</span>
-<span class="fc" id="L61">            return BigDecimal.ZERO;</span>
+<span class="pc bpc" id="L71" title="1 of 4 branches missed.">        if (price == null || quantity == null) {</span>
+<span class="fc" id="L72">            return BigDecimal.ZERO;</span>
         }
-<span class="fc" id="L63">        return price.multiply(BigDecimal.valueOf(quantity));</span>
+<span class="fc" id="L74">        return price.multiply(BigDecimal.valueOf(quantity));</span>
     }
 
     private String resolveSupplierName(Supplier supplier) {
-<span class="fc bfc" id="L67" title="All 2 branches covered.">        return supplier != null ? supplier.getName() : null;</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        return supplier != null ? supplier.getName() : null;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

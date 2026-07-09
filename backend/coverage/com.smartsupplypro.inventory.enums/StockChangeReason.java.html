@@ -5,18 +5,19 @@
  */
 <span class="fc" id="L6">public enum StockChangeReason {</span>
 
-<span class="fc" id="L8">    INITIAL_STOCK,</span>
-<span class="fc" id="L9">    MANUAL_UPDATE,</span>
+    /* Initial stock entry. In this app is used also when reposing old stock */
+<span class="fc" id="L9">    INITIAL_STOCK,</span>
+<span class="fc" id="L10">    MANUAL_UPDATE,</span>
     /** Price-only correction; does not affect available quantity. */
-<span class="fc" id="L11">    PRICE_CHANGE,</span>
-<span class="fc" id="L12">    SOLD,</span>
-<span class="fc" id="L13">    SCRAPPED,</span>
-<span class="fc" id="L14">    DESTROYED,</span>
-<span class="fc" id="L15">    DAMAGED,</span>
-<span class="fc" id="L16">    EXPIRED,</span>
-<span class="fc" id="L17">    LOST,</span>
-<span class="fc" id="L18">    RETURNED_TO_SUPPLIER,</span>
-<span class="fc" id="L19">    RETURNED_BY_CUSTOMER;</span>
+<span class="fc" id="L12">    PRICE_CHANGE,</span>
+<span class="fc" id="L13">    SOLD,</span>
+<span class="fc" id="L14">    SCRAPPED,</span>
+<span class="fc" id="L15">    DESTROYED,</span>
+<span class="fc" id="L16">    DAMAGED,</span>
+<span class="fc" id="L17">    EXPIRED,</span>
+<span class="fc" id="L18">    LOST,</span>
+<span class="fc" id="L19">    RETURNED_TO_SUPPLIER,</span>
+<span class="fc" id="L20">    RETURNED_BY_CUSTOMER;</span>
 
     /**
      * Parses a case-insensitive string to the matching {@code StockChangeReason} constant.
@@ -24,14 +25,14 @@
      * @throws IllegalArgumentException if {@code value} is null, blank, or unrecognized
      */
     public static StockChangeReason fromString(String value) {
-<span class="fc bfc" id="L27" title="All 4 branches covered.">        if (value == null || value.isBlank()) {</span>
-<span class="fc" id="L28">            throw new IllegalArgumentException(&quot;Stock change reason cannot be null or empty&quot;);</span>
+<span class="fc bfc" id="L28" title="All 4 branches covered.">        if (value == null || value.isBlank()) {</span>
+<span class="fc" id="L29">            throw new IllegalArgumentException(&quot;Stock change reason cannot be null or empty&quot;);</span>
         }
         try {
-<span class="fc" id="L31">            return valueOf(value.trim().toUpperCase());</span>
-<span class="fc" id="L32">        } catch (IllegalArgumentException e) {</span>
-<span class="fc" id="L33">            throw new IllegalArgumentException(&quot;Invalid stock change reason: &quot; + value.trim(), e);</span>
+<span class="fc" id="L32">            return valueOf(value.trim().toUpperCase());</span>
+<span class="fc" id="L33">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L34">            throw new IllegalArgumentException(&quot;Invalid stock change reason: &quot; + value.trim(), e);</span>
         }
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -12,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import org.hibernate.type.NumericBooleanConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,6 +47,10 @@ public class InventoryItem {
     @Column(name = &quot;NAME&quot;, nullable = false)
     private String name;
 
+    /** Stock Keeping Unit - unique, human-readable item code (see DB migration V2/V4). */
+    @Column(name = &quot;SKU&quot;, nullable = false, length = 32, unique = true)
+    private String sku;
+
     @Column(name = &quot;QUANTITY&quot;, nullable = false)
     private int quantity;
 
@@ -63,6 +69,17 @@ public class InventoryItem {
     @Column(name = &quot;CREATED_AT&quot;, nullable = false)
     private LocalDateTime createdAt;
 
+    /**
+     * Soft-delete flag (CB-APP93). Items are never physically removed;
+     * deletion marks them inactive so stock history survives for auditing.
+     * Defaults to true for new and builder-created instances; the column
+     * default covers legacy inserts that omit the field.
+     */
+    @Builder.Default
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = &quot;ACTIVE&quot;, nullable = false)
+    private boolean active = true;
+
     // read-only join; SUPPLIER_ID is the authoritative FK column
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = &quot;SUPPLIER_ID&quot;, insertable = false, updatable = false)
@@ -70,27 +87,27 @@ public class InventoryItem {
 
     @PrePersist
     protected void onCreate() {
-<span class="fc bfc" id="L73" title="All 4 branches covered.">        if (this.id == null || this.id.isBlank()) {</span>
-<span class="fc" id="L74">            this.id = UUID.randomUUID().toString();</span>
+<span class="fc bfc" id="L90" title="All 4 branches covered.">        if (this.id == null || this.id.isBlank()) {</span>
+<span class="fc" id="L91">            this.id = UUID.randomUUID().toString();</span>
         }
-<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (this.createdAt == null) {</span>
-<span class="fc" id="L77">            this.createdAt = LocalDateTime.now();</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (this.createdAt == null) {</span>
+<span class="fc" id="L94">            this.createdAt = LocalDateTime.now();</span>
         }
-<span class="fc bfc" id="L79" title="All 4 branches covered.">        if (this.createdBy == null || this.createdBy.isBlank()) {</span>
-<span class="fc" id="L80">            this.createdBy = &quot;system&quot;;</span>
+<span class="fc bfc" id="L96" title="All 4 branches covered.">        if (this.createdBy == null || this.createdBy.isBlank()) {</span>
+<span class="fc" id="L97">            this.createdBy = &quot;system&quot;;</span>
         }
-<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (this.minimumQuantity &lt;= 0) {</span>
-<span class="fc" id="L83">            this.minimumQuantity = 10;</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (this.minimumQuantity &lt;= 0) {</span>
+<span class="fc" id="L100">            this.minimumQuantity = 10;</span>
         }
         // denormalized supplierId must match the supplier relationship when only the entity is set
-<span class="fc bfc" id="L86" title="All 4 branches covered.">        boolean supplierIdMissing = (this.supplierId == null || this.supplierId.isBlank());</span>
-<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (supplierIdMissing) {</span>
-<span class="fc bfc" id="L88" title="All 2 branches covered.">            if (this.supplier != null) {</span>
-<span class="fc" id="L89">                this.supplierId = this.supplier.getId();</span>
+<span class="fc bfc" id="L103" title="All 4 branches covered.">        boolean supplierIdMissing = (this.supplierId == null || this.supplierId.isBlank());</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (supplierIdMissing) {</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">            if (this.supplier != null) {</span>
+<span class="fc" id="L106">                this.supplierId = this.supplier.getId();</span>
             } else {
-<span class="fc" id="L91">                this.supplierId = &quot;default-supplier&quot;;</span>
+<span class="fc" id="L108">                this.supplierId = &quot;default-supplier&quot;;</span>
             }
         }
-<span class="fc" id="L94">    }</span>
+<span class="fc" id="L111">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

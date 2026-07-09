@@ -54,7 +54,7 @@ public class InventoryItemLookupValidator {
 <span class="fc bfc" id="L54" title="All 2 branches covered.">        for (InventoryItem item : matches) {</span>
 <span class="fc bfc" id="L55" title="All 4 branches covered.">            if (!item.getId().equals(excludeId) &amp;&amp; item.getPrice().compareTo(price) == 0) {</span>
 <span class="fc" id="L56">                throw new DuplicateResourceException(</span>
-                    &quot;Another inventory item with this name and price already exists.&quot;
+                    &quot;Another inventory item with this name and price already exists.&quot;, &quot;name&quot;
                 );
             }
 <span class="fc" id="L60">        }</span>
@@ -75,10 +75,46 @@ public class InventoryItemLookupValidator {
 <span class="fc bfc" id="L75" title="All 2 branches covered.">        for (InventoryItem item : matches) {</span>
 <span class="pc bpc" id="L76" title="1 of 2 branches missed.">            if (item.getPrice().compareTo(price) == 0) {</span>
 <span class="fc" id="L77">                throw new DuplicateResourceException(</span>
-                    &quot;An inventory item with this name and price already exists.&quot;
+                    &quot;An inventory item with this name and price already exists.&quot;, &quot;name&quot;
                 );
             }
 <span class="nc" id="L81">        }</span>
 <span class="fc" id="L82">    }</span>
+
+    /**
+     * Duplicate SKU check that excludes the item with {@code excludeId}.
+     * Use during update operations when the incoming item's own ID is known.
+     *
+     * @param excludeId id to skip when scanning matches (prevents self-conflict)
+     * @param sku       item SKU
+     * @param repo      inventory repository
+     * @throws DuplicateResourceException if a different item shares the same SKU
+     */
+    public static void validateSkuNotExists(
+            String excludeId, String sku, InventoryItemRepository repo) {
+<span class="fc" id="L95">        List&lt;InventoryItem&gt; matches = repo.findBySkuIgnoreCase(sku);</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        for (InventoryItem item : matches) {</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">            if (!item.getId().equals(excludeId)) {</span>
+<span class="fc" id="L98">                throw new DuplicateResourceException(</span>
+                    &quot;Another inventory item with this SKU already exists.&quot;, &quot;sku&quot;
+                );
+            }
+<span class="fc" id="L102">        }</span>
+<span class="fc" id="L103">    }</span>
+
+    /**
+     * Duplicate SKU check with no ID exclusion. Use during create operations.
+     *
+     * @param sku  item SKU
+     * @param repo inventory repository
+     * @throws DuplicateResourceException if any item shares the same SKU
+     */
+    public static void validateSkuNotExists(String sku, InventoryItemRepository repo) {
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        if (!repo.findBySkuIgnoreCase(sku).isEmpty()) {</span>
+<span class="nc" id="L114">            throw new DuplicateResourceException(</span>
+                &quot;An inventory item with this SKU already exists.&quot;, &quot;sku&quot;
+            );
+        }
+<span class="fc" id="L118">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

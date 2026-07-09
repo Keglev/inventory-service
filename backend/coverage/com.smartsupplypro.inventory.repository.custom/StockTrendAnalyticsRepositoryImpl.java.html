@@ -133,8 +133,35 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
 <span class="fc" id="L133">                .collect(Collectors.toList());</span>
     }
 
+    /**
+     * Executes dialect-specific native SQL for per-employee daily change counts.
+     *
+     * &lt;p&gt;Passes bounds as {@code java.sql.Timestamp} for JDBC driver compatibility,
+     * mirroring the daily valuation query.
+     *
+     * @param start inclusive lower bound
+     * @param end   inclusive upper bound
+     * @return rows of [createdBy, dayString, changeCount] ordered by day then creator
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    public List&lt;Object[]&gt; getDailyEmployeeActivity(LocalDateTime start, LocalDateTime end, String supplierId) {
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc" id="L150">            ? StockTrendSqlBuilder.buildH2DailyEmployeeActivitySql()</span>
+<span class="pc" id="L151">            : StockTrendSqlBuilder.buildOracleDailyEmployeeActivitySql();</span>
+
+<span class="fc" id="L153">        final java.sql.Timestamp startTs = java.sql.Timestamp.valueOf(start);</span>
+<span class="fc" id="L154">        final java.sql.Timestamp endTs = java.sql.Timestamp.valueOf(end);</span>
+
+<span class="fc" id="L156">        return em.createNativeQuery(sql)</span>
+<span class="fc" id="L157">                .setParameter(&quot;start&quot;, startTs)</span>
+<span class="fc" id="L158">                .setParameter(&quot;end&quot;, endTs)</span>
+<span class="fc" id="L159">                .setParameter(&quot;supplierId&quot;, normalizeOptionalParam(supplierId))</span>
+<span class="fc" id="L160">                .getResultList();</span>
+    }
+
     private String normalizeOptionalParam(String param) {
-<span class="fc bfc" id="L137" title="All 4 branches covered.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
+<span class="fc bfc" id="L164" title="All 4 branches covered.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

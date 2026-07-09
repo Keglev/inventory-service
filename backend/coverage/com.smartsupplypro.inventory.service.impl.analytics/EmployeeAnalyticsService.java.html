@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmployeeAnalyticsService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.service.impl.analytics</a> &gt; <span class="el_source">EmployeeAnalyticsService.java</span></div><h1>EmployeeAnalyticsService.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.service.impl.analytics;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.temporal.IsoFields;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.smartsupplypro.inventory.dto.EmployeeActivityDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
+import com.smartsupplypro.inventory.model.AppUser;
+import com.smartsupplypro.inventory.repository.AppUserRepository;
+import com.smartsupplypro.inventory.repository.StockHistoryRepository;
+
+import lombok.RequiredArgsConstructor;
+
+import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConverterHelper.asLocalDateTime;
+import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConverterHelper.asNumber;
+import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConverterHelper.blankToNull;
+import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConverterHelper.defaultAndValidateDateWindow;
+import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConverterHelper.endOfDay;
+import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConverterHelper.startOfDay;
+
+/**
+ * Per-employee change analytics.
+ *
+ * &lt;p&gt;SQL aggregates at DAILY granularity only (dialect-safe); weekly and monthly
+ * rollups happen here via {@code java.time} ISO week/month arithmetic. Display
+ * names are resolved from the user table by email, falling back to the raw
+ * audit identity when no user row exists (e.g. system-generated changes).&lt;/p&gt;
+ */
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class EmployeeAnalyticsService {
+
+<span class="fc" id="L51">    private static final Set&lt;String&gt; GRANULARITIES = Set.of(&quot;daily&quot;, &quot;weekly&quot;, &quot;monthly&quot;);</span>
+
+    private final StockHistoryRepository stockHistoryRepository;
+    private final AppUserRepository appUserRepository;
+
+    /**
+     * Aggregates change counts per employee per time bucket.
+     * Defaults to the last 30 days when bounds are null.
+     *
+     * @param granularity {@code daily}, {@code weekly}, or {@code monthly} (null = monthly)
+     * @param startDate   inclusive start date (nullable)
+     * @param endDate     inclusive end date (nullable)
+     * @return activity rows ordered by period ascending, then creator
+     * @throws InvalidRequestException on unknown granularity or inverted window
+     */
+    public List&lt;EmployeeActivityDTO&gt; getEmployeeActivity(String granularity,
+                                                         LocalDate startDate,
+                                                         LocalDate endDate,
+                                                         String supplierId) {
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        final String g = granularity == null ? &quot;monthly&quot; : granularity.toLowerCase(Locale.ROOT);</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (!GRANULARITIES.contains(g)) {</span>
+<span class="fc" id="L72">            throw new InvalidRequestException(&quot;granularity must be one of: daily, weekly, monthly&quot;);</span>
+        }
+<span class="fc" id="L74">        LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);</span>
+
+<span class="fc" id="L76">        List&lt;Object[]&gt; rows = stockHistoryRepository.getDailyEmployeeActivity(</span>
+<span class="fc" id="L77">                startOfDay(window[0]), endOfDay(window[1]), blankToNull(supplierId));</span>
+<span class="fc" id="L78">        Map&lt;String, String&gt; displayNames = loadDisplayNames();</span>
+
+        // creator -&gt; (period -&gt; count); TreeMap keeps periods sorted per creator
+<span class="fc" id="L81">        Map&lt;String, Map&lt;String, Long&gt;&gt; byEmployee = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        for (Object[] r : rows) {</span>
+<span class="fc" id="L83">            String createdBy = (String) r[0];</span>
+<span class="fc" id="L84">            LocalDate day = LocalDate.parse((String) r[1]);</span>
+<span class="fc" id="L85">            long count = asNumber(r[2]).longValue();</span>
+<span class="fc" id="L86">            byEmployee.computeIfAbsent(createdBy, k -&gt; new TreeMap&lt;&gt;())</span>
+<span class="fc" id="L87">                      .merge(toPeriodKey(day, g), count, Long::sum);</span>
+<span class="fc" id="L88">        }</span>
+
+<span class="fc" id="L90">        List&lt;EmployeeActivityDTO&gt; out = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        for (Map.Entry&lt;String, Map&lt;String, Long&gt;&gt; e : byEmployee.entrySet()) {</span>
+<span class="fc" id="L92">            String createdBy = e.getKey();</span>
+<span class="fc" id="L93">            String displayName = displayNames.getOrDefault(createdBy.toLowerCase(Locale.ROOT), createdBy);</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            for (Map.Entry&lt;String, Long&gt; p : e.getValue().entrySet()) {</span>
+<span class="fc" id="L95">                out.add(new EmployeeActivityDTO(p.getKey(), createdBy, displayName, p.getValue()));</span>
+<span class="fc" id="L96">            }</span>
+<span class="fc" id="L97">        }</span>
+<span class="fc" id="L98">        out.sort(Comparator.comparing(EmployeeActivityDTO::period)</span>
+<span class="fc" id="L99">                           .thenComparing(EmployeeActivityDTO::createdBy));</span>
+<span class="fc" id="L100">        return out;</span>
+    }
+
+    /**
+     * Paginated change list, optionally filtered to one employee.
+     * Defaults to the last 30 days when bounds are null.
+     *
+     * @param createdBy optional creator (email) filter, case-insensitive
+     * @param startDate inclusive start date (nullable)
+     * @param endDate   inclusive end date (nullable)
+     * @param pageable  page/size (unsorted; ordering is newest-first in SQL)
+     * @return page of change rows with resolved item and supplier names
+     * @throws InvalidRequestException on inverted window
+     */
+    public Page&lt;StockUpdateResultDTO&gt; getEmployeeChanges(String createdBy,
+                                                         LocalDate startDate,
+                                                         LocalDate endDate,
+                                                         String supplierId,
+                                                         Pageable pageable) {
+<span class="fc" id="L119">        LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);</span>
+<span class="fc" id="L120">        Page&lt;Object[]&gt; page = stockHistoryRepository.findEmployeeChanges(</span>
+<span class="fc" id="L121">                startOfDay(window[0]), endOfDay(window[1]), blankToNull(createdBy),</span>
+<span class="fc" id="L122">                blankToNull(supplierId), pageable);</span>
+
+<span class="fc" id="L124">        return page.map(r -&gt; new StockUpdateResultDTO(</span>
+                (String) r[0],
+                (String) r[1],
+<span class="fc" id="L127">                asNumber(r[2]).intValue(),</span>
+                (String) r[3],
+                (String) r[4],
+<span class="fc" id="L130">                asLocalDateTime(r[5])</span>
+        ));
+    }
+
+    private String toPeriodKey(LocalDate day, String granularity) {
+<span class="fc bfc" id="L135" title="All 3 branches covered.">        return switch (granularity) {</span>
+<span class="fc" id="L136">            case &quot;daily&quot; -&gt; day.toString();</span>
+<span class="fc" id="L137">            case &quot;weekly&quot; -&gt; String.format(&quot;%d-W%02d&quot;,</span>
+<span class="fc" id="L138">                    day.get(IsoFields.WEEK_BASED_YEAR),</span>
+<span class="fc" id="L139">                    day.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR));</span>
+<span class="fc" id="L140">            default -&gt; YearMonth.from(day).toString();</span>
+        };
+    }
+
+    /**
+     * Email -&gt; display name map. Rows without an email are skipped; rows
+     * without a name fall back to the email. OAuth-provisioned users are not
+     * guaranteed to carry a name, so this must never NPE on production data.
+     */
+    private Map&lt;String, String&gt; loadDisplayNames() {
+<span class="fc" id="L150">        Map&lt;String, String&gt; names = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        for (AppUser u : appUserRepository.findAll()) {</span>
+<span class="fc" id="L152">            String email = u.getEmail();</span>
+<span class="pc bpc" id="L153" title="2 of 4 branches missed.">            if (email == null || email.isBlank()) {</span>
+<span class="nc" id="L154">                continue;</span>
+            }
+<span class="pc bpc" id="L156" title="1 of 4 branches missed.">            String display = (u.getName() == null || u.getName().isBlank()) ? email : u.getName();</span>
+<span class="fc" id="L157">            names.putIfAbsent(email.toLowerCase(Locale.ROOT), display);</span>
+<span class="fc" id="L158">        }</span>
+<span class="fc" id="L159">        return names;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

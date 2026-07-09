@@ -80,7 +80,8 @@ public final class StockMetricsSqlBuilder {
 <span class="fc" id="L80">        return &quot;&quot;&quot;</span>
             SELECT i.&quot;NAME&quot;, i.&quot;QUANTITY&quot;, i.&quot;MINIMUM_QUANTITY&quot;
             FROM &quot;INVENTORY_ITEM&quot; i
-            WHERE i.&quot;QUANTITY&quot; &lt; i.&quot;MINIMUM_QUANTITY&quot;
+            WHERE i.&quot;ACTIVE&quot; = 1
+              AND i.&quot;QUANTITY&quot; &lt; i.&quot;MINIMUM_QUANTITY&quot;
               AND (:supplierId IS NULL OR UPPER(i.&quot;SUPPLIER_ID&quot;) = UPPER(:supplierId))
             ORDER BY i.&quot;QUANTITY&quot; ASC
         &quot;&quot;&quot;;
@@ -92,13 +93,14 @@ public final class StockMetricsSqlBuilder {
      * @return SQL ordered by quantity ascending; accepts named parameter {@code :supplierId}
      */
     public static String buildOracleBelowMinimumSql() {
-<span class="fc" id="L95">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L96">        return &quot;&quot;&quot;</span>
             SELECT i.name, i.quantity, i.minimum_quantity
             FROM inventory_item i
-            WHERE i.quantity &lt; i.minimum_quantity
+            WHERE i.active = 1
+              AND i.quantity &lt; i.minimum_quantity
               AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
             ORDER BY i.quantity ASC
         &quot;&quot;&quot;;
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

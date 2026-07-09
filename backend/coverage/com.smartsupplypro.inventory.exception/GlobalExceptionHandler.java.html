@@ -2,6 +2,10 @@
 
 import java.time.Instant;
 import java.util.NoSuchElementException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -27,35 +31,45 @@ import jakarta.validation.ConstraintViolationException;
 
 /**
  * Fallback exception handler for framework-level exceptions not covered by {@link BusinessExceptionHandler}.
+ *
+ * &lt;p&gt;This class is intentionally the single place where framework and infrastructure
+ * exceptions are mapped to HTTP responses; its length reflects the number of distinct
+ * exception types handled, not multiple responsibilities.&lt;/p&gt;
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @RestControllerAdvice
-<span class="fc" id="L33">public class GlobalExceptionHandler {</span>
+<span class="fc" id="L41">public class GlobalExceptionHandler {</span>
 
-    /** Handles {@code @Valid} validation failures; extracts the first field error. */
+<span class="fc" id="L43">    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);</span>
+
+    /** Handles {@code @Valid} validation failures; reports every field error. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleValidation(MethodArgumentNotValidException ex) {
-<span class="fc" id="L38">        String message = ex.getBindingResult().getFieldErrors().stream()</span>
-<span class="fc" id="L39">                .findFirst()</span>
-<span class="fc" id="L40">                .map(fe -&gt; fe.getField() + &quot; &quot; + fe.getDefaultMessage())</span>
-<span class="fc" id="L41">                .orElse(&quot;Validation failed&quot;);</span>
-<span class="fc" id="L42">        return respond(HttpStatus.BAD_REQUEST, sanitize(message));</span>
+<span class="fc" id="L48">        Map&lt;String, String&gt; fieldErrors = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L49">        ex.getBindingResult().getFieldErrors().forEach(fe -&gt;</span>
+<span class="fc" id="L50">            fieldErrors.putIfAbsent(fe.getField(), sanitize(fe.getDefaultMessage())));</span>
+<span class="fc" id="L51">        String message = ex.getBindingResult().getFieldErrors().stream()</span>
+<span class="fc" id="L52">                .findFirst()</span>
+<span class="fc" id="L53">                .map(fe -&gt; fe.getField() + &quot; &quot; + fe.getDefaultMessage())</span>
+<span class="fc" id="L54">                .orElse(&quot;Validation failed&quot;);</span>
+<span class="fc" id="L55">        return respond(HttpStatus.BAD_REQUEST, sanitize(message),</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">            fieldErrors.isEmpty() ? null : fieldErrors);</span>
     }
 
     /** Handles JSR-380 constraint violations ({@code @NotNull}, {@code @Size}). */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleConstraint(ConstraintViolationException ex) {
-<span class="nc" id="L48">        String message = ex.getConstraintViolations().stream()</span>
-<span class="nc" id="L49">                .findFirst()</span>
-<span class="nc" id="L50">                .map(v -&gt; v.getPropertyPath() + &quot; &quot; + v.getMessage())</span>
-<span class="nc" id="L51">                .orElse(&quot;Constraint violation&quot;);</span>
-<span class="nc" id="L52">        return respond(HttpStatus.BAD_REQUEST, sanitize(message));</span>
+<span class="fc" id="L62">        String message = ex.getConstraintViolations().stream()</span>
+<span class="fc" id="L63">                .findFirst()</span>
+<span class="pc" id="L64">                .map(v -&gt; v.getPropertyPath() + &quot; &quot; + v.getMessage())</span>
+<span class="fc" id="L65">                .orElse(&quot;Constraint violation&quot;);</span>
+<span class="fc" id="L66">        return respond(HttpStatus.BAD_REQUEST, sanitize(message));</span>
     }
 
     /** Handles malformed JSON payloads and deserialization errors. */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleParsingError(HttpMessageNotReadableException ex) {
-<span class="nc" id="L58">        return respond(HttpStatus.BAD_REQUEST, &quot;Request body is invalid or unreadable&quot;);</span>
+<span class="fc" id="L72">        return respond(HttpStatus.BAD_REQUEST, &quot;Request body is invalid or unreadable&quot;);</span>
     }
 
     /** Handles missing parameters and type conversion failures. */
@@ -65,38 +79,35 @@ import jakarta.validation.ConstraintViolationException;
     })
     public ResponseEntity&lt;ErrorResponse&gt; handleParameterError(Exception ex) {
         String message;
-<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (ex instanceof MissingServletRequestParameterException missingParam) {</span>
-<span class="fc" id="L69">            message = &quot;Missing required parameter: &quot; + missingParam.getParameterName();</span>
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        } else if (ex instanceof MethodArgumentTypeMismatchException typeMismatch) {</span>
-<span class="pc bpc" id="L71" title="1 of 2 branches missed.">            message = &quot;Invalid parameter value: &quot; + (typeMismatch.getName() != null ? typeMismatch.getName() : &quot;unknown&quot;);</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (ex instanceof MissingServletRequestParameterException missingParam) {</span>
+<span class="fc" id="L83">            message = &quot;Missing required parameter: &quot; + missingParam.getParameterName();</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        } else if (ex instanceof MethodArgumentTypeMismatchException typeMismatch) {</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">            message = &quot;Invalid parameter value: &quot; + (typeMismatch.getName() != null ? typeMismatch.getName() : &quot;unknown&quot;);</span>
         } else {
-<span class="nc" id="L73">            message = &quot;Invalid parameter&quot;;</span>
+<span class="nc" id="L87">            message = &quot;Invalid parameter&quot;;</span>
         }
-<span class="fc" id="L75">        return respond(HttpStatus.BAD_REQUEST, message);</span>
+<span class="fc" id="L89">        return respond(HttpStatus.BAD_REQUEST, message);</span>
     }
 
     /** Returns a generic 401 to prevent authentication mechanism enumeration. */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleAuthentication(AuthenticationException ex) {
-<span class="fc" id="L81">        return respond(HttpStatus.UNAUTHORIZED, &quot;Authentication required&quot;);</span>
+<span class="fc" id="L95">        return respond(HttpStatus.UNAUTHORIZED, &quot;Authentication required&quot;);</span>
     }
 
-    /** Returns a generic 403; detects demo-mode restriction for a user-friendly message. */
+    /** Returns a generic 403 without leaking authorization internals. */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleAccessDenied(AccessDeniedException ex) {
-<span class="pc bpc" id="L87" title="1 of 4 branches missed.">        String message = (ex.getMessage() != null &amp;&amp; ex.getMessage().contains(&quot;principal.isDemo&quot;))</span>
-<span class="fc" id="L88">            ? &quot;You are in demo mode and cannot perform this operation.&quot;</span>
-<span class="fc" id="L89">            : &quot;You are not allowed to perform this operation.&quot;;</span>
-<span class="fc" id="L90">        return respond(HttpStatus.FORBIDDEN, sanitize(message));</span>
+<span class="fc" id="L101">        return respond(HttpStatus.FORBIDDEN, &quot;You are not allowed to perform this operation.&quot;);</span>
     }
 
     /** Handles resource lookup failures from repositories and the service layer. */
     @ExceptionHandler({NoSuchElementException.class, IllegalArgumentException.class})
     public ResponseEntity&lt;ErrorResponse&gt; handleNotFound(RuntimeException ex) {
-<span class="pc bpc" id="L96" title="1 of 4 branches missed.">        String message = (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank())</span>
-<span class="fc" id="L97">            ? ex.getMessage()</span>
-<span class="fc" id="L98">            : &quot;Resource not found&quot;;</span>
-<span class="fc" id="L99">        return respond(HttpStatus.NOT_FOUND, sanitize(message));</span>
+<span class="fc bfc" id="L107" title="All 4 branches covered.">        String message = (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank())</span>
+<span class="fc" id="L108">            ? ex.getMessage()</span>
+<span class="fc" id="L109">            : &quot;Resource not found&quot;;</span>
+<span class="fc" id="L110">        return respond(HttpStatus.NOT_FOUND, sanitize(message));</span>
     }
 
     /** Handles missing static resources with no response body. */
@@ -104,54 +115,68 @@ import jakarta.validation.ConstraintViolationException;
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void handleStaticResource() {
         // No body — standard 404 for static assets
-<span class="fc" id="L107">    }</span>
+<span class="fc" id="L118">    }</span>
 
     /** Sanitizes SQL details before returning a conflict message. */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleDataIntegrity(DataIntegrityViolationException ex) {
-<span class="fc" id="L112">        return respond(HttpStatus.CONFLICT, &quot;Data conflict - constraint violation&quot;);</span>
+<span class="fc" id="L123">        return respond(HttpStatus.CONFLICT, &quot;Data conflict - constraint violation&quot;);</span>
     }
 
-    /** Handles JPA optimistic locking failures during concurrent updates. */
+    /**
+     * Handles JPA optimistic-locking failures during concurrent updates.
+     *
+     * &lt;p&gt;Defensive: no entity currently declares {@code @Version}, so this path
+     * is unreachable today. It is kept to return a clean 409 if optimistic
+     * locking is introduced later.&lt;/p&gt;
+     */
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
-<span class="fc" id="L118">        return respond(HttpStatus.CONFLICT, &quot;Concurrent update detected - please refresh and retry&quot;);</span>
+<span class="fc" id="L135">        return respond(HttpStatus.CONFLICT, &quot;Concurrent update detected - please refresh and retry&quot;);</span>
     }
 
     /** Handles explicit {@link ResponseStatusException}; preserves the original status. */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleResponseStatus(ResponseStatusException ex,
                                                                HttpServletRequest request) {
-<span class="fc" id="L125">        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());</span>
-<span class="fc" id="L126">        String reason = ex.getReason();</span>
-<span class="pc bpc" id="L127" title="2 of 4 branches missed.">        String message = (reason != null &amp;&amp; !reason.isBlank())</span>
-<span class="fc" id="L128">            ? reason</span>
-<span class="pc bnc" id="L129" title="All 2 branches missed.">            : (status != null ? status.getReasonPhrase() : &quot;Request failed&quot;);</span>
-<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        return respond(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR, sanitize(message));</span>
+<span class="fc" id="L142">        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());</span>
+<span class="fc" id="L143">        String reason = ex.getReason();</span>
+<span class="fc bfc" id="L144" title="All 4 branches covered.">        String message = (reason != null &amp;&amp; !reason.isBlank())</span>
+<span class="fc" id="L145">            ? reason</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">            : (status != null ? status.getReasonPhrase() : &quot;Request failed&quot;);</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        return respond(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR, sanitize(message));</span>
     }
 
     /** Prevents stack trace exposure for unhandled exceptions. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleUnexpected(Exception ex) {
-<span class="fc" id="L136">        return respond(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Unexpected server error&quot;);</span>
+        // The client gets a generic envelope; operators get the full stack trace.
+<span class="fc" id="L154">        log.error(&quot;Unhandled exception while processing request&quot;, ex);</span>
+<span class="fc" id="L155">        return respond(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Unexpected server error&quot;);</span>
     }
 
     private ResponseEntity&lt;ErrorResponse&gt; respond(HttpStatus status, String message) {
-<span class="fc" id="L140">        return ResponseEntity.status(status)</span>
-<span class="fc" id="L141">            .body(new ErrorResponse(status.name().toLowerCase(), message, Instant.now().toString()));</span>
+<span class="fc" id="L159">        return respond(status, message, null);</span>
+    }
+
+    private ResponseEntity&lt;ErrorResponse&gt; respond(HttpStatus status, String message,
+                                                  Map&lt;String, String&gt; fieldErrors) {
+<span class="fc" id="L164">        return ResponseEntity.status(status)</span>
+<span class="fc" id="L165">            .body(new ErrorResponse(status.name().toLowerCase(), message,</span>
+<span class="fc" id="L166">                Instant.now().toString(), fieldErrors));</span>
     }
 
     /** Strips file paths, class names, SQL fragments, and credentials from error messages. */
     private String sanitize(String message) {
-<span class="pc bpc" id="L146" title="1 of 2 branches missed.">        if (message == null) return &quot;Unknown error&quot;;</span>
-<span class="fc" id="L147">        return message</span>
-<span class="fc" id="L148">            .replaceAll(&quot;\\b[A-Za-z]:\\\\[\\w\\\\.-]+&quot;, &quot;[PATH]&quot;)</span>
-<span class="fc" id="L149">            .replaceAll(&quot;/[\\w/.-]+\\.(java|class)&quot;, &quot;[INTERNAL]&quot;)</span>
-<span class="fc" id="L150">            .replaceAll(&quot;\\bcom\\.smartsupplypro\\.[\\w.]+&quot;, &quot;[INTERNAL]&quot;)</span>
-<span class="fc" id="L151">            .replaceAll(&quot;(?i)\\bSQL.*&quot;, &quot;Database operation failed&quot;)</span>
-<span class="fc" id="L152">            .replaceAll(&quot;(?i)\\bPassword.*&quot;, &quot;Authentication failed&quot;)</span>
-<span class="fc" id="L153">            .replaceAll(&quot;(?i)\\bToken.*&quot;, &quot;Authentication failed&quot;)</span>
-<span class="fc" id="L154">            .trim();</span>
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">        if (message == null) return &quot;Unknown error&quot;;</span>
+<span class="fc" id="L172">        return message</span>
+<span class="fc" id="L173">            .replaceAll(&quot;\\b[A-Za-z]:\\\\[\\w\\\\.-]+&quot;, &quot;[PATH]&quot;)</span>
+<span class="fc" id="L174">            .replaceAll(&quot;/[\\w/.-]+\\.(java|class)&quot;, &quot;[INTERNAL]&quot;)</span>
+<span class="fc" id="L175">            .replaceAll(&quot;\\bcom\\.smartsupplypro\\.[\\w.]+&quot;, &quot;[INTERNAL]&quot;)</span>
+<span class="fc" id="L176">            .replaceAll(&quot;(?i)\\bSQL.*&quot;, &quot;Database operation failed&quot;)</span>
+<span class="fc" id="L177">            .replaceAll(&quot;(?i)\\bPassword.*&quot;, &quot;Authentication failed&quot;)</span>
+<span class="fc" id="L178">            .replaceAll(&quot;(?i)\\bToken.*&quot;, &quot;Authentication failed&quot;)</span>
+<span class="fc" id="L179">            .trim();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
