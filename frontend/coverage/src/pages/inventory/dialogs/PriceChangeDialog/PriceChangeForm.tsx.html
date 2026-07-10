@@ -511,7 +511,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
       {/* Step 1: Supplier Selection */}
       &lt;Box&gt;
         &lt;Typography variant="subtitle2" gutterBottom color="primary"&gt;
-          {t('inventory:steps.selectSupplier', 'Step 1: Select Supplier')}
+          {t('inventory:steps.selectSupplier')}
         &lt;/Typography&gt;
         &lt;FormControl
           fullWidth
@@ -519,10 +519,10 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
           disabled={state.suppliersLoading}
           data-testid="supplier-form-control"
         &gt;
-          &lt;InputLabel&gt;{t('inventory:table.supplier', 'Supplier')}&lt;/InputLabel&gt;
+          &lt;InputLabel&gt;{t('inventory:table.supplier')}&lt;/InputLabel&gt;
           &lt;Select
             value={state.selectedSupplier?.id || ''}
-            label={t('inventory:table.supplier', 'Supplier')}
+            label={t('inventory:table.supplier')}
             onChange={(e) =&gt; {
               const supplierId = e.target.value;
               const supplier =
@@ -532,7 +532,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
             disabled={state.suppliersLoading}
           &gt;
             &lt;MenuItem value=""&gt;
-              &lt;em&gt;{t('common:selectOption', 'Select an option')}&lt;/em&gt;
+              &lt;em&gt;{t('common:selectOption')}&lt;/em&gt;
             &lt;/MenuItem&gt;
             {state.suppliers.map((supplier) =&gt; (
               &lt;MenuItem key={supplier.id} value={supplier.id}&gt;
@@ -546,7 +546,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
       {/* Step 2: Item Selection */}
       &lt;Box&gt;
         &lt;Typography variant="subtitle2" gutterBottom color="primary"&gt;
-          {t('inventory:steps.selectItem', 'Step 2: Search and Select Item')}
+          {t('inventory:steps.selectItem')}
         &lt;/Typography&gt;
         &lt;Autocomplete
           fullWidth
@@ -561,16 +561,16 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
           loading={state.itemsLoading}
           noOptionsText={
             state.itemQuery.length &lt; 2
-              ? t('inventory:search.typeToSearch', 'Type at least 2 characters to search')
-              : <span class="branch-1 cbranch-no" title="branch not covered" >t('inventory:search.noItemsFound', 'No items found')</span>
+              ? t('inventory:search.typeToSearch')
+              : <span class="branch-1 cbranch-no" title="branch not covered" >t('inventory:search.noItemsFound')</span>
           }
           renderInput={(params) =&gt; (
             &lt;TextField
               {...params}
-              label={t('inventory:search.searchSelectItem', 'Search and select item...')}
+              label={t('inventory:search.searchSelectItem')}
               placeholder={
                 !state.selectedSupplier
-                  ? t('inventory:search.selectSupplierFirst', 'Select supplier first')
+                  ? t('inventory:search.selectSupplierFirst')
                   : undefined
               }
               InputProps={{
@@ -603,7 +603,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
       {/* Step 3: Price Change */}
       &lt;Box&gt;
         &lt;Typography variant="subtitle2" gutterBottom color="primary"&gt;
-          {t('inventory:steps.changePrice', 'Step 3: Enter New Price')}
+          {t('inventory:steps.changePrice')}
         &lt;/Typography&gt;
         &lt;Controller
           name="newPrice"
@@ -616,7 +616,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
                 const val = e.target.value;
                 onChange(val === '' ? 0 : Number(val));
               }}
-              label={t('inventory:price.newPrice', 'New Price')}
+              label={t('inventory:price.newPrice')}
               type="number"
               fullWidth
               disabled={!state.selectedItem}
@@ -631,12 +631,12 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
                 typeof state.formState.errors.newPrice?.message === 'string'
                   ? <span class="branch-0 cbranch-no" title="branch not covered" >state.formState.errors.newPrice.message</span>
                   : state.selectedItem
-                    ? t('inventory:price.priceChange', 'Unit price: change from {{from}} to {{to}}', {
+                    ? t('inventory:price.priceChange', {
                         from: state.effectiveCurrentPrice.toFixed(2),
                         to: Number(value).toFixed(2),
                       }) +
                       ' · ' +
-                      t('inventory:price.newTotalValue', 'New total value: {{total}}', {
+                      t('inventory:price.newTotalValue', {
                         total: (Number(value) * state.effectiveCurrentQty).toFixed(2),
                       })
                     : ''
@@ -655,7 +655,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-10T10:17:49.908Z
+                at 2026-07-10T13:37:26.900Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

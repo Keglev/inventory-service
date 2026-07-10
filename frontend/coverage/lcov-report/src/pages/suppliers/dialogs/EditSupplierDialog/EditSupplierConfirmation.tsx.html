@@ -527,7 +527,7 @@ export const EditSupplierConfirmation: React.FC&lt;EditSupplierConfirmationProps
 &nbsp;
   return (
     &lt;Dialog open={open} onClose={onCancel} fullWidth maxWidth="sm"&gt;
-      &lt;DialogTitle&gt;{t('suppliers:dialogs.confirmChanges', 'Confirm Changes')}&lt;/DialogTitle&gt;
+      &lt;DialogTitle&gt;{t('suppliers:dialogs.confirmChanges')}&lt;/DialogTitle&gt;
 &nbsp;
       &lt;DialogContent dividers&gt;
         &lt;Box sx={{ display: 'grid', gap: 2 }}&gt;
@@ -538,7 +538,7 @@ export const EditSupplierConfirmation: React.FC&lt;EditSupplierConfirmationProps
           )}
 &nbsp;
           &lt;Alert severity="warning"&gt;
-            {t('suppliers:confirmations.changesCannotBeReversed', 'These changes cannot be reversed.')}
+            {t('suppliers:confirmations.changesCannotBeReversed')}
           &lt;/Alert&gt;
 &nbsp;
           {supplier &amp;&amp; (
@@ -546,13 +546,13 @@ export const EditSupplierConfirmation: React.FC&lt;EditSupplierConfirmationProps
               {/* Supplier Name (Read-only for display) */}
               &lt;Box sx={{ mb: 2, p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}&gt;
                 &lt;Typography variant="body2" color="text.secondary"&gt;
-                  {t('suppliers:table.name', 'Supplier Name')}
+                  {t('suppliers:table.name')}
                 &lt;/Typography&gt;
                 &lt;Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}&gt;
                   {supplier.name}
                 &lt;/Typography&gt;
                 &lt;Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}&gt;
-                  {t('suppliers:hints.nameCannotBeChanged', '(Cannot be changed)')}
+                  {t('suppliers:hints.nameCannotBeChanged')}
                 &lt;/Typography&gt;
               &lt;/Box&gt;
 &nbsp;
@@ -560,13 +560,13 @@ export const EditSupplierConfirmation: React.FC&lt;EditSupplierConfirmationProps
 &nbsp;
               {/* Changes Summary */}
               &lt;Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}&gt;
-                {t('suppliers:confirmations.changes', 'Changes')}
+                {t('suppliers:confirmations.changes')}
               &lt;/Typography&gt;
 &nbsp;
               {changes?.contactName !== (supplier.contactName || <span class="branch-1 cbranch-no" title="branch not covered" >'') &amp;&amp; (</span>
                 &lt;Box sx={{ mb: 1.5, p: 1, bgcolor: 'info.lighter', borderRadius: 1 }}&gt;
                   &lt;Typography variant="body2" sx={{ fontWeight: 600 }}&gt;
-                    {t('suppliers:table.contactName', 'Contact Name')}
+                    {t('suppliers:table.contactName')}
                   &lt;/Typography&gt;
                   &lt;Typography variant="caption" color="text.secondary"&gt;
                     {supplier.contactName || <span class="branch-1 cbranch-no" title="branch not covered" >'(empty)'} </span>→{' '}
@@ -578,7 +578,7 @@ export const EditSupplierConfirmation: React.FC&lt;EditSupplierConfirmationProps
               {changes?.phone !== (supplier.phone || <span class="branch-1 cbranch-no" title="branch not covered" >'') &amp;&amp; (</span>
                 &lt;Box sx={{ mb: 1.5, p: 1, bgcolor: 'info.lighter', borderRadius: 1 }}&gt;
                   &lt;Typography variant="body2" sx={{ fontWeight: 600 }}&gt;
-                    {t('suppliers:table.phone', 'Phone')}
+                    {t('suppliers:table.phone')}
                   &lt;/Typography&gt;
                   &lt;Typography variant="caption" color="text.secondary"&gt;
                     {supplier.phone || <span class="branch-1 cbranch-no" title="branch not covered" >'(empty)'} </span>→ {changes?.phone || <span class="branch-1 cbranch-no" title="branch not covered" >'(empty)'}</span>
@@ -589,7 +589,7 @@ export const EditSupplierConfirmation: React.FC&lt;EditSupplierConfirmationProps
               {changes?.email !== (supplier.email || <span class="branch-1 cbranch-no" title="branch not covered" >'') &amp;&amp; (</span>
                 &lt;Box sx={{ mb: 1.5, p: 1, bgcolor: 'info.lighter', borderRadius: 1 }}&gt;
                   &lt;Typography variant="body2" sx={{ fontWeight: 600 }}&gt;
-                    {t('suppliers:table.email', 'Email')}
+                    {t('suppliers:table.email')}
                   &lt;/Typography&gt;
                   &lt;Typography variant="caption" color="text.secondary"&gt;
                     {supplier.email || <span class="branch-1 cbranch-no" title="branch not covered" >'(empty)'} </span>→ {changes?.email || <span class="branch-1 cbranch-no" title="branch not covered" >'(empty)'}</span>
@@ -603,7 +603,7 @@ export const EditSupplierConfirmation: React.FC&lt;EditSupplierConfirmationProps
 &nbsp;
       &lt;DialogActions sx={{ gap: 1 }}&gt;
         &lt;Button onClick={onCancel} disabled={isSubmitting}&gt;
-          {t('common:actions.no', 'No')}
+          {t('common:actions.no')}
         &lt;/Button&gt;
         &lt;Button
           onClick={onConfirm}
@@ -614,10 +614,10 @@ export const EditSupplierConfirmation: React.FC&lt;EditSupplierConfirmationProps
           {isSubmitting ? (
             &lt;&gt;
               &lt;CircularProgress size={16} sx={{ mr: 1 }} /&gt;
-              {t('common:actions.saving', 'Saving...')}
+              {t('common:actions.saving')}
             &lt;/&gt;
           ) : (
-            t('common:actions.yes', 'Yes')
+            t('common:actions.yes')
           )}
         &lt;/Button&gt;
       &lt;/DialogActions&gt;
@@ -631,7 +631,7 @@ export const EditSupplierConfirmation: React.FC&lt;EditSupplierConfirmationProps
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-10T10:17:49.999Z
+                at 2026-07-10T13:37:26.974Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>
