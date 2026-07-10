@@ -16,7 +16,6 @@ import AppSettingsForm from '../../../app/settings/AppSettingsForm';
 let appearanceProps: unknown;
 let languageProps: unknown;
 let systemProps: unknown;
-let notificationsProps: unknown;
 
 vi.mock('../../../app/settings/sections/AppearanceSettingsSection', () => ({
   default: (props: unknown) => {
@@ -36,13 +35,6 @@ vi.mock('../../../app/settings/sections/SystemPreferencesSection', () => ({
   default: (props: unknown) => {
     systemProps = props;
     return <div data-testid="system-section">System</div>;
-  },
-}));
-
-vi.mock('../../../app/settings/sections/NotificationsSettingsSection', () => ({
-  default: (props: unknown) => {
-    notificationsProps = props;
-    return <div data-testid="notifications-section">Notifications</div>;
   },
 }));
 
@@ -82,7 +74,6 @@ describe('AppSettingsForm', () => {
     appearanceProps = undefined;
     languageProps = undefined;
     systemProps = undefined;
-    notificationsProps = undefined;
   });
 
   function renderForm(overrides: Partial<AppSettingsFormProps> = {}) {
@@ -97,7 +88,6 @@ describe('AppSettingsForm', () => {
     expect(screen.getByTestId('appearance-section')).toBeInTheDocument();
     expect(screen.getByTestId('language-section')).toBeInTheDocument();
     expect(screen.getByTestId('system-section')).toBeInTheDocument();
-    expect(screen.getByTestId('notifications-section')).toBeInTheDocument();
   });
 
   it('delegates the correct props to each section', () => {
@@ -132,8 +122,6 @@ describe('AppSettingsForm', () => {
       isLoading: false,
     });
 
-    // Currently no props expected, but we assert render + stable wiring point.
-    expect(notificationsProps).toBeDefined();
   });
 
   it('forwards loading state to the system preferences section', () => {

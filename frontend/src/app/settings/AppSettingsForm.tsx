@@ -21,7 +21,6 @@ import { useTranslation } from 'react-i18next';
 import { default as AppearanceSettingsSection } from './sections/AppearanceSettingsSection';
 import { default as LanguageRegionSettingsSection } from './sections/LanguageRegionSettingsSection';
 import { default as SystemPreferencesSection } from './sections/SystemPreferencesSection';
-import { default as NotificationsSettingsSection } from './sections/NotificationsSettingsSection';
 import { SettingsSectionCard } from './SettingsSectionCard';
 import type { DateFormat, NumberFormat, TableDensity, SystemInfo } from '../../context/settings/SettingsContext.types';
 
@@ -109,12 +108,6 @@ export default function AppSettingsForm({
 
       <SettingsSectionCard title={t('settings.systemInfo', 'System Info')}>
         <SystemPreferencesSection systemInfo={systemInfo} isLoading={isLoading} />
-      </SettingsSectionCard>
-
-      <Divider />
-
-      <SettingsSectionCard title={t('settings.notifications', 'Notifications')}>
-        <NotificationsSettingsSection />
       </SettingsSectionCard>
 
     </Box>
