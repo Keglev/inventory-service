@@ -41,13 +41,11 @@ import { InventoryToolbar } from './components/InventoryToolbar';
 import { InventoryFilterPanel } from './components/InventoryFilterPanel';
 import { InventoryTable } from './components/InventoryTable';
 import { InventoryDialogs } from './components/InventoryDialogs';
-import {
-  useToolbarHandlers,
-  useFilterHandlers,
-  useTableHandlers,
-  useRefreshHandler,
-  useDataFetchingLogic,
-} from './handlers';
+import { useToolbarHandlers } from './handlers/useToolbarHandlers';
+import { useFilterHandlers } from './handlers/useFilterHandlers';
+import { useTableHandlers } from './handlers/useTableHandlers';
+import { useRefreshHandler } from './handlers/useRefreshHandler';
+import { useDataFetchingLogic } from './handlers/useDataFetchingLogic';
 
 const InventoryBoard: React.FC = () => {
   const { t } = useTranslation(['common', 'auth', 'analytics', 'inventory']);

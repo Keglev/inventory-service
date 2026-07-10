@@ -25,11 +25,11 @@
  */
 
 import * as React from 'react';
-import { ItemFormDialog } from '../dialogs/ItemFormDialog';
-import { EditItemDialog } from '../dialogs/EditItemDialog';
+import { ItemFormDialog } from '../dialogs/ItemFormDialog/ItemFormDialog';
+import { EditItemDialog } from '../dialogs/EditItemDialog/EditItemDialog';
 import DeleteItemDialog from '../dialogs/DeleteItemDialog/DeleteItemDialog';
-import { QuantityAdjustDialog } from '../dialogs/QuantityAdjustDialog';
-import { PriceChangeDialog } from '../dialogs/PriceChangeDialog';
+import { QuantityAdjustDialog } from '../dialogs/QuantityAdjustDialog/QuantityAdjustDialog';
+import { PriceChangeDialog } from '../dialogs/PriceChangeDialog/PriceChangeDialog';
 
 interface InventoryDialogsProps {
   openNew: boolean;

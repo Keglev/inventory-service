@@ -86,7 +86,7 @@ vi.mock('@/pages/analytics/components/AnalyticsNav', () => ({
   default: vi.fn(({ section }: { section: string }) => <div data-testid="analytics-nav">Nav: {section}</div>),
 }));
 
-vi.mock('@/pages/analytics/components/filters', () => ({
+vi.mock('@/pages/analytics/components/filters/Filters', () => ({
   Filters: vi.fn(() => <div data-testid="filters">Filters</div>),
 }));
 

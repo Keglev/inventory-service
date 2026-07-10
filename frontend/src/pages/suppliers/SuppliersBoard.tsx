@@ -21,22 +21,18 @@ import { Box, Paper } from '@mui/material';
 import { useAuth } from '../../hooks/useAuth';
 import type { SupplierRow } from '../../api/suppliers/types';
 
-import { useSuppliersBoardState } from './hooks';
-import {
-  useToolbarHandlers,
-  useSearchHandlers,
-  useTableHandlers,
-  useFilterHandlers,
-  useDialogHandlers,
-  useDataFetchingLogic,
-} from './handlers';
-import {
-  SuppliersToolbar,
-  SuppliersSearchPanel,
-  SuppliersFilterPanel,
-  SuppliersTable,
-  SuppliersDialogs,
-} from './components';
+import { useSuppliersBoardState } from './hooks/useSuppliersBoardState';
+import { useToolbarHandlers } from './handlers/useToolbarHandlers';
+import { useSearchHandlers } from './handlers/useSearchHandlers';
+import { useTableHandlers } from './handlers/useTableHandlers';
+import { useFilterHandlers } from './handlers/useFilterHandlers';
+import { useDialogHandlers } from './handlers/useDialogHandlers';
+import { useDataFetchingLogic } from './handlers/useDataFetchingLogic';
+import { SuppliersToolbar } from './components/SuppliersToolbar';
+import { SuppliersSearchPanel } from './components/SuppliersSearchPanel';
+import { SuppliersFilterPanel } from './components/SuppliersFilterPanel';
+import { SuppliersTable } from './components/SuppliersTable';
+import { SuppliersDialogs } from './components/SuppliersDialogs';
 
 /**
  * Suppliers Management Board - main page orchestrator.

@@ -55,7 +55,8 @@ import MovementsSection from './sections/MovementsSection';
 import EmployeesSection from './sections/EmployeesSection';
 
 // Filters UI
-import { Filters, type AnalyticsFilters } from './components/filters';
+import { Filters } from './components/filters/Filters';
+import type { AnalyticsFilters } from './components/filters/Filters.types';
 
 // Import date helpers from the standard utils location
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';

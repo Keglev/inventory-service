@@ -69,7 +69,7 @@ vi.mock('@/pages/inventory/components/InventoryDialogs', () => ({
 }));
 
 // Mock handlers
-vi.mock('@/pages/inventory/handlers', () => ({
+vi.mock('@/pages/inventory/handlers/useToolbarHandlers', () => ({
   useToolbarHandlers: () => ({
     handleAddNew: () => undefined,
     handleEdit: () => undefined,
@@ -77,19 +77,31 @@ vi.mock('@/pages/inventory/handlers', () => ({
     handleAdjustQty: () => undefined,
     handleChangePrice: () => undefined,
   }),
+}));
+
+vi.mock('@/pages/inventory/handlers/useFilterHandlers', () => ({
   useFilterHandlers: () => ({
     handleSearchChange: () => undefined,
     handleSupplierChange: () => undefined,
     handleBelowMinChange: () => undefined,
   }),
+}));
+
+vi.mock('@/pages/inventory/handlers/useTableHandlers', () => ({
   useTableHandlers: () => ({
     handleRowClick: () => undefined,
     handlePaginationChange: () => undefined,
     handleSortChange: () => undefined,
   }),
+}));
+
+vi.mock('@/pages/inventory/handlers/useRefreshHandler', () => ({
   useRefreshHandler: () => ({
     handleReload: () => undefined,
   }),
+}));
+
+vi.mock('@/pages/inventory/handlers/useDataFetchingLogic', () => ({
   useDataFetchingLogic: vi.fn(() => ({
     server: {
       items: [

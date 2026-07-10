@@ -64,23 +64,35 @@ const runtime = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('../../../../pages/suppliers/components', () => ({
+vi.mock('../../../../pages/suppliers/components/SuppliersToolbar', () => ({
   SuppliersToolbar: (props: unknown) => {
     spies.SuppliersToolbar(props);
     return null;
   },
+}));
+
+vi.mock('../../../../pages/suppliers/components/SuppliersSearchPanel', () => ({
   SuppliersSearchPanel: (props: unknown) => {
     spies.SuppliersSearchPanel(props);
     return null;
   },
+}));
+
+vi.mock('../../../../pages/suppliers/components/SuppliersFilterPanel', () => ({
   SuppliersFilterPanel: (props: unknown) => {
     spies.SuppliersFilterPanel(props);
     return null;
   },
+}));
+
+vi.mock('../../../../pages/suppliers/components/SuppliersTable', () => ({
   SuppliersTable: (props: unknown) => {
     spies.SuppliersTable(props);
     return null;
   },
+}));
+
+vi.mock('../../../../pages/suppliers/components/SuppliersDialogs', () => ({
   SuppliersDialogs: (props: unknown) => {
     spies.SuppliersDialogs(props);
     return null;
@@ -91,32 +103,47 @@ vi.mock('../../../../hooks/useAuth', () => ({
   useAuth: () => ({ user: runtime.user }),
 }));
 
-vi.mock('../../../../pages/suppliers/hooks', () => ({
+vi.mock('../../../../pages/suppliers/hooks/useSuppliersBoardState', () => ({
   useSuppliersBoardState: () => runtime.state,
 }));
 
-vi.mock('../../../../pages/suppliers/handlers', () => ({
+vi.mock('../../../../pages/suppliers/handlers/useToolbarHandlers', () => ({
   useToolbarHandlers: () => ({
     handleAddNew: runtime.handlers.handleAddNew,
     handleEdit: runtime.handlers.handleEdit,
     handleDelete: runtime.handlers.handleDelete,
   }),
+}));
+
+vi.mock('../../../../pages/suppliers/handlers/useSearchHandlers', () => ({
   useSearchHandlers: () => ({
     handleSearchChange: runtime.handlers.handleSearchChange,
     handleSearchResultSelect: runtime.handlers.handleSearchResultSelect,
     handleClearSearchSelection: runtime.handlers.handleClearSearchSelection,
   }),
+}));
+
+vi.mock('../../../../pages/suppliers/handlers/useTableHandlers', () => ({
   useTableHandlers: () => ({
     handleRowClick: runtime.handlers.handleRowClick,
     handlePaginationChange: runtime.handlers.handlePaginationChange,
     handleSortChange: runtime.handlers.handleSortChange,
   }),
+}));
+
+vi.mock('../../../../pages/suppliers/handlers/useFilterHandlers', () => ({
   useFilterHandlers: () => ({ handleToggleShowAll: runtime.handlers.handleToggleShowAll }),
+}));
+
+vi.mock('../../../../pages/suppliers/handlers/useDialogHandlers', () => ({
   useDialogHandlers: () => ({
     handleSupplierCreated: runtime.handlers.handleSupplierCreated,
     handleSupplierUpdated: runtime.handlers.handleSupplierUpdated,
     handleSupplierDeleted: runtime.handlers.handleSupplierDeleted,
   }),
+}));
+
+vi.mock('../../../../pages/suppliers/handlers/useDataFetchingLogic', () => ({
   useDataFetchingLogic: () => runtime.data,
 }));
 

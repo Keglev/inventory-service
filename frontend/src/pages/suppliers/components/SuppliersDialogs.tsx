@@ -14,9 +14,9 @@
  */
 
 import * as React from 'react';
-import { CreateSupplierDialog } from '../dialogs/CreateSupplierDialog';
-import { EditSupplierDialog } from '../dialogs/EditSupplierDialog';
-import { DeleteSupplierDialog } from '../dialogs/DeleteSupplierDialog';
+import { CreateSupplierDialog } from '../dialogs/CreateSupplierDialog/CreateSupplierDialog';
+import { EditSupplierDialog } from '../dialogs/EditSupplierDialog/EditSupplierDialog';
+import { DeleteSupplierDialog } from '../dialogs/DeleteSupplierDialog/DeleteSupplierDialog';
 
 /**
  * Suppliers Dialogs component props.
