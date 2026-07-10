@@ -44,23 +44,12 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast/ToastContext';
 import { upsertItem } from '../../../../api/inventory/itemMutations';
 import { itemFormSchema, type UpsertItemForm } from '../../validation/inventoryValidation';
+import { applyItemFormServerError } from './itemFormServerErrors';
 import type { UpsertItemRequest, InventoryRow } from '../../../../api/inventory/types';
 import type { SupplierOption } from '../../../../api/analytics/types';
 import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
 import { DEFAULT_MIN_QUANTITY } from '../../../../config/inventoryPolicy';
 
-/**
- * Backend field name to form field name. The backend calls the item code
- * 'sku'; the form (and grid) call it 'code'. Fields absent from this map
- * cannot be attached to an input and fall back to the form-level message.
- */
-const SERVER_TO_FORM_FIELD: Record<string, keyof UpsertItemForm> = {
-  sku: 'code',
-  name: 'name',
-  quantity: 'quantity',
-  price: 'price',
-  supplierId: 'supplierId',
-};
 
 /**
  * Complete item form state and handlers
@@ -202,40 +191,6 @@ export function useItemForm({
   // Handlers
   // ================================
 
-  /**
-   * Convert a failed upsert response into field or form errors.
-   *
-   * Prefers the backend's structured fieldErrors map: every entry that maps
-   * to a known form field becomes a react-hook-form field error (backend
-   * 'sku' maps to the form's 'code' field). Falls back to token-based
-   * mapping ('conflict' highlights the name field) for errors without field
-   * attribution, and to a form-level message otherwise.
-   */
-  function applyServerError(result: {
-    errorToken?: string | null;
-    fieldErrors?: Record<string, string> | null;
-  }): void {
-    if (result.fieldErrors) {
-      let applied = false;
-      for (const [field, message] of Object.entries(result.fieldErrors)) {
-        const formField = SERVER_TO_FORM_FIELD[field];
-        if (formField) {
-          setError(formField, { message });
-          applied = true;
-        }
-      }
-      if (applied) return;
-    }
-
-    if (result.errorToken === 'conflict') {
-      setError('name', {
-        message: t('errors:inventory.conflicts.duplicateName'),
-      });
-      return;
-    }
-
-    setFormError(t('errors:inventory.server.serverError'));
-  }
 
   /**
    * Submit form with validation and API call
@@ -274,7 +229,7 @@ export function useItemForm({
       onSaved();
       handleClose();
     } else {
-      applyServerError(res);
+      applyItemFormServerError(res, { setError, setFormError, t });
     }
   });
 

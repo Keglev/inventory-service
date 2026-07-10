@@ -44,6 +44,10 @@ export type PriceTrendCardProps = { from?: string; to?: string; supplierId?: str
 /**
  * Local narrow type (ItemRef already includes optional supplierId).
  * Kept to document intent: UI enforces supplier scoping even if BE ignores it.
+ *
+ * Size note: after extracting the shared item-search hook, the remainder is
+ * the chart and picker render body; accepted above the typical range, under
+ * the alarm threshold.
  */
 type ItemWithSupplier = ItemRef & { supplierId?: string | null };
 

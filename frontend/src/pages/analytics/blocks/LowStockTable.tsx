@@ -82,6 +82,10 @@ function narrowParams(p: Pick<AnalyticsParams, 'from' | 'to'>): AnalyticsParams 
  * ```tsx
  * <LowStockTable supplierId="sup-123" from="2025-06-01" to="2025-09-15" limit={12} />
  * ```
+ *
+ * Size note: one query plus loading/error/empty/table render states in a
+ * single cohesive block; accepted above the typical range, under the alarm
+ * threshold (never split to hit a number).
  */
 export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   const { supplierId, from, to, limit = 12 } = props;

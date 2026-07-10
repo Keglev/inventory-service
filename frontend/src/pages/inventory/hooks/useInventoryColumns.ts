@@ -25,7 +25,15 @@ import * as React from 'react';
 import type { GridColDef } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../hooks/useSettings';
-import { formatDate, formatNumber } from '../../../utils/formatters';
+import {
+  resolveOnHand,
+  resolveMinQty,
+  resolvePrice,
+  resolveTotalValue,
+  formatCount,
+  formatMoney,
+  formatDateCell,
+} from './inventoryColumnValues';
 import type { InventoryRow } from '../../../api/inventory/types';
 
 /**
@@ -56,68 +64,26 @@ export const useInventoryColumns = (): GridColDef[] => {
         headerName: t('inventory:table.onHand', 'On-hand'),
         type: 'number',
         width: 110,
-        valueGetter: (_value: unknown, row: (InventoryRow & { quantity?: number | null }) | null) => {
-          if (!row) return 0;
-          const fromNormalized =
-            typeof row.onHand === 'number' && Number.isFinite(row.onHand)
-              ? row.onHand
-              : undefined;
-          const fromBackend =
-            typeof row.quantity === 'number' && Number.isFinite(row.quantity)
-              ? row.quantity
-              : undefined;
-          return fromNormalized ?? fromBackend ?? 0;
-        },
-        valueFormatter: (value: unknown) => {
-          const numeric =
-            typeof value === 'number' && Number.isFinite(value) ? value : 0;
-          // Quantities are counts: render as plain integers (no decimal places)
-          return formatNumber(numeric, userPreferences.numberFormat, 0);
-        },
+        valueGetter: (_value: unknown, row: (InventoryRow & { quantity?: number | null }) | null) =>
+          resolveOnHand(row),
+        valueFormatter: (value: unknown) => formatCount(value, userPreferences.numberFormat),
       },
       {
         field: 'minQty',
         headerName: t('inventory:table.minQty', 'Min. Qty'),
         type: 'number',
         width: 120,
-        valueGetter: (_value: unknown, row: (InventoryRow & { minimumQuantity?: number | string | null }) | null) => {
-          if (!row) return 0;
-          const raw = row.minQty ?? row.minimumQuantity ?? 0;
-          if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
-          if (typeof raw === 'string' && raw.trim() !== '') {
-            const parsed = Number(raw);
-            return Number.isFinite(parsed) ? parsed : 0;
-          }
-          return 0;
-        },
-        valueFormatter: (value: unknown) => {
-          const numeric =
-            typeof value === 'number'
-              ? value
-              : typeof value === 'string' && value.trim() !== ''
-              ? Number(value)
-              : 0;
-          // Quantities are counts: render as plain integers (no decimal places)
-          return formatNumber(
-            Number.isFinite(numeric) ? numeric : 0,
-            userPreferences.numberFormat,
-            0,
-          );
-        },
+        valueGetter: (_value: unknown, row: (InventoryRow & { minimumQuantity?: number | string | null }) | null) =>
+          resolveMinQty(row),
+        valueFormatter: (value: unknown) => formatCount(value, userPreferences.numberFormat),
       },
       {
         field: 'price',
         headerName: t('inventory:table.unitPrice', 'Unit Price (€)'),
         type: 'number',
         width: 130,
-        valueGetter: (_value: unknown, row: InventoryRow | null) => {
-          if (!row) return null;
-          return typeof row.price === 'number' && Number.isFinite(row.price) ? row.price : null;
-        },
-        valueFormatter: (value: unknown) => {
-          if (typeof value !== 'number' || !Number.isFinite(value)) return '—';
-          return formatNumber(value, userPreferences.numberFormat, 2);
-        },
+        valueGetter: (_value: unknown, row: InventoryRow | null) => resolvePrice(row),
+        valueFormatter: (value: unknown) => formatMoney(value, userPreferences.numberFormat),
       },
       {
         field: 'totalValue',
@@ -127,21 +93,8 @@ export const useInventoryColumns = (): GridColDef[] => {
         // Server-computed (quantity x price); not an entity column, so it
         // cannot participate in server-side sorting (CB-APP68).
         sortable: false,
-        valueGetter: (_value: unknown, row: InventoryRow | null) => {
-          if (!row) return null;
-          if (typeof row.totalValue === 'number' && Number.isFinite(row.totalValue)) {
-            return row.totalValue;
-          }
-          // Fallback: derive from unit price x on-hand when the backend omits totalValue
-          if (typeof row.price === 'number' && Number.isFinite(row.price)) {
-            return row.price * row.onHand;
-          }
-          return null;
-        },
-        valueFormatter: (value: unknown) => {
-          if (typeof value !== 'number' || !Number.isFinite(value)) return '—';
-          return formatNumber(value, userPreferences.numberFormat, 2);
-        },
+        valueGetter: (_value: unknown, row: InventoryRow | null) => resolveTotalValue(row),
+        valueFormatter: (value: unknown) => formatMoney(value, userPreferences.numberFormat),
       },
       {
         field: 'createdAt',
@@ -151,23 +104,7 @@ export const useInventoryColumns = (): GridColDef[] => {
           if (!row) return null;
           return row.createdAt ?? null;
         },
-        valueFormatter: (value: unknown) => {
-          if (value === null || value === undefined || value === '') {
-            return '—';
-          }
-
-          const str = String(value);
-          const date = new Date(str);
-          if (Number.isNaN(date.getTime())) {
-            return '—';
-          }
-
-          try {
-            return formatDate(date, userPreferences.dateFormat);
-          } catch {
-            return '—';
-          }
-        },
+        valueFormatter: (value: unknown) => formatDateCell(value, userPreferences.dateFormat),
       },
     ];
   }, [t, userPreferences.numberFormat, userPreferences.dateFormat]);

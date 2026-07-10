@@ -16,6 +16,10 @@
  *   can legitimately appear on both charts at once.
  * - An empty chip selection means "all reasons" — one tap less for the common
  *   case and no dead state.
+ *
+ * Size note: after extracting the shared item-search hook, the remainder is
+ * the reason filter and chart render body; accepted above the typical range,
+ * under the alarm threshold.
  */
 import * as React from 'react';
 import { Box, Chip, Stack, TextField, Typography } from '@mui/material';

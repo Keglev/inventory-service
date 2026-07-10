@@ -15,6 +15,10 @@
  *   (period, employee, count) rows; Recharts needs one object per period.
  * - Pagination is server-side (Spring Page): only the visible slice is
  *   fetched; the page index resets when the window changes.
+ *
+ * Size note: after extracting the data hook, the remainder is a single pure
+ * render body slightly above the component typical range; accepted (never
+ * split to hit a number).
  */
 import * as React from 'react';
 import {
@@ -23,12 +27,9 @@ import {
 } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
 import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
-import {
-  getEmployeeActivity, getEmployeeChanges,
-  type EmployeeActivityRow, type EmployeeChangesPage, type EmployeeGranularity,
-} from '../../../api/analytics/employees';
+import type { EmployeeGranularity } from '../../../api/analytics/employees';
+import { useEmployeesSectionData, type EmployeesChartRow } from './useEmployeesSectionData';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import { reasonLabel } from './reasonLabels';
@@ -39,50 +40,20 @@ export type EmployeesSectionProps = {
   supplierId?: string | null;
 };
 
-type ChartRow = { period: string } & Record<string, number | string>;
-
 export default function EmployeesSection({ from, to, supplierId }: EmployeesSectionProps) {
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
 
-  const [granularity, setGranularity] = React.useState<EmployeeGranularity>('monthly');
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(25);
-
-  // A new window invalidates the current page position.
-  React.useEffect(() => {
-    setPage(0);
-  }, [from, to, supplierId]);
-
-  const activityQ = useQuery<EmployeeActivityRow[]>({
-    queryKey: ['analytics', 'employeeActivity', granularity, from ?? null, to ?? null, supplierId ?? null],
-    queryFn: () => getEmployeeActivity({ granularity, from, to, supplierId: supplierId ?? undefined }),
-    staleTime: 60_000,
-  });
-
-  const changesQ = useQuery<EmployeeChangesPage>({
-    queryKey: ['analytics', 'employeeChanges', from ?? null, to ?? null, supplierId ?? null, page, rowsPerPage],
-    queryFn: () => getEmployeeChanges({ from, to, supplierId: supplierId ?? undefined, page, size: rowsPerPage }),
-    staleTime: 60_000,
-  });
-
-  // Pivot flat (period, employee, count) rows into one object per period.
-  const { chartData, employees } = React.useMemo(() => {
-    const rows = activityQ.data ?? [];
-    const names = new Map<string, string>();
-    const byPeriod = new Map<string, ChartRow>();
-    for (const r of rows) {
-      names.set(r.createdBy, r.displayName);
-      const bucket = byPeriod.get(r.period) ?? { period: r.period };
-      bucket[r.createdBy] = r.changeCount;
-      byPeriod.set(r.period, bucket);
-    }
-    return {
-      chartData: [...byPeriod.values()].sort((a, b) => a.period.localeCompare(b.period)),
-      employees: [...names.entries()].map(([createdBy, displayName]) => ({ createdBy, displayName })),
-    };
-  }, [activityQ.data]);
+  // Queries, pagination state, and the chart pivot live in the data hook;
+  // the component keeps theme colors and i18n formatting.
+  const {
+    granularity, setGranularity,
+    page, setPage,
+    rowsPerPage, setRowsPerPage,
+    activityQ, changesQ,
+    chartData, employees,
+  } = useEmployeesSectionData({ from, to, supplierId });
 
   const seriesColors = React.useMemo(() => {
     const palette = [
@@ -153,7 +124,7 @@ export default function EmployeesSection({ from, to, supplierId }: EmployeesSect
                     <Line
                       key={emp.createdBy}
                       type="monotone"
-                      dataKey={(row: ChartRow) => (row[emp.createdBy] as number | undefined) ?? 0}
+                      dataKey={(row: EmployeesChartRow) => (row[emp.createdBy] as number | undefined) ?? 0}
                       name={emp.displayName}
                       stroke={seriesColors[idx]}
                       strokeWidth={2}

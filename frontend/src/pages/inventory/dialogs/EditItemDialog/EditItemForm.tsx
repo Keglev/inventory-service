@@ -50,6 +50,10 @@ import type { UseEditItemFormReturn } from './useEditItemForm';
  * - Step 3 visible only after item selected
  * - Each step shows loading states while data fetches
  * - Error display at top with dismissal capability
+ *
+ * Size note: exceeds the component typical range but stays under the alarm
+ * threshold as a single pure render function; all state is injected and there
+ * is nothing to extract but markup (accepted, never split to hit a number).
  */
 export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
