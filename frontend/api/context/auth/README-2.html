@@ -103,21 +103,19 @@ context/auth/README-2 · Smart Supply Pro · API</title>
         <p><a href="../../README.html">frontend</a> / context/auth</p>
         <h1 id="contextauth">context/auth</h1>
         <h2 id="file">File</h2>
-        <p>index.ts</p>
+        <p>AuthProvider.tsx</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>Exists so consumers expecting
+        <code>import AuthProvider from '.../AuthProvider'</code> (a .tsx
+        Provider convention) get a stable import path. The actual
+        implementation stays in AuthContext.ts to keep the auth context
+        module .ts-only (no JSX pragma needed — see AuthContext.ts
+        @enterprise).</li>
+        </ul>
         <h2 id="references">References</h2>
-        <h3 id="appuser">AppUser</h3>
-        <p>Re-exports <a href="interfaces/AppUser.html">AppUser</a></p>
-        <hr />
-        <h3 id="authcontext">AuthContext</h3>
-        <p>Re-exports <a
-        href="variables/AuthContext.html">AuthContext</a></p>
-        <hr />
-        <h3 id="authcontexttype">AuthContextType</h3>
-        <p>Re-exports <a
-        href="interfaces/AuthContextType.html">AuthContextType</a></p>
-        <hr />
-        <h3 id="authprovider">AuthProvider</h3>
-        <p>Re-exports <a
+        <h3 id="default">default</h3>
+        <p>Renames and re-exports <a
         href="variables/AuthProvider.html">AuthProvider</a></p>
       </article>
     </main>
@@ -128,15 +126,10 @@ context/auth/README-2 · Smart Supply Pro · API</title>
       <li><a href="#contextauth" id="toc-contextauth">context/auth</a>
       <ul>
       <li><a href="#file" id="toc-file">File</a></li>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
       <li><a href="#references" id="toc-references">References</a>
       <ul>
-      <li><a href="#appuser" id="toc-appuser">AppUser</a></li>
-      <li><a href="#authcontext"
-      id="toc-authcontext">AuthContext</a></li>
-      <li><a href="#authcontexttype"
-      id="toc-authcontexttype">AuthContextType</a></li>
-      <li><a href="#authprovider"
-      id="toc-authprovider">AuthProvider</a></li>
+      <li><a href="#default" id="toc-default">default</a></li>
       </ul></li>
       </ul></li>
       </ul>
