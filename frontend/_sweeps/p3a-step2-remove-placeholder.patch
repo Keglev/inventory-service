@@ -1,0 +1,183 @@
+diff --git a/frontend/src/__tests__/app/settings/AppSettingsForm.test.tsx b/frontend/src/__tests__/app/settings/AppSettingsForm.test.tsx
+index f5db962..9ea0c7b 100644
+--- a/frontend/src/__tests__/app/settings/AppSettingsForm.test.tsx
++++ b/frontend/src/__tests__/app/settings/AppSettingsForm.test.tsx
+@@ -16,7 +16,6 @@ import AppSettingsForm from '../../../app/settings/AppSettingsForm';
+ let appearanceProps: unknown;
+ let languageProps: unknown;
+ let systemProps: unknown;
+-let notificationsProps: unknown;
+ 
+ vi.mock('../../../app/settings/sections/AppearanceSettingsSection', () => ({
+   default: (props: unknown) => {
+@@ -39,13 +38,6 @@ vi.mock('../../../app/settings/sections/SystemPreferencesSection', () => ({
+   },
+ }));
+ 
+-vi.mock('../../../app/settings/sections/NotificationsSettingsSection', () => ({
+-  default: (props: unknown) => {
+-    notificationsProps = props;
+-    return <div data-testid="notifications-section">Notifications</div>;
+-  },
+-}));
+-
+ vi.mock('../../../utils/formatters', () => ({
+   formatDate: vi.fn((date: unknown) => date),
+   formatNumber: vi.fn((num: unknown) => num),
+@@ -82,7 +74,6 @@ describe('AppSettingsForm', () => {
+     appearanceProps = undefined;
+     languageProps = undefined;
+     systemProps = undefined;
+-    notificationsProps = undefined;
+   });
+ 
+   function renderForm(overrides: Partial<AppSettingsFormProps> = {}) {
+@@ -97,7 +88,6 @@ describe('AppSettingsForm', () => {
+     expect(screen.getByTestId('appearance-section')).toBeInTheDocument();
+     expect(screen.getByTestId('language-section')).toBeInTheDocument();
+     expect(screen.getByTestId('system-section')).toBeInTheDocument();
+-    expect(screen.getByTestId('notifications-section')).toBeInTheDocument();
+   });
+ 
+   it('delegates the correct props to each section', () => {
+@@ -132,8 +122,6 @@ describe('AppSettingsForm', () => {
+       isLoading: false,
+     });
+ 
+-    // Currently no props expected, but we assert render + stable wiring point.
+-    expect(notificationsProps).toBeDefined();
+   });
+ 
+   it('forwards loading state to the system preferences section', () => {
+diff --git a/frontend/src/__tests__/app/settings/sections/NotificationsSettingsSection.test.tsx b/frontend/src/__tests__/app/settings/sections/NotificationsSettingsSection.test.tsx
+deleted file mode 100644
+index a10c9ba..0000000
+--- a/frontend/src/__tests__/app/settings/sections/NotificationsSettingsSection.test.tsx
++++ /dev/null
+@@ -1,55 +0,0 @@
+-/**
+- * @file NotificationsSettingsSection.test.tsx
+- * @module __tests__/app/settings/sections/NotificationsSettingsSection
+- * @description
+- * Tests for NotificationsSettingsSection.
+- *
+- * Scope:
+- * - Verifies the placeholder section renders (feature stub for future work)
+- * - Ensures user-visible placeholder text is present
+- *
+- * Out of scope:
+- * - Notification preference controls and persistence
+- * - Notification delivery / runtime behavior
+- * - Detailed styling (MUI classnames) beyond basic rendering
+- */
+-
+-import { describe, it, expect, vi, beforeEach } from 'vitest';
+-import { render, screen } from '@testing-library/react';
+-import NotificationsSettingsSection from '../../../../app/settings/sections/NotificationsSettingsSection';
+-
+-vi.mock('react-i18next', () => ({
+-  useTranslation: () => ({
+-    // Deterministic translations for stable assertions.
+-    t: (key: string, fallback?: string) => fallback || key,
+-  }),
+-}));
+-
+-describe('NotificationsSettingsSection', () => {
+-  beforeEach(() => {
+-    vi.clearAllMocks();
+-  });
+-
+-  function renderSection() {
+-    return render(<NotificationsSettingsSection />);
+-  }
+-
+-  it('renders without crashing', () => {
+-    // Baseline contract for placeholder sections: safe to mount in settings dialog.
+-    renderSection();
+-
+-    // We expect at least one visible text node (heading or message).
+-    expect(screen.queryByRole('heading') ?? screen.queryByText(/notification/i)).toBeTruthy();
+-  });
+-
+-  it('displays user-facing placeholder content', () => {
+-    // UX contract: section communicates that notifications settings are not yet available.
+-    renderSection();
+-
+-    // Match broad placeholder wording without coupling to exact copy.
+-    const placeholder =
+-      screen.queryByText(/coming|soon|placeholder|notification/i) ?? screen.queryByRole('heading');
+-
+-    expect(placeholder).toBeInTheDocument();
+-  });
+-});
+diff --git a/frontend/src/app/settings/AppSettingsForm.tsx b/frontend/src/app/settings/AppSettingsForm.tsx
+index 705d812..a5cb9b0 100644
+--- a/frontend/src/app/settings/AppSettingsForm.tsx
++++ b/frontend/src/app/settings/AppSettingsForm.tsx
+@@ -21,7 +21,6 @@ import { useTranslation } from 'react-i18next';
+ import { default as AppearanceSettingsSection } from './sections/AppearanceSettingsSection';
+ import { default as LanguageRegionSettingsSection } from './sections/LanguageRegionSettingsSection';
+ import { default as SystemPreferencesSection } from './sections/SystemPreferencesSection';
+-import { default as NotificationsSettingsSection } from './sections/NotificationsSettingsSection';
+ import { SettingsSectionCard } from './SettingsSectionCard';
+ import type { DateFormat, NumberFormat, TableDensity, SystemInfo } from '../../context/settings/SettingsContext.types';
+ 
+@@ -111,12 +110,6 @@ export default function AppSettingsForm({
+         <SystemPreferencesSection systemInfo={systemInfo} isLoading={isLoading} />
+       </SettingsSectionCard>
+ 
+-      <Divider />
+-
+-      <SettingsSectionCard title={t('settings.notifications', 'Notifications')}>
+-        <NotificationsSettingsSection />
+-      </SettingsSectionCard>
+-
+     </Box>
+   );
+ }
+diff --git a/frontend/src/app/settings/sections/NotificationsSettingsSection.tsx b/frontend/src/app/settings/sections/NotificationsSettingsSection.tsx
+deleted file mode 100644
+index faa8561..0000000
+--- a/frontend/src/app/settings/sections/NotificationsSettingsSection.tsx
++++ /dev/null
+@@ -1,40 +0,0 @@
+-/**
+- * @file NotificationsSettingsSection.tsx
+- * @module app/settings/sections/NotificationsSettingsSection
+- *
+- * @summary
+- * Notifications settings section component (placeholder).
+- * Reserved for future notification preferences configuration.
+- *
+- * @enterprise
+- * - Live placeholder: section is visible in the dialog but has no functional controls yet (see CB-APP9)
+- */
+-
+-import { Box, Typography } from '@mui/material';
+-import { useTranslation } from 'react-i18next';
+-
+-/**
+- * Notifications settings section component.
+- *
+- * Placeholder component for future notification settings implementation.
+- * Maintains consistent section structure with other settings sections.
+- *
+- * @returns JSX element rendering placeholder notification settings
+- *
+- * @example
+- * ```tsx
+- * <NotificationsSettingsSection />
+- * ```
+- */
+-export default function NotificationsSettingsSection() {
+-  const { t } = useTranslation(['common']);
+-
+-  return (
+-    <Box>
+-      {/* BUCKET: live empty placeholder section — implement, hide, or remove until real (CB-APP9) */}
+-      <Typography variant="body2" color="text.secondary">
+-        {t('settings.notificationsConfigured', 'Notification settings will be configured here')}
+-      </Typography>
+-    </Box>
+-  );
+-}

@@ -22,7 +22,7 @@ type Locale = 'de' | 'en';
 
 type ThemeToggleProps = {
   themeMode: ThemeMode;
-  onThemeToggle: () => void;
+  onToggle: () => void;
   tooltip?: string;
 };
 
@@ -102,7 +102,7 @@ describe('PublicShellHeader (rendering)', () => {
     expect(lastThemeProps).toMatchObject({
       themeMode: 'dark',
     });
-    expect(typeof lastThemeProps?.onThemeToggle).toBe('function');
+    expect(typeof lastThemeProps?.onToggle).toBe('function');
   });
 
   it('passes locale, tooltip and callback into LanguageToggle', () => {

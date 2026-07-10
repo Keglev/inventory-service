@@ -62,7 +62,8 @@ export const formatNumber = (num: number, format: NumberFormat, decimals: number
   const decimalPart = parts[1];
 
   if (format === 'DE') {
-    // BUCKET: reinvents Intl.NumberFormat — investigate migration preserving byte-identical DE/EN_US output (CM-APP4)
+    // Deliberate: manual separators keep DE/EN_US output byte-identical across
+    // browsers and Node versions; Intl.NumberFormat locale data varies by engine.
     const thousands = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     return decimals > 0 ? `${thousands},${decimalPart}` : thousands;
   } else {

@@ -50,8 +50,7 @@ const PublicShellHeader: React.FC<PublicShellHeaderProps> = ({
       </Typography>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        {/* BUCKET: passes the same handler to both ThemeToggle callbacks; see CB-APP11 (CB-APP11) */}
-        <ThemeToggle themeMode={themeMode} onToggle={onThemeToggle} onThemeToggle={onThemeToggle} />
+        <ThemeToggle themeMode={themeMode} onToggle={onThemeToggle} />
 
         <LanguageToggle locale={locale} onToggle={onLocaleToggle} tooltip={languageTooltip} />
       </Box>

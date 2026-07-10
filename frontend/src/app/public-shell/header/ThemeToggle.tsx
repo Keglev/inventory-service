@@ -24,22 +24,18 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 
 interface ThemeToggleProps {
   themeMode: 'light' | 'dark';
-  onToggle?: () => void;
-  // BUCKET: dead dual-callback backwards-compat shim; only one caller, collapse to single prop (CB-APP11)
-  onThemeToggle?: () => void;
+  onToggle: () => void;
 }
 
-const ThemeToggle: React.FC<ThemeToggleProps> = ({ themeMode, onToggle, onThemeToggle }) => {
+const ThemeToggle: React.FC<ThemeToggleProps> = ({ themeMode, onToggle }) => {
   // BUCKET: hardcoded label bypasses t() (CB-APP10)
   const label = themeMode === 'light' ? 'Dark mode' : 'Light mode';
-  // BUCKET: dead dual-callback backwards-compat shim; only one caller, collapse to single prop (CB-APP11)
-  const handleToggle = onToggle ?? onThemeToggle;
 
   return (
     <Tooltip title={label}>
       <IconButton
         aria-label={label}
-        onClick={handleToggle}
+        onClick={onToggle}
         sx={{
           color: themeMode === 'light' ? 'warning.main' : 'info.main',
           transition: 'color 0.3s ease',

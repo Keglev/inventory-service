@@ -171,8 +171,6 @@ const SuppliersBoard: React.FC = () => {
       </Paper>
 
       {/* Dialogs */}
-      {/* CM-APP14: leftover dev marker — clean up in refactor pass. */}
-      {/* Step 3: Testing Dialogs */}
       <SuppliersDialogs
         openCreate={state.openCreate}
         onCloseCreate={handleCloseCreate}

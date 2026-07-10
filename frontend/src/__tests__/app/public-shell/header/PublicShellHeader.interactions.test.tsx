@@ -19,7 +19,7 @@ type Locale = 'de' | 'en';
 
 type ThemeToggleProps = {
   themeMode: ThemeMode;
-  onThemeToggle: () => void;
+  onToggle: () => void;
   tooltip?: string;
 };
 
@@ -34,8 +34,8 @@ type LanguageToggleProps = {
  * Buttons call through to the callbacks passed by PublicShellHeader.
  */
 vi.mock('../../../../app/public-shell/header/ThemeToggle', () => ({
-  default: ({ onThemeToggle }: Partial<ThemeToggleProps>) => (
-    <button type="button" data-testid="theme-toggle" onClick={onThemeToggle}>
+  default: ({ onToggle }: Partial<ThemeToggleProps>) => (
+    <button type="button" data-testid="theme-toggle" onClick={onToggle}>
       Theme
     </button>
   ),
