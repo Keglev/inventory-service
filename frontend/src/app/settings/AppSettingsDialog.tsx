@@ -21,6 +21,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { useTranslation } from 'react-i18next';
 import AppSettingsForm from './AppSettingsForm';
+import { HelpIconButton } from '../../features/help/components/HelpIconButton';
 import { useAppSettingsForm } from './hooks/useAppSettingsForm';
 
 interface AppSettingsDialogProps {
@@ -78,8 +79,18 @@ export default function AppSettingsDialog({
         },
       }}
     >
-      <DialogTitle sx={{ fontWeight: 700, fontSize: '1.25rem', pb: 1 }}>
+      <DialogTitle
+        sx={{
+          fontWeight: 700,
+          fontSize: '1.25rem',
+          pb: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         {t('settings.title')}
+        <HelpIconButton topicId="settings.preferences" tooltip={t('actions.help')} />
       </DialogTitle>
 
       <DialogContent dividers sx={{ py: 3 }}>

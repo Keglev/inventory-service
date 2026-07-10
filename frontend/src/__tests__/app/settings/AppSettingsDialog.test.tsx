@@ -46,6 +46,14 @@ vi.mock('../../../app/settings/AppSettingsForm', () => ({
   default: () => <div data-testid="settings-form">Form Content</div>,
 }));
 
+// Stubbed because HelpIconButton requires HelpProvider; the real component
+// is covered by its own suite (features/help/components/HelpIconButton.test.tsx).
+vi.mock('../../../features/help/components/HelpIconButton', () => ({
+  HelpIconButton: ({ topicId }: { topicId: string }) => (
+    <button data-testid="help-icon-button" data-topic-id={topicId} />
+  ),
+}));
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     // Prefer fallback text for stable assertions.
@@ -81,6 +89,16 @@ describe('AppSettingsDialog', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText(/settings/i)).toBeInTheDocument();
     expect(screen.getByTestId('settings-form')).toBeInTheDocument();
+  });
+
+  it('renders the help button wired to the settings help topic', () => {
+    // Contract: the title bar exposes contextual help for the settings topic.
+    renderDialog(true);
+
+    expect(screen.getByTestId('help-icon-button')).toHaveAttribute(
+      'data-topic-id',
+      'settings.preferences',
+    );
   });
 
   it('invokes onClose when the close button is clicked', async () => {

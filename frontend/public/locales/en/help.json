@@ -15,20 +15,20 @@
       "body": "This screen provides a complete view of your inventory data and all related actions.\n\n• Select an item: Click any item in the list to prepare actions such as editing, adjusting quantity, deleting, or changing prices.\n\n• Create new items: Use the \"Add new item\" button to register new merchandise in the system.\n\n• Quick actions: The top toolbar allows direct access to editing, deleting, adjusting quantities, and changing prices for the selected item.\n\n• Search & filtering: Use the search field to quickly locate items by name.\n\n• Navigating to details: Some actions (such as Edit or Adjust Quantity) will open dialogs with contextual help available.\n\nThis page serves as the central hub for managing all inventory activities."
     },
     "editItem": {
-      "title": "Edit Inventory Item",
-      "body": "Edit item details including:\n• Item Name: The name of the inventory item\n• Code/SKU: Unique identifier for the item\n• Supplier: Which supplier provides this item\n• Minimum Quantity: The low-stock threshold\n• Unit Cost: Cost per unit (affects financial calculations)\n\nChanges are saved immediately and will be reflected in all reports and analytics. The update timestamp is recorded for audit purposes."
+      "title": "Edit Item Name",
+      "body": "Rename an inventory item.\n\nWhat you can change here:\n• Item Name only — the new name must be unique within the item's supplier.\n\nRules:\n• Renaming requires administrator rights.\n• A rename does not change quantity or price and does not create a stock-history entry.\n\nTo change other values, use the dedicated actions: Adjust Quantity for stock levels and Change Price for the unit price."
     },
     "deleteItem": {
       "title": "Delete Item",
-      "body": "Permanently remove an item from your inventory system.\n\nImportant: This action cannot be undone. When you delete an item:\n• It will be removed from all reports and analytics\n• Historical data for this item will be archived\n• You won't be able to select this item in new transactions\n\nProceed with caution, especially for items with transaction history."
+      "body": "Remove an item from your active inventory.\n\nHow deletion works:\n• The item is deactivated, not physically erased — its full stock history is kept for audit and tax purposes.\n• An item can only be deleted when its quantity is zero. Reduce the stock to 0 first (Adjust Quantity); otherwise the system rejects the deletion.\n• The item's SKU stays reserved and cannot be reused for new items.\n\nDeleted items no longer appear in the active inventory list or in new transactions."
     },
     "adjustQuantity": {
       "title": "Adjust Quantity",
-      "body": "Manually adjust the on-hand quantity for an inventory item.\n\nWhen adjusting, you must:\n• Enter the adjustment reason (Physical count, Damage, Theft, etc.)\n• Provide the quantity change (positive for additions, negative for reductions)\n\nAdjustments are tracked for audit purposes and will appear in the Analytics section under 'Recent Stock Updates'. This helps maintain inventory accuracy and accountability."
+      "body": "Manually adjust the on-hand quantity for an inventory item.\n\nWhen adjusting, you must:\n• Select a reason (e.g. Manual Adjustment, Damaged, Lost, Sold, Returned to Supplier)\n• Enter the quantity change (positive for additions, negative for reductions)\n\nEvery adjustment is recorded in the stock history and appears in the Analytics section under 'Recent stock updates'. This helps maintain inventory accuracy and accountability.\n\nTip: An item can only be deleted when its quantity is zero — use a negative adjustment first."
     },
     "changePrice": {
       "title": "Change Price",
-      "body": "Update the unit cost or selling price for an item.\n\nBenefits of tracking price changes:\n• Historical prices are maintained for accurate financial reporting\n• You can analyze cost trends over time\n• Financial analytics (COGS, profitability) use price history\n• Reports show price-adjusted inventory values\n\nPrice changes are effective immediately for new transactions and reports."
+      "body": "Update the unit price of an item.\n\n• The new price must be greater than zero.\n• Historical prices are kept, so financial analytics (COGS, stock value) stay accurate over time.\n• The change takes effect immediately for new calculations and reports.\n\nA price change does not affect the item's quantity."
     }
   },
   "suppliers": {
@@ -38,13 +38,13 @@
     },
     "delete": {
       "title": "Delete Supplier",
-      "body": "Remove a supplier from your system.\n\nWhat happens when you delete:\n• The supplier record is permanently removed\n• Existing inventory items remain, but are no longer linked to this supplier\n• You cannot select this supplier for new items\n• Historical data and transactions remain intact\n\nThis is useful when you stop working with a supplier or need to clean up your supplier list."
+      "body": "Remove a supplier from your system.\n\nRules:\n• A supplier can only be deleted when no active inventory items are linked to it. If active items exist, the system blocks the deletion.\n• Once deleted, the supplier record is permanently removed and cannot be selected for new items.\n• Historical stock data remains intact.\n\nTip: Delete the supplier's remaining items first (their quantity must be zero), then delete the supplier."
     }
   },
   "analytics": {
     "overview": {
       "title": "Analytics Dashboard",
-      "body": "The Analytics section provides insights into your inventory and business metrics.\n\nKey features:\n• Overview: Dashboard with key metrics and visualizations\n• Inventory: Stock value, trends, and per-supplier breakdown\n• Pricing: Price trends and cost analysis\n• Finance: Financial summaries, COGS, and profitability metrics\n\nUse the filter bar to:\n• Select a supplier (or view all suppliers)\n• Choose a date range for analysis\n\nAll charts and tables respect your preferred date format and number format from Settings."
+      "body": "The Analytics section provides insights into your inventory and business metrics.\n\nSections:\n• Overview: key metrics and stock movement trends\n• Movements: stock increases and decreases by reason, with drill-down into matching changes\n• Pricing: price trends per item\n• Inventory Health: low-stock items and stock per supplier\n• Finance: financial summary (purchases, COGS, write-offs, returns)\n• Employees: changes per employee (administrators only; also visible in the demo)\n\nUse the filter bar to select a supplier and a date range. All charts and tables respect your preferred date format and number format from Settings."
     }
   },
   "settings": {

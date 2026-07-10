@@ -140,6 +140,16 @@ describe('HelpPanel', () => {
     expect(screen.getByText('help:test.link')).toBeInTheDocument();
   });
 
+  it('points the documentation link at the published docs site in a new tab', () => {
+    // Contract: the link is a real anchor to the GitHub Pages docs root.
+    setup({ currentTopicId: 'test.topic' });
+
+    const link = screen.getByText('help:test.link').closest('a');
+    expect(link).toHaveAttribute('href', 'https://keglev.github.io/inventory-service/');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
   it('does not render a link section when linkKey is absent', () => {
     setup({ currentTopicId: 'no.link' });
 

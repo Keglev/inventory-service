@@ -34,6 +34,13 @@ import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../hooks/useHelp';
 import { getHelpTopic } from '../../help/topics';
 
+/**
+ * Published documentation site (GitHub Pages). Target of the optional
+ * "View Full Documentation" link rendered for topics with a linkKey.
+ * Opens in a new tab; the drawer closes so the app state stays clean.
+ */
+const DOCS_URL = 'https://keglev.github.io/inventory-service/';
+
 interface HelpPanelProps {
   /** Width of drawer on desktop */
   width?: number;
@@ -113,11 +120,12 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
               <Button
                 variant="outlined"
                 size="small"
+                component="a"
+                href={DOCS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 endIcon={<OpenInNewIcon />}
-                onClick={() => {
-                  // BUCKET: documentation-link button onClick only closes the drawer; either wire to a real URL or remove the button (CB-APP25)
-                  closeHelp();
-                }}
+                onClick={closeHelp}
                 sx={{ textTransform: 'none' }}
               >
                 {translate(topic.linkKey)}

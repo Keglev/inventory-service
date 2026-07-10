@@ -15,20 +15,20 @@
       "body": "Dieser Bildschirm bietet eine vollständige Übersicht über Ihre Bestandsdaten und alle zugehörigen Aktionen.\n\n• Artikel auswählen: Klicken Sie auf einen beliebigen Artikel in der Liste, um Aktionen wie Bearbeiten, Menge anpassen, Löschen oder Preisänderungen vorzubereiten.\n\n• Neue Artikel erstellen: Verwenden Sie die Schaltfläche \"Neuen Artikel hinzufügen\", um neue Waren im System zu registrieren.\n\n• Schnelle Aktionen: Die obere Symbolleiste ermöglicht den direkten Zugriff auf das Bearbeiten, Löschen, Anpassen von Mengen und Ändern von Preisen für den ausgewählten Artikel.\n\n• Suche & Filterung: Verwenden Sie das Suchfeld, um Artikel schnell nach Namen zu finden.\n\n• Navigation zu Details: Einige Aktionen (wie Bearbeiten oder Menge anpassen) öffnen Dialoge mit kontextbezogener Hilfe.\n\nDiese Seite dient als zentrales Hub für die Verwaltung aller Bestandsaktivitäten."
     },
     "editItem": {
-      "title": "Bestandsartikel bearbeiten",
-      "body": "Bearbeiten Sie Artikeldetails einschließlich:\n• Artikelname: Name des Bestandsartikels\n• Code/SKU: Eindeutige Artikelnummer\n• Lieferant: Welcher Lieferant diesen Artikel bereitstellt\n• Mindestmenge: Schwellenwert für niedrige Bestände\n• Stückkosten: Kosten pro Einheit (beeinflusst Finanzberechnungen)\n\nÄnderungen werden sofort gespeichert und in allen Berichten und Analysen angezeigt. Der Aktualisierungszeitstempel wird zu Prüfzwecken aufgezeichnet."
+      "title": "Artikelnamen bearbeiten",
+      "body": "Benennen Sie einen Bestandsartikel um.\n\nWas Sie hier ändern können:\n• Nur den Artikelnamen — der neue Name muss innerhalb des Lieferanten des Artikels eindeutig sein.\n\nRegeln:\n• Das Umbenennen erfordert Administratorrechte.\n• Eine Umbenennung ändert weder Menge noch Preis und erzeugt keinen Eintrag in der Bestandshistorie.\n\nFür andere Werte nutzen Sie die dafür vorgesehenen Aktionen: Menge anpassen für Bestandsmengen und Preis ändern für den Stückpreis."
     },
     "deleteItem": {
       "title": "Artikel löschen",
-      "body": "Entfernen Sie einen Artikel dauerhaft aus Ihrem Bestandsverwaltungssystem.\n\nWichtig: Diese Aktion kann nicht rückgängig gemacht werden. Wenn Sie einen Artikel löschen:\n• Wird er aus allen Berichten und Analysen entfernt\n• Historische Daten für diesen Artikel werden archiviert\n• Sie können diesen Artikel nicht in neuen Transaktionen auswählen\n\nSeien Sie vorsichtig, besonders bei Artikeln mit Transaktionsverlauf."
+      "body": "Entfernen Sie einen Artikel aus Ihrem aktiven Bestand.\n\nSo funktioniert das Löschen:\n• Der Artikel wird deaktiviert, nicht physisch gelöscht — die vollständige Bestandshistorie bleibt zu Prüf- und Steuerzwecken erhalten.\n• Ein Artikel kann nur gelöscht werden, wenn seine Menge null ist. Reduzieren Sie den Bestand zuerst auf 0 (Menge anpassen); andernfalls lehnt das System das Löschen ab.\n• Die SKU des Artikels bleibt reserviert und kann nicht für neue Artikel wiederverwendet werden.\n\nGelöschte Artikel erscheinen nicht mehr in der aktiven Bestandsliste und in neuen Transaktionen."
     },
     "adjustQuantity": {
       "title": "Menge anpassen",
-      "body": "Passen Sie die verfügbare Menge für einen Bestandsartikel manuell an.\n\nBei der Anpassung müssen Sie:\n• Den Grund für die Anpassung eingeben (Physische Zählung, Beschädigung, Diebstahl, etc.)\n• Die Mengenänderung angeben (positiv für Hinzufügungen, negativ für Reduzierungen)\n\nAnpassungen werden zu Prüfzwecken nachverfolgbar gemacht und erscheinen im Abschnitt Analysen unter 'Aktuelle Bestandsaktualisierungen'. Dies trägt zur Gewährleistung der Bestandsgenauigkeit und Rechenschaftspflicht bei."
+      "body": "Passen Sie die verfügbare Menge für einen Bestandsartikel manuell an.\n\nBei der Anpassung müssen Sie:\n• Einen Grund auswählen (z. B. Manuelle Anpassung, Beschädigt, Verloren, Verkauft, An Lieferant zurückgegeben)\n• Die Mengenänderung angeben (positiv für Zugänge, negativ für Abgänge)\n\nJede Anpassung wird in der Bestandshistorie erfasst und erscheint im Abschnitt Analysen unter 'Kürzliche Bestandsaktualisierungen'. Dies trägt zur Bestandsgenauigkeit und Nachvollziehbarkeit bei.\n\nTipp: Ein Artikel kann nur gelöscht werden, wenn seine Menge null ist — nutzen Sie zuerst eine negative Anpassung."
     },
     "changePrice": {
       "title": "Preis ändern",
-      "body": "Aktualisieren Sie die Stückkosten oder den Verkaufspreis für einen Artikel.\n\nVorteile der Verfolgung von Preisänderungen:\n• Historische Preise werden für genaue Finanzberichte beibehalten\n• Sie können Kostentrends im Laufe der Zeit analysieren\n• Finanzanalysen (COGS, Rentabilität) nutzen Preishistorie\n• Berichte zeigen preisangepasste Bestandswerte\n\nPreisänderungen wirken sich sofort auf neue Transaktionen und Berichte aus."
+      "body": "Aktualisieren Sie den Stückpreis eines Artikels.\n\n• Der neue Preis muss größer als null sein.\n• Historische Preise bleiben erhalten, sodass Finanzanalysen (COGS, Bestandswert) langfristig korrekt bleiben.\n• Die Änderung wirkt sich sofort auf neue Berechnungen und Berichte aus.\n\nEine Preisänderung verändert die Menge des Artikels nicht."
     }
   },
   "suppliers": {
@@ -38,13 +38,13 @@
     },
     "delete": {
       "title": "Lieferant löschen",
-      "body": "Entfernen Sie einen Lieferanten aus Ihrem System.\n\nWas geschieht beim Löschen:\n• Der Lieferantendatensatz wird dauerhaft entfernt\n• Vorhandene Bestandsartikel bleiben erhalten, sind aber nicht mehr mit diesem Lieferanten verknüpft\n• Sie können diesen Lieferanten nicht für neue Artikel auswählen\n• Historische Daten und Transaktionen bleiben erhalten\n\nDies ist nützlich, wenn Sie die Zusammenarbeit mit einem Lieferanten beenden oder Ihre Lieferantenliste bereinigen müssen."
+      "body": "Entfernen Sie einen Lieferanten aus Ihrem System.\n\nRegeln:\n• Ein Lieferant kann nur gelöscht werden, wenn keine aktiven Bestandsartikel mit ihm verknüpft sind. Bestehen noch aktive Artikel, blockiert das System das Löschen.\n• Nach dem Löschen wird der Lieferantendatensatz dauerhaft entfernt und kann nicht mehr für neue Artikel ausgewählt werden.\n• Historische Bestandsdaten bleiben erhalten.\n\nTipp: Löschen Sie zuerst die verbleibenden Artikel des Lieferanten (ihre Menge muss null sein) und danach den Lieferanten."
     }
   },
   "analytics": {
     "overview": {
       "title": "Analyse-Dashboard",
-      "body": "Der Abschnitt Analysen bietet Einblicke in Ihre Bestände und Geschäftskennzahlen.\n\nWichtigste Funktionen:\n• Übersicht: Dashboard mit Schlüsselkennzahlen und Visualisierungen\n• Bestand: Bestandswert, Trends und Aufteilung nach Lieferant\n• Preisgestaltung: Preistrends und Kostenanalyse\n• Finanzen: Finanzzusammenfassungen, COGS und Rentabilitätskennzahlen\n\nVerwenden Sie die Filterleiste zu:\n• Auswahl eines Lieferanten (oder Anzeige aller Lieferanten)\n• Auswahl eines Datumsbereichs für die Analyse\n\nAlle Diagramme und Tabellen beachten Ihr bevorzugtes Datumsformat und Zahlenformat aus den Einstellungen."
+      "body": "Der Abschnitt Analysen bietet Einblicke in Ihre Bestände und Geschäftskennzahlen.\n\nBereiche:\n• Übersicht: Schlüsselkennzahlen und Trends der Bestandsbewegungen\n• Warenbewegungen: Bestandszugänge und -abgänge nach Grund, mit Drilldown zu den passenden Änderungen\n• Preisgestaltung: Preistrends pro Artikel\n• Bestandsgesundheit: Artikel mit niedrigem Bestand und Bestand pro Lieferant\n• Finanzen: Finanzzusammenfassung (Einkäufe, COGS, Abschreibungen, Retouren)\n• Mitarbeiter: Änderungen pro Mitarbeiter (nur für Administratoren; auch im Demo-Modus sichtbar)\n\nVerwenden Sie die Filterleiste, um einen Lieferanten und einen Datumsbereich auszuwählen. Alle Diagramme und Tabellen beachten Ihr bevorzugtes Datums- und Zahlenformat aus den Einstellungen."
     }
   },
   "settings": {
