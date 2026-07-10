@@ -1,7 +1,7 @@
 /**
  * @file formatters.test.ts
  * @module tests/unit/utils/formatters
- * @what_is_under_test formatDate / formatNumber / parseFormattedNumber / getTodayIso / getDaysAgoIso
+ * @what_is_under_test formatDate / formatNumber / getTodayIso / getDaysAgoIso
  * @responsibility
  * Guarantees stable date/number formatting and parsing contracts used by UI rendering and filters,
  * including safe defaults for invalid inputs.
@@ -15,7 +15,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   formatDate,
   formatNumber,
-  parseFormattedNumber,
   getTodayIso,
   getDaysAgoIso,
 } from '@/utils/formatters';
@@ -67,28 +66,6 @@ describe('formatNumber', () => {
 
     it('returns empty string for non-number values', () => {
       expect(formatNumber('string' as unknown as number, 'DE')).toBe('');
-    });
-  });
-});
-
-describe('parseFormattedNumber', () => {
-  describe('success paths', () => {
-    it.each([
-      ['1.234,56', 'DE', 1234.56],
-      ['1,234.56', 'EN_US', 1234.56],
-      ['123,45', 'DE', 123.45],
-      ['123.45', 'EN_US', 123.45],
-      ['1.234.567,89', 'DE', 1234567.89],
-      ['1,234,567.89', 'EN_US', 1234567.89],
-    ])('parses %s (%s)', (input, locale, expected) => {
-      expect(parseFormattedNumber(input, locale as never)).toBe(expected);
-    });
-  });
-
-  describe('edge cases', () => {
-    it('returns 0 for empty string', () => {
-      expect(parseFormattedNumber('', 'DE')).toBe(0);
-      expect(parseFormattedNumber('', 'EN_US')).toBe(0);
     });
   });
 });

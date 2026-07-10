@@ -67,6 +67,10 @@ const extractTotal = (data: unknown, fallback: number): number => {
  * @param params - Query params: page, pageSize, q (search), supplierId,
  *   sort (grid field names), belowMinimumOnly
  * @returns Paginated response with items and total count
+ *
+ * Size note: 41 code lines, one line over the api-layer 40-line target;
+ * accepted as a single cohesive request-build/normalize/error path (never
+ * split to hit a number).
  */
 export const getInventoryPage = async (
   params: InventoryListParams,

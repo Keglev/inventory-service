@@ -71,21 +71,6 @@ export const formatNumber = (num: number, format: NumberFormat, decimals: number
   }
 };
 
-/**
- * @example
- * parseFormattedNumber('1.234,56', 'DE')   // → 1234.56
- * parseFormattedNumber('1,234.56', 'EN_US') // → 1234.56
- */
-export const parseFormattedNumber = (str: string, format: NumberFormat): number => {
-  if (!str) return 0;
-
-  if (format === 'DE') {
-    return parseFloat(str.replace(/\./g, '').replace(',', '.'));
-  } else {
-    return parseFloat(str.replace(/,/g, ''));
-  }
-};
-
 export const getTodayIso = (): string => {
   const d = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
