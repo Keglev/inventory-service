@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">92.15% </span>
+                <span class="strong">92.85% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>47/51</span>
+                <span class='fraction'>39/42</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.72% </span>
+                <span class="strong">84.61% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>36/43</span>
+                <span class='fraction'>33/39</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">91.66% </span>
+                <span class="strong">90.9% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>22/24</span>
+                <span class='fraction'>20/22</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95.45% </span>
+                <span class="strong">94.44% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>42/44</span>
+                <span class='fraction'>34/36</span>
             </div>
         
             
@@ -253,19 +253,7 @@
 <a name='L188'></a><a href='#L188'>188</a>
 <a name='L189'></a><a href='#L189'>189</a>
 <a name='L190'></a><a href='#L190'>190</a>
-<a name='L191'></a><a href='#L191'>191</a>
-<a name='L192'></a><a href='#L192'>192</a>
-<a name='L193'></a><a href='#L193'>193</a>
-<a name='L194'></a><a href='#L194'>194</a>
-<a name='L195'></a><a href='#L195'>195</a>
-<a name='L196'></a><a href='#L196'>196</a>
-<a name='L197'></a><a href='#L197'>197</a>
-<a name='L198'></a><a href='#L198'>198</a>
-<a name='L199'></a><a href='#L199'>199</a>
-<a name='L200'></a><a href='#L200'>200</a>
-<a name='L201'></a><a href='#L201'>201</a>
-<a name='L202'></a><a href='#L202'>202</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L191'></a><a href='#L191'>191</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -314,27 +302,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">21x</span>
 <span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">21x</span>
@@ -492,9 +470,8 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getReasonBreakdown, type ReasonBreakdownRow } from '../../../api/analytics/reasonBreakdown';
-import { searchItemsForSupplier, searchItemsGlobal } from '../../../api/shared/itemSearch';
 import type { ItemRef } from '../../../api/shared/types';
-import { useDebounced } from '../../../hooks/useDebounced';
+import { useItemSearchOptions } from '../hooks/useItemSearchOptions';
 import ReasonBreakdownChartCard, { type ReasonBreakdownDatum } from './ReasonBreakdownChartCard';
 import MovementDrilldownTable from './MovementDrilldownTable';
 import { STOCK_CHANGE_REASONS, reasonLabel, type StockChangeReasonKey } from './reasonLabels';
@@ -515,27 +492,17 @@ export default function MovementsSection({ from, to, supplierId }: MovementsSect
   // the user types &gt;= 2 letters, gets real item-name suggestions, and only an
   // explicit selection filters the charts and drilldown. This avoids silent
   // no-match filtering from free text that isn't a name substring.
-  const [itemQuery, setItemQuery] = React.useState('');
-  const debouncedQuery = useDebounced(itemQuery, 250);
-  const [selectedItem, setSelectedItem] = React.useState&lt;ItemRef | null&gt;(null);
+  // Shared analytics type-ahead: input, debounce, selection, reset-on-supplier,
+  // and the supplier-scoped-vs-global search query (&gt;= 2 chars).
+  const {
+    itemQuery,
+    setItemQuery,
+    debouncedQuery,
+    selectedItem,
+    setSelectedItem,
+    searchQuery: itemSearchQ,
+  } = useItemSearchOptions({ supplierId, minChars: ITEM_SEARCH_MIN_CHARS, queryKeyScope: 'movementsItemSearch' });
   const itemName = selectedItem?.name ?? '';
-&nbsp;
-  /** Reset text + selection when supplier changes (prevents cross-supplier leaks). */
-  React.useEffect(() =&gt; {
-    setItemQuery('');
-    setSelectedItem(null);
-  }, [supplierId]);
-&nbsp;
-  const itemSearchQ = useQuery&lt;ItemRef[]&gt;({
-    queryKey: ['analytics', 'movementsItemSearch', supplierId ?? null, debouncedQuery],
-    queryFn: async () =&gt; {
-      <span class="missing-if-branch" title="if path not taken" >I</span>if (supplierId) <span class="cstat-no" title="statement not covered" >return searchItemsForSupplier(supplierId, debouncedQuery, 50);</span>
-      return searchItemsGlobal(debouncedQuery, 50);
-    },
-    enabled: debouncedQuery.trim().length &gt;= ITEM_SEARCH_MIN_CHARS,
-    staleTime: 30_000,
-    refetchOnWindowFocus: false,
-  });
 &nbsp;
   /** Keep the current selection visible even when options refetch. */
   const itemOptions: ItemRef[] = React.useMemo(() =&gt; {
@@ -673,7 +640,7 @@ export default function MovementsSection({ from, to, supplierId }: MovementsSect
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-10T08:08:27.200Z
+                at 2026-07-10T08:58:28.034Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
