@@ -21,7 +21,7 @@ vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(() => ({ user: null })),
 }));
 
-vi.mock('@/features/help', () => ({
+vi.mock('@/features/help/components/HelpIconButton', () => ({
   HelpIconButton: ({ tooltip }: { tooltip: string }) => (
     <button data-testid="help-button" title={tooltip}>
       Help

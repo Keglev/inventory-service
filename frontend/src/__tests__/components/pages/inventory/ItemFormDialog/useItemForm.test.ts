@@ -42,7 +42,7 @@ vi.mock('../../../../../api/inventory/itemMutations', () => ({
   upsertItem: mockUpsertItem,
 }));
 
-vi.mock('../../../../../context/toast', () => ({
+vi.mock('../../../../../context/toast/ToastContext', () => ({
   useToast: () => mockToast,
 }));
 

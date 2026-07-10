@@ -15,7 +15,7 @@
 
 import { Box, Chip, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useHealthCheck } from '../../../features/health';
+import { useHealthCheck } from '../../../features/health/hooks/useHealthCheck';
 
 /**
  * Health status badge component.

@@ -70,9 +70,12 @@ vi.mock('react-i18next', () => ({
 }));
 
 // Mock menu content components
-vi.mock('../../../app/HamburgerMenu/MenuContent', () => ({
-  MenuSectionsRenderer: mockMenuSectionsRenderer,
-  LogoutMenuAction: mockLogoutMenuAction,
+vi.mock('../../../app/HamburgerMenu/MenuContent/MenuSectionsRenderer', () => ({
+  default: mockMenuSectionsRenderer,
+}));
+
+vi.mock('../../../app/HamburgerMenu/MenuContent/LogoutMenuAction', () => ({
+  default: mockLogoutMenuAction,
 }));
 
 describe('HamburgerMenu', () => {

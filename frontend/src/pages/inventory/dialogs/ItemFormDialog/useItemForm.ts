@@ -41,7 +41,7 @@ import * as React from 'react';
 import { useForm, type Control, type UseFormStateReturn, type UseFormSetValue, type UseFormRegister, type UseFormSetError, type UseFormClearErrors, type UseFormWatch, type UseFormHandleSubmit } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { useToast } from '../../../../context/toast';
+import { useToast } from '../../../../context/toast/ToastContext';
 import { upsertItem } from '../../../../api/inventory/itemMutations';
 import { itemFormSchema, type UpsertItemForm } from '../../validation/inventoryValidation';
 import type { UpsertItemRequest, InventoryRow } from '../../../../api/inventory/types';

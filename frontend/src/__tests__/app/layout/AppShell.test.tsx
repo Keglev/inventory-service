@@ -58,14 +58,14 @@ vi.mock('@/app/layout/AppMain', () => ({
   default: () => <div data-testid="app-main">main</div>,
 }));
 
-vi.mock('@/app/settings', () => ({
-  AppSettingsDialog: (props: { open: boolean }) => (
+vi.mock('@/app/settings/AppSettingsDialog', () => ({
+  default: (props: { open: boolean }) => (
     <div data-testid="settings-dialog" data-open={props.open} />
   ),
 }));
 
-vi.mock('@/app/footer', () => ({
-  AppFooter: () => <footer data-testid="app-footer" />,
+vi.mock('@/app/footer/AppFooter', () => ({
+  default: () => <footer data-testid="app-footer" />,
 }));
 
 /**
@@ -130,7 +130,7 @@ vi.mock('@tanstack/react-query', () => ({
   useQueryClient: () => mockQueryClient,
 }));
 
-vi.mock('@/features/auth', () => ({
+vi.mock('@/features/auth/hooks/useSessionTimeout', () => ({
   useSessionTimeout: vi.fn(),
 }));
 

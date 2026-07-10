@@ -40,7 +40,7 @@ vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdj
   },
 }));
 
-vi.mock('../../../../../features/help', () => ({
+vi.mock('../../../../../features/help/components/HelpIconButton', () => ({
   HelpIconButton: (props: { topicId: string; tooltip?: string }) => {
     // Replace implementation with a stable button we can click.
     helpButtonPropsSpy(props);

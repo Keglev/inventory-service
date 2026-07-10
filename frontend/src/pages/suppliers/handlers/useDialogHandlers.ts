@@ -16,7 +16,7 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from '../../../context/toast';
+import { useToast } from '../../../context/toast/ToastContext';
 import type { UseSuppliersBoardStateReturn } from '../hooks/useSuppliersBoardState';
 
 /**

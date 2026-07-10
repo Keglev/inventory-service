@@ -18,14 +18,12 @@ import {
   Stack,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import {
-  AppearanceSettingsSection,
-  LanguageRegionSettingsSection,
-  SystemPreferencesSection,
-  NotificationsSettingsSection,
-} from './sections';
+import { default as AppearanceSettingsSection } from './sections/AppearanceSettingsSection';
+import { default as LanguageRegionSettingsSection } from './sections/LanguageRegionSettingsSection';
+import { default as SystemPreferencesSection } from './sections/SystemPreferencesSection';
+import { default as NotificationsSettingsSection } from './sections/NotificationsSettingsSection';
 import { SettingsSectionCard } from './SettingsSectionCard';
-import type { DateFormat, NumberFormat, TableDensity, SystemInfo } from '../../context/settings';
+import type { DateFormat, NumberFormat, TableDensity, SystemInfo } from '../../context/settings/SettingsContext.types';
 
 interface AppSettingsFormProps {
   /** Current date format value */

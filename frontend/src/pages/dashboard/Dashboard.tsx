@@ -32,7 +32,7 @@ import { useDashboardMetrics } from '../../api/analytics/hooks/useDashboardMetri
 import MonthlyMovementMini from './blocks/MonthlyMovementMini';
 import StatCard from '../../components/ui/StatCard';
 import { useNavigate } from 'react-router-dom';
-import { HelpIconButton } from '../../features/help';
+import { HelpIconButton } from '../../features/help/components/HelpIconButton';
 
 /**
  * Dashboard page component.

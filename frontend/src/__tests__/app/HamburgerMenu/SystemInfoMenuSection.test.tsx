@@ -22,7 +22,7 @@ import SystemInfoMenuSection from '../../../app/HamburgerMenu/SystemInfoMenuSect
 const mockUseHealthCheck = vi.hoisted(() => vi.fn());
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../features/health', () => ({
+vi.mock('../../../features/health/hooks/useHealthCheck', () => ({
   useHealthCheck: mockUseHealthCheck,
 }));
 

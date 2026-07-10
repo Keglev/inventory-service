@@ -14,12 +14,10 @@ import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getHelpTopicForRoute } from './navConfig';
 import type { SupportedLocale } from '../../theme';
-import {
-  SidebarNavList,
-  SidebarUserProfile,
-  SidebarEnvironment,
-  SidebarActions,
-} from './sidebar';
+import { default as SidebarNavList } from './sidebar/SidebarNavList';
+import { default as SidebarUserProfile } from './sidebar/SidebarUserProfile';
+import { default as SidebarEnvironment } from './sidebar/SidebarEnvironment';
+import { default as SidebarActions } from './sidebar/SidebarActions';
 
 interface SidebarDrawerContentProps {
   /** Current theme mode */

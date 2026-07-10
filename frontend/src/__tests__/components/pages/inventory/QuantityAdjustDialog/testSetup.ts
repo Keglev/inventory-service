@@ -33,7 +33,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../../context/toast', () => ({
+vi.mock('../../../../../context/toast/ToastContext', () => ({
   // ToastContext exposes a function; this provides a stable no-op callback.
   useToast: () => vi.fn(),
 }));

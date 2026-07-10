@@ -21,7 +21,7 @@ import userEvent from '@testing-library/user-event';
 import AppSettingsDialog from '../../../app/settings/AppSettingsDialog';
 
 // Hook is mocked because this file only validates the dialog container behavior.
-vi.mock('../../../app/settings/hooks', () => ({
+vi.mock('../../../app/settings/hooks/useAppSettingsForm', () => ({
   useAppSettingsForm: () => ({
     formState: {
       dateFormat: 'DD.MM.YYYY',

@@ -36,7 +36,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: tSpy }),
 }));
 
-vi.mock('../../../../../context/toast', () => ({
+vi.mock('../../../../../context/toast/ToastContext', () => ({
   useToast: () => toastSpy,
 }));
 

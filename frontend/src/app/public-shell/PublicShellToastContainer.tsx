@@ -18,7 +18,7 @@
 import * as React from 'react';
 import { Snackbar, Alert } from '@mui/material';
 import type { SnackbarCloseReason } from '@mui/material/Snackbar';
-import type { Toast } from './hooks';
+import type { Toast } from './hooks/usePublicShellToast';
 
 interface PublicShellToastContainerProps {
   toast: Toast | null;

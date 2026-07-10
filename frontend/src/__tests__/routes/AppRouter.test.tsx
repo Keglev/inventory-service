@@ -56,15 +56,15 @@ vi.mock('../../app/layout/AppShell', () => ({
   ),
 }));
 
-vi.mock('../../app/public-shell', () => ({
-  AppPublicShell: () => (
+vi.mock('../../app/public-shell/AppPublicShell', () => ({
+  default: () => (
     <div data-testid="public-shell">
       <Outlet />
     </div>
   ),
 }));
 
-vi.mock('../../features/auth', () => ({
+vi.mock('../../features/auth/guards/RequireAuth', () => ({
   RequireAuth: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="require-auth">{children}</div>
   ),

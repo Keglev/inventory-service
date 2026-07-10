@@ -24,17 +24,17 @@ import {
   Alert,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { useSessionTimeout } from '../../features/auth';
-import { ToastContext } from '../../context/toast';
+import { useSessionTimeout } from '../../features/auth/hooks/useSessionTimeout';
+import { ToastContext } from '../../context/toast/ToastContext';
 import { useAuth } from '../../hooks/useAuth';
 import { useShellLogout } from './useShellLogout';
-import { AppSettingsDialog } from '../settings';
+import { default as AppSettingsDialog } from '../settings/AppSettingsDialog';
 import AppHeader from './AppHeader';
 import AppSidebar from './AppSidebar';
 import AppMain from './AppMain';
 import { getHelpTopicForRoute } from './navConfig';
 import { useShellSettings } from './useShellSettings';
-import { AppFooter } from '../footer';
+import { default as AppFooter } from '../footer/AppFooter';
 import HelpPanel from '../../components/help/HelpPanel';
 
 /**

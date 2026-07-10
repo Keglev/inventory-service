@@ -24,7 +24,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useTranslation } from 'react-i18next';
-import { HelpIconButton } from '../../../features/help';
+import { HelpIconButton } from '../../../features/help/components/HelpIconButton';
 import type { SupportedLocale } from '../../../theme';
 
 const DE_FLAG = '/flags/de.svg';

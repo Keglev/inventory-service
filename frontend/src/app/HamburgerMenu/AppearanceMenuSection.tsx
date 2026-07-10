@@ -17,7 +17,8 @@
 import { Box, Typography, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../hooks/useSettings';
-import { ThemeToggle, TableDensitySetting } from './AppearanceSettings';
+import { default as ThemeToggle } from './AppearanceSettings/ThemeToggle';
+import { default as TableDensitySetting } from './AppearanceSettings/TableDensitySetting';
 
 interface AppearanceMenuSectionProps {
   /** Current theme mode (light or dark) */

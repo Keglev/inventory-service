@@ -21,8 +21,8 @@ import { Routes, Route } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 
 import { useAuth } from '../hooks/useAuth';
-import { RequireAuth } from '../features/auth';
-import { AppShell } from '../app/layout';
+import { RequireAuth } from '../features/auth/guards/RequireAuth';
+import { default as AppShell } from '../app/layout/AppShell';
 
 // Public pages
 import Home from '../pages/home/Home';                       
@@ -32,7 +32,7 @@ import LogoutSuccess from '../pages/auth/LogoutSuccess';
 import NotFoundPage from '../pages/system/NotFoundPage';
 import ImpressumPage from '../pages/legal/ImpressumPage';
 import DatenschutzPage from '../pages/legal/DatenschutzPage';
-import { AppPublicShell } from '../app/public-shell';
+import AppPublicShell from '../app/public-shell/AppPublicShell';
 
 // Authenticated pages
 import Dashboard from '../pages/dashboard/Dashboard';            

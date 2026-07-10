@@ -21,7 +21,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import AppPublicShell from '../../../app/public-shell/AppPublicShell';
-import { ToastContext } from '../../../context/toast';
+import { ToastContext } from '../../../context/toast/ToastContext';
 
 /* ----------------------------- i18n stub ----------------------------- */
 // Keep translation deterministic; component only needs i18n object presence.
@@ -46,9 +46,15 @@ const mockUseThemeMode = vi.hoisted(() => vi.fn());
 const mockUseLocale = vi.hoisted(() => vi.fn());
 const mockUsePublicShellToast = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../app/public-shell/hooks', () => ({
+vi.mock('../../../app/public-shell/hooks/useThemeMode', () => ({
   useThemeMode: () => mockUseThemeMode(),
+}));
+
+vi.mock('../../../app/public-shell/hooks/useLocale', () => ({
   useLocale: () => mockUseLocale(),
+}));
+
+vi.mock('../../../app/public-shell/hooks/usePublicShellToast', () => ({
   usePublicShellToast: () => mockUsePublicShellToast(),
 }));
 
@@ -57,8 +63,8 @@ vi.mock('../../../app/public-shell/hooks', () => ({
 let lastHeaderProps: Record<string, unknown> | undefined;
 let lastToastProps: Record<string, unknown> | undefined;
 
-vi.mock('../../../app/public-shell/header', () => ({
-  PublicShellHeader: (props: Record<string, unknown>) => {
+vi.mock('../../../app/public-shell/header/PublicShellHeader', () => ({
+  default: (props: Record<string, unknown>) => {
     lastHeaderProps = props;
     return <header data-testid="public-shell-header">Header</header>;
   },
@@ -90,8 +96,8 @@ vi.mock('../../theme', () => ({
   buildTheme: () => ({}),
 }));
 
-vi.mock('../../../app/footer', () => ({
-  AppFooter: () => <footer data-testid="app-footer" />,
+vi.mock('../../../app/footer/AppFooter', () => ({
+  default: () => <footer data-testid="app-footer" />,
 }));
 
 /**

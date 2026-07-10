@@ -52,13 +52,12 @@ vi.mock('@/app/layout/AppToolbarActions', () => ({
   },
 }));
 
-/**
- * Header badge stubs:
- * These are tested as "presence" indicators only, not for their internal logic.
- */
-vi.mock('@/app/layout/header', () => ({
-  HealthBadge: () => <div data-testid="health-badge" />,
-  HeaderDemoBadge: ({ isDemo }: { isDemo: boolean }) => (
+vi.mock('@/app/layout/header/HealthBadge', () => ({
+  default: () => <div data-testid="health-badge" />,
+}));
+
+vi.mock('@/app/layout/header/HeaderDemoBadge', () => ({
+  default: ({ isDemo }: { isDemo: boolean }) => (
     <div data-testid="demo-badge">demo:{String(isDemo)}</div>
   ),
 }));

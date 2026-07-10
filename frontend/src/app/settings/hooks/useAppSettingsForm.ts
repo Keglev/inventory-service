@@ -12,7 +12,7 @@
  */
 
 import { useSettings } from '../../../hooks/useSettings';
-import type { DateFormat, NumberFormat, TableDensity } from '../../../context/settings';
+import type { DateFormat, NumberFormat, TableDensity } from '../../../context/settings/SettingsContext.types';
 
 interface FormState {
   dateFormat: DateFormat;

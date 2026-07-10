@@ -19,7 +19,7 @@ import {
   Chip,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import type { SystemInfo } from '../../../context/settings';
+import type { SystemInfo } from '../../../context/settings/SettingsContext.types';
 import { APP_VERSION, BUILD_ID } from '../../../config/appMeta';
 
 interface SystemPreferencesSectionProps {

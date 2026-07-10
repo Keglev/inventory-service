@@ -36,7 +36,7 @@ import {
   Stack,
   CircularProgress,
 } from '@mui/material';
-import { HelpIconButton } from '../../../../features/help';
+import { HelpIconButton } from '../../../../features/help/components/HelpIconButton';
 import { useTranslation } from 'react-i18next';
 import { useEditItemForm } from './useEditItemForm';
 import { EditItemForm } from './EditItemForm';

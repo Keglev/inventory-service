@@ -15,11 +15,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AppToolbarActions from '../../../app/layout/AppToolbarActions';
 
-/**
- * Help button stub:
- * Exposes tooltip through aria-label and topic through a data attribute for stable assertions.
- */
-vi.mock('../../../features/help', () => ({
+vi.mock('../../../features/help/components/HelpIconButton', () => ({
   HelpIconButton: ({ tooltip, topicId }: { tooltip: string; topicId: string }) => (
     <button type="button" data-testid="help-button" aria-label={tooltip} data-topic={topicId}>
       Help
@@ -27,12 +23,8 @@ vi.mock('../../../features/help', () => ({
   ),
 }));
 
-/**
- * Hamburger menu is not under test in this file.
- * Stub it as a simple placeholder to keep the DOM minimal.
- */
-vi.mock('../../../app/HamburgerMenu', () => ({
-  HamburgerMenu: () => <div data-testid="hamburger-menu" />,
+vi.mock('../../../app/HamburgerMenu/HamburgerMenu', () => ({
+  default: () => <div data-testid="hamburger-menu" />,
 }));
 
 /**

@@ -15,11 +15,9 @@
 import { Box, Typography, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
-import {
-  ProfileNameDisplay,
-  ProfileEmailDisplay,
-  ProfileRoleDisplay,
-} from './ProfileSettings';
+import { default as ProfileNameDisplay } from './ProfileSettings/ProfileNameDisplay';
+import { default as ProfileEmailDisplay } from './ProfileSettings/ProfileEmailDisplay';
+import { default as ProfileRoleDisplay } from './ProfileSettings/ProfileRoleDisplay';
 
 export default function ProfileMenuSection() {
   const { t } = useTranslation(['auth']);

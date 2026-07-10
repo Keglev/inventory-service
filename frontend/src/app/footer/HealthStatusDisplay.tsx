@@ -18,7 +18,7 @@
 
 import { Box, Chip, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import type { HealthStatus } from '@/features/health';
+import type { HealthStatus } from '../../features/health/hooks/useHealthCheck';
 
 interface HealthStatusDisplayProps {
   /** Health status data */

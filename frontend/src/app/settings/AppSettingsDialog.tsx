@@ -21,7 +21,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { useTranslation } from 'react-i18next';
 import AppSettingsForm from './AppSettingsForm';
-import { useAppSettingsForm } from './hooks';
+import { useAppSettingsForm } from './hooks/useAppSettingsForm';
 
 interface AppSettingsDialogProps {
   /** Whether dialog is open */

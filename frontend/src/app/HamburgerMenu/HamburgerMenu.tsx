@@ -24,7 +24,8 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useTranslation } from 'react-i18next';
-import { MenuSectionsRenderer, LogoutMenuAction } from './MenuContent';
+import { default as MenuSectionsRenderer } from './MenuContent/MenuSectionsRenderer';
+import { default as LogoutMenuAction } from './MenuContent/LogoutMenuAction';
 import type { SupportedLocale } from '../../theme';
 
 interface HamburgerMenuProps {

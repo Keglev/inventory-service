@@ -67,9 +67,12 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
-vi.mock('../../../app/HamburgerMenu/AppearanceSettings', () => ({
-  ThemeToggle: mockThemeToggle,
-  TableDensitySetting: mockTableDensitySetting,
+vi.mock('../../../app/HamburgerMenu/AppearanceSettings/ThemeToggle', () => ({
+  default: mockThemeToggle,
+}));
+
+vi.mock('../../../app/HamburgerMenu/AppearanceSettings/TableDensitySetting', () => ({
+  default: mockTableDensitySetting,
 }));
 
 type Props = {

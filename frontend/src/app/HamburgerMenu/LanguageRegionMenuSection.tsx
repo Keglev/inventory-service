@@ -19,11 +19,9 @@ import { Box, Typography, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../hooks/useSettings';
 import type { SupportedLocale } from '../../theme';
-import {
-  LanguageToggle,
-  DateFormatSetting,
-  NumberFormatSetting,
-} from './LanguageRegionSettings';
+import { default as LanguageToggle } from './LanguageRegionSettings/LanguageToggle';
+import { default as DateFormatSetting } from './LanguageRegionSettings/DateFormatSetting';
+import { default as NumberFormatSetting } from './LanguageRegionSettings/NumberFormatSetting';
 
 interface LanguageRegionMenuSectionProps {
   /** Current locale (de or en) */

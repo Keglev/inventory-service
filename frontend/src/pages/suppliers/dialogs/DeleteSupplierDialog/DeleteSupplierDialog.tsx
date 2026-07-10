@@ -16,7 +16,7 @@
 import * as React from 'react';
 import { Dialog } from '@mui/material';
 import { useHelp } from '../../../../hooks/useHelp';
-import { useToast } from '../../../../context/toast';
+import { useToast } from '../../../../context/toast/ToastContext';
 import { useTranslation } from 'react-i18next';
 import { useDeleteSupplierForm } from './useDeleteSupplierForm';
 import { DeleteSupplierSearch } from './DeleteSupplierSearch';

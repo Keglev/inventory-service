@@ -34,7 +34,7 @@ import { Box, Paper, Typography, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '../../hooks/useAuth';
-import { HelpIconButton } from '../../features/help';
+import { HelpIconButton } from '../../features/help/components/HelpIconButton';
 
 import { useInventoryState } from './hooks/useInventoryState';
 import { InventoryToolbar } from './components/InventoryToolbar';

@@ -36,7 +36,7 @@ vi.mock('react-i18next', () => ({
 /**
  * Toast is an integration concern; not part of this wrapper contract.
  */
-vi.mock('../../../../../context/toast', () => ({
+vi.mock('../../../../../context/toast/ToastContext', () => ({
   useToast: () => vi.fn(),
 }));
 
@@ -50,7 +50,7 @@ vi.mock('../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChange
 const helpButtonPropsSpy = vi.hoisted(() => vi.fn());
 const openHelpMock = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../../../features/help', () => ({
+vi.mock('../../../../../features/help/components/HelpIconButton', () => ({
   HelpIconButton: (props: { topicId: string; tooltip?: string }) => {
     helpButtonPropsSpy(props);
     return (

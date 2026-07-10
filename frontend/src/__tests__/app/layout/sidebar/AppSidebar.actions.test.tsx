@@ -18,21 +18,26 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import AppSidebar from '../../../../app/layout/AppSidebar';
 
-/**
- * Sidebar subcomponent stubs with "action buttons":
- * We simulate user interactions at the edges (buttons) to validate callback delegation.
- */
-vi.mock('../../../../app/layout/sidebar', () => ({
-  SidebarNavList: ({ onLogout }: { onLogout: () => void }) => (
+vi.mock('../../../../app/layout/sidebar/SidebarNavList', () => ({
+  default: ({ onLogout }: { onLogout: () => void }) => (
     <div data-testid="nav-list">
       <button type="button" onClick={onLogout}>
         Logout
       </button>
     </div>
   ),
-  SidebarUserProfile: () => <div data-testid="user-profile" />,
-  SidebarEnvironment: () => <div data-testid="environment" />,
-  SidebarActions: ({
+}));
+
+vi.mock('../../../../app/layout/sidebar/SidebarUserProfile', () => ({
+  default: () => <div data-testid="user-profile" />,
+}));
+
+vi.mock('../../../../app/layout/sidebar/SidebarEnvironment', () => ({
+  default: () => <div data-testid="environment" />,
+}));
+
+vi.mock('../../../../app/layout/sidebar/SidebarActions', () => ({
+  default: ({
     onThemeModeChange,
     onLocaleChange,
     onSettingsOpen,

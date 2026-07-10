@@ -50,7 +50,7 @@ vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
   useItemDetailsQuery: vi.fn(),
 }));
 
-vi.mock('../../../../../context/toast', () => ({
+vi.mock('../../../../../context/toast/ToastContext', () => ({
   useToast: () => toastSpy,
 }));
 

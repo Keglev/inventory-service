@@ -15,8 +15,8 @@
 
 import { Box, IconButton, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { HelpIconButton } from '../../features/help';
-import { HamburgerMenu } from '../HamburgerMenu';
+import { HelpIconButton } from '../../features/help/components/HelpIconButton';
+import { default as HamburgerMenu } from '../HamburgerMenu/HamburgerMenu';
 import type { SupportedLocale } from '../../theme';
 
 const DE_FLAG = '/flags/de.svg';

@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useHealthCheck } from '../../features/health';
+import { useHealthCheck } from '../../features/health/hooks/useHealthCheck';
 import { APP_ENVIRONMENT, APP_VERSION, BUILD_ID } from '../../config/appMeta';
 
 /**

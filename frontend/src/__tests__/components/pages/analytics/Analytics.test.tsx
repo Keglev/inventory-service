@@ -94,7 +94,7 @@ vi.mock('@/api/analytics/suppliers', () => ({
   getSuppliersLite: vi.fn(() => Promise.resolve([])),
 }));
 
-vi.mock('@/features/help', () => ({
+vi.mock('@/features/help/components/HelpIconButton', () => ({
   HelpIconButton: () => <div data-testid="help-icon-button">Help</div>,
 }));
 

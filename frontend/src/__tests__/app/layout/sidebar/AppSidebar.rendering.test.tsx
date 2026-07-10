@@ -19,17 +19,22 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AppSidebar from '../../../../app/layout/AppSidebar';
 
-/**
- * Sidebar subcomponent stubs:
- * Rendering tests focus on AppSidebar composition, not the internals of its children.
- */
-vi.mock('../../../../app/layout/sidebar', () => ({
-  SidebarNavList: () => <div data-testid="nav-list" />,
-  SidebarUserProfile: ({ user }: { user?: { fullName?: string } }) => (
+vi.mock('../../../../app/layout/sidebar/SidebarNavList', () => ({
+  default: () => <div data-testid="nav-list" />,
+}));
+
+vi.mock('../../../../app/layout/sidebar/SidebarUserProfile', () => ({
+  default: ({ user }: { user?: { fullName?: string } }) => (
     <div data-testid="user-profile">{user?.fullName || 'No User'}</div>
   ),
-  SidebarEnvironment: () => <div data-testid="environment">Environment Info</div>,
-  SidebarActions: () => <div data-testid="sidebar-actions" />,
+}));
+
+vi.mock('../../../../app/layout/sidebar/SidebarEnvironment', () => ({
+  default: () => <div data-testid="environment">Environment Info</div>,
+}));
+
+vi.mock('../../../../app/layout/sidebar/SidebarActions', () => ({
+  default: () => <div data-testid="sidebar-actions" />,
 }));
 
 /**

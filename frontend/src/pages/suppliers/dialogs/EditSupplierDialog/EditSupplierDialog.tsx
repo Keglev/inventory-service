@@ -29,7 +29,7 @@ import {
 } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
-import { useToast } from '../../../../context/toast';
+import { useToast } from '../../../../context/toast/ToastContext';
 import { useHelp } from '../../../../hooks/useHelp';
 import { useEditSupplierForm } from './useEditSupplierForm';
 import { EditSupplierSearchStep } from './EditSupplierSearchStep';

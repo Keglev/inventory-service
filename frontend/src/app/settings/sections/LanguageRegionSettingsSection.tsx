@@ -24,7 +24,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { formatDate, formatNumber } from '../../../utils/formatters';
-import type { DateFormat, NumberFormat } from '../../../context/settings';
+import type { DateFormat, NumberFormat } from '../../../context/settings/SettingsContext.types';
 
 interface LanguageRegionSettingsSectionProps {
   /** Current date format value */

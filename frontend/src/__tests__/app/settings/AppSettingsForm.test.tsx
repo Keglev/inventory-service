@@ -18,20 +18,29 @@ let languageProps: unknown;
 let systemProps: unknown;
 let notificationsProps: unknown;
 
-vi.mock('../../../app/settings/sections', () => ({
-  AppearanceSettingsSection: (props: unknown) => {
+vi.mock('../../../app/settings/sections/AppearanceSettingsSection', () => ({
+  default: (props: unknown) => {
     appearanceProps = props;
     return <div data-testid="appearance-section">Appearance</div>;
   },
-  LanguageRegionSettingsSection: (props: unknown) => {
+}));
+
+vi.mock('../../../app/settings/sections/LanguageRegionSettingsSection', () => ({
+  default: (props: unknown) => {
     languageProps = props;
     return <div data-testid="language-section">Language</div>;
   },
-  SystemPreferencesSection: (props: unknown) => {
+}));
+
+vi.mock('../../../app/settings/sections/SystemPreferencesSection', () => ({
+  default: (props: unknown) => {
     systemProps = props;
     return <div data-testid="system-section">System</div>;
   },
-  NotificationsSettingsSection: (props: unknown) => {
+}));
+
+vi.mock('../../../app/settings/sections/NotificationsSettingsSection', () => ({
+  default: (props: unknown) => {
     notificationsProps = props;
     return <div data-testid="notifications-section">Notifications</div>;
   },

@@ -23,7 +23,8 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import { useTranslation } from 'react-i18next';
 import AppToolbarActions from './AppToolbarActions';
-import { HealthBadge, HeaderDemoBadge } from './header';
+import { default as HealthBadge } from './header/HealthBadge';
+import { default as HeaderDemoBadge } from './header/HeaderDemoBadge';
 import type { SupportedLocale } from '../../theme';
 
 interface AppHeaderProps {

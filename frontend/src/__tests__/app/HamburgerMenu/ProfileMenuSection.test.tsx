@@ -60,10 +60,16 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
-vi.mock('../../../app/HamburgerMenu/ProfileSettings', () => ({
-  ProfileNameDisplay: mockProfileNameDisplay,
-  ProfileEmailDisplay: mockProfileEmailDisplay,
-  ProfileRoleDisplay: mockProfileRoleDisplay,
+vi.mock('../../../app/HamburgerMenu/ProfileSettings/ProfileNameDisplay', () => ({
+  default: mockProfileNameDisplay,
+}));
+
+vi.mock('../../../app/HamburgerMenu/ProfileSettings/ProfileEmailDisplay', () => ({
+  default: mockProfileEmailDisplay,
+}));
+
+vi.mock('../../../app/HamburgerMenu/ProfileSettings/ProfileRoleDisplay', () => ({
+  default: mockProfileRoleDisplay,
 }));
 
 describe('ProfileMenuSection', () => {

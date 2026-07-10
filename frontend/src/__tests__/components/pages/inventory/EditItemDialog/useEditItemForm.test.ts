@@ -36,7 +36,7 @@ vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
 const toastSpy = vi.hoisted(() => vi.fn());
 const tSpy = vi.hoisted(() => vi.fn((key: string, fallback?: string) => fallback ?? key));
 
-vi.mock('../../../../../context/toast', () => ({
+vi.mock('../../../../../context/toast/ToastContext', () => ({
   useToast: () => toastSpy,
 }));
 

@@ -50,7 +50,7 @@ vi.mock('../../../../pages/dashboard/blocks/MonthlyMovementMini', () => ({
   default: vi.fn(() => <div data-testid="monthly-movement">Monthly Movement Chart</div>),
 }));
 
-vi.mock('../../../../features/help', () => ({
+vi.mock('../../../../features/help/components/HelpIconButton', () => ({
   HelpIconButton: vi.fn(() => <button data-testid="help-button">Help</button>),
 }));
 

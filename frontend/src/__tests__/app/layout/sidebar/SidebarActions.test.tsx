@@ -20,11 +20,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SidebarActions from '../../../../app/layout/sidebar/SidebarActions';
 
-/**
- * Help button stub:
- * Exposes tooltip via aria-label and the topic id via a data attribute for stable assertions.
- */
-vi.mock('../../../../features/help', () => ({
+vi.mock('../../../../features/help/components/HelpIconButton', () => ({
   HelpIconButton: ({ tooltip, topicId }: { tooltip: string; topicId: string }) => (
     <button type="button" data-testid="help-button" aria-label={tooltip} data-topic={topicId}>
       Help

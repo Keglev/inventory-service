@@ -13,11 +13,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AppToolbarActions from '../../../app/layout/AppToolbarActions';
 
-/**
- * Help button stub:
- * Minimal implementation to keep the test focused on toolbar composition.
- */
-vi.mock('../../../features/help', () => ({
+vi.mock('../../../features/help/components/HelpIconButton', () => ({
   HelpIconButton: ({ tooltip }: { tooltip: string }) => (
     <button type="button" aria-label={tooltip}>
       Help
@@ -25,12 +21,8 @@ vi.mock('../../../features/help', () => ({
   ),
 }));
 
-/**
- * Hamburger menu stub:
- * We actively invoke provided callbacks on click so we can verify wiring.
- */
-vi.mock('../../../app/HamburgerMenu', () => ({
-  HamburgerMenu: ({
+vi.mock('../../../app/HamburgerMenu/HamburgerMenu', () => ({
+  default: ({
     onLogout,
     onThemeModeChange,
   }: {

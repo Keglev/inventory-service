@@ -22,13 +22,15 @@
 import * as React from 'react';
 import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { ToastContext } from '../../context/toast';
+import { ToastContext } from '../../context/toast/ToastContext';
 import { buildTheme } from '../../theme';
-import { useThemeMode, useLocale, usePublicShellToast } from './hooks';
-import { PublicShellHeader } from './header';
+import { useThemeMode } from './hooks/useThemeMode';
+import { useLocale } from './hooks/useLocale';
+import { usePublicShellToast } from './hooks/usePublicShellToast';
+import PublicShellHeader from './header/PublicShellHeader';
 import PublicShellContent from './PublicShellContent';
 import PublicShellToastContainer from './PublicShellToastContainer';
-import { AppFooter } from '../footer';
+import { default as AppFooter } from '../footer/AppFooter';
 import HelpPanel from '../../components/help/HelpPanel';
 
 const AppPublicShell: React.FC = () => {

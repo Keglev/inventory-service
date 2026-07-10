@@ -32,7 +32,7 @@ import {
   Box,
   CircularProgress,
 } from '@mui/material';
-import { HelpIconButton } from '../../../../features/help';
+import { HelpIconButton } from '../../../../features/help/components/HelpIconButton';
 import { useTranslation } from 'react-i18next';
 import { ItemForm } from './ItemForm';
 import { useItemForm } from './useItemForm';

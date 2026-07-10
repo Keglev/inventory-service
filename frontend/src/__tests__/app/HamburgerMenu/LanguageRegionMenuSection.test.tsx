@@ -70,10 +70,16 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
-vi.mock('../../../app/HamburgerMenu/LanguageRegionSettings', () => ({
-  LanguageToggle: mockLanguageToggle,
-  DateFormatSetting: mockDateFormatSetting,
-  NumberFormatSetting: mockNumberFormatSetting,
+vi.mock('../../../app/HamburgerMenu/LanguageRegionSettings/LanguageToggle', () => ({
+  default: mockLanguageToggle,
+}));
+
+vi.mock('../../../app/HamburgerMenu/LanguageRegionSettings/DateFormatSetting', () => ({
+  default: mockDateFormatSetting,
+}));
+
+vi.mock('../../../app/HamburgerMenu/LanguageRegionSettings/NumberFormatSetting', () => ({
+  default: mockNumberFormatSetting,
 }));
 
 type Props = {

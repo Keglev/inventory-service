@@ -101,7 +101,7 @@ vi.mock('../../../../../hooks/useHelp', () => ({
   useHelp: () => ({ openHelp: mocks.openHelp }),
 }));
 
-vi.mock('../../../../../context/toast', () => ({
+vi.mock('../../../../../context/toast/ToastContext', () => ({
   useToast: () => mocks.toast,
 }));
 

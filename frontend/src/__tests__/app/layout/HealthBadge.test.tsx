@@ -40,7 +40,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
-vi.mock('../../../features/health', () => ({
+vi.mock('../../../features/health/hooks/useHealthCheck', () => ({
   useHealthCheck: () => mockUseHealthCheck(),
 }));
 

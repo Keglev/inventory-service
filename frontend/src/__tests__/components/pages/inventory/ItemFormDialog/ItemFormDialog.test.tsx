@@ -43,7 +43,7 @@ vi.mock('../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm', () 
   useItemForm: (...args: unknown[]) => useItemFormMock(...args),
 }));
 
-vi.mock('../../../../../features/help', () => ({
+vi.mock('../../../../../features/help/components/HelpIconButton', () => ({
   HelpIconButton: (props: { topicId: string; tooltip?: string }) => {
     helpButtonPropsSpy(props);
     return (

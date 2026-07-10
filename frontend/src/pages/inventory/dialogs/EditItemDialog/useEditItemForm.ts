@@ -32,7 +32,7 @@ import * as React from 'react';
 import { useForm, type Control, type UseFormStateReturn, type UseFormSetValue } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { useToast } from '../../../../context/toast';
+import { useToast } from '../../../../context/toast/ToastContext';
 import { renameItem } from '../../../../api/inventory/itemMutations';
 import { editItemSchema, type EditItemForm } from '../../validation/inventoryValidation';
 import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
