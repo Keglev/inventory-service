@@ -25,9 +25,8 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getReasonBreakdown, type ReasonBreakdownRow } from '../../../api/analytics/reasonBreakdown';
-import { searchItemsForSupplier, searchItemsGlobal } from '../../../api/shared/itemSearch';
 import type { ItemRef } from '../../../api/shared/types';
-import { useDebounced } from '../../../hooks/useDebounced';
+import { useItemSearchOptions } from '../hooks/useItemSearchOptions';
 import ReasonBreakdownChartCard, { type ReasonBreakdownDatum } from './ReasonBreakdownChartCard';
 import MovementDrilldownTable from './MovementDrilldownTable';
 import { STOCK_CHANGE_REASONS, reasonLabel, type StockChangeReasonKey } from './reasonLabels';
@@ -48,27 +47,17 @@ export default function MovementsSection({ from, to, supplierId }: MovementsSect
   // the user types >= 2 letters, gets real item-name suggestions, and only an
   // explicit selection filters the charts and drilldown. This avoids silent
   // no-match filtering from free text that isn't a name substring.
-  const [itemQuery, setItemQuery] = React.useState('');
-  const debouncedQuery = useDebounced(itemQuery, 250);
-  const [selectedItem, setSelectedItem] = React.useState<ItemRef | null>(null);
+  // Shared analytics type-ahead: input, debounce, selection, reset-on-supplier,
+  // and the supplier-scoped-vs-global search query (>= 2 chars).
+  const {
+    itemQuery,
+    setItemQuery,
+    debouncedQuery,
+    selectedItem,
+    setSelectedItem,
+    searchQuery: itemSearchQ,
+  } = useItemSearchOptions({ supplierId, minChars: ITEM_SEARCH_MIN_CHARS, queryKeyScope: 'movementsItemSearch' });
   const itemName = selectedItem?.name ?? '';
-
-  /** Reset text + selection when supplier changes (prevents cross-supplier leaks). */
-  React.useEffect(() => {
-    setItemQuery('');
-    setSelectedItem(null);
-  }, [supplierId]);
-
-  const itemSearchQ = useQuery<ItemRef[]>({
-    queryKey: ['analytics', 'movementsItemSearch', supplierId ?? null, debouncedQuery],
-    queryFn: async () => {
-      if (supplierId) return searchItemsForSupplier(supplierId, debouncedQuery, 50);
-      return searchItemsGlobal(debouncedQuery, 50);
-    },
-    enabled: debouncedQuery.trim().length >= ITEM_SEARCH_MIN_CHARS,
-    staleTime: 30_000,
-    refetchOnWindowFocus: false,
-  });
 
   /** Keep the current selection visible even when options refetch. */
   const itemOptions: ItemRef[] = React.useMemo(() => {

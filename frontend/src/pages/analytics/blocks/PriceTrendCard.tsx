@@ -30,14 +30,13 @@ import Autocomplete from '@mui/material/Autocomplete';
 import type { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getPriceTrend } from '../../../api/analytics/priceTrend';
 import type { PricePoint } from '../../../api/analytics/types';
-import { searchItemsForSupplier, searchItemsGlobal } from '../../../api/shared/itemSearch';
 import type { ItemRef } from '../../../api/shared/types';
-import { useDebounced } from '../../../hooks/useDebounced';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
 import { useSettings } from '../../../hooks/useSettings';
+import { useItemSearchOptions } from '../hooks/useItemSearchOptions';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 
 export type PriceTrendCardProps = { from?: string; to?: string; supplierId?: string | null };
@@ -65,37 +64,17 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
   // Type-ahead state (stable selection + debounced query)
   // ---------------------------------------------------------------------------
 
-  /** Controlled input text inside the Autocomplete. */
-  const [itemQuery, setItemQuery] = React.useState('');
-  /** Debounce to avoid flooding the server while typing. */
-  const debouncedQuery = useDebounced(itemQuery, 250);
-  /** Keep the selected item as an object — DO NOT derive from options. */
-  const [selectedItem, setSelectedItem] = React.useState<ItemRef | null>(null);
+  // Type-ahead state + supplier-scoped search live in the shared analytics hook;
+  // this card keeps only its option enrichment (supplier filter + text narrowing).
+  const {
+    itemQuery,
+    setItemQuery,
+    debouncedQuery,
+    selectedItem,
+    setSelectedItem,
+    searchQuery: itemSearchQ,
+  } = useItemSearchOptions({ supplierId, minChars: 1, keepPrevious: true, queryKeyScope: 'itemSearch' });
   const selectedItemId = selectedItem?.id ?? '';
-
-  /** Reset text + selection when supplier changes (prevents cross-supplier leaks). */
-  React.useEffect(() => {
-    setItemQuery('');
-    setSelectedItem(null);
-  }, [supplierId]);
-
-  // ---------------------------------------------------------------------------
-  // Search (global vs supplier-scoped) — keep previous options during refetch
-  // ---------------------------------------------------------------------------
-
-  const itemSearchQ = useQuery<ItemRef[]>({
-    queryKey: ['analytics', 'itemSearch', supplierId ?? null, debouncedQuery],
-    queryFn: async () => {
-      if (!debouncedQuery) return [];
-      if (supplierId) return searchItemsForSupplier(supplierId, debouncedQuery, 50);
-      return searchItemsGlobal(debouncedQuery, 50);
-    },
-    enabled: debouncedQuery.length >= 1,
-    staleTime: 30_000,
-    // v5 replacement for keepPreviousData: true
-    placeholderData: keepPreviousData,
-    refetchOnWindowFocus: false,
-  });
 
   /**
    * Final options:
