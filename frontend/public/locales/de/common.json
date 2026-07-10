@@ -51,6 +51,14 @@
     "saving": "Wird gespeichert...",
     "deleting": "Wird gelöscht..."
   },
+  "shell": {
+    "darkMode": "Dunkler Modus",
+    "lightMode": "Heller Modus",
+    "darkModeEnabled": "Dunkler Modus aktiviert",
+    "lightModeEnabled": "Heller Modus aktiviert",
+    "languageChanged": "Sprache: Deutsch",
+    "closeNotification": "Benachrichtigung schließen"
+  },
   
   "loading": "Wird geladen...",
   "demoDisabled": "Sie befinden sich im Demo-Modus und können diese Aktion nicht ausführen.",

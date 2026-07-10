@@ -19,6 +19,7 @@ import * as React from 'react';
 import { Snackbar, Alert } from '@mui/material';
 import type { SnackbarCloseReason } from '@mui/material/Snackbar';
 import type { Toast } from './hooks/usePublicShellToast';
+import { useTranslation } from 'react-i18next';
 
 interface PublicShellToastContainerProps {
   toast: Toast | null;
@@ -26,6 +27,7 @@ interface PublicShellToastContainerProps {
 }
 
 const PublicShellToastContainer: React.FC<PublicShellToastContainerProps> = ({ toast, onClose }) => {
+  const { t } = useTranslation('common');
   const handleClose = React.useCallback(
     (_event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
       if (reason === 'clickaway') {
@@ -44,13 +46,12 @@ const PublicShellToastContainer: React.FC<PublicShellToastContainerProps> = ({ t
       autoHideDuration={2500}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     >
-      {/* BUCKET: hardcoded closeText bypasses t() (CB-APP10) */}
       <Alert
         severity={toast?.severity || 'success'}
         elevation={1}
         variant="filled"
         onClose={handleClose}
-        closeText="Close notification"
+        closeText={t('shell.closeNotification')}
       >
         {toast?.msg}
       </Alert>

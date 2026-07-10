@@ -219,7 +219,7 @@ describe('AppShell', () => {
 
     expect(fakeI18n.changeLanguage).toHaveBeenCalledWith('en');
     expect(localStorage.getItem('i18nextLng')).toBe('en');
-    expect(screen.getByText('Language: English')).toBeInTheDocument();
+    expect(screen.getByText('common:shell.languageChanged')).toBeInTheDocument();
   });
 
   it('toggles theme mode and persists the preference', () => {
@@ -231,6 +231,6 @@ describe('AppShell', () => {
     });
 
     expect(localStorage.getItem('themeMode')).toBe('dark');
-    expect(screen.getByText('Dark mode enabled')).toBeInTheDocument();
+    expect(screen.getByText('common:shell.darkModeEnabled')).toBeInTheDocument();
   });
 });

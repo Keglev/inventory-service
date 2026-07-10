@@ -16,15 +16,18 @@
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Box, Toolbar, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
-const Fallback: React.FC = () => (
-  <Box sx={{ textAlign: 'center', py: 8 }}>
-    {/* BUCKET: hardcoded fallback string bypasses t() (CB-APP10) */}
-    <Typography variant="body2" color="text.secondary">
-      Loading...
-    </Typography>
-  </Box>
-);
+const Fallback: React.FC = () => {
+  const { t } = useTranslation('common');
+  return (
+    <Box sx={{ textAlign: 'center', py: 8 }}>
+      <Typography variant="body2" color="text.secondary">
+        {t('loading')}
+      </Typography>
+    </Box>
+  );
+};
 
 const PublicShellContent: React.FC = () => (
   <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, overflowY: 'auto' }}>

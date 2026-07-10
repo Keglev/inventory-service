@@ -129,7 +129,6 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
 
       <Box sx={{ flex: 1 }} />
 
-      {/* BUCKET: hardcoded English fallback in DE-default app — verify de/help.json has general.closeHint or remove fallback (CM-APP7) */}
       <Box
         sx={{
           p: 2,
@@ -142,7 +141,7 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
         }}
       >
         <Typography variant="caption" color="text.secondary">
-          {t('help:general.closeHint', 'Press Escape to close')}
+          {t('general.closeHint')}
         </Typography>
       </Box>
     </Drawer>

@@ -57,7 +57,13 @@ describe('SidebarActions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      // Resolve the shell label keys the component now uses; other keys fall
+      // back to their defaultValue (legacy sites) or the key itself.
+      t: (key: string, defaultValue?: string) =>
+        ({
+          'common:shell.darkMode': 'Dark mode',
+          'common:shell.lightMode': 'Light mode',
+        })[key] ?? defaultValue ?? key,
     });
   });
 

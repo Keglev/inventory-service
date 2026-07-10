@@ -20,6 +20,13 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ThemeToggle from '../../../../app/public-shell/header/ThemeToggle';
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) =>
+      ({ 'shell.darkMode': 'Dark mode', 'shell.lightMode': 'Light mode' })[key] ?? key,
+  }),
+}));
+
 type Props = React.ComponentProps<typeof ThemeToggle>;
 type ThemeMode = 'light' | 'dark';
 

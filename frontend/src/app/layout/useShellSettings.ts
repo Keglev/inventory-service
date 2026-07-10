@@ -40,7 +40,7 @@ export interface ShellSettings {
 }
 
 export function useShellSettings(notify: Notify): ShellSettings {
-  const { i18n } = useTranslation(['common', 'auth']);
+  const { t, i18n } = useTranslation(['common', 'auth']);
 
   // Initialize locale from localStorage or i18n default; keep state synced to i18n changes.
   const initial = normalizeLocale(localStorage.getItem(LS_LANGUAGE_KEY) || i18n.resolvedLanguage || 'de');
@@ -69,8 +69,12 @@ export function useShellSettings(notify: Notify): ShellSettings {
         return prev;
       }
       localStorage.setItem(LS_THEME_KEY, nextMode);
-      // BUCKET: hardcoded string bypasses i18n — route through t() (CB-APP6)
-      notify(nextMode === 'dark' ? 'Dark mode enabled' : 'Light mode enabled', 'info');
+      notify(
+        nextMode === 'dark'
+          ? t('common:shell.darkModeEnabled')
+          : t('common:shell.lightModeEnabled'),
+        'info'
+      );
       return nextMode;
     });
   };
@@ -79,8 +83,8 @@ export function useShellSettings(notify: Notify): ShellSettings {
     localStorage.setItem(LS_LANGUAGE_KEY, next);
     setLocale(next);
     i18n.changeLanguage(next);
-    // BUCKET: hardcoded string bypasses i18n — route through t() (CB-APP6)
-    notify(next === 'de' ? 'Sprache: Deutsch' : 'Language: English', 'info');
+    // Resolve in the language just selected so the toast names the new language.
+    notify(t('common:shell.languageChanged', { lng: next }), 'info');
   };
 
   return { locale, themeMode, theme, handleThemeModeChange, handleLocaleChange };

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { IconButton, Tooltip } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 
@@ -28,8 +29,8 @@ interface ThemeToggleProps {
 }
 
 const ThemeToggle: React.FC<ThemeToggleProps> = ({ themeMode, onToggle }) => {
-  // BUCKET: hardcoded label bypasses t() (CB-APP10)
-  const label = themeMode === 'light' ? 'Dark mode' : 'Light mode';
+  const { t } = useTranslation('common');
+  const label = themeMode === 'light' ? t('shell.darkMode') : t('shell.lightMode');
 
   return (
     <Tooltip title={label}>

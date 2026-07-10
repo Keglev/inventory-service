@@ -96,8 +96,7 @@ export default function SidebarActions({
         }}
       >
         {/* Theme Toggle */}
-        {/* BUCKET: hardcoded string bypasses i18n — route through t() (CB-APP6) */}
-        <Tooltip title={themeMode === 'light' ? 'Dark mode' : 'Light mode'}>
+        <Tooltip title={themeMode === 'light' ? t('common:shell.darkMode') : t('common:shell.lightMode')}>
           <IconButton
             size="small"
             onClick={() => onThemeModeChange(nextThemeMode)}

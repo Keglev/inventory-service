@@ -149,7 +149,7 @@ describe('HelpPanel', () => {
   it('renders the footer close hint text', () => {
     setup({ currentTopicId: 'test.topic' });
 
-    expect(screen.getByText('help:general.closeHint')).toBeInTheDocument();
+    expect(screen.getByText('general.closeHint')).toBeInTheDocument();
   });
 
   it('renders nothing when the topic ID is invalid (registry miss)', () => {

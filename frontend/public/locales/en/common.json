@@ -51,6 +51,14 @@
     "saving": "Saving...",
     "deleting": "Deleting..."
   },
+  "shell": {
+    "darkMode": "Dark mode",
+    "lightMode": "Light mode",
+    "darkModeEnabled": "Dark mode enabled",
+    "lightModeEnabled": "Light mode enabled",
+    "languageChanged": "Language: English",
+    "closeNotification": "Close notification"
+  },
   "loading": "Loading...",
   "demoDisabled": "You are in demo mode and cannot perform this operation.",
   "toast": {

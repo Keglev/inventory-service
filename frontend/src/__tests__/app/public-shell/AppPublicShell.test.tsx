@@ -173,8 +173,8 @@ describe('AppPublicShell', () => {
   });
 
   it.each([
-    { locale: 'en', expectedMsg: 'Language: English' },
-    { locale: 'de', expectedMsg: 'Sprache: Deutsch' },
+    { locale: 'en', expectedMsg: 'shell.languageChanged' },
+    { locale: 'de', expectedMsg: 'shell.languageChanged' },
   ])('invokes the locale toggle handler (locale=$locale)', ({ locale, expectedMsg }) => {
     mockUseLocale.mockReturnValue({
       locale,
@@ -193,8 +193,8 @@ describe('AppPublicShell', () => {
   });
 
   it.each([
-    { themeMode: 'light', expectedMsg: 'Dark mode enabled' },
-    { themeMode: 'dark', expectedMsg: 'Light mode enabled' },
+    { themeMode: 'light', expectedMsg: 'shell.darkModeEnabled' },
+    { themeMode: 'dark', expectedMsg: 'shell.lightModeEnabled' },
   ])('invokes the theme toggle handler (themeMode=$themeMode)', ({ themeMode, expectedMsg }) => {
     mockUseThemeMode.mockReturnValue({
       themeMode,

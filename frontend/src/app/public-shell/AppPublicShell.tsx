@@ -44,18 +44,16 @@ const AppPublicShell: React.FC = () => {
 
   const handleToggleLocale = () => {
     toggleLocale();
-    // BUCKET: hardcoded UI string bypasses t(); sibling of AppShell toasts in CB-APP6 (CB-APP10)
-    showToast(
-      locale === 'de' ? 'Sprache: Deutsch' : 'Language: English',
-      'info'
-    );
+    // Resolve in the language just selected so the toast names the new language.
+    showToast(t('shell.languageChanged', { lng: locale === 'de' ? 'de' : 'en' }), 'info');
   };
 
   const handleToggleThemeMode = () => {
     toggleThemeMode();
-    // BUCKET: hardcoded UI string bypasses t(); sibling of AppShell toasts in CB-APP6 (CB-APP10)
     showToast(
-      themeMode === 'light' ? 'Dark mode enabled' : 'Light mode enabled',
+      themeMode === 'light'
+        ? t('shell.darkModeEnabled')
+        : t('shell.lightModeEnabled'),
       'info'
     );
   };
