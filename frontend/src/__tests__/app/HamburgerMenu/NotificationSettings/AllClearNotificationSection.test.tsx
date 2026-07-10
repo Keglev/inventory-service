@@ -20,6 +20,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import AllClearNotificationSection from '../../../../app/HamburgerMenu/NotificationSettings/AllClearNotificationSection';
+import { tEn } from '../../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock
@@ -38,7 +39,7 @@ describe('AllClearNotificationSection', () => {
 
     // Deterministic translation stub: return defaultValue for stable assertions.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -73,8 +74,7 @@ describe('AllClearNotificationSection', () => {
     ).toBeInTheDocument();
 
     expect(mockT).toHaveBeenCalledWith(
-      'notifications.allGood',
-      'All clear – no low stock items',
+      'notifications.allGood'
     );
   });
 

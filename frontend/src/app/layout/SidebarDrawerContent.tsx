@@ -64,7 +64,7 @@ export function SidebarDrawerContent({
       {/* Drawer Header - App Title */}
       <Toolbar>
         <Typography variant="subtitle1" fontWeight={700}>
-          {t('app.branding', 'Smart Supply Pro')}
+          {t('app.branding')}
         </Typography>
       </Toolbar>
       <Divider />

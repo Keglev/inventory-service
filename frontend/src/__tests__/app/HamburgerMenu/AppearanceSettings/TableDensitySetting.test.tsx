@@ -22,6 +22,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TableDensitySetting from '../../../../app/HamburgerMenu/AppearanceSettings/TableDensitySetting';
+import { tEn } from '../../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock
@@ -58,7 +59,7 @@ describe('TableDensitySetting', () => {
 
     // Deterministic translation stub: return defaultValue for stable assertions.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -68,7 +69,7 @@ describe('TableDensitySetting', () => {
   // ---------------------------------------------------------------------------
   it('renders the density setting label', () => {
     arrange('comfortable');
-    expect(screen.getByText('Density')).toBeInTheDocument();
+    expect(screen.getByText('Table Density')).toBeInTheDocument();
   });
 
   it('renders both density options', () => {
@@ -148,9 +149,9 @@ describe('TableDensitySetting', () => {
     expect(screen.getByText('Kompakt')).toBeInTheDocument();
 
     // ...and ensure we requested the correct keys (integration wiring).
-    expect(mockT).toHaveBeenCalledWith('appearance.density', 'Density');
-    expect(mockT).toHaveBeenCalledWith('appearance.standard', 'Standard');
-    expect(mockT).toHaveBeenCalledWith('appearance.compact', 'Compact');
+    expect(mockT).toHaveBeenCalledWith('appearance.density');
+    expect(mockT).toHaveBeenCalledWith('appearance.standard');
+    expect(mockT).toHaveBeenCalledWith('appearance.compact');
   });
 
   // ---------------------------------------------------------------------------

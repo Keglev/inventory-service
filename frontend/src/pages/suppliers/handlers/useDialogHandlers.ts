@@ -36,20 +36,20 @@ export function useDialogHandlers(state: UseSuppliersBoardStateReturn) {
   const queryClient = useQueryClient();
 
   const handleSupplierCreated = useCallback(() => {
-    toast(t('suppliers:status.created', 'Supplier created successfully'), 'success');
+    toast(t('suppliers:status.created'), 'success');
     queryClient.invalidateQueries({ queryKey: ['suppliers'] });
     state.setOpenCreate(false);
   }, [state, toast, t, queryClient]);
 
   const handleSupplierUpdated = useCallback(() => {
-    toast(t('suppliers:status.updated', 'Supplier updated successfully'), 'success');
+    toast(t('suppliers:status.updated'), 'success');
     queryClient.invalidateQueries({ queryKey: ['suppliers'] });
     state.setOpenEdit(false);
     state.setSelectedId(null);
   }, [state, toast, t, queryClient]);
 
   const handleSupplierDeleted = useCallback(() => {
-    toast(t('suppliers:status.deleted', 'Supplier deleted successfully'), 'success');
+    toast(t('suppliers:status.deleted'), 'success');
     queryClient.invalidateQueries({ queryKey: ['suppliers'] });
     state.setOpenDelete(false);
     state.setSelectedId(null);

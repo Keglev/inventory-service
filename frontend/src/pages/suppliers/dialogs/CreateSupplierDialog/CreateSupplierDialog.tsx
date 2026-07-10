@@ -91,8 +91,8 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Box>{t('suppliers:actions.create', 'Create Supplier')}</Box>
-          <Tooltip title={t('common:actions.help', 'Help')}>
+          <Box>{t('suppliers:actions.create')}</Box>
+          <Tooltip title={t('common:actions.help')}>
             <IconButton size="small" onClick={() => openHelp('suppliers.manage')}>
               {/* Help-icon bucket: HelpOutlineIcon + Tooltip + IconButton pattern duplicated across 4 dialogs — extract shared component in refactor pass. */}
               <HelpOutlineIcon fontSize="small" />
@@ -112,7 +112,7 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
 
       <DialogActions>
         <Button onClick={handleClose} disabled={form.formState.isSubmitting}>
-          {t('common:actions.cancel', 'Cancel')}
+          {t('common:actions.cancel')}
         </Button>
         <Button
           variant="contained"
@@ -120,8 +120,8 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
           disabled={form.formState.isSubmitting}
         >
           {form.formState.isSubmitting
-            ? t('common:actions.creating', 'Creating...')
-            : t('suppliers:actions.create', 'Create Supplier')}
+            ? t('common:actions.creating')
+            : t('suppliers:actions.create')}
         </Button>
       </DialogActions>
     </Dialog>

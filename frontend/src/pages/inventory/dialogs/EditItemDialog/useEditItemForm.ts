@@ -196,7 +196,7 @@ export function useEditItemForm(
       });
 
       if (success.ok) {
-        toast(t('inventory:status.itemRenamed', 'Item name changed successfully!'), 'success');
+        toast(t('inventory:status.itemRenamed'), 'success');
         onItemRenamed();
         handleClose();
       } else if (success.errorToken === 'forbidden') {

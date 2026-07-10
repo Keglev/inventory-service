@@ -61,13 +61,13 @@ export function ItemFormDialog({
 
   // Dialog title reflects create vs edit mode
   const dialogTitle = initial?.id
-    ? t('inventory:dialogs.editItemTitle', 'Edit Item')
-    : t('inventory:dialogs.createItemTitle', 'Create Item');
+    ? t('inventory:dialogs.editItemTitle')
+    : t('inventory:dialogs.createItemTitle');
 
   // Button label also changes based on mode
   const submitLabel = initial?.id
-    ? t('common:actions.save', 'Save')
-    : t('common:actions.create', 'Create');
+    ? t('common:actions.save')
+    : t('common:actions.create');
 
   return (
     <Dialog
@@ -87,7 +87,7 @@ export function ItemFormDialog({
         <span>{dialogTitle}</span>
         <HelpIconButton
           topicId={initial?.id ? 'inventory.editItem' : 'inventory.manage'}
-          tooltip={t('common:actions.help', 'Help')}
+          tooltip={t('common:actions.help')}
         />
       </DialogTitle>
 
@@ -99,7 +99,7 @@ export function ItemFormDialog({
       {/* Dialog actions */}
       <DialogActions>
         <Button onClick={() => state.handleClose()} disabled={state.formState.isSubmitting}>
-          {t('common:actions.cancel', 'Cancel')}
+          {t('common:actions.cancel')}
         </Button>
         <Box sx={{ position: 'relative', display: 'inline-block' }}>
           <Button

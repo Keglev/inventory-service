@@ -57,7 +57,7 @@ export const DeleteSupplierSearchEmpty: React.FC<DeleteSupplierSearchEmptyProps>
 
   return (
     <Typography variant="body2" color="text.secondary" align="center" sx={{ py: 2 }}>
-      {t('suppliers:search.noResults', 'No suppliers found')}
+      {t('suppliers:search.noResults')}
     </Typography>
   );
 };

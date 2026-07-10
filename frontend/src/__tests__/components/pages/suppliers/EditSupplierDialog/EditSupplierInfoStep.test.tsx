@@ -26,9 +26,10 @@ import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 import { EditSupplierInfoStep } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep';
 import { supplierRow } from './fixtures';
+import { tEn } from '../../../../test/i18nEn';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 const supplierFixture: SupplierRow = supplierRow({
@@ -82,7 +83,7 @@ describe('EditSupplierInfoStep', () => {
 
     expect(screen.getByText('Step 2: Edit Contact Information')).toBeInTheDocument();
     expect(screen.getByText('Acme Corp')).toBeInTheDocument();
-    expect(screen.getByLabelText('Contact Name')).toBeInTheDocument();
+    expect(screen.getByLabelText('Contact')).toBeInTheDocument();
     expect(screen.getByLabelText('Phone')).toBeInTheDocument();
     expect(screen.getByLabelText('Email')).toBeInTheDocument();
   });
@@ -104,7 +105,7 @@ describe('EditSupplierInfoStep', () => {
   it('disables inputs when submitting', () => {
     renderWithForm({ isSubmitting: true });
 
-    expect(screen.getByLabelText('Contact Name')).toBeDisabled();
+    expect(screen.getByLabelText('Contact')).toBeDisabled();
     expect(screen.getByLabelText('Phone')).toBeDisabled();
     expect(screen.getByLabelText('Email')).toBeDisabled();
   });

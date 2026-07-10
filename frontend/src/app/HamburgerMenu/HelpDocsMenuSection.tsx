@@ -29,17 +29,17 @@ export default function HelpDocsMenuSection() {
   const docsLinks = [
     {
       key: 'github',
-      label: t('help.github', 'GitHub Repository'),
+      label: t('help.github'),
       href: 'https://github.com/Keglev/inventory-service',
     },
     {
       key: 'apiDocs',
-      label: t('help.apiDocs', 'Open API Docs'),
+      label: t('help.apiDocs'),
       href: '/docs/api',
     },
     {
       key: 'frontendDocs',
-      label: t('help.frontendDocs', 'Frontend Docs'),
+      label: t('help.frontendDocs'),
       href: '/docs/frontend',
     },
   ];
@@ -47,7 +47,7 @@ export default function HelpDocsMenuSection() {
   return (
     <Box sx={{ px: 2, py: 1.5 }}>
       <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
-        {t('help.title', 'Hilfe & Dokumentation / Help & Docs')}
+        {t('help.title')}
       </Typography>
 
       <Stack spacing={0.75}>

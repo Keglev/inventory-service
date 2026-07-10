@@ -18,6 +18,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ProfileNameDisplay from '../../../../app/HamburgerMenu/ProfileSettings/ProfileNameDisplay';
+import { tEn } from '../../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock
@@ -39,7 +40,7 @@ describe('ProfileNameDisplay', () => {
 
     // Deterministic translation stub: return defaultValue for stable assertions.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -88,7 +89,7 @@ describe('ProfileNameDisplay', () => {
     expect(screen.getByText('Vollständiger Name')).toBeInTheDocument();
 
     // Integration: correct key used
-    expect(mockT).toHaveBeenCalledWith('common:name', 'Name');
+    expect(mockT).toHaveBeenCalledWith('common:name');
   });
 
   // ---------------------------------------------------------------------------

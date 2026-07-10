@@ -19,6 +19,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ProfileEmailDisplay from '../../../../app/HamburgerMenu/ProfileSettings/ProfileEmailDisplay';
+import { tEn } from '../../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock
@@ -51,7 +52,7 @@ describe('ProfileEmailDisplay', () => {
 
     // Deterministic translation stub: return defaultValue for stable assertions.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -110,7 +111,7 @@ describe('ProfileEmailDisplay', () => {
     arrange();
 
     expect(screen.getByText('E-Mail')).toBeInTheDocument();
-    expect(mockT).toHaveBeenCalledWith('common:email', 'Email');
+    expect(mockT).toHaveBeenCalledWith('common:email');
   });
 
   it('renders translated demo message when provided by i18n', () => {
@@ -129,8 +130,7 @@ describe('ProfileEmailDisplay', () => {
 
     expect(screen.getByText('Demo-Konto, keine E-Mail')).toBeInTheDocument();
     expect(mockT).toHaveBeenCalledWith(
-      'auth:demo.noEmailProvided',
-      'Demo Account, No email provided',
+      'auth:demo.noEmailProvided'
     );
   });
 

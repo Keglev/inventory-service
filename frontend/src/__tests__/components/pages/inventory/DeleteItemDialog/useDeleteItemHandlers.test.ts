@@ -23,11 +23,12 @@ import type { TFunction } from 'i18next';
 import type { UseDeleteItemStateReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState';
 import type { UseDeleteItemQueriesReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries';
 import { useDeleteItemHandlers } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers';
+import { tEn } from '../../../../test/i18nEn';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
 // -------------------------------------
-const tSpy = vi.hoisted(() => vi.fn((key: string, fallback?: string) => fallback ?? key));
+const tSpy = vi.hoisted(() => vi.fn((key: string, options?: Record<string, unknown>) => tEn(key, options)));
 const toastSpy = vi.hoisted(() => vi.fn());
 const deleteItemSpy = vi.hoisted(() => vi.fn());
 const handleDeleteErrorSpy = vi.hoisted(() => vi.fn());
@@ -132,7 +133,7 @@ describe('useDeleteItemHandlers', () => {
         result.current.handleCancelConfirmation();
       });
 
-      expect(toastSpy).toHaveBeenCalledWith('Operation cancelled', 'info');
+      expect(toastSpy).toHaveBeenCalledWith('Operation canceled', 'info');
       expect(state.setShowConfirmation).toHaveBeenCalledWith(false);
     });
   });
@@ -145,7 +146,7 @@ describe('useDeleteItemHandlers', () => {
         await result.current.onSubmit();
       });
 
-      expect(state.setFormError).toHaveBeenCalledWith('errors:inventory.selection.noItemSelected');
+      expect(state.setFormError).toHaveBeenCalledWith('Please select an item');
       expect(state.setShowConfirmation).not.toHaveBeenCalledWith(true);
     });
 
@@ -170,7 +171,7 @@ describe('useDeleteItemHandlers', () => {
         await result.current.onConfirmedDelete();
       });
 
-      expect(state.setFormError).toHaveBeenCalledWith('errors:inventory.selection.noItemSelected');
+      expect(state.setFormError).toHaveBeenCalledWith('Please select an item');
       expect(deleteItemSpy).not.toHaveBeenCalled();
     });
 
@@ -206,7 +207,7 @@ describe('useDeleteItemHandlers', () => {
       });
 
       expect(deleteItemSpy).toHaveBeenCalledWith('item-1');
-      expect(toastSpy).toHaveBeenCalledWith('Operation successful. Item was removed from inventory!', 'success');
+      expect(toastSpy).toHaveBeenCalledWith('Success! The item has been removed from the inventory!', 'success');
 
       expect(onItemDeleted).toHaveBeenCalledTimes(1);
       expect(state.resetAll).toHaveBeenCalledTimes(1);
@@ -247,7 +248,7 @@ describe('useDeleteItemHandlers', () => {
       });
 
       expect(consoleSpy).toHaveBeenCalled();
-      expect(state.setFormError).toHaveBeenCalledWith('errors:inventory.requests.failedToDeleteItem');
+      expect(state.setFormError).toHaveBeenCalledWith('Failed to delete item. Please try again.');
 
       consoleSpy.mockRestore();
     });

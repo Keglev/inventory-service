@@ -19,6 +19,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AppSettingsDialog from '../../../app/settings/AppSettingsDialog';
+import { tEn } from '../../test/i18nEn';
 
 // Hook is mocked because this file only validates the dialog container behavior.
 vi.mock('../../../app/settings/hooks/useAppSettingsForm', () => ({
@@ -48,7 +49,7 @@ vi.mock('../../../app/settings/AppSettingsForm', () => ({
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     // Prefer fallback text for stable assertions.
-    t: (key: string, fallback?: string) => fallback || key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 

@@ -125,13 +125,13 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
     <Card>
       <CardContent>
         <Typography variant="subtitle1" sx={{ mb: 1 }}>
-          {t('analytics:updates.title', 'Recent stock updates')}
+          {t('analytics:updates.title')}
         </Typography>
 
         {q.isLoading ? (
           <Skeleton variant="rounded" height={260} />
         ) : rows.length === 0 ? (
-          <Box sx={{ color: 'text.secondary' }}>{t('analytics:updates.empty', 'No updates in this period.')}</Box>
+          <Box sx={{ color: 'text.secondary' }}>{t('analytics:updates.empty')}</Box>
         ) : (
           <Box sx={{ height: 320 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -141,7 +141,7 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
                 <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
                 <Tooltip
                   formatter={(value) =>
-                    `${formatNumber(Number(value), userPreferences.numberFormat, 0)} ${t('analytics:units.pieces', 'pcs')}`
+                    `${formatNumber(Number(value), userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
                   }
                   labelFormatter={(label) => label as string}
                 />

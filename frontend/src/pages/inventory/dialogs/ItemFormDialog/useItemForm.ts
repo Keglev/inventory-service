@@ -208,7 +208,7 @@ export function useItemForm({
 
     // Demo guard
     if (readOnly) {
-      setFormError(t('common:demoDisabled', 'This action is disabled in demo mode.'));
+      setFormError(t('common:demoDisabled'));
       return;
     }
 
@@ -225,7 +225,7 @@ export function useItemForm({
 
     const res = await upsertItem(requestData);
     if (res.ok) {
-      toast(t('inventory:status.formSaved', 'Item saved successfully!'), 'success');
+      toast(t('inventory:status.formSaved'), 'success');
       onSaved();
       handleClose();
     } else {

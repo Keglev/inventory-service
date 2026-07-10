@@ -40,7 +40,7 @@ export default function NumberFormatSetting({
     <FormControl size="small" component="fieldset" fullWidth>
       <FormLabel sx={{ fontWeight: 600, mb: 0.75 }}>
         <Typography variant="caption" sx={{ fontWeight: 600 }}>
-          {t('language.numberFormat', 'Number Format')}
+          {t('language.numberFormat')}
         </Typography>
       </FormLabel>
       <RadioGroup

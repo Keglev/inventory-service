@@ -9,6 +9,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { tEn } from '../../../../test/i18nEn';
 
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => (
@@ -27,7 +28,7 @@ vi.mock('recharts', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback ?? key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 
@@ -90,8 +91,8 @@ describe('MovementsSection', () => {
     await waitFor(() => {
       expect(screen.getAllByTestId('reason-breakdown-card')).toHaveLength(2);
     });
-    expect(screen.getByText('analytics:movements.increasesTitle')).toBeInTheDocument();
-    expect(screen.getByText('analytics:movements.decreasesTitle')).toBeInTheDocument();
+    expect(screen.getByText('Stock increases by reason (pieces)')).toBeInTheDocument();
+    expect(screen.getByText('Stock decreases by reason (pieces)')).toBeInTheDocument();
     expect(mockGetReasonBreakdown).toHaveBeenCalledTimes(1);
 
     expect(screen.getByTestId('movement-drilldown')).toBeInTheDocument();
@@ -110,12 +111,12 @@ describe('MovementsSection', () => {
     expect(mockGetReasonBreakdown).toHaveBeenCalledTimes(1);
 
     // Select only SOLD: MANUAL_UPDATE disappears from the increase side.
-    await user.click(screen.getByRole('button', { name: 'analytics:reasons.SOLD' }));
+    await user.click(screen.getByRole('button', { name: 'Sold' }));
 
     expect(mockGetReasonBreakdown).toHaveBeenCalledTimes(1);
     // Increases card has no visible rows anymore -> shared no-data state.
     await waitFor(() => {
-      expect(screen.getByText('analytics:cards.noData')).toBeInTheDocument();
+      expect(screen.getByText('No data for the selected filters.')).toBeInTheDocument();
     });
   });
 
@@ -127,7 +128,7 @@ describe('MovementsSection', () => {
       expect(screen.getAllByTestId('reason-breakdown-card')).toHaveLength(2);
     });
 
-    const input = screen.getByLabelText('analytics:movements.itemFilter');
+    const input = screen.getByLabelText('Filter by item name');
     await user.type(input, 'bear');
 
     await waitFor(() => {
@@ -148,7 +149,7 @@ describe('MovementsSection', () => {
     setup();
 
     await waitFor(() => {
-      expect(screen.getByText('analytics:movements.empty')).toBeInTheDocument();
+      expect(screen.getByText('No stock changes in this period')).toBeInTheDocument();
     });
   });
 });

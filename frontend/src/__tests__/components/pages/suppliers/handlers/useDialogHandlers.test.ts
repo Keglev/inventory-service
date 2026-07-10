@@ -23,6 +23,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useDialogHandlers } from '../../../../../pages/suppliers/handlers/useDialogHandlers';
 import type { UseSuppliersBoardStateReturn } from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
+import { tEn } from '../../../../test/i18nEn';
 
 const mocks = vi.hoisted(() => ({
   toast: vi.fn(),
@@ -31,7 +32,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('react-i18next', () => ({
   // Prefer fallback/defaultValue so assertions remain stable across locales.
-  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 vi.mock('../../../../../context/toast/ToastContext', () => ({
@@ -96,7 +97,7 @@ describe('useDialogHandlers', () => {
     {
       name: 'updated: toasts, invalidates cache, closes edit dialog, clears selection',
       invoke: (h: ReturnType<typeof renderHandlers>) => h.handleSupplierUpdated(),
-      expectedToast: 'Supplier updated successfully',
+      expectedToast: 'Supplier information updated successfully!',
       expectedOpenSetter: 'setOpenEdit' as const,
       clearsSelection: true,
     },

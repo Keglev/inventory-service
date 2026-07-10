@@ -57,7 +57,7 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
           display="block"
           sx={{ mb: 0.25 }}
         >
-          {t('footer:health.backend', 'Backend')}
+          {t('footer:health.backend')}
         </Typography>
         <Stack direction="row" spacing={0.5} alignItems="center">
           <Chip
@@ -71,7 +71,7 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
                 }}
               />
             }
-            label={backendOnline ? t('footer:status.online', 'Online') : t('footer:status.offline', 'Offline')}
+            label={backendOnline ? t('footer:status.online') : t('footer:status.offline')}
             size="small"
             variant="outlined"
             sx={{ borderColor: backendColor, color: backendColor }}
@@ -92,7 +92,7 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
           display="block"
           sx={{ mt: 0.5, mb: 0.25 }}
         >
-          {t('footer:health.database', 'Database')}
+          {t('footer:health.database')}
         </Typography>
         <Chip
           icon={
@@ -105,7 +105,7 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
               }}
             />
           }
-          label={databaseOnline ? t('footer:health.oracleAdb', 'Oracle ADB') : t('footer:status.offline', 'Offline')}
+          label={databaseOnline ? t('footer:health.oracleAdb') : t('footer:status.offline')}
           size="small"
           variant="outlined"
           sx={{ borderColor: dbColor, color: dbColor }}

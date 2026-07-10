@@ -88,7 +88,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
 
   return (
     <Dialog open={open} onClose={onCancel} fullWidth maxWidth="sm">
-      <DialogTitle>{t('suppliers:dialogs.confirmChanges', 'Confirm Changes')}</DialogTitle>
+      <DialogTitle>{t('suppliers:dialogs.confirmChanges')}</DialogTitle>
 
       <DialogContent dividers>
         <Box sx={{ display: 'grid', gap: 2 }}>
@@ -99,7 +99,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
           )}
 
           <Alert severity="warning">
-            {t('suppliers:confirmations.changesCannotBeReversed', 'These changes cannot be reversed.')}
+            {t('suppliers:confirmations.changesCannotBeReversed')}
           </Alert>
 
           {supplier && (
@@ -107,13 +107,13 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
               {/* Supplier Name (Read-only for display) */}
               <Box sx={{ mb: 2, p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}>
                 <Typography variant="body2" color="text.secondary">
-                  {t('suppliers:table.name', 'Supplier Name')}
+                  {t('suppliers:table.name')}
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
                   {supplier.name}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                  {t('suppliers:hints.nameCannotBeChanged', '(Cannot be changed)')}
+                  {t('suppliers:hints.nameCannotBeChanged')}
                 </Typography>
               </Box>
 
@@ -121,13 +121,13 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
 
               {/* Changes Summary */}
               <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
-                {t('suppliers:confirmations.changes', 'Changes')}
+                {t('suppliers:confirmations.changes')}
               </Typography>
 
               {changes?.contactName !== (supplier.contactName || '') && (
                 <Box sx={{ mb: 1.5, p: 1, bgcolor: 'info.lighter', borderRadius: 1 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {t('suppliers:table.contactName', 'Contact Name')}
+                    {t('suppliers:table.contactName')}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {supplier.contactName || '(empty)'} →{' '}
@@ -139,7 +139,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
               {changes?.phone !== (supplier.phone || '') && (
                 <Box sx={{ mb: 1.5, p: 1, bgcolor: 'info.lighter', borderRadius: 1 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {t('suppliers:table.phone', 'Phone')}
+                    {t('suppliers:table.phone')}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {supplier.phone || '(empty)'} → {changes?.phone || '(empty)'}
@@ -150,7 +150,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
               {changes?.email !== (supplier.email || '') && (
                 <Box sx={{ mb: 1.5, p: 1, bgcolor: 'info.lighter', borderRadius: 1 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {t('suppliers:table.email', 'Email')}
+                    {t('suppliers:table.email')}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {supplier.email || '(empty)'} → {changes?.email || '(empty)'}
@@ -164,7 +164,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
 
       <DialogActions sx={{ gap: 1 }}>
         <Button onClick={onCancel} disabled={isSubmitting}>
-          {t('common:actions.no', 'No')}
+          {t('common:actions.no')}
         </Button>
         <Button
           onClick={onConfirm}
@@ -175,10 +175,10 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
           {isSubmitting ? (
             <>
               <CircularProgress size={16} sx={{ mr: 1 }} />
-              {t('common:actions.saving', 'Saving...')}
+              {t('common:actions.saving')}
             </>
           ) : (
-            t('common:actions.yes', 'Yes')
+            t('common:actions.yes')
           )}
         </Button>
       </DialogActions>

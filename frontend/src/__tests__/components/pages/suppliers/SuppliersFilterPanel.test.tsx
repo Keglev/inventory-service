@@ -23,9 +23,10 @@ import {
   SuppliersFilterPanel,
   type SuppliersFilterPanelProps,
 } from '../../../../pages/suppliers/components/SuppliersFilterPanel';
+import { tEn } from '../../../test/i18nEn';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 // Props builder: keeps tests focused on a small number of inputs.

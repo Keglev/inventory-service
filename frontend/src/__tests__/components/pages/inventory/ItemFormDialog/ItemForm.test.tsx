@@ -19,7 +19,7 @@ import type { UseItemFormReturn } from '../../../../../pages/inventory/dialogs/I
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     // Prefer fallback/default strings for stable tests across locales.
-    t: (_key: string, fallback?: string) => fallback ?? _key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 
@@ -66,6 +66,7 @@ vi.mock('@mui/material', async () => {
 });
 
 import { ItemForm } from '../../../../../pages/inventory/dialogs/ItemFormDialog/ItemForm';
+import { tEn } from '../../../../test/i18nEn';
 
 function createMockState(overrides: Partial<UseItemFormReturn> = {}): UseItemFormReturn {
   const baseState: UseItemFormReturn = {
@@ -131,7 +132,7 @@ describe('ItemForm', () => {
     expect(screen.getByLabelText('Supplier')).toBeInTheDocument();
     expect(screen.getByLabelText('Item')).toBeInTheDocument();
     expect(screen.getByLabelText('Code / SKU')).toBeInTheDocument();
-    expect(screen.getByLabelText('Initial Stock')).toBeInTheDocument();
+    expect(screen.getByLabelText('Initial Quantity')).toBeInTheDocument();
     expect(screen.getByLabelText('Price')).toBeInTheDocument();
 
     // Create-only reason dropdown

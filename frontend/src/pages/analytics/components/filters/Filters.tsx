@@ -69,7 +69,7 @@ export function Filters({
     >
       <Stack spacing={1}>
         <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-          {t('analytics:filters.title', 'Filters')}
+          {t('analytics:filters.title')}
         </Typography>
 
         <Stack
@@ -79,7 +79,7 @@ export function Filters({
         >
           <Box sx={{ flex: 2 }}>
             <Typography variant="body2" sx={{ mb: 0.75, fontWeight: 500 }}>
-              {t('analytics:filters.dateRangeLabel', 'Date Range')}
+              {t('analytics:filters.dateRangeLabel')}
             </Typography>
             <DateRangeFilter value={value} onChange={onChange} disabled={disabled} onReset={resetFilters} />
           </Box>

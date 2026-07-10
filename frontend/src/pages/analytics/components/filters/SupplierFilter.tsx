@@ -59,7 +59,7 @@ export function SupplierFilter({
         variant="body2"
         sx={{ mb: 0.75, fontWeight: 500 }}
       >
-        {t('analytics:filters.supplier', 'Supplier')}
+        {t('analytics:filters.supplier')}
       </Typography>
       <Select
         labelId="supplier-select-label"
@@ -71,7 +71,7 @@ export function SupplierFilter({
         fullWidth
         size="small"
       >
-        <MenuItem value="">{t('analytics:filters.allSuppliers', 'All Suppliers')}</MenuItem>
+        <MenuItem value="">{t('analytics:filters.allSuppliers')}</MenuItem>
         {suppliers.map((supplier) => (
           <MenuItem key={supplier.id} value={supplier.id}>
             {supplier.name}

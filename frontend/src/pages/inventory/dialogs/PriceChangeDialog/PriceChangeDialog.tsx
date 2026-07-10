@@ -64,8 +64,8 @@ export function PriceChangeDialog({
       {/* Title with help icon */}
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Box>{t('inventory:toolbar.changePrice', 'Change Price')}</Box>
-          <HelpIconButton topicId="inventory.changePrice" tooltip={t('common:actions.help', 'Help')} />
+          <Box>{t('inventory:toolbar.changePrice')}</Box>
+          <HelpIconButton topicId="inventory.changePrice" tooltip={t('common:actions.help')} />
         </Stack>
       </DialogTitle>
 
@@ -77,7 +77,7 @@ export function PriceChangeDialog({
       {/* Dialog actions */}
       <DialogActions>
         <Button onClick={() => state.handleClose()} disabled={state.formState.isSubmitting}>
-          {t('common:actions.cancel', 'Cancel')}
+          {t('common:actions.cancel')}
         </Button>
         <Box sx={{ position: 'relative', display: 'inline-block' }}>
           <Button
@@ -92,10 +92,10 @@ export function PriceChangeDialog({
             {state.formState.isSubmitting ? (
               <>
                 <CircularProgress size={16} sx={{ mr: 1 }} />
-                {t('common:actions.saving', 'Saving...')}
+                {t('common:actions.saving')}
               </>
             ) : (
-              t('inventory:buttons.applyPriceChange', 'Apply Price Change')
+              t('inventory:buttons.applyPriceChange')
             )}
           </Button>
           {state.formState.isSubmitting && (

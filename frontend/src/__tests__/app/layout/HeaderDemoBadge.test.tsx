@@ -16,6 +16,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import HeaderDemoBadge from '../../../app/layout/header/HeaderDemoBadge';
+import { tEn } from '../../test/i18nEn';
 
 /**
  * i18n mock:
@@ -30,7 +31,7 @@ describe('HeaderDemoBadge', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     });
   });
 

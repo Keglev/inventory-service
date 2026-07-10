@@ -48,13 +48,13 @@ export const QuantityAdjustItemDetails: React.FC<QuantityAdjustItemDetailsProps>
   return (
     <Box sx={{ display: 'grid', gap: 1, p: 2, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}>
       <Typography variant="subtitle2" color="primary">
-        {t('inventory:dialogs.selectedItemLabel', 'Selected Item:')} {item.name}
+        {t('inventory:dialogs.selectedItemLabel')} {item.name}
       </Typography>
 
       {/* Current Quantity */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant="body2" color="text.secondary">
-          {t('inventory:dialogs.currentQuantityLabel', 'Current Quantity:')}
+          {t('inventory:dialogs.currentQuantityLabel')}
         </Typography>
         <Typography variant="body2" fontWeight="medium">
           {loading ? <CircularProgress size={16} /> : currentQty}
@@ -64,7 +64,7 @@ export const QuantityAdjustItemDetails: React.FC<QuantityAdjustItemDetailsProps>
       {/* Current Price */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant="body2" color="text.secondary">
-          {t('inventory:dialogs.currentPriceLabel', 'Current Price:')}
+          {t('inventory:dialogs.currentPriceLabel')}
         </Typography>
         <Typography variant="body2" fontWeight="medium">
           {loading ? (

@@ -23,6 +23,7 @@ import { MemoryRouter } from 'react-router-dom';
 
 import AuthCallback from '../../../../pages/auth/AuthCallback';
 import httpClient from '../../../../api/httpClient';
+import { tEn } from '../../../test/i18nEn';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -34,7 +35,7 @@ const mockUseAuth = vi.hoisted(() => vi.fn());
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     // Prefer defaultValue so tests stay stable if translation keys change.
-    t: (_key: string, options?: { defaultValue?: string }) => options?.defaultValue ?? _key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 

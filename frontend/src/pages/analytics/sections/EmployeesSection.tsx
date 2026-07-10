@@ -76,7 +76,7 @@ export default function EmployeesSection({ from, to, supplierId }: EmployeesSect
   const formatTooltipCount = React.useCallback(
     (value: number | string) =>
       typeof value === 'number'
-        ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.changes', 'changes')}`
+        ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.changes')}`
         : String(value),
     [userPreferences.numberFormat, t]
   );

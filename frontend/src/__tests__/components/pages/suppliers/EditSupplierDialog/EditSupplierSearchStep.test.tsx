@@ -27,9 +27,10 @@ import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 import { EditSupplierSearchStep } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierSearchStep';
 import { supplierRow } from './fixtures';
+import { tEn } from '../../../../test/i18nEn';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 const defaultSupplier = (overrides: Partial<SupplierRow> = {}): SupplierRow =>

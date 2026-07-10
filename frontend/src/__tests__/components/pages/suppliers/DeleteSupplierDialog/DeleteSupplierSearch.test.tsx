@@ -78,10 +78,11 @@ vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSuppl
 
 vi.mock('react-i18next', () => ({
   // Prefer fallback/defaultValue to keep assertions stable across locales.
-  useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 import { DeleteSupplierSearch } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearch';
+import { tEn } from '../../../../test/i18nEn';
 
 const suppliers: SupplierRow[] = [
   { id: '1', name: 'Supplier One', contactName: 'Jane Doe', email: null, phone: null },

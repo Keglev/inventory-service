@@ -100,31 +100,31 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
   const columns: GridColDef<SupplierRow>[] = [
     {
       field: 'name',
-      headerName: t('suppliers:table.name', 'Supplier Name'),
+      headerName: t('suppliers:table.name'),
       flex: 1,
       minWidth: 200,
     },
     {
       field: 'contactName',
-      headerName: t('suppliers:table.contactName', 'Contact'),
+      headerName: t('suppliers:table.contactName'),
       width: 150,
       valueGetter: (_value: unknown, row: SupplierRow | null) => row?.contactName ?? '—',
     },
     {
       field: 'phone',
-      headerName: t('suppliers:table.phone', 'Phone'),
+      headerName: t('suppliers:table.phone'),
       width: 140,
       valueGetter: (_value: unknown, row: SupplierRow | null) => row?.phone ?? '—',
     },
     {
       field: 'email',
-      headerName: t('suppliers:table.email', 'Email'),
+      headerName: t('suppliers:table.email'),
       width: 180,
       valueGetter: (_value: unknown, row: SupplierRow | null) => row?.email ?? '—',
     },
     {
       field: 'createdAt',
-      headerName: t('suppliers:table.createdAt', 'Created'),
+      headerName: t('suppliers:table.createdAt'),
       width: 180,
       valueGetter: (_value: unknown, row: SupplierRow | null) => row?.createdAt ?? null,
       valueFormatter: (value: unknown) => {
@@ -183,7 +183,7 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
               }}
             >
               <Typography variant="body2" color="text.secondary">
-                {t('suppliers:empty.default', 'No suppliers found')}
+                {t('suppliers:empty.default')}
               </Typography>
             </Box>
           ),

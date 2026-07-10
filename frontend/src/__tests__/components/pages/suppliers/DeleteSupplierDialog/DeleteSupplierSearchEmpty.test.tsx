@@ -21,10 +21,11 @@ import type { ComponentProps } from 'react';
 
 vi.mock('react-i18next', () => ({
   // Prefer fallback/defaultValue to keep assertions stable across locales.
-  useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 import { DeleteSupplierSearchEmpty } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearchEmpty';
+import { tEn } from '../../../../test/i18nEn';
 
 // -------------------------------------
 // Test helpers

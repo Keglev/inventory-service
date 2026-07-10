@@ -18,6 +18,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AppSidebar from '../../../../app/layout/AppSidebar';
+import { tEn } from '../../../test/i18nEn';
 
 vi.mock('../../../../app/layout/sidebar/SidebarNavList', () => ({
   default: () => <div data-testid="nav-list" />,
@@ -72,7 +73,7 @@ describe('AppSidebar (rendering)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     });
   });
 

@@ -18,6 +18,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import FooterMetaInfo from '../../../app/footer/FooterMetaInfo';
+import { tEn } from '../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock
@@ -60,7 +61,7 @@ describe('FooterMetaInfo', () => {
 
     // Deterministic translation stub: return `defaultValue` so assertions remain stable.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -129,7 +130,7 @@ describe('FooterMetaInfo', () => {
     // Labels that typically come from i18n catalogs:
     // - "Build" prefix
     // - "Demo data only" notice
-    expect(mockT).toHaveBeenCalledWith('footer:meta.build', 'Build');
-    expect(mockT).toHaveBeenCalledWith('footer:meta.demoData', 'Demo data only');
+    expect(mockT).toHaveBeenCalledWith('footer:meta.build');
+    expect(mockT).toHaveBeenCalledWith('footer:meta.demoData');
   });
 });

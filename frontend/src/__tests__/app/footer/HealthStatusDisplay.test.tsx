@@ -18,6 +18,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import HealthStatusDisplay from '../../../app/footer/HealthStatusDisplay';
+import { tEn } from '../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock
@@ -63,7 +64,7 @@ describe('HealthStatusDisplay', () => {
 
     // Deterministic translation stub: return defaultValue.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -150,7 +151,7 @@ describe('HealthStatusDisplay', () => {
 
     arrange();
 
-    expect(mockT).toHaveBeenCalledWith('footer:health.backend', 'Backend');
-    expect(mockT).toHaveBeenCalledWith('footer:health.database', 'Database');
+    expect(mockT).toHaveBeenCalledWith('footer:health.backend');
+    expect(mockT).toHaveBeenCalledWith('footer:health.database');
   });
 });

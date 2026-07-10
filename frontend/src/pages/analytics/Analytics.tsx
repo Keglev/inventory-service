@@ -120,7 +120,7 @@ export default function Analytics(): JSX.Element {
         <Stack direction="row" spacing={1} alignItems="center">
           <HelpIconButton
             topicId="analytics.overview"
-            tooltip={t('actions.help', 'Help')}
+            tooltip={t('common:actions.help')}
           />
           <Button variant="text" onClick={() => navigate('/dashboard')}>
             {t('common:actions.backToDashboard')}

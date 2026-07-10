@@ -73,7 +73,7 @@ export default function HamburgerMenu({
     <>
       <IconButton
         onClick={handleOpen}
-        title={t('actions.menu', 'Menu')}
+        title={t('actions.menu')}
         sx={{
           color: 'inherit',
           '&:hover': {

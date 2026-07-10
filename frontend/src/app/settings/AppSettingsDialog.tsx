@@ -79,7 +79,7 @@ export default function AppSettingsDialog({
       }}
     >
       <DialogTitle sx={{ fontWeight: 700, fontSize: '1.25rem', pb: 1 }}>
-        {t('settings.title', 'Settings')}
+        {t('settings.title')}
       </DialogTitle>
 
       <DialogContent dividers sx={{ py: 3 }}>
@@ -102,7 +102,7 @@ export default function AppSettingsDialog({
           color="primary"
           sx={{ textTransform: 'none', fontWeight: 600 }}
         >
-          {t('settings.resetToDefaults', 'Reset to Defaults')}
+          {t('settings.resetToDefaults')}
         </Button>
         <Button
           onClick={onClose}
@@ -111,7 +111,7 @@ export default function AppSettingsDialog({
           startIcon={<CloseIcon />}
           sx={{ textTransform: 'none', fontWeight: 600 }}
         >
-          {t('actions.close', 'Close')}
+          {t('actions.close')}
         </Button>
       </DialogActions>
     </Dialog>

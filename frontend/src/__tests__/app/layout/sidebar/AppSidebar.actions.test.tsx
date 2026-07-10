@@ -17,6 +17,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import AppSidebar from '../../../../app/layout/AppSidebar';
+import { tEn } from '../../../test/i18nEn';
 
 vi.mock('../../../../app/layout/sidebar/SidebarNavList', () => ({
   default: ({ onLogout }: { onLogout: () => void }) => (
@@ -97,7 +98,7 @@ describe('AppSidebar (actions)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     });
   });
 

@@ -109,7 +109,7 @@ export function usePriceChangeForm({
     }
 
     if (readOnly) {
-      state.setFormError(t('common:demoDisabled', 'This action is disabled in demo mode.'));
+      state.setFormError(t('common:demoDisabled'));
       return;
     }
 
@@ -124,7 +124,7 @@ export function usePriceChangeForm({
 
       if (success.ok) {
         toast(
-          t('inventory:price.priceUpdatedTo', 'Price changed to {{price}}', {
+          t('inventory:price.priceUpdatedTo', {
             price: values.newPrice.toFixed(2),
           }),
           'success'

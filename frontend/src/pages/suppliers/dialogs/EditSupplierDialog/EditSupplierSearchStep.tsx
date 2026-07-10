@@ -78,14 +78,14 @@ export const EditSupplierSearchStep: React.FC<EditSupplierSearchStepProps> = ({
   return (
     <Box>
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-        {t('suppliers:steps.selectSupplier', 'Step 1: Search and Select Supplier')}
+        {t('suppliers:steps.selectSupplier')}
       </Typography>
 
       <Box sx={{ position: 'relative', mb: 2 }}>
         <TextField
           fullWidth
           size="small"
-          placeholder={t('suppliers:search.placeholder', 'Enter supplier name (min 2 chars)...')}
+          placeholder={t('suppliers:search.placeholder')}
           value={searchQuery}
           onChange={(e) => onSearchQueryChange(e.target.value)}
           disabled={searchLoading}
@@ -127,14 +127,14 @@ export const EditSupplierSearchStep: React.FC<EditSupplierSearchStepProps> = ({
 
         {searchQuery.length >= 2 && searchResults.length === 0 && !searchLoading && (
           <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-            {t('suppliers:search.noResults', 'No suppliers found')}
+            {t('suppliers:search.noResults')}
           </Typography>
         )}
       </Box>
 
       {searchQuery.length < 2 && searchQuery.length > 0 && (
         <Alert severity="info">
-          {t('suppliers:search.typeToSearch', 'Type at least 2 characters to search')}
+          {t('suppliers:search.typeToSearch')}
         </Alert>
       )}
     </Box>

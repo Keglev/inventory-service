@@ -23,6 +23,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LanguageToggle from '../../../../app/HamburgerMenu/LanguageRegionSettings/LanguageToggle';
+import { tEn } from '../../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mocks
@@ -59,7 +60,7 @@ describe('LanguageToggle', () => {
 
     // Default deterministic i18n stub.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: mockChangeLanguage },
     });
   });
@@ -147,7 +148,7 @@ describe('LanguageToggle', () => {
     expect(screen.getByText('Sprache')).toBeInTheDocument();
 
     // Integration: correct key used
-    expect(mockT).toHaveBeenCalledWith('language.language', 'Language');
+    expect(mockT).toHaveBeenCalledWith('language.language');
   });
 
   // ---------------------------------------------------------------------------

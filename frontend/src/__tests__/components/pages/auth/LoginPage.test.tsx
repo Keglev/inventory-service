@@ -23,6 +23,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
 import LoginPage from '../../../../pages/auth/LoginPage';
+import { tEn } from '../../../test/i18nEn';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -39,11 +40,7 @@ vi.mock('react-i18next', () => ({
      * - If defaultValue is provided, return it (lets us assert user-visible copy).
      * - Otherwise return the key (lets us assert keys without binding to locale JSON).
      */
-    t: (key: string, defaultValue?: string | { defaultValue?: string }) => {
-      if (typeof defaultValue === 'string') return defaultValue;
-      if (typeof defaultValue === 'object' && defaultValue?.defaultValue) return defaultValue.defaultValue;
-      return key;
-    },
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 
@@ -90,12 +87,12 @@ describe('LoginPage', () => {
       renderLoginPage();
 
       // Card header texts: returned as keys by our i18n mock.
-      expect(screen.getByText('signIn')).toBeInTheDocument();
-      expect(screen.getByText('welcome')).toBeInTheDocument();
+      expect(screen.getByText('Sign in')).toBeInTheDocument();
+      expect(screen.getByText('Sign in to access your dashboard and analytics.')).toBeInTheDocument();
 
       // Divider + hint copy are also translation keys.
       expect(screen.getByText('or')).toBeInTheDocument();
-      expect(screen.getByText('ssoHint')).toBeInTheDocument();
+      expect(screen.getByText('Single Sign-On provided by your organization.')).toBeInTheDocument();
     });
 
     it('does not render an error alert when no error query param is present', () => {
@@ -107,7 +104,7 @@ describe('LoginPage', () => {
       renderLoginPage('/login?error=oauth');
 
       expect(screen.getByRole('alert')).toBeInTheDocument();
-      expect(screen.getByText('errorTitle')).toBeInTheDocument();
+      expect(screen.getByText('Sign-in failed. Please try again.')).toBeInTheDocument();
     });
   });
 
@@ -120,7 +117,7 @@ describe('LoginPage', () => {
        * The Google button uses aria-label={t('signInGoogle')}.
        * With our i18n mock, the accessible name becomes "signInGoogle".
        */
-      await user.click(screen.getByRole('button', { name: 'signInGoogle' }));
+      await user.click(screen.getByRole('button', { name: 'Sign in with Google' }));
 
       expect(mockLogin).toHaveBeenCalledTimes(1);
       expect(mockLoginAsDemo).not.toHaveBeenCalled();

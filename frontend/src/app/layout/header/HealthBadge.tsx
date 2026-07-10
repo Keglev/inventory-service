@@ -48,17 +48,17 @@ export default function HealthBadge() {
 
   // Determine health label based on status
   const healthLabel = allOk
-    ? t('app.health.okLabel', 'System OK')
+    ? t('app.health.okLabel')
     : backendOnline
-    ? t('app.health.degradedLabel', 'Degraded')
-    : t('app.health.downLabel', 'Offline');
+    ? t('app.health.degradedLabel')
+    : t('app.health.downLabel');
 
   // Determine health tooltip based on status
   const healthTooltip = allOk
-    ? t('app.health.okTooltip', 'Backend & database online')
+    ? t('app.health.okTooltip')
     : backendOnline && !dbOnline
-    ? t('app.health.dbDownTooltip', 'Database reachable, DB issue')
-    : t('app.health.downTooltip', 'Backend not reachable');
+    ? t('app.health.dbDownTooltip')
+    : t('app.health.downTooltip');
 
   return (
     <Box

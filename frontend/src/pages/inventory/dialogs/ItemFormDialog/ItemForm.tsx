@@ -90,7 +90,7 @@ export function ItemForm({
         renderInput={(p) => (
           <TextField
             {...p}
-            label={t('inventory:table.supplier', 'Supplier')}
+            label={t('inventory:table.supplier')}
             error={!!state.formState.errors.supplierId}
             helperText={typeof state.formState.errors.supplierId?.message === 'string' 
               ? state.formState.errors.supplierId.message 
@@ -101,7 +101,7 @@ export function ItemForm({
 
       {/* Name field */}
       <TextField
-        label={t('inventory:table.name', 'Item')}
+        label={t('inventory:table.name')}
         {...state.register('name')}
         error={!!state.formState.errors.name}
         helperText={typeof state.formState.errors.name?.message === 'string'
@@ -111,7 +111,7 @@ export function ItemForm({
 
       {/* Code / SKU field - required, unique per item (backend-enforced) */}
       <TextField
-        label={t('inventory:table.code', 'Code / SKU')}
+        label={t('inventory:table.code')}
         {...state.register('code')}
         error={!!state.formState.errors.code}
         helperText={typeof state.formState.errors.code?.message === 'string'
@@ -121,7 +121,7 @@ export function ItemForm({
 
       {/* Quantity field */}
       <TextField
-        label={t('inventory:table.quantity', 'Initial Stock')}
+        label={t('inventory:table.quantity')}
         type="number"
         slotProps={{ htmlInput: { min: 0 } }}
         {...state.register('quantity', { valueAsNumber: true })}
@@ -133,7 +133,7 @@ export function ItemForm({
 
       {/* Price field */}
       <TextField
-        label={t('inventory:table.price', 'Price')}
+        label={t('inventory:table.price')}
         type="number"
         slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
         {...state.register('price', { valueAsNumber: true })}
@@ -150,11 +150,11 @@ export function ItemForm({
       {!initial?.id && (
         <FormControl error={!!state.formState.errors.reason}>
           <InputLabel id="reason-label">
-            {t('inventory:fields.reasonLabel', 'Reason')}
+            {t('inventory:fields.reasonLabel')}
           </InputLabel>
           <Select
             labelId="reason-label"
-            label={t('inventory:fields.reasonLabel', 'Reason')}
+            label={t('inventory:fields.reasonLabel')}
             value={state.watch('reason') ?? 'INITIAL_STOCK'}
             onChange={(e) =>
               state.setValue('reason', e.target.value as UpsertItemForm['reason'], {

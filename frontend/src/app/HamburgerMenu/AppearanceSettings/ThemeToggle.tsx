@@ -37,7 +37,7 @@ export default function ThemeToggle({
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.75 }}>
-        {t('appearance.theme', 'Theme')}
+        {t('appearance.theme')}
       </Typography>
       <Stack direction="row" spacing={0.5} alignItems="center">
         <IconButton
@@ -47,12 +47,12 @@ export default function ThemeToggle({
             color: themeMode === 'light' ? 'warning.main' : 'text.secondary',
             transition: 'color 0.3s ease',
           }}
-          title={t('appearance.lightMode', 'Light Mode')}
+          title={t('appearance.lightMode')}
         >
           <LightModeIcon fontSize="small" />
         </IconButton>
         <Typography variant="caption">
-          {themeMode === 'light' ? t('appearance.light', 'Light') : t('appearance.dark', 'Dark')}
+          {themeMode === 'light' ? t('appearance.light') : t('appearance.dark')}
         </Typography>
         <IconButton
           size="small"
@@ -61,7 +61,7 @@ export default function ThemeToggle({
             color: themeMode === 'dark' ? 'info.main' : 'text.secondary',
             transition: 'color 0.3s ease',
           }}
-          title={t('appearance.darkMode', 'Dark Mode')}
+          title={t('appearance.darkMode')}
         >
           <DarkModeIcon fontSize="small" />
         </IconButton>

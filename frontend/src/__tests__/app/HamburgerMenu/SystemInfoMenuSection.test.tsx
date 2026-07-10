@@ -15,6 +15,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import SystemInfoMenuSection from '../../../app/HamburgerMenu/SystemInfoMenuSection';
+import { tEn } from '../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Mocks
@@ -47,7 +48,7 @@ describe('SystemInfoMenuSection', () => {
     vi.clearAllMocks();
 
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
 
@@ -56,7 +57,7 @@ describe('SystemInfoMenuSection', () => {
 
   it('renders section title', () => {
     arrange();
-    expect(screen.getByText('Systeminfo / System Info')).toBeInTheDocument();
+    expect(screen.getByText('System Info')).toBeInTheDocument();
   });
 
   it('renders environment information', () => {

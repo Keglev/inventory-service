@@ -70,7 +70,7 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
       {/* ===== STEP 1: Supplier Selection ===== */}
       <Box>
         <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-          {t('inventory:steps.selectSupplier', 'Step 1: Select Supplier')}
+          {t('inventory:steps.selectSupplier')}
         </Typography>
 
         {/* Show loading spinner while suppliers fetch */}
@@ -78,13 +78,13 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CircularProgress size={20} />
             <Typography variant="body2" color="text.secondary">
-              {t('common:loading', 'Loading...')}
+              {t('common:loading')}
             </Typography>
           </Box>
         ) : (
           <FormControl fullWidth>
             <InputLabel id="edit-supplier-label">
-              {t('inventory:table.supplier', 'Supplier')}
+              {t('inventory:table.supplier')}
             </InputLabel>
             <Select
               labelId="edit-supplier-label"
@@ -97,7 +97,7 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
                 );
                 state.setSelectedSupplier(supplier ?? null);
               }}
-              label={t('inventory:table.supplier', 'Supplier')}
+              label={t('inventory:table.supplier')}
             >
               {/* Map all suppliers to menu items */}
               {state.suppliersQuery.data?.map((supplier) => (
@@ -115,19 +115,19 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
       {/* ===== STEP 2: Item Selection ===== */}
       <Box>
         <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-          {t('inventory:steps.selectItem', 'Step 2: Select Item')}
+          {t('inventory:steps.selectItem')}
         </Typography>
 
         {/* Guard: show info message if supplier not selected */}
         {!state.selectedSupplier ? (
           <Alert severity="info">
-            {t('inventory:search.selectSupplierFirst', 'Select a supplier to enable search.')}
+            {t('inventory:search.selectSupplierFirst')}
           </Alert>
         ) : /* Show loading spinner while items fetch */ state.itemsQuery.isLoading ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CircularProgress size={20} />
             <Typography variant="body2" color="text.secondary">
-              {t('common:loading', 'Loading...')}
+              {t('common:loading')}
             </Typography>
           </Box>
         ) : (
@@ -147,14 +147,14 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
             onInputChange={(_e, value) => state.setItemQuery(value)}
             noOptionsText={
               state.itemQuery.length < 2
-                ? t('inventory:search.typeToSearch', 'Type at least 2 characters to search')
-                : t('inventory:search.noItemsFound', 'No items found for this search.')
+                ? t('inventory:search.typeToSearch')
+                : t('inventory:search.noItemsFound')
             }
             renderInput={(params) => (
               <TextField
                 {...params}
-                label={t('inventory:table.name', 'Item')}
-                placeholder={t('inventory:search.typeToSearchItems', 'Type to search items...')}
+                label={t('inventory:table.name')}
+                placeholder={t('inventory:search.typeToSearchItems')}
               />
             )}
           />
@@ -167,13 +167,13 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
       {state.selectedItem && (
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-            {t('inventory:steps.editName', 'Step 3: Edit Item Name')}
+            {t('inventory:steps.editName')}
           </Typography>
 
           {/* Display current item name for reference */}
           <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}>
             <Typography variant="body2" color="text.secondary">
-              {t('inventory:quantity.currentItemInfo', 'Current Item Information')}
+              {t('inventory:quantity.currentItemInfo')}
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
               {/* Show fetched current name if available, fallback to search result */}
@@ -189,8 +189,8 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
               <TextField
                 {...field}
                 fullWidth
-                label={t('inventory:table.name', 'Item Name')}
-                placeholder={t('inventory:table.name', 'Item Name')}
+                label={t('inventory:table.name')}
+                placeholder={t('inventory:table.name')}
                 error={!!state.formState.errors.newName}
                 helperText={typeof state.formState.errors.newName?.message === 'string' ? state.formState.errors.newName.message : ''}
                 disabled={state.formState.isSubmitting}

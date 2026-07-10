@@ -15,6 +15,7 @@ import { useSuppliersQuery } from '../../../../../api/inventory/hooks/useSupplie
 import { useItemSearchQuery } from '../../../../../api/inventory/hooks/useItemSearchQuery';
 import { useItemDetailsQuery } from '../../../../../api/inventory/hooks/useItemDetailsQuery';
 import { renameItem } from '../../../../../api/inventory/itemMutations';
+import { tEn } from '../../../../test/i18nEn';
 
 // Mock dependencies
 vi.mock('../../../../../api/inventory/itemMutations', () => ({
@@ -34,7 +35,7 @@ vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
 }));
 
 const toastSpy = vi.hoisted(() => vi.fn());
-const tSpy = vi.hoisted(() => vi.fn((key: string, fallback?: string) => fallback ?? key));
+const tSpy = vi.hoisted(() => vi.fn((key: string, options?: Record<string, unknown>) => tEn(key, options)));
 
 vi.mock('../../../../../context/toast/ToastContext', () => ({
   useToast: () => toastSpy,
@@ -279,7 +280,7 @@ describe('useEditItemForm', () => {
       });
 
       expect(onItemRenamed).not.toHaveBeenCalled();
-      expect(result.current.formError).toBe('errors:inventory.requests.failedToRenameItem');
+      expect(result.current.formError).toBe('Failed to rename item. Please try again.');
     });
 
     it('maps the forbidden token to an admin-only message', async () => {
@@ -303,7 +304,7 @@ describe('useEditItemForm', () => {
       });
 
       expect(onItemRenamed).not.toHaveBeenCalled();
-      expect(result.current.formError).toBe('errors:inventory.businessRules.adminOnly');
+      expect(result.current.formError).toBe('Only administrators can perform this action');
     });
 
     it('maps the conflict token to a duplicate-name message', async () => {
@@ -327,7 +328,7 @@ describe('useEditItemForm', () => {
       });
 
       expect(onItemRenamed).not.toHaveBeenCalled();
-      expect(result.current.formError).toBe('errors:inventory.conflicts.duplicateName');
+      expect(result.current.formError).toBe('An item with this name already exists');
     });
   });
 });

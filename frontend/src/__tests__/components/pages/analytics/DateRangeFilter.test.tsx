@@ -16,6 +16,7 @@ import userEvent from '@testing-library/user-event';
 
 import type { AnalyticsFilters } from '@/pages/analytics/components/filters/Filters.types';
 import { DateRangeFilter } from '@/pages/analytics/components/filters/DateRangeFilter';
+import { tEn } from '../../../test/i18nEn';
 
 // B2 (CM-APP24): provide a react-i18next mock so useTranslation resolves without an
 // i18n instance in this suite, silencing the NO_I18NEXT_INSTANCE warning. The stub
@@ -24,12 +25,7 @@ import { DateRangeFilter } from '@/pages/analytics/components/filters/DateRangeF
 // (and therefore every assertion) is unchanged.
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, second?: unknown): string =>
-      typeof second === 'string'
-        ? second
-        : second && typeof second === 'object' && 'defaultValue' in second
-          ? String((second as { defaultValue?: unknown }).defaultValue ?? key)
-          : key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     i18n: { language: 'en' },
   }),
 }));

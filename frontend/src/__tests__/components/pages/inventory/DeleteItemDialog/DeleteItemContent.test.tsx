@@ -18,6 +18,7 @@ import { render, screen } from '@testing-library/react';
 
 import { DeleteItemContent } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemContent';
 import type { UseDeleteItemDialogReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types';
+import { tEn } from '../../../../test/i18nEn';
 
 // B2 (CM-APP24): provide a react-i18next mock so useTranslation resolves without an
 // i18n instance in this suite, silencing the NO_I18NEXT_INSTANCE warning. The stub
@@ -26,12 +27,7 @@ import type { UseDeleteItemDialogReturn } from '../../../../../pages/inventory/d
 // (and therefore every assertion) is unchanged.
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, second?: unknown): string =>
-      typeof second === 'string'
-        ? second
-        : second && typeof second === 'object' && 'defaultValue' in second
-          ? String((second as { defaultValue?: unknown }).defaultValue ?? key)
-          : key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     i18n: { language: 'en' },
   }),
 }));

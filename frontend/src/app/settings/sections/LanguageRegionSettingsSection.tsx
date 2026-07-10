@@ -71,7 +71,7 @@ export default function LanguageRegionSettingsSection({
     <Stack spacing={2}>
       <FormControl>
         <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
-          {t('settings.dateFormat', 'Date Format')}
+          {t('settings.dateFormat')}
         </FormLabel>
         <RadioGroup
           value={dateFormat}
@@ -118,7 +118,7 @@ export default function LanguageRegionSettingsSection({
 
       <FormControl>
         <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
-          {t('settings.numberFormat', 'Number Format')}
+          {t('settings.numberFormat')}
         </FormLabel>
         <RadioGroup
           value={numberFormat}

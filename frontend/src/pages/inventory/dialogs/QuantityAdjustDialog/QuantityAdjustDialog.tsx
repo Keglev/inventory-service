@@ -61,10 +61,10 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     <Dialog open={open} onClose={form.handleClose} fullWidth maxWidth="sm">
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Box>{t('inventory:toolbar.adjustQty', 'Adjust Quantity')}</Box>
+          <Box>{t('inventory:toolbar.adjustQty')}</Box>
           <HelpIconButton
             topicId="inventory.adjustQuantity"
-            tooltip={t('actions.help', 'Help')}
+            tooltip={t('actions.help')}
           />
         </Stack>
       </DialogTitle>
@@ -75,7 +75,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
 
       <DialogActions>
         <Button onClick={form.handleClose} disabled={form.formState.isSubmitting}>
-          {t('common:actions.cancel', 'Cancel')}
+          {t('common:actions.cancel')}
         </Button>
         <Button
           onClick={form.onSubmit}
@@ -85,10 +85,10 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
           {form.formState.isSubmitting ? (
             <>
               <CircularProgress size={16} sx={{ mr: 1 }} />
-              {t('common:actions.saving', 'Saving...')}
+              {t('common:actions.saving')}
             </>
           ) : (
-            t('inventory:buttons.applyAdjustment', 'Apply Adjustment')
+            t('inventory:buttons.applyAdjustment')
           )}
         </Button>
       </DialogActions>

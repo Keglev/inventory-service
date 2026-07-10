@@ -14,6 +14,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AppToolbarActions from '../../../app/layout/AppToolbarActions';
+import { tEn } from '../../test/i18nEn';
 
 vi.mock('../../../features/help/components/HelpIconButton', () => ({
   HelpIconButton: ({ tooltip, topicId }: { tooltip: string; topicId: string }) => (
@@ -55,7 +56,7 @@ describe('AppToolbarActions (language + help)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     });
   });
 
@@ -83,7 +84,7 @@ describe('AppToolbarActions (language + help)', () => {
       const user = userEvent.setup();
       renderActions({ locale: 'en' });
 
-      await user.click(screen.getByLabelText(/toggle language/i));
+      await user.click(screen.getByLabelText(/switch language/i));
 
       expect(mockOnLocaleChange).toHaveBeenCalledWith('de');
     });
@@ -93,7 +94,7 @@ describe('AppToolbarActions (language + help)', () => {
       const user = userEvent.setup();
       renderActions({ locale: 'de' });
 
-      await user.click(screen.getByLabelText(/toggle language/i));
+      await user.click(screen.getByLabelText(/switch language/i));
 
       expect(mockOnLocaleChange).toHaveBeenCalledWith('en');
     });

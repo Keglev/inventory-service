@@ -53,7 +53,7 @@ export const QuantityAdjustQuantityInput: React.FC<QuantityAdjustQuantityInputPr
   return (
     <Box>
       <Typography variant="subtitle2" gutterBottom color="primary">
-        {t('inventory:steps.adjustQuantity', 'Step 3: Adjust Quantity')}
+        {t('inventory:steps.adjustQuantity')}
       </Typography>
 
       {/* New Quantity Input */}
@@ -68,7 +68,7 @@ export const QuantityAdjustQuantityInput: React.FC<QuantityAdjustQuantityInputPr
               const val = e.target.value;
               onChange(val === '' ? 0 : Number(val));
             }}
-            label={t('inventory:quantity.newQuantity', 'New Quantity')}
+            label={t('inventory:quantity.newQuantity')}
             type="number"
             fullWidth
             disabled={disabled}
@@ -77,7 +77,7 @@ export const QuantityAdjustQuantityInput: React.FC<QuantityAdjustQuantityInputPr
             helperText={
               errors.newQuantity?.message ||
               (currentQty !== undefined &&
-                t('inventory:quantity.quantityChangeHint', 'Changing from {{current}} to {{new}}', {
+                t('inventory:quantity.quantityChangeHint', {
                   current: currentQty,
                   new: value,
                 }))
@@ -93,12 +93,12 @@ export const QuantityAdjustQuantityInput: React.FC<QuantityAdjustQuantityInputPr
         render={({ field }) => (
           <FormControl fullWidth sx={{ mt: 2 }} disabled={disabled}>
             <InputLabel id="reason-select-label" error={!!errors.reason}>
-              {t('inventory:fields.reasonLabel', 'Reason')}
+              {t('inventory:fields.reasonLabel')}
             </InputLabel>
             <Select
               {...field}
               labelId="reason-select-label"
-              label={t('inventory:fields.reasonLabel', 'Reason')}
+              label={t('inventory:fields.reasonLabel')}
               error={!!errors.reason}
             >
               {reasonOptions.map((reason) => (

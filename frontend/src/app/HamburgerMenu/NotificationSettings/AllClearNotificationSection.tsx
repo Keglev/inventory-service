@@ -25,7 +25,7 @@ export default function AllClearNotificationSection() {
     <Stack direction="row" spacing={1} alignItems="center" sx={{ p: 1 }}>
       <NotificationsIcon sx={{ fontSize: 20, color: 'success.main' }} />
       <Typography variant="caption" color="success.main">
-        {t('notifications.allGood', 'All clear – no low stock items')}
+        {t('notifications.allGood')}
       </Typography>
     </Stack>
   );

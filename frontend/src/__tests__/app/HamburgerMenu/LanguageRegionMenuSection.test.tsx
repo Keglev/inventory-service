@@ -19,6 +19,7 @@ import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import LanguageRegionMenuSection from '../../../app/HamburgerMenu/LanguageRegionMenuSection';
+import { tEn } from '../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Minimal types needed for test wiring (keep aligned with component contracts)
@@ -121,7 +122,7 @@ describe('LanguageRegionMenuSection', () => {
     vi.clearAllMocks();
 
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
 
@@ -133,7 +134,7 @@ describe('LanguageRegionMenuSection', () => {
   // ---------------------------------------------------------------------------
   it('renders section title', () => {
     arrange();
-    expect(screen.getByText('Sprache & Region / Language & Region')).toBeInTheDocument();
+    expect(screen.getByText('Language & Region')).toBeInTheDocument();
   });
 
   it('renders all child settings components', () => {
@@ -244,6 +245,6 @@ describe('LanguageRegionMenuSection', () => {
     arrange();
 
     expect(screen.getByText('Langue et Région')).toBeInTheDocument();
-    expect(mockT).toHaveBeenCalledWith('language.title', 'Sprache & Region / Language & Region');
+    expect(mockT).toHaveBeenCalledWith('language.title');
   });
 });

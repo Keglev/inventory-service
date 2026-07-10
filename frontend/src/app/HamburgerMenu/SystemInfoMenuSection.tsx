@@ -36,37 +36,37 @@ export default function SystemInfoMenuSection() {
   return (
     <Box sx={{ px: 2, py: 1.5 }}>
       <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
-        {t('systemInfo.title', 'Systeminfo / System Info')}
+        {t('systemInfo.title')}
       </Typography>
 
       <Stack spacing={1}>
         <Box>
           <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}>
-            {t('systemInfo.environment', 'Environment')}
+            {t('systemInfo.environment')}
           </Typography>
           <Typography variant="body2">{environment}</Typography>
         </Box>
 
         <Box>
           <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}>
-            {t('systemInfo.backend', 'Backend')}
+            {t('systemInfo.backend')}
           </Typography>
           <Typography variant="body2">
             {health.status === 'online'
-              ? t('systemInfo.backendOnline', 'Status: Online')
-              : t('systemInfo.backendOffline', 'Status: Offline')}
+              ? t('systemInfo.backendOnline')
+              : t('systemInfo.backendOffline')}
           </Typography>
         </Box>
 
         <Box>
           <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}>
-            {t('systemInfo.frontend', 'Frontend')}
+            {t('systemInfo.frontend')}
           </Typography>
           <Typography variant="body2">
-            {t('systemInfo.version', 'Version')}: {frontendVersion}
+            {t('systemInfo.version')}: {frontendVersion}
           </Typography>
           <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
-            {t('systemInfo.build', 'Build')}: {commitHash}
+            {t('systemInfo.build')}: {commitHash}
           </Typography>
         </Box>
       </Stack>

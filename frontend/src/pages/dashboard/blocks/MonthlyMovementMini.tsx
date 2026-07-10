@@ -55,7 +55,7 @@ export default function MonthlyMovementMini() {
       <CardContent sx={{ py: 1.5, px: 2 }}>
         {/* Card title */}
         <Typography variant="subtitle1" sx={{ mb: 0.75 }}>
-          {t('dashboard.kpi.movementTitle', 'Stock movement (90d)')}
+          {t('dashboard.kpi.movementTitle')}
         </Typography>
 
         {/* Show skeleton while data is loading, otherwise render bar chart */}
@@ -73,7 +73,7 @@ export default function MonthlyMovementMini() {
                 <Tooltip
                   formatter={(value: number | string) =>
                     typeof value === 'number'
-                      ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('units.pieces', 'pcs')}`
+                      ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('units.pieces')}`
                       : value
                   }
                 />
@@ -81,13 +81,13 @@ export default function MonthlyMovementMini() {
                 {/* Green bars: inbound stock movements */}
                 <Bar
                   dataKey="stockIn"
-                  name={t('dashboard.kpi.stockIn', 'Stock in')}
+                  name={t('dashboard.kpi.stockIn')}
                   fill={muiTheme.palette.success.main}
                 />
                 {/* Red bars: outbound stock movements */}
                 <Bar
                   dataKey="stockOut"
-                  name={t('dashboard.kpi.stockOut', 'Stock out')}
+                  name={t('dashboard.kpi.stockOut')}
                   fill={muiTheme.palette.error.main}
                 />
               </BarChart>

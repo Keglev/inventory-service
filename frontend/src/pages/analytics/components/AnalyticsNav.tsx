@@ -40,11 +40,11 @@ export default function AnalyticsNav({ section, showEmployees = false }: Analyti
   return (
     <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 1 }}>
       <Tabs value={section} onChange={handleChange} variant="scrollable" scrollButtons="auto">
-        <Tab value="overview"  label={t('analytics:nav.overview', 'Overview')} />
+        <Tab value="overview"  label={t('analytics:nav.overview')} />
         <Tab value="movements" label={t('analytics:nav.movements')} />
-        <Tab value="pricing"   label={t('analytics:nav.pricing', 'Pricing')} />
-        <Tab value="inventory" label={t('analytics:nav.inventory', 'Inventory Health')} />
-        <Tab value="finance"   label={t('analytics:nav.finance', 'Finance')} />
+        <Tab value="pricing"   label={t('analytics:nav.pricing')} />
+        <Tab value="inventory" label={t('analytics:nav.inventory')} />
+        <Tab value="finance"   label={t('analytics:nav.finance')} />
         {showEmployees && <Tab value="employees" label={t('analytics:nav.employees')} />}
       </Tabs>
     </Box>

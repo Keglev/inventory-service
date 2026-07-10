@@ -22,6 +22,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import HamburgerMenu from '../../../app/HamburgerMenu/HamburgerMenu';
+import { tEn } from '../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Minimal child-prop types for safe call extraction
@@ -105,7 +106,7 @@ describe('HamburgerMenu', () => {
     vi.clearAllMocks();
 
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -228,6 +229,6 @@ describe('HamburgerMenu', () => {
     arrange();
 
     expect(screen.getByRole('button', { name: /menü/i })).toBeInTheDocument();
-    expect(mockT).toHaveBeenCalledWith('actions.menu', expect.any(String));
+    expect(mockT).toHaveBeenCalledWith('actions.menu');
   });
 });

@@ -22,6 +22,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ProfileRoleDisplay from '../../../../app/HamburgerMenu/ProfileSettings/ProfileRoleDisplay';
+import { tEn } from '../../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock
@@ -54,7 +55,7 @@ describe('ProfileRoleDisplay', () => {
 
     // Deterministic translation stub: return defaultValue for stable assertions.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -69,7 +70,7 @@ describe('ProfileRoleDisplay', () => {
 
   it('requests the localized role label for the role token', () => {
     arrange({ role: 'ADMIN', isDemo: false });
-    expect(screen.getByText('ADMIN')).toBeInTheDocument(); // t stub echoes the fallback (raw token)
+    expect(screen.getByText('Administrator')).toBeInTheDocument(); // tEn resolves common:roles.admin
   });
 
   // ---------------------------------------------------------------------------
@@ -122,7 +123,7 @@ describe('ProfileRoleDisplay', () => {
     arrange({ role: 'admin', isDemo: false });
 
     expect(screen.getByText('Rolle')).toBeInTheDocument();
-    expect(mockT).toHaveBeenCalledWith('common:role', 'Role');
+    expect(mockT).toHaveBeenCalledWith('common:role');
   });
 
   it('renders translated DEMO badge label when provided by i18n', () => {
@@ -140,6 +141,6 @@ describe('ProfileRoleDisplay', () => {
     arrange({ role: 'admin', isDemo: true });
 
     expect(screen.getByText('DEMO')).toBeInTheDocument();
-    expect(mockT).toHaveBeenCalledWith('auth:demoBadge', 'DEMO');
+    expect(mockT).toHaveBeenCalledWith('auth:demoBadge');
   });
 });

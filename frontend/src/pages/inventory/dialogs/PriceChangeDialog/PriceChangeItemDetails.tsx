@@ -38,13 +38,13 @@ export function PriceChangeItemDetails({
   return (
     <Box sx={{ display: 'grid', gap: 1, p: 2, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}>
       <Typography variant="subtitle2" color="primary">
-        {t('inventory:selection.selectedItemLabel', 'Selected Item')}: {item.name}
+        {t('inventory:selection.selectedItemLabel')}: {item.name}
       </Typography>
 
       {/* Current Price */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant="body2" color="text.secondary">
-          {t('inventory:price.currentPrice', 'Current Price')}:
+          {t('inventory:price.currentPrice')}:
         </Typography>
         <Typography variant="body2" fontWeight="medium">
           {loading ? <CircularProgress size={16} /> : currentPrice.toFixed(2)}
@@ -54,7 +54,7 @@ export function PriceChangeItemDetails({
       {/* Current Quantity */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant="body2" color="text.secondary">
-          {t('inventory:quantity.currentQuantity', 'Current Quantity')}:
+          {t('inventory:quantity.currentQuantity')}:
         </Typography>
         <Typography variant="body2" fontWeight="medium">
           {loading ? <CircularProgress size={16} /> : currentQty}
@@ -64,7 +64,7 @@ export function PriceChangeItemDetails({
       {/* Current Total Value = unit price x quantity */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant="body2" color="text.secondary">
-          {t('inventory:price.currentTotalValue', 'Current Total Value')}:
+          {t('inventory:price.currentTotalValue')}:
         </Typography>
         <Typography variant="body2" fontWeight="medium">
           {loading ? <CircularProgress size={16} /> : (currentPrice * currentQty).toFixed(2)}

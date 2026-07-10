@@ -45,7 +45,7 @@ vi.mock('../../../../../context/toast.ts', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, defaultValue?: string) => defaultValue ?? key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 
@@ -71,6 +71,7 @@ vi.mock('react-hook-form', async () => {
 });
 
 import { usePriceChangeForm } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
+import { tEn } from '../../../../test/i18nEn';
 
 const defaultArgs = () => ({
   isOpen: true,

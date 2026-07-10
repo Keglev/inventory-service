@@ -93,8 +93,8 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
     <>
       <DialogTitle sx={{ pt: 3.5 }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Box>{t('suppliers:dialogs.delete.title', 'Delete Supplier')}</Box>
-          <Tooltip title={t('common:actions.help', 'Help')}>
+          <Box>{t('suppliers:dialogs.delete.title')}</Box>
+          <Tooltip title={t('common:actions.help')}>
             <IconButton size="small" onClick={onHelp}>
               {/* Help-icon bucket: HelpOutlineIcon + Tooltip + IconButton pattern duplicated across 4 dialogs — extract shared component in refactor pass. */}
               <HelpOutlineIcon fontSize="small" />
@@ -105,7 +105,7 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
 
       <DialogContent>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {t('suppliers:dialogs.delete.search.hint', 'Search for the supplier you want to delete')}
+          {t('suppliers:dialogs.delete.search.hint')}
         </Typography>
 
         <DeleteSupplierSearchInput
@@ -127,7 +127,7 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
 
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onCancel} disabled={searchLoading}>
-          {t('common:actions.cancel', 'Cancel')}
+          {t('common:actions.cancel')}
         </Button>
       </DialogActions>
     </>

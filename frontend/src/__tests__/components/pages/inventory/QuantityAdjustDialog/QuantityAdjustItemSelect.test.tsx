@@ -50,7 +50,7 @@ describe('QuantityAdjustItemSelect', () => {
     expect(screen.getByText('Step 2: Select Item')).toBeInTheDocument();
     const input = screen.getByRole('combobox');
     expect(input).toBeDisabled();
-    expect(screen.getByPlaceholderText('Select supplier first')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Please select a supplier first to enable searching.')).toBeInTheDocument();
   });
 
   it('calls onSearchChange as the user types', () => {

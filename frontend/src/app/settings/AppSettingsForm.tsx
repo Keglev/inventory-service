@@ -88,7 +88,7 @@ export default function AppSettingsForm({
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       
-      <SettingsSectionCard title={t('settings.userPreferences', 'User Preferences')}>
+      <SettingsSectionCard title={t('settings.userPreferences')}>
         <Stack spacing={2}>
           <LanguageRegionSettingsSection
             dateFormat={dateFormat}
@@ -106,7 +106,7 @@ export default function AppSettingsForm({
 
       <Divider />
 
-      <SettingsSectionCard title={t('settings.systemInfo', 'System Info')}>
+      <SettingsSectionCard title={t('settings.systemInfo')}>
         <SystemPreferencesSection systemInfo={systemInfo} isLoading={isLoading} />
       </SettingsSectionCard>
 

@@ -32,7 +32,7 @@ describe('LanguageToggle (interactions)', () => {
     const merged: Props = {
       locale: 'de',
       onToggle: vi.fn(),
-      tooltip: 'Toggle language',
+      tooltip: 'Switch language',
       ...props,
     };
     return render(<LanguageToggle {...merged} />);

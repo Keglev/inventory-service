@@ -19,6 +19,7 @@ import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ProfileMenuSection from '../../../app/HamburgerMenu/ProfileMenuSection';
+import { tEn } from '../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Minimal types used for prop-wiring assertions
@@ -83,7 +84,7 @@ describe('ProfileMenuSection', () => {
     vi.clearAllMocks();
 
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
 
@@ -97,7 +98,7 @@ describe('ProfileMenuSection', () => {
 
   it('renders the profile section title', () => {
     arrange();
-    expect(screen.getByText('Mein Profil / My Profile')).toBeInTheDocument();
+    expect(screen.getByText('My Profile')).toBeInTheDocument();
   });
 
   it('renders the three profile display components', () => {
@@ -178,6 +179,6 @@ describe('ProfileMenuSection', () => {
     arrange();
 
     expect(screen.getByText('Mon Profil')).toBeInTheDocument();
-    expect(mockT).toHaveBeenCalledWith('profile.title', 'Mein Profil / My Profile');
+    expect(mockT).toHaveBeenCalledWith('profile.title');
   });
 });

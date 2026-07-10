@@ -97,20 +97,20 @@ describe('QuantityAdjustQuantityInput', () => {
     render(<TestHarness currentQty={5} newQuantity={10} />);
     fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Reason' }));
 
-    expect(screen.getByRole('option', { name: 'INITIAL STOCK' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'RETURNED BY CUSTOMER' })).toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'SOLD' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'DESTROYED' })).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Initial Stock' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Returned by Customer' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Sold' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Destroyed' })).not.toBeInTheDocument();
   });
 
   it('offers reduce reasons when the new quantity is lower', () => {
     render(<TestHarness currentQty={20} newQuantity={5} />);
     fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Reason' }));
 
-    expect(screen.getByRole('option', { name: 'SOLD' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'DESTROYED' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'RETURNED TO SUPPLIER' })).toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'INITIAL STOCK' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'RETURNED BY CUSTOMER' })).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Sold' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Destroyed' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Returned to Supplier' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Initial Stock' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Returned by Customer' })).not.toBeInTheDocument();
   });
 });

@@ -42,7 +42,7 @@ export default function AppearanceMenuSection({
   return (
     <Box sx={{ px: 2, py: 1.5 }}>
       <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
-        {t('appearance.title', 'Erscheinungsbild / Appearance')}
+        {t('appearance.title')}
       </Typography>
 
       <Stack spacing={1.5}>

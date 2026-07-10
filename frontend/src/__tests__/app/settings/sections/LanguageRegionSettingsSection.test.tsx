@@ -21,6 +21,7 @@ import userEvent from '@testing-library/user-event';
 import LanguageRegionSettingsSection from '../../../../app/settings/sections/LanguageRegionSettingsSection';
 import { formatDate, formatNumber } from '../../../../utils/formatters';
 import type { DateFormat, NumberFormat } from '@/context/settings/SettingsContext.types';
+import { tEn } from '../../../test/i18nEn';
 
 vi.mock('../../../../utils/formatters', () => ({
   formatDate: vi.fn((_date: Date, format: string) => `${format}: 22.12.2025`),
@@ -29,7 +30,7 @@ vi.mock('../../../../utils/formatters', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback || key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 

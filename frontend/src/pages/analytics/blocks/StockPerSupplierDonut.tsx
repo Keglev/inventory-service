@@ -58,7 +58,7 @@ export default function StockPerSupplierDonut() {
           <Skeleton variant="rounded" height={220} />
         ) : data.length === 0 ? (
           <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-            {t('analytics:stockPerSupplier.empty', 'No supplier data for the current filters.')}
+            {t('analytics:stockPerSupplier.empty')}
           </Box>
         ) : (
           <Box sx={{ height: 260 }}>
@@ -80,7 +80,7 @@ export default function StockPerSupplierDonut() {
                 <Tooltip
                   formatter={(value: number | string) =>
                     typeof value === 'number'
-                      ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces', 'pcs')}`
+                      ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
                       : value
                   }
                 />

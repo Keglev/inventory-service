@@ -34,7 +34,6 @@ const AuthCallback: React.FC = () => {
   const { setUser } = useAuth();
   const { t } = useTranslation('auth');
 
-  // CB-APP66: t('verifying') has English fallback at JSX site — track via MASTER.
   // Verify session on mount; cancelled flag prevents setState after unmount.
   useEffect(() => {
     let cancelled = false;
@@ -57,7 +56,7 @@ const AuthCallback: React.FC = () => {
       <Box textAlign="center">
         <CircularProgress />
         <Typography variant="body2" mt={2}>
-          {t('verifying', { defaultValue: 'Verifying your login…' })}
+          {t('verifying')}
         </Typography>
       </Box>
     </Box>

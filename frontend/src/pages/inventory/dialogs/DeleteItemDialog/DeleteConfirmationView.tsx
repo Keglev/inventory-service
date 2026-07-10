@@ -39,12 +39,11 @@ export function DeleteConfirmationView({
       <Alert severity="warning" icon={false}>
         <Box>
           <Typography variant="body1" sx={{ fontWeight: 600 }}>
-            {t('inventory:deleteFlow.warningTitle', 'This action cannot be undone!')}
+            {t('inventory:deleteFlow.warningTitle')}
           </Typography>
           <Typography variant="body2" sx={{ mt: 1 }}>
             {t(
-              'inventory:deleteFlow.warningMessage',
-              'Once deleted, the item and all associated records will be permanently removed from the system.'
+              'inventory:deleteFlow.warningMessage'
             )}
           </Typography>
         </Box>
@@ -56,7 +55,7 @@ export function DeleteConfirmationView({
         - Placed after warning to ensure user reads it
       */}
       <Typography>
-        {t('inventory:deleteFlow.confirmationPrompt', 'Are you sure you want to proceed?')}
+        {t('inventory:deleteFlow.confirmationPrompt')}
       </Typography>
 
       {/* 
@@ -68,7 +67,7 @@ export function DeleteConfirmationView({
       {state.selectedItem && state.itemDetailsQuery.data && (
         <Box>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            {t('inventory:deleteFlow.itemBeingDeleted', 'Item being deleted:')}
+            {t('inventory:deleteFlow.itemBeingDeleted')}
           </Typography>
           <ItemInfoDisplay state={state} />
         </Box>

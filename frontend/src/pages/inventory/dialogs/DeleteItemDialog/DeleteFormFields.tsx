@@ -64,7 +64,7 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <CircularProgress size={20} />
         <Typography variant="body2" color="text.secondary">
-          {t('common:loading', 'Loading...')}
+          {t('common:loading')}
         </Typography>
       </Box>
     );
@@ -73,7 +73,7 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
   return (
     <FormControl fullWidth>
       <InputLabel id="supplier-select-label">
-        {t('inventory:table.supplier', 'Supplier')}
+        {t('inventory:table.supplier')}
       </InputLabel>
       <Select
         labelId="supplier-select-label"
@@ -86,7 +86,7 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
           );
           state.setSelectedSupplier(supplier ?? null);
         }}
-        label={t('inventory:table.supplier', 'Supplier')}
+        label={t('inventory:table.supplier')}
       >
         {/* Render all suppliers as menu items for selection */}
         {state.suppliersQuery.data?.map((supplier) => (
@@ -128,7 +128,7 @@ export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn })
   if (!state.selectedSupplier) {
     return (
       <Alert severity="info">
-        {t('inventory:search.selectSupplierFirst', 'Select a supplier to enable search.')}
+        {t('inventory:search.selectSupplierFirst')}
       </Alert>
     );
   }
@@ -139,7 +139,7 @@ export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn })
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <CircularProgress size={20} />
         <Typography variant="body2" color="text.secondary">
-          {t('common:loading', 'Loading...')}
+          {t('common:loading')}
         </Typography>
       </Box>
     );
@@ -161,14 +161,14 @@ export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn })
       onInputChange={(_e, value) => state.setItemQuery(value)}
       noOptionsText={
         state.itemQuery.length < 2
-          ? t('inventory:search.typeToSearch', 'Type at least 2 characters to search')
-          : t('inventory:search.noItemsFound', 'No items found for this search.')
+          ? t('inventory:search.typeToSearch')
+          : t('inventory:search.noItemsFound')
       }
       renderInput={(params) => (
         <TextField
           {...params}
-          label={t('inventory:item', 'Item')}
-          placeholder={t('inventory:search.typeToSearchItems', 'Type to search items...')}
+          label={t('inventory:item')}
+          placeholder={t('inventory:search.typeToSearchItems')}
         />
       )}
     />
@@ -215,7 +215,7 @@ export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn })
     >
       {/* Item name section */}
       <Typography variant="body2" color="text.secondary">
-        {t('inventory:table.name', 'Name')}
+        {t('inventory:table.name')}
       </Typography>
       <Typography variant="body1" sx={{ fontWeight: 600 }}>
         {state.itemDetailsQuery.data.name}
@@ -223,7 +223,7 @@ export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn })
 
       {/* Item on-hand quantity section */}
       <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-        {t('inventory:table.onHand', 'On-hand')}
+        {t('inventory:table.onHand')}
       </Typography>
       <Typography variant="body1" sx={{ fontWeight: 600 }}>
         {state.itemDetailsQuery.data.onHand}

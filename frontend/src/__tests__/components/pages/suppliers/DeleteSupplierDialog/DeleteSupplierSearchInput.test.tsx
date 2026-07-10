@@ -25,10 +25,11 @@ import * as React from 'react';
 
 vi.mock('react-i18next', () => ({
   // Prefer fallback/defaultValue to keep assertions stable across locales.
-  useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 import { DeleteSupplierSearchInput } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearchInput';
+import { tEn } from '../../../../test/i18nEn';
 
 // -------------------------------------
 // Test helpers

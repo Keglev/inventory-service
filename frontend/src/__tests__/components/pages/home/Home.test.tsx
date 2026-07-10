@@ -24,6 +24,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import Home from '../../../../pages/home/Home';
+import { tEn } from '../../../test/i18nEn';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -33,7 +34,7 @@ const mockUseAuth = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, defaultValue?: string) => defaultValue ?? key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 
@@ -110,11 +111,11 @@ describe('Home', () => {
       renderHomeAt('/');
 
       expect(screen.getByText('SmartSupplyPro')).toBeInTheDocument();
-      expect(screen.getByText('welcome')).toBeInTheDocument();
+      expect(screen.getByText('Sign in to access your dashboard and analytics.')).toBeInTheDocument();
       expect(screen.getByText('or')).toBeInTheDocument();
-      expect(screen.getByText('ssoHint')).toBeInTheDocument();
+      expect(screen.getByText('Single Sign-On provided by your organization.')).toBeInTheDocument();
 
-      expect(screen.getByRole('button', { name: /signIn/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Continue in Demo Mode/i })).toBeInTheDocument();
     });
 
@@ -122,7 +123,7 @@ describe('Home', () => {
       const user = userEvent.setup();
       renderHomeAt('/');
 
-      await user.click(screen.getByRole('button', { name: /signIn/i }));
+      await user.click(screen.getByRole('button', { name: /sign in/i }));
       expect(mockNavigate).toHaveBeenCalledWith('/login');
     });
 

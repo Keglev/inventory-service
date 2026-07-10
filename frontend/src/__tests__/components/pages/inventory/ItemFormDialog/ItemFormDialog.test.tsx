@@ -21,6 +21,7 @@ import type { ComponentProps } from 'react';
 
 import type { UseItemFormReturn } from '../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm';
 import { ItemFormDialog } from '../../../../../pages/inventory/dialogs/ItemFormDialog/ItemFormDialog';
+import { tEn } from '../../../../test/i18nEn';
 
 type ItemFormDialogProps = ComponentProps<typeof ItemFormDialog>;
 
@@ -59,7 +60,7 @@ vi.mock('../../../../../features/help/components/HelpIconButton', () => ({
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     // Prefer fallback strings for stable assertions.
-    t: (key: string, fallback?: string) => fallback ?? key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 

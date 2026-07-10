@@ -63,10 +63,11 @@ vi.mock('../../../../../hooks/useHelp', () => ({
 
 vi.mock('react-i18next', () => ({
   // Prefer fallback/defaultValue so assertions don't depend on translation files.
-  useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 import { CreateSupplierDialog } from '../../../../../pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierDialog';
+import { tEn } from '../../../../test/i18nEn';
 
 // Minimal hook contract surface required by `CreateSupplierDialog`.
 const defaultFormState = (): UseCreateSupplierFormReturn => ({
@@ -112,7 +113,7 @@ describe('CreateSupplierDialog', () => {
     expect(mocks.useCreateSupplierForm).toHaveBeenCalledWith(onCreated);
 
     // Title uses defaultValue "Create Supplier" (stable contract for UX).
-    expect(screen.getByRole('heading', { name: /Create Supplier/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Add Supplier/ })).toBeInTheDocument();
 
     // Field boundary: we only verify the dialog passes the hook's public contract through.
     expect(mocks.supplierFormFieldsSpy).toHaveBeenCalledWith(
@@ -166,7 +167,7 @@ describe('CreateSupplierDialog', () => {
     renderDialog({ onClose, onCreated });
 
     // Primary action delegates to RHF `handleSubmit`, which then calls our async handler.
-    await user.click(screen.getByRole('button', { name: 'Create Supplier' }));
+    await user.click(screen.getByRole('button', { name: 'Add Supplier' }));
 
     expect(formState.handleSubmit).toHaveBeenCalledTimes(1);
     // The hook is responsible for API orchestration; the dialog only sequences close on success.
@@ -190,7 +191,7 @@ describe('CreateSupplierDialog', () => {
 
     renderDialog({ onClose });
 
-    await user.click(screen.getByRole('button', { name: 'Create Supplier' }));
+    await user.click(screen.getByRole('button', { name: 'Add Supplier' }));
 
     expect(formState.handleSubmit).toHaveBeenCalledTimes(1);
     await waitFor(() => {

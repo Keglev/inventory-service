@@ -32,13 +32,12 @@ export default function LowStockAlertSection({ lowStockCount }: LowStockAlertSec
         <Stack direction="row" spacing={1} alignItems="center">
           <NotificationsActiveIcon sx={{ fontSize: 20, color: 'warning.main' }} />
           <Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.main' }}>
-            {t('notifications.lowStockAlert', 'Low Stock Alert')}
+            {t('notifications.lowStockAlert')}
           </Typography>
         </Stack>
         <Typography variant="caption" color="text.secondary">
           {t(
             'notifications.lowStockMessage',
-            'You have {{count}} merchandise item(s) with low stock',
             { count: lowStockCount }
           )}
         </Typography>
@@ -49,7 +48,7 @@ export default function LowStockAlertSection({ lowStockCount }: LowStockAlertSec
           size="small"
           label={
             <Typography variant="caption">
-              {t('notifications.itemsLowStock', '{{count}} items below minimum', {
+              {t('notifications.itemsLowStock', {
                 count: lowStockCount,
               })}
             </Typography>

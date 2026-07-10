@@ -47,36 +47,36 @@ export default function FooterLinks() {
 
   const links: FooterLinkItem[] = [
     {
-      label: t('footer:support.documentation', 'Documentation'),
+      label: t('footer:support.documentation'),
       href: 'https://keglev.github.io/inventory-service/',
       external: true,
     },
     {
-      label: t('footer:support.apiRef', 'API Reference'),
+      label: t('footer:support.apiRef'),
       href: 'https://keglev.github.io/inventory-service/backend/api/index.html',
       external: true,
     },
     {
-      label: t('footer:support.frontendDocs', 'Frontend Docs'),
+      label: t('footer:support.frontendDocs'),
       href: 'https://keglev.github.io/inventory-service/frontend/architecture/overview.html',
       external: true,
     },
     {
-      label: t('footer:support.releaseNotes', 'Release Notes'),
+      label: t('footer:support.releaseNotes'),
       href: 'https://github.com/Keglev/inventory-service/releases',
       external: true,
     },
     {
-      label: t('footer:support.contact', 'Contact Support'),
+      label: t('footer:support.contact'),
       href: 'mailto:carlos.keglevich@gmail.com',
       external: false,
     },
     {
-      label: t('footer:legal.impressum', 'Legal Notice'),
+      label: t('footer:legal.impressum'),
       to: '/impressum',
     },
     {
-      label: t('footer:legal.privacy', 'Privacy Policy'),
+      label: t('footer:legal.privacy'),
       to: '/datenschutz',
     },
   ];

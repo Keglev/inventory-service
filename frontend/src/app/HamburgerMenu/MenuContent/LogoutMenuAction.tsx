@@ -50,7 +50,7 @@ export default function LogoutMenuAction({
       }}
     >
       <LogoutIcon fontSize="small" />
-      <Typography variant="body2">{t('nav.logout', 'Logout')}</Typography>
+      <Typography variant="body2">{t('nav.logout')}</Typography>
     </MenuItem>
   );
 }

@@ -68,13 +68,13 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
   onClose,
   onSupplierUpdated,
 }) => {
-  const { t } = useTranslation(['common', 'suppliers']);
+  const { t } = useTranslation(['common', 'suppliers', 'errors']);
   const toast = useToast();
   const { openHelp } = useHelp();
 
   // Form logic hook
   const form = useEditSupplierForm(() => {
-    toast(t('suppliers:status.updated', 'Supplier information updated successfully!'), 'success');
+    toast(t('suppliers:status.updated'), 'success');
     onSupplierUpdated();
     handleClose();
   });
@@ -93,7 +93,7 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
   const handleShowConfirmation = form.handleSubmit((values) => {
     if (!form.selectedSupplier) {
       form.setFormError(
-        t('errors:supplier.selection.noSupplierSelected', 'Please select a supplier.')
+        t('errors:supplier.selection.noSupplierSelected')
       );
       return;
     }
@@ -109,8 +109,8 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
       <Dialog open={open && !form.showConfirmation} onClose={handleClose} fullWidth maxWidth="sm">
         <DialogTitle>
           <Stack direction="row" alignItems="center" justifyContent="space-between">
-            <Box>{t('suppliers:dialogs.editSupplierTitle', 'Edit Supplier')}</Box>
-            <Tooltip title={t('common:actions.help', 'Help')}>
+            <Box>{t('suppliers:dialogs.editSupplierTitle')}</Box>
+            <Tooltip title={t('common:actions.help')}>
               <IconButton size="small" onClick={() => openHelp('suppliers.manage')}>
                 {/* Help-icon bucket: HelpOutlineIcon + Tooltip + IconButton pattern duplicated across 4 dialogs — extract shared component in refactor pass. */}
                 <HelpOutlineIcon fontSize="small" />
@@ -151,14 +151,14 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
 
         <DialogActions sx={{ gap: 1 }}>
           <Button onClick={handleClose} disabled={form.formState.isSubmitting}>
-            {t('common:actions.cancel', 'Cancel')}
+            {t('common:actions.cancel')}
           </Button>
           <Button
             onClick={handleShowConfirmation}
             variant="contained"
             disabled={!form.selectedSupplier || form.formState.isSubmitting}
           >
-            {t('suppliers:buttons.reviewChanges', 'Review Changes')}
+            {t('suppliers:buttons.reviewChanges')}
           </Button>
         </DialogActions>
       </Dialog>

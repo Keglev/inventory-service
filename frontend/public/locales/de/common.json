@@ -1,5 +1,16 @@
 {
-  "app": { "title": "Smart Supply Pro" },
+  "app": {
+    "title": "Smart Supply Pro",
+    "branding": "Smart Supply Pro",
+    "health": {
+      "okLabel": "System OK",
+      "degradedLabel": "Eingeschränkt",
+      "downLabel": "Offline",
+      "okTooltip": "Backend & Datenbank online",
+      "dbDownTooltip": "Backend erreichbar, Datenbankproblem",
+      "downTooltip": "Backend nicht erreichbar"
+    }
+  },
   "nav": {
     "dashboard": "Übersicht",
     "inventory": "Inventar",
@@ -8,7 +19,6 @@
     "analytics": "Analytik",
     "logout": "Abmelden"
   },
-
   "dashboard": {
     "title": "Übersicht",
     "kpi": {
@@ -49,7 +59,8 @@
     "settings": "Einstellungen",
     "help": "Hilfe",
     "saving": "Wird gespeichert...",
-    "deleting": "Wird gelöscht..."
+    "deleting": "Wird gelöscht...",
+    "close": "Schließen"
   },
   "shell": {
     "darkMode": "Dunkler Modus",
@@ -59,17 +70,22 @@
     "languageChanged": "Sprache: Deutsch",
     "closeNotification": "Benachrichtigung schließen"
   },
-  
   "loading": "Wird geladen...",
   "demoDisabled": "Sie befinden sich im Demo-Modus und können diese Aktion nicht ausführen.",
   "toast": {
     "densityStatic": "Der kompakte Dichtenmodus ist in dieser Version noch nicht vollständig implementiert"
   },
-  "profile": { "soon": "Profil (bald)" },
+  "profile": {
+    "soon": "Profil (bald)"
+  },
   "name": "Name",
   "email": "E-Mail",
   "role": "Rolle",
-  "roles": { "admin": "Administrator", "user": "Benutzer", "demo": "Demo" },
+  "roles": {
+    "admin": "Administrator",
+    "user": "Benutzer",
+    "demo": "Demo"
+  },
   "loggedInAs": "Angemeldet als",
   "appearance": {
     "title": "Erscheinungsbild",
@@ -120,11 +136,34 @@
   "selectOption": "Option auswählen",
   "analytics": {
     "title": "Analysen",
-    "cards": { "stockValue": "Bestandswert im Zeitverlauf", "monthlyMovement": "Monatliche Bestandsbewegungen", "priceTrend": "Preisentwicklung" },
+    "cards": {
+      "stockValue": "Bestandswert im Zeitverlauf",
+      "monthlyMovement": "Monatliche Bestandsbewegungen",
+      "priceTrend": "Preisentwicklung"
+    },
     "item": "Artikel"
   },
   "units": {
     "pieces": "Stk."
+  },
+  "continueDemo": "Im Demo-Modus fortfahren",
+  "settings": {
+    "title": "Einstellungen",
+    "resetToDefaults": "Auf Standard zurücksetzen",
+    "userPreferences": "Benutzereinstellungen",
+    "systemInfo": "Systeminfo",
+    "tableDensity": {
+      "label": "Tabellendichte",
+      "comfortable": "Komfortabel",
+      "compact": "Kompakt"
+    },
+    "dateFormat": "Datumsformat",
+    "numberFormat": "Zahlenformat",
+    "systemInfoUnavailable": "Systeminformationen nicht verfügbar",
+    "database": "Datenbank",
+    "environment": "Umgebung",
+    "version": "Version",
+    "status": "Status",
+    "build": "Build"
   }
 }
-

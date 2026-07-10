@@ -59,7 +59,7 @@ vi.mock('@hookform/resolvers/zod', () => ({
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     // Prefer defaultValue when provided; otherwise return key.
-    t: (key: string, defaultValue?: string) => defaultValue || key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 
@@ -77,6 +77,7 @@ vi.mock('react-hook-form', () => {
 });
 
 import { useCreateSupplierForm } from '../../../../../pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm';
+import { tEn } from '../../../../test/i18nEn';
 
 describe('useCreateSupplierForm', () => {
   beforeEach(() => {
@@ -166,6 +167,6 @@ describe('useCreateSupplierForm', () => {
     });
 
     // When the thrown value is not an Error, the hook falls back to a translated generic message.
-    expect(result.current.formError).toBe('errors:supplier.requests.failedToAddSupplier');
+    expect(result.current.formError).toBe('Failed to add supplier. Please try again.');
   });
 });

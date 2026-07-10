@@ -19,9 +19,10 @@ import { render, screen } from '@testing-library/react';
 import { HelpProvider } from '../../../../../context/help/HelpContext';
 import { DeleteItemDialog } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog';
 import type { UseDeleteItemDialogReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types';
+import { tEn } from '../../../../test/i18nEn';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 // -------------------------------------

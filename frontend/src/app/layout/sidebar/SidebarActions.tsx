@@ -114,7 +114,7 @@ export default function SidebarActions({
         </Tooltip>
 
         {/* Language Toggle */}
-        <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
+        <Tooltip title={t('actions.toggleLanguage')}>
           <IconButton size="small" onClick={() => onLocaleChange(nextLocale)}>
             <img
               src={locale === 'de' ? DE_FLAG : US_FLAG}
@@ -126,7 +126,7 @@ export default function SidebarActions({
         </Tooltip>
 
         {/* Settings Button */}
-        <Tooltip title={t('actions.settings', 'Settings')}>
+        <Tooltip title={t('actions.settings')}>
           <IconButton size="small" onClick={onSettingsOpen}>
             <SettingsIcon fontSize="small" />
           </IconButton>
@@ -135,7 +135,7 @@ export default function SidebarActions({
 
       {/* Help Button (centered below main actions) */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 0.75, mb: 0.5 }}>
-        <HelpIconButton topicId={helpTopic} tooltip={t('actions.help', 'Help')} />
+        <HelpIconButton topicId={helpTopic} tooltip={t('actions.help')} />
       </Box>
     </>
   );

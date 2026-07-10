@@ -20,8 +20,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { TFunction } from 'i18next';
 
 import { mapSupplierError } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/mapSupplierErrors';
+import { tEn } from '../../../../test/i18nEn';
 
-const tMock = vi.fn((key: string, fallback?: string) => fallback ?? key);
+const tMock = vi.fn((key: string, options?: Record<string, unknown>) => tEn(key, options));
 const translate = tMock as unknown as TFunction;
 
 describe('mapSupplierError', () => {
@@ -36,7 +37,7 @@ describe('mapSupplierError', () => {
 
   it('detects admin-only errors', () => {
     expect(mapSupplierError('403 Forbidden: admin only', translate)).toBe(
-      'Only administrators can edit supplier information.'
+      'Only administrators can perform this action.'
     );
   });
 

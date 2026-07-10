@@ -35,7 +35,7 @@ export default function ProfileRoleDisplay({ role, isDemo }: ProfileRoleDisplayP
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-        {t('common:role', 'Role')}
+        {t('common:role')}
       </Typography>
       <Stack direction="row" spacing={0.5} alignItems="center">
         <Typography variant="body2">
@@ -44,7 +44,7 @@ export default function ProfileRoleDisplay({ role, isDemo }: ProfileRoleDisplayP
         {isDemo && (
           <Chip
             size="small"
-            label={t('auth:demoBadge', 'DEMO')}
+            label={t('auth:demoBadge')}
             color="warning"
             variant="outlined"
             sx={{ height: 20 }}

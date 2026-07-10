@@ -23,6 +23,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import MonthlyMovementMini from '../../../../pages/dashboard/blocks/MonthlyMovementMini';
+import { tEn } from '../../../test/i18nEn';
 
 // -------------------------------------
 // Deterministic mocks
@@ -30,7 +31,7 @@ import MonthlyMovementMini from '../../../../pages/dashboard/blocks/MonthlyMovem
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     // Prefer defaultValue for stable user-visible copy where used.
-    t: (key: string, defaultValue?: string) => defaultValue ?? key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 
@@ -132,7 +133,7 @@ describe('MonthlyMovementMini', () => {
 
   it('renders the card title', () => {
     renderMonthlyMovementMini(queryClient);
-    expect(screen.getByText('Stock movement (90d)')).toBeInTheDocument();
+    expect(screen.getByText('Stock movement, last 90 days (pieces)')).toBeInTheDocument();
   });
 
   it('shows a loading placeholder while the query is pending', () => {

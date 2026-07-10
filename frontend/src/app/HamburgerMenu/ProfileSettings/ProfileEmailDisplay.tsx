@@ -33,11 +33,11 @@ export default function ProfileEmailDisplay({ email, isDemo }: ProfileEmailDispl
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-        {t('common:email', 'Email')}
+        {t('common:email')}
       </Typography>
       <Typography variant="body2">
         {isDemo
-          ? t('auth:demo.noEmailProvided', 'Demo Account, No email provided')
+          ? t('auth:demo.noEmailProvided')
           : email || '—'}
       </Typography>
     </Box>

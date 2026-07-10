@@ -106,10 +106,11 @@ vi.mock('../../../../../context/toast/ToastContext', () => ({
 }));
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 import { DeleteSupplierDialog } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierDialog';
+import { tEn } from '../../../../test/i18nEn';
 
 const supplier: SupplierRow = {
   id: 'sup-1',

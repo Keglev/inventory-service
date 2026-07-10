@@ -33,9 +33,9 @@ import type { TFunction } from 'i18next';
  * setError(message);
  * ```
  */
-export const mapSupplierError = (errorMsg: string | null | undefined, t: TFunction): string => {
+export const mapSupplierError = (errorMsg: string | null | undefined, t: TFunction<['common', 'suppliers', 'errors']>): string => {
   if (!errorMsg) {
-    return t('errors:supplier.requests.failedToUpdateSupplier', 'Failed to update supplier. Please try again.');
+    return t('errors:supplier.requests.failedToUpdateSupplier');
   }
 
   // Structured-error bucket: substring matching on free-text server message — replace with structured-error contract ({error, message, timestamp}) in refactor pass.
@@ -43,19 +43,19 @@ export const mapSupplierError = (errorMsg: string | null | undefined, t: TFuncti
 
   // Admin-only error (403 Forbidden)
   if (msg.includes('admin') || msg.includes('access denied') || msg.includes('403')) {
-    return t('errors:supplier.adminOnly', 'Only administrators can edit supplier information.');
+    return t('errors:supplier.adminOnly');
   }
 
   // Missing creator info
   if (msg.includes('createdby') || msg.includes('created by')) {
-    return t('errors:supplier.validation.createdByRequired', 'Creator information is required. Please ensure you are logged in.');
+    return t('errors:supplier.validation.createdByRequired');
   }
 
   // Duplicate email error (409 Conflict)
   if (msg.includes('duplicate') || msg.includes('already exists') || msg.includes('email')) {
-    return t('errors:supplier.conflicts.duplicateEmail', 'This email is already in use.');
+    return t('errors:supplier.conflicts.duplicateEmail');
   }
 
   // Generic fallback
-  return t('errors:supplier.requests.failedToUpdateSupplier', 'Failed to update supplier. Please try again.');
+  return t('errors:supplier.requests.failedToUpdateSupplier');
 };

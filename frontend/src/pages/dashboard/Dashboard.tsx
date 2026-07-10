@@ -81,7 +81,7 @@ const Dashboard: React.FC = () => {
             {t('dashboard.title')}
           </Typography>
 
-          <HelpIconButton topicId="app.main" tooltip={t('actions.help', 'Help')} />
+          <HelpIconButton topicId="app.main" tooltip={t('actions.help')} />
         </Box>
 
         {/* KPI metrics grid: Total inventory, suppliers count, low stock count */}

@@ -37,14 +37,14 @@ export const QuantityAdjustSupplierSelect: React.FC<QuantityAdjustSupplierSelect
   return (
     <Box>
       <Typography variant="subtitle2" gutterBottom color="primary">
-        {t('inventory:steps.selectSupplier', 'Step 1: Select Supplier')}
+        {t('inventory:steps.selectSupplier')}
       </Typography>
 
       <FormControl fullWidth size="small">
-        <InputLabel>{t('inventory:table.supplier', 'Supplier')}</InputLabel>
+        <InputLabel>{t('inventory:table.supplier')}</InputLabel>
         <Select
           value={selectedSupplier?.id || ''}
-          label={t('inventory:table.supplier', 'Supplier')}
+          label={t('inventory:table.supplier')}
           onChange={(e) => {
             const supplierId = e.target.value;
             const supplier = suppliers?.find((s) => String(s.id) === String(supplierId)) || null;
@@ -53,7 +53,7 @@ export const QuantityAdjustSupplierSelect: React.FC<QuantityAdjustSupplierSelect
           disabled={loading}
         >
           <MenuItem value="">
-            <em>{t('common:selectOption', 'Select an option')}</em>
+            <em>{t('common:selectOption')}</em>
           </MenuItem>
           {suppliers?.map((supplier) => (
             <MenuItem key={supplier.id} value={supplier.id}>

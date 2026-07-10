@@ -21,6 +21,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { tEn } from '../../../test/i18nEn';
 import { render, screen } from '@testing-library/react';
 import LowStockAlertSection from '../../../../app/HamburgerMenu/NotificationSettings/LowStockAlertSection';
 
@@ -37,17 +38,6 @@ type TOptions = { count?: number };
 
 describe('LowStockAlertSection', () => {
   /**
-   * Minimal interpolation helper for `{{count}}` placeholders.
-   * Keeps tests deterministic without requiring the full i18next engine.
-   */
-  const interpolateCount = (template: unknown, options?: TOptions) => {
-    if (typeof template === 'string' && options?.count !== undefined) {
-      return template.replace('{{count}}', String(options.count));
-    }
-    return template;
-  };
-
-  /**
    * Arrange helper: renders the component with a specific lowStockCount.
    */
   const arrange = (lowStockCount: number) =>
@@ -58,8 +48,7 @@ describe('LowStockAlertSection', () => {
 
     // Default deterministic translation stub: return defaultValue with count interpolation.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string, options?: TOptions) =>
-        interpolateCount(defaultValue, options),
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -107,9 +96,9 @@ describe('LowStockAlertSection', () => {
   // i18n wiring
   // ---------------------------------------------------------------------------
   it('renders translated title when provided by i18n', () => {
-    const mockT = vi.fn((key: string, defaultValue: string, options?: TOptions) => {
+    const mockT = vi.fn((key: string, options?: TOptions) => {
       if (key === 'notifications.lowStockAlert') return 'Niedriger Bestand';
-      return interpolateCount(defaultValue, options);
+      return tEn(key, options);
     });
 
     mockUseTranslation.mockReturnValue({
@@ -123,6 +112,6 @@ describe('LowStockAlertSection', () => {
     expect(screen.getByText('Niedriger Bestand')).toBeInTheDocument();
 
     // Integration: correct key used
-    expect(mockT).toHaveBeenCalledWith('notifications.lowStockAlert', 'Low Stock Alert');
+    expect(mockT).toHaveBeenCalledWith('notifications.lowStockAlert');
   });
 });

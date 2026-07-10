@@ -56,7 +56,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
       {/* Step 1: Supplier Selection */}
       <Box>
         <Typography variant="subtitle2" gutterBottom color="primary">
-          {t('inventory:steps.selectSupplier', 'Step 1: Select Supplier')}
+          {t('inventory:steps.selectSupplier')}
         </Typography>
         <FormControl
           fullWidth
@@ -64,10 +64,10 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
           disabled={state.suppliersLoading}
           data-testid="supplier-form-control"
         >
-          <InputLabel>{t('inventory:table.supplier', 'Supplier')}</InputLabel>
+          <InputLabel>{t('inventory:table.supplier')}</InputLabel>
           <Select
             value={state.selectedSupplier?.id || ''}
-            label={t('inventory:table.supplier', 'Supplier')}
+            label={t('inventory:table.supplier')}
             onChange={(e) => {
               const supplierId = e.target.value;
               const supplier =
@@ -77,7 +77,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
             disabled={state.suppliersLoading}
           >
             <MenuItem value="">
-              <em>{t('common:selectOption', 'Select an option')}</em>
+              <em>{t('common:selectOption')}</em>
             </MenuItem>
             {state.suppliers.map((supplier) => (
               <MenuItem key={supplier.id} value={supplier.id}>
@@ -91,7 +91,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
       {/* Step 2: Item Selection */}
       <Box>
         <Typography variant="subtitle2" gutterBottom color="primary">
-          {t('inventory:steps.selectItem', 'Step 2: Search and Select Item')}
+          {t('inventory:steps.selectItem')}
         </Typography>
         <Autocomplete
           fullWidth
@@ -106,16 +106,16 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
           loading={state.itemsLoading}
           noOptionsText={
             state.itemQuery.length < 2
-              ? t('inventory:search.typeToSearch', 'Type at least 2 characters to search')
-              : t('inventory:search.noItemsFound', 'No items found')
+              ? t('inventory:search.typeToSearch')
+              : t('inventory:search.noItemsFound')
           }
           renderInput={(params) => (
             <TextField
               {...params}
-              label={t('inventory:search.searchSelectItem', 'Search and select item...')}
+              label={t('inventory:search.searchSelectItem')}
               placeholder={
                 !state.selectedSupplier
-                  ? t('inventory:search.selectSupplierFirst', 'Select supplier first')
+                  ? t('inventory:search.selectSupplierFirst')
                   : undefined
               }
               InputProps={{
@@ -148,7 +148,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
       {/* Step 3: Price Change */}
       <Box>
         <Typography variant="subtitle2" gutterBottom color="primary">
-          {t('inventory:steps.changePrice', 'Step 3: Enter New Price')}
+          {t('inventory:steps.changePrice')}
         </Typography>
         <Controller
           name="newPrice"
@@ -161,7 +161,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
                 const val = e.target.value;
                 onChange(val === '' ? 0 : Number(val));
               }}
-              label={t('inventory:price.newPrice', 'New Price')}
+              label={t('inventory:price.newPrice')}
               type="number"
               fullWidth
               disabled={!state.selectedItem}
@@ -176,12 +176,12 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
                 typeof state.formState.errors.newPrice?.message === 'string'
                   ? state.formState.errors.newPrice.message
                   : state.selectedItem
-                    ? t('inventory:price.priceChange', 'Unit price: change from {{from}} to {{to}}', {
+                    ? t('inventory:price.priceChange', {
                         from: state.effectiveCurrentPrice.toFixed(2),
                         to: Number(value).toFixed(2),
                       }) +
                       ' · ' +
-                      t('inventory:price.newTotalValue', 'New total value: {{total}}', {
+                      t('inventory:price.newTotalValue', {
                         total: (Number(value) * state.effectiveCurrentQty).toFixed(2),
                       })
                     : ''

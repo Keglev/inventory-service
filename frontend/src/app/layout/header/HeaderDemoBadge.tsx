@@ -42,10 +42,10 @@ export default function HeaderDemoBadge({ isDemo }: HeaderDemoBadgeProps) {
   }
 
   return (
-    <Tooltip title={t('auth:demoNotice', 'You are browsing in demo mode. Changes are disabled.')}>
+    <Tooltip title={t('auth:demoNotice')}>
       <Chip
         size="small"
-        label={t('auth:demoBadge', 'DEMO')}
+        label={t('auth:demoBadge')}
         color="warning"
         variant="filled"
         sx={{

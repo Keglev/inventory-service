@@ -64,7 +64,7 @@ export default function AppToolbarActions({
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
       {/* Language Flag Toggle (always visible) */}
-      <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
+      <Tooltip title={t('actions.toggleLanguage')}>
         <IconButton size="small" onClick={() => onLocaleChange(locale === 'de' ? 'en' : 'de')} sx={{ mr: 1 }}>
           <img
             src={locale === 'de' ? DE_FLAG : US_FLAG}
@@ -78,7 +78,7 @@ export default function AppToolbarActions({
       {/* Help Icon Button */}
       <HelpIconButton
         topicId={helpTopic}
-        tooltip={t('actions.help', 'Help')}
+        tooltip={t('actions.help')}
       />
 
       {/* Hamburger Menu (Profile, Appearance, Language, Notifications, Help, System Info, Logout) */}

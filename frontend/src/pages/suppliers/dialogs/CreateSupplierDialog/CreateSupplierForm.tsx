@@ -72,8 +72,8 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
       {/* Supplier Name - Required */}
       <TextField
         {...register('name')}
-        label={t('suppliers:table.name', 'Supplier Name') + ' *'}
-        placeholder={t('suppliers:form.namePlaceholder', 'Enter supplier name')}
+        label={t('suppliers:table.name') + ' *'}
+        placeholder={t('suppliers:form.namePlaceholder')}
         fullWidth
         error={Boolean(errors.name)}
         helperText={errors.name?.message}
@@ -84,8 +84,8 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
       {/* Contact Name - Optional */}
       <TextField
         {...register('contactName')}
-        label={t('suppliers:table.contactName', 'Contact Person')}
-        placeholder={t('suppliers:form.contactNamePlaceholder', 'Enter contact name')}
+        label={t('suppliers:table.contactName')}
+        placeholder={t('suppliers:form.contactNamePlaceholder')}
         fullWidth
         error={Boolean(errors.contactName)}
         helperText={errors.contactName?.message}
@@ -95,8 +95,8 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
       {/* Phone - Optional */}
       <TextField
         {...register('phone')}
-        label={t('suppliers:table.phone', 'Phone')}
-        placeholder={t('suppliers:form.phonePlaceholder', 'Enter phone number')}
+        label={t('suppliers:table.phone')}
+        placeholder={t('suppliers:form.phonePlaceholder')}
         fullWidth
         error={Boolean(errors.phone)}
         helperText={errors.phone?.message}
@@ -106,8 +106,8 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
       {/* Email - Optional but validated */}
       <TextField
         {...register('email')}
-        label={t('suppliers:table.email', 'Email')}
-        placeholder={t('suppliers:form.emailPlaceholder', 'Enter email address')}
+        label={t('suppliers:table.email')}
+        placeholder={t('suppliers:form.emailPlaceholder')}
         type="email"
         fullWidth
         error={Boolean(errors.email)}

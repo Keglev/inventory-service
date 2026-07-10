@@ -70,16 +70,16 @@ export const InventoryFilterPanel: React.FC<InventoryFilterPanelProps> = ({
       <Box sx={{ flex: 1, minWidth: 220 }}>
         <FormControl size="small" fullWidth>
           <InputLabel>
-            {t('inventory:filter.supplier', 'Supplier')}
+            {t('inventory:filter.supplier')}
           </InputLabel>
           <Select
             value={String(supplierId ?? '')}
-            label={t('inventory:filter.supplier', 'Supplier')}
+            label={t('inventory:filter.supplier')}
             onChange={(e) => setSupplierId(e.target.value || null)}
             disabled={supplierLoading}
           >
             <MenuItem value="">
-              {t('inventory:filter.allSuppliers', 'All suppliers')}
+              {t('inventory:filter.allSuppliers')}
             </MenuItem>
             {(suppliers ?? []).map((supplier) => (
               <MenuItem key={supplier.id} value={String(supplier.id)}>
@@ -93,12 +93,12 @@ export const InventoryFilterPanel: React.FC<InventoryFilterPanelProps> = ({
       {/* Item search on the right */}
       <Box sx={{ flex: 1 }}>
         <TextField
-          label={t('inventory:filter.search', 'Search')}
+          label={t('inventory:filter.search')}
           value={q}
           onChange={(e) => setQ(e.target.value)}
           size="small"
           fullWidth
-          placeholder={t('inventory:filter.searchPlaceholder', 'Item name or code')}
+          placeholder={t('inventory:filter.searchPlaceholder')}
         />
       </Box>
 
@@ -111,7 +111,7 @@ export const InventoryFilterPanel: React.FC<InventoryFilterPanelProps> = ({
               onChange={(e) => setBelowMinOnly(e.target.checked)}
             />
           }
-          label={t('inventory:filter.belowMinOnly', 'Below minimum quantity only')}
+          label={t('inventory:filter.belowMinOnly')}
         />
       </Box>
     </Stack>

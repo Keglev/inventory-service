@@ -43,13 +43,13 @@ export default function SidebarUserProfile({ user }: SidebarUserProfileProps) {
   return (
     <Box>
       <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
-        {t('common:loggedInAs', 'Logged in as:')}
+        {t('common:loggedInAs')}
       </Typography>
       <Typography variant="caption" color="text.secondary" display="block">
         {user?.fullName || 'User'}
       </Typography>
       <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
-        {t('common:role', 'Role:')}
+        {t('common:role')}
       </Typography>
       <Typography variant="caption" color="text.secondary" display="block">
         {user?.role || 'user'}

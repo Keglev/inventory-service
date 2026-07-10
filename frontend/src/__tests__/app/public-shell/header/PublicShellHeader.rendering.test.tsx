@@ -62,7 +62,7 @@ describe('PublicShellHeader (rendering)', () => {
     onThemeToggle: vi.fn(),
     locale: 'en',
     onLocaleToggle: vi.fn(),
-    languageTooltip: 'Toggle language',
+    languageTooltip: 'Switch language',
   };
 
   beforeEach(() => {

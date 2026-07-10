@@ -123,7 +123,7 @@ export const useQuantityAdjustForm = (
     // Demo guard: allow exploration but block mutation
     if (readOnly) {
       state.setFormError(
-        t('common:demoDisabled', 'You are in demo mode and cannot perform this operation.')
+        t('common:demoDisabled')
       );
       return;
     }
@@ -146,7 +146,7 @@ export const useQuantityAdjustForm = (
       if (result.ok) {
         // Show success message with the new quantity
         toast(
-          t('inventory:quantity.quantityUpdatedTo', 'Quantity changed to {{quantity}}', {
+          t('inventory:quantity.quantityUpdatedTo', {
             quantity: values.newQuantity,
           }),
           'success'

@@ -34,7 +34,7 @@ export default function TableDensitySetting({
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.75 }}>
-        {t('appearance.density', 'Density')}
+        {t('appearance.density')}
       </Typography>
       <ToggleButtonGroup
         value={tableDensity === 'compact' || tableDensity === 'comfortable' ? tableDensity : 'comfortable'}
@@ -47,12 +47,12 @@ export default function TableDensitySetting({
       >
         <ToggleButton value="comfortable">
           <Typography variant="caption">
-            {t('appearance.standard', 'Standard')}
+            {t('appearance.standard')}
           </Typography>
         </ToggleButton>
         <ToggleButton value="compact">
           <Typography variant="caption">
-            {t('appearance.compact', 'Compact')}
+            {t('appearance.compact')}
           </Typography>
         </ToggleButton>
       </ToggleButtonGroup>

@@ -10,6 +10,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import HelpDocsMenuSection from '../../../app/HamburgerMenu/HelpDocsMenuSection';
+import { tEn } from '../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Mocks
@@ -26,14 +27,14 @@ describe('HelpDocsMenuSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
 
   it('renders section title', () => {
     arrange();
-    expect(screen.getByText('Hilfe & Dokumentation / Help & Docs')).toBeInTheDocument();
+    expect(screen.getByText('Help & Docs')).toBeInTheDocument();
   });
 
   it('renders the GitHub repository link with correct URL', () => {
@@ -104,9 +105,9 @@ describe('HelpDocsMenuSection', () => {
     expect(screen.getByText('Docs Frontend')).toBeInTheDocument();
 
     // Optional: ensures wiring calls translation keys (helps catch regressions).
-    expect(mockT).toHaveBeenCalledWith('help.title', expect.any(String));
-    expect(mockT).toHaveBeenCalledWith('help.github', expect.any(String));
-    expect(mockT).toHaveBeenCalledWith('help.apiDocs', expect.any(String));
-    expect(mockT).toHaveBeenCalledWith('help.frontendDocs', expect.any(String));
+    expect(mockT).toHaveBeenCalledWith('help.title');
+    expect(mockT).toHaveBeenCalledWith('help.github');
+    expect(mockT).toHaveBeenCalledWith('help.apiDocs');
+    expect(mockT).toHaveBeenCalledWith('help.frontendDocs');
   });
 });

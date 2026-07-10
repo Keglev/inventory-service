@@ -11,6 +11,7 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import AppSettingsForm from '../../../app/settings/AppSettingsForm';
+import { tEn } from '../../test/i18nEn';
 
 // --- Captured props to validate orchestration ---
 let appearanceProps: unknown;
@@ -45,7 +46,7 @@ vi.mock('../../../utils/formatters', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback || key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 

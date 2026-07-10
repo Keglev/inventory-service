@@ -75,7 +75,7 @@ export default function LoginPage() {
 
             {/* Demo entry (client-only, read-only) */}
             <Button variant="text" onClick={handleDemo}>
-              {t('continueDemo', 'Continue in Demo Mode')}
+              {t('continueDemo')}
             </Button>
 
             <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>

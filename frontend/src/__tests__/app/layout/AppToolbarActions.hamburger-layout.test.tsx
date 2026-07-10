@@ -12,6 +12,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AppToolbarActions from '../../../app/layout/AppToolbarActions';
+import { tEn } from '../../test/i18nEn';
 
 vi.mock('../../../features/help/components/HelpIconButton', () => ({
   HelpIconButton: ({ tooltip }: { tooltip: string }) => (
@@ -71,7 +72,7 @@ describe('AppToolbarActions (hamburger + layout)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     });
   });
 
@@ -101,7 +102,7 @@ describe('AppToolbarActions (hamburger + layout)', () => {
     // Smoke test to ensure all actions remain present in the toolbar.
     renderActions();
 
-    expect(screen.getByLabelText(/toggle language/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/switch language/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/help/i)).toBeInTheDocument();
     expect(screen.getByTestId('hamburger-menu')).toBeInTheDocument();
   });

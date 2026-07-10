@@ -17,6 +17,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { StockUpdateRow } from '@/api/analytics/updates';
 import { getStockUpdates } from '@/api/analytics/updates';
 import RecentStockActivityCard from '@/pages/analytics/blocks/RecentStockActivityCard';
+import { tEn } from '../../../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Mocks
@@ -24,7 +25,7 @@ import RecentStockActivityCard from '@/pages/analytics/blocks/RecentStockActivit
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback ?? key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 

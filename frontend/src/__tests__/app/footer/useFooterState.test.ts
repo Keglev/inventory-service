@@ -12,6 +12,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useFooterState } from '../../../app/footer/useFooterState';
+import { tEn } from '../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Hoisted mocks (must exist before vi.mock factory runs)
@@ -45,7 +46,7 @@ describe('useFooterState', () => {
   const setI18nLanguage = (language: string) => {
     const i18n: I18nLike = { language, changeLanguage: vi.fn() };
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n,
     });
   };

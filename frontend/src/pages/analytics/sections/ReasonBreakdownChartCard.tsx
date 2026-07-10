@@ -46,7 +46,7 @@ export default function ReasonBreakdownChartCard({ title, data, color, loading }
   const formatTooltipValue = React.useCallback(
     (value: number | string) =>
       typeof value === 'number'
-        ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces', 'pcs')}`
+        ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
         : String(value),
     [userPreferences.numberFormat, t]
   );

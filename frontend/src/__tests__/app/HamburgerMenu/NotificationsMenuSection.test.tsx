@@ -17,6 +17,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import NotificationsMenuSection from '../../../app/HamburgerMenu/NotificationsMenuSection';
+import { tEn } from '../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Mocks
@@ -50,12 +51,7 @@ describe('NotificationsMenuSection', () => {
     // - returns defaultValue
     // - supports {{count}} interpolation when options.count is provided
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string, options?: { count?: number }) => {
-        if (typeof defaultValue === 'string' && options?.count !== undefined) {
-          return defaultValue.replace('{{count}}', String(options.count));
-        }
-        return defaultValue;
-      },
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -106,12 +102,9 @@ describe('NotificationsMenuSection', () => {
   });
 
   it('uses translated title for the low stock alert when provided', () => {
-    const mockT = vi.fn((key: string, defaultValue: string, options?: { count?: number }) => {
+    const mockT = vi.fn((key: string, options?: Record<string, unknown>) => {
       if (key === 'notifications.lowStockAlert') return 'Niedriger Bestand';
-      if (typeof defaultValue === 'string' && options?.count !== undefined) {
-        return defaultValue.replace('{{count}}', String(options.count));
-      }
-      return defaultValue;
+      return tEn(key, options);
     });
 
     mockUseTranslation.mockReturnValue({

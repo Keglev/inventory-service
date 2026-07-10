@@ -14,6 +14,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import FooterLinks from '../../../app/footer/FooterLinks';
+import { tEn } from '../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock
@@ -40,7 +41,7 @@ describe('FooterLinks', () => {
 
     // Deterministic translation stub: return defaultValue to keep assertions stable.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -112,10 +113,10 @@ describe('FooterLinks', () => {
 
     arrange();
 
-    expect(mockT).toHaveBeenCalledWith('footer:support.documentation', 'Documentation');
-    expect(mockT).toHaveBeenCalledWith('footer:support.apiRef', 'API Reference');
-    expect(mockT).toHaveBeenCalledWith('footer:support.contact', 'Contact Support');
-    expect(mockT).toHaveBeenCalledWith('footer:legal.impressum', 'Legal Notice');
-    expect(mockT).toHaveBeenCalledWith('footer:legal.privacy', 'Privacy Policy');
+    expect(mockT).toHaveBeenCalledWith('footer:support.documentation');
+    expect(mockT).toHaveBeenCalledWith('footer:support.apiRef');
+    expect(mockT).toHaveBeenCalledWith('footer:support.contact');
+    expect(mockT).toHaveBeenCalledWith('footer:legal.impressum');
+    expect(mockT).toHaveBeenCalledWith('footer:legal.privacy');
   });
 });

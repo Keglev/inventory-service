@@ -27,12 +27,13 @@ import { renameItem } from '../../../../../api/inventory/itemMutations';
 import { useSuppliersQuery } from '../../../../../api/inventory/hooks/useSuppliersQuery';
 import { useItemSearchQuery } from '../../../../../api/inventory/hooks/useItemSearchQuery';
 import { useItemDetailsQuery } from '../../../../../api/inventory/hooks/useItemDetailsQuery';
+import { tEn } from '../../../../test/i18nEn';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
 // -------------------------------------
 const toastSpy = vi.hoisted(() => vi.fn());
-const tSpy = vi.hoisted(() => vi.fn((key: string, defaultValue?: string) => defaultValue ?? key));
+const tSpy = vi.hoisted(() => vi.fn((key: string, options?: Record<string, unknown>) => tEn(key, options)));
 
 vi.mock('../../../../../api/inventory/itemMutations', () => ({
   renameItem: vi.fn(),

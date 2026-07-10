@@ -27,7 +27,7 @@ export default function ProfileMenuSection() {
   return (
     <Box sx={{ px: 2, py: 1.5 }}>
       <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-        {t('profile.title', 'Mein Profil / My Profile')}
+        {t('profile.title')}
       </Typography>
 
       <Stack spacing={0.75}>

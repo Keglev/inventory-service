@@ -46,7 +46,7 @@ export const QuantityAdjustItemSelect: React.FC<QuantityAdjustItemSelectProps> =
   return (
     <Box>
       <Typography variant="subtitle2" gutterBottom color="primary">
-        {t('inventory:steps.selectItem', 'Step 2: Select Item')}
+        {t('inventory:steps.selectItem')}
       </Typography>
 
       <Autocomplete
@@ -62,15 +62,15 @@ export const QuantityAdjustItemSelect: React.FC<QuantityAdjustItemSelectProps> =
         loading={loading}
         noOptionsText={
           searchQuery.length < 2
-            ? t('inventory:search.typeToSearch', 'Type at least 2 characters to search')
-            : t('inventory:search.noItemsFound', 'No items found')
+            ? t('inventory:search.typeToSearch')
+            : t('inventory:search.noItemsFound')
         }
         renderInput={(params) => (
           <TextField
             {...params}
-            label={t('inventory:search.searchSelectItem', 'Search and select item...')}
+            label={t('inventory:search.searchSelectItem')}
             placeholder={
-              !selectedSupplier ? t('inventory:search.selectSupplierFirst', 'Select supplier first') : undefined
+              !selectedSupplier ? t('inventory:search.selectSupplierFirst') : undefined
             }
             InputProps={{
               ...params.InputProps,

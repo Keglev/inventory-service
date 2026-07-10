@@ -11,25 +11,13 @@
 
 import { vi } from 'vitest';
 
+import { makeTEn } from '../../../../test/i18nEn';
+
+const tEn = makeTEn(['inventory', 'common']);
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (
-      key: string,
-      fallbackOrOptions?: string | Record<string, unknown>,
-      maybeOptions?: Record<string, unknown>
-    ) => {
-      const fallback = typeof fallbackOrOptions === 'string' ? fallbackOrOptions : undefined;
-      const options =
-        (typeof fallbackOrOptions === 'object' && fallbackOrOptions !== null
-          ? fallbackOrOptions
-          : maybeOptions) ?? {};
-
-      const template = fallback ?? key;
-      return Object.entries(options).reduce(
-        (acc, [optionKey, value]) => acc.replaceAll(`{{${optionKey}}}`, String(value)),
-        template
-      );
-    },
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 

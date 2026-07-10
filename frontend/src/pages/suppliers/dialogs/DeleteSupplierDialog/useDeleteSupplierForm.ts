@@ -100,7 +100,7 @@ export const useDeleteSupplierForm = (
   const handleConfirmDelete = React.useCallback(async () => {
     const mapServerError = (errorMsg?: string | null): string => {
       if (!errorMsg) {
-        return t('errors:supplier.requests.failedToDeleteSupplier', 'Failed to delete supplier. Please try again.');
+        return t('errors:supplier.requests.failedToDeleteSupplier');
       }
 
       // Structured-error bucket: substring matching on free-text server message (including German 'verknüpften') — replace with structured-error contract in refactor pass.
@@ -114,33 +114,32 @@ export const useDeleteSupplierForm = (
         msg.includes('verknüpften') // German: "linked"
       ) {
         return t(
-          'errors:supplier.businessRules.cannotDeleteWithItems',
-          'This supplier cannot be deleted because there are still items with stock > 0. Please reduce the stock to 0 before deleting the supplier.'
+          'errors:supplier.businessRules.cannotDeleteWithItems'
         );
       }
 
       // Admin-only error (403 Forbidden)
       if (msg.includes('403') || msg.includes('forbidden')) {
-        return t('errors:supplier.adminOnly', 'Only administrators can perform this action.');
+        return t('errors:supplier.adminOnly');
       }
 
       // Not found error (404)
       if (msg.includes('404') || msg.includes('not found')) {
-        return t('errors:supplier.businessRules.supplierNotFound', 'Supplier not found');
+        return t('errors:supplier.businessRules.supplierNotFound');
       }
 
       // Generic error
-      return t('errors:supplier.requests.failedToDeleteSupplier', 'Failed to delete supplier. Please try again.');
+      return t('errors:supplier.requests.failedToDeleteSupplier');
     };
 
     if (!selectedSupplier) {
-      setError(t('errors:supplier.selection.noSupplierSelected', 'Please select a supplier'));
+      setError(t('errors:supplier.selection.noSupplierSelected'));
       return;
     }
 
     // Check authorization
     if (user?.role !== 'ADMIN') {
-      setError(t('errors:supplier.adminOnly', 'Only administrators can perform this action.'));
+      setError(t('errors:supplier.adminOnly'));
       return;
     }
 

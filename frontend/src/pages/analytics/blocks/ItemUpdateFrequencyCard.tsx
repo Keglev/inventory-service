@@ -40,10 +40,10 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
       <Card>
         <CardContent>
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
-            {t('analytics:frequency.title', 'Top updated items')}
+            {t('analytics:frequency.title')}
           </Typography>
           <Box sx={{ color: 'text.secondary' }}>
-            {t('analytics:frequency.selectSupplier', 'Select a supplier to view')}
+            {t('analytics:frequency.selectSupplier')}
           </Box>
         </CardContent>
       </Card>
@@ -64,7 +64,7 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
     <Card>
       <CardContent>
         <Typography variant="subtitle1" sx={{ mb: 1 }}>
-          {t('analytics:frequency.title', 'Top updated items')}
+          {t('analytics:frequency.title')}
         </Typography>
 
         {q.isLoading ? (
@@ -82,7 +82,7 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
                 <Tooltip
                   formatter={(value: number | string) =>
                     typeof value === 'number'
-                      ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.updates', 'updates')}`
+                      ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.updates')}`
                       : value
                   }
                 />

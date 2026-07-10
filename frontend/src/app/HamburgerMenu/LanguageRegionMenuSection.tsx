@@ -49,7 +49,7 @@ export default function LanguageRegionMenuSection({
   return (
     <Box sx={{ px: 2, py: 1.5 }}>
       <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
-        {t('language.title', 'Sprache & Region / Language & Region')}
+        {t('language.title')}
       </Typography>
 
       <Stack spacing={1.5}>

@@ -120,7 +120,7 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   if (!enabled) {
     return (
       <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-        {t('analytics:selectSupplier', 'Select a supplier to see low stock')}
+        {t('analytics:selectSupplier')}
       </Box>
     );
   }
@@ -132,7 +132,7 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   if (q.isError) {
     return (
       <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-        {t('common:error', 'Error')}
+        {t('common:error')}
       </Box>
     );
   }
@@ -152,7 +152,7 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   if (visible.length === 0) {
     return (
       <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-        {t('analytics:lowStock.noneForSupplier', 'No items below minimum for this supplier')}
+        {t('analytics:lowStock.noneForSupplier')}
       </Box>
     );
   }
@@ -178,19 +178,19 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
         <TableHead>
           <TableRow>
             <TableCell sx={{ width: '40%' }}>
-              {t('analytics:lowStock.columns.item', 'Item')}
+              {t('analytics:lowStock.columns.item')}
             </TableCell>
             <TableCell align="right" sx={{ width: '15%' }}>
-              {t('analytics:lowStock.columns.quantity', 'Quantity')}
+              {t('analytics:lowStock.columns.quantity')}
             </TableCell>
             <TableCell align="right" sx={{ width: '15%' }}>
-              {t('analytics:lowStock.columns.minimum', 'Minimum')}
+              {t('analytics:lowStock.columns.minimum')}
             </TableCell>
             <TableCell align="right" sx={{ width: '15%' }}>
-              {t('analytics:lowStock.columns.deficit', 'Deficit')}
+              {t('analytics:lowStock.columns.deficit')}
             </TableCell>
             <TableCell align="left" sx={{ width: '15%', whiteSpace: 'nowrap' }}>
-              {t('analytics:lowStock.columns.status', 'Status')}
+              {t('analytics:lowStock.columns.status')}
             </TableCell>
           </TableRow>
         </TableHead>
@@ -225,11 +225,11 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
                 </TableCell>
                 <TableCell align="left" sx={{ whiteSpace: 'nowrap' }}>
                   {critical ? (
-                    <Chip size="small" color="error" label={t('analytics:lowStock.status.critical', 'Critical')} />
+                    <Chip size="small" color="error" label={t('analytics:lowStock.status.critical')} />
                   ) : warning ? (
-                    <Chip size="small" color="warning" label={t('analytics:lowStock.status.warning', 'Warning')} />
+                    <Chip size="small" color="warning" label={t('analytics:lowStock.status.warning')} />
                   ) : (
-                    <Chip size="small" color="success" label={t('analytics:lowStock.status.ok', 'OK')} />
+                    <Chip size="small" color="success" label={t('analytics:lowStock.status.ok')} />
                   )}
                 </TableCell>
               </TableRow>
@@ -240,7 +240,7 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
       {limit > 0 && rows.length > limit && (
         <Box sx={{ p: 1.5, color: 'text.secondary' }}>
           <Typography variant="caption">
-            {t('analytics:lowStock.shownNOfM', 'Showing {{n}} of {{m}} items', {
+            {t('analytics:lowStock.shownNOfM', {
               n: visible.length,
               m: rows.length,
             })}

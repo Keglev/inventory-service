@@ -50,10 +50,10 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
       <Card>
         <CardContent>
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
-            {t('analytics:finance.title', 'Financial summary')}
+            {t('analytics:finance.title')}
           </Typography>
           <Box sx={{ color: 'text.secondary' }}>
-            {t('analytics:frequency.selectSupplier', 'Select a supplier to view')}
+            {t('analytics:frequency.selectSupplier')}
           </Box>
         </CardContent>
       </Card>
@@ -64,10 +64,10 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
   const s = q.data;
   const data: Array<{ name: string; value: number }> = s
     ? [
-      { name: t('analytics:finance.purchases', 'Purchases'), value: s.purchases },
-      { name: t('analytics:finance.cogs', 'COGS'), value: s.cogs },
-      { name: t('analytics:finance.writeOffs', 'Write-offs'), value: s.writeOffs },
-      { name: t('analytics:finance.returns', 'Returns'), value: s.returns },
+      { name: t('analytics:finance.purchases'), value: s.purchases },
+      { name: t('analytics:finance.cogs'), value: s.cogs },
+      { name: t('analytics:finance.writeOffs'), value: s.writeOffs },
+      { name: t('analytics:finance.returns'), value: s.returns },
     ]
     : [];
 
@@ -86,7 +86,7 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
     <Card>
       <CardContent>
         <Typography variant="subtitle1" sx={{ mb: 1 }}>
-          {t('analytics:finance.title', 'Financial summary')}
+          {t('analytics:finance.title')}
         </Typography>
 
         {q.isLoading ? (
@@ -94,14 +94,14 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
         ) : allZero ? (
           // --- Empty state when there is no financial activity in the period ---
           <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-            {t('analytics:finance.empty', 'No financial activity in this period.')}
+            {t('analytics:finance.empty')}
           </Box>
         ) : (
           <>
             {/* KPIs */}
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 1 }}>
-              <Kpi label={t('analytics:finance.opening', 'Opening')} value={q.data?.openingValue} numberFormat={userPreferences.numberFormat} />
-              <Kpi label={t('analytics:finance.ending', 'Ending')} value={q.data?.endingValue} numberFormat={userPreferences.numberFormat} />
+              <Kpi label={t('analytics:finance.opening')} value={q.data?.openingValue} numberFormat={userPreferences.numberFormat} />
+              <Kpi label={t('analytics:finance.ending')} value={q.data?.endingValue} numberFormat={userPreferences.numberFormat} />
             </Stack>
 
             {/* Bars */}

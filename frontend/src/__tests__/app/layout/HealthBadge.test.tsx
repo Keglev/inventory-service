@@ -17,6 +17,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import HealthBadge from '../../../app/layout/header/HealthBadge';
+import { tEn } from '../../test/i18nEn';
 
 type BackendStatus = 'online' | 'offline';
 type DbStatus = 'online' | 'offline';
@@ -70,7 +71,7 @@ describe('HealthBadge', () => {
 
     // Return the provided default value to keep assertions independent of translation files.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     });
   });
 

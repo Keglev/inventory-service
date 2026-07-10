@@ -174,7 +174,7 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
                     showNoMatches
                       ? t('analytics:priceTrend.noItemsForSupplier')
                       : showTypeHint
-                      ? t('analytics:priceTrend.typeToSearch', 'Start typing to search…')
+                      ? t('analytics:priceTrend.typeToSearch')
                       : ' '
                   }
                   FormHelperTextProps={{ sx: { minHeight: 20, mt: 0.5 } }}

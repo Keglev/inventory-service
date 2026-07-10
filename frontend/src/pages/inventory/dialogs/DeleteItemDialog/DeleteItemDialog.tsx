@@ -71,8 +71,8 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
       <Dialog open={open && !state.showConfirmation} onClose={state.handleClose} fullWidth maxWidth="sm">
         <DialogTitle>
           <Stack direction="row" alignItems="center" justifyContent="space-between">
-            <Box>{t('inventory:dialogs.deleteItemTitle', 'Delete Item')}</Box>
-            <HelpIconButton topicId="inventory.deleteItem" tooltip={t('actions.help', 'Help')} />
+            <Box>{t('inventory:dialogs.deleteItemTitle')}</Box>
+            <HelpIconButton topicId="inventory.deleteItem" tooltip={t('actions.help')} />
           </Stack>
         </DialogTitle>
         <DialogContent dividers>
@@ -80,7 +80,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
         </DialogContent>
         <DialogActions sx={{ gap: 1 }}>
           <Button onClick={state.handleClose} disabled={state.isSubmitting}>
-            {t('inventory:buttons.cancel', 'Cancel')}
+            {t('inventory:buttons.cancel')}
           </Button>
           {/* Delete button: disabled until item selected and quantity is zero */}
           <Button
@@ -92,10 +92,10 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
             {state.isSubmitting ? (
               <>
                 <CircularProgress size={16} sx={{ mr: 1 }} />
-                {t('common:actions.deleting', 'Deleting...')}
+                {t('common:actions.deleting')}
               </>
             ) : (
-              t('inventory:toolbar.delete', 'Delete')
+              t('inventory:toolbar.delete')
             )}
           </Button>
         </DialogActions>
@@ -103,13 +103,13 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
 
       {/* Confirmation dialog: warning + item details + final confirmation */}
       <Dialog open={state.showConfirmation} onClose={state.handleCancelConfirmation} maxWidth="sm" fullWidth>
-        <DialogTitle>{t('inventory:dialogs.confirmDeleteTitle', 'Confirm Deletion')}</DialogTitle>
+        <DialogTitle>{t('inventory:dialogs.confirmDeleteTitle')}</DialogTitle>
         <DialogContent dividers>
           <DeleteItemContent state={state} showConfirmation={true} />
         </DialogContent>
         <DialogActions sx={{ gap: 1 }}>
           <Button onClick={state.handleCancelConfirmation} disabled={state.isSubmitting}>
-            {t('inventory:buttons.no', 'No')}
+            {t('inventory:buttons.no')}
           </Button>
           {/* Final confirmation: executes deletion after warning */}
           <Button
@@ -124,7 +124,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                 {t('common:actions.deleting')}
               </>
             ) : (
-              t('inventory:buttons.yes', 'Yes')
+              t('inventory:buttons.yes')
             )}
           </Button>
         </DialogActions>

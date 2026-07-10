@@ -25,6 +25,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import NumberFormatSetting from '../../../../app/HamburgerMenu/LanguageRegionSettings/NumberFormatSetting';
+import { tEn } from '../../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock
@@ -58,7 +59,7 @@ describe('NumberFormatSetting', () => {
 
     // Deterministic translation stub: return defaultValue for stable assertions.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -157,6 +158,6 @@ describe('NumberFormatSetting', () => {
     expect(screen.getByText('Zahlenformat')).toBeInTheDocument();
 
     // Integration: correct key used
-    expect(mockT).toHaveBeenCalledWith('language.numberFormat', 'Number Format');
+    expect(mockT).toHaveBeenCalledWith('language.numberFormat');
   });
 });

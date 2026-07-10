@@ -77,8 +77,8 @@ export default function FooterMetaInfo({
         noWrap
         sx={{ maxWidth: { xs: '100%', sm: '60%' } }}
       >
-        © 2025 Smart Supply Pro • v{appVersion} • {t('footer:meta.build', 'Build')} {buildId} •{' '}
-        {environment} • {t('footer:meta.demoData', 'Demo data only')}
+        © 2025 Smart Supply Pro • v{appVersion} • {t('footer:meta.build')} {buildId} •{' '}
+        {environment} • {t('footer:meta.demoData')}
       </Typography>
 
       {/* Language and Region */}

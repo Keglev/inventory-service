@@ -54,7 +54,7 @@ export function useDeleteItemHandlers(
    * Usage: when user clicks "No" on confirmation dialog
    */
   const handleCancelConfirmation = React.useCallback(() => {
-    toast(t('inventory:status.operationCanceled', 'Operation cancelled'), 'info');
+    toast(t('inventory:status.operationCanceled'), 'info');
     state.setShowConfirmation(false);
   }, [state, t, toast]);
 
@@ -93,7 +93,7 @@ export function useDeleteItemHandlers(
     // Guard: readonly mode blocks actual deletion
     if (readOnly) {
       state.setFormError(
-        t('common:demoDisabled', 'You are in demo mode and cannot perform this operation.')
+        t('common:demoDisabled')
       );
       return;
     }
@@ -110,8 +110,7 @@ export function useDeleteItemHandlers(
         // Success path: show message + close + notify parent
         toast(
           t(
-            'inventory:status.itemDeletedSuccessfully',
-            'Operation successful. Item was removed from inventory!'
+            'inventory:status.itemDeletedSuccessfully'
           ),
           'success'
         );

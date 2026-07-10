@@ -30,19 +30,19 @@ import { APP_ENVIRONMENT, APP_VERSION } from '../../../config/appMeta';
  * ```
  */
 export default function SidebarEnvironment() {
-  const { t } = useTranslation(['common']);
+  const { t } = useTranslation(['common', 'footer']);
 
   return (
     <Box>
       {/* footer: namespace keys are reused intentionally; terminology stays consistent with the footer component. */}
       <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
-        {t('footer:meta.environment', 'Environment:')}
+        {t('footer:meta.environment')}
       </Typography>
       <Typography variant="caption" color="text.secondary" display="block">
         {APP_ENVIRONMENT}
       </Typography>
       <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
-        {t('footer:meta.version', 'Version:')}
+        {t('footer:meta.version')}
       </Typography>
       <Typography variant="caption" color="text.secondary" display="block">
         {APP_VERSION}

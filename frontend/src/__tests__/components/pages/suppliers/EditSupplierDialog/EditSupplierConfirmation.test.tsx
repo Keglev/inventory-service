@@ -26,9 +26,10 @@ import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 import { EditSupplierConfirmation } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation';
 import { editSupplierChanges, supplierRow } from './fixtures';
+import { tEn } from '../../../../test/i18nEn';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 const supplier: SupplierRow = supplierRow();
@@ -57,7 +58,7 @@ describe('EditSupplierConfirmation', () => {
     expect(screen.getByRole('heading', { name: 'Confirm Changes' })).toBeInTheDocument();
     expect(screen.getByText('Supplier Name')).toBeInTheDocument();
     expect(screen.getByText('Acme Corp')).toBeInTheDocument();
-    expect(screen.getByText('Contact Name')).toBeInTheDocument();
+    expect(screen.getByText('Contact')).toBeInTheDocument();
     expect(screen.getByText('Old Contact → New Contact')).toBeInTheDocument();
     expect(screen.getByText('Phone')).toBeInTheDocument();
     expect(screen.getByText('555-5000 → 555-6000')).toBeInTheDocument();

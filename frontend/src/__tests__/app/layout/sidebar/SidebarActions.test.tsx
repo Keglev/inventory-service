@@ -19,6 +19,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SidebarActions from '../../../../app/layout/sidebar/SidebarActions';
+import { tEn } from '../../../test/i18nEn';
 
 vi.mock('../../../../features/help/components/HelpIconButton', () => ({
   HelpIconButton: ({ tooltip, topicId }: { tooltip: string; topicId: string }) => (
@@ -59,11 +60,7 @@ describe('SidebarActions', () => {
     mockUseTranslation.mockReturnValue({
       // Resolve the shell label keys the component now uses; other keys fall
       // back to their defaultValue (legacy sites) or the key itself.
-      t: (key: string, defaultValue?: string) =>
-        ({
-          'common:shell.darkMode': 'Dark mode',
-          'common:shell.lightMode': 'Light mode',
-        })[key] ?? defaultValue ?? key,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     });
   });
 
@@ -76,7 +73,7 @@ describe('SidebarActions', () => {
     renderActions();
 
     expect(screen.getByLabelText(/dark mode/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/toggle language/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/switch language/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/settings/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/help/i)).toBeInTheDocument();
   });
@@ -122,7 +119,7 @@ describe('SidebarActions', () => {
       const user = userEvent.setup();
       renderActions({ locale: 'en' });
 
-      await user.click(screen.getByLabelText(/toggle language/i));
+      await user.click(screen.getByLabelText(/switch language/i));
 
       expect(mockOnLocaleChange).toHaveBeenCalledWith('de');
     });

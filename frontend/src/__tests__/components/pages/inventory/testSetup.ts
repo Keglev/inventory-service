@@ -15,9 +15,10 @@
  */
 
 import { vi } from 'vitest';
+import { tEn } from '../../../test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, defaultValue?: string) => defaultValue ?? key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));

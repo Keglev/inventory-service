@@ -17,6 +17,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import SidebarUserProfile from '../../../../app/layout/sidebar/SidebarUserProfile';
+import { tEn } from '../../../test/i18nEn';
 
 /**
  * i18n mock:
@@ -33,7 +34,7 @@ describe('SidebarUserProfile', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     });
   });
 
@@ -45,8 +46,8 @@ describe('SidebarUserProfile', () => {
     // Primary UX contract: show identity and role for the authenticated user.
     renderProfile({ fullName: 'John Doe', role: 'Admin' });
 
-    expect(screen.getByText('Logged in as:')).toBeInTheDocument();
-    expect(screen.getByText('Role:')).toBeInTheDocument();
+    expect(screen.getByText('Logged in as')).toBeInTheDocument();
+    expect(screen.getByText('Role')).toBeInTheDocument();
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('Admin')).toBeInTheDocument();
   });

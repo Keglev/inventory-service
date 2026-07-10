@@ -40,7 +40,7 @@ export default function DateFormatSetting({
     <FormControl size="small" component="fieldset" fullWidth>
       <FormLabel sx={{ fontWeight: 600, mb: 0.75 }}>
         <Typography variant="caption" sx={{ fontWeight: 600 }}>
-          {t('language.dateFormat', 'Date Format')}
+          {t('language.dateFormat')}
         </Typography>
       </FormLabel>
       <RadioGroup

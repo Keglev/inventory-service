@@ -24,6 +24,7 @@ import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import AppearanceMenuSection from '../../../app/HamburgerMenu/AppearanceMenuSection';
+import { tEn } from '../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Minimal types needed for wiring assertions
@@ -112,7 +113,7 @@ describe('AppearanceMenuSection', () => {
     vi.clearAllMocks();
 
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn(), language: 'en' as Locale },
     });
 
@@ -124,7 +125,7 @@ describe('AppearanceMenuSection', () => {
   // ---------------------------------------------------------------------------
   it('renders the appearance section title', () => {
     arrange();
-    expect(screen.getByText('Erscheinungsbild / Appearance')).toBeInTheDocument();
+    expect(screen.getByText('Appearance')).toBeInTheDocument();
   });
 
   it('renders ThemeToggle and TableDensitySetting', () => {
@@ -204,6 +205,6 @@ describe('AppearanceMenuSection', () => {
     arrange();
 
     expect(screen.getByText('Apparence')).toBeInTheDocument();
-    expect(mockT).toHaveBeenCalledWith('appearance.title', 'Erscheinungsbild / Appearance');
+    expect(mockT).toHaveBeenCalledWith('appearance.title');
   });
 });

@@ -17,6 +17,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ItemUpdateFrequencyPoint } from '@/api/analytics/frequency';
 import { getItemUpdateFrequency } from '@/api/analytics/frequency';
 import ItemUpdateFrequencyCard from '@/pages/analytics/blocks/ItemUpdateFrequencyCard';
+import { tEn } from '../../../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Mocks
@@ -24,7 +25,7 @@ import ItemUpdateFrequencyCard from '@/pages/analytics/blocks/ItemUpdateFrequenc
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback ?? key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 

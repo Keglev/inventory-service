@@ -81,7 +81,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
   return (
     <>
       <DialogTitle sx={{ pt: 3.5 }}>
-        {t('suppliers:dialogs.delete.confirmation.title', 'Confirm Deletion')}
+        {t('suppliers:dialogs.delete.confirmation.title')}
       </DialogTitle>
 
       <DialogContent>
@@ -89,8 +89,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
         <Alert severity="warning" sx={{ mb: 2 }}>
           <Typography variant="body2" fontWeight={500}>
             {t(
-              'suppliers:dialogs.delete.confirmation.warning',
-              'Are you sure you want to delete this supplier? This cannot be reversed!'
+              'suppliers:dialogs.delete.confirmation.warning'
             )}
           </Typography>
         </Alert>
@@ -109,7 +108,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
           <Stack spacing={1}>
             <Box>
               <Typography variant="caption" color="text.secondary">
-                {t('suppliers:table.name', 'Supplier Name')}
+                {t('suppliers:table.name')}
               </Typography>
               <Typography variant="body2" fontWeight={500}>
                 {supplier.name}
@@ -119,7 +118,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
             {supplier.contactName && (
               <Box>
                 <Typography variant="caption" color="text.secondary">
-                  {t('suppliers:table.contactName', 'Contact Name')}
+                  {t('suppliers:table.contactName')}
                 </Typography>
                 <Typography variant="body2">{supplier.contactName}</Typography>
               </Box>
@@ -128,7 +127,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
             {supplier.email && (
               <Box>
                 <Typography variant="caption" color="text.secondary">
-                  {t('suppliers:table.email', 'Email')}
+                  {t('suppliers:table.email')}
                 </Typography>
                 <Typography variant="body2">{supplier.email}</Typography>
               </Box>
@@ -137,7 +136,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
             {supplier.phone && (
               <Box>
                 <Typography variant="caption" color="text.secondary">
-                  {t('suppliers:table.phone', 'Phone')}
+                  {t('suppliers:table.phone')}
                 </Typography>
                 <Typography variant="body2">{supplier.phone}</Typography>
               </Box>
@@ -155,7 +154,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
 
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onCancel} disabled={isDeleting}>
-          {t('common:actions.no', 'No')}
+          {t('common:actions.no')}
         </Button>
         <Button
           onClick={onConfirm}
@@ -164,7 +163,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
           disabled={isDeleting}
           startIcon={isDeleting ? <CircularProgress size={20} /> : undefined}
         >
-          {isDeleting ? t('common:actions.deleting', 'Deleting...') : t('common:actions.yes', 'Yes')}
+          {isDeleting ? t('common:actions.deleting') : t('common:actions.yes')}
         </Button>
       </DialogActions>
     </>

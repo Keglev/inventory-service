@@ -55,7 +55,7 @@ export default function AppearanceSettingsSection({
   return (
     <FormControl>
       <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
-        {t('settings.tableDensity', 'Table Density')}
+        {t('settings.tableDensity.label')}
       </FormLabel>
       <RadioGroup
         value={tableDensity}
@@ -64,12 +64,12 @@ export default function AppearanceSettingsSection({
         <FormControlLabel
           value="comfortable"
           control={<Radio size="small" />}
-          label={t('settings.tableDensity.comfortable', 'Comfortable')}
+          label={t('settings.tableDensity.comfortable')}
         />
         <FormControlLabel
           value="compact"
           control={<Radio size="small" />}
-          label={t('settings.tableDensity.compact', 'Compact')}
+          label={t('settings.tableDensity.compact')}
         />
       </RadioGroup>
     </FormControl>

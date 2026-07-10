@@ -21,6 +21,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DateFormatSetting from '../../../../app/HamburgerMenu/LanguageRegionSettings/DateFormatSetting';
+import { tEn } from '../../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock
@@ -57,7 +58,7 @@ describe('DateFormatSetting', () => {
 
     // Deterministic translation stub: return defaultValue for stable text assertions.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -156,6 +157,6 @@ describe('DateFormatSetting', () => {
     expect(screen.getByText('Datumsformat')).toBeInTheDocument();
 
     // Integration: correct key used
-    expect(mockT).toHaveBeenCalledWith('language.dateFormat', 'Date Format');
+    expect(mockT).toHaveBeenCalledWith('language.dateFormat');
   });
 });

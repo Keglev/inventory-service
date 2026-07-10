@@ -50,7 +50,7 @@ export default function LanguageToggle({
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.75 }}>
-        {t('language.language', 'Language')}
+        {t('language.language')}
       </Typography>
       <ToggleButtonGroup
         value={locale}

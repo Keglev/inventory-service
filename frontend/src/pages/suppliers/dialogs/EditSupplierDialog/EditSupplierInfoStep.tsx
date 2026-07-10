@@ -73,7 +73,7 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
   if (!selectedSupplier) {
     return (
       <Alert severity="info">
-        {t('suppliers:search.selectSupplierFirst', 'Search and select a supplier to enable editing.')}
+        {t('suppliers:search.selectSupplierFirst')}
       </Alert>
     );
   }
@@ -81,19 +81,19 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
   return (
     <Box>
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-        {t('suppliers:steps.editInfo', 'Step 2: Edit Contact Information')}
+        {t('suppliers:steps.editInfo')}
       </Typography>
 
       {/* Supplier Name Display (Read-only) */}
       <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}>
         <Typography variant="body2" color="text.secondary">
-          {t('suppliers:table.name', 'Supplier Name')}
+          {t('suppliers:table.name')}
         </Typography>
         <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
           {selectedSupplier.name}
         </Typography>
         <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-          {t('suppliers:hints.nameCannotBeChanged', '(Cannot be changed)')}
+          {t('suppliers:hints.nameCannotBeChanged')}
         </Typography>
       </Box>
 
@@ -107,8 +107,8 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
           <TextField
             {...field}
             fullWidth
-            label={t('suppliers:table.contactName', 'Contact Name')}
-            placeholder={t('suppliers:form.contactNamePlaceholder', 'Enter contact name')}
+            label={t('suppliers:table.contactName')}
+            placeholder={t('suppliers:form.contactNamePlaceholder')}
             error={!!errors.contactName}
             helperText={errors.contactName?.message}
             disabled={isSubmitting}
@@ -125,8 +125,8 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
           <TextField
             {...field}
             fullWidth
-            label={t('suppliers:table.phone', 'Phone')}
-            placeholder={t('suppliers:form.phonePlaceholder', 'Enter phone number')}
+            label={t('suppliers:table.phone')}
+            placeholder={t('suppliers:form.phonePlaceholder')}
             error={!!errors.phone}
             helperText={errors.phone?.message}
             disabled={isSubmitting}
@@ -144,8 +144,8 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
             {...field}
             fullWidth
             type="email"
-            label={t('suppliers:table.email', 'Email')}
-            placeholder={t('suppliers:form.emailPlaceholder', 'Enter email address')}
+            label={t('suppliers:table.email')}
+            placeholder={t('suppliers:form.emailPlaceholder')}
             error={!!errors.email}
             helperText={errors.email?.message}
             disabled={isSubmitting}

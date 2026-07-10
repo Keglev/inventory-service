@@ -16,6 +16,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import SidebarEnvironment from '../../../../app/layout/sidebar/SidebarEnvironment';
+import { tEn } from '../../../test/i18nEn';
 
 /**
  * i18n mock:
@@ -38,15 +39,7 @@ describe('SidebarEnvironment', () => {
     vi.clearAllMocks();
 
     mockUseTranslation.mockReturnValue({
-      t: (key: string, defaultValue: string) => {
-        const overrides: Record<string, string> = {
-          'footer:meta.environment': 'Environment:',
-          'footer:meta.version': 'Version:',
-          'app.environment': 'Production (Koyeb)',
-          'app.version': '1.0.0',
-        };
-        return overrides[key] ?? defaultValue;
-      },
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     });
   });
 
@@ -54,9 +47,9 @@ describe('SidebarEnvironment', () => {
     // Single high-value assertion: verifies the full metadata block as the user sees it.
     render(<SidebarEnvironment />);
 
-    expect(screen.getByText('Environment:')).toBeInTheDocument();
+    expect(screen.getByText('Environment')).toBeInTheDocument();
     expect(screen.getByText('Production (Koyeb)')).toBeInTheDocument();
-    expect(screen.getByText('Version:')).toBeInTheDocument();
+    expect(screen.getByText('Version')).toBeInTheDocument();
     expect(screen.getByText('1.0.0')).toBeInTheDocument();
   });
 });

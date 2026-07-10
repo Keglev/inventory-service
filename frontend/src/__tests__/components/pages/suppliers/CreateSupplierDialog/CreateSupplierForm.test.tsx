@@ -27,10 +27,11 @@ import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../.
 
 vi.mock('react-i18next', () => ({
   // Prefer fallback/defaultValue to keep assertions stable across locales.
-  useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 import { SupplierFormFields } from '../../../../../pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm';
+import { tEn } from '../../../../test/i18nEn';
 
 // -------------------------------------
 // Test helpers
@@ -76,7 +77,7 @@ describe('SupplierFormFields', () => {
 
     // Contract: stable labels are present (drives accessibility and test resilience).
     expect(screen.getByLabelText(/Supplier Name/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Contact Person/)).toBeInTheDocument();
+    expect(screen.getByLabelText('Contact')).toBeInTheDocument();
     expect(screen.getByLabelText(/Phone/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email/)).toBeInTheDocument();
   });
@@ -100,7 +101,7 @@ describe('SupplierFormFields', () => {
     renderFields({ isSubmitting: true });
 
     // Contract: all inputs are disabled while `isSubmitting` is true.
-    [/Supplier Name/, /Contact Person/, /Phone/, /Email/].forEach((label) => {
+    [/Supplier Name/, 'Contact', /Phone/, /Email/].forEach((label) => {
       expect(screen.getByLabelText(label)).toBeDisabled();
     });
   });

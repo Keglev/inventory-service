@@ -47,7 +47,7 @@ vi.mock('../../../../../hooks/useAuth', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, defaultValue?: string) => defaultValue || key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 
@@ -56,6 +56,7 @@ vi.mock('../../../../../pages/suppliers/hooks/useSupplierSearch', () => ({
 }));
 
 import { useDeleteSupplierForm } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm';
+import { tEn } from '../../../../test/i18nEn';
 
 const supplier: SupplierRow = {
   id: 'sup-1',

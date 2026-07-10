@@ -20,11 +20,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import SystemPreferencesSection from '../../../../app/settings/sections/SystemPreferencesSection';
 import type { SystemInfo } from '@/context/settings/SettingsContext.types';
+import { tEn } from '../../../test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     // Deterministic translation behavior for tests.
-    t: (key: string, fallback?: string) => fallback || key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 

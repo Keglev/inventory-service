@@ -89,7 +89,7 @@ export const SuppliersSearchPanel: React.FC<SuppliersSearchPanelProps> = ({
   return (
     <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
       <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-        {t('suppliers:search.title', 'Search Supplier')}
+        {t('suppliers:search.title')}
       </Typography>
 
       {/* Search Input */}
@@ -98,8 +98,7 @@ export const SuppliersSearchPanel: React.FC<SuppliersSearchPanelProps> = ({
           fullWidth
           size="small"
           placeholder={t(
-            'suppliers:search.placeholder',
-            'Enter supplier name (min 2 chars)...'
+            'suppliers:search.placeholder'
           )}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
@@ -151,7 +150,7 @@ export const SuppliersSearchPanel: React.FC<SuppliersSearchPanelProps> = ({
             {selectedSupplier.name}
           </Typography>
           <Button size="small" color="error" onClick={onClearSelection}>
-            {t('suppliers:actions.clear', 'Clear')}
+            {t('suppliers:actions.clear')}
           </Button>
         </Stack>
       )}

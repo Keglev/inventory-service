@@ -1,5 +1,16 @@
 {
-  "app": { "title": "Smart Supply Pro" },
+  "app": {
+    "title": "Smart Supply Pro",
+    "branding": "Smart Supply Pro",
+    "health": {
+      "okLabel": "System OK",
+      "degradedLabel": "Degraded",
+      "downLabel": "Offline",
+      "okTooltip": "Backend & database online",
+      "dbDownTooltip": "Backend reachable, database issue",
+      "downTooltip": "Backend not reachable"
+    }
+  },
   "nav": {
     "dashboard": "Dashboard",
     "inventory": "Inventory",
@@ -8,7 +19,6 @@
     "analytics": "Analytics",
     "logout": "Logout"
   },
-
   "dashboard": {
     "title": "Dashboard",
     "kpi": {
@@ -20,17 +30,17 @@
       "stockOut": "Stock out"
     },
     "actions": {
-    "manageInventory": "Manage inventory",
-    "manageSuppliers": "Manage suppliers",
-    "viewAnalytics": "View analytics",
-    "cancel": "Cancel",
-    "create": "Create",
-    "save": "Save",
-    "edit": "Edit",
-    "apply": "Apply",
-    "update": "Update"
-  }
-},
+      "manageInventory": "Manage inventory",
+      "manageSuppliers": "Manage suppliers",
+      "viewAnalytics": "View analytics",
+      "cancel": "Cancel",
+      "create": "Create",
+      "save": "Save",
+      "edit": "Edit",
+      "apply": "Apply",
+      "update": "Update"
+    }
+  },
   "actions": {
     "menu": "Menu",
     "toggleDensity": "Toggle compact density",
@@ -49,7 +59,8 @@
     "settings": "Settings",
     "help": "Help",
     "saving": "Saving...",
-    "deleting": "Deleting..."
+    "deleting": "Deleting...",
+    "close": "Close"
   },
   "shell": {
     "darkMode": "Dark mode",
@@ -64,11 +75,17 @@
   "toast": {
     "densityStatic": "Compact density mode is not yet fully implemented in this version"
   },
-  "profile": { "soon": "Profile (soon)" },
+  "profile": {
+    "soon": "Profile (soon)"
+  },
   "name": "Name",
   "email": "Email",
   "role": "Role",
-  "roles": { "admin": "Administrator", "user": "User", "demo": "Demo" },
+  "roles": {
+    "admin": "Administrator",
+    "user": "User",
+    "demo": "Demo"
+  },
   "loggedInAs": "Logged in as",
   "appearance": {
     "title": "Appearance",
@@ -128,5 +145,25 @@
   },
   "units": {
     "pieces": "pcs"
+  },
+  "continueDemo": "Continue in Demo Mode",
+  "settings": {
+    "title": "Settings",
+    "resetToDefaults": "Reset to Defaults",
+    "userPreferences": "User Preferences",
+    "systemInfo": "System Info",
+    "tableDensity": {
+      "label": "Table Density",
+      "comfortable": "Comfortable",
+      "compact": "Compact"
+    },
+    "dateFormat": "Date Format",
+    "numberFormat": "Number Format",
+    "systemInfoUnavailable": "System information unavailable",
+    "database": "Database",
+    "environment": "Environment",
+    "version": "Version",
+    "status": "Status",
+    "build": "Build"
   }
 }

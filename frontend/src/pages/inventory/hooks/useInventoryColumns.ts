@@ -49,19 +49,19 @@ export const useInventoryColumns = (): GridColDef[] => {
     return [
       {
         field: 'name',
-        headerName: t('inventory:table.name', 'Item'),
+        headerName: t('inventory:table.name'),
         flex: 1,
         minWidth: 180,
       },
       {
         field: 'code',
-        headerName: t('inventory:table.code', 'Code / SKU'),
+        headerName: t('inventory:table.code'),
         width: 140,
         valueGetter: (_value: unknown, row: InventoryRow | null) => row?.code ?? '—',
       },
       {
         field: 'onHand',
-        headerName: t('inventory:table.onHand', 'On-hand'),
+        headerName: t('inventory:table.onHand'),
         type: 'number',
         width: 110,
         valueGetter: (_value: unknown, row: (InventoryRow & { quantity?: number | null }) | null) =>
@@ -70,7 +70,7 @@ export const useInventoryColumns = (): GridColDef[] => {
       },
       {
         field: 'minQty',
-        headerName: t('inventory:table.minQty', 'Min. Qty'),
+        headerName: t('inventory:table.minQty'),
         type: 'number',
         width: 120,
         valueGetter: (_value: unknown, row: (InventoryRow & { minimumQuantity?: number | string | null }) | null) =>
@@ -79,7 +79,7 @@ export const useInventoryColumns = (): GridColDef[] => {
       },
       {
         field: 'price',
-        headerName: t('inventory:table.unitPrice', 'Unit Price (€)'),
+        headerName: t('inventory:table.unitPrice'),
         type: 'number',
         width: 130,
         valueGetter: (_value: unknown, row: InventoryRow | null) => resolvePrice(row),
@@ -87,7 +87,7 @@ export const useInventoryColumns = (): GridColDef[] => {
       },
       {
         field: 'totalValue',
-        headerName: t('inventory:table.totalValue', 'Total Value (€)'),
+        headerName: t('inventory:table.totalValue'),
         type: 'number',
         width: 150,
         // Server-computed (quantity x price); not an entity column, so it

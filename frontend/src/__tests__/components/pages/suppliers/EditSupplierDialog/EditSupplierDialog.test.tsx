@@ -45,7 +45,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 vi.mock('../../../../../context/toast/ToastContext', () => ({
@@ -111,6 +111,7 @@ vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierC
 }));
 
 import { EditSupplierDialog } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierDialog';
+import { tEn } from '../../../../test/i18nEn';
 
 const baseSupplier: SupplierRow = supplierRow({
   contactName: 'John Smith',
@@ -243,7 +244,7 @@ describe('EditSupplierDialog', () => {
 
     await user.click(screen.getByRole('button', { name: 'Review Changes' }));
 
-    expect(form.setFormError).toHaveBeenCalledWith('Please select a supplier.');
+    expect(form.setFormError).toHaveBeenCalledWith('Please select a supplier');
     expect(form.setPendingChanges).not.toHaveBeenCalled();
     expect(form.setShowConfirmation).not.toHaveBeenCalled();
   });

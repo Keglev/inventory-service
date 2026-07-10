@@ -20,6 +20,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ThemeToggle from '../../../../app/HamburgerMenu/AppearanceSettings/ThemeToggle';
+import { tEn } from '../../../test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock
@@ -54,7 +55,7 @@ describe('ThemeToggle', () => {
 
     // Deterministic translation stub: return defaultValue for stable assertions.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
@@ -126,9 +127,9 @@ describe('ThemeToggle', () => {
     expect(screen.getByTitle('Modo Claro')).toBeInTheDocument();
 
     // Key wiring (integration contract)
-    expect(mockT).toHaveBeenCalledWith('appearance.theme', 'Theme');
-    expect(mockT).toHaveBeenCalledWith('appearance.light', 'Light');
-    expect(mockT).toHaveBeenCalledWith('appearance.lightMode', 'Light Mode');
+    expect(mockT).toHaveBeenCalledWith('appearance.theme');
+    expect(mockT).toHaveBeenCalledWith('appearance.light');
+    expect(mockT).toHaveBeenCalledWith('appearance.lightMode');
   });
 
   // ---------------------------------------------------------------------------

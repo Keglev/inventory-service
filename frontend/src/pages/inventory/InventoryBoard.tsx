@@ -99,11 +99,11 @@ const InventoryBoard: React.FC = () => {
         >
           <Stack direction="row" alignItems="center" spacing={1}>
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
-              {t('inventory:page.title', 'Inventory Management')}
+              {t('inventory:page.title')}
             </Typography>
             <HelpIconButton
               topicId="inventory.overview"
-              tooltip={t('actions.help', 'Help')}
+              tooltip={t('actions.help')}
             />
           </Stack>
 
@@ -148,7 +148,7 @@ const InventoryBoard: React.FC = () => {
           {!state.supplierId ? (
             <Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}>
               <Typography variant="body1" color="text.secondary">
-                {t('inventory:search.selectSupplierPrompt', 'Select a supplier to view their items.')}
+                {t('inventory:search.selectSupplierPrompt')}
               </Typography>
             </Box>
           ) : (

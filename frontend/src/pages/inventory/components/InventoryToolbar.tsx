@@ -43,19 +43,19 @@ export const InventoryToolbar: React.FC<InventoryToolbarProps> = ({
   return (
     <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="flex-end">
       <Button variant="contained" onClick={onAddNew}>
-        {t('inventory:toolbar.newItem', 'Add new item')}
+        {t('inventory:toolbar.newItem')}
       </Button>
       <Button onClick={onEdit}>
-        {t('inventory:toolbar.edit', 'Edit')}
+        {t('inventory:toolbar.edit')}
       </Button>
       <Button onClick={onDelete}>
-        {t('inventory:toolbar.delete', 'Delete')}
+        {t('inventory:toolbar.delete')}
       </Button>
       <Button onClick={onAdjustQty}>
-        {t('inventory:toolbar.adjustQty', 'Adjust quantity')}
+        {t('inventory:toolbar.adjustQty')}
       </Button>
       <Button onClick={onChangePrice}>
-        {t('inventory:toolbar.changePrice', 'Change price')}
+        {t('inventory:toolbar.changePrice')}
       </Button>
     </Stack>
   );

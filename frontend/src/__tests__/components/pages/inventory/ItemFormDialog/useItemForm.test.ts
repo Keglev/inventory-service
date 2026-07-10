@@ -11,6 +11,7 @@ import { useItemForm } from '../../../../../pages/inventory/dialogs/ItemFormDial
 import type { UseItemFormReturn } from '../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm';
 import type { SupplierOption } from '../../../../../api/analytics/types';
 import type { InventoryRow } from '../../../../../api/inventory/types';
+import { tEn } from '../../../../test/i18nEn';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -30,7 +31,7 @@ const mockToast = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, defaultValue?: string) => defaultValue ?? key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 
@@ -173,7 +174,7 @@ describe('useItemForm', () => {
     expect(mockUpsertItem).not.toHaveBeenCalled();
 
     await waitFor(() => {
-      expect(result.current.formError).toBe('This action is disabled in demo mode.');
+      expect(result.current.formError).toBe('You are in demo mode and cannot perform this operation.');
     });
   });
 
@@ -187,7 +188,7 @@ describe('useItemForm', () => {
     await submitValid(result);
 
     expect(mockUpsertItem).toHaveBeenCalledTimes(1);
-    expect(mockToast).toHaveBeenCalledWith('Item saved successfully!', 'success');
+    expect(mockToast).toHaveBeenCalledWith('Item successfully saved.', 'success');
     expect(onSaved).toHaveBeenCalledTimes(1);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -198,7 +199,7 @@ describe('useItemForm', () => {
     const { result } = renderUseItemForm({ onClose });
     await submitValid(result);
     expect(mockUpsertItem).toHaveBeenCalledTimes(1);
-    expect(mockToast).toHaveBeenCalledWith('Item saved successfully!', 'success');
+    expect(mockToast).toHaveBeenCalledWith('Item successfully saved.', 'success');
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -210,7 +211,7 @@ describe('useItemForm', () => {
 
     await waitFor(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((result.current.formState.errors as any).name?.message).toBe('errors:inventory.conflicts.duplicateName');
+      expect((result.current.formState.errors as any).name?.message).toBe('An item with this name already exists');
     });
   });
 
@@ -242,7 +243,7 @@ describe('useItemForm', () => {
     await submitValid(result);
 
     await waitFor(() => {
-      expect(result.current.formError).toBe('errors:inventory.server.serverError');
+      expect(result.current.formError).toBe('A server error occurred. Please try again.');
     });
   });
 
@@ -253,7 +254,7 @@ describe('useItemForm', () => {
     await submitValid(result);
 
     await waitFor(() => {
-      expect(result.current.formError).toBe('errors:inventory.server.serverError');
+      expect(result.current.formError).toBe('A server error occurred. Please try again.');
     });
   });
 });

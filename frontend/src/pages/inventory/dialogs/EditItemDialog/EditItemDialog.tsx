@@ -65,8 +65,8 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
       {/* Dialog title with help button */}
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Box>{t('inventory:dialogs.editItemTitle', 'Edit Item')}</Box>
-          <HelpIconButton topicId="inventory.editItem" tooltip={t('common:actions.help', 'Help')} />
+          <Box>{t('inventory:dialogs.editItemTitle')}</Box>
+          <HelpIconButton topicId="inventory.editItem" tooltip={t('common:actions.help')} />
         </Stack>
       </DialogTitle>
 
@@ -78,7 +78,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
       {/* Action buttons: Cancel and Change */}
       <DialogActions sx={{ gap: 1 }}>
         <Button onClick={form.handleClose} disabled={form.formState.isSubmitting}>
-          {t('inventory:buttons.cancel', 'Cancel')}
+          {t('inventory:buttons.cancel')}
         </Button>
         <Button
           onClick={form.onSubmit}
@@ -88,10 +88,10 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
           {form.formState.isSubmitting ? (
             <>
               <CircularProgress size={16} sx={{ mr: 1 }} />
-              {t('common:actions.saving', 'Saving...')}
+              {t('common:actions.saving')}
             </>
           ) : (
-            t('inventory:buttons.change', 'Change')
+            t('inventory:buttons.change')
           )}
         </Button>
       </DialogActions>

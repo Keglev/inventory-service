@@ -77,7 +77,7 @@ const Home: React.FC = () => {
                 {t('signIn')}
               </Button>
               <Button variant="outlined" onClick={handleDemo}>
-                {t('continueDemo', 'Continue in Demo Mode')}
+                {t('continueDemo')}
               </Button>
             </Stack>
             {/* SSO hint text */}

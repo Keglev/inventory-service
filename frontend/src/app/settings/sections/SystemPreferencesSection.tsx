@@ -64,7 +64,7 @@ export default function SystemPreferencesSection({
   if (!systemInfo) {
     return (
       <Typography variant="body2" color="text.secondary">
-        {t('settings.systemInfoUnavailable', 'System information unavailable')}
+        {t('settings.systemInfoUnavailable')}
       </Typography>
     );
   }
@@ -73,14 +73,14 @@ export default function SystemPreferencesSection({
     <Stack spacing={1.5}>
       <Box>
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-          {t('settings.database', 'Database')}
+          {t('settings.database')}
         </Typography>
         <Typography variant="body2">{systemInfo.database}</Typography>
       </Box>
 
       <Box>
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-          {t('settings.environment', 'Environment')}
+          {t('settings.environment')}
         </Typography>
         <Box sx={{ mt: 0.5 }}>
           {/* 'error' (red) for production is intentional — a caution signal; non-prod gets 'success' (green). Inverted on purpose, not a bug. */}
@@ -95,21 +95,21 @@ export default function SystemPreferencesSection({
 
       <Box>
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-          {t('settings.version', 'Version')}
+          {t('settings.version')}
         </Typography>
         <Typography variant="body2">{APP_VERSION}</Typography>
       </Box>
 
       <Box>
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-          {t('settings.status', 'Status')}
+          {t('settings.status')}
         </Typography>
         <Typography variant="body2">{systemInfo.status}</Typography>
       </Box>
 
       <Box>
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-          {t('settings.build', 'Build')}
+          {t('settings.build')}
         </Typography>
         <Typography variant="body2">{BUILD_ID}</Typography>
       </Box>

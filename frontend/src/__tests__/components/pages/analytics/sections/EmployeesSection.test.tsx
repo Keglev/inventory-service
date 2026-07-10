@@ -9,6 +9,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { tEn } from '../../../../test/i18nEn';
 
 const { lineProps } = vi.hoisted(() => ({ lineProps: [] as Array<Record<string, unknown>> }));
 
@@ -32,7 +33,7 @@ vi.mock('recharts', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback ?? key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 
@@ -125,7 +126,7 @@ describe('EmployeesSection', () => {
       expect(mockGetEmployeeActivity).toHaveBeenCalledTimes(1);
     });
 
-    await user.click(screen.getByRole('button', { name: 'analytics:employees.granularity.weekly' }));
+    await user.click(screen.getByRole('button', { name: 'Weekly' }));
 
     await waitFor(() => {
       expect(mockGetEmployeeActivity).toHaveBeenCalledWith(

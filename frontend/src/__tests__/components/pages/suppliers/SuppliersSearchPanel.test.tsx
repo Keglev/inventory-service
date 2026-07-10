@@ -28,9 +28,10 @@ import {
   type SuppliersSearchPanelProps,
 } from '../../../../pages/suppliers/components/SuppliersSearchPanel';
 import type { SupplierRow } from '../../../../api/suppliers/types';
+import { tEn } from '../../../test/i18nEn';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 // Fixture builder: minimal SupplierRow with sensible defaults.

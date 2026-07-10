@@ -32,7 +32,7 @@ describe('LanguageToggle (rendering)', () => {
     const merged: Props = {
       locale: 'de',
       onToggle: vi.fn(),
-      tooltip: 'Toggle language',
+      tooltip: 'Switch language',
       ...props,
     };
     return render(<LanguageToggle {...merged} />);
@@ -65,7 +65,7 @@ describe('LanguageToggle (rendering)', () => {
     expect(screen.getByAltText('Deutsch')).toBeInTheDocument();
 
     rerender(
-      <LanguageToggle locale="en" onToggle={vi.fn()} tooltip="Toggle language" />,
+      <LanguageToggle locale="en" onToggle={vi.fn()} tooltip="Switch language" />,
     );
 
     expect(screen.getByAltText('English')).toBeInTheDocument();

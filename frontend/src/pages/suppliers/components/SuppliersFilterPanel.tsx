@@ -60,12 +60,11 @@ export const SuppliersFilterPanel: React.FC<SuppliersFilterPanelProps> = ({
             onChange={(e) => onToggleChange(e.target.checked)}
           />
         }
-        label={t('suppliers:filters.showAll', 'Show all suppliers')}
+        label={t('suppliers:filters.showAll')}
       />
       <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
         {t(
-          'suppliers:filters.showAllHint',
-          'Check this box to display the complete supplier list'
+          'suppliers:filters.showAllHint'
         )}
       </Typography>
     </Paper>

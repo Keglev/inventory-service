@@ -20,6 +20,7 @@ import userEvent from '@testing-library/user-event';
 
 import { EditItemDialog } from '../../../../../pages/inventory/dialogs/EditItemDialog/EditItemDialog';
 import * as useEditItemFormModule from '../../../../../pages/inventory/dialogs/EditItemDialog/useEditItemForm';
+import { tEn } from '../../../../test/i18nEn';
 
 // -------------------------------------
 // Deterministic mocks
@@ -42,7 +43,7 @@ vi.mock('../../../../../hooks/useHelp', () => ({
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     // Prefer defaultValue when provided; otherwise return key.
-    t: (key: string, defaultValue?: string) => defaultValue ?? key,
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 

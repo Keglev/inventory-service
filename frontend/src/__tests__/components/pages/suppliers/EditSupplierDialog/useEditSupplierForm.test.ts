@@ -55,7 +55,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 vi.mock('../../../../../hooks/useAuth', () => ({
@@ -84,6 +84,7 @@ vi.mock('../../../../../api/suppliers/supplierMutations', () => ({
 }));
 
 import { useEditSupplierForm } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
+import { tEn } from '../../../../test/i18nEn';
 
 const supplier: SupplierRow = supplierRow({ phone: '555-9000', email: 'old@acme.com' });
 const pendingChanges: EditSupplierForm = editSupplierChanges({ supplierId: supplier.id, phone: '555-9100' });

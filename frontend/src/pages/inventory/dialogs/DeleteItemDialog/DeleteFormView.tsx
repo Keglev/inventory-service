@@ -46,7 +46,7 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
         - Required before item selection is possible
       */}
       <StepSection
-        title={t('inventory:deleteFlow.step1', 'Step 1: Select Supplier')}
+        title={t('inventory:deleteFlow.step1')}
         number={1}
       >
         <SupplierSelectField state={state} />
@@ -60,7 +60,7 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
       */}
       {state.selectedSupplier && (
         <StepSection
-          title={t('inventory:deleteFlow.step2', 'Step 2: Select Item')}
+          title={t('inventory:deleteFlow.step2')}
           number={2}
         >
           <ItemSelectField state={state} />
@@ -75,7 +75,7 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
       */}
       {state.selectedItem && state.itemDetailsQuery.data && (
         <StepSection
-          title={t('inventory:deleteFlow.step3', 'Step 3: Item Information')}
+          title={t('inventory:deleteFlow.step3')}
           number={3}
         >
           <ItemInfoDisplay state={state} />

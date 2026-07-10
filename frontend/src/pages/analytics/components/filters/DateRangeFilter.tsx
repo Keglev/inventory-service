@@ -87,7 +87,7 @@ export function DateRangeFilter({
           onClick={() => handleQuickRange(30)}
           disabled={disabled}
         >
-          {t('analytics:filters.days30', '30 days')}
+          {t('analytics:filters.days30')}
         </Button>
         <Button
           variant={value.quick === '90' ? 'contained' : 'outlined'}
@@ -95,7 +95,7 @@ export function DateRangeFilter({
           onClick={() => handleQuickRange(90)}
           disabled={disabled}
         >
-          {t('analytics:filters.days90', '90 days')}
+          {t('analytics:filters.days90')}
         </Button>
         <Button
           variant={value.quick === '180' ? 'contained' : 'outlined'}
@@ -103,7 +103,7 @@ export function DateRangeFilter({
           onClick={() => handleQuickRange(180)}
           disabled={disabled}
         >
-          {t('analytics:filters.days180', '180 days')}
+          {t('analytics:filters.days180')}
         </Button>
         <Button
           variant={value.quick === 'custom' ? 'contained' : 'outlined'}
@@ -111,7 +111,7 @@ export function DateRangeFilter({
           onClick={handleCustom}
           disabled={disabled}
         >
-          {t('analytics:filters.custom', 'Custom')}
+          {t('analytics:filters.custom')}
         </Button>
         {onReset && (
           <Button
@@ -121,7 +121,7 @@ export function DateRangeFilter({
             disabled={disabled}
             sx={{ ml: { xs: 0, sm: 0.5 } }}
           >
-            {t('analytics:filters.reset', 'Reset')}
+            {t('analytics:filters.reset')}
           </Button>
         )}
       </Stack>
@@ -129,7 +129,7 @@ export function DateRangeFilter({
       {showCustom && (
         <Stack direction="row" spacing={1.5} alignItems="center">
           <TextField
-            label={t('analytics:filters.from', 'From')}
+            label={t('analytics:filters.from')}
             type="date"
             value={fromDate?.toISOString().split('T')[0] || ''}
             onChange={handleFromChange}
@@ -139,10 +139,10 @@ export function DateRangeFilter({
             sx={{ minWidth: 160 }}
           />
           <Typography variant="body2" color="text.secondary">
-            {t('analytics:filters.to', 'to')}
+            {t('analytics:filters.to')}
           </Typography>
           <TextField
-            label={t('analytics:filters.to', 'To')}
+            label={t('analytics:filters.to')}
             type="date"
             value={toDate?.toISOString().split('T')[0] || ''}
             onChange={handleToChange}

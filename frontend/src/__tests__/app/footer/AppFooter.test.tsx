@@ -14,6 +14,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AppFooter from '../../../app/footer/AppFooter';
+import { tEn } from '../../test/i18nEn';
 
 // -----------------------------
 // Mocks (hoisted so they are available to vi.mock factory)
@@ -90,7 +91,7 @@ describe('AppFooter', () => {
 
     // Deterministic translation stub: returns defaultValue.
     mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
 

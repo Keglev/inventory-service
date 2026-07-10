@@ -60,7 +60,7 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
 
   // Form logic hook
   const form = useDeleteSupplierForm(() => {
-    toast(t('suppliers:actions.deleteSuccess', 'Supplier removed from database'), 'success');
+    toast(t('suppliers:actions.deleteSuccess'), 'success');
     onSupplierDeleted();
     onClose();
   });

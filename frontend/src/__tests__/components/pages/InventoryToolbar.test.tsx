@@ -24,9 +24,10 @@ import type { ComponentProps } from 'react';
 
 import { render } from '@/__tests__/test/test-utils';
 import { InventoryToolbar } from '@/pages/inventory/components/InventoryToolbar';
+import { tEn } from '../../test/i18nEn';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 // -----------------------------------------------------------------------------
@@ -99,11 +100,11 @@ describe('InventoryToolbar', () => {
   });
 
   it.each([
-    { name: 'Add new item', buttonName: buttons.add, expectedHandler: mockOnAddNew },
+    { name: 'Add New Item', buttonName: buttons.add, expectedHandler: mockOnAddNew },
     { name: 'Edit', buttonName: buttons.edit, expectedHandler: mockOnEdit },
     { name: 'Delete', buttonName: buttons.delete, expectedHandler: mockOnDelete },
-    { name: 'Adjust quantity', buttonName: buttons.adjust, expectedHandler: mockOnAdjustQty },
-    { name: 'Change price', buttonName: buttons.price, expectedHandler: mockOnChangePrice },
+    { name: 'Adjust Quantity', buttonName: buttons.adjust, expectedHandler: mockOnAdjustQty },
+    { name: 'Change Price', buttonName: buttons.price, expectedHandler: mockOnChangePrice },
   ])('delegates click intent ($name)', async ({ buttonName, expectedHandler }) => {
     const user = userEvent.setup();
     renderToolbar();

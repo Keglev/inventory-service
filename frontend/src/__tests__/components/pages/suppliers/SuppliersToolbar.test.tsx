@@ -23,9 +23,10 @@ import {
   SuppliersToolbar,
   type SuppliersToolbarProps,
 } from '../../../../pages/suppliers/components/SuppliersToolbar';
+import { tEn } from '../../../test/i18nEn';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 // Props builder: keeps tests focused on the prop(s) under test.
@@ -50,8 +51,8 @@ describe('SuppliersToolbar', () => {
 
     expect(screen.getByText('Supplier Management')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add Supplier' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Edit Supplier' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Delete Supplier' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
   });
 
   it.each([
@@ -64,25 +65,25 @@ describe('SuppliersToolbar', () => {
     {
       name: 'edit is disabled by default',
       props: createProps({ editEnabled: false }),
-      buttonName: 'Edit Supplier',
+      buttonName: 'Edit',
       enabled: false,
     },
     {
       name: 'edit is enabled when requested',
       props: createProps({ editEnabled: true }),
-      buttonName: 'Edit Supplier',
+      buttonName: 'Edit',
       enabled: true,
     },
     {
       name: 'delete is disabled by default',
       props: createProps({ deleteEnabled: false }),
-      buttonName: 'Delete Supplier',
+      buttonName: 'Delete',
       enabled: false,
     },
     {
       name: 'delete is enabled when requested',
       props: createProps({ deleteEnabled: true }),
-      buttonName: 'Delete Supplier',
+      buttonName: 'Delete',
       enabled: true,
     },
   ])('$name', ({ props, buttonName, enabled }) => {
@@ -103,8 +104,8 @@ describe('SuppliersToolbar', () => {
     renderToolbar(props);
 
     await user.click(screen.getByRole('button', { name: 'Add Supplier' }));
-    await user.click(screen.getByRole('button', { name: 'Edit Supplier' }));
-    await user.click(screen.getByRole('button', { name: 'Delete Supplier' }));
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
 
     expect(props.onCreateClick).toHaveBeenCalledTimes(1);
     expect(props.onEditClick).toHaveBeenCalledTimes(1);

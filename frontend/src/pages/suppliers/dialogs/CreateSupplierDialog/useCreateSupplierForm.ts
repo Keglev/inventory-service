@@ -90,12 +90,11 @@ export const useCreateSupplierForm = (
     ) {
       setError('name', {
         message: t(
-          'errors:supplier.businessRules.duplicateName',
-          'A supplier with this name already exists'
+          'errors:supplier.businessRules.duplicateName'
         ),
       });
       setFormError(
-        t('errors:inventory.validationFailed', 'Please fix the highlighted fields.')
+        t('errors:inventory.validationFailed')
       );
       return;
     }

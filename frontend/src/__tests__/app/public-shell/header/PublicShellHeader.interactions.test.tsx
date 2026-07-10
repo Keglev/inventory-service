@@ -63,7 +63,7 @@ describe('PublicShellHeader (interactions)', () => {
       onThemeToggle: vi.fn(),
       locale: 'en',
       onLocaleToggle: vi.fn(),
-      languageTooltip: 'Toggle language',
+      languageTooltip: 'Switch language',
     };
 
     return render(<PublicShellHeader {...baseProps} {...props} />);

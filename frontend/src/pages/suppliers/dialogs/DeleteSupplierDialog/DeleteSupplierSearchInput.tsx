@@ -61,7 +61,7 @@ export const DeleteSupplierSearchInput: React.FC<DeleteSupplierSearchInputProps>
       <TextField
         fullWidth
         size="small"
-        placeholder={t('suppliers:search.placeholder', 'Enter supplier name (min 2 chars)...')}
+        placeholder={t('suppliers:search.placeholder')}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={isLoading}

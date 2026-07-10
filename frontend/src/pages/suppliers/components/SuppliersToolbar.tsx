@@ -73,7 +73,7 @@ export const SuppliersToolbar: React.FC<SuppliersToolbarProps> = ({
       }}
     >
       <Typography variant="h5" sx={{ fontWeight: 600 }}>
-        {t('suppliers:title', 'Supplier Management')}
+        {t('suppliers:title')}
       </Typography>
       <Stack direction="row" spacing={1}>
         <Button
@@ -82,7 +82,7 @@ export const SuppliersToolbar: React.FC<SuppliersToolbarProps> = ({
           disabled={!deleteEnabled}
           onClick={onDeleteClick}
         >
-          {t('suppliers:actions.delete', 'Delete Supplier')}
+          {t('suppliers:actions.delete')}
         </Button>
         <Button
           variant="outlined"
@@ -90,14 +90,14 @@ export const SuppliersToolbar: React.FC<SuppliersToolbarProps> = ({
           disabled={!editEnabled}
           onClick={onEditClick}
         >
-          {t('suppliers:actions.edit', 'Edit Supplier')}
+          {t('suppliers:actions.edit')}
         </Button>
         <Button
           variant="contained"
           color="primary"
           onClick={onCreateClick}
         >
-          {t('suppliers:actions.create', 'Add Supplier')}
+          {t('suppliers:actions.create')}
         </Button>
       </Stack>
     </Box>
