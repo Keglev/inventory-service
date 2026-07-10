@@ -23,7 +23,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useSearchHandlers } from '../../../../../pages/suppliers/handlers/useSearchHandlers';
 import type { UseSuppliersBoardStateReturn } from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
-import type { SupplierRow } from '../../../../../api/suppliers';
+import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 describe('useSearchHandlers', () => {
   const supplierRow = (overrides: Partial<SupplierRow> = {}): SupplierRow => ({

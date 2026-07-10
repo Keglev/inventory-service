@@ -19,7 +19,7 @@
 import * as React from 'react';
 import { Box, Paper } from '@mui/material';
 import { useAuth } from '../../hooks/useAuth';
-import type { SupplierRow } from '../../api/suppliers';
+import type { SupplierRow } from '../../api/suppliers/types';
 
 import { useSuppliersBoardState } from './hooks';
 import {

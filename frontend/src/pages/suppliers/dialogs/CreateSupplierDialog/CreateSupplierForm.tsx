@@ -16,7 +16,7 @@ import * as React from 'react';
 import { TextField, Box, Alert } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { UseFormRegister, FieldErrors } from 'react-hook-form';
-import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../api/suppliers';
+import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../api/suppliers/validation';
 
 /**
  * Props for CreateSupplierForm component.

@@ -28,7 +28,7 @@ import {
   Button,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import type { SupplierRow } from '../../../api/suppliers';
+import type { SupplierRow } from '../../../api/suppliers/types';
 
 /**
  * Suppliers Search Panel component props.

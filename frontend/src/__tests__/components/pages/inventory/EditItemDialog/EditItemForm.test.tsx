@@ -23,12 +23,10 @@ import { renderHook, act } from '@testing-library/react';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useEditItemForm } from '../../../../../pages/inventory/dialogs/EditItemDialog/useEditItemForm';
-import { renameItem } from '../../../../../api/inventory/mutations';
-import {
-  useSuppliersQuery,
-  useItemSearchQuery,
-  useItemDetailsQuery,
-} from '../../../../../api/inventory/hooks';
+import { renameItem } from '../../../../../api/inventory/itemMutations';
+import { useSuppliersQuery } from '../../../../../api/inventory/hooks/useSuppliersQuery';
+import { useItemSearchQuery } from '../../../../../api/inventory/hooks/useItemSearchQuery';
+import { useItemDetailsQuery } from '../../../../../api/inventory/hooks/useItemDetailsQuery';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -36,13 +34,19 @@ import {
 const toastSpy = vi.hoisted(() => vi.fn());
 const tSpy = vi.hoisted(() => vi.fn((key: string, defaultValue?: string) => defaultValue ?? key));
 
-vi.mock('../../../../../api/inventory/mutations', () => ({
+vi.mock('../../../../../api/inventory/itemMutations', () => ({
   renameItem: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks', () => ({
+vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
   useSuppliersQuery: vi.fn(),
+}));
+
+vi.mock('../../../../../api/inventory/hooks/useItemSearchQuery', () => ({
   useItemSearchQuery: vi.fn(),
+}));
+
+vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
   useItemDetailsQuery: vi.fn(),
 }));
 

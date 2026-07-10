@@ -17,7 +17,8 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { ResponsiveContainer, PieChart, Pie, Tooltip, Legend, Cell } from 'recharts';
-import { getStockPerSupplier, type StockPerSupplierPoint } from '../../../api/analytics';
+import { getStockPerSupplier } from '../../../api/analytics/stock';
+import type { StockPerSupplierPoint } from '../../../api/analytics/types';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 

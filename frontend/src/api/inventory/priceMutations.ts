@@ -8,7 +8,8 @@
 
 import http from '../httpClient';
 import type { ChangePriceRequest, UpsertItemResponse } from './types';
-import { INVENTORY_BASE, errorMessage, extractApiError } from '@/api/shared';
+import { INVENTORY_BASE } from '../shared/constants';
+import { errorMessage, extractApiError } from '../shared/errorHandling';
 
 export { INVENTORY_BASE };
 

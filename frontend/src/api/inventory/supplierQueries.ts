@@ -9,7 +9,10 @@
  */
 
 import http from '../httpClient';
-import { isRecord, pickString, pickNumber, resDataOrEmpty, INVENTORY_BASE } from '@/api/shared';
+import { isRecord } from '../shared/typeGuards';
+import { pickString, pickNumber } from '../shared/fieldPickers';
+import { resDataOrEmpty } from '../shared/responseExtraction';
+import { INVENTORY_BASE } from '../shared/constants';
 
 export { INVENTORY_BASE };
 /** Suppliers domain API base path. */

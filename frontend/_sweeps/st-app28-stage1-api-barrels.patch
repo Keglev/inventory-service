@@ -1,0 +1,2092 @@
+diff --git a/frontend/src/__tests__/app/HamburgerMenu/NotificationsMenuSection.test.tsx b/frontend/src/__tests__/app/HamburgerMenu/NotificationsMenuSection.test.tsx
+index bef2a26..d20ebbe 100644
+--- a/frontend/src/__tests__/app/HamburgerMenu/NotificationsMenuSection.test.tsx
++++ b/frontend/src/__tests__/app/HamburgerMenu/NotificationsMenuSection.test.tsx
+@@ -24,7 +24,7 @@ import NotificationsMenuSection from '../../../app/HamburgerMenu/NotificationsMe
+ const mockUseDashboardMetrics = vi.hoisted(() => vi.fn());
+ const mockUseTranslation = vi.hoisted(() => vi.fn());
+ 
+-vi.mock('../../../api/analytics/hooks', () => ({
++vi.mock('../../../api/analytics/hooks/useDashboardMetrics', () => ({
+   useDashboardMetrics: mockUseDashboardMetrics,
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/analytics/blocks/StockPerSupplierDonut.test.tsx b/frontend/src/__tests__/components/pages/analytics/blocks/StockPerSupplierDonut.test.tsx
+index 7e9fde3..891f386 100644
+--- a/frontend/src/__tests__/components/pages/analytics/blocks/StockPerSupplierDonut.test.tsx
++++ b/frontend/src/__tests__/components/pages/analytics/blocks/StockPerSupplierDonut.test.tsx
+@@ -13,8 +13,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
+ import { render, screen, waitFor } from '@testing-library/react';
+ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+ 
+-import type { StockPerSupplierPoint } from '@/api/analytics';
+-import { getStockPerSupplier } from '@/api/analytics';
++import type { StockPerSupplierPoint } from '../../../../../api/analytics/types';
++import { getStockPerSupplier } from '../../../../../api/analytics/stock';
+ import StockPerSupplierDonut from '@/pages/analytics/blocks/StockPerSupplierDonut';
+ 
+ // -----------------------------------------------------------------------------
+@@ -67,7 +67,7 @@ vi.mock('recharts', () => ({
+   Cell: ({ fill }: { fill?: string }) => <div data-testid="pie-cell" data-fill={fill} />,
+ }));
+ 
+-vi.mock('@/api/analytics', () => ({
++vi.mock('@/api/analytics/stock', () => ({
+   getStockPerSupplier: vi.fn(),
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/analytics/sections/MovementsSection.test.tsx b/frontend/src/__tests__/components/pages/analytics/sections/MovementsSection.test.tsx
+index 93747dd..af81830 100644
+--- a/frontend/src/__tests__/components/pages/analytics/sections/MovementsSection.test.tsx
++++ b/frontend/src/__tests__/components/pages/analytics/sections/MovementsSection.test.tsx
+@@ -52,7 +52,7 @@ vi.mock('@/api/analytics/updates', () => ({
+ 
+ const mockSearchItemsGlobal = vi.fn();
+ const mockSearchItemsForSupplier = vi.fn();
+-vi.mock('@/api/shared', () => ({
++vi.mock('@/api/shared/itemSearch', () => ({
+   searchItemsGlobal: (...args: unknown[]) => mockSearchItemsGlobal(...args),
+   searchItemsForSupplier: (...args: unknown[]) => mockSearchItemsForSupplier(...args),
+ }));
+diff --git a/frontend/src/__tests__/components/pages/dashboard/Dashboard.test.tsx b/frontend/src/__tests__/components/pages/dashboard/Dashboard.test.tsx
+index 37d0175..2895858 100644
+--- a/frontend/src/__tests__/components/pages/dashboard/Dashboard.test.tsx
++++ b/frontend/src/__tests__/components/pages/dashboard/Dashboard.test.tsx
+@@ -42,7 +42,7 @@ vi.mock('react-router-dom', async () => {
+   };
+ });
+ 
+-vi.mock('../../../../api/analytics/hooks', () => ({
++vi.mock('../../../../api/analytics/hooks/useDashboardMetrics', () => ({
+   useDashboardMetrics: mockUseDashboardMetrics,
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/dashboard/MonthlyMovementMini.test.tsx b/frontend/src/__tests__/components/pages/dashboard/MonthlyMovementMini.test.tsx
+index 8333664..47decdb 100644
+--- a/frontend/src/__tests__/components/pages/dashboard/MonthlyMovementMini.test.tsx
++++ b/frontend/src/__tests__/components/pages/dashboard/MonthlyMovementMini.test.tsx
+@@ -57,7 +57,7 @@ const mockGetMonthlyStockMovement = vi.hoisted(() =>
+   ),
+ );
+ 
+-vi.mock('../../../../api/analytics', () => ({
++vi.mock('../../../../api/analytics/stock', () => ({
+   getMonthlyStockMovement: mockGetMonthlyStockMovement,
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/inventory/DeleteItemDialog/useDeleteItemHandlers.test.ts b/frontend/src/__tests__/components/pages/inventory/DeleteItemDialog/useDeleteItemHandlers.test.ts
+index 1decf52..5f7df92 100644
+--- a/frontend/src/__tests__/components/pages/inventory/DeleteItemDialog/useDeleteItemHandlers.test.ts
++++ b/frontend/src/__tests__/components/pages/inventory/DeleteItemDialog/useDeleteItemHandlers.test.ts
+@@ -40,7 +40,7 @@ vi.mock('../../../../../context/toast', () => ({
+   useToast: () => toastSpy,
+ }));
+ 
+-vi.mock('../../../../../api/inventory/mutations', () => ({
++vi.mock('../../../../../api/inventory/itemMutations', () => ({
+   deleteItem: (...args: unknown[]) => deleteItemSpy(...args),
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/inventory/DeleteItemDialog/useDeleteItemQueries.test.ts b/frontend/src/__tests__/components/pages/inventory/DeleteItemDialog/useDeleteItemQueries.test.ts
+index 3e84e47..2a2eaf3 100644
+--- a/frontend/src/__tests__/components/pages/inventory/DeleteItemDialog/useDeleteItemQueries.test.ts
++++ b/frontend/src/__tests__/components/pages/inventory/DeleteItemDialog/useDeleteItemQueries.test.ts
+@@ -26,9 +26,15 @@ const useSuppliersQueryMock = vi.hoisted(() => vi.fn());
+ const useItemSearchQueryMock = vi.hoisted(() => vi.fn());
+ const useItemDetailsQueryMock = vi.hoisted(() => vi.fn());
+ 
+-vi.mock('../../../../../api/inventory/hooks', () => ({
++vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
+   useSuppliersQuery: (...args: unknown[]) => useSuppliersQueryMock(...args),
++}));
++
++vi.mock('../../../../../api/inventory/hooks/useItemSearchQuery', () => ({
+   useItemSearchQuery: (...args: unknown[]) => useItemSearchQueryMock(...args),
++}));
++
++vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
+   useItemDetailsQuery: (...args: unknown[]) => useItemDetailsQueryMock(...args),
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/inventory/EditItemDialog/EditItemForm.test.tsx b/frontend/src/__tests__/components/pages/inventory/EditItemDialog/EditItemForm.test.tsx
+index 0afc871..85c22be 100644
+--- a/frontend/src/__tests__/components/pages/inventory/EditItemDialog/EditItemForm.test.tsx
++++ b/frontend/src/__tests__/components/pages/inventory/EditItemDialog/EditItemForm.test.tsx
+@@ -23,12 +23,10 @@ import { renderHook, act } from '@testing-library/react';
+ import type { UseQueryResult } from '@tanstack/react-query';
+ 
+ import { useEditItemForm } from '../../../../../pages/inventory/dialogs/EditItemDialog/useEditItemForm';
+-import { renameItem } from '../../../../../api/inventory/mutations';
+-import {
+-  useSuppliersQuery,
+-  useItemSearchQuery,
+-  useItemDetailsQuery,
+-} from '../../../../../api/inventory/hooks';
++import { renameItem } from '../../../../../api/inventory/itemMutations';
++import { useSuppliersQuery } from '../../../../../api/inventory/hooks/useSuppliersQuery';
++import { useItemSearchQuery } from '../../../../../api/inventory/hooks/useItemSearchQuery';
++import { useItemDetailsQuery } from '../../../../../api/inventory/hooks/useItemDetailsQuery';
+ 
+ // -------------------------------------
+ // Deterministic / hoisted mocks
+@@ -36,13 +34,19 @@ import {
+ const toastSpy = vi.hoisted(() => vi.fn());
+ const tSpy = vi.hoisted(() => vi.fn((key: string, defaultValue?: string) => defaultValue ?? key));
+ 
+-vi.mock('../../../../../api/inventory/mutations', () => ({
++vi.mock('../../../../../api/inventory/itemMutations', () => ({
+   renameItem: vi.fn(),
+ }));
+ 
+-vi.mock('../../../../../api/inventory/hooks', () => ({
++vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
+   useSuppliersQuery: vi.fn(),
++}));
++
++vi.mock('../../../../../api/inventory/hooks/useItemSearchQuery', () => ({
+   useItemSearchQuery: vi.fn(),
++}));
++
++vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
+   useItemDetailsQuery: vi.fn(),
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/inventory/EditItemDialog/useEditItemForm.test.ts b/frontend/src/__tests__/components/pages/inventory/EditItemDialog/useEditItemForm.test.ts
+index 0ef736b..2eb2582 100644
+--- a/frontend/src/__tests__/components/pages/inventory/EditItemDialog/useEditItemForm.test.ts
++++ b/frontend/src/__tests__/components/pages/inventory/EditItemDialog/useEditItemForm.test.ts
+@@ -11,21 +11,25 @@ import { renderHook, act } from '@testing-library/react';
+ import type { UseQueryResult } from '@tanstack/react-query';
+ 
+ import { useEditItemForm } from '../../../../../pages/inventory/dialogs/EditItemDialog/useEditItemForm';
+-import {
+-  useSuppliersQuery,
+-  useItemSearchQuery,
+-  useItemDetailsQuery,
+-} from '../../../../../api/inventory/hooks';
+-import { renameItem } from '../../../../../api/inventory/mutations';
++import { useSuppliersQuery } from '../../../../../api/inventory/hooks/useSuppliersQuery';
++import { useItemSearchQuery } from '../../../../../api/inventory/hooks/useItemSearchQuery';
++import { useItemDetailsQuery } from '../../../../../api/inventory/hooks/useItemDetailsQuery';
++import { renameItem } from '../../../../../api/inventory/itemMutations';
+ 
+ // Mock dependencies
+-vi.mock('../../../../../api/inventory/mutations', () => ({
++vi.mock('../../../../../api/inventory/itemMutations', () => ({
+   renameItem: vi.fn(),
+ }));
+ 
+-vi.mock('../../../../../api/inventory/hooks', () => ({
++vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
+   useSuppliersQuery: vi.fn(),
++}));
++
++vi.mock('../../../../../api/inventory/hooks/useItemSearchQuery', () => ({
+   useItemSearchQuery: vi.fn(),
++}));
++
++vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
+   useItemDetailsQuery: vi.fn(),
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/inventory/ItemFormDialog/useItemForm.test.ts b/frontend/src/__tests__/components/pages/inventory/ItemFormDialog/useItemForm.test.ts
+index 6b46934..17b082d 100644
+--- a/frontend/src/__tests__/components/pages/inventory/ItemFormDialog/useItemForm.test.ts
++++ b/frontend/src/__tests__/components/pages/inventory/ItemFormDialog/useItemForm.test.ts
+@@ -10,7 +10,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
+ import { useItemForm } from '../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm';
+ import type { UseItemFormReturn } from '../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm';
+ import type { SupplierOption } from '../../../../../api/analytics/types';
+-import type { InventoryRow } from '../../../../../api/inventory';
++import type { InventoryRow } from '../../../../../api/inventory/types';
+ 
+ // -------------------------------------
+ // Deterministic / hoisted mocks
+@@ -34,11 +34,11 @@ vi.mock('react-i18next', () => ({
+   }),
+ }));
+ 
+-vi.mock('../../../../../api/inventory/hooks', () => ({
++vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
+   useSuppliersQuery: mockUseSuppliersQuery,
+ }));
+ 
+-vi.mock('../../../../../api/inventory/mutations', () => ({
++vi.mock('../../../../../api/inventory/itemMutations', () => ({
+   upsertItem: mockUpsertItem,
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/inventory/PriceChangeDialog/PriceChangeForm.test.tsx b/frontend/src/__tests__/components/pages/inventory/PriceChangeDialog/PriceChangeForm.test.tsx
+index ca823f1..1c0a9ef 100644
+--- a/frontend/src/__tests__/components/pages/inventory/PriceChangeDialog/PriceChangeForm.test.tsx
++++ b/frontend/src/__tests__/components/pages/inventory/PriceChangeDialog/PriceChangeForm.test.tsx
+@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
+ 
+ import type { UsePriceChangeFormReturn } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
+ import { PriceChangeForm } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm';
+-import type { PriceChangeForm as PriceChangeFormValues } from '../../../../../api/inventory/validation';
++import type { PriceChangeForm as PriceChangeFormValues } from '../../../../../pages/inventory/validation/inventoryValidation';
+ 
+ /**
+  * Translation is infrastructure. For deterministic unit tests, return keys.
+diff --git a/frontend/src/__tests__/components/pages/inventory/PriceChangeDialog/usePriceChangeForm.test.ts b/frontend/src/__tests__/components/pages/inventory/PriceChangeDialog/usePriceChangeForm.test.ts
+index a147532..d2cbb8c 100644
+--- a/frontend/src/__tests__/components/pages/inventory/PriceChangeDialog/usePriceChangeForm.test.ts
++++ b/frontend/src/__tests__/components/pages/inventory/PriceChangeDialog/usePriceChangeForm.test.ts
+@@ -27,9 +27,15 @@ vi.mock('../../../../../api/inventory/mutations.ts', () => ({
+   changePrice: vi.fn(),
+ }));
+ 
+-vi.mock('../../../../../api/inventory/hooks', () => ({
++vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
+   useSuppliersQuery: mockUseSuppliersQuery,
++}));
++
++vi.mock('../../../../../api/inventory/hooks/useItemSearchQuery', () => ({
+   useItemSearchQuery: mockUseItemSearchQuery,
++}));
++
++vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
+   useItemDetailsQuery: mockUseItemDetailsQuery,
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustQuantityInput.test.tsx b/frontend/src/__tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustQuantityInput.test.tsx
+index e314a36..6a2a1ce 100644
+--- a/frontend/src/__tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustQuantityInput.test.tsx
++++ b/frontend/src/__tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustQuantityInput.test.tsx
+@@ -19,7 +19,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
+ import { render, screen, fireEvent } from '@testing-library/react';
+ import { useForm, type FieldErrors } from 'react-hook-form';
+ import { QuantityAdjustQuantityInput } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput';
+-import type { QuantityAdjustForm } from '../../../../../api/inventory/validation';
++import type { QuantityAdjustForm } from '../../../../../pages/inventory/validation/inventoryValidation';
+ 
+ type HarnessProps = {
+   disabled?: boolean;
+diff --git a/frontend/src/__tests__/components/pages/inventory/QuantityAdjustDialog/useQuantityAdjustForm.test.ts b/frontend/src/__tests__/components/pages/inventory/QuantityAdjustDialog/useQuantityAdjustForm.test.ts
+index 362ad37..13d5236 100644
+--- a/frontend/src/__tests__/components/pages/inventory/QuantityAdjustDialog/useQuantityAdjustForm.test.ts
++++ b/frontend/src/__tests__/components/pages/inventory/QuantityAdjustDialog/useQuantityAdjustForm.test.ts
+@@ -22,13 +22,19 @@ const mockUseSuppliersQuery = vi.hoisted(() => vi.fn());
+ const mockUseItemSearchQuery = vi.hoisted(() => vi.fn());
+ const mockUseItemDetailsQuery = vi.hoisted(() => vi.fn());
+ 
+-vi.mock('../../../../../api/inventory/hooks', () => ({
++vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
+   useSuppliersQuery: mockUseSuppliersQuery,
++}));
++
++vi.mock('../../../../../api/inventory/hooks/useItemSearchQuery', () => ({
+   useItemSearchQuery: mockUseItemSearchQuery,
++}));
++
++vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
+   useItemDetailsQuery: mockUseItemDetailsQuery,
+ }));
+ 
+-vi.mock('../../../../../api/inventory/mutations', () => ({
++vi.mock('../../../../../api/inventory/stockMutations', () => ({
+   adjustQuantity: vi.fn(),
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/suppliers/CreateSupplierDialog/CreateSupplierDialog.test.tsx b/frontend/src/__tests__/components/pages/suppliers/CreateSupplierDialog/CreateSupplierDialog.test.tsx
+index 2ba237f..0385827 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/CreateSupplierDialog/CreateSupplierDialog.test.tsx
++++ b/frontend/src/__tests__/components/pages/suppliers/CreateSupplierDialog/CreateSupplierDialog.test.tsx
+@@ -25,7 +25,7 @@
+ import { describe, it, expect, vi, beforeEach } from 'vitest';
+ import { render, screen, waitFor } from '@testing-library/react';
+ import userEvent from '@testing-library/user-event';
+-import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../../api/suppliers';
++import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../../api/suppliers/validation';
+ import type { UseCreateSupplierFormReturn } from '../../../../../pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm';
+ 
+ type SupplierFormFieldsProps = {
+diff --git a/frontend/src/__tests__/components/pages/suppliers/CreateSupplierDialog/CreateSupplierForm.test.tsx b/frontend/src/__tests__/components/pages/suppliers/CreateSupplierDialog/CreateSupplierForm.test.tsx
+index 10bd2e9..be775c3 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/CreateSupplierDialog/CreateSupplierForm.test.tsx
++++ b/frontend/src/__tests__/components/pages/suppliers/CreateSupplierDialog/CreateSupplierForm.test.tsx
+@@ -23,7 +23,7 @@ import { describe, it, expect, vi } from 'vitest';
+ import { render, screen } from '@testing-library/react';
+ import type { ComponentProps } from 'react';
+ import type { FieldError, FieldErrors, UseFormRegister } from 'react-hook-form';
+-import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../../api/suppliers';
++import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../../api/suppliers/validation';
+ 
+ vi.mock('react-i18next', () => ({
+   // Prefer fallback/defaultValue to keep assertions stable across locales.
+diff --git a/frontend/src/__tests__/components/pages/suppliers/CreateSupplierDialog/useCreateSupplierForm.test.ts b/frontend/src/__tests__/components/pages/suppliers/CreateSupplierDialog/useCreateSupplierForm.test.ts
+index 9228e1c..408ae32 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/CreateSupplierDialog/useCreateSupplierForm.test.ts
++++ b/frontend/src/__tests__/components/pages/suppliers/CreateSupplierDialog/useCreateSupplierForm.test.ts
+@@ -30,7 +30,7 @@
+ 
+ import { describe, it, expect, vi, beforeEach } from 'vitest';
+ import { act, renderHook } from '@testing-library/react';
+-import type { CreateSupplierForm } from '../../../../../api/suppliers';
++import type { CreateSupplierForm } from '../../../../../api/suppliers/validation';
+ 
+ // -------------------------------------
+ // Deterministic / hoisted mocks
+@@ -42,9 +42,12 @@ const mocks = vi.hoisted(() => ({
+   setError: vi.fn(),
+ }));
+ 
+-vi.mock('../../../../../api/suppliers', () => ({
++vi.mock('../../../../../api/suppliers/supplierMutations', () => ({
+   // The hook is the orchestration unit; the API layer is mocked deterministically.
+   createSupplier: (...args: [unknown]) => mocks.createSupplier(...args),
++}));
++
++vi.mock('../../../../../api/suppliers/validation', () => ({
+   createSupplierSchema: {},
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/suppliers/DeleteSupplierDialog/useDeleteSupplierForm.test.ts b/frontend/src/__tests__/components/pages/suppliers/DeleteSupplierDialog/useDeleteSupplierForm.test.ts
+index 0ef77ef..2e667b2 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/DeleteSupplierDialog/useDeleteSupplierForm.test.ts
++++ b/frontend/src/__tests__/components/pages/suppliers/DeleteSupplierDialog/useDeleteSupplierForm.test.ts
+@@ -37,7 +37,7 @@ const mocks = vi.hoisted(() => ({
+   resetSearch: vi.fn(),
+ }));
+ 
+-vi.mock('../../../../../api/suppliers', () => ({
++vi.mock('../../../../../api/suppliers/supplierMutations', () => ({
+   deleteSupplier: (...args: [string]) => mocks.deleteSupplier(...args),
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierConfirmation.test.tsx b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierConfirmation.test.tsx
+index 8d567d5..51a0839 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierConfirmation.test.tsx
++++ b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierConfirmation.test.tsx
+@@ -21,7 +21,7 @@
+ import { describe, it, expect, vi } from 'vitest';
+ import { render, screen, within } from '@testing-library/react';
+ import userEvent from '@testing-library/user-event';
+-import type { EditSupplierForm } from '../../../../../api/suppliers';
++import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
+ import type { SupplierRow } from '../../../../../api/suppliers/types';
+ 
+ import { EditSupplierConfirmation } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation';
+diff --git a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierDialog.test.tsx b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierDialog.test.tsx
+index 0639ae3..bace895 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierDialog.test.tsx
++++ b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierDialog.test.tsx
+@@ -26,7 +26,7 @@
+ import { describe, it, expect, vi, beforeEach } from 'vitest';
+ import { act, render, screen, waitFor } from '@testing-library/react';
+ import userEvent from '@testing-library/user-event';
+-import type { EditSupplierForm } from '../../../../../api/suppliers';
++import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
+ import type { UseEditSupplierFormReturn } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
+ import type { SupplierRow } from '../../../../../api/suppliers/types';
+ 
+diff --git a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierInfoStep.test.tsx b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierInfoStep.test.tsx
+index 532210b..b108f15 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierInfoStep.test.tsx
++++ b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierInfoStep.test.tsx
+@@ -21,7 +21,7 @@ import { describe, it, expect, vi } from 'vitest';
+ import { render, screen } from '@testing-library/react';
+ import { useForm } from 'react-hook-form';
+ import type { FieldErrors } from 'react-hook-form';
+-import type { EditSupplierForm } from '../../../../../api/suppliers';
++import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
+ import type { SupplierRow } from '../../../../../api/suppliers/types';
+ 
+ import { EditSupplierInfoStep } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep';
+diff --git a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures.ts b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures.ts
+index 946df7d..9a6c807 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures.ts
++++ b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures.ts
+@@ -1,19 +1,4 @@
+-/**
+- * @file fixtures.ts
+- * @module __tests__/components/pages/suppliers/EditSupplierDialog/fixtures
+- * @description Deterministic fixture builders for EditSupplierDialog tests.
+- *
+- * Design goals:
+- * - Deterministic defaults: stable IDs/text so assertions are predictable.
+- * - Minimal surface area: only provide the fields tests actually need.
+- * - Easy overrides: callers can override just the relevant fields per scenario.
+- *
+- * Non-goals:
+- * - Validating domain rules or API constraints (covered by feature tests / backend).
+- * - Generating random data (randomness makes failures harder to reproduce).
+- */
+-
+-import type { EditSupplierForm } from '../../../../../api/suppliers';
++import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
+ import type { SupplierRow } from '../../../../../api/suppliers/types';
+ 
+ /**
+diff --git a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/testHelpers.ts b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/testHelpers.ts
+index 4843f2d..784d6ad 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/testHelpers.ts
++++ b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/testHelpers.ts
+@@ -1,5 +1,5 @@
+ import { vi } from 'vitest';
+-import type { EditSupplierForm } from '../../../../../api/suppliers';
++import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
+ import type { SupplierRow } from '../../../../../api/suppliers/types';
+ import type { UseEditSupplierFormReturn } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
+ 
+diff --git a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierConfirmation.test.ts b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierConfirmation.test.ts
+index 2af6d00..b666b78 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierConfirmation.test.ts
++++ b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierConfirmation.test.ts
+@@ -17,7 +17,7 @@
+ 
+ import { describe, it, expect, vi, beforeEach } from 'vitest';
+ import { act, renderHook } from '@testing-library/react';
+-import type { EditSupplierForm } from '../../../../../api/suppliers';
++import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
+ 
+ import { useEditSupplierConfirmation } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierConfirmation';
+ 
+diff --git a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierForm.test.ts b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierForm.test.ts
+index c6d68bc..fdbef93 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierForm.test.ts
++++ b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierForm.test.ts
+@@ -34,7 +34,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
+ import { act, renderHook } from '@testing-library/react';
+ import type { TFunction } from 'i18next';
+ import type { SupplierRow } from '../../../../../api/suppliers/types';
+-import type { EditSupplierForm } from '../../../../../api/suppliers';
++import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
+ 
+ import { editSupplierChanges, supplierRow } from './fixtures';
+ import {
+@@ -79,7 +79,7 @@ vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/mapSupplierEr
+     mocks.mapSupplierError(errorMsg, t),
+ }));
+ 
+-vi.mock('../../../../../api/suppliers', () => ({
++vi.mock('../../../../../api/suppliers/supplierMutations', () => ({
+   updateSupplier: (...args: unknown[]) => mocks.updateSupplier(...args),
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierFormState.test.ts b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierFormState.test.ts
+index 3a9b83c..85e8cba 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierFormState.test.ts
++++ b/frontend/src/__tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierFormState.test.ts
+@@ -18,7 +18,7 @@
+ 
+ import { describe, it, expect, vi } from 'vitest';
+ import { act, renderHook } from '@testing-library/react';
+-import type { EditSupplierForm } from '../../../../../api/suppliers';
++import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
+ 
+ import { useEditSupplierFormState } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierFormState';
+ import { supplierRow } from './fixtures';
+diff --git a/frontend/src/__tests__/components/pages/suppliers/SuppliersBoard.test.tsx b/frontend/src/__tests__/components/pages/suppliers/SuppliersBoard.test.tsx
+index 0ba6ebe..85cdafc 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/SuppliersBoard.test.tsx
++++ b/frontend/src/__tests__/components/pages/suppliers/SuppliersBoard.test.tsx
+@@ -22,7 +22,7 @@
+ import { beforeEach, describe, expect, it, vi } from 'vitest';
+ import { render } from '@testing-library/react';
+ import SuppliersBoard from '../../../../pages/suppliers/SuppliersBoard';
+-import type { SupplierRow } from '../../../../api/suppliers';
++import type { SupplierRow } from '../../../../api/suppliers/types';
+ import type { UseSuppliersBoardStateReturn } from '../../../../pages/suppliers/hooks/useSuppliersBoardState';
+ 
+ type SuppliersBoardData = {
+diff --git a/frontend/src/__tests__/components/pages/suppliers/SuppliersSearchPanel.test.tsx b/frontend/src/__tests__/components/pages/suppliers/SuppliersSearchPanel.test.tsx
+index 90e866f..96e93ee 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/SuppliersSearchPanel.test.tsx
++++ b/frontend/src/__tests__/components/pages/suppliers/SuppliersSearchPanel.test.tsx
+@@ -27,7 +27,7 @@ import {
+   SuppliersSearchPanel,
+   type SuppliersSearchPanelProps,
+ } from '../../../../pages/suppliers/components/SuppliersSearchPanel';
+-import type { SupplierRow } from '../../../../api/suppliers';
++import type { SupplierRow } from '../../../../api/suppliers/types';
+ 
+ vi.mock('react-i18next', () => ({
+   useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+diff --git a/frontend/src/__tests__/components/pages/suppliers/SuppliersTable.test.tsx b/frontend/src/__tests__/components/pages/suppliers/SuppliersTable.test.tsx
+index 9533276..23c571f 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/SuppliersTable.test.tsx
++++ b/frontend/src/__tests__/components/pages/suppliers/SuppliersTable.test.tsx
+@@ -24,7 +24,7 @@ import React from 'react';
+ import { render, screen } from '@testing-library/react';
+ import userEvent from '@testing-library/user-event';
+ import { SuppliersTable, type SuppliersTableProps } from '../../../../pages/suppliers/components/SuppliersTable';
+-import type { SupplierRow } from '../../../../api/suppliers';
++import type { SupplierRow } from '../../../../api/suppliers/types';
+ 
+ vi.mock('react-i18next', () => ({
+   useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+diff --git a/frontend/src/__tests__/components/pages/suppliers/handlers/useSearchHandlers.test.ts b/frontend/src/__tests__/components/pages/suppliers/handlers/useSearchHandlers.test.ts
+index 46323f2..420b1a3 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/handlers/useSearchHandlers.test.ts
++++ b/frontend/src/__tests__/components/pages/suppliers/handlers/useSearchHandlers.test.ts
+@@ -23,7 +23,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
+ import { renderHook } from '@testing-library/react';
+ import { useSearchHandlers } from '../../../../../pages/suppliers/handlers/useSearchHandlers';
+ import type { UseSuppliersBoardStateReturn } from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
+-import type { SupplierRow } from '../../../../../api/suppliers';
++import type { SupplierRow } from '../../../../../api/suppliers/types';
+ 
+ describe('useSearchHandlers', () => {
+   const supplierRow = (overrides: Partial<SupplierRow> = {}): SupplierRow => ({
+diff --git a/frontend/src/__tests__/components/pages/suppliers/hooks/useSupplierSearch.test.ts b/frontend/src/__tests__/components/pages/suppliers/hooks/useSupplierSearch.test.ts
+index 761a92e..1d8300c 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/hooks/useSupplierSearch.test.ts
++++ b/frontend/src/__tests__/components/pages/suppliers/hooks/useSupplierSearch.test.ts
+@@ -20,7 +20,7 @@ const mocks = vi.hoisted(() => ({
+   useSupplierSearchQuery: vi.fn(),
+ }));
+ 
+-vi.mock('../../../../../api/suppliers', () => ({
++vi.mock('../../../../../api/suppliers/hooks/useSupplierSearchQuery', () => ({
+   useSupplierSearchQuery: (...args: unknown[]) => mocks.useSupplierSearchQuery(...args),
+ }));
+ 
+diff --git a/frontend/src/__tests__/components/pages/suppliers/hooks/useSuppliersBoardData.test.ts b/frontend/src/__tests__/components/pages/suppliers/hooks/useSuppliersBoardData.test.ts
+index a5eac39..16bc4ed 100644
+--- a/frontend/src/__tests__/components/pages/suppliers/hooks/useSuppliersBoardData.test.ts
++++ b/frontend/src/__tests__/components/pages/suppliers/hooks/useSuppliersBoardData.test.ts
+@@ -22,20 +22,20 @@
+ import { beforeEach, describe, expect, it, vi } from 'vitest';
+ import { renderHook } from '@testing-library/react';
+ import { useSuppliersBoardData } from '../../../../../pages/suppliers/hooks/useSuppliersBoardData';
+-import {
+-  useSupplierSearchQuery,
+-  useSuppliersPageQuery,
+-  type SupplierListResponse,
+-  type SupplierRow,
+-} from '../../../../../api/suppliers';
++import { useSupplierSearchQuery } from '../../../../../api/suppliers/hooks/useSupplierSearchQuery';
++import { useSupplierPageQuery as useSuppliersPageQuery } from '../../../../../api/suppliers/hooks/useSupplierPageQuery';
++import type { SupplierListResponse, SupplierRow } from '../../../../../api/suppliers/types';
+ 
+ const mocks = vi.hoisted(() => ({
+   useSuppliersPageQuery: vi.fn<typeof useSuppliersPageQuery>(),
+   useSupplierSearchQuery: vi.fn<typeof useSupplierSearchQuery>(),
+ }));
+ 
+-vi.mock('../../../../../api/suppliers', () => ({
+-  useSuppliersPageQuery: mocks.useSuppliersPageQuery,
++vi.mock('../../../../../api/suppliers/hooks/useSupplierPageQuery', () => ({
++  useSupplierPageQuery: mocks.useSuppliersPageQuery,
++}));
++
++vi.mock('../../../../../api/suppliers/hooks/useSupplierSearchQuery', () => ({
+   useSupplierSearchQuery: mocks.useSupplierSearchQuery,
+ }));
+ 
+diff --git a/frontend/src/__tests__/unit/api/analytics/hooks/useDashboardMetrics.test.tsx b/frontend/src/__tests__/unit/api/analytics/hooks/useDashboardMetrics.test.tsx
+index 0ae5fd4..bca2c90 100644
+--- a/frontend/src/__tests__/unit/api/analytics/hooks/useDashboardMetrics.test.tsx
++++ b/frontend/src/__tests__/unit/api/analytics/hooks/useDashboardMetrics.test.tsx
+@@ -17,17 +17,13 @@ import { renderHook, waitFor } from '@testing-library/react';
+ import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
+ 
+ // ✅ Mock what the hook imports: ../index from hooks => api/analytics/index.ts
+-vi.mock('../../../../../api/analytics', () => ({
++vi.mock('../../../../../api/analytics/metrics', () => ({
+   getItemCount: vi.fn(),
+   getSupplierCount: vi.fn(),
+   getLowStockCount: vi.fn(),
+ }));
+ 
+-import {
+-  getItemCount,
+-  getSupplierCount,
+-  getLowStockCount,
+-} from '../../../../../api/analytics';
++import { getItemCount, getSupplierCount, getLowStockCount } from '../../../../../api/analytics/metrics';
+ 
+ import { useDashboardMetrics } from '../../../../../api/analytics/hooks/useDashboardMetrics';
+ 
+diff --git a/frontend/src/__tests__/unit/api/analytics/hooks/useLowStockAlerts.test.tsx b/frontend/src/__tests__/unit/api/analytics/hooks/useLowStockAlerts.test.tsx
+index c4d8415..e1f1f25 100644
+--- a/frontend/src/__tests__/unit/api/analytics/hooks/useLowStockAlerts.test.tsx
++++ b/frontend/src/__tests__/unit/api/analytics/hooks/useLowStockAlerts.test.tsx
+@@ -16,15 +16,16 @@ import { renderHook, waitFor } from '@testing-library/react';
+ import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
+ 
+ //  Mock the API functions the hooks call (they import from ../index => api/analytics/index.ts)
+-vi.mock('../../../../../api/analytics', () => ({
++vi.mock('../../../../../api/analytics/frequency', () => ({
+   getItemUpdateFrequency: vi.fn(),
++}));
++
++vi.mock('../../../../../api/analytics/lowStock', () => ({
+   getLowStockItems: vi.fn(),
+ }));
+ 
+-import {
+-  getItemUpdateFrequency,
+-  getLowStockItems,
+-} from '../../../../../api/analytics';
++import { getItemUpdateFrequency } from '../../../../../api/analytics/frequency';
++import { getLowStockItems } from '../../../../../api/analytics/lowStock';
+ 
+ import {
+   useItemFrequencyQuery,
+diff --git a/frontend/src/__tests__/unit/api/analytics/hooks/usePriceAndFinancials.test.tsx b/frontend/src/__tests__/unit/api/analytics/hooks/usePriceAndFinancials.test.tsx
+index c16867a..fd9b26e 100644
+--- a/frontend/src/__tests__/unit/api/analytics/hooks/usePriceAndFinancials.test.tsx
++++ b/frontend/src/__tests__/unit/api/analytics/hooks/usePriceAndFinancials.test.tsx
+@@ -17,12 +17,16 @@ import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
+ 
+ import type { PriceTrendParams, FinancialSummaryParams } from '../../../../../api/analytics/validation';
+ 
+-vi.mock('../../../../../api/analytics', () => ({
++vi.mock('../../../../../api/analytics/priceTrend', () => ({
+   getPriceTrend: vi.fn(),
++}));
++
++vi.mock('../../../../../api/analytics/finance', () => ({
+   getFinancialSummary: vi.fn(),
+ }));
+ 
+-import { getPriceTrend, getFinancialSummary } from '../../../../../api/analytics';
++import { getPriceTrend } from '../../../../../api/analytics/priceTrend';
++import { getFinancialSummary } from '../../../../../api/analytics/finance';
+ 
+ import {
+   usePriceTrendQuery,
+diff --git a/frontend/src/__tests__/unit/api/analytics/hooks/useStockAnalytics.test.tsx b/frontend/src/__tests__/unit/api/analytics/hooks/useStockAnalytics.test.tsx
+index f223502..3c952da 100644
+--- a/frontend/src/__tests__/unit/api/analytics/hooks/useStockAnalytics.test.tsx
++++ b/frontend/src/__tests__/unit/api/analytics/hooks/useStockAnalytics.test.tsx
+@@ -17,17 +17,13 @@ import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
+ 
+ import type { AnalyticsParams, StockMovementParams } from '../../../../../api/analytics/validation';
+ 
+-vi.mock('../../../../../api/analytics', () => ({
++vi.mock('../../../../../api/analytics/stock', () => ({
+   getStockValueOverTime: vi.fn(),
+   getMonthlyStockMovement: vi.fn(),
+   getStockPerSupplier: vi.fn(),
+ }));
+ 
+-import {
+-  getStockValueOverTime,
+-  getMonthlyStockMovement,
+-  getStockPerSupplier,
+-} from '../../../../../api/analytics';
++import { getStockValueOverTime, getMonthlyStockMovement, getStockPerSupplier } from '../../../../../api/analytics/stock';
+ 
+ import {
+   useStockValueQuery,
+diff --git a/frontend/src/__tests__/unit/api/analytics/utils/util.recordGuards.test.ts b/frontend/src/__tests__/unit/api/analytics/utils/util.recordGuards.test.ts
+index 2ecffea..bd1e440 100644
+--- a/frontend/src/__tests__/unit/api/analytics/utils/util.recordGuards.test.ts
++++ b/frontend/src/__tests__/unit/api/analytics/utils/util.recordGuards.test.ts
+@@ -12,7 +12,7 @@
+ 
+ import { describe, it, expect } from 'vitest';
+ import { isArrayOfRecords } from '@/api/analytics/util';
+-import { isRecord } from '@/api/shared';
++import { isRecord } from '../../../../../api/shared/typeGuards';
+ 
+ describe('isRecord', () => {
+   it('returns true for plain objects', () => {
+diff --git a/frontend/src/__tests__/unit/api/inventory/hooks/useItemSearchQuery.test.ts b/frontend/src/__tests__/unit/api/inventory/hooks/useItemSearchQuery.test.ts
+index 49ab436..5ccac03 100644
+--- a/frontend/src/__tests__/unit/api/inventory/hooks/useItemSearchQuery.test.ts
++++ b/frontend/src/__tests__/unit/api/inventory/hooks/useItemSearchQuery.test.ts
+@@ -17,13 +17,13 @@ vi.mock('@tanstack/react-query', () => ({
+   useQuery: vi.fn(),
+ }));
+ 
+-vi.mock('@/api/shared', async (importOriginal) => {
+-  const actual = await importOriginal<typeof import('@/api/shared')>();
++vi.mock('@/api/shared/itemSearch', async (importOriginal) => {
++  const actual = await importOriginal<typeof import('@/api/shared/itemSearch')>();
+   return { ...actual, searchItemsForSupplier: vi.fn() };
+ });
+ 
+ import { useQuery } from '@tanstack/react-query';
+-import { searchItemsForSupplier } from '@/api/shared';
++import { searchItemsForSupplier } from '../../../../../api/shared/itemSearch';
+ import { useItemSearchQuery } from '@/api/inventory/hooks/useItemSearchQuery';
+ import type { SupplierOption } from '@/api/analytics/types';
+ 
+diff --git a/frontend/src/__tests__/unit/api/inventory/itemMutations.test.ts b/frontend/src/__tests__/unit/api/inventory/itemMutations.test.ts
+index c514a3a..5cf513e 100644
+--- a/frontend/src/__tests__/unit/api/inventory/itemMutations.test.ts
++++ b/frontend/src/__tests__/unit/api/inventory/itemMutations.test.ts
+@@ -26,8 +26,8 @@ vi.mock('../../../../api/inventory/normalizers', () => ({
+   normalizeInventoryRow: vi.fn(),
+ }));
+ 
+-vi.mock('@/api/shared', async (importOriginal) => {
+-  const actual = await importOriginal<typeof import('@/api/shared')>();
++vi.mock('@/api/shared/errorHandling', async (importOriginal) => {
++  const actual = await importOriginal<typeof import('@/api/shared/errorHandling')>();
+   return {
+     ...actual,
+     errorMessage: vi.fn(),
+@@ -36,9 +36,9 @@ vi.mock('@/api/shared', async (importOriginal) => {
+ 
+ import http from '../../../../api/httpClient';
+ import { normalizeInventoryRow } from '../../../../api/inventory/normalizers';
+-import { errorMessage } from '@/api/shared';
++import { errorMessage } from '../../../../api/shared/errorHandling';
+ import { deleteItem, renameItem, upsertItem } from '../../../../api/inventory/itemMutations';
+-import { INVENTORY_BASE } from '@/api/shared';
++import { INVENTORY_BASE } from '../../../../api/shared/constants';
+ import type { InventoryRow } from '../../../../api/inventory/types';
+ 
+ type HttpMock = {
+diff --git a/frontend/src/__tests__/unit/api/inventory/list.test.ts b/frontend/src/__tests__/unit/api/inventory/list.test.ts
+deleted file mode 100644
+index b523c2a..0000000
+--- a/frontend/src/__tests__/unit/api/inventory/list.test.ts
++++ /dev/null
+@@ -1,33 +0,0 @@
+-/**
+- * @file list.test.ts
+- * @module tests/unit/api/inventory/list
+- * @what_is_under_test inventory list barrel (re-exports)
+- * @responsibility
+- * Guarantees the module’s public surface remains stable by re-exporting the canonical fetcher
+- * and normalizer bindings consumed by the rest of the inventory domain.
+- * @out_of_scope
+- * Behavior of `getInventoryPage` (covered by listFetcher tests).
+- * @out_of_scope
+- * Behavior of `toInventoryRow` (covered by row normalizer tests).
+- */
+-
+-import { describe, expect, it, vi } from 'vitest';
+-
+-vi.mock('../../../../api/inventory/listFetcher', () => ({
+-  getInventoryPage: vi.fn(),
+-}));
+-
+-vi.mock('../../../../api/inventory/rowNormalizers', () => ({
+-  toInventoryRow: vi.fn(),
+-}));
+-
+-import { getInventoryPage as fetcherGetInventoryPage } from '../../../../api/inventory/listFetcher';
+-import { toInventoryRow as normalizerToInventoryRow } from '../../../../api/inventory/rowNormalizers';
+-import { getInventoryPage, toInventoryRow } from '../../../../api/inventory/list';
+-
+-describe('inventory list barrel', () => {
+-  it('re-exports getInventoryPage and toInventoryRow', () => {
+-    expect(getInventoryPage).toBe(fetcherGetInventoryPage);
+-    expect(toInventoryRow).toBe(normalizerToInventoryRow);
+-  });
+-});
+diff --git a/frontend/src/__tests__/unit/api/inventory/priceMutations.test.ts b/frontend/src/__tests__/unit/api/inventory/priceMutations.test.ts
+index 519e35f..d92275d 100644
+--- a/frontend/src/__tests__/unit/api/inventory/priceMutations.test.ts
++++ b/frontend/src/__tests__/unit/api/inventory/priceMutations.test.ts
+@@ -21,7 +21,7 @@ vi.mock('../../../../api/httpClient', () => ({
+ 
+ import http from '../../../../api/httpClient';
+ import { changePrice } from '../../../../api/inventory/priceMutations';
+-import { INVENTORY_BASE } from '@/api/shared';
++import { INVENTORY_BASE } from '../../../../api/shared/constants';
+ 
+ type HttpMock = {
+   patch: ReturnType<typeof vi.fn>;
+diff --git a/frontend/src/__tests__/unit/api/inventory/responseExtraction.test.ts b/frontend/src/__tests__/unit/api/inventory/responseExtraction.test.ts
+index 704b998..e41058f 100644
+--- a/frontend/src/__tests__/unit/api/inventory/responseExtraction.test.ts
++++ b/frontend/src/__tests__/unit/api/inventory/responseExtraction.test.ts
+@@ -13,7 +13,7 @@
+ 
+ import { describe, expect, it } from 'vitest';
+ 
+-import { extractArray, resDataOrEmpty } from '@/api/shared';
++import { extractArray, resDataOrEmpty } from '../../../../api/shared/responseExtraction';
+ 
+ describe('resDataOrEmpty', () => {
+   it('returns data property from Axios-style responses', () => {
+diff --git a/frontend/src/__tests__/unit/api/inventory/stockMutations.test.ts b/frontend/src/__tests__/unit/api/inventory/stockMutations.test.ts
+index 26d4176..e452046 100644
+--- a/frontend/src/__tests__/unit/api/inventory/stockMutations.test.ts
++++ b/frontend/src/__tests__/unit/api/inventory/stockMutations.test.ts
+@@ -21,7 +21,7 @@ vi.mock('../../../../api/httpClient', () => ({
+ 
+ import http from '../../../../api/httpClient';
+ import { adjustQuantity } from '../../../../api/inventory/stockMutations';
+-import { INVENTORY_BASE } from '@/api/shared';
++import { INVENTORY_BASE } from '../../../../api/shared/constants';
+ 
+ type HttpMock = {
+   patch: ReturnType<typeof vi.fn>;
+diff --git a/frontend/src/__tests__/unit/api/shared/errorHandling.test.ts b/frontend/src/__tests__/unit/api/shared/errorHandling.test.ts
+index a30c744..38c4f39 100644
+--- a/frontend/src/__tests__/unit/api/shared/errorHandling.test.ts
++++ b/frontend/src/__tests__/unit/api/shared/errorHandling.test.ts
+@@ -13,7 +13,7 @@
+ 
+ import { describe, expect, it } from 'vitest';
+ 
+-import { errorMessage, extractApiError } from '@/api/shared';
++import { errorMessage, extractApiError } from '../../../../api/shared/errorHandling';
+ 
+ const makeAxiosError = (payload: unknown): unknown => ({
+   response: payload,
+diff --git a/frontend/src/__tests__/unit/api/shared/fieldPickers.test.ts b/frontend/src/__tests__/unit/api/shared/fieldPickers.test.ts
+index c744942..d1928c3 100644
+--- a/frontend/src/__tests__/unit/api/shared/fieldPickers.test.ts
++++ b/frontend/src/__tests__/unit/api/shared/fieldPickers.test.ts
+@@ -13,12 +13,7 @@
+ 
+ import { describe, expect, it } from 'vitest';
+ 
+-import {
+-  pickString,
+-  pickNumber,
+-  pickNumberFromList,
+-  pickStringFromList,
+-} from '@/api/shared';
++import { pickString, pickNumber, pickNumberFromList, pickStringFromList } from '../../../../api/shared/fieldPickers';
+ 
+ describe('fieldPickers', () => {
+   describe('pickString()', () => {
+diff --git a/frontend/src/__tests__/unit/api/shared/itemSearch.normalizeItemsList.test.ts b/frontend/src/__tests__/unit/api/shared/itemSearch.normalizeItemsList.test.ts
+index 11466a0..0c081f1 100644
+--- a/frontend/src/__tests__/unit/api/shared/itemSearch.normalizeItemsList.test.ts
++++ b/frontend/src/__tests__/unit/api/shared/itemSearch.normalizeItemsList.test.ts
+@@ -11,7 +11,7 @@
+  */
+ 
+ import { describe, it, expect } from 'vitest';
+-import { normalizeItemsList } from '@/api/shared';
++import { normalizeItemsList } from '../../../../api/shared/itemSearch';
+ 
+ describe('normalizeItemsList', () => {
+   it('normalizes items with id and name', () => {
+diff --git a/frontend/src/__tests__/unit/api/shared/typeGuards.test.ts b/frontend/src/__tests__/unit/api/shared/typeGuards.test.ts
+index 6f5cb06..fcb4c5e 100644
+--- a/frontend/src/__tests__/unit/api/shared/typeGuards.test.ts
++++ b/frontend/src/__tests__/unit/api/shared/typeGuards.test.ts
+@@ -13,7 +13,7 @@
+ 
+ import { describe, expect, it } from 'vitest';
+ 
+-import { isRecord } from '@/api/shared';
++import { isRecord } from '../../../../api/shared/typeGuards';
+ 
+ describe('typeGuards', () => {
+   describe('isRecord()', () => {
+diff --git a/frontend/src/__tests__/unit/api/suppliers/supplierMutations.test.ts b/frontend/src/__tests__/unit/api/suppliers/supplierMutations.test.ts
+index 769e0b6..f8d305f 100644
+--- a/frontend/src/__tests__/unit/api/suppliers/supplierMutations.test.ts
++++ b/frontend/src/__tests__/unit/api/suppliers/supplierMutations.test.ts
+@@ -25,8 +25,8 @@ vi.mock('@/api/suppliers/supplierNormalizers', () => ({
+   toSupplierRow: vi.fn(),
+ }));
+ 
+-vi.mock('@/api/shared', async (importOriginal) => {
+-  const actual = await importOriginal<typeof import('@/api/shared')>();
++vi.mock('@/api/shared/errorHandling', async (importOriginal) => {
++  const actual = await importOriginal<typeof import('@/api/shared/errorHandling')>();
+   return {
+     ...actual,
+     errorMessage: vi.fn(),
+@@ -35,7 +35,7 @@ vi.mock('@/api/shared', async (importOriginal) => {
+ 
+ import http from '@/api/httpClient';
+ import { toSupplierRow } from '@/api/suppliers/supplierNormalizers';
+-import { errorMessage } from '@/api/shared';
++import { errorMessage } from '../../../../api/shared/errorHandling';
+ import { SUPPLIERS_BASE } from '@/api/suppliers/supplierListFetcher';
+ import {
+   createSupplier,
+diff --git a/frontend/src/api/analytics/finance.ts b/frontend/src/api/analytics/finance.ts
+index 5419b3c..544cda1 100644
+--- a/frontend/src/api/analytics/finance.ts
++++ b/frontend/src/api/analytics/finance.ts
+@@ -10,7 +10,7 @@
+ 
+ import http from '../httpClient';
+ import { pickNumber } from './util';
+-import { isRecord } from '@/api/shared';
++import { isRecord } from '../shared/typeGuards';
+ import type { Rec } from './util';
+ 
+ /**
+diff --git a/frontend/src/api/analytics/hooks/index.ts b/frontend/src/api/analytics/hooks/index.ts
+deleted file mode 100644
+index e4c076c..0000000
+--- a/frontend/src/api/analytics/hooks/index.ts
++++ /dev/null
+@@ -1,46 +0,0 @@
+-/**
+- * @file index.ts
+- * @module api/analytics/hooks
+- *
+- * @summary
+- * Barrel export file for analytics hooks.
+- * Provides unified interface for all analytics-related React Query hooks.
+- * Organized by concern: dashboard metrics, stock analytics, pricing/financials, and alerts.
+- *
+- * @enterprise
+- * - Single import location for all analytics hooks
+- * - Backward compatible with existing imports
+- * - Clear separation of concerns across hook modules
+- * - Full TypeDoc documentation inheritance
+- *
+- * @usage
+- * ```typescript
+- * // Import specific hooks
+- * import { useDashboardMetrics, useStockValueQuery } from '@/api/analytics/hooks';
+- *
+- * // Or import all
+- * import * as analyticsHooks from '@/api/analytics/hooks';
+- * ```
+- */
+-
+-// Dashboard KPI metrics
+-export { useDashboardMetrics } from './useDashboardMetrics';
+-
+-// Stock-focused analytics (trends, movements, distribution)
+-export {
+-  useStockValueQuery,
+-  useMonthlyMovementQuery,
+-  useStockPerSupplierQuery,
+-} from './useStockAnalytics';
+-
+-// Price trends and financial metrics
+-export {
+-  usePriceTrendQuery,
+-  useFinancialSummaryQuery,
+-} from './usePriceAndFinancials';
+-
+-// Low-stock alerts and monitoring
+-export {
+-  useItemFrequencyQuery,
+-  useLowStockQuery,
+-} from './useLowStockAlerts';
+diff --git a/frontend/src/api/analytics/hooks/useDashboardMetrics.ts b/frontend/src/api/analytics/hooks/useDashboardMetrics.ts
+index 18e259c..13ec5b8 100644
+--- a/frontend/src/api/analytics/hooks/useDashboardMetrics.ts
++++ b/frontend/src/api/analytics/hooks/useDashboardMetrics.ts
+@@ -14,7 +14,7 @@
+  */
+ 
+ import { useQuery } from '@tanstack/react-query';
+-import { getItemCount, getSupplierCount, getLowStockCount } from '../index';
++import { getItemCount, getSupplierCount, getLowStockCount } from '../metrics';
+ 
+ /**
+  * Hook to load dashboard KPI metrics (inventory count, supplier count, low stock count).
+diff --git a/frontend/src/api/analytics/hooks/useLowStockAlerts.ts b/frontend/src/api/analytics/hooks/useLowStockAlerts.ts
+index 14a31f2..bae9c92 100644
+--- a/frontend/src/api/analytics/hooks/useLowStockAlerts.ts
++++ b/frontend/src/api/analytics/hooks/useLowStockAlerts.ts
+@@ -14,10 +14,8 @@
+  */
+ 
+ import { useQuery } from '@tanstack/react-query';
+-import {
+-  getItemUpdateFrequency,
+-  getLowStockItems,
+-} from '../index';
++import { getItemUpdateFrequency } from '../frequency';
++import { getLowStockItems } from '../lowStock';
+ 
+ /**
+  * Hook to load item update frequency for a supplier.
+diff --git a/frontend/src/api/analytics/hooks/usePriceAndFinancials.ts b/frontend/src/api/analytics/hooks/usePriceAndFinancials.ts
+index 62042ff..246000d 100644
+--- a/frontend/src/api/analytics/hooks/usePriceAndFinancials.ts
++++ b/frontend/src/api/analytics/hooks/usePriceAndFinancials.ts
+@@ -14,10 +14,8 @@
+  */
+ 
+ import { useQuery } from '@tanstack/react-query';
+-import {
+-  getPriceTrend,
+-  getFinancialSummary,
+-} from '../index';
++import { getPriceTrend } from '../priceTrend';
++import { getFinancialSummary } from '../finance';
+ import type { PriceTrendParams, FinancialSummaryParams } from '../validation';
+ 
+ /**
+diff --git a/frontend/src/api/analytics/hooks/useStockAnalytics.ts b/frontend/src/api/analytics/hooks/useStockAnalytics.ts
+index 7c04e47..e7ad2ec 100644
+--- a/frontend/src/api/analytics/hooks/useStockAnalytics.ts
++++ b/frontend/src/api/analytics/hooks/useStockAnalytics.ts
+@@ -14,11 +14,7 @@
+  */
+ 
+ import { useQuery } from '@tanstack/react-query';
+-import {
+-  getStockValueOverTime,
+-  getMonthlyStockMovement,
+-  getStockPerSupplier,
+-} from '../index';
++import { getStockValueOverTime, getMonthlyStockMovement, getStockPerSupplier } from '../stock';
+ import type { AnalyticsParams, StockMovementParams } from '../validation';
+ 
+ /**
+diff --git a/frontend/src/api/analytics/index.ts b/frontend/src/api/analytics/index.ts
+deleted file mode 100644
+index e8cff18..0000000
+--- a/frontend/src/api/analytics/index.ts
++++ /dev/null
+@@ -1,21 +0,0 @@
+-/**
+- * @module api/analytics
+- *
+- * Barrel that re-exports every public symbol from the analytics API layer so
+- * consumers can import from a single stable path (`@/api/analytics`) without
+- * knowing the internal module boundaries.
+- */
+-export * from './types';
+-export * from './util';
+-export * from './stock';
+-export * from './priceTrend';
+-export * from './suppliers';
+-export * from './lowStock';
+-export * from './finance';
+-export * from './frequency';
+-export * from './updates';
+-export * from './reasonBreakdown';
+-export * from './employees';
+-export * from './metrics';
+-export * from './validation';
+-export * from './hooks';
+diff --git a/frontend/src/api/analytics/lowStock.ts b/frontend/src/api/analytics/lowStock.ts
+index e7d508e..9f7655a 100644
+--- a/frontend/src/api/analytics/lowStock.ts
++++ b/frontend/src/api/analytics/lowStock.ts
+@@ -8,7 +8,7 @@
+ 
+ import http from '../httpClient';
+ import { isArrayOfRecords, pickNumber, pickString, paramClean } from './util';
+-import { isRecord } from '@/api/shared';
++import { isRecord } from '../shared/typeGuards';
+ import type { AnalyticsParams } from './validation';
+ import type { LowStockRow } from './types';
+ 
+diff --git a/frontend/src/api/analytics/metrics.ts b/frontend/src/api/analytics/metrics.ts
+index 5d6eca4..64cf565 100644
+--- a/frontend/src/api/analytics/metrics.ts
++++ b/frontend/src/api/analytics/metrics.ts
+@@ -9,7 +9,7 @@
+  */
+ 
+ import http from '../httpClient';
+-import { INVENTORY_BASE } from '@/api/shared';
++import { INVENTORY_BASE } from '../shared/constants';
+ 
+ /**
+  * Total number of inventory items currently stored in the system.
+diff --git a/frontend/src/api/analytics/types.ts b/frontend/src/api/analytics/types.ts
+index f99f16a..7f33576 100644
+--- a/frontend/src/api/analytics/types.ts
++++ b/frontend/src/api/analytics/types.ts
+@@ -1,15 +1,4 @@
+-/**
+- * @module api/analytics/types
+- *
+- * Canonical DTOs and narrow shared types for the analytics API layer.
+- * Shapes are intentionally minimal and stable: UI components depend on them
+- * directly, so backend field variations are absorbed by the fetch helpers
+- * rather than propagated here. AnalyticsParams is defined in ./validation
+- * (Zod schema) so type-safe parameter handling stays co-located with its
+- * validation logic.
+- */
+-
+-import type { ItemRef } from '@/api/shared';
++import type { ItemRef } from '../shared/types';
+ 
+ /** Tracks aggregate portfolio value at a point in time; drives the stock-value trend chart. */
+ export type StockValuePoint = { date: string; totalValue: number };
+diff --git a/frontend/src/api/analytics/util.ts b/frontend/src/api/analytics/util.ts
+index 1817330..10a8615 100644
+--- a/frontend/src/api/analytics/util.ts
++++ b/frontend/src/api/analytics/util.ts
+@@ -15,7 +15,7 @@
+  */
+ import type { AnalyticsParams } from './validation';
+ import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
+-import { isRecord } from '@/api/shared';
++import { isRecord } from '../shared/typeGuards';
+ 
+ /** Guards numeric fields from the backend against NaN, Infinity, and non-numeric strings so callers never silently accumulate bad values. */
+ export function asNumber(v: unknown): number {
+diff --git a/frontend/src/api/inventory/hooks/index.ts b/frontend/src/api/inventory/hooks/index.ts
+deleted file mode 100644
+index ccde741..0000000
+--- a/frontend/src/api/inventory/hooks/index.ts
++++ /dev/null
+@@ -1,19 +0,0 @@
+-/**
+- * @module api/inventory/hooks
+- *
+- * Barrel for the inventory data-fetching hooks. Import the hooks from this
+- * directory path (api/inventory/hooks) rather than the individual hook files
+- * so the hook files can be reorganized without touching call sites. Mirrors
+- * the index.ts barrel convention used by the analytics and suppliers hook
+- * directories.
+- *
+- * Caching strategy: suppliers 5 min (useSuppliersQuery), items 30 s
+- * (useItemSearchQuery, useItemDetailsQuery).
+- */
+-
+-export { useSuppliersQuery } from './useSuppliersQuery';
+-
+-// GET /api/inventory/search accepts only `name`, not supplierId, so this hook filters by supplier client-side
+-export { useItemSearchQuery } from './useItemSearchQuery';
+-
+-export { useItemDetailsQuery } from './useItemDetailsQuery';
+diff --git a/frontend/src/api/inventory/hooks/useItemDetailsQuery.ts b/frontend/src/api/inventory/hooks/useItemDetailsQuery.ts
+index 4b78b8b..ea2fdf7 100644
+--- a/frontend/src/api/inventory/hooks/useItemDetailsQuery.ts
++++ b/frontend/src/api/inventory/hooks/useItemDetailsQuery.ts
+@@ -10,7 +10,8 @@
+ 
+ import { useQuery } from '@tanstack/react-query';
+ import http from '../../httpClient';
+-import { isRecord, pickNumber } from '@/api/shared';
++import { isRecord } from '../../shared/typeGuards';
++import { pickNumber } from '../../shared/fieldPickers';
+ import type { ItemDetails } from '../types';
+ import { logError } from '../../../utils/logger';
+ 
+diff --git a/frontend/src/api/inventory/hooks/useItemSearchQuery.ts b/frontend/src/api/inventory/hooks/useItemSearchQuery.ts
+index 95d7d6a..e617705 100644
+--- a/frontend/src/api/inventory/hooks/useItemSearchQuery.ts
++++ b/frontend/src/api/inventory/hooks/useItemSearchQuery.ts
+@@ -8,7 +8,7 @@
+  */
+ 
+ import { useQuery } from '@tanstack/react-query';
+-import { searchItemsForSupplier } from '@/api/shared';
++import { searchItemsForSupplier } from '../../shared/itemSearch';
+ import type { SupplierOption, ItemOption } from '../../analytics/types';
+ 
+ /**
+diff --git a/frontend/src/api/inventory/index.ts b/frontend/src/api/inventory/index.ts
+deleted file mode 100644
+index 6335ea0..0000000
+--- a/frontend/src/api/inventory/index.ts
++++ /dev/null
+@@ -1,14 +0,0 @@
+-/**
+- * @module api/inventory
+- *
+- * Public barrel for the inventory API. Re-exports types, list-fetching
+- * utilities, mutation helpers, validation, and the inventory data-fetching
+- * hooks (useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery) via the
+- * hooks barrel.
+- */
+-export * from './types';
+-export * from './list';
+-export * from './mutations';
+-export * from './validation';
+-export * from './hooks';
+-
+diff --git a/frontend/src/api/inventory/itemMutations.ts b/frontend/src/api/inventory/itemMutations.ts
+index 92b2eab..c6a6587 100644
+--- a/frontend/src/api/inventory/itemMutations.ts
++++ b/frontend/src/api/inventory/itemMutations.ts
+@@ -10,7 +10,8 @@
+ import http from '../httpClient';
+ import { normalizeInventoryRow } from './normalizers';
+ import type { UpsertItemRequest, UpsertItemResponse } from './types';
+-import { errorMessage, extractApiError, INVENTORY_BASE } from '@/api/shared';
++import { errorMessage, extractApiError } from '../shared/errorHandling';
++import { INVENTORY_BASE } from '../shared/constants';
+ 
+ export { INVENTORY_BASE };
+ 
+diff --git a/frontend/src/api/inventory/list.ts b/frontend/src/api/inventory/list.ts
+deleted file mode 100644
+index e81ceda..0000000
+--- a/frontend/src/api/inventory/list.ts
++++ /dev/null
+@@ -1,13 +0,0 @@
+-/**
+- * @module api/inventory/list
+- *
+- * Barrel facade for inventory list operations.
+- * Re-exports getInventoryPage from listFetcher and toInventoryRow from rowNormalizers,
+- * preserving existing import paths after the module was split from a single file into
+- * focused single-responsibility modules — zero breaking changes for consuming components.
+- */
+-
+-export { getInventoryPage } from './listFetcher';
+-
+-// Re-exported for testing and reuse
+-export { toInventoryRow } from './rowNormalizers';
+diff --git a/frontend/src/api/inventory/listFetcher.ts b/frontend/src/api/inventory/listFetcher.ts
+index 2750b70..641bb85 100644
+--- a/frontend/src/api/inventory/listFetcher.ts
++++ b/frontend/src/api/inventory/listFetcher.ts
+@@ -20,7 +20,7 @@
+ import http from '../httpClient';
+ import type { InventoryListParams, InventoryListResponse, InventoryRow } from './types';
+ import { toInventoryRow } from './rowNormalizers';
+-import { INVENTORY_BASE } from '@/api/shared';
++import { INVENTORY_BASE } from '../shared/constants';
+ import { logError } from '../../utils/logger';
+ 
+ /** Frontend grid field -> backend entity property for the Pageable sort. */
+diff --git a/frontend/src/api/inventory/mutations.ts b/frontend/src/api/inventory/mutations.ts
+deleted file mode 100644
+index c3a8b67..0000000
+--- a/frontend/src/api/inventory/mutations.ts
++++ /dev/null
+@@ -1,41 +0,0 @@
+-/**
+- * @module api/inventory/mutations
+- *
+- * Barrel facade for inventory write operations and supporting types.
+- * Re-exports item lifecycle mutations from itemMutations, stock quantity adjustments
+- * from stockMutations, price changes from priceMutations, supplier queries from
+- * supplierQueries, row normalization from normalizers, and request/response
+- * types from types — providing a single stable import path that is decoupled from
+- * the internal module split.
+- */
+-
+-// Item lifecycle mutations (create, update, rename, delete)
+-export {
+-  upsertItem,
+-  renameItem,
+-  deleteItem,
+-  INVENTORY_BASE,
+-} from './itemMutations';
+-
+-// Stock adjustment mutations (quantity changes)
+-export { adjustQuantity } from './stockMutations';
+-
+-// Price change mutations
+-export { changePrice } from './priceMutations';
+-
+-// Supplier queries
+-export {
+-  listSuppliers,
+-  SUPPLIERS_BASE,
+-} from './supplierQueries';
+-
+-// Data normalization utilities
+-export { normalizeInventoryRow } from './normalizers';
+-
+-// Request/response types
+-export type {
+-  UpsertItemRequest,
+-  UpsertItemResponse,
+-  AdjustQuantityRequest,
+-  ChangePriceRequest,
+-} from './types';
+diff --git a/frontend/src/api/inventory/normalizers.ts b/frontend/src/api/inventory/normalizers.ts
+index 19401b4..88c78be 100644
+--- a/frontend/src/api/inventory/normalizers.ts
++++ b/frontend/src/api/inventory/normalizers.ts
+@@ -10,7 +10,7 @@
+  */
+ 
+ import type { InventoryRow } from './types';
+-import { isRecord } from '@/api/shared';
++import { isRecord } from '../shared/typeGuards';
+ import {
+   extractId,
+   extractName,
+diff --git a/frontend/src/api/inventory/priceMutations.ts b/frontend/src/api/inventory/priceMutations.ts
+index d2d12b5..85e2356 100644
+--- a/frontend/src/api/inventory/priceMutations.ts
++++ b/frontend/src/api/inventory/priceMutations.ts
+@@ -8,7 +8,8 @@
+ 
+ import http from '../httpClient';
+ import type { ChangePriceRequest, UpsertItemResponse } from './types';
+-import { INVENTORY_BASE, errorMessage, extractApiError } from '@/api/shared';
++import { INVENTORY_BASE } from '../shared/constants';
++import { errorMessage, extractApiError } from '../shared/errorHandling';
+ 
+ export { INVENTORY_BASE };
+ 
+diff --git a/frontend/src/api/inventory/rowFieldExtractors.ts b/frontend/src/api/inventory/rowFieldExtractors.ts
+index e3917d2..349654b 100644
+--- a/frontend/src/api/inventory/rowFieldExtractors.ts
++++ b/frontend/src/api/inventory/rowFieldExtractors.ts
+@@ -1,16 +1,4 @@
+-/**
+- * @file rowFieldExtractors.ts
+- * @module api/inventory/rowFieldExtractors
+- *
+- * @summary
+- * Field-level extractors for inventory row normalization. Each function pulls one
+- * logical field (or field group) from a raw backend record using defensive,
+- * multi-variant field picking to tolerate backend naming inconsistencies.
+- * Extracted from normalizeInventoryRow to keep that composer small and to give
+- * each backend-contract concern a single, testable touch point (ST-6).
+- */
+-
+-import { pickString, pickNumber, pickStringFromList } from '@/api/shared';
++import { pickString, pickNumber, pickStringFromList } from '../shared/fieldPickers';
+ 
+ /** Required identity. Tries id / itemId / item_id; undefined when none present. */
+ export function extractId(raw: Record<string, unknown>): string | undefined {
+diff --git a/frontend/src/api/inventory/rowNormalizers.ts b/frontend/src/api/inventory/rowNormalizers.ts
+index 793360b..40b5128 100644
+--- a/frontend/src/api/inventory/rowNormalizers.ts
++++ b/frontend/src/api/inventory/rowNormalizers.ts
+@@ -14,7 +14,7 @@
+  */
+ 
+ import type { InventoryRow } from './types';
+-import { pickString, pickNumber } from '@/api/shared';
++import { pickString, pickNumber } from '../shared/fieldPickers';
+ import { extractCode } from './rowFieldExtractors';
+ 
+ /**
+diff --git a/frontend/src/api/inventory/stockMutations.ts b/frontend/src/api/inventory/stockMutations.ts
+index 4d97962..c9fd16d 100644
+--- a/frontend/src/api/inventory/stockMutations.ts
++++ b/frontend/src/api/inventory/stockMutations.ts
+@@ -10,7 +10,8 @@
+ 
+ import http from '../httpClient';
+ import type { AdjustQuantityRequest, UpsertItemResponse } from './types';
+-import { INVENTORY_BASE, errorMessage, extractApiError } from '@/api/shared';
++import { INVENTORY_BASE } from '../shared/constants';
++import { errorMessage, extractApiError } from '../shared/errorHandling';
+ 
+ export { INVENTORY_BASE };
+ 
+diff --git a/frontend/src/api/inventory/supplierQueries.ts b/frontend/src/api/inventory/supplierQueries.ts
+index 26cee18..9b47f79 100644
+--- a/frontend/src/api/inventory/supplierQueries.ts
++++ b/frontend/src/api/inventory/supplierQueries.ts
+@@ -9,7 +9,10 @@
+  */
+ 
+ import http from '../httpClient';
+-import { isRecord, pickString, pickNumber, resDataOrEmpty, INVENTORY_BASE } from '@/api/shared';
++import { isRecord } from '../shared/typeGuards';
++import { pickString, pickNumber } from '../shared/fieldPickers';
++import { resDataOrEmpty } from '../shared/responseExtraction';
++import { INVENTORY_BASE } from '../shared/constants';
+ 
+ export { INVENTORY_BASE };
+ /** Suppliers domain API base path. */
+diff --git a/frontend/src/api/inventory/validation.ts b/frontend/src/api/inventory/validation.ts
+deleted file mode 100644
+index 269aa9a..0000000
+--- a/frontend/src/api/inventory/validation.ts
++++ /dev/null
+@@ -1,29 +0,0 @@
+-/**
+- * @file validation.ts
+- * @module api/inventory/validation
+- *
+- * @summary
+- * Backward-compatibility re-export shim for inventory validation schemas.
+- * All schema logic lives in pages/inventory/validation/inventoryValidation;
+- * this module preserves existing import paths during migration.
+- *
+- * @deprecated Import directly from pages/inventory/validation/inventoryValidation instead.
+- * This module will be removed in a future version.
+- */
+-
+-export {
+-  itemFormSchema,
+-  quantityAdjustSchema,
+-  priceChangeSchema,
+-  editItemSchema,
+-  deleteItemSchema,
+-  INCREASE_ADJUST_REASONS,
+-  DECREASE_ADJUST_REASONS,
+-  ADJUST_REASONS,
+-  type UpsertItemForm,
+-  type QuantityAdjustForm,
+-  type PriceChangeForm,
+-  type EditItemForm,
+-  type DeleteItemForm,
+-  type AdjustReason,
+-} from '../../pages/inventory/validation/inventoryValidation';
+diff --git a/frontend/src/api/shared/index.ts b/frontend/src/api/shared/index.ts
+deleted file mode 100644
+index 203a4ec..0000000
+--- a/frontend/src/api/shared/index.ts
++++ /dev/null
+@@ -1,7 +0,0 @@
+-export * from './typeGuards';
+-export * from './fieldPickers';
+-export * from './responseExtraction';
+-export * from './errorHandling';
+-export * from './constants';
+-export * from './types';
+-export * from './itemSearch';
+diff --git a/frontend/src/api/suppliers/hooks/index.ts b/frontend/src/api/suppliers/hooks/index.ts
+deleted file mode 100644
+index 5a8a687..0000000
+--- a/frontend/src/api/suppliers/hooks/index.ts
++++ /dev/null
+@@ -1,19 +0,0 @@
+-/**
+- * @file index.ts
+- * @module api/suppliers/hooks
+- *
+- * @summary
+- * Barrel export for supplier React Query hooks.
+- *
+- * @enterprise
+- * - useSuppliersPageQuery is a legacy alias for useSupplierPageQuery; both are exported to avoid
+- *   breaking existing consumers while the canonical name is standardized.
+- */
+-
+-// legacy alias kept for backward compatibility
+-export { useSupplierPageQuery as useSuppliersPageQuery } from './useSupplierPageQuery';
+-export { useSupplierSearchQuery } from './useSupplierSearchQuery';
+-export { useSupplierByIdQuery } from './useSupplierByIdQuery';
+-
+-// canonical name
+-export { useSupplierPageQuery } from './useSupplierPageQuery';
+diff --git a/frontend/src/api/suppliers/index.ts b/frontend/src/api/suppliers/index.ts
+deleted file mode 100644
+index 42ff04d..0000000
+--- a/frontend/src/api/suppliers/index.ts
++++ /dev/null
+@@ -1,27 +0,0 @@
+-/**
+- * @file index.ts
+- * @module api/suppliers
+- *
+- * @summary
+- * Barrel export for the supplier API module.
+- *
+- * @enterprise
+- * - Single import point for all supplier API surface: fetcher, mutations, normalizers, types, validation, hooks.
+- * - toSupplierRow is re-exported for testing and for any consumer that normalizes outside the standard hooks.
+- */
+-
+-// list fetcher and endpoint constant
+-export { getSuppliersPage, searchSuppliersByName, getSupplierById, SUPPLIERS_BASE } from './supplierListFetcher';
+-
+-// create / update / delete
+-export { createSupplier, updateSupplier, deleteSupplier } from './supplierMutations';
+-
+-// low-level normalizer; prefer hooks or mutations for typical use
+-export { toSupplierRow } from './supplierNormalizers';
+-
+-// Types and validation
+-export * from './types';
+-export * from './validation';
+-
+-// Hooks
+-export * from './hooks';
+diff --git a/frontend/src/api/suppliers/supplierMutations.ts b/frontend/src/api/suppliers/supplierMutations.ts
+index 6dc5db3..92979ac 100644
+--- a/frontend/src/api/suppliers/supplierMutations.ts
++++ b/frontend/src/api/suppliers/supplierMutations.ts
+@@ -14,7 +14,7 @@
+ import http from '../httpClient';
+ import type { SupplierRow, SupplierDTO } from './types';
+ import { toSupplierRow } from './supplierNormalizers';
+-import { errorMessage } from '@/api/shared';
++import { errorMessage } from '../shared/errorHandling';
+ import { SUPPLIERS_BASE } from './supplierListFetcher';
+ 
+ /**
+diff --git a/frontend/src/api/suppliers/supplierNormalizers.ts b/frontend/src/api/suppliers/supplierNormalizers.ts
+index 79d08b1..a819776 100644
+--- a/frontend/src/api/suppliers/supplierNormalizers.ts
++++ b/frontend/src/api/suppliers/supplierNormalizers.ts
+@@ -13,7 +13,7 @@
+  */
+ 
+ import type { SupplierRow } from './types';
+-import { pickString, pickNumber } from '@/api/shared';
++import { pickString, pickNumber } from '../shared/fieldPickers';
+ 
+ /**
+  * Converts a single raw SupplierDTO into a SupplierRow.
+diff --git a/frontend/src/app/HamburgerMenu/NotificationsMenuSection.tsx b/frontend/src/app/HamburgerMenu/NotificationsMenuSection.tsx
+index e75b79d..9864f9a 100644
+--- a/frontend/src/app/HamburgerMenu/NotificationsMenuSection.tsx
++++ b/frontend/src/app/HamburgerMenu/NotificationsMenuSection.tsx
+@@ -1,18 +1,4 @@
+-/**
+- * @file NotificationsMenuSection.tsx
+- * @module app/HamburgerMenu/NotificationsMenuSection
+- *
+- * @summary
+- * Notification section coordinator; reads lowStockCount from useDashboardMetrics
+- * and renders one of three states: loading skeleton, low-stock alert, or all-clear.
+- *
+- * @enterprise
+- * Data origin: api/analytics/hooks (useDashboardMetrics); only .data?.lowStockCount
+- * is consumed. Mounted exclusively by MenuContent/MenuSectionsRenderer.
+- * Composes the NotificationSettings/* components rather than reimplementing their JSX.
+- */
+-
+-import { useDashboardMetrics } from '../../api/analytics/hooks';
++import { useDashboardMetrics } from '../../api/analytics/hooks/useDashboardMetrics';
+ import AllClearNotificationSection from './NotificationSettings/AllClearNotificationSection';
+ import LowStockAlertSection from './NotificationSettings/LowStockAlertSection';
+ import NotificationLoadingState from './NotificationSettings/NotificationLoadingState';
+diff --git a/frontend/src/pages/analytics/blocks/LowStockTable.tsx b/frontend/src/pages/analytics/blocks/LowStockTable.tsx
+index 09d2921..c89afe6 100644
+--- a/frontend/src/pages/analytics/blocks/LowStockTable.tsx
++++ b/frontend/src/pages/analytics/blocks/LowStockTable.tsx
+@@ -41,7 +41,9 @@ import {
+ import { useTheme as useMuiTheme } from '@mui/material/styles';
+ import { useQuery } from '@tanstack/react-query';
+ import { useTranslation } from 'react-i18next';
+-import { getLowStockItems, type LowStockRow, type AnalyticsParams } from '../../../api/analytics';
++import { getLowStockItems } from '../../../api/analytics/lowStock';
++import type { LowStockRow } from '../../../api/analytics/types';
++import type { AnalyticsParams } from '../../../api/analytics/validation';
+ import { useSettings } from '../../../hooks/useSettings';
+ import { formatNumber } from '../../../utils/formatters';
+ import { LOW_STOCK_CRITICAL_THRESHOLD } from '../../../config/inventoryPolicy';
+diff --git a/frontend/src/pages/analytics/blocks/MovementLineCard.tsx b/frontend/src/pages/analytics/blocks/MovementLineCard.tsx
+index f1e1847..bc4bdec 100644
+--- a/frontend/src/pages/analytics/blocks/MovementLineCard.tsx
++++ b/frontend/src/pages/analytics/blocks/MovementLineCard.tsx
+@@ -17,7 +17,8 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
+ import { useTranslation } from 'react-i18next';
+ import { useQuery } from '@tanstack/react-query';
+ import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from 'recharts';
+-import { getMonthlyStockMovement, type MonthlyMovement } from '../../../api/analytics';
++import { getMonthlyStockMovement } from '../../../api/analytics/stock';
++import type { MonthlyMovement } from '../../../api/analytics/types';
+ import { useSettings } from '../../../hooks/useSettings';
+ import { formatDate, formatNumber } from '../../../utils/formatters';
+ 
+diff --git a/frontend/src/pages/analytics/blocks/PriceTrendCard.tsx b/frontend/src/pages/analytics/blocks/PriceTrendCard.tsx
+index 1f859f6..81805a8 100644
+--- a/frontend/src/pages/analytics/blocks/PriceTrendCard.tsx
++++ b/frontend/src/pages/analytics/blocks/PriceTrendCard.tsx
+@@ -31,11 +31,10 @@ import type { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
+ import { useTheme as useMuiTheme } from '@mui/material/styles';
+ import { useTranslation } from 'react-i18next';
+ import { useQuery, keepPreviousData } from '@tanstack/react-query';
+-import {
+-  getPriceTrend,
+-  type PricePoint,
+-} from '../../../api/analytics';
+-import { searchItemsForSupplier, searchItemsGlobal, type ItemRef } from '@/api/shared';
++import { getPriceTrend } from '../../../api/analytics/priceTrend';
++import type { PricePoint } from '../../../api/analytics/types';
++import { searchItemsForSupplier, searchItemsGlobal } from '../../../api/shared/itemSearch';
++import type { ItemRef } from '../../../api/shared/types';
+ import { useDebounced } from '../../../hooks/useDebounced';
+ import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
+ import { useSettings } from '../../../hooks/useSettings';
+diff --git a/frontend/src/pages/analytics/blocks/StockPerSupplierDonut.tsx b/frontend/src/pages/analytics/blocks/StockPerSupplierDonut.tsx
+index 47659c5..9a990c5 100644
+--- a/frontend/src/pages/analytics/blocks/StockPerSupplierDonut.tsx
++++ b/frontend/src/pages/analytics/blocks/StockPerSupplierDonut.tsx
+@@ -17,7 +17,8 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
+ import { useTranslation } from 'react-i18next';
+ import { useQuery } from '@tanstack/react-query';
+ import { ResponsiveContainer, PieChart, Pie, Tooltip, Legend, Cell } from 'recharts';
+-import { getStockPerSupplier, type StockPerSupplierPoint } from '../../../api/analytics';
++import { getStockPerSupplier } from '../../../api/analytics/stock';
++import type { StockPerSupplierPoint } from '../../../api/analytics/types';
+ import { useSettings } from '../../../hooks/useSettings';
+ import { formatNumber } from '../../../utils/formatters';
+ 
+diff --git a/frontend/src/pages/analytics/sections/MovementsSection.tsx b/frontend/src/pages/analytics/sections/MovementsSection.tsx
+index a32b1b0..0858aa5 100644
+--- a/frontend/src/pages/analytics/sections/MovementsSection.tsx
++++ b/frontend/src/pages/analytics/sections/MovementsSection.tsx
+@@ -25,7 +25,8 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
+ import { useTranslation } from 'react-i18next';
+ import { useQuery } from '@tanstack/react-query';
+ import { getReasonBreakdown, type ReasonBreakdownRow } from '../../../api/analytics/reasonBreakdown';
+-import { searchItemsForSupplier, searchItemsGlobal, type ItemRef } from '@/api/shared';
++import { searchItemsForSupplier, searchItemsGlobal } from '../../../api/shared/itemSearch';
++import type { ItemRef } from '../../../api/shared/types';
+ import { useDebounced } from '../../../hooks/useDebounced';
+ import ReasonBreakdownChartCard, { type ReasonBreakdownDatum } from './ReasonBreakdownChartCard';
+ import MovementDrilldownTable from './MovementDrilldownTable';
+diff --git a/frontend/src/pages/dashboard/Dashboard.tsx b/frontend/src/pages/dashboard/Dashboard.tsx
+index 7a2789c..fbe638a 100644
+--- a/frontend/src/pages/dashboard/Dashboard.tsx
++++ b/frontend/src/pages/dashboard/Dashboard.tsx
+@@ -28,7 +28,7 @@
+ import * as React from 'react';
+ import { Box, Grid, Button, Stack, Typography, Paper } from '@mui/material';
+ import { useTranslation } from 'react-i18next';
+-import { useDashboardMetrics } from '../../api/analytics/hooks';
++import { useDashboardMetrics } from '../../api/analytics/hooks/useDashboardMetrics';
+ import MonthlyMovementMini from './blocks/MonthlyMovementMini';
+ import StatCard from '../../components/ui/StatCard';
+ import { useNavigate } from 'react-router-dom';
+diff --git a/frontend/src/pages/dashboard/blocks/MonthlyMovementMini.tsx b/frontend/src/pages/dashboard/blocks/MonthlyMovementMini.tsx
+index 0e37766..6900575 100644
+--- a/frontend/src/pages/dashboard/blocks/MonthlyMovementMini.tsx
++++ b/frontend/src/pages/dashboard/blocks/MonthlyMovementMini.tsx
+@@ -28,7 +28,7 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
+ import { useQuery } from '@tanstack/react-query';
+ import { useTranslation } from 'react-i18next';
+ import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
+-import { getMonthlyStockMovement } from '../../../api/analytics';
++import { getMonthlyStockMovement } from '../../../api/analytics/stock';
+ import { getTodayIso, getDaysAgoIso, formatNumber } from '../../../utils/formatters';
+ import { useSettings } from '../../../hooks/useSettings';
+ 
+diff --git a/frontend/src/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types.ts b/frontend/src/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types.ts
+index 3da834c..071496b 100644
+--- a/frontend/src/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types.ts
++++ b/frontend/src/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types.ts
+@@ -19,11 +19,9 @@
+  */
+ 
+ import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
+-import type {
+-  useSuppliersQuery,
+-  useItemSearchQuery,
+-  useItemDetailsQuery,
+-} from '../../../../api/inventory/hooks';
++import type { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
++import type { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
++import type { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
+ 
+ /**
+  * Props for DeleteItemDialog component
+diff --git a/frontend/src/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers.ts b/frontend/src/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers.ts
+index 537c3fe..fd4e7f4 100644
+--- a/frontend/src/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers.ts
++++ b/frontend/src/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers.ts
+@@ -22,7 +22,7 @@
+ import * as React from 'react';
+ import { useTranslation } from 'react-i18next';
+ import { useToast } from '../../../../context/toast';
+-import { deleteItem } from '../../../../api/inventory/mutations';
++import { deleteItem } from '../../../../api/inventory/itemMutations';
+ import { handleDeleteError } from './deleteItemErrorHandler';
+ import type { UseDeleteItemStateReturn } from './useDeleteItemState';
+ import { logError } from '../../../../utils/logger';
+diff --git a/frontend/src/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries.ts b/frontend/src/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries.ts
+index 00b7d6d..ede7067 100644
+--- a/frontend/src/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries.ts
++++ b/frontend/src/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries.ts
+@@ -17,11 +17,9 @@
+  */
+ 
+ import type { SupplierOption } from '../../../../api/analytics/types';
+-import {
+-  useSuppliersQuery,
+-  useItemSearchQuery,
+-  useItemDetailsQuery,
+-} from '../../../../api/inventory/hooks';
++import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
++import { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
++import { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
+ 
+ export function useDeleteItemQueries(
+   dialogOpen: boolean,
+diff --git a/frontend/src/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState.ts b/frontend/src/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState.ts
+index 2b93d9d..f30f1c8 100644
+--- a/frontend/src/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState.ts
++++ b/frontend/src/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState.ts
+@@ -28,7 +28,7 @@ import * as React from 'react';
+ import { useForm } from 'react-hook-form';
+ import { zodResolver } from '@hookform/resolvers/zod';
+ import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
+-import { deleteItemSchema, type DeleteItemForm } from '../../../../api/inventory/validation';
++import { deleteItemSchema, type DeleteItemForm } from '../../validation/inventoryValidation';
+ 
+ export function useDeleteItemState() {
+   // Selection state - core domain entities
+diff --git a/frontend/src/pages/inventory/dialogs/EditItemDialog/useEditItemForm.ts b/frontend/src/pages/inventory/dialogs/EditItemDialog/useEditItemForm.ts
+index 8a70ac4..fda6a71 100644
+--- a/frontend/src/pages/inventory/dialogs/EditItemDialog/useEditItemForm.ts
++++ b/frontend/src/pages/inventory/dialogs/EditItemDialog/useEditItemForm.ts
+@@ -33,14 +33,12 @@ import { useForm, type Control, type UseFormStateReturn, type UseFormSetValue }
+ import { zodResolver } from '@hookform/resolvers/zod';
+ import { useTranslation } from 'react-i18next';
+ import { useToast } from '../../../../context/toast';
+-import { renameItem } from '../../../../api/inventory/mutations';
+-import { editItemSchema, type EditItemForm } from '../../../../api/inventory/validation';
++import { renameItem } from '../../../../api/inventory/itemMutations';
++import { editItemSchema, type EditItemForm } from '../../validation/inventoryValidation';
+ import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
+-import {
+-  useSuppliersQuery,
+-  useItemSearchQuery,
+-  useItemDetailsQuery,
+-} from '../../../../api/inventory/hooks';
++import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
++import { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
++import { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
+ import { logError } from '../../../../utils/logger';
+ 
+ /**
+diff --git a/frontend/src/pages/inventory/dialogs/ItemFormDialog/ItemForm.tsx b/frontend/src/pages/inventory/dialogs/ItemFormDialog/ItemForm.tsx
+index 50c7bd4..399a083 100644
+--- a/frontend/src/pages/inventory/dialogs/ItemFormDialog/ItemForm.tsx
++++ b/frontend/src/pages/inventory/dialogs/ItemFormDialog/ItemForm.tsx
+@@ -38,8 +38,8 @@ import {
+ } from '@mui/material';
+ import { useTranslation } from 'react-i18next';
+ import type { SupplierOption } from '../../../../api/analytics/types';
+-import type { UpsertItemForm } from '../../../../api/inventory/validation';
+-import type { InventoryRow } from '../../../../api/inventory';
++import type { UpsertItemForm } from '../../validation/inventoryValidation';
++import type { InventoryRow } from '../../../../api/inventory/types';
+ import type { UseItemFormReturn } from './useItemForm';
+ 
+ /**
+diff --git a/frontend/src/pages/inventory/dialogs/ItemFormDialog/ItemFormDialog.types.ts b/frontend/src/pages/inventory/dialogs/ItemFormDialog/ItemFormDialog.types.ts
+index e2c28d0..aeae4d7 100644
+--- a/frontend/src/pages/inventory/dialogs/ItemFormDialog/ItemFormDialog.types.ts
++++ b/frontend/src/pages/inventory/dialogs/ItemFormDialog/ItemFormDialog.types.ts
+@@ -1,20 +1,4 @@
+-/**
+- * @file ItemFormDialog.types.ts
+- * @module pages/inventory/dialogs/ItemFormDialog/ItemFormDialog.types
+- *
+- * @summary
+- * Props type for the ItemFormDialog component.
+- *
+- * @enterprise
+- * - initial is the create-vs-edit switch. Omitting it (or passing null
+- *   or undefined) puts the dialog in create mode; passing an
+- *   InventoryRow puts it in edit mode and pre-fills the form fields.
+- * - onSaved is optional and intentionally decoupled from onClose; the
+- *   parent decides whether to refresh its data on close, on save, or
+- *   on both.
+- */
+-
+-import type { InventoryRow } from '../../../../api/inventory';
++import type { InventoryRow } from '../../../../api/inventory/types';
+ 
+ /**
+  * ItemFormDialogProps - Main dialog component props
+diff --git a/frontend/src/pages/inventory/dialogs/ItemFormDialog/useItemForm.ts b/frontend/src/pages/inventory/dialogs/ItemFormDialog/useItemForm.ts
+index c3e1285..dae69d5 100644
+--- a/frontend/src/pages/inventory/dialogs/ItemFormDialog/useItemForm.ts
++++ b/frontend/src/pages/inventory/dialogs/ItemFormDialog/useItemForm.ts
+@@ -42,11 +42,11 @@ import { useForm, type Control, type UseFormStateReturn, type UseFormSetValue, t
+ import { zodResolver } from '@hookform/resolvers/zod';
+ import { useTranslation } from 'react-i18next';
+ import { useToast } from '../../../../context/toast';
+-import { upsertItem } from '../../../../api/inventory/mutations';
+-import { itemFormSchema, type UpsertItemForm } from '../../../../api/inventory/validation';
+-import type { UpsertItemRequest, InventoryRow } from '../../../../api/inventory';
++import { upsertItem } from '../../../../api/inventory/itemMutations';
++import { itemFormSchema, type UpsertItemForm } from '../../validation/inventoryValidation';
++import type { UpsertItemRequest, InventoryRow } from '../../../../api/inventory/types';
+ import type { SupplierOption } from '../../../../api/analytics/types';
+-import { useSuppliersQuery } from '../../../../api/inventory/hooks';
++import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
+ import { DEFAULT_MIN_QUANTITY } from '../../../../config/inventoryPolicy';
+ 
+ /**
+diff --git a/frontend/src/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm.ts b/frontend/src/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm.ts
+index ffa06d9..91bd4db 100644
+--- a/frontend/src/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm.ts
++++ b/frontend/src/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm.ts
+@@ -27,8 +27,8 @@ import { useForm, type UseFormRegister, type UseFormSetError, type UseFormClearE
+ import { zodResolver } from '@hookform/resolvers/zod';
+ import { useTranslation } from 'react-i18next';
+ import { useToast } from '../../../../context/toast';
+-import { changePrice } from '../../../../api/inventory/mutations';
+-import { priceChangeSchema, type PriceChangeForm } from '../../../../api/inventory/validation';
++import { changePrice } from '../../../../api/inventory/priceMutations';
++import { priceChangeSchema, type PriceChangeForm } from '../../validation/inventoryValidation';
+ import { usePriceChangeFormState, type PriceChangeFormState, type PriceChangeFormStateSetters } from './usePriceChangeFormState';
+ import { usePriceChangeFormQueries, type PriceChangeFormQueries } from './usePriceChangeFormQueries';
+ import { logError } from '../../../../utils/logger';
+diff --git a/frontend/src/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeFormQueries.ts b/frontend/src/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeFormQueries.ts
+index c6cd1ca..cc15cc4 100644
+--- a/frontend/src/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeFormQueries.ts
++++ b/frontend/src/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeFormQueries.ts
+@@ -22,10 +22,12 @@
+  */
+ 
+ import * as React from 'react';
+-import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '../../../../api/inventory/hooks';
++import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
++import { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
++import { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
+ import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
+ import type { UseFormSetValue, UseFormClearErrors } from 'react-hook-form';
+-import type { PriceChangeForm } from '../../../../api/inventory/validation';
++import type { PriceChangeForm } from '../../validation/inventoryValidation';
+ 
+ export interface PriceChangeFormQueries {
+   suppliers: SupplierOption[];
+diff --git a/frontend/src/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput.tsx b/frontend/src/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput.tsx
+index cc9ace9..e263f40 100644
+--- a/frontend/src/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput.tsx
++++ b/frontend/src/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput.tsx
+@@ -25,12 +25,7 @@ import * as React from 'react';
+ import { TextField, FormControl, InputLabel, Select, MenuItem, Typography, Box } from '@mui/material';
+ import { Controller, useWatch, type Control, type FieldErrors } from 'react-hook-form';
+ import { useTranslation } from 'react-i18next';
+-import {
+-  INCREASE_ADJUST_REASONS,
+-  DECREASE_ADJUST_REASONS,
+-  ADJUST_REASONS,
+-  type QuantityAdjustForm,
+-} from '../../../../api/inventory/validation';
++import { INCREASE_ADJUST_REASONS, DECREASE_ADJUST_REASONS, ADJUST_REASONS, type QuantityAdjustForm } from '../../validation/inventoryValidation';
+ 
+ interface QuantityAdjustQuantityInputProps {
+   control: Control<QuantityAdjustForm>;
+diff --git a/frontend/src/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm.ts b/frontend/src/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm.ts
+index abf0a82..d90c12f 100644
+--- a/frontend/src/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm.ts
++++ b/frontend/src/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm.ts
+@@ -33,8 +33,8 @@ import type { Control, UseFormStateReturn, UseFormSetValue } from 'react-hook-fo
+ import { zodResolver } from '@hookform/resolvers/zod';
+ import { useTranslation } from 'react-i18next';
+ import { useToast } from '../../../../context/toast';
+-import { adjustQuantity } from '../../../../api/inventory/mutations';
+-import { quantityAdjustSchema, type QuantityAdjustForm } from '../../../../api/inventory/validation';
++import { adjustQuantity } from '../../../../api/inventory/stockMutations';
++import { quantityAdjustSchema, type QuantityAdjustForm } from '../../validation/inventoryValidation';
+ import { useQuantityAdjustFormState } from './useQuantityAdjustFormState';
+ import { useQuantityAdjustFormQueries } from './useQuantityAdjustFormQueries';
+ import type { QuantityAdjustFormState, QuantityAdjustFormStateSetters } from './useQuantityAdjustFormState';
+diff --git a/frontend/src/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustFormQueries.ts b/frontend/src/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustFormQueries.ts
+index 7ebb791..9c1836c 100644
+--- a/frontend/src/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustFormQueries.ts
++++ b/frontend/src/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustFormQueries.ts
+@@ -26,11 +26,13 @@
+  */
+ 
+ import * as React from 'react';
+-import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '../../../../api/inventory/hooks';
++import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
++import { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
++import { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
+ import { useItemPriceQuery } from './useItemPriceQuery';
+ import type { QuantityAdjustFormState, QuantityAdjustFormStateSetters } from './useQuantityAdjustFormState';
+ import type { UseFormSetValue } from 'react-hook-form';
+-import type { QuantityAdjustForm } from '../../../../api/inventory/validation';
++import type { QuantityAdjustForm } from '../../validation/inventoryValidation';
+ 
+ export interface QuantityAdjustFormQueries {
+   suppliers: ReturnType<typeof useSuppliersQuery>['data'];
+diff --git a/frontend/src/pages/inventory/hooks/useInventoryPageData.ts b/frontend/src/pages/inventory/hooks/useInventoryPageData.ts
+index 5d558d7..dc3a9f2 100644
+--- a/frontend/src/pages/inventory/hooks/useInventoryPageData.ts
++++ b/frontend/src/pages/inventory/hooks/useInventoryPageData.ts
+@@ -23,8 +23,9 @@
+  */
+ 
+ import * as React from 'react';
+-import { useSuppliersQuery } from '../../../api/inventory/hooks';
+-import { getInventoryPage, type InventoryListResponse, type InventoryRow } from '../../../api/inventory';
++import { useSuppliersQuery } from '../../../api/inventory/hooks/useSuppliersQuery';
++import { getInventoryPage } from '../../../api/inventory/listFetcher';
++import type { InventoryListResponse, InventoryRow } from '../../../api/inventory/types';
+ import type { GridColDef } from '@mui/x-data-grid';
+ import { useInventoryColumns } from './useInventoryColumns';
+ import { useInventoryRowStyling } from './useInventoryRowStyling';
+diff --git a/frontend/src/pages/suppliers/SuppliersBoard.tsx b/frontend/src/pages/suppliers/SuppliersBoard.tsx
+index b6fccfd..7cf343a 100644
+--- a/frontend/src/pages/suppliers/SuppliersBoard.tsx
++++ b/frontend/src/pages/suppliers/SuppliersBoard.tsx
+@@ -19,7 +19,7 @@
+ import * as React from 'react';
+ import { Box, Paper } from '@mui/material';
+ import { useAuth } from '../../hooks/useAuth';
+-import type { SupplierRow } from '../../api/suppliers';
++import type { SupplierRow } from '../../api/suppliers/types';
+ 
+ import { useSuppliersBoardState } from './hooks';
+ import {
+diff --git a/frontend/src/pages/suppliers/components/SuppliersSearchPanel.tsx b/frontend/src/pages/suppliers/components/SuppliersSearchPanel.tsx
+index 1961344..b61869a 100644
+--- a/frontend/src/pages/suppliers/components/SuppliersSearchPanel.tsx
++++ b/frontend/src/pages/suppliers/components/SuppliersSearchPanel.tsx
+@@ -28,7 +28,7 @@ import {
+   Button,
+ } from '@mui/material';
+ import { useTranslation } from 'react-i18next';
+-import type { SupplierRow } from '../../../api/suppliers';
++import type { SupplierRow } from '../../../api/suppliers/types';
+ 
+ /**
+  * Suppliers Search Panel component props.
+diff --git a/frontend/src/pages/suppliers/components/SuppliersTable.tsx b/frontend/src/pages/suppliers/components/SuppliersTable.tsx
+index b904b89..c061e89 100644
+--- a/frontend/src/pages/suppliers/components/SuppliersTable.tsx
++++ b/frontend/src/pages/suppliers/components/SuppliersTable.tsx
+@@ -31,7 +31,7 @@ import {
+ import { useTranslation } from 'react-i18next';
+ import { useSettings } from '../../../hooks/useSettings';
+ import { formatDate } from '../../../utils/formatters';
+-import type { SupplierRow } from '../../../api/suppliers';
++import type { SupplierRow } from '../../../api/suppliers/types';
+ 
+ /**
+  * Suppliers Table component props.
+diff --git a/frontend/src/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierDialog.tsx b/frontend/src/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierDialog.tsx
+index 8a985ea..38fabdd 100644
+--- a/frontend/src/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierDialog.tsx
++++ b/frontend/src/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierDialog.tsx
+@@ -30,7 +30,7 @@ import { useHelp } from '../../../../hooks/useHelp';
+ import { useCreateSupplierForm } from './useCreateSupplierForm';
+ import { SupplierFormFields } from './CreateSupplierForm';
+ import type { CreateSupplierDialogProps } from './CreateSupplierDialog.types';
+-import type { CreateSupplierForm } from '../../../../api/suppliers';
++import type { CreateSupplierForm } from '../../../../api/suppliers/validation';
+ 
+ /**
+  * Dialog for creating a new supplier.
+diff --git a/frontend/src/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm.tsx b/frontend/src/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm.tsx
+index 0412981..b3b8489 100644
+--- a/frontend/src/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm.tsx
++++ b/frontend/src/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm.tsx
+@@ -16,7 +16,7 @@ import * as React from 'react';
+ import { TextField, Box, Alert } from '@mui/material';
+ import { useTranslation } from 'react-i18next';
+ import type { UseFormRegister, FieldErrors } from 'react-hook-form';
+-import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../api/suppliers';
++import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../api/suppliers/validation';
+ 
+ /**
+  * Props for CreateSupplierForm component.
+diff --git a/frontend/src/pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm.ts b/frontend/src/pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm.ts
+index 668c587..335f11e 100644
+--- a/frontend/src/pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm.ts
++++ b/frontend/src/pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm.ts
+@@ -17,7 +17,8 @@ import { useForm, type UseFormReturn } from 'react-hook-form';
+ import { zodResolver } from '@hookform/resolvers/zod';
+ import type { Resolver } from 'react-hook-form';
+ import { useTranslation } from 'react-i18next';
+-import { createSupplier, createSupplierSchema, type CreateSupplierForm } from '../../../../api/suppliers';
++import { createSupplier } from '../../../../api/suppliers/supplierMutations';
++import { createSupplierSchema, type CreateSupplierForm } from '../../../../api/suppliers/validation';
+ 
+ /**
+  * Hook return type for CreateSupplierForm.
+diff --git a/frontend/src/pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm.ts b/frontend/src/pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm.ts
+index 462cf3a..d17ef42 100644
+--- a/frontend/src/pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm.ts
++++ b/frontend/src/pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm.ts
+@@ -16,7 +16,7 @@
+ import * as React from 'react';
+ import { useTranslation } from 'react-i18next';
+ import { useAuth } from '../../../../hooks/useAuth';
+-import { deleteSupplier } from '../../../../api/suppliers';
++import { deleteSupplier } from '../../../../api/suppliers/supplierMutations';
+ import { useSupplierSearch } from '../../hooks/useSupplierSearch';
+ import type { SupplierRow } from '../../../../api/suppliers/types';
+ import { logError } from '../../../../utils/logger';
+diff --git a/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation.tsx b/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation.tsx
+index 9ac220b..0d0a0aa 100644
+--- a/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation.tsx
++++ b/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation.tsx
+@@ -27,7 +27,7 @@ import {
+   CircularProgress,
+ } from '@mui/material';
+ import { useTranslation } from 'react-i18next';
+-import type { EditSupplierForm } from '../../../../api/suppliers';
++import type { EditSupplierForm } from '../../../../api/suppliers/validation';
+ import type { SupplierRow } from '../../../../api/suppliers/types';
+ 
+ /**
+diff --git a/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep.tsx b/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep.tsx
+index 289ae00..0faa1eb 100644
+--- a/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep.tsx
++++ b/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep.tsx
+@@ -23,7 +23,7 @@ import {
+   Divider,
+ } from '@mui/material';
+ import { useTranslation } from 'react-i18next';
+-import type { EditSupplierForm } from '../../../../api/suppliers';
++import type { EditSupplierForm } from '../../../../api/suppliers/validation';
+ import type { SupplierRow } from '../../../../api/suppliers/types';
+ 
+ /**
+diff --git a/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierConfirmation.ts b/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierConfirmation.ts
+index 67daf84..ed5b233 100644
+--- a/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierConfirmation.ts
++++ b/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierConfirmation.ts
+@@ -13,7 +13,7 @@
+  */
+ 
+ import * as React from 'react';
+-import type { EditSupplierForm } from '../../../../api/suppliers';
++import type { EditSupplierForm } from '../../../../api/suppliers/validation';
+ 
+ /**
+  * Hook return type for confirmation state.
+diff --git a/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm.ts b/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm.ts
+index efcdb02..f0ee806 100644
+--- a/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm.ts
++++ b/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm.ts
+@@ -19,7 +19,8 @@ import * as React from 'react';
+ import type { UseFormReturn } from 'react-hook-form';
+ import { useTranslation } from 'react-i18next';
+ import { useAuth } from '../../../../hooks/useAuth';
+-import { updateSupplier, type EditSupplierForm } from '../../../../api/suppliers';
++import { updateSupplier } from '../../../../api/suppliers/supplierMutations';
++import type { EditSupplierForm } from '../../../../api/suppliers/validation';
+ import { useSupplierSearch } from '../../hooks/useSupplierSearch';
+ import { useEditSupplierFormState } from './useEditSupplierFormState';
+ import { useEditSupplierConfirmation } from './useEditSupplierConfirmation';
+diff --git a/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierFormState.ts b/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierFormState.ts
+index 80a8a36..7f660fa 100644
+--- a/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierFormState.ts
++++ b/frontend/src/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierFormState.ts
+@@ -17,7 +17,7 @@ import * as React from 'react';
+ import { useForm, type UseFormReturn } from 'react-hook-form';
+ import { zodResolver } from '@hookform/resolvers/zod';
+ import type { Resolver } from 'react-hook-form';
+-import { editSupplierSchema, type EditSupplierForm } from '../../../../api/suppliers';
++import { editSupplierSchema, type EditSupplierForm } from '../../../../api/suppliers/validation';
+ import type { SupplierRow } from '../../../../api/suppliers/types';
+ 
+ /**
+diff --git a/frontend/src/pages/suppliers/handlers/useSearchHandlers.ts b/frontend/src/pages/suppliers/handlers/useSearchHandlers.ts
+index 8869da9..9c6251e 100644
+--- a/frontend/src/pages/suppliers/handlers/useSearchHandlers.ts
++++ b/frontend/src/pages/suppliers/handlers/useSearchHandlers.ts
+@@ -12,7 +12,7 @@
+  */
+ 
+ import { useCallback } from 'react';
+-import type { SupplierRow } from '../../../api/suppliers';
++import type { SupplierRow } from '../../../api/suppliers/types';
+ import type { UseSuppliersBoardStateReturn } from '../hooks/useSuppliersBoardState';
+ 
+ /**
+diff --git a/frontend/src/pages/suppliers/hooks/useSupplierSearch.ts b/frontend/src/pages/suppliers/hooks/useSupplierSearch.ts
+index fc3b4e6..3582b4c 100644
+--- a/frontend/src/pages/suppliers/hooks/useSupplierSearch.ts
++++ b/frontend/src/pages/suppliers/hooks/useSupplierSearch.ts
+@@ -17,7 +17,7 @@
+  */
+ 
+ import * as React from 'react';
+-import { useSupplierSearchQuery } from '../../../api/suppliers';
++import { useSupplierSearchQuery } from '../../../api/suppliers/hooks/useSupplierSearchQuery';
+ import type { SupplierRow } from '../../../api/suppliers/types';
+ 
+ /**
+diff --git a/frontend/src/pages/suppliers/hooks/useSuppliersBoardData.ts b/frontend/src/pages/suppliers/hooks/useSuppliersBoardData.ts
+index d01d879..57df0ef 100644
+--- a/frontend/src/pages/suppliers/hooks/useSuppliersBoardData.ts
++++ b/frontend/src/pages/suppliers/hooks/useSuppliersBoardData.ts
+@@ -15,8 +15,9 @@
+  */
+ 
+ import * as React from 'react';
+-import { useSuppliersPageQuery, useSupplierSearchQuery } from '../../../api/suppliers';
+-import type { SupplierRow } from '../../../api/suppliers';
++import { useSupplierPageQuery as useSuppliersPageQuery } from '../../../api/suppliers/hooks/useSupplierPageQuery';
++import { useSupplierSearchQuery } from '../../../api/suppliers/hooks/useSupplierSearchQuery';
++import type { SupplierRow } from '../../../api/suppliers/types';
+ 
+ /**
+  * Data and processing state for suppliers board.
+diff --git a/frontend/src/pages/suppliers/hooks/useSuppliersBoardState.ts b/frontend/src/pages/suppliers/hooks/useSuppliersBoardState.ts
+index a9405ea..588039c 100644
+--- a/frontend/src/pages/suppliers/hooks/useSuppliersBoardState.ts
++++ b/frontend/src/pages/suppliers/hooks/useSuppliersBoardState.ts
+@@ -14,7 +14,7 @@
+ 
+ import * as React from 'react';
+ import type { GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
+-import type { SupplierRow } from '../../../api/suppliers';
++import type { SupplierRow } from '../../../api/suppliers/types';
+ 
+ /**
+  * Complete suppliers board page state interface.

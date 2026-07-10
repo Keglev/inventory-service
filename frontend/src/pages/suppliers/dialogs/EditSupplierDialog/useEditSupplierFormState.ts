@@ -17,7 +17,7 @@ import * as React from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
-import { editSupplierSchema, type EditSupplierForm } from '../../../../api/suppliers';
+import { editSupplierSchema, type EditSupplierForm } from '../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../api/suppliers/types';
 
 /**

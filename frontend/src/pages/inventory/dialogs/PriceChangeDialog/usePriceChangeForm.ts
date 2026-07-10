@@ -27,8 +27,8 @@ import { useForm, type UseFormRegister, type UseFormSetError, type UseFormClearE
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast';
-import { changePrice } from '../../../../api/inventory/mutations';
-import { priceChangeSchema, type PriceChangeForm } from '../../../../api/inventory/validation';
+import { changePrice } from '../../../../api/inventory/priceMutations';
+import { priceChangeSchema, type PriceChangeForm } from '../../validation/inventoryValidation';
 import { usePriceChangeFormState, type PriceChangeFormState, type PriceChangeFormStateSetters } from './usePriceChangeFormState';
 import { usePriceChangeFormQueries, type PriceChangeFormQueries } from './usePriceChangeFormQueries';
 import { logError } from '../../../../utils/logger';

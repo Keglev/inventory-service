@@ -26,7 +26,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { EditSupplierForm } from '../../../../../api/suppliers';
+import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
 import type { UseEditSupplierFormReturn } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 

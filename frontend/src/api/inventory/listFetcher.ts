@@ -20,7 +20,7 @@
 import http from '../httpClient';
 import type { InventoryListParams, InventoryListResponse, InventoryRow } from './types';
 import { toInventoryRow } from './rowNormalizers';
-import { INVENTORY_BASE } from '@/api/shared';
+import { INVENTORY_BASE } from '../shared/constants';
 import { logError } from '../../utils/logger';
 
 /** Frontend grid field -> backend entity property for the Pageable sort. */

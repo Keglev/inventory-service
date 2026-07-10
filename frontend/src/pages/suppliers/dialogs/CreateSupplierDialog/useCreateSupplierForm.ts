@@ -17,7 +17,8 @@ import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { createSupplier, createSupplierSchema, type CreateSupplierForm } from '../../../../api/suppliers';
+import { createSupplier } from '../../../../api/suppliers/supplierMutations';
+import { createSupplierSchema, type CreateSupplierForm } from '../../../../api/suppliers/validation';
 
 /**
  * Hook return type for CreateSupplierForm.

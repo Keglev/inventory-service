@@ -22,7 +22,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import SuppliersBoard from '../../../../pages/suppliers/SuppliersBoard';
-import type { SupplierRow } from '../../../../api/suppliers';
+import type { SupplierRow } from '../../../../api/suppliers/types';
 import type { UseSuppliersBoardStateReturn } from '../../../../pages/suppliers/hooks/useSuppliersBoardState';
 
 type SuppliersBoardData = {

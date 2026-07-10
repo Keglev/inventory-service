@@ -14,7 +14,7 @@
 
 import * as React from 'react';
 import type { GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
-import type { SupplierRow } from '../../../api/suppliers';
+import type { SupplierRow } from '../../../api/suppliers/types';
 
 /**
  * Complete suppliers board page state interface.

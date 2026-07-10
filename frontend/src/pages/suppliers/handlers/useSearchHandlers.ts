@@ -12,7 +12,7 @@
  */
 
 import { useCallback } from 'react';
-import type { SupplierRow } from '../../../api/suppliers';
+import type { SupplierRow } from '../../../api/suppliers/types';
 import type { UseSuppliersBoardStateReturn } from '../hooks/useSuppliersBoardState';
 
 /**

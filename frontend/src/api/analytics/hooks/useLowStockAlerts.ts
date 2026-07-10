@@ -14,10 +14,8 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import {
-  getItemUpdateFrequency,
-  getLowStockItems,
-} from '../index';
+import { getItemUpdateFrequency } from '../frequency';
+import { getLowStockItems } from '../lowStock';
 
 /**
  * Hook to load item update frequency for a supplier.

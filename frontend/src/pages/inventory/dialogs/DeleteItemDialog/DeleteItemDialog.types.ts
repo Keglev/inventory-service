@@ -19,11 +19,9 @@
  */
 
 import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
-import type {
-  useSuppliersQuery,
-  useItemSearchQuery,
-  useItemDetailsQuery,
-} from '../../../../api/inventory/hooks';
+import type { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
+import type { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
+import type { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
 
 /**
  * Props for DeleteItemDialog component

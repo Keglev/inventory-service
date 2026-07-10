@@ -28,7 +28,7 @@
 import * as React from 'react';
 import { Box, Grid, Button, Stack, Typography, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useDashboardMetrics } from '../../api/analytics/hooks';
+import { useDashboardMetrics } from '../../api/analytics/hooks/useDashboardMetrics';
 import MonthlyMovementMini from './blocks/MonthlyMovementMini';
 import StatCard from '../../components/ui/StatCard';
 import { useNavigate } from 'react-router-dom';

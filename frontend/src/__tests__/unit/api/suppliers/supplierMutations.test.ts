@@ -25,8 +25,8 @@ vi.mock('@/api/suppliers/supplierNormalizers', () => ({
   toSupplierRow: vi.fn(),
 }));
 
-vi.mock('@/api/shared', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/api/shared')>();
+vi.mock('@/api/shared/errorHandling', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/api/shared/errorHandling')>();
   return {
     ...actual,
     errorMessage: vi.fn(),
@@ -35,7 +35,7 @@ vi.mock('@/api/shared', async (importOriginal) => {
 
 import http from '@/api/httpClient';
 import { toSupplierRow } from '@/api/suppliers/supplierNormalizers';
-import { errorMessage } from '@/api/shared';
+import { errorMessage } from '../../../../api/shared/errorHandling';
 import { SUPPLIERS_BASE } from '@/api/suppliers/supplierListFetcher';
 import {
   createSupplier,

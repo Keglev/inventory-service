@@ -22,7 +22,7 @@
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast';
-import { deleteItem } from '../../../../api/inventory/mutations';
+import { deleteItem } from '../../../../api/inventory/itemMutations';
 import { handleDeleteError } from './deleteItemErrorHandler';
 import type { UseDeleteItemStateReturn } from './useDeleteItemState';
 import { logError } from '../../../../utils/logger';

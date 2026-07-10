@@ -17,17 +17,13 @@ import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
 
 import type { AnalyticsParams, StockMovementParams } from '../../../../../api/analytics/validation';
 
-vi.mock('../../../../../api/analytics', () => ({
+vi.mock('../../../../../api/analytics/stock', () => ({
   getStockValueOverTime: vi.fn(),
   getMonthlyStockMovement: vi.fn(),
   getStockPerSupplier: vi.fn(),
 }));
 
-import {
-  getStockValueOverTime,
-  getMonthlyStockMovement,
-  getStockPerSupplier,
-} from '../../../../../api/analytics';
+import { getStockValueOverTime, getMonthlyStockMovement, getStockPerSupplier } from '../../../../../api/analytics/stock';
 
 import {
   useStockValueQuery,

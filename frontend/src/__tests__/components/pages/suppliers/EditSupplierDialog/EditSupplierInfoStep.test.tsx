@@ -21,7 +21,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { useForm } from 'react-hook-form';
 import type { FieldErrors } from 'react-hook-form';
-import type { EditSupplierForm } from '../../../../../api/suppliers';
+import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 import { EditSupplierInfoStep } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep';

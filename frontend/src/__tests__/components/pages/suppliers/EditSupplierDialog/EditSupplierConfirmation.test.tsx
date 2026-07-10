@@ -21,7 +21,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { EditSupplierForm } from '../../../../../api/suppliers';
+import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 import { EditSupplierConfirmation } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation';

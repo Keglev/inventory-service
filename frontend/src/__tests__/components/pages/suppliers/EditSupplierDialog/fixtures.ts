@@ -1,19 +1,4 @@
-/**
- * @file fixtures.ts
- * @module __tests__/components/pages/suppliers/EditSupplierDialog/fixtures
- * @description Deterministic fixture builders for EditSupplierDialog tests.
- *
- * Design goals:
- * - Deterministic defaults: stable IDs/text so assertions are predictable.
- * - Minimal surface area: only provide the fields tests actually need.
- * - Easy overrides: callers can override just the relevant fields per scenario.
- *
- * Non-goals:
- * - Validating domain rules or API constraints (covered by feature tests / backend).
- * - Generating random data (randomness makes failures harder to reproduce).
- */
-
-import type { EditSupplierForm } from '../../../../../api/suppliers';
+import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 /**

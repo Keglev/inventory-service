@@ -28,7 +28,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
-import { deleteItemSchema, type DeleteItemForm } from '../../../../api/inventory/validation';
+import { deleteItemSchema, type DeleteItemForm } from '../../validation/inventoryValidation';
 
 export function useDeleteItemState() {
   // Selection state - core domain entities

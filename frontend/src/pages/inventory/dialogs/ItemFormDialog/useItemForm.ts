@@ -42,11 +42,11 @@ import { useForm, type Control, type UseFormStateReturn, type UseFormSetValue, t
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast';
-import { upsertItem } from '../../../../api/inventory/mutations';
-import { itemFormSchema, type UpsertItemForm } from '../../../../api/inventory/validation';
-import type { UpsertItemRequest, InventoryRow } from '../../../../api/inventory';
+import { upsertItem } from '../../../../api/inventory/itemMutations';
+import { itemFormSchema, type UpsertItemForm } from '../../validation/inventoryValidation';
+import type { UpsertItemRequest, InventoryRow } from '../../../../api/inventory/types';
 import type { SupplierOption } from '../../../../api/analytics/types';
-import { useSuppliersQuery } from '../../../../api/inventory/hooks';
+import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
 import { DEFAULT_MIN_QUANTITY } from '../../../../config/inventoryPolicy';
 
 /**

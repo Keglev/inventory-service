@@ -13,7 +13,7 @@
  */
 
 import * as React from 'react';
-import type { EditSupplierForm } from '../../../../api/suppliers';
+import type { EditSupplierForm } from '../../../../api/suppliers/validation';
 
 /**
  * Hook return type for confirmation state.

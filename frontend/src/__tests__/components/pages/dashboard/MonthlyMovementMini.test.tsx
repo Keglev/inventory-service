@@ -57,7 +57,7 @@ const mockGetMonthlyStockMovement = vi.hoisted(() =>
   ),
 );
 
-vi.mock('../../../../api/analytics', () => ({
+vi.mock('../../../../api/analytics/stock', () => ({
   getMonthlyStockMovement: mockGetMonthlyStockMovement,
 }));
 

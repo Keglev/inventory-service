@@ -11,7 +11,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { normalizeItemsList } from '@/api/shared';
+import { normalizeItemsList } from '../../../../api/shared/itemSearch';
 
 describe('normalizeItemsList', () => {
   it('normalizes items with id and name', () => {

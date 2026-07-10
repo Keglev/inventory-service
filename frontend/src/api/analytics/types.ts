@@ -1,15 +1,4 @@
-/**
- * @module api/analytics/types
- *
- * Canonical DTOs and narrow shared types for the analytics API layer.
- * Shapes are intentionally minimal and stable: UI components depend on them
- * directly, so backend field variations are absorbed by the fetch helpers
- * rather than propagated here. AnalyticsParams is defined in ./validation
- * (Zod schema) so type-safe parameter handling stays co-located with its
- * validation logic.
- */
-
-import type { ItemRef } from '@/api/shared';
+import type { ItemRef } from '../shared/types';
 
 /** Tracks aggregate portfolio value at a point in time; drives the stock-value trend chart. */
 export type StockValuePoint = { date: string; totalValue: number };

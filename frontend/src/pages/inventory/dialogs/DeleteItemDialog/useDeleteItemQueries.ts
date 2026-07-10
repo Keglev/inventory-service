@@ -17,11 +17,9 @@
  */
 
 import type { SupplierOption } from '../../../../api/analytics/types';
-import {
-  useSuppliersQuery,
-  useItemSearchQuery,
-  useItemDetailsQuery,
-} from '../../../../api/inventory/hooks';
+import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
+import { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
+import { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
 
 export function useDeleteItemQueries(
   dialogOpen: boolean,

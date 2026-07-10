@@ -17,7 +17,7 @@
  */
 
 import * as React from 'react';
-import { useSupplierSearchQuery } from '../../../api/suppliers';
+import { useSupplierSearchQuery } from '../../../api/suppliers/hooks/useSupplierSearchQuery';
 import type { SupplierRow } from '../../../api/suppliers/types';
 
 /**

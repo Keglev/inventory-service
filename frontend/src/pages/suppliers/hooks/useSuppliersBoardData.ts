@@ -15,8 +15,9 @@
  */
 
 import * as React from 'react';
-import { useSuppliersPageQuery, useSupplierSearchQuery } from '../../../api/suppliers';
-import type { SupplierRow } from '../../../api/suppliers';
+import { useSupplierPageQuery as useSuppliersPageQuery } from '../../../api/suppliers/hooks/useSupplierPageQuery';
+import { useSupplierSearchQuery } from '../../../api/suppliers/hooks/useSupplierSearchQuery';
+import type { SupplierRow } from '../../../api/suppliers/types';
 
 /**
  * Data and processing state for suppliers board.

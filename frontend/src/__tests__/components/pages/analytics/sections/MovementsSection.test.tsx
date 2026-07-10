@@ -52,7 +52,7 @@ vi.mock('@/api/analytics/updates', () => ({
 
 const mockSearchItemsGlobal = vi.fn();
 const mockSearchItemsForSupplier = vi.fn();
-vi.mock('@/api/shared', () => ({
+vi.mock('@/api/shared/itemSearch', () => ({
   searchItemsGlobal: (...args: unknown[]) => mockSearchItemsGlobal(...args),
   searchItemsForSupplier: (...args: unknown[]) => mockSearchItemsForSupplier(...args),
 }));

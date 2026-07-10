@@ -8,7 +8,7 @@
 
 import http from '../httpClient';
 import { isArrayOfRecords, pickNumber, pickString, paramClean } from './util';
-import { isRecord } from '@/api/shared';
+import { isRecord } from '../shared/typeGuards';
 import type { AnalyticsParams } from './validation';
 import type { LowStockRow } from './types';
 

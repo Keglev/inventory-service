@@ -33,8 +33,8 @@ import type { Control, UseFormStateReturn, UseFormSetValue } from 'react-hook-fo
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast';
-import { adjustQuantity } from '../../../../api/inventory/mutations';
-import { quantityAdjustSchema, type QuantityAdjustForm } from '../../../../api/inventory/validation';
+import { adjustQuantity } from '../../../../api/inventory/stockMutations';
+import { quantityAdjustSchema, type QuantityAdjustForm } from '../../validation/inventoryValidation';
 import { useQuantityAdjustFormState } from './useQuantityAdjustFormState';
 import { useQuantityAdjustFormQueries } from './useQuantityAdjustFormQueries';
 import type { QuantityAdjustFormState, QuantityAdjustFormStateSetters } from './useQuantityAdjustFormState';

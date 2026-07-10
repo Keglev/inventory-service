@@ -30,7 +30,7 @@ import { useHelp } from '../../../../hooks/useHelp';
 import { useCreateSupplierForm } from './useCreateSupplierForm';
 import { SupplierFormFields } from './CreateSupplierForm';
 import type { CreateSupplierDialogProps } from './CreateSupplierDialog.types';
-import type { CreateSupplierForm } from '../../../../api/suppliers';
+import type { CreateSupplierForm } from '../../../../api/suppliers/validation';
 
 /**
  * Dialog for creating a new supplier.

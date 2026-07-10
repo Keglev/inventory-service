@@ -22,20 +22,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useSuppliersBoardData } from '../../../../../pages/suppliers/hooks/useSuppliersBoardData';
-import {
-  useSupplierSearchQuery,
-  useSuppliersPageQuery,
-  type SupplierListResponse,
-  type SupplierRow,
-} from '../../../../../api/suppliers';
+import { useSupplierSearchQuery } from '../../../../../api/suppliers/hooks/useSupplierSearchQuery';
+import { useSupplierPageQuery as useSuppliersPageQuery } from '../../../../../api/suppliers/hooks/useSupplierPageQuery';
+import type { SupplierListResponse, SupplierRow } from '../../../../../api/suppliers/types';
 
 const mocks = vi.hoisted(() => ({
   useSuppliersPageQuery: vi.fn<typeof useSuppliersPageQuery>(),
   useSupplierSearchQuery: vi.fn<typeof useSupplierSearchQuery>(),
 }));
 
-vi.mock('../../../../../api/suppliers', () => ({
-  useSuppliersPageQuery: mocks.useSuppliersPageQuery,
+vi.mock('../../../../../api/suppliers/hooks/useSupplierPageQuery', () => ({
+  useSupplierPageQuery: mocks.useSuppliersPageQuery,
+}));
+
+vi.mock('../../../../../api/suppliers/hooks/useSupplierSearchQuery', () => ({
   useSupplierSearchQuery: mocks.useSupplierSearchQuery,
 }));
 

@@ -33,14 +33,12 @@ import { useForm, type Control, type UseFormStateReturn, type UseFormSetValue } 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast';
-import { renameItem } from '../../../../api/inventory/mutations';
-import { editItemSchema, type EditItemForm } from '../../../../api/inventory/validation';
+import { renameItem } from '../../../../api/inventory/itemMutations';
+import { editItemSchema, type EditItemForm } from '../../validation/inventoryValidation';
 import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
-import {
-  useSuppliersQuery,
-  useItemSearchQuery,
-  useItemDetailsQuery,
-} from '../../../../api/inventory/hooks';
+import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
+import { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
+import { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
 import { logError } from '../../../../utils/logger';
 
 /**

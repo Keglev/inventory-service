@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
 
 import type { UsePriceChangeFormReturn } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
 import { PriceChangeForm } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm';
-import type { PriceChangeForm as PriceChangeFormValues } from '../../../../../api/inventory/validation';
+import type { PriceChangeForm as PriceChangeFormValues } from '../../../../../pages/inventory/validation/inventoryValidation';
 
 /**
  * Translation is infrastructure. For deterministic unit tests, return keys.

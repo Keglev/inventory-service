@@ -20,7 +20,7 @@ const mocks = vi.hoisted(() => ({
   useSupplierSearchQuery: vi.fn(),
 }));
 
-vi.mock('../../../../../api/suppliers', () => ({
+vi.mock('../../../../../api/suppliers/hooks/useSupplierSearchQuery', () => ({
   useSupplierSearchQuery: (...args: unknown[]) => mocks.useSupplierSearchQuery(...args),
 }));
 

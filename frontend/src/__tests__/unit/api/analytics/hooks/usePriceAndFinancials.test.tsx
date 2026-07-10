@@ -17,12 +17,16 @@ import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
 
 import type { PriceTrendParams, FinancialSummaryParams } from '../../../../../api/analytics/validation';
 
-vi.mock('../../../../../api/analytics', () => ({
+vi.mock('../../../../../api/analytics/priceTrend', () => ({
   getPriceTrend: vi.fn(),
+}));
+
+vi.mock('../../../../../api/analytics/finance', () => ({
   getFinancialSummary: vi.fn(),
 }));
 
-import { getPriceTrend, getFinancialSummary } from '../../../../../api/analytics';
+import { getPriceTrend } from '../../../../../api/analytics/priceTrend';
+import { getFinancialSummary } from '../../../../../api/analytics/finance';
 
 import {
   usePriceTrendQuery,

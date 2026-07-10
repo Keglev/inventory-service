@@ -13,7 +13,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { extractArray, resDataOrEmpty } from '@/api/shared';
+import { extractArray, resDataOrEmpty } from '../../../../api/shared/responseExtraction';
 
 describe('resDataOrEmpty', () => {
   it('returns data property from Axios-style responses', () => {

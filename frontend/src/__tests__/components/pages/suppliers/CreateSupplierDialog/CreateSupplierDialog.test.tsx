@@ -25,7 +25,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../../api/suppliers';
+import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../../api/suppliers/validation';
 import type { UseCreateSupplierFormReturn } from '../../../../../pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm';
 
 type SupplierFormFieldsProps = {

@@ -26,8 +26,8 @@ vi.mock('../../../../api/inventory/normalizers', () => ({
   normalizeInventoryRow: vi.fn(),
 }));
 
-vi.mock('@/api/shared', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/api/shared')>();
+vi.mock('@/api/shared/errorHandling', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/api/shared/errorHandling')>();
   return {
     ...actual,
     errorMessage: vi.fn(),
@@ -36,9 +36,9 @@ vi.mock('@/api/shared', async (importOriginal) => {
 
 import http from '../../../../api/httpClient';
 import { normalizeInventoryRow } from '../../../../api/inventory/normalizers';
-import { errorMessage } from '@/api/shared';
+import { errorMessage } from '../../../../api/shared/errorHandling';
 import { deleteItem, renameItem, upsertItem } from '../../../../api/inventory/itemMutations';
-import { INVENTORY_BASE } from '@/api/shared';
+import { INVENTORY_BASE } from '../../../../api/shared/constants';
 import type { InventoryRow } from '../../../../api/inventory/types';
 
 type HttpMock = {

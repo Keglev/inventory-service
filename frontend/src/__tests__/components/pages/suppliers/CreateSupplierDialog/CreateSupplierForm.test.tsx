@@ -23,7 +23,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import type { ComponentProps } from 'react';
 import type { FieldError, FieldErrors, UseFormRegister } from 'react-hook-form';
-import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../../api/suppliers';
+import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../../api/suppliers/validation';
 
 vi.mock('react-i18next', () => ({
   // Prefer fallback/defaultValue to keep assertions stable across locales.

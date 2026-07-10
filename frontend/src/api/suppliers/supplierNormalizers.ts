@@ -13,7 +13,7 @@
  */
 
 import type { SupplierRow } from './types';
-import { pickString, pickNumber } from '@/api/shared';
+import { pickString, pickNumber } from '../shared/fieldPickers';
 
 /**
  * Converts a single raw SupplierDTO into a SupplierRow.

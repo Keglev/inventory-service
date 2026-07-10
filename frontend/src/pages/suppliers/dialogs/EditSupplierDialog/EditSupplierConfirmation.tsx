@@ -27,7 +27,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import type { EditSupplierForm } from '../../../../api/suppliers';
+import type { EditSupplierForm } from '../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../api/suppliers/types';
 
 /**

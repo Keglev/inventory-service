@@ -1,16 +1,4 @@
-/**
- * @file rowFieldExtractors.ts
- * @module api/inventory/rowFieldExtractors
- *
- * @summary
- * Field-level extractors for inventory row normalization. Each function pulls one
- * logical field (or field group) from a raw backend record using defensive,
- * multi-variant field picking to tolerate backend naming inconsistencies.
- * Extracted from normalizeInventoryRow to keep that composer small and to give
- * each backend-contract concern a single, testable touch point (ST-6).
- */
-
-import { pickString, pickNumber, pickStringFromList } from '@/api/shared';
+import { pickString, pickNumber, pickStringFromList } from '../shared/fieldPickers';
 
 /** Required identity. Tries id / itemId / item_id; undefined when none present. */
 export function extractId(raw: Record<string, unknown>): string | undefined {

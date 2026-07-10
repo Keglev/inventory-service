@@ -17,17 +17,13 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
 
 // ✅ Mock what the hook imports: ../index from hooks => api/analytics/index.ts
-vi.mock('../../../../../api/analytics', () => ({
+vi.mock('../../../../../api/analytics/metrics', () => ({
   getItemCount: vi.fn(),
   getSupplierCount: vi.fn(),
   getLowStockCount: vi.fn(),
 }));
 
-import {
-  getItemCount,
-  getSupplierCount,
-  getLowStockCount,
-} from '../../../../../api/analytics';
+import { getItemCount, getSupplierCount, getLowStockCount } from '../../../../../api/analytics/metrics';
 
 import { useDashboardMetrics } from '../../../../../api/analytics/hooks/useDashboardMetrics';
 

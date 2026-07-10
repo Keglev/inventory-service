@@ -17,7 +17,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import type { EditSupplierForm } from '../../../../../api/suppliers';
+import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
 
 import { useEditSupplierConfirmation } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierConfirmation';
 

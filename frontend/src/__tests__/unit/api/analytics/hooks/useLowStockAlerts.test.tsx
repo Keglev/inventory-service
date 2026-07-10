@@ -16,15 +16,16 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
 
 //  Mock the API functions the hooks call (they import from ../index => api/analytics/index.ts)
-vi.mock('../../../../../api/analytics', () => ({
+vi.mock('../../../../../api/analytics/frequency', () => ({
   getItemUpdateFrequency: vi.fn(),
+}));
+
+vi.mock('../../../../../api/analytics/lowStock', () => ({
   getLowStockItems: vi.fn(),
 }));
 
-import {
-  getItemUpdateFrequency,
-  getLowStockItems,
-} from '../../../../../api/analytics';
+import { getItemUpdateFrequency } from '../../../../../api/analytics/frequency';
+import { getLowStockItems } from '../../../../../api/analytics/lowStock';
 
 import {
   useItemFrequencyQuery,

@@ -42,7 +42,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('../../../../api/analytics/hooks', () => ({
+vi.mock('../../../../api/analytics/hooks/useDashboardMetrics', () => ({
   useDashboardMetrics: mockUseDashboardMetrics,
 }));
 

@@ -9,7 +9,7 @@
  */
 
 import http from '../httpClient';
-import { INVENTORY_BASE } from '@/api/shared';
+import { INVENTORY_BASE } from '../shared/constants';
 
 /**
  * Total number of inventory items currently stored in the system.

@@ -15,7 +15,7 @@
  */
 import type { AnalyticsParams } from './validation';
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
-import { isRecord } from '@/api/shared';
+import { isRecord } from '../shared/typeGuards';
 
 /** Guards numeric fields from the backend against NaN, Infinity, and non-numeric strings so callers never silently accumulate bad values. */
 export function asNumber(v: unknown): number {

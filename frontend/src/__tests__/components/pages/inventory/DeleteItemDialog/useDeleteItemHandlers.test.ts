@@ -40,7 +40,7 @@ vi.mock('../../../../../context/toast', () => ({
   useToast: () => toastSpy,
 }));
 
-vi.mock('../../../../../api/inventory/mutations', () => ({
+vi.mock('../../../../../api/inventory/itemMutations', () => ({
   deleteItem: (...args: unknown[]) => deleteItemSpy(...args),
 }));
 

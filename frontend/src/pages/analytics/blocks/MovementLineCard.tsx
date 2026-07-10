@@ -17,7 +17,8 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from 'recharts';
-import { getMonthlyStockMovement, type MonthlyMovement } from '../../../api/analytics';
+import { getMonthlyStockMovement } from '../../../api/analytics/stock';
+import type { MonthlyMovement } from '../../../api/analytics/types';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 

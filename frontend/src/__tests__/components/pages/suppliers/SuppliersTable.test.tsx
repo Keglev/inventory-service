@@ -24,7 +24,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SuppliersTable, type SuppliersTableProps } from '../../../../pages/suppliers/components/SuppliersTable';
-import type { SupplierRow } from '../../../../api/suppliers';
+import type { SupplierRow } from '../../../../api/suppliers/types';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),

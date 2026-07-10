@@ -14,7 +14,7 @@
 import http from '../httpClient';
 import type { SupplierRow, SupplierDTO } from './types';
 import { toSupplierRow } from './supplierNormalizers';
-import { errorMessage } from '@/api/shared';
+import { errorMessage } from '../shared/errorHandling';
 import { SUPPLIERS_BASE } from './supplierListFetcher';
 
 /**

@@ -14,7 +14,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { getItemCount, getSupplierCount, getLowStockCount } from '../index';
+import { getItemCount, getSupplierCount, getLowStockCount } from '../metrics';
 
 /**
  * Hook to load dashboard KPI metrics (inventory count, supplier count, low stock count).

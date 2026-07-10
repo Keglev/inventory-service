@@ -14,7 +14,7 @@
  */
 
 import type { InventoryRow } from './types';
-import { pickString, pickNumber } from '@/api/shared';
+import { pickString, pickNumber } from '../shared/fieldPickers';
 import { extractCode } from './rowFieldExtractors';
 
 /**

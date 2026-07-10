@@ -41,7 +41,9 @@ import {
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { getLowStockItems, type LowStockRow, type AnalyticsParams } from '../../../api/analytics';
+import { getLowStockItems } from '../../../api/analytics/lowStock';
+import type { LowStockRow } from '../../../api/analytics/types';
+import type { AnalyticsParams } from '../../../api/analytics/validation';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { LOW_STOCK_CRITICAL_THRESHOLD } from '../../../config/inventoryPolicy';

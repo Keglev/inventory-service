@@ -21,7 +21,7 @@ vi.mock('../../../../api/httpClient', () => ({
 
 import http from '../../../../api/httpClient';
 import { adjustQuantity } from '../../../../api/inventory/stockMutations';
-import { INVENTORY_BASE } from '@/api/shared';
+import { INVENTORY_BASE } from '../../../../api/shared/constants';
 
 type HttpMock = {
   patch: ReturnType<typeof vi.fn>;

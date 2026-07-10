@@ -24,7 +24,7 @@ import NotificationsMenuSection from '../../../app/HamburgerMenu/NotificationsMe
 const mockUseDashboardMetrics = vi.hoisted(() => vi.fn());
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../api/analytics/hooks', () => ({
+vi.mock('../../../api/analytics/hooks/useDashboardMetrics', () => ({
   useDashboardMetrics: mockUseDashboardMetrics,
 }));
 

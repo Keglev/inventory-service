@@ -12,7 +12,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { isArrayOfRecords } from '@/api/analytics/util';
-import { isRecord } from '@/api/shared';
+import { isRecord } from '../../../../../api/shared/typeGuards';
 
 describe('isRecord', () => {
   it('returns true for plain objects', () => {

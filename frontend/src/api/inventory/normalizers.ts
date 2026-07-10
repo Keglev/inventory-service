@@ -10,7 +10,7 @@
  */
 
 import type { InventoryRow } from './types';
-import { isRecord } from '@/api/shared';
+import { isRecord } from '../shared/typeGuards';
 import {
   extractId,
   extractName,

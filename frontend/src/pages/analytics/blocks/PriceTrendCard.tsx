@@ -31,11 +31,10 @@ import type { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import {
-  getPriceTrend,
-  type PricePoint,
-} from '../../../api/analytics';
-import { searchItemsForSupplier, searchItemsGlobal, type ItemRef } from '@/api/shared';
+import { getPriceTrend } from '../../../api/analytics/priceTrend';
+import type { PricePoint } from '../../../api/analytics/types';
+import { searchItemsForSupplier, searchItemsGlobal } from '../../../api/shared/itemSearch';
+import type { ItemRef } from '../../../api/shared/types';
 import { useDebounced } from '../../../hooks/useDebounced';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
 import { useSettings } from '../../../hooks/useSettings';

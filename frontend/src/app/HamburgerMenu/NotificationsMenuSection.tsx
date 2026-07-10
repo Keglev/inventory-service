@@ -1,18 +1,4 @@
-/**
- * @file NotificationsMenuSection.tsx
- * @module app/HamburgerMenu/NotificationsMenuSection
- *
- * @summary
- * Notification section coordinator; reads lowStockCount from useDashboardMetrics
- * and renders one of three states: loading skeleton, low-stock alert, or all-clear.
- *
- * @enterprise
- * Data origin: api/analytics/hooks (useDashboardMetrics); only .data?.lowStockCount
- * is consumed. Mounted exclusively by MenuContent/MenuSectionsRenderer.
- * Composes the NotificationSettings/* components rather than reimplementing their JSX.
- */
-
-import { useDashboardMetrics } from '../../api/analytics/hooks';
+import { useDashboardMetrics } from '../../api/analytics/hooks/useDashboardMetrics';
 import AllClearNotificationSection from './NotificationSettings/AllClearNotificationSection';
 import LowStockAlertSection from './NotificationSettings/LowStockAlertSection';
 import NotificationLoadingState from './NotificationSettings/NotificationLoadingState';

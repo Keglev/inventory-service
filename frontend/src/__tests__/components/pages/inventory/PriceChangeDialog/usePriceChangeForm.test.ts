@@ -27,9 +27,15 @@ vi.mock('../../../../../api/inventory/mutations.ts', () => ({
   changePrice: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks', () => ({
+vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
   useSuppliersQuery: mockUseSuppliersQuery,
+}));
+
+vi.mock('../../../../../api/inventory/hooks/useItemSearchQuery', () => ({
   useItemSearchQuery: mockUseItemSearchQuery,
+}));
+
+vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
   useItemDetailsQuery: mockUseItemDetailsQuery,
 }));
 

@@ -31,7 +31,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate } from '../../../utils/formatters';
-import type { SupplierRow } from '../../../api/suppliers';
+import type { SupplierRow } from '../../../api/suppliers/types';
 
 /**
  * Suppliers Table component props.

@@ -10,7 +10,7 @@
 
 import http from '../httpClient';
 import { pickNumber } from './util';
-import { isRecord } from '@/api/shared';
+import { isRecord } from '../shared/typeGuards';
 import type { Rec } from './util';
 
 /**

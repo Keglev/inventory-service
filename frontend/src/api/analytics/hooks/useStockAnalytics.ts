@@ -14,11 +14,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import {
-  getStockValueOverTime,
-  getMonthlyStockMovement,
-  getStockPerSupplier,
-} from '../index';
+import { getStockValueOverTime, getMonthlyStockMovement, getStockPerSupplier } from '../stock';
 import type { AnalyticsParams, StockMovementParams } from '../validation';
 
 /**

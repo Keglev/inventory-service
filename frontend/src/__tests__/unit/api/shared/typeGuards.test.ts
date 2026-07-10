@@ -13,7 +13,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { isRecord } from '@/api/shared';
+import { isRecord } from '../../../../api/shared/typeGuards';
 
 describe('typeGuards', () => {
   describe('isRecord()', () => {

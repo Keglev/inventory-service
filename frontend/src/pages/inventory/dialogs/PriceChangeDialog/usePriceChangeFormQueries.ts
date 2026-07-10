@@ -22,10 +22,12 @@
  */
 
 import * as React from 'react';
-import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '../../../../api/inventory/hooks';
+import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
+import { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
+import { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
 import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
 import type { UseFormSetValue, UseFormClearErrors } from 'react-hook-form';
-import type { PriceChangeForm } from '../../../../api/inventory/validation';
+import type { PriceChangeForm } from '../../validation/inventoryValidation';
 
 export interface PriceChangeFormQueries {
   suppliers: SupplierOption[];

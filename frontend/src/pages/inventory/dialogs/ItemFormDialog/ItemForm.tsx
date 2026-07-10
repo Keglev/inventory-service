@@ -38,8 +38,8 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { SupplierOption } from '../../../../api/analytics/types';
-import type { UpsertItemForm } from '../../../../api/inventory/validation';
-import type { InventoryRow } from '../../../../api/inventory';
+import type { UpsertItemForm } from '../../validation/inventoryValidation';
+import type { InventoryRow } from '../../../../api/inventory/types';
 import type { UseItemFormReturn } from './useItemForm';
 
 /**

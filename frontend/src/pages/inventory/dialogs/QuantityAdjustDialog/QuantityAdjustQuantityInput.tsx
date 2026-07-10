@@ -25,12 +25,7 @@ import * as React from 'react';
 import { TextField, FormControl, InputLabel, Select, MenuItem, Typography, Box } from '@mui/material';
 import { Controller, useWatch, type Control, type FieldErrors } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import {
-  INCREASE_ADJUST_REASONS,
-  DECREASE_ADJUST_REASONS,
-  ADJUST_REASONS,
-  type QuantityAdjustForm,
-} from '../../../../api/inventory/validation';
+import { INCREASE_ADJUST_REASONS, DECREASE_ADJUST_REASONS, ADJUST_REASONS, type QuantityAdjustForm } from '../../validation/inventoryValidation';
 
 interface QuantityAdjustQuantityInputProps {
   control: Control<QuantityAdjustForm>;

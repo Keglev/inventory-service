@@ -34,7 +34,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import type { TFunction } from 'i18next';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
-import type { EditSupplierForm } from '../../../../../api/suppliers';
+import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
 
 import { editSupplierChanges, supplierRow } from './fixtures';
 import {
@@ -79,7 +79,7 @@ vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/mapSupplierEr
     mocks.mapSupplierError(errorMsg, t),
 }));
 
-vi.mock('../../../../../api/suppliers', () => ({
+vi.mock('../../../../../api/suppliers/supplierMutations', () => ({
   updateSupplier: (...args: unknown[]) => mocks.updateSupplier(...args),
 }));
 

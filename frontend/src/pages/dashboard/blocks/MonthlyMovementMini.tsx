@@ -28,7 +28,7 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
-import { getMonthlyStockMovement } from '../../../api/analytics';
+import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import { getTodayIso, getDaysAgoIso, formatNumber } from '../../../utils/formatters';
 import { useSettings } from '../../../hooks/useSettings';
 

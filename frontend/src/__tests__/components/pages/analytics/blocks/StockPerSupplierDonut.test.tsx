@@ -13,8 +13,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import type { StockPerSupplierPoint } from '@/api/analytics';
-import { getStockPerSupplier } from '@/api/analytics';
+import type { StockPerSupplierPoint } from '../../../../../api/analytics/types';
+import { getStockPerSupplier } from '../../../../../api/analytics/stock';
 import StockPerSupplierDonut from '@/pages/analytics/blocks/StockPerSupplierDonut';
 
 // -----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ vi.mock('recharts', () => ({
   Cell: ({ fill }: { fill?: string }) => <div data-testid="pie-cell" data-fill={fill} />,
 }));
 
-vi.mock('@/api/analytics', () => ({
+vi.mock('@/api/analytics/stock', () => ({
   getStockPerSupplier: vi.fn(),
 }));
 

@@ -10,7 +10,8 @@
 import http from '../httpClient';
 import { normalizeInventoryRow } from './normalizers';
 import type { UpsertItemRequest, UpsertItemResponse } from './types';
-import { errorMessage, extractApiError, INVENTORY_BASE } from '@/api/shared';
+import { errorMessage, extractApiError } from '../shared/errorHandling';
+import { INVENTORY_BASE } from '../shared/constants';
 
 export { INVENTORY_BASE };
 

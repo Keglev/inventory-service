@@ -8,7 +8,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { searchItemsForSupplier } from '@/api/shared';
+import { searchItemsForSupplier } from '../../shared/itemSearch';
 import type { SupplierOption, ItemOption } from '../../analytics/types';
 
 /**

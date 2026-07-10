@@ -37,7 +37,7 @@ const mocks = vi.hoisted(() => ({
   resetSearch: vi.fn(),
 }));
 
-vi.mock('../../../../../api/suppliers', () => ({
+vi.mock('../../../../../api/suppliers/supplierMutations', () => ({
   deleteSupplier: (...args: [string]) => mocks.deleteSupplier(...args),
 }));
 

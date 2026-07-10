@@ -14,10 +14,8 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import {
-  getPriceTrend,
-  getFinancialSummary,
-} from '../index';
+import { getPriceTrend } from '../priceTrend';
+import { getFinancialSummary } from '../finance';
 import type { PriceTrendParams, FinancialSummaryParams } from '../validation';
 
 /**

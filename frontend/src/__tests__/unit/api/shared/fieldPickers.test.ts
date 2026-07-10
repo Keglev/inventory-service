@@ -13,12 +13,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import {
-  pickString,
-  pickNumber,
-  pickNumberFromList,
-  pickStringFromList,
-} from '@/api/shared';
+import { pickString, pickNumber, pickNumberFromList, pickStringFromList } from '../../../../api/shared/fieldPickers';
 
 describe('fieldPickers', () => {
   describe('pickString()', () => {
