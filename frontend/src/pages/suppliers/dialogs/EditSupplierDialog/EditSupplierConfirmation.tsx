@@ -112,7 +112,6 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
                 <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
                   {supplier.name}
                 </Typography>
-                {/* CM-APP20: i18n key text "(Cannot be changed)" mischaracterizes a UI-only constraint as a backend constraint. Revise key text in CB-APP66 work. */}
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
                   {t('suppliers:hints.nameCannotBeChanged', '(Cannot be changed)')}
                 </Typography>
@@ -176,8 +175,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
           {isSubmitting ? (
             <>
               <CircularProgress size={16} sx={{ mr: 1 }} />
-              {/* CM-APP17: key 'common:saving' breaks the 'common:actions.*' convention used elsewhere. Tracked. */}
-              {t('common:saving', 'Saving...')}
+              {t('common:actions.saving', 'Saving...')}
             </>
           ) : (
             t('common:actions.yes', 'Yes')

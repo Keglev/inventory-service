@@ -92,7 +92,7 @@ export function PriceChangeDialog({
             {state.formState.isSubmitting ? (
               <>
                 <CircularProgress size={16} sx={{ mr: 1 }} />
-                {t('common:saving', 'Saving...')}
+                {t('common:actions.saving', 'Saving...')}
               </>
             ) : (
               t('inventory:buttons.applyPriceChange', 'Apply Price Change')

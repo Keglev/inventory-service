@@ -47,11 +47,11 @@
     "yes": "Yes",
     "no": "No",
     "settings": "Settings",
-    "help": "Help"
+    "help": "Help",
+    "saving": "Saving...",
+    "deleting": "Deleting..."
   },
   "loading": "Loading...",
-  "saving": "Saving...",
-  "deleting": "Deleting...",
   "demoDisabled": "You are in demo mode and cannot perform this operation.",
   "toast": {
     "densityStatic": "Compact density mode is not yet fully implemented in this version"

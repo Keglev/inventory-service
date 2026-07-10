@@ -94,8 +94,7 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
       <DialogTitle sx={{ pt: 3.5 }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Box>{t('suppliers:dialogs.delete.title', 'Delete Supplier')}</Box>
-          {/* CM-APP16: t() key missing namespace prefix — should be 'common:actions.help'. Tracked. */}
-          <Tooltip title={t('actions.help', 'Help')}>
+          <Tooltip title={t('common:actions.help', 'Help')}>
             <IconButton size="small" onClick={onHelp}>
               {/* Help-icon bucket: HelpOutlineIcon + Tooltip + IconButton pattern duplicated across 4 dialogs — extract shared component in refactor pass. */}
               <HelpOutlineIcon fontSize="small" />

@@ -56,7 +56,7 @@
     "editInfo": "Schritt 2: Kontaktinformationen bearbeiten"
   },
   "hints": {
-    "nameCannotBeChanged": "(Kann nicht geändert werden)"
+    "nameCannotBeChanged": "(Kann hier nicht geändert werden)"
   },
   "confirmations": {
     "changesCannotBeReversed": "Diese Änderungen können nicht rückgängig gemacht werden.",

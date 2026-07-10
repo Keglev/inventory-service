@@ -66,7 +66,7 @@ describe('DeleteSupplierConfirmation', () => {
 
     expect(screen.getByText('Confirm Deletion')).toBeInTheDocument();
     expect(
-      screen.getByText('Are you sure do you want to delete this supplier? This cannot be reversed!')
+      screen.getByText('Are you sure you want to delete this supplier? This cannot be reversed!')
     ).toBeInTheDocument();
     expect(screen.getByText('Acme Corp')).toBeInTheDocument();
     expect(screen.getByText('Alice')).toBeInTheDocument();

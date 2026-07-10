@@ -87,11 +87,10 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
       <DialogContent>
         {/* Warning Alert */}
         <Alert severity="warning" sx={{ mb: 2 }}>
-          {/* CM-APP18: grammar error in English fallback ("sure do you want"). Fix in JSON when removing fallback under CB-APP66. */}
           <Typography variant="body2" fontWeight={500}>
             {t(
               'suppliers:dialogs.delete.confirmation.warning',
-              'Are you sure do you want to delete this supplier? This cannot be reversed!'
+              'Are you sure you want to delete this supplier? This cannot be reversed!'
             )}
           </Typography>
         </Alert>
@@ -165,8 +164,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
           disabled={isDeleting}
           startIcon={isDeleting ? <CircularProgress size={20} /> : undefined}
         >
-          {/* CM-APP17: key 'common:deleting' breaks the 'common:actions.*' convention used elsewhere. Tracked. */}
-          {isDeleting ? t('common:deleting', 'Deleting...') : t('common:actions.yes', 'Yes')}
+          {isDeleting ? t('common:actions.deleting', 'Deleting...') : t('common:actions.yes', 'Yes')}
         </Button>
       </DialogActions>
     </>

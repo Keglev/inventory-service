@@ -85,7 +85,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
           {form.formState.isSubmitting ? (
             <>
               <CircularProgress size={16} sx={{ mr: 1 }} />
-              {t('common:saving', 'Saving...')}
+              {t('common:actions.saving', 'Saving...')}
             </>
           ) : (
             t('inventory:buttons.applyAdjustment', 'Apply Adjustment')

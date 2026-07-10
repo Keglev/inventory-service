@@ -92,7 +92,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
             {state.isSubmitting ? (
               <>
                 <CircularProgress size={16} sx={{ mr: 1 }} />
-                {t('common:deleting', 'Deleting...')}
+                {t('common:actions.deleting', 'Deleting...')}
               </>
             ) : (
               t('inventory:toolbar.delete', 'Delete')
@@ -121,7 +121,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
             {state.isSubmitting ? (
               <>
                 <CircularProgress size={16} sx={{ mr: 1 }} />
-                {t('common:deleting')}
+                {t('common:actions.deleting')}
               </>
             ) : (
               t('inventory:buttons.yes', 'Yes')

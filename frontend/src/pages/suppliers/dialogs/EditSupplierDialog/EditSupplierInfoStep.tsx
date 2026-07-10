@@ -92,7 +92,6 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
         <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
           {selectedSupplier.name}
         </Typography>
-          {/* CM-APP20: i18n key text "(Cannot be changed)" mischaracterizes a UI-only constraint as a backend constraint. Revise key text in CB-APP66 work. */}
         <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
           {t('suppliers:hints.nameCannotBeChanged', '(Cannot be changed)')}
         </Typography>

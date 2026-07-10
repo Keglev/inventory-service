@@ -92,8 +92,7 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Box>{t('suppliers:actions.create', 'Create Supplier')}</Box>
-          {/* CM-APP16: t() key missing namespace prefix — should be 'common:actions.help'. Tracked. */}
-          <Tooltip title={t('actions.help', 'Help')}>
+          <Tooltip title={t('common:actions.help', 'Help')}>
             <IconButton size="small" onClick={() => openHelp('suppliers.manage')}>
               {/* Help-icon bucket: HelpOutlineIcon + Tooltip + IconButton pattern duplicated across 4 dialogs — extract shared component in refactor pass. */}
               <HelpOutlineIcon fontSize="small" />
