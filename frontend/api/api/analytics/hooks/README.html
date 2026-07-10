@@ -105,53 +105,21 @@ api/analytics/hooks/README · Smart Supply Pro · API</title>
         api/analytics/hooks</p>
         <h1 id="apianalyticshooks">api/analytics/hooks</h1>
         <h2 id="file">File</h2>
-        <p>index.ts</p>
+        <p>useDashboardMetrics.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Single import location for all analytics hooks</li>
-        <li>Backward compatible with existing imports</li>
-        <li>Clear separation of concerns across hook modules</li>
-        <li>Full TypeDoc documentation inheritance</li>
+        <li>Caches KPI data for 2 minutes to balance freshness and
+        performance</li>
+        <li>Conditional fetching support for performance
+        optimization</li>
+        <li>Graceful fallbacks on error</li>
+        <li>Comprehensive TypeDoc documentation</li>
         </ul>
-        <h2 id="usage">Usage</h2>
-        <div class="sourceCode" id="cb1"><pre
-        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Import specific hooks</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useDashboardMetrics<span class="op">,</span> useStockValueQuery } <span class="im">from</span> <span class="st">&#39;@/api/analytics/hooks&#39;</span><span class="op">;</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Or import all</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="op">*</span> <span class="im">as</span> analyticsHooks <span class="im">from</span> <span class="st">&#39;@/api/analytics/hooks&#39;</span><span class="op">;</span></span></code></pre></div>
-        <h2 id="references">References</h2>
-        <h3 id="usedashboardmetrics">useDashboardMetrics</h3>
-        <p>Re-exports <a
-        href="functions/useDashboardMetrics.html">useDashboardMetrics</a></p>
-        <hr />
-        <h3 id="usefinancialsummaryquery">useFinancialSummaryQuery</h3>
-        <p>Re-exports <a
-        href="functions/useFinancialSummaryQuery.html">useFinancialSummaryQuery</a></p>
-        <hr />
-        <h3 id="useitemfrequencyquery">useItemFrequencyQuery</h3>
-        <p>Re-exports <a
-        href="functions/useItemFrequencyQuery.html">useItemFrequencyQuery</a></p>
-        <hr />
-        <h3 id="uselowstockquery">useLowStockQuery</h3>
-        <p>Re-exports <a
-        href="functions/useLowStockQuery.html">useLowStockQuery</a></p>
-        <hr />
-        <h3 id="usemonthlymovementquery">useMonthlyMovementQuery</h3>
-        <p>Re-exports <a
-        href="functions/useMonthlyMovementQuery.html">useMonthlyMovementQuery</a></p>
-        <hr />
-        <h3 id="usepricetrendquery">usePriceTrendQuery</h3>
-        <p>Re-exports <a
-        href="functions/usePriceTrendQuery.html">usePriceTrendQuery</a></p>
-        <hr />
-        <h3 id="usestockpersupplierquery">useStockPerSupplierQuery</h3>
-        <p>Re-exports <a
-        href="functions/useStockPerSupplierQuery.html">useStockPerSupplierQuery</a></p>
-        <hr />
-        <h3 id="usestockvaluequery">useStockValueQuery</h3>
-        <p>Re-exports <a
-        href="functions/useStockValueQuery.html">useStockValueQuery</a></p>
+        <h2 id="functions">Functions</h2>
+        <ul>
+        <li><a
+        href="functions/useDashboardMetrics.html">useDashboardMetrics</a></li>
+        </ul>
       </article>
     </main>
 
@@ -163,26 +131,7 @@ api/analytics/hooks/README · Smart Supply Pro · API</title>
       <ul>
       <li><a href="#file" id="toc-file">File</a></li>
       <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
-      <li><a href="#usage" id="toc-usage">Usage</a></li>
-      <li><a href="#references" id="toc-references">References</a>
-      <ul>
-      <li><a href="#usedashboardmetrics"
-      id="toc-usedashboardmetrics">useDashboardMetrics</a></li>
-      <li><a href="#usefinancialsummaryquery"
-      id="toc-usefinancialsummaryquery">useFinancialSummaryQuery</a></li>
-      <li><a href="#useitemfrequencyquery"
-      id="toc-useitemfrequencyquery">useItemFrequencyQuery</a></li>
-      <li><a href="#uselowstockquery"
-      id="toc-uselowstockquery">useLowStockQuery</a></li>
-      <li><a href="#usemonthlymovementquery"
-      id="toc-usemonthlymovementquery">useMonthlyMovementQuery</a></li>
-      <li><a href="#usepricetrendquery"
-      id="toc-usepricetrendquery">usePriceTrendQuery</a></li>
-      <li><a href="#usestockpersupplierquery"
-      id="toc-usestockpersupplierquery">useStockPerSupplierQuery</a></li>
-      <li><a href="#usestockvaluequery"
-      id="toc-usestockvaluequery">useStockValueQuery</a></li>
-      </ul></li>
+      <li><a href="#functions" id="toc-functions">Functions</a></li>
       </ul></li>
       </ul>
     </nav>
