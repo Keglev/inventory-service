@@ -7,7 +7,7 @@
  *
  * @enterprise
  * - Backend returns a plain JSON array (List<SupplierDTO>) — no Spring Page envelope, no server-side pagination.
- * - page/pageSize/q/sort are forwarded as query params but are ignored server-side (tracked as CB-P1 /).
+ * - page/pageSize/q/sort are forwarded as query params but are ignored server-side.
  * - On network failure the fetcher returns an empty page so the UI degrades cleanly rather than throwing.
  */
 

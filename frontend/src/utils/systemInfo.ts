@@ -10,8 +10,7 @@
  * - /api/health is the CUSTOM flat controller (not Spring Actuator):
  *   { status, database, databaseProduct, timestamp }. The previous
  *   Actuator-shaped 'ORACLE' substring heuristic could never match the real
- *   response and fabricated 'Local H2' / 'development' in production
- *.
+ *   response and fabricated 'Local H2' / 'development' in production.
  * - database comes from the backend's databaseProduct field (JDBC metadata,
  *   e.g. "Oracle", "H2"); environment comes from config/appMeta
  *   (build-time truth, same source as footer and hamburger menu).
