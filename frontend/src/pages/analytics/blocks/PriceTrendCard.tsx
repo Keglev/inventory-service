@@ -25,9 +25,7 @@
  */
 
 import * as React from 'react';
-import { Card, CardContent, Typography, Skeleton, Box, TextField, Stack } from '@mui/material';
-import Autocomplete from '@mui/material/Autocomplete';
-import type { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
+import { Card, CardContent, Typography, Skeleton, Box, Stack } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -37,6 +35,7 @@ import type { ItemRef } from '../../../api/shared/types';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
 import { useSettings } from '../../../hooks/useSettings';
 import { useItemSearchOptions } from '../hooks/useItemSearchOptions';
+import { ItemSearchAutocomplete } from '../components/ItemSearchAutocomplete';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 
 export type PriceTrendCardProps = { from?: string; to?: string; supplierId?: string | null };
@@ -125,6 +124,16 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
   // Render
   // ---------------------------------------------------------------------------
 
+  // Helper line semantics are host-specific: only meaningful with a supplier
+  // selected (this card searches within the chosen supplier's items).
+  const pickerTyped = debouncedQuery.trim().length > 0;
+  const pickerHelperText =
+    supplierId && pickerTyped && options.length === 0
+      ? t('analytics:priceTrend.noItemsForSupplier')
+      : supplierId && !pickerTyped
+      ? t('analytics:priceTrend.typeToSearch')
+      : ' ';
+
   return (
     <Card>
       <CardContent>
@@ -137,50 +146,17 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
         >
           <Typography variant="subtitle1">{t('analytics:cards.priceTrend')}</Typography>
 
-          <Autocomplete<ItemRef, false, false, false>
-            sx={{ minWidth: 320 }}
+          <ItemSearchAutocomplete
+            minWidth={320}
             options={options}
-            getOptionLabel={(o) => o.name}
             loading={itemSearchQ.isLoading}
-            /** Keep selection stable; don't derive it from options */
             value={selectedItem}
-            onChange={(_e, val) => {
-              setSelectedItem(val);
-              // Optional UX: mirror selection text so search stays in sync
-              if (val) setItemQuery(val.name);
-            }}
-            /** Controlled input text (what the user types) */
             inputValue={itemQuery}
-            onInputChange={(_e, val) => setItemQuery(val)}
-            /** Search UX */
-            forcePopupIcon={false}
-            clearOnBlur={false}
-            selectOnFocus
-            handleHomeEndKeys
-            /** We already filtered; don't let MUI filter again */
-            filterOptions={(x) => x}
-            isOptionEqualToValue={(o, v) => o.id === v.id}
-            renderInput={(params: AutocompleteRenderInputParams) => {
-              const typed = debouncedQuery.trim().length > 0;
-              const showNoMatches = !!supplierId && typed && options.length === 0;
-              const showTypeHint = !!supplierId && !typed;
-              return (
-                <TextField
-                  {...params}
-                  size="small"
-                  label={t('analytics:item')}
-                  placeholder={t('analytics:priceTrend.selectSupplierShort')}
-                  helperText={
-                    showNoMatches
-                      ? t('analytics:priceTrend.noItemsForSupplier')
-                      : showTypeHint
-                      ? t('analytics:priceTrend.typeToSearch')
-                      : ' '
-                  }
-                  FormHelperTextProps={{ sx: { minHeight: 20, mt: 0.5 } }}
-                />
-              );
-            }}
+            onSelect={setSelectedItem}
+            onInputChange={setItemQuery}
+            label={t('analytics:item')}
+            placeholder={t('analytics:priceTrend.selectSupplierShort')}
+            helperText={pickerHelperText}
             noOptionsText={
               debouncedQuery
                 ? t('analytics:priceTrend.noItemsForSupplier')

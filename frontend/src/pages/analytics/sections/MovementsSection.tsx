@@ -22,15 +22,14 @@
  * under the alarm threshold.
  */
 import * as React from 'react';
-import { Box, Chip, Stack, TextField, Typography } from '@mui/material';
-import Autocomplete from '@mui/material/Autocomplete';
-import type { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
+import { Box, Chip, Stack, Typography } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getReasonBreakdown, type ReasonBreakdownRow } from '../../../api/analytics/reasonBreakdown';
 import type { ItemRef } from '../../../api/shared/types';
 import { useItemSearchOptions } from '../hooks/useItemSearchOptions';
+import { ItemSearchAutocomplete } from '../components/ItemSearchAutocomplete';
 import ReasonBreakdownChartCard, { type ReasonBreakdownDatum } from './ReasonBreakdownChartCard';
 import MovementDrilldownTable from './MovementDrilldownTable';
 import { STOCK_CHANGE_REASONS, reasonLabel, type StockChangeReasonKey } from './reasonLabels';
@@ -108,46 +107,28 @@ export default function MovementsSection({ from, to, supplierId }: MovementsSect
     };
   }, [q.data, selectedReasons, t]);
 
+  // Helper line semantics are host-specific: global search from two typed
+  // characters; show no-matches only once the search has settled.
+  const pickerTyped = debouncedQuery.trim().length >= ITEM_SEARCH_MIN_CHARS;
+  const pickerHelperText =
+    pickerTyped && !itemSearchQ.isLoading && itemOptions.length === 0
+      ? t('analytics:movements.noMatches')
+      : !pickerTyped
+      ? t('analytics:movements.typeToSearch')
+      : ' ';
+
   return (
     <Box sx={{ gridColumn: '1 / -1', display: 'grid', gap: 2 }}>
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }}>
-        <Autocomplete<ItemRef, false, false, false>
-          sx={{ minWidth: 280 }}
+        <ItemSearchAutocomplete
           options={itemOptions}
-          getOptionLabel={(o) => o.name}
           loading={itemSearchQ.isLoading}
           value={selectedItem}
-          onChange={(_e, val) => {
-            setSelectedItem(val);
-            if (val) setItemQuery(val.name);
-          }}
           inputValue={itemQuery}
-          onInputChange={(_e, val) => setItemQuery(val)}
-          forcePopupIcon={false}
-          clearOnBlur={false}
-          selectOnFocus
-          handleHomeEndKeys
-          filterOptions={(x) => x}
-          isOptionEqualToValue={(o, v) => o.id === v.id}
-          renderInput={(params: AutocompleteRenderInputParams) => {
-            const typed = debouncedQuery.trim().length >= ITEM_SEARCH_MIN_CHARS;
-            const showNoMatches = typed && !itemSearchQ.isLoading && itemOptions.length === 0;
-            return (
-              <TextField
-                {...params}
-                size="small"
-                label={t('analytics:movements.itemFilter')}
-                helperText={
-                  showNoMatches
-                    ? t('analytics:movements.noMatches')
-                    : !typed
-                    ? t('analytics:movements.typeToSearch')
-                    : ' '
-                }
-                FormHelperTextProps={{ sx: { minHeight: 20, mt: 0.5 } }}
-              />
-            );
-          }}
+          onSelect={setSelectedItem}
+          onInputChange={setItemQuery}
+          label={t('analytics:movements.itemFilter')}
+          helperText={pickerHelperText}
         />
         <Stack direction="row" spacing={0.5} useFlexGap flexWrap="wrap" alignItems="center">
           <Typography variant="body2" sx={{ mr: 0.5, color: 'text.secondary' }}>
