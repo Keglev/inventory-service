@@ -112,7 +112,7 @@ api/suppliers/supplierListFetcher/README · Smart Supply Pro · API</title>
         <li>Backend returns a plain JSON array (List<SupplierDTO>) — no
         Spring Page envelope, no server-side pagination.</li>
         <li>page/pageSize/q/sort are forwarded as query params but are
-        ignored server-side (tracked as CB-P1 /).</li>
+        ignored server-side.</li>
         <li>On network failure the fetcher returns an empty page so the
         UI degrades cleanly rather than throwing.</li>
         </ul>
