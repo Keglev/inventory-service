@@ -1,10 +1,8 @@
 {
   "item": "Artikel",
   "page": {
-    "title": "Bestandsverwaltung",
-    "empty": "Keine Einträge für die aktuellen Filter gefunden."
+    "title": "Bestandsverwaltung"
   },
-
   "table": {
     "name": "Artikel",
     "code": "Code / SKU",
@@ -15,10 +13,8 @@
     "minQty": "Mindestmenge",
     "unitPrice": "Einzelpreis (€)",
     "totalValue": "Gesamtwert (€)",
-    "created": "Erstellt",
-    "notes": "Notizen"
+    "created": "Erstellt"
   },
-
   "toolbar": {
     "newItem": "Neuen Artikel anlegen",
     "edit": "Bearbeiten",
@@ -26,30 +22,23 @@
     "adjustQty": "Menge anpassen",
     "changePrice": "Preis ändern"
   },
-
   "steps": {
     "selectSupplier": "Schritt 1: Lieferant auswählen",
     "selectItem": "Schritt 2: Artikel auswählen",
     "adjustQuantity": "Schritt 3: Menge anpassen",
     "changePrice": "Schritt 3: Preis ändern",
-    "editName": "Schritt 3: Artikelname ändern",
-    "selectReason": "Schritt 3: Löschungsgrund auswählen"
+    "editName": "Schritt 3: Artikelname ändern"
   },
-
   "dialogs": {
     "editItemTitle": "Artikel bearbeiten",
     "createItemTitle": "Artikel anlegen",
     "deleteItemTitle": "Artikel löschen",
-    "itemInfoTitle": "Artikelinformationen",
     "confirmDeleteTitle": "Löschung bestätigen",
     "selectedItemLabel": "Ausgewählter Artikel:",
     "currentQuantityLabel": "Aktueller Bestand:",
     "currentPriceLabel": "Aktueller Preis:"
   },
-
   "buttons": {
-    "create": "Erstellen",
-    "save": "Speichern",
     "change": "Ändern",
     "applyAdjustment": "Anpassung anwenden",
     "applyPriceChange": "Preisänderung anwenden",
@@ -57,7 +46,6 @@
     "yes": "Ja",
     "no": "Nein"
   },
-
   "filter": {
     "supplier": "Lieferant",
     "allSuppliers": "Alle Lieferanten",
@@ -65,52 +53,35 @@
     "searchPlaceholder": "Artikelname oder Code",
     "belowMinOnly": "Nur unter Mindestbestand"
   },
-
   "search": {
     "selectSupplierPrompt": "Bitte wählen Sie einen Lieferanten, um dessen Artikel zu sehen.",
     "selectSupplierFirst": "Bitte wählen Sie zuerst einen Lieferanten, um die Suche zu aktivieren.",
-    "emptySearch": "Keine passenden Artikel für diesen Lieferanten.",
     "typeToSearchItems": "Tippen Sie, um Artikel zu suchen...",
     "noItemsFound": "Keine Artikel für diese Suche gefunden.",
-    "typeToSearchHint": "Beginnen Sie mit der Eingabe, um nach Artikeln zu suchen...",
     "typeToSearch": "Geben Sie mindestens 2 Zeichen ein, um zu suchen",
-    "selectSupplierPlaceholder": "Lieferant auswählen...",
-    "allSuppliers": "Alle Lieferanten",
-    "search": "Artikel suchen...",
     "searchSelectItem": "Artikel suchen und auswählen..."
   },
-
   "quantity": {
-    "currentStock": "Aktuell: {{quantity}}",
     "currentItemInfo": "Aktuelle Artikelinformationen",
     "currentQuantity": "Aktuelle Menge",
     "newQuantity": "Neue Menge",
     "quantityChangeHint": "Änderung von {{current}} auf {{new}}",
-    "setQuantityHint": "Menge wird auf {{quantity}} gesetzt",
-    "noItemSelected": "Bitte wählen Sie einen Artikel zum Anpassen aus.",
     "quantityUpdatedTo": "Menge wurde auf {{quantity}} geändert"
   },
-
   "price": {
     "newPrice": "Neuer Preis",
     "priceChange": "Einzelpreis: Änderung von {{from}} auf {{to}}",
     "currentTotalValue": "Aktueller Gesamtwert",
     "newTotalValue": "Neuer Gesamtwert: {{total}}",
     "currentPrice": "Aktueller Preis",
-    "setPriceHint": "Preis wird auf ${{price}} gesetzt",
-    "priceUpdatedTo": "Preis wurde auf ${{price}} geändert",
-    "priceNotAvailable": "Preis: N/V"
+    "priceUpdatedTo": "Preis wurde auf ${{price}} geändert"
   },
-
   "status": {
-    "itemAddedToStock": "Artikel erfolgreich zum Lager hinzugefügt!",
-    "itemUpdated": "Artikel erfolgreich aktualisiert!",
     "itemDeletedSuccessfully": "Operation erfolgreich. Artikel wurde aus dem Bestand entfernt!",
     "itemRenamed": "Artikelname erfolgreich geändert!",
     "operationCanceled": "Operation abgebrochen",
     "formSaved": "Artikel wurde erfolgreich gespeichert."
   },
-
   "deleteFlow": {
     "step1": "Schritt 1: Lieferant auswählen",
     "step2": "Schritt 2: Artikel auswählen",
@@ -120,7 +91,6 @@
     "confirmationPrompt": "Sind Sie sicher, dass Sie fortfahren möchten?",
     "itemBeingDeleted": "Zu löschender Artikel:"
   },
-
   "stockReasons": {
     "initial_stock": "Anfangsbestand",
     "manual_update": "Manuelle Anpassung",
@@ -133,12 +103,9 @@
     "returned_to_supplier": "An Lieferant zurückgegeben",
     "returned_by_customer": "Vom Kunden zurückgegeben"
   },
-
   "fields": {
-    "codeReadOnlyHint": "Derzeit optional",
     "reasonLabel": "Grund"
   },
-
   "selection": {
     "selectedItemLabel": "Ausgewählter Artikel"
   }

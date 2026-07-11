@@ -15,7 +15,6 @@
     "dashboard": "Dashboard",
     "inventory": "Inventory",
     "suppliers": "Suppliers",
-    "orders": "Purchase Orders",
     "analytics": "Analytics",
     "logout": "Logout"
   },
@@ -32,28 +31,17 @@
     "actions": {
       "manageInventory": "Manage inventory",
       "manageSuppliers": "Manage suppliers",
-      "viewAnalytics": "View analytics",
-      "cancel": "Cancel",
-      "create": "Create",
-      "save": "Save",
-      "edit": "Edit",
-      "apply": "Apply",
-      "update": "Update"
+      "viewAnalytics": "View analytics"
     }
   },
   "actions": {
     "menu": "Menu",
-    "toggleDensity": "Toggle compact density",
     "toggleLanguage": "Switch language",
     "backToDashboard": "Back to dashboard",
     "cancel": "Cancel",
     "create": "Create",
     "creating": "Creating...",
     "save": "Save",
-    "edit": "Edit",
-    "delete": "Delete",
-    "apply": "Apply",
-    "update": "Update",
     "yes": "Yes",
     "no": "No",
     "settings": "Settings",
@@ -72,12 +60,6 @@
   },
   "loading": "Loading...",
   "demoDisabled": "You are in demo mode and cannot perform this operation.",
-  "toast": {
-    "densityStatic": "Compact density mode is not yet fully implemented in this version"
-  },
-  "profile": {
-    "soon": "Profile (soon)"
-  },
   "name": "Name",
   "email": "Email",
   "role": "Role",
@@ -105,10 +87,6 @@
     "numberFormat": "Number Format"
   },
   "notifications": {
-    "title": "Notifications",
-    "error": "Could not load notifications",
-    "lowStock": "Low Stock Items",
-    "items": "items with low or no stock",
     "lowStockAlert": "Low Stock Alert",
     "lowStockMessage": "You have {{count}} merchandise item(s) with low stock",
     "itemsLowStock": "{{count}} items below minimum",
@@ -127,22 +105,11 @@
     "frontend": "Frontend",
     "version": "Version",
     "build": "Build",
-    "copy": "Copy",
-    "copied": "Copied!",
     "backendOnline": "Status: Online",
     "backendOffline": "Status: Offline"
   },
   "error": "Error",
   "selectOption": "Select an option",
-  "analytics": {
-    "title": "Analytics",
-    "cards": {
-      "stockValue": "Stock value over time",
-      "monthlyMovement": "Monthly stock movement",
-      "priceTrend": "Price trend"
-    },
-    "item": "Item"
-  },
   "units": {
     "pieces": "pcs"
   },

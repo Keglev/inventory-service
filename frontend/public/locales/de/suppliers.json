@@ -22,16 +22,13 @@
   },
   "filters": {
     "showAll": "Alle Lieferanten anzeigen",
-    "showAllHint": "Aktivieren Sie dieses Kontrollkästchen, um die vollständige Lieferantenliste anzuzeigen",
-    "selectToShow": "Aktivieren Sie \"Alle Lieferanten anzeigen\", um die vollständige Liste anzuzeigen"
+    "showAllHint": "Aktivieren Sie dieses Kontrollkästchen, um die vollständige Lieferantenliste anzuzeigen"
   },
   "actions": {
     "create": "Lieferant hinzufügen",
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "clear": "Auswahl aufheben",
-    "yes": "Ja",
-    "no": "Nein",
     "deleteSuccess": "Lieferant aus der Datenbank entfernt"
   },
   "buttons": {
@@ -64,11 +61,9 @@
   },
   "info": "Doppelklick zum Bearbeiten, verwenden Sie Schaltflächen zum Löschen",
   "empty": {
-    "default": "Keine Lieferanten gefunden",
-    "search": "Keine Lieferanten entsprechen Ihrer Suche"
+    "default": "Keine Lieferanten gefunden"
   },
   "status": {
-    "selected": "Ausgewählte Lieferanten-ID",
     "created": "Lieferant erfolgreich erstellt",
     "updated": "Lieferanteninformationen erfolgreich aktualisiert!",
     "deleted": "Lieferant erfolgreich gelöscht"

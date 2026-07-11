@@ -1,12 +1,5 @@
 {
-  "section": {
-    "legal": "Rechtliches & Meta",
-    "support": "Unterstützung & Docs",
-    "health": "Systemstatus",
-    "localization": "Sprache & Region"
-  },
   "legal": {
-    "rights": "Alle Rechte vorbehalten",
     "impressum": "Impressum",
     "privacy": "Datenschutz"
   },
@@ -31,12 +24,5 @@
   "status": {
     "online": "Online",
     "offline": "Offline"
-  },
-  "locale": {
-    "language": "Sprache",
-    "region": "Region"
-  },
-  "privacy": {
-    "notice": "Dieses Portfolio zeigt ein fiktives Enterprise-Inventory-System. Es werden keine echten Kundendaten gespeichert. Nur zu Demonstrationszwecken."
   }
 }

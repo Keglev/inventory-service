@@ -22,16 +22,13 @@
   },
   "filters": {
     "showAll": "Show all suppliers",
-    "showAllHint": "Check this box to display the complete supplier list",
-    "selectToShow": "Check \"Show all suppliers\" to display the complete list"
+    "showAllHint": "Check this box to display the complete supplier list"
   },
   "actions": {
     "create": "Add Supplier",
     "edit": "Edit",
     "delete": "Delete",
     "clear": "Clear",
-    "yes": "Yes",
-    "no": "No",
     "deleteSuccess": "Supplier removed from database"
   },
   "buttons": {
@@ -64,11 +61,9 @@
   },
   "info": "Double-click to edit, use action buttons to delete",
   "empty": {
-    "default": "No suppliers found",
-    "search": "No suppliers match your search"
+    "default": "No suppliers found"
   },
   "status": {
-    "selected": "Selected supplier ID",
     "created": "Supplier created successfully",
     "updated": "Supplier information updated successfully!",
     "deleted": "Supplier deleted successfully"

@@ -6,9 +6,7 @@
     "stockIn": "Zugang",
     "stockOut": "Abgang",
     "priceTrend": "Preisverlauf (€)",
-    "lowStock": "Artikel mit niedrigem Bestand",
-    "noData": "Keine Daten für die ausgewählten Filter.",
-    "noItems": "Keine Artikel gefunden."
+    "noData": "Keine Daten für die ausgewählten Filter."
   },
   "nav": {
     "overview": "Übersicht",
@@ -19,7 +17,6 @@
     "employees": "Mitarbeiter"
   },
   "priceTrend": {
-    "selectSupplier": "Wähle einen Lieferanten, um einen Artikel auszuwählen",
     "selectSupplierShort": "Lieferant auswählen",
     "noItemsForSupplier": "Keine Artikel für diesen Lieferanten",
     "typeToSearch": "Tippe zum Suchen…"
@@ -41,11 +38,6 @@
   "updates": {
     "title": "Kürzliche Bestandsaktualisierungen",
     "empty": "Keine Aktualisierungen in diesem Zeitraum.",
-    "when": "Wann",
-    "item": "Artikel",
-    "delta": "Δ Menge",
-    "reason": "Grund",
-    "user": "Benutzer",
     "labels": {
       "initialStock": "Einkäufe",
       "adjustment": "Anpassungen",
@@ -67,20 +59,10 @@
     "from": "Von",
     "to": "Bis",
     "supplier": "Lieferant",
-    "allSuppliers": "Alle Lieferanten",
-    "dateRange": "Zeitraum",
-    "quick": {
-      "30d": "Letzte 30 Tage",
-      "90d": "Letzte 90 Tage",
-      "180d": "Letzte 180 Tage",
-      "custom": "Benutzerdefiniert"
-    },
-    "clear": "Filter zurücksetzen",
-    "apply": "Übernehmen"
+    "allSuppliers": "Alle Lieferanten"
   },
   "selectSupplier": "Wähle einen Lieferanten, um niedrige Bestände zu sehen",
   "lowStock": {
-    "title": "Artikel mit niedrigem Bestand",
     "columns": {
       "item": "Artikel",
       "quantity": "Menge",
@@ -94,39 +76,19 @@
       "ok": "OK"
     },
     "noneForSupplier": "Keine Artikel unter Mindestbestand für diesen Lieferanten",
-    "shownNOfM": "Zeige {{n}} von {{m}} Artikeln",
-    "viewItem": "Artikel anzeigen",
-    "empty": "Keine Artikel mit niedrigem Bestand für die aktuellen Filter."
+    "shownNOfM": "Zeige {{n}} von {{m}} Artikeln"
   },
   "stockPerSupplier": {
     "title": "Bestand je Lieferant (Stück)",
-    "metricToggle": {
-      "quantity": "Menge",
-      "value": "Wert"
-    },
     "empty": "Keine Lieferantendaten für die aktuellen Filter."
   },
-  "updateFrequency": {
-    "title": "Aktualisierungshäufigkeit je Artikel",
-    "columns": {
-      "item": "Artikel",
-      "updates": "Aktualisierungen",
-      "lastUpdate": "Letzte Aktualisierung"
-    },
-    "empty": "Keine Aktualisierungen im ausgewählten Zeitraum."
-  },
   "stockUpdates": {
-    "title": "Bestandsänderungen",
     "columns": {
       "datetime": "Datum/Zeit",
       "item": "Artikel",
       "change": "Änderung",
-      "reason": "Grund",
-      "supplier": "Lieferant",
-      "note": "Notiz"
-    },
-    "exportCsv": "CSV exportieren",
-    "empty": "Keine Bestandsänderungen für die Filter vorhanden."
+      "reason": "Grund"
+    }
   },
   "reasons": {
     "INITIAL_STOCK": "Anfangsbestand",
@@ -169,12 +131,6 @@
     },
     "empty": "Keine Mitarbeiteraktivität im Zeitraum",
     "rowsPerPage": "Zeilen pro Seite"
-  },
-  "state": {
-    "loading": "Wird geladen…",
-    "empty": "Nichts anzuzeigen.",
-    "error": "Es ist ein Fehler aufgetreten.",
-    "retry": "Erneut versuchen"
   },
   "units": {
     "pieces": "Stk.",

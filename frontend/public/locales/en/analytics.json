@@ -6,9 +6,7 @@
     "stockIn": "Stock in",
     "stockOut": "Stock out",
     "priceTrend": "Price trend (€)",
-    "lowStock": "Low-stock items",
-    "noData": "No data for the selected filters.",
-    "noItems": "No items found."
+    "noData": "No data for the selected filters."
   },
   "nav": {
     "overview": "Overview",
@@ -19,7 +17,6 @@
     "employees": "Employees"
   },
   "priceTrend": {
-    "selectSupplier": "Choose a supplier to pick an item",
     "selectSupplierShort": "Select supplier",
     "noItemsForSupplier": "No items for this supplier",
     "typeToSearch": "Start typing to search…"
@@ -41,11 +38,6 @@
   "updates": {
     "title": "Recent stock updates",
     "empty": "No updates in this period.",
-    "when": "When",
-    "item": "Item",
-    "delta": "Δ Qty",
-    "reason": "Reason",
-    "user": "User",
     "labels": {
       "initialStock": "Purchases",
       "adjustment": "Adjustments",
@@ -67,20 +59,10 @@
     "from": "From",
     "to": "To",
     "supplier": "Supplier",
-    "allSuppliers": "All Suppliers",
-    "dateRange": "Date range",
-    "quick": {
-      "30d": "Last 30 days",
-      "90d": "Last 90 days",
-      "180d": "Last 180 days",
-      "custom": "Custom"
-    },
-    "clear": "Clear filters",
-    "apply": "Apply"
+    "allSuppliers": "All Suppliers"
   },
   "selectSupplier": "Select a supplier to see low stock",
   "lowStock": {
-    "title": "Low-stock items",
     "columns": {
       "item": "Item",
       "quantity": "Quantity",
@@ -94,39 +76,19 @@
       "ok": "OK"
     },
     "noneForSupplier": "No items below minimum for this supplier",
-    "shownNOfM": "Showing {{n}} of {{m}} items",
-    "viewItem": "View item",
-    "empty": "No low-stock items for the current filters."
+    "shownNOfM": "Showing {{n}} of {{m}} items"
   },
   "stockPerSupplier": {
     "title": "Stock per supplier (pieces)",
-    "metricToggle": {
-      "quantity": "Quantity",
-      "value": "Value"
-    },
     "empty": "No supplier data for the current filters."
   },
-  "updateFrequency": {
-    "title": "Update frequency per item",
-    "columns": {
-      "item": "Item",
-      "updates": "Updates",
-      "lastUpdate": "Last update"
-    },
-    "empty": "No updates in the selected period."
-  },
   "stockUpdates": {
-    "title": "Stock changes",
     "columns": {
       "datetime": "Date/Time",
       "item": "Item",
       "change": "Change",
-      "reason": "Reason",
-      "supplier": "Supplier",
-      "note": "Note"
-    },
-    "exportCsv": "Export CSV",
-    "empty": "No stock changes for the current filters."
+      "reason": "Reason"
+    }
   },
   "reasons": {
     "INITIAL_STOCK": "Initial stock",
@@ -169,12 +131,6 @@
     },
     "empty": "No employee activity in this period",
     "rowsPerPage": "Rows per page"
-  },
-  "state": {
-    "loading": "Loading…",
-    "empty": "Nothing to show.",
-    "error": "An error occurred.",
-    "retry": "Retry"
   },
   "units": {
     "pieces": "pcs",

@@ -15,7 +15,6 @@
     "dashboard": "Übersicht",
     "inventory": "Inventar",
     "suppliers": "Lieferanten",
-    "orders": "Bestellungen",
     "analytics": "Analytik",
     "logout": "Abmelden"
   },
@@ -32,28 +31,17 @@
     "actions": {
       "manageInventory": "Bestand verwalten",
       "manageSuppliers": "Lieferanten verwalten",
-      "viewAnalytics": "Analysen ansehen",
-      "cancel": "Abbrechen",
-      "create": "Erstellen",
-      "save": "Speichern",
-      "edit": "Bearbeiten",
-      "apply": "Anwenden",
-      "update": "Aktualisieren"
+      "viewAnalytics": "Analysen ansehen"
     }
   },
   "actions": {
     "menu": "Menü",
-    "toggleDensity": "Kompakte Dichte umschalten",
     "toggleLanguage": "Sprache wechseln",
     "backToDashboard": "Zurück zur Übersicht",
     "cancel": "Abbrechen",
     "create": "Erstellen",
     "creating": "Wird erstellt...",
     "save": "Speichern",
-    "edit": "Bearbeiten",
-    "delete": "Löschen",
-    "apply": "Anwenden",
-    "update": "Aktualisieren",
     "yes": "Ja",
     "no": "Nein",
     "settings": "Einstellungen",
@@ -72,12 +60,6 @@
   },
   "loading": "Wird geladen...",
   "demoDisabled": "Sie befinden sich im Demo-Modus und können diese Aktion nicht ausführen.",
-  "toast": {
-    "densityStatic": "Der kompakte Dichtenmodus ist in dieser Version noch nicht vollständig implementiert"
-  },
-  "profile": {
-    "soon": "Profil (bald)"
-  },
   "name": "Name",
   "email": "E-Mail",
   "role": "Rolle",
@@ -105,10 +87,6 @@
     "numberFormat": "Zahlenformat"
   },
   "notifications": {
-    "title": "Benachrichtigungen",
-    "error": "Benachrichtigungen konnten nicht geladen werden",
-    "lowStock": "Artikel mit niedrigem Bestand",
-    "items": "Artikel mit niedrigem oder keinem Bestand",
     "lowStockAlert": "Warnung: Niedriger Bestand",
     "lowStockMessage": "Du hast {{count}} Artikel mit niedrigem Bestand",
     "itemsLowStock": "{{count}} Artikel unter Mindestbestand",
@@ -127,22 +105,11 @@
     "frontend": "Frontend",
     "version": "Version",
     "build": "Build",
-    "copy": "Kopieren",
-    "copied": "Kopiert!",
     "backendOnline": "Status: Online",
     "backendOffline": "Status: Offline"
   },
   "error": "Fehler",
   "selectOption": "Option auswählen",
-  "analytics": {
-    "title": "Analysen",
-    "cards": {
-      "stockValue": "Bestandswert im Zeitverlauf",
-      "monthlyMovement": "Monatliche Bestandsbewegungen",
-      "priceTrend": "Preisentwicklung"
-    },
-    "item": "Artikel"
-  },
   "units": {
     "pieces": "Stk."
   },

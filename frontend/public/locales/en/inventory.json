@@ -1,10 +1,8 @@
 {
   "item": "Item",
   "page": {
-    "title": "Inventory Management",
-    "empty": "No entries found for the current filters."
+    "title": "Inventory Management"
   },
-
   "table": {
     "name": "Item",
     "code": "Code / SKU",
@@ -15,10 +13,8 @@
     "minQty": "Minimum Quantity",
     "unitPrice": "Unit Price (€)",
     "totalValue": "Total Value (€)",
-    "created": "Created",
-    "notes": "Notes"
+    "created": "Created"
   },
-
   "toolbar": {
     "newItem": "Add New Item",
     "edit": "Edit",
@@ -26,30 +22,23 @@
     "adjustQty": "Adjust Quantity",
     "changePrice": "Change Price"
   },
-
   "steps": {
     "selectSupplier": "Step 1: Select Supplier",
     "selectItem": "Step 2: Select Item",
     "adjustQuantity": "Step 3: Adjust Quantity",
     "changePrice": "Step 3: Change Price",
-    "editName": "Step 3: Edit Item Name",
-    "selectReason": "Step 3: Select Deletion Reason"
+    "editName": "Step 3: Edit Item Name"
   },
-
   "dialogs": {
     "editItemTitle": "Edit Item",
     "createItemTitle": "Create Item",
     "deleteItemTitle": "Delete Item",
-    "itemInfoTitle": "Item Information",
     "confirmDeleteTitle": "Confirm Deletion",
     "selectedItemLabel": "Selected Item:",
     "currentQuantityLabel": "Current Quantity:",
     "currentPriceLabel": "Current Price:"
   },
-
   "buttons": {
-    "create": "Create",
-    "save": "Save",
     "change": "Change",
     "applyAdjustment": "Apply Adjustment",
     "applyPriceChange": "Apply Price Change",
@@ -57,7 +46,6 @@
     "yes": "Yes",
     "no": "No"
   },
-
   "filter": {
     "supplier": "Supplier",
     "allSuppliers": "All suppliers",
@@ -65,52 +53,35 @@
     "searchPlaceholder": "Item name or code",
     "belowMinOnly": "Below minimum quantity only"
   },
-
   "search": {
     "selectSupplierPrompt": "Please select a supplier to view their items.",
     "selectSupplierFirst": "Please select a supplier first to enable searching.",
-    "emptySearch": "No matching items found for this supplier.",
     "typeToSearchItems": "Type to search for items...",
     "noItemsFound": "No items found for this search.",
-    "typeToSearchHint": "Start typing to search for items...",
     "typeToSearch": "Enter at least 2 characters to search",
-    "selectSupplierPlaceholder": "Select supplier...",
-    "allSuppliers": "All Suppliers",
-    "search": "Search items...",
     "searchSelectItem": "Search and select item..."
   },
-
   "quantity": {
-    "currentStock": "Current: {{quantity}}",
     "currentItemInfo": "Current Item Information",
     "currentQuantity": "Current Quantity",
     "newQuantity": "New Quantity",
     "quantityChangeHint": "Changing from {{current}} to {{new}}",
-    "setQuantityHint": "Quantity will be set to {{quantity}}",
-    "noItemSelected": "Please select an item to adjust.",
     "quantityUpdatedTo": "Quantity updated to {{quantity}}"
   },
-
   "price": {
     "newPrice": "New Price",
     "priceChange": "Unit price: change from {{from}} to {{to}}",
     "currentTotalValue": "Current Total Value",
     "newTotalValue": "New total value: {{total}}",
     "currentPrice": "Current Price",
-    "setPriceHint": "Price will be set to ${{price}}",
-    "priceUpdatedTo": "Price updated to ${{price}}",
-    "priceNotAvailable": "Price: N/A"
+    "priceUpdatedTo": "Price updated to ${{price}}"
   },
-
   "status": {
-    "itemAddedToStock": "Item successfully added to stock!",
-    "itemUpdated": "Item successfully updated!",
     "itemDeletedSuccessfully": "Success! The item has been removed from the inventory!",
     "itemRenamed": "Item name successfully updated!",
     "operationCanceled": "Operation canceled",
     "formSaved": "Item successfully saved."
   },
-
   "deleteFlow": {
     "step1": "Step 1: Select Supplier",
     "step2": "Step 2: Select Item",
@@ -120,7 +91,6 @@
     "confirmationPrompt": "Are you sure you want to proceed?",
     "itemBeingDeleted": "Item being deleted:"
   },
-
   "stockReasons": {
     "initial_stock": "Initial Stock",
     "manual_update": "Manual Adjustment",
@@ -133,12 +103,9 @@
     "returned_to_supplier": "Returned to Supplier",
     "returned_by_customer": "Returned by Customer"
   },
-
   "fields": {
-    "codeReadOnlyHint": "Optional for now",
     "reasonLabel": "Reason"
   },
-
   "selection": {
     "selectedItemLabel": "Selected Item"
   }

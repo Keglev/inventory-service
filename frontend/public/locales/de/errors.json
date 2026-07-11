@@ -1,37 +1,20 @@
 {
-  "validation": {
-    "required": "Dieses Feld ist erforderlich",
-    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
-    "minLength": "Muss mindestens {{min}} Zeichen lang sein",
-    "maxLength": "Darf nicht mehr als {{max}} Zeichen lang sein",
-    "numberOnly": "Bitte geben Sie eine gültige Nummer ein",
-    "mustBePositive": "Muss eine positive Zahl sein",
-    "cannotBeNegative": "Kann nicht negativ sein"
-  },
-
   "inventory": {
     "validationFailed": "Bitte korrigieren Sie die markierten Felder.",
     "conflicts": {
-      "duplicateName": "Ein Artikel mit diesem Namen existiert bereits",
-      "duplicateCode": "Ein Artikel mit diesem Code existiert bereits"
+      "duplicateName": "Ein Artikel mit diesem Namen existiert bereits"
     },
     "selection": {
-      "noItemSelected": "Bitte wählen Sie einen Artikel aus",
-      "noSupplierSelected": "Bitte wählen Sie einen Lieferanten aus"
+      "noItemSelected": "Bitte wählen Sie einen Artikel aus"
     },
     "businessRules": {
       "itemNotFound": "Artikel nicht gefunden",
       "adminOnly": "Nur Administratoren können diese Aktion ausführen",
-      "invalidReason": "Ungültiger Grund für das Löschen",
       "quantityMustBeZero": "Sie haben noch Artikel im Bestand. Sie müssen zuerst Artikel aus dem Bestand entfernen, indem Sie die Menge ändern",
       "notAllowed": "Sie dürfen diese Aktion nicht ausführen",
       "stockCannotGoNegative": "Der Bestand kann nicht negativ werden. Die Artikelmenge hat sich zwischenzeitlich geändert - bitte laden Sie neu und versuchen Sie es erneut."
     },
     "requests": {
-      "failedToLoadSuppliers": "Fehler beim Laden der Lieferanten. Bitte versuchen Sie es erneut",
-      "failedToLoadItems": "Fehler beim Laden der Artikel. Bitte versuchen Sie es erneut",
-      "failedToAddItem": "Fehler beim Hinzufügen des Artikels. Bitte versuchen Sie es erneut",
-      "failedToUpdateItem": "Fehler beim Aktualisieren des Artikels. Bitte versuchen Sie es erneut",
       "failedToDeleteItem": "Fehler beim Löschen des Artikels. Bitte versuchen Sie es erneut",
       "failedToAdjustQuantity": "Fehler beim Anpassen der Menge. Bitte versuchen Sie es erneut",
       "failedToChangePrice": "Fehler beim Ändern des Preises. Bitte versuchen Sie es erneut",
@@ -41,27 +24,24 @@
       "serverError": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut"
     }
   },
-
   "supplier": {
-    "conflicts": { "duplicateEmail": "Diese E-Mail wird bereits verwendet." },
+    "conflicts": {
+      "duplicateEmail": "Diese E-Mail wird bereits verwendet."
+    },
     "selection": {
       "noSupplierSelected": "Bitte wählen Sie einen Lieferanten"
     },
     "adminOnly": "Nur Administratoren können diese Aktion ausführen.",
     "validation": {
-      "createdByRequired": "Erstellerinformationen sind erforderlich. Stellen Sie sicher, dass Sie angemeldet sind.",
-      "nameRequired": "Lieferantenname ist erforderlich",
-      "invalidEmail": "Ungültiges E-Mail-Format"
+      "createdByRequired": "Erstellerinformationen sind erforderlich. Stellen Sie sicher, dass Sie angemeldet sind."
     },
     "requests": {
-      "failedToLoadSuppliers": "Fehler beim Laden der Lieferanten. Bitte versuchen Sie es erneut",
       "failedToAddSupplier": "Fehler beim Hinzufügen des Lieferanten. Bitte versuchen Sie es erneut",
       "failedToUpdateSupplier": "Fehler beim Aktualisieren des Lieferanten. Bitte versuchen Sie es erneut",
       "failedToDeleteSupplier": "Fehler beim Löschen des Lieferanten. Bitte versuchen Sie es erneut"
     },
     "businessRules": {
       "duplicateName": "Ein Lieferant mit diesem Namen existiert bereits",
-      "duplicateEmail": "Diese E-Mail-Adresse wird bereits verwendet",
       "supplierNotFound": "Lieferant nicht gefunden",
       "cannotDeleteWithItems": "Dieser Lieferant kann nicht gelöscht werden, da noch Waren mit Bestand > 0 vorhanden sind. Bitte reduzieren Sie den Bestand auf 0, bevor Sie den Lieferanten löschen."
     }
