@@ -112,9 +112,8 @@ context/settings/SettingsContext/README · Smart Supply Pro · API</title>
         <li>Two concerns bridged in one context: USER PREFERENCES
         (locale-sensitive, persisted to localStorage under
         'appSettings') and RUNTIME SYSTEM INFO (database flavor + health
-        status from /api/health). See CB-APP1 (re-scoped in MASTER) for
-        the open question of splitting these into separate sources of
-        truth.</li>
+        status from /api/health). See CB-APP1 for the open question of
+        splitting these into separate sources of truth.</li>
         <li>SINGLE production consumer of getSystemInfo()
         (utils/systemInfo), which returns only
         database/environment/status — nothing fabricated. This file
@@ -124,12 +123,11 @@ context/settings/SettingsContext/README · Smart Supply Pro · API</title>
         see CB-APP33 (overwrites explicit user choice) and CB-APP34
         (in-memory only, not persisted).</li>
         <li>On /api/health fetch failure, systemInfo falls back to
-        'unknown' values rather than asserting a guessed environment. →
-        CB-APP32 (resolved).</li>
+        'unknown' values rather than asserting a guessed
+        environment.</li>
         <li>Consumed via hooks/useSettings.ts — the factory-built
         consumer hook with 16 production call sites. The former sibling
-        duplicate context/settings/useSettings.ts has been removed. →
-        ST-APP9.</li>
+        duplicate context/settings/useSettings.ts has been removed.</li>
         </ul>
         <h2 id="variables">Variables</h2>
         <ul>

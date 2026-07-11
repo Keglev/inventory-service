@@ -112,11 +112,11 @@ api/shared/itemSearch/README · Smart Supply Pro · API</title>
         single physical home removes the cross-layer import that
         previously had an inventory hook reaching into the analytics
         module.</li>
-        <li>Backed by the paginated backend search (CB-APP68): name,
-        supplierId, and size are real server parameters, so no parameter
-        probing and no client-side re-filtering are needed. The former
-        full-catalog fetch + client filter workaround was deleted with
-        that wave.</li>
+        <li>Backed by the paginated backend search: name, supplierId,
+        and size are real server parameters, so no parameter probing and
+        no client-side re-filtering are needed. The former full-catalog
+        fetch + client filter workaround was deleted with that
+        wave.</li>
         <li>Supplier scoping is enforced by the backend query; an empty
         result for a supplier is returned as empty, never refilled with
         cross-supplier rows.</li>
