@@ -30,8 +30,8 @@
  *   so any client value is ignored; sending a placeholder was
  *   misleading and has been removed.
  * - applyServerError keys on the backend status token (errorToken), not
- *   freeform message text, matching deleteItemErrorHandler (CB-APP48)
- *   and useEditItemForm (CB-APP50).
+ *   freeform message text, matching deleteItemErrorHandler
+ *   and useEditItemForm.
  * - Demo mode (readOnly) short-circuits before the mutation so a demo
  *   user sees the same disabled-action message regardless of validation
  *   state.

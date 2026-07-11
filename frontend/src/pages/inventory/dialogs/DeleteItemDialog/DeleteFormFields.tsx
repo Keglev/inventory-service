@@ -15,7 +15,7 @@
  * - Deletion takes no reason: it is a pure catalog removal, only accepted
  *   by the backend once the quantity is already zero, so the stock
  *   movement that emptied the item was audited by the preceding quantity
- *   adjustment (CB-APP71).
+ *   adjustment.
  * - The 2-character minimum, debounce, and supplier scoping for item
  *   search live in upstream useItemSearchQuery; this file only exposes
  *   the visible state.

@@ -12,7 +12,7 @@
  *   clearly on both the light and dark header (the former outlined variant
  *   was near-invisible in dark mode); the label stays pinned '#000' for
  *   fixed contrast on the amber fill.
- * - The tooltip carries the former full-width demo banner text (CB-APP77):
+ * - The tooltip carries the former full-width demo banner text:
  *   the badge is now the single persistent demo indicator.
  * - i18n keys ('auth:demoBadge', 'auth:demoNotice') share the auth namespace with login/demo flows.
  */

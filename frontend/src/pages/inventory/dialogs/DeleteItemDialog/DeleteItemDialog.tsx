@@ -17,16 +17,15 @@
  *   (1) only ADMIN users can delete items;
  *   (2) the item's on-hand quantity must be 0 before the backend accepts
  *       the delete. The Delete button is disabled and an inline hint is
- *       shown while the selected item still has stock (CB-APP71);
+ *       shown while the selected item still has stock;
  *   (3) deletion takes no reason: it is a pure catalog removal, and the
  *       stock movement that emptied the item was already audited by the
  *       preceding quantity adjustment.
  * - readOnly enables demo-mode preview: users walk through every form
  *   step, but the actual DELETE call is blocked at
  *   useDeleteItemHandlers.onConfirmedDelete.
- * - Help opens the in-app drawer via the shared HelpIconButton component
- *   (CM-APP11 closure), though the tooltip key t('actions.help', 'Help')
- *   still carries an English fallback (CM-APP9).
+ * - Help opens the in-app drawer via the shared HelpIconButton component,
+ *   matching the sibling dialogs.
  */
 
 import * as React from 'react';

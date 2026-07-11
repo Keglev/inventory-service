@@ -14,7 +14,7 @@
  *   tags. 'DE' and 'EN_US' map to actual locales in the formatter layer
  *   (utils/formatters.ts).
  * - SettingsContext defaults to `undefined`. The consumer hook (either
- *   hooks/useSettings.ts or this directory's useSettings.ts — see ST-APP9)
+ *   hooks/useSettings.ts or this directory's useSettings.ts)
  *   throws when undefined, enforcing provider-wrapped usage.
  */
 

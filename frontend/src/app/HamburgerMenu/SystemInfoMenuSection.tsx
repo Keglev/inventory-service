@@ -11,7 +11,7 @@
  * Data origin: features/health (useHealthCheck) for backend online/offline
  * status; all other values come from config/appMeta.
  * The former backend URL row ('/api' + copy-to-clipboard) was removed
- * (CB-APP80): the relative path carried no user value and read like a broken
+ *: the relative path carried no user value and read like a broken
  * link. The clipboard dependency-injection prop went with it.
  * Mounted exclusively by MenuContent/MenuSectionsRenderer.
  */

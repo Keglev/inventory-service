@@ -11,7 +11,7 @@
  *   undefined-returning pickString/pickNumber in @/api/shared. The two families
  *   are partitioned by directory and never imported into the same module, so the
  *   shared name carries no collision risk. Kept separate intentionally
- *   (ST-APP17-w3b, closed by decision) -- do not consolidate; the contracts differ.
+ * -- do not consolidate; the contracts differ.
  */
 import type { AnalyticsParams } from './validation';
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';

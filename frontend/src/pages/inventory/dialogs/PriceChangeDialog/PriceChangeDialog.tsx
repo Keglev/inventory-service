@@ -18,13 +18,12 @@
  *   (2) backend does not record a reason for price changes, so the form
  *       carries no reason field.
  * - Help opens the in-app drawer via the shared HelpIconButton component,
- *   matching ItemFormDialog (CB-APP54 closure). This site is tracked
- *   under CB-APP57 as a sibling.
+ *   matching ItemFormDialog.
  * - There is no substring error-mapping in this flow. Failures get a
  *   single generic message regardless of cause (admin-only, validation,
- *   conflict). Tracked under CB-APP56 -- either add structured error
- *   mapping consistent with delete/rename/create flows, or accept the
- *   generic message as policy.
+ *   conflict) -- accepted as policy for this dialog; the delete/rename/
+ *   create flows carry structured mapping because their causes are
+ *   user-actionable.
  */
 
 import {

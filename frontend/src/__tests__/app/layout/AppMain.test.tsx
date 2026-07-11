@@ -5,7 +5,7 @@
  * @responsibility
  * Guarantees the main content area contract: semantic main region, flex
  * layout, internal vertical scrolling, and absence of the removed demo
- * banner (lives in the header badge since CB-APP77).
+ * banner (lives in the header badge).
  * @out_of_scope
  * Routed page content (Outlet targets); header badge behavior
  * (HeaderDemoBadge suite).
@@ -52,7 +52,7 @@ describe('AppMain', () => {
     });
   });
 
-  describe('Removed behavior (CB-APP77)', () => {
+  describe('Removed behavior', () => {
     it('renders no demo banner (indicator lives in the header badge)', () => {
       renderAppMain();
 

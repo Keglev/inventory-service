@@ -12,7 +12,7 @@
  * - Type-only dependency on SettingsContext for DateFormat / NumberFormat union
  *   types; no runtime coupling to context state.
  * - Thousands separation is manual regex, not Intl.NumberFormat — historical
- *   choice tracked under CM-APP4.
+ *   choice.
  * - Pure functions: no state, no side effects, safe to call in render paths.
  */
 import type { DateFormat, NumberFormat } from '../context/settings/SettingsContext';

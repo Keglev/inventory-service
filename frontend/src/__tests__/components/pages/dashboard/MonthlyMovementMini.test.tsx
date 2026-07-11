@@ -74,7 +74,7 @@ vi.mock('../../../../utils/formatters', () => ({
 
 /**
  * Settings context is mocked: the component reads numberFormat for the
- * axis/tooltip formatters added in CB-APP59.
+ * axis/tooltip formatters.
  */
 vi.mock('../../../../hooks/useSettings', () => ({
   useSettings: () => ({

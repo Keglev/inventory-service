@@ -111,7 +111,6 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       logoutTimerRef.current = null;
     }
     try {
-      // BUCKET: localStorage write+delete fires a `storage` event in OTHER tabs only; the receiving listener is NOT in this file — verify a listener for 'ssp:forceLogout' exists in the app, otherwise the broadcast is dead code (CB-APP30)
       localStorage.setItem(FORCE_LOGOUT_FLAG, '1');
       localStorage.removeItem(FORCE_LOGOUT_FLAG);
       localStorage.removeItem(DEMO_KEY);

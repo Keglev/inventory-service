@@ -78,7 +78,7 @@ const AppPublicShell: React.FC = () => {
 
           <AppFooter />
 
-          {/* Help drawer — inside the ThemeProvider so it follows light/dark mode (CB-APP83) */}
+          {/* Help drawer — inside the ThemeProvider so it follows light/dark mode */}
           <HelpPanel />
 
           <PublicShellToastContainer toast={toast} onClose={hideToast} />

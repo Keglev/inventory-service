@@ -17,9 +17,6 @@
  * @i18n
  * Uses 'auth' namespace. Keys: signIn, welcome, or, signInGoogle, ssoHint,
  * errorTitle, continueDemo.
- *
- * CB-APP66: t('continueDemo') retains an English fallback string at the JSX
- * site — tracked for the i18n cleanup pass (no behavior change here).
  */
 
 import {

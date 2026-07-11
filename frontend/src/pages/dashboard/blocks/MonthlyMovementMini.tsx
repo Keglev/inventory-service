@@ -21,7 +21,7 @@
  * Uses 'common' namespace. Key: dashboard.kpi.movementTitle.
  *
  * Keys: dashboard.kpi.movementTitle, dashboard.kpi.stockIn/stockOut,
- * units.pieces (all in the 'common' namespace; CB-APP66/CB-APP59 resolved).
+ * units.pieces (all in the 'common' namespace;  resolved).
  */
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';

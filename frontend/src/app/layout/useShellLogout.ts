@@ -5,7 +5,7 @@
  * @summary
  * Builds the shell's logout handler: demo users get a client-side redirect to
  * the logout-success route; real users are logged out via a POST form redirect
- * to the backend (avoiding SPA-guard flicker). Extracted from AppShell (ST-APP2).
+ * to the backend (avoiding SPA-guard flicker). Extracted from AppShell.
  */
 
 import type { useNavigate } from 'react-router-dom';

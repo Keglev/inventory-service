@@ -139,7 +139,7 @@ describe('DeleteItemDialog', () => {
     expect(passedStates[0]).toEqual(expect.objectContaining({ showConfirmation: true }));
   });
 
-  it('disables the Delete button while the selected item still has stock (CB-APP71 pre-gate)', () => {
+  it('disables the Delete button while the selected item still has stock', () => {
     const state = createMockState({
       selectedItem: { id: 'item-1', name: 'Item 1' } as unknown as UseDeleteItemDialogReturn['selectedItem'],
       itemDetailsQuery: ({ data: { name: 'Item 1', onHand: 5 }, isLoading: false } as unknown) as UseDeleteItemDialogReturn['itemDetailsQuery'],

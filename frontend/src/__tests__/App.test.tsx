@@ -5,7 +5,7 @@
  *
  * Contract under test:
  * - Renders the router inside the global providers (Help, Settings).
- * - The help panel is NOT mounted here since CB-APP83; it lives inside the
+ * - The help panel is NOT mounted here; it lives inside the
  *   shells so it receives the active theme.
  *
  * Out of scope:
@@ -56,7 +56,7 @@ describe('App', () => {
     expect(screen.getByTestId('app-router')).toBeInTheDocument();
   });
 
-  it('does not mount the help panel at root (lives in the shells since CB-APP83)', () => {
+  it('does not mount the help panel at root (lives in the shells)', () => {
     renderSubject();
     expect(screen.queryByTestId('help-panel')).toBeNull();
   });

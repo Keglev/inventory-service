@@ -47,7 +47,7 @@ import type { EditSupplierDialogProps } from './EditSupplierDialog.types';
  *
  * Business rules:
  * - Only ADMIN role can edit suppliers
- * - Supplier name field is read-only in this UI by design; the backend does permit name updates (CM-APP19 — see MASTER)
+ * - Supplier name field is read-only in this UI by design; the backend does permit name updates
  * - Only contactName, phone, and email are editable
  *
  * @component

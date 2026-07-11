@@ -10,9 +10,9 @@
  *   Raw fetch isolates the probe from app-level error handling.
  * - 15-min poll interval is a balance between freshness and load. Manual refetch is exposed for UI-triggered refreshes
  *   (refresh button in HealthBadge etc.).
- * - Backend contract mismatch CONCERN: this hook expects a flat response shape (`status`, `database`, `timestamp`) that
- *   disagrees with MASTER's Spring Actuator LOCKED FACT (`status`, `components.db.*`). Sibling consumer
- *   utils/systemInfo.ts uses the same flat shape. If MASTER is right, all 4 consumers show "offline" perpetually. → CB-APP36.
+ * - Backend contract (verified against source): /api/health returns a flat JSON body
+ *   ({status, database, databaseProduct, timestamp}), 200/503. Sibling consumer
+ *   utils/systemInfo.ts relies on the same flat shape.
  * - Catch-branch sets status: 'offline' on any exception (network, non-JSON, shape mismatch). UI must tolerate offline
  *   state as the normal failure mode.
  */
@@ -28,7 +28,7 @@ export interface HealthStatus {
   timestamp: number;
 }
 
-/** Expected /api/health response shape per current frontend assumption. See CB-APP36 — disagrees with MASTER LOCKED FACTS on backend Actuator format. */
+/** /api/health response shape, verified against the backend controller (flat JSON, not Actuator format). */
 interface BackendHealthResponse {
   status: string;     // expect "ok" or "down"
   database: string;   // expect "ok" or "down"
@@ -80,7 +80,7 @@ export const useHealthCheck = () => {
       };
       if (!isBackendHealthResponse(parsed)) {
         logError('Unexpected health response structure:', parsed);
-        // WHY: shape mismatch is potentially CB-APP36 territory — frontend assumption may not match backend Actuator format; verification required.
+        // WHY: a malformed body degrades to 'offline' rather than throwing into the UI.
         throw new Error('Health response does not match expected shape');
       }
 

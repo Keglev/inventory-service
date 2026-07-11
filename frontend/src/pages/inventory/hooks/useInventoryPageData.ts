@@ -16,7 +16,7 @@
  * - serverPage is 0-based (Spring Pageable), matching the MUI grid's own
  *   0-based page model; it is forwarded to getInventoryPage unchanged.
  *   No index conversion occurs anywhere in this path.
- * - All filtering is server-side (CB-APP68): q, supplierId, and the
+ * - All filtering is server-side: q, supplierId, and the
  *   below-minimum flag are sent to GET /api/inventory/search and the
  *   returned page is rendered as-is. The search input is debounced here
  *   so the server is not queried on every keystroke.

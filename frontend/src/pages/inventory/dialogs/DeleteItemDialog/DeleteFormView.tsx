@@ -10,7 +10,7 @@
  * - Progressive disclosure: each step renders only after the previous step
  *   produces the value it depends on. Supplier selection unlocks item
  *   search; item selection unlocks the info preview.
- * - Deletion takes no reason (CB-APP71): it is a pure catalog removal the
+ * - Deletion takes no reason: it is a pure catalog removal the
  *   backend only accepts at quantity zero. When the selected item still
  *   has stock, an inline warning explains the quantity-zero rule; the
  *   parent dialog additionally disables the Delete button.

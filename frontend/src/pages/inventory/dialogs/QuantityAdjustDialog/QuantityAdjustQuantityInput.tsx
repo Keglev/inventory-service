@@ -17,8 +17,8 @@
  *   off screen.
  * - Reason labels are derived from the enum value via lower-casing,
  *   replacing underscores, and looking up the key in
- *   inventory:stockReasons.* with the value as the English fallback.
- *   English fallback is CM-APP9 territory; per-key audit at refactor.
+ *   inventory:stockReasons.*; the raw enum token doubles as an
+ *   unknown-token guard for values missing from the locale files.
  */
 
 import * as React from 'react';

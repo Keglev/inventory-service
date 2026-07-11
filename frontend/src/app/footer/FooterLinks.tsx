@@ -11,8 +11,8 @@
  *   new tab (SAP-style external-link behavior).
  * - Impressum / Datenschutz are internal SPA routes rendered via react-router
  *   Link (same tab, history push), so the browser back button returns the
- *   user to the page they came from (CB-APP84).
- * - Labels are i18n keys in the 'footer' namespace with English fallbacks.
+ *   user to the page they came from.
+ * - Labels are i18n keys in the 'footer' namespace.
  */
 
 import { Link, Stack } from '@mui/material';

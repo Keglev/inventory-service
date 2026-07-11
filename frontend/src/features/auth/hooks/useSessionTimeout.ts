@@ -19,8 +19,7 @@
  *       OFF by default — enable for strict environments.
  *   (3) CROSS-TAB LISTENER — reacts to a `storage` event with key ===
  *       FORCE_LOGOUT_FLAG and newValue === '1' and navigates to /logout. THIS IS
- *       THE LISTENER for AuthContext's logout broadcast (CB-APP30 — answered;
- *       concern shifts to CB-APP38).
+ *       THE LISTENER for AuthContext's logout broadcast.
  * - Does NOT clear AuthContext state directly — navigates to /logout and lets
  *   LogoutPage own cleanup (HTTP logout + cookie revocation). Single source of
  *   truth for logout side effects.

@@ -8,7 +8,7 @@
  *
  * @enterprise
  * - Pure presentation component
- * - Supplier name field is read-only in this UI by design; backend permits name updates (CM-APP19 — see MASTER)
+ * - Supplier name field is read-only in this UI by design; backend permits name updates
  * - Editable fields: contactName, phone, email
  * - React Hook Form integration
  */

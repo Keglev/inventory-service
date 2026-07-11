@@ -17,8 +17,7 @@
  *   icon next to the page title uses the shared component with the
  *   topicId 'inventory.overview', matching QuantityAdjustDialog's
  *   pattern. Dialogs that still use raw IconButton + HelpOutlineIcon
- *   or window.open should converge on this pattern (CB-APP54,
- *   CB-APP57, CM-APP11).
+ *   or window.open should converge on this pattern.
  * - The "select a supplier to view items" placeholder is mandatory
  *   UX: the inventory page intentionally renders nothing until a
  *   supplier is chosen, because the backend item-search endpoint is

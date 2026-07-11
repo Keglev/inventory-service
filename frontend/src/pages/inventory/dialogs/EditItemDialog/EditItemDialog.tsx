@@ -19,8 +19,7 @@
  *   (3) the rename does not change inventory quantity or write a
  *       StockHistory row, so the schema carries no reason field.
  * - Help opens the in-app drawer via the shared HelpIconButton component,
- *   matching DeleteItemDialog's CM-APP11 closure. The tooltip key still
- *   carries an English fallback.
+ *   matching the sibling dialogs.
  * - Hook orchestration is in useEditItemForm; this file holds layout
  *   only, no business logic.
  */

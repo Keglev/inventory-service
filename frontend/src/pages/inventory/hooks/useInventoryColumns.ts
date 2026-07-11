@@ -91,7 +91,7 @@ export const useInventoryColumns = (): GridColDef[] => {
         type: 'number',
         width: 150,
         // Server-computed (quantity x price); not an entity column, so it
-        // cannot participate in server-side sorting (CB-APP68).
+        // cannot participate in server-side sorting.
         sortable: false,
         valueGetter: (_value: unknown, row: InventoryRow | null) => resolveTotalValue(row),
         valueFormatter: (value: unknown) => formatMoney(value, userPreferences.numberFormat),

@@ -5,7 +5,7 @@
  * @summary
  * Owns the app shell's theme-mode and locale state, their localStorage
  * persistence, the MUI theme object, and the i18n language sync. Extracted
- * from AppShell to keep that file a thin orchestrator (ST-APP2).
+ * from AppShell to keep that file a thin orchestrator.
  *
  * @enterprise
  * - Single source of truth for themeMode and locale; AppShell consumes the

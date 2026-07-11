@@ -6,7 +6,7 @@
  * Guarantees the health-probe contract against the real flat /api/health
  * response: databaseProduct passthrough, build-time environment, status
  * passthrough, and 'unknown' fallbacks for HTTP failure, network failure,
- * and missing fields (CB-APP82).
+ * and missing fields.
  * @out_of_scope
  * Backend health semantics; SettingsContext consumption.
  */

@@ -8,7 +8,7 @@
  *
  * @enterprise
  * - Pure presentation component
- * - Shows supplier info (name field is read-only in this UI; not a backend constraint — CM-APP19)
+ * - Shows supplier info (name field is read-only in this UI; not a backend constraint —)
  * - Displays what will change (before -> after)
  * - Requires user confirmation before proceeding
  */

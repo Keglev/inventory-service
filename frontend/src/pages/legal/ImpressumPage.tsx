@@ -10,8 +10,7 @@
  * @enterprise
  * - § 5 DDG information for a private, non-commercial portfolio:
  *   name + contact email, explicit non-commercial framing, § 18 (2) MStV
- *   responsibility note. No street address by deliberate choice (CB-APP84
- *   Gate 0 decision, option 1).
+ *   responsibility note. No street address by deliberate choice.
  * - Public route (no auth) under AppPublicShell so the page is reachable
  *   from every screen via the footer.
  */

@@ -4,7 +4,7 @@
  * Provides a React Query hook for type-ahead item search scoped to a selected
  * supplier. Supplier isolation is enforced server-side: `GET
  * /api/inventory/search` accepts `supplierId` as a real query parameter
- * (CB-APP68), so no broad fetch or client-side re-filtering is required.
+ *, so no broad fetch or client-side re-filtering is required.
  */
 
 import { useQuery } from '@tanstack/react-query';

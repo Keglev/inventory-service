@@ -11,7 +11,7 @@
  *   { status, database, databaseProduct, timestamp }. The previous
  *   Actuator-shaped 'ORACLE' substring heuristic could never match the real
  *   response and fabricated 'Local H2' / 'development' in production
- *   (CB-APP82).
+ *.
  * - database comes from the backend's databaseProduct field (JDBC metadata,
  *   e.g. "Oracle", "H2"); environment comes from config/appMeta
  *   (build-time truth, same source as footer and hamburger menu).

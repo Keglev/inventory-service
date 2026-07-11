@@ -9,7 +9,7 @@
  * - onSubmit(): validates selection and toggles confirmation step.
  * - onConfirmedDelete(): validates preconditions, blocks in readOnly mode,
  *   performs deleteItem(), and maps failures into user-facing error messages.
- *   Deletion takes no reason (CB-APP71).
+ *   Deletion takes no reason.
  *
  * Out of scope:
  * - Real React Query behavior (mutations/queries are mocked or treated as inputs)

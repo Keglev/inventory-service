@@ -14,9 +14,6 @@
  *   the rule documented in useToolbarHandlers: only ADMIN can rename,
  *   and the toolbar surfaces only the rename path. Every other
  *   mutation dialog selects its own target internally.
- * - All five labels carry English fallbacks, consistent with the
- *   CM-APP9 directory-wide policy of cleaning these in a single
- *   refactor pass rather than ad hoc per file.
  */
 
 import * as React from 'react';

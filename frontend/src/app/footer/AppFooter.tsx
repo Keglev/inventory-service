@@ -8,10 +8,10 @@
  *
  * @enterprise
  * - Thin orchestrator: layout composition only; all state flows from useFooterState.
- * - The former collapsible details panel was removed (CB-APP74): its content
+ * - The former collapsible details panel was removed: its content
  *   duplicated Settings > System Info and the hamburger Systeminfo section.
  *   Enterprise apps keep footers minimal; deep diagnostics live in settings.
- * - Legal pages (Impressum / Datenschutz) will join the link row via CB-APP84.
+ * - Legal pages (Impressum / Datenschutz) are part of the link row.
  */
 
 import { Box, Container, Stack } from '@mui/material';

@@ -15,7 +15,7 @@
  *   it uses the shared HelpIconButton component, not raw IconButton
  *   + HelpOutlineIcon. ItemFormDialog, PriceChangeDialog,
  *   DeleteItemDialog, and EditItemDialog have all converged on this
- *   pattern (CB-APP54, CB-APP57, CM-APP11 closures).
+ *   pattern.
  * - Backend invariant: the reason must belong to the StockChangeReason
  *   enum that quantity adjustments actually support; backend
  *   StockHistoryValidator is the authority. The dialog offers only the

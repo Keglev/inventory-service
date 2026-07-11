@@ -24,7 +24,7 @@ describe('typeGuards', () => {
         expect(isRecord({ a: 1, b: 2 })).toBe(true);
       });
 
-      // Tightened contract (Wave 2 ST-5 consolidation): isRecord now excludes arrays
+      // Tightened contract: isRecord now excludes arrays
       // to match the analytics-side semantics. Inventory call sites already guarded
       // arrays separately, so no production behavior changes.
       it('returns false for arrays', () => {

@@ -9,7 +9,7 @@
  * @enterprise
  * Two hrefs are relative paths (/docs/api, /docs/frontend) that target the
  * GitHub Pages docs site — these are real destinations. The third is an
- * absolute GitHub URL. Contrast with FooterLinks (CB-APP2) where three of
+ * absolute GitHub URL. Contrast with FooterLinks where three of
  * four hrefs are '#' placeholders. Mounted exclusively by
  * MenuContent/MenuSectionsRenderer.
  */

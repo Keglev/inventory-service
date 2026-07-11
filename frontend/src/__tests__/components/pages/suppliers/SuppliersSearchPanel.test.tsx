@@ -188,7 +188,7 @@ describe('SuppliersSearchPanel', () => {
     expect(screen.queryByText('Supplier B')).not.toBeInTheDocument();
 
     // Compact indicator: name + clear action only; the detail card was
-    // removed as redundant with the table row (CB-APP78).
+    // removed as redundant with the table row.
     expect(screen.getByText('Supplier A')).toBeInTheDocument();
     expect(screen.queryByText(/Contact:\s*John Doe/)).not.toBeInTheDocument();
     expect(screen.queryByText('123-456-7890')).not.toBeInTheDocument();

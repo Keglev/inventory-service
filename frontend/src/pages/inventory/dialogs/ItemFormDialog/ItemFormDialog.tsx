@@ -14,9 +14,8 @@
  *   would duplicate the form-field layout and the supplier alignment
  *   effect.
  * - Help opens the in-app drawer via the shared HelpIconButton component,
- *   matching the sibling dialogs (CB-APP54 closure). The tooltip key
- *   t('common:actions.help', 'Help') resolves to the shared actions.help leaf
- *   (CM-APP9 / CM-APP11 territory).
+ *   matching the sibling dialogs. The tooltip key
+ *   resolves to the shared common:actions.help leaf.
  * - Submit fires via state.handleSubmit(state.onSubmit)(e) rather than
  *   state.onSubmit directly because onSubmit is already wrapped by
  *   react-hook-form internally; the chained call here is redundant

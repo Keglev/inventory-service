@@ -4,7 +4,7 @@
  *
  * @summary
  * Presentational step wrapper for the delete flow: a numbered badge with a
- * title, plus indented content. Extracted from DeleteFormView (ST-APP13).
+ * title, plus indented content. Extracted from DeleteFormView.
  */
 
 import { Box, Typography } from '@mui/material';

@@ -10,7 +10,6 @@
  * - Orchestrator only: receives all state as props, no local state or side effects
  * - Sections are independently tested; this component owns only layout and section composition
  */
-// BUCKET: file exceeds ~150-line guideline — review for extract/split (ST-APP2)
 
 import {
   Box,

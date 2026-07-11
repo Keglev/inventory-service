@@ -18,7 +18,7 @@ import type { AnalyticsFilters } from '@/pages/analytics/components/filters/Filt
 import { DateRangeFilter } from '@/pages/analytics/components/filters/DateRangeFilter';
 import { tEn } from '../../../test/i18nEn';
 
-// B2 (CM-APP24): provide a react-i18next mock so useTranslation resolves without an
+// B2: provide a react-i18next mock so useTranslation resolves without an
 // i18n instance in this suite, silencing the NO_I18NEXT_INSTANCE warning. The stub
 // mirrors react-i18next's no-instance fallback exactly — it returns an explicit string
 // fallback / options.defaultValue when supplied, otherwise the key — so rendered text

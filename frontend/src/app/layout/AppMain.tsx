@@ -8,11 +8,11 @@
  *
  * @enterprise
  * - Extracted from AppShell to keep the shell a pure orchestrator; all content-area layout lives here.
- * - The former demo-mode banner row was removed (CB-APP77): demo state is
+ * - The former demo-mode banner row was removed: demo state is
  *   indicated by the header DEMO badge (with explanatory tooltip), and every
  *   mutation dialog shows the demo guard message on attempted changes. The
  *   banner cost a full-width row on every page.
- * - Single internal scroll region of the viewport-fit shell (CB-APP73).
+ * - Single internal scroll region of the viewport-fit shell.
  */
 
 import { Outlet } from 'react-router-dom';

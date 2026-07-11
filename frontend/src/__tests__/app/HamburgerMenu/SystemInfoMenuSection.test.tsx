@@ -9,7 +9,7 @@
  * Test strategy:
  * - Mock health hook (online/offline) to keep tests deterministic.
  * - Verify key labels/values; the former copy-backend-URL action was removed
- *   with the '/api' row (CB-APP80).
+ *   with the '/api' row.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -84,7 +84,7 @@ describe('SystemInfoMenuSection', () => {
   });
 
   // -----------------------------
-  // Removed behavior (CB-APP80)
+  // Removed behavior
   // -----------------------------
   it('renders no backend URL row and no copy button', () => {
     arrange();

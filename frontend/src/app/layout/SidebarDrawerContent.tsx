@@ -6,7 +6,7 @@
  * The shared content tree for the sidebar's mobile and desktop Drawer variants:
  * branding header, navigation list, and a footer with profile, environment, and
  * action controls. Extracted from AppSidebar so both Drawer variants render one
- * source of truth (ST-APP2).
+ * source of truth.
  */
 
 import { Box, Toolbar, Typography, Divider } from '@mui/material';

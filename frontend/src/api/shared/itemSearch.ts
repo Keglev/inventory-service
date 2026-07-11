@@ -12,7 +12,7 @@
  *   analytics pickers consume them. A single physical home removes the
  *   cross-layer import that previously had an inventory hook reaching
  *   into the analytics module.
- * - Backed by the paginated backend search (CB-APP68): name, supplierId,
+ * - Backed by the paginated backend search: name, supplierId,
  *   and size are real server parameters, so no parameter probing and no
  *   client-side re-filtering are needed. The former full-catalog fetch +
  *   client filter workaround was deleted with that wave.

@@ -21,9 +21,6 @@
  * Uses 'common' namespace. Keys: dashboard.title, dashboard.kpi.totalItems,
  * dashboard.kpi.suppliers, dashboard.kpi.lowStock, dashboard.actions.*,
  * actions.help.
- *
- * CB-APP66: t('actions.help', 'Help') retains an English fallback string at
- * the JSX site — tracked for the i18n cleanup pass.
  */
 import * as React from 'react';
 import { Box, Grid, Button, Stack, Typography, Paper } from '@mui/material';

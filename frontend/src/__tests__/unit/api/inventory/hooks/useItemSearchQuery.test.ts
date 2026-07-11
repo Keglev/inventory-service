@@ -4,7 +4,7 @@
  * @what_is_under_test useItemSearchQuery
  * @responsibility
  * Guarantees the hook’s public contract: queryKey composition, enabled gating for type-ahead UX,
- * and delegation to the supplier-scoped fetcher (supplier isolation is server-side, CB-APP68).
+ * and delegation to the supplier-scoped fetcher (supplier isolation is server-side,).
  * @out_of_scope
  * Backend search relevance/ranking correctness (server-side implementation and scoring).
  * @out_of_scope

@@ -67,12 +67,12 @@ const AppRouter: React.FC = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/auth" element={<AuthCallback />} />
         <Route path="/logout-success" element={<LogoutSuccess />} />
-        {/* Legal pages (CB-APP84): public, reachable from every page via the footer */}
+        {/* Legal pages: public, reachable from every page via the footer */}
         <Route path="/impressum" element={<ImpressumPage />} />
         <Route path="/datenschutz" element={<DatenschutzPage />} />
         {/**
          * 404 FALLBACK: unknown paths render inside the public shell so the
-         * header, footer, and legal links stay reachable (CB-APP84).
+         * header, footer, and legal links stay reachable.
          */}
         <Route path="*" element={<NotFoundPage />} />
       </Route>

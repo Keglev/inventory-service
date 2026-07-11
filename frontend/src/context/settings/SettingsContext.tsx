@@ -7,8 +7,8 @@
  * @enterprise
  * - Two concerns bridged in one context: USER PREFERENCES (locale-sensitive,
  *   persisted to localStorage under 'appSettings') and RUNTIME SYSTEM INFO
- *   (database flavor + health status from /api/health). See CB-APP1 (re-scoped
- *   in MASTER) for the open question of splitting these into separate sources
+ *   (database flavor + health status from /api/health). See CB-APP1 for the
+ *   open question of splitting these into separate sources
  *   of truth.
  * - SINGLE production consumer of getSystemInfo() (utils/systemInfo), which
  *   returns only database/environment/status — nothing fabricated. This file
@@ -17,10 +17,10 @@
  *   silently rewritten to match locale. KNOWN BUGS — see CB-APP33 (overwrites
  *   explicit user choice) and CB-APP34 (in-memory only, not persisted).
  * - On /api/health fetch failure, systemInfo falls back to 'unknown' values
- *   rather than asserting a guessed environment. → CB-APP32 (resolved).
+ *   rather than asserting a guessed environment.
  * - Consumed via hooks/useSettings.ts — the factory-built consumer hook with
  *   16 production call sites. The former sibling duplicate
- *   context/settings/useSettings.ts has been removed. → ST-APP9.
+ *   context/settings/useSettings.ts has been removed.
  */
 
 import * as React from 'react';

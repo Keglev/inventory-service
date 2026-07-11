@@ -10,7 +10,6 @@
  * - Scoped to date/number FORMAT only; locale/language switching is handled by toolbar/sidebar/hamburger toggles
  * - Live preview examples surface formatter output directly, making format choices self-documenting in the UI
  */
-// BUCKET: file exceeds ~150-line guideline — review for extract/split (ST-APP2)
 
 import {
   FormControl,

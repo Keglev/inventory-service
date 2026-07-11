@@ -9,7 +9,7 @@
  * @enterprise
  * - Theme mode, locale, localStorage persistence, and theme building are owned by useShellSettings; AppShell wires the resulting state and callbacks to sub-components, enforcing top-down data flow.
  * - Session keep-alive ping fires at shell level so it runs regardless of which page route is active.
- * - Viewport-fit layout: an inner flex column bounds the shell to exactly one viewport (100dvh, overflow hidden); AppMain is the single internal scroll region, so the footer is always visible (CB-APP73). AppPublicShell keeps its own document-scroll layout and is unaffected.
+ * - Viewport-fit layout: an inner flex column bounds the shell to exactly one viewport (100dvh, overflow hidden); AppMain is the single internal scroll region, so the footer is always visible. AppPublicShell keeps its own document-scroll layout and is unaffected.
  * - Single Snackbar instance prevents duplicate toasts from concurrent state changes across sub-components.
  * - Delegates all rendering to AppHeader, AppSidebar, AppMain — this file coordinates, not renders.
  */
@@ -99,7 +99,7 @@ export default function AppShell() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ToastContext.Provider value={notify}>
-        {/* Viewport-fit shell (CB-APP73): bounds header + content + footer to exactly
+        {/* Viewport-fit shell: bounds header + content + footer to exactly
             one viewport; AppMain is the single internal scroll region. */}
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}>
           {/* Application Header (fixed) */}
@@ -144,7 +144,7 @@ export default function AppShell() {
           <AppFooter />
         </Box>
 
-        {/* Help drawer — inside the ThemeProvider so it follows light/dark mode (CB-APP83) */}
+        {/* Help drawer — inside the ThemeProvider so it follows light/dark mode */}
         <HelpPanel />
 
         {/* Toast Notifications */}

@@ -136,7 +136,7 @@ export default function Analytics(): JSX.Element {
         sx={{
           display: 'grid',
           gap: 2,
-          // CB-APP78: the inventory-health section gives the low-stock table
+          // the inventory-health section gives the low-stock table
           // ~3/5 of the width (its fixed-layout table needs ~640px to show the
           // Status chips without horizontal scroll) and the donut ~2/5.
           // Other sections keep the responsive auto-fit grid.

@@ -125,7 +125,7 @@ describe('AppFooter', () => {
   });
 
   // -----------------------------
-  // Removed behavior (CB-APP74)
+  // Removed behavior
   // -----------------------------
   it('renders no expand/collapse control', () => {
     arrange();

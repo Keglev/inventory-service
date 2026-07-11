@@ -19,9 +19,6 @@
  *
  * @i18n
  * Uses 'auth' namespace. Keys: welcome, or, signIn, continueDemo, ssoHint.
- *
- * CB-APP66: t('continueDemo') retains an English fallback string at the JSX
- * site — tracked for i18n cleanup.
  */
 
 import * as React from 'react';
