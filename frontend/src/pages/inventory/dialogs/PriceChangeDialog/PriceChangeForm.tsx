@@ -18,9 +18,11 @@
  *   a selected item is impossible. The button disabled state on the
  *   parent dialog is the redundant final gate.
  *
- * Size note: exceeds the component typical range but stays under the alarm
- * threshold as a single pure render function; all state is injected and there
- * is nothing to extract but markup (accepted, never split to hit a number).
+ * Size note: 163 code lines, three over the dialog alarm threshold (160).
+ * WAIVED: a single pure render function with all state injected; the item
+ * details panel is already extracted (PriceChangeItemDetails), and any
+ * further cut would slice contiguous form markup to hit a number, which
+ * the house standard forbids. Re-measure if a fourth field group is added.
  */
 
 import {

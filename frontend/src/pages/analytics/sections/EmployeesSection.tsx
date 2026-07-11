@@ -11,25 +11,19 @@
  * - a server-paginated change log fed by /api/analytics/employee-changes.
  *
  * @enterprise
- * - The chart pivot happens client-side: the API returns flat
- *   (period, employee, count) rows; Recharts needs one object per period.
+ * - Composition only: data, granularity, and the client-side pivot live in
+ *   useEmployeesSectionData; the chart card is EmployeesActivityChart; this
+ *   file renders the change-log card and wires pagination.
  * - Pagination is server-side (Spring Page): only the visible slice is
  *   fetched; the page index resets when the window changes.
- *
- * Size note: after extracting the data hook, the remainder is a single pure
- * render body slightly above the component typical range; accepted (never
- * split to hit a number).
  */
-import * as React from 'react';
 import {
-  Box, Card, CardContent, Skeleton, Stack, ToggleButton, ToggleButtonGroup, Typography,
+  Box, Card, CardContent, Skeleton, Typography,
   Table, TableHead, TableRow, TableCell, TableBody, TableContainer, TablePagination,
 } from '@mui/material';
-import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
-import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
-import type { EmployeeGranularity } from '../../../api/analytics/employees';
-import { useEmployeesSectionData, type EmployeesChartRow } from './useEmployeesSectionData';
+import { useEmployeesSectionData } from './useEmployeesSectionData';
+import { EmployeesActivityChart } from './EmployeesActivityChart';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import { reasonLabel } from './reasonLabels';
@@ -42,11 +36,9 @@ export type EmployeesSectionProps = {
 
 export default function EmployeesSection({ from, to, supplierId }: EmployeesSectionProps) {
   const { t } = useTranslation(['analytics']);
-  const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
 
-  // Queries, pagination state, and the chart pivot live in the data hook;
-  // the component keeps theme colors and i18n formatting.
+  // Queries, pagination state, and the chart pivot live in the data hook.
   const {
     granularity, setGranularity,
     page, setPage,
@@ -55,90 +47,17 @@ export default function EmployeesSection({ from, to, supplierId }: EmployeesSect
     chartData, employees,
   } = useEmployeesSectionData({ from, to, supplierId });
 
-  const seriesColors = React.useMemo(() => {
-    const palette = [
-      muiTheme.palette.primary.main,
-      muiTheme.palette.success.main,
-      muiTheme.palette.warning.main,
-      muiTheme.palette.error.main,
-      muiTheme.palette.info.main,
-      muiTheme.palette.secondary.main,
-    ];
-    return employees.map((_, idx) => palette[idx % palette.length]);
-  }, [employees, muiTheme]);
-
-  const formatCount = React.useCallback(
-    (value: number | string) =>
-      typeof value === 'number' ? formatNumber(value, userPreferences.numberFormat, 0) : String(value),
-    [userPreferences.numberFormat]
-  );
-
-  const formatTooltipCount = React.useCallback(
-    (value: number | string) =>
-      typeof value === 'number'
-        ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.changes')}`
-        : String(value),
-    [userPreferences.numberFormat, t]
-  );
-
   const changes = changesQ.data ?? { rows: [], total: 0 };
 
   return (
     <Box sx={{ gridColumn: '1 / -1', display: 'grid', gap: 2 }}>
-      <Card data-testid="employee-activity-card">
-        <CardContent>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
-            <Typography variant="subtitle1">{t('analytics:employees.chartTitle')}</Typography>
-            <ToggleButtonGroup
-              size="small"
-              exclusive
-              value={granularity}
-              onChange={(_e, next: EmployeeGranularity | null) => {
-                if (next) setGranularity(next);
-              }}
-            >
-              <ToggleButton value="daily">{t('analytics:employees.granularity.daily')}</ToggleButton>
-              <ToggleButton value="weekly">{t('analytics:employees.granularity.weekly')}</ToggleButton>
-              <ToggleButton value="monthly">{t('analytics:employees.granularity.monthly')}</ToggleButton>
-            </ToggleButtonGroup>
-          </Stack>
-
-          {activityQ.isLoading ? (
-            <Skeleton variant="rounded" height={240} />
-          ) : chartData.length === 0 ? (
-            <Box sx={{ height: 240, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-              {t('analytics:employees.empty')}
-            </Box>
-          ) : (
-            <Box sx={{ height: 280 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="period" tick={{ fontSize: 12 }} />
-                  <YAxis allowDecimals={false} tickFormatter={formatCount} />
-                  <Tooltip formatter={formatTooltipCount} />
-                  <Legend />
-                  {/* Emails contain dots; Recharts resolves string dataKeys as
-                      nested paths, so each series needs a function accessor. */}
-                  {employees.map((emp, idx) => (
-                    <Line
-                      key={emp.createdBy}
-                      type="monotone"
-                      dataKey={(row: EmployeesChartRow) => (row[emp.createdBy] as number | undefined) ?? 0}
-                      name={emp.displayName}
-                      stroke={seriesColors[idx]}
-                      strokeWidth={2}
-                      dot={{ r: 2 }}
-                      activeDot={{ r: 4 }}
-                      isAnimationActive={false}
-                    />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
+      <EmployeesActivityChart
+        granularity={granularity}
+        onGranularityChange={setGranularity}
+        chartData={chartData}
+        employees={employees}
+        loading={activityQ.isLoading}
+      />
 
       <Card data-testid="employee-changes-card">
         <CardContent>
