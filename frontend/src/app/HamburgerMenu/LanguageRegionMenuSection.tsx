@@ -9,7 +9,7 @@
  * @enterprise
  * Same split-persistence pattern as AppearanceMenuSection: dateFormat and
  * numberFormat are persisted here via useSettings; locale state is owned
- * upstream (HamburgerMenu → AppToolbarActions) and passed through as props.
+ * upstream (HamburgerMenu -> AppToolbarActions) and passed through as props.
  * i18n.changeLanguage is intentionally NOT called here — LanguageToggle owns
  * that side-effect to keep this coordinator side-effect-free.
  * Mounted exclusively by MenuContent/MenuSectionsRenderer.

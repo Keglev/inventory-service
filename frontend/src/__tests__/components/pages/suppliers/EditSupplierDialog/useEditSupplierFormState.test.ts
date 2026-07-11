@@ -5,7 +5,7 @@
  *
  * Contract under test:
  * - Provides a react-hook-form instance for `EditSupplierForm`.
- * - `populateWithSupplier()` maps SupplierRow → form values.
+ * - `populateWithSupplier()` maps SupplierRow -> form values.
  * - `reset()` restores default values and clears dirty state.
  *
  * Out of scope:

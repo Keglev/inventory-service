@@ -1,14 +1,16 @@
 /**
  * @file supplierQueries.test.ts
  * @module tests/unit/api/inventory/supplierQueries
- * @what_is_under_test listSuppliers
- * @responsibility
- * Guarantees supplier query contracts: stable route/param wiring, tolerant field extraction
- * from heterogeneous payloads, and safe empty-array fallbacks on failures.
- * @out_of_scope
- * Backend query correctness (ranking, filtering, and data quality are server responsibilities).
- * @out_of_scope
- * HTTP client behavior (auth, interceptors, retries/timeouts, and transport concerns).
+ * @description Contract tests for listSuppliers.
+ *
+ * Contract under test:
+ * - Guarantees supplier query contracts: stable route/param wiring,
+ *   tolerant field extraction from heterogeneous payloads, and safe
+ *   empty-array fallbacks on failures.
+ *
+ * Out of scope:
+ * - HTTP client behavior (auth, interceptors, retries/timeouts, and
+ *   transport concerns).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

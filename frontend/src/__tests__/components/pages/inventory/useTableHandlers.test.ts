@@ -5,7 +5,7 @@
  * - Maps table events (row click/pagination/sort) to InventoryState setters.
  *
  * Out of scope:
- * - DataGrid internals (we validate our event→setter mapping only).
+ * - DataGrid internals (we validate our event->setter mapping only).
  */
 
 import { describe, it, expect } from 'vitest';

@@ -1,14 +1,16 @@
 /**
  * @file supplierMutations.test.ts
  * @module tests/unit/api/suppliers/supplierMutations
- * @what_is_under_test createSupplier / updateSupplier / deleteSupplier
- * @responsibility
- * Guarantees supplier mutation contracts: correct HTTP route wiring, normalization of successful
- * responses, stable invalid-response messaging, and user-facing error surfaces via `errorMessage`.
- * @out_of_scope
- * Supplier normalizer implementation details (treated as a dependency; validated in its own unit tests).
- * @out_of_scope
- * HTTP client behavior (interceptors, retries/timeouts, auth headers, and transport concerns).
+ * @description Contract tests for createSupplier / updateSupplier / deleteSupplier.
+ *
+ * Contract under test:
+ * - Guarantees supplier mutation contracts: correct HTTP route wiring,
+ *   normalization of successful responses, stable invalid-response
+ *   messaging, and user-facing error surfaces via `errorMessage`.
+ *
+ * Out of scope:
+ * - HTTP client behavior (interceptors, retries/timeouts, auth headers,
+ *   and transport concerns).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

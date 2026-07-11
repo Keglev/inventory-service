@@ -1,12 +1,17 @@
 /**
  * @file itemSearch.normalizeItemsList.test.ts
  * @module tests/unit/api/shared/itemSearch.normalizeItemsList
- * @what_is_under_test normalizeItemsList (api/shared)
- * @responsibility
- * - Guarantees item-like payloads are normalized into stable {id,name,supplierId} objects
- * - Guarantees invalid entries are filtered out rather than producing partial/unsafe DTOs
- * @out_of_scope
- * - Enforcing uniqueness, ordering guarantees, or deep validation of item fields
+ * @description Contract tests for normalizeItemsList (api/shared).
+ *
+ * Contract under test:
+ * - Guarantees item-like payloads are normalized into stable
+ *   {id,name,supplierId} objects
+ * - Guarantees invalid entries are filtered out rather than producing
+ *   partial/unsafe DTOs
+ *
+ * Out of scope:
+ * - Enforcing uniqueness, ordering guarantees, or deep validation of
+ *   item fields
  * - Backend contract correctness for identifiers and naming
  */
 

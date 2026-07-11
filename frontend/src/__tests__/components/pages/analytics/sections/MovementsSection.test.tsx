@@ -1,7 +1,8 @@
 /**
  * @file MovementsSection.test.tsx
- * @summary Orchestration test for the Movements section: one breakdown query
- * feeds both direction cards; the reason chips filter client-side without a
+ * @module __tests__/components/pages/analytics/sections/MovementsSection
+ * @description Orchestration test for the Movements section: one breakdown query feeds
+ * both direction cards; the reason chips filter client-side without a
  * refetch; the drilldown table renders row-level data.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';

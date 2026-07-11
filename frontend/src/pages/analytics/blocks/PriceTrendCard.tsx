@@ -83,7 +83,7 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
   /**
    * Final options:
    *  - Start from async results.
-   *  - If supplierId is set → filter by supplier on the client as well.
+   *  - If supplierId is set -> filter by supplier on the client as well.
    *  - Apply text narrowing too (belt-and-suspenders).
    */
   const baseOptions: ItemWithSupplier[] = React.useMemo(() => {

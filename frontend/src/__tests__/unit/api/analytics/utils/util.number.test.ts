@@ -1,12 +1,17 @@
 /**
  * @file util.number.test.ts
  * @module tests/unit/api/analytics/util.number
- * @what_is_under_test asNumber and pickNumber (api/analytics/util)
- * @responsibility
- * - Guarantees numeric normalization is tolerant (invalid inputs become 0)
- * - Guarantees numeric field selection respects key order and supports string-to-number coercion
- * @out_of_scope
- * - Locale-specific number parsing, currency formatting, and rounding policy
+ * @description Contract tests for asNumber and pickNumber (api/analytics/util).
+ *
+ * Contract under test:
+ * - Guarantees numeric normalization is tolerant (invalid inputs become
+ *   0)
+ * - Guarantees numeric field selection respects key order and supports
+ *   string-to-number coercion
+ *
+ * Out of scope:
+ * - Locale-specific number parsing, currency formatting, and rounding
+ *   policy
  * - Validation of upstream payload contracts that supply these values
  */
 

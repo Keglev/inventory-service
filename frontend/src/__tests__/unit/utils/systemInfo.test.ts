@@ -1,14 +1,16 @@
 /**
  * @file systemInfo.test.ts
  * @module tests/unit/utils/systemInfo
- * @what_is_under_test getSystemInfo
- * @responsibility
- * Guarantees the health-probe contract against the real flat /api/health
- * response: databaseProduct passthrough, build-time environment, status
- * passthrough, and 'unknown' fallbacks for HTTP failure, network failure,
- * and missing fields.
- * @out_of_scope
- * Backend health semantics; SettingsContext consumption.
+ * @description Contract tests for getSystemInfo.
+ *
+ * Contract under test:
+ * - Guarantees the health-probe contract against the real flat
+ *   /api/health response: databaseProduct passthrough, build-time
+ *   environment, status passthrough, and 'unknown' fallbacks for HTTP
+ *   failure, network failure, and missing fields.
+ *
+ * Out of scope:
+ * - Backend health semantics; SettingsContext consumption.
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';

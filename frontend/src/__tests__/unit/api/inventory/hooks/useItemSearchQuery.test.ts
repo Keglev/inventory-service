@@ -1,14 +1,16 @@
 /**
  * @file useItemSearchQuery.test.ts
  * @module tests/unit/api/inventory/hooks/useItemSearchQuery
- * @what_is_under_test useItemSearchQuery
- * @responsibility
- * Guarantees the hook’s public contract: queryKey composition, enabled gating for type-ahead UX,
- * and delegation to the supplier-scoped fetcher (supplier isolation is server-side,).
- * @out_of_scope
- * Backend search relevance/ranking correctness (server-side implementation and scoring).
- * @out_of_scope
- * React Query cache mechanics (retry/backoff, background refetching, observer subscription).
+ * @description Contract tests for useItemSearchQuery.
+ *
+ * Contract under test:
+ * - Guarantees the hook's public contract: queryKey composition, enabled
+ *   gating for type-ahead UX, and delegation to the supplier-scoped
+ *   fetcher (supplier isolation is server-side,).
+ *
+ * Out of scope:
+ * - React Query cache mechanics (retry/backoff, background refetching,
+ *   observer subscription).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

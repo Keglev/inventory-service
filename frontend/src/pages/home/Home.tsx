@@ -6,7 +6,7 @@
  * Landing hub for the root route (/). Three states:
  *  - Auth hydrating: centered spinner.
  *  - Authenticated: redirect to /dashboard with history replace.
- *  - Unauthenticated: landing card with “Sign in” and “Continue in Demo Mode”.
+ *  - Unauthenticated: landing card with "Sign in" and "Continue in Demo Mode".
  *
  * @enterprise
  * - Uses Navigate replace on the authenticated branch so the root URL never

@@ -1,7 +1,8 @@
 /**
  * @file rowFieldExtractors.test.ts
  * @module tests/unit/api/inventory/rowFieldExtractors
- * @what_is_under_test extractId, extractName, extractCode, extractSupplier, extractQuantities, extractCreatedAt
+ * @description Contract tests for extractId, extractName, extractCode, extractSupplier,
+ * extractQuantities, extractCreatedAt.
  */
 
 import { describe, it, expect } from 'vitest';

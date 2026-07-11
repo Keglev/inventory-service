@@ -4,7 +4,7 @@
  *
  * @description
  * Unit tests for <ProfileMenuSection /> — reads the authenticated user from useAuth()
- * and renders three “display” components:
+ * and renders three "display" components:
  * - ProfileNameDisplay
  * - ProfileEmailDisplay
  * - ProfileRoleDisplay

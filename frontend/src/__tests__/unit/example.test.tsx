@@ -1,14 +1,16 @@
 /**
  * @file example.test.tsx
  * @module tests/unit/example
- * @what_is_under_test test harness (render utilities)
- * @responsibility
- * Guarantees the unit-test harness is correctly wired: React rendering utilities work and
- * custom matchers (e.g., `toBeInTheDocument`) are available.
- * @out_of_scope
- * Application UI behavior (routes, context providers, and real components).
- * @out_of_scope
- * Styling and layout correctness (CSS, responsive behavior, and visual regressions).
+ * @description Contract tests for test harness (render utilities).
+ *
+ * Contract under test:
+ * - Guarantees the unit-test harness is correctly wired: React rendering
+ *   utilities work and custom matchers (e.g., `toBeInTheDocument`) are
+ *   available.
+ *
+ * Out of scope:
+ * - Styling and layout correctness (CSS, responsive behavior, and visual
+ *   regressions).
  */
 
 import { describe, expect, it } from 'vitest';

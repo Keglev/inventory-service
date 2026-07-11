@@ -1,11 +1,15 @@
 /**
  * @file util.pickString.test.ts
  * @module tests/unit/api/analytics/util.pickString
- * @what_is_under_test pickString (api/analytics/util)
- * @responsibility
- * - Guarantees string field selection respects key order and returns the first usable value
- * - Guarantees tolerant coercion of numbers to strings for stable downstream usage
- * @out_of_scope
+ * @description Contract tests for pickString (api/analytics/util).
+ *
+ * Contract under test:
+ * - Guarantees string field selection respects key order and returns the
+ *   first usable value
+ * - Guarantees tolerant coercion of numbers to strings for stable
+ *   downstream usage
+ *
+ * Out of scope:
  * - Internationalization/locale formatting of string values
  * - Validation that the chosen keys reflect correct backend contract
  */

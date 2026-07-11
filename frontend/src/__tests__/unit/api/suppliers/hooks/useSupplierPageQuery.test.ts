@@ -1,14 +1,16 @@
 /**
  * @file useSupplierPageQuery.test.ts
  * @module tests/unit/api/suppliers/hooks/useSupplierPageQuery
- * @what_is_under_test useSupplierPageQuery
- * @responsibility
- * Guarantees the hook’s contract: parameter-aware queryKey composition, enablement gating via the
- * optional flag, and strict forwarding of loader parameters to the supplier list fetcher.
- * @out_of_scope
- * React Query runtime behavior (cache lifetimes, retries, background refetching, observer lifecycles).
- * @out_of_scope
- * Supplier list fetcher implementation (HTTP wiring and response parsing are tested separately).
+ * @description Contract tests for useSupplierPageQuery.
+ *
+ * Contract under test:
+ * - Guarantees the hook's contract: parameter-aware queryKey
+ *   composition, enablement gating via the optional flag, and strict
+ *   forwarding of loader parameters to the supplier list fetcher.
+ *
+ * Out of scope:
+ * - Supplier list fetcher implementation (HTTP wiring and response
+ *   parsing are tested separately).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

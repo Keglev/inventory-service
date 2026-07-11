@@ -1,13 +1,19 @@
 /**
  * @file stock.test.ts
  * @module tests/unit/api/analytics/stock
- * @what_is_under_test getStockValueOverTime, getMonthlyStockMovement, getStockPerSupplier (api/analytics/stock)
- * @responsibility
- * - Guarantees tolerant parsing of supported response shapes into stable DTO arrays
+ * @description Contract tests for getStockValueOverTime, getMonthlyStockMovement,
+ * getStockPerSupplier (api/analytics/stock).
+ *
+ * Contract under test:
+ * - Guarantees tolerant parsing of supported response shapes into stable
+ *   DTO arrays
  * - Guarantees request parameter cleaning (date fields) where applicable
- * - Guarantees transport failures produce safe empty arrays (no thrown errors)
- * @out_of_scope
- * - Backend aggregation correctness (valuation math, movement logic, supplier totals)
+ * - Guarantees transport failures produce safe empty arrays (no thrown
+ *   errors)
+ *
+ * Out of scope:
+ * - Backend aggregation correctness (valuation math, movement logic,
+ *   supplier totals)
  * - HTTP client behavior (timeouts, retries, base URL, interceptors)
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';

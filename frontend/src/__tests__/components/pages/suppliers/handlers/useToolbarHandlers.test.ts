@@ -6,9 +6,9 @@
  * Contract under test:
  * - Exposes three toolbar handlers: create, edit, delete.
  * - Each handler is a pure orchestration function that delegates to a single state setter.
- *   - Add New → `setOpenCreate(true)`
- *   - Edit → `setOpenEdit(true)`
- *   - Delete → `setOpenDelete(true)`
+ *   - Add New -> `setOpenCreate(true)`
+ *   - Edit -> `setOpenEdit(true)`
+ *   - Delete -> `setOpenDelete(true)`
  * - Handlers must not trigger unrelated setters.
  *
  * Out of scope:

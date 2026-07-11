@@ -4,7 +4,7 @@
  * @description Contract tests for the `SettingsStorage` persistence helpers.
  *
  * Contract under test:
- * - Defaults are language-aware (`de*` → German formats; otherwise English formats).
+ * - Defaults are language-aware (`de*` -> German formats; otherwise English formats).
  * - Load returns stored preferences when present; otherwise returns defaults.
  * - Save and clear interact with localStorage using the unified storage key.
  * - Storage failures never throw; they log a warning and fall back safely.

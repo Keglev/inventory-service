@@ -1,13 +1,18 @@
 /**
  * @file validation.financialSummaryParamsSchema.test.ts
  * @module tests/unit/api/analytics/validation.financialSummaryParamsSchema
- * @what_is_under_test financialSummaryParamsSchema (api/analytics/validation)
- * @responsibility
- * - Guarantees date range fields (from/to) are required and must be ISO dates
+ * @description Contract tests for financialSummaryParamsSchema
+ * (api/analytics/validation).
+ *
+ * Contract under test:
+ * - Guarantees date range fields (from/to) are required and must be ISO
+ *   dates
  * - Guarantees from <= to constraint is enforced
  * - Guarantees optional supplierId is accepted
- * @out_of_scope
- * - Backend financial calculations (WAC/COGS/purchases) and any accounting semantics
+ *
+ * Out of scope:
+ * - Backend financial calculations (WAC/COGS/purchases) and any
+ *   accounting semantics
  */
 
 import { describe, it, expect } from 'vitest';

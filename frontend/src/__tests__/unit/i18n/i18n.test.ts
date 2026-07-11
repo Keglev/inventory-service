@@ -1,14 +1,16 @@
 /**
  * @file i18n.test.ts
  * @module tests/unit/i18n/i18n
- * @what_is_under_test i18n constants
- * @responsibility
- * Guarantees the exported i18n constants used by the UI: stable localStorage key and a deterministic,
- * validated namespace list (non-empty, unique, and consistently cased).
- * @out_of_scope
- * i18next runtime initialization (resource loading, language detection, and async backend wiring).
- * @out_of_scope
- * Translation correctness (content, pluralization rules, and localized strings).
+ * @description Contract tests for i18n constants.
+ *
+ * Contract under test:
+ * - Guarantees the exported i18n constants used by the UI: stable
+ *   localStorage key and a deterministic, validated namespace list
+ *   (non-empty, unique, and consistently cased).
+ *
+ * Out of scope:
+ * - Translation correctness (content, pluralization rules, and localized
+ *   strings).
  */
 
 import { describe, expect, it } from 'vitest';

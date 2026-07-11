@@ -29,7 +29,7 @@ export interface InventoryListParams {
 export interface InventoryRow {
   id: string;            // UI-stable id (string for consistency)
   name: string;
-  code?: string | null;  // Code/SKU (nullable – DB may not have SKU yet)
+  code?: string | null;  // Code/SKU (nullable - DB may not have SKU yet)
   supplierName?: string | null;
   supplierId?: string | number | null;
   onHand: number;        // current stock
@@ -72,11 +72,11 @@ export interface ItemDetails {
 }
 
 /**
- * Create or update request shape (UI → API).
+ * Create or update request shape (UI -> API).
  * When id is undefined, operation is create; when present, it's update.
  */
 export interface UpsertItemRequest {
-  /** undefined → create, present → update */
+  /** undefined -> create, present -> update */
   id?: string;
   name: string;
   /** Stock Keeping Unit; required by the backend on create and update */

@@ -1,14 +1,19 @@
 /**
  * @file usePriceAndFinancials.test.tsx
  * @module __tests__/unit/api/analytics/hooks/usePriceAndFinancials
- * @what_is_under_test usePriceTrendQuery and useFinancialSummaryQuery hooks
- * @responsibility
+ * @description Contract tests for usePriceTrendQuery and useFinancialSummaryQuery
+ * hooks.
+ *
+ * Contract under test:
  * - Delegates to the analytics API with the expected params contract
  * - Gates data fetching behind an explicit enabled flag
  * - Exposes React Query success state when dependencies resolve
- * @out_of_scope
- * - Financial correctness (margins/revenue math) and backend aggregation semantics
- * - Currency conversion, rounding rules, and date parsing/validation behavior
+ *
+ * Out of scope:
+ * - Financial correctness (margins/revenue math) and backend aggregation
+ *   semantics
+ * - Currency conversion, rounding rules, and date parsing/validation
+ *   behavior
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';

@@ -1,13 +1,16 @@
 /**
  * @file util.paramClean.test.ts
  * @module tests/unit/api/analytics/util.paramClean
- * @what_is_under_test paramClean (api/analytics/util)
- * @responsibility
- * - Guarantees date inputs are mapped into the expected {start,end} parameter shape
+ * @description Contract tests for paramClean (api/analytics/util).
+ *
+ * Contract under test:
+ * - Guarantees date inputs are mapped into the expected {start,end}
+ *   parameter shape
  * - Guarantees optional supplierId is preserved when provided
  * - Guarantees reasonable default dates exist when no range is provided
- * @out_of_scope
- * - Exact default range length (e.g., “180 days”) and timezone semantics
+ *
+ * Out of scope:
+ * - Exact default range length (e.g., "180 days") and timezone semantics
  * - Input validation for malformed date strings
  */
 

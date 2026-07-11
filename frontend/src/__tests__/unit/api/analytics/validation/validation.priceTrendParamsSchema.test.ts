@@ -1,13 +1,16 @@
 /**
  * @file validation.priceTrendParamsSchema.test.ts
  * @module tests/unit/api/analytics/validation.priceTrendParamsSchema
- * @what_is_under_test priceTrendParamsSchema (api/analytics/validation)
- * @responsibility
+ * @description Contract tests for priceTrendParamsSchema (api/analytics/validation).
+ *
+ * Contract under test:
  * - Guarantees required fields (itemId/start/end) are enforced
  * - Guarantees date fields must be valid ISO dates and start <= end
  * - Guarantees optional supplierId is accepted
- * @out_of_scope
- * - Backend price trend calculations and any domain-specific time bucketing
+ *
+ * Out of scope:
+ * - Backend price trend calculations and any domain-specific time
+ *   bucketing
  */
 
 import { describe, it, expect } from 'vitest';

@@ -1,14 +1,21 @@
 /**
  * @file finance.test.ts
  * @module tests/unit/api/analytics/finance
- * @what_is_under_test getFinancialSummary (api/analytics/finance)
- * @responsibility
- * - Guarantees the function builds the request contract (endpoint + query params)
- * - Guarantees tolerant parsing of supported response envelopes and field aliases
- * - Guarantees a stable zero-value object on transport or payload-shape failures
- * @out_of_scope
- * - Financial correctness of backend aggregation (COGS, purchases, write-offs)
- * - Tax rules, currency conversion, and any accounting/reporting compliance semantics
+ * @description Contract tests for getFinancialSummary (api/analytics/finance).
+ *
+ * Contract under test:
+ * - Guarantees the function builds the request contract (endpoint +
+ *   query params)
+ * - Guarantees tolerant parsing of supported response envelopes and
+ *   field aliases
+ * - Guarantees a stable zero-value object on transport or payload-shape
+ *   failures
+ *
+ * Out of scope:
+ * - Financial correctness of backend aggregation (COGS, purchases,
+ *   write-offs)
+ * - Tax rules, currency conversion, and any accounting/reporting
+ *   compliance semantics
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

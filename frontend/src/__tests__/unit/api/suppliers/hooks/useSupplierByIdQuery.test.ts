@@ -1,14 +1,16 @@
 /**
  * @file useSupplierByIdQuery.test.ts
  * @module tests/unit/api/suppliers/hooks/useSupplierByIdQuery
- * @what_is_under_test useSupplierByIdQuery
- * @responsibility
- * Guarantees the hook’s contract: stable queryKey composition, enablement gating when the supplier ID
- * or opt-in flag is missing, and deterministic selection of the matching supplier row.
- * @out_of_scope
- * React Query runtime behavior (cache lifetimes, retries, background refetching, observer lifecycles).
- * @out_of_scope
- * Supplier pagination behavior and backend search correctness (this suite treats the fetcher as a dependency).
+ * @description Contract tests for useSupplierByIdQuery.
+ *
+ * Contract under test:
+ * - Guarantees the hook's contract: stable queryKey composition,
+ *   enablement gating when the supplier ID or opt-in flag is missing,
+ *   and deterministic selection of the matching supplier row.
+ *
+ * Out of scope:
+ * - Supplier pagination behavior and backend search correctness (this
+ *   suite treats the fetcher as a dependency).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

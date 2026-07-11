@@ -1,9 +1,13 @@
 /**
  * @file useEditItemForm.test.ts
+ * @module __tests__/components/pages/inventory/EditItemDialog/useEditItemForm
+ * @description Contract tests for useEditItemForm hook - state and query orchestration.
  *
- * @what_is_under_test useEditItemForm hook - state and query orchestration
- * @responsibility Manage form state, queries, submission, cleanup, error handling
- * @out_of_scope UI rendering, dialog lifecycle, component composition
+ * Contract under test:
+ * - Manage form state, queries, submission, cleanup, error handling
+ *
+ * Out of scope:
+ * - UI rendering, dialog lifecycle, component composition
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

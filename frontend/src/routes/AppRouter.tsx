@@ -94,7 +94,7 @@ const AppRouter: React.FC = () => {
           }
         />
         {/**
-         * Inventory route (read-only in demo – write ops blocked by backend/dialogs).
+         * Inventory route (read-only in demo - write ops blocked by backend/dialogs).
          * Demo users are allowed to access for viewing, but cannot modify data.
          * @enterprise Guarded route: requires auth, allowDemo enables demo user access.
         */}

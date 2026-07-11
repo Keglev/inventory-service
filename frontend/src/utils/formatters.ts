@@ -19,9 +19,9 @@ import type { DateFormat, NumberFormat } from '../context/settings/SettingsConte
 
 /**
  * @example
- * formatDate(new Date(2025, 10, 27), 'DD.MM.YYYY')  // → '27.11.2025'
- * formatDate(new Date(2025, 10, 27), 'YYYY-MM-DD')  // → '2025-11-27'
- * formatDate(new Date(2025, 10, 27), 'MM/DD/YYYY')  // → '11/27/2025'
+ * formatDate(new Date(2025, 10, 27), 'DD.MM.YYYY')  // -> '27.11.2025'
+ * formatDate(new Date(2025, 10, 27), 'YYYY-MM-DD')  // -> '2025-11-27'
+ * formatDate(new Date(2025, 10, 27), 'MM/DD/YYYY')  // -> '11/27/2025'
  */
 export const formatDate = (date: Date | string, format: DateFormat): string => {
   const d = typeof date === 'string' ? new Date(date) : date;
@@ -48,9 +48,9 @@ export const formatDate = (date: Date | string, format: DateFormat): string => {
 
 /**
  * @example
- * formatNumber(1234.56, 'DE')     // → '1.234,56'
- * formatNumber(1234.56, 'EN_US')  // → '1,234.56'
- * formatNumber(1000, 'DE', 0)     // → '1.000'
+ * formatNumber(1234.56, 'DE')     // -> '1.234,56'
+ * formatNumber(1234.56, 'EN_US')  // -> '1,234.56'
+ * formatNumber(1000, 'DE', 0)     // -> '1.000'
  */
 export const formatNumber = (num: number, format: NumberFormat, decimals: number = 2): string => {
   if (typeof num !== 'number' || isNaN(num)) {

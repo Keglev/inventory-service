@@ -6,7 +6,7 @@
  * Contract under test:
  * - Renders the login card content (title/subtitle) and SSO UX copy (divider + hint).
  * - Google SSO button triggers useAuth().login().
- * - “Continue in Demo Mode” triggers useAuth().loginAsDemo() and redirects to /dashboard (replace navigation).
+ * - "Continue in Demo Mode" triggers useAuth().loginAsDemo() and redirects to /dashboard (replace navigation).
  * - When `?error=` is present in the URL, an error alert is rendered (severity="error") with a translated title.
  *
  * Test strategy:

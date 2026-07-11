@@ -95,7 +95,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
         </Alert>
 
         {/* Selected Supplier Info */}
-        {/* Theme-color bucket: '#fafafa' + '#e0e0e0' hardcoded — migrate to MUI theme tokens in refactor pass. */}
+        {/* BUCKET: '#fafafa' + '#e0e0e0' hardcoded — migrate to MUI theme tokens (CB-APP99) */}
         <Paper
           variant="outlined"
           sx={{

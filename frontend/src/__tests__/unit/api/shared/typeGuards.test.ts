@@ -1,14 +1,16 @@
 /**
  * @file typeGuards.test.ts
  * @module tests/unit/api/shared/typeGuards
- * @what_is_under_test isRecord
- * @responsibility
- * Guarantees the type guard’s boundary contract used by inventory parsing utilities:
- * it must accept non-null objects (including arrays/instances) and reject null/undefined/primitives.
- * @out_of_scope
- * Deep shape validation (this guard only answers “is it an object-like record?”).
- * @out_of_scope
- * TypeScript compiler behavior (these are runtime assertions; TS narrowing is incidental).
+ * @description Contract tests for isRecord.
+ *
+ * Contract under test:
+ * - Guarantees the type guard's boundary contract used by inventory
+ *   parsing utilities: it must accept non-null objects (including
+ *   arrays/instances) and reject null/undefined/primitives.
+ *
+ * Out of scope:
+ * - TypeScript compiler behavior (these are runtime assertions; TS
+ *   narrowing is incidental).
  */
 
 import { describe, expect, it } from 'vitest';

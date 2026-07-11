@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         const { data } = await httpClient.get<AppUser>('/api/me', { signal: ac.signal });
         setUser({ email: data.email, fullName: data.fullName, role: data.role });
       } catch {
-        // unauthenticated or network issue → user remains null
+        // unauthenticated or network issue -> user remains null
       } finally {
         setLoading(false);
       }

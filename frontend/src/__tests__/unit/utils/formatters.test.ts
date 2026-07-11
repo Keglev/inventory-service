@@ -1,14 +1,17 @@
 /**
  * @file formatters.test.ts
  * @module tests/unit/utils/formatters
- * @what_is_under_test formatDate / formatNumber / getTodayIso / getDaysAgoIso
- * @responsibility
- * Guarantees stable date/number formatting and parsing contracts used by UI rendering and filters,
- * including safe defaults for invalid inputs.
- * @out_of_scope
- * Locale correctness across all browsers/OS settings (Intl differences are integration concerns).
- * @out_of_scope
- * Daylight savings/timezone correctness beyond deterministic clock control in unit tests.
+ * @description Contract tests for formatDate / formatNumber / getTodayIso /
+ * getDaysAgoIso.
+ *
+ * Contract under test:
+ * - Guarantees stable date/number formatting and parsing contracts used
+ *   by UI rendering and filters, including safe defaults for invalid
+ *   inputs.
+ *
+ * Out of scope:
+ * - Daylight savings/timezone correctness beyond deterministic clock
+ *   control in unit tests.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

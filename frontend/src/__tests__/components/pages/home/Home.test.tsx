@@ -7,8 +7,8 @@
  * - While auth state is hydrating, renders a progress indicator.
  * - If authenticated, redirects to /dashboard using <Navigate replace>.
  * - If unauthenticated, renders a landing card with:
- *   - "Sign in" → navigates to /login
- *   - "Continue in Demo Mode" → calls loginAsDemo() and navigates to /dashboard (replace)
+ *   - "Sign in" -> navigates to /login
+ *   - "Continue in Demo Mode" -> calls loginAsDemo() and navigates to /dashboard (replace)
  * - Renders supporting copy ("welcome", "or", "ssoHint") and branding.
  *
  * Test strategy:

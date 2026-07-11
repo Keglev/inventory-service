@@ -84,7 +84,7 @@ vi.mock('../../../../hooks/useSettings', () => ({
 
 /**
  * Recharts is mocked to avoid brittle SVG assertions.
- * We assert on semantic “chart exists / bars exist / labels exist”.
+ * We assert on semantic "chart exists / bars exist / labels exist".
  */
 vi.mock('recharts', () => ({
   ResponsiveContainer: vi.fn(({ children }) => (
@@ -152,7 +152,7 @@ describe('MonthlyMovementMini', () => {
   it('renders the chart scaffold and bars once data is loaded', async () => {
     renderMonthlyMovementMini(queryClient);
 
-    // Query resolves → chart should appear.
+    // Query resolves -> chart should appear.
     await waitFor(() => {
       expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
     });

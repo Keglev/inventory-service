@@ -1,7 +1,7 @@
 /**
  * @file StepSection.test.tsx
  * @module __tests__/components/pages/inventory/DeleteItemDialog/StepSection
- * @what_is_under_test StepSection
+ * @description Contract tests for StepSection.
  */
 
 import { describe, it, expect } from 'vitest';

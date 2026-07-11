@@ -1,14 +1,17 @@
 /**
  * @file validation.test.ts
  * @module tests/unit/api/suppliers/validation
- * @what_is_under_test createSupplierSchema / editSupplierSchema
- * @responsibility
- * Guarantees supplier validation schema contracts for form submissions: required fields,
- * normalization rules (trim/empty-to-null), and deterministic acceptance/rejection behavior.
- * @out_of_scope
- * UI form integration (error rendering, field-level touch/blur behavior, and submission flows).
- * @out_of_scope
- * Backend validation and persistence rules (server-side constraints may be stricter or differ).
+ * @description Contract tests for createSupplierSchema / editSupplierSchema.
+ *
+ * Contract under test:
+ * - Guarantees supplier validation schema contracts for form
+ *   submissions: required fields, normalization rules
+ *   (trim/empty-to-null), and deterministic acceptance/rejection
+ *   behavior.
+ *
+ * Out of scope:
+ * - Backend validation and persistence rules (server-side constraints
+ *   may be stricter or differ).
  */
 
 import { describe, expect, it } from 'vitest';

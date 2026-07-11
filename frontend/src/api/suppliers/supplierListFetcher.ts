@@ -39,7 +39,7 @@ const extractSupplierRows = (data: unknown): unknown[] => (Array.isArray(data) ?
  * @param params - page/pageSize/sort/q forwarded as query params; backend does not page server-side.
  * @returns Normalized supplier list, or an empty page on network error
  *
- * @backend GET /api/suppliers → plain List<SupplierDTO>; total always equals the array length.
+ * @backend GET /api/suppliers -> plain List<SupplierDTO>; total always equals the array length.
  *
  * @example
  * ```typescript
@@ -48,7 +48,7 @@ const extractSupplierRows = (data: unknown): unknown[] => (Array.isArray(data) ?
  */
 /**
  * @summary Searches suppliers by name via the dedicated backend search endpoint.
- * @backend GET /api/suppliers/search?name= → plain List<SupplierDTO>; case-insensitive substring match on name (findByNameContainingIgnoreCase)
+ * @backend GET /api/suppliers/search?name= -> plain List<SupplierDTO>; case-insensitive substring match on name (findByNameContainingIgnoreCase)
  * @param name - Name fragment to match (case-insensitive substring).
  * @returns Matching SupplierRow[], or [] on error.
  *
@@ -82,7 +82,7 @@ export const searchSuppliersByName = async (name: string): Promise<SupplierRow[]
  * @param id - Supplier id
  * @returns The normalized SupplierRow, or null when not found / on error
  *
- * @backend GET /api/suppliers/:id (SupplierController.getById) → single SupplierDTO; 404 when absent.
+ * @backend GET /api/suppliers/:id (SupplierController.getById) -> single SupplierDTO; 404 when absent.
  *
  * @example
  * ```typescript

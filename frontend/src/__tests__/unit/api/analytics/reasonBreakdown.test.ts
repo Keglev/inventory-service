@@ -1,6 +1,7 @@
 /**
  * @file reasonBreakdown.test.ts
- * @summary Request contract + tolerant parsing for the per-reason movement
+ * @module __tests__/unit/api/analytics/reasonBreakdown
+ * @description Request contract + tolerant parsing for the per-reason movement
  * breakdown fetcher.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';

@@ -1,13 +1,18 @@
 /**
  * @file frequency.test.ts
  * @module tests/unit/api/analytics/frequency
- * @what_is_under_test getItemUpdateFrequency (api/analytics/frequency)
- * @responsibility
- * - Guarantees supplierId is required for an HTTP call (empty supplierId short-circuits)
- * - Guarantees tolerant parsing/normalization of supported response shapes into a stable DTO list
+ * @description Contract tests for getItemUpdateFrequency (api/analytics/frequency).
+ *
+ * Contract under test:
+ * - Guarantees supplierId is required for an HTTP call (empty supplierId
+ *   short-circuits)
+ * - Guarantees tolerant parsing/normalization of supported response
+ *   shapes into a stable DTO list
  * - Guarantees transport failures result in a safe empty list
- * @out_of_scope
- * - Backend ranking semantics, pagination, and any statistical interpretation of “frequency”
+ *
+ * Out of scope:
+ * - Backend ranking semantics, pagination, and any statistical
+ *   interpretation of "frequency"
  * - HTTP client behavior (timeouts, retries, base URL, interceptors)
  */
 

@@ -1,14 +1,16 @@
 /**
  * @file errorHandling.test.ts
  * @module tests/unit/api/shared/errorHandling
- * @what_is_under_test errorMessage
- * @responsibility
- * Guarantees a stable, user-facing error string contract for inventory mutation flows,
- * including structured Axios-style responses, HTTP status fallbacks, and safe defaults.
- * @out_of_scope
- * Axios detection fidelity (this suite treats the input as unknown and validates parsing outputs).
- * @out_of_scope
- * UI presentation details (toasts/dialog wording, localization, formatting, and styling).
+ * @description Contract tests for errorMessage.
+ *
+ * Contract under test:
+ * - Guarantees a stable, user-facing error string contract for inventory
+ *   mutation flows, including structured Axios-style responses, HTTP
+ *   status fallbacks, and safe defaults.
+ *
+ * Out of scope:
+ * - UI presentation details (toasts/dialog wording, localization,
+ *   formatting, and styling).
  */
 
 import { describe, expect, it } from 'vitest';

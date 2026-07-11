@@ -1,14 +1,16 @@
 /**
  * @file fieldPickers.test.ts
  * @module tests/unit/api/shared/fieldPickers
- * @what_is_under_test fieldPickers
- * @responsibility
- * Guarantees defensive field extraction and coercion contracts used by inventory DTO normalizers,
- * including undefined-on-mismatch behavior and deterministic “first match wins” list semantics.
- * @out_of_scope
- * End-to-end DTO normalization (covered by hook/service tests that compose these helpers).
- * @out_of_scope
- * Performance characteristics (these tests validate correctness, not runtime cost).
+ * @description Contract tests for fieldPickers.
+ *
+ * Contract under test:
+ * - Guarantees defensive field extraction and coercion contracts used by
+ *   inventory DTO normalizers, including undefined-on-mismatch behavior
+ *   and deterministic "first match wins" list semantics.
+ *
+ * Out of scope:
+ * - Performance characteristics (these tests validate correctness, not
+ *   runtime cost).
  */
 
 import { describe, expect, it } from 'vitest';

@@ -79,7 +79,7 @@ export const useCreateSupplierForm = (
    * Uses heuristics to improve UX by pinpointing issues.
    */
   const applyServerError = (message?: string | null): void => {
-    // Structured-error bucket: substring matching on free-text server message — replace with structured-error contract ({error, message, timestamp}) in refactor pass.
+    // BUCKET: substring matching on free-text server message — replace with structured-error contract ({error, message, timestamp}) (CB-APP100)
     if (!message) return;
     const msg = message.toLowerCase();
 

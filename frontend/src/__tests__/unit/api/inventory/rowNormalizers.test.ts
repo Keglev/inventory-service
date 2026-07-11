@@ -1,14 +1,16 @@
 /**
  * @file rowNormalizers.test.ts
  * @module tests/unit/api/inventory/rowNormalizers
- * @what_is_under_test toInventoryRow
- * @responsibility
- * Guarantees list-row normalization contracts for inventory grids: reject invalid inputs,
- * map supported DTO shapes into `InventoryRow`, and apply deterministic defaults.
- * @out_of_scope
- * Full-list pagination and request wiring (covered by list fetcher tests).
- * @out_of_scope
- * UI rendering and formatting (placeholders, localization, and presentation concerns).
+ * @description Contract tests for toInventoryRow.
+ *
+ * Contract under test:
+ * - Guarantees list-row normalization contracts for inventory grids:
+ *   reject invalid inputs, map supported DTO shapes into `InventoryRow`,
+ *   and apply deterministic defaults.
+ *
+ * Out of scope:
+ * - UI rendering and formatting (placeholders, localization, and
+ *   presentation concerns).
  */
 
 import { describe, expect, it } from 'vitest';

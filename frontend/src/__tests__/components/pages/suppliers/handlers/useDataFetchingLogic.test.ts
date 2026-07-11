@@ -5,8 +5,8 @@
  *
  * Contract under test:
  * - Converts UI board state into server parameters for `useSuppliersBoardData`.
- *   - Pagination: 0-based UI → 1-based server (`page + 1`).
- *   - Sorting: first `sortModel` entry → `field,dir` string; default `name,asc`.
+ *   - Pagination: 0-based UI -> 1-based server (`page + 1`).
+ *   - Sorting: first `sortModel` entry -> `field,dir` string; default `name,asc`.
  *   - Forwards `searchQuery` and `showAllSuppliers` unchanged.
  *
  * Out of scope:

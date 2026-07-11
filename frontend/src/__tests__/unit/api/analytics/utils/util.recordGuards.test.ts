@@ -1,11 +1,14 @@
 /**
  * @file util.recordGuards.test.ts
  * @module tests/unit/api/analytics/util.recordGuards
- * @what_is_under_test isRecord and isArrayOfRecords (api/analytics/util)
- * @responsibility
- * - Guarantees runtime guards correctly distinguish record-like objects from primitives/arrays
+ * @description Contract tests for isRecord and isArrayOfRecords (api/analytics/util).
+ *
+ * Contract under test:
+ * - Guarantees runtime guards correctly distinguish record-like objects
+ *   from primitives/arrays
  * - Guarantees array guard only succeeds when every element is a record
- * @out_of_scope
+ *
+ * Out of scope:
  * - Deep schema validation of record contents
  * - Prototype edge cases beyond typical JSON-like payloads
  */

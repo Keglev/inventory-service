@@ -1,14 +1,20 @@
 /**
  * @file useStockAnalytics.test.tsx
  * @module __tests__/unit/api/analytics/hooks/useStockAnalytics
- * @what_is_under_test useStockValueQuery, useMonthlyMovementQuery, useStockPerSupplierQuery hooks
- * @responsibility
- * - Delegates to analytics API functions with the expected params contract
+ * @description Contract tests for useStockValueQuery, useMonthlyMovementQuery,
+ * useStockPerSupplierQuery hooks.
+ *
+ * Contract under test:
+ * - Delegates to analytics API functions with the expected params
+ *   contract
  * - Gates fetch behavior behind an explicit enabled flag
  * - Exposes React Query success state when dependencies resolve
- * @out_of_scope
- * - Stock-health calculations and business logic correctness (turnover/reorder rules)
- * - Backend aggregation semantics, warehouse/location constraints, and forecasting
+ *
+ * Out of scope:
+ * - Stock-health calculations and business logic correctness
+ *   (turnover/reorder rules)
+ * - Backend aggregation semantics, warehouse/location constraints, and
+ *   forecasting
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';

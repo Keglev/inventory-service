@@ -1,14 +1,16 @@
 /**
  * @file normalizers.test.ts
  * @module tests/unit/api/inventory/normalizers
- * @what_is_under_test normalizeInventoryRow
- * @responsibility
- * Guarantees normalization contracts for inventory list DTOs: required identifiers, tolerant
- * field mapping across backend variants, and null-safe defaults for optional fields.
- * @out_of_scope
- * Pagination/list fetching behavior (handled by list fetcher tests).
- * @out_of_scope
- * UI rendering semantics (placeholder copy, formatting, and localization concerns).
+ * @description Contract tests for normalizeInventoryRow.
+ *
+ * Contract under test:
+ * - Guarantees normalization contracts for inventory list DTOs: required
+ *   identifiers, tolerant field mapping across backend variants, and
+ *   null-safe defaults for optional fields.
+ *
+ * Out of scope:
+ * - UI rendering semantics (placeholder copy, formatting, and
+ *   localization concerns).
  */
 
 import { describe, expect, it } from 'vitest';

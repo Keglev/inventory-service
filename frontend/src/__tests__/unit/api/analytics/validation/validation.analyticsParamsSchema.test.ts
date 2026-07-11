@@ -1,11 +1,14 @@
 /**
  * @file validation.analyticsParamsSchema.test.ts
  * @module tests/unit/api/analytics/validation.analyticsParamsSchema
- * @what_is_under_test analyticsParamsSchema (api/analytics/validation)
- * @responsibility
- * - Guarantees optional analytics query params accept valid ISO dates and supplierId
+ * @description Contract tests for analyticsParamsSchema (api/analytics/validation).
+ *
+ * Contract under test:
+ * - Guarantees optional analytics query params accept valid ISO dates
+ *   and supplierId
  * - Guarantees invalid date formats fail validation without throwing
- * @out_of_scope
+ *
+ * Out of scope:
  * - Backend interpretation of the parameters and any business semantics
  * - Cross-field constraints (this schema does not enforce from <= to)
  */

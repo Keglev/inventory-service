@@ -13,7 +13,7 @@ import { INVENTORY_BASE } from '../shared/constants';
 
 /**
  * Total number of inventory items currently stored in the system.
- * Calls `GET /api/inventory/count` → `number`.
+ * Calls `GET /api/inventory/count` -> `number`.
  * Returns 0 on error so a single backend failure does not break the dashboard.
  */
 export async function getItemCount(): Promise<number> {
@@ -27,7 +27,7 @@ export async function getItemCount(): Promise<number> {
 
 /**
  * Total number of suppliers registered in the system.
- * Calls `GET /api/suppliers/count` → `number`.
+ * Calls `GET /api/suppliers/count` -> `number`.
  * Returns 0 on error so a single backend failure does not break the dashboard.
  */
 export async function getSupplierCount(): Promise<number> {
@@ -41,7 +41,7 @@ export async function getSupplierCount(): Promise<number> {
 
 /**
  * Number of inventory items currently below their minimum stock threshold.
- * Calls `GET /api/analytics/low-stock/count` → `number`.
+ * Calls `GET /api/analytics/low-stock/count` -> `number`.
  * Returns 0 on error so a single backend failure does not break the dashboard.
  */
 export async function getLowStockCount(): Promise<number> {

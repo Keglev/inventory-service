@@ -76,7 +76,7 @@ export default function Analytics(): JSX.Element {
         ? 'employees'
         : 'overview';
   
-  // URL ↔ state
+  // URL <-> state
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = React.useState<AnalyticsFilters>(() => {
     const m = readParams(searchParams.toString(), ['from', 'to', 'supplierId']);

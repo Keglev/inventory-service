@@ -1,14 +1,17 @@
 /**
  * @file useDashboardMetrics.test.tsx
  * @module __tests__/unit/api/analytics/hooks/useDashboardMetrics
- * @what_is_under_test useDashboardMetrics hook
- * @responsibility
+ * @description Contract tests for useDashboardMetrics hook.
+ *
+ * Contract under test:
  * - Aggregates KPI counts into a single query result when enabled
  * - Prevents any network-facing calls when disabled
  * - Surfaces an error state when a dependency fails
- * @out_of_scope
+ *
+ * Out of scope:
  * - Backend response semantics (HTTP, serialization, auth)
- * - React Query cache invalidation and retry strategies beyond deterministic test settings
+ * - React Query cache invalidation and retry strategies beyond
+ *   deterministic test settings
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -16,7 +19,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 
 import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
 
-// ✅ Mock what the hook imports: ../index from hooks => api/analytics/index.ts
+// Mock what the hook imports: ../index from hooks => api/analytics/index.ts
 vi.mock('../../../../../api/analytics/metrics', () => ({
   getItemCount: vi.fn(),
   getSupplierCount: vi.fn(),

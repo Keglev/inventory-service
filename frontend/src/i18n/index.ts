@@ -17,7 +17,7 @@
  * - German-first impression: on first visit, localStorage is pre-seeded with 'de'
  *   before LanguageDetector runs. Navigator detection therefore affects returning
  *   users who have cleared localStorage, not first-time visitors. Intentional.
- * - Regional variants collapse to base language (de-DE → de, en-US → en) via
+ * - Regional variants collapse to base language (de-DE -> de, en-US -> en) via
  *   supportedLngs + nonExplicitSupportedLngs + load:'languageOnly'.
  * - Vite BASE_URL is in the loadPath — supports sub-path deployment (e.g. /app/).
  * - MUI theme locale must be kept in sync via the languageChanged event (see
@@ -100,7 +100,7 @@ export default i18n;
 
 /**
  * @remarks
- * - To change the language manually, call `i18n.changeLanguage(‘de’ | ‘en’)`.
- * - If you want to “reset” to German for demos, clear localStorage key `i18nextLng`.
- * - Keep MUI’s locale (theme) in sync via `buildTheme(locale)` and i18n’s `languageChanged` event.
+ * - To change the language manually, call `i18n.changeLanguage('de' | 'en')`.
+ * - If you want to "reset" to German for demos, clear localStorage key `i18nextLng`.
+ * - Keep MUI's locale (theme) in sync via `buildTheme(locale)` and i18n's `languageChanged` event.
  */

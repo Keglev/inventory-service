@@ -1,6 +1,7 @@
 /**
  * @file EmployeesSection.test.tsx
- * @summary Orchestration test for the Employees section: granularity toggle
+ * @module __tests__/components/pages/analytics/sections/EmployeesSection
+ * @description Orchestration test for the Employees section: granularity toggle
  * refetches the aggregation, the chart pivots per employee, and the change
  * log is server-paginated.
  */

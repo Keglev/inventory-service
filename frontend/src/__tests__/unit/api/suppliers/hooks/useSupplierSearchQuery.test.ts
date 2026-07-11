@@ -1,14 +1,16 @@
 /**
  * @file useSupplierSearchQuery.test.ts
  * @module tests/unit/api/suppliers/hooks/useSupplierSearchQuery
- * @what_is_under_test useSupplierSearchQuery
- * @responsibility
- * Guarantees the hook's contract: stable search queryKey composition, enablement gating for
- * short/blank terms, and deterministic empty results without calling the backend when gated.
- * @out_of_scope
- * React Query runtime behavior (cache lifetimes, retries, background refetching, observer lifecycles).
- * @out_of_scope
- * Supplier list fetcher behavior beyond parameter forwarding (HTTP wiring and response parsing).
+ * @description Contract tests for useSupplierSearchQuery.
+ *
+ * Contract under test:
+ * - Guarantees the hook's contract: stable search queryKey composition,
+ *   enablement gating for short/blank terms, and deterministic empty
+ *   results without calling the backend when gated.
+ *
+ * Out of scope:
+ * - Supplier list fetcher behavior beyond parameter forwarding (HTTP
+ *   wiring and response parsing).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

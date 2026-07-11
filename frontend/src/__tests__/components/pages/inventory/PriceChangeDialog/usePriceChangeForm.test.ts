@@ -50,7 +50,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 /**
- * react-hook-form is a dependency; we only need a stable subset for this hook’s contract.
+ * react-hook-form is a dependency; we only need a stable subset for this hook's contract.
  * handleSubmit(fn) returns a callable submit handler.
  */
 vi.mock('react-hook-form', async () => {

@@ -1,12 +1,16 @@
 /**
  * @file useFooterState.test.ts
  * @module tests/app/footer/useFooterState
- * @what_is_under_test useFooterState
- * @responsibility
- * Guarantees the footer data composition: health passthrough from
- * useHealthCheck and config assembly from appMeta + live i18n language.
- * @out_of_scope
- * Health polling internals (features/health); appMeta build-time injection.
+ * @description Contract tests for useFooterState.
+ *
+ * Contract under test:
+ * - Guarantees the footer data composition: health passthrough from
+ *   useHealthCheck and config assembly from appMeta + live i18n
+ *   language.
+ *
+ * Out of scope:
+ * - Health polling internals (features/health); appMeta build-time
+ *   injection.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';

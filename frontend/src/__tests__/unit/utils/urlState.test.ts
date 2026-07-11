@@ -1,14 +1,15 @@
 /**
  * @file urlState.test.ts
  * @module tests/unit/utils/urlState
- * @what_is_under_test readParams
- * @responsibility
- * Guarantees stable URL query read contracts used by filter state:
- * - Reading: returns requested keys with decoded values (or undefined), with legacy handling.
- * @out_of_scope
- * Browser URL routing integration (history updates, location synchronization).
- * @out_of_scope
- * Full encoding edge cases across all Unicode and reserved characters.
+ * @description Contract tests for readParams.
+ *
+ * Contract under test:
+ * - Guarantees stable URL query read contracts used by filter state:
+ * - Reading: returns requested keys with decoded values (or undefined),
+ *   with legacy handling.
+ *
+ * Out of scope:
+ * - Full encoding edge cases across all Unicode and reserved characters.
  */
 
 import { describe, expect, it } from 'vitest';

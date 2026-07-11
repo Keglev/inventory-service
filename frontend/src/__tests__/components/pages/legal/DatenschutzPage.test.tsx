@@ -1,13 +1,15 @@
 /**
  * @file DatenschutzPage.test.tsx
  * @module tests/components/pages/legal/DatenschutzPage
- * @what_is_under_test DatenschutzPage
- * @responsibility
- * Guarantees the localized privacy policy structure: title, intro, the nine
- * ordered GDPR sections, and the last-updated stamp.
- * @out_of_scope
- * Translation content itself; back-button behavior (ImpressumPage suite
- * covers the shared LegalPageLayout).
+ * @description Contract tests for DatenschutzPage.
+ *
+ * Contract under test:
+ * - Guarantees the localized privacy policy structure: title, intro, the
+ *   nine ordered GDPR sections, and the last-updated stamp.
+ *
+ * Out of scope:
+ * - Translation content itself; back-button behavior (ImpressumPage
+ *   suite covers the shared LegalPageLayout).
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';

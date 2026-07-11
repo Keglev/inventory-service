@@ -6,9 +6,9 @@
  * Secondary navigation for Analytics sections (tabs). Keeps the main page focused.
  *
  * @sections
- * - overview   → Stock Value + Monthly Movement
- * - pricing    → Price Trend
- * - inventory  → Low Stock + Stock per Supplier
+ * - overview   -> Stock Value + Monthly Movement
+ * - pricing    -> Price Trend
+ * - inventory  -> Low Stock + Stock per Supplier
  *
  * @enterprise
  * - Uses route segments so deep-links work (e.g., /analytics/pricing).

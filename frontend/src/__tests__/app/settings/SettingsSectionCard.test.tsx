@@ -1,7 +1,7 @@
 /**
  * @file SettingsSectionCard.test.tsx
  * @module __tests__/app/settings/SettingsSectionCard
- * @what_is_under_test SettingsSectionCard
+ * @description Contract tests for SettingsSectionCard.
  */
 
 import { describe, it, expect } from 'vitest';

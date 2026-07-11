@@ -1,12 +1,15 @@
 /**
  * @file validation.stockMovementParamsSchema.test.ts
  * @module tests/unit/api/analytics/validation.stockMovementParamsSchema
- * @what_is_under_test stockMovementParamsSchema (api/analytics/validation)
- * @responsibility
- * - Guarantees date range fields (start/end) are required and must be ISO dates
+ * @description Contract tests for stockMovementParamsSchema (api/analytics/validation).
+ *
+ * Contract under test:
+ * - Guarantees date range fields (start/end) are required and must be
+ *   ISO dates
  * - Guarantees start <= end constraint is enforced
  * - Guarantees optional supplierId is accepted
- * @out_of_scope
+ *
+ * Out of scope:
  * - Backend stock movement computations and aggregation semantics
  */
 

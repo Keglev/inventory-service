@@ -103,7 +103,7 @@ export const useDeleteSupplierForm = (
         return t('errors:supplier.requests.failedToDeleteSupplier');
       }
 
-      // Structured-error bucket: substring matching on free-text server message (including German 'verknüpften') — replace with structured-error contract in refactor pass.
+      // BUCKET: substring matching on free-text server message (including German 'verknüpften') — replace with structured-error contract (CB-APP100)
       const msg = errorMsg.toLowerCase();
 
       // Linked items error (409 Conflict)

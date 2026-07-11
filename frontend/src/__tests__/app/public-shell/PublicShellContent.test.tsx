@@ -68,7 +68,7 @@ describe('PublicShellContent', () => {
   });
 
   it('keeps the outlet visible inside the Suspense boundary in the steady state', () => {
-    // We don’t test Suspense internals; we only ensure it does not block normal rendering.
+    // We don't test Suspense internals; we only ensure it does not block normal rendering.
     renderContent();
 
     expect(screen.getByTestId('outlet')).toBeInTheDocument();

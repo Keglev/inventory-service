@@ -1,14 +1,16 @@
 /**
  * @file useSuppliersQuery.test.ts
  * @module tests/unit/api/inventory/hooks/useSuppliersQuery
- * @what_is_under_test useSuppliersQuery
- * @responsibility
- * Guarantees the hook’s public contract: stable cache key, enabled gating, and normalization
- * of supplier DTOs into dropdown-ready `SupplierOption` values.
- * @out_of_scope
- * Supplier source-of-truth correctness (backend data quality and filtering semantics).
- * @out_of_scope
- * React Query runtime behavior (cache invalidation, retry/backoff, observer lifecycles).
+ * @description Contract tests for useSuppliersQuery.
+ *
+ * Contract under test:
+ * - Guarantees the hook's public contract: stable cache key, enabled
+ *   gating, and normalization of supplier DTOs into dropdown-ready
+ *   `SupplierOption` values.
+ *
+ * Out of scope:
+ * - React Query runtime behavior (cache invalidation, retry/backoff,
+ *   observer lifecycles).
  */
 
 import { describe, expect, it, vi } from 'vitest';

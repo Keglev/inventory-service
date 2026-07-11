@@ -12,7 +12,7 @@ import type { Rec } from './util';
 export type StockUpdateRow = {
     timestamp: string; // ISO or displayable string
     itemName: string;
-    delta: number; // +/− quantity change
+    delta: number; // +/- quantity change
     reason?: string;
     user?: string;
 };

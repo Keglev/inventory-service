@@ -57,7 +57,7 @@ export function useItemSearchQuery(
       }));
     },
     // Both conditions must hold to prevent premature or cross-supplier fetches:
-    // supplier must be selected (supplier isolation) and query must be ≥2 chars
+    // supplier must be selected (supplier isolation) and query must be >=2 chars
     // (avoids high-frequency requests on the first keystroke of a type-ahead).
     enabled: !!selectedSupplier && searchQuery.length >= 2,
     staleTime: 30_000,

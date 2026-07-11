@@ -60,7 +60,7 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
     );
   }
 
-  // Build chart series (no hook → safe w.r.t. Rules of Hooks)
+  // Build chart series (no hook -> safe w.r.t. Rules of Hooks)
   const s = q.data;
   const data: Array<{ name: string; value: number }> = s
     ? [
@@ -71,7 +71,7 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
     ]
     : [];
 
-  /** True when all buckets are zero → show a light empty state. */
+  /** True when all buckets are zero -> show a light empty state. */
   const allZero = q.isSuccess && data.length > 0 && data.every(d => d.value === 0);
 
   /** Bar colors matching the series order. */

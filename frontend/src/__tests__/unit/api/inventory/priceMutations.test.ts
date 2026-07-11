@@ -1,14 +1,16 @@
 /**
  * @file priceMutations.test.ts
  * @module tests/unit/api/inventory/priceMutations
- * @what_is_under_test changePrice
- * @responsibility
- * Guarantees the price mutation contract: correct URL encoding + route composition for the
- * PATCH request, and a structured success/failure surface ({ ok, error, errorToken, status }).
- * @out_of_scope
- * Server-side validation rules and error payload semantics (this unit only asserts boolean results).
- * @out_of_scope
- * HTTP client behavior (interceptors, retries, auth headers, and transport concerns).
+ * @description Contract tests for changePrice.
+ *
+ * Contract under test:
+ * - Guarantees the price mutation contract: correct URL encoding + route
+ *   composition for the PATCH request, and a structured success/failure
+ *   surface ({ ok, error, errorToken, status }).
+ *
+ * Out of scope:
+ * - HTTP client behavior (interceptors, retries, auth headers, and
+ *   transport concerns).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

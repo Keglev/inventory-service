@@ -1,15 +1,18 @@
 /**
  * @file listFetcher.test.ts
  * @module tests/unit/api/inventory/listFetcher
- * @what_is_under_test getInventoryPage
- * @responsibility
- * Guarantees page fetch behavior for the inventory list: request parameter wiring against
- * GET /api/inventory/search (including grid-to-entity sort field mapping), Spring Page
- * envelope extraction, row normalization filtering, and a safe empty-page fallback on failures.
- * @out_of_scope
- * HTTP transport details (headers, auth, interceptors, retries, and timeouts).
- * @out_of_scope
- * Row normalization logic (treated as a dependency; its mapping rules are tested separately).
+ * @description Contract tests for getInventoryPage.
+ *
+ * Contract under test:
+ * - Guarantees page fetch behavior for the inventory list: request
+ *   parameter wiring against GET /api/inventory/search (including
+ *   grid-to-entity sort field mapping), Spring Page envelope extraction,
+ *   row normalization filtering, and a safe empty-page fallback on
+ *   failures.
+ *
+ * Out of scope:
+ * - Row normalization logic (treated as a dependency; its mapping rules
+ *   are tested separately).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

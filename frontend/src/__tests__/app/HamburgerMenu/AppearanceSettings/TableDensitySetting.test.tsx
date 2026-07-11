@@ -14,8 +14,8 @@
  * - Verify i18n integration by mocking translations and asserting rendered labels.
  *
  * Notes:
- * - We intentionally assert the MUI "selected" class here because this component’s
- *   core behavior is selection state; it’s a reasonable UI contract for a toggle group.
+ * - We intentionally assert the MUI "selected" class here because this component's
+ *   core behavior is selection state; it's a reasonable UI contract for a toggle group.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';

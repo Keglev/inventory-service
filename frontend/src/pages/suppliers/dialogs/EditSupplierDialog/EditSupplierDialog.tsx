@@ -112,7 +112,7 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
             <Box>{t('suppliers:dialogs.editSupplierTitle')}</Box>
             <Tooltip title={t('common:actions.help')}>
               <IconButton size="small" onClick={() => openHelp('suppliers.manage')}>
-                {/* Help-icon bucket: HelpOutlineIcon + Tooltip + IconButton pattern duplicated across 4 dialogs — extract shared component in refactor pass. */}
+                {/* BUCKET: HelpOutlineIcon + Tooltip + IconButton pattern duplicated across 4 dialogs — extract shared component (ST-APP29) */}
                 <HelpOutlineIcon fontSize="small" />
               </IconButton>
             </Tooltip>

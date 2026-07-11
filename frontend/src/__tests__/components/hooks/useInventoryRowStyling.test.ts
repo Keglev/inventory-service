@@ -5,13 +5,13 @@
  * Enterprise unit tests for `useInventoryRowStyling`.
  *
  * The hook returns a pure function that maps (onHand, minQty) to a CSS class:
- * - ""            → stock is sufficient or result cannot be determined
- * - "row-warning" → small deficit (1–4)
- * - "row-critical"→ large deficit (>= 5)
+ * - ""            -> stock is sufficient or result cannot be determined
+ * - "row-warning" -> small deficit (1-4)
+ * - "row-critical"-> large deficit (>= 5)
  *
  * We explicitly cover:
  * - boundary conditions (0/1 and 4/5 deficits)
- * - normalization of invalid minQty (<= 0 or NaN → defaults to 5)
+ * - normalization of invalid minQty (<= 0 or NaN -> defaults to 5)
  * - negative stock values
  * - current NaN-onHand behavior (documents implementation reality)
  */
@@ -92,16 +92,16 @@ describe('useInventoryRowStyling', () => {
 
     // This is a data-contract behavior: invalid thresholds fall back to a safe default.
     const cases: Case[] = [
-      // minQty = 0 → treated as 5
+      // minQty = 0 -> treated as 5
       { onHand: 6, minQty: 0, expected: '' },
       { onHand: 4, minQty: 0, expected: 'row-warning' },   // deficit 1 from default 5
       { onHand: 0, minQty: 0, expected: 'row-critical' },  // deficit 5 from default 5
 
-      // minQty negative → treated as 5
+      // minQty negative -> treated as 5
       { onHand: 4, minQty: -10, expected: 'row-warning' },
       { onHand: 0, minQty: -5, expected: 'row-critical' },
 
-      // minQty NaN → treated as 5
+      // minQty NaN -> treated as 5
       { onHand: 4, minQty: Number.NaN, expected: 'row-warning' },
       { onHand: 0, minQty: Number.NaN, expected: 'row-critical' },
     ];
@@ -116,7 +116,7 @@ describe('useInventoryRowStyling', () => {
 
     /**
      * Important: This test documents the *current* implementation behavior.
-     * If the hook later normalizes NaN → 0, this expectation should change.
+     * If the hook later normalizes NaN -> 0, this expectation should change.
      *
      * In the current logic, NaN propagates into the deficit calculation and
      * comparison checks fail, so no class is applied.

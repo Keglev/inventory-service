@@ -1,14 +1,16 @@
 /**
  * @file supplierListFetcher.test.ts
  * @module tests/unit/api/suppliers/supplierListFetcher
- * @what_is_under_test getSuppliersPage
- * @responsibility
- * Guarantees supplier list page fetching contracts: query param wiring, tolerant envelope handling,
- * row normalization filtering, total derivation rules, and safe empty-page fallbacks on failures.
- * @out_of_scope
- * HTTP client behavior (interceptors, retries/timeouts, auth headers, and transport concerns).
- * @out_of_scope
- * Supplier row normalization rules (validated by supplier normalizer unit tests).
+ * @description Contract tests for getSuppliersPage.
+ *
+ * Contract under test:
+ * - Guarantees supplier list page fetching contracts: query param
+ *   wiring, tolerant envelope handling, row normalization filtering,
+ *   total derivation rules, and safe empty-page fallbacks on failures.
+ *
+ * Out of scope:
+ * - Supplier row normalization rules (validated by supplier normalizer
+ *   unit tests).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

@@ -7,7 +7,7 @@
  *
  * @responsibility
  * - Provide a single import surface for RTL utilities.
- * - Ensure all renders include the project’s required providers.
+ * - Ensure all renders include the project's required providers.
  *
  * @out_of_scope
  * - Component-specific test helpers (keep those near the component).

@@ -8,7 +8,7 @@
  *
  * @enterprise
  * Split persistence boundary: tableDensity is a global user preference persisted
- * here via useSettings; theme state is shell-owned (HamburgerMenu → AppToolbarActions)
+ * here via useSettings; theme state is shell-owned (HamburgerMenu -> AppToolbarActions)
  * and only passed through as props. The two different ownership models are
  * intentional — density belongs to data display, theme belongs to shell chrome.
  * Mounted exclusively by MenuContent/MenuSectionsRenderer.

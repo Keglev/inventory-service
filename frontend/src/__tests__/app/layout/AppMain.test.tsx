@@ -1,14 +1,16 @@
 /**
  * @file AppMain.test.tsx
  * @module tests/app/layout/AppMain
- * @what_is_under_test AppMain
- * @responsibility
- * Guarantees the main content area contract: semantic main region, flex
- * layout, internal vertical scrolling, and absence of the removed demo
- * banner (lives in the header badge).
- * @out_of_scope
- * Routed page content (Outlet targets); header badge behavior
- * (HeaderDemoBadge suite).
+ * @description Contract tests for AppMain.
+ *
+ * Contract under test:
+ * - Guarantees the main content area contract: semantic main region,
+ *   flex layout, internal vertical scrolling, and absence of the removed
+ *   demo banner (lives in the header badge).
+ *
+ * Out of scope:
+ * - Routed page content (Outlet targets); header badge behavior
+ *   (HeaderDemoBadge suite).
  */
 
 import { describe, it, expect } from 'vitest';

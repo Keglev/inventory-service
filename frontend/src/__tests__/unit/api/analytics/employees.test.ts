@@ -1,7 +1,8 @@
 /**
  * @file employees.test.ts
- * @summary Request contract + Spring Page parsing for the per-employee
- * analytics fetchers.
+ * @module __tests__/unit/api/analytics/employees
+ * @description Request contract + Spring Page parsing for the per-employee analytics
+ * fetchers.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 

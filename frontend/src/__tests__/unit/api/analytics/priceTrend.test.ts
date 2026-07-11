@@ -1,13 +1,19 @@
 /**
  * @file priceTrend.test.ts
  * @module tests/unit/api/analytics/priceTrend
- * @what_is_under_test getPriceTrend (api/analytics/priceTrend)
- * @responsibility
- * - Guarantees itemId is required for an HTTP call (empty itemId short-circuits)
- * - Guarantees the request contract (endpoint + cleaned date params) when inputs are provided
- * - Guarantees tolerant parsing/sorting of supported response shapes into a stable time-series
- * @out_of_scope
- * - Trend interpretation, forecasting, or any statistical inference derived from the series
+ * @description Contract tests for getPriceTrend (api/analytics/priceTrend).
+ *
+ * Contract under test:
+ * - Guarantees itemId is required for an HTTP call (empty itemId
+ *   short-circuits)
+ * - Guarantees the request contract (endpoint + cleaned date params)
+ *   when inputs are provided
+ * - Guarantees tolerant parsing/sorting of supported response shapes
+ *   into a stable time-series
+ *
+ * Out of scope:
+ * - Trend interpretation, forecasting, or any statistical inference
+ *   derived from the series
  * - HTTP client behavior (timeouts, retries, base URL, interceptors)
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';

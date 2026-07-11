@@ -1,15 +1,17 @@
 /**
  * @file itemSearch.search.test.ts
  * @module tests/unit/api/shared/itemSearch.search
- * @what_is_under_test searchItemsGlobal / searchItemsForSupplier
- * @responsibility
- * Guarantees the shared item-search fetchers query GET /api/inventory/search with the
- * correct parameters (name, size, optional supplierId), parse the Spring Page envelope,
- * short-circuit on blank input, and collapse every failure to an empty list.
- * @out_of_scope
- * normalizeItemsList field mapping rules (covered by its own test file).
- * @out_of_scope
- * HTTP transport details (headers, auth, interceptors, retries, and timeouts).
+ * @description Contract tests for searchItemsGlobal / searchItemsForSupplier.
+ *
+ * Contract under test:
+ * - Guarantees the shared item-search fetchers query GET
+ *   /api/inventory/search with the correct parameters (name, size,
+ *   optional supplierId), parse the Spring Page envelope, short-circuit
+ *   on blank input, and collapse every failure to an empty list.
+ *
+ * Out of scope:
+ * - HTTP transport details (headers, auth, interceptors, retries, and
+ *   timeouts).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

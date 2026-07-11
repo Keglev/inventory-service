@@ -1,12 +1,14 @@
 /**
  * @file useLowStockAlerts.test.tsx
  * @module __tests__/unit/api/analytics/hooks/useLowStockAlerts
- * @what_is_under_test useItemFrequencyQuery and useLowStockQuery hooks
- * @responsibility
+ * @description Contract tests for useItemFrequencyQuery and useLowStockQuery hooks.
+ *
+ * Contract under test:
  * - Gates queries on supplier identity and an explicit enabled flag
  * - Delegates to analytics API functions with the supplierId contract
  * - Exposes React Query success state when dependencies resolve
- * @out_of_scope
+ *
+ * Out of scope:
  * - Threshold logic, alert messaging, and user notification delivery
  * - Backend filtering/sorting semantics and payload validation
  */

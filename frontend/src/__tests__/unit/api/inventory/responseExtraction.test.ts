@@ -1,14 +1,16 @@
 /**
  * @file responseExtraction.test.ts
  * @module tests/unit/api/inventory/responseExtraction
- * @what_is_under_test resDataOrEmpty / extractArray
- * @responsibility
- * Guarantees safe response-shape extraction contracts used by inventory fetchers: helpers must
- * tolerate unknown inputs, never throw, and return deterministic empty fallbacks when data is absent.
- * @out_of_scope
- * HTTP client semantics (Axios response typing, interceptors, and transport-layer behavior).
- * @out_of_scope
- * Downstream normalization behavior (handled by row/DTO normalizer unit tests).
+ * @description Contract tests for resDataOrEmpty / extractArray.
+ *
+ * Contract under test:
+ * - Guarantees safe response-shape extraction contracts used by
+ *   inventory fetchers: helpers must tolerate unknown inputs, never
+ *   throw, and return deterministic empty fallbacks when data is absent.
+ *
+ * Out of scope:
+ * - Downstream normalization behavior (handled by row/DTO normalizer
+ *   unit tests).
  */
 
 import { describe, expect, it } from 'vitest';

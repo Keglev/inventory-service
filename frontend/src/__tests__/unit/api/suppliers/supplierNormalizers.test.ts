@@ -1,14 +1,16 @@
 /**
  * @file supplierNormalizers.test.ts
  * @module tests/unit/api/suppliers/supplierNormalizers
- * @what_is_under_test toSupplierRow
- * @responsibility
- * Guarantees supplier DTO normalization contracts: required identifiers, deterministic defaults
- * for optional fields, and safe null returns for invalid inputs.
- * @out_of_scope
- * Supplier list fetching/envelope parsing (handled by supplier list fetcher tests).
- * @out_of_scope
- * Validation and user input trimming/coercion beyond what normalization explicitly performs.
+ * @description Contract tests for toSupplierRow.
+ *
+ * Contract under test:
+ * - Guarantees supplier DTO normalization contracts: required
+ *   identifiers, deterministic defaults for optional fields, and safe
+ *   null returns for invalid inputs.
+ *
+ * Out of scope:
+ * - Validation and user input trimming/coercion beyond what
+ *   normalization explicitly performs.
  */
 
 import { describe, expect, it } from 'vitest';

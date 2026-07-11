@@ -1,12 +1,16 @@
 /**
  * @file ImpressumPage.test.tsx
  * @module tests/components/pages/legal/ImpressumPage
- * @what_is_under_test ImpressumPage (incl. shared LegalPageLayout back behavior)
- * @responsibility
- * Guarantees the localized Impressum structure (title, provider, sections)
- * and the back button's direct-entry fallback to the landing page.
- * @out_of_scope
- * Translation content itself; routing registration (AppRouter suite).
+ * @description Contract tests for ImpressumPage (incl. shared LegalPageLayout back
+ * behavior).
+ *
+ * Contract under test:
+ * - Guarantees the localized Impressum structure (title, provider,
+ *   sections) and the back button's direct-entry fallback to the landing
+ *   page.
+ *
+ * Out of scope:
+ * - Translation content itself; routing registration (AppRouter suite).
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';

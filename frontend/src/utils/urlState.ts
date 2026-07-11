@@ -20,9 +20,9 @@ export type UrlDict = Record<string, string | undefined>;
 /**
  * Strips surrounding double quotes if present.
  * Examples:
- *  - `"abc"` → `abc`
- *  - `abc`   → `abc`
- *  - `""`    → `undefined`
+ *  - `"abc"` -> `abc`
+ *  - `abc`   -> `abc`
+ *  - `""`    -> `undefined`
  * @internal
  */
 function dequote(v: string | null): string | undefined {
@@ -37,7 +37,7 @@ function dequote(v: string | null): string | undefined {
  *
  * @param search - The raw `location.search` string (may start with `?`).
  * @param keys   - Param names to read (e.g., `['from','to','supplierId']`).
- * @returns      - A dict with the requested keys (missing → `undefined`).
+ * @returns      - A dict with the requested keys (missing -> `undefined`).
  *
  * @remarks
  * - Special handling for `supplierId`: if absent, we also look for legacy

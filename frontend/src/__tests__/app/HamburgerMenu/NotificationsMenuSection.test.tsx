@@ -5,9 +5,9 @@
  * @description
  * Unit tests for <NotificationsMenuSection /> — verifies the notification area in the
  * hamburger menu reacts to dashboard metrics:
- * - Loading → skeleton state
- * - lowStockCount > 0 → low-stock alert content
- * - lowStockCount === 0 or missing → all-clear content
+ * - Loading -> skeleton state
+ * - lowStockCount > 0 -> low-stock alert content
+ * - lowStockCount === 0 or missing -> all-clear content
  *
  * Notes:
  * - useDashboardMetrics is mocked so tests stay deterministic and fast.

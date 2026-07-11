@@ -6,7 +6,7 @@
  * Contract under test:
  * - Initializes `useEditSupplierForm(onUpdated)` once per render.
  * - Wires child step components using the hook's public contract.
- * - Implements dialog lifecycle: cancel → `resetForm()` + `onClose()`.
+ * - Implements dialog lifecycle: cancel -> `resetForm()` + `onClose()`.
  * - Implements review action: uses `handleSubmit` callback to populate pending changes and open confirmation.
  * - Shows/clears error alert via `formError` + `setFormError('')`.
  * - When `useEditSupplierForm` invokes the provided success callback:

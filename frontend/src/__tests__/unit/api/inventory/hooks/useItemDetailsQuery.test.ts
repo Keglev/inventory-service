@@ -1,14 +1,16 @@
 /**
  * @file useItemDetailsQuery.test.ts
  * @module tests/unit/api/inventory/hooks/useItemDetailsQuery
- * @what_is_under_test useItemDetailsQuery
- * @responsibility
- * Guarantees the hook’s public contract: query configuration, URL encoding, DTO normalization,
- * and resilience (safe null returns + logging) when the fetch path fails.
- * @out_of_scope
- * React Query cache behavior (retries, background refetching, observer lifecycles).
- * @out_of_scope
- * Network layer correctness (axios/fetch implementation, interceptors, headers, timeouts).
+ * @description Contract tests for useItemDetailsQuery.
+ *
+ * Contract under test:
+ * - Guarantees the hook's public contract: query configuration, URL
+ *   encoding, DTO normalization, and resilience (safe null returns +
+ *   logging) when the fetch path fails.
+ *
+ * Out of scope:
+ * - Network layer correctness (axios/fetch implementation, interceptors,
+ *   headers, timeouts).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

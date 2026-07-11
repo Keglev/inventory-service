@@ -1,13 +1,16 @@
 /**
  * @file FooterLinks.test.tsx
  * @module tests/app/footer/FooterLinks
- * @what_is_under_test FooterLinks
- * @responsibility
- * Guarantees the inline footer link row: link targets, new-tab semantics for
- * external docs, internal SPA routes for the legal pages, and i18n key wiring.
- * @out_of_scope
- * Footer layout/composition (AppFooter suite); translation content itself;
- * legal page rendering (pages/legal suites).
+ * @description Contract tests for FooterLinks.
+ *
+ * Contract under test:
+ * - Guarantees the inline footer link row: link targets, new-tab
+ *   semantics for external docs, internal SPA routes for the legal
+ *   pages, and i18n key wiring.
+ *
+ * Out of scope:
+ * - Footer layout/composition (AppFooter suite); translation content
+ *   itself; legal page rendering (pages/legal suites).
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';

@@ -1,12 +1,17 @@
 /**
  * @file lowStock.test.ts
  * @module tests/unit/api/analytics/lowStock
- * @what_is_under_test getLowStockItems (api/analytics/lowStock)
- * @responsibility
- * - Guarantees supplierId is required for an HTTP call (empty supplierId short-circuits)
- * - Guarantees the request contract (endpoint + cleaned date params) when inputs are provided
- * - Guarantees tolerant parsing of supported response envelopes into a stable item list
- * @out_of_scope
+ * @description Contract tests for getLowStockItems (api/analytics/lowStock).
+ *
+ * Contract under test:
+ * - Guarantees supplierId is required for an HTTP call (empty supplierId
+ *   short-circuits)
+ * - Guarantees the request contract (endpoint + cleaned date params)
+ *   when inputs are provided
+ * - Guarantees tolerant parsing of supported response envelopes into a
+ *   stable item list
+ *
+ * Out of scope:
  * - Business policy for threshold selection and replenishment workflows
  * - Backend sorting/filtering correctness and authorization rules
  */

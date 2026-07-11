@@ -1,14 +1,16 @@
 /**
  * @file httpClient.test.ts
  * @module tests/unit/api/httpClient
- * @what_is_under_test httpClient / API_BASE
- * @responsibility
- * Guarantees the HTTP client’s externally observable configuration contract: a non-empty API base,
- * stable axios defaults (credentials, timeout, headers), and deterministic demo-session detection inputs.
- * @out_of_scope
- * Transport behavior (actual network requests, TLS, browser cookie policy, and CORS semantics).
- * @out_of_scope
- * Interceptor logic details (handler order and transformation behavior are integration concerns).
+ * @description Contract tests for httpClient / API_BASE.
+ *
+ * Contract under test:
+ * - Guarantees the HTTP client's externally observable configuration
+ *   contract: a non-empty API base, stable axios defaults (credentials,
+ *   timeout, headers), and deterministic demo-session detection inputs.
+ *
+ * Out of scope:
+ * - Interceptor logic details (handler order and transformation behavior
+ *   are integration concerns).
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

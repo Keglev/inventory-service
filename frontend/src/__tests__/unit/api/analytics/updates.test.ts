@@ -1,14 +1,20 @@
 /**
  * @file updates.test.ts
  * @module tests/unit/api/analytics/updates
- * @what_is_under_test getStockUpdates (api/analytics/updates)
- * @responsibility
- * - Guarantees the request contract (endpoint + parameter mapping) for date range queries
- * - Guarantees tolerant parsing/filtering of supported row shapes into a stable DTO list
- * - Guarantees transport failures or unsupported payload shapes return a safe empty list
- * @out_of_scope
+ * @description Contract tests for getStockUpdates (api/analytics/updates).
+ *
+ * Contract under test:
+ * - Guarantees the request contract (endpoint + parameter mapping) for
+ *   date range queries
+ * - Guarantees tolerant parsing/filtering of supported row shapes into a
+ *   stable DTO list
+ * - Guarantees transport failures or unsupported payload shapes return a
+ *   safe empty list
+ *
+ * Out of scope:
  * - Backend pagination, ordering guarantees, and audit semantics
- * - Real-time streaming, push notifications, and cache invalidation strategies
+ * - Real-time streaming, push notifications, and cache invalidation
+ *   strategies
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 

@@ -6,7 +6,7 @@
  * @enterprise
  * - Uses LS key 'i18nextLng' — the same key i18next writes natively — so this hook
  *   and i18next always read from the same source of truth.
- * - Normalizes regional codes (e.g. 'de-DE' → 'de') because browsers and OS settings
+ * - Normalizes regional codes (e.g. 'de-DE' -> 'de') because browsers and OS settings
  *   often produce BCP-47 regional variants that the theme's SupportedLocale doesn't
  *   accept.
  * - Subscribes to i18next 'languageChanged' so locale state stays consistent when

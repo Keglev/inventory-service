@@ -12,7 +12,7 @@
  * - Verify skeleton variant is "text" (matches the intended placeholder UX).
  *
  * Notes:
- * - We use MUI class hooks here because the component’s purpose is purely presentational.
+ * - We use MUI class hooks here because the component's purpose is purely presentational.
  * - If you ever change the skeleton layout (e.g., add a third row), update the counts.
  */
 

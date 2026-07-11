@@ -1,11 +1,15 @@
 /**
  * @file metrics.test.ts
  * @module tests/unit/api/analytics/metrics
- * @what_is_under_test api/analytics/metrics module
- * @responsibility
- * - Guarantees each exported metric function calls the expected endpoint and returns a numeric result
- * - Guarantees failures and non-numeric payloads are normalized to a safe default (0)
- * @out_of_scope
+ * @description Contract tests for api/analytics/metrics module.
+ *
+ * Contract under test:
+ * - Guarantees each exported metric function calls the expected endpoint
+ *   and returns a numeric result
+ * - Guarantees failures and non-numeric payloads are normalized to a
+ *   safe default (0)
+ *
+ * Out of scope:
  * - HTTP client behavior (timeouts, interceptors, retries, base URL)
  * - Backend correctness of the reported counts and authorization rules
  */

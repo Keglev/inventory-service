@@ -4,10 +4,10 @@
  * @summary
  * DTO normalization for inventory list rows.
  * Converts raw API responses to strongly-typed InventoryRow shapes.
- * Maps backend fields (id, quantity, minimumQuantity) → frontend fields (itemId, onHand, minQty).
+ * Maps backend fields (id, quantity, minimumQuantity) -> frontend fields (itemId, onHand, minQty).
  *
  * @enterprise
- * - Single responsibility: DTO → InventoryRow transformation
+ * - Single responsibility: DTO -> InventoryRow transformation
  * - Handles backend field name mappings transparently
  * - Type-safe with full TypeScript support
  * - Reusable for both single rows and batch operations
@@ -20,10 +20,10 @@ import { extractCode } from './rowFieldExtractors';
 /**
  * Normalize a raw API response object into a strongly-typed InventoryRow.
  * Maps backend fields:
- *  - id → itemId
- *  - quantity → onHand
- *  - minimumQuantity → minQty
- *  - createdAt → createdAt (creation timestamp; backend has no update field)
+ *  - id -> itemId
+ *  - quantity -> onHand
+ *  - minimumQuantity -> minQty
+ *  - createdAt -> createdAt (creation timestamp; backend has no update field)
  *
  * @param raw - Raw DTO from API response
  * @returns InventoryRow with all fields safely extracted and coerced, or null if invalid
@@ -53,17 +53,17 @@ export const toInventoryRow = (raw: unknown): InventoryRow | null => {
 
   const supplierName = pickString(r, 'supplierName') ?? null;
 
-  // quantity → onHand
+  // quantity -> onHand
   const onHand = pickNumber(r, 'quantity') ?? 0;
 
-  // minimumQuantity → minQty
+  // minimumQuantity -> minQty
   const minQty = pickNumber(r, 'minimumQuantity') ?? null;
 
-  // price → price (unit price); totalValue → totalValue (falls back to price x onHand)
+  // price -> price (unit price); totalValue -> totalValue (falls back to price x onHand)
   const price = pickNumber(r, 'price') ?? null;
   const totalValue = pickNumber(r, 'totalValue') ?? (price != null ? price * onHand : null);
 
-  // createdAt → createdAt (creation timestamp for display)
+  // createdAt -> createdAt (creation timestamp for display)
   const createdAt = pickString(r, 'createdAt') ?? null;
 
   return {

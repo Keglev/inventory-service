@@ -5,7 +5,7 @@ import type { SupplierRow } from '../../../../../api/suppliers/types';
  * Creates a stable `SupplierRow` for list/search scenarios.
  *
  * Notes:
- * - Defaults are intentionally “boring” and readable.
+ * - Defaults are intentionally "boring" and readable.
  * - `overrides` are applied last to keep call sites concise.
  */
 export const supplierRow = (overrides: Partial<SupplierRow> = {}): SupplierRow => ({

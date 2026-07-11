@@ -1,13 +1,16 @@
 /**
  * @file AppFooter.test.tsx
  * @module tests/app/footer/AppFooter
- * @what_is_under_test AppFooter
- * @responsibility
- * Guarantees the static compact footer bar renders its three sections
- * (metadata, documentation links, health) with no expandable state.
- * @out_of_scope
- * Sub-component internals (FooterMetaInfo, FooterLinks, HealthStatusDisplay
- * have their own suites); health polling behavior (features/health).
+ * @description Contract tests for AppFooter.
+ *
+ * Contract under test:
+ * - Guarantees the static compact footer bar renders its three sections
+ *   (metadata, documentation links, health) with no expandable state.
+ *
+ * Out of scope:
+ * - Sub-component internals (FooterMetaInfo, FooterLinks,
+ *   HealthStatusDisplay have their own suites); health polling behavior
+ *   (features/health).
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';

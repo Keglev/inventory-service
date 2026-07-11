@@ -96,7 +96,7 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
           <Box>{t('suppliers:dialogs.delete.title')}</Box>
           <Tooltip title={t('common:actions.help')}>
             <IconButton size="small" onClick={onHelp}>
-              {/* Help-icon bucket: HelpOutlineIcon + Tooltip + IconButton pattern duplicated across 4 dialogs — extract shared component in refactor pass. */}
+              {/* BUCKET: HelpOutlineIcon + Tooltip + IconButton pattern duplicated across 4 dialogs — extract shared component (ST-APP29) */}
               <HelpOutlineIcon fontSize="small" />
             </IconButton>
           </Tooltip>
