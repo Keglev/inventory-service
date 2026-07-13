@@ -1,292 +1,214 @@
 /**
- * @file useEditItemForm.test.ts
- * @module __tests__/components/pages/inventory/EditItemDialog/useEditItemForm
- * @description Unit tests for useEditItemForm (state orchestration + query wiring + submit workflow).
+ * @file EditItemForm.test.tsx
+ * @module __tests__/components/pages/inventory/EditItemDialog/EditItemForm
+ * @description Three-step rename form rendering (supplier select, item
+ * autocomplete, new-name input) with progressive disclosure.
  *
  * Contract under test:
- * - Wires inventory queries with correct arguments (dialogOpen, selectedSupplier, itemQuery, selectedItemId).
- * - Changing supplier resets dependent state (selectedItem, itemQuery, formError).
- * - handleClose resets state, resets react-hook-form, and calls onClose.
- * - onSubmit (RHF handler) validates prerequisites and triggers renameItem workflow:
- *   - blocks when no item selected
- *   - calls renameItem on success and triggers toast + onItemRenamed + onClose
- *   - surfaces an error when API returns ok:false
+ * - Error alert renders when formError is set and dismisses via setFormError('').
+ * - Step 1: supplier loading spinner vs populated select; selecting an option
+ *   resolves the supplier object and forwards it to setSelectedSupplier.
+ * - Step 2: info guard without a supplier, loading spinner, and the item
+ *   autocomplete (selection clears the query; typing forwards the query;
+ *   noOptionsText prompts to type under 2 chars and reports no matches after).
+ * - Step 3: hidden until an item is selected; fresh backend name wins over
+ *   the search-result name; validation errors surface on the name input.
  *
- * Out of scope:
- * - UI rendering (EditItemForm)
- * - React Query caching/transport
- * - Zod schema correctness and RHF internals beyond our boundary interactions
+ * State orchestration lives in useEditItemForm (own test); a handcrafted
+ * state object drives the render here.
  */
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, within } from '@testing-library/react';
+import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import type { UseQueryResult } from '@tanstack/react-query';
-
-import { useEditItemForm } from '../../../../../pages/inventory/dialogs/EditItemDialog/useEditItemForm';
-import { renameItem } from '../../../../../api/inventory/itemMutations';
-import { useSuppliersQuery } from '../../../../../api/inventory/hooks/useSuppliersQuery';
-import { useItemSearchQuery } from '../../../../../api/inventory/hooks/useItemSearchQuery';
-import { useItemDetailsQuery } from '../../../../../api/inventory/hooks/useItemDetailsQuery';
-import { tEn } from '../../../../test/i18nEn';
-
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
-const toastSpy = vi.hoisted(() => vi.fn());
-const tSpy = vi.hoisted(() => vi.fn((key: string, options?: Record<string, unknown>) => tEn(key, options)));
-
-vi.mock('../../../../../api/inventory/itemMutations', () => ({
-  renameItem: vi.fn(),
-}));
-
-vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
-  useSuppliersQuery: vi.fn(),
-}));
-
-vi.mock('../../../../../api/inventory/hooks/useItemSearchQuery', () => ({
-  useItemSearchQuery: vi.fn(),
-}));
-
-vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
-  useItemDetailsQuery: vi.fn(),
-}));
-
-vi.mock('../../../../../context/toast/ToastContext', () => ({
-  useToast: () => toastSpy,
-}));
+import { EditItemForm } from '../../../../../pages/inventory/dialogs/EditItemDialog/EditItemForm';
+import type { UseEditItemFormReturn } from '../../../../../pages/inventory/dialogs/EditItemDialog/useEditItemForm';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: tSpy }),
+  useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-/**
- * React Query helper:
- * UseQueryResult is a union with many required fields; tests only need a stable minimal object
- * that still satisfies the type system.
- */
-function createQueryResult<T>(
-  data: T,
-  overrides: Partial<UseQueryResult<T, Error>> = {},
-): UseQueryResult<T, Error> {
-  const base = {
-    data,
-    error: null,
-    isError: false,
-    isFetching: false,
-    isLoading: false,
-    isPending: false,
-    isSuccess: true,
-    status: 'success',
-    fetchStatus: 'idle',
-    refetch: vi.fn(),
-  };
+const suppliers = [
+  { id: 's1', label: 'Alpha' },
+  { id: 's2', label: 'Beta' },
+];
+const items = [
+  { id: 'it-1', name: 'Blue Widget' },
+  { id: 'it-2', name: 'Red Widget' },
+];
 
-  // React Query's UseQueryResult is a union whose members differ between versions.
-  // For deterministic unit tests we only need a small stable subset; cast via unknown
-  // to avoid coupling tests to version-specific union fields.
-  return ({ ...base, ...overrides } as unknown) as UseQueryResult<T, Error>;
+type StateOverrides = Partial<UseEditItemFormReturn> & { nameError?: string };
+
+/**
+ * Renders EditItemForm with a real react-hook-form control so the
+ * Controller-driven name input behaves like production.
+ */
+function Harness({ overrides }: { overrides: StateOverrides }) {
+  const form = useForm<{ newName: string }>({ defaultValues: { newName: '' } });
+  const { nameError, ...stateOverrides } = overrides;
+
+  useEffect(() => {
+    if (nameError) form.setError('newName', { message: nameError });
+  }, [form, nameError]);
+
+  const state = {
+    selectedSupplier: null,
+    selectedItem: null,
+    itemQuery: '',
+    formError: '',
+    setSelectedSupplier: vi.fn(),
+    setSelectedItem: vi.fn(),
+    setItemQuery: vi.fn(),
+    setFormError: vi.fn(),
+    suppliersQuery: { data: suppliers, isLoading: false },
+    itemsQuery: { data: items, isLoading: false },
+    itemDetailsQuery: { data: undefined },
+    control: form.control,
+    formState: form.formState,
+    setValue: form.setValue,
+    onSubmit: vi.fn(),
+    handleClose: vi.fn(),
+    ...stateOverrides,
+  } as unknown as UseEditItemFormReturn;
+
+  return <EditItemForm state={state} />;
 }
-/**
- * RHF mock: we need handleSubmit(fn) to return a submit handler that calls fn(formData).
- * This matches how your hook exposes `onSubmit`.
- */
-const resetSpy = vi.hoisted(() => vi.fn());
-const setValueSpy = vi.hoisted(() => vi.fn());
 
-// Controlled per-test form data injected into handleSubmit().
-let formData: unknown = { newName: 'New Name' };
+function setup(overrides: StateOverrides = {}) {
+  return render(<Harness overrides={overrides} />);
+}
 
-vi.mock('react-hook-form', async () => {
-  const actual = await vi.importActual<typeof import('react-hook-form')>('react-hook-form');
-  return {
-    ...actual,
-    useForm: () => ({
-      control: {},
-      handleSubmit: (onValid: (data: unknown) => unknown) => {
-        return async () => {
-          await onValid(formData);
-        };
-      },
-      formState: { errors: {}, isSubmitting: false },
-      reset: resetSpy,
-      setValue: setValueSpy,
-    }),
-  };
-});
+describe('EditItemForm', () => {
+  it('renders the error alert and dismisses it through setFormError', () => {
+    const setFormError = vi.fn();
+    setup({ formError: 'boom', setFormError });
 
-// Typed handles for mocks
-const useSuppliersQueryMock = vi.mocked(useSuppliersQuery);
-const useItemSearchQueryMock = vi.mocked(useItemSearchQuery);
-const useItemDetailsQueryMock = vi.mocked(useItemDetailsQuery);
-const renameItemMock = vi.mocked(renameItem);
+    expect(screen.getByText('boom')).toBeInTheDocument();
 
-describe('useEditItemForm', () => {
-  const onClose = vi.fn();
-  const onItemRenamed = vi.fn();
+    fireEvent.click(screen.getByTitle('Close'));
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    formData = { newName: 'New Name' };
-
-    // Use fully-typed query results to satisfy UseQueryResult union type.
-    useSuppliersQueryMock.mockReturnValue(
-      createQueryResult([]) as ReturnType<typeof useSuppliersQuery>,
-    );
-    useItemSearchQueryMock.mockReturnValue(
-      createQueryResult([]) as ReturnType<typeof useItemSearchQuery>,
-    );
-    useItemDetailsQueryMock.mockReturnValue(
-      createQueryResult(null) as ReturnType<typeof useItemDetailsQuery>,
-    );
-
-    // IMPORTANT: use mockReturnValue (not mockResolvedValue) to avoid Promise-vs-value typing issues.
-    renameItemMock.mockReturnValue({ ok: true } as unknown as ReturnType<typeof renameItem>);
+    expect(setFormError).toHaveBeenCalledWith('');
   });
 
-  function render(open = true) {
-    return renderHook(() => useEditItemForm(open, onClose, onItemRenamed));
-  }
+  it('shows a loading indicator while suppliers fetch', () => {
+    setup({ suppliersQuery: { data: undefined, isLoading: true } as never });
 
-  describe('query wiring', () => {
-    it('wires suppliers/items/details queries with correct arguments', () => {
-      const { result } = render(true);
-
-      expect(useSuppliersQueryMock).toHaveBeenCalledWith(true);
-      expect(useItemSearchQueryMock).toHaveBeenCalledWith(null, '');
-      expect(useItemDetailsQueryMock).toHaveBeenCalledWith(undefined);
-
-      act(() => {
-        result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
-      });
-
-      act(() => {
-        result.current.setItemQuery('gl');
-      });
-
-      act(() => {
-        result.current.setSelectedItem({ id: 'item-1', name: 'Gloves' });
-      });
-
-      expect(useItemSearchQueryMock).toHaveBeenLastCalledWith(
-        { id: 'sup-1', label: 'Supplier A' },
-        'gl',
-      );
-      expect(useItemDetailsQueryMock).toHaveBeenLastCalledWith('item-1');
-    });
-
-    it('passes dialogOpen=false to suppliers query when closed', () => {
-      render(false);
-      expect(useSuppliersQueryMock).toHaveBeenCalledWith(false);
-    });
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.queryByLabelText('inventory:table.supplier')).not.toBeInTheDocument();
   });
 
-  describe('dependent state resets', () => {
-    it('clears selected item, itemQuery, and formError when supplier changes', () => {
-      const { result } = render(true);
+  it('lists suppliers and resolves the selected id to the supplier object', () => {
+    const setSelectedSupplier = vi.fn();
+    setup({ setSelectedSupplier });
 
-      act(() => {
-        result.current.setSelectedItem({ id: 'item-1', name: 'Item 1' });
-        result.current.setItemQuery('search');
-        result.current.setFormError('Error');
-      });
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+    fireEvent.click(within(screen.getByRole('listbox')).getByText('Beta'));
 
-      expect(result.current.selectedItem).not.toBeNull();
-      expect(result.current.itemQuery).toBe('search');
-      expect(result.current.formError).toBe('Error');
-
-      act(() => {
-        result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
-      });
-
-      expect(result.current.selectedItem).toBeNull();
-      expect(result.current.itemQuery).toBe('');
-      expect(result.current.formError).toBe('');
-    });
+    expect(setSelectedSupplier).toHaveBeenCalledWith(suppliers[1]);
   });
 
-  describe('handleClose', () => {
-    it('resets state, resets form, and calls onClose', () => {
-      const { result } = render(true);
+  it('guards step 2 with an info message until a supplier is selected', () => {
+    setup();
 
-      act(() => {
-        result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
-        result.current.setSelectedItem({ id: 'item-1', name: 'Item 1' });
-        result.current.setItemQuery('search');
-        result.current.setFormError('Error');
-      });
-
-      act(() => {
-        result.current.handleClose();
-      });
-
-      expect(result.current.selectedSupplier).toBeNull();
-      expect(result.current.selectedItem).toBeNull();
-      expect(result.current.itemQuery).toBe('');
-      expect(result.current.formError).toBe('');
-
-      expect(resetSpy).toHaveBeenCalledTimes(1);
-      expect(onClose).toHaveBeenCalledTimes(1);
-    });
+    expect(screen.getByText('inventory:search.selectSupplierFirst')).toBeInTheDocument();
   });
 
-  describe('submit workflow', () => {
-    it('blocks submit when no item is selected (sets formError, does not call renameItem)', async () => {
-      const { result } = render(true);
-
-      await act(async () => {
-        await result.current.onSubmit();
-      });
-
-      expect(renameItemMock).not.toHaveBeenCalled();
-      expect(result.current.formError).toBeTruthy();
+  it('shows a loading indicator while items fetch', () => {
+    setup({
+      selectedSupplier: suppliers[0] as never,
+      itemsQuery: { data: undefined, isLoading: true } as never,
     });
 
-    it('calls renameItem and triggers success effects', async () => {
-      const { result } = render(true);
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+  });
 
-      act(() => {
-        result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
-      });
-
-      act(() => {
-        result.current.setSelectedItem({ id: 'item-1', name: 'Old Name' });
-      });
-
-      formData = { itemId: 'item-1', newName: 'New Name' };
-
-      await act(async () => {
-        await result.current.onSubmit();
-      });
-
-      expect(renameItemMock).toHaveBeenCalled();
-      expect(toastSpy).toHaveBeenCalled();
-      expect(onItemRenamed).toHaveBeenCalledTimes(1);
-      expect(onClose).toHaveBeenCalledTimes(1);
+  it('selecting an item forwards it and clears the search query', () => {
+    const setSelectedItem = vi.fn();
+    const setItemQuery = vi.fn();
+    setup({
+      selectedSupplier: suppliers[0] as never,
+      setSelectedItem,
+      setItemQuery,
     });
 
-    it('surfaces an error when API returns ok:false', async () => {
-      renameItemMock.mockReturnValue(
-        { ok: false, error: 'Conflict' } as unknown as ReturnType<typeof renameItem>,
-      );
+    const input = screen.getByLabelText('inventory:table.name');
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.click(screen.getByText('Blue Widget'));
 
-      const { result } = render(true);
+    expect(setSelectedItem).toHaveBeenCalledWith(items[0]);
+    expect(setItemQuery).toHaveBeenCalledWith('');
+  });
 
-      act(() => {
-        result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
-      });
+  it('typing in the item search forwards the query', () => {
+    const setItemQuery = vi.fn();
+    setup({ selectedSupplier: suppliers[0] as never, setItemQuery });
 
-      act(() => {
-        result.current.setSelectedItem({ id: 'item-1', name: 'Old Name' });
-      });
-
-      formData = { itemId: 'item-1', newName: 'New Name' };
-
-      await act(async () => {
-        await result.current.onSubmit();
-      });
-
-      expect(onItemRenamed).not.toHaveBeenCalled();
-      expect(result.current.formError).toBeTruthy();
+    fireEvent.change(screen.getByLabelText('inventory:table.name'), {
+      target: { value: 'blu' },
     });
+
+    expect(setItemQuery).toHaveBeenCalledWith('blu');
+  });
+
+  it('prompts to type when the query is under 2 characters and nothing matches', () => {
+    setup({
+      selectedSupplier: suppliers[0] as never,
+      itemsQuery: { data: [], isLoading: false } as never,
+      itemQuery: 'b',
+    });
+
+    fireEvent.keyDown(screen.getByLabelText('inventory:table.name'), { key: 'ArrowDown' });
+
+    expect(screen.getByText('inventory:search.typeToSearch')).toBeInTheDocument();
+  });
+
+  it('reports no matches once 2+ characters are typed', () => {
+    setup({
+      selectedSupplier: suppliers[0] as never,
+      itemsQuery: { data: [], isLoading: false } as never,
+      itemQuery: 'zz',
+    });
+
+    fireEvent.keyDown(screen.getByLabelText('inventory:table.name'), { key: 'ArrowDown' });
+
+    expect(screen.getByText('inventory:search.noItemsFound')).toBeInTheDocument();
+  });
+
+  it('hides step 3 until an item is selected', () => {
+    setup({ selectedSupplier: suppliers[0] as never });
+
+    expect(screen.queryByText('inventory:steps.editName')).not.toBeInTheDocument();
+  });
+
+  it('shows the search-result name until the details query lands', () => {
+    setup({
+      selectedSupplier: suppliers[0] as never,
+      selectedItem: items[0] as never,
+    });
+
+    expect(screen.getByText('inventory:steps.editName')).toBeInTheDocument();
+    expect(screen.getByText('Blue Widget')).toBeInTheDocument();
+  });
+
+  it('prefers the fresh backend name once the details query lands', () => {
+    setup({
+      selectedSupplier: suppliers[0] as never,
+      selectedItem: items[0] as never,
+      itemDetailsQuery: { data: { name: 'Fresh Name' } } as never,
+    });
+
+    expect(screen.getByText('Fresh Name')).toBeInTheDocument();
+    expect(screen.queryByText('Blue Widget')).not.toBeInTheDocument();
+  });
+
+  it('surfaces the newName validation error on the input', async () => {
+    setup({
+      selectedSupplier: suppliers[0] as never,
+      selectedItem: items[0] as never,
+      nameError: 'errors:nameRequired',
+    });
+
+    expect(await screen.findByText('errors:nameRequired')).toBeInTheDocument();
   });
 });
