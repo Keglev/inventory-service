@@ -30,8 +30,8 @@ reasoning behind every significant decision.
 | [§3 Context & Scope](03-context.md) | System boundary, external systems, integration facts | Current |
 | [§4 Solution Strategy](04-solution-strategy.md) | Key architectural approaches at a glance | Current |
 | [§5 Building Blocks](05-building-blocks.md) | App shell, domain pages, API layer, shared UI | Current |
-| §6 Runtime | Routing, guards, key user flows | In restructure — see [legacy routing docs](../old/architecture/routing/index.md) |
-| §7 Deployment | Koyeb/Nginx, frontend CI | In restructure — see [legacy performance docs](../old/architecture/performance/index.md) |
+| [§6 Runtime](06-runtime.md) | Routing, guards, key user flows | Current |
+| [§7 Deployment](07-deployment.md) | Build, Koyeb/Nginx delivery, frontend CI | Current |
 | §8 Concepts | State, data access, i18n, theming, testing | In restructure — see [legacy topics](../old/architecture/index.md) |
 | [§9 Decisions (ADRs)](09-decisions/index.md) | Architecture decision records | Current |
 | §10 Quality Requirements | Coverage gates, CI quality checks | Planned |
