@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Backend · 02-constraints · Smart Supply Pro Docs</title>
+  <title>Backend ·
+09-decisions/adr-0008-serve-time-api-base-rewrite · Smart Supply Pro Docs</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -96,139 +97,100 @@
 
     <main class="content" id="main">
       <article class="doc-body">
-        <h1 id="constraints">§2 Constraints</h1>
-        <h2 id="technical-constraints">Technical Constraints</h2>
-        <table>
-        <thead>
-        <tr class="header">
-        <th>Component</th>
-        <th>Technology</th>
-        <th>Version</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="odd">
-        <td>Language</td>
-        <td>Java</td>
-        <td>21</td>
-        </tr>
-        <tr class="even">
-        <td>Framework</td>
-        <td>Spring Boot</td>
-        <td>4.1.0</td>
-        </tr>
-        <tr class="odd">
-        <td>Database</td>
-        <td>Oracle Autonomous Database</td>
-        <td>23ai</td>
-        </tr>
-        <tr class="even">
-        <td>Build tool</td>
-        <td>Maven</td>
-        <td>3.x+</td>
-        </tr>
-        <tr class="odd">
-        <td>Security</td>
-        <td>Spring Security, OAuth2</td>
-        <td>7.x (Boot-managed)</td>
-        </tr>
-        <tr class="even">
-        <td>Containerisation</td>
-        <td>Docker</td>
-        <td>Latest</td>
-        </tr>
-        <tr class="odd">
-        <td>Testing</td>
-        <td>JUnit 6 (Jupiter), Mockito</td>
-        <td>Boot-managed</td>
-        </tr>
-        </tbody>
-        </table>
-        <p><strong>Oracle Autonomous Database</strong> is the sole
-        supported database. Local development and CI use H2 in
-        Oracle-compatibility mode. There is no PostgreSQL profile.</p>
-        <p><strong>Oracle wallet authentication</strong> — the
-        production connection is passwordless via
-        <code>cwallet.sso</code>; only <code>TNS_ADMIN</code> must be
-        set at runtime. No password is stored or injected. See <a
-        href="09-decisions/adr-0001-oracle-wallet-autologin.html">ADR
-        0001</a>.</p>
-        <h2 id="organizational-constraints">Organizational
-        Constraints</h2>
-        <p>This is a solo-developer portfolio project. Constraints that
-        follow from that context:</p>
+        <h1
+        id="adr-0008-serve-time-api-base-rewrite-and-same-origin-proxy">ADR-0008:
+        Serve-time API-base rewrite and same-origin proxy</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted — documented retroactively on 2026-07-13; the
+        mechanism predates this record and was previously described only
+        in <code>ops/nginx/default.conf</code> comments.</p>
+        <h2 id="context">Context</h2>
+        <p>The production build bakes an absolute backend origin into
+        the JavaScript bundle
+        (<code>VITE_API_BASE=https://inventoryservice.fly.dev</code> in
+        <code>frontend/.env.production</code>), and the login flow
+        navigates to the same absolute origin. The original deployment
+        design ran this as a direct cross-origin topology — SPA on Koyeb
+        calling Fly.io — carried by a <code>SameSite=None; Secure</code>
+        cookie and a CORS allow-list (<a
+        href="adr-0007-cross-origin-auth-cookie.html">ADR-0007</a>).</p>
+        <p>Cross-site cookies are an increasingly fragile foundation:
+        browsers restrict third-party cookies progressively, and every
+        authenticated call depends on the <code>SameSite=None</code>
+        exemption surviving browser policy changes.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Koyeb’s Nginx makes production browser traffic
+        <strong>same-origin</strong> without changing the build:</p>
         <ul>
-        <li>No dedicated DBA, DevOps engineer, or QA function — the
-        developer owns the full stack.</li>
-        <li>Decisions favour clarity and long-term maintainability over
-        team velocity or framework automation.</li>
-        <li>Manual mapping is preferred over annotation-processor
-        frameworks (MapStruct) for the same reason. See <a
-        href="09-decisions/adr-0002-manual-mapping-over-mapstruct.html">ADR
-        0002</a>.</li>
+        <li><code>sub_filter</code> rewrites the baked backend origin to
+        the frontend host as the bundle is served
+        (<code>sub_filter_types application/javascript text/html; sub_filter_once off</code>),
+        so the browser-visible API base becomes the Koyeb origin.</li>
+        <li>Reverse-proxy locations for <code>/api/</code>,
+        <code>/oauth2/authorization/</code>,
+        <code>/login/oauth2/</code>, and <code>/logout</code> forward to
+        the Fly.io backend server-side.</li>
+        <li><code>proxy_cookie_domain</code> re-domains the backend’s
+        <code>Set-Cookie</code> to the frontend host, so the session
+        cookie is first-party in the browser.</li>
         </ul>
-        <h2 id="conventions">Conventions</h2>
-        <table>
-        <colgroup>
-        <col style="width: 50%" />
-        <col style="width: 50%" />
-        </colgroup>
-        <thead>
-        <tr class="header">
-        <th>Convention</th>
-        <th>Rule</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="odd">
-        <td>API style</td>
-        <td>RESTful — standard HTTP verbs and status codes; no generic
-        success wrapper. See <a
-        href="09-decisions/adr-0004-http-status-as-envelope.html">ADR
-        0004</a></td>
-        </tr>
-        <tr class="even">
-        <td>Access control</td>
-        <td>RBAC via <code>@PreAuthorize</code>; two roles:
-        <code>ADMIN</code> (full access), <code>USER</code> (read +
-        basic ops)</td>
-        </tr>
-        <tr class="odd">
-        <td>DTO boundary</td>
-        <td>Entities never exposed by controllers; DTOs never passed
-        into repositories. See <a
-        href="09-decisions/adr-0003-dto-boundary-no-entity-exposure.html">ADR
-        0003</a></td>
-        </tr>
-        <tr class="even">
-        <td>Error shape</td>
-        <td><code>{ "error": "&lt;token&gt;", "message": "...", "timestamp": "..." }</code>
-        — one canonical shape; error token =
-        <code>HttpStatus.name().toLowerCase()</code>
-        (e.g. <code>bad_request</code>, <code>not_found</code>)</td>
-        </tr>
-        <tr class="odd">
-        <td>Link format</td>
-        <td>All cross-document links use <code>.md</code> extension
-        (Pandoc rewrites at build time)</td>
-        </tr>
-        </tbody>
-        </table>
+        <p>Verified empirically (2026-07-13): a local production build
+        places the Fly.io origin in the entry bundle; the deployed entry
+        bundle served from Koyeb does not contain it — the rewrite is
+        active and load-bearing.</p>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>Browser traffic is same-origin; the session cookie is
+        first-party and independent of third-party-cookie policy
+        changes.</li>
+        <li><code>SameSite=None</code> and the CORS allow-list remain
+        configured on the backend. They are not required by the proxied
+        path itself; they keep the <strong>direct</strong> Fly.io-origin
+        path functional (diagnostics, API tooling, and resilience if the
+        rewrite ever fails).</li>
+        <li><strong>Known fragility</strong>: <code>sub_filter</code>
+        only rewrites responses whose MIME type is listed in
+        <code>sub_filter_types</code>. Nginx’s bundled
+        <code>mime.types</code> maps <code>.js</code> to
+        <code>application/javascript</code> in older releases and
+        <code>text/javascript</code> in newer ones — a base-image bump
+        could silently stop the rewrite, flipping production back to the
+        direct cross-origin path. That path still works (previous
+        point), but the flip would be invisible without a check;
+        verifying the served bundle for the backend origin is the cheap
+        detection.</li>
+        </ul>
+        <h2 id="alternatives-considered">Alternatives considered</h2>
+        <ul>
+        <li><strong>Relative API base</strong> (empty
+        <code>VITE_API_BASE</code>): same-origin natively, no rewrite
+        needed; requires the OAuth2 redirect targets and any
+        absolute-URL assumptions to be revisited. Cleaner long-term; the
+        rewrite achieves the same result without touching the
+        build.</li>
+        <li><strong>Direct cross-origin only</strong> (ADR-0007 as-is):
+        simplest configuration, but exposed to third-party-cookie
+        restrictions.</li>
+        </ul>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#constraints" id="toc-constraints">§2 Constraints</a>
+      <li><a
+      href="#adr-0008-serve-time-api-base-rewrite-and-same-origin-proxy"
+      id="toc-adr-0008-serve-time-api-base-rewrite-and-same-origin-proxy">ADR-0008:
+      Serve-time API-base rewrite and same-origin proxy</a>
       <ul>
-      <li><a href="#technical-constraints"
-      id="toc-technical-constraints">Technical Constraints</a></li>
-      <li><a href="#organizational-constraints"
-      id="toc-organizational-constraints">Organizational
-      Constraints</a></li>
-      <li><a href="#conventions"
-      id="toc-conventions">Conventions</a></li>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives considered</a></li>
       </ul></li>
       </ul>
     </nav>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend · 05-building-blocks · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+    <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+    <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+    <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+    <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
+    <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+    <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+    <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+    <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+    <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="building-blocks">§5 Building Blocks</h1>
+        <h2 id="level-1-source-layers">Level 1 — Source Layers</h2>
+        <p>The SPA is organized feature-first with strict import
+        direction: domain pages never touch HTTP details, the API layer
+        never imports UI, and cross-cutting concerns are implemented
+        once (<a
+        href="09-decisions/adr-0001-frontend-folder-structure-strategy.html">ADR-0001</a>).</p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Layer</th>
+        <th>Path</th>
+        <th>Responsibility</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>App shell</td>
+        <td><code>frontend/src/app/</code></td>
+        <td>Application chrome: shells, header, sidebar, settings
+        surfaces</td>
+        </tr>
+        <tr class="even">
+        <td>Domain pages</td>
+        <td><code>frontend/src/pages/</code></td>
+        <td>One module per business area (see Level 2 below)</td>
+        </tr>
+        <tr class="odd">
+        <td>API layer</td>
+        <td><code>frontend/src/api/</code></td>
+        <td>Typed fetchers + React Query hooks behind a shared
+        <code>httpClient</code></td>
+        </tr>
+        <tr class="even">
+        <td>Global state</td>
+        <td><code>frontend/src/context/</code></td>
+        <td>Auth, settings, toast, and help providers</td>
+        </tr>
+        <tr class="odd">
+        <td>Cross-cutting features</td>
+        <td><code>frontend/src/features/</code></td>
+        <td>Auth guard, help trigger, health polling</td>
+        </tr>
+        <tr class="even">
+        <td>Shared</td>
+        <td><code>frontend/src/hooks|utils|i18n|theme/</code></td>
+        <td>Context-hook factory, debounce, formatters, locale + theme
+        setup</td>
+        </tr>
+        </tbody>
+        </table>
+        <div class="mermaid">
+        graph TB
+          Shell["app/ (shells + chrome)"] --> Pages["pages/ (domains)"]
+          Pages --> API["api/ (fetchers + query hooks)"]
+          Pages --> Features["features/ (guard, help, health)"]
+          Shell --> Context["context/ (auth, settings, toast, help)"]
+          Pages --> Context
+          Features --> Context
+          API --> HTTP["httpClient (Axios)"]
+        </div>
+        <h2 id="app-shell">App Shell</h2>
+        <p>Two shell variants keep public and authenticated experiences
+        separate (<a
+        href="09-decisions/adr-0005-shell-split-authenticated-vs-public.html">ADR-0005</a>):
+        the <strong>public shell</strong> wraps login/home/legal pages
+        with a minimal header, and the <strong>authenticated
+        shell</strong> provides the full chrome — fixed header,
+        responsive sidebar/drawer, and a main content
+        <code>&lt;Outlet /&gt;</code>. Both are thin orchestrators: they
+        coordinate state and delegate rendering to focused
+        sub-components.</p>
+        <p>Cross-cutting concerns owned at shell level:</p>
+        <ul>
+        <li><strong>Preferences</strong> — theme mode (light/dark) and
+        locale (DE/EN) are shell-owned, persisted in browser storage,
+        and synchronized with the i18n runtime, so chrome, pages, and
+        dialogs stay consistent without per-feature
+        reimplementation.</li>
+        <li><strong>Toasts</strong> — a shared context exposes
+        <code>toast(message, severity?)</code>
+        (success/info/warning/error); both shells provide it, so leaf
+        components trigger feedback without knowing which shell is
+        active.</li>
+        <li><strong>Settings</strong> — the authenticated shell owns the
+        settings-dialog open/close lifecycle; entry points live in the
+        shell chrome.</li>
+        <li><strong>Context help</strong> — the current route maps to a
+        help <code>topicId</code>, so the help panel always opens on
+        content relevant to the visible screen.</li>
+        </ul>
+        <h2 id="shared-ui-cross-cutting-features">Shared UI &amp;
+        Cross-cutting Features</h2>
+        <ul>
+        <li><strong>Shared components</strong>
+        (<code>components/ui/</code>) are small, domain-agnostic, and
+        accept renderable primitives — e.g. <code>StatCard</code> (KPI
+        card with loading skeleton and null-value em-dash). Anything
+        that grows domain-specific moves into its domain.</li>
+        <li><strong>Context-hook factory</strong>
+        (<code>hooks/createContextHook.ts</code>) builds typed hooks
+        that throw a clear error outside their provider;
+        <code>useAuth()</code>, <code>useSettings()</code>, and
+        <code>useHelp()</code> all share this pattern (<a
+        href="09-decisions/adr-0006-global-state-with-context-modules.html">ADR-0006</a>).</li>
+        <li><strong><code>useDebounced(value, delayMs)</code></strong>
+        paces input-driven queries (search, filters).</li>
+        <li><strong>Help system</strong> — a central topic registry
+        (<code>help/topics.ts</code>) maps <code>topicId</code> to i18n
+        keys; <code>HelpProvider</code> (context) holds open-state and
+        current topic; <code>HelpIconButton</code> (features) is the
+        uniform trigger. Help content is fully localized like all other
+        UI text.</li>
+        <li><strong>Health polling</strong>
+        (<code>features/health/</code>) — a lightweight hook polls the
+        backend <code>/api/health</code> endpoint (flat
+        <code>{status, database, databaseProduct, timestamp}</code>
+        contract, 200/503) for status surfaces.</li>
+        </ul>
+        <h2 id="level-2-domain-modules">Level 2 — Domain Modules</h2>
+        <p>Each business area is a self-contained module under
+        <code>frontend/src/pages/</code>; each has a dedicated level-2
+        document consolidating its orchestration, data flow, dialogs,
+        and rules. Until the level-2 files land, the staged legacy
+        topics remain the reference (links below will be updated in
+        place):</p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Domain</th>
+        <th>Responsibility</th>
+        <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Inventory</td>
+        <td>Item CRUD, quantity adjustment, price changes, stock
+        reasons</td>
+        <td><a
+        href="../old/architecture/domains/inventory/index.html">legacy
+        topics</a></td>
+        </tr>
+        <tr class="even">
+        <td>Suppliers</td>
+        <td>Supplier CRUD, search/display modes, active-stock delete
+        guard</td>
+        <td><a
+        href="../old/architecture/domains/suppliers/index.html">legacy
+        topics</a></td>
+        </tr>
+        <tr class="odd">
+        <td>Analytics</td>
+        <td>Chart/table blocks, filters with URL sync, supplier-gated
+        queries</td>
+        <td><a
+        href="../old/architecture/domains/analytics/index.html">legacy
+        topics</a></td>
+        </tr>
+        <tr class="even">
+        <td>Dashboard</td>
+        <td>KPI cards, movement mini-chart, navigation hub</td>
+        <td><a
+        href="../old/architecture/domains/dashboard/index.html">legacy
+        topics</a></td>
+        </tr>
+        <tr class="odd">
+        <td>Auth</td>
+        <td>Login, OAuth callback + session hydration, demo entry,
+        logout</td>
+        <td><a href="../old/architecture/domains/auth/index.html">legacy
+        topics</a></td>
+        </tr>
+        <tr class="even">
+        <td>Home</td>
+        <td>Public landing flow and demo entry point</td>
+        <td><a href="../old/architecture/domains/home/index.html">legacy
+        topics</a></td>
+        </tr>
+        <tr class="odd">
+        <td>System</td>
+        <td>Not-found and system pages</td>
+        <td><a
+        href="../old/architecture/domains/system/index.html">legacy
+        topics</a></td>
+        </tr>
+        </tbody>
+        </table>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#building-blocks" id="toc-building-blocks">§5
+      Building Blocks</a>
+      <ul>
+      <li><a href="#level-1-source-layers"
+      id="toc-level-1-source-layers">Level 1 — Source Layers</a></li>
+      <li><a href="#app-shell" id="toc-app-shell">App Shell</a></li>
+      <li><a href="#shared-ui-cross-cutting-features"
+      id="toc-shared-ui-cross-cutting-features">Shared UI &amp;
+      Cross-cutting Features</a></li>
+      <li><a href="#level-2-domain-modules"
+      id="toc-level-2-domain-modules">Level 2 — Domain Modules</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

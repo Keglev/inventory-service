@@ -137,11 +137,13 @@
         properties bean to SpEL as <code>@appProperties</code> — and it
         does not disable the security filter chain.</p>
         <p>Session cookies are <code>HttpOnly</code>,
-        <code>Secure=true</code>, <code>SameSite=None</code> (required
-        because Nginx on Koyeb proxies <code>/api/*</code> to Fly.io
-        across origins — <code>Strict</code> would drop the session
-        cookie on every cross-origin subrequest). CORS allowed origins
-        are configured per profile in
+        <code>Secure=true</code>, <code>SameSite=None</code>. With the
+        serve-time rewrite proxy active, browser traffic is same-origin
+        and the proxied path does not itself require <code>None</code>;
+        the attribute is retained to keep the direct Fly.io-origin path
+        functional (see <a
+        href="09-decisions/adr-0008-serve-time-api-base-rewrite.html">ADR-0008</a>).
+        CORS allowed origins are configured per profile in
         <code>AppProperties.cors.allowedOrigins</code> (default:
         <code>http://localhost:5173</code>; prod:
         <code>https://inventory-service.koyeb.app</code>).</p>

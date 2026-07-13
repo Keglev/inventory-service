@@ -124,9 +124,9 @@
         done by hand rather than with an annotation-processor framework,
         favouring explicit conversions that are straightforward to read
         and trace under a debugger. See <a
-        href="09-decisions/0002-manual-mapping-over-mapstruct.html">ADR
+        href="09-decisions/adr-0002-manual-mapping-over-mapstruct.html">ADR
         0002</a> and <a
-        href="09-decisions/0003-dto-boundary-no-entity-exposure.html">ADR
+        href="09-decisions/adr-0003-dto-boundary-no-entity-exposure.html">ADR
         0003</a>.</p>
         <h2 id="oauth2-rbac-security">OAuth2 / RBAC Security</h2>
         <p>Authentication delegates to Google OAuth2 via the
@@ -138,7 +138,7 @@
         <code>USER</code>) cover all current access-control
         requirements. The production database connection is passwordless
         via Oracle wallet (<code>cwallet.sso</code>). See <a
-        href="09-decisions/0001-oracle-wallet-autologin.html">ADR
+        href="09-decisions/adr-0001-oracle-wallet-autologin.html">ADR
         0001</a>.</p>
         <h2 id="http-status-as-the-response-envelope">HTTP Status as the
         Response Envelope</h2>
@@ -148,7 +148,7 @@
         <code>{ "error": "&lt;token&gt;", "message": "...", "timestamp": "..." }</code>,
         produced by a single <code>@ControllerAdvice</code> handler so
         the contract cannot drift per endpoint. See <a
-        href="09-decisions/0004-http-status-as-envelope.html">ADR
+        href="09-decisions/adr-0004-http-status-as-envelope.html">ADR
         0004</a>.</p>
         <h2 id="stateless-services-and-horizontal-scaling">Stateless
         Services and Horizontal Scaling</h2>
