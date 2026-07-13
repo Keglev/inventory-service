@@ -1,302 +1,150 @@
 # SmartSupplyPro
 
-**Enterprise Inventory Management System - Java Spring Boot & React**
+**Enterprise Inventory Management — Java 21 / Spring Boot 4.1 backend, React 19 / TypeScript frontend**
 
-## About
+![CI Backend](https://github.com/Keglev/inventory-service/actions/workflows/1-ci-test.yml/badge.svg)
+![CI Frontend](https://github.com/Keglev/inventory-service/actions/workflows/5-frontend-ci.yml/badge.svg)
 
-Complete enterprise-style full-stack application for Inventory & Supplier Management with comprehensive documentation, security architecture, and CI/CD integration.
+Manual inventory tracking in small manufacturing companies leads to stock discrepancies, blind spots in purchasing, and slow decisions. SmartSupplyPro replaces that with a full-stack system for inventory, supplier, and stock-history management — built from real purchasing and production-planning experience, to enterprise standards: OAuth2 authentication, versioned database migrations, a documented REST API, bilingual UI (EN/DE), and a CI/CD pipeline with published test coverage.
 
-## Description
-This project simulates a real-world software system for small-to-medium manufacturing companies, inspired by real job experience in purchasing and production planning. It includes modern technologies, OAuth2 authentication, automated CI/CD pipelines, comprehensive testing, and business intelligence visualizations.
-
-![CI Backend](https://github.com/Keglev/inventory-service/actions/workflows/ci-build.yml/badge.svg)  
-![CI Frontend](https://github.com/Keglev/inventory-service/actions/workflows/frontend-ci.yml/badge.svg)
-
-**📅 Last Updated:** March 24, 2026 - Added two more test files for the backend and updated the docs  
-**🏗️ Status:** 60,000+ words comprehensive documentation | Enterprise architecture | Working CI/CD pipeline
+**Live demo:** <https://inventory-service.koyeb.app> — click **Continue in Demo Mode** on the login page for read-only access with sample data. No account needed.
 
 ---
 
-## Table of contents
+## Table of Contents
 
-1. [Current App version](#Current App Version)
-2. [Screenshots](#screenshots)
-3. [Project status](#project-status)
-4. [Features](#features)
-5. [Security](#security)
-6. [Documentation](#documentation)
-  - [Architecture Overview](#architecture-overview)
-  - [API Integration Guides](#api-integration-guides)
-  - [API Documentation Hub](#api-documentation-hub)
-  - [API Endpoints](#api-endpoints)
-7. [Testing & Code quality](#testing-code-quality)
-8. [Tech stack](#tech-stack)
-9. [Environment profiles (Ci/CD)](#environment-profiles)
-10. [Available Scripts](#available-scripts)
-11. [Coming next](#coming-next)
-
-<a id="Current App Version"></a>
-## Current App Version
-
-> ⚠️ **Current App Version**
-> - Enterprise documentation is now complete
-> - Backend working and tests are about 85% coverage; Frontend working and 86% test coverage.
+1. [Technical Highlights](#technical-highlights)
+2. [Security](#security)
+3. [Screenshots](#screenshots)
+4. [Architecture & Documentation](#architecture--documentation)
+5. [Tech Stack](#tech-stack)
+6. [Quick Start](#quick-start)
+7. [Testing & Code Quality](#testing--code-quality)
+8. [CI/CD & Deployment](#cicd--deployment)
+9. [Roadmap](#roadmap)
+10. [Contact](#contact)
 
 ---
 
-<a id="screenshots"></a>
+## Technical Highlights
+
+- **Spring Boot 4.1 on Java 21** — migrated from Boot 3.5 / Java 17 (OpenRewrite-assisted), including the Jackson 3 port and JSpecify nullability annotations. The H2 test database is deliberately pinned to 2.3.232: Boot 4's managed 2.4.240 mis-validates Hibernate 7 converter CHECK constraints (h2database #4323) — the pin is documented and reversible.
+- **Weighted Average Cost (WAC) financial analytics** — stock valuation and financial summaries are computed with WAC rather than FIFO, matching how small manufacturers actually report inventory value.
+- **SAP-style soft delete with a zero-quantity gate** — inventory items are deactivated, never physically deleted; deletion is blocked (HTTP 409) until stock is zero, and the full stock history is retained as an append-only audit log.
+- **Single-path OAuth2 provisioning** — Google login (OAuth2/OIDC) provisions users through one authoritative service: find-or-create plus role-healing on every token load, with an admin allow-list. No duplicated provisioning logic across the OAuth2 and OIDC flows.
+- **Structured error contract** — all API errors return a consistent `{error, message, timestamp, fieldErrors?}` envelope from a layered `@ControllerAdvice` design (business handler ordered before the global handler, no type overlap).
+- **Flyway-versioned Oracle schema** — production uses `ddl-auto: none`; Flyway owns the Oracle Autonomous Database schema end to end, connecting through wallet-based auto-login (no runtime wallet password).
+- **Bilingual UI with strict i18n discipline** — full English/German localization with no in-code fallback strings; missing keys fail visibly instead of silently rendering English.
+- **Client-side demo mode** — a read-only demo path that requires no backend account, so reviewers can evaluate the UI in one click.
+
+---
+
+## Security
+
+- Google OAuth2 login with role-based access control (`ADMIN`, `USER`), enforced at method level via `@PreAuthorize` — not just at the route level.
+- Session-based authentication with a cross-origin cookie (`SameSite=None; Secure`) — deliberately not JWT: the backend is an OAuth2 login client, not a resource server, so no tokens are exposed to the browser.
+- Container images are scanned with Trivy in the CI pipeline before deployment.
+
+Provisioning design and the structured error contract are covered under [Technical Highlights](#technical-highlights); the full login flow is documented in the [Security Concepts (arc42 §8)](./docs/backend/architecture/08-concepts.md) and [ADR-0007: Cross-Origin Auth Cookie](./docs/backend/architecture/09-decisions/adr-0007-cross-origin-auth-cookie.md).
+
+---
+
 ## Screenshots
 
-<img src="./frontend/src/assets/project-image.png" alt="Analytics Dashboard" width="600" height="300"/>
+<img src="./frontend/src/assets/project-image.png" alt="Analytics dashboard overview" width="600" height="300"/>
 
-<img src="./frontend/src/assets/barchart.png" alt="Analytics Dashboard" width="600" height="300"/>
-
----
-
-<a id="project-status"></a>
-## Project status
-
-### ✅ Backend Development - Complete
-- ✅ 60,000+ words comprehensive documentation
-- ✅ Professional API documentation with TypeDoc, OpenAPI, and Redoc
-- ✅ Complete backend architecture with enterprise patterns
-- ✅ Working CI/CD pipeline for backend
-- ✅ Controller layer testing architecture complete
-
-### 🚧 Frontend Development - In Progress
-- ✅ React + TypeScript + Material-UI foundation
-- ✅ CI/CD pipeline working and automatically deployed
-- 🚧 Dashboard UI development ongoing
-- 🚧 CRUD operations implementation needed
-- 🚧 Frontend testing documentation needed
-
-### 📚 Documentation Status
-- ✅ Backend testing documentation complete
-- 🚧 Frontend testing documentation needed
-- 🚧 Complete integration testing documentation needed
+<img src="./frontend/src/assets/barchart.png" alt="Monthly stock movement bar chart" width="600" height="300"/>
 
 ---
 
-<a id="features"></a>
-## 🚀 Features
+## Architecture & Documentation
 
-### 🎯 Core Modules
-- ✅ **Authentication** with Google OAuth2 via Spring Security
-- 📦 **Inventory Management** – CRUD items, quantity tracking, stock history
-- 🧾 **Supplier Management** – CRUD supplier data, filtering by name  
-- 📊 **Analytics & Dashboard** – Visual insights including:
-  - Stock value over time
-  - Monthly stock movement
-  - Update frequency per item
-  - Low stock alerts
+- [Documentation Hub](https://keglev.github.io/inventory-service/) — landing page for all published docs
+- [Backend Architecture (arc42)](https://keglev.github.io/inventory-service/backend/architecture/overview.html) — layering, security concepts, deployment, and architecture decision records
+- [Frontend Architecture](https://keglev.github.io/inventory-service/frontend/architecture/overview.html) — SPA shell, routing, state management, and design system
+- [API Reference (ReDoc)](https://keglev.github.io/inventory-service/backend/api/index.html) — interactive OpenAPI documentation
+- [Security Concepts (arc42 §8)](./docs/backend/architecture/08-concepts.md) — OAuth2 authorization-code flow, session cookie strategy, role enforcement
+- [Building Blocks (arc42 §5)](./docs/backend/architecture/05-building-blocks.md) — layer structure and per-service responsibilities, including the WAC analytics design
 
 ---
 
-<a id="security"></a>
-## 🛡️ Security
+## Tech Stack
 
-- OAuth2 login with Google integration and role-based access (`ADMIN`, `USER`)
-- All `/api/**` endpoints are secured with Spring Security
-- Fine-grained access control using `@PreAuthorize` annotations
-- **Note**: Swagger is **not used** for security simplification - instead using TypeDoc, OpenAPI, and Redoc for API documentation
+**Backend**
+- Java 21, Spring Boot 4.1 (Spring Security, Spring Session, Spring Data JPA)
+- Oracle Autonomous Database (Always Free tier, wallet authentication)
+- Flyway migrations, Jackson 3, Lombok
+- JUnit 5, Mockito, JaCoCo
 
-### Key documents:
+**Frontend**
+- React 19, TypeScript, Vite
+- Material-UI (MUI), TanStack Query, React Hook Form + Zod
+- react-i18next (EN/DE), Recharts
+- Vitest, React Testing Library, TypeDoc
 
-- [OAuth2 Security Architecture](./docs/architecture/patterns/oauth2-security-architecture.md) — detailed OAuth2 and token flow
-- [Security Patterns](./docs/architecture/patterns/security-patterns.md) — common security patterns used across services
-- [Cross-Cutting Security](./docs/architecture/patterns/security-cross-cutting-patterns.md) — cross-cutting concerns and implementations
-
-<a id="documentation"></a>
-## 📘 Documentation
-
-<a id="architecture-overview"></a>
-### 🏗️ Architecture Overview
-
-- . [Index for Backend Documentation](https://keglev.github.io/inventory-service/architecture/index.html) — architecture landing with service catalog
-- . [Service Layer Overview](./docs/architecture/services/README.md) — service responsibilities and patterns
-- . [Design Patterns & Security](./docs/architecture/patterns/) — architecture patterns, security, and implementation
-
-<a id="api-integration-guides"></a>
-### 📡 API Integration Guides
-
-Comprehensive integration documentation for all backend layers:
-
-- . [Exception Handling](./docs/architecture/exceptions/) — comprehensive exception handling patterns *(25,000+ words)*
-- . [Mapper Patterns](./docs/architecture/mappers/) — mapping strategies and DTO patterns *(35,000+ words)*
-- . [Enum Business Logic](./docs/architecture/enums/) — domain enums and business rules
-- . [Configuration Patterns](./docs/architecture/patterns/) — configuration best practices and patterns
-- . [Refactoring Roadmap](./docs/architecture/refactoring/) — planned refactors and migration notes
-
-Service Documentation:
-
-- . [AnalyticsService](./docs/architecture/services/analytics-service.md) — Business insights, WAC algorithm (🔴 HIGH complexity)
-- . [InventoryItemService](./docs/architecture/services/inventory-item-service.md) — Inventory CRUD, stock history (🟡 MEDIUM complexity)
-- . [SupplierService](./docs/architecture/services/supplier-service.md) — Master data management (🟢 LOW complexity)
-- . [StockHistoryService](./docs/architecture/services/stock-history-service.md) — Append-only audit log (🟢 LOW complexity)
-- . [OAuth2 Services](./docs/architecture/services/oauth2-services.md) — Authentication integration (🟡 MEDIUM complexity)
-
-<a id="api-documentation-hub"></a>
- ### 🚀 API Documentation Hub
- 
- - [Complete API Documentation (ReDoc)](https://keglev.github.io/inventory-service/backend/api/index.html) — interactive API landing page
+**DevOps & Infrastructure**
+- GitHub Actions (numbered workflow pipeline: CI test, Docker build with Trivy scan, docs, deploy)
+- Docker multi-stage builds
+- Fly.io (backend), Koyeb (frontend), GitHub Pages (docs + coverage)
 
 ---
 
-<a id="testing-code-quality"></a>
-## 🧪 Testing & Code Quality
+## Quick Start
 
-**🚧 Still under construction** - Backend testing complete, frontend testing documentation needed
+Prerequisites: **JDK 21**, **Node 20+**, **Docker** (optional, for containerized runs).
 
-### 🧪 Backend Testing Architecture
-- **JUnit 5** with Mockito for comprehensive unit testing
-- **Testcontainers** for integration testing with Oracle database
-- **MockMvc** for controller layer testing with Spring Security integration
-- **JaCoCo** for code coverage analysis and reporting
+```bash
+# Backend (requires an Oracle ADB wallet + Google OAuth2 client; see note below)
+./mvnw spring-boot:run
 
-📊 **View Coverage Reports:**
-👉 [**Test Coverage for Backend (JaCoCo)**](https://keglev.github.io/inventory-service/backend/coverage/index.html)
+# Backend tests (run on an in-memory H2 database, no Oracle needed)
+./mvnw test
 
-📚 **Complete Testing Documentation:**
-👉 [**Testing Architecture Documentation**](./docs/architecture/testing/README.md) - Enterprise testing strategy and implementation guides
+# Frontend
+cd frontend
+npm install
+npm run dev        # development server
+npm run build      # production build
+npx vitest run     # test suite
+```
 
-> Coverage reports are automatically updated on every CI build and published via GitHub Pages.
-
-### 🚧 Frontend Testing (Still under construction)
-- Vitest for unit testing framework
-- React Testing Library for component testing  
-- TypeDoc for documentation generation
-- Coverage reports and documentation coming soon
-
----
-
-<a id="tech-stack"></a>
-## 🧰 Tech Stack 
-
-### Backend
-- **Java 17+** with **Spring Boot 3.5+**
-- **Spring Security** (OAuth2 + Role-based Access Control)
-- **Oracle Autonomous Database** (Free Tier with wallet connectivity)
-- **REST APIs** documented via OpenAPI YAML specifications
-- **Docker** containerization with multi-stage builds
-- **JUnit 5** + **Mockito**  for comprehensive testing
-
-### Frontend
-- **React 19** + **TypeScript** for type-safe development
-- **Material-UI (MUI)** for enterprise-grade component library
-- **Vite** for fast development and optimized builds
-- **Axios** for HTTP client with React Query for state management
-- **React Router** for SPA navigation
-- **Vitest** + **React Testing Library** for testing
-- **TypeDoc** for documentation generation
-
-### DevOps & Infrastructure
-- **GitHub Actions** for automated CI/CD pipelines
-- **Docker Compose** for local development environment
-- Fly.io for backend deployment with Oracle DB connectivity
-- Koyeb for frontend deployment with automated builds
-- **JaCoCo** + **GitHub Pages** for live test coverage reporting
+> **Note:** a full local backend run needs your own Oracle Autonomous Database wallet
+> (`TNS_ADMIN` pointing to the wallet directory) and a Google OAuth2 client ID.
+> The fastest way to evaluate the application is the [live demo](https://inventory-service.koyeb.app)
+> in demo mode — no setup required.
 
 ---
 
-<a id="environment-profiles"></a>
-## 🌐 Environment Profiles
+## Testing & Code Quality
 
-- `application-dev.yml` — Local development (auto-reload, detailed logging)
-- `application-prod.yml` — Production deployment (Docker + CI/CD)  
-- `application-test.yml` — Testing environment (unit + integration tests with Testcontainers)
-
-Oracle Wallet authentication is configured via environment variables for secure database access across all environments.
-
----
-
-## ✅ CI/CD
-
-**🚧 Still under construction** - CI/CD is working, documentation updates needed
-
-### 🔄 Automated Pipelines
-GitHub Actions automatically handle:
-
-**Backend CI/CD:**
-- ✅ Builds and tests Spring Boot application using Maven
-- ✅ Runs comprehensive test suite (unit tests)
-- ✅ Generates and publishes test coverage reports to GitHub Pages
-- ✅ Builds Docker image and pushes to DockerHub with security scanning
-- ✅ Automated deployment ready (manual trigger for Oracle IP restrictions)
-
-**Frontend CI/CD:**
-- ✅ Builds and tests React application with Vitest
-- ✅ Automatically deploys to Koyeb on successful builds
-- ✅ Health checks and smoke tests included
-
-<a id="available-scripts"></a>
-## Available Scripts
-
-Below are a few common commands used during development:
-
-- Backend (Maven): `./mvnw spring-boot:run`
-- Run tests: `./mvnw test`
-- Frontend (development): `npm run dev` (from `frontend/`)
-- Frontend (build): `npm run build` (from `frontend/`)
+- **Backend:** 589 tests — JUnit 5 + Mockito unit tests, `@WebMvcTest` controller slices with Spring Security integration, `@DataJpaTest` persistence tests on H2 in Oracle compatibility mode.
+- **Frontend:** 1,319 tests across 225 files — Vitest + React Testing Library, covering components, hooks, API fetchers, and i18n key resolution in both locales. Line coverage: ~86%.
+- **Coverage** is generated on every CI build and published:
+  - [Backend coverage (JaCoCo)](https://keglev.github.io/inventory-service/backend/coverage/index.html)
+  - [Frontend coverage (Vitest)](https://keglev.github.io/inventory-service/frontend/coverage/index.html)
+  - [Testing concepts (arc42 §8c)](./docs/backend/architecture/08c-concepts-testing.md)
 
 ---
 
-## Deployment
+## CI/CD & Deployment
 
-### CI/CD Pipeline Status
-**✅ CI/CD pipelines are working and operational**
+Each push to `main` runs the numbered GitHub Actions pipeline: build and test both stacks, generate and publish coverage, build the backend Docker image with a Trivy security scan, and deploy.
 
-**Backend Deployment:**
-1. **Automated CI/CD**: Push to main → Triggers build, test, and Docker image creation
-2. **Manual Production Deploy**: Due to Oracle free tier IP restrictions, backend deployment uses manual trigger:
-   ```bash
-   fly deploy
-   ```
-   This approach:
-   - ✅ Uses your whitelisted IP during local Docker build process
-   - ✅ Deploys via `fly.toml` configuration with `Dockerfile` and `scripts/start.sh` 
-   - ✅ No dependency on external Docker registry pulls
-   - ✅ Reliable deployment to: https://inventoryservice.fly.dev
+- **Frontend:** fully automated — push to `main` builds and deploys to Koyeb with health checks.
+- **Backend:** deliberately uses a manually triggered `fly deploy`. Oracle's Always Free tier requires IP whitelisting for database connections; building locally uses the whitelisted IP and the Fly.io VM provides a stable production IP, eliminating daily whitelist churn.
 
-**Frontend Deployment:**
-- ✅ **Fully Automated**: Push to main → Auto-build and deploy to Koyeb
-- ✅ **Live Application**: https://inventory-service.koyeb.app
-- ✅ **Health Checks**: Automated smoke tests and health monitoring
-
-### Live Application
-
-🌐 **Production URL**:[Inventory-service](https://inventory-service.koyeb.app/)
-
-### Why This Deployment Strategy Works
-- **Oracle Free Tier**: Requires IP whitelisting for database connections
-- **Fixed IP Solution**: Using Fly.io VM provides stable IP address
-- **Local Build**: Ensures build process uses your whitelisted IP
-- **No Daily IP Updates**: Eliminates need to constantly update Oracle IP whitelist
-
-### Production Environment
-- **Backend**: Spring Boot with `application-prod.yml` profile
-- **Database**: Oracle Autonomous DB with wallet-based authentication
-- **Security**: OAuth2 with Google integration
-- **Monitoring**: Health check endpoints and application logging
+**Live application:** <https://inventory-service.koyeb.app>
+**Backend API:** <https://inventoryservice.fly.dev>
 
 ---
 
-<a id="coming-next"></a>
-## 👀 Coming Next - Still Under Construction
+## Roadmap
 
-### 🚧 Frontend Development
-- **Dashboard UI**: Still developing comprehensive frontend dashboard
-- **CRUD Operations**: Still need to implement complete CRUD operations in frontend
-- **Dynamic Chart Filtering**: Advanced analytics visualization features
-
-### 🚧 Infrastructure Enhancements
-- **Jenkins Parallel CI**: No parallel CI pipeline implementation yet
-- **Advanced Monitoring**: Enhanced logging and monitoring capabilities
-
-### 🚧 Documentation
-- **Frontend Testing**: Complete frontend testing documentation needed
-- **Integration Guides**: Cross-system integration documentation
+- Event-driven stock updates: publish stock-change events to Kafka behind a feature flag, with a Testcontainers-verified consumer (architecture decision record to follow).
+- Frontend architecture documentation aligned to the arc42 format already used for the backend.
 
 ---
 
-📬 For questions or contributions, feel free to [open an issue](https://github.com/Keglev/inventory-service/issues).
+## Contact
 
+Questions or suggestions: [open an issue](https://github.com/Keglev/inventory-service/issues).
