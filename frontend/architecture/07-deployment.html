@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend · 07-deployment · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+    <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+    <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+    <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+    <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
+    <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+    <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+    <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+    <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+    <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="deployment-view">§7 Deployment View</h1>
+        <h2 id="build-pipeline">Build Pipeline</h2>
+        <p><code>npm run build</code> runs <code>tsc -b</code> then
+        <code>vite build</code>, emitting content-hashed assets under
+        <code>dist/</code>. The Vite config defines manual vendor chunks
+        per dependency family (React, MUI, router, forms/validation,
+        charts, i18n, utilities) so growth is attributable, with an 800
+        KB chunk-size warning limit acknowledging MUI’s weight. The
+        router loads pages eagerly — chunking is by vendor, not by route
+        (see <a href="06-runtime.html">§6</a>).</p>
+        <h2 id="container-delivery">Container &amp; Delivery</h2>
+        <p>A multi-stage Docker build (context = repo root, so
+        <code>ops/nginx/</code> travels with the frontend source):
+        dependency stage (<code>npm ci --legacy-peer-deps</code>), test
+        stage (vitest), build stage (<code>vite build</code>), and an
+        <code>nginx:1.27-alpine</code> runtime serving
+        <code>dist/</code> with both Nginx configs copied in.</p>
+        <p>Nginx delivery rules:</p>
+        <ul>
+        <li>SPA fallback (<code>try_files ... /index.html</code>) for
+        client-side routes.</li>
+        <li><code>/assets/*</code> cached one year,
+        <code>Cache-Control: public, immutable</code> — safe because
+        filenames are content-hashed; <code>index.html</code> is never
+        cached, so deployments propagate immediately.</li>
+        <li>gzip for text assets.</li>
+        <li><strong>Serve-time API-base rewrite + reverse
+        proxy</strong>: the build bakes the Fly.io origin into the
+        bundle; Nginx rewrites it to the frontend host as the bundle is
+        served and reverse-proxies <code>/api/*</code> and the OAuth2
+        paths to the backend, making browser traffic same-origin. Full
+        mechanism, verification, and fragility notes: <a
+        href="../../backend/architecture/09-decisions/adr-0008-serve-time-api-base-rewrite.html">ADR-0008
+        (backend)</a>.</li>
+        </ul>
+        <h2 id="hosting-cicd">Hosting &amp; CI/CD</h2>
+        <p>The container runs on <strong>Koyeb</strong>
+        (<code>https://inventory-service.koyeb.app</code>). Two numbered
+        workflows own the frontend:</p>
+        <ul>
+        <li><strong>5-frontend-ci</strong> — build and full Vitest suite
+        on every push to <code>main</code>.</li>
+        <li><strong>6-deploy-frontend</strong> — builds and deploys to
+        Koyeb via the Koyeb CLI, then polls the platform’s service
+        status (up to 60 attempts) until it reports healthy — more
+        reliable than probing the URL during edge propagation.</li>
+        </ul>
+        <p>Architecture and API documentation deploy separately via the
+        docs pipeline to GitHub Pages.</p>
+        <h2 id="runtime-caching-model">Runtime Caching Model</h2>
+        <p>The SPA’s application-level cache is TanStack React Query,
+        configured globally with
+        <code>refetchOnWindowFocus: false</code>, <code>retry: 1</code>,
+        and <code>staleTime: 60_000</code> (per-query overrides where
+        warranted — e.g. dashboard KPIs at 2 minutes, trend data around
+        5). Reads are gated (<code>enabled</code>) and typeahead inputs
+        debounced before entering query keys, keeping backend load
+        proportional to real user intent. Mutations invalidate only
+        their affected query families. HTTP-level caching is
+        deliberately not relied on for API data; static assets are the
+        Nginx/browser layer’s job as above.</p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#deployment-view" id="toc-deployment-view">§7
+      Deployment View</a>
+      <ul>
+      <li><a href="#build-pipeline" id="toc-build-pipeline">Build
+      Pipeline</a></li>
+      <li><a href="#container-delivery"
+      id="toc-container-delivery">Container &amp; Delivery</a></li>
+      <li><a href="#hosting-cicd" id="toc-hosting-cicd">Hosting &amp;
+      CI/CD</a></li>
+      <li><a href="#runtime-caching-model"
+      id="toc-runtime-caching-model">Runtime Caching Model</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

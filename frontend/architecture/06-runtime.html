@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frontend · index · Smart Supply Pro Docs</title>
+  <title>Frontend · 06-runtime · Smart Supply Pro Docs</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -95,21 +95,8 @@
 
     <main class="content" id="main">
       <article class="doc-body">
-        <h1 id="introduction-goals">§1 Introduction &amp; Goals</h1>
-        <p>Smart Supply Pro’s frontend is a React + TypeScript
-        single-page application providing the user experience for
-        inventory management, supplier workflows, and purchasing
-        analytics. This documentation follows the arc42 structure
-        already used by the <a
-        href="../../backend/architecture/index.html">backend
-        architecture docs</a>, so both halves of the system read the
-        same way.</p>
-        <h2 id="purpose">Purpose</h2>
-        <p>Give a reviewer or contributor a complete picture of how the
-        SPA is built: its constraints, context, structural building
-        blocks, runtime behavior, and the recorded reasoning behind
-        every significant decision.</p>
-        <h2 id="quality-goals">Quality Goals</h2>
+        <h1 id="runtime-view">§6 Runtime View</h1>
+        <h2 id="route-surface">Route Surface</h2>
         <table>
         <colgroup>
         <col style="width: 33%" />
@@ -118,137 +105,126 @@
         </colgroup>
         <thead>
         <tr class="header">
-        <th>Priority</th>
-        <th>Goal</th>
-        <th>Meaning here</th>
+        <th>Route</th>
+        <th>Group</th>
+        <th>Notes</th>
         </tr>
         </thead>
         <tbody>
         <tr class="odd">
-        <td>1</td>
-        <td>Correctness</td>
-        <td>UI state always reflects server truth; mutations invalidate
-        the right query caches</td>
+        <td><code>/</code></td>
+        <td>Public</td>
+        <td>Landing page (<a href="05-domains/home.html">§5.6</a>)</td>
         </tr>
         <tr class="even">
-        <td>2</td>
-        <td>Maintainability</td>
-        <td>Feature-first layering (ADR-0001); strict size and comment
-        standards; typed i18n keys</td>
+        <td><code>/login</code></td>
+        <td>Public</td>
+        <td>SSO + demo entry; <code>?error=</code> renders a banner</td>
         </tr>
         <tr class="odd">
-        <td>3</td>
-        <td>Testability</td>
-        <td>1,319 tests across 225 files (~86% line coverage); every
-        layer testable in isolation</td>
+        <td><code>/auth</code></td>
+        <td>Public</td>
+        <td>OAuth callback — verifies <code>/api/me</code>, then
+        <code>/dashboard</code></td>
         </tr>
         <tr class="even">
-        <td>4</td>
-        <td>Bilingual UX</td>
-        <td>Full EN/DE localization with no in-code fallback
-        strings</td>
+        <td><code>/logout</code>, <code>/logout-success</code></td>
+        <td>Public</td>
+        <td>Logout is public BY DESIGN (below)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/dashboard</code></td>
+        <td>Authenticated</td>
+        <td>KPI overview</td>
+        </tr>
+        <tr class="even">
+        <td><code>/inventory</code></td>
+        <td>Authenticated</td>
+        <td>Inventory board</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/suppliers</code></td>
+        <td>Authenticated</td>
+        <td>Suppliers board</td>
+        </tr>
+        <tr class="even">
+        <td><code>/analytics/:section?</code></td>
+        <td>Authenticated</td>
+        <td>Optional section segment for deep links</td>
+        </tr>
+        <tr class="odd">
+        <td><code>*</code></td>
+        <td>Either shell</td>
+        <td>Single catch-all NotFound page</td>
         </tr>
         </tbody>
         </table>
-        <h2 id="chapters">Chapters</h2>
-        <table>
-        <colgroup>
-        <col style="width: 33%" />
-        <col style="width: 33%" />
-        <col style="width: 33%" />
-        </colgroup>
-        <thead>
-        <tr class="header">
-        <th>Chapter</th>
-        <th>Content</th>
-        <th>Status</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="odd">
-        <td>§1 Introduction &amp; Goals</td>
-        <td>This page</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="02-constraints.html">§2 Constraints</a></td>
-        <td>Technology, organizational constraints, conventions</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="03-context.html">§3 Context &amp; Scope</a></td>
-        <td>System boundary, external systems, integration facts</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="04-solution-strategy.html">§4 Solution
-        Strategy</a></td>
-        <td>Key architectural approaches at a glance</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="05-building-blocks.html">§5 Building
-        Blocks</a></td>
-        <td>App shell, domain pages, API layer, shared UI</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="06-runtime.html">§6 Runtime</a></td>
-        <td>Routing, guards, key user flows</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="07-deployment.html">§7 Deployment</a></td>
-        <td>Build, Koyeb/Nginx delivery, frontend CI</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td>§8 Concepts</td>
-        <td>State, data access, i18n, theming, testing</td>
-        <td>In restructure — see <a
-        href="../old/architecture/index.html">legacy topics</a></td>
-        </tr>
-        <tr class="odd">
-        <td><a href="09-decisions/index.html">§9 Decisions
-        (ADRs)</a></td>
-        <td>Architecture decision records</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td>§10 Quality Requirements</td>
-        <td>Coverage gates, CI quality checks</td>
-        <td>Planned</td>
-        </tr>
-        <tr class="odd">
-        <td>§11 Risks &amp; Technical Debt</td>
-        <td>Known risks and tracked debt</td>
-        <td>Planned</td>
-        </tr>
-        <tr class="even">
-        <td>§12 Glossary</td>
-        <td>Domain and technical terms</td>
-        <td>Planned</td>
-        </tr>
-        </tbody>
-        </table>
-        <h2 id="sprache-language">Sprache / Language</h2>
-        <p>Ein deutschsprachiger Einstieg ist verfügbar: <a
-        href="index-de.html">Einführung &amp; Ziele (Deutsch)</a>.</p>
+        <p>Public routes render in the public shell, authenticated
+        routes in the app shell (<a
+        href="09-decisions/adr-0005-shell-split-authenticated-vs-public.html">ADR-0005</a>);
+        the router imports pages eagerly — no route-level code splitting
+        (a deliberate, revisitable choice; the page-module boundaries
+        are the seams if it comes).</p>
+        <h2 id="guard-semantics-requireauth">Guard Semantics
+        (RequireAuth)</h2>
+        <div class="mermaid">
+        graph TD
+          Start["Enter protected route"] --> Loading{"Auth loading?"}
+          Loading -->|yes| Spinner["Fallback (no flicker)"]
+          Loading -->|no| HasUser{"User present?"}
+          HasUser -->|no| Login["Navigate /login"]
+          HasUser -->|yes| Demo{"Demo user?"}
+          Demo -->|no| Allow["Render page"]
+          Demo -->|yes| Policy{"allowDemo?"}
+          Policy -->|yes| Allow
+          Policy -->|no| Redirect["Safe route"]
+        </div>
+        <p>Two subtleties: <code>logoutInProgress</code> is treated like
+        a loading state so the login page never flashes during teardown,
+        and demo users count as authenticated unless a route omits
+        <code>allowDemo</code>.</p>
+        <h2 id="session-expiry-logout-convergence">Session Expiry &amp;
+        Logout Convergence</h2>
+        <p>Session expiry never throws UI errors — the authenticated
+        shell’s <code>useSessionTimeout</code> heartbeat detects an
+        invalid session and navigates to <code>/logout</code>, where
+        cleanup and messaging live in exactly one place (React Query
+        cache clear, auth-state clear, top-level form POST to the
+        backend, then <code>/logout-success</code>).
+        <code>/logout</code> is public so the flow works even as the
+        session is already gone; storage events let multiple tabs
+        converge on the same logout.</p>
+        <h2 id="startup">Startup</h2>
+        <p>App start renders a global loading screen while
+        <code>AuthProvider</code> bootstraps (demo-session restore from
+        localStorage, else <code>GET /api/me</code>), preventing guard
+        flicker; only then do routes render. Full auth flows: <a
+        href="05-domains/auth.html">§5.5</a>.</p>
+        <h2 id="routing-contract-tests">Routing Contract Tests</h2>
+        <p>The routing invariants above (group membership, guard
+        redirects, 404 fallback, logout navigation) are protected by
+        contract-style tests in the central suite — changes to the route
+        tree fail loudly rather than silently altering navigation.</p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#introduction-goals" id="toc-introduction-goals">§1
-      Introduction &amp; Goals</a>
+      <li><a href="#runtime-view" id="toc-runtime-view">§6 Runtime
+      View</a>
       <ul>
-      <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
-      <li><a href="#quality-goals" id="toc-quality-goals">Quality
-      Goals</a></li>
-      <li><a href="#chapters" id="toc-chapters">Chapters</a></li>
-      <li><a href="#sprache-language" id="toc-sprache-language">Sprache
-      / Language</a></li>
+      <li><a href="#route-surface" id="toc-route-surface">Route
+      Surface</a></li>
+      <li><a href="#guard-semantics-requireauth"
+      id="toc-guard-semantics-requireauth">Guard Semantics
+      (RequireAuth)</a></li>
+      <li><a href="#session-expiry-logout-convergence"
+      id="toc-session-expiry-logout-convergence">Session Expiry &amp;
+      Logout Convergence</a></li>
+      <li><a href="#startup" id="toc-startup">Startup</a></li>
+      <li><a href="#routing-contract-tests"
+      id="toc-routing-contract-tests">Routing Contract Tests</a></li>
       </ul></li>
       </ul>
     </nav>
