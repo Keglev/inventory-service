@@ -45,7 +45,7 @@ Manual inventory tracking in small manufacturing companies leads to stock discre
 - Session-based authentication with a cross-origin cookie (`SameSite=None; Secure`) — deliberately not JWT: the backend is an OAuth2 login client, not a resource server, so no tokens are exposed to the browser.
 - Container images are scanned with Trivy in the CI pipeline before deployment.
 
-Provisioning design and the structured error contract are covered under [Technical Highlights](#technical-highlights); the full login flow is documented in the [Security Concepts (arc42 §8)](./docs/backend/architecture/08-concepts.md) and [ADR-0007: Cross-Origin Auth Cookie](./docs/backend/architecture/09-decisions/adr-0007-cross-origin-auth-cookie.md).
+Provisioning design and the structured error contract are covered under [Technical Highlights](#technical-highlights); the full login flow is documented in the [Security Concepts (arc42 §8)](https://keglev.github.io/inventory-service/backend/architecture/08-concepts.html) and [ADR-0007: Cross-Origin Auth Cookie](https://keglev.github.io/inventory-service/backend/architecture/09-decisions/adr-0007-cross-origin-auth-cookie.html).
 
 ---
 
@@ -63,8 +63,8 @@ Provisioning design and the structured error contract are covered under [Technic
 - [Backend Architecture (arc42)](https://keglev.github.io/inventory-service/backend/architecture/overview.html) — layering, security concepts, deployment, and architecture decision records
 - [Frontend Architecture](https://keglev.github.io/inventory-service/frontend/architecture/overview.html) — SPA shell, routing, state management, and design system
 - [API Reference (ReDoc)](https://keglev.github.io/inventory-service/backend/api/index.html) — interactive OpenAPI documentation
-- [Security Concepts (arc42 §8)](./docs/backend/architecture/08-concepts.md) — OAuth2 authorization-code flow, session cookie strategy, role enforcement
-- [Building Blocks (arc42 §5)](./docs/backend/architecture/05-building-blocks.md) — layer structure and per-service responsibilities, including the WAC analytics design
+- [Security Concepts (arc42 §8)](https://keglev.github.io/inventory-service/backend/architecture/08-concepts.html) — OAuth2 authorization-code flow, session cookie strategy, role enforcement
+- [Building Blocks (arc42 §5)](https://keglev.github.io/inventory-service/backend/architecture/05-building-blocks.html) — layer structure and per-service responsibilities, including the WAC analytics design
 
 ---
 
@@ -122,7 +122,7 @@ npx vitest run     # test suite
 - **Coverage** is generated on every CI build and published:
   - [Backend coverage (JaCoCo)](https://keglev.github.io/inventory-service/backend/coverage/index.html)
   - [Frontend coverage (Vitest)](https://keglev.github.io/inventory-service/frontend/coverage/index.html)
-  - [Testing concepts (arc42 §8c)](./docs/backend/architecture/08c-concepts-testing.md)
+  - [Testing concepts (arc42 §8c)](https://keglev.github.io/inventory-service/backend/architecture/08c-concepts-testing.html)
 
 ---
 
