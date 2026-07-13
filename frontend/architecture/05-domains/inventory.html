@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend · 05-domains/inventory · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+    <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+    <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+    <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+    <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
+    <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+    <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+    <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+    <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+    <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="inventory-domain">§5.1 Inventory Domain</h1>
+        <p>Supplier-scoped item management under
+        <code>frontend/src/pages/inventory/</code>: browse, filter, and
+        mutate items through dialog workflows (<a
+        href="../09-decisions/adr-0004-dialog-workflow-architecture.html">ADR-0004</a>).</p>
+        <h2 id="orchestration-state">Orchestration &amp; State</h2>
+        <p><code>InventoryBoard.tsx</code> is the page orchestrator: it
+        instantiates domain state, assembles handlers and data, owns
+        dialog visibility, and renders the select-a-supplier prompt
+        until a supplier is chosen. <code>useInventoryState</code> is
+        the single source of truth for filters (<code>supplierId</code>,
+        <code>q</code>, <code>belowMinOnly</code>), MUI DataGrid
+        pagination/sort models, row selection, and per-dialog open
+        flags. Handler hooks stay thin and encode the reset invariants:
+        changing supplier clears selection and query and resets to page
+        0; toggling below-minimum resets paging; the refresh handler
+        resets paging and bumps a refetch signal.</p>
+        <h2 id="data-fetching-filtering">Data Fetching &amp;
+        Filtering</h2>
+        <p><code>handlers/useDataFetchingLogic.ts</code> adapts UI state
+        to server parameters: DataGrid’s 0-based page becomes the
+        backend’s 1-based page, and the sort model serializes to
+        <code>"&lt;field&gt;,&lt;direction&gt;"</code> (default
+        <code>name,asc</code>). Loading is gated on a selected supplier.
+        Because <code>GET /api/inventory/search</code> accepts only
+        <code>name</code>, the domain applies client-side filters after
+        the page loads: a supplier-id safety-net filter,
+        case-insensitive name search, and the below-minimum filter
+        (<code>onHand &lt; min</code>, defaulting the threshold when
+        absent). Supplier options come from the shared suppliers query,
+        independent of the selection.</p>
+        <h2 id="dialog-workflows">Dialog Workflows</h2>
+        <p><code>InventoryDialogs</code> is a pure switchboard receiving
+        open/close props, the selected row, and <code>isDemo</code> for
+        read-only enforcement. The flows:</p>
+        <ul>
+        <li><strong>Create</strong> (<code>ItemFormDialog</code>) —
+        create-only; no edit mode is wired (the dialog receives no
+        initial values anywhere in the app). Requires name + supplier;
+        quantity/price non-negative; reason limited to
+        <code>INITIAL_STOCK</code>/<code>MANUAL_UPDATE</code>.</li>
+        <li><strong>Rename</strong> (<code>EditItemDialog</code>) — the
+        ONLY edit operation: guided supplier → item → new-name flow,
+        admin-gated, name unique per supplier, produces no stock-history
+        row.</li>
+        <li><strong>Adjust quantity</strong>
+        (<code>QuantityAdjustDialog</code>) — supplier → item → new
+        quantity → reason; submit disabled without an item; honors
+        <code>readOnly</code>.</li>
+        <li><strong>Change price</strong>
+        (<code>PriceChangeDialog</code>) — supplier → item → new price
+        (&gt; 0); honors <code>readOnly</code>.</li>
+        <li><strong>Delete</strong> (<code>DeleteItemDialog</code>) —
+        two-step (form, then warning confirmation); admin-gated; the
+        backend enforces the zero-quantity gate (409 otherwise) and
+        performs a soft delete retaining full stock history.</li>
+        </ul>
+        <p>Every dialog reports success through a callback the board
+        wires to one reload handler, so the table refreshes after any
+        mutation.</p>
+        <h2 id="validation-authorization">Validation &amp;
+        Authorization</h2>
+        <p>Zod schemas in <code>validation/inventoryValidation.ts</code>
+        cover all five flows client-side; the backend remains the source
+        of truth for authorization (rename/delete are ADMIN) and
+        business invariants (uniqueness, zero-quantity gate). Demo mode
+        short-circuits mutations before any request is sent.</p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#inventory-domain" id="toc-inventory-domain">§5.1
+      Inventory Domain</a>
+      <ul>
+      <li><a href="#orchestration-state"
+      id="toc-orchestration-state">Orchestration &amp; State</a></li>
+      <li><a href="#data-fetching-filtering"
+      id="toc-data-fetching-filtering">Data Fetching &amp;
+      Filtering</a></li>
+      <li><a href="#dialog-workflows" id="toc-dialog-workflows">Dialog
+      Workflows</a></li>
+      <li><a href="#validation-authorization"
+      id="toc-validation-authorization">Validation &amp;
+      Authorization</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

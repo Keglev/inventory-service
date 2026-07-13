@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend · 05-domains/suppliers · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+    <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+    <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+    <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+    <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
+    <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+    <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+    <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+    <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+    <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="suppliers-domain">§5.2 Suppliers Domain</h1>
+        <p>Supplier master data under
+        <code>frontend/src/pages/suppliers/</code>: search-first
+        browsing and CRUD dialogs with an active-stock delete guard.</p>
+        <h2 id="search-display-modes">Search &amp; Display Modes</h2>
+        <p>The board avoids rendering a large table by default.
+        <code>SuppliersSearchPanel</code> offers a type-ahead
+        (2-character minimum) whose dropdown renders only while results
+        exist and nothing is selected; selecting a result pins the table
+        to a single-row display, sets the selection (enabling
+        edit/delete), and resets paging. An explicit “show all
+        suppliers” toggle switches to the paginated list. Search
+        selection takes precedence over the toggle; with neither active,
+        the table stays hidden behind a placeholder.</p>
+        <h2 id="data-access">Data Access</h2>
+        <p>The list fetcher is deliberately tolerant: it accepts
+        multiple response envelope shapes and returns an empty page on
+        network errors, so the board keeps rendering under partial
+        backend failure. <code>GET /api/suppliers</code> returns a bare
+        JSON array (no Spring Page);
+        <code>/api/suppliers/search?name=</code> backs the
+        type-ahead.</p>
+        <h2 id="dialog-workflows">Dialog Workflows</h2>
+        <p><code>SuppliersDialogs</code> is pure composition around
+        three dialogs (<a
+        href="../09-decisions/adr-0004-dialog-workflow-architecture.html">ADR-0004</a>):</p>
+        <ul>
+        <li><strong>Create</strong> (<code>CreateSupplierDialog</code>)
+        — React Hook Form + Zod; name required; contact name/phone/email
+        optional and stored as <code>null</code> when empty (email
+        validated when provided). Duplicate-name errors map
+        heuristically onto the name field.</li>
+        <li><strong>Edit</strong> (<code>EditSupplierDialog</code>) —
+        guided flow: search/select → edit contact fields → review a
+        change summary → confirm. The client form deliberately excludes
+        the supplier name; the backend PUT does accept renames (with a
+        uniqueness check), so immutability here is a frontend form
+        decision, not a backend rule.</li>
+        <li><strong>Delete</strong> (<code>DeleteSupplierDialog</code>)
+        — search/select → confirm; physical delete behind the backend’s
+        active-stock guard (blocked while active items exist).
+        Admin-gated, enforced both client-side in the form hook and
+        server-side.</li>
+        </ul>
+        <h2 id="error-handling-open-items">Error Handling &amp; Open
+        Items</h2>
+        <p>The supplier form hooks currently match free-text server
+        messages (including the German ‘verknüpften’ variant) to
+        classify errors; migrating to the structured
+        <code>{error, message, timestamp}</code> contract is tracked
+        (CB-APP100), as are the shared help-icon extraction (ST-APP29)
+        and theme-token migration (CB-APP99) noted in the dialog
+        sources. Unlike Inventory, the supplier dialogs do not take a
+        <code>readOnly</code> prop; demo restriction relies on backend
+        authorization.</p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#suppliers-domain" id="toc-suppliers-domain">§5.2
+      Suppliers Domain</a>
+      <ul>
+      <li><a href="#search-display-modes"
+      id="toc-search-display-modes">Search &amp; Display Modes</a></li>
+      <li><a href="#data-access" id="toc-data-access">Data
+      Access</a></li>
+      <li><a href="#dialog-workflows" id="toc-dialog-workflows">Dialog
+      Workflows</a></li>
+      <li><a href="#error-handling-open-items"
+      id="toc-error-handling-open-items">Error Handling &amp; Open
+      Items</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>
