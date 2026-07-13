@@ -75,7 +75,7 @@ vi.mock('../../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeFor
 const usePriceChangeFormMock = vi.mocked(usePriceChangeForm);
 
 type FormStateOverrides = Partial<
-  Pick<UsePriceChangeFormReturn, 'selectedItem' | 'handleClose' | 'formState'>
+  Pick<UsePriceChangeFormReturn, 'selectedItem' | 'handleClose' | 'formState' | 'onSubmit'>
 >;
 
 /**
@@ -244,5 +244,54 @@ describe('PriceChangeDialog', () => {
     render(<PriceChangeDialog {...defaultProps()} />);
 
     expect(screen.getByTestId('apply-price-change-button')).toBeEnabled();
+  });
+
+  it('delegates submission to the orchestration hook when Apply is clicked', async () => {
+    const user = userEvent.setup();
+
+    const onSubmit = vi.fn(async () => {}) as UsePriceChangeFormReturn['onSubmit'];
+    usePriceChangeFormMock.mockReturnValue(
+      makeFormState({ selectedItem: makeItem(), onSubmit }),
+    );
+
+    render(<PriceChangeDialog {...defaultProps()} />);
+
+    await user.click(screen.getByTestId('apply-price-change-button'));
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates Escape-key dialog dismissal to the orchestration hook', async () => {
+    const user = userEvent.setup();
+
+    const handleClose = vi.fn();
+    usePriceChangeFormMock.mockReturnValue(makeFormState({ handleClose }));
+
+    render(<PriceChangeDialog {...defaultProps()} />);
+
+    await user.keyboard('{Escape}');
+
+    expect(handleClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the saving label and progress indicators while submitting', () => {
+    usePriceChangeFormMock.mockReturnValue(
+      makeFormState({
+        selectedItem: makeItem(),
+        formState: {
+          ...makeFormState().formState,
+          isSubmitting: true,
+        },
+      }),
+    );
+
+    render(<PriceChangeDialog {...defaultProps()} />);
+
+    expect(screen.getByText('common:actions.saving')).toBeInTheDocument();
+    // Inline button spinner plus the centered overlay spinner.
+    expect(screen.getAllByRole('progressbar')).toHaveLength(2);
+    expect(
+      screen.queryByText('inventory:buttons.applyPriceChange'),
+    ).not.toBeInTheDocument();
   });
 });
