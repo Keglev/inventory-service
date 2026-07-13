@@ -1,0 +1,14 @@
+diff --git a/docs/frontend/architecture/02-constraints.md b/docs/frontend/architecture/02-constraints.md
+index 1a9a50e..32bbae6 100644
+--- a/docs/frontend/architecture/02-constraints.md
++++ b/docs/frontend/architecture/02-constraints.md
+@@ -7,7 +7,8 @@
+ | Language | TypeScript (strict) | 6.x |
+ | UI framework | React | 19.1 |
+ | Build tool | Vite | 7.x |
+-| Component library | MUI (Material UI) + Emotion | 7.x |
++| Component library | MUI (Material UI) | 7.x |
++| CSS-in-JS | Emotion | 11.x |
+ | Server state | TanStack React Query | 5.x |
+ | HTTP client | Axios | 1.x |
+ | Routing | React Router | 7.x |
