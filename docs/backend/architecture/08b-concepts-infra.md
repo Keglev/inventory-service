@@ -28,13 +28,17 @@ In production, HikariCP is tuned for Fly.io's RAM constraints: `maximum-pool-siz
 
 ## Persistence
 
-All JPA entities carry exactly two audit fields:
+All JPA entities carry exactly two audit fields — `createdBy` (plain `String`, the
+authenticated user's email from `SecurityContext`, set in the service layer before
+`save()`; not a foreign key to `AppUser`) and `createdAt` (`LocalDateTime`, set
+immutably at creation):
 
-- `createdBy` — plain `String` (the authenticated user's email from `SecurityContext`,
-  set in the service layer before `save()`). Not a foreign key to `AppUser`.
-- `createdAt` — `LocalDateTime`, set immutably at creation: via `@CreationTimestamp`
-  on `Supplier`; via `@PrePersist` on `InventoryItem` and `StockHistory`; via field
-  initialiser on `AppUser`.
+| Entity | `createdAt` mechanism |
+|---|---|
+| `Supplier` | `@CreationTimestamp` |
+| `InventoryItem` | `@PrePersist` |
+| `StockHistory` | `@PrePersist` |
+| `AppUser` | Field initialiser |
 
 There is no `updatedAt`, no `updatedBy`, and no `@Version` field on any entity.
 `StockHistory` records are immutable by design and are never updated after insertion.
@@ -50,13 +54,14 @@ mappings (`ddl-auto=validate`); applied migration files are immutable — checks
 any edit to an applied file a startup failure, so data changes always ship as a new
 migration.
 
-**Soft delete** — `InventoryItem` rows are never physically deleted. Deletion is gated
-by a business rule: the item's quantity must be zero, so remaining stock must first be
-removed through audited quantity adjustments — otherwise the request fails with 409.
-A permitted delete sets `active=false` (Flyway V5); active-catalog reads filter on the
-flag, while stock-history joins intentionally do not, preserving the audit trail. The flag is
-stored as `NUMBER(1)` via a `NumericBooleanConverter` so the same mapping works on
-Oracle and on H2 in Oracle-compatibility mode.
+**Soft delete** — `InventoryItem` rows are never physically deleted:
+
+| Rule | Behaviour |
+|---|---|
+| Gate | Quantity must be zero; remaining stock is first removed through audited quantity adjustments, otherwise 409 |
+| Delete | Sets `active=false` (Flyway V5) |
+| Reads | Active-catalog reads filter on the flag; stock-history joins intentionally do NOT, preserving the audit trail |
+| Storage | `NUMBER(1)` via `NumericBooleanConverter` — same mapping works on Oracle and on H2 in Oracle-compatibility mode |
 
 See [§5 Repository Layer](05-building-blocks.md#repository-layer).
 

@@ -2,71 +2,95 @@
 
 ## Controller Layer
 
-Eleven `@RestController` classes form the HTTP boundary, grouped by domain path (a twelfth class, `RootRedirectController`, is a plain `@Controller` that redirects the site root).
-`SupplierController` (`/api/suppliers`) handles full CRUD for suppliers.
-`InventoryItemController` (`/api/inventory`) handles create, read, delete, and list;
-`InventoryItemPatchController` (same path) handles price and quantity patch operations
-separately to keep each class focused. `StockHistoryController` (`/api/stock-history`)
-exposes paginated read and search. Five analytics controllers share `/api/analytics`: `AnalyticsController` (dashboard and financial summaries), `StockAnalyticsController` (stock-per-supplier, low-stock, movement), `StockUpdateAnalyticsController` (stock update query and post), `StockReasonAnalyticsController` (update-reason breakdown), and `EmployeeAnalyticsController` (per-employee update analytics). `HealthCheckController` (`/api/health`) reports application and database health: the
-database ping runs live on every request (503 when it fails, designed for Oracle Free
-Tier auto-pausing); only the JDBC product name is cached after the first successful ping.
-`AuthController` (`/api`) exposes `/auth/me` and logout.
-Every mutating endpoint carries `@PreAuthorize`; inbound DTOs are validated with JSR-380
-(`@Valid`) before reaching the service layer. Controllers perform DTO conversion and
-response building — no business logic lives here.
+Eleven `@RestController` classes form the HTTP boundary, grouped by domain path; a
+twelfth class, `RootRedirectController`, is a plain `@Controller` that redirects the
+site root.
+
+| Controller | Base path | Responsibility |
+|---|---|---|
+| `SupplierController` | `/api/suppliers` | Full supplier CRUD |
+| `InventoryItemController` | `/api/inventory` | Create, read, delete, list |
+| `InventoryItemPatchController` | `/api/inventory` | Price and quantity patch operations (kept separate to keep each class focused) |
+| `StockHistoryController` | `/api/stock-history` | Paginated read and search |
+| `AnalyticsController` | `/api/analytics` | Dashboard and financial summaries |
+| `StockAnalyticsController` | `/api/analytics` | Stock-per-supplier, low-stock, movement |
+| `StockUpdateAnalyticsController` | `/api/analytics` | Stock update query and post |
+| `StockReasonAnalyticsController` | `/api/analytics` | Update-reason breakdown |
+| `EmployeeAnalyticsController` | `/api/analytics` | Per-employee update analytics |
+| `HealthCheckController` | `/api/health` | Application and database health |
+| `AuthController` | `/api` | `/auth/me` and logout |
+| `RootRedirectController` | `/` | Site-root redirect (plain `@Controller`) |
+
+The health endpoint runs the database ping live on every request (503 when it fails,
+designed for Oracle Free Tier auto-pausing); only the JDBC product name is cached
+after the first successful ping. Every mutating endpoint carries `@PreAuthorize`;
+inbound DTOs are validated with JSR-380 (`@Valid`) before reaching the service layer.
+Controllers perform DTO conversion and response building — no business logic lives
+here.
 
 ## Service Layer
 
-Business logic and transaction boundaries live in four service interfaces and their
-implementations: `SupplierService`, `InventoryItemService`, `StockHistoryService`, and
-`AnalyticsService` (implemented by `AnalyticsServiceImpl`, with `StockAnalyticsService`
-and `FinancialAnalyticsService` as focused sub-services for WAC and stock-movement
-calculations). `UserProvisioningService` is the single authoritative provisioner for OAuth2 logins: `CustomOAuth2UserService` and `CustomOidcUserService` delegate to it at token load, and it finds or creates the user and heals the role against the admin allow-list on every login. All service interfaces are constructor-injected; every
-state-mutating operation is wrapped in `@Transactional`.
+Business logic and transaction boundaries live in the service tier. All service
+interfaces are constructor-injected; every state-mutating operation is wrapped in
+`@Transactional`.
+
+| Service | Responsibility |
+|---|---|
+| `SupplierService` | Supplier business rules and orchestration |
+| `InventoryItemService` | Item lifecycle, uniqueness, soft-delete gating |
+| `StockHistoryService` | Audit-trail writes and paginated reads |
+| `AnalyticsService` (`AnalyticsServiceImpl`) | Facade over the analytics sub-services |
+| `StockAnalyticsService` | Stock-movement calculations (sub-service) |
+| `FinancialAnalyticsService` | Weighted-average-cost (WAC) calculations (sub-service) |
+| `UserProvisioningService` | Single authoritative OAuth2 provisioner |
+
+`UserProvisioningService` is called at token load by `CustomOAuth2UserService` and
+`CustomOidcUserService`; it finds or creates the user and heals the role against the
+admin allow-list on every login.
 
 ## Repository Layer
 
-`SupplierRepository`, `InventoryItemRepository`, and `StockHistoryRepository` are
-Spring Data JPA interfaces that cover the core domain. `InventoryItemRepository`
-declares `@EntityGraph(attributePaths = {"supplier"})` on both `findAll()` and
-`searchActiveItems()` to eager-load the supplier association in a single JOIN,
-preventing N+1 queries on the two hot list paths. Complex analytics aggregations that
-exceed what JPQL can express cleanly are handled by three custom repository
-implementations: `StockDetailQueryRepositoryImpl`, `StockMetricsRepositoryImpl`, and
-`StockTrendAnalyticsRepositoryImpl`, each backed by dedicated SQL builders in
-`repository/custom/util/`. `AppUserRepository` is written only by
-`UserProvisioningService` (OAuth2 provisioning); it is additionally read by
-`AuthController` (`/auth/me`) and `EmployeeAnalyticsService` (display names), but
-does not participate in the domain mutation flow.
+| Repository | Kind | Notes |
+|---|---|---|
+| `SupplierRepository` | Spring Data JPA | Core domain |
+| `InventoryItemRepository` | Spring Data JPA | `@EntityGraph(attributePaths = {"supplier"})` on `findAll()` and `searchActiveItems()` eager-loads the supplier in one JOIN, preventing N+1 on the two hot list paths |
+| `StockHistoryRepository` | Spring Data JPA | Core domain |
+| `AppUserRepository` | Spring Data JPA | Written only by `UserProvisioningService`; read by `AuthController` (`/auth/me`) and `EmployeeAnalyticsService` (display names); outside the domain mutation flow |
+| `StockDetailQueryRepository` + `Impl` | Custom analytics | Dialect-specific SQL |
+| `StockMetricsRepository` + `Impl` | Custom analytics | Dialect-specific SQL; static `StockMetricsSqlBuilder` |
+| `StockTrendAnalyticsRepository` + `Impl` | Custom analytics | Dialect-specific SQL |
 
-**Analytics/reporting repositories** with custom implementations —
-`StockDetailQueryRepository`, `StockMetricsRepository`,
-`StockTrendAnalyticsRepository` (each with a `*Impl`), plus the static
-`StockMetricsSqlBuilder` — form a distinct group. These build dialect-specific SQL
-(H2 in tests, Oracle in prod) selected at runtime via `DatabaseDialectDetector`, and
-return either raw `Object[]` tuples mapped to DTOs in the service layer or, in two
-cases, typed projections (`StockEventRowDTO`, `PriceTrendDTO`). See ADR-0006.
+The three custom analytics implementations handle aggregations that exceed what JPQL
+can express cleanly, backed by dedicated SQL builders in `repository/custom/util/`.
+They build dialect-specific SQL (H2 in tests, Oracle in prod) selected at runtime via
+`DatabaseDialectDetector`, and return either raw `Object[]` tuples mapped to DTOs in
+the service layer or, in two cases, typed projections (`StockEventRowDTO`,
+`PriceTrendDTO`). See ADR-0006.
 
 ## Model Layer
 
-Four JPA entities map to Oracle tables: `Supplier` (table `SUPPLIER`), `InventoryItem`
-(table `INVENTORY_ITEM`), `StockHistory` (table `STOCK_HISTORY`), and `AppUser` (table
-`users_app`). All entities carry exactly two audit fields: `createdBy` (plain `String`,
-not a FK) and `createdAt` (`LocalDateTime`). There is no `@Version`, no optimistic
-locking, and no `updatedAt`. `StockHistory.reason` is typed as `StockChangeReason`
-(11 values, stored as `STRING`); `AppUser.role` is typed as `Role` (`ADMIN` / `USER`,
-stored as `STRING`).
+| Entity | Table | Typed fields |
+|---|---|---|
+| `Supplier` | `SUPPLIER` | — |
+| `InventoryItem` | `INVENTORY_ITEM` | `active` flag (soft delete) |
+| `StockHistory` | `STOCK_HISTORY` | `reason`: `StockChangeReason` (11 values, stored as `STRING`) |
+| `AppUser` | `users_app` | `role`: `Role` (`ADMIN` / `USER`, stored as `STRING`) |
+
+All entities carry exactly two audit fields: `createdBy` (plain `String`, not a FK)
+and `createdAt` (`LocalDateTime`). There is no `@Version`, no optimistic locking, and
+no `updatedAt`.
 
 ## Cross-cutting
 
-`SecurityConfig` and its helper split-classes (`SecurityFilterHelper`,
-`SecurityAuthorizationHelper`, `SecurityEntryPointHelper`) configure the Spring Security
-filter chain, OAuth2 login, and CORS. `OAuth2LoginSuccessHandler` performs the post-login redirect (provisioning already
-happened at token load in the user services); `CookieOAuth2AuthorizationRequestRepository`
-serialises OAuth2 state into an HTTP-only cookie. All exceptions funnel through two
-`@ControllerAdvice` handlers: `GlobalExceptionHandler` for framework exceptions and
-`BusinessExceptionHandler` for domain exceptions (`DuplicateResourceException`,
-`InvalidRequestException`). Both produce a three-field `ErrorResponse`:
+| Component | Role |
+|---|---|
+| `SecurityConfig` + `SecurityFilterHelper`, `SecurityAuthorizationHelper`, `SecurityEntryPointHelper` | Spring Security filter chain, OAuth2 login, CORS |
+| `OAuth2LoginSuccessHandler` | Post-login redirect (provisioning already happened at token load in the user services) |
+| `CookieOAuth2AuthorizationRequestRepository` | Serialises OAuth2 state into an HTTP-only cookie |
+| `GlobalExceptionHandler` | `@ControllerAdvice` for framework exceptions |
+| `BusinessExceptionHandler` | `@ControllerAdvice` for domain exceptions (`DuplicateResourceException`, `InvalidRequestException`) |
+
+Both exception handlers produce a three-field `ErrorResponse`:
 `{ "error": "...", "message": "...", "timestamp": "..." }` where `error` is
 `HttpStatus.name().toLowerCase()`.
 

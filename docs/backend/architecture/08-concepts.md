@@ -2,40 +2,41 @@
 
 ## Security
 
-Authentication uses the OAuth2 Authorization Code flow with Google as the sole identity
-provider. The code exchange is server-to-server; the browser never sees a token.
-`CookieOAuth2AuthorizationRequestRepository` serialises the OAuth2 state parameter into
-an HTTP-only cookie (`OAUTH2_AUTH_REQUEST`, TTL 180 s, configurable via
-`AppProperties.Cookie`). User provisioning happens at token load: `CustomOAuth2UserService` and
-`CustomOidcUserService` call `UserProvisioningService.provision(email, name, isAdmin)`
-— the single authoritative provisioner — which finds or creates the `AppUser` and
-heals its role against the admin allow-list on every login. `OAuth2LoginSuccessHandler`
-then only validates the principal attributes and redirects to
-`AppProperties.frontend.baseUrl + landingPath`.
+Authentication uses the OAuth2 Authorization Code flow with Google as the sole
+identity provider. The code exchange is server-to-server; the browser never sees a
+token.
 
-The two lifecycle edges are handled explicitly. On OAuth2 failure, a dedicated
-failure handler (`OAuth2Config`) logs the cause and redirects the browser to the
-frontend login page with `?error=oauth` instead of surfacing a raw Spring error page.
-Logout is `POST /api/auth/logout`, which invalidates the server-side session and
-clears the session cookie; the frontend then returns the user to the login view.
+```mermaid
+%%{init: {"flowchart": {"useMaxWidth": false}}}%%
+flowchart TD
+  A["Browser starts login"] --> B["CookieOAuth2AuthorizationRequestRepository stores OAuth2 state in HTTP-only cookie (OAUTH2_AUTH_REQUEST, TTL 180s)"]
+  B --> C["Google authenticates — code exchange server-to-server"]
+  C --> D["Token load: CustomOAuth2UserService / CustomOidcUserService"]
+  D --> E["UserProvisioningService.provision(email, name, isAdmin) — find or create AppUser, heal role against admin allow-list"]
+  E --> F["OAuth2LoginSuccessHandler validates principal, redirects to frontend baseUrl + landingPath"]
+  C -->|failure| G["Failure handler (OAuth2Config): log cause, redirect to frontend login with ?error=oauth"]
+  F --> H["Session established (cookie)"]
+  H -->|"POST /api/auth/logout"| I["Server session invalidated, session cookie cleared — frontend returns to login view"]
+```
 
-Two roles — `ADMIN` (full CRUD, analytics) and `USER` (read + basic stock ops) — are
-stored as `STRING` on `AppUser.role`. Every mutating endpoint carries `@PreAuthorize`;
-the frontend hides UI elements, but the backend enforces each rule independently and
-does not trust the client's claimed role.
+Provisioning happens at token load — `UserProvisioningService` is the single
+authoritative provisioner, and role healing runs on every login.
 
-**Demo mode**: `AppProperties.isDemoReadonly` (env `APP_DEMO_READONLY`, default `true`
-in prod) permits unauthenticated read access. The flag is evaluated inside the
-`@PreAuthorize` SpEL expression on each endpoint — `SecuritySpelBridgeConfig` exposes
-the properties bean to SpEL as `@appProperties` — and it does not disable the security
-filter chain.
+| Role | Rights |
+|---|---|
+| `ADMIN` | Full CRUD, analytics |
+| `USER` | Read + basic stock ops |
 
-Session cookies are `HttpOnly`, `Secure=true`, `SameSite=None`. With the serve-time
-rewrite proxy active, browser traffic is same-origin and the proxied path does not
-itself require `None`; the attribute is retained to keep the direct Fly.io-origin
-path functional (see [ADR-0008](09-decisions/adr-0008-serve-time-api-base-rewrite.md)). CORS allowed origins are configured per
-profile in `AppProperties.cors.allowedOrigins`
-(default: `http://localhost:5173`; prod: `https://inventory-service.koyeb.app`).
+Roles are stored as `STRING` on `AppUser.role`. Every mutating endpoint carries
+`@PreAuthorize`; the frontend hides UI elements, but the backend enforces each rule
+independently and does not trust the client's claimed role.
+
+| Setting | Value | Why |
+|---|---|---|
+| OAuth2 state cookie | `OAUTH2_AUTH_REQUEST`, HTTP-only, TTL 180 s | Configurable via `AppProperties.Cookie` |
+| Session cookie | `HttpOnly`, `Secure=true`, `SameSite=None` | Same-origin behind the serve-time rewrite proxy; `None` retained so the direct Fly.io-origin path stays functional ([ADR-0008](09-decisions/adr-0008-serve-time-api-base-rewrite.md)) |
+| CORS allowed origins | dev `http://localhost:5173`; prod `https://inventory-service.koyeb.app` | Per profile in `AppProperties.cors.allowedOrigins` |
+| Demo mode | `AppProperties.isDemoReadonly` (env `APP_DEMO_READONLY`, default `true` in prod) | Permits unauthenticated read access; evaluated inside `@PreAuthorize` SpEL (`SecuritySpelBridgeConfig` exposes `@appProperties`); does NOT disable the security filter chain |
 
 See [§5 Cross-cutting](05-building-blocks.md#cross-cutting).
 
