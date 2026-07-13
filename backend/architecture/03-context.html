@@ -123,8 +123,9 @@
         <tr class="odd">
         <td>React SPA (frontend)</td>
         <td>Primary client — all user interaction</td>
-        <td>REST over HTTPS; HTTP-only session cookie; same origin in
-        production via Nginx reverse proxy</td>
+        <td>REST over HTTPS, <strong>cross-origin</strong> (Koyeb →
+        Fly.io); HTTP-only session cookie with
+        <code>SameSite=None; Secure</code></td>
         </tr>
         <tr class="even">
         <td>Google OAuth2</td>
@@ -172,8 +173,8 @@
         <ul>
         <li>Spring Boot backend (<code>/src</code>) — REST API, business
         logic, security, persistence</li>
-        <li>React frontend (<code>/frontend</code>) — SPA served via
-        Nginx on the same Fly.io host</li>
+        <li>React frontend (<code>/frontend</code>) — SPA served as a
+        static build behind Nginx on Koyeb</li>
         </ul>
         <p><strong>Outside</strong> (external, not controlled by this
         project):</p>
@@ -188,13 +189,18 @@
         <li><strong>Token handling</strong>: the OAuth2 code exchange is
         backend-to-backend; the frontend never receives or stores a
         token. The backend issues an HTTP-only,
-        <code>SameSite=Strict</code> session cookie; the browser
+        <code>SameSite=None;   Secure</code> session cookie; the browser
         includes it automatically on every subsequent request.</li>
-        <li><strong>Same origin in production</strong>: frontend and
-        backend share <code>app.fly.dev</code>. Nginx proxies
-        <code>/api/</code> to the backend on
-        <code>localhost:8080</code>, so no CORS headers are needed in
-        production and cookies work natively.</li>
+        <li><strong>Cross-origin in production</strong>: the SPA on
+        Koyeb calls the Fly.io origin directly
+        (<code>VITE_API_BASE</code>), so CORS allow-lists the Koyeb
+        origin and the session cookie uses
+        <code>SameSite=None; Secure</code> — see <a
+        href="09-decisions/adr-0007-cross-origin-auth-cookie.html">ADR
+        0007</a>. Koyeb’s Nginx also ships proxy locations for
+        <code>/api/</code> and the OAuth2 paths, providing a same-origin
+        fallback topology that the deployed SPA does not currently
+        use.</li>
         <li><strong>Local development</strong>: Vite’s dev server
         proxies <code>/api</code> to <code>localhost:8080</code>; Spring
         Security CORS is enabled for <code>localhost:3000</code> only in
