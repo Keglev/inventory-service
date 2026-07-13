@@ -136,26 +136,32 @@
         <td>Logout is public BY DESIGN (below)</td>
         </tr>
         <tr class="odd">
+        <td><code>/impressum</code>, <code>/datenschutz</code></td>
+        <td>Public</td>
+        <td>Static legal pages, reachable from every page via the
+        footer</td>
+        </tr>
+        <tr class="even">
         <td><code>/dashboard</code></td>
         <td>Authenticated</td>
         <td>KPI overview</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>/inventory</code></td>
         <td>Authenticated</td>
         <td>Inventory board</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>/suppliers</code></td>
         <td>Authenticated</td>
         <td>Suppliers board</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>/analytics/:section?</code></td>
         <td>Authenticated</td>
         <td>Optional section segment for deep links</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>*</code></td>
         <td>Public</td>
         <td>Single catch-all NotFound page (renders in the public
