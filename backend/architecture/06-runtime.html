@@ -73,6 +73,7 @@
     <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
     <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
     <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
     <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
     <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
     <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
@@ -361,6 +362,7 @@
         flips the <code>active</code> flag; all stock history survives
         and the item’s SKU stays reserved by the unique constraint.</p>
         <div class="mermaid">
+        %%{init: {"sequence": {"useMaxWidth": false}}}%%
         sequenceDiagram
             participant Client
             participant SF as Spring Security Filter
