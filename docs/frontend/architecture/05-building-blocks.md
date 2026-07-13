@@ -108,6 +108,7 @@ and rules:
 | Dashboard | KPI cards, movement mini-chart, navigation hub | [§5.4](05-domains/dashboard.md) |
 | Auth | Login, OAuth callback + session hydration, demo entry, logout | [§5.5](05-domains/auth.md) |
 | Home | Public landing flow and demo entry point | [§5.6](05-domains/home.md) |
+| Legal | Static Impressum and Datenschutz pages | — (no dedicated chapter; see [§6 Route Surface](06-runtime.md#route-surface)) |
 | System | Not-found and system pages | [§5.7](05-domains/system.md) |
 
 

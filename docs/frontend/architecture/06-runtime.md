@@ -8,6 +8,7 @@
 | `/login` | Public | SSO + demo entry; `?error=` renders a banner |
 | `/auth` | Public | OAuth callback — verifies `/api/me`, then `/dashboard` |
 | `/logout`, `/logout-success` | Public | Logout is public BY DESIGN (below) |
+| `/impressum`, `/datenschutz` | Public | Static legal pages, reachable from every page via the footer |
 | `/dashboard` | Authenticated | KPI overview |
 | `/inventory` | Authenticated | Inventory board |
 | `/suppliers` | Authenticated | Suppliers board |
