@@ -73,6 +73,6 @@ Examples:
   - Dialog rendering and interaction: `frontend/src/__tests__/app/pages/<domain>/*` or dialog-specific tests.
 
 ## References
-- Architecture docs: [Domains](../../old/architecture/domains/index.md)
-- Diagram: [Domains overview](../../old/architecture/diagrams/domains/domains-overview.md)
+- Architecture docs: [Building Blocks (§5)](../05-building-blocks.md)
+- Diagram: [Domain page orchestration](../05-building-blocks.md#domain-page-orchestration)
 - Related ADRs: ADR-0003

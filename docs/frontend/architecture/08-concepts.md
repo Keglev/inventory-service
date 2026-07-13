@@ -26,6 +26,28 @@ App-level providers wrap routing and shells; the toast provider intentionally
 lives in the shells. Access is uniformly through `createContextHook`-built hooks
 that throw outside their provider.
 
+## Provider Composition
+
+Bootstrap wiring as it exists in `main.tsx` and `App.tsx`. Router and Query
+provider sit outermost; auth wraps the app; help and settings live inside `App`
+(help state is global, only the themed panel renders inside the shells); the
+toast provider is intentionally shell-scoped — each shell supplies its own
+implementation via `ToastContext.Provider`.
+
+```mermaid
+graph TB
+  Strict["React.StrictMode"] --> BR["BrowserRouter"]
+  BR --> QC["QueryClientProvider"]
+  QC --> Auth["AuthProvider"]
+  Auth --> App["App"]
+  App --> Help["HelpProvider"]
+  Help --> Settings["SettingsProvider"]
+  Settings --> Router["AppRouter"]
+  Router --> Shells["AppPublicShell / AppShell"]
+  Shells --> Toast["ToastContext.Provider (shell-scoped)"]
+  Shells --> Pages["Pages"]
+```
+
 ## Data Access Layering
 
 Pages and components call **React Query hooks** (`src/api/**/hooks`), which call
@@ -45,6 +67,24 @@ UI never imports Axios directly; fetchers never import UI
   redirects; active demo sessions never redirect (demo has no server session, so
   401s are expected there). Everything else navigates to `/login` — feature code
   contains zero redirect logic.
+
+## HTTP 401 Redirect Flow
+
+The central interceptor decision path, exactly as implemented in
+`src/api/httpClient.ts`:
+
+```mermaid
+flowchart TD
+  A["Axios response error"] --> B{"status == 401?"}
+  B -->|no| Z["Reject error (caller handles)"]
+  B -->|yes| C{"Demo session active?"}
+  C -->|yes| Z
+  C -->|no| D{"On public page? (/, /login*, /auth*, /logout*)"}
+  D -->|yes| Z
+  D -->|no| E{"Request is the /api/me probe?"}
+  E -->|yes| Z
+  E -->|no| F["window.location.assign('/login')"]
+```
 
 ## Tolerant Parsing & Errors
 

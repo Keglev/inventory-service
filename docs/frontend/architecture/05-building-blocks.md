@@ -26,6 +26,33 @@ graph TB
   API --> HTTP["httpClient (Axios)"]
 ```
 
+## Module Map
+
+The full top-level module map with intended dependency direction. Pages consume
+stable hooks and components — never Axios details; cross-cutting features stay
+reusable through contexts and hooks.
+
+```mermaid
+graph TD
+  Shell["app/ (shells + chrome)"] --> Pages["pages/ (domain modules)"]
+  Pages --> UI["components/ (shared UI)"]
+  Pages --> Features["features/ (guard, help, health)"]
+  Pages --> API["api/ (fetchers + query hooks)"]
+  Pages --> Hooks["hooks/ (reusable hooks)"]
+  Features --> Ctx["context/ (auth, settings, toast, help)"]
+  Features --> Hooks
+  Features --> UI
+  Shell --> Ctx
+  Ctx --> Utils["utils/ (pure utilities)"]
+  API --> Utils
+  API --> Http["api/httpClient.ts (Axios)"]
+  Http --> Backend["Backend API"]
+  Router["routes/ (AppRouter)"] --> Shell
+  I18n["i18n/"] --> Locales["public/locales/ (JSON resources)"]
+  Theme["theme/"] --> UI
+  Styles["styles/ (global CSS)"] --> UI
+```
+
 ## App Shell
 
 Two shell variants keep public and authenticated experiences separate
@@ -81,3 +108,28 @@ and rules:
 | Auth | Login, OAuth callback + session hydration, demo entry, logout | [§5.5](05-domains/auth.md) |
 | Home | Public landing flow and demo entry point | [§5.6](05-domains/home.md) |
 | System | Not-found and system pages | [§5.7](05-domains/system.md) |
+
+
+## Domain Page Orchestration
+
+Every domain follows the same "page orchestrator" shape: one board component owns
+the wiring; state, handlers, queries, presentational components, and dialogs are
+separate concerns it composes. This keeps domain pages predictable, testable, and
+refactorable — the analytics extractions and the inventory hook split both fell out
+of this shape naturally.
+
+```mermaid
+graph LR
+  Page["Domain page (board / orchestrator)"] --> State["State hooks (filters, UI state)"]
+  Page --> Handlers["Handler hooks (search, dialog open/close)"]
+  Page --> Queries["Data hooks (React Query)"]
+  Page --> UI["Presentational components (tables, charts, cards)"]
+  Page --> Dialogs["Dialog containers (create/edit/delete)"]
+  Queries --> API["Domain API (fetchers/mutations)"]
+  API --> Http["httpClient"]
+  Http --> Backend["Backend API"]
+  State --> Queries
+  Handlers --> State
+  Handlers --> Dialogs
+  Dialogs --> API
+```

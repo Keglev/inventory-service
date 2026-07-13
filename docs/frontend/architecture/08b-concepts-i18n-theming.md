@@ -19,6 +19,21 @@ locale files; silent English is treated as a bug. Help content follows the same
 rule — topics registered in `help/topics.ts` resolve `help:<topicId>.title/body`
 keys. Dev builds expose the instance on `window.i18next` for debugging.
 
+## i18n Boot Flow
+
+```mermaid
+flowchart TD
+  Boot["import 'src/i18n' (side effect)"] --> Saved{"localStorage i18nextLng exists?"}
+  Saved -->|yes| Lng["Use saved language"]
+  Saved -->|no| SetDe["Pre-seed i18nextLng = 'de' (German-first)"]
+  SetDe --> Lng
+  Lng --> Init["i18n.init()"]
+  Init --> Detect["Detector order: localStorage, querystring, navigator"]
+  Init --> Backend["i18next-http-backend"]
+  Backend --> Load["Load BASE_URL locales/{lng}/{ns}.json"]
+  Load --> Ready["All namespaces available — useTranslation() renders"]
+```
+
 ## Theming
 
 `buildTheme(locale, mode)` in `src/theme/index.ts` is the single factory: token

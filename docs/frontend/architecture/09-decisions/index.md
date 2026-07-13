@@ -1,7 +1,7 @@
 [⬅️ Back to Frontend Architecture Index](../index.md)
 
-- [Back to Overview (English)](../../old/architecture/overview.md)
-- [Zurück zum Überblick (Deutsch)](../../old/architecture/overview-de.md)
+- [Back to Overview (English)](../overview.md)
+- [Zurück zum Überblick (Deutsch)](../overview-de.md)
 
 # Architecture Decision Records (ADRs)
 

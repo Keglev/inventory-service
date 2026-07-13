@@ -80,6 +80,6 @@ We centralize i18n configuration and keep language/region controls in the settin
   - i18n initialization and typing expectations: `frontend/src/__tests__/unit/i18n/*`.
 
 ## References
-- Architecture docs: [Internationalization (i18n)](../../old/architecture/i18n/index.md), [Theme & Styling](../../old/architecture/theming/index.md)
-- Diagram: [i18n boot flow](../../old/architecture/diagrams/i18n/i18n-boot-flow.md)
+- Architecture docs: [i18n & Theming Concepts (§8b)](../08b-concepts-i18n-theming.md)
+- Diagram: [i18n boot flow](../08b-concepts-i18n-theming.md#i18n-boot-flow)
 - Related ADRs: ADR-0006

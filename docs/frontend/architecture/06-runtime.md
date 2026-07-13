@@ -12,12 +12,37 @@
 | `/inventory` | Authenticated | Inventory board |
 | `/suppliers` | Authenticated | Suppliers board |
 | `/analytics/:section?` | Authenticated | Optional section segment for deep links |
-| `*` | Either shell | Single catch-all NotFound page |
+| `*` | Public | Single catch-all NotFound page (renders in the public shell) |
 
 Public routes render in the public shell, authenticated routes in the app shell
 ([ADR-0005](09-decisions/adr-0005-shell-split-authenticated-vs-public.md)); the
 router imports pages eagerly — no route-level code splitting (a deliberate,
 revisitable choice; the page-module boundaries are the seams if it comes).
+
+## Routing Flow
+
+End-to-end navigation decisions: auth bootstrap gates route rendering, unknown
+paths fall through to the catch-all inside the public shell, and the NotFound
+page offers an action button that adapts to auth state (`/dashboard` when a user
+is present, `/login` otherwise) — no automatic redirect.
+
+```mermaid
+flowchart TD
+  Start(["URL entered / navigation"]) --> Boot{"Auth bootstrap loading?"}
+  Boot -->|yes| Screen["LoadingScreen (routes not rendered)"]
+  Boot -->|no| Match{"Route matches?"}
+  Match -->|no| NotFound["NotFoundPage (catch-all, public shell)"]
+  NotFound --> Action["Action button: /dashboard if user, /login otherwise"]
+  Match -->|yes| Kind{"Public route?"}
+  Kind -->|yes| Public["Render in public shell (/, /login, /auth, /logout-success, legal pages)"]
+  Kind -->|no| Guard{"RequireAuth allows?"}
+  Guard -->|no| Login["Navigate /login"]
+  Guard -->|yes| Authed["Render AppShell + page"]
+  Authed --> Calls["API calls"]
+  Calls --> U401{"401?"}
+  U401 -->|yes| Central["httpClient central redirect (exemptions apply — §8)"]
+  U401 -->|no| Authed
+```
 
 ## Guard Semantics (RequireAuth)
 

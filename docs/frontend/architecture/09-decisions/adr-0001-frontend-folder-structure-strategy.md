@@ -78,6 +78,6 @@ We intentionally keep these architecture boundaries **stable** and document them
   - Tests mirror architecture boundaries under `frontend/src/__tests__/*`.
 
 ## References
-- Architecture docs: [Domains](../../old/architecture/domains/index.md), [Data Access](../../old/architecture/data-access/index.md), [UI & UX Building Blocks](../../old/architecture/ui/index.md)
-- Diagram: [Frontend module map](../../old/architecture/diagrams/system/module-map.md)
+- Architecture docs: [Building Blocks (§5)](../05-building-blocks.md), [State & Data Access (§8)](../08-concepts.md)
+- Diagram: [Module map](../05-building-blocks.md#module-map)
 - Related ADRs: ADR-0002, ADR-0003, ADR-0006
