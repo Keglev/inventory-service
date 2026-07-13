@@ -117,8 +117,9 @@
         general-purpose state library is used (<a
         href="09-decisions/adr-0006-global-state-with-context-modules.html">ADR-0006</a>).</p>
         <h2 id="typed-api-layer">Typed API Layer</h2>
-        <p>A single Axios <code>httpClient</code> carries the
-        cross-origin credentials policy; per-domain modules
+        <p>A single Axios <code>httpClient</code> sends credentials on
+        every call (the effective API origin is decided at serve time —
+        see <a href="03-context.html">§3</a>); per-domain modules
         (<code>api/inventory</code>, <code>api/suppliers</code>,
         <code>api/analytics</code>, <code>api/shared</code>) expose
         typed fetchers and React Query hooks. Fetchers normalize backend

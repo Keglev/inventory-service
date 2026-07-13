@@ -123,9 +123,11 @@
         <tr class="odd">
         <td>Spring Boot API (Fly.io)</td>
         <td>Sole data source</td>
-        <td>REST/JSON over HTTPS, <strong>cross-origin</strong> (Koyeb →
-        Fly.io); session carried by an HTTP-only cookie with
-        <code>SameSite=None; Secure</code></td>
+        <td>REST/JSON over HTTPS; the browser calls the <strong>Koyeb
+        origin</strong> — Nginx rewrites the built API base at serve
+        time and reverse-proxies <code>/api/*</code> to Fly.io; session
+        carried by an HTTP-only <code>Secure</code> cookie re-domained
+        by the proxy</td>
         </tr>
         <tr class="even">
         <td>Google OAuth2</td>
@@ -154,7 +156,7 @@
 
             User     -->|"HTTPS"| SPA
             Reviewer -->|"HTTPS, no login"| SPA
-            SPA      -->|"REST / JSON\ncross-origin cookie\n(SameSite=None; Secure)"| Backend
+            SPA      -->|"REST / JSON\nsame-origin via Nginx proxy\n(serve-time base-URL rewrite)"| Backend
             SPA      -->|"redirect (login)"| OAuth
             OAuth    -->|"Authorization Code"| Backend
             Backend  -->|"302 to /auth"| SPA
@@ -175,14 +177,19 @@
         Pages.</p>
         <h2 id="key-integration-facts">Key Integration Facts</h2>
         <ul>
-        <li><strong>Cross-origin session</strong>: frontend
-        (<code>inventory-service.koyeb.app</code>) and backend
-        (<code>inventoryservice.fly.dev</code>) are different origins.
-        The session cookie is issued with
-        <code>SameSite=None; Secure</code>, and all API calls send
-        credentials. Rationale and alternatives: <a
+        <li><strong>Same-origin via serve-time rewrite</strong>: the
+        build bakes the Fly.io origin into the bundle
+        (<code>VITE_API_BASE</code>), and Koyeb’s Nginx rewrites it to
+        the frontend host as the bundle is served
+        (<code>sub_filter</code>), then reverse-proxies
+        <code>/api/*</code> and the OAuth2 paths to Fly.io — so browser
+        traffic stays on one origin and the session cookie is
+        re-domained by the proxy. The backend also keeps
+        <code>SameSite=None</code> plus a CORS allow-list permitting
+        direct calls to the Fly.io origin; that earlier direct
+        cross-origin design is documented in <a
         href="../../backend/architecture/09-decisions/adr-0007-cross-origin-auth-cookie.html">ADR-0007
-        (backend)</a>.</li>
+        (backend)</a>, which predates the rewrite.</li>
         <li><strong>No tokens in the browser</strong>: the SPA never
         receives, stores, or forwards an OAuth token. Authentication
         state is read from a <code>/api/me</code>-style session
