@@ -66,6 +66,11 @@ if (menu) {
     en.href = path; de.href = dir + "overview-de.html"; current(en);
   } else if (file === "overview-de.html") {
     en.href = dir + "overview.html"; de.href = path; current(de);
+  } else if (file === "index.html" && (dir === base + "/frontend/architecture/" || dir === base + "/backend/architecture/")) {
+    // The two arc42 section-1 pages are translated; deep indexes elsewhere are not.
+    en.href = path; de.href = dir + "index-de.html"; current(en);
+  } else if (file === "index-de.html" && (dir === base + "/frontend/architecture/" || dir === base + "/backend/architecture/")) {
+    en.href = dir + "index.html"; de.href = path; current(de);
   } else {
     // English-only page: there is no German twin, so EN stays active and DE is
     // shown disabled (greyed, not clickable) rather than sending the reader off

@@ -198,6 +198,7 @@ A permitted delete flips the `active` flag; all stock history survives and the i
 SKU stays reserved by the unique constraint.
 
 ```mermaid
+%%{init: {"sequence": {"useMaxWidth": false}}}%%
 sequenceDiagram
     participant Client
     participant SF as Spring Security Filter
