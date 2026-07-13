@@ -154,8 +154,9 @@
         </tr>
         <tr class="odd">
         <td><code>*</code></td>
-        <td>Either shell</td>
-        <td>Single catch-all NotFound page</td>
+        <td>Public</td>
+        <td>Single catch-all NotFound page (renders in the public
+        shell)</td>
         </tr>
         </tbody>
         </table>
@@ -165,6 +166,30 @@
         the router imports pages eagerly — no route-level code splitting
         (a deliberate, revisitable choice; the page-module boundaries
         are the seams if it comes).</p>
+        <h2 id="routing-flow">Routing Flow</h2>
+        <p>End-to-end navigation decisions: auth bootstrap gates route
+        rendering, unknown paths fall through to the catch-all inside
+        the public shell, and the NotFound page offers an action button
+        that adapts to auth state (<code>/dashboard</code> when a user
+        is present, <code>/login</code> otherwise) — no automatic
+        redirect.</p>
+        <div class="mermaid">
+        flowchart TD
+          Start(["URL entered / navigation"]) --> Boot{"Auth bootstrap loading?"}
+          Boot -->|yes| Screen["LoadingScreen (routes not rendered)"]
+          Boot -->|no| Match{"Route matches?"}
+          Match -->|no| NotFound["NotFoundPage (catch-all, public shell)"]
+          NotFound --> Action["Action button: /dashboard if user, /login otherwise"]
+          Match -->|yes| Kind{"Public route?"}
+          Kind -->|yes| Public["Render in public shell (/, /login, /auth, /logout-success, legal pages)"]
+          Kind -->|no| Guard{"RequireAuth allows?"}
+          Guard -->|no| Login["Navigate /login"]
+          Guard -->|yes| Authed["Render AppShell + page"]
+          Authed --> Calls["API calls"]
+          Calls --> U401{"401?"}
+          U401 -->|yes| Central["httpClient central redirect (exemptions apply — §8)"]
+          U401 -->|no| Authed
+        </div>
         <h2 id="guard-semantics-requireauth">Guard Semantics
         (RequireAuth)</h2>
         <div class="mermaid">
@@ -216,6 +241,8 @@
       <ul>
       <li><a href="#route-surface" id="toc-route-surface">Route
       Surface</a></li>
+      <li><a href="#routing-flow" id="toc-routing-flow">Routing
+      Flow</a></li>
       <li><a href="#guard-semantics-requireauth"
       id="toc-guard-semantics-requireauth">Guard Semantics
       (RequireAuth)</a></li>

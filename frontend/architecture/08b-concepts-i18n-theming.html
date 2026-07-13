@@ -121,6 +121,19 @@
         <code>help:&lt;topicId&gt;.title/body</code> keys. Dev builds
         expose the instance on <code>window.i18next</code> for
         debugging.</p>
+        <h2 id="i18n-boot-flow">i18n Boot Flow</h2>
+        <div class="mermaid">
+        flowchart TD
+          Boot["import 'src/i18n' (side effect)"] --> Saved{"localStorage i18nextLng exists?"}
+          Saved -->|yes| Lng["Use saved language"]
+          Saved -->|no| SetDe["Pre-seed i18nextLng = 'de' (German-first)"]
+          SetDe --> Lng
+          Lng --> Init["i18n.init()"]
+          Init --> Detect["Detector order: localStorage, querystring, navigator"]
+          Init --> Backend["i18next-http-backend"]
+          Backend --> Load["Load BASE_URL locales/{lng}/{ns}.json"]
+          Load --> Ready["All namespaces available — useTranslation() renders"]
+        </div>
         <h2 id="theming">Theming</h2>
         <p><code>buildTheme(locale, mode)</code> in
         <code>src/theme/index.ts</code> is the single factory: token set
@@ -154,6 +167,8 @@
       <ul>
       <li><a href="#i18n-runtime" id="toc-i18n-runtime">i18n
       Runtime</a></li>
+      <li><a href="#i18n-boot-flow" id="toc-i18n-boot-flow">i18n Boot
+      Flow</a></li>
       <li><a href="#theming" id="toc-theming">Theming</a></li>
       </ul></li>
       </ul>

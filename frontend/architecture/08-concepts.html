@@ -130,6 +130,27 @@
         provider intentionally lives in the shells. Access is uniformly
         through <code>createContextHook</code>-built hooks that throw
         outside their provider.</p>
+        <h2 id="provider-composition">Provider Composition</h2>
+        <p>Bootstrap wiring as it exists in <code>main.tsx</code> and
+        <code>App.tsx</code>. Router and Query provider sit outermost;
+        auth wraps the app; help and settings live inside
+        <code>App</code> (help state is global, only the themed panel
+        renders inside the shells); the toast provider is intentionally
+        shell-scoped — each shell supplies its own implementation via
+        <code>ToastContext.Provider</code>.</p>
+        <div class="mermaid">
+        graph TB
+          Strict["React.StrictMode"] --> BR["BrowserRouter"]
+          BR --> QC["QueryClientProvider"]
+          QC --> Auth["AuthProvider"]
+          Auth --> App["App"]
+          App --> Help["HelpProvider"]
+          Help --> Settings["SettingsProvider"]
+          Settings --> Router["AppRouter"]
+          Router --> Shells["AppPublicShell / AppShell"]
+          Shells --> Toast["ToastContext.Provider (shell-scoped)"]
+          Shells --> Pages["Pages"]
+        </div>
         <h2 id="data-access-layering">Data Access Layering</h2>
         <p>Pages and components call <strong>React Query hooks</strong>
         (<code>src/api/**/hooks</code>), which call <strong>domain
@@ -157,6 +178,21 @@
         <code>/login</code> — feature code contains zero redirect
         logic.</li>
         </ul>
+        <h2 id="http-401-redirect-flow">HTTP 401 Redirect Flow</h2>
+        <p>The central interceptor decision path, exactly as implemented
+        in <code>src/api/httpClient.ts</code>:</p>
+        <div class="mermaid">
+        flowchart TD
+          A["Axios response error"] --> B{"status == 401?"}
+          B -->|no| Z["Reject error (caller handles)"]
+          B -->|yes| C{"Demo session active?"}
+          C -->|yes| Z
+          C -->|no| D{"On public page? (/, /login*, /auth*, /logout*)"}
+          D -->|yes| Z
+          D -->|no| E{"Request is the /api/me probe?"}
+          E -->|yes| Z
+          E -->|no| F["window.location.assign('/login')"]
+        </div>
         <h2 id="tolerant-parsing-errors">Tolerant Parsing &amp;
         Errors</h2>
         <p>List fetchers tolerate multiple envelope shapes (bare array
@@ -183,8 +219,12 @@
       id="toc-three-kinds-of-state">Three Kinds of State</a></li>
       <li><a href="#the-four-providers" id="toc-the-four-providers">The
       Four Providers</a></li>
+      <li><a href="#provider-composition"
+      id="toc-provider-composition">Provider Composition</a></li>
       <li><a href="#data-access-layering"
       id="toc-data-access-layering">Data Access Layering</a></li>
+      <li><a href="#http-401-redirect-flow"
+      id="toc-http-401-redirect-flow">HTTP 401 Redirect Flow</a></li>
       <li><a href="#tolerant-parsing-errors"
       id="toc-tolerant-parsing-errors">Tolerant Parsing &amp;
       Errors</a></li>

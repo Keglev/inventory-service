@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend · overview · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+    <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+    <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+    <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+    <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
+    <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+    <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+    <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+    <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+    <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="frontend-architecture">Frontend Architecture</h1>
+        <p>Smart Supply Pro’s frontend is a React + TypeScript
+        single-page application for inventory management, supplier
+        workflows, and purchasing analytics. The architecture
+        prioritises <strong>predictable domain structure</strong>,
+        <strong>typed data access</strong>, and <strong>a German-first
+        bilingual user experience</strong>.</p>
+        <blockquote>
+        <p><strong>This is a one-page summary.</strong> For the
+        structured arc42 documentation — introduction and goals,
+        constraints, context, building blocks, runtime, deployment,
+        concepts, decisions, quality, risks, and glossary — see the <a
+        href="index.html">full architecture documentation</a>.</p>
+        </blockquote>
+        <h2 id="technology-stack">Technology stack</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Component</th>
+        <th>Technology</th>
+        <th>Version</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Framework</td>
+        <td>React</td>
+        <td>19.1</td>
+        </tr>
+        <tr class="even">
+        <td>Language</td>
+        <td>TypeScript</td>
+        <td>6.x</td>
+        </tr>
+        <tr class="odd">
+        <td>Build tool</td>
+        <td>Vite</td>
+        <td>7.x</td>
+        </tr>
+        <tr class="even">
+        <td>UI library</td>
+        <td>MUI (Material UI) + X DataGrid</td>
+        <td>7.x / 8.x</td>
+        </tr>
+        <tr class="odd">
+        <td>Server state</td>
+        <td>TanStack React Query</td>
+        <td>5.x</td>
+        </tr>
+        <tr class="even">
+        <td>Routing</td>
+        <td>React Router</td>
+        <td>7.x</td>
+        </tr>
+        <tr class="odd">
+        <td>Forms</td>
+        <td>React Hook Form + Zod</td>
+        <td>7.x / 4.x</td>
+        </tr>
+        <tr class="even">
+        <td>i18n</td>
+        <td>i18next + react-i18next</td>
+        <td>25.x / 15.x</td>
+        </tr>
+        <tr class="odd">
+        <td>Charts</td>
+        <td>Recharts</td>
+        <td>3.x</td>
+        </tr>
+        <tr class="even">
+        <td>HTTP client</td>
+        <td>Axios</td>
+        <td>1.x</td>
+        </tr>
+        <tr class="odd">
+        <td>Testing</td>
+        <td>Vitest + Testing Library</td>
+        <td>4.x</td>
+        </tr>
+        <tr class="even">
+        <td>Runtime</td>
+        <td>Node</td>
+        <td>&gt;= 24</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="key-architectural-principles">Key architectural
+        principles</h2>
+        <ol type="1">
+        <li><strong>Feature-first structure</strong> — one
+        self-contained module per business domain under
+        <code>src/pages/</code></li>
+        <li><strong>Strict import direction</strong> — pages never touch
+        HTTP details; the API layer never imports UI</li>
+        <li><strong>One HTTP client</strong> — a single Axios instance
+        owns credentials, headers, timeouts, and central 401
+        handling</li>
+        <li><strong>Server state via React Query</strong> — caching,
+        retries, and invalidation live in query hooks, not
+        components</li>
+        <li><strong>Context for global client state</strong> — auth,
+        settings, toast, and help, accessed through throwing hooks</li>
+        <li><strong>German-first i18n</strong> — localStorage pre-seeded
+        to <code>de</code> on first visit; no fallback strings in
+        code</li>
+        <li><strong>Dialog-driven mutations</strong> —
+        create/edit/delete flows are isolated dialog containers per
+        domain</li>
+        <li><strong>Testability</strong> — 1,319 Vitest tests across 225
+        files (~86% line coverage) spanning unit, component, and
+        routing-contract layers</li>
+        </ol>
+        <h2 id="system-architecture">System architecture</h2>
+        <div class="mermaid">
+        flowchart TB
+          User["Browser"]:::controller
+          Shell["App shells (public / authenticated)"]:::controller
+          Pages["Domain pages (inventory, suppliers, analytics, dashboard, auth, home)"]:::service
+          State["Contexts (auth, settings, toast, help)"]:::service
+          Query["React Query hooks"]:::service
+          API["Domain fetchers + httpClient (Axios)"]:::repository
+          Backend["Spring Boot backend (Fly.io)"]:::repository
+
+          User --> Shell
+          Shell --> Pages
+          Pages --> State
+          Pages --> Query
+          Query --> API
+          API -->|"same-origin /api/* (Nginx reverse proxy)"| Backend
+
+          classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
+          classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
+          classDef repository fill:#d97706,color:#fff,stroke:#b45309;
+        </div>
+        <h2 id="domains">Domains</h2>
+        <p>Each business area is a self-contained module with the same
+        orchestrator shape: a board component composing state hooks,
+        handler hooks, query hooks, presentational components, and
+        dialog containers.</p>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Domain</th>
+        <th>Responsibility</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Inventory</td>
+        <td>Item CRUD, quantity adjustment, price changes, stock
+        reasons</td>
+        </tr>
+        <tr class="even">
+        <td>Suppliers</td>
+        <td>Supplier CRUD, search/display modes, active-stock delete
+        guard</td>
+        </tr>
+        <tr class="odd">
+        <td>Analytics</td>
+        <td>Chart/table blocks, filters with URL sync, supplier-gated
+        queries</td>
+        </tr>
+        <tr class="even">
+        <td>Dashboard</td>
+        <td>KPI cards, movement mini-chart, navigation hub</td>
+        </tr>
+        <tr class="odd">
+        <td>Auth</td>
+        <td>Login, OAuth callback + session hydration, demo entry,
+        logout</td>
+        </tr>
+        <tr class="even">
+        <td>Home</td>
+        <td>Public landing flow and demo entry point</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="authentication-and-session-model">Authentication and
+        session model</h2>
+        <p>Session-based OAuth2 (Google) handled by the backend — the
+        SPA holds no tokens. The auth context hydrates from
+        <code>GET /api/me</code>; a read-only <strong>demo mode</strong>
+        exists entirely in the frontend via localStorage, with write
+        operations blocked in the UI. Unauthorized responses are handled
+        centrally by the Axios interceptor, with three exemptions
+        (public pages, the <code>/api/me</code> probe, demo
+        sessions).</p>
+        <h2 id="internationalization">Internationalization</h2>
+        <p>Full English/German localization with runtime-loaded JSON
+        namespaces, compile-time typed keys
+        (<code>resources.d.ts</code>), and a strict no-fallback-strings
+        policy: every key exists in both locale files. First visit
+        renders German by design.</p>
+        <h2 id="deployment">Deployment</h2>
+        <p>The production build is served by <strong>Nginx on
+        Koyeb</strong>. Browser traffic is <strong>same-origin</strong>:
+        Nginx rewrites the baked API base to the frontend host at serve
+        time and reverse-proxies <code>/api/*</code> and the OAuth paths
+        to the backend on Fly.io (canonical record: backend
+        ADR-0008).</p>
+        <pre><code>Source push
+  → 5-frontend-ci.yml       type-check, lint, Vitest suite
+  → 6-deploy-frontend.yml   Docker build (Nginx), deploy to Koyeb</code></pre>
+        <h2 id="testing">Testing</h2>
+        <ul>
+        <li><strong>Unit tests</strong> — hooks, utilities, API
+        fetchers, and client policies</li>
+        <li><strong>Component tests</strong> — Testing Library rendering
+        with i18n + provider harnesses</li>
+        <li><strong>Routing-contract tests</strong> — guard behavior,
+        redirects, and route surface</li>
+        </ul>
+        <p>Coverage and taxonomy conventions are documented in <a
+        href="08c-concepts-testing.html">§8c Testing Concepts</a> and <a
+        href="09-decisions/adr-0008-testing-structure-and-taxonomy.html">ADR-0008</a>.</p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#frontend-architecture"
+      id="toc-frontend-architecture">Frontend Architecture</a>
+      <ul>
+      <li><a href="#technology-stack"
+      id="toc-technology-stack">Technology stack</a></li>
+      <li><a href="#key-architectural-principles"
+      id="toc-key-architectural-principles">Key architectural
+      principles</a></li>
+      <li><a href="#system-architecture"
+      id="toc-system-architecture">System architecture</a></li>
+      <li><a href="#domains" id="toc-domains">Domains</a></li>
+      <li><a href="#authentication-and-session-model"
+      id="toc-authentication-and-session-model">Authentication and
+      session model</a></li>
+      <li><a href="#internationalization"
+      id="toc-internationalization">Internationalization</a></li>
+      <li><a href="#deployment" id="toc-deployment">Deployment</a></li>
+      <li><a href="#testing" id="toc-testing">Testing</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>
