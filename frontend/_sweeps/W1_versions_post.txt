@@ -1,0 +1,6 @@
+== V1 corrected versions present (expect 3 lines) ==
+7:| Language | TypeScript (strict) | 6.x |
+10:| Component library | MUI (Material UI) + Emotion | 7.x |
+18:| Runtime (dev) | Node.js | 24+ |
+== V2 stale versions gone (expect 0 lines) ==
+11:| Server state | TanStack React Query | 5.x |
