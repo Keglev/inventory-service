@@ -122,4 +122,21 @@ describe('EditItemDialog', () => {
     await user.click(closeButton);
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
+
+  it('shows the saving label with a spinner and disables actions while submitting', () => {
+    vi.mocked(useEditItemFormModule.useEditItemForm).mockReturnValue(
+      createHookReturn({
+        formState: {
+          isSubmitting: true,
+          errors: {},
+        } as EditItemFormHookReturn['formState'],
+      }),
+    );
+
+    render(<EditItemDialog open onClose={vi.fn()} onItemRenamed={vi.fn()} />);
+
+    expect(screen.getByText(tEn('common:actions.saving'))).toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /saving/i })).toBeDisabled();
+  });
 });

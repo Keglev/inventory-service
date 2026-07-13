@@ -229,6 +229,72 @@ describe('useInventoryColumns', () => {
     expect(createdCol?.valueFormatter?.(undefined)).toBe('—');
   });
 
+  it('resolves the price column to the unit price or null', () => {
+    const { result } = setup();
+
+    const priceCol = getColumnByField(result.current, 'price') as
+      | { valueGetter?: ValueGetter<InventoryRow>; valueFormatter?: ValueFormatter }
+      | undefined;
+
+    expect(priceCol?.valueGetter?.(undefined, {
+      id: '1', name: 'T', onHand: 1, minQty: 1, price: 2.5,
+    } as InventoryRow)).toBe(2.5);
+    expect(priceCol?.valueGetter?.(undefined, {
+      id: '2', name: 'T2', onHand: 1, minQty: 1,
+    } as InventoryRow)).toBeNull();
+    expect(priceCol?.valueGetter?.(undefined, null)).toBeNull();
+  });
+
+  it('resolves the totalValue column from the server total or price x onHand', () => {
+    const { result } = setup();
+
+    const totalCol = getColumnByField(result.current, 'totalValue') as
+      | { valueGetter?: ValueGetter<InventoryRow>; sortable?: boolean }
+      | undefined;
+
+    // Server-computed column cannot participate in server-side sorting.
+    expect(totalCol?.sortable).toBe(false);
+    expect(totalCol?.valueGetter?.(undefined, {
+      id: '1', name: 'T', onHand: 3, minQty: 1, price: 2, totalValue: 42,
+    } as InventoryRow)).toBe(42);
+    expect(totalCol?.valueGetter?.(undefined, {
+      id: '2', name: 'T2', onHand: 4, minQty: 1, price: 2.5,
+    } as InventoryRow)).toBe(10);
+    expect(totalCol?.valueGetter?.(undefined, null)).toBeNull();
+  });
+
+  it('formats counts, money, and dates through the preference-bound formatters', () => {
+    const { result } = setup();
+
+    const fmt = (field: string): ValueFormatter =>
+      (getColumnByField(result.current, field) as { valueFormatter?: ValueFormatter })
+        .valueFormatter as ValueFormatter;
+
+    // EN_US preference from the mocked settings.
+    expect(fmt('onHand')(1234)).toBe('1,234');
+    expect(fmt('minQty')('12')).toBe('12');
+    expect(fmt('price')(1234.5)).toBe('1,234.50');
+    expect(fmt('price')(null)).toBe('—');
+    expect(fmt('totalValue')(10)).toBe('10.00');
+    expect(fmt('createdAt')('2026-05-01T00:00:00Z')).toBe('2026-05-01');
+  });
+
+  it('guards the createdAt getter against a null row', () => {
+    const { result } = setup();
+
+    const createdCol = getColumnByField(result.current, 'createdAt') as
+      | { valueGetter?: ValueGetter<InventoryRow> }
+      | undefined;
+
+    expect(createdCol?.valueGetter?.(undefined, null)).toBeNull();
+    expect(createdCol?.valueGetter?.(undefined, {
+      id: '1', name: 'T', onHand: 1, minQty: 1,
+    } as InventoryRow)).toBeNull();
+    expect(createdCol?.valueGetter?.(undefined, {
+      id: '2', name: 'T2', onHand: 1, minQty: 1, createdAt: '2026-05-01',
+    } as InventoryRow)).toBe('2026-05-01');
+  });
+
   it('keeps the same column array reference across re-renders (memoization)', () => {
     const { result, rerender } = setup();
 

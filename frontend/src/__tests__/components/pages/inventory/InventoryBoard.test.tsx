@@ -137,4 +137,25 @@ describe('InventoryBoard', () => {
     expect(screen.getByTestId('inventory-table')).toBeInTheDocument();
     expect(screen.getByTestId('inventory-dialogs')).toBeInTheDocument();
   });
+
+  it('shows the select-supplier prompt instead of the table without a supplier', async () => {
+    const { useInventoryState } = await import('@/pages/inventory/hooks/useInventoryState');
+    vi.mocked(useInventoryState).mockReturnValue({
+      q: '',
+      supplierId: null,
+      belowMinOnly: false,
+      selectedId: null,
+      pageIndex: 0,
+      pageSize: 10,
+      sortBy: null,
+      sortOrder: 'asc',
+    } as unknown as ReturnType<typeof useInventoryState>);
+
+    render(<InventoryBoard />);
+
+    expect(
+      screen.getByText('Please select a supplier to view their items.')
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('inventory-table')).not.toBeInTheDocument();
+  });
 });

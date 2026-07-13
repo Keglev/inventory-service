@@ -144,4 +144,19 @@ describe('useInventoryRowStyling', () => {
     expect(getRowClass(6, 10)).toBe('row-warning');
     expect(getRowClass(5, 10)).toBe('row-critical');
   });
+
+  it('tolerates nullish runtime inputs via the default minimum', () => {
+    const getRowClass = setup();
+    // The signature is numeric, but rows can surface undefined at runtime;
+    // both arguments fall back through ?? 0 (minQty 0 -> DEFAULT_MIN_QUANTITY).
+    const loose = getRowClass as unknown as (
+      onHand: number | undefined,
+      minQty: number | undefined
+    ) => string;
+
+    // onHand undefined -> 0 on hand against the default minimum -> critical.
+    expect(loose(undefined, undefined)).toBe('row-critical');
+    // Healthy stock with an undefined minimum still classifies cleanly.
+    expect(loose(50, undefined)).toBe('');
+  });
 });

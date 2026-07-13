@@ -104,6 +104,24 @@ describe('itemMutations', () => {
       expect(result).toEqual({ ok: true, item: row });
     });
 
+    it('degrades a malformed create response to ok without an item', async () => {
+      httpMock.post.mockResolvedValue({ data: 'not-a-row' });
+      normalizeMock.mockReturnValue(null);
+
+      const result = await upsertItem({ ...baseRequest });
+
+      expect(result).toEqual({ ok: true, item: undefined });
+    });
+
+    it('degrades a malformed update response to ok without an item', async () => {
+      httpMock.put.mockResolvedValue({ data: 'not-a-row' });
+      normalizeMock.mockReturnValue(null);
+
+      const result = await upsertItem({ id: 'ITEM-1', ...baseRequest });
+
+      expect(result).toEqual({ ok: true, item: undefined });
+    });
+
     it('returns error details when upsert fails', async () => {
       const failure = new Error('network');
       httpMock.post.mockRejectedValue(failure);
@@ -155,6 +173,15 @@ describe('itemMutations', () => {
         { params: { name: 'Renamed' } }
       );
       expect(result).toEqual({ ok: true, item: row });
+    });
+
+    it('degrades a malformed rename response to ok without an item', async () => {
+      httpMock.patch.mockResolvedValue({ data: 'not-a-row' });
+      normalizeMock.mockReturnValue(null);
+
+      const result = await renameItem({ id: 'ITEM-1', newName: 'Renamed' });
+
+      expect(result).toEqual({ ok: true, item: undefined });
     });
 
     it('returns error details when rename fails', async () => {

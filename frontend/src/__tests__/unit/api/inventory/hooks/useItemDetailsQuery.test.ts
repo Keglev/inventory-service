@@ -88,6 +88,79 @@ describe('useItemDetailsQuery', () => {
     expect(httpMock.get).not.toHaveBeenCalled();
   });
 
+  it('accepts a bare record response without the axios data wrapper shape', async () => {
+    arrangeUseQueryConfigCapture();
+    // The mapper tolerates a payload whose data key is absent by treating
+    // the record itself as the DTO.
+    httpMock.get.mockResolvedValue({
+      id: 7,
+      name: 'Bare Widget',
+      supplierId: 'sup-1',
+      quantity: 3,
+      price: 2,
+    });
+
+    useItemDetailsQuery('ITEM-2');
+
+    const cfg = useQueryMock.mock.calls[0][0];
+    const details = await cfg.queryFn();
+
+    expect(details).toEqual({
+      id: '7',
+      name: 'Bare Widget',
+      code: null,
+      supplierId: 'sup-1',
+      price: 2,
+      onHand: 3,
+    });
+  });
+
+  it('degrades a non-record response to empty defaults', async () => {
+    arrangeUseQueryConfigCapture();
+    httpMock.get.mockResolvedValue('totally-not-json');
+
+    useItemDetailsQuery('ITEM-3');
+
+    const cfg = useQueryMock.mock.calls[0][0];
+    const details = await cfg.queryFn();
+
+    expect(details).toEqual({
+      id: '',
+      name: '',
+      code: null,
+      supplierId: null,
+      price: 0,
+      onHand: 0,
+    });
+  });
+
+  it('nulls out invalid field types instead of passing them through', async () => {
+    arrangeUseQueryConfigCapture();
+    httpMock.get.mockResolvedValue({
+      data: {
+        id: 'ITEM-4',
+        name: 123,
+        code: 99,
+        supplierId: { nested: true },
+        quantity: 'abc',
+      },
+    });
+
+    useItemDetailsQuery('ITEM-4');
+
+    const cfg = useQueryMock.mock.calls[0][0];
+    const details = await cfg.queryFn();
+
+    expect(details).toEqual({
+      id: 'ITEM-4',
+      name: '',
+      code: null,
+      supplierId: null,
+      price: 0,
+      onHand: 0,
+    });
+  });
+
   it('logs errors and returns null when fetch fails', async () => {
     arrangeUseQueryConfigCapture();
     const failure = new Error('Request failed');
