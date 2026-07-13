@@ -29,7 +29,7 @@ reasoning behind every significant decision.
 | [§2 Constraints](02-constraints.md) | Technology, organizational constraints, conventions | Current |
 | [§3 Context & Scope](03-context.md) | System boundary, external systems, integration facts | Current |
 | [§4 Solution Strategy](04-solution-strategy.md) | Key architectural approaches at a glance | Current |
-| [§5 Building Blocks](05-building-blocks.md) | App shell, domain pages, API layer, shared UI | Current (level-2 domain files in progress) |
+| [§5 Building Blocks](05-building-blocks.md) | App shell, domain pages, API layer, shared UI | Current |
 | §6 Runtime | Routing, guards, key user flows | In restructure — see [legacy routing docs](../old/architecture/routing/index.md) |
 | §7 Deployment | Koyeb/Nginx, frontend CI | In restructure — see [legacy performance docs](../old/architecture/performance/index.md) |
 | §8 Concepts | State, data access, i18n, theming, testing | In restructure — see [legacy topics](../old/architecture/index.md) |

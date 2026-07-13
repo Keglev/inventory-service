@@ -70,15 +70,14 @@ Cross-cutting concerns owned at shell level:
 
 Each business area is a self-contained module under `frontend/src/pages/`; each has
 a dedicated level-2 document consolidating its orchestration, data flow, dialogs,
-and rules. Until the level-2 files land, the staged legacy topics remain the
-reference (links below will be updated in place):
+and rules:
 
 | Domain | Responsibility | Detail |
 |---|---|---|
-| Inventory | Item CRUD, quantity adjustment, price changes, stock reasons | [legacy topics](../old/architecture/domains/inventory/index.md) |
-| Suppliers | Supplier CRUD, search/display modes, active-stock delete guard | [legacy topics](../old/architecture/domains/suppliers/index.md) |
-| Analytics | Chart/table blocks, filters with URL sync, supplier-gated queries | [legacy topics](../old/architecture/domains/analytics/index.md) |
-| Dashboard | KPI cards, movement mini-chart, navigation hub | [legacy topics](../old/architecture/domains/dashboard/index.md) |
-| Auth | Login, OAuth callback + session hydration, demo entry, logout | [legacy topics](../old/architecture/domains/auth/index.md) |
-| Home | Public landing flow and demo entry point | [legacy topics](../old/architecture/domains/home/index.md) |
-| System | Not-found and system pages | [legacy topics](../old/architecture/domains/system/index.md) |
+| Inventory | Item CRUD, quantity adjustment, price changes, stock reasons | [§5.1](05-domains/inventory.md) |
+| Suppliers | Supplier CRUD, search/display modes, active-stock delete guard | [§5.2](05-domains/suppliers.md) |
+| Analytics | Chart/table blocks, filters with URL sync, supplier-gated queries | [§5.3](05-domains/analytics.md) |
+| Dashboard | KPI cards, movement mini-chart, navigation hub | [§5.4](05-domains/dashboard.md) |
+| Auth | Login, OAuth callback + session hydration, demo entry, logout | [§5.5](05-domains/auth.md) |
+| Home | Public landing flow and demo entry point | [§5.6](05-domains/home.md) |
+| System | Not-found and system pages | [§5.7](05-domains/system.md) |
