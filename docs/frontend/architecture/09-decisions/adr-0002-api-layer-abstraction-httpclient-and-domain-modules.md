@@ -1,5 +1,7 @@
 # ADR-0002: API layer abstraction with shared httpClient and domain modules
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

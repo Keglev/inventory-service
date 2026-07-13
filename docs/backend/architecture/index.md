@@ -1,5 +1,7 @@
 # §1 Introduction & Goals
 
+> One-page summary: [Architecture Overview](overview.md)
+
 ## Purpose
 
 Smart Supply Pro's backend is a Spring Boot service handling supplier relationships,

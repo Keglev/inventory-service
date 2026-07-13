@@ -33,6 +33,7 @@ stable hooks and components — never Axios details; cross-cutting features stay
 reusable through contexts and hooks.
 
 ```mermaid
+%%{init: {"flowchart": {"useMaxWidth": false}}}%%
 graph TD
   Shell["app/ (shells + chrome)"] --> Pages["pages/ (domain modules)"]
   Pages --> UI["components/ (shared UI)"]
@@ -119,6 +120,7 @@ refactorable — the analytics extractions and the inventory hook split both fel
 of this shape naturally.
 
 ```mermaid
+%%{init: {"flowchart": {"useMaxWidth": false}}}%%
 graph LR
   Page["Domain page (board / orchestrator)"] --> State["State hooks (filters, UI state)"]
   Page --> Handlers["Handler hooks (search, dialog open/close)"]

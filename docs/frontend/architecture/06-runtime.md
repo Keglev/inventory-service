@@ -27,6 +27,7 @@ page offers an action button that adapts to auth state (`/dashboard` when a user
 is present, `/login` otherwise) — no automatic redirect.
 
 ```mermaid
+%%{init: {"flowchart": {"useMaxWidth": false}}}%%
 flowchart TD
   Start(["URL entered / navigation"]) --> Boot{"Auth bootstrap loading?"}
   Boot -->|yes| Screen["LoadingScreen (routes not rendered)"]

@@ -1,5 +1,7 @@
 # ADR-0003: Page model and domain separation (Inventory/Suppliers/Analytics)
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

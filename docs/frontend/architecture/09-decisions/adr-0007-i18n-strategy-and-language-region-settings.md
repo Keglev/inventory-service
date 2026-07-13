@@ -1,5 +1,7 @@
 # ADR-0007: i18n strategy and language/region settings integration
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

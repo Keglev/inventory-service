@@ -1,5 +1,7 @@
 # §1 Einführung und Ziele
 
+> Einseitige Zusammenfassung: [Architektur-Überblick](overview-de.md)
+
 ## Zweck
 
 Das Backend von Smart Supply Pro ist ein Spring-Boot-Dienst für die Verwaltung von

@@ -1,5 +1,7 @@
 # ADR-0006: Global state approach using Context modules (Auth/Settings/Toast/Help)
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

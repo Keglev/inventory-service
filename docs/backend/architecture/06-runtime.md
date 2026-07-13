@@ -115,6 +115,7 @@ sequenceDiagram
 ## Scenario 2 — OAuth2 Login
 
 ```mermaid
+%%{init: {"sequence": {"useMaxWidth": false}}}%%
 sequenceDiagram
     participant User
     participant Browser
@@ -158,6 +159,7 @@ sequenceDiagram
 ## Scenario 3 — Analytics Read
 
 ```mermaid
+%%{init: {"sequence": {"useMaxWidth": false}}}%%
 sequenceDiagram
     participant Client
     participant SF as Spring Security Filter
@@ -225,5 +227,5 @@ sequenceDiagram
         IC-->>Client: 204 No Content
     end
 
-    Note over IS,DB: no STOCK_HISTORY row is written by delete; history is retained, SKU stays reserved
+    Note over IS,DB: delete writes no STOCK_HISTORY row — history is retained and the SKU stays reserved
 ```

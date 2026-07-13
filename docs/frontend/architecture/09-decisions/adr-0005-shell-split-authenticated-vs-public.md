@@ -1,5 +1,7 @@
 # ADR-0005: Application shell split: authenticated shell vs public shell
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

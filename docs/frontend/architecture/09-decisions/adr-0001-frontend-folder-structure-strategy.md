@@ -1,5 +1,7 @@
 # ADR-0001: Frontend folder structure strategy (App Shell + Pages + API + Cross-cutting)
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

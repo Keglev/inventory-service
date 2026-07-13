@@ -1,5 +1,7 @@
 # ADR-0004: Dialog/workflow architecture (Dialog folders + orchestration pattern)
 
+[Back to Decisions Index (ADRs)](index.md)
+
 ## Status
 Accepted
 

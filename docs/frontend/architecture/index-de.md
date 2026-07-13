@@ -1,5 +1,7 @@
 # §1 Einführung & Ziele
 
+> Einseitige Zusammenfassung: [Architektur-Überblick](overview-de.md)
+
 Das Frontend von Smart Supply Pro ist eine React-+-TypeScript-Single-Page-Anwendung
 für Bestandsverwaltung, Lieferanten-Workflows und Einkaufsanalysen. Diese
 Dokumentation folgt der arc42-Struktur, die bereits für die
