@@ -12,7 +12,7 @@ inventory items, financial analytics).
 
 | External System | Role | Integration |
 |---|---|---|
-| React SPA (frontend) | Primary client — all user interaction | REST over HTTPS; HTTP-only session cookie; same origin in production via Nginx reverse proxy |
+| React SPA (frontend) | Primary client — all user interaction | REST over HTTPS, **cross-origin** (Koyeb → Fly.io); HTTP-only session cookie with `SameSite=None; Secure` |
 | Google OAuth2 | Identity provider | Authorization Code flow; backend exchanges code for token server-to-server; no token is stored or forwarded to the frontend |
 | Oracle Autonomous Database 23ai | Persistent store | JDBC via wallet authentication (`cwallet.sso`, `TNS_ADMIN` at runtime); H2 in Oracle-compatibility mode for local dev and CI |
 
@@ -46,7 +46,7 @@ graph TB
 **Inside** (owned and deployed by this project):
 
 - Spring Boot backend (`/src`) — REST API, business logic, security, persistence
-- React frontend (`/frontend`) — SPA served via Nginx on the same Fly.io host
+- React frontend (`/frontend`) — SPA served as a static build behind Nginx on Koyeb
 
 **Outside** (external, not controlled by this project):
 
@@ -57,11 +57,14 @@ graph TB
 ## Key Integration Facts
 
 - **Token handling**: the OAuth2 code exchange is backend-to-backend; the frontend
-  never receives or stores a token. The backend issues an HTTP-only, `SameSite=Strict`
-  session cookie; the browser includes it automatically on every subsequent request.
-- **Same origin in production**: frontend and backend share `app.fly.dev`. Nginx proxies
-  `/api/` to the backend on `localhost:8080`, so no CORS headers are needed in
-  production and cookies work natively.
+  never receives or stores a token. The backend issues an HTTP-only, `SameSite=None;
+  Secure` session cookie; the browser includes it automatically on every subsequent
+  request.
+- **Cross-origin in production**: the SPA on Koyeb calls the Fly.io origin directly
+  (`VITE_API_BASE`), so CORS allow-lists the Koyeb origin and the session cookie uses
+  `SameSite=None; Secure` — see [ADR 0007](09-decisions/adr-0007-cross-origin-auth-cookie.md).
+  Koyeb's Nginx also ships proxy locations for `/api/` and the OAuth2 paths, providing
+  a same-origin fallback topology that the deployed SPA does not currently use.
 - **Local development**: Vite's dev server proxies `/api` to `localhost:8080`; Spring
   Security CORS is enabled for `localhost:3000` only in the default profile.
 - **Demo mode**: `AppProperties.demoReadonly` allows unauthenticated read-only access

@@ -29,7 +29,7 @@ See [ADR 0002](09-decisions/0002-manual-mapping-over-mapstruct.md) and
 ## OAuth2 / RBAC Security
 
 Authentication delegates to Google OAuth2 via the Authorization Code flow; the
-backend exchanges the code server-to-server and issues an HTTP-only, `SameSite=Strict`
+backend exchanges the code server-to-server and issues an HTTP-only, `SameSite=None; Secure`
 session cookie — no token ever reaches the frontend. Authorisation is enforced at the
 method level with `@PreAuthorize`; two roles (`ADMIN`, `USER`) cover all current
 access-control requirements. The production database connection is passwordless via
