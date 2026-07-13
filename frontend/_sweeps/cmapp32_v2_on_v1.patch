@@ -1,0 +1,90 @@
+diff --git a/docs/backend/architecture/03-context.md b/docs/backend/architecture/03-context.md
+index 1e6f980..b399960 100644
+--- a/docs/backend/architecture/03-context.md
++++ b/docs/backend/architecture/03-context.md
+@@ -12,7 +12,7 @@ inventory items, financial analytics).
+ 
+ | External System | Role | Integration |
+ |---|---|---|
+-| React SPA (frontend) | Primary client — all user interaction | REST over HTTPS, **cross-origin** (Koyeb → Fly.io); HTTP-only session cookie with `SameSite=None; Secure` |
++| React SPA (frontend) | Primary client — all user interaction | REST over HTTPS; HTTP-only session cookie; browser traffic is same-origin on the Koyeb host — Nginx rewrites the built API base at serve time and reverse-proxies `/api/*` and the OAuth2 paths to Fly.io |
+ | Google OAuth2 | Identity provider | Authorization Code flow; backend exchanges code for token server-to-server; no token is stored or forwarded to the frontend |
+ | Oracle Autonomous Database 23ai | Persistent store | JDBC via wallet authentication (`cwallet.sso`, `TNS_ADMIN` at runtime); H2 in Oracle-compatibility mode for local dev and CI |
+ 
+@@ -57,14 +57,19 @@ graph TB
+ ## Key Integration Facts
+ 
+ - **Token handling**: the OAuth2 code exchange is backend-to-backend; the frontend
+-  never receives or stores a token. The backend issues an HTTP-only, `SameSite=None;
+-  Secure` session cookie; the browser includes it automatically on every subsequent
+-  request.
+-- **Cross-origin in production**: the SPA on Koyeb calls the Fly.io origin directly
+-  (`VITE_API_BASE`), so CORS allow-lists the Koyeb origin and the session cookie uses
+-  `SameSite=None; Secure` — see [ADR 0007](09-decisions/adr-0007-cross-origin-auth-cookie.md).
+-  Koyeb's Nginx also ships proxy locations for `/api/` and the OAuth2 paths, providing
+-  a same-origin fallback topology that the deployed SPA does not currently use.
++  never receives or stores a token. The backend issues an HTTP-only, `Secure` session
++  cookie (configured `SameSite=None`); through the Nginx proxy it is re-domained to
++  the frontend host (`proxy_cookie_domain`), and the browser includes it on every
++  subsequent request.
++- **Same-origin in production via serve-time rewrite**: the build bakes the Fly.io
++  API origin into the bundle (`VITE_API_BASE`), and Koyeb's Nginx rewrites it to the
++  frontend host as the bundle is served (`sub_filter`), then reverse-proxies `/api/*`
++  and the OAuth2 paths to Fly.io. The backend additionally keeps `SameSite=None` and
++  a CORS allow-list for the Koyeb origin, which permits direct calls to the Fly.io
++  origin — the design originally documented in
++  [ADR 0007](09-decisions/adr-0007-cross-origin-auth-cookie.md); that ADR predates
++  the serve-time rewrite and describes the direct cross-origin path, not the active
++  proxied topology.
+ - **Local development**: Vite's dev server proxies `/api` to `localhost:8080`; Spring
+   Security CORS is enabled for `localhost:3000` only in the default profile.
+ - **Demo mode**: `AppProperties.demoReadonly` allows unauthenticated read-only access
+diff --git a/docs/backend/architecture/04-solution-strategy.md b/docs/backend/architecture/04-solution-strategy.md
+index 2898ecc..e72d206 100644
+--- a/docs/backend/architecture/04-solution-strategy.md
++++ b/docs/backend/architecture/04-solution-strategy.md
+@@ -29,7 +29,7 @@ See [ADR 0002](09-decisions/0002-manual-mapping-over-mapstruct.md) and
+ ## OAuth2 / RBAC Security
+ 
+ Authentication delegates to Google OAuth2 via the Authorization Code flow; the
+-backend exchanges the code server-to-server and issues an HTTP-only, `SameSite=None; Secure`
++backend exchanges the code server-to-server and issues an HTTP-only, `Secure`
+ session cookie — no token ever reaches the frontend. Authorisation is enforced at the
+ method level with `@PreAuthorize`; two roles (`ADMIN`, `USER`) cover all current
+ access-control requirements. The production database connection is passwordless via
+diff --git a/docs/backend/architecture/07-deployment.md b/docs/backend/architecture/07-deployment.md
+index eef1d73..324322e 100644
+--- a/docs/backend/architecture/07-deployment.md
++++ b/docs/backend/architecture/07-deployment.md
+@@ -5,11 +5,13 @@
+ The backend runs on **Fly.io** (region `fra`, Frankfurt) as a Docker container on a
+ `shared-cpu-1x` / 1 GB RAM machine, listening internally on port 8081. The React
+ frontend SPA is served by **Koyeb** (`https://inventory-service.koyeb.app`) behind
+-**Nginx** (`ops/nginx/`). The deployed SPA calls the Fly.io origin directly, so the
+-production session is **cross-origin** (`SameSite=None; Secure` + CORS allow-list —
+-see [ADR 0007](09-decisions/adr-0007-cross-origin-auth-cookie.md)); Nginx additionally
+-ships reverse-proxy locations for `/api/*` and the OAuth2 paths as a same-origin
+-fallback topology that is not currently active.
++**Nginx** (`ops/nginx/`), which rewrites the built API base to the frontend host at
++serve time (`sub_filter`) and reverse-proxies `/api/*` and the OAuth2 paths to the
++Fly.io backend — browser traffic is same-origin on Koyeb, with the session cookie
++re-domained by the proxy. The backend retains `SameSite=None` plus a CORS allow-list
++for the Koyeb origin, which also permits direct calls to the Fly.io origin
++(see [ADR 0007](09-decisions/adr-0007-cross-origin-auth-cookie.md), which predates
++the serve-time rewrite).
+ Persistent data lives in **Oracle Autonomous Database 23ai**, authenticated via wallet
+ (no password at runtime). Architecture and API documentation are published to
+ **GitHub Pages** via a separate docs pipeline.
+diff --git a/docs/backend/architecture/12-glossary.md b/docs/backend/architecture/12-glossary.md
+index 8e88ff8..5f3c692 100644
+--- a/docs/backend/architecture/12-glossary.md
++++ b/docs/backend/architecture/12-glossary.md
+@@ -29,7 +29,7 @@ where a term is treated in depth.
+ | `@PrePersist` / `@CreationTimestamp` | JPA / Hibernate callbacks that populate `createdAt` (and default `createdBy`) before insert |
+ | RBAC | Role-based access control; `ADMIN` and `USER` roles enforced via `@PreAuthorize` |
+ | `sanitize()` | `GlobalExceptionHandler` method stripping file paths, class names, SQL, and credentials from error messages. See [ADR-0005](./09-decisions/adr-0005-error-message-sanitization.md) |
+-| `SameSite=None; Secure` | Session cookie attributes enabling the cross-origin Koyeb → Fly.io session. See [§6](./06-runtime.md) |
++| `SameSite=None; Secure` | Session cookie attributes configured on the backend; production browser traffic is same-origin via the Nginx serve-time rewrite — see [§7](./07-deployment.md) |
+ | StockChangeReason | Enum classifying each stock movement (`INITIAL_STOCK`, `MANUAL_UPDATE`, `SOLD`, …). See the enums reference |
+ | StockHistory | Domain entity recording each stock movement as an audit trail |
+ | Supplier | Domain entity representing a goods supplier linked to inventory items |

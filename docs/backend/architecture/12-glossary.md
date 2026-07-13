@@ -29,7 +29,7 @@ where a term is treated in depth.
 | `@PrePersist` / `@CreationTimestamp` | JPA / Hibernate callbacks that populate `createdAt` (and default `createdBy`) before insert |
 | RBAC | Role-based access control; `ADMIN` and `USER` roles enforced via `@PreAuthorize` |
 | `sanitize()` | `GlobalExceptionHandler` method stripping file paths, class names, SQL, and credentials from error messages. See [ADR-0005](./09-decisions/adr-0005-error-message-sanitization.md) |
-| `SameSite=None; Secure` | Session cookie attributes enabling the cross-origin Koyeb → Fly.io session. See [§6](./06-runtime.md) |
+| `SameSite=None; Secure` | Session cookie attributes configured on the backend; production browser traffic is same-origin via the Nginx serve-time rewrite — see [§7](./07-deployment.md) |
 | StockChangeReason | Enum classifying each stock movement (`INITIAL_STOCK`, `MANUAL_UPDATE`, `SOLD`, …). See the enums reference |
 | StockHistory | Domain entity recording each stock movement as an audit trail |
 | Supplier | Domain entity representing a goods supplier linked to inventory items |

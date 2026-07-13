@@ -5,11 +5,13 @@
 The backend runs on **Fly.io** (region `fra`, Frankfurt) as a Docker container on a
 `shared-cpu-1x` / 1 GB RAM machine, listening internally on port 8081. The React
 frontend SPA is served by **Koyeb** (`https://inventory-service.koyeb.app`) behind
-**Nginx** (`ops/nginx/`). The deployed SPA calls the Fly.io origin directly, so the
-production session is **cross-origin** (`SameSite=None; Secure` + CORS allow-list —
-see [ADR 0007](09-decisions/adr-0007-cross-origin-auth-cookie.md)); Nginx additionally
-ships reverse-proxy locations for `/api/*` and the OAuth2 paths as a same-origin
-fallback topology that is not currently active.
+**Nginx** (`ops/nginx/`), which rewrites the built API base to the frontend host at
+serve time (`sub_filter`) and reverse-proxies `/api/*` and the OAuth2 paths to the
+Fly.io backend — browser traffic is same-origin on Koyeb, with the session cookie
+re-domained by the proxy. The backend retains `SameSite=None` plus a CORS allow-list
+for the Koyeb origin, which also permits direct calls to the Fly.io origin
+(see [ADR 0007](09-decisions/adr-0007-cross-origin-auth-cookie.md), which predates
+the serve-time rewrite).
 Persistent data lives in **Oracle Autonomous Database 23ai**, authenticated via wallet
 (no password at runtime). Architecture and API documentation are published to
 **GitHub Pages** via a separate docs pipeline.
