@@ -124,8 +124,14 @@
         <ul>
         <li><code>frontend/src/__tests__/unit/</code> for pure unit
         tests (utils, API helpers, i18n init)</li>
+        <li><code>frontend/src/__tests__/components/</code> for domain
+        component and dialog tests
+        (<code>components/pages/&lt;domain&gt;/*</code>) plus shared UI
+        (<code>components/ui</code>, <code>components/hooks</code>,
+        <code>components/help</code>)</li>
         <li><code>frontend/src/__tests__/app/</code> for
-        app-shell/layout/component tests</li>
+        app-shell/layout tests (layout, HamburgerMenu, settings, footer,
+        public shell)</li>
         <li><code>frontend/src/__tests__/routes/</code> for router/guard
         behaviors (where applicable)</li>
         <li><code>frontend/src/__tests__/features/</code> for
@@ -140,6 +146,9 @@
         <li>setup files</li>
         <li>shared test utilities</li>
         </ul></li>
+        <li>smaller focused areas:
+        <code>frontend/src/__tests__/help/</code>, <code>hooks/</code>,
+        <code>utils/</code>, <code>context/</code></li>
         </ul>
         <h2 id="alternatives-considered">Alternatives Considered</h2>
         <ol type="1">

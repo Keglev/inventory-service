@@ -135,6 +135,17 @@
         <p>Examples: - <code>frontend/src/pages/inventory/*</code> -
         <code>frontend/src/pages/suppliers/*</code> -
         <code>frontend/src/pages/analytics/*</code></p>
+        <p><strong>Currency note (2026-07):</strong> the full
+        five-folder structure is implemented by the inventory domain.
+        Suppliers omits <code>validation/</code> — its validation lives
+        in the API layer
+        (<code>frontend/src/api/suppliers/validation.ts</code>).
+        Analytics, a read-only domain with no dialogs, uses
+        <code>blocks/</code> and <code>sections/</code> instead of
+        <code>handlers/</code>, <code>dialogs/</code>, and
+        <code>validation/</code>. The structure above is the canonical
+        shape for mutation-heavy domains, not a rule every domain
+        satisfies verbatim.</p>
         <h2 id="alternatives-considered">Alternatives Considered</h2>
         <ol type="1">
         <li><strong>Flat pages</strong> (everything in one file per
@@ -209,9 +220,8 @@
         </ul></li>
         <li>Testing implications (what should be tested and where)
         <ul>
-        <li>Page orchestrators: integration-ish tests under
-        <code>frontend/src/__tests__/app/pages/*</code> (if present) or
-        app-level tests.</li>
+        <li>Page orchestrators and domain components: tests under
+        <code>frontend/src/__tests__/components/pages/&lt;domain&gt;/*</code>.</li>
         <li>Hooks/handlers: unit tests where feasible.</li>
         </ul></li>
         </ul>

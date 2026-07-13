@@ -133,11 +133,15 @@
         </ul></li>
         <li>Domain modules:
         <ul>
-        <li><code>frontend/src/api/&lt;domain&gt;/*</code></li>
+        <li><code>frontend/src/api/&lt;domain&gt;/*</code> (plus
+        <code>frontend/src/api/shared/*</code> for cross-domain
+        helpers)</li>
         <li>optional structure per domain:
         <ul>
         <li><code>hooks/</code> for React Query hooks</li>
-        <li><code>utils/</code> for normalization/shape tolerance</li>
+        <li>per-domain normalization modules
+        (e.g. <code>normalizers.ts</code>, <code>util.ts</code>) for
+        shape tolerance</li>
         </ul></li>
         </ul></li>
         </ul>
@@ -210,6 +214,8 @@
         <li><code>frontend/src/api/inventory/*</code></li>
         <li><code>frontend/src/api/suppliers/*</code></li>
         <li><code>frontend/src/api/analytics/*</code></li>
+        <li><code>frontend/src/api/shared/*</code> (cross-domain
+        helpers)</li>
         </ul></li>
         </ul></li>
         <li>Migration notes (if relevant)
