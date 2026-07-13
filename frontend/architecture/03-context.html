@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend · 03-context · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+    <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+    <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+    <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+    <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
+    <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+    <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+    <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+    <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+    <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="context-scope">§3 Context &amp; Scope</h1>
+        <h2 id="business-context">Business Context</h2>
+        <p>Smart Supply Pro (SSP) is a full-stack inventory management
+        system for small-to-medium businesses. The frontend is the
+        single user-facing surface: staff track stock levels, manage
+        suppliers, and analyse purchasing trends through it. Two
+        authenticated roles exist — <code>USER</code> (view inventory,
+        record stock movements) and <code>ADMIN</code> (full CRUD over
+        suppliers and items, financial analytics) — plus an
+        unauthenticated <strong>demo mode</strong> for reviewers.</p>
+        <h2 id="technical-context">Technical Context</h2>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>External System</th>
+        <th>Role</th>
+        <th>Integration</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Spring Boot API (Fly.io)</td>
+        <td>Sole data source</td>
+        <td>REST/JSON over HTTPS, <strong>cross-origin</strong> (Koyeb →
+        Fly.io); session carried by an HTTP-only cookie with
+        <code>SameSite=None; Secure</code></td>
+        </tr>
+        <tr class="even">
+        <td>Google OAuth2</td>
+        <td>Identity provider</td>
+        <td>Full-page redirect to Google; the code exchange happens
+        backend-to-backend — the SPA never sees a token. On success the
+        backend redirects to the SPA’s <code>/auth</code> route</td>
+        </tr>
+        <tr class="odd">
+        <td>GitHub Pages</td>
+        <td>Documentation host</td>
+        <td>Published API reference, architecture docs, and coverage
+        reports linked from the app footer</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="context-diagram-c4-level-1">Context Diagram (C4 Level
+        1)</h2>
+        <div class="mermaid">
+        graph TB
+            User["End User\n(USER / ADMIN)"]:::actor
+            Reviewer["Reviewer\n(demo mode)"]:::actor
+            SPA["React SPA\n(Koyeb, static + Nginx)"]:::controller
+            Backend["Spring Boot API\n(Fly.io)"]:::service
+            OAuth["Google OAuth2"]:::external
+
+            User     -->|"HTTPS"| SPA
+            Reviewer -->|"HTTPS, no login"| SPA
+            SPA      -->|"REST / JSON\ncross-origin cookie\n(SameSite=None; Secure)"| Backend
+            SPA      -->|"redirect (login)"| OAuth
+            OAuth    -->|"Authorization Code"| Backend
+            Backend  -->|"302 to /auth"| SPA
+
+            classDef actor      fill:#6b7280,color:#fff,stroke:#4b5563;
+            classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
+            classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
+            classDef external   fill:#4f46e5,color:#fff,stroke:#3730a3;
+        </div>
+        <h2 id="system-boundary">System Boundary</h2>
+        <p><strong>Inside</strong> (this documentation’s scope):
+        everything under <code>frontend/</code> — the SPA, its API
+        layer, i18n resources, theme, tests, and the Nginx config it
+        ships with.</p>
+        <p><strong>Outside</strong>: the backend API (see the <a
+        href="../../backend/architecture/index.html">backend
+        architecture docs</a>), Google OAuth2, Koyeb hosting, and GitHub
+        Pages.</p>
+        <h2 id="key-integration-facts">Key Integration Facts</h2>
+        <ul>
+        <li><strong>Cross-origin session</strong>: frontend
+        (<code>inventory-service.koyeb.app</code>) and backend
+        (<code>inventoryservice.fly.dev</code>) are different origins.
+        The session cookie is issued with
+        <code>SameSite=None; Secure</code>, and all API calls send
+        credentials. Rationale and alternatives: <a
+        href="../../backend/architecture/09-decisions/adr-0007-cross-origin-auth-cookie.html">ADR-0007
+        (backend)</a>.</li>
+        <li><strong>No tokens in the browser</strong>: the SPA never
+        receives, stores, or forwards an OAuth token. Authentication
+        state is read from a <code>/api/me</code>-style session
+        probe.</li>
+        <li><strong>Demo mode is client-only</strong>: a
+        <code>localStorage</code> flag enables read-only exploration
+        with sample data; it involves no backend account and no security
+        bypass — mutating UI short-circuits before any request is
+        sent.</li>
+        <li><strong>Docs deep links</strong>: the footer and help panel
+        link to the published documentation hub
+        (<code>keglev.github.io/inventory-service</code>).</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#context-scope" id="toc-context-scope">§3 Context
+      &amp; Scope</a>
+      <ul>
+      <li><a href="#business-context" id="toc-business-context">Business
+      Context</a></li>
+      <li><a href="#technical-context"
+      id="toc-technical-context">Technical Context</a></li>
+      <li><a href="#context-diagram-c4-level-1"
+      id="toc-context-diagram-c4-level-1">Context Diagram (C4 Level
+      1)</a></li>
+      <li><a href="#system-boundary" id="toc-system-boundary">System
+      Boundary</a></li>
+      <li><a href="#key-integration-facts"
+      id="toc-key-integration-facts">Key Integration Facts</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

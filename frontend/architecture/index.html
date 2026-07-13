@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend · index · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+    <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+    <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+    <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+    <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
+    <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+    <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+    <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+    <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+    <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="introduction-goals">§1 Introduction &amp; Goals</h1>
+        <p>Smart Supply Pro’s frontend is a React + TypeScript
+        single-page application providing the user experience for
+        inventory management, supplier workflows, and purchasing
+        analytics. This documentation follows the arc42 structure
+        already used by the <a
+        href="../../backend/architecture/index.html">backend
+        architecture docs</a>, so both halves of the system read the
+        same way.</p>
+        <h2 id="purpose">Purpose</h2>
+        <p>Give a reviewer or contributor a complete picture of how the
+        SPA is built: its constraints, context, structural building
+        blocks, runtime behavior, and the recorded reasoning behind
+        every significant decision.</p>
+        <h2 id="quality-goals">Quality Goals</h2>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Priority</th>
+        <th>Goal</th>
+        <th>Meaning here</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>1</td>
+        <td>Correctness</td>
+        <td>UI state always reflects server truth; mutations invalidate
+        the right query caches</td>
+        </tr>
+        <tr class="even">
+        <td>2</td>
+        <td>Maintainability</td>
+        <td>Feature-first layering (ADR-0001); strict size and comment
+        standards; typed i18n keys</td>
+        </tr>
+        <tr class="odd">
+        <td>3</td>
+        <td>Testability</td>
+        <td>1,319 tests across 225 files (~86% line coverage); every
+        layer testable in isolation</td>
+        </tr>
+        <tr class="even">
+        <td>4</td>
+        <td>Bilingual UX</td>
+        <td>Full EN/DE localization with no in-code fallback
+        strings</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="chapters">Chapters</h2>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Chapter</th>
+        <th>Content</th>
+        <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>§1 Introduction &amp; Goals</td>
+        <td>This page</td>
+        <td>Current</td>
+        </tr>
+        <tr class="even">
+        <td><a href="02-constraints.html">§2 Constraints</a></td>
+        <td>Technology, organizational constraints, conventions</td>
+        <td>Current</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="03-context.html">§3 Context &amp; Scope</a></td>
+        <td>System boundary, external systems, integration facts</td>
+        <td>Current</td>
+        </tr>
+        <tr class="even">
+        <td><a href="04-solution-strategy.html">§4 Solution
+        Strategy</a></td>
+        <td>Key architectural approaches at a glance</td>
+        <td>Current</td>
+        </tr>
+        <tr class="odd">
+        <td>§5 Building Blocks</td>
+        <td>App shell, domain pages, API layer, shared UI</td>
+        <td>In restructure — see <a
+        href="../old/architecture/index.html">legacy topics</a></td>
+        </tr>
+        <tr class="even">
+        <td>§6 Runtime</td>
+        <td>Routing, guards, key user flows</td>
+        <td>In restructure — see <a
+        href="../old/architecture/routing/index.html">legacy routing
+        docs</a></td>
+        </tr>
+        <tr class="odd">
+        <td>§7 Deployment</td>
+        <td>Koyeb/Nginx, frontend CI</td>
+        <td>In restructure — see <a
+        href="../old/architecture/performance/index.html">legacy
+        performance docs</a></td>
+        </tr>
+        <tr class="even">
+        <td>§8 Concepts</td>
+        <td>State, data access, i18n, theming, testing</td>
+        <td>In restructure — see <a
+        href="../old/architecture/index.html">legacy topics</a></td>
+        </tr>
+        <tr class="odd">
+        <td><a href="09-decisions/index.html">§9 Decisions
+        (ADRs)</a></td>
+        <td>Architecture decision records</td>
+        <td>Current</td>
+        </tr>
+        <tr class="even">
+        <td>§10 Quality Requirements</td>
+        <td>Coverage gates, CI quality checks</td>
+        <td>Planned</td>
+        </tr>
+        <tr class="odd">
+        <td>§11 Risks &amp; Technical Debt</td>
+        <td>Known risks and tracked debt</td>
+        <td>Planned</td>
+        </tr>
+        <tr class="even">
+        <td>§12 Glossary</td>
+        <td>Domain and technical terms</td>
+        <td>Planned</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="sprache-language">Sprache / Language</h2>
+        <p>Ein deutschsprachiger Einstieg ist verfügbar: <a
+        href="index-de.html">Einführung &amp; Ziele (Deutsch)</a>.</p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#introduction-goals" id="toc-introduction-goals">§1
+      Introduction &amp; Goals</a>
+      <ul>
+      <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
+      <li><a href="#quality-goals" id="toc-quality-goals">Quality
+      Goals</a></li>
+      <li><a href="#chapters" id="toc-chapters">Chapters</a></li>
+      <li><a href="#sprache-language" id="toc-sprache-language">Sprache
+      / Language</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

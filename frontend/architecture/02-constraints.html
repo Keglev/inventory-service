@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend · 02-constraints · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+    <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+    <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+    <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+    <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
+    <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+    <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+    <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+    <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+    <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="constraints">§2 Constraints</h1>
+        <h2 id="technical-constraints">Technical Constraints</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Component</th>
+        <th>Technology</th>
+        <th>Version</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Language</td>
+        <td>TypeScript (strict)</td>
+        <td>5.x</td>
+        </tr>
+        <tr class="even">
+        <td>UI framework</td>
+        <td>React</td>
+        <td>19.1</td>
+        </tr>
+        <tr class="odd">
+        <td>Build tool</td>
+        <td>Vite</td>
+        <td>7.x</td>
+        </tr>
+        <tr class="even">
+        <td>Component library</td>
+        <td>MUI (Material UI) + Emotion</td>
+        <td>5.x</td>
+        </tr>
+        <tr class="odd">
+        <td>Server state</td>
+        <td>TanStack React Query</td>
+        <td>5.x</td>
+        </tr>
+        <tr class="even">
+        <td>HTTP client</td>
+        <td>Axios</td>
+        <td>1.x</td>
+        </tr>
+        <tr class="odd">
+        <td>Routing</td>
+        <td>React Router</td>
+        <td>7.x</td>
+        </tr>
+        <tr class="even">
+        <td>Forms &amp; validation</td>
+        <td>React Hook Form + Zod</td>
+        <td>current</td>
+        </tr>
+        <tr class="odd">
+        <td>Localization</td>
+        <td>i18next / react-i18next</td>
+        <td>current</td>
+        </tr>
+        <tr class="even">
+        <td>Charts</td>
+        <td>Recharts</td>
+        <td>current</td>
+        </tr>
+        <tr class="odd">
+        <td>Testing</td>
+        <td>Vitest + React Testing Library</td>
+        <td>4.x</td>
+        </tr>
+        <tr class="even">
+        <td>Runtime (dev)</td>
+        <td>Node.js</td>
+        <td>20+</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>The frontend is deployed as a static build behind Nginx on
+        Koyeb; it has no server runtime of its own. All data comes from
+        the Spring Boot backend on Fly.io (see <a
+        href="03-context.html">§3</a>).</p>
+        <h2 id="organizational-constraints">Organizational
+        Constraints</h2>
+        <p>This is a solo-developer portfolio project. Consequences:</p>
+        <ul>
+        <li>The developer owns UI, API integration, tests, CI, and
+        deployment end to end.</li>
+        <li>Decisions favour explicitness and long-term readability over
+        abstraction layers that pay off only for large teams (see <a
+        href="09-decisions/adr-0002-api-layer-abstraction-httpclient-and-domain-modules.html">ADR-0002</a>).</li>
+        </ul>
+        <h2 id="conventions">Conventions</h2>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Convention</th>
+        <th>Rule</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>i18n</td>
+        <td>No in-code English fallback strings; missing keys are added
+        to BOTH <code>public/locales/en</code> and <code>/de</code>. The
+        EN JSON is the typing source (<code>resources.d.ts</code>)</td>
+        </tr>
+        <tr class="even">
+        <td>Tests</td>
+        <td>Centralized under <code>frontend/src/__tests__/</code> (not
+        co-located); documented by name; one canonical header
+        dialect</td>
+        </tr>
+        <tr class="odd">
+        <td>Size standard</td>
+        <td>Code-line caps per layer (hard cap 300 lines/file, 50
+        lines/method, counting code lines only); measured, with
+        documented waivers where a split would be artificial</td>
+        </tr>
+        <tr class="even">
+        <td>Comments</td>
+        <td>Four-tag JSDoc headers
+        (<code>@file</code>/<code>@module</code>/<code>@summary</code>/<code>@enterprise</code>);
+        inline comments explain WHY, never WHAT; ASCII-only outside
+        German legal content</td>
+        </tr>
+        <tr class="odd">
+        <td>Errors</td>
+        <td>The API layer tolerates and maps the backend’s structured
+        error envelope
+        <code>{error, message, timestamp, fieldErrors?}</code> to
+        user-friendly messages</td>
+        </tr>
+        </tbody>
+        </table>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#constraints" id="toc-constraints">§2 Constraints</a>
+      <ul>
+      <li><a href="#technical-constraints"
+      id="toc-technical-constraints">Technical Constraints</a></li>
+      <li><a href="#organizational-constraints"
+      id="toc-organizational-constraints">Organizational
+      Constraints</a></li>
+      <li><a href="#conventions"
+      id="toc-conventions">Conventions</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>
