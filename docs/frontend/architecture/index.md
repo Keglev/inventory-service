@@ -36,9 +36,9 @@ reasoning behind every significant decision.
 | [§8b Concepts](08b-concepts-i18n-theming.md) | Internationalization and theming | Current |
 | [§8c Concepts](08c-concepts-testing.md) | Testing strategy and conventions | Current |
 | [§9 Decisions (ADRs)](09-decisions/index.md) | Architecture decision records | Current |
-| §10 Quality Requirements | Coverage gates, CI quality checks | Planned |
-| §11 Risks & Technical Debt | Known risks and tracked debt | Planned |
-| §12 Glossary | Domain and technical terms | Planned |
+| [§10 Quality Requirements](10-quality-requirements.md) | Enforced quality scenarios and non-goals | Current |
+| [§11 Risks & Technical Debt](11-risks-technical-debt.md) | Known risks and tracked debt | Current |
+| [§12 Glossary](12-glossary.md) | Domain and technical terms | Current |
 
 ## Sprache / Language
 
