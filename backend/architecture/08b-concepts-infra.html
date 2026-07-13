@@ -159,18 +159,38 @@
         query.</p>
         <hr />
         <h2 id="persistence">Persistence</h2>
-        <p>All JPA entities carry exactly two audit fields:</p>
-        <ul>
-        <li><code>createdBy</code> — plain <code>String</code> (the
+        <p>All JPA entities carry exactly two audit fields —
+        <code>createdBy</code> (plain <code>String</code>, the
         authenticated user’s email from <code>SecurityContext</code>,
-        set in the service layer before <code>save()</code>). Not a
-        foreign key to <code>AppUser</code>.</li>
-        <li><code>createdAt</code> — <code>LocalDateTime</code>, set
-        immutably at creation: via <code>@CreationTimestamp</code> on
-        <code>Supplier</code>; via <code>@PrePersist</code> on
-        <code>InventoryItem</code> and <code>StockHistory</code>; via
-        field initialiser on <code>AppUser</code>.</li>
-        </ul>
+        set in the service layer before <code>save()</code>; not a
+        foreign key to <code>AppUser</code>) and <code>createdAt</code>
+        (<code>LocalDateTime</code>, set immutably at creation):</p>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Entity</th>
+        <th><code>createdAt</code> mechanism</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>Supplier</code></td>
+        <td><code>@CreationTimestamp</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>InventoryItem</code></td>
+        <td><code>@PrePersist</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>StockHistory</code></td>
+        <td><code>@PrePersist</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>AppUser</code></td>
+        <td>Field initialiser</td>
+        </tr>
+        </tbody>
+        </table>
         <p>There is no <code>updatedAt</code>, no
         <code>updatedBy</code>, and no <code>@Version</code> field on
         any entity. <code>StockHistory</code> records are immutable by
@@ -190,16 +210,41 @@
         applied file a startup failure, so data changes always ship as a
         new migration.</p>
         <p><strong>Soft delete</strong> — <code>InventoryItem</code>
-        rows are never physically deleted. Deletion is gated by a
-        business rule: the item’s quantity must be zero, so remaining
-        stock must first be removed through audited quantity adjustments
-        — otherwise the request fails with 409. A permitted delete sets
-        <code>active=false</code> (Flyway V5); active-catalog reads
-        filter on the flag, while stock-history joins intentionally do
-        not, preserving the audit trail. The flag is stored as
-        <code>NUMBER(1)</code> via a
-        <code>NumericBooleanConverter</code> so the same mapping works
-        on Oracle and on H2 in Oracle-compatibility mode.</p>
+        rows are never physically deleted:</p>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Rule</th>
+        <th>Behaviour</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Gate</td>
+        <td>Quantity must be zero; remaining stock is first removed
+        through audited quantity adjustments, otherwise 409</td>
+        </tr>
+        <tr class="even">
+        <td>Delete</td>
+        <td>Sets <code>active=false</code> (Flyway V5)</td>
+        </tr>
+        <tr class="odd">
+        <td>Reads</td>
+        <td>Active-catalog reads filter on the flag; stock-history joins
+        intentionally do NOT, preserving the audit trail</td>
+        </tr>
+        <tr class="even">
+        <td>Storage</td>
+        <td><code>NUMBER(1)</code> via
+        <code>NumericBooleanConverter</code> — same mapping works on
+        Oracle and on H2 in Oracle-compatibility mode</td>
+        </tr>
+        </tbody>
+        </table>
         <p>See <a href="05-building-blocks.html#repository-layer">§5
         Repository Layer</a>.</p>
         <hr />

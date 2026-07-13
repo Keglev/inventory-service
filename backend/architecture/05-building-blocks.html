@@ -101,120 +101,305 @@
         <h1 id="building-block-view">§5 Building Block View</h1>
         <h2 id="controller-layer">Controller Layer</h2>
         <p>Eleven <code>@RestController</code> classes form the HTTP
-        boundary, grouped by domain path (a twelfth class,
+        boundary, grouped by domain path; a twelfth class,
         <code>RootRedirectController</code>, is a plain
-        <code>@Controller</code> that redirects the site root).
-        <code>SupplierController</code> (<code>/api/suppliers</code>)
-        handles full CRUD for suppliers.
-        <code>InventoryItemController</code>
-        (<code>/api/inventory</code>) handles create, read, delete, and
-        list; <code>InventoryItemPatchController</code> (same path)
-        handles price and quantity patch operations separately to keep
-        each class focused. <code>StockHistoryController</code>
-        (<code>/api/stock-history</code>) exposes paginated read and
-        search. Five analytics controllers share
-        <code>/api/analytics</code>: <code>AnalyticsController</code>
-        (dashboard and financial summaries),
-        <code>StockAnalyticsController</code> (stock-per-supplier,
-        low-stock, movement),
-        <code>StockUpdateAnalyticsController</code> (stock update query
-        and post), <code>StockReasonAnalyticsController</code>
-        (update-reason breakdown), and
-        <code>EmployeeAnalyticsController</code> (per-employee update
-        analytics). <code>HealthCheckController</code>
-        (<code>/api/health</code>) reports application and database
-        health: the database ping runs live on every request (503 when
-        it fails, designed for Oracle Free Tier auto-pausing); only the
-        JDBC product name is cached after the first successful ping.
-        <code>AuthController</code> (<code>/api</code>) exposes
-        <code>/auth/me</code> and logout. Every mutating endpoint
-        carries <code>@PreAuthorize</code>; inbound DTOs are validated
-        with JSR-380 (<code>@Valid</code>) before reaching the service
-        layer. Controllers perform DTO conversion and response building
-        — no business logic lives here.</p>
+        <code>@Controller</code> that redirects the site root.</p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Controller</th>
+        <th>Base path</th>
+        <th>Responsibility</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>SupplierController</code></td>
+        <td><code>/api/suppliers</code></td>
+        <td>Full supplier CRUD</td>
+        </tr>
+        <tr class="even">
+        <td><code>InventoryItemController</code></td>
+        <td><code>/api/inventory</code></td>
+        <td>Create, read, delete, list</td>
+        </tr>
+        <tr class="odd">
+        <td><code>InventoryItemPatchController</code></td>
+        <td><code>/api/inventory</code></td>
+        <td>Price and quantity patch operations (kept separate to keep
+        each class focused)</td>
+        </tr>
+        <tr class="even">
+        <td><code>StockHistoryController</code></td>
+        <td><code>/api/stock-history</code></td>
+        <td>Paginated read and search</td>
+        </tr>
+        <tr class="odd">
+        <td><code>AnalyticsController</code></td>
+        <td><code>/api/analytics</code></td>
+        <td>Dashboard and financial summaries</td>
+        </tr>
+        <tr class="even">
+        <td><code>StockAnalyticsController</code></td>
+        <td><code>/api/analytics</code></td>
+        <td>Stock-per-supplier, low-stock, movement</td>
+        </tr>
+        <tr class="odd">
+        <td><code>StockUpdateAnalyticsController</code></td>
+        <td><code>/api/analytics</code></td>
+        <td>Stock update query and post</td>
+        </tr>
+        <tr class="even">
+        <td><code>StockReasonAnalyticsController</code></td>
+        <td><code>/api/analytics</code></td>
+        <td>Update-reason breakdown</td>
+        </tr>
+        <tr class="odd">
+        <td><code>EmployeeAnalyticsController</code></td>
+        <td><code>/api/analytics</code></td>
+        <td>Per-employee update analytics</td>
+        </tr>
+        <tr class="even">
+        <td><code>HealthCheckController</code></td>
+        <td><code>/api/health</code></td>
+        <td>Application and database health</td>
+        </tr>
+        <tr class="odd">
+        <td><code>AuthController</code></td>
+        <td><code>/api</code></td>
+        <td><code>/auth/me</code> and logout</td>
+        </tr>
+        <tr class="even">
+        <td><code>RootRedirectController</code></td>
+        <td><code>/</code></td>
+        <td>Site-root redirect (plain <code>@Controller</code>)</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>The health endpoint runs the database ping live on every
+        request (503 when it fails, designed for Oracle Free Tier
+        auto-pausing); only the JDBC product name is cached after the
+        first successful ping. Every mutating endpoint carries
+        <code>@PreAuthorize</code>; inbound DTOs are validated with
+        JSR-380 (<code>@Valid</code>) before reaching the service layer.
+        Controllers perform DTO conversion and response building — no
+        business logic lives here.</p>
         <h2 id="service-layer">Service Layer</h2>
-        <p>Business logic and transaction boundaries live in four
-        service interfaces and their implementations:
-        <code>SupplierService</code>, <code>InventoryItemService</code>,
-        <code>StockHistoryService</code>, and
-        <code>AnalyticsService</code> (implemented by
-        <code>AnalyticsServiceImpl</code>, with
-        <code>StockAnalyticsService</code> and
-        <code>FinancialAnalyticsService</code> as focused sub-services
-        for WAC and stock-movement calculations).
-        <code>UserProvisioningService</code> is the single authoritative
-        provisioner for OAuth2 logins:
-        <code>CustomOAuth2UserService</code> and
-        <code>CustomOidcUserService</code> delegate to it at token load,
-        and it finds or creates the user and heals the role against the
-        admin allow-list on every login. All service interfaces are
-        constructor-injected; every state-mutating operation is wrapped
-        in <code>@Transactional</code>.</p>
+        <p>Business logic and transaction boundaries live in the service
+        tier. All service interfaces are constructor-injected; every
+        state-mutating operation is wrapped in
+        <code>@Transactional</code>.</p>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Service</th>
+        <th>Responsibility</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>SupplierService</code></td>
+        <td>Supplier business rules and orchestration</td>
+        </tr>
+        <tr class="even">
+        <td><code>InventoryItemService</code></td>
+        <td>Item lifecycle, uniqueness, soft-delete gating</td>
+        </tr>
+        <tr class="odd">
+        <td><code>StockHistoryService</code></td>
+        <td>Audit-trail writes and paginated reads</td>
+        </tr>
+        <tr class="even">
+        <td><code>AnalyticsService</code>
+        (<code>AnalyticsServiceImpl</code>)</td>
+        <td>Facade over the analytics sub-services</td>
+        </tr>
+        <tr class="odd">
+        <td><code>StockAnalyticsService</code></td>
+        <td>Stock-movement calculations (sub-service)</td>
+        </tr>
+        <tr class="even">
+        <td><code>FinancialAnalyticsService</code></td>
+        <td>Weighted-average-cost (WAC) calculations (sub-service)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>UserProvisioningService</code></td>
+        <td>Single authoritative OAuth2 provisioner</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><code>UserProvisioningService</code> is called at token load
+        by <code>CustomOAuth2UserService</code> and
+        <code>CustomOidcUserService</code>; it finds or creates the user
+        and heals the role against the admin allow-list on every
+        login.</p>
         <h2 id="repository-layer">Repository Layer</h2>
-        <p><code>SupplierRepository</code>,
-        <code>InventoryItemRepository</code>, and
-        <code>StockHistoryRepository</code> are Spring Data JPA
-        interfaces that cover the core domain.
-        <code>InventoryItemRepository</code> declares
-        <code>@EntityGraph(attributePaths = {"supplier"})</code> on both
-        <code>findAll()</code> and <code>searchActiveItems()</code> to
-        eager-load the supplier association in a single JOIN, preventing
-        N+1 queries on the two hot list paths. Complex analytics
-        aggregations that exceed what JPQL can express cleanly are
-        handled by three custom repository implementations:
-        <code>StockDetailQueryRepositoryImpl</code>,
-        <code>StockMetricsRepositoryImpl</code>, and
-        <code>StockTrendAnalyticsRepositoryImpl</code>, each backed by
-        dedicated SQL builders in <code>repository/custom/util/</code>.
-        <code>AppUserRepository</code> is written only by
-        <code>UserProvisioningService</code> (OAuth2 provisioning); it
-        is additionally read by <code>AuthController</code>
-        (<code>/auth/me</code>) and
-        <code>EmployeeAnalyticsService</code> (display names), but does
-        not participate in the domain mutation flow.</p>
-        <p><strong>Analytics/reporting repositories</strong> with custom
-        implementations — <code>StockDetailQueryRepository</code>,
-        <code>StockMetricsRepository</code>,
-        <code>StockTrendAnalyticsRepository</code> (each with a
-        <code>*Impl</code>), plus the static
-        <code>StockMetricsSqlBuilder</code> — form a distinct group.
-        These build dialect-specific SQL (H2 in tests, Oracle in prod)
-        selected at runtime via <code>DatabaseDialectDetector</code>,
-        and return either raw <code>Object[]</code> tuples mapped to
-        DTOs in the service layer or, in two cases, typed projections
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Repository</th>
+        <th>Kind</th>
+        <th>Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>SupplierRepository</code></td>
+        <td>Spring Data JPA</td>
+        <td>Core domain</td>
+        </tr>
+        <tr class="even">
+        <td><code>InventoryItemRepository</code></td>
+        <td>Spring Data JPA</td>
+        <td><code>@EntityGraph(attributePaths = {"supplier"})</code> on
+        <code>findAll()</code> and <code>searchActiveItems()</code>
+        eager-loads the supplier in one JOIN, preventing N+1 on the two
+        hot list paths</td>
+        </tr>
+        <tr class="odd">
+        <td><code>StockHistoryRepository</code></td>
+        <td>Spring Data JPA</td>
+        <td>Core domain</td>
+        </tr>
+        <tr class="even">
+        <td><code>AppUserRepository</code></td>
+        <td>Spring Data JPA</td>
+        <td>Written only by <code>UserProvisioningService</code>; read
+        by <code>AuthController</code> (<code>/auth/me</code>) and
+        <code>EmployeeAnalyticsService</code> (display names); outside
+        the domain mutation flow</td>
+        </tr>
+        <tr class="odd">
+        <td><code>StockDetailQueryRepository</code> +
+        <code>Impl</code></td>
+        <td>Custom analytics</td>
+        <td>Dialect-specific SQL</td>
+        </tr>
+        <tr class="even">
+        <td><code>StockMetricsRepository</code> + <code>Impl</code></td>
+        <td>Custom analytics</td>
+        <td>Dialect-specific SQL; static
+        <code>StockMetricsSqlBuilder</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>StockTrendAnalyticsRepository</code> +
+        <code>Impl</code></td>
+        <td>Custom analytics</td>
+        <td>Dialect-specific SQL</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>The three custom analytics implementations handle
+        aggregations that exceed what JPQL can express cleanly, backed
+        by dedicated SQL builders in
+        <code>repository/custom/util/</code>. They build
+        dialect-specific SQL (H2 in tests, Oracle in prod) selected at
+        runtime via <code>DatabaseDialectDetector</code>, and return
+        either raw <code>Object[]</code> tuples mapped to DTOs in the
+        service layer or, in two cases, typed projections
         (<code>StockEventRowDTO</code>, <code>PriceTrendDTO</code>). See
         ADR-0006.</p>
         <h2 id="model-layer">Model Layer</h2>
-        <p>Four JPA entities map to Oracle tables: <code>Supplier</code>
-        (table <code>SUPPLIER</code>), <code>InventoryItem</code> (table
-        <code>INVENTORY_ITEM</code>), <code>StockHistory</code> (table
-        <code>STOCK_HISTORY</code>), and <code>AppUser</code> (table
-        <code>users_app</code>). All entities carry exactly two audit
-        fields: <code>createdBy</code> (plain <code>String</code>, not a
-        FK) and <code>createdAt</code> (<code>LocalDateTime</code>).
-        There is no <code>@Version</code>, no optimistic locking, and no
-        <code>updatedAt</code>. <code>StockHistory.reason</code> is
-        typed as <code>StockChangeReason</code> (11 values, stored as
-        <code>STRING</code>); <code>AppUser.role</code> is typed as
-        <code>Role</code> (<code>ADMIN</code> / <code>USER</code>,
-        stored as <code>STRING</code>).</p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Entity</th>
+        <th>Table</th>
+        <th>Typed fields</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>Supplier</code></td>
+        <td><code>SUPPLIER</code></td>
+        <td>—</td>
+        </tr>
+        <tr class="even">
+        <td><code>InventoryItem</code></td>
+        <td><code>INVENTORY_ITEM</code></td>
+        <td><code>active</code> flag (soft delete)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>StockHistory</code></td>
+        <td><code>STOCK_HISTORY</code></td>
+        <td><code>reason</code>: <code>StockChangeReason</code> (11
+        values, stored as <code>STRING</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><code>AppUser</code></td>
+        <td><code>users_app</code></td>
+        <td><code>role</code>: <code>Role</code> (<code>ADMIN</code> /
+        <code>USER</code>, stored as <code>STRING</code>)</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>All entities carry exactly two audit fields:
+        <code>createdBy</code> (plain <code>String</code>, not a FK) and
+        <code>createdAt</code> (<code>LocalDateTime</code>). There is no
+        <code>@Version</code>, no optimistic locking, and no
+        <code>updatedAt</code>.</p>
         <h2 id="cross-cutting">Cross-cutting</h2>
-        <p><code>SecurityConfig</code> and its helper split-classes
-        (<code>SecurityFilterHelper</code>,
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Component</th>
+        <th>Role</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>SecurityConfig</code> +
+        <code>SecurityFilterHelper</code>,
         <code>SecurityAuthorizationHelper</code>,
-        <code>SecurityEntryPointHelper</code>) configure the Spring
-        Security filter chain, OAuth2 login, and CORS.
-        <code>OAuth2LoginSuccessHandler</code> performs the post-login
-        redirect (provisioning already happened at token load in the
-        user services);
-        <code>CookieOAuth2AuthorizationRequestRepository</code>
-        serialises OAuth2 state into an HTTP-only cookie. All exceptions
-        funnel through two <code>@ControllerAdvice</code> handlers:
-        <code>GlobalExceptionHandler</code> for framework exceptions and
-        <code>BusinessExceptionHandler</code> for domain exceptions
+        <code>SecurityEntryPointHelper</code></td>
+        <td>Spring Security filter chain, OAuth2 login, CORS</td>
+        </tr>
+        <tr class="even">
+        <td><code>OAuth2LoginSuccessHandler</code></td>
+        <td>Post-login redirect (provisioning already happened at token
+        load in the user services)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>CookieOAuth2AuthorizationRequestRepository</code></td>
+        <td>Serialises OAuth2 state into an HTTP-only cookie</td>
+        </tr>
+        <tr class="even">
+        <td><code>GlobalExceptionHandler</code></td>
+        <td><code>@ControllerAdvice</code> for framework exceptions</td>
+        </tr>
+        <tr class="odd">
+        <td><code>BusinessExceptionHandler</code></td>
+        <td><code>@ControllerAdvice</code> for domain exceptions
         (<code>DuplicateResourceException</code>,
-        <code>InvalidRequestException</code>). Both produce a
-        three-field <code>ErrorResponse</code>:
+        <code>InvalidRequestException</code>)</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Both exception handlers produce a three-field
+        <code>ErrorResponse</code>:
         <code>{ "error": "...", "message": "...", "timestamp": "..." }</code>
         where <code>error</code> is
         <code>HttpStatus.name().toLowerCase()</code>.</p>
