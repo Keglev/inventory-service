@@ -244,8 +244,10 @@
         </tr>
         <tr class="even">
         <td><code>SameSite=None; Secure</code></td>
-        <td>Session cookie attributes enabling the cross-origin Koyeb →
-        Fly.io session. See <a href="./06-runtime.html">§6</a></td>
+        <td>Session cookie attributes configured on the backend;
+        production browser traffic is same-origin via the Nginx
+        serve-time rewrite — see <a
+        href="./07-deployment.html">§7</a></td>
         </tr>
         <tr class="odd">
         <td>StockChangeReason</td>

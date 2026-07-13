@@ -123,9 +123,10 @@
         <tr class="odd">
         <td>React SPA (frontend)</td>
         <td>Primary client — all user interaction</td>
-        <td>REST over HTTPS, <strong>cross-origin</strong> (Koyeb →
-        Fly.io); HTTP-only session cookie with
-        <code>SameSite=None; Secure</code></td>
+        <td>REST over HTTPS; HTTP-only session cookie; browser traffic
+        is same-origin on the Koyeb host — Nginx rewrites the built API
+        base at serve time and reverse-proxies <code>/api/*</code> and
+        the OAuth2 paths to Fly.io</td>
         </tr>
         <tr class="even">
         <td>Google OAuth2</td>
@@ -188,19 +189,24 @@
         <ul>
         <li><strong>Token handling</strong>: the OAuth2 code exchange is
         backend-to-backend; the frontend never receives or stores a
-        token. The backend issues an HTTP-only,
-        <code>SameSite=None;   Secure</code> session cookie; the browser
-        includes it automatically on every subsequent request.</li>
-        <li><strong>Cross-origin in production</strong>: the SPA on
-        Koyeb calls the Fly.io origin directly
-        (<code>VITE_API_BASE</code>), so CORS allow-lists the Koyeb
-        origin and the session cookie uses
-        <code>SameSite=None; Secure</code> — see <a
+        token. The backend issues an HTTP-only, <code>Secure</code>
+        session cookie (configured <code>SameSite=None</code>); through
+        the Nginx proxy it is re-domained to the frontend host
+        (<code>proxy_cookie_domain</code>), and the browser includes it
+        on every subsequent request.</li>
+        <li><strong>Same-origin in production via serve-time
+        rewrite</strong>: the build bakes the Fly.io API origin into the
+        bundle (<code>VITE_API_BASE</code>), and Koyeb’s Nginx rewrites
+        it to the frontend host as the bundle is served
+        (<code>sub_filter</code>), then reverse-proxies
+        <code>/api/*</code> and the OAuth2 paths to Fly.io. The backend
+        additionally keeps <code>SameSite=None</code> and a CORS
+        allow-list for the Koyeb origin, which permits direct calls to
+        the Fly.io origin — the design originally documented in <a
         href="09-decisions/adr-0007-cross-origin-auth-cookie.html">ADR
-        0007</a>. Koyeb’s Nginx also ships proxy locations for
-        <code>/api/</code> and the OAuth2 paths, providing a same-origin
-        fallback topology that the deployed SPA does not currently
-        use.</li>
+        0007</a>; that ADR predates the serve-time rewrite and describes
+        the direct cross-origin path, not the active proxied
+        topology.</li>
         <li><strong>Local development</strong>: Vite’s dev server
         proxies <code>/api</code> to <code>localhost:8080</code>; Spring
         Security CORS is enabled for <code>localhost:3000</code> only in

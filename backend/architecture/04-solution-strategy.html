@@ -131,14 +131,14 @@
         <h2 id="oauth2-rbac-security">OAuth2 / RBAC Security</h2>
         <p>Authentication delegates to Google OAuth2 via the
         Authorization Code flow; the backend exchanges the code
-        server-to-server and issues an HTTP-only,
-        <code>SameSite=None; Secure</code> session cookie — no token
-        ever reaches the frontend. Authorisation is enforced at the
-        method level with <code>@PreAuthorize</code>; two roles
-        (<code>ADMIN</code>, <code>USER</code>) cover all current
-        access-control requirements. The production database connection
-        is passwordless via Oracle wallet (<code>cwallet.sso</code>).
-        See <a href="09-decisions/0001-oracle-wallet-autologin.html">ADR
+        server-to-server and issues an HTTP-only, <code>Secure</code>
+        session cookie — no token ever reaches the frontend.
+        Authorisation is enforced at the method level with
+        <code>@PreAuthorize</code>; two roles (<code>ADMIN</code>,
+        <code>USER</code>) cover all current access-control
+        requirements. The production database connection is passwordless
+        via Oracle wallet (<code>cwallet.sso</code>). See <a
+        href="09-decisions/0001-oracle-wallet-autologin.html">ADR
         0001</a>.</p>
         <h2 id="http-status-as-the-response-envelope">HTTP Status as the
         Response Envelope</h2>

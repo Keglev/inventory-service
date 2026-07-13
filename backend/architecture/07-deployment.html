@@ -104,15 +104,18 @@
         internally on port 8081. The React frontend SPA is served by
         <strong>Koyeb</strong>
         (<code>https://inventory-service.koyeb.app</code>) behind
-        <strong>Nginx</strong> (<code>ops/nginx/</code>). The deployed
-        SPA calls the Fly.io origin directly, so the production session
-        is <strong>cross-origin</strong>
-        (<code>SameSite=None; Secure</code> + CORS allow-list — see <a
+        <strong>Nginx</strong> (<code>ops/nginx/</code>), which rewrites
+        the built API base to the frontend host at serve time
+        (<code>sub_filter</code>) and reverse-proxies
+        <code>/api/*</code> and the OAuth2 paths to the Fly.io backend —
+        browser traffic is same-origin on Koyeb, with the session cookie
+        re-domained by the proxy. The backend retains
+        <code>SameSite=None</code> plus a CORS allow-list for the Koyeb
+        origin, which also permits direct calls to the Fly.io origin
+        (see <a
         href="09-decisions/adr-0007-cross-origin-auth-cookie.html">ADR
-        0007</a>); Nginx additionally ships reverse-proxy locations for
-        <code>/api/*</code> and the OAuth2 paths as a same-origin
-        fallback topology that is not currently active. Persistent data
-        lives in <strong>Oracle Autonomous Database 23ai</strong>,
+        0007</a>, which predates the serve-time rewrite). Persistent
+        data lives in <strong>Oracle Autonomous Database 23ai</strong>,
         authenticated via wallet (no password at runtime). Architecture
         and API documentation are published to <strong>GitHub
         Pages</strong> via a separate docs pipeline.</p>
