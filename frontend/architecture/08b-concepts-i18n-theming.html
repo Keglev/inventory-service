@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend ·
+08b-concepts-i18n-theming · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
+    <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
+    <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
+    <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
+    <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
+    <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
+    <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
+    <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
+    <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
+    <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="b-concepts-internationalization-theming">§8b Concepts —
+        Internationalization &amp; Theming</h1>
+        <h2 id="i18n-runtime">i18n Runtime</h2>
+        <p>i18next + react-i18next, initialized as a side-effect import
+        from the app entry (<code>src/i18n/index.ts</code>).
+        <strong>German-first</strong>: on first visit, the code
+        pre-seeds <code>localStorage.i18nextLng = 'de'</code> before the
+        detector runs, guaranteeing the German first impression while
+        any later user choice persists. Detection order: localStorage,
+        then querystring (support/testing), then navigator.</p>
+        <p>Resources load at runtime via i18next-http-backend from
+        <code>${BASE_URL}locales/{lng}/{ns}.json</code> under
+        <code>public/locales/{en,de}/</code>; the canonical namespace
+        list is a constant in the init module and all namespaces are
+        loaded up front. <code>resources.d.ts</code> types every
+        namespace and key from the English JSON, so
+        <code>useTranslation('&lt;ns&gt;')</code> and
+        <code>t('...')</code> are compile-time checked.</p>
+        <p><strong>Policy: no fallback strings in code.</strong> A
+        missing key must be added to BOTH locale files; silent English
+        is treated as a bug. Help content follows the same rule — topics
+        registered in <code>help/topics.ts</code> resolve
+        <code>help:&lt;topicId&gt;.title/body</code> keys. Dev builds
+        expose the instance on <code>window.i18next</code> for
+        debugging.</p>
+        <h2 id="theming">Theming</h2>
+        <p><code>buildTheme(locale, mode)</code> in
+        <code>src/theme/index.ts</code> is the single factory: token set
+        (palette, typography, spacing, shape), merged MUI locale bundles
+        (Material core + X Data Grid, de/en) matching the i18n base
+        language, <code>cssVariables</code> output, and
+        <code>responsiveFontSizes()</code>.</p>
+        <p>The enterprise-density baseline is enforced at theme level,
+        not per screen: <code>size="small"</code> defaults across form
+        and list components, DataGrid <code>density="compact"</code>,
+        plus light chrome overrides (AppBar shadow, Drawer border,
+        Card/Paper radius). Rule of thumb: theme overrides for global
+        consistency, <code>sx</code> for one-off layout only.</p>
+        <p>A small <code>styles/global.css</code> covers what component
+        styles handle awkwardly: full-height root layout, webkit
+        scrollbars, <code>.visually-hidden</code>, print overrides. Two
+        tracked open items live here: the scrollbar rules are duplicated
+        between global.css and the theme’s CssBaseline (CB-APP15), and
+        the print <code>!important</code> overrides await an audit
+        (CM-APP2). Hardcoded hex values in the supplier delete dialogs
+        are queued for theme-token migration (CB-APP99).</p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#b-concepts-internationalization-theming"
+      id="toc-b-concepts-internationalization-theming">§8b Concepts —
+      Internationalization &amp; Theming</a>
+      <ul>
+      <li><a href="#i18n-runtime" id="toc-i18n-runtime">i18n
+      Runtime</a></li>
+      <li><a href="#theming" id="toc-theming">Theming</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>
