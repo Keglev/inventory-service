@@ -19,7 +19,8 @@ state library is used ([ADR-0006](09-decisions/adr-0006-global-state-with-contex
 
 ## Typed API Layer
 
-A single Axios `httpClient` carries the cross-origin credentials policy; per-domain
+A single Axios `httpClient` sends credentials on every call (the effective API origin
+is decided at serve time — see [§3](03-context.md)); per-domain
 modules (`api/inventory`, `api/suppliers`, `api/analytics`, `api/shared`) expose
 typed fetchers and React Query hooks. Fetchers normalize backend responses and map
 the structured error envelope to user-facing messages

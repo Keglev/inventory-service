@@ -13,7 +13,7 @@ unauthenticated **demo mode** for reviewers.
 
 | External System | Role | Integration |
 |---|---|---|
-| Spring Boot API (Fly.io) | Sole data source | REST/JSON over HTTPS, **cross-origin** (Koyeb → Fly.io); session carried by an HTTP-only cookie with `SameSite=None; Secure` |
+| Spring Boot API (Fly.io) | Sole data source | REST/JSON over HTTPS; the browser calls the **Koyeb origin** — Nginx rewrites the built API base at serve time and reverse-proxies `/api/*` to Fly.io; session carried by an HTTP-only `Secure` cookie re-domained by the proxy |
 | Google OAuth2 | Identity provider | Full-page redirect to Google; the code exchange happens backend-to-backend — the SPA never sees a token. On success the backend redirects to the SPA's `/auth` route |
 | GitHub Pages | Documentation host | Published API reference, architecture docs, and coverage reports linked from the app footer |
 
@@ -29,7 +29,7 @@ graph TB
 
     User     -->|"HTTPS"| SPA
     Reviewer -->|"HTTPS, no login"| SPA
-    SPA      -->|"REST / JSON\ncross-origin cookie\n(SameSite=None; Secure)"| Backend
+    SPA      -->|"REST / JSON\nsame-origin via Nginx proxy\n(serve-time base-URL rewrite)"| Backend
     SPA      -->|"redirect (login)"| OAuth
     OAuth    -->|"Authorization Code"| Backend
     Backend  -->|"302 to /auth"| SPA
@@ -51,10 +51,15 @@ Koyeb hosting, and GitHub Pages.
 
 ## Key Integration Facts
 
-- **Cross-origin session**: frontend (`inventory-service.koyeb.app`) and backend
-  (`inventoryservice.fly.dev`) are different origins. The session cookie is issued
-  with `SameSite=None; Secure`, and all API calls send credentials. Rationale and
-  alternatives: [ADR-0007 (backend)](../../backend/architecture/09-decisions/adr-0007-cross-origin-auth-cookie.md).
+- **Same-origin via serve-time rewrite**: the build bakes the Fly.io origin into the
+  bundle (`VITE_API_BASE`), and Koyeb's Nginx rewrites it to the frontend host as the
+  bundle is served (`sub_filter`), then reverse-proxies `/api/*` and the OAuth2 paths
+  to Fly.io — so browser traffic stays on one origin and the session cookie is
+  re-domained by the proxy. The backend also keeps `SameSite=None` plus a CORS
+  allow-list permitting direct calls to the Fly.io origin; that earlier direct
+  cross-origin design is documented in
+  [ADR-0007 (backend)](../../backend/architecture/09-decisions/adr-0007-cross-origin-auth-cookie.md),
+  which predates the rewrite.
 - **No tokens in the browser**: the SPA never receives, stores, or forwards an OAuth
   token. Authentication state is read from a `/api/me`-style session probe.
 - **Demo mode is client-only**: a `localStorage` flag enables read-only exploration
