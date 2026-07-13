@@ -28,10 +28,10 @@ We centralize HTTP concerns in a shared client and organize API logic by domain:
   - owns baseURL resolution, `withCredentials`, timeout, and 401 redirect policy.
 
 - Domain modules:
-  - `frontend/src/api/<domain>/*`
+  - `frontend/src/api/<domain>/*` (plus `frontend/src/api/shared/*` for cross-domain helpers)
   - optional structure per domain:
     - `hooks/` for React Query hooks
-    - `utils/` for normalization/shape tolerance
+    - per-domain normalization modules (e.g. `normalizers.ts`, `util.ts`) for shape tolerance
 
 UI code consumes domain hooks/fetchers rather than importing Axios directly.
 
@@ -73,6 +73,7 @@ UI code consumes domain hooks/fetchers rather than importing Axios directly.
     - `frontend/src/api/inventory/*`
     - `frontend/src/api/suppliers/*`
     - `frontend/src/api/analytics/*`
+    - `frontend/src/api/shared/*` (cross-domain helpers)
 
 - Migration notes (if relevant)
   - Avoid introducing new HTTP clients; extend domain modules instead.

@@ -72,7 +72,7 @@ Examples:
   - If a dialog becomes shared across many domains, move it into `frontend/src/components/` or `frontend/src/features/` only after it is truly generic.
 
 - Testing implications (what should be tested and where)
-  - Dialog rendering and interaction: `frontend/src/__tests__/app/pages/<domain>/*` or dialog-specific tests.
+  - Dialog rendering and interaction: `frontend/src/__tests__/components/pages/<domain>/<DialogName>/*`.
 
 ## References
 - Architecture docs: [Building Blocks (§5)](../05-building-blocks.md)

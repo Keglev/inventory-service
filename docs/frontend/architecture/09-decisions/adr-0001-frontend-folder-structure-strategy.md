@@ -21,7 +21,7 @@ Forces/constraints:
 We adopt a **feature-first + layered** folder strategy:
 
 - `frontend/src/app/*`: application shell, navigation, global chrome, settings UI surfaces.
-- `frontend/src/pages/*`: domain pages (Inventory, Suppliers, Dashboard, Analytics, Auth, Home, System).
+- `frontend/src/pages/*`: domain pages (Inventory, Suppliers, Dashboard, Analytics, Auth, Home, Legal, System).
 - `frontend/src/api/*`: backend-facing API layer (domain modules + hooks) behind a shared `httpClient`.
 - `frontend/src/context/*`: global state providers (Auth/Settings/Toast/Help).
 - `frontend/src/features/*`: cross-cutting reusable UX features (e.g., auth guard, help trigger, health polling).

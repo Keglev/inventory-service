@@ -20,7 +20,8 @@ Forces/constraints:
 We keep tests under `frontend/src/__tests__/` and organize them with a clear taxonomy:
 
 - `frontend/src/__tests__/unit/` for pure unit tests (utils, API helpers, i18n init)
-- `frontend/src/__tests__/app/` for app-shell/layout/component tests
+- `frontend/src/__tests__/components/` for domain component and dialog tests (`components/pages/<domain>/*`) plus shared UI (`components/ui`, `components/hooks`, `components/help`)
+- `frontend/src/__tests__/app/` for app-shell/layout tests (layout, HamburgerMenu, settings, footer, public shell)
 - `frontend/src/__tests__/routes/` for router/guard behaviors (where applicable)
 - `frontend/src/__tests__/features/` for cross-cutting features (help, auth, health) (where applicable)
 - `frontend/src/__tests__/stubs/` for shared fixtures/stubs
@@ -28,6 +29,7 @@ We keep tests under `frontend/src/__tests__/` and organize them with a clear tax
   - provider wrappers (e.g., `all-providers.tsx`)
   - setup files
   - shared test utilities
+- smaller focused areas: `frontend/src/__tests__/help/`, `hooks/`, `utils/`, `context/`
 
 ## Alternatives Considered
 1. **Colocated tests next to source files**

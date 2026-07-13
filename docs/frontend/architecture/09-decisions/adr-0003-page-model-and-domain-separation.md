@@ -34,6 +34,13 @@ Examples:
 - `frontend/src/pages/suppliers/*`
 - `frontend/src/pages/analytics/*`
 
+**Currency note (2026-07):** the full five-folder structure is implemented by the
+inventory domain. Suppliers omits `validation/` — its validation lives in the API
+layer (`frontend/src/api/suppliers/validation.ts`). Analytics, a read-only domain
+with no dialogs, uses `blocks/` and `sections/` instead of `handlers/`, `dialogs/`,
+and `validation/`. The structure above is the canonical shape for mutation-heavy
+domains, not a rule every domain satisfies verbatim.
+
 ## Alternatives Considered
 1. **Flat pages** (everything in one file per page)
    - Pros:
@@ -75,7 +82,7 @@ Examples:
   - When adding a new domain, start by copying the structure and adapting.
 
 - Testing implications (what should be tested and where)
-  - Page orchestrators: integration-ish tests under `frontend/src/__tests__/app/pages/*` (if present) or app-level tests.
+  - Page orchestrators and domain components: tests under `frontend/src/__tests__/components/pages/<domain>/*`.
   - Hooks/handlers: unit tests where feasible.
 
 ## References
