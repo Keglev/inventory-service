@@ -72,6 +72,7 @@
   <ul>
     <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
     <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
     <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
     <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
     <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
@@ -279,6 +280,7 @@
         </div>
         <h2 id="scenario-2-oauth2-login">Scenario 2 — OAuth2 Login</h2>
         <div class="mermaid">
+        %%{init: {"sequence": {"useMaxWidth": false}}}%%
         sequenceDiagram
             participant User
             participant Browser
@@ -321,6 +323,7 @@
         <h2 id="scenario-3-analytics-read">Scenario 3 — Analytics
         Read</h2>
         <div class="mermaid">
+        %%{init: {"sequence": {"useMaxWidth": false}}}%%
         sequenceDiagram
             participant Client
             participant SF as Spring Security Filter
@@ -387,7 +390,7 @@
                 IC-->>Client: 204 No Content
             end
 
-            Note over IS,DB: no STOCK_HISTORY row is written by delete; history is retained, SKU stays reserved
+            Note over IS,DB: delete writes no STOCK_HISTORY row — history is retained and the SKU stays reserved
         </div>
       </article>
     </main>
