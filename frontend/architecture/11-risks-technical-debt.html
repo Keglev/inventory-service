@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frontend · index · Smart Supply Pro Docs</title>
+  <title>Frontend ·
+11-risks-technical-debt · Smart Supply Pro Docs</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -95,21 +96,62 @@
 
     <main class="content" id="main">
       <article class="doc-body">
-        <h1 id="introduction-goals">§1 Introduction &amp; Goals</h1>
-        <p>Smart Supply Pro’s frontend is a React + TypeScript
-        single-page application providing the user experience for
-        inventory management, supplier workflows, and purchasing
-        analytics. This documentation follows the arc42 structure
-        already used by the <a
-        href="../../backend/architecture/index.html">backend
-        architecture docs</a>, so both halves of the system read the
-        same way.</p>
-        <h2 id="purpose">Purpose</h2>
-        <p>Give a reviewer or contributor a complete picture of how the
-        SPA is built: its constraints, context, structural building
-        blocks, runtime behavior, and the recorded reasoning behind
-        every significant decision.</p>
-        <h2 id="quality-goals">Quality Goals</h2>
+        <h1 id="risks-technical-debt">§11 Risks &amp; Technical
+        Debt</h1>
+        <p>Known risks (external or time-driven) and deliberately
+        accepted debt, each traceable to the code or decision it
+        concerns. Internal tracking IDs match the BUCKET markers in
+        source.</p>
+        <h2 id="risks">11.1 Risks</h2>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>ID</th>
+        <th>Risk</th>
+        <th>Impact</th>
+        <th>Mitigation / plan</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>FR-01</td>
+        <td>The serve-time API-base rewrite depends on Nginx MIME
+        mapping (<code>sub_filter_types</code>); a base-image bump could
+        silently disable it</td>
+        <td>Low — the retained direct cross-origin path keeps the app
+        working; topology flips invisibly</td>
+        <td>Documented in <a
+        href="../../backend/architecture/09-decisions/adr-0008-serve-time-api-base-rewrite.html">ADR-0008
+        (backend)</a>; cheap detection is checking the served bundle for
+        the backend origin</td>
+        </tr>
+        <tr class="even">
+        <td>FR-02</td>
+        <td>Routes load eagerly — no code splitting; initial bundle
+        grows with every feature</td>
+        <td>Low–Medium over time</td>
+        <td>Page-module boundaries are the ready seams (<a
+        href="06-runtime.html">§6</a>); revisit when initial-load
+        metrics warrant</td>
+        </tr>
+        <tr class="odd">
+        <td>FR-03</td>
+        <td>Client-side inventory filtering compensates for a name-only
+        search endpoint</td>
+        <td>Low — correct but wasteful on large pages</td>
+        <td>Backend search extension would remove the client fallback
+        (<a href="05-domains/inventory.html">§5.1</a>)</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="technical-debt-tracked">11.2 Technical Debt
+        (tracked)</h2>
         <table>
         <colgroup>
         <col style="width: 33%" />
@@ -118,149 +160,67 @@
         </colgroup>
         <thead>
         <tr class="header">
-        <th>Priority</th>
-        <th>Goal</th>
-        <th>Meaning here</th>
+        <th>ID</th>
+        <th>Item</th>
+        <th>Where</th>
         </tr>
         </thead>
         <tbody>
         <tr class="odd">
-        <td>1</td>
-        <td>Correctness</td>
-        <td>UI state always reflects server truth; mutations invalidate
-        the right query caches</td>
+        <td>CB-APP33/34</td>
+        <td>Settings language-sync can overwrite explicit format
+        choices; parts of the preference set lack persistence</td>
+        <td><a href="08-concepts.html">§8</a></td>
         </tr>
         <tr class="even">
-        <td>2</td>
-        <td>Maintainability</td>
-        <td>Feature-first layering (ADR-0001); strict size and comment
-        standards; typed i18n keys</td>
+        <td>CB-APP99</td>
+        <td>Hardcoded hex colors in supplier delete dialogs pending
+        theme-token migration</td>
+        <td><a href="08b-concepts-i18n-theming.html">§8b</a></td>
         </tr>
         <tr class="odd">
-        <td>3</td>
-        <td>Testability</td>
-        <td>1,319 tests across 225 files (~86% line coverage); every
-        layer testable in isolation</td>
+        <td>CB-APP100</td>
+        <td>Supplier form hooks classify errors by free-text matching
+        instead of the structured envelope</td>
+        <td><a href="08-concepts.html">§8</a></td>
         </tr>
         <tr class="even">
-        <td>4</td>
-        <td>Bilingual UX</td>
-        <td>Full EN/DE localization with no in-code fallback
-        strings</td>
+        <td>CB-APP15 / CM-APP2</td>
+        <td>Scrollbar rules duplicated between global.css and
+        CssBaseline; print <code>!important</code> overrides
+        unaudited</td>
+        <td><a href="08b-concepts-i18n-theming.html">§8b</a></td>
+        </tr>
+        <tr class="odd">
+        <td>ST-APP29</td>
+        <td>Help-icon pattern duplicated across four dialogs; shared
+        extraction queued</td>
+        <td><a href="05-domains/suppliers.html">§5.2</a></td>
+        </tr>
+        <tr class="even">
+        <td>ST-APP30</td>
+        <td>Twelve form/state hooks exceed the 50-code-line function
+        cap; case-by-case review deferred</td>
+        <td><a href="02-constraints.html">§2</a></td>
         </tr>
         </tbody>
         </table>
-        <h2 id="chapters">Chapters</h2>
-        <table>
-        <colgroup>
-        <col style="width: 33%" />
-        <col style="width: 33%" />
-        <col style="width: 33%" />
-        </colgroup>
-        <thead>
-        <tr class="header">
-        <th>Chapter</th>
-        <th>Content</th>
-        <th>Status</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="odd">
-        <td>§1 Introduction &amp; Goals</td>
-        <td>This page</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="02-constraints.html">§2 Constraints</a></td>
-        <td>Technology, organizational constraints, conventions</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="03-context.html">§3 Context &amp; Scope</a></td>
-        <td>System boundary, external systems, integration facts</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="04-solution-strategy.html">§4 Solution
-        Strategy</a></td>
-        <td>Key architectural approaches at a glance</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="05-building-blocks.html">§5 Building
-        Blocks</a></td>
-        <td>App shell, domain pages, API layer, shared UI</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="06-runtime.html">§6 Runtime</a></td>
-        <td>Routing, guards, key user flows</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="07-deployment.html">§7 Deployment</a></td>
-        <td>Build, Koyeb/Nginx delivery, frontend CI</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="08-concepts.html">§8 Concepts</a></td>
-        <td>State and data access</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="08b-concepts-i18n-theming.html">§8b
-        Concepts</a></td>
-        <td>Internationalization and theming</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="08c-concepts-testing.html">§8c Concepts</a></td>
-        <td>Testing strategy and conventions</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="09-decisions/index.html">§9 Decisions
-        (ADRs)</a></td>
-        <td>Architecture decision records</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="10-quality-requirements.html">§10 Quality
-        Requirements</a></td>
-        <td>Enforced quality scenarios and non-goals</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="11-risks-technical-debt.html">§11 Risks &amp;
-        Technical Debt</a></td>
-        <td>Known risks and tracked debt</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="12-glossary.html">§12 Glossary</a></td>
-        <td>Domain and technical terms</td>
-        <td>Current</td>
-        </tr>
-        </tbody>
-        </table>
-        <h2 id="sprache-language">Sprache / Language</h2>
-        <p>Ein deutschsprachiger Einstieg ist verfügbar: <a
-        href="index-de.html">Einführung &amp; Ziele (Deutsch)</a>.</p>
+        <p>The remaining open registry entries are UI-level items of the
+        same character and live as BUCKET markers at their source
+        sites.</p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#introduction-goals" id="toc-introduction-goals">§1
-      Introduction &amp; Goals</a>
+      <li><a href="#risks-technical-debt"
+      id="toc-risks-technical-debt">§11 Risks &amp; Technical Debt</a>
       <ul>
-      <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
-      <li><a href="#quality-goals" id="toc-quality-goals">Quality
-      Goals</a></li>
-      <li><a href="#chapters" id="toc-chapters">Chapters</a></li>
-      <li><a href="#sprache-language" id="toc-sprache-language">Sprache
-      / Language</a></li>
+      <li><a href="#risks" id="toc-risks">11.1 Risks</a></li>
+      <li><a href="#technical-debt-tracked"
+      id="toc-technical-debt-tracked">11.2 Technical Debt
+      (tracked)</a></li>
       </ul></li>
       </ul>
     </nav>

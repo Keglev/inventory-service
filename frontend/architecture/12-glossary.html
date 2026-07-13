@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frontend · index · Smart Supply Pro Docs</title>
+  <title>Frontend · 12-glossary · Smart Supply Pro Docs</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -95,173 +95,89 @@
 
     <main class="content" id="main">
       <article class="doc-body">
-        <h1 id="introduction-goals">§1 Introduction &amp; Goals</h1>
-        <p>Smart Supply Pro’s frontend is a React + TypeScript
-        single-page application providing the user experience for
-        inventory management, supplier workflows, and purchasing
-        analytics. This documentation follows the arc42 structure
-        already used by the <a
-        href="../../backend/architecture/index.html">backend
-        architecture docs</a>, so both halves of the system read the
-        same way.</p>
-        <h2 id="purpose">Purpose</h2>
-        <p>Give a reviewer or contributor a complete picture of how the
-        SPA is built: its constraints, context, structural building
-        blocks, runtime behavior, and the recorded reasoning behind
-        every significant decision.</p>
-        <h2 id="quality-goals">Quality Goals</h2>
+        <h1 id="glossary">§12 Glossary</h1>
         <table>
         <colgroup>
-        <col style="width: 33%" />
-        <col style="width: 33%" />
-        <col style="width: 33%" />
+        <col style="width: 50%" />
+        <col style="width: 50%" />
         </colgroup>
         <thead>
         <tr class="header">
-        <th>Priority</th>
-        <th>Goal</th>
-        <th>Meaning here</th>
+        <th>Term</th>
+        <th>Meaning</th>
         </tr>
         </thead>
         <tbody>
         <tr class="odd">
-        <td>1</td>
-        <td>Correctness</td>
-        <td>UI state always reflects server truth; mutations invalidate
-        the right query caches</td>
+        <td>Block</td>
+        <td>Self-contained analytics card/table owning one query and its
+        UI states (<a href="05-domains/analytics.html">§5.3</a>)</td>
         </tr>
         <tr class="even">
-        <td>2</td>
-        <td>Maintainability</td>
-        <td>Feature-first layering (ADR-0001); strict size and comment
-        standards; typed i18n keys</td>
+        <td>Deficit</td>
+        <td><code>minimumQuantity − quantity</code>, floored at zero;
+        computed client-side (<a
+        href="05-domains/analytics.html">§5.3</a>)</td>
         </tr>
         <tr class="odd">
-        <td>3</td>
-        <td>Testability</td>
-        <td>1,319 tests across 225 files (~86% line coverage); every
-        layer testable in isolation</td>
+        <td>Demo mode</td>
+        <td>Client-only read-only session persisted in localStorage; no
+        backend account (<a href="05-domains/auth.html">§5.5</a>)</td>
         </tr>
         <tr class="even">
-        <td>4</td>
-        <td>Bilingual UX</td>
-        <td>Full EN/DE localization with no in-code fallback
-        strings</td>
+        <td>Domain</td>
+        <td>A business area module under <code>pages/</code> with its
+        own state, handlers, and dialogs (<a
+        href="05-building-blocks.html">§5</a>)</td>
+        </tr>
+        <tr class="odd">
+        <td>Envelope tolerance</td>
+        <td>Fetchers accepting multiple response shapes (bare array vs
+        page object) (<a href="08-concepts.html">§8</a>)</td>
+        </tr>
+        <tr class="even">
+        <td>German-first</td>
+        <td>Pre-seeding <code>i18nextLng='de'</code> on first visit
+        before detection runs (<a
+        href="08b-concepts-i18n-theming.html">§8b</a>)</td>
+        </tr>
+        <tr class="odd">
+        <td>Orchestrator</td>
+        <td>A page component composing state, handlers, data, and
+        dialogs without owning their logic</td>
+        </tr>
+        <tr class="even">
+        <td>Serve-time rewrite</td>
+        <td>Nginx rewriting the baked API origin as the bundle is served
+        (<a
+        href="../../backend/architecture/09-decisions/adr-0008-serve-time-api-base-rewrite.html">ADR-0008,
+        backend</a>)</td>
+        </tr>
+        <tr class="odd">
+        <td>Shell</td>
+        <td>Top-level chrome wrapper; public and authenticated variants
+        (<a href="05-building-blocks.html">§5</a>)</td>
+        </tr>
+        <tr class="even">
+        <td>Session probe</td>
+        <td><code>GET /api/me</code> used for hydration and validity
+        checks, exempt from 401 redirects (<a
+        href="08-concepts.html">§8</a>)</td>
+        </tr>
+        <tr class="odd">
+        <td>BUCKET marker</td>
+        <td>In-source comment recording a tracked observation with its
+        internal ID</td>
         </tr>
         </tbody>
         </table>
-        <h2 id="chapters">Chapters</h2>
-        <table>
-        <colgroup>
-        <col style="width: 33%" />
-        <col style="width: 33%" />
-        <col style="width: 33%" />
-        </colgroup>
-        <thead>
-        <tr class="header">
-        <th>Chapter</th>
-        <th>Content</th>
-        <th>Status</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="odd">
-        <td>§1 Introduction &amp; Goals</td>
-        <td>This page</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="02-constraints.html">§2 Constraints</a></td>
-        <td>Technology, organizational constraints, conventions</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="03-context.html">§3 Context &amp; Scope</a></td>
-        <td>System boundary, external systems, integration facts</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="04-solution-strategy.html">§4 Solution
-        Strategy</a></td>
-        <td>Key architectural approaches at a glance</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="05-building-blocks.html">§5 Building
-        Blocks</a></td>
-        <td>App shell, domain pages, API layer, shared UI</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="06-runtime.html">§6 Runtime</a></td>
-        <td>Routing, guards, key user flows</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="07-deployment.html">§7 Deployment</a></td>
-        <td>Build, Koyeb/Nginx delivery, frontend CI</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="08-concepts.html">§8 Concepts</a></td>
-        <td>State and data access</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="08b-concepts-i18n-theming.html">§8b
-        Concepts</a></td>
-        <td>Internationalization and theming</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="08c-concepts-testing.html">§8c Concepts</a></td>
-        <td>Testing strategy and conventions</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="09-decisions/index.html">§9 Decisions
-        (ADRs)</a></td>
-        <td>Architecture decision records</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="10-quality-requirements.html">§10 Quality
-        Requirements</a></td>
-        <td>Enforced quality scenarios and non-goals</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="11-risks-technical-debt.html">§11 Risks &amp;
-        Technical Debt</a></td>
-        <td>Known risks and tracked debt</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="12-glossary.html">§12 Glossary</a></td>
-        <td>Domain and technical terms</td>
-        <td>Current</td>
-        </tr>
-        </tbody>
-        </table>
-        <h2 id="sprache-language">Sprache / Language</h2>
-        <p>Ein deutschsprachiger Einstieg ist verfügbar: <a
-        href="index-de.html">Einführung &amp; Ziele (Deutsch)</a>.</p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#introduction-goals" id="toc-introduction-goals">§1
-      Introduction &amp; Goals</a>
-      <ul>
-      <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
-      <li><a href="#quality-goals" id="toc-quality-goals">Quality
-      Goals</a></li>
-      <li><a href="#chapters" id="toc-chapters">Chapters</a></li>
-      <li><a href="#sprache-language" id="toc-sprache-language">Sprache
-      / Language</a></li>
-      </ul></li>
+      <li><a href="#glossary" id="toc-glossary">§12 Glossary</a></li>
       </ul>
     </nav>
       </div>

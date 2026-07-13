@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frontend · index · Smart Supply Pro Docs</title>
+  <title>Frontend ·
+10-quality-requirements · Smart Supply Pro Docs</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -95,21 +96,26 @@
 
     <main class="content" id="main">
       <article class="doc-body">
-        <h1 id="introduction-goals">§1 Introduction &amp; Goals</h1>
-        <p>Smart Supply Pro’s frontend is a React + TypeScript
-        single-page application providing the user experience for
-        inventory management, supplier workflows, and purchasing
-        analytics. This documentation follows the arc42 structure
-        already used by the <a
-        href="../../backend/architecture/index.html">backend
-        architecture docs</a>, so both halves of the system read the
-        same way.</p>
-        <h2 id="purpose">Purpose</h2>
-        <p>Give a reviewer or contributor a complete picture of how the
-        SPA is built: its constraints, context, structural building
-        blocks, runtime behavior, and the recorded reasoning behind
-        every significant decision.</p>
-        <h2 id="quality-goals">Quality Goals</h2>
+        <h1 id="quality-requirements">§10 Quality Requirements</h1>
+        <p>Refines the quality goals from <a href="index.html">§1</a>
+        into measurable, enforced properties, each traceable to a
+        chapter or decision.</p>
+        <h2 id="quality-tree">10.1 Quality Tree</h2>
+        <div class="mermaid">
+        graph LR
+          Q["Quality goals"]
+          Q --> COR["Correctness"]
+          Q --> MNT["Maintainability"]
+          Q --> UX["Bilingual, resilient UX"]
+
+          COR --> COR1["Server truth via React Query invalidation"]
+          COR --> COR2["Typed i18n keys (compile-time)"]
+          MNT --> MNT1["Size standard with documented waivers"]
+          MNT --> MNT2["Central tests, canonical headers"]
+          UX --> UX1["No fallback strings; DE/EN parity"]
+          UX --> UX2["Graceful degradation on API failure"]
+        </div>
+        <h2 id="enforced-scenarios">10.2 Enforced Scenarios</h2>
         <table>
         <colgroup>
         <col style="width: 33%" />
@@ -118,149 +124,76 @@
         </colgroup>
         <thead>
         <tr class="header">
-        <th>Priority</th>
-        <th>Goal</th>
-        <th>Meaning here</th>
+        <th>Property</th>
+        <th>Enforcement</th>
+        <th>Where</th>
         </tr>
         </thead>
         <tbody>
         <tr class="odd">
-        <td>1</td>
-        <td>Correctness</td>
-        <td>UI state always reflects server truth; mutations invalidate
-        the right query caches</td>
+        <td>Every push builds and passes the full suite</td>
+        <td><code>tsc --noEmit</code> + <code>vitest run</code> in
+        workflow 5</td>
+        <td><a href="07-deployment.html">§7</a></td>
         </tr>
         <tr class="even">
-        <td>2</td>
-        <td>Maintainability</td>
-        <td>Feature-first layering (ADR-0001); strict size and comment
-        standards; typed i18n keys</td>
+        <td>~1,300 tests / ~86% line coverage, published per build</td>
+        <td>Vitest coverage to GitHub Pages</td>
+        <td><a href="08c-concepts-testing.html">§8c</a></td>
         </tr>
         <tr class="odd">
-        <td>3</td>
-        <td>Testability</td>
-        <td>1,319 tests across 225 files (~86% line coverage); every
-        layer testable in isolation</td>
+        <td>Translation keys valid at compile time</td>
+        <td><code>resources.d.ts</code> typing from the EN JSON</td>
+        <td><a href="08b-concepts-i18n-theming.html">§8b</a></td>
         </tr>
         <tr class="even">
-        <td>4</td>
-        <td>Bilingual UX</td>
-        <td>Full EN/DE localization with no in-code fallback
-        strings</td>
+        <td>Missing i18n keys are visible bugs</td>
+        <td>No-fallback policy; keys added to both locales</td>
+        <td><a href="08b-concepts-i18n-theming.html">§8b</a></td>
+        </tr>
+        <tr class="odd">
+        <td>Mutations refresh exactly what they change</td>
+        <td>Query-family invalidation conventions</td>
+        <td><a href="08-concepts.html">§8</a></td>
+        </tr>
+        <tr class="even">
+        <td>Partial backend failure never blanks a page</td>
+        <td>Tolerant fetchers, empty-page fallbacks, per-block error
+        states</td>
+        <td><a href="08-concepts.html">§8</a>, <a
+        href="05-domains/dashboard.html">§5.4</a></td>
+        </tr>
+        <tr class="odd">
+        <td>File and method size stay reviewable</td>
+        <td>Per-layer code-line caps; waivers documented in headers</td>
+        <td><a href="02-constraints.html">§2</a></td>
         </tr>
         </tbody>
         </table>
-        <h2 id="chapters">Chapters</h2>
-        <table>
-        <colgroup>
-        <col style="width: 33%" />
-        <col style="width: 33%" />
-        <col style="width: 33%" />
-        </colgroup>
-        <thead>
-        <tr class="header">
-        <th>Chapter</th>
-        <th>Content</th>
-        <th>Status</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="odd">
-        <td>§1 Introduction &amp; Goals</td>
-        <td>This page</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="02-constraints.html">§2 Constraints</a></td>
-        <td>Technology, organizational constraints, conventions</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="03-context.html">§3 Context &amp; Scope</a></td>
-        <td>System boundary, external systems, integration facts</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="04-solution-strategy.html">§4 Solution
-        Strategy</a></td>
-        <td>Key architectural approaches at a glance</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="05-building-blocks.html">§5 Building
-        Blocks</a></td>
-        <td>App shell, domain pages, API layer, shared UI</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="06-runtime.html">§6 Runtime</a></td>
-        <td>Routing, guards, key user flows</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="07-deployment.html">§7 Deployment</a></td>
-        <td>Build, Koyeb/Nginx delivery, frontend CI</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="08-concepts.html">§8 Concepts</a></td>
-        <td>State and data access</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="08b-concepts-i18n-theming.html">§8b
-        Concepts</a></td>
-        <td>Internationalization and theming</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="08c-concepts-testing.html">§8c Concepts</a></td>
-        <td>Testing strategy and conventions</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="09-decisions/index.html">§9 Decisions
-        (ADRs)</a></td>
-        <td>Architecture decision records</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="10-quality-requirements.html">§10 Quality
-        Requirements</a></td>
-        <td>Enforced quality scenarios and non-goals</td>
-        <td>Current</td>
-        </tr>
-        <tr class="odd">
-        <td><a href="11-risks-technical-debt.html">§11 Risks &amp;
-        Technical Debt</a></td>
-        <td>Known risks and tracked debt</td>
-        <td>Current</td>
-        </tr>
-        <tr class="even">
-        <td><a href="12-glossary.html">§12 Glossary</a></td>
-        <td>Domain and technical terms</td>
-        <td>Current</td>
-        </tr>
-        </tbody>
-        </table>
-        <h2 id="sprache-language">Sprache / Language</h2>
-        <p>Ein deutschsprachiger Einstieg ist verfügbar: <a
-        href="index-de.html">Einführung &amp; Ziele (Deutsch)</a>.</p>
+        <p>Coverage is treated as risk management, not a score: strong
+        coverage is demanded on API hooks, workflow handlers, and
+        validation/normalization logic; tiny presentational wrappers are
+        deliberately not chased.</p>
+        <h2 id="known-non-goals">10.3 Known Non-Goals</h2>
+        <p>No end-to-end browser tests against a live backend (all
+        suites are deterministic with mocked boundaries), and no
+        automated accessibility audit yet — RTL’s role/name queries
+        enforce a baseline in component tests.</p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#introduction-goals" id="toc-introduction-goals">§1
-      Introduction &amp; Goals</a>
+      <li><a href="#quality-requirements"
+      id="toc-quality-requirements">§10 Quality Requirements</a>
       <ul>
-      <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
-      <li><a href="#quality-goals" id="toc-quality-goals">Quality
-      Goals</a></li>
-      <li><a href="#chapters" id="toc-chapters">Chapters</a></li>
-      <li><a href="#sprache-language" id="toc-sprache-language">Sprache
-      / Language</a></li>
+      <li><a href="#quality-tree" id="toc-quality-tree">10.1 Quality
+      Tree</a></li>
+      <li><a href="#enforced-scenarios" id="toc-enforced-scenarios">10.2
+      Enforced Scenarios</a></li>
+      <li><a href="#known-non-goals" id="toc-known-non-goals">10.3 Known
+      Non-Goals</a></li>
       </ul></li>
       </ul>
     </nav>
