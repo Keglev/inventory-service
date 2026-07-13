@@ -76,18 +76,19 @@ api/inventory/types/interfaces/ItemDetails · Smart Supply Pro · API</title>
       <ul>
         <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
         <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
-        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
-        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
-        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
-        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
-        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
-        <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
-        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
-        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
-        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
-        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
-        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
-        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+        <li><a href="/inventory-service/frontend/architecture/02-constraints.html">Constraints</a></li>
+        <li><a href="/inventory-service/frontend/architecture/03-context.html">Context</a></li>
+        <li><a href="/inventory-service/frontend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+        <li><a href="/inventory-service/frontend/architecture/05-building-blocks.html">Building Blocks</a></li>
+        <li><a href="/inventory-service/frontend/architecture/06-runtime.html">Runtime View</a></li>
+        <li><a href="/inventory-service/frontend/architecture/07-deployment.html">Deployment</a></li>
+        <li><a href="/inventory-service/frontend/architecture/08-concepts.html">Concepts</a></li>
+        <li><a href="/inventory-service/frontend/architecture/08b-concepts-i18n-theming.html">Concepts: i18n &amp; Theming</a></li>
+        <li><a href="/inventory-service/frontend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+        <li><a href="/inventory-service/frontend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+        <li><a href="/inventory-service/frontend/architecture/12-glossary.html">Glossary</a></li>
       </ul>
 
       <p class="nav-title">Quality</p>
@@ -105,7 +106,7 @@ api/inventory/types/interfaces/ItemDetails · Smart Supply Pro · API</title>
         href="../README.html">api/inventory/types</a> / ItemDetails</p>
         <h1 id="interface-itemdetails">Interface: ItemDetails</h1>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L59">api/inventory/types.ts:59</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L59">api/inventory/types.ts:59</a></p>
         <p>Full item details fetched from backend /api/inventory/{id}
         endpoint. Contains complete item information including actual
         current values. Used by forms and dialogs to display/edit full
@@ -121,7 +122,7 @@ api/inventory/types/interfaces/ItemDetails · Smart Supply Pro · API</title>
         <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L69">api/inventory/types.ts:69</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L69">api/inventory/types.ts:69</a></p>
         <p>Item code/SKU (nullable)</p>
         <hr />
         <h3 id="id">id</h3>
@@ -129,7 +130,7 @@ api/inventory/types/interfaces/ItemDetails · Smart Supply Pro · API</title>
         <p><strong>id</strong>: <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L61">api/inventory/types.ts:61</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L61">api/inventory/types.ts:61</a></p>
         <p>Unique item identifier</p>
         <hr />
         <h3 id="name">name</h3>
@@ -137,7 +138,7 @@ api/inventory/types/interfaces/ItemDetails · Smart Supply Pro · API</title>
         <p><strong>name</strong>: <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L63">api/inventory/types.ts:63</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L63">api/inventory/types.ts:63</a></p>
         <p>Item display name</p>
         <hr />
         <h3 id="onhand">onHand</h3>
@@ -145,7 +146,7 @@ api/inventory/types/interfaces/ItemDetails · Smart Supply Pro · API</title>
         <p><strong>onHand</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L65">api/inventory/types.ts:65</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L65">api/inventory/types.ts:65</a></p>
         <p>Actual current quantity on hand (from backend)</p>
         <hr />
         <h3 id="price">price</h3>
@@ -153,7 +154,7 @@ api/inventory/types/interfaces/ItemDetails · Smart Supply Pro · API</title>
         <p><strong>price</strong>: <code>number</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L67">api/inventory/types.ts:67</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L67">api/inventory/types.ts:67</a></p>
         <p>Actual current price per unit (from backend)</p>
         <hr />
         <h3 id="supplierid">supplierId</h3>
@@ -162,7 +163,7 @@ api/inventory/types/interfaces/ItemDetails · Smart Supply Pro · API</title>
         <code>number</code> | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L71">api/inventory/types.ts:71</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L71">api/inventory/types.ts:71</a></p>
         <p>Associated supplier identifier (nullable)</p>
       </article>
     </main>

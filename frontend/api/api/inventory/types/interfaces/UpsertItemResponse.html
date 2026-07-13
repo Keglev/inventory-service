@@ -76,18 +76,19 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
       <ul>
         <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
         <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
-        <li><a href="/inventory-service/frontend/architecture/app-shell/index.html">App shell</a></li>
-        <li><a href="/inventory-service/frontend/architecture/adr/index.html">ADR</a></li>
-        <li><a href="/inventory-service/frontend/architecture/data-access/index.html">Data access</a></li>
-        <li><a href="/inventory-service/frontend/architecture/diagrams/index.html">Diagrams</a></li>
-        <li><a href="/inventory-service/frontend/architecture/testing/index.html">Testing</a></li>
-        <li><a href="/inventory-service/frontend/architecture/domains/index.html">Domain logic</a></li>
-        <li><a href="/inventory-service/frontend/architecture/ui/index.html">UI layer</a></li>
-        <li><a href="/inventory-service/frontend/architecture/i18n/index.html">Internationalization</a></li>
-        <li><a href="/inventory-service/frontend/architecture/routing/index.html">Routing</a></li>
-        <li><a href="/inventory-service/frontend/architecture/state/index.html">State management</a></li>
-        <li><a href="/inventory-service/frontend/architecture/performance/index.html">Performance</a></li>
-        <li><a href="/inventory-service/frontend/architecture/theming/index.html">Theming</a></li>
+        <li><a href="/inventory-service/frontend/architecture/02-constraints.html">Constraints</a></li>
+        <li><a href="/inventory-service/frontend/architecture/03-context.html">Context</a></li>
+        <li><a href="/inventory-service/frontend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+        <li><a href="/inventory-service/frontend/architecture/05-building-blocks.html">Building Blocks</a></li>
+        <li><a href="/inventory-service/frontend/architecture/06-runtime.html">Runtime View</a></li>
+        <li><a href="/inventory-service/frontend/architecture/07-deployment.html">Deployment</a></li>
+        <li><a href="/inventory-service/frontend/architecture/08-concepts.html">Concepts</a></li>
+        <li><a href="/inventory-service/frontend/architecture/08b-concepts-i18n-theming.html">Concepts: i18n &amp; Theming</a></li>
+        <li><a href="/inventory-service/frontend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+        <li><a href="/inventory-service/frontend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+        <li><a href="/inventory-service/frontend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+        <li><a href="/inventory-service/frontend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+        <li><a href="/inventory-service/frontend/architecture/12-glossary.html">Glossary</a></li>
       </ul>
 
       <p class="nav-title">Quality</p>
@@ -107,7 +108,7 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         <h1 id="interface-upsertitemresponse">Interface:
         UpsertItemResponse</h1>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L98">api/inventory/types.ts:98</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L98">api/inventory/types.ts:98</a></p>
         <p>Upsert operation response with item data or error.</p>
         <h2 id="properties">Properties</h2>
         <h3 id="error">error?</h3>
@@ -116,7 +117,7 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L101">api/inventory/types.ts:101</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L101">api/inventory/types.ts:101</a></p>
         <hr />
         <h3 id="errortoken">errorToken?</h3>
         <blockquote>
@@ -124,7 +125,7 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         <code>string</code> | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L108">api/inventory/types.ts:108</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L108">api/inventory/types.ts:108</a></p>
         <p>Normalized backend status token
         (HttpStatus.name().toLowerCase()), e.g. 'not_found', 'conflict',
         'forbidden'. Present on failures that originate from an Axios
@@ -138,7 +139,7 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         <code>string</code>&gt; | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L116">api/inventory/types.ts:116</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L116">api/inventory/types.ts:116</a></p>
         <p>Optional per-field error map from the backend envelope (field
         name to message), e.g. { sku: 'SKU is mandatory' }. Present only
         on validation or duplicate failures that attribute a field.</p>
@@ -149,14 +150,14 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         href="InventoryRow.html"><code>InventoryRow</code></a></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L100">api/inventory/types.ts:100</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L100">api/inventory/types.ts:100</a></p>
         <hr />
         <h3 id="ok">ok</h3>
         <blockquote>
         <p><strong>ok</strong>: <code>boolean</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L99">api/inventory/types.ts:99</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L99">api/inventory/types.ts:99</a></p>
         <hr />
         <h3 id="status">status?</h3>
         <blockquote>
@@ -164,7 +165,7 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         <code>number</code> | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/3752b1d0bd24fb910bd13b1664c7c162fd2b7574/frontend/src/api/inventory/types.ts#L110">api/inventory/types.ts:110</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/d336ee3602ba1c331da791be66df2d6e73314afa/frontend/src/api/inventory/types.ts#L110">api/inventory/types.ts:110</a></p>
         <p>Numeric HTTP status on failure, when available.</p>
       </article>
     </main>
