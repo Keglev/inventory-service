@@ -120,7 +120,7 @@ The production connection to Oracle Autonomous Database is **passwordless**. The
 wallet (`oracle_wallet/Wallet_sspdb_fixed/cwallet.sso`) is bundled into the Docker
 image. At runtime only `TNS_ADMIN` needs to point to the wallet directory — no
 username/password is stored or injected. See
-[ADR 0001](09-decisions/0001-oracle-wallet-autologin.md).
+[ADR 0001](09-decisions/adr-0001-oracle-wallet-autologin.md).
 
 ## Environment Variables and Secrets
 

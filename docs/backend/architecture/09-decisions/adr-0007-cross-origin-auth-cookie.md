@@ -5,6 +5,11 @@
 ## Status
 Accepted
 
+> **Currency note (2026-07-13):** the direct cross-origin path this ADR documents
+> remains configured and functional but is no longer the active production topology;
+> browser traffic is same-origin via the serve-time rewrite proxy. See
+> [ADR-0008](adr-0008-serve-time-api-base-rewrite.md).
+
 ## Date
 2025-11-15 
 

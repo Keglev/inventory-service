@@ -23,8 +23,8 @@ JPA entities never cross the controller boundary; DTOs never enter repositories.
 decouples the API contract from the database schema so either can evolve independently.
 Mapping is done by hand rather than with an annotation-processor framework, favouring
 explicit conversions that are straightforward to read and trace under a debugger.
-See [ADR 0002](09-decisions/0002-manual-mapping-over-mapstruct.md) and
-[ADR 0003](09-decisions/0003-dto-boundary-no-entity-exposure.md).
+See [ADR 0002](09-decisions/adr-0002-manual-mapping-over-mapstruct.md) and
+[ADR 0003](09-decisions/adr-0003-dto-boundary-no-entity-exposure.md).
 
 ## OAuth2 / RBAC Security
 
@@ -34,7 +34,7 @@ session cookie — no token ever reaches the frontend. Authorisation is enforced
 method level with `@PreAuthorize`; two roles (`ADMIN`, `USER`) cover all current
 access-control requirements. The production database connection is passwordless via
 Oracle wallet (`cwallet.sso`).
-See [ADR 0001](09-decisions/0001-oracle-wallet-autologin.md).
+See [ADR 0001](09-decisions/adr-0001-oracle-wallet-autologin.md).
 
 ## HTTP Status as the Response Envelope
 
@@ -43,7 +43,7 @@ status code. There is no generic success wrapper. All errors share one canonical
 `{ "error": "<token>", "message": "...", "timestamp": "..." }`,
 produced by a single `@ControllerAdvice` handler so the contract cannot drift per
 endpoint.
-See [ADR 0004](09-decisions/0004-http-status-as-envelope.md).
+See [ADR 0004](09-decisions/adr-0004-http-status-as-envelope.md).
 
 ## Stateless Services and Horizontal Scaling
 

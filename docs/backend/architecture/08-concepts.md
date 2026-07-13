@@ -30,9 +30,10 @@ in prod) permits unauthenticated read access. The flag is evaluated inside the
 the properties bean to SpEL as `@appProperties` — and it does not disable the security
 filter chain.
 
-Session cookies are `HttpOnly`, `Secure=true`, `SameSite=None` (required because Nginx
-on Koyeb proxies `/api/*` to Fly.io across origins — `Strict` would drop the session
-cookie on every cross-origin subrequest). CORS allowed origins are configured per
+Session cookies are `HttpOnly`, `Secure=true`, `SameSite=None`. With the serve-time
+rewrite proxy active, browser traffic is same-origin and the proxied path does not
+itself require `None`; the attribute is retained to keep the direct Fly.io-origin
+path functional (see [ADR-0008](09-decisions/adr-0008-serve-time-api-base-rewrite.md)). CORS allowed origins are configured per
 profile in `AppProperties.cors.allowedOrigins`
 (default: `http://localhost:5173`; prod: `https://inventory-service.koyeb.app`).
 
