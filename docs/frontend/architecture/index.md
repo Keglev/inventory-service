@@ -32,7 +32,9 @@ reasoning behind every significant decision.
 | [§5 Building Blocks](05-building-blocks.md) | App shell, domain pages, API layer, shared UI | Current |
 | [§6 Runtime](06-runtime.md) | Routing, guards, key user flows | Current |
 | [§7 Deployment](07-deployment.md) | Build, Koyeb/Nginx delivery, frontend CI | Current |
-| §8 Concepts | State, data access, i18n, theming, testing | In restructure — see [legacy topics](../old/architecture/index.md) |
+| [§8 Concepts](08-concepts.md) | State and data access | Current |
+| [§8b Concepts](08b-concepts-i18n-theming.md) | Internationalization and theming | Current |
+| [§8c Concepts](08c-concepts-testing.md) | Testing strategy and conventions | Current |
 | [§9 Decisions (ADRs)](09-decisions/index.md) | Architecture decision records | Current |
 | §10 Quality Requirements | Coverage gates, CI quality checks | Planned |
 | §11 Risks & Technical Debt | Known risks and tracked debt | Planned |
