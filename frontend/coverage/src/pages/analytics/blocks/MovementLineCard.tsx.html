@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>15/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">94.44% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>17/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>15/15</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -197,32 +197,30 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -239,11 +237,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -303,31 +303,31 @@ import { formatDate, formatNumber } from '../../../utils/formatters';
 &nbsp;
 export type MovementLineCardProps = { from?: string; to?: string; supplierId?: string | null };
 &nbsp;
-export default function <span class="fstat-no" title="function not covered" >MovementLineCard({</span> from, to, supplierId }: MovementLineCardProps) {
-  const { t <span class="cstat-no" title="statement not covered" >} = useTranslation(['analytics']);</span>
-  const <span class="cstat-no" title="statement not covered" >muiTheme = useMuiTheme();</span>
-  const { userPreferences <span class="cstat-no" title="statement not covered" >} = useSettings();</span>
+export default function MovementLineCard({ from, to, supplierId }: MovementLineCardProps) {
+  const { t } = useTranslation(['analytics']);
+  const muiTheme = useMuiTheme();
+  const { userPreferences } = useSettings();
 &nbsp;
-  const <span class="cstat-no" title="statement not covered" >q = useQuery&lt;MonthlyMovement[]&gt;({</span>
+  const q = useQuery&lt;MonthlyMovement[]&gt;({
     queryKey: ['analytics', 'movementLine', from ?? null, to ?? null, supplierId ?? null],
-    queryFn: <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =&gt; g</span>etMonthlyStockMovement({ from, to, supplierId: supplierId ?? undefined }),</span>
+    queryFn: () =&gt; getMonthlyStockMovement({ from, to, supplierId: supplierId ?? undefined }),
     staleTime: 60_000,
   });
 &nbsp;
-  const data = <span class="cstat-no" title="statement not covered" >React.useMemo(</span>
-<span class="fstat-no" title="function not covered" >    () =&gt; <span class="cstat-no" title="statement not covered" >[</span>...(q.data ?? [])],</span>
+  const data = React.useMemo(
+    () =&gt; [...(q.data ?? [])],
     [q.data]
   );
-  const formatDateLabel = <span class="cstat-no" title="statement not covered" >React.useCallback(</span>
-<span class="fstat-no" title="function not covered" >    (v</span>alue: string | number) =&gt; {
-      const str = <span class="cstat-no" title="statement not covered" >String(value);</span>
-      const <span class="cstat-no" title="statement not covered" >formatted = formatDate(str, userPreferences.dateFormat);</span>
-<span class="cstat-no" title="statement not covered" >      return formatted || str;</span>
+  const formatDateLabel = React.useCallback(
+    (value: string | number) =&gt; {
+      const str = String(value);
+      const formatted = formatDate(str, userPreferences.dateFormat);
+      return formatted || <span class="branch-1 cbranch-no" title="branch not covered" >str;</span>
     },
     [userPreferences.dateFormat]
   );
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;Card&gt;
       &lt;CardContent&gt;
         &lt;Typography variant="subtitle1" sx={{ mb: 1 }}&gt;
@@ -346,11 +346,11 @@ export default function <span class="fstat-no" title="function not covered" >Mov
               &lt;LineChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}&gt;
                 &lt;CartesianGrid strokeDasharray="3 3" /&gt;
                 &lt;XAxis dataKey="month" tickFormatter={formatDateLabel} /&gt;
-                &lt;YAxis tickFormatter={<span class="fstat-no" title="function not covered" >(<span class="cstat-no" title="statement not covered" >v</span>alue) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 0)} /</span>&gt;
+                &lt;YAxis tickFormatter={(value) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 0)} /&gt;
                 &lt;Tooltip
-                  labelFormatter={<span class="fstat-no" title="function not covered" >(v</span>alue) =&gt; <span class="cstat-no" title="statement not covered" >formatDateLabel(value as string)}</span>
-                  formatter={<span class="fstat-no" title="function not covered" >(v</span>alue: number | string) =&gt;
-<span class="cstat-no" title="statement not covered" >                    typeof value === 'number'</span>
+                  labelFormatter={(value) =&gt; formatDateLabel(value as string)}
+                  formatter={(value: number | string) =&gt;
+                    typeof value === 'number'
                       ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
                       : value
                   }
@@ -391,7 +391,7 @@ export default function <span class="fstat-no" title="function not covered" >Mov
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-13T10:38:12.852Z
+                at 2026-07-13T12:11:26.804Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

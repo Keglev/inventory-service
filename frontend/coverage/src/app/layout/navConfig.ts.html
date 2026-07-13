@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -205,7 +205,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -218,7 +218,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -256,7 +256,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -293,11 +293,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file navConfig.ts
@@ -323,7 +323,7 @@ import InsightsIcon from '@mui/icons-material/Insights';
  * Supported navigation routes in the application.
  * Each route maps to an authenticated page within AppShell.
  */
-export const AppRoutes = <span class="cstat-no" title="statement not covered" >{</span>
+export const AppRoutes = {
   Dashboard: '/dashboard',
   Inventory: '/inventory',
   Suppliers: '/suppliers',
@@ -336,7 +336,7 @@ export type AppRoutesType = (typeof AppRoutes)[keyof typeof AppRoutes];
  * Help topic IDs for context-sensitive help system.
  * Maps routes to their corresponding help documentation topics.
  */
-export const HelpTopics = <span class="cstat-no" title="statement not covered" >{</span>
+export const HelpTopics = {
   Main: 'app.main',
   // Dashboard deliberately reuses Main's help topic; they share the same contextual documentation.
   Dashboard: 'app.main',
@@ -374,7 +374,7 @@ export interface NavItemConfig {
  *
  * @const
  */
-export const NAV_ITEMS: NavItemConfig[] = <span class="cstat-no" title="statement not covered" >[</span>
+export const NAV_ITEMS: NavItemConfig[] = [
   {
     route: AppRoutes.Dashboard,
     label: 'nav.dashboard',
@@ -410,12 +410,12 @@ export const NAV_ITEMS: NavItemConfig[] = <span class="cstat-no" title="statemen
  * @param pathname - Current route pathname from useLocation()
  * @returns HelpTopics enum value for context-sensitive help
  */
-export function <span class="fstat-no" title="function not covered" >getHelpTopicForRoute(p</span>athname: string): HelpTopicsType {
-<span class="cstat-no" title="statement not covered" >  if (pathname.startsWith(AppRoutes.Inventory)) <span class="cstat-no" title="statement not covered" >return HelpTopics.Inventory;</span></span>
-<span class="cstat-no" title="statement not covered" >  if (pathname.startsWith(AppRoutes.Analytics)) <span class="cstat-no" title="statement not covered" >return HelpTopics.Analytics;</span></span>
-<span class="cstat-no" title="statement not covered" >  if (pathname.startsWith(AppRoutes.Suppliers)) <span class="cstat-no" title="statement not covered" >return HelpTopics.Suppliers;</span></span>
-<span class="cstat-no" title="statement not covered" >  if (pathname.startsWith(AppRoutes.Dashboard)) <span class="cstat-no" title="statement not covered" >return HelpTopics.Dashboard;</span></span>
-<span class="cstat-no" title="statement not covered" >  return HelpTopics.Main;</span>
+export function getHelpTopicForRoute(pathname: string): HelpTopicsType {
+  if (pathname.startsWith(AppRoutes.Inventory)) return HelpTopics.Inventory;
+  if (pathname.startsWith(AppRoutes.Analytics)) return HelpTopics.Analytics;
+  if (pathname.startsWith(AppRoutes.Suppliers)) return HelpTopics.Suppliers;
+  if (pathname.startsWith(AppRoutes.Dashboard)) return HelpTopics.Dashboard;
+  return HelpTopics.Main;
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -424,7 +424,7 @@ export function <span class="fstat-no" title="function not covered" >getHelpTopi
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-13T10:38:12.852Z
+                at 2026-07-13T12:11:26.804Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
