@@ -75,6 +75,6 @@ Access patterns are standardized via:
   - Use `frontend/src/__tests__/test/all-providers.tsx` to render components under correct providers.
 
 ## References
-- Architecture docs: [State](../state/index.md), [UI & UX Building Blocks](../ui/index.md)
-- Diagram: [Provider composition](../diagrams/state/provider-composition-flow.md)
+- Architecture docs: [State](../../old/architecture/state/index.md), [UI & UX Building Blocks](../../old/architecture/ui/index.md)
+- Diagram: [Provider composition](../../old/architecture/diagrams/state/provider-composition-flow.md)
 - Related ADRs: ADR-0002

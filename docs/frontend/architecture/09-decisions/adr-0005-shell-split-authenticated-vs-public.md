@@ -77,6 +77,6 @@ Protected routes are additionally guarded by:
   - Route grouping behavior and shell rendering: `frontend/src/__tests__/routes/*` and `frontend/src/__tests__/app/*`.
 
 ## References
-- Architecture docs: [App Shell](../app-shell/index.md), [Routing](../routing/index.md)
-- Diagram: [Routing flow](../diagrams/routing/routing-flow.md)
+- Architecture docs: [App Shell](../../old/architecture/app-shell/index.md), [Routing](../../old/architecture/routing/index.md)
+- Diagram: [Routing flow](../../old/architecture/diagrams/routing/routing-flow.md)
 - Related ADRs: ADR-0006

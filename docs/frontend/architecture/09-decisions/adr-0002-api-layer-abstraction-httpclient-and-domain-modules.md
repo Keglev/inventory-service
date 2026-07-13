@@ -79,9 +79,9 @@ UI code consumes domain hooks/fetchers rather than importing Axios directly.
   - Unit tests for client policies and fetchers under `frontend/src/__tests__/unit/api/*`.
 
 ## References
-- Architecture docs: [Data Access](../data-access/index.md)
+- Architecture docs: [Data Access](../../old/architecture/data-access/index.md)
 - Diagrams:
-  - [Data fetching flow](../diagrams/data-access/data-fetching-flow.md)
-  - [HTTP client 401 redirect flow](../diagrams/data-access/http-client-401-redirect-flow.md)
-  - [List fetching + normalization](../diagrams/data-access/list-fetching-and-normalization-flow.md)
+  - [Data fetching flow](../../old/architecture/diagrams/data-access/data-fetching-flow.md)
+  - [HTTP client 401 redirect flow](../../old/architecture/diagrams/data-access/http-client-401-redirect-flow.md)
+  - [List fetching + normalization](../../old/architecture/diagrams/data-access/list-fetching-and-normalization-flow.md)
 - Related ADRs: ADR-0001, ADR-0006

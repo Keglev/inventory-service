@@ -77,6 +77,6 @@ Examples:
   - Hooks/handlers: unit tests where feasible.
 
 ## References
-- Architecture docs: [Domains](../domains/index.md)
-- Diagram: [Domains overview](../diagrams/domains/domains-overview.md)
+- Architecture docs: [Domains](../../old/architecture/domains/index.md)
+- Diagram: [Domains overview](../../old/architecture/diagrams/domains/domains-overview.md)
 - Related ADRs: ADR-0004
