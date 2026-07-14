@@ -145,16 +145,20 @@
         </ul>
         <h2 id="error-handling-open-items">Error Handling &amp; Open
         Items</h2>
-        <p>The supplier form hooks currently match free-text server
-        messages (including the German ‘verknüpften’ variant) to
-        classify errors; migrating to the structured
-        <code>{error, message, timestamp}</code> contract is tracked
-        (CB-APP100). The dialogs now use the shared
-        <code>HelpIconButton</code> and reference palette tokens rather
-        than fixed hex values, so they follow the same help and theming
-        contract as the inventory dialogs. Unlike Inventory, the
-        supplier dialogs do not take a <code>readOnly</code> prop; demo
-        restriction relies on backend authorization.</p>
+        <p>The supplier form hooks classify failures from the structured
+        <code>{error, message, timestamp, fieldErrors?}</code> envelope:
+        the shared <code>supplierServerErrors</code> module keys on the
+        status code and the status token, and the calling dialog
+        supplies its operation, because 409 means a duplicate name on
+        create and update but the linked-items rule on delete. A
+        duplicate name arrives with <code>fieldErrors.name</code> and is
+        pinned to the input rather than the form banner. The dialogs
+        also use the shared <code>HelpIconButton</code> and reference
+        palette tokens rather than fixed hex values, so they follow the
+        same help and theming contract as the inventory dialogs. Unlike
+        Inventory, the supplier dialogs do not take a
+        <code>readOnly</code> prop; demo restriction relies on backend
+        authorization.</p>
       </article>
     </main>
 

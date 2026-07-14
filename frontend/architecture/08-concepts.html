@@ -205,9 +205,11 @@
         structured messages when present, falls back to status-based
         text (400/401/403/404/409), then to <code>Error.message</code>,
         then to a generic failure line — UI surfaces the string, never a
-        stack trace. Migrating supplier-dialog free-text matching to the
-        structured <code>{error, message, timestamp}</code> contract is
-        tracked (CB-APP100).</p>
+        stack trace. Dialogs that must distinguish failure kinds do not
+        read that string: <code>extractApiError()</code> lifts the
+        status, the status token and <code>fieldErrors</code> out of the
+        envelope, and the inventory and supplier form hooks classify
+        from those.</p>
       </article>
     </main>
 

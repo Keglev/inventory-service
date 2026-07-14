@@ -38,7 +38,7 @@ public final class SupplierValidator {
 
 <span class="fc" id="L39">        var existing = repo.findByNameIgnoreCase(name.trim()).map(s -&gt; (Object) s).orElse(null);</span>
 <span class="fc bfc" id="L40" title="All 4 branches covered.">        if (existing != null &amp;&amp; !Objects.equals(invokeGetId(existing), excludeId)) {</span>
-<span class="fc" id="L41">            throw new DuplicateResourceException(&quot;Supplier already exists&quot;);</span>
+<span class="fc" id="L41">            throw new DuplicateResourceException(&quot;Supplier already exists&quot;, &quot;name&quot;);</span>
         }
 <span class="fc" id="L43">    }</span>
 

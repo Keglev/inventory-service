@@ -81,7 +81,7 @@ Inventory Service,com.smartsupplypro.inventory.dto,EmployeeActivityDTO,0,15,0,0,
 Inventory Service,com.smartsupplypro.inventory.dto,ReasonBreakdownDTO,0,12,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,FinancialSummaryDTO,0,48,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemValidator,0,92,2,24,0,20,2,15,0,4
-Inventory Service,com.smartsupplypro.inventory.validation,SupplierValidator,1,96,2,20,0,21,2,15,0,6
+Inventory Service,com.smartsupplypro.inventory.validation,SupplierValidator,1,97,2,20,0,21,2,15,0,6
 Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemLookupValidator,7,106,2,14,2,21,2,12,0,6
 Inventory Service,com.smartsupplypro.inventory.validation,StockHistoryValidator,0,133,2,24,0,20,2,13,0,2
 Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemSecurityValidator,3,81,0,18,1,15,1,12,1,3

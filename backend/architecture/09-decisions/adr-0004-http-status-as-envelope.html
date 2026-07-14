@@ -146,8 +146,13 @@
         <li><code>timestamp</code> — ISO-8601 instant the error occurred
         (<code>Instant.now().toString()</code>)</li>
         <li><code>fieldErrors</code> — optional map (field name →
-        message), attached only to bean-validation failures and omitted
-        from the JSON otherwise</li>
+        message), omitted from the JSON when empty. Attached by
+        bean-validation failures, and by any business rule that can name
+        the offending input: <code>DuplicateResourceException</code>
+        carries the field, so a duplicate item or supplier name reaches
+        the client as <code>fieldErrors.name</code>. This is what lets a
+        form attach the message to the input instead of a banner,
+        without parsing the free-text message</li>
         </ul>
         <p><strong>Success body</strong>: the domain DTO or list
         directly (e.g., <code>InventoryItemDTO</code>,

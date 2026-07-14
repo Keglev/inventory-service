@@ -112,12 +112,27 @@ api/suppliers/supplierMutations/README · Smart Supply Pro · API</title>
         <p>supplierMutations.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>errorMessage is borrowed from api/shared — not a
-        supplier-owned helper.</li>
-        <li>Error shape from the backend is {error, message, timestamp};
-        errorMessage extracts the message field.</li>
-        <li>All three functions return {success, error?} so callers
-        never need to catch; errors surface as strings.</li>
+        <li>errorMessage and extractApiError are borrowed from
+        api/shared — not supplier-owned helpers.</li>
+        <li>Error shape from the backend is {error, message, timestamp,
+        fieldErrors?}. The status code, the status token and fieldErrors
+        are carried through alongside the message, because callers
+        classify failures from the envelope rather than by matching
+        substrings in the free-text message.</li>
+        <li>All three functions return {success, error?, ...envelope} so
+        callers never need to catch.</li>
+        </ul>
+        <h2 id="interfaces">Interfaces</h2>
+        <ul>
+        <li><a
+        href="interfaces/SupplierMutationFailure.html">SupplierMutationFailure</a></li>
+        </ul>
+        <h2 id="type-aliases">Type Aliases</h2>
+        <ul>
+        <li><a
+        href="type-aliases/SupplierDeleteResult.html">SupplierDeleteResult</a></li>
+        <li><a
+        href="type-aliases/SupplierWriteResult.html">SupplierWriteResult</a></li>
         </ul>
         <h2 id="functions">Functions</h2>
         <ul>
@@ -139,6 +154,9 @@ api/suppliers/supplierMutations/README · Smart Supply Pro · API</title>
       <ul>
       <li><a href="#file" id="toc-file">File</a></li>
       <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
+      <li><a href="#interfaces" id="toc-interfaces">Interfaces</a></li>
+      <li><a href="#type-aliases" id="toc-type-aliases">Type
+      Aliases</a></li>
       <li><a href="#functions" id="toc-functions">Functions</a></li>
       </ul></li>
       </ul>
