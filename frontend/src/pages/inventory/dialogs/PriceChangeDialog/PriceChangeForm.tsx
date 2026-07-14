@@ -40,6 +40,8 @@ import {
 } from '@mui/material';
 import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+
+import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import { PriceChangeItemDetails } from './PriceChangeItemDetails';
 import type { UsePriceChangeFormReturn } from './usePriceChangeForm';
 
@@ -175,9 +177,8 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
               }}
               error={!!state.formState.errors.newPrice}
               helperText={
-                typeof state.formState.errors.newPrice?.message === 'string'
-                  ? state.formState.errors.newPrice.message
-                  : state.selectedItem
+                fieldErrorText(state.formState.errors.newPrice, t) ||
+                (state.selectedItem
                     ? t('inventory:price.priceChange', {
                         from: state.effectiveCurrentPrice.toFixed(2),
                         to: Number(value).toFixed(2),
@@ -186,7 +187,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
                       t('inventory:price.newTotalValue', {
                         total: (Number(value) * state.effectiveCurrentQty).toFixed(2),
                       })
-                    : ''
+                    : '')
               }
             />
           )}

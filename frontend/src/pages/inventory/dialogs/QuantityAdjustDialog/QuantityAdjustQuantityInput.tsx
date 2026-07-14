@@ -25,6 +25,8 @@ import * as React from 'react';
 import { TextField, FormControl, InputLabel, Select, MenuItem, Typography, Box } from '@mui/material';
 import { Controller, useWatch, type Control, type FieldErrors } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+
+import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import { INCREASE_ADJUST_REASONS, DECREASE_ADJUST_REASONS, ADJUST_REASONS, type QuantityAdjustForm } from '../../validation/inventoryValidation';
 
 interface QuantityAdjustQuantityInputProps {
@@ -75,7 +77,7 @@ export const QuantityAdjustQuantityInput: React.FC<QuantityAdjustQuantityInputPr
             slotProps={{ htmlInput: { min: 0, step: 1 } }}
             error={!!errors.newQuantity}
             helperText={
-              errors.newQuantity?.message ||
+              fieldErrorText(errors.newQuantity, t) ||
               (currentQty !== undefined &&
                 t('inventory:quantity.quantityChangeHint', {
                   current: currentQty,
@@ -109,7 +111,7 @@ export const QuantityAdjustQuantityInput: React.FC<QuantityAdjustQuantityInputPr
             </Select>
             {errors.reason && (
               <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                {errors.reason.message}
+                {fieldErrorText(errors.reason, t)}
               </Typography>
             )}
           </FormControl>

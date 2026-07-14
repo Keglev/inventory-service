@@ -22,8 +22,12 @@
  *   edit-name, and delete carry no reason field at all because the backend
  *   does not record one for those flows.
  * - z.coerce.number() is used so text-input strings from MUI TextField
- *   are accepted without explicit conversion at the caller. Error messages
- *   are field-level so a form library can bind them directly.
+ *   are accepted without explicit conversion at the caller.
+ * - Every message is an i18n KEY, never display text. A schema is pure data
+ *   and must not depend on a translator; the key is resolved at the render
+ *   boundary by utils/fieldErrorText, which is also where a server-attributed
+ *   field error lands. That is what makes a client rejection and a server
+ *   rejection of the same field read identically in German.
  */
 
 import { z } from 'zod';
@@ -33,13 +37,15 @@ import { z } from 'zod';
  * Handles both new item creation and existing item updates.
  */
 export const itemFormSchema = z.object({
-  name: z.string().min(1, "Item name is required"),
-  code: z.string().min(1, "SKU is required"),
-  supplierId: z.union([z.string(), z.number()]).refine(val => val !== "" && val !== 0, "Supplier is required"),
-  quantity: z.number().min(0, "Initial stock must be non-negative"),
-  price: z.number().min(0, "Price must be non-negative"),
-  reason: z.enum(["INITIAL_STOCK", "MANUAL_UPDATE"], {
-    message: "Reason is required",
+  name: z.string().min(1, 'errors:validation.required'),
+  code: z.string().min(1, 'errors:validation.required'),
+  supplierId: z
+    .union([z.string(), z.number()])
+    .refine((val) => val !== '' && val !== 0, 'errors:validation.required'),
+  quantity: z.number().min(0, 'errors:validation.nonNegative'),
+  price: z.number().min(0, 'errors:validation.nonNegative'),
+  reason: z.enum(['INITIAL_STOCK', 'MANUAL_UPDATE'], {
+    message: 'errors:validation.required',
   }),
 });
 
@@ -96,26 +102,26 @@ export type AdjustReason = (typeof ADJUST_REASONS)[number];
  */
 export const quantityAdjustSchema = z
   .object({
-    itemId: z.string().min(1, 'Item selection is required'),
+    itemId: z.string().min(1, 'errors:validation.required'),
     currentQuantity: z.number(),
-    newQuantity: z.number().min(0, 'Quantity cannot be negative'),
-    reason: z.enum(ADJUST_REASONS, { message: 'Reason is required' }),
+    newQuantity: z.number().min(0, 'errors:validation.nonNegative'),
+    reason: z.enum(ADJUST_REASONS, { message: 'errors:validation.required' }),
   })
   .refine((v) => v.newQuantity !== v.currentQuantity, {
-    message: 'New quantity must differ from the current quantity',
+    message: 'errors:validation.quantityUnchanged',
     path: ['newQuantity'],
   })
   .refine(
     (v) =>
       v.newQuantity <= v.currentQuantity ||
       (INCREASE_ADJUST_REASONS as readonly string[]).includes(v.reason),
-    { message: 'Select a reason valid for increasing stock', path: ['reason'] }
+    { message: 'errors:validation.reasonInvalidForIncrease', path: ['reason'] }
   )
   .refine(
     (v) =>
       v.newQuantity >= v.currentQuantity ||
       (DECREASE_ADJUST_REASONS as readonly string[]).includes(v.reason),
-    { message: 'Select a reason valid for reducing stock', path: ['reason'] }
+    { message: 'errors:validation.reasonInvalidForDecrease', path: ['reason'] }
   );
 
 export type QuantityAdjustForm = z.infer<typeof quantityAdjustSchema>;
@@ -128,8 +134,8 @@ export type QuantityAdjustForm = z.infer<typeof quantityAdjustSchema>;
  * one for this flow.
  */
 export const priceChangeSchema = z.object({
-  itemId: z.string().min(1, 'Item selection is required'),
-  newPrice: z.number().positive('Price must be greater than 0'),
+  itemId: z.string().min(1, 'errors:validation.required'),
+  newPrice: z.number().positive('errors:validation.positive'),
 });
 
 export type PriceChangeForm = z.infer<typeof priceChangeSchema>;
@@ -142,8 +148,8 @@ export type PriceChangeForm = z.infer<typeof priceChangeSchema>;
  * supplier, and only ADMIN users can rename items.
  */
 export const editItemSchema = z.object({
-  itemId: z.string().min(1, 'Item selection is required'),
-  newName: z.string().min(1, 'Item name is required'),
+  itemId: z.string().min(1, 'errors:validation.required'),
+  newName: z.string().min(1, 'errors:validation.required'),
 });
 
 export type EditItemForm = z.infer<typeof editItemSchema>;
@@ -155,7 +161,7 @@ export type EditItemForm = z.infer<typeof editItemSchema>;
  * quantity is not 0, and only ADMIN users can delete items.
  */
 export const deleteItemSchema = z.object({
-  itemId: z.string().min(1, 'Item selection is required'),
+  itemId: z.string().min(1, 'errors:validation.required'),
 });
 
 export type DeleteItemForm = z.infer<typeof deleteItemSchema>;

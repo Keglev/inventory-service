@@ -77,7 +77,7 @@ describe('inventoryValidation', () => {
           price: 49.99,
           reason: 'INITIAL_STOCK',
         },
-        'Item name is required',
+        'errors:validation.required',
       ],
       [
         'empty supplierId',
@@ -89,7 +89,7 @@ describe('inventoryValidation', () => {
           price: 49.99,
           reason: 'INITIAL_STOCK',
         },
-        'Supplier is required',
+        'errors:validation.required',
       ],
       [
         'negative quantity',
@@ -101,7 +101,7 @@ describe('inventoryValidation', () => {
           price: 49.99,
           reason: 'INITIAL_STOCK',
         },
-        'Initial stock must be non-negative',
+        'errors:validation.nonNegative',
       ],
       [
         'negative price',
@@ -113,7 +113,7 @@ describe('inventoryValidation', () => {
           price: -5.99,
           reason: 'INITIAL_STOCK',
         },
-        'Price must be non-negative',
+        'errors:validation.nonNegative',
       ],
       [
         'invalid reason',
@@ -125,7 +125,7 @@ describe('inventoryValidation', () => {
           price: 49.99,
           reason: 'INVALID_REASON',
         },
-        'Reason is required',
+        'errors:validation.required',
       ],
       [
         'empty code',
@@ -137,7 +137,7 @@ describe('inventoryValidation', () => {
           price: 49.99,
           reason: 'INITIAL_STOCK',
         },
-        'SKU is required',
+        'errors:validation.required',
       ],
     ])('should reject %s', (_, data, message) => {
       expectInvalidMessage(itemFormSchema, data, message);
@@ -182,32 +182,32 @@ describe('inventoryValidation', () => {
       [
         'empty itemId',
         { itemId: '', currentQuantity: 10, newQuantity: 15, reason: 'INITIAL_STOCK' },
-        'Item selection is required',
+        'errors:validation.required',
       ],
       [
         'negative quantity',
         { itemId: 'item-123', currentQuantity: 10, newQuantity: -10, reason: 'SOLD' },
-        'Quantity cannot be negative',
+        'errors:validation.nonNegative',
       ],
       [
         'unknown reason',
         { itemId: 'item-123', currentQuantity: 10, newQuantity: 15, reason: 'DONATED' },
-        'Reason is required',
+        'errors:validation.required',
       ],
       [
         'zero-delta change',
         { itemId: 'item-123', currentQuantity: 10, newQuantity: 10, reason: 'MANUAL_UPDATE' },
-        'New quantity must differ from the current quantity',
+        'errors:validation.quantityUnchanged',
       ],
       [
         'increase with a reduce-only reason',
         { itemId: 'item-123', currentQuantity: 5, newQuantity: 12, reason: 'SOLD' },
-        'Select a reason valid for increasing stock',
+        'errors:validation.reasonInvalidForIncrease',
       ],
       [
         'reduction with an increase-only reason',
         { itemId: 'item-123', currentQuantity: 12, newQuantity: 5, reason: 'RETURNED_BY_CUSTOMER' },
-        'Select a reason valid for reducing stock',
+        'errors:validation.reasonInvalidForDecrease',
       ],
     ])('rejects %s', (_, data, message) => {
       expectInvalidMessage(quantityAdjustSchema, data, message);
@@ -228,17 +228,17 @@ describe('inventoryValidation', () => {
       [
         'empty itemId',
         { itemId: '', newPrice: 99.99 },
-        'Item selection is required',
+        'errors:validation.required',
       ],
       [
         'zero price',
         { itemId: 'item-789', newPrice: 0 },
-        'Price must be greater than 0',
+        'errors:validation.positive',
       ],
       [
         'negative price',
         { itemId: 'item-789', newPrice: -15.5 },
-        'Price must be greater than 0',
+        'errors:validation.positive',
       ],
     ])('should reject %s', (_, data, message) => {
       expectInvalidMessage(priceChangeSchema, data, message);
@@ -254,9 +254,9 @@ describe('inventoryValidation', () => {
       [
         'empty itemId',
         { itemId: '', newName: 'Updated Name' },
-        'Item selection is required',
+        'errors:validation.required',
       ],
-      ['empty newName', { itemId: 'item-111', newName: '' }, 'Item name is required'],
+      ['empty newName', { itemId: 'item-111', newName: '' }, 'errors:validation.required'],
     ])('should reject %s', (_, data, message) => {
       expectInvalidMessage(editItemSchema, data, message);
     });
@@ -268,7 +268,7 @@ describe('inventoryValidation', () => {
     });
 
     it('should reject empty itemId', () => {
-      expectInvalidMessage(deleteItemSchema, { itemId: '' }, 'Item selection is required');
+      expectInvalidMessage(deleteItemSchema, { itemId: '' }, 'errors:validation.required');
     });
   });
 });

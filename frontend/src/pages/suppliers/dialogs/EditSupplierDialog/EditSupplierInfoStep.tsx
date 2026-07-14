@@ -23,6 +23,8 @@ import {
   Divider,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+
+import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import type { EditSupplierForm } from '../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../api/suppliers/types';
 
@@ -68,7 +70,7 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
   errors,
   isSubmitting,
 }) => {
-  const { t } = useTranslation(['suppliers']);
+  const { t } = useTranslation(['suppliers', 'errors']);
 
   if (!selectedSupplier) {
     return (
@@ -110,7 +112,7 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
             label={t('suppliers:table.contactName')}
             placeholder={t('suppliers:form.contactNamePlaceholder')}
             error={!!errors.contactName}
-            helperText={errors.contactName?.message}
+            helperText={fieldErrorText(errors.contactName, t)}
             disabled={isSubmitting}
             margin="normal"
           />
@@ -128,7 +130,7 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
             label={t('suppliers:table.phone')}
             placeholder={t('suppliers:form.phonePlaceholder')}
             error={!!errors.phone}
-            helperText={errors.phone?.message}
+            helperText={fieldErrorText(errors.phone, t)}
             disabled={isSubmitting}
             margin="normal"
           />
@@ -147,7 +149,7 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
             label={t('suppliers:table.email')}
             placeholder={t('suppliers:form.emailPlaceholder')}
             error={!!errors.email}
-            helperText={errors.email?.message}
+            helperText={fieldErrorText(errors.email, t)}
             disabled={isSubmitting}
             margin="normal"
           />

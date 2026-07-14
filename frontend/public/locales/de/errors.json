@@ -1,4 +1,13 @@
 {
+  "validation": {
+    "required": "Pflichtfeld",
+    "invalidEmail": "Ungültige E-Mail-Adresse",
+    "nonNegative": "Der Wert darf nicht negativ sein",
+    "positive": "Der Wert muss größer als 0 sein",
+    "quantityUnchanged": "Die neue Menge muss von der aktuellen abweichen",
+    "reasonInvalidForIncrease": "Wählen Sie einen Grund für eine Bestandserhöhung",
+    "reasonInvalidForDecrease": "Wählen Sie einen Grund für eine Bestandsminderung"
+  },
   "inventory": {
     "validationFailed": "Bitte korrigieren Sie die markierten Felder.",
     "conflicts": {

@@ -83,7 +83,7 @@ describe('createSupplierSchema', () => {
     it('rejects empty string for email', () => {
       const error = expectParseFailure(createSupplierSchema, { name: 'Email Test', email: '' });
 
-      expect(error.issues[0].message).toBe('Invalid email format');
+      expect(error.issues[0].message).toBe('errors:validation.invalidEmail');
     });
 
     it('rejects missing name', () => {
@@ -93,7 +93,7 @@ describe('createSupplierSchema', () => {
     it('rejects invalid email format', () => {
       const error = expectParseFailure(createSupplierSchema, { name: 'Invalid Email Co', email: 'not-an-email' });
 
-      expect(error.issues[0].message).toBe('Invalid email format');
+      expect(error.issues[0].message).toBe('errors:validation.invalidEmail');
     });
   });
 
@@ -154,7 +154,7 @@ describe('editSupplierSchema', () => {
     it('rejects empty supplierId with a stable error message', () => {
       const error = expectParseFailure(editSupplierSchema, { supplierId: '', contactName: 'Test' });
 
-      expect(error.issues[0].message).toBe('Supplier ID is required');
+      expect(error.issues[0].message).toBe('errors:validation.required');
     });
   });
 });

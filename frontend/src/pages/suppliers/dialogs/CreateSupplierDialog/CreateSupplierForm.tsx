@@ -15,6 +15,8 @@
 import * as React from 'react';
 import { TextField, Box, Alert } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+
+import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import type { UseFormRegister, FieldErrors } from 'react-hook-form';
 import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../api/suppliers/validation';
 
@@ -63,7 +65,7 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
   isSubmitting,
   formError,
 }) => {
-  const { t } = useTranslation(['suppliers']);
+  const { t } = useTranslation(['suppliers', 'errors']);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -76,7 +78,7 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
         placeholder={t('suppliers:form.namePlaceholder')}
         fullWidth
         error={Boolean(errors.name)}
-        helperText={errors.name?.message}
+        helperText={fieldErrorText(errors.name, t)}
         disabled={isSubmitting}
         autoFocus
       />
@@ -88,7 +90,7 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
         placeholder={t('suppliers:form.contactNamePlaceholder')}
         fullWidth
         error={Boolean(errors.contactName)}
-        helperText={errors.contactName?.message}
+        helperText={fieldErrorText(errors.contactName, t)}
         disabled={isSubmitting}
       />
 
@@ -99,7 +101,7 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
         placeholder={t('suppliers:form.phonePlaceholder')}
         fullWidth
         error={Boolean(errors.phone)}
-        helperText={errors.phone?.message}
+        helperText={fieldErrorText(errors.phone, t)}
         disabled={isSubmitting}
       />
 
@@ -111,7 +113,7 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
         type="email"
         fullWidth
         error={Boolean(errors.email)}
-        helperText={errors.email?.message}
+        helperText={fieldErrorText(errors.email, t)}
         disabled={isSubmitting}
       />
     </Box>

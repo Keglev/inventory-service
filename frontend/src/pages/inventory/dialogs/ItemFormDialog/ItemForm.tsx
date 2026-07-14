@@ -37,6 +37,8 @@ import {
   Alert,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+
+import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import type { SupplierOption } from '../../../../api/analytics/types';
 import type { UpsertItemForm } from '../../validation/inventoryValidation';
 import type { InventoryRow } from '../../../../api/inventory/types';
@@ -92,9 +94,7 @@ export function ItemForm({
             {...p}
             label={t('inventory:table.supplier')}
             error={!!state.formState.errors.supplierId}
-            helperText={typeof state.formState.errors.supplierId?.message === 'string' 
-              ? state.formState.errors.supplierId.message 
-              : ''}
+            helperText={fieldErrorText(state.formState.errors.supplierId, t)}
           />
         )}
       />
@@ -104,9 +104,7 @@ export function ItemForm({
         label={t('inventory:table.name')}
         {...state.register('name')}
         error={!!state.formState.errors.name}
-        helperText={typeof state.formState.errors.name?.message === 'string'
-          ? state.formState.errors.name.message
-          : ''}
+        helperText={fieldErrorText(state.formState.errors.name, t)}
       />
 
       {/* Code / SKU field - required, unique per item (backend-enforced) */}
@@ -114,9 +112,7 @@ export function ItemForm({
         label={t('inventory:table.code')}
         {...state.register('code')}
         error={!!state.formState.errors.code}
-        helperText={typeof state.formState.errors.code?.message === 'string'
-          ? state.formState.errors.code.message
-          : ''}
+        helperText={fieldErrorText(state.formState.errors.code, t)}
       />
 
       {/* Quantity field */}
@@ -126,9 +122,7 @@ export function ItemForm({
         slotProps={{ htmlInput: { min: 0 } }}
         {...state.register('quantity', { valueAsNumber: true })}
         error={!!state.formState.errors.quantity}
-        helperText={typeof state.formState.errors.quantity?.message === 'string'
-          ? state.formState.errors.quantity.message
-          : ''}
+        helperText={fieldErrorText(state.formState.errors.quantity, t)}
       />
 
       {/* Price field */}
@@ -138,9 +132,7 @@ export function ItemForm({
         slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
         {...state.register('price', { valueAsNumber: true })}
         error={!!state.formState.errors.price}
-        helperText={typeof state.formState.errors.price?.message === 'string'
-          ? state.formState.errors.price.message
-          : ''}
+        helperText={fieldErrorText(state.formState.errors.price, t)}
         InputProps={{
           startAdornment: <span style={{ marginRight: '8px' }}>€</span>,
         }}
@@ -171,9 +163,7 @@ export function ItemForm({
           </Select>
           {state.formState.errors.reason?.message && (
             <Box sx={{ mt: 0.5, color: 'error.main', fontSize: 12 }}>
-              {typeof state.formState.errors.reason.message === 'string'
-                ? state.formState.errors.reason.message
-                : ''}
+              {fieldErrorText(state.formState.errors.reason, t)}
             </Box>
           )}
         </FormControl>

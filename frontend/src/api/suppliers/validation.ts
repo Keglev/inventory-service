@@ -6,7 +6,8 @@
  * Zod schemas for the supplier create and edit forms.
  *
  * @enterprise
- * - Field-level error messages are phrased for direct display in form helpers.
+ * - Every message is an i18n KEY, never display text; utils/fieldErrorText resolves it
+ *   at the render boundary, so client and server rejections of a field read identically.
  * - Email is validated client-side to match backend @Email constraint; other fields have no format rules.
  * - Optional string fields transform empty strings to null so the backend receives a clean null, not "".
  */
@@ -20,7 +21,7 @@ import { z } from 'zod';
 export const createSupplierSchema = z.object({
   name: z
     .string()
-    .min(1, 'Name is required')
+    .min(1, 'errors:validation.required')
     .trim(),
   contactName: z
     .string()
@@ -32,7 +33,7 @@ export const createSupplierSchema = z.object({
     .transform((v) => v || null),
   email: z
     .string()
-    .email('Invalid email format')
+    .email('errors:validation.invalidEmail')
     .optional()
     .transform((v) => v || null),
 });
@@ -48,10 +49,10 @@ export type CreateSupplierForm = z.infer<typeof createSupplierSchema>;
  * so omitting name here is a frontend form decision, not a backend immutability rule.
  */
 export const editSupplierSchema = z.object({
-  supplierId: z.string().min(1, 'Supplier ID is required'),
+  supplierId: z.string().min(1, 'errors:validation.required'),
   contactName: z.string().nullable().catch(null),
   phone: z.string().nullable().catch(null),
-  email: z.string().email('Invalid email format').nullable().catch(null),
+  email: z.string().email('errors:validation.invalidEmail').nullable().catch(null),
 });
 
 export type EditSupplierForm = z.infer<typeof editSupplierSchema>;

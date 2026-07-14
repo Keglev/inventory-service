@@ -50,9 +50,7 @@ export function applyItemFormServerError(
   }
 
   if (result.errorToken === 'conflict') {
-    setError('name', {
-      message: t('errors:inventory.conflicts.duplicateName'),
-    });
+    setError('name', { message: 'errors:inventory.conflicts.duplicateName' });
     return;
   }
 

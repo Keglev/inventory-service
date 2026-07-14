@@ -37,6 +37,8 @@ import {
 } from '@mui/material';
 import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+
+import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import type { UseEditItemFormReturn } from './useEditItemForm';
 
 /**
@@ -192,7 +194,7 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
                 label={t('inventory:table.name')}
                 placeholder={t('inventory:table.name')}
                 error={!!state.formState.errors.newName}
-                helperText={typeof state.formState.errors.newName?.message === 'string' ? state.formState.errors.newName.message : ''}
+                helperText={fieldErrorText(state.formState.errors.newName, t)}
                 disabled={state.formState.isSubmitting}
               />
             )}

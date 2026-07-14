@@ -217,16 +217,16 @@ describe('ItemForm', () => {
     expect(state.setValue).toHaveBeenCalledWith('reason', 'MANUAL_UPDATE', { shouldValidate: true });
   });
 
-  it('covers helperText branches for string vs non-string error messages (including reason error block)', () => {
+  it('resolves field-error keys to translated helper text, and survives non-string messages', () => {
     const state = createMockState({
       formState: {
         errors: {
-          supplierId: { message: 'Supplier is required' },
+          supplierId: { message: 'errors:validation.required' },
           name: { message: { complex: true } },
-          code: { message: 'Code error' },
+          code: { message: 'errors:validation.required' },
           quantity: { message: { not: 'a string' } },
-          price: { message: 'Price error' },
-          reason: { message: 'Reason is required' },
+          price: { message: 'errors:validation.nonNegative' },
+          reason: { message: 'errors:validation.required' },
         },
         isSubmitting: false,
       } as unknown as UseItemFormReturn['formState'],
@@ -234,10 +234,10 @@ describe('ItemForm', () => {
 
     renderItemForm(state, undefined);
 
-    expect(screen.getByText('Supplier is required')).toBeInTheDocument();
-    expect(screen.getByText('Code error')).toBeInTheDocument();
-    expect(screen.getByText('Price error')).toBeInTheDocument();
-    expect(screen.getByText('Reason is required')).toBeInTheDocument();
+    // The key is resolved, not echoed: what reaches the user is locale copy.
+    expect(screen.getAllByText(tEn('errors:validation.required')).length).toBeGreaterThan(0);
+    expect(screen.getByText(tEn('errors:validation.nonNegative'))).toBeInTheDocument();
+    expect(screen.queryByText('errors:validation.required')).not.toBeInTheDocument();
 
     // Non-string helperText branches should not render a stringified object.
     expect(screen.queryByText('[object Object]')).not.toBeInTheDocument();
