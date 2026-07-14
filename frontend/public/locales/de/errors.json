@@ -6,12 +6,14 @@
     "positive": "Der Wert muss größer als 0 sein",
     "quantityUnchanged": "Die neue Menge muss von der aktuellen abweichen",
     "reasonInvalidForIncrease": "Wählen Sie einen Grund für eine Bestandserhöhung",
-    "reasonInvalidForDecrease": "Wählen Sie einen Grund für eine Bestandsminderung"
+    "reasonInvalidForDecrease": "Wählen Sie einen Grund für eine Bestandsminderung",
+    "invalid": "Bitte prüfen Sie dieses Feld"
   },
   "inventory": {
     "validationFailed": "Bitte korrigieren Sie die markierten Felder.",
     "conflicts": {
-      "duplicateName": "Ein Artikel mit diesem Namen existiert bereits"
+      "duplicateName": "Ein Artikel mit diesem Namen und Preis existiert bereits",
+      "duplicateSku": "Ein Artikel mit dieser SKU existiert bereits"
     },
     "selection": {
       "noItemSelected": "Bitte wählen Sie einen Artikel aus"

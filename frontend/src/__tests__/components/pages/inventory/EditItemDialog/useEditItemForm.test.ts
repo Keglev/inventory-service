@@ -332,7 +332,7 @@ describe('useEditItemForm', () => {
       });
 
       expect(onItemRenamed).not.toHaveBeenCalled();
-      expect(result.current.formError).toBe('An item with this name already exists');
+      expect(result.current.formError).toBe('An item with this name and price already exists');
     });
   });
 });

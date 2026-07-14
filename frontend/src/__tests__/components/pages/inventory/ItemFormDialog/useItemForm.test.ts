@@ -218,7 +218,7 @@ describe('useItemForm', () => {
     });
   });
 
-  it('maps backend fieldErrors to form fields (sku maps to code)', async () => {
+  it('maps backend fieldErrors to form fields (sku maps to code) and discards the English message', async () => {
     mockUpsertItem.mockResolvedValue({
       ok: false,
       error: 'whatever',
@@ -229,10 +229,12 @@ describe('useItemForm', () => {
     const { result } = renderUseItemForm();
     await submitValid(result);
 
+    // fieldErrors is a signal (which input), never copy: the server's English
+    // sentence must not survive into a German form.
     await waitFor(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.current.formState.errors as any).code?.message)
-        .toBe('Another inventory item with this SKU already exists.');
+        .toBe('errors:inventory.conflicts.duplicateSku');
     });
     // token fallback must NOT also fire when a field error was applied
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

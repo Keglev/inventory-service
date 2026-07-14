@@ -6,12 +6,14 @@
     "positive": "The value must be greater than 0",
     "quantityUnchanged": "The new quantity must differ from the current quantity",
     "reasonInvalidForIncrease": "Select a reason valid for increasing stock",
-    "reasonInvalidForDecrease": "Select a reason valid for reducing stock"
+    "reasonInvalidForDecrease": "Select a reason valid for reducing stock",
+    "invalid": "Please check this field"
   },
   "inventory": {
     "validationFailed": "Please fix the highlighted fields.",
     "conflicts": {
-      "duplicateName": "An item with this name already exists"
+      "duplicateName": "An item with this name and price already exists",
+      "duplicateSku": "An item with this SKU already exists"
     },
     "selection": {
       "noItemSelected": "Please select an item"

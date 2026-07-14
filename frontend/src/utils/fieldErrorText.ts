@@ -40,7 +40,9 @@ export type FieldErrorKey =
   | 'errors:validation.quantityUnchanged'
   | 'errors:validation.reasonInvalidForIncrease'
   | 'errors:validation.reasonInvalidForDecrease'
+  | 'errors:validation.invalid'
   | 'errors:inventory.conflicts.duplicateName'
+  | 'errors:inventory.conflicts.duplicateSku'
   | 'errors:supplier.businessRules.duplicateName';
 
 /**
