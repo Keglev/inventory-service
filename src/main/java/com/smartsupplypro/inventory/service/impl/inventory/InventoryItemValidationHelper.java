@@ -3,14 +3,13 @@ package com.smartsupplypro.inventory.service.impl.inventory;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
+import com.smartsupplypro.inventory.security.SecurityAuditHelper;
 import com.smartsupplypro.inventory.validation.InventoryItemLookupValidator;
 import com.smartsupplypro.inventory.validation.InventoryItemSecurityValidator;
 import com.smartsupplypro.inventory.validation.InventoryItemValidator;
@@ -42,7 +41,7 @@ public class InventoryItemValidationHelper {
      */
     public void validateForCreation(InventoryItemDTO dto) {
         if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {
-            dto.setCreatedBy(currentUsername());
+            dto.setCreatedBy(SecurityAuditHelper.currentUsername());
         }
         InventoryItemValidator.validateBase(dto);
         InventoryItemLookupValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);
@@ -61,7 +60,7 @@ public class InventoryItemValidationHelper {
             entity.setId(UUID.randomUUID().toString());
         }
         // Always override createdBy from SecurityContext — client-supplied value is untrusted
-        entity.setCreatedBy(currentUsername());
+        entity.setCreatedBy(SecurityAuditHelper.currentUsername());
         if (entity.getCreatedAt() == null) {
             entity.setCreatedAt(LocalDateTime.now());
         }
@@ -140,15 +139,5 @@ public class InventoryItemValidationHelper {
         if (!supplierRepository.existsById(supplierId)) {
             throw new IllegalArgumentException("Supplier does not exist");
         }
-    }
-
-    /**
-     * Retrieves the current authenticated username from the Spring Security context.
-     * Returns "system" when no authentication is present.
-     */
-    private String currentUsername() {
-        Authentication a = SecurityContextHolder.getContext() != null
-                ? SecurityContextHolder.getContext().getAuthentication() : null;
-        return a != null ? a.getName() : "system";
     }
 }
