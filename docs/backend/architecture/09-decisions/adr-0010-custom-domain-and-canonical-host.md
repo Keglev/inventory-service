@@ -96,7 +96,12 @@ cookie decision made there is unaffected; only the frontend hostname changed.
   outside version control.
 
 ## Implementation Notes
-- `fly.toml [env]` — `APP_FRONTEND_BASE_URL`.
+- `fly.toml [env]` — `APP_FRONTEND_BASE_URL`. It belongs here and **must not be
+  re-created as a Fly secret**: secrets shadow `[env]`, so a stale secret of the
+  same name silently overrides the versioned value and every post-login and
+  logout redirect keeps pointing at the old host while the repository says
+  otherwise. `fly ssh console -C "printenv APP_FRONTEND_BASE_URL"` is the only
+  authoritative check of what the running machine actually sees.
 - `application-prod.yml` — `app.cors.allowed-origins`, `app.frontend.base-url`.
 - `.github/workflows/6-deploy-frontend.yml` — `FRONTEND_URL` health-check target.
 - DNS (registrar): `www` `CNAME` to the Koyeb edge; apex 301 to the `www` host.
