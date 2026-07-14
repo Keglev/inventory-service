@@ -62,13 +62,30 @@ vi.mock('recharts', () => ({
   ),
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
   XAxis: () => <div data-testid="x-axis" />,
-  YAxis: () => <div data-testid="y-axis" />,
-  Tooltip: () => <div data-testid="tooltip" />,
+  YAxis: ({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
+    lastYTickFormatter = tickFormatter ?? null;
+    return <div data-testid="y-axis" />;
+  },
+  Tooltip: ({
+    formatter,
+    labelFormatter,
+  }: {
+    formatter?: (v: number | string) => string;
+    labelFormatter?: (v: string) => string;
+  }) => {
+    lastTooltipFormatter = formatter ?? null;
+    lastTooltipLabelFormatter = labelFormatter ?? null;
+    return <div data-testid="tooltip" />;
+  },
   Legend: () => <div data-testid="legend" />,
   Bar: ({ dataKey, name }: { dataKey: string; name?: string }) => (
     <div data-testid="bar-series" data-key={dataKey} data-name={name} />
   ),
 }));
+
+let lastYTickFormatter: ((v: string | number) => string) | null = null;
+let lastTooltipFormatter: ((v: number | string) => string) | null = null;
+let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
 
 // -----------------------------------------------------------------------------
 // Helpers
@@ -151,5 +168,41 @@ describe('RecentStockActivityCard', () => {
 
     // We validate the contract: expected series exist (stacked by reason category).
     expect(seriesKeys).toEqual(expect.arrayContaining(['sale', 'return', 'writeOff']));
+  });
+
+  it('normalizes edge-case reasons, skips bad timestamps, and formats values', async () => {
+    const updates = [
+      // Missing / invalid timestamps are skipped entirely.
+      { itemName: 'A', delta: 5, reason: 'SOLD' },
+      { itemName: 'B', timestamp: 'not-a-date', delta: 5, reason: 'SOLD' },
+      // Reason-less rows and unknown reasons bucket into "other".
+      { itemName: 'C', timestamp: '2025-02-01T10:00:00Z', delta: 2 },
+      { itemName: 'D', timestamp: '2025-02-01T11:00:00Z', delta: 1, reason: 'SOMETHING_ELSE' },
+      // Category keyword arms.
+      { itemName: 'E', timestamp: '2025-02-01T12:00:00Z', delta: 3, reason: 'INITIAL_STOCK' },
+      { itemName: 'F', timestamp: '2025-02-01T13:00:00Z', delta: -4, reason: 'MANUAL_UPDATE' },
+      // Non-numeric delta degrades to 0 instead of crashing the sum.
+      { itemName: 'G', timestamp: '2025-02-01T14:00:00Z', delta: 'x', reason: 'DAMAGED' },
+    ] as unknown as StockUpdateRow[];
+    vi.mocked(getStockUpdates).mockResolvedValue(updates);
+
+    setup(queryClient, { from: '2025-02-01', to: '2025-02-28' });
+
+    await waitFor(() => {
+      // Rows with bad timestamps are dropped; the rest share one daily bucket.
+      expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-length', '1');
+    });
+
+    const seriesKeys = screen
+      .getAllByTestId('bar-series')
+      .map((el) => el.getAttribute('data-key'));
+    expect(seriesKeys).toEqual(
+      expect.arrayContaining(['other', 'initialStock', 'adjustment', 'writeOff']),
+    );
+
+    // Formatter callbacks: counts, tooltip pieces, and label passthrough.
+    expect(lastYTickFormatter?.(1234)).toBe('1234');
+    expect(lastTooltipFormatter?.(1234)).toBe('1234 pcs');
+    expect(lastTooltipLabelFormatter?.('Feb 1')).toBe('Feb 1');
   });
 });

@@ -24,6 +24,10 @@ import StockValueCard from '@/pages/analytics/blocks/StockValueCard';
 // -----------------------------------------------------------------------------
 
 let lastLineChartData: StockValuePoint[] | null = null;
+let lastXTickFormatter: ((v: string | number) => string) | null = null;
+let lastYTickFormatter: ((v: string | number) => string) | null = null;
+let lastTooltipFormatter: ((v: number | string) => string) | null = null;
+let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
 
 // -----------------------------------------------------------------------------
 // Mocks
@@ -58,9 +62,25 @@ vi.mock('recharts', () => ({
     return <div data-testid="line-chart">{children}</div>;
   },
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
-  XAxis: () => <div data-testid="x-axis" />,
-  YAxis: () => <div data-testid="y-axis" />,
-  Tooltip: () => <div data-testid="tooltip" />,
+  XAxis: ({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
+    lastXTickFormatter = tickFormatter ?? null;
+    return <div data-testid="x-axis" />;
+  },
+  YAxis: ({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
+    lastYTickFormatter = tickFormatter ?? null;
+    return <div data-testid="y-axis" />;
+  },
+  Tooltip: ({
+    formatter,
+    labelFormatter,
+  }: {
+    formatter?: (v: number | string) => string;
+    labelFormatter?: (v: string) => string;
+  }) => {
+    lastTooltipFormatter = formatter ?? null;
+    lastTooltipLabelFormatter = labelFormatter ?? null;
+    return <div data-testid="tooltip" />;
+  },
   Line: () => <div data-testid="line" />,
 }));
 
@@ -95,7 +115,36 @@ describe('StockValueCard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     lastLineChartData = null;
+    lastXTickFormatter = null;
+    lastYTickFormatter = null;
+    lastTooltipFormatter = null;
+    lastTooltipLabelFormatter = null;
     queryClient = createClient();
+  });
+
+  it('sorts rows with missing dates first and formats axis/tooltip values', async () => {
+    const mockData = [
+      { date: '2025-01-02', totalValue: 1100 },
+      { totalValue: 900 },
+      { date: '2025-01-01', totalValue: 1000 },
+    ] as StockValuePoint[];
+    vi.mocked(getStockValueOverTime).mockResolvedValue(mockData);
+
+    setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    });
+
+    // Undefined date coerces to '' and sorts ahead of real dates.
+    expect(lastLineChartData?.map((p) => p.date)).toEqual([undefined, '2025-01-01', '2025-01-02']);
+    // Y ticks and tooltip money values carry two decimals; strings pass through.
+    expect(lastYTickFormatter?.(1234.5)).toBe('1,234.50');
+    expect(lastTooltipFormatter?.(1234.5)).toBe('1,234.50 €');
+    expect(lastTooltipFormatter?.('n/a')).toBe('n/a');
+    // Date labels format via preferences and fall back to the raw string.
+    expect(lastXTickFormatter?.('2025-01-01')).toBe('01/01/2025');
+    expect(lastTooltipLabelFormatter?.('not-a-date')).toBe('not-a-date');
   });
 
   it('renders loading skeleton while the query is pending', () => {

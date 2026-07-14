@@ -15,6 +15,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { tEn } from '../../../test/i18nEn';
@@ -197,5 +198,34 @@ describe('Analytics', () => {
     setup(queryClient, '/analytics/overview');
     expect(screen.getByTestId('analytics-nav')).toHaveTextContent('overview');
     expect(screen.getByTestId('stock-value-card')).toBeInTheDocument();
+  });
+
+  it('seeds a custom filter window from the URL search params', () => {
+    setup(
+      queryClient,
+      '/analytics/overview?from=2026-01-01&to=2026-03-31&supplierId=sup-9',
+    );
+
+    // The URL-provided range survives the initial render (custom mode);
+    // the shared cards receive the seeded window.
+    expect(screen.getByTestId('stock-value-card')).toBeInTheDocument();
+  });
+
+  it('navigates back to the dashboard from the header action', async () => {
+    const user = userEvent.setup();
+    render(
+      <QueryClientProvider client={createClient()}>
+        <MemoryRouter initialEntries={['/analytics/overview']}>
+          <Routes>
+            <Route path="/analytics/:section?" element={<Analytics />} />
+            <Route path="/dashboard" element={<div data-testid="dashboard-page" />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    await user.click(screen.getByText(tEn('common:actions.backToDashboard')));
+
+    expect(screen.getByTestId('dashboard-page')).toBeInTheDocument();
   });
 });

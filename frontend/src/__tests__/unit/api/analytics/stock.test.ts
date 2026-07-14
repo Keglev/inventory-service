@@ -58,6 +58,8 @@ describe('api/analytics/stock', () => {
           { date: '2025-10-03', totalValue: '12.5' },
           { date: '2025-10-01', totalValue: 10 },
           { date: '2025-10-02', totalValue: null },
+          // Rows without a date degrade to '' and sort first.
+          { totalValue: 3 },
         ],
       });
 
@@ -72,6 +74,7 @@ describe('api/analytics/stock', () => {
       });
 
       expect(res).toEqual([
+        { date: '', totalValue: 3 },
         { date: '2025-10-01', totalValue: 10 },
         { date: '2025-10-02', totalValue: 0 },
         { date: '2025-10-03', totalValue: 12.5 },
@@ -108,6 +111,8 @@ describe('api/analytics/stock', () => {
         data: [
           { month: '2025-10', stockIn: '7', stockOut: 2 },
           { month: '2025-11', stockIn: null, stockOut: '5' },
+          // Rows without a month degrade to ''.
+          { stockIn: 1, stockOut: 1 },
         ],
       });
 
@@ -118,6 +123,7 @@ describe('api/analytics/stock', () => {
       expect(res).toEqual([
         { month: '2025-10', stockIn: 7, stockOut: 2 },
         { month: '2025-11', stockIn: 0, stockOut: 5 },
+        { month: '', stockIn: 1, stockOut: 1 },
       ]);
     });
 

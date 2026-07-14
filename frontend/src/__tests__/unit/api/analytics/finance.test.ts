@@ -66,6 +66,41 @@ describe('api/analytics/finance.getFinancialSummary', () => {
       // Assert
       expect(res).toEqual(ZERO_SUMMARY);
     });
+
+    it('returns a zero-value summary for a completely non-record payload', async () => {
+      // A bare string payload cannot carry a summary at all.
+      vi.mocked(http.get).mockResolvedValueOnce({ data: 'totally-not-json' });
+
+      const res = await getFinancialSummary();
+
+      expect(res).toEqual(ZERO_SUMMARY);
+    });
+
+    it('accepts a { data } envelope around the summary fields', async () => {
+      vi.mocked(http.get).mockResolvedValueOnce({
+        data: {
+          data: {
+            purchases: 200,
+            cogs: 80,
+            writeOffs: 5,
+            returns: 7,
+            openingValue: 11,
+            endingValue: 22,
+          },
+        },
+      });
+
+      const res = await getFinancialSummary();
+
+      expect(res).toEqual({
+        purchases: 200,
+        cogs: 80,
+        writeOffs: 5,
+        returns: 7,
+        openingValue: 11,
+        endingValue: 22,
+      });
+    });
   });
 
   describe('request contract', () => {

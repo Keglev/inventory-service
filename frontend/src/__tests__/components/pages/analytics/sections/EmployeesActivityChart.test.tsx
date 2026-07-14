@@ -29,10 +29,19 @@ vi.mock('recharts', () => ({
   Line: ({ name }: { name?: string }) => <div data-testid="line">{name}</div>,
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
   XAxis: () => <div data-testid="x-axis" />,
-  YAxis: () => <div data-testid="y-axis" />,
-  Tooltip: () => <div data-testid="tooltip" />,
+  YAxis: ({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
+    lastYTickFormatter = tickFormatter ?? null;
+    return <div data-testid="y-axis" />;
+  },
+  Tooltip: ({ formatter }: { formatter?: (v: number | string) => string }) => {
+    lastTooltipFormatter = formatter ?? null;
+    return <div data-testid="tooltip" />;
+  },
   Legend: () => <div data-testid="legend" />,
 }));
+
+let lastYTickFormatter: ((v: string | number) => string) | null = null;
+let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -101,5 +110,14 @@ describe('EmployeesActivityChart', () => {
     expect(lines).toHaveLength(2);
     expect(screen.getByText('Anna')).toBeInTheDocument();
     expect(screen.getByText('Ben')).toBeInTheDocument();
+  });
+
+  it('formats axis counts and tooltip changes, passing strings through', () => {
+    renderChart();
+
+    expect(lastYTickFormatter?.(1234)).toBe('1.234');
+    expect(lastYTickFormatter?.('raw')).toBe('raw');
+    expect(lastTooltipFormatter?.(1234)).toBe(`1.234 ${tEn('analytics:units.changes')}`);
+    expect(lastTooltipFormatter?.('raw')).toBe('raw');
   });
 });

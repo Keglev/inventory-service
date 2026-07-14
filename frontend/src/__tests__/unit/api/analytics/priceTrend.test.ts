@@ -94,6 +94,8 @@ describe('api/analytics/priceTrend.getPriceTrend', () => {
           { timestamp: '2025-10-03', price: '12.5' },
           { timestamp: '2025-10-01', price: 10 },
           { timestamp: '2025-10-02', price: null },
+          // Rows without a timestamp degrade to '' and sort first.
+          { price: 3 },
         ],
       });
 
@@ -102,6 +104,7 @@ describe('api/analytics/priceTrend.getPriceTrend', () => {
 
       // Assert
       expect(res).toEqual([
+        { date: '', price: 3 },
         { date: '2025-10-01', price: 10 },
         { date: '2025-10-02', price: 0 },
         { date: '2025-10-03', price: 12.5 },

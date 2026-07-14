@@ -11,7 +11,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 import type { SupplierRef } from '@/api/analytics/types';
 import { Filters } from '@/pages/analytics/components/filters/Filters';
@@ -30,7 +30,12 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@/pages/analytics/components/filters/DateRangeFilter', () => ({
-  DateRangeFilter: vi.fn(() => <div data-testid="date-range-filter">DateRangeFilter</div>),
+  DateRangeFilter: vi.fn(({ onReset }: { onReset?: () => void }) => (
+    <div data-testid="date-range-filter">
+      DateRangeFilter
+      <button data-testid="reset-filters" onClick={() => onReset?.()} />
+    </div>
+  )),
 }));
 
 vi.mock('@/pages/analytics/components/filters/SupplierFilter', () => ({
@@ -68,5 +73,19 @@ describe('Filters', () => {
     render(<Filters value={value} suppliers={suppliers} onChange={onChange} disabled />);
     expect(screen.getByTestId('date-range-filter')).toBeInTheDocument();
     expect(screen.getByTestId('supplier-filter')).toBeInTheDocument();
+  });
+
+  it('resets to the 180-day quick window when the range filter requests it', () => {
+    render(<Filters value={value} suppliers={suppliers} onChange={onChange} />);
+
+    fireEvent.click(screen.getByTestId('reset-filters'));
+
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        quick: '180',
+        from: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+        to: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      }),
+    );
   });
 });

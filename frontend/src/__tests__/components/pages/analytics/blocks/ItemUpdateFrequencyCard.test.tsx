@@ -47,12 +47,21 @@ vi.mock('recharts', () => ({
     </div>
   ),
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
-  XAxis: () => <div data-testid="x-axis" />,
+  XAxis: ({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
+    lastXTickFormatter = tickFormatter ?? null;
+    return <div data-testid="x-axis" />;
+  },
   YAxis: () => <div data-testid="y-axis" />,
-  Tooltip: () => <div data-testid="tooltip" />,
+  Tooltip: ({ formatter }: { formatter?: (v: number | string) => string }) => {
+    lastTooltipFormatter = formatter ?? null;
+    return <div data-testid="tooltip" />;
+  },
   Bar: ({ children }: { children?: ReactNode }) => <div data-testid="bar">{children}</div>,
   Cell: ({ fill }: { fill?: string }) => <div data-testid="bar-cell" data-fill={fill} />,
 }));
+
+let lastXTickFormatter: ((v: string | number) => string) | null = null;
+let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 
 vi.mock('@/api/analytics/frequency', () => ({
   getItemUpdateFrequency: vi.fn(),
@@ -132,5 +141,19 @@ describe('ItemUpdateFrequencyCard', () => {
     await waitFor(() => {
       expect(getItemUpdateFrequency).toHaveBeenCalledWith('supplier-42');
     });
+  });
+
+  it('formats axis counts and tooltip values, passing strings through', async () => {
+    vi.mocked(getItemUpdateFrequency).mockResolvedValue([
+      { name: 'Widget', updates: 1234 },
+    ] as never);
+
+    setup(queryClient, 'supplier-42');
+
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+
+    expect(lastXTickFormatter?.(1234)).toBe('1,234');
+    expect(lastTooltipFormatter?.(1234)).toBe('1,234 updates');
+    expect(lastTooltipFormatter?.('n/a')).toBe('n/a');
   });
 });

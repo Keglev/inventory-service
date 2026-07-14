@@ -78,4 +78,31 @@ describe('ItemSearchAutocomplete', () => {
     renderPicker({ value: ITEMS[0], inputValue: 'Copper Wire' });
     expect(screen.getByRole('combobox')).toHaveValue('Copper Wire');
   });
+
+  it('reports a cleared selection without mirroring text into the input', async () => {
+    const user = userEvent.setup();
+    const { onSelect, onInputChange } = renderPicker({
+      value: ITEMS[0],
+      inputValue: 'Copper Wire',
+    });
+
+    await user.click(screen.getByRole('combobox'));
+    onInputChange.mockClear();
+
+    await user.click(screen.getByTitle('Clear'));
+
+    // Clearing reports null upstream; the name-mirroring branch is skipped.
+    expect(onSelect).toHaveBeenCalledWith(null);
+    expect(onInputChange).not.toHaveBeenCalledWith('Copper Wire');
+  });
+
+  it('renders the caller-provided noOptionsText when the list is empty', async () => {
+    const user = userEvent.setup();
+    renderPicker({ options: [], noOptionsText: 'Nothing here' });
+
+    await user.click(screen.getByRole('combobox'));
+    await user.keyboard('{ArrowDown}');
+
+    expect(screen.getByText('Nothing here')).toBeInTheDocument();
+  });
 });

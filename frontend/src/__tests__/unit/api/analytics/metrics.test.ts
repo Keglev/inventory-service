@@ -106,6 +106,14 @@ describe('api/analytics/metrics', () => {
       expect(res).toBe(25);
     });
 
+    it('returns 0 on a null payload', async () => {
+      httpGet.mockResolvedValueOnce({ data: null });
+
+      const res = await getSupplierCount();
+
+      expect(res).toBe(0);
+    });
+
     it('returns 0 on error', async () => {
       // Arrange
       httpGet.mockRejectedValueOnce(new Error('network'));
@@ -119,6 +127,14 @@ describe('api/analytics/metrics', () => {
   });
 
   describe('getLowStockCount', () => {
+    it('returns 0 on a null payload', async () => {
+      httpGet.mockResolvedValueOnce({ data: null });
+
+      const res = await getLowStockCount();
+
+      expect(res).toBe(0);
+    });
+
     it('calls /api/analytics/low-stock/count and returns numeric data', async () => {
       // Arrange
       httpGet.mockResolvedValueOnce({ data: 12 });

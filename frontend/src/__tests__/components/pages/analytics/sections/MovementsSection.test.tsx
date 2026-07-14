@@ -153,4 +153,37 @@ describe('MovementsSection', () => {
       expect(screen.getByText('No stock changes in this period')).toBeInTheDocument();
     });
   });
+
+  it('renders positive deltas with a plus, raw unknown reasons, blanks, and bad timestamps', async () => {
+    mockGetStockUpdates.mockResolvedValue([
+      // Unknown reason strings pass through untranslated.
+      { timestamp: 'not-a-date', itemName: 'Item B', delta: 4, reason: 'SOMETHING_ELSE' },
+      // Reason-less rows render an empty reason cell.
+      { timestamp: '2026-02-04T09:00:00', itemName: 'Item C', delta: -2 },
+    ]);
+    setup();
+
+    await waitFor(() => expect(screen.getByText('Item B')).toBeInTheDocument());
+
+    expect(screen.getByText('+4')).toBeInTheDocument();
+    expect(screen.getByText('SOMETHING_ELSE')).toBeInTheDocument();
+    // The unparseable timestamp falls back to the raw string.
+    expect(screen.getByText('not-a-date')).toBeInTheDocument();
+    expect(screen.getByText('Item C')).toBeInTheDocument();
+  });
+
+  it('tolerates an unbounded window without supplier or item filters', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <MovementsSection />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(mockGetStockUpdates).toHaveBeenCalledWith(
+        expect.objectContaining({ from: undefined, to: undefined }),
+      );
+    });
+  });
 });

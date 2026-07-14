@@ -154,4 +154,73 @@ describe('EmployeesSection', () => {
       );
     });
   });
+
+  it('shows the empty change log message when no rows exist', async () => {
+    mockGetEmployeeChanges.mockResolvedValue({ rows: [], total: 0 });
+
+    setup();
+
+    await waitFor(() => {
+      expect(screen.getByText(tEn('analytics:employees.empty'))).toBeInTheDocument();
+    });
+  });
+
+  it('renders positive changes with a plus sign, blank reasons, and raw bad timestamps', async () => {
+    mockGetEmployeeChanges.mockResolvedValue({
+      rows: [
+        {
+          // Unparseable timestamp falls back to the raw string.
+          timestamp: 'not-a-date',
+          itemName: 'Item B',
+          supplierName: 'Supplier Two',
+          change: 5,
+          reason: undefined,
+          createdBy: 'anna.schmidt@example.com',
+        },
+      ],
+      total: 1,
+    });
+
+    setup();
+
+    await waitFor(() => expect(screen.getByText('Item B')).toBeInTheDocument());
+
+    expect(screen.getByText('+5')).toBeInTheDocument();
+    expect(screen.getByText('not-a-date')).toBeInTheDocument();
+  });
+
+  it('resets to the first page when the rows-per-page selection changes', async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await waitFor(() => {
+      expect(mockGetEmployeeChanges).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 0, size: 25 }),
+      );
+    });
+
+    await user.click(screen.getByRole('combobox', { name: /rows per page/i }));
+    await user.click(screen.getByRole('option', { name: '10' }));
+
+    await waitFor(() => {
+      expect(mockGetEmployeeChanges).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 0, size: 10 }),
+      );
+    });
+  });
+
+  it('tolerates an unbounded window (no from/to props)', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <EmployeesSection />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(mockGetEmployeeActivity).toHaveBeenCalledWith(
+        expect.objectContaining({ from: undefined, to: undefined }),
+      );
+    });
+  });
 });

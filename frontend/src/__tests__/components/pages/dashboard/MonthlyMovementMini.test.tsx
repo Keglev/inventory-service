@@ -100,11 +100,20 @@ vi.mock('recharts', () => ({
   )),
   CartesianGrid: vi.fn(() => <div data-testid="cartesian-grid" />),
   XAxis: vi.fn(() => <div data-testid="x-axis" />),
-  YAxis: vi.fn(() => <div data-testid="y-axis" />),
-  Tooltip: vi.fn(() => <div data-testid="tooltip" />),
+  YAxis: vi.fn(({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
+    lastYTickFormatter = tickFormatter ?? null;
+    return <div data-testid="y-axis" />;
+  }),
+  Tooltip: vi.fn(({ formatter }: { formatter?: (v: number | string) => string }) => {
+    lastTooltipFormatter = formatter ?? null;
+    return <div data-testid="tooltip" />;
+  }),
   Legend: vi.fn(() => <div data-testid="legend" />),
   Bar: vi.fn(({ dataKey }: { dataKey: string }) => <div data-testid={`bar-${dataKey}`} />),
 }));
+
+let lastYTickFormatter: ((v: string | number) => string) | null = null;
+let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 
 // -------------------------------------
 // Helpers
@@ -171,5 +180,20 @@ describe('MonthlyMovementMini', () => {
 
     expect(screen.getByTestId('bar-stockIn')).toBeInTheDocument();
     expect(screen.getByTestId('bar-stockOut')).toBeInTheDocument();
+  });
+
+  it('tolerates a missing payload and formats axis/tooltip values', async () => {
+    mockGetMonthlyStockMovement.mockResolvedValue(
+      undefined as unknown as Awaited<ReturnType<typeof mockGetMonthlyStockMovement>>,
+    );
+
+    renderMonthlyMovementMini(queryClient);
+
+    // With no payload the chart still renders on an empty array.
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+
+    expect(lastYTickFormatter?.(1234)).toBe('1234');
+    expect(lastTooltipFormatter?.(1234)).toBe(`1234 ${tEn('units.pieces')}`);
+    expect(lastTooltipFormatter?.('n/a')).toBe('n/a');
   });
 });

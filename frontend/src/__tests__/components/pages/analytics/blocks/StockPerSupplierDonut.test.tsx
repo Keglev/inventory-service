@@ -63,10 +63,15 @@ vi.mock('recharts', () => ({
       {children}
     </div>
   ),
-  Tooltip: () => <div data-testid="tooltip" />,
+  Tooltip: ({ formatter }: { formatter?: (v: number | string) => string }) => {
+    lastTooltipFormatter = formatter ?? null;
+    return <div data-testid="tooltip" />;
+  },
   Legend: () => <div data-testid="legend" />,
   Cell: ({ fill }: { fill?: string }) => <div data-testid="pie-cell" data-fill={fill} />,
 }));
+
+let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 
 vi.mock('@/api/analytics/stock', () => ({
   getStockPerSupplier: vi.fn(),
@@ -138,5 +143,18 @@ describe('StockPerSupplierDonut', () => {
     });
 
     expect(screen.getAllByTestId('pie-cell')).toHaveLength(points.length);
+  });
+
+  it('formats tooltip quantities and passes strings through', async () => {
+    vi.mocked(getStockPerSupplier).mockResolvedValue([
+      { supplierName: 'Alpha Supplies', totalQuantity: 1234 },
+    ]);
+
+    setup(queryClient);
+
+    await waitFor(() => expect(screen.getByTestId('pie')).toBeInTheDocument());
+
+    expect(lastTooltipFormatter?.(1234)).toBe('1,234 pcs');
+    expect(lastTooltipFormatter?.('n/a')).toBe('n/a');
   });
 });

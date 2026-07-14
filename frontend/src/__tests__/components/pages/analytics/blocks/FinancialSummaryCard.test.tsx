@@ -33,6 +33,9 @@ vi.mock('@/api/analytics/finance', () => ({
   getFinancialSummary: vi.fn(),
 }));
 
+let lastYTickFormatter: ((v: string | number) => string) | null = null;
+let lastTooltipFormatter: ((v: number | string) => string) | null = null;
+
 vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: {
@@ -49,8 +52,14 @@ vi.mock('recharts', () => ({
   BarChart: ({ children }: { children?: ReactNode }) => <div data-testid="bar-chart">{children}</div>,
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
   XAxis: () => <div data-testid="x-axis" />,
-  YAxis: () => <div data-testid="y-axis" />,
-  Tooltip: () => <div data-testid="tooltip" />,
+  YAxis: ({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
+    lastYTickFormatter = tickFormatter ?? null;
+    return <div data-testid="y-axis" />;
+  },
+  Tooltip: ({ formatter }: { formatter?: (v: number | string) => string }) => {
+    lastTooltipFormatter = formatter ?? null;
+    return <div data-testid="tooltip" />;
+  },
   Bar: () => <div data-testid="bar" />,
   Cell: () => <div data-testid="cell" />,
 }));
@@ -173,5 +182,28 @@ describe('FinancialSummaryCard', () => {
     );
 
     await waitFor(() => expect(getFinancialSummary).toHaveBeenCalledTimes(2));
+  });
+
+  it('formats axis and tooltip money values and passes strings through', async () => {
+    vi.mocked(getFinancialSummary).mockResolvedValue(nonZeroSummary);
+
+    setup(queryClient, { supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
+
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+
+    expect(lastYTickFormatter?.(1234.5)).toBe('1,234.50');
+    expect(lastTooltipFormatter?.(1234.5)).toBe('1,234.50 €');
+    expect(lastTooltipFormatter?.('n/a')).toBe('n/a');
+  });
+
+  it('renders an em-dash KPI when the backend omits a figure', async () => {
+    vi.mocked(getFinancialSummary).mockResolvedValue({
+      ...nonZeroSummary,
+      openingValue: undefined,
+    } as unknown as FinancialSummary);
+
+    setup(queryClient, { supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
+
+    await waitFor(() => expect(screen.getByText('—')).toBeInTheDocument());
   });
 });
