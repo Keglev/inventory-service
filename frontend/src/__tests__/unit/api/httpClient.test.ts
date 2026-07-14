@@ -17,7 +17,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { AxiosError, AxiosResponse } from 'axios';
 
-import httpClient, { API_BASE } from '../../../api/httpClient';
+import httpClient from '../../../api/httpClient';
 
 type Handler = {
   fulfilled: (res: AxiosResponse) => AxiosResponse;
@@ -62,9 +62,19 @@ describe('httpClient', () => {
   });
 
   describe('API_BASE resolution and defaults', () => {
-    it('falls back to /api when no base URL env is configured', () => {
-      expect(API_BASE).toBe('/api');
-      expect(httpClient.defaults.baseURL).toBe('/api');
+    it('falls back to /api when the base URL env is blank', async () => {
+      // CI and local machines may or may not define VITE_API_BASE, so the
+      // fallback arm is pinned by stubbing the env and importing fresh.
+      vi.resetModules();
+      vi.stubEnv('VITE_API_BASE', '   ');
+
+      const fresh = await import('../../../api/httpClient');
+
+      expect(fresh.API_BASE).toBe('/api');
+      expect(fresh.default.defaults.baseURL).toBe('/api');
+
+      vi.unstubAllEnvs();
+      vi.resetModules();
     });
 
     it('honors a configured VITE_API_BASE and trims the trailing slash', async () => {
