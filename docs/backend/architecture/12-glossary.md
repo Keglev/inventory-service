@@ -12,7 +12,7 @@ where a term is treated in depth.
 | AppUser | JPA entity for an authenticated user; carries the assigned role |
 | arc42 | The documentation template structuring this architecture (§1–§12) |
 | BusinessExceptionHandler | `@ControllerAdvice` mapping domain exceptions to HTTP status: `InvalidRequest` → 400, `Duplicate` / `IllegalState` → 409 |
-| `cwallet.sso` | Oracle auto-login wallet file; opens the wallet for mTLS without a wallet password at runtime. See [ADR-0001](./09-decisions/adr-0001-oracle-wallet-autologin.md) |
+| `cwallet.sso` | Oracle auto-login wallet file (part of a downloaded wallet archive). Production opens the wallet in encrypted form with a runtime wallet password instead. See [ADR-0009](./09-decisions/adr-0009-runtime-wallet-delivery.md) |
 | DTO (Data Transfer Object) | The only object types that cross the controller boundary; 16 in the `dto/` package. See [ADR-0003](./09-decisions/adr-0003-dto-boundary-no-entity-exposure.md) |
 | `@EntityGraph` | JPA fetch hint on `InventoryItemRepository` loading `supplier` in a single join to avoid N+1 queries |
 | ErrorResponse | The canonical error record `{error, message, timestamp}` with an optional `fieldErrors` map on validation failures; `error` = `HttpStatus.name().toLowerCase()`. See [ADR-0004](./09-decisions/adr-0004-http-status-as-envelope.md) |
@@ -35,4 +35,4 @@ where a term is treated in depth.
 | `TNS_ADMIN` | Environment variable pointing the JDBC driver at the wallet directory |
 | Trivy | Container-image CVE scanner run in the Docker build workflow |
 | WAC | Weighted Average Cost inventory costing method used by `AnalyticsService` |
-| Wallet (Oracle) | Directory of TLS certificates and config (`cwallet.sso`, `tnsnames.ora`, …) authenticating the DB connection. See [ADR-0001](./09-decisions/adr-0001-oracle-wallet-autologin.md) |
+| Wallet (Oracle) | Directory of TLS certificates and config (`tnsnames.ora`, `ewallet.p12`, …) authenticating the DB connection; delivered at runtime as a Fly secret. See [ADR-0009](./09-decisions/adr-0009-runtime-wallet-delivery.md) |

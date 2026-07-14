@@ -42,6 +42,8 @@ wrapper.
 - `message` — human-readable description, sanitized before reaching the client (see
   [ADR-0005](./adr-0005-error-message-sanitization.md))
 - `timestamp` — ISO-8601 instant the error occurred (`Instant.now().toString()`)
+- `fieldErrors` — optional map (field name → message), attached only to
+  bean-validation failures and omitted from the JSON otherwise
 
 **Success body**: the domain DTO or list directly (e.g., `InventoryItemDTO`,
 `List<SupplierDTO>`). No `{ "success": true, "data": [...] }` wrapper.
@@ -91,13 +93,15 @@ Static-resource 404s return no body (`void` handler with `@ResponseStatus`).
 ### Negative / Tradeoffs
 - There is no standard place to carry pagination metadata in success responses;
   paginated endpoints encode total count inside the DTO or use response headers.
-- The three-field error shape is a project convention, not an HTTP standard.
+- The error shape is a project convention, not an HTTP standard.
   Consumers outside the React SPA must be told about it.
 
 ## Implementation Notes
 - Where it is implemented:
   - `src/main/java/com/smartsupplypro/inventory/exception/dto/ErrorResponse.java`
-    — `record ErrorResponse(String error, String message, String timestamp) {}`
+    — `record ErrorResponse(String error, String message, String timestamp, Map<String, String> fieldErrors)`
+    with a three-argument convenience constructor; `fieldErrors` is
+    `@JsonInclude(NON_NULL)` and populated only by the bean-validation handler
   - `src/main/java/com/smartsupplypro/inventory/exception/GlobalExceptionHandler.java`
     — `respond()` helper: `new ErrorResponse(status.name().toLowerCase(), message, Instant.now().toString())`
   - `src/main/java/com/smartsupplypro/inventory/exception/BusinessExceptionHandler.java`

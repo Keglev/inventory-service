@@ -15,7 +15,7 @@ items, and the employee-activity analytics).
 |---|---|---|
 | React SPA (frontend) | Primary client — all user interaction | REST over HTTPS; HTTP-only session cookie; browser traffic is same-origin on the Koyeb host — Nginx rewrites the built API base at serve time and reverse-proxies `/api/*` and the OAuth2 paths to Fly.io |
 | Google OAuth2 | Identity provider | Authorization Code flow; backend exchanges code for token server-to-server; no token is stored or forwarded to the frontend |
-| Oracle Autonomous Database 23ai | Persistent store | JDBC via wallet authentication (`cwallet.sso`, `TNS_ADMIN` at runtime); H2 in Oracle-compatibility mode for local dev and CI |
+| Oracle Autonomous Database 23ai | Persistent store | JDBC over mTLS via Oracle wallet — delivered at runtime as a Fly secret and opened with a runtime wallet password ([ADR-0009](09-decisions/adr-0009-runtime-wallet-delivery.md)); H2 in Oracle-compatibility mode for local dev and CI |
 
 ## Context Diagram (C4 Level 1)
 

@@ -87,7 +87,7 @@ Entities never cross the controller boundary; DTOs never enter the repository la
 
 ## Implementation Notes
 - Where it is implemented:
-  - DTOs: `src/main/java/com/smartsupplypro/inventory/dto/` (14 classes: e.g.,
+  - DTOs: `src/main/java/com/smartsupplypro/inventory/dto/` (16 classes: e.g.,
     `InventoryItemDTO`, `SupplierDTO`, `StockHistoryDTO`, analytics DTOs)
   - Mappers: `src/main/java/com/smartsupplypro/inventory/mapper/` —
     `InventoryItemMapper`, `StockHistoryMapper`, `SupplierMapper`

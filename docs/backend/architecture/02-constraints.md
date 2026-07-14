@@ -15,9 +15,12 @@
 **Oracle Autonomous Database** is the sole supported database. Local development and
 CI use H2 in Oracle-compatibility mode. There is no PostgreSQL profile.
 
-**Oracle wallet authentication** — the production connection is passwordless via
-`cwallet.sso`; only `TNS_ADMIN` must be set at runtime. No password is stored or
-injected. See [ADR 0001](09-decisions/adr-0001-oracle-wallet-autologin.md).
+**Oracle wallet authentication** — the wallet is delivered at runtime as a base64
+Fly secret, extracted by the startup script (which sets `TNS_ADMIN` itself), and
+used in encrypted form with a runtime wallet password; the schema credentials
+(`DB_USER`/`DB_PASS`) are separate Fly secrets. See
+[ADR 0009](09-decisions/adr-0009-runtime-wallet-delivery.md) and
+[ADR 0001](09-decisions/adr-0001-oracle-wallet-autologin.md).
 
 ## Organizational Constraints
 

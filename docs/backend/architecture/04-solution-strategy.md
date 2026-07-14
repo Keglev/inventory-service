@@ -32,9 +32,10 @@ Authentication delegates to Google OAuth2 via the Authorization Code flow; the
 backend exchanges the code server-to-server and issues an HTTP-only, `Secure`
 session cookie — no token ever reaches the frontend. Authorisation is enforced at the
 method level with `@PreAuthorize`; two roles (`ADMIN`, `USER`) cover all current
-access-control requirements. The production database connection is passwordless via
-Oracle wallet (`cwallet.sso`).
-See [ADR 0001](09-decisions/adr-0001-oracle-wallet-autologin.md).
+access-control requirements. The production database connection authenticates over mTLS via an Oracle
+wallet delivered as a runtime secret and opened with a runtime wallet password.
+See [ADR 0009](09-decisions/adr-0009-runtime-wallet-delivery.md) and
+[ADR 0001](09-decisions/adr-0001-oracle-wallet-autologin.md).
 
 ## HTTP Status as the Response Envelope
 

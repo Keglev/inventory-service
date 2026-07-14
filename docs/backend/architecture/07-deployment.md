@@ -12,8 +12,9 @@ re-domained by the proxy. The backend retains `SameSite=None` plus a CORS allow-
 for the Koyeb origin, which also permits direct calls to the Fly.io origin
 (see [ADR 0007](09-decisions/adr-0007-cross-origin-auth-cookie.md), which predates
 the serve-time rewrite).
-Persistent data lives in **Oracle Autonomous Database 23ai**, authenticated via wallet
-(no password at runtime). Architecture and API documentation are published to
+Persistent data lives in **Oracle Autonomous Database 23ai**, authenticated over
+mTLS via an Oracle wallet delivered as a runtime secret
+([ADR 0009](09-decisions/adr-0009-runtime-wallet-delivery.md)). Architecture and API documentation are published to
 **GitHub Pages** via a separate docs pipeline.
 
 ## Deployment Diagram
@@ -35,7 +36,7 @@ graph TB
     GHA -->|4-deploy-fly.yml\nflyctl deploy --image SHA| Fly
     GHA -->|6-deploy-frontend.yml| Koyeb
     GHA -->|3-deploy-ghpages.yml| GHP
-    Fly -->|JDBC / cwallet.sso\nTNS_ADMIN only| OADB
+    Fly -->|"JDBC over mTLS\nwallet from runtime secret"| OADB
     User -->|HTTPS| Koyeb
     Koyeb -->|/api/* reverse proxy| Fly
 
@@ -116,11 +117,13 @@ committed to source control.
 
 ## Oracle Wallet Authentication
 
-The production connection to Oracle Autonomous Database is **passwordless**. The Oracle
-wallet (`oracle_wallet/Wallet_sspdb_fixed/cwallet.sso`) is bundled into the Docker
-image. At runtime only `TNS_ADMIN` needs to point to the wallet directory — no
-username/password is stored or injected. See
-[ADR 0001](09-decisions/adr-0001-oracle-wallet-autologin.md).
+The wallet is **not** part of the image or the repository. At startup,
+`scripts/start.sh` decodes the `ORACLE_WALLET_B64` Fly secret, extracts it to
+`/app/wallet/Wallet_sspdb_fixed`, verifies `tnsnames.ora` and `ewallet.p12`, sets
+`TNS_ADMIN` itself, and passes the runtime wallet password
+(`ORACLE_WALLET_PASSWORD`) to the JDBC driver. The schema account authenticates
+separately via `DB_USER`/`DB_PASS`. Full record:
+[ADR 0009](09-decisions/adr-0009-runtime-wallet-delivery.md).
 
 ## Environment Variables and Secrets
 
@@ -129,6 +132,9 @@ username/password is stored or injected. See
 | `SPRING_PROFILES_ACTIVE` | `fly.toml [env]` | Activates `prod` profile |
 | `APP_DEMO_READONLY` | `fly.toml [env]` | Enables read-only demo mode |
 | `APP_FRONTEND_BASE_URL` | `fly.toml [env]` | CORS allowed origin for Koyeb frontend |
-| `TNS_ADMIN` | Fly.io secret | Path to Oracle wallet directory inside container |
+| `ORACLE_WALLET_B64` | Fly.io secret | Base64 wallet archive, extracted by `start.sh` at startup |
+| `ORACLE_WALLET_PASSWORD` | Fly.io secret | Opens the encrypted wallet (`oracle.net.wallet_password`) |
+| `DB_URL`, `DB_USER`, `DB_PASS` | Fly.io secrets | Datasource URL (TNS alias) and schema credentials |
+| `TNS_ADMIN` | Set by `start.sh` | Points to the extracted wallet directory (not a secret) |
 | `OAUTH2_CLIENT_ID` | Fly.io secret | Google OAuth2 client ID |
 | `OAUTH2_CLIENT_SECRET` | Fly.io secret | Google OAuth2 client secret |

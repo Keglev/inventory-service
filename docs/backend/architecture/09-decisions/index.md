@@ -23,6 +23,7 @@ ADRs do **not** document:
 - [ADR-0006: Custom repository implementations for dialect-aware analytics queries](./adr-0006-dialect-aware-analytics-queries.md)
 - [ADR-0007: Cross-origin session cookie configuration for split frontend/backend deployment](./adr-0007-cross-origin-auth-cookie.md)
 - [ADR-0008: Serve-time API-base rewrite and same-origin proxy](./adr-0008-serve-time-api-base-rewrite.md)
+- [ADR-0009: Runtime wallet delivery via Fly secret](./adr-0009-runtime-wallet-delivery.md)
 
 ---
 
