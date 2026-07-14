@@ -17,7 +17,23 @@ BUCKET markers in source.
 |---|---|---|
 | CB-APP33/34 | Settings language-sync can overwrite explicit format choices; parts of the preference set lack persistence | [§8](08-concepts.md) |
 | CB-APP15 / CM-APP2 | Scrollbar rules duplicated between global.css and CssBaseline; print `!important` overrides unaudited | [§8b](08b-concepts-i18n-theming.md) |
-| ST-APP30 | Twelve form/state hooks exceed the 50-code-line function cap; case-by-case review deferred | [§2](02-constraints.md) |
 
 The remaining open registry entries are UI-level items of the same character and
 live as BUCKET markers at their source sites.
+
+## Size-Budget Waivers
+
+Measured by AST against the budgets in [§2](02-constraints.md). Three files exceed
+their layer's alarm; each is waived, with the reason, rather than split. No function
+exceeds its layer's alarm.
+
+| File | Code lines | Alarm | Why not split |
+|---|---|---|---|
+| `inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` | 163 | 160 (dialogs) | Three lines over. A flat, single-purpose JSX form; any split would be a fragment defined by the threshold rather than by a responsibility |
+| `inventory/dialogs/ItemFormDialog/useItemForm.ts` | 135 | 120 (hooks) | One responsibility — the dialog's form controller: state, supplier query, RHF wiring, two sync effects, submit, close. The separable part was already extracted (`itemFormServerErrors.ts`); what remains is coupled through form state, and lifting the effects out would mean threading six arguments into a hook that exists only to reduce a count |
+| `inventory/dialogs/EditItemDialog/useEditItemForm.ts` | 124 | 120 (hooks) | Same shape and the same reasoning, four lines over |
+
+Eight functions sit above their band but below their alarm (`PriceChangeForm` 146,
+`EditItemForm` 133, `PriceTrendCard` 122, `MovementsSection` 112, `DateRangeFilter`
+110, `useItemForm` 94, `useEditItemForm` 90, `usePriceChangeForm` 87). These are
+accepted: the band is guidance, the alarm is the gate.

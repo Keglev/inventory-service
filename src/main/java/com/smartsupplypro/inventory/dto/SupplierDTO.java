@@ -32,7 +32,10 @@ public class SupplierDTO {
     @Email(message = "Invalid email format")
     private String email;
 
-    @NotBlank(message = "CreatedBy must be provided.")
+    /**
+     * Audit attribution, assigned server-side from the authenticated principal.
+     * Deliberately unvalidated: a client neither has to send it nor is trusted to.
+     */
     private String createdBy;
 
     private LocalDateTime createdAt;

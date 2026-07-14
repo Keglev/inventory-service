@@ -52,3 +52,8 @@ the shared `HelpIconButton` and reference palette tokens rather than fixed hex
 values, so they follow the same help and theming contract as the inventory dialogs.
 Unlike Inventory, the supplier dialogs do not take a `readOnly` prop; demo
 restriction relies on backend authorization.
+
+The dialogs send no audit fields. `createdBy` is assigned server-side from the
+authenticated principal, so a client can neither forge it nor omit it; the create
+form previously sent nothing and the update form sent the signed-in user's email,
+which the backend discarded.

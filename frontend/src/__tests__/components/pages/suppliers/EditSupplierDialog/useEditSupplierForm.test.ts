@@ -148,9 +148,9 @@ describe('useEditSupplierForm', () => {
       await result.current.handleConfirmChanges();
     });
 
+    // createdBy is server-owned: the client neither sends it nor is trusted to.
     expect(mocks.updateSupplier).toHaveBeenCalledWith(supplier.id, {
       name: supplier.name,
-      createdBy: 'admin@example.com',
       contactName: pendingChanges.contactName,
       phone: pendingChanges.phone,
       email: pendingChanges.email,

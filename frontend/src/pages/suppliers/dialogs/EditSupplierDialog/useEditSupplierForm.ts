@@ -18,7 +18,6 @@
 import * as React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../../../hooks/useAuth';
 import { updateSupplier } from '../../../../api/suppliers/supplierMutations';
 import type { EditSupplierForm } from '../../../../api/suppliers/validation';
 import { useSupplierSearch } from '../../hooks/useSupplierSearch';
@@ -84,7 +83,6 @@ export const useEditSupplierForm = (
   onUpdated: () => void
 ): UseEditSupplierFormReturn => {
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
-  const { user } = useAuth();
 
   // Delegate to specialized hooks
   const search = useSupplierSearch();
@@ -120,7 +118,6 @@ export const useEditSupplierForm = (
     try {
       const response = await updateSupplier(selectedSupplier.id, {
         name: selectedSupplier.name,
-        createdBy: user?.email,
         contactName: confirmation.pendingChanges.contactName,
         phone: confirmation.pendingChanges.phone,
         email: confirmation.pendingChanges.email,
@@ -138,7 +135,7 @@ export const useEditSupplierForm = (
       confirmation.setShowConfirmation(false);
       logError('Update failed:', err);
     }
-  }, [confirmation, selectedSupplier, user?.email, onUpdated, t]);
+  }, [confirmation, selectedSupplier, onUpdated, t]);
 
   /**
    * Reset form to initial state.

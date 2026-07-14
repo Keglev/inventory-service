@@ -14,6 +14,7 @@ import com.smartsupplypro.inventory.mapper.SupplierMapper;
 import com.smartsupplypro.inventory.model.Supplier;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
+import com.smartsupplypro.inventory.security.SecurityAuditHelper;
 import com.smartsupplypro.inventory.service.SupplierService;
 import com.smartsupplypro.inventory.validation.SupplierValidator;
 
@@ -79,6 +80,9 @@ public class SupplierServiceImpl implements SupplierService {
         Supplier entity = supplierMapper.toEntity(dto);
         entity.setId(UUID.randomUUID().toString());
         entity.setCreatedAt(LocalDateTime.now());
+        // The mapper deliberately drops any client-supplied value; attribution is read
+        // from the security context so it can be neither forged nor omitted.
+        entity.setCreatedBy(SecurityAuditHelper.currentUsername());
 
         Supplier saved = supplierRepository.save(entity);
         return supplierMapper.toDTO(saved);

@@ -36,6 +36,31 @@ This is a solo-developer portfolio project. Consequences:
 |---|---|
 | i18n | No in-code English fallback strings; missing keys are added to BOTH `public/locales/en` and `/de`. The EN JSON is the typing source (`resources.d.ts`) |
 | Tests | Centralized under `frontend/src/__tests__/` (not co-located); documented by name; one canonical header dialect |
-| Size standard | Code-line caps per layer (hard cap 300 lines/file, 50 lines/method, counting code lines only); measured, with documented waivers where a split would be artificial |
+| Size standard | Per-layer code-line budgets (table below), measured by AST over code lines only; documented waivers where a split would be artificial |
 | Comments | Four-tag JSDoc headers (`@file`/`@module`/`@summary`/`@enterprise`); inline comments explain WHY, never WHAT; ASCII-only outside German legal content |
 | Errors | The API layer tolerates and maps the backend's structured error envelope `{error, message, timestamp, fieldErrors?}` to user-friendly messages |
+
+## Size Budgets
+
+Sizes are measured per file and per function over **code lines only** — blank lines
+and comments are excluded, and the test tree is not measured. Two thresholds per
+layer: the **band** is the shape a unit of that kind normally takes, and the
+**alarm** is the gate. Exceeding the band is a signal to look; exceeding the alarm
+requires either a split or a waiver recorded in
+[§11](11-risks-technical-debt.md).
+
+| Layer | Band | Alarm |
+|---|---|---|
+| Components | 40-100 | > 150 |
+| Dialogs | 50-120 | > 160 |
+| Hooks & handlers | 30-80 | > 120 |
+| Context providers | 40-90 | > 120 |
+| Page orchestrators | 60-140 | > 180 |
+| API fetchers | file <= 150 | function <= 40 |
+| Theme & config | 50-100 | > 150 |
+| Utilities | 20-80 | > 120 |
+| Any file | — | hard cap 300 |
+
+There is deliberately **no blanket per-method cap**. A single figure cannot govern
+both a React component, whose body is largely JSX, and a pure utility function; the
+budgets are per layer for that reason.

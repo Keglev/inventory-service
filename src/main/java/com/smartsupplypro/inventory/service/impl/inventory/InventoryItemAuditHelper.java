@@ -2,12 +2,11 @@ package com.smartsupplypro.inventory.service.impl.inventory;
 
 import java.math.BigDecimal;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.InventoryItem;
+import com.smartsupplypro.inventory.security.SecurityAuditHelper;
 import com.smartsupplypro.inventory.service.StockHistoryService;
 
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,7 @@ public class InventoryItemAuditHelper {
                 item.getId(),
                 item.getQuantity(),
                 StockChangeReason.INITIAL_STOCK,
-                currentUsername(),
+                SecurityAuditHelper.currentUsername(),
                 item.getPrice()
         );
     }
@@ -54,7 +53,7 @@ public class InventoryItemAuditHelper {
                     item.getId(),
                     quantityDelta,
                     StockChangeReason.MANUAL_UPDATE,
-                    currentUsername(),
+                    SecurityAuditHelper.currentUsername(),
                     item.getPrice()
             );
         }
@@ -71,7 +70,7 @@ public class InventoryItemAuditHelper {
                 item.getId(),
                 delta,
                 reason,
-                currentUsername(),
+                SecurityAuditHelper.currentUsername(),
                 item.getPrice()
         );
     }
@@ -86,18 +85,9 @@ public class InventoryItemAuditHelper {
                 itemId,
                 0,
                 StockChangeReason.PRICE_CHANGE,
-                currentUsername(),
+                SecurityAuditHelper.currentUsername(),
                 newPrice
         );
     }
 
-    /**
-     * Retrieves the current authenticated username from the Spring Security context.
-     * Returns "system" when no authentication is present (e.g. batch jobs).
-     */
-    private String currentUsername() {
-        Authentication a = SecurityContextHolder.getContext() != null
-                ? SecurityContextHolder.getContext().getAuthentication() : null;
-        return a != null ? a.getName() : "system";
-    }
 }

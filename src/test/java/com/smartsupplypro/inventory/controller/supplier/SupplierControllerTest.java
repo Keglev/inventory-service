@@ -72,6 +72,16 @@ class SupplierControllerTest {
                 .createdBy("admin").createdAt(dto.getCreatedAt()).build();
     }
 
+    /**
+     * The payload the browser actually sends: no audit fields. The previous fixtures all
+     * supplied createdBy, which is why bean validation rejecting it went unnoticed.
+     */
+    private SupplierDTO asSentByTheUi() {
+        return SupplierDTO.builder()
+                .name(dto.getName()).contactName(dto.getContactName())
+                .phone(dto.getPhone()).email(dto.getEmail()).build();
+    }
+
     /** READ endpoints accessible to USER and ADMIN roles. */
     @Nested
     class WhenReading {
@@ -129,6 +139,22 @@ class SupplierControllerTest {
                             .content(objectMapper.writeValueAsString(noId())))
                     .andExpect(status().isCreated())
                     .andExpect(header().string("Location", "/api/suppliers/sup-1"))
+                    .andExpect(jsonPath("$.id").value("sup-1"));
+        }
+
+        /**
+         * Regression: createdBy is server-owned. A payload without it must be accepted,
+         * or the UI cannot create a supplier at all.
+         */
+        @Test
+        void create_withoutCreatedBy_201() throws Exception {
+            given(supplierService.create(any(SupplierDTO.class))).willReturn(dto);
+
+            mockMvc.perform(post("/api/suppliers")
+                            .with(user("admin").roles("ADMIN")).with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(asSentByTheUi())))
+                    .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").value("sup-1"));
         }
 
