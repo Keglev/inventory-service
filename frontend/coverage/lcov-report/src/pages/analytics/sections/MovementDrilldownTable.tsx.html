@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">73.07% </span>
+                <span class="strong">96.15% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>19/26</span>
+                <span class='fraction'>25/26</span>
             </div>
         
             
@@ -191,14 +191,12 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -207,11 +205,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -235,7 +233,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">19x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -291,7 +291,7 @@ export default function MovementDrilldownTable({ from, to, supplierId, itemName 
   const { userPreferences } = useSettings();
 &nbsp;
   const q = useQuery&lt;StockUpdateRow[]&gt;({
-    queryKey: ['analytics', 'movementDrilldown', from ?? <span class="branch-1 cbranch-no" title="branch not covered" >null, t</span>o ?? <span class="branch-1 cbranch-no" title="branch not covered" >null, s</span>upplierId ?? null, itemName ?? <span class="branch-1 cbranch-no" title="branch not covered" >null]</span>,
+    queryKey: ['analytics', 'movementDrilldown', from ?? null, to ?? null, supplierId ?? null, itemName ?? <span class="branch-1 cbranch-no" title="branch not covered" >null]</span>,
     queryFn: () =&gt;
       getStockUpdates({
         from,
@@ -332,15 +332,15 @@ export default function MovementDrilldownTable({ from, to, supplierId, itemName 
               &lt;TableBody&gt;
                 {rows.map((row, idx) =&gt; (
                   &lt;TableRow key={`${row.timestamp}-${row.itemName}-${idx}`} hover&gt;
-                    &lt;TableCell&gt;{formatDate(row.timestamp, userPreferences.dateFormat) || <span class="branch-1 cbranch-no" title="branch not covered" >row.timestamp}&lt;</span>/TableCell&gt;
+                    &lt;TableCell&gt;{formatDate(row.timestamp, userPreferences.dateFormat) || row.timestamp}&lt;/TableCell&gt;
                     &lt;TableCell&gt;{row.itemName}&lt;/TableCell&gt;
                     &lt;TableCell
                       align="right"
-                      sx={{ color: row.delta &lt; 0 ? 'error.main' : <span class="branch-1 cbranch-no" title="branch not covered" >'success.main', f</span>ontVariantNumeric: 'tabular-nums' }}
+                      sx={{ color: row.delta &lt; 0 ? 'error.main' : 'success.main', fontVariantNumeric: 'tabular-nums' }}
                     &gt;
-                      {(row.delta &gt; 0 ? <span class="branch-0 cbranch-no" title="branch not covered" >'+' : '</span>') + formatNumber(row.delta, userPreferences.numberFormat, 0)}
+                      {(row.delta &gt; 0 ? '+' : '') + formatNumber(row.delta, userPreferences.numberFormat, 0)}
                     &lt;/TableCell&gt;
-                    &lt;TableCell&gt;{row.reason ? reasonLabel(t, row.reason) : <span class="branch-1 cbranch-no" title="branch not covered" >''}&lt;</span>/TableCell&gt;
+                    &lt;TableCell&gt;{row.reason ? reasonLabel(t, row.reason) : ''}&lt;/TableCell&gt;
                   &lt;/TableRow&gt;
                 ))}
               &lt;/TableBody&gt;
@@ -358,7 +358,7 @@ export default function MovementDrilldownTable({ from, to, supplierId, itemName 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-13T18:07:37.796Z
+                at 2026-07-14T03:50:31.301Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
