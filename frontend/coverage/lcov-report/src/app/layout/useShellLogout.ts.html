@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">46.15% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>6/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">46.15% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>6/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -136,23 +136,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
@@ -184,7 +184,7 @@ export function useShellLogout({
 }: ShellLogoutDeps): () =&gt; void {
   return () =&gt; {
     // Demo mode: clear client state and route directly to logout-success
-    <span class="missing-if-branch" title="else path not taken" >E</span>if (isDemo) {
+    if (isDemo) {
       queryClient.clear();
       logout();
       navigate('/logout-success', { replace: true });
@@ -192,13 +192,13 @@ export function useShellLogout({
     }
 &nbsp;
     // Real user: trigger backend logout via POST redirect, avoid SPA guard flicker
-    const form = <span class="cstat-no" title="statement not covered" >document.createElement('form');</span>
-<span class="cstat-no" title="statement not covered" >    form.method = 'POST';</span>
-    const returnUrl = <span class="cstat-no" title="statement not covered" >`${window.location.origin}/logout-success`;</span>
-<span class="cstat-no" title="statement not covered" >    form.action = `${API_BASE}/logout?return=${encodeURIComponent(returnUrl)}`;</span>
-<span class="cstat-no" title="statement not covered" >    form.style.display = 'none';</span>
-<span class="cstat-no" title="statement not covered" >    document.body.appendChild(form);</span>
-<span class="cstat-no" title="statement not covered" >    form.submit();</span>
+    const form = document.createElement('form');
+    form.method = 'POST';
+    const returnUrl = `${window.location.origin}/logout-success`;
+    form.action = `${API_BASE}/logout?return=${encodeURIComponent(returnUrl)}`;
+    form.style.display = 'none';
+    document.body.appendChild(form);
+    form.submit();
   };
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -208,7 +208,7 @@ export function useShellLogout({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-14T03:50:31.301Z
+                at 2026-07-14T08:44:02.798Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
