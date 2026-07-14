@@ -135,8 +135,9 @@
         <tbody>
         <tr class="odd">
         <td>Every push builds and passes the full suite</td>
-        <td><code>tsc --noEmit</code> + <code>vitest run</code> in
-        workflow 5</td>
+        <td><code>vitest --run --coverage</code> in workflow 5;
+        type-check via <code>tsc -b</code> in the same workflow’s image
+        build</td>
         <td><a href="07-deployment.html">§7</a></td>
         </tr>
         <tr class="even">

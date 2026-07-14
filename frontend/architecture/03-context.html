@@ -105,9 +105,10 @@
         single user-facing surface: staff track stock levels, manage
         suppliers, and analyse purchasing trends through it. Two
         authenticated roles exist — <code>USER</code> (view inventory,
-        record stock movements) and <code>ADMIN</code> (full CRUD over
-        suppliers and items, financial analytics) — plus an
-        unauthenticated <strong>demo mode</strong> for reviewers.</p>
+        record stock movements, read analytics including financial
+        summaries) and <code>ADMIN</code> (additionally: full CRUD over
+        suppliers and items, and the employee-activity analytics) — plus
+        an unauthenticated <strong>demo mode</strong> for reviewers.</p>
         <h2 id="technical-context">Technical Context</h2>
         <table>
         <colgroup>
@@ -199,9 +200,10 @@
         probe.</li>
         <li><strong>Demo mode is client-only</strong>: a
         <code>localStorage</code> flag enables read-only exploration
-        with sample data; it involves no backend account and no security
-        bypass — mutating UI short-circuits before any request is
-        sent.</li>
+        against the live API — the backend’s demo-readonly flag permits
+        unauthenticated reads; there is no backend account and no
+        security bypass, and mutating UI short-circuits before any
+        request is sent.</li>
         <li><strong>Docs deep links</strong>: the footer and help panel
         link to the published documentation hub
         (<code>keglev.github.io/inventory-service</code>).</li>

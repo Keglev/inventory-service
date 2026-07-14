@@ -102,8 +102,9 @@
         <h2 id="exception-to-status-reference">Exception-to-Status
         Reference</h2>
         <p>Both <code>@ControllerAdvice</code> handlers produce
-        <code>{ "error": "...", "message": "...", "timestamp": "..." }</code>.
-        The <code>error</code> token is
+        <code>{ "error": "...", "message": "...", "timestamp": "..." }</code>,
+        plus an optional <code>fieldErrors</code> map on bean-validation
+        failures. The <code>error</code> token is
         <code>HttpStatus.name().toLowerCase()</code>. There is no
         <code>correlationId</code>.</p>
         <table>
@@ -183,6 +184,38 @@
         <td><code>conflict</code></td>
         </tr>
         <tr class="odd">
+        <td><code>HttpMessageNotReadableException</code></td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td>400</td>
+        <td><code>bad_request</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>MissingServletRequestParameterException</code>,
+        <code>MethodArgumentTypeMismatchException</code></td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td>400</td>
+        <td><code>bad_request</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>NoResourceFoundException</code> (static assets)</td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td>404</td>
+        <td>— (no body)</td>
+        </tr>
+        <tr class="even">
+        <td><code>ObjectOptimisticLockingFailureException</code></td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td>409</td>
+        <td><code>conflict</code> (defensive — unreachable today, no
+        entity declares <code>@Version</code>)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>ResponseStatusException</code></td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td>as thrown</td>
+        <td>token of the preserved status</td>
+        </tr>
+        <tr class="even">
         <td><code>Exception</code> (fallback)</td>
         <td><code>GlobalExceptionHandler</code></td>
         <td>500</td>

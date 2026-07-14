@@ -211,8 +211,9 @@
         <td>Reliability — error consistency</td>
         <td>Any handled failure occurs (validation, not-found, conflict,
         access-denied, unexpected)</td>
-        <td>The body is exactly <code>{error, message, timestamp}</code>
-        with <code>error == HttpStatus.name().toLowerCase()</code>; no
+        <td>The body is <code>{error, message, timestamp}</code> — plus
+        <code>fieldErrors</code> only on bean-validation failures — with
+        <code>error == HttpStatus.name().toLowerCase()</code>; no
         correlation ID, no stack trace. See <a
         href="./09-decisions/adr-0004-http-status-as-envelope.html">ADR-0004</a></td>
         </tr>

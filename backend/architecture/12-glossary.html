@@ -129,8 +129,8 @@
         </tr>
         <tr class="odd">
         <td>AnalyticsService</td>
-        <td>Service computing stock valuation and trends, including WAC
-        and FIFO analysis</td>
+        <td>Service computing stock valuation and trends using Weighted
+        Average Cost (WAC)</td>
         </tr>
         <tr class="even">
         <td>AppUser</td>
@@ -156,7 +156,7 @@
         </tr>
         <tr class="even">
         <td>DTO (Data Transfer Object)</td>
-        <td>The only object types that cross the controller boundary; 14
+        <td>The only object types that cross the controller boundary; 16
         in the <code>dto/</code> package. See <a
         href="./09-decisions/adr-0003-dto-boundary-no-entity-exposure.html">ADR-0003</a></td>
         </tr>
@@ -168,121 +168,118 @@
         </tr>
         <tr class="even">
         <td>ErrorResponse</td>
-        <td>The canonical three-field error record
-        <code>{error, message, timestamp}</code>; <code>error</code> =
+        <td>The canonical error record
+        <code>{error, message, timestamp}</code> with an optional
+        <code>fieldErrors</code> map on validation failures;
+        <code>error</code> =
         <code>HttpStatus.name().toLowerCase()</code>. See <a
         href="./09-decisions/adr-0004-http-status-as-envelope.html">ADR-0004</a></td>
         </tr>
         <tr class="odd">
-        <td>FIFO</td>
-        <td>First-In-First-Out inventory costing method used by
-        <code>AnalyticsService</code></td>
-        </tr>
-        <tr class="even">
         <td>Fly.io</td>
         <td>Hosting platform for the backend (port 8081, health check
         <code>/api/health</code>)</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>GlobalExceptionHandler</td>
         <td><code>@ControllerAdvice</code> for framework and uncaught
         exceptions; applies <code>sanitize()</code>. See <a
         href="./09-decisions/adr-0005-error-message-sanitization.html">ADR-0005</a></td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>HikariCP</td>
         <td>JDBC connection pool, sized for Fly.io memory
         constraints</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>InventoryItem</td>
         <td>Core domain entity representing a tracked stock item, linked
         to a <code>Supplier</code></td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>JaCoCo</td>
         <td>Java code-coverage tool run in the CI pipeline</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>Koyeb</td>
         <td>Hosting platform for the React frontend; the cross-origin
         request origin</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>mTLS</td>
         <td>Mutual TLS — certificate-based transport authentication
         provided by the Oracle wallet. See <a
         href="./09-decisions/adr-0001-oracle-wallet-autologin.html">ADR-0001</a></td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>N+1 problem</td>
         <td>Repeated per-row association queries; avoided here via
         <code>@EntityGraph</code></td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>OAuth2</td>
         <td>Authentication via Google; on success the flow redirects to
         <code>/auth</code>. See <a href="./06-runtime.html">§6</a></td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>@PrePersist</code> /
         <code>@CreationTimestamp</code></td>
         <td>JPA / Hibernate callbacks that populate
         <code>createdAt</code> (and default <code>createdBy</code>)
         before insert</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>RBAC</td>
         <td>Role-based access control; <code>ADMIN</code> and
         <code>USER</code> roles enforced via
         <code>@PreAuthorize</code></td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>sanitize()</code></td>
         <td><code>GlobalExceptionHandler</code> method stripping file
         paths, class names, SQL, and credentials from error messages.
         See <a
         href="./09-decisions/adr-0005-error-message-sanitization.html">ADR-0005</a></td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>SameSite=None; Secure</code></td>
         <td>Session cookie attributes configured on the backend;
         production browser traffic is same-origin via the Nginx
         serve-time rewrite — see <a
         href="./07-deployment.html">§7</a></td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>StockChangeReason</td>
         <td>Enum classifying each stock movement
         (<code>INITIAL_STOCK</code>, <code>MANUAL_UPDATE</code>,
         <code>SOLD</code>, …). See the enums reference</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>StockHistory</td>
         <td>Domain entity recording each stock movement as an audit
         trail</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>Supplier</td>
         <td>Domain entity representing a goods supplier linked to
         inventory items</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>TNS_ADMIN</code></td>
         <td>Environment variable pointing the JDBC driver at the wallet
         directory</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>Trivy</td>
         <td>Container-image CVE scanner run in the Docker build
         workflow</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>WAC</td>
         <td>Weighted Average Cost inventory costing method used by
         <code>AnalyticsService</code></td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>Wallet (Oracle)</td>
         <td>Directory of TLS certificates and config
         (<code>cwallet.sso</code>, <code>tnsnames.ora</code>, …)

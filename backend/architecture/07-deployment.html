@@ -177,9 +177,10 @@
         </tr>
         <tr class="odd">
         <td><code>4-deploy-fly.yml</code></td>
-        <td><code>flyctl deploy --image &lt;SHA&gt;</code>, polls
-        <code>GET /api/health</code> (5-minute timeout), auto-rollback
-        on failure</td>
+        <td><code>flyctl deploy --image &lt;SHA&gt;</code> (5-minute
+        wait timeout), then a health-check script against
+        <code>/api/health</code>; rollback is manual — the workflow
+        supports a manual trigger to redeploy a previous image</td>
         </tr>
         <tr class="even">
         <td><code>docs-pipeline.yml</code></td>

@@ -398,11 +398,13 @@
         </tr>
         </tbody>
         </table>
-        <p>Both exception handlers produce a three-field
-        <code>ErrorResponse</code>:
+        <p>Both exception handlers produce the same
+        <code>ErrorResponse</code> record:
         <code>{ "error": "...", "message": "...", "timestamp": "..." }</code>
         where <code>error</code> is
-        <code>HttpStatus.name().toLowerCase()</code>.</p>
+        <code>HttpStatus.name().toLowerCase()</code>, plus an optional
+        <code>fieldErrors</code> map (field → message) attached only to
+        bean-validation failures.</p>
         <h2 id="building-block-diagram">Building-Block Diagram</h2>
         <div class="mermaid">
         %%{init: {"flowchart": {"useMaxWidth": false}}}%%

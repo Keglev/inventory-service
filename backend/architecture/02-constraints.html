@@ -204,9 +204,10 @@
         </tr>
         <tr class="even">
         <td>Error shape</td>
-        <td><code>{ "error": "&lt;token&gt;", "message": "...", "timestamp": "..." }</code>
-        — one canonical shape; error token =
-        <code>HttpStatus.name().toLowerCase()</code>
+        <td><code>{ "error": "&lt;token&gt;", "message": "...", "timestamp": "...", "fieldErrors"? }</code>
+        — one canonical shape, with <code>fieldErrors</code> (field →
+        message map) present only on bean-validation failures; error
+        token = <code>HttpStatus.name().toLowerCase()</code>
         (e.g. <code>bad_request</code>, <code>not_found</code>)</td>
         </tr>
         <tr class="odd">

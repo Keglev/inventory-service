@@ -147,9 +147,12 @@
         <p>Endpoints return the domain object (or an empty body)
         directly with a meaningful HTTP status code. There is no generic
         success wrapper. All errors share one canonical shape:
-        <code>{ "error": "&lt;token&gt;", "message": "...", "timestamp": "..." }</code>,
-        produced by a single <code>@ControllerAdvice</code> handler so
-        the contract cannot drift per endpoint. See <a
+        <code>{ "error": "&lt;token&gt;", "message": "...", "timestamp": "..." }</code>
+        — plus an optional <code>fieldErrors</code> map on
+        bean-validation failures — produced by two
+        <code>@ControllerAdvice</code> classes (framework and domain
+        exceptions) building the same <code>ErrorResponse</code> record,
+        so the contract cannot drift per endpoint. See <a
         href="09-decisions/adr-0004-http-status-as-envelope.html">ADR
         0004</a>.</p>
         <h2 id="stateless-services-and-horizontal-scaling">Stateless
