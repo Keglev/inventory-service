@@ -129,16 +129,12 @@ export const useEditSupplierForm = (
       if (response.success) {
         onUpdated();
       } else {
-        const errorMessage = mapSupplierError(response.error, t);
-        setFormError(errorMessage);
+        setFormError(mapSupplierError(response, t));
         confirmation.setShowConfirmation(false);
       }
     } catch (err) {
-      const errorMessage = mapSupplierError(
-        err instanceof Error ? err.message : undefined,
-        t
-      );
-      setFormError(errorMessage);
+      // No envelope is available when something outside the request throws.
+      setFormError(mapSupplierError({}, t));
       confirmation.setShowConfirmation(false);
       logError('Update failed:', err);
     }

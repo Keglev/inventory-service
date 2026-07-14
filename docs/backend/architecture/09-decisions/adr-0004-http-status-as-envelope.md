@@ -42,8 +42,12 @@ wrapper.
 - `message` — human-readable description, sanitized before reaching the client (see
   [ADR-0005](./adr-0005-error-message-sanitization.md))
 - `timestamp` — ISO-8601 instant the error occurred (`Instant.now().toString()`)
-- `fieldErrors` — optional map (field name → message), attached only to
-  bean-validation failures and omitted from the JSON otherwise
+- `fieldErrors` — optional map (field name → message), omitted from the JSON when
+  empty. Attached by bean-validation failures, and by any business rule that can
+  name the offending input: `DuplicateResourceException` carries the field, so a
+  duplicate item or supplier name reaches the client as `fieldErrors.name`. This is
+  what lets a form attach the message to the input instead of a banner, without
+  parsing the free-text message
 
 **Success body**: the domain DTO or list directly (e.g., `InventoryItemDTO`,
 `List<SupplierDTO>`). No `{ "success": true, "data": [...] }` wrapper.

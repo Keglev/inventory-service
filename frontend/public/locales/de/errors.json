@@ -25,16 +25,10 @@
     }
   },
   "supplier": {
-    "conflicts": {
-      "duplicateEmail": "Diese E-Mail wird bereits verwendet."
-    },
     "selection": {
       "noSupplierSelected": "Bitte wählen Sie einen Lieferanten"
     },
     "adminOnly": "Nur Administratoren können diese Aktion ausführen.",
-    "validation": {
-      "createdByRequired": "Erstellerinformationen sind erforderlich. Stellen Sie sicher, dass Sie angemeldet sind."
-    },
     "requests": {
       "failedToAddSupplier": "Fehler beim Hinzufügen des Lieferanten. Bitte versuchen Sie es erneut",
       "failedToUpdateSupplier": "Fehler beim Aktualisieren des Lieferanten. Bitte versuchen Sie es erneut",

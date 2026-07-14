@@ -145,14 +145,17 @@ class SupplierControllerTest {
         @Test
         void create_duplicateName_mapsTo409() throws Exception {
             given(supplierService.create(any(SupplierDTO.class)))
-                    .willThrow(new DuplicateResourceException("Supplier already exists"));
+                    .willThrow(new DuplicateResourceException("Supplier already exists", "name"));
 
             mockMvc.perform(post("/api/suppliers")
                             .with(user("admin").roles("ADMIN")).with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(noId())))
                     .andExpect(status().isConflict())
-                    .andExpect(jsonPath("$.message").value("Supplier already exists"));
+                    .andExpect(jsonPath("$.message").value("Supplier already exists"))
+                    // The client attaches the conflict to the name input from this attribution
+                    // rather than inferring it from the message text.
+                    .andExpect(jsonPath("$.fieldErrors.name").value("Supplier already exists"));
         }
 
         @Test

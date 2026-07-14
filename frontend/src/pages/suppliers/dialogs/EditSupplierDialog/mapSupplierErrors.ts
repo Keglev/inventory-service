@@ -3,59 +3,20 @@
  * @module dialogs/EditSupplierDialog/mapSupplierErrors
  *
  * @summary
- * Utility function for mapping backend supplier errors to user-friendly messages.
- * Uses heuristics to detect specific error conditions.
+ * Maps a failed supplier update to translated, user-facing copy.
  *
  * @enterprise
- * - Reusable across supplier-related components
- * - Intelligent error detection with pattern matching
- * - i18n support for localized error messages
+ * - Thin adapter over the shared supplier error classifier: the edit dialog
+ *   pins the operation to 'update' so a 409 reads as a duplicate name rather
+ *   than as the delete dialog's linked-items rule.
+ * - Classification is driven by the structured error envelope, never by
+ *   matching substrings in the server's free-text message.
  */
-
 import type { TFunction } from 'i18next';
 
-/**
- * Map backend error messages to localized user-friendly messages.
- *
- * Uses pattern matching to detect specific error types:
- * - Admin-only operations (403 Forbidden)
- * - Missing creator information
- * - Duplicate email conflicts
- * - Generic fallback for unknown errors
- *
- * @param errorMsg - Error message from backend
- * @param t - i18next translation function
- * @returns Localized user-friendly error message
- *
- * @example
- * ```ts
- * const message = mapSupplierError(response.error, t);
- * setError(message);
- * ```
- */
-export const mapSupplierError = (errorMsg: string | null | undefined, t: TFunction<['common', 'suppliers', 'errors']>): string => {
-  if (!errorMsg) {
-    return t('errors:supplier.requests.failedToUpdateSupplier');
-  }
+import { supplierErrorMessage, type SupplierErrorEnvelope } from '../supplierServerErrors';
 
-  // BUCKET: substring matching on free-text server message — replace with structured-error contract ({error, message, timestamp}) (CB-APP100)
-  const msg = errorMsg.toLowerCase();
-
-  // Admin-only error (403 Forbidden)
-  if (msg.includes('admin') || msg.includes('access denied') || msg.includes('403')) {
-    return t('errors:supplier.adminOnly');
-  }
-
-  // Missing creator info
-  if (msg.includes('createdby') || msg.includes('created by')) {
-    return t('errors:supplier.validation.createdByRequired');
-  }
-
-  // Duplicate email error (409 Conflict)
-  if (msg.includes('duplicate') || msg.includes('already exists') || msg.includes('email')) {
-    return t('errors:supplier.conflicts.duplicateEmail');
-  }
-
-  // Generic fallback
-  return t('errors:supplier.requests.failedToUpdateSupplier');
-};
+export const mapSupplierError = (
+  failure: SupplierErrorEnvelope,
+  t: TFunction<['common', 'suppliers', 'errors']>
+): string => supplierErrorMessage(failure, t, 'update');

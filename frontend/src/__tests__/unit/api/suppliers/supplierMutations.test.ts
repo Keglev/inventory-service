@@ -6,7 +6,8 @@
  * Contract under test:
  * - Guarantees supplier mutation contracts: correct HTTP route wiring,
  *   normalization of successful responses, stable invalid-response
- *   messaging, and user-facing error surfaces via `errorMessage`.
+ *   messaging, and — on failure — the structured envelope (status, status
+ *   token, fieldErrors) that callers classify from, alongside the message.
  *
  * Out of scope:
  * - HTTP client behavior (interceptors, retries/timeouts, auth headers,
@@ -34,6 +35,19 @@ vi.mock('@/api/shared/errorHandling', async (importOriginal) => {
     errorMessage: vi.fn(),
   };
 });
+
+/** A rejected Axios-shaped 409 carrying the backend's structured envelope. */
+const conflictError = {
+  response: {
+    status: 409,
+    data: {
+      error: 'conflict',
+      message: 'Supplier already exists',
+      timestamp: '2026-07-14T00:00:00Z',
+      fieldErrors: { name: 'Supplier already exists' },
+    },
+  },
+};
 
 import http from '@/api/httpClient';
 import { toSupplierRow } from '@/api/suppliers/supplierNormalizers';
@@ -104,7 +118,28 @@ describe('supplierMutations', () => {
         const result = await createSupplier(supplierPayload);
 
         expect(errorMessageMock).toHaveBeenCalledWith(failure);
-        expect(result).toEqual({ success: null, error: 'Request denied' });
+        expect(result).toEqual({
+          success: null,
+          error: 'Request denied',
+          errorToken: null,
+          status: null,
+          fieldErrors: null,
+        });
+      });
+
+      it('carries the structured envelope so callers need not read the message', async () => {
+        httpMock.post.mockRejectedValue(conflictError);
+        errorMessageMock.mockReturnValue('Supplier already exists');
+
+        const result = await createSupplier(supplierPayload);
+
+        expect(result).toEqual({
+          success: null,
+          error: 'Supplier already exists',
+          errorToken: 'conflict',
+          status: 409,
+          fieldErrors: { name: 'Supplier already exists' },
+        });
       });
     });
   });
@@ -151,7 +186,13 @@ describe('supplierMutations', () => {
         const result = await updateSupplier('SUP-1', supplierPayload);
 
         expect(errorMessageMock).toHaveBeenCalledWith(failure);
-        expect(result).toEqual({ success: null, error: 'Conflict detected' });
+        expect(result).toEqual({
+          success: null,
+          error: 'Conflict detected',
+          errorToken: null,
+          status: null,
+          fieldErrors: null,
+        });
       });
     });
   });
@@ -177,7 +218,13 @@ describe('supplierMutations', () => {
         const result = await deleteSupplier('SUP-1');
 
         expect(errorMessageMock).toHaveBeenCalledWith(failure);
-        expect(result).toEqual({ success: false, error: 'Supplier has purchases' });
+        expect(result).toEqual({
+          success: false,
+          error: 'Supplier has purchases',
+          errorToken: null,
+          status: null,
+          fieldErrors: null,
+        });
       });
     });
   });

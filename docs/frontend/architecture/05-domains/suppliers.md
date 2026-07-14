@@ -41,9 +41,13 @@ Spring Page); `/api/suppliers/search?name=` backs the type-ahead.
 
 ## Error Handling & Open Items
 
-The supplier form hooks currently match free-text server messages (including the
-German 'verknüpften' variant) to classify errors; migrating to the structured
-`{error, message, timestamp}` contract is tracked (CB-APP100). The dialogs now use
+The supplier form hooks classify failures from the structured
+`{error, message, timestamp, fieldErrors?}` envelope: the shared
+`supplierServerErrors` module keys on the status code and the status token, and
+the calling dialog supplies its operation, because 409 means a duplicate name on
+create and update but the linked-items rule on delete. A duplicate name arrives
+with `fieldErrors.name` and is pinned to the input rather than the form banner.
+The dialogs also use
 the shared `HelpIconButton` and reference palette tokens rather than fixed hex
 values, so they follow the same help and theming contract as the inventory dialogs.
 Unlike Inventory, the supplier dialogs do not take a `readOnly` prop; demo

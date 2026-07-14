@@ -25,16 +25,10 @@
     }
   },
   "supplier": {
-    "conflicts": {
-      "duplicateEmail": "This email is already in use."
-    },
     "selection": {
       "noSupplierSelected": "Please select a supplier"
     },
     "adminOnly": "Only administrators can perform this action.",
-    "validation": {
-      "createdByRequired": "Creator information is required. Please ensure you are logged in."
-    },
     "requests": {
       "failedToAddSupplier": "Failed to add supplier. Please try again.",
       "failedToUpdateSupplier": "Failed to update supplier. Please try again.",

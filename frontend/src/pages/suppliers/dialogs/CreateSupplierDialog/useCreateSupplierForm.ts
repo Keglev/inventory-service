@@ -19,6 +19,11 @@ import type { Resolver } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { createSupplier } from '../../../../api/suppliers/supplierMutations';
 import { createSupplierSchema, type CreateSupplierForm } from '../../../../api/suppliers/validation';
+import {
+  isSupplierNameConflict,
+  supplierErrorMessage,
+  type SupplierErrorEnvelope,
+} from '../supplierServerErrors';
 
 /**
  * Hook return type for CreateSupplierForm.
@@ -75,32 +80,19 @@ export const useCreateSupplierForm = (
   });
 
   /**
-   * Map backend error messages to field or form errors.
-   * Uses heuristics to improve UX by pinpointing issues.
+   * Attach a failed create to the offending input, or to the form banner.
+   * Classification comes from the structured envelope, never from message text.
    */
-  const applyServerError = (message?: string | null): void => {
-    // BUCKET: substring matching on free-text server message — replace with structured-error contract ({error, message, timestamp}) (CB-APP100)
-    if (!message) return;
-    const msg = message.toLowerCase();
-
-    // Duplicate name error
-    if (
-      msg.includes('name') &&
-      (msg.includes('duplicate') || msg.includes('exists') || msg.includes('already'))
-    ) {
+  const applyServerError = (failure: SupplierErrorEnvelope): void => {
+    if (isSupplierNameConflict(failure)) {
       setError('name', {
-        message: t(
-          'errors:supplier.businessRules.duplicateName'
-        ),
+        message: t('errors:supplier.businessRules.duplicateName'),
       });
-      setFormError(
-        t('errors:inventory.validationFailed')
-      );
+      setFormError(t('errors:inventory.validationFailed'));
       return;
     }
 
-    // Generic form error
-    setFormError(message);
+    setFormError(supplierErrorMessage(failure, t, 'add'));
   };
 
   /**
@@ -118,7 +110,7 @@ export const useCreateSupplierForm = (
       });
 
       if (!response.success) {
-        applyServerError(response.error);
+        applyServerError(response);
         return { success: false };
       }
 
@@ -126,12 +118,10 @@ export const useCreateSupplierForm = (
       reset();
       onCreated();
       return { success: true };
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : t('errors:supplier.requests.failedToAddSupplier');
-      applyServerError(errorMessage);
+    } catch {
+      // The fetcher already converts transport failures into a result; reaching
+      // here means something outside the request threw, so there is no envelope.
+      applyServerError({});
       return { success: false };
     }
   };

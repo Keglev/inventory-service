@@ -123,9 +123,13 @@ describe('useCreateSupplierForm', () => {
 
   it('maps duplicate-name server error to name field + banner error', async () => {
     const onCreated = vi.fn();
+    // Classified from the envelope, not from the message text.
     mocks.createSupplier.mockResolvedValue({
       success: false,
-      error: 'Duplicate name already exists',
+      error: 'Supplier already exists',
+      status: 409,
+      errorToken: 'conflict',
+      fieldErrors: { name: 'Supplier already exists' },
     });
 
     const { result } = renderHook(() => useCreateSupplierForm(onCreated));

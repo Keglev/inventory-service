@@ -6,16 +6,44 @@
  * POST / PUT / DELETE operations for the supplier resource.
  *
  * @enterprise
- * - errorMessage is borrowed from api/shared — not a supplier-owned helper.
- * - Error shape from the backend is {error, message, timestamp}; errorMessage extracts the message field.
- * - All three functions return {success, error?} so callers never need to catch; errors surface as strings.
+ * - errorMessage and extractApiError are borrowed from api/shared — not supplier-owned helpers.
+ * - Error shape from the backend is {error, message, timestamp, fieldErrors?}. The status code, the
+ *   status token and fieldErrors are carried through alongside the message, because callers classify
+ *   failures from the envelope rather than by matching substrings in the free-text message.
+ * - All three functions return {success, error?, ...envelope} so callers never need to catch.
  */
 
 import http from '../httpClient';
 import type { SupplierRow, SupplierDTO } from './types';
 import { toSupplierRow } from './supplierNormalizers';
-import { errorMessage } from '../shared/errorHandling';
+import { errorMessage, extractApiError } from '../shared/errorHandling';
 import { SUPPLIERS_BASE } from './supplierListFetcher';
+
+/**
+ * Structured failure detail lifted from the backend error envelope. Present on
+ * every failed mutation result; callers classify from these, never from `error`.
+ */
+export interface SupplierMutationFailure {
+  /** Status token: HttpStatus.name().toLowerCase(), e.g. 'conflict'. */
+  errorToken?: string | null;
+  status?: number | null;
+  /** Per-field messages, e.g. { name: '...' } for a duplicate supplier name. */
+  fieldErrors?: Record<string, string> | null;
+}
+
+export type SupplierWriteResult = { success: SupplierRow | null; error?: string } & SupplierMutationFailure;
+export type SupplierDeleteResult = { success: boolean; error?: string } & SupplierMutationFailure;
+
+/** Collapses an unknown thrown value into the structured failure shape. */
+const toFailure = (err: unknown): SupplierMutationFailure & { error: string } => {
+  const api = extractApiError(err);
+  return {
+    error: errorMessage(err),
+    errorToken: api.token,
+    status: api.status,
+    fieldErrors: api.fieldErrors,
+  };
+};
 
 /**
  * Creates a new supplier via POST /api/suppliers.
@@ -34,7 +62,7 @@ import { SUPPLIERS_BASE } from './supplierListFetcher';
  */
 export const createSupplier = async (
   supplier: SupplierDTO,
-): Promise<{ success: SupplierRow | null; error?: string }> => {
+): Promise<SupplierWriteResult> => {
   try {
     const resp = await http.post(SUPPLIERS_BASE, supplier);
 
@@ -49,10 +77,7 @@ export const createSupplier = async (
       error: created ? undefined : 'Invalid response from server',
     };
   } catch (err) {
-    return {
-      success: null,
-      error: errorMessage(err),
-    };
+    return { success: null, ...toFailure(err) };
   }
 };
 
@@ -74,7 +99,7 @@ export const createSupplier = async (
 export const updateSupplier = async (
   id: string,
   supplier: SupplierDTO,
-): Promise<{ success: SupplierRow | null; error?: string }> => {
+): Promise<SupplierWriteResult> => {
   try {
     const resp = await http.put(`${SUPPLIERS_BASE}/${id}`, supplier);
 
@@ -89,10 +114,7 @@ export const updateSupplier = async (
       error: updated ? undefined : 'Invalid response from server',
     };
   } catch (err) {
-    return {
-      success: null,
-      error: errorMessage(err),
-    };
+    return { success: null, ...toFailure(err) };
   }
 };
 
@@ -110,14 +132,11 @@ export const updateSupplier = async (
  */
 export const deleteSupplier = async (
   id: string,
-): Promise<{ success: boolean; error?: string }> => {
+): Promise<SupplierDeleteResult> => {
   try {
     await http.delete(`${SUPPLIERS_BASE}/${id}`);
     return { success: true };
   } catch (err) {
-    return {
-      success: false,
-      error: errorMessage(err),
-    };
+    return { success: false, ...toFailure(err) };
   }
 };

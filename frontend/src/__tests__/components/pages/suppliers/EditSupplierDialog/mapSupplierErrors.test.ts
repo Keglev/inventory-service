@@ -1,19 +1,22 @@
 /**
  * @file mapSupplierErrors.test.ts
  * @module __tests__/components/pages/suppliers/EditSupplierDialog/mapSupplierErrors
- * @description Contract tests for the `mapSupplierError` utility.
+ * @description Contract tests for the `mapSupplierError` adapter.
  *
  * Contract under test:
- * - Converts raw backend error strings into user-facing, localized messages.
- * - Falls back to a generic message when the input is absent or unrecognized.
+ * - Classifies a failed update from the structured error envelope (status and
+ *   status token), never from the server's free-text message.
+ * - Pins the operation to 'update', so a 409 reads as a duplicate name rather
+ *   than as the delete dialog's linked-items rule.
+ * - Falls back to the generic update failure when the envelope is empty.
  *
  * Out of scope:
  * - Toast presentation and UI rendering.
- * - Backend error format guarantees (we validate representative inputs only).
+ * - Envelope extraction itself (covered by the api/shared error-handling tests).
  *
  * Test strategy:
- * - Use a deterministic `t()` implementation returning `fallback ?? key`.
- * - Assert stable strings (fallback values) rather than i18n keys.
+ * - Resolve translations through the English resource bundle and assert the
+ *   rendered copy, not the i18n key.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -23,37 +26,48 @@ import { mapSupplierError } from '../../../../../pages/suppliers/dialogs/EditSup
 import { tEn } from '../../../../test/i18nEn';
 
 const tMock = vi.fn((key: string, options?: Record<string, unknown>) => tEn(key, options));
-const translate = tMock as unknown as TFunction;
+const translate = tMock as unknown as TFunction<['common', 'suppliers', 'errors']>;
 
 describe('mapSupplierError', () => {
   beforeEach(() => {
     tMock.mockClear();
   });
 
-  it('returns generic message when error is absent', () => {
-    expect(mapSupplierError(undefined, translate)).toBe('Failed to update supplier. Please try again.');
-    expect(mapSupplierError(null, translate)).toBe('Failed to update supplier. Please try again.');
+  it('returns the generic update message when the envelope is empty', () => {
+    expect(mapSupplierError({}, translate)).toBe('Failed to update supplier. Please try again.');
   });
 
-  it('detects admin-only errors', () => {
-    expect(mapSupplierError('403 Forbidden: admin only', translate)).toBe(
+  it('classifies a 403 as admin-only', () => {
+    expect(mapSupplierError({ status: 403 }, translate)).toBe(
+      'Only administrators can perform this action.'
+    );
+    expect(mapSupplierError({ errorToken: 'forbidden' }, translate)).toBe(
       'Only administrators can perform this action.'
     );
   });
 
-  it('detects missing creator information', () => {
-    expect(mapSupplierError('createdBy is required', translate)).toBe(
-      'Creator information is required. Please ensure you are logged in.'
+  it('classifies a 404 as supplier not found', () => {
+    expect(mapSupplierError({ status: 404 }, translate)).toBe('Supplier not found');
+    expect(mapSupplierError({ errorToken: 'not_found' }, translate)).toBe('Supplier not found');
+  });
+
+  it('classifies a 409 on update as a duplicate name, not as the delete rule', () => {
+    expect(mapSupplierError({ status: 409, errorToken: 'conflict' }, translate)).toBe(
+      'A supplier with this name already exists'
     );
   });
 
-  it('detects duplicate email conflicts', () => {
-    expect(mapSupplierError('Duplicate email detected', translate)).toBe('This email is already in use.');
-    expect(mapSupplierError('email already exists', translate)).toBe('This email is already in use.');
+  it('classifies a duplicate name carrying field attribution', () => {
+    expect(
+      mapSupplierError(
+        { status: 409, errorToken: 'conflict', fieldErrors: { name: 'Supplier already exists' } },
+        translate
+      )
+    ).toBe('A supplier with this name already exists');
   });
 
-  it('falls back to generic message for unknown errors', () => {
-    expect(mapSupplierError('Unexpected network issue', translate)).toBe(
+  it('ignores the server message: an unclassified status falls back', () => {
+    expect(mapSupplierError({ status: 500, errorToken: 'internal_server_error' }, translate)).toBe(
       'Failed to update supplier. Please try again.'
     );
   });

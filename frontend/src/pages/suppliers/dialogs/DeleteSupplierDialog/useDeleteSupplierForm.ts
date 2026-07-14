@@ -17,6 +17,7 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../../hooks/useAuth';
 import { deleteSupplier } from '../../../../api/suppliers/supplierMutations';
+import { supplierErrorMessage } from '../supplierServerErrors';
 import { useSupplierSearch } from '../../hooks/useSupplierSearch';
 import type { SupplierRow } from '../../../../api/suppliers/types';
 import { logError } from '../../../../utils/logger';
@@ -98,40 +99,6 @@ export const useDeleteSupplierForm = (
    * Checks authorization, sends DELETE request, maps errors.
    */
   const handleConfirmDelete = React.useCallback(async () => {
-    const mapServerError = (errorMsg?: string | null): string => {
-      if (!errorMsg) {
-        return t('errors:supplier.requests.failedToDeleteSupplier');
-      }
-
-      // BUCKET: substring matching on free-text server message (including German 'verknüpften') — replace with structured-error contract (CB-APP100)
-      const msg = errorMsg.toLowerCase();
-
-      // Linked items error (409 Conflict)
-      if (
-        msg.includes('cannot delete supplier with linked items') ||
-        msg.includes('linked items') ||
-        msg.includes('cannot delete supplier') ||
-        msg.includes('verknüpften') // German: "linked"
-      ) {
-        return t(
-          'errors:supplier.businessRules.cannotDeleteWithItems'
-        );
-      }
-
-      // Admin-only error (403 Forbidden)
-      if (msg.includes('403') || msg.includes('forbidden')) {
-        return t('errors:supplier.adminOnly');
-      }
-
-      // Not found error (404)
-      if (msg.includes('404') || msg.includes('not found')) {
-        return t('errors:supplier.businessRules.supplierNotFound');
-      }
-
-      // Generic error
-      return t('errors:supplier.requests.failedToDeleteSupplier');
-    };
-
     if (!selectedSupplier) {
       setError(t('errors:supplier.selection.noSupplierSelected'));
       return;
@@ -153,13 +120,12 @@ export const useDeleteSupplierForm = (
         // Success: notify parent
         onDeleted();
       } else {
-        // Map and display server error
-        const errorMessage = mapServerError(response.error);
-        setError(errorMessage);
+        // Classified from the structured envelope: on delete, a 409 is the
+        // linked-items rule, not a duplicate name.
+        setError(supplierErrorMessage(response, t, 'delete'));
       }
     } catch (err) {
-      const errorMessage = mapServerError(err instanceof Error ? err.message : undefined);
-      setError(errorMessage);
+      setError(supplierErrorMessage({}, t, 'delete'));
       logError('Delete failed:', err);
     } finally {
       setIsDeleting(false);

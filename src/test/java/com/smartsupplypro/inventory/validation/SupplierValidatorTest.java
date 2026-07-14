@@ -74,6 +74,9 @@ class SupplierValidatorTest {
             DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
                     () -> SupplierValidator.assertUniqueName(repo, "Acme", "current-999"));
             assertEquals("Supplier already exists", ex.getMessage());
+            // The field is what lets the client attach the conflict to the name input
+            // rather than to a form-level banner (BusinessExceptionHandler maps it to fieldErrors).
+            assertEquals("name", ex.getField());
         }
 
         @Test

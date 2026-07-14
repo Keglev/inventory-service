@@ -93,5 +93,6 @@ normalize defensively; several return an empty page on network failure so grids
 degrade instead of crashing. The `errorMessage()` helper extracts structured
 messages when present, falls back to status-based text (400/401/403/404/409),
 then to `Error.message`, then to a generic failure line — UI surfaces the string,
-never a stack trace. Migrating supplier-dialog free-text matching to the
-structured `{error, message, timestamp}` contract is tracked (CB-APP100).
+never a stack trace. Dialogs that must distinguish failure kinds do not read that
+string: `extractApiError()` lifts the status, the status token and `fieldErrors`
+out of the envelope, and the inventory and supplier form hooks classify from those.

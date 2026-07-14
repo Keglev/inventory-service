@@ -164,15 +164,23 @@ describe('useEditSupplierForm', () => {
 
     selectSupplier(result);
     confirmationState.pendingChanges = pendingChanges;
-    mocks.mapSupplierError.mockReturnValueOnce('Duplicate email error');
-    mocks.updateSupplier.mockResolvedValue({ success: false, error: 'duplicate' });
+    mocks.mapSupplierError.mockReturnValueOnce('A supplier with this name already exists');
+    const failure = {
+      success: false,
+      error: 'Supplier already exists',
+      status: 409,
+      errorToken: 'conflict',
+      fieldErrors: { name: 'Supplier already exists' },
+    };
+    mocks.updateSupplier.mockResolvedValue(failure);
 
     await act(async () => {
       await result.current.handleConfirmChanges();
     });
 
-    expect(mocks.mapSupplierError).toHaveBeenCalledWith('duplicate', expect.any(Function));
-    expect(result.current.formError).toBe('Duplicate email error');
+    // The whole result is handed to the mapper: it classifies from the envelope.
+    expect(mocks.mapSupplierError).toHaveBeenCalledWith(failure, expect.any(Function));
+    expect(result.current.formError).toBe('A supplier with this name already exists');
     expect(confirmationState.setShowConfirmation).toHaveBeenCalledWith(false);
     expect(searchState.resetSearch).toHaveBeenCalledTimes(1);
   });
@@ -190,7 +198,8 @@ describe('useEditSupplierForm', () => {
       await result.current.handleConfirmChanges();
     });
 
-    expect(mocks.mapSupplierError).toHaveBeenCalledWith('network down', expect.any(Function));
+    // Nothing threw a response, so there is no envelope to classify.
+    expect(mocks.mapSupplierError).toHaveBeenCalledWith({}, expect.any(Function));
     expect(result.current.formError).toBe('Network failure');
     expect(confirmationState.setShowConfirmation).toHaveBeenCalledWith(false);
     consoleSpy.mockRestore();
