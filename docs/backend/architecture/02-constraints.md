@@ -36,5 +36,5 @@ This is a solo-developer portfolio project. Constraints that follow from that co
 | API style | RESTful — standard HTTP verbs and status codes; no generic success wrapper. See [ADR 0004](09-decisions/adr-0004-http-status-as-envelope.md) |
 | Access control | RBAC via `@PreAuthorize`; two roles: `ADMIN` (full access), `USER` (read + basic ops) |
 | DTO boundary | Entities never exposed by controllers; DTOs never passed into repositories. See [ADR 0003](09-decisions/adr-0003-dto-boundary-no-entity-exposure.md) |
-| Error shape | `{ "error": "<token>", "message": "...", "timestamp": "..." }` — one canonical shape; error token = `HttpStatus.name().toLowerCase()` (e.g. `bad_request`, `not_found`) |
+| Error shape | `{ "error": "<token>", "message": "...", "timestamp": "...", "fieldErrors"? }` — one canonical shape, with `fieldErrors` (field → message map) present only on bean-validation failures; error token = `HttpStatus.name().toLowerCase()` (e.g. `bad_request`, `not_found`) |
 | Link format | All cross-document links use `.md` extension (Pandoc rewrites at build time) |

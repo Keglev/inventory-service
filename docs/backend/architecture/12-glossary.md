@@ -8,15 +8,14 @@ where a term is treated in depth.
 |------|------------|
 | ADB (Oracle Autonomous Database) | Managed Oracle 23ai database backing the `prod` profile; reached via the wallet. See [ADR-0001](./09-decisions/adr-0001-oracle-wallet-autologin.md) |
 | ADR | Architecture Decision Record — a decision with its justification and rejected alternatives. See [§9](./09-decisions/index.md) |
-| AnalyticsService | Service computing stock valuation and trends, including WAC and FIFO analysis |
+| AnalyticsService | Service computing stock valuation and trends using Weighted Average Cost (WAC) |
 | AppUser | JPA entity for an authenticated user; carries the assigned role |
 | arc42 | The documentation template structuring this architecture (§1–§12) |
 | BusinessExceptionHandler | `@ControllerAdvice` mapping domain exceptions to HTTP status: `InvalidRequest` → 400, `Duplicate` / `IllegalState` → 409 |
 | `cwallet.sso` | Oracle auto-login wallet file; opens the wallet for mTLS without a wallet password at runtime. See [ADR-0001](./09-decisions/adr-0001-oracle-wallet-autologin.md) |
-| DTO (Data Transfer Object) | The only object types that cross the controller boundary; 14 in the `dto/` package. See [ADR-0003](./09-decisions/adr-0003-dto-boundary-no-entity-exposure.md) |
+| DTO (Data Transfer Object) | The only object types that cross the controller boundary; 16 in the `dto/` package. See [ADR-0003](./09-decisions/adr-0003-dto-boundary-no-entity-exposure.md) |
 | `@EntityGraph` | JPA fetch hint on `InventoryItemRepository` loading `supplier` in a single join to avoid N+1 queries |
-| ErrorResponse | The canonical three-field error record `{error, message, timestamp}`; `error` = `HttpStatus.name().toLowerCase()`. See [ADR-0004](./09-decisions/adr-0004-http-status-as-envelope.md) |
-| FIFO | First-In-First-Out inventory costing method used by `AnalyticsService` |
+| ErrorResponse | The canonical error record `{error, message, timestamp}` with an optional `fieldErrors` map on validation failures; `error` = `HttpStatus.name().toLowerCase()`. See [ADR-0004](./09-decisions/adr-0004-http-status-as-envelope.md) |
 | Fly.io | Hosting platform for the backend (port 8081, health check `/api/health`) |
 | GlobalExceptionHandler | `@ControllerAdvice` for framework and uncaught exceptions; applies `sanitize()`. See [ADR-0005](./09-decisions/adr-0005-error-message-sanitization.md) |
 | HikariCP | JDBC connection pool, sized for Fly.io memory constraints |

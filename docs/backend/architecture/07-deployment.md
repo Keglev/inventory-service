@@ -54,7 +54,7 @@ Seven GitHub Actions workflows run on push to `main`:
 |---|---|
 | `1-ci-test.yml` | `mvn clean verify` — compile, unit + integration tests, JaCoCo coverage report |
 | `2-docker-backend.yml` | `docker build` (prod profile), Trivy CVE scan (blocks on HIGH/CRITICAL), `docker push :SHA :latest` to Docker Hub |
-| `4-deploy-fly.yml` | `flyctl deploy --image <SHA>`, polls `GET /api/health` (5-minute timeout), auto-rollback on failure |
+| `4-deploy-fly.yml` | `flyctl deploy --image <SHA>` (5-minute wait timeout), then a health-check script against `/api/health`; rollback is manual — the workflow supports a manual trigger to redeploy a previous image |
 | `docs-pipeline.yml` | Generates OpenAPI docs (Redocly) and converts architecture markdown to HTML (Pandoc + Lua filter) |
 | `3-deploy-ghpages.yml` | Publishes docs-site artifact to the `gh-pages` branch (GitHub Pages) |
 | `5-frontend-ci.yml` | Vitest unit tests, Docker image build (Nginx + Vite bundle), push to Docker Hub |

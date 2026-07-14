@@ -3,7 +3,8 @@
 ## Exception-to-Status Reference
 
 Both `@ControllerAdvice` handlers produce
-`{ "error": "...", "message": "...", "timestamp": "..." }`.
+`{ "error": "...", "message": "...", "timestamp": "..." }`, plus an optional
+`fieldErrors` map on bean-validation failures.
 The `error` token is `HttpStatus.name().toLowerCase()`. There is no `correlationId`.
 
 | Exception | Handler | Status | `error` token |
@@ -18,6 +19,11 @@ The `error` token is `HttpStatus.name().toLowerCase()`. There is no `correlation
 | `DuplicateResourceException` | `BusinessExceptionHandler` | 409 | `conflict` |
 | `IllegalStateException` | `BusinessExceptionHandler` | 409 | `conflict` |
 | `DataIntegrityViolationException` | `GlobalExceptionHandler` | 409 | `conflict` |
+| `HttpMessageNotReadableException` | `GlobalExceptionHandler` | 400 | `bad_request` |
+| `MissingServletRequestParameterException`, `MethodArgumentTypeMismatchException` | `GlobalExceptionHandler` | 400 | `bad_request` |
+| `NoResourceFoundException` (static assets) | `GlobalExceptionHandler` | 404 | — (no body) |
+| `ObjectOptimisticLockingFailureException` | `GlobalExceptionHandler` | 409 | `conflict` (defensive — unreachable today, no entity declares `@Version`) |
+| `ResponseStatusException` | `GlobalExceptionHandler` | as thrown | token of the preserved status |
 | `Exception` (fallback) | `GlobalExceptionHandler` | 500 | `internal_server_error` |
 
 ---

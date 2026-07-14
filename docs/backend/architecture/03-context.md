@@ -5,8 +5,9 @@
 Smart Supply Pro (SSP) is a full-stack inventory management system for small-to-medium
 businesses. It lets authorised staff track stock levels, manage supplier relationships,
 and analyse purchasing trends in real time. Two roles interact with the system: `USER`
-(view inventory, record stock movements) and `ADMIN` (full CRUD over suppliers and
-inventory items, financial analytics).
+(view inventory, record stock movements, read analytics including financial
+summaries) and `ADMIN` (additionally: full CRUD over suppliers and inventory
+items, and the employee-activity analytics).
 
 ## Technical Context
 

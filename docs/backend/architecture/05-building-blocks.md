@@ -90,9 +90,10 @@ no `updatedAt`.
 | `GlobalExceptionHandler` | `@ControllerAdvice` for framework exceptions |
 | `BusinessExceptionHandler` | `@ControllerAdvice` for domain exceptions (`DuplicateResourceException`, `InvalidRequestException`) |
 
-Both exception handlers produce a three-field `ErrorResponse`:
+Both exception handlers produce the same `ErrorResponse` record:
 `{ "error": "...", "message": "...", "timestamp": "..." }` where `error` is
-`HttpStatus.name().toLowerCase()`.
+`HttpStatus.name().toLowerCase()`, plus an optional `fieldErrors` map (field →
+message) attached only to bean-validation failures.
 
 ## Building-Block Diagram
 

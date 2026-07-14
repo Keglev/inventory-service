@@ -40,9 +40,10 @@ See [ADR 0001](09-decisions/adr-0001-oracle-wallet-autologin.md).
 
 Endpoints return the domain object (or an empty body) directly with a meaningful HTTP
 status code. There is no generic success wrapper. All errors share one canonical shape:
-`{ "error": "<token>", "message": "...", "timestamp": "..." }`,
-produced by a single `@ControllerAdvice` handler so the contract cannot drift per
-endpoint.
+`{ "error": "<token>", "message": "...", "timestamp": "..." }` — plus an optional
+`fieldErrors` map on bean-validation failures — produced by two `@ControllerAdvice`
+classes (framework and domain exceptions) building the same `ErrorResponse` record,
+so the contract cannot drift per endpoint.
 See [ADR 0004](09-decisions/adr-0004-http-status-as-envelope.md).
 
 ## Stateless Services and Horizontal Scaling
