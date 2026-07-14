@@ -16,8 +16,9 @@
  * - This is the reference site for HelpIconButton wiring: the help
  *   icon next to the page title uses the shared component with the
  *   topicId 'inventory.overview', matching QuantityAdjustDialog's
- *   pattern. Dialogs that still use raw IconButton + HelpOutlineIcon
- *   or window.open should converge on this pattern.
+ *   pattern. Every dialog in the application now routes help through
+ *   that same component; no raw IconButton + HelpOutlineIcon pairing
+ *   remains.
  * - The "select a supplier to view items" placeholder is mandatory
  *   UX: the inventory page intentionally renders nothing until a
  *   supplier is chosen, because the backend item-search endpoint is
