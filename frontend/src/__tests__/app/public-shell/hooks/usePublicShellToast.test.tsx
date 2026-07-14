@@ -72,4 +72,14 @@ describe('usePublicShellToast', () => {
 
     expect(result.current.toast).toBeNull();
   });
+
+  it('hideToast is a safe no-op when no toast exists', () => {
+    const { result } = renderHook(() => usePublicShellToast());
+
+    act(() => {
+      result.current.hideToast();
+    });
+
+    expect(result.current.toast).toBeNull();
+  });
 });

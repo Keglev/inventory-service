@@ -23,19 +23,27 @@ import PublicShellContent from '../../../app/public-shell/PublicShellContent';
 /**
  * Router stub:
  * We replace Outlet to keep this test focused on layout composition,
- * not on route definitions or nested page components.
+ * not on route definitions or nested page components. When the suspend
+ * flag is raised, the stub throws a never-resolving promise so the
+ * Suspense fallback becomes observable.
  */
+const outletShouldSuspend = { value: false };
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return {
     ...actual,
-    Outlet: () => <div data-testid="outlet">Outlet Content</div>,
+    Outlet: () => {
+      if (outletShouldSuspend.value) throw new Promise(() => {});
+      return <div data-testid="outlet">Outlet Content</div>;
+    },
   };
 });
 
 describe('PublicShellContent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    outletShouldSuspend.value = false;
   });
 
   function renderContent() {
@@ -72,5 +80,15 @@ describe('PublicShellContent', () => {
     renderContent();
 
     expect(screen.getByTestId('outlet')).toBeInTheDocument();
+  });
+
+  it('shows the loading fallback while a lazy route is still resolving', () => {
+    outletShouldSuspend.value = true;
+
+    renderContent();
+
+    expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
+    // The fallback renders the shared loading copy from the common namespace.
+    expect(screen.getByText(/loading|laden|lädt/i)).toBeInTheDocument();
   });
 });

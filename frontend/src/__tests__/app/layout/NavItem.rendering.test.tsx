@@ -106,5 +106,16 @@ describe('NavItem (rendering)', () => {
 
       expect(screen.getByText('Analytics and Reporting Dashboard')).toBeInTheDocument();
     });
+
+    it('swallows clicks while disabled so navigation cannot fire', () => {
+      renderNavItem({ to: '/analytics', label: 'Analytics', disabled: true });
+
+      const link = screen.getByText('Analytics').closest('a') as HTMLAnchorElement;
+      const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
+      link.dispatchEvent(clickEvent);
+
+      // preventDefault marks the event as cancelled: the router never navigates.
+      expect(clickEvent.defaultPrevented).toBe(true);
+    });
   });
 });

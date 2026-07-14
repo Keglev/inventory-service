@@ -189,4 +189,97 @@ describe('AuthProvider', () => {
 
     expect(screen.getByTestId('logout-in-progress')).toHaveTextContent('false');
   });
+
+  it('ignores a stored payload that is not a demo session and probes /api/me', async () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(
+      demoUserJson({ isDemo: false }),
+    );
+    httpClientMock.get.mockResolvedValue({
+      data: { email: 'real@corp.example', fullName: 'Real User', role: 'USER' },
+    });
+
+    renderAuth();
+
+    await waitFor(() =>
+      expect(screen.getByTestId('user-email')).toHaveTextContent('real@corp.example'),
+    );
+    expect(httpClientMock.get).toHaveBeenCalledWith('/api/me', expect.anything());
+  });
+
+  it('login() redirects to the Google OAuth2 authorization endpoint', async () => {
+    httpClientMock.get.mockRejectedValue(new Error('no session'));
+    const assign = vi.fn();
+    const originalLocation = window.location;
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: { ...originalLocation, assign },
+    });
+
+    function LoginProbe() {
+      const ctx = React.useContext(AuthContext);
+      if (!ctx) return null;
+      return (
+        <button type="button" onClick={ctx.login}>
+          login
+        </button>
+      );
+    }
+    render(
+      <AuthProvider>
+        <LoginProbe />
+      </AuthProvider>,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'login' }));
+
+    expect(assign).toHaveBeenCalledWith(
+      expect.stringContaining('/oauth2/authorization/google?return='),
+    );
+
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: originalLocation,
+    });
+  });
+
+  it('a second logout cancels the pending safety timer before rearming it', async () => {
+    vi.useFakeTimers();
+    httpClientMock.get.mockRejectedValue(new Error('no session'));
+
+    renderAuth();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'logout' }));
+    fireEvent.click(screen.getByRole('button', { name: 'logout' }));
+
+    expect(screen.getByTestId('logout-in-progress')).toHaveTextContent('true');
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(4000);
+    });
+
+    expect(screen.getByTestId('logout-in-progress')).toHaveTextContent('false');
+  });
+
+  it('a demo re-login after logout clears the in-progress flag immediately', async () => {
+    httpClientMock.get.mockRejectedValue(new Error('no session'));
+
+    renderAuth();
+    await waitFor(() =>
+      expect(screen.getByTestId('loading')).toHaveTextContent('false'),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'logout' }));
+    expect(screen.getByTestId('logout-in-progress')).toHaveTextContent('true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'loginAsDemo' }));
+
+    // The user-set effect resets the guard without waiting for the timer.
+    await waitFor(() =>
+      expect(screen.getByTestId('logout-in-progress')).toHaveTextContent('false'),
+    );
+    expect(screen.getByTestId('user-is-demo')).toHaveTextContent('true');
+  });
 });

@@ -160,4 +160,75 @@ describe('useSessionTimeout', () => {
 
     unmount();
   });
+
+  it('ignores storage events for other keys or values', () => {
+    const { unmount } = renderHook(() => useSessionTimeout());
+
+    window.dispatchEvent(new StorageEvent('storage', { key: 'themeMode', newValue: '1' }));
+    window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_FLAG, newValue: '0' }));
+
+    expect(navigateMock).not.toHaveBeenCalled();
+
+    unmount();
+  });
+
+  it('pauses the heartbeat while hidden and resumes on visibility', async () => {
+    vi.useFakeTimers();
+    const { unmount } = renderHook(() => useSessionTimeout({ pingIntervalMs: 10_000 }));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const callsWhileVisible = httpClientMock.get.mock.calls.length;
+
+    // Hide twice: the second stop() finds no timer (idempotent branch).
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    document.dispatchEvent(new Event('visibilitychange'));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+    expect(httpClientMock.get.mock.calls.length).toBe(callsWhileVisible);
+
+    // Resuming restarts the interval with an immediate ping.
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(httpClientMock.get.mock.calls.length).toBeGreaterThan(callsWhileVisible);
+
+    unmount();
+  });
+
+  it('extends the idle window on user activity', async () => {
+    vi.useFakeTimers();
+    const { unmount } = renderHook(() =>
+      useSessionTimeout({ enableIdleTimeout: true, idleTimeoutMs: 10_000 }),
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(6_000);
+    });
+    // Activity resets the timer: without the reset this would fire at 10s.
+    window.dispatchEvent(new Event('mousemove'));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(6_000);
+    });
+
+    expect(navigateMock).not.toHaveBeenCalled();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(4_100);
+    });
+    expect(navigateMock).toHaveBeenCalledWith('/logout', { replace: true });
+
+    unmount();
+  });
 });

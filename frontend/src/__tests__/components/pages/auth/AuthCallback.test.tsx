@@ -159,5 +159,23 @@ describe('AuthCallback', () => {
       expect(mockSetUser).not.toHaveBeenCalled();
       expect(mockNavigate).not.toHaveBeenCalled();
     });
+
+    it('suppresses the error redirect when the failure lands after unmount', async () => {
+      let rejectPromise!: (reason: unknown) => void;
+      const pending = new Promise<{ data: unknown }>((_resolve, reject) => {
+        rejectPromise = reject;
+      });
+      vi.mocked(httpClient.get).mockReturnValue(pending as never);
+
+      const { unmount } = renderAuthCallback();
+      unmount();
+
+      // Reject after unmount: the cancelled flag must swallow the redirect.
+      rejectPromise(new Error('session lookup failed'));
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
   });
 });

@@ -172,4 +172,46 @@ describe('SettingsProvider', () => {
     expect(storageMocks.getDefaultPreferences).toHaveBeenCalledWith('de');
     expect(screen.getByTestId('date')).toHaveTextContent('DD.MM.YYYY');
   });
+
+  it('converts US formats to German ones when the language switches to de', async () => {
+    getSystemInfoMock.mockResolvedValue({});
+    // Stored prefs carry the US defaults (from beforeEach): MM/DD/YYYY + EN_US.
+    const { rerender } = renderProvider();
+
+    expect(screen.getByTestId('date')).toHaveTextContent('MM/DD/YYYY');
+
+    i18nMock.language = 'de';
+    rerender(
+      <SettingsProvider>
+        <SettingsProbe />
+      </SettingsProvider>
+    );
+
+    await waitFor(() => expect(screen.getByTestId('date')).toHaveTextContent('DD.MM.YYYY'));
+    expect(screen.getByTestId('number')).toHaveTextContent('DE');
+  });
+
+  it('converts German formats back to US ones when the language switches to en', async () => {
+    getSystemInfoMock.mockResolvedValue({});
+    i18nMock.language = 'de';
+    storageMocks.loadPreferencesFromStorage.mockReturnValue({
+      dateFormat: 'DD.MM.YYYY',
+      numberFormat: 'DE',
+      tableDensity: 'comfortable',
+    });
+
+    const { rerender } = renderProvider();
+
+    expect(screen.getByTestId('date')).toHaveTextContent('DD.MM.YYYY');
+
+    i18nMock.language = 'en';
+    rerender(
+      <SettingsProvider>
+        <SettingsProbe />
+      </SettingsProvider>
+    );
+
+    await waitFor(() => expect(screen.getByTestId('date')).toHaveTextContent('MM/DD/YYYY'));
+    expect(screen.getByTestId('number')).toHaveTextContent('EN_US');
+  });
 });

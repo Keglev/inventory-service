@@ -153,4 +153,46 @@ describe('useHealthCheck', () => {
 
     unmount();
   });
+
+  it('treats a missing content-type header as non-JSON (offline)', async () => {
+    fetchMock.mockResolvedValue({
+      headers: new Headers(),
+      json: vi.fn(async () => ({})),
+      text: vi.fn(async () => 'plain'),
+    } as unknown as Response);
+
+    const { result, unmount } = renderHook(() => useHealthCheck());
+
+    await waitFor(() => expect(result.current.health.status).toBe('offline'));
+
+    unmount();
+  });
+
+  it('treats a non-object JSON body as an invalid shape (offline)', async () => {
+    fetchMock.mockResolvedValue(
+      makeResponse({ contentType: 'application/json', json: 'just-a-string' })
+    );
+
+    const { result, unmount } = renderHook(() => useHealthCheck());
+
+    await waitFor(() => expect(result.current.health.status).toBe('offline'));
+
+    unmount();
+  });
+
+  it('maps degraded backend and database statuses to offline flags', async () => {
+    fetchMock.mockResolvedValue(
+      makeResponse({
+        contentType: 'application/json',
+        json: { status: 'DOWN', database: 'ERROR', timestamp: 1720900000000 },
+      })
+    );
+
+    const { result, unmount } = renderHook(() => useHealthCheck());
+
+    await waitFor(() => expect(result.current.health.status).toBe('offline'));
+    expect(result.current.health.database).toBe('offline');
+
+    unmount();
+  });
 });

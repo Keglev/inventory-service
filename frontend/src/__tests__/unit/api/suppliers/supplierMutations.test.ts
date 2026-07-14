@@ -75,6 +75,16 @@ describe('supplierMutations', () => {
     });
 
     describe('invalid response', () => {
+      it('degrades a non-object create response to the invalid-response error', async () => {
+        httpMock.post.mockResolvedValue('weird');
+        toSupplierRowMock.mockReturnValue(null);
+
+        const result = await createSupplier(supplierPayload);
+
+        expect(toSupplierRowMock).toHaveBeenCalledWith({});
+        expect(result.error).toBe('Invalid response from server');
+      });
+
       it('reports an invalid response when the normalizer yields null', async () => {
         httpMock.post.mockResolvedValue({ data: {} });
         toSupplierRowMock.mockReturnValue(null);
@@ -114,6 +124,25 @@ describe('supplierMutations', () => {
     });
 
     describe('failure paths', () => {
+      it('reports an invalid response when the normalizer yields null', async () => {
+        httpMock.put.mockResolvedValue({ data: { id: 'SUP-1' } });
+        toSupplierRowMock.mockReturnValue(null);
+
+        const result = await updateSupplier('SUP-1', supplierPayload);
+
+        expect(result).toEqual({ success: null, error: 'Invalid response from server' });
+      });
+
+      it('degrades a non-object response to the invalid-response error', async () => {
+        httpMock.put.mockResolvedValue('weird');
+        toSupplierRowMock.mockReturnValue(null);
+
+        const result = await updateSupplier('SUP-1', supplierPayload);
+
+        expect(toSupplierRowMock).toHaveBeenCalledWith({});
+        expect(result).toEqual({ success: null, error: 'Invalid response from server' });
+      });
+
       it('returns error message when update fails', async () => {
         const failure = new Error('conflict');
         httpMock.put.mockRejectedValue(failure);

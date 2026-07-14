@@ -15,7 +15,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PublicShellToastContainer from '../../../app/public-shell/PublicShellToastContainer';
 
@@ -99,5 +99,31 @@ describe('PublicShellToastContainer', () => {
     await user.click(closeButton as Element);
 
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('suppresses close on clickaway so stray clicks keep the toast visible', async () => {
+    const onClose = vi.fn();
+    renderToast({ open: true, msg: 'Sticky', severity: 'success' }, onClose);
+
+    // MUI's ClickAwayListener arms itself on a tick after mount and needs the
+    // full pointer sequence to classify the interaction as a clickaway.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    fireEvent.mouseDown(document.body);
+    fireEvent.mouseUp(document.body);
+    fireEvent.click(document.body);
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.getByText('Sticky')).toBeInTheDocument();
+  });
+
+  it('renders a closed snackbar with the success default when no toast exists', () => {
+    const { container } = render(
+      <PublicShellToastContainer toast={null} onClose={vi.fn()} />,
+    );
+
+    // No open snackbar and the severity fallback does not crash the render.
+    expect(container.querySelector('.MuiSnackbar-root')).toBeNull();
   });
 });

@@ -15,7 +15,7 @@
  * - MUI theme internals beyond "a theme is provided".
  */
 
-import { render, act, screen } from '@testing-library/react';
+import { render, act, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createTheme } from '@mui/material/styles';
 import AppShell from '@/app/layout/AppShell';
@@ -35,10 +35,13 @@ type HeaderProps = {
 
 type SidebarProps = {
   mobileOpen: boolean;
+  onMobileClose?: () => void;
+  onSettingsOpen?: () => void;
 };
 
 let lastHeaderProps: Partial<HeaderProps> | undefined;
 let lastSidebarProps: Partial<SidebarProps> | undefined;
+let lastSettingsDialogProps: { open: boolean; onClose?: () => void } | undefined;
 
 vi.mock('@/app/layout/AppHeader', () => ({
   default: (props: Partial<HeaderProps>) => {
@@ -59,9 +62,10 @@ vi.mock('@/app/layout/AppMain', () => ({
 }));
 
 vi.mock('@/app/settings/AppSettingsDialog', () => ({
-  default: (props: { open: boolean }) => (
-    <div data-testid="settings-dialog" data-open={props.open} />
-  ),
+  default: (props: { open: boolean; onClose?: () => void }) => {
+    lastSettingsDialogProps = props;
+    return <div data-testid="settings-dialog" data-open={props.open} />;
+  },
 }));
 
 vi.mock('@/app/footer/AppFooter', () => ({
@@ -165,6 +169,7 @@ describe('AppShell', () => {
     localStorage.clear();
     lastHeaderProps = undefined;
     lastSidebarProps = undefined;
+    lastSettingsDialogProps = undefined;
   });
 
   it('renders the composed layout regions (header, sidebar, main)', () => {
@@ -232,5 +237,56 @@ describe('AppShell', () => {
 
     expect(localStorage.getItem('themeMode')).toBe('dark');
     expect(screen.getByText('common:shell.darkModeEnabled')).toBeInTheDocument();
+  });
+
+  it('closes the mobile drawer through the sidebar callback', () => {
+    renderAppShell();
+
+    act(() => {
+      getHeader().onDrawerToggle();
+    });
+    expect(getSidebar().mobileOpen).toBe(true);
+
+    act(() => {
+      getSidebar().onMobileClose?.();
+    });
+
+    expect(getSidebar().mobileOpen).toBe(false);
+  });
+
+  it('opens and closes the settings dialog through the wired callbacks', () => {
+    renderAppShell();
+
+    expect(screen.getByTestId('settings-dialog')).toHaveAttribute('data-open', 'false');
+
+    act(() => {
+      getSidebar().onSettingsOpen?.();
+    });
+    expect(screen.getByTestId('settings-dialog')).toHaveAttribute('data-open', 'true');
+
+    act(() => {
+      lastSettingsDialogProps?.onClose?.();
+    });
+    expect(screen.getByTestId('settings-dialog')).toHaveAttribute('data-open', 'false');
+  });
+
+  it('auto-dismisses the confirmation toast via the snackbar close handler', async () => {
+    renderAppShell();
+
+    act(() => {
+      getHeader().onThemeModeChange('dark');
+    });
+    expect(screen.getByText('common:shell.darkModeEnabled')).toBeInTheDocument();
+
+    // MUI Snackbar close: fire the document clickaway path via its onClose.
+    await waitFor(() => {
+      const snackbarRoot = document.querySelector('.MuiSnackbar-root');
+      expect(snackbarRoot).not.toBeNull();
+    });
+    fireEvent.click(document.body);
+
+    await waitFor(() => {
+      expect(screen.queryByText('common:shell.darkModeEnabled')).not.toBeInTheDocument();
+    });
   });
 });

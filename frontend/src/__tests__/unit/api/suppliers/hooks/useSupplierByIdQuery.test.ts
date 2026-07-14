@@ -82,4 +82,16 @@ describe('useSupplierByIdQuery', () => {
     });
     expect(getSupplierByIdMock).not.toHaveBeenCalled();
   });
+
+  it('short-circuits the queryFn to null when the id is empty', async () => {
+    const { configs } = arrangeUseQueryConfigCollector<SupplierRow | null>(useQueryMock, { data: null });
+
+    useSupplierByIdQuery('');
+
+    // Defensive guard inside the queryFn: even if react-query ever invoked
+    // it while disabled, no request would fire.
+    const resolved = await configs[0].queryFn();
+    expect(resolved).toBeNull();
+    expect(getSupplierByIdMock).not.toHaveBeenCalled();
+  });
 });

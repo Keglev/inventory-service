@@ -68,4 +68,20 @@ describe('ImpressumPage', () => {
     expect(screen.getByTestId('location')).toHaveTextContent('/');
     expect(screen.getByText('Landing')).toBeInTheDocument();
   });
+
+  it('navigates back in history when an in-app entry exists', () => {
+    // Simulate router-managed history: idx > 0 means a previous in-app page.
+    window.history.replaceState({ idx: 2 }, '');
+    const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+
+    arrange();
+    fireEvent.click(screen.getByRole('button', { name: 'back' }));
+
+    // MemoryRouter maps navigate(-1) to a history pop; the page itself must
+    // not have fallen back to the landing route.
+    expect(screen.queryByText('Landing')).not.toBeInTheDocument();
+
+    backSpy.mockRestore();
+    window.history.replaceState(null, '');
+  });
 });

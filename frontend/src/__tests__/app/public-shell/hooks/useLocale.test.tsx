@@ -124,7 +124,23 @@ describe('useLocale', () => {
     });
 
     expect(result.current.locale).toBe('en');
-    expect(localStorage.getItem('i18nextLng')).toBe('en');
+
+    act(() => {
+      result.current.toggleLocale();
+    });
+
+    // The reverse arm: en flips back to de.
+    expect(result.current.locale).toBe('de');
+    expect(localStorage.getItem('i18nextLng')).toBe('de');
+  });
+
+  it('falls back to German when neither storage nor i18n provide a language', () => {
+    const fake = createFakeI18n('de');
+    (fake as { resolvedLanguage?: string }).resolvedLanguage = undefined;
+
+    const { result } = renderHook(() => useLocale(fake as unknown as i18n));
+
+    expect(result.current.locale).toBe('de');
   });
 
   it('updates when i18n emits languageChanged', () => {
