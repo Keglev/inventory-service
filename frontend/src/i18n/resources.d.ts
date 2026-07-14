@@ -9,7 +9,7 @@
  * @enterprise
  * - Augments 'i18next' directly via declare module — affects every useTranslation()
  *   call site project-wide.
- * - Typing source contract: the nine EN JSON files (public/locales/en/*.json) are
+ * - Typing source contract: the eleven EN JSON files (public/locales/en/*.json) are
  *   imported as the shape source. DE JSON files are expected to mirror the EN shape;
  *   mismatches surface as runtime missing-key warnings, not compile errors.
  * - Cross-boundary import: reaches out of src/ into public/ — intentional; the
@@ -21,7 +21,7 @@
 
 import 'i18next';
 
-// BUCKET: nine imports + nine typed keys duplicate the I18N_NAMESPACES list in i18n/index.ts; investigate deriving the typed shape from a mapped type over the namespace tuple (CB-APP23)
+// BUCKET: eleven imports + eleven typed keys duplicate the I18N_NAMESPACES list in i18n/index.ts; investigate deriving the typed shape from a mapped type over the namespace tuple (CB-APP23)
 import common from '../../public/locales/en/common.json';
 import analytics from '../../public/locales/en/analytics.json';
 import auth from '../../public/locales/en/auth.json';
@@ -32,6 +32,7 @@ import suppliers from '../../public/locales/en/suppliers.json';
 import footer from '../../public/locales/en/footer.json';
 import help from '../../public/locales/en/help.json';
 import legal from '../../public/locales/en/legal.json';
+import landing from '../../public/locales/en/landing.json';
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -49,6 +50,7 @@ declare module 'i18next' {
       footer: typeof footer;
       help: typeof help;
       legal: typeof legal;
+      landing: typeof landing;
     };
   }
 }

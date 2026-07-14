@@ -12,13 +12,17 @@
  *   the browser to /logout-success, which then renders this static page.
  * - Re-entry to /login is an explicit user action, not an auto-redirect,
  *   to avoid loops if the user lands here directly.
+ * - Two exits, not one: signing in again and returning to the public landing
+ *   page. A single sign-in button dead-ends a visitor who only wanted to end the
+ *   session, which is the last screen many first-time visitors see.
  *
  * @i18n
- * Uses 'auth' namespace. Keys: logoutSuccessTitle, logoutSuccessBody, signIn.
+ * Uses 'auth' namespace. Keys: logoutSuccessTitle, logoutSuccessBody, signIn,
+ * logoutBackHome.
  */
 
 import * as React from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -35,13 +39,25 @@ const LogoutSuccess: React.FC = () => {
         <Typography variant="body1" color="text.secondary" gutterBottom>
           {t('logoutSuccessBody')}
         </Typography>
-        <Button
-          variant="contained"
-          sx={{ mt: 2 }}
-          onClick={() => navigate('/login', { replace: true })}
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={1.5}
+          justifyContent="center"
+          sx={{ mt: 3 }}
         >
-          {t('signIn')}
-        </Button>
+          <Button
+            variant="contained"
+            onClick={() => navigate('/login', { replace: true })}
+          >
+            {t('signIn')}
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => navigate('/', { replace: true })}
+          >
+            {t('logoutBackHome')}
+          </Button>
+        </Stack>
       </Box>
     </Box>
   );

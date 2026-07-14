@@ -1,0 +1,71 @@
+{
+  "hero": {
+    "eyebrow": "Inventory management for small teams",
+    "title": "Know what you hold, what it cost, and what moved.",
+    "subtitle": "SmartSupplyPro keeps stock levels, suppliers and weighted-average cost in one place — with a full audit trail behind every single change.",
+    "ctaDemo": "Explore the live demo",
+    "ctaSignIn": "Sign in with Google",
+    "note": "The demo opens a read-only session against the live API. No account required.",
+    "previewAlt": "SmartSupplyPro dashboard preview",
+    "previewFallback": "Dashboard preview"
+  },
+  "features": {
+    "title": "What it does",
+    "subtitle": "Six capabilities, built as one coherent domain rather than a set of CRUD screens.",
+    "items": {
+      "inventory": {
+        "title": "Inventory",
+        "body": "Search, filter and edit items server-side. Deletion is a soft delete gated on zero quantity, so the SKU and its history survive."
+      },
+      "suppliers": {
+        "title": "Suppliers",
+        "body": "Manage supplier records with a delete guard that refuses removal while any linked item still holds stock."
+      },
+      "finance": {
+        "title": "Financial analytics",
+        "body": "Weighted-average cost valuation, stock value over time, and price-change tracking — computed in the database, not in the browser."
+      },
+      "history": {
+        "title": "Audit trail",
+        "body": "Every stock movement is written to an append-only history with a reason code, so any quantity can be explained after the fact."
+      },
+      "access": {
+        "title": "Access control",
+        "body": "Google OAuth2 sign-in with role-based authorisation, plus a read-only demo session for visitors who need no account."
+      },
+      "i18n": {
+        "title": "German and English",
+        "body": "The whole interface, including validation messages and date and number formats, ships in both languages."
+      }
+    }
+  },
+  "how": {
+    "title": "How it works",
+    "steps": {
+      "one": {
+        "title": "Sign in or open the demo",
+        "body": "Authenticate with Google, or enter the read-only demo session in a single click."
+      },
+      "two": {
+        "title": "Track stock and suppliers",
+        "body": "Create items, link them to suppliers, and record movements with a reason for every change."
+      },
+      "three": {
+        "title": "Read the numbers",
+        "body": "The dashboard and analytics sections turn that history into stock value, trends, and low-stock warnings."
+      }
+    }
+  },
+  "engineering": {
+    "title": "Built like production software",
+    "body": "Spring Boot on Java 21 with an Oracle Autonomous Database and Flyway-owned schema; React 19 and TypeScript on the front end. Continuous integration runs the full test suite, static analysis and container scans on every push. The architecture is documented in arc42 form, including the decision records behind each trade-off.",
+    "docsCta": "Read the architecture docs",
+    "repoCta": "View the source on GitHub"
+  },
+  "finalCta": {
+    "title": "See it with real data",
+    "body": "The demo session is live and read-only. Nothing you click will change anything.",
+    "primary": "Open the demo",
+    "secondary": "Sign in"
+  }
+}

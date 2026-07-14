@@ -6,7 +6,9 @@
  * Contract under test:
  * - Renders a success confirmation message after server-side logout completes.
  * - Provides a primary call-to-action to return to the login screen.
- * - Clicking the CTA navigates to `/login` using replace navigation to avoid back navigation into logout flow.
+ * - Provides a secondary call-to-action back to the public landing page, so a signed-out
+ *   visitor is not dead-ended on a screen whose only exit is a sign-in form.
+ * - Both CTAs navigate with replace, to avoid back navigation into the logout flow.
  *
  * Test strategy:
  * - i18n is mocked deterministically to return keys (stable assertions).
@@ -69,6 +71,21 @@ describe('LogoutSuccess', () => {
 
     // The exact label depends on translations; we match the intent ("signIn" key).
     expect(screen.getByRole('button', { name: /signIn/i })).toBeInTheDocument();
+  });
+
+  it('renders a back-to-home call-to-action button', () => {
+    renderLogoutSuccess();
+
+    expect(screen.getByRole('button', { name: /logoutBackHome/i })).toBeInTheDocument();
+  });
+
+  it('navigates to / with replace when the back-to-home button is clicked', async () => {
+    const user = userEvent.setup();
+    renderLogoutSuccess();
+
+    await user.click(screen.getByRole('button', { name: /logoutBackHome/i }));
+
+    expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true });
   });
 
   it('navigates to /login with replace when the sign-in button is clicked', async () => {

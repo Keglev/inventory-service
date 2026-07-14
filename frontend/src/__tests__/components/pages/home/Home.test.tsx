@@ -1,21 +1,20 @@
 /**
  * @file Home.test.tsx
  * @module __tests__/components/pages/home/Home
- * @description Enterprise tests for the Home (root landing) page.
+ * @testing Vitest + Testing Library, MemoryRouter with route targets, mocked useAuth and i18n.
+ * @description Enterprise tests for the Home (public landing) page orchestrator.
  *
  * Contract under test:
- * - While auth state is hydrating, renders a progress indicator.
+ * - While auth state is hydrating, renders a progress indicator and no landing content.
  * - If authenticated, redirects to /dashboard using <Navigate replace>.
- * - If unauthenticated, renders a landing card with:
- *   - "Sign in" -> navigates to /login
- *   - "Continue in Demo Mode" -> calls loginAsDemo() and navigates to /dashboard (replace)
- * - Renders supporting copy ("welcome", "or", "ssoHint") and branding.
+ * - If unauthenticated, composes the five landing sections in order: hero, features,
+ *   how-it-works, engineering callout, final call to action.
+ * - Both entry actions are wired identically at the top and the bottom of the page:
+ *   demo -> loginAsDemo() + navigate('/dashboard', { replace: true }); sign-in -> navigate('/login').
  *
- * Test strategy:
- * - useAuth is mocked to simulate loading/authenticated/unauthenticated states deterministically.
- * - Router is exercised using <MemoryRouter> + <Routes> to validate <Navigate> redirects.
- * - useNavigate is mocked only for imperative navigation triggered by button clicks.
- * - i18n is mocked to prefer defaultValue when provided and otherwise return translation keys.
+ * Out of scope:
+ * - Section copy and layout (covered by the per-section tests in this directory).
+ * - Header and footer chrome, which the public shell owns.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -26,9 +25,6 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import Home from '../../../../pages/home/Home';
 import { tEn } from '../../../test/i18nEn';
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const mockNavigate = vi.hoisted(() => vi.fn());
 const mockUseAuth = vi.hoisted(() => vi.fn());
 
@@ -40,19 +36,11 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  };
+  return { ...actual, useNavigate: () => mockNavigate };
 });
 
-vi.mock('../../../../hooks/useAuth', () => ({
-  useAuth: mockUseAuth,
-}));
+vi.mock('../../../../hooks/useAuth', () => ({ useAuth: mockUseAuth }));
 
-// -------------------------------------
-// Helpers
-// -------------------------------------
 function givenAuth(state: { user: unknown; loading: boolean; loginAsDemo?: () => void }) {
   mockUseAuth.mockReturnValue({
     user: state.user,
@@ -66,9 +54,7 @@ function renderHomeAt(initialRoute = '/') {
     <MemoryRouter initialEntries={[initialRoute]}>
       <Routes>
         <Route path="/" element={<Home />} />
-        {/* Target route for <Navigate> redirect assertions */}
         <Route path="/dashboard" element={<div>Dashboard</div>} />
-        {/* Target route for sign-in navigation */}
         <Route path="/login" element={<div>Login</div>} />
       </Routes>
     </MemoryRouter>,
@@ -87,6 +73,7 @@ describe('Home', () => {
       renderHomeAt('/');
 
       expect(screen.getByRole('progressbar')).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
     });
 
     it('redirects to /dashboard when authenticated (Navigate replace)', () => {
@@ -94,51 +81,75 @@ describe('Home', () => {
 
       renderHomeAt('/');
 
-      // Home returns <Navigate to="/dashboard" replace />, so we assert router outcome.
       expect(screen.getByText('Dashboard')).toBeInTheDocument();
-
-      // No imperative navigation should be required for this path.
       expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
-  describe('landing experience (unauthenticated)', () => {
+  describe('landing composition (unauthenticated)', () => {
     beforeEach(() => {
       givenAuth({ user: null, loading: false });
     });
 
-    it('renders branding, supporting copy, and primary actions', () => {
+    it('renders the five landing sections in document order', () => {
       renderHomeAt('/');
 
-      expect(screen.getByText('SmartSupplyPro')).toBeInTheDocument();
-      expect(screen.getByText('Sign in to access your dashboard and analytics.')).toBeInTheDocument();
-      expect(screen.getByText('or')).toBeInTheDocument();
-      expect(screen.getByText('Single Sign-On provided by your organization.')).toBeInTheDocument();
+      const headings = screen
+        .getAllByRole('heading', { level: 2 })
+        .map((node) => node.textContent);
 
-      expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Continue in Demo Mode/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+        'Know what you hold, what it cost, and what moved.',
+      );
+      expect(headings).toEqual([
+        'What it does',
+        'How it works',
+        'Built like production software',
+        'See it with real data',
+      ]);
     });
 
-    it('navigates to /login when "sign in" is clicked', async () => {
-      const user = userEvent.setup();
+    it('exposes the demo entry action at the top and the bottom of the page', () => {
       renderHomeAt('/');
 
-      await user.click(screen.getByRole('button', { name: /sign in/i }));
-      expect(mockNavigate).toHaveBeenCalledWith('/login');
+      expect(screen.getByRole('button', { name: /explore the live demo/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /open the demo/i })).toBeInTheDocument();
     });
+  });
 
-    it('starts demo mode and navigates to /dashboard (replace) when demo is clicked', async () => {
+  describe('entry actions (unauthenticated)', () => {
+    it('starts demo mode and navigates to /dashboard (replace) from the hero', async () => {
       const user = userEvent.setup();
       const loginAsDemo = vi.fn();
-
       givenAuth({ user: null, loading: false, loginAsDemo });
 
       renderHomeAt('/');
-
-      await user.click(screen.getByRole('button', { name: /Continue in Demo Mode/i }));
+      await user.click(screen.getByRole('button', { name: /explore the live demo/i }));
 
       expect(loginAsDemo).toHaveBeenCalledTimes(1);
       expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
+    });
+
+    it('starts demo mode from the closing call to action as well', async () => {
+      const user = userEvent.setup();
+      const loginAsDemo = vi.fn();
+      givenAuth({ user: null, loading: false, loginAsDemo });
+
+      renderHomeAt('/');
+      await user.click(screen.getByRole('button', { name: /open the demo/i }));
+
+      expect(loginAsDemo).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
+    });
+
+    it('navigates to /login from the hero sign-in action', async () => {
+      const user = userEvent.setup();
+      givenAuth({ user: null, loading: false });
+
+      renderHomeAt('/');
+      await user.click(screen.getByRole('button', { name: /sign in with google/i }));
+
+      expect(mockNavigate).toHaveBeenCalledWith('/login');
     });
   });
 });

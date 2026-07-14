@@ -20,6 +20,7 @@ import errors from '../../../public/locales/en/errors.json';
 import footer from '../../../public/locales/en/footer.json';
 import help from '../../../public/locales/en/help.json';
 import inventory from '../../../public/locales/en/inventory.json';
+import landing from '../../../public/locales/en/landing.json';
 import legal from '../../../public/locales/en/legal.json';
 import suppliers from '../../../public/locales/en/suppliers.json';
 import system from '../../../public/locales/en/system.json';
@@ -32,6 +33,7 @@ const RESOURCES: Record<string, unknown> = {
   footer,
   help,
   inventory,
+  landing,
   legal,
   suppliers,
   system,

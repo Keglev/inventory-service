@@ -1,0 +1,71 @@
+{
+  "hero": {
+    "eyebrow": "Bestandsverwaltung für kleine Teams",
+    "title": "Wissen, was da ist, was es gekostet hat und was sich bewegt hat.",
+    "subtitle": "SmartSupplyPro führt Bestände, Lieferanten und den gewichteten Durchschnittspreis an einem Ort zusammen — mit einer lückenlosen Historie hinter jeder Änderung.",
+    "ctaDemo": "Live-Demo ansehen",
+    "ctaSignIn": "Mit Google anmelden",
+    "note": "Die Demo öffnet eine schreibgeschützte Sitzung gegen die Live-API. Kein Konto erforderlich.",
+    "previewAlt": "Vorschau des SmartSupplyPro-Dashboards",
+    "previewFallback": "Dashboard-Vorschau"
+  },
+  "features": {
+    "title": "Funktionsumfang",
+    "subtitle": "Sechs Bausteine, entworfen als zusammenhängende Domäne und nicht als lose Sammlung von CRUD-Masken.",
+    "items": {
+      "inventory": {
+        "title": "Bestand",
+        "body": "Artikel serverseitig suchen, filtern und bearbeiten. Das Löschen erfolgt als Soft-Delete und nur bei Bestand null, sodass Artikelnummer und Historie erhalten bleiben."
+      },
+      "suppliers": {
+        "title": "Lieferanten",
+        "body": "Lieferantenstammdaten verwalten — mit einer Sperre, die das Löschen verweigert, solange ein verknüpfter Artikel noch Bestand führt."
+      },
+      "finance": {
+        "title": "Finanzanalyse",
+        "body": "Bewertung zum gewichteten Durchschnittspreis, Bestandswert im Zeitverlauf und Preisänderungen — in der Datenbank berechnet, nicht im Browser."
+      },
+      "history": {
+        "title": "Lückenlose Historie",
+        "body": "Jede Bestandsbewegung wird mit Begründung in eine unveränderliche Historie geschrieben, sodass sich jede Menge nachträglich erklären lässt."
+      },
+      "access": {
+        "title": "Zugriffssteuerung",
+        "body": "Anmeldung über Google OAuth2 mit rollenbasierter Berechtigung, dazu eine schreibgeschützte Demo-Sitzung für Besucher ohne Konto."
+      },
+      "i18n": {
+        "title": "Deutsch und Englisch",
+        "body": "Die gesamte Oberfläche, einschließlich Validierungsmeldungen sowie Datums- und Zahlenformaten, liegt in beiden Sprachen vor."
+      }
+    }
+  },
+  "how": {
+    "title": "So funktioniert es",
+    "steps": {
+      "one": {
+        "title": "Anmelden oder Demo öffnen",
+        "body": "Mit Google anmelden oder mit einem Klick die schreibgeschützte Demo-Sitzung starten."
+      },
+      "two": {
+        "title": "Bestand und Lieferanten pflegen",
+        "body": "Artikel anlegen, Lieferanten verknüpfen und jede Bewegung mit einer Begründung erfassen."
+      },
+      "three": {
+        "title": "Zahlen lesen",
+        "body": "Dashboard und Analysebereiche machen aus dieser Historie Bestandswert, Trends und Warnungen bei Mindestbestand."
+      }
+    }
+  },
+  "engineering": {
+    "title": "Gebaut wie Produktionssoftware",
+    "body": "Spring Boot auf Java 21 mit einer Oracle Autonomous Database und Flyway-geführtem Schema; React 19 und TypeScript im Frontend. Die Continuous Integration führt bei jedem Push die vollständige Testsuite, statische Analyse und Container-Scans aus. Die Architektur ist nach arc42 dokumentiert, einschließlich der Entscheidungsvorlagen zu jedem Kompromiss.",
+    "docsCta": "Architekturdokumentation lesen",
+    "repoCta": "Quellcode auf GitHub ansehen"
+  },
+  "finalCta": {
+    "title": "Mit echten Daten ansehen",
+    "body": "Die Demo-Sitzung ist live und schreibgeschützt. Kein Klick verändert etwas.",
+    "primary": "Demo öffnen",
+    "secondary": "Anmelden"
+  }
+}

@@ -32,9 +32,9 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 /** LocalStorage key used by i18next to persist the selected language. */
 export const I18N_LS_KEY = 'i18nextLng';
 
-// BUCKET: namespace list duplicated in resources.d.ts (9 imports + 9 typed resources keys); risk of drift on add/remove (CB-APP23)
+// BUCKET: namespace list duplicated in resources.d.ts (11 imports + 11 typed resources keys); risk of drift on add/remove (CB-APP23)
 /** Namespaces we maintain as separate JSON files. */
-export const I18N_NAMESPACES = ['common', 'auth', 'system', 'analytics', 'inventory', 'errors', 'suppliers', 'footer', 'help', 'legal'] as const;
+export const I18N_NAMESPACES = ['common', 'auth', 'system', 'analytics', 'inventory', 'errors', 'suppliers', 'footer', 'help', 'legal', 'landing'] as const;
 
 /**
  * Force initial language to DE unless the user already chose one.
