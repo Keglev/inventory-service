@@ -187,7 +187,12 @@
         <td>The OAuth2 principal carries <code>email</code> as its name
         attribute; unauthenticated callers (migrations, batch) attribute
         to <code>system</code>. A client is not trusted to state who
-        created a row</td>
+        created a row. <code>SecurityAuditHelper</code> is the single
+        resolution point — reading the principal name anywhere else
+        re-introduces a copy that can drift. Reading
+        <code>Authentication</code> for authorization
+        (<code>InventoryItemSecurityValidator</code>) is a separate
+        concern and stays where it is</td>
         </tr>
         <tr class="odd">
         <td>Demo mode</td>
