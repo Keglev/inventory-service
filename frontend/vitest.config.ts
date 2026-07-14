@@ -82,6 +82,10 @@ export default defineConfig({
       include: ['src/**/*.{ts,tsx}'],
       exclude: [
         '**/*.d.ts',
+        // Type-only modules emit no runtime code, so istanbul reports them as 0% of 0
+        // statements. They are excluded so a per-file coverage floor measures code that
+        // can actually be executed.
+        '**/*.types.ts',
         'src/main.tsx',
         'src/vite-env.d.ts',
         'src/**/index.ts',
