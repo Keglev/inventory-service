@@ -149,11 +149,12 @@
         messages (including the German ‘verknüpften’ variant) to
         classify errors; migrating to the structured
         <code>{error, message, timestamp}</code> contract is tracked
-        (CB-APP100), as are the shared help-icon extraction (ST-APP29)
-        and theme-token migration (CB-APP99) noted in the dialog
-        sources. Unlike Inventory, the supplier dialogs do not take a
-        <code>readOnly</code> prop; demo restriction relies on backend
-        authorization.</p>
+        (CB-APP100). The dialogs now use the shared
+        <code>HelpIconButton</code> and reference palette tokens rather
+        than fixed hex values, so they follow the same help and theming
+        contract as the inventory dialogs. Unlike Inventory, the
+        supplier dialogs do not take a <code>readOnly</code> prop; demo
+        restriction relies on backend authorization.</p>
       </article>
     </main>
 
