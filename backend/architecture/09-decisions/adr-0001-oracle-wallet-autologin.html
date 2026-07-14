@@ -105,6 +105,18 @@
         <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
         <h2 id="status">Status</h2>
         <p>Accepted</p>
+        <blockquote>
+        <p><strong>Currency note (2026-07-14):</strong> the delivery and
+        password model this ADR decided is no longer what production
+        runs. The wallet is not bundled into the image; it is delivered
+        at runtime as a base64 Fly secret, extracted by the startup
+        script (which sets <code>TNS_ADMIN</code> itself), and used in
+        encrypted form with a runtime wallet password. See <a
+        href="adr-0009-runtime-wallet-delivery.html">ADR-0009</a> for
+        the current mechanism. The mTLS-via-wallet channel and the
+        <code>DB_USER</code>/<code>DB_PASS</code> account layer remain
+        as decided here.</p>
+        </blockquote>
         <h2 id="date">Date</h2>
         <p>2025-06-01</p>
         <h2 id="context">Context</h2>

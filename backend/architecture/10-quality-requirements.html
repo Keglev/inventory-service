@@ -171,11 +171,11 @@
         <td>Security — credential safety</td>
         <td>The production image and Fly.io configuration are
         inspected</td>
-        <td>No wallet password is required at runtime
-        (<code>cwallet.sso</code> auto-login); the DB schema credentials
-        are injected as Fly secrets and appear in neither source nor
-        image. See <a
-        href="./09-decisions/adr-0001-oracle-wallet-autologin.html">ADR-0001</a></td>
+        <td>The image and repository contain no credential material at
+        all — the wallet, its password, and the schema credentials are
+        Fly secrets delivered at runtime; startup fails fast if any is
+        missing. See <a
+        href="./09-decisions/adr-0009-runtime-wallet-delivery.html">ADR-0009</a></td>
         </tr>
         <tr class="odd">
         <td>Q-03</td>

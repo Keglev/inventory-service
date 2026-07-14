@@ -138,14 +138,19 @@
         </tr>
         <tr class="even">
         <td>R-02</td>
-        <td>Oracle wallet is embedded in the Docker image; an attacker
-        who extracts the image obtains <code>cwallet.sso</code>.</td>
-        <td>Medium — wallet alone is insufficient without network access
-        to ADB and the schema credentials</td>
+        <td>The wallet transits Fly’s secret store as a base64 value and
+        exists extracted on the running container’s filesystem; the
+        trust boundary is the platform’s secret handling and the live
+        machine rather than the image.</td>
+        <td>Low–Medium — requires platform or live-machine compromise;
+        the encrypted wallet additionally needs
+        <code>ORACLE_WALLET_PASSWORD</code>, and ADB still enforces
+        network/credential checks</td>
         <td>Low</td>
-        <td>Documented residual risk in <a
-        href="./09-decisions/adr-0001-oracle-wallet-autologin.html">ADR-0001</a>;
-        ADB still enforces network/credential checks</td>
+        <td>Accepted; see <a
+        href="./09-decisions/adr-0009-runtime-wallet-delivery.html">ADR-0009</a>
+        (the former image-extraction risk is retired — the image carries
+        no wallet)</td>
         </tr>
         <tr class="odd">
         <td>R-03</td>

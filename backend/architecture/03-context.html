@@ -141,9 +141,10 @@
         <tr class="odd">
         <td>Oracle Autonomous Database 23ai</td>
         <td>Persistent store</td>
-        <td>JDBC via wallet authentication (<code>cwallet.sso</code>,
-        <code>TNS_ADMIN</code> at runtime); H2 in Oracle-compatibility
-        mode for local dev and CI</td>
+        <td>JDBC over mTLS via Oracle wallet — delivered at runtime as a
+        Fly secret and opened with a runtime wallet password (<a
+        href="09-decisions/adr-0009-runtime-wallet-delivery.html">ADR-0009</a>);
+        H2 in Oracle-compatibility mode for local dev and CI</td>
         </tr>
         </tbody>
         </table>

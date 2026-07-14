@@ -150,9 +150,10 @@
         </tr>
         <tr class="odd">
         <td><code>cwallet.sso</code></td>
-        <td>Oracle auto-login wallet file; opens the wallet for mTLS
-        without a wallet password at runtime. See <a
-        href="./09-decisions/adr-0001-oracle-wallet-autologin.html">ADR-0001</a></td>
+        <td>Oracle auto-login wallet file (part of a downloaded wallet
+        archive). Production opens the wallet in encrypted form with a
+        runtime wallet password instead. See <a
+        href="./09-decisions/adr-0009-runtime-wallet-delivery.html">ADR-0009</a></td>
         </tr>
         <tr class="even">
         <td>DTO (Data Transfer Object)</td>
@@ -282,9 +283,10 @@
         <tr class="even">
         <td>Wallet (Oracle)</td>
         <td>Directory of TLS certificates and config
-        (<code>cwallet.sso</code>, <code>tnsnames.ora</code>, …)
-        authenticating the DB connection. See <a
-        href="./09-decisions/adr-0001-oracle-wallet-autologin.html">ADR-0001</a></td>
+        (<code>tnsnames.ora</code>, <code>ewallet.p12</code>, …)
+        authenticating the DB connection; delivered at runtime as a Fly
+        secret. See <a
+        href="./09-decisions/adr-0009-runtime-wallet-delivery.html">ADR-0009</a></td>
         </tr>
         </tbody>
         </table>

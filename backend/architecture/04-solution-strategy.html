@@ -138,8 +138,11 @@
         Authorisation is enforced at the method level with
         <code>@PreAuthorize</code>; two roles (<code>ADMIN</code>,
         <code>USER</code>) cover all current access-control
-        requirements. The production database connection is passwordless
-        via Oracle wallet (<code>cwallet.sso</code>). See <a
+        requirements. The production database connection authenticates
+        over mTLS via an Oracle wallet delivered as a runtime secret and
+        opened with a runtime wallet password. See <a
+        href="09-decisions/adr-0009-runtime-wallet-delivery.html">ADR
+        0009</a> and <a
         href="09-decisions/adr-0001-oracle-wallet-autologin.html">ADR
         0001</a>.</p>
         <h2 id="http-status-as-the-response-envelope">HTTP Status as the

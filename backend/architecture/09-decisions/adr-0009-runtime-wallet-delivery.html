@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0009-runtime-wallet-delivery · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0009-runtime-wallet-delivery-via-fly-secret-supersedes-image-bundling">ADR-0009:
+        Runtime wallet delivery via Fly secret (supersedes image
+        bundling)</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted — supersedes the delivery and password model of <a
+        href="adr-0001-oracle-wallet-autologin.html">ADR-0001</a></p>
+        <h2 id="date">Date</h2>
+        <p>2026-07-14 (records an operational change that predates this
+        ADR; documented retroactively when the docs accuracy pass found
+        the chapters describing the superseded mechanism)</p>
+        <h2 id="context">Context</h2>
+        <p><a href="adr-0001-oracle-wallet-autologin.html">ADR-0001</a>
+        decided to bundle an auto-login Oracle wallet
+        (<code>cwallet.sso</code>) into the Docker image, with
+        <code>TNS_ADMIN</code> injected as a Fly secret and no wallet
+        password at runtime. That design carried a documented residual
+        risk: anyone who obtains the image obtains the wallet. It also
+        coupled wallet rotation to an image rebuild and redeploy, and
+        placed credential material in an artifact that is pushed to a
+        public registry (Docker Hub) after CVE scanning.</p>
+        <p>Forces/constraints: - <strong>No credentials in the
+        image</strong>: the pushed image should contain no secret
+        material at all, making registry exposure and image extraction
+        harmless. - <strong>Rotation without rebuild</strong>: replacing
+        the wallet should be an operational action (update a secret,
+        restart), not a build-pipeline action. - <strong>Fail
+        fast</strong>: a container started without its credentials must
+        exit with a clear error instead of booting into a broken
+        state.</p>
+        <h2 id="decision">Decision</h2>
+        <p>The wallet is removed from the repository
+        (<code>oracle_wallet/</code> is gitignored) and from the image.
+        It is delivered at runtime as a <strong>base64-encoded Fly
+        secret</strong>, and the startup script owns extraction and
+        configuration:</p>
+        <ol type="1">
+        <li><code>scripts/start.sh</code> requires
+        <code>ORACLE_WALLET_B64</code>; if absent, it exits
+        immediately.</li>
+        <li>The secret is base64-decoded to a zip and extracted to
+        <code>/app/wallet/Wallet_sspdb_fixed</code>; the zip is deleted
+        and the raw variable <code>unset</code> afterward to reduce
+        exposure in process dumps.</li>
+        <li>The script verifies the extracted wallet
+        (<code>tnsnames.ora</code> and <code>ewallet.p12</code> must be
+        present) and sets <code>TNS_ADMIN</code> itself —
+        <code>TNS_ADMIN</code> is <strong>not</strong> a Fly
+        secret.</li>
+        <li>The JVM is started with
+        <code>-Doracle.net.wallet_password=${ORACLE_WALLET_PASSWORD}</code>:
+        the wallet is used in its encrypted form, and a <strong>wallet
+        password is supplied at runtime</strong> as a second Fly secret.
+        Under the script’s <code>set -u</code>, startup fails fast if
+        the password secret is missing.</li>
+        <li><code>DB_URL</code>, <code>DB_USER</code>, and
+        <code>DB_PASS</code> (Fly secrets) are mapped to the Spring
+        datasource properties by the same script.</li>
+        </ol>
+        <p>This inverts two elements of ADR-0001: the wallet lives
+        outside the image, and the encrypted-wallet-plus-password model
+        (ADR-0001’s rejected Alternative 2) is the one in
+        production.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ol type="1">
+        <li><strong>Keep the image-bundled auto-login wallet (ADR-0001
+        as written)</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>No wallet-related runtime secrets at all</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Wallet present in every pushed image; image extraction
+        yields it</li>
+        <li>Rotation requires rebuild and redeploy</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Fly volume holding the wallet</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>No size limits, wallet never in env space</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Ties the app to a volume and a region; complicates redeploys
+        and machine migration for no gain at this wallet size</li>
+        </ul></li>
+        </ul></li>
+        </ol>
+        <h2 id="consequences">Consequences</h2>
+        <h3 id="positive">Positive</h3>
+        <ul>
+        <li>The pushed image contains no credential material; registry
+        exposure and image extraction are harmless (this retires the
+        image-extraction risk documented in ADR-0001 and formerly
+        tracked as R-02).</li>
+        <li>Wallet rotation: update <code>ORACLE_WALLET_B64</code> (and
+        password if changed), restart — no rebuild.</li>
+        <li>Missing secrets stop the container at startup with an
+        explicit error.</li>
+        </ul>
+        <h3 id="negative-tradeoffs">Negative / Tradeoffs</h3>
+        <ul>
+        <li>Two additional runtime secrets
+        (<code>ORACLE_WALLET_B64</code>,
+        <code>ORACLE_WALLET_PASSWORD</code>) must be managed in Fly’s
+        secret store, alongside
+        <code>DB_URL</code>/<code>DB_USER</code>/<code>DB_PASS</code>.</li>
+        <li>The wallet exists decrypted-in-transit inside Fly’s secret
+        store and, extracted, on the running container’s filesystem —
+        the trust boundary moves from the image to the platform’s secret
+        handling and the live machine.</li>
+        <li>The base64 value is large for a secret; wallet updates are a
+        copy-paste-sensitive operation.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li><code>scripts/start.sh</code> — the entire mechanism:
+        decode, extract, verify, <code>TNS_ADMIN</code> export,
+        <code>oracle.net.wallet_password</code>, <code>DB_*</code>
+        mapping, <code>exec java</code>.</li>
+        <li><code>Dockerfile</code> — no wallet <code>COPY</code>; the
+        runtime stage ships the jar and <code>start.sh</code>.</li>
+        <li><code>.gitignore</code> — <code>oracle_wallet/</code> and
+        wallet file patterns are excluded from version control.</li>
+        <li><code>fly.toml [env]</code> — carries only non-secret
+        configuration; all credentials are Fly secrets.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a href="adr-0001-oracle-wallet-autologin.html">ADR-0001</a>
+        — the superseded delivery model; mTLS-via-wallet and the
+        account-credential layer
+        (<code>DB_USER</code>/<code>DB_PASS</code>) remain as decided
+        there</li>
+        <li><a href="../07-deployment.html">§7 Deployment View</a> —
+        secrets table and wallet section</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0009-runtime-wallet-delivery-via-fly-secret-supersedes-image-bundling"
+      id="toc-adr-0009-runtime-wallet-delivery-via-fly-secret-supersedes-image-bundling">ADR-0009:
+      Runtime wallet delivery via Fly secret (supersedes image
+      bundling)</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences" id="toc-consequences">Consequences</a>
+      <ul>
+      <li><a href="#positive" id="toc-positive">Positive</a></li>
+      <li><a href="#negative-tradeoffs"
+      id="toc-negative-tradeoffs">Negative / Tradeoffs</a></li>
+      </ul></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>

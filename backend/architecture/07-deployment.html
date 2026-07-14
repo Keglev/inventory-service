@@ -118,9 +118,11 @@
         href="09-decisions/adr-0007-cross-origin-auth-cookie.html">ADR
         0007</a>, which predates the serve-time rewrite). Persistent
         data lives in <strong>Oracle Autonomous Database 23ai</strong>,
-        authenticated via wallet (no password at runtime). Architecture
-        and API documentation are published to <strong>GitHub
-        Pages</strong> via a separate docs pipeline.</p>
+        authenticated over mTLS via an Oracle wallet delivered as a
+        runtime secret (<a
+        href="09-decisions/adr-0009-runtime-wallet-delivery.html">ADR
+        0009</a>). Architecture and API documentation are published to
+        <strong>GitHub Pages</strong> via a separate docs pipeline.</p>
         <h2 id="deployment-diagram">Deployment Diagram</h2>
         <div class="mermaid">
         graph TB
@@ -139,7 +141,7 @@
             GHA -->|4-deploy-fly.yml\nflyctl deploy --image SHA| Fly
             GHA -->|6-deploy-frontend.yml| Koyeb
             GHA -->|3-deploy-ghpages.yml| GHP
-            Fly -->|JDBC / cwallet.sso\nTNS_ADMIN only| OADB
+            Fly -->|"JDBC over mTLS\nwallet from runtime secret"| OADB
             User -->|HTTPS| Koyeb
             Koyeb -->|/api/* reverse proxy| Fly
 
@@ -292,14 +294,17 @@
         source control.</p>
         <h2 id="oracle-wallet-authentication">Oracle Wallet
         Authentication</h2>
-        <p>The production connection to Oracle Autonomous Database is
-        <strong>passwordless</strong>. The Oracle wallet
-        (<code>oracle_wallet/Wallet_sspdb_fixed/cwallet.sso</code>) is
-        bundled into the Docker image. At runtime only
-        <code>TNS_ADMIN</code> needs to point to the wallet directory —
-        no username/password is stored or injected. See <a
-        href="09-decisions/adr-0001-oracle-wallet-autologin.html">ADR
-        0001</a>.</p>
+        <p>The wallet is <strong>not</strong> part of the image or the
+        repository. At startup, <code>scripts/start.sh</code> decodes
+        the <code>ORACLE_WALLET_B64</code> Fly secret, extracts it to
+        <code>/app/wallet/Wallet_sspdb_fixed</code>, verifies
+        <code>tnsnames.ora</code> and <code>ewallet.p12</code>, sets
+        <code>TNS_ADMIN</code> itself, and passes the runtime wallet
+        password (<code>ORACLE_WALLET_PASSWORD</code>) to the JDBC
+        driver. The schema account authenticates separately via
+        <code>DB_USER</code>/<code>DB_PASS</code>. Full record: <a
+        href="09-decisions/adr-0009-runtime-wallet-delivery.html">ADR
+        0009</a>.</p>
         <h2 id="environment-variables-and-secrets">Environment Variables
         and Secrets</h2>
         <table>
@@ -332,16 +337,34 @@
         <td>CORS allowed origin for Koyeb frontend</td>
         </tr>
         <tr class="even">
-        <td><code>TNS_ADMIN</code></td>
+        <td><code>ORACLE_WALLET_B64</code></td>
         <td>Fly.io secret</td>
-        <td>Path to Oracle wallet directory inside container</td>
+        <td>Base64 wallet archive, extracted by <code>start.sh</code> at
+        startup</td>
         </tr>
         <tr class="odd">
+        <td><code>ORACLE_WALLET_PASSWORD</code></td>
+        <td>Fly.io secret</td>
+        <td>Opens the encrypted wallet
+        (<code>oracle.net.wallet_password</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><code>DB_URL</code>, <code>DB_USER</code>,
+        <code>DB_PASS</code></td>
+        <td>Fly.io secrets</td>
+        <td>Datasource URL (TNS alias) and schema credentials</td>
+        </tr>
+        <tr class="odd">
+        <td><code>TNS_ADMIN</code></td>
+        <td>Set by <code>start.sh</code></td>
+        <td>Points to the extracted wallet directory (not a secret)</td>
+        </tr>
+        <tr class="even">
         <td><code>OAUTH2_CLIENT_ID</code></td>
         <td>Fly.io secret</td>
         <td>Google OAuth2 client ID</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>OAUTH2_CLIENT_SECRET</code></td>
         <td>Fly.io secret</td>
         <td>Google OAuth2 client secret</td>
