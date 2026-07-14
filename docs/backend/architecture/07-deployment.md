@@ -4,12 +4,13 @@
 
 The backend runs on **Fly.io** (region `fra`, Frankfurt) as a Docker container on a
 `shared-cpu-1x` / 1 GB RAM machine, listening internally on port 8081. The React
-frontend SPA is served by **Koyeb** (`https://inventory-service.koyeb.app`) behind
+frontend SPA is served by **Koyeb** on the project's own domain
+(`https://www.smartsupplypro.de`, [ADR 0010](09-decisions/adr-0010-custom-domain-and-canonical-host.md)) behind
 **Nginx** (`ops/nginx/`), which rewrites the built API base to the frontend host at
 serve time (`sub_filter`) and reverse-proxies `/api/*` and the OAuth2 paths to the
 Fly.io backend — browser traffic is same-origin on Koyeb, with the session cookie
 re-domained by the proxy. The backend retains `SameSite=None` plus a CORS allow-list
-for the Koyeb origin, which also permits direct calls to the Fly.io origin
+for the canonical frontend origin, which also permits direct calls to the Fly.io origin
 (see [ADR 0007](09-decisions/adr-0007-cross-origin-auth-cookie.md), which predates
 the serve-time rewrite).
 Persistent data lives in **Oracle Autonomous Database 23ai**, authenticated over
@@ -26,7 +27,7 @@ graph TB
     DH["Docker Hub\nckbuzin/inventory-service"]:::external
     Fly["Fly.io — fra\ninventoryservice\nport 8081"]:::service
     OADB["Oracle Autonomous DB\n23ai — wallet auth"]:::repository
-    Koyeb["Koyeb\nReact SPA + Nginx\ninventory-service.koyeb.app"]:::controller
+    Koyeb["Koyeb\nReact SPA + Nginx\nwww.smartsupplypro.de"]:::controller
     GHP["GitHub Pages\nAPI + architecture docs"]:::external
     User["End User"]:::actor
 

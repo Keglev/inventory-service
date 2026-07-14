@@ -82,10 +82,9 @@ app:
 
   cors:
     allowed-origins:
-      # Canonical public origin. The legacy Koyeb origin stays allow-listed until the
-      # old hostname is fully retired, so an in-flight session is never broken mid-move.
+      # Canonical public origin. The platform-generated Koyeb hostname still serves the
+      # SPA but is no longer a supported entry point and is deliberately not allow-listed.
       - https://www.smartsupplypro.de
-      - https://inventory-service.koyeb.app
 
   frontend:
     # Canonical public domain; drives every post-login and error redirect.

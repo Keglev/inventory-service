@@ -31,8 +31,10 @@ Nginx delivery rules:
 
 ## Hosting & CI/CD
 
-The container runs on **Koyeb** (`https://inventory-service.koyeb.app`). Two
-numbered workflows own the frontend:
+The container runs on **Koyeb**, reachable on the project's own domain
+(`https://www.smartsupplypro.de`; the apex redirects to the canonical `www` host —
+[ADR-0010 (backend)](../../backend/architecture/09-decisions/adr-0010-custom-domain-and-canonical-host.md)).
+Two numbered workflows own the frontend:
 
 - **5-frontend-ci** — build and full Vitest suite on every push to `main`.
 - **6-deploy-frontend** — builds and deploys to Koyeb via the Koyeb CLI, then

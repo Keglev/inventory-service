@@ -35,7 +35,7 @@ independently and does not trust the client's claimed role.
 |---|---|---|
 | OAuth2 state cookie | `OAUTH2_AUTH_REQUEST`, HTTP-only, TTL 180 s | Configurable via `AppProperties.Cookie` |
 | Session cookie | `HttpOnly`, `Secure=true`, `SameSite=None` | Same-origin behind the serve-time rewrite proxy; `None` retained so the direct Fly.io-origin path stays functional ([ADR-0008](09-decisions/adr-0008-serve-time-api-base-rewrite.md)) |
-| CORS allowed origins | dev `http://localhost:5173`; prod `https://inventory-service.koyeb.app` | Per profile in `AppProperties.cors.allowedOrigins` |
+| CORS allowed origins | dev `http://localhost:5173`; prod `https://www.smartsupplypro.de` | Per profile in `AppProperties.cors.allowedOrigins`; the platform-generated Koyeb hostname is deliberately not allow-listed ([ADR-0010](09-decisions/adr-0010-custom-domain-and-canonical-host.md)) |
 | Demo mode | `AppProperties.isDemoReadonly` (env `APP_DEMO_READONLY`, default `true` in prod) | Permits unauthenticated read access; evaluated inside `@PreAuthorize` SpEL (`SecuritySpelBridgeConfig` exposes `@appProperties`); does NOT disable the security filter chain |
 
 See [§5 Cross-cutting](05-building-blocks.md#cross-cutting).

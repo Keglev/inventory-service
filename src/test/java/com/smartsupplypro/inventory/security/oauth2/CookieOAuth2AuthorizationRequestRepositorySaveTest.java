@@ -26,8 +26,7 @@ class CookieOAuth2AuthorizationRequestRepositorySaveTest {
         props.getCors().setAllowedOrigins(List.of(
             "http://localhost:5173",
             "https://localhost:5173",
-            "https://www.smartsupplypro.de",
-            "https://inventory-service.koyeb.app"
+            "https://www.smartsupplypro.de"
         ));
         return new CookieOAuth2AuthorizationRequestRepository(props);
     }
@@ -68,8 +67,7 @@ class CookieOAuth2AuthorizationRequestRepositorySaveTest {
         @ValueSource(strings = {
             "http://localhost:5173",
             "https://localhost:5173",
-            "https://www.smartsupplypro.de",
-            "https://inventory-service.koyeb.app"
+            "https://www.smartsupplypro.de"
         })
         void should_set_return_cookie_when_origin_is_allowlisted(String returnOrigin) {
             MockHttpServletRequest req =
