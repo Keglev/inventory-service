@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0010-custom-domain-and-canonical-host · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0010-custom-domain-with-a-canonical-www-host">ADR-0010:
+        Custom domain with a canonical <code>www</code> host</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-07-14</p>
+        <h2 id="context">Context</h2>
+        <p>The application was reachable only on the platform-generated
+        hosting subdomain <code>inventory-service.koyeb.app</code>. Two
+        problems followed from that.</p>
+        <p>First, Google Safe Browsing began serving a “deceptive site”
+        interstitial for the URL. The application does not collect
+        credentials on-page — sign-in is the standard Google OAuth2
+        consent flow — so the classification is a false positive. Its
+        likely cause is the combination of a shared free-hosting apex
+        with a history of abuse and a Google-branded sign-in button on a
+        subdomain with no independent reputation. A warning of that kind
+        is disqualifying for a public-facing portfolio: the first thing
+        a reviewer sees is a full-page browser block.</p>
+        <p>Second, the hostname carried the repository name, not the
+        product name, while every surface of the application — header,
+        footer, Impressum, documentation — is branded Smart Supply
+        Pro.</p>
+        <p>Forces/constraints: - <strong>Independent domain
+        reputation</strong>: safety classifiers must judge this
+        application on its own record, not on that of a shared hosting
+        apex. - <strong>Provider constraint</strong>: Koyeb assigns
+        custom domains by <code>CNAME</code>, and a <code>CNAME</code>
+        cannot legally exist at a zone apex (RFC 1034). - <strong>One
+        canonical origin</strong>: OAuth2 redirect URIs, the CORS
+        allow-list, and the post-login redirect target must all agree on
+        exactly one host, or authentication silently breaks.</p>
+        <h2 id="decision">Decision</h2>
+        <p>The application is served from
+        <code>smartsupplypro.de</code>, with
+        <strong><code>www.smartsupplypro.de</code> as the single
+        canonical origin</strong>. The apex issues a 301 redirect to it
+        at the DNS provider; <code>www</code> is a <code>CNAME</code> to
+        the Koyeb edge.</p>
+        <p>One configuration property is load-bearing for the move:
+        <code>app.frontend.base-url</code>
+        (<code>APP_FRONTEND_BASE_URL</code>) is the base for every
+        post-login and error redirect the backend issues. It is set in
+        <code>fly.toml [env]</code>, so the canonical host is versioned
+        in git rather than living only in an operator’s shell
+        history.</p>
+        <p>The platform-generated <code>koyeb.app</code> hostname still
+        serves the SPA — the provider always assigns one — but it is not
+        allow-listed as a CORS origin and not registered as an OAuth2
+        redirect URI, so it is not a supported entry point.</p>
+        <p>Note on scope: the hostnames named in the Context of <a
+        href="adr-0007-cross-origin-auth-cookie.html">ADR-0007</a> are
+        superseded by this record. The cookie decision made there is
+        unaffected; only the frontend hostname changed.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ol type="1">
+        <li><strong>Stay on <code>koyeb.app</code> and request a Safe
+        Browsing review</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Free; no DNS work</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Treats the symptom. The root cause — no independent domain
+        reputation — is unchanged, so re-flagging remains possible</li>
+        <li>Leaves the branding mismatch in place</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Apex as the canonical origin, <code>www</code>
+        redirecting to it</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Shorter URL</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Not available: Koyeb assigns domains by <code>CNAME</code>,
+        which cannot exist at the apex. An <code>A</code> record to a
+        platform IP would pin the deployment to a single address and
+        forfeit edge routing</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>A second subdomain (<code>api.…</code>) fronting the
+        backend directly</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Would allow a same-site session cookie in place of
+        <code>SameSite=None</code></li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Unnecessary. The Nginx layer already reverse-proxies the API
+        and OAuth2 paths server-side, so browser traffic is same-origin
+        (<a
+        href="adr-0008-serve-time-api-base-rewrite.html">ADR-0008</a>).
+        Adding a public backend hostname would enlarge the attack
+        surface for no gain</li>
+        </ul></li>
+        </ul></li>
+        </ol>
+        <h2 id="consequences">Consequences</h2>
+        <h3 id="positive">Positive</h3>
+        <ul>
+        <li>Domain reputation is the application’s own; the Safe
+        Browsing classification of the shared hosting apex no longer
+        applies.</li>
+        <li>Host and product name agree across the UI, the
+        documentation, and the URL.</li>
+        <li>The Nginx vhost is host-agnostic
+        (<code>server_name _</code>, <code>$host</code> throughout), so
+        the move required no change to the proxy, to the frontend
+        bundle, or to the backend’s own hostname on Fly.io.</li>
+        </ul>
+        <h3 id="negative-tradeoffs">Negative / Tradeoffs</h3>
+        <ul>
+        <li>A recurring registration cost and a DNS zone to
+        maintain.</li>
+        <li>The canonical host is now referenced in four places that
+        must stay in agreement: the Google OAuth2 client (JavaScript
+        origin and redirect URI), the CORS allow-list,
+        <code>APP_FRONTEND_BASE_URL</code>, and the deployment
+        health-check target. A change to one without the others breaks
+        login.</li>
+        <li>Visitors who type the bare apex depend on a DNS-provider
+        redirect that lives outside version control.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li><code>fly.toml [env]</code> —
+        <code>APP_FRONTEND_BASE_URL</code>.</li>
+        <li><code>application-prod.yml</code> —
+        <code>app.cors.allowed-origins</code>,
+        <code>app.frontend.base-url</code>.</li>
+        <li><code>.github/workflows/6-deploy-frontend.yml</code> —
+        <code>FRONTEND_URL</code> health-check target.</li>
+        <li>DNS (registrar): <code>www</code> <code>CNAME</code> to the
+        Koyeb edge; apex 301 to the <code>www</code> host.</li>
+        <li>Google Cloud OAuth2 client: authorized JavaScript origin and
+        redirect URI (<code>/login/oauth2/code/google</code>) on the
+        canonical host.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a
+        href="adr-0007-cross-origin-auth-cookie.html">ADR-0007</a> —
+        cookie strategy; its Context names the superseded hostnames</li>
+        <li><a
+        href="adr-0008-serve-time-api-base-rewrite.html">ADR-0008</a> —
+        the same-origin proxy that makes a public backend hostname
+        unnecessary</li>
+        <li><a href="../07-deployment.html">§7 Deployment View</a> —
+        topology and diagram</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#adr-0010-custom-domain-with-a-canonical-www-host"
+      id="toc-adr-0010-custom-domain-with-a-canonical-www-host">ADR-0010:
+      Custom domain with a canonical <code>www</code> host</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences" id="toc-consequences">Consequences</a>
+      <ul>
+      <li><a href="#positive" id="toc-positive">Positive</a></li>
+      <li><a href="#negative-tradeoffs"
+      id="toc-negative-tradeoffs">Negative / Tradeoffs</a></li>
+      </ul></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>
