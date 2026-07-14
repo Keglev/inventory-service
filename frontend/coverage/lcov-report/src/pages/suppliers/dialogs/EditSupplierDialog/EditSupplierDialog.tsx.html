@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95.45% </span>
+                <span class="strong">95% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>21/22</span>
+                <span class='fraction'>19/20</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">85.71% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>6/7</span>
+                <span class='fraction'>5/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95.45% </span>
+                <span class="strong">95% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>21/22</span>
+                <span class='fraction'>19/20</span>
             </div>
         
             
@@ -234,19 +234,7 @@
 <a name='L169'></a><a href='#L169'>169</a>
 <a name='L170'></a><a href='#L170'>170</a>
 <a name='L171'></a><a href='#L171'>171</a>
-<a name='L172'></a><a href='#L172'>172</a>
-<a name='L173'></a><a href='#L173'>173</a>
-<a name='L174'></a><a href='#L174'>174</a>
-<a name='L175'></a><a href='#L175'>175</a>
-<a name='L176'></a><a href='#L176'>176</a>
-<a name='L177'></a><a href='#L177'>177</a>
-<a name='L178'></a><a href='#L178'>178</a>
-<a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L172'></a><a href='#L172'>172</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -313,7 +301,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -352,11 +339,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -448,14 +430,11 @@ import {
   Box,
   Alert,
   Divider,
-  IconButton,
   Stack,
-  Tooltip,
 } from '@mui/material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast/ToastContext';
-import { useHelp } from '../../../../hooks/useHelp';
+import { HelpIconButton } from '../../../../features/help/components/HelpIconButton';
 import { useEditSupplierForm } from './useEditSupplierForm';
 import { EditSupplierSearchStep } from './EditSupplierSearchStep';
 import { EditSupplierInfoStep } from './EditSupplierInfoStep';
@@ -495,7 +474,6 @@ export const EditSupplierDialog: React.FC&lt;EditSupplierDialogProps&gt; = ({
 }) =&gt; {
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
   const toast = useToast();
-  const { openHelp } = useHelp();
 &nbsp;
   // Form logic hook
   const form = useEditSupplierForm(() =&gt; {
@@ -535,12 +513,7 @@ export const EditSupplierDialog: React.FC&lt;EditSupplierDialogProps&gt; = ({
         &lt;DialogTitle&gt;
           &lt;Stack direction="row" alignItems="center" justifyContent="space-between"&gt;
             &lt;Box&gt;{t('suppliers:dialogs.editSupplierTitle')}&lt;/Box&gt;
-            &lt;Tooltip title={t('common:actions.help')}&gt;
-              &lt;IconButton size="small" onClick={() =&gt; openHelp('suppliers.manage')}&gt;
-                {/* BUCKET: HelpOutlineIcon + Tooltip + IconButton pattern duplicated across 4 dialogs — extract shared component (ST-APP29) */}
-                &lt;HelpOutlineIcon fontSize="small" /&gt;
-              &lt;/IconButton&gt;
-            &lt;/Tooltip&gt;
+            &lt;HelpIconButton topicId="suppliers.manage" tooltip={t('common:actions.help')} /&gt;
           &lt;/Stack&gt;
         &lt;/DialogTitle&gt;
 &nbsp;
@@ -610,7 +583,7 @@ export default EditSupplierDialog;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-14T11:47:59.481Z
+                at 2026-07-14T13:45:40.852Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>
