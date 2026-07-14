@@ -17,14 +17,14 @@ the refresh handler resets paging and bumps a refetch signal.
 
 ## Data Fetching & Filtering
 
-`handlers/useDataFetchingLogic.ts` adapts UI state to server parameters: DataGrid's
-0-based page becomes the backend's 1-based page, and the sort model serializes to
-`"<field>,<direction>"` (default `name,asc`). Loading is gated on a selected
-supplier. Because `GET /api/inventory/search` accepts only `name`, the domain
-applies client-side filters after the page loads: a supplier-id safety-net filter,
-case-insensitive name search, and the below-minimum filter (`onHand < min`,
-defaulting the threshold when absent). Supplier options come from the shared
-suppliers query, independent of the selection.
+`handlers/useDataFetchingLogic.ts` adapts UI state to server parameters: both the
+MUI DataGrid and Spring Pageable are 0-based, so the page index passes through
+unchanged, and the sort model serializes to `"<field>,<direction>"` (default
+`name,asc`). Loading is gated on a selected supplier. All filtering is
+server-side: `GET /api/inventory/search` accepts `name`, `supplierId`, and
+`belowMinimumOnly`, and the fetcher forwards all three with paging and sort.
+Supplier options come from the shared suppliers query, independent of the
+selection.
 
 ## Dialog Workflows
 

@@ -35,8 +35,9 @@ Spring Page); `/api/suppliers/search?name=` backs the type-ahead.
   uniqueness check), so immutability here is a frontend form decision, not a
   backend rule.
 - **Delete** (`DeleteSupplierDialog`) — search/select → confirm; physical delete
-  behind the backend's active-stock guard (blocked while active items exist).
-  Admin-gated, enforced both client-side in the form hook and server-side.
+  behind the backend's stock guard: blocked while any linked item holds stock
+  (`quantity > 0`); zero-quantity items never block, regardless of their active
+  flag. Admin-gated, enforced both client-side in the form hook and server-side.
 
 ## Error Handling & Open Items
 
