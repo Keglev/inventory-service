@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.29% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>26/27</span>
+                <span class='fraction'>23/23</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/12</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>26/26</span>
+                <span class='fraction'>23/23</span>
             </div>
         
             
@@ -201,17 +201,12 @@
 <a name='L136'></a><a href='#L136'>136</a>
 <a name='L137'></a><a href='#L137'>137</a>
 <a name='L138'></a><a href='#L138'>138</a>
-<a name='L139'></a><a href='#L139'>139</a>
-<a name='L140'></a><a href='#L140'>140</a>
-<a name='L141'></a><a href='#L141'>141</a>
-<a name='L142'></a><a href='#L142'>142</a>
-<a name='L143'></a><a href='#L143'>143</a>
-<a name='L144'></a><a href='#L144'>144</a>
-<a name='L145'></a><a href='#L145'>145</a>
-<a name='L146'></a><a href='#L146'>146</a>
-<a name='L147'></a><a href='#L147'>147</a>
-<a name='L148'></a><a href='#L148'>148</a>
-<a name='L149'></a><a href='#L149'>149</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L139'></a><a href='#L139'>139</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -292,25 +287,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -340,8 +322,6 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -380,6 +360,11 @@ import type { Resolver } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { createSupplier } from '../../../../api/suppliers/supplierMutations';
 import { createSupplierSchema, type CreateSupplierForm } from '../../../../api/suppliers/validation';
+import {
+  isSupplierNameConflict,
+  supplierErrorMessage,
+  type SupplierErrorEnvelope,
+} from '../supplierServerErrors';
 &nbsp;
 /**
  * Hook return type for CreateSupplierForm.
@@ -436,32 +421,19 @@ export const useCreateSupplierForm = (
   });
 &nbsp;
   /**
-   * Map backend error messages to field or form errors.
-   * Uses heuristics to improve UX by pinpointing issues.
+   * Attach a failed create to the offending input, or to the form banner.
+   * Classification comes from the structured envelope, never from message text.
    */
-  const applyServerError = (message?: string | null): void =&gt; {
-    // BUCKET: substring matching on free-text server message — replace with structured-error contract ({error, message, timestamp}) (CB-APP100)
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!message) <span class="cstat-no" title="statement not covered" >return;</span>
-    const msg = message.toLowerCase();
-&nbsp;
-    // Duplicate name error
-    if (
-      msg.includes('name') &amp;&amp;
-      (msg.includes('duplicate') || <span class="branch-2 cbranch-no" title="branch not covered" >msg.includes('exists') || <span class="branch-3 cbranch-no" title="branch not covered" >m</span>sg.includes('already'))</span>
-    ) {
+  const applyServerError = (failure: SupplierErrorEnvelope): void =&gt; {
+    if (isSupplierNameConflict(failure)) {
       setError('name', {
-        message: t(
-          'errors:supplier.businessRules.duplicateName'
-        ),
+        message: t('errors:supplier.businessRules.duplicateName'),
       });
-      setFormError(
-        t('errors:inventory.validationFailed')
-      );
+      setFormError(t('errors:inventory.validationFailed'));
       return;
     }
 &nbsp;
-    // Generic form error
-    setFormError(message);
+    setFormError(supplierErrorMessage(failure, t, 'add'));
   };
 &nbsp;
   /**
@@ -479,7 +451,7 @@ export const useCreateSupplierForm = (
       });
 &nbsp;
       if (!response.success) {
-        applyServerError(response.error);
+        applyServerError(response);
         return { success: false };
       }
 &nbsp;
@@ -487,12 +459,10 @@ export const useCreateSupplierForm = (
       reset();
       onCreated();
       return { success: true };
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? <span class="branch-0 cbranch-no" title="branch not covered" >err.message</span>
-          : t('errors:supplier.requests.failedToAddSupplier');
-      applyServerError(errorMessage);
+    } catch {
+      // The fetcher already converts transport failures into a result; reaching
+      // here means something outside the request threw, so there is no envelope.
+      applyServerError({});
       return { success: false };
     }
   };
@@ -514,7 +484,7 @@ export const useCreateSupplierForm = (
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-14T13:56:19.391Z
+                at 2026-07-14T14:22:55.122Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>
