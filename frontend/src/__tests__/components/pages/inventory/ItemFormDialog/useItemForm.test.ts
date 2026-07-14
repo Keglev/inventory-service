@@ -203,15 +203,18 @@ describe('useItemForm', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('maps a conflict token to a name field error', async () => {
+  it('maps a conflict token to a name field error carrying an i18n key', async () => {
     mockUpsertItem.mockResolvedValue({ ok: false, error: 'whatever', errorToken: 'conflict' });
 
     const { result } = renderUseItemForm();
     await submitValid(result);
 
+    // A field error carries a KEY, never display text: the render boundary
+    // (utils/fieldErrorText) is what resolves it, so the hook must not translate.
     await waitFor(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((result.current.formState.errors as any).name?.message).toBe('An item with this name already exists');
+      expect((result.current.formState.errors as any).name?.message)
+        .toBe('errors:inventory.conflicts.duplicateName');
     });
   });
 

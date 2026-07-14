@@ -92,14 +92,14 @@ describe('EditSupplierInfoStep', () => {
     const errors: FieldErrors<EditSupplierForm> = {
       contactName: { type: 'manual', message: 'Contact required' },
       phone: { type: 'manual', message: 'Phone required' },
-      email: { type: 'manual', message: 'Invalid email' },
+      email: { type: 'manual', message: 'errors:validation.invalidEmail' },
     };
 
     renderWithForm({ errors });
 
     expect(screen.getByText('Contact required')).toBeInTheDocument();
     expect(screen.getByText('Phone required')).toBeInTheDocument();
-    expect(screen.getByText('Invalid email')).toBeInTheDocument();
+    expect(screen.getByText(tEn('errors:validation.invalidEmail'))).toBeInTheDocument();
   });
 
   it('disables inputs when submitting', () => {
