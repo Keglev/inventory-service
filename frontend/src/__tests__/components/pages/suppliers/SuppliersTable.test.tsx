@@ -17,6 +17,10 @@
  * Test strategy:
  * - Replace the DataGrid with a lightweight test double that renders only the pieces we assert.
  * - Assert observable text/roles and the props passed into the DataGrid.
+ * - The double INVOKES the callbacks the grid would call (getRowId, the empty-state slot,
+ *   onRowClick). A prop the double never calls is a prop no test can reach: column value
+ *   getters are therefore not exercised here at all — they live in useSupplierColumns and
+ *   are called directly by its own unit test.
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -84,7 +88,9 @@ vi.mock('@mui/x-data-grid', () => ({
           <div>
             {props.rows.map((r) => (
               <button
-                key={r.id}
+                // The real grid derives its React key from getRowId; calling it here keeps
+                // the double honest about which props the component actually depends on.
+                key={props.getRowId ? props.getRowId(r) : r.id}
                 type="button"
                 onClick={() => props.onRowClick?.({ id: r.id })}
               >
@@ -166,6 +172,21 @@ describe('SuppliersTable', () => {
     } else {
       expect(progress).not.toBeInTheDocument();
     }
+  });
+
+  it.each([
+    { tableDensity: 'compact', expected: 'compact' },
+    { tableDensity: 'comfortable', expected: 'comfortable' },
+  ])('maps the $tableDensity density preference onto the grid', ({ tableDensity, expected }) => {
+    settings.useSettings.mockReturnValue({
+      userPreferences: { dateFormat: 'YYYY-MM-DD', tableDensity },
+    });
+
+    renderTable(createProps());
+
+    expect(dataGridMock.DataGrid).toHaveBeenCalledWith(
+      expect.objectContaining({ density: expected })
+    );
   });
 
   it('wires server-side pagination/sorting and forwards models/handlers to DataGrid', () => {

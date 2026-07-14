@@ -7,12 +7,14 @@
  * Displays suppliers list with pagination, sorting, and row selection.
  *
  * @enterprise
- * - MUI DataGrid with server-side pagination and sorting
- * - Row click selection handler
- * - Loading indicator
- * - Empty state handling
- * - i18n support for column headers
- * - Responsive and customizable
+ * - MUI DataGrid with server-side pagination and sorting; the component is a
+ *   shell that owns layout, the loading indicator and the empty-state overlay.
+ * - Column definitions and cell-value logic live in useSupplierColumns, not here.
+ *   The DataGrid test double never invokes a column callback, so a valueGetter
+ *   written inline in this file is unreachable to the test suite; in the hook it
+ *   is an ordinary function that can be called directly. This mirrors the
+ *   inventory grid.
+ * - Row density follows the user's table-density preference.
  */
 
 import * as React from 'react';
@@ -26,11 +28,10 @@ import {
   DataGrid,
   type GridPaginationModel,
   type GridSortModel,
-  type GridColDef,
 } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../hooks/useSettings';
-import { formatDate } from '../../../utils/formatters';
+import { useSupplierColumns } from '../hooks/useSupplierColumns';
 import type { SupplierRow } from '../../../api/suppliers/types';
 
 /**
@@ -96,47 +97,7 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
   const { t } = useTranslation(['common', 'suppliers']);
   const { userPreferences } = useSettings();
 
-  // Grid columns are recomputed each render — the array is small and the work is cheap; no memoization needed.
-  const columns: GridColDef<SupplierRow>[] = [
-    {
-      field: 'name',
-      headerName: t('suppliers:table.name'),
-      flex: 1,
-      minWidth: 200,
-    },
-    {
-      field: 'contactName',
-      headerName: t('suppliers:table.contactName'),
-      width: 150,
-      valueGetter: (_value: unknown, row: SupplierRow | null) => row?.contactName ?? '—',
-    },
-    {
-      field: 'phone',
-      headerName: t('suppliers:table.phone'),
-      width: 140,
-      valueGetter: (_value: unknown, row: SupplierRow | null) => row?.phone ?? '—',
-    },
-    {
-      field: 'email',
-      headerName: t('suppliers:table.email'),
-      width: 180,
-      valueGetter: (_value: unknown, row: SupplierRow | null) => row?.email ?? '—',
-    },
-    {
-      field: 'createdAt',
-      headerName: t('suppliers:table.createdAt'),
-      width: 180,
-      valueGetter: (_value: unknown, row: SupplierRow | null) => row?.createdAt ?? null,
-      valueFormatter: (value: unknown) => {
-        if (!value) return '—';
-        try {
-          return formatDate(new Date(String(value)), userPreferences.dateFormat);
-        } catch {
-          return String(value);
-        }
-      },
-    },
-  ];
+  const columns = useSupplierColumns();
 
   return (
     <Paper

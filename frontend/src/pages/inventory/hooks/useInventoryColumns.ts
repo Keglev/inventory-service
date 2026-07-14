@@ -32,8 +32,8 @@ import {
   resolveTotalValue,
   formatCount,
   formatMoney,
-  formatDateCell,
 } from './inventoryColumnValues';
+import { formatDateCell } from '../../../utils/formatters';
 import type { InventoryRow } from '../../../api/inventory/types';
 
 /**

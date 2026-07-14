@@ -84,3 +84,31 @@ export const getDaysAgoIso = (n: number): string => {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
+
+/**
+ * Defensive rendering of a date value inside a data-grid cell.
+ *
+ * A grid hands its formatter an `unknown`: the value may be absent, may be a raw
+ * backend timestamp, or may be malformed after a partial load. Every failure mode
+ * degrades to the same placeholder glyph, so a column keeps its visual rhythm
+ * instead of showing an empty or crashing cell. Shared by the inventory and the
+ * supplier grid so that an unreadable date reads the same way in both.
+ *
+ * @param value      the raw cell value, of unknown shape
+ * @param dateFormat the user's date-format preference
+ * @returns the formatted date, or an em-dash when the value cannot be read
+ */
+export const formatDateCell = (value: unknown, dateFormat: DateFormat): string => {
+  if (value === null || value === undefined || value === '') {
+    return '—';
+  }
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) {
+    return '—';
+  }
+  try {
+    return formatDate(date, dateFormat);
+  } catch {
+    return '—';
+  }
+};

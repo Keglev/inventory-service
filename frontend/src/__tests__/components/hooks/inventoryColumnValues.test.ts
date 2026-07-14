@@ -10,8 +10,9 @@
  *   absent/malformed values degrade to 0 or null instead of crashing.
  * - totalValue prefers the server-computed figure and falls back to
  *   price x onHand.
- * - Count/money/date formatters honor the user's preference tokens and
- *   render an em-dash for absent or unparseable values.
+ * - Count/money formatters honor the user's number-format token and render an em-dash for
+ *   absent or unparseable values. Date cells are rendered by the shared formatDateCell and
+ *   are covered in the formatters unit tests.
  */
 import { describe, it, expect } from 'vitest';
 
@@ -22,7 +23,6 @@ import {
   resolveTotalValue,
   formatCount,
   formatMoney,
-  formatDateCell,
 } from '../../../pages/inventory/hooks/inventoryColumnValues';
 import type { InventoryRow } from '../../../api/inventory/types';
 
@@ -132,22 +132,5 @@ describe('formatMoney', () => {
     expect(formatMoney(null, 'DE')).toBe(EM_DASH);
     expect(formatMoney('12', 'DE')).toBe(EM_DASH);
     expect(formatMoney(Number.NaN, 'DE')).toBe(EM_DASH);
-  });
-});
-
-describe('formatDateCell', () => {
-  it('renders an em-dash for empty input', () => {
-    expect(formatDateCell(null, 'DD.MM.YYYY')).toBe(EM_DASH);
-    expect(formatDateCell(undefined, 'DD.MM.YYYY')).toBe(EM_DASH);
-    expect(formatDateCell('', 'DD.MM.YYYY')).toBe(EM_DASH);
-  });
-
-  it('renders an em-dash for unparseable input', () => {
-    expect(formatDateCell('not-a-date', 'DD.MM.YYYY')).toBe(EM_DASH);
-  });
-
-  it('formats parseable dates per the preference token', () => {
-    expect(formatDateCell('2026-05-01T00:00:00Z', 'DD.MM.YYYY')).toBe('01.05.2026');
-    expect(formatDateCell('2026-05-01T00:00:00Z', 'YYYY-MM-DD')).toBe('2026-05-01');
   });
 });

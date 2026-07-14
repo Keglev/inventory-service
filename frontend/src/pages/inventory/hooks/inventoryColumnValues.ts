@@ -8,12 +8,13 @@
  * minQty) and raw backend rows (quantity, minimumQuantity, string numerics),
  * because search results and page loads normalize at different points. All
  * functions are pure and defensive: absent or malformed values render as 0,
- * null, or an em-dash instead of crashing a cell. Formatters take the user's
- * number/date preference as an argument so the module stays state-free.
+ * null, or an em-dash instead of crashing a cell. Formatters take the user's number-format
+ * preference as an argument so the module stays state-free. Date cells are rendered by the
+ * shared formatDateCell in utils/formatters, which the supplier grid uses too.
  */
 import type { InventoryRow } from '../../../api/inventory/types';
-import { formatDate, formatNumber } from '../../../utils/formatters';
-import type { DateFormat, NumberFormat } from '../../../context/settings/SettingsContext.types';
+import { formatNumber } from '../../../utils/formatters';
+import type { NumberFormat } from '../../../context/settings/SettingsContext.types';
 
 /** Prefer the normalized onHand count; fall back to the backend quantity field. */
 export function resolveOnHand(
@@ -74,21 +75,4 @@ export function formatCount(value: unknown, numberFormat: NumberFormat): string 
 export function formatMoney(value: unknown, numberFormat: NumberFormat): string {
   if (typeof value !== 'number' || !Number.isFinite(value)) return '\u2014';
   return formatNumber(value, numberFormat, 2);
-}
-
-/** Defensive date rendering; em-dash for empty or unparseable input. */
-export function formatDateCell(value: unknown, dateFormat: DateFormat): string {
-  if (value === null || value === undefined || value === '') {
-    return '\u2014';
-  }
-  const str = String(value);
-  const date = new Date(str);
-  if (Number.isNaN(date.getTime())) {
-    return '\u2014';
-  }
-  try {
-    return formatDate(date, dateFormat);
-  } catch {
-    return '\u2014';
-  }
 }

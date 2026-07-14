@@ -1,8 +1,8 @@
 /**
  * @file formatters.test.ts
  * @module tests/unit/utils/formatters
- * @description Contract tests for formatDate / formatNumber / getTodayIso /
- * getDaysAgoIso.
+ * @description Contract tests for formatDate / formatNumber / formatDateCell /
+ * getTodayIso / getDaysAgoIso.
  *
  * Contract under test:
  * - Guarantees stable date/number formatting and parsing contracts used
@@ -17,6 +17,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   formatDate,
+  formatDateCell,
   formatNumber,
   getTodayIso,
   getDaysAgoIso,
@@ -125,5 +126,26 @@ describe('getDaysAgoIso', () => {
     vi.setSystemTime(new Date(2025, 0, 15)); // Jan 15, 2025
     const result = getDaysAgoIso(30);
     expect(result).toBe('2024-12-16');
+  });
+});
+
+describe('formatDateCell', () => {
+  const EM_DASH = '—';
+
+  it('renders a placeholder for an absent value', () => {
+    // A grid cell receives unknown: null, undefined and '' all mean "no date".
+    expect(formatDateCell(null, 'DD.MM.YYYY')).toBe(EM_DASH);
+    expect(formatDateCell(undefined, 'DD.MM.YYYY')).toBe(EM_DASH);
+    expect(formatDateCell('', 'DD.MM.YYYY')).toBe(EM_DASH);
+  });
+
+  it('renders a placeholder rather than echoing an unreadable value', () => {
+    expect(formatDateCell('not-a-date', 'DD.MM.YYYY')).toBe(EM_DASH);
+    expect(formatDateCell({}, 'DD.MM.YYYY')).toBe(EM_DASH);
+  });
+
+  it('formats a parseable timestamp per the preference token', () => {
+    expect(formatDateCell('2026-05-01T00:00:00Z', 'DD.MM.YYYY')).toBe('01.05.2026');
+    expect(formatDateCell('2026-05-01T00:00:00Z', 'YYYY-MM-DD')).toBe('2026-05-01');
   });
 });
