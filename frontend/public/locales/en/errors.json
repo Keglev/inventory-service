@@ -9,8 +9,10 @@
     "reasonInvalidForDecrease": "Select a reason valid for reducing stock",
     "invalid": "Please check this field"
   },
+  "form": {
+    "validationFailed": "Please fix the highlighted fields."
+  },
   "inventory": {
-    "validationFailed": "Please fix the highlighted fields.",
     "conflicts": {
       "duplicateName": "An item with this name and price already exists",
       "duplicateSku": "An item with this SKU already exists"

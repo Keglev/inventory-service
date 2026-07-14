@@ -86,7 +86,7 @@ export const useCreateSupplierForm = (
   const applyServerError = (failure: SupplierErrorEnvelope): void => {
     if (isSupplierNameConflict(failure)) {
       setError('name', { message: 'errors:supplier.businessRules.duplicateName' });
-      setFormError(t('errors:inventory.validationFailed'));
+      setFormError(t('errors:form.validationFailed'));
       return;
     }
 

@@ -150,7 +150,8 @@ describe('useCreateSupplierForm', () => {
       expect.objectContaining({ message: expect.any(String) })
     );
 
-    // Banner error is a stable UX string provided via i18n defaultValue.
+    // The banner is resolved display text, not a key: it is the one message the user reads
+    // rather than a signal attached to an input. The EN copy is pinned here on purpose.
     expect(result.current.formError).toBe('Please fix the highlighted fields.');
     expect(onCreated).not.toHaveBeenCalled();
   });

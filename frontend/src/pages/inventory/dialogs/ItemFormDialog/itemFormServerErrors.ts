@@ -79,14 +79,14 @@ export function applyItemFormServerError(
       }
     }
     if (applied) {
-      setFormError(t('errors:inventory.validationFailed'));
+      setFormError(t('errors:form.validationFailed'));
       return;
     }
   }
 
   if (result.errorToken === 'conflict') {
     setError('name', { message: 'errors:inventory.conflicts.duplicateName' });
-    setFormError(t('errors:inventory.validationFailed'));
+    setFormError(t('errors:form.validationFailed'));
     return;
   }
 

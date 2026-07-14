@@ -88,7 +88,7 @@ describe('applyItemFormServerError', () => {
   it('should_raise_the_banner_when_at_least_one_input_was_flagged', () => {
     const d = deps();
     applyItemFormServerError({ errorToken: 'conflict', fieldErrors: { name: 'x' } }, d);
-    expect(d.setFormError).toHaveBeenCalledWith('errors:inventory.validationFailed');
+    expect(d.setFormError).toHaveBeenCalledWith('errors:form.validationFailed');
   });
 
   it('should_fall_back_to_the_form_level_message_when_no_named_field_maps_to_an_input', () => {
@@ -107,7 +107,7 @@ describe('applyItemFormServerError', () => {
     expect(d.setError).toHaveBeenCalledWith('name', {
       message: 'errors:inventory.conflicts.duplicateName',
     });
-    expect(d.setFormError).toHaveBeenCalledWith('errors:inventory.validationFailed');
+    expect(d.setFormError).toHaveBeenCalledWith('errors:form.validationFailed');
   });
 
   it('should_use_the_generic_server_message_for_an_unrelated_token', () => {
