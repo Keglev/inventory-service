@@ -234,7 +234,15 @@
         <h2 id="implementation-notes">Implementation Notes</h2>
         <ul>
         <li><code>fly.toml [env]</code> —
-        <code>APP_FRONTEND_BASE_URL</code>.</li>
+        <code>APP_FRONTEND_BASE_URL</code>. It belongs here and
+        <strong>must not be re-created as a Fly secret</strong>: secrets
+        shadow <code>[env]</code>, so a stale secret of the same name
+        silently overrides the versioned value and every post-login and
+        logout redirect keeps pointing at the old host while the
+        repository says otherwise.
+        <code>fly ssh console -C "printenv APP_FRONTEND_BASE_URL"</code>
+        is the only authoritative check of what the running machine
+        actually sees.</li>
         <li><code>application-prod.yml</code> —
         <code>app.cors.allowed-origins</code>,
         <code>app.frontend.base-url</code>.</li>
