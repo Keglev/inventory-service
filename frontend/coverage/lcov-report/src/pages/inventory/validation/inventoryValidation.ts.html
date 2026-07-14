@@ -224,7 +224,17 @@
 <a name='L159'></a><a href='#L159'>159</a>
 <a name='L160'></a><a href='#L160'>160</a>
 <a name='L161'></a><a href='#L161'>161</a>
-<a name='L162'></a><a href='#L162'>162</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -259,6 +269,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">60x</span>
@@ -409,8 +421,12 @@
  *   edit-name, and delete carry no reason field at all because the backend
  *   does not record one for those flows.
  * - z.coerce.number() is used so text-input strings from MUI TextField
- *   are accepted without explicit conversion at the caller. Error messages
- *   are field-level so a form library can bind them directly.
+ *   are accepted without explicit conversion at the caller.
+ * - Every message is an i18n KEY, never display text. A schema is pure data
+ *   and must not depend on a translator; the key is resolved at the render
+ *   boundary by utils/fieldErrorText, which is also where a server-attributed
+ *   field error lands. That is what makes a client rejection and a server
+ *   rejection of the same field read identically in German.
  */
 &nbsp;
 import { z } from 'zod';
@@ -420,13 +436,15 @@ import { z } from 'zod';
  * Handles both new item creation and existing item updates.
  */
 export const itemFormSchema = z.object({
-  name: z.string().min(1, "Item name is required"),
-  code: z.string().min(1, "SKU is required"),
-  supplierId: z.union([z.string(), z.number()]).refine(val =&gt; val !== "" &amp;&amp; val !== 0, "Supplier is required"),
-  quantity: z.number().min(0, "Initial stock must be non-negative"),
-  price: z.number().min(0, "Price must be non-negative"),
-  reason: z.enum(["INITIAL_STOCK", "MANUAL_UPDATE"], {
-    message: "Reason is required",
+  name: z.string().min(1, 'errors:validation.required'),
+  code: z.string().min(1, 'errors:validation.required'),
+  supplierId: z
+    .union([z.string(), z.number()])
+    .refine((val) =&gt; val !== '' &amp;&amp; val !== 0, 'errors:validation.required'),
+  quantity: z.number().min(0, 'errors:validation.nonNegative'),
+  price: z.number().min(0, 'errors:validation.nonNegative'),
+  reason: z.enum(['INITIAL_STOCK', 'MANUAL_UPDATE'], {
+    message: 'errors:validation.required',
   }),
 });
 &nbsp;
@@ -483,26 +501,26 @@ export type AdjustReason = (typeof ADJUST_REASONS)[number];
  */
 export const quantityAdjustSchema = z
   .object({
-    itemId: z.string().min(1, 'Item selection is required'),
+    itemId: z.string().min(1, 'errors:validation.required'),
     currentQuantity: z.number(),
-    newQuantity: z.number().min(0, 'Quantity cannot be negative'),
-    reason: z.enum(ADJUST_REASONS, { message: 'Reason is required' }),
+    newQuantity: z.number().min(0, 'errors:validation.nonNegative'),
+    reason: z.enum(ADJUST_REASONS, { message: 'errors:validation.required' }),
   })
   .refine((v) =&gt; v.newQuantity !== v.currentQuantity, {
-    message: 'New quantity must differ from the current quantity',
+    message: 'errors:validation.quantityUnchanged',
     path: ['newQuantity'],
   })
   .refine(
     (v) =&gt;
       v.newQuantity &lt;= v.currentQuantity ||
       (INCREASE_ADJUST_REASONS as readonly string[]).includes(v.reason),
-    { message: 'Select a reason valid for increasing stock', path: ['reason'] }
+    { message: 'errors:validation.reasonInvalidForIncrease', path: ['reason'] }
   )
   .refine(
     (v) =&gt;
       v.newQuantity &gt;= v.currentQuantity ||
       (DECREASE_ADJUST_REASONS as readonly string[]).includes(v.reason),
-    { message: 'Select a reason valid for reducing stock', path: ['reason'] }
+    { message: 'errors:validation.reasonInvalidForDecrease', path: ['reason'] }
   );
 &nbsp;
 export type QuantityAdjustForm = z.infer&lt;typeof quantityAdjustSchema&gt;;
@@ -515,8 +533,8 @@ export type QuantityAdjustForm = z.infer&lt;typeof quantityAdjustSchema&gt;;
  * one for this flow.
  */
 export const priceChangeSchema = z.object({
-  itemId: z.string().min(1, 'Item selection is required'),
-  newPrice: z.number().positive('Price must be greater than 0'),
+  itemId: z.string().min(1, 'errors:validation.required'),
+  newPrice: z.number().positive('errors:validation.positive'),
 });
 &nbsp;
 export type PriceChangeForm = z.infer&lt;typeof priceChangeSchema&gt;;
@@ -529,8 +547,8 @@ export type PriceChangeForm = z.infer&lt;typeof priceChangeSchema&gt;;
  * supplier, and only ADMIN users can rename items.
  */
 export const editItemSchema = z.object({
-  itemId: z.string().min(1, 'Item selection is required'),
-  newName: z.string().min(1, 'Item name is required'),
+  itemId: z.string().min(1, 'errors:validation.required'),
+  newName: z.string().min(1, 'errors:validation.required'),
 });
 &nbsp;
 export type EditItemForm = z.infer&lt;typeof editItemSchema&gt;;
@@ -542,7 +560,7 @@ export type EditItemForm = z.infer&lt;typeof editItemSchema&gt;;
  * quantity is not 0, and only ADMIN users can delete items.
  */
 export const deleteItemSchema = z.object({
-  itemId: z.string().min(1, 'Item selection is required'),
+  itemId: z.string().min(1, 'errors:validation.required'),
 });
 &nbsp;
 export type DeleteItemForm = z.infer&lt;typeof deleteItemSchema&gt;;
@@ -553,7 +571,7 @@ export type DeleteItemForm = z.infer&lt;typeof deleteItemSchema&gt;;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-14T15:02:41.875Z
+                at 2026-07-14T16:42:38.597Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

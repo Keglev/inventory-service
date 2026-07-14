@@ -111,8 +111,9 @@ api/suppliers/validation/README · Smart Supply Pro · API</title>
         <p>validation.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Field-level error messages are phrased for direct display in
-        form helpers.</li>
+        <li>Every message is an i18n KEY, never display text;
+        utils/fieldErrorText resolves it at the render boundary, so
+        client and server rejections of a field read identically.</li>
         <li>Email is validated client-side to match backend</li>
         </ul>
         <h2 id="email">Email</h2>
