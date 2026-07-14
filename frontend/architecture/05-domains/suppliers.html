@@ -138,9 +138,10 @@
         decision, not a backend rule.</li>
         <li><strong>Delete</strong> (<code>DeleteSupplierDialog</code>)
         — search/select → confirm; physical delete behind the backend’s
-        active-stock guard (blocked while active items exist).
-        Admin-gated, enforced both client-side in the form hook and
-        server-side.</li>
+        stock guard: blocked while any linked item holds stock
+        (<code>quantity &gt; 0</code>); zero-quantity items never block,
+        regardless of their active flag. Admin-gated, enforced both
+        client-side in the form hook and server-side.</li>
         </ul>
         <h2 id="error-handling-open-items">Error Handling &amp; Open
         Items</h2>

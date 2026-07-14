@@ -118,17 +118,17 @@
         <h2 id="data-fetching-filtering">Data Fetching &amp;
         Filtering</h2>
         <p><code>handlers/useDataFetchingLogic.ts</code> adapts UI state
-        to server parameters: DataGrid’s 0-based page becomes the
-        backend’s 1-based page, and the sort model serializes to
+        to server parameters: both the MUI DataGrid and Spring Pageable
+        are 0-based, so the page index passes through unchanged, and the
+        sort model serializes to
         <code>"&lt;field&gt;,&lt;direction&gt;"</code> (default
         <code>name,asc</code>). Loading is gated on a selected supplier.
-        Because <code>GET /api/inventory/search</code> accepts only
-        <code>name</code>, the domain applies client-side filters after
-        the page loads: a supplier-id safety-net filter,
-        case-insensitive name search, and the below-minimum filter
-        (<code>onHand &lt; min</code>, defaulting the threshold when
-        absent). Supplier options come from the shared suppliers query,
-        independent of the selection.</p>
+        All filtering is server-side:
+        <code>GET /api/inventory/search</code> accepts
+        <code>name</code>, <code>supplierId</code>, and
+        <code>belowMinimumOnly</code>, and the fetcher forwards all
+        three with paging and sort. Supplier options come from the
+        shared suppliers query, independent of the selection.</p>
         <h2 id="dialog-workflows">Dialog Workflows</h2>
         <p><code>InventoryDialogs</code> is a pure switchboard receiving
         open/close props, the selected row, and <code>isDemo</code> for
