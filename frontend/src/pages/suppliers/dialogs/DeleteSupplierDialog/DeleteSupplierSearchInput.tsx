@@ -70,8 +70,7 @@ export const DeleteSupplierSearchInput: React.FC<DeleteSupplierSearchInputProps>
         }}
         sx={{
           '& .MuiOutlinedInput-root': {
-            // BUCKET: '#fafafa' hardcoded — migrate to MUI theme tokens (CB-APP99)
-            backgroundColor: '#fafafa',
+            backgroundColor: 'background.default',
           },
         }}
       />

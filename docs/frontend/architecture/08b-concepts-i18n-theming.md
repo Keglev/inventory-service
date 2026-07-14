@@ -51,5 +51,4 @@ A small `styles/global.css` covers what component styles handle awkwardly:
 full-height root layout, webkit scrollbars, `.visually-hidden`, print overrides.
 Two tracked open items live here: the scrollbar rules are duplicated between
 global.css and the theme's CssBaseline (CB-APP15), and the print `!important`
-overrides await an audit (CM-APP2). Hardcoded hex values in the supplier delete
-dialogs are queued for theme-token migration (CB-APP99).
+overrides await an audit (CM-APP2).

@@ -15,7 +15,6 @@
 
 import * as React from 'react';
 import { Dialog } from '@mui/material';
-import { useHelp } from '../../../../hooks/useHelp';
 import { useToast } from '../../../../context/toast/ToastContext';
 import { useTranslation } from 'react-i18next';
 import { useDeleteSupplierForm } from './useDeleteSupplierForm';
@@ -56,7 +55,6 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
 }) => {
   const { t } = useTranslation(['suppliers']);
   const toast = useToast();
-  const { openHelp } = useHelp();
 
   // Form logic hook
   const form = useDeleteSupplierForm(() => {
@@ -109,7 +107,6 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
           searchLoading={form.searchLoading}
           onSelectSupplier={form.handleSelectSupplier}
           onCancel={handleDialogClose}
-          onHelp={() => openHelp('suppliers.delete')}
         />
       )}
 

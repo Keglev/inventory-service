@@ -23,14 +23,11 @@ import {
   Box,
   Alert,
   Divider,
-  IconButton,
   Stack,
-  Tooltip,
 } from '@mui/material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast/ToastContext';
-import { useHelp } from '../../../../hooks/useHelp';
+import { HelpIconButton } from '../../../../features/help/components/HelpIconButton';
 import { useEditSupplierForm } from './useEditSupplierForm';
 import { EditSupplierSearchStep } from './EditSupplierSearchStep';
 import { EditSupplierInfoStep } from './EditSupplierInfoStep';
@@ -70,7 +67,6 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
 }) => {
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
   const toast = useToast();
-  const { openHelp } = useHelp();
 
   // Form logic hook
   const form = useEditSupplierForm(() => {
@@ -110,12 +106,7 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
         <DialogTitle>
           <Stack direction="row" alignItems="center" justifyContent="space-between">
             <Box>{t('suppliers:dialogs.editSupplierTitle')}</Box>
-            <Tooltip title={t('common:actions.help')}>
-              <IconButton size="small" onClick={() => openHelp('suppliers.manage')}>
-                {/* BUCKET: HelpOutlineIcon + Tooltip + IconButton pattern duplicated across 4 dialogs — extract shared component (ST-APP29) */}
-                <HelpOutlineIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            <HelpIconButton topicId="suppliers.manage" tooltip={t('common:actions.help')} />
           </Stack>
         </DialogTitle>
 

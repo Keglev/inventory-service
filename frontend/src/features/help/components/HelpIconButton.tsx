@@ -4,23 +4,24 @@
  * @summary Standardized icon button that opens a help topic on click —
  * the canonical surface for exposing context-sensitive help.
  * @enterprise
- * - Six production call sites split across layout chrome (sidebar,
- *   toolbar) and page content (analytics, dashboard, inventory
- *   board, one inventory dialog). The standard surface for
- *   exposing help topics — callers pass a topic id string from
- *   help/topics.ts.
+ * - The standard surface for exposing help topics across layout chrome
+ *   (sidebar, toolbar, settings) and page content (analytics, dashboard,
+ *   inventory board, and every inventory and supplier dialog). Callers
+ *   pass a topic id string from help/topics.ts.
  * - Click delegates to openHelp() on the canonical useHelp hook
  *   (hooks/useHelp.ts). HelpPanel.tsx (mounted in App.tsx)
  *   resolves the topic and renders the drawer.
  * - Topic id validation is downstream: an unknown id returns null
  *   at HelpPanel and the drawer silently renders nothing. Callers
  *   are responsible for passing registry-valid ids.
- * - Default tooltip + aria-label are hardcoded English — see
- *   CM-APP8 for the i18n threading fix.
+ * - Tooltip and aria-label default to the translated common:actions.help
+ *   label, so screen-reader users get the active locale even when a caller
+ *   omits the tooltip prop. Callers may still override the visible tooltip.
  */
 import * as React from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../../hooks/useHelp';
 
 interface HelpIconButtonProps {
@@ -31,14 +32,16 @@ interface HelpIconButtonProps {
 
 export const HelpIconButton: React.FC<HelpIconButtonProps> = ({ topicId, tooltip }) => {
   const { openHelp } = useHelp();
+  const { t } = useTranslation(['common']);
 
-  // BUCKET: hardcoded English defaults — tooltip 'Help' and aria-label 'Open help' visible to DE users when callers omit translated props; thread useTranslation and add common namespace keys (CM-APP8)
+  const label = t('common:actions.help');
+
   return (
-    <Tooltip title={tooltip ?? 'Help'}>
+    <Tooltip title={tooltip ?? label}>
       <IconButton
         size="small"
         onClick={() => openHelp(topicId)}
-        aria-label="Open help"
+        aria-label={label}
       >
         <HelpOutlineIcon fontSize="small" />
       </IconButton>

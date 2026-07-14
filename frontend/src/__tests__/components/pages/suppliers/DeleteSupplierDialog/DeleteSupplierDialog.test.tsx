@@ -5,7 +5,7 @@
  *
  * Contract under test:
  * - Initializes the workflow hook with an `onDeleted` callback.
- * - Renders search step by default and wires Help to `openHelp('suppliers.delete')`.
+ * - Renders the search step by default; the help affordance now lives in that step.
  * - Switches to confirmation step when `showConfirmation` and `selectedSupplier` are set.
  * - Dialog close (via search cancel) resets the workflow unless deletion is in progress.
  * - Confirmation cancel resets selection/confirmation/error state.
@@ -34,7 +34,6 @@ type DeleteSupplierSearchProps = {
   searchLoading: boolean;
   onSelectSupplier: (supplier: SupplierRow) => void;
   onCancel: () => void;
-  onHelp: () => void;
 };
 
 type DeleteSupplierConfirmationProps = {
@@ -52,7 +51,6 @@ const mocks = vi.hoisted(() => ({
   useDeleteSupplierForm: vi.fn(),
   searchSpy: vi.fn(),
   confirmationSpy: vi.fn(),
-  openHelp: vi.fn(),
   toast: vi.fn(),
 }));
 
@@ -63,14 +61,11 @@ vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSu
 vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearch', () => ({
   DeleteSupplierSearch: (props: DeleteSupplierSearchProps) => {
     mocks.searchSpy(props);
-    const { onCancel, onHelp, onSelectSupplier } = props;
+    const { onCancel, onSelectSupplier } = props;
     return (
       <div>
         <button type="button" onClick={onCancel}>
           Cancel Search
-        </button>
-        <button type="button" onClick={onHelp}>
-          Help
         </button>
         <button type="button" onClick={() => onSelectSupplier(supplier)}>
           Select Supplier
@@ -95,10 +90,6 @@ vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSuppl
       </div>
     );
   },
-}));
-
-vi.mock('../../../../../hooks/useHelp', () => ({
-  useHelp: () => ({ openHelp: mocks.openHelp }),
 }));
 
 vi.mock('../../../../../context/toast/ToastContext', () => ({
@@ -167,16 +158,12 @@ beforeEach(() => {
 });
 
 describe('DeleteSupplierDialog', () => {
-  it('initializes workflow hook and renders search step with help action', async () => {
-    const user = userEvent.setup();
+  it('initializes workflow hook and renders the search step', () => {
     renderDialog();
 
     // Hook is initialized with an onDeleted callback.
     expect(mocks.useDeleteSupplierForm).toHaveBeenCalledWith(expect.any(Function));
     expect(mocks.searchSpy).toHaveBeenCalledTimes(1);
-
-    await user.click(screen.getByRole('button', { name: 'Help' }));
-    expect(mocks.openHelp).toHaveBeenCalledWith('suppliers.delete');
   });
 
   it('renders confirmation step when showConfirmation is true', () => {

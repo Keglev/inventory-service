@@ -43,7 +43,8 @@ Spring Page); `/api/suppliers/search?name=` backs the type-ahead.
 
 The supplier form hooks currently match free-text server messages (including the
 German 'verknüpften' variant) to classify errors; migrating to the structured
-`{error, message, timestamp}` contract is tracked (CB-APP100), as are the shared
-help-icon extraction (ST-APP29) and theme-token migration (CB-APP99) noted in the
-dialog sources. Unlike Inventory, the supplier dialogs do not take a `readOnly`
-prop; demo restriction relies on backend authorization.
+`{error, message, timestamp}` contract is tracked (CB-APP100). The dialogs now use
+the shared `HelpIconButton` and reference palette tokens rather than fixed hex
+values, so they follow the same help and theming contract as the inventory dialogs.
+Unlike Inventory, the supplier dialogs do not take a `readOnly` prop; demo
+restriction relies on backend authorization.

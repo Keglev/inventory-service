@@ -20,12 +20,10 @@ import {
   Button,
   Typography,
   Box,
-  IconButton,
   Stack,
-  Tooltip,
 } from '@mui/material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
+import { HelpIconButton } from '../../../../features/help/components/HelpIconButton';
 import { DeleteSupplierSearchInput } from './DeleteSupplierSearchInput';
 import { DeleteSupplierSearchResults } from './DeleteSupplierSearchResults';
 import { DeleteSupplierSearchEmpty } from './DeleteSupplierSearchEmpty';
@@ -49,8 +47,6 @@ interface DeleteSupplierSearchProps {
   onSelectSupplier: (supplier: SupplierRow) => void;
   /** Called when cancel button is clicked */
   onCancel: () => void;
-  /** Called to open help */
-  onHelp: () => void;
 }
 
 /**
@@ -72,7 +68,6 @@ interface DeleteSupplierSearchProps {
  *   searchLoading={loading}
  *   onSelectSupplier={handleSelect}
  *   onCancel={handleCancel}
- *   onHelp={handleHelp}
  * />
  * ```
  */
@@ -83,7 +78,6 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
   searchLoading,
   onSelectSupplier,
   onCancel,
-  onHelp,
 }) => {
   const { t } = useTranslation(['common', 'suppliers']);
 
@@ -94,12 +88,7 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
       <DialogTitle sx={{ pt: 3.5 }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Box>{t('suppliers:dialogs.delete.title')}</Box>
-          <Tooltip title={t('common:actions.help')}>
-            <IconButton size="small" onClick={onHelp}>
-              {/* BUCKET: HelpOutlineIcon + Tooltip + IconButton pattern duplicated across 4 dialogs — extract shared component (ST-APP29) */}
-              <HelpOutlineIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <HelpIconButton topicId="suppliers.delete" tooltip={t('common:actions.help')} />
         </Stack>
       </DialogTitle>
 

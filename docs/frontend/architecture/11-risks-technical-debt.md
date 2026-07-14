@@ -16,10 +16,8 @@ BUCKET markers in source.
 | ID | Item | Where |
 |---|---|---|
 | CB-APP33/34 | Settings language-sync can overwrite explicit format choices; parts of the preference set lack persistence | [§8](08-concepts.md) |
-| CB-APP99 | Hardcoded hex colors in supplier delete dialogs pending theme-token migration | [§8b](08b-concepts-i18n-theming.md) |
 | CB-APP100 | Supplier form hooks classify errors by free-text matching instead of the structured envelope | [§8](08-concepts.md) |
 | CB-APP15 / CM-APP2 | Scrollbar rules duplicated between global.css and CssBaseline; print `!important` overrides unaudited | [§8b](08b-concepts-i18n-theming.md) |
-| ST-APP29 | Help-icon pattern duplicated across four dialogs; shared extraction queued | [§5.2](05-domains/suppliers.md) |
 | ST-APP30 | Twelve form/state hooks exceed the 50-code-line function cap; case-by-case review deferred | [§2](02-constraints.md) |
 
 The remaining open registry entries are UI-level items of the same character and

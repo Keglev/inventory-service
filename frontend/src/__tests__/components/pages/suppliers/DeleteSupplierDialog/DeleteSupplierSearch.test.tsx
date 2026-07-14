@@ -4,7 +4,7 @@
  * @description Contract tests for the DeleteSupplierSearch step component.
  *
  * Contract under test:
- * - Renders the dialog title and help affordance.
+ * - Renders the dialog title and opens the delete help topic.
  * - Delegates props to subcomponents:
  *   - input receives value + loading state and forwards change events.
  *   - results receives supplier list + selection handler.
@@ -45,6 +45,13 @@ const mocks = vi.hoisted(() => ({
   inputSpy: vi.fn(),
   resultsSpy: vi.fn(),
   emptySpy: vi.fn(),
+  openHelp: vi.fn(),
+}));
+
+// The help affordance is the shared HelpIconButton, which resolves openHelp
+// from the help hook; stubbed here so the component renders without a provider.
+vi.mock('../../../../../hooks/useHelp', () => ({
+  useHelp: () => ({ openHelp: mocks.openHelp }),
 }));
 
 vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearchInput', () => ({
@@ -100,7 +107,6 @@ const renderSearch = (overrides?: Partial<ComponentProps<typeof DeleteSupplierSe
     searchLoading: false,
     onSelectSupplier: vi.fn(),
     onCancel: vi.fn(),
-    onHelp: vi.fn(),
     ...overrides,
   };
 
@@ -112,13 +118,11 @@ describe('DeleteSupplierSearch', () => {
   it('renders title, help button, and delegates input props', async () => {
     const user = userEvent.setup();
     const onSearchQueryChange = vi.fn();
-    const onHelp = vi.fn();
 
     renderSearch({
       searchQuery: 'su',
       onSearchQueryChange,
       searchResults: suppliers,
-      onHelp,
     });
 
     expect(screen.getByRole('heading', { name: 'Delete Supplier' })).toBeInTheDocument();
@@ -130,7 +134,7 @@ describe('DeleteSupplierSearch', () => {
     expect(onSearchQueryChange).toHaveBeenCalledWith('sux');
 
     await user.click(screen.getByRole('button', { name: 'Help' }));
-    expect(onHelp).toHaveBeenCalledTimes(1);
+    expect(mocks.openHelp).toHaveBeenCalledWith('suppliers.delete');
   });
 
   it('passes results and selection handler to results component', () => {

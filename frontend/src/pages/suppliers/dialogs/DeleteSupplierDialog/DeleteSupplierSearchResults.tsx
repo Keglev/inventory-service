@@ -14,6 +14,7 @@
 
 import * as React from 'react';
 import { Paper, Stack, Box, Typography } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import type { SupplierRow } from '../../../../api/suppliers/types';
 
 /**
@@ -55,13 +56,12 @@ export const DeleteSupplierSearchResults: React.FC<DeleteSupplierSearchResultsPr
   }
 
   return (
-    // BUCKET: '#fafafa', '#e0e0e0' (border), '#e3f2fd' (hover) hardcoded — migrate to MUI theme tokens (CB-APP99)
     <Paper
       variant="outlined"
       sx={{
         maxHeight: 300,
         overflow: 'auto',
-        backgroundColor: '#fafafa',
+        backgroundColor: 'background.default',
       }}
     >
       <Stack spacing={0}>
@@ -72,10 +72,13 @@ export const DeleteSupplierSearchResults: React.FC<DeleteSupplierSearchResultsPr
             sx={{
               p: 1.5,
               cursor: 'pointer',
-              borderBottom: '1px solid #e0e0e0',
+              borderBottom: 1,
+              borderColor: 'divider',
               transition: 'background-color 0.2s',
+              // Tinted from the palette rather than a fixed blue so the hover
+              // affordance survives the dark theme.
               '&:hover': {
-                backgroundColor: '#e3f2fd',
+                backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
               },
               '&:last-child': {
                 borderBottom: 'none',
