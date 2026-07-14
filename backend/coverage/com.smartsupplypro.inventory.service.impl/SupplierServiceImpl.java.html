@@ -14,6 +14,7 @@ import com.smartsupplypro.inventory.mapper.SupplierMapper;
 import com.smartsupplypro.inventory.model.Supplier;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
+import com.smartsupplypro.inventory.security.SecurityAuditHelper;
 import com.smartsupplypro.inventory.service.SupplierService;
 import com.smartsupplypro.inventory.validation.SupplierValidator;
 
@@ -44,25 +45,25 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional(readOnly = true)
     public List&lt;SupplierDTO&gt; findAll() {
         // No filtering here; caller controls access via @PreAuthorize at controller level
-<span class="fc" id="L47">        return supplierRepository.findAll().stream()</span>
-<span class="fc" id="L48">                .map(supplierMapper::toDTO)</span>
-<span class="fc" id="L49">                .toList();</span>
+<span class="fc" id="L48">        return supplierRepository.findAll().stream()</span>
+<span class="fc" id="L49">                .map(supplierMapper::toDTO)</span>
+<span class="fc" id="L50">                .toList();</span>
     }
 
     /** {@inheritDoc} */
     @Override
     @Transactional(readOnly = true)
     public Optional&lt;SupplierDTO&gt; findById(String id) {
-<span class="fc" id="L56">        return supplierRepository.findById(id).map(supplierMapper::toDTO);</span>
+<span class="fc" id="L57">        return supplierRepository.findById(id).map(supplierMapper::toDTO);</span>
     }
 
     /** {@inheritDoc} */
     @Override
     @Transactional(readOnly = true)
     public List&lt;SupplierDTO&gt; findByName(String name) {
-<span class="fc" id="L63">        return supplierRepository.findByNameContainingIgnoreCase(name).stream()</span>
-<span class="fc" id="L64">                .map(supplierMapper::toDTO)</span>
-<span class="fc" id="L65">                .toList();</span>
+<span class="fc" id="L64">        return supplierRepository.findByNameContainingIgnoreCase(name).stream()</span>
+<span class="fc" id="L65">                .map(supplierMapper::toDTO)</span>
+<span class="fc" id="L66">                .toList();</span>
     }
 
     /**
@@ -73,15 +74,18 @@ public class SupplierServiceImpl implements SupplierService {
      */
     @Override
     public SupplierDTO create(SupplierDTO dto) {
-<span class="fc" id="L76">        SupplierValidator.validateBase(dto);</span>
-<span class="fc" id="L77">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), null);</span>
+<span class="fc" id="L77">        SupplierValidator.validateBase(dto);</span>
+<span class="fc" id="L78">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), null);</span>
 
-<span class="fc" id="L79">        Supplier entity = supplierMapper.toEntity(dto);</span>
-<span class="fc" id="L80">        entity.setId(UUID.randomUUID().toString());</span>
-<span class="fc" id="L81">        entity.setCreatedAt(LocalDateTime.now());</span>
+<span class="fc" id="L80">        Supplier entity = supplierMapper.toEntity(dto);</span>
+<span class="fc" id="L81">        entity.setId(UUID.randomUUID().toString());</span>
+<span class="fc" id="L82">        entity.setCreatedAt(LocalDateTime.now());</span>
+        // The mapper deliberately drops any client-supplied value; attribution is read
+        // from the security context so it can be neither forged nor omitted.
+<span class="fc" id="L85">        entity.setCreatedBy(SecurityAuditHelper.currentUsername());</span>
 
-<span class="fc" id="L83">        Supplier saved = supplierRepository.save(entity);</span>
-<span class="fc" id="L84">        return supplierMapper.toDTO(saved);</span>
+<span class="fc" id="L87">        Supplier saved = supplierRepository.save(entity);</span>
+<span class="fc" id="L88">        return supplierMapper.toDTO(saved);</span>
     }
 
     /**
@@ -92,20 +96,20 @@ public class SupplierServiceImpl implements SupplierService {
      */
     @Override
     public SupplierDTO update(String id, SupplierDTO dto) {
-<span class="fc" id="L95">        Supplier existing = supplierRepository.findById(id)</span>
-<span class="fc" id="L96">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
+<span class="fc" id="L99">        Supplier existing = supplierRepository.findById(id)</span>
+<span class="fc" id="L100">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
 
-<span class="fc" id="L98">        SupplierValidator.validateBase(dto);</span>
+<span class="fc" id="L102">        SupplierValidator.validateBase(dto);</span>
         // Exclude the current supplier ID so the uniqueness check does not reject its own name
-<span class="fc" id="L100">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), id);</span>
+<span class="fc" id="L104">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), id);</span>
 
-<span class="fc" id="L102">        existing.setName(dto.getName());</span>
-<span class="fc" id="L103">        existing.setContactName(dto.getContactName());</span>
-<span class="fc" id="L104">        existing.setPhone(dto.getPhone());</span>
-<span class="fc" id="L105">        existing.setEmail(dto.getEmail());</span>
+<span class="fc" id="L106">        existing.setName(dto.getName());</span>
+<span class="fc" id="L107">        existing.setContactName(dto.getContactName());</span>
+<span class="fc" id="L108">        existing.setPhone(dto.getPhone());</span>
+<span class="fc" id="L109">        existing.setEmail(dto.getEmail());</span>
 
-<span class="fc" id="L107">        Supplier saved = supplierRepository.save(existing);</span>
-<span class="fc" id="L108">        return supplierMapper.toDTO(saved);</span>
+<span class="fc" id="L111">        Supplier saved = supplierRepository.save(existing);</span>
+<span class="fc" id="L112">        return supplierMapper.toDTO(saved);</span>
     }
 
     /**
@@ -116,23 +120,23 @@ public class SupplierServiceImpl implements SupplierService {
      */
     @Override
     public void delete(String id) {
-<span class="fc" id="L119">        SupplierValidator.assertDeletable(</span>
+<span class="fc" id="L123">        SupplierValidator.assertDeletable(</span>
             id,
-<span class="fc" id="L121">            () -&gt; inventoryItemRepository.existsActiveStockForSupplier(id, 0)</span>
+<span class="fc" id="L125">            () -&gt; inventoryItemRepository.existsActiveStockForSupplier(id, 0)</span>
         );
 
-<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (!supplierRepository.existsById(id)) {</span>
-<span class="fc" id="L125">            throw new NoSuchElementException(&quot;Supplier not found: &quot; + id);</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (!supplierRepository.existsById(id)) {</span>
+<span class="fc" id="L129">            throw new NoSuchElementException(&quot;Supplier not found: &quot; + id);</span>
         }
 
-<span class="fc" id="L128">        supplierRepository.deleteById(id);</span>
-<span class="fc" id="L129">    }</span>
+<span class="fc" id="L132">        supplierRepository.deleteById(id);</span>
+<span class="fc" id="L133">    }</span>
 
     /** {@inheritDoc} */
     @Override
     @Transactional(readOnly = true)
     public long countSuppliers() {
-<span class="fc" id="L135">        return supplierRepository.count();</span>
+<span class="fc" id="L139">        return supplierRepository.count();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
