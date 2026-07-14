@@ -26,7 +26,7 @@ jobs:
       IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/ssp-frontend
       KOYEB_APP: ${{ secrets.KOYEB_APP }}
       KOYEB_SERVICE: ${{ secrets.KOYEB_SERVICE }}
-      FRONTEND_URL: https://inventory-service.koyeb.app
+      FRONTEND_URL: https://www.smartsupplypro.de
 
     steps:
       - name: Checkout code

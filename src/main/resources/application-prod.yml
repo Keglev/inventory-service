@@ -82,10 +82,13 @@ app:
 
   cors:
     allowed-origins:
+      # Canonical public origin. The legacy Koyeb origin stays allow-listed until the
+      # old hostname is fully retired, so an in-flight session is never broken mid-move.
+      - https://www.smartsupplypro.de
       - https://inventory-service.koyeb.app
 
   frontend:
-    # Real frontend domain for recruiters
-    base-url: ${APP_FRONTEND_BASE_URL:https://inventory-service.koyeb.app}
+    # Canonical public domain; drives every post-login and error redirect.
+    base-url: ${APP_FRONTEND_BASE_URL:https://www.smartsupplypro.de}
     # Your SPA login landing (matches your success handler)
     landing-path: /auth  # After login, redirect here (frontend route)

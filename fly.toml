@@ -18,7 +18,7 @@ primary_region = "fra"
   # Spring Boot profile to activate
   SPRING_PROFILES_ACTIVE = "prod"
   APP_DEMO_READONLY = "true"
-  APP_FRONTEND_BASE_URL = "https://inventory-service.koyeb.app"
+  APP_FRONTEND_BASE_URL = "https://www.smartsupplypro.de"
   APP_FRONTEND_LANDING_PATH = "/auth"
 
 

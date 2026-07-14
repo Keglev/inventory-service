@@ -7,7 +7,7 @@
 
 Manual inventory tracking in small manufacturing companies leads to stock discrepancies, blind spots in purchasing, and slow decisions. SmartSupplyPro replaces that with a full-stack system for inventory, supplier, and stock-history management — built from real purchasing and production-planning experience, to enterprise standards: OAuth2 authentication, versioned database migrations, a documented REST API, bilingual UI (EN/DE), and a CI/CD pipeline with published test coverage.
 
-**Live demo:** <https://inventory-service.koyeb.app> — click **Continue in Demo Mode** on the login page for read-only access with sample data. No account needed.
+**Live demo:** <https://www.smartsupplypro.de> — click **Continue in Demo Mode** on the login page for read-only access with sample data. No account needed.
 
 ---
 
@@ -110,7 +110,7 @@ npx vitest run     # test suite
 
 > **Note:** a full local backend run needs your own Oracle Autonomous Database wallet
 > (`TNS_ADMIN` pointing to the wallet directory) and a Google OAuth2 client ID.
-> The fastest way to evaluate the application is the [live demo](https://inventory-service.koyeb.app)
+> The fastest way to evaluate the application is the [live demo](https://www.smartsupplypro.de)
 > in demo mode — no setup required.
 
 ---
@@ -133,7 +133,7 @@ Each push to `main` runs the numbered GitHub Actions pipeline: build and test bo
 - **Frontend:** fully automated — push to `main` builds and deploys to Koyeb with health checks.
 - **Backend:** deliberately uses a manually triggered `fly deploy`. Oracle's Always Free tier requires IP whitelisting for database connections; building locally uses the whitelisted IP and the Fly.io VM provides a stable production IP, eliminating daily whitelist churn.
 
-**Live application:** <https://inventory-service.koyeb.app>
+**Live application:** <https://www.smartsupplypro.de>
 **Backend API:** <https://inventoryservice.fly.dev>
 
 ---
