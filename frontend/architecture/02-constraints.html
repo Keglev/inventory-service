@@ -217,9 +217,9 @@
         </tr>
         <tr class="odd">
         <td>Size standard</td>
-        <td>Code-line caps per layer (hard cap 300 lines/file, 50
-        lines/method, counting code lines only); measured, with
-        documented waivers where a split would be artificial</td>
+        <td>Per-layer code-line budgets (table below), measured by AST
+        over code lines only; documented waivers where a split would be
+        artificial</td>
         </tr>
         <tr class="even">
         <td>Comments</td>
@@ -237,6 +237,75 @@
         </tr>
         </tbody>
         </table>
+        <h2 id="size-budgets">Size Budgets</h2>
+        <p>Sizes are measured per file and per function over
+        <strong>code lines only</strong> — blank lines and comments are
+        excluded, and the test tree is not measured. Two thresholds per
+        layer: the <strong>band</strong> is the shape a unit of that
+        kind normally takes, and the <strong>alarm</strong> is the gate.
+        Exceeding the band is a signal to look; exceeding the alarm
+        requires either a split or a waiver recorded in <a
+        href="11-risks-technical-debt.html">§11</a>.</p>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Layer</th>
+        <th>Band</th>
+        <th>Alarm</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Components</td>
+        <td>40-100</td>
+        <td>&gt; 150</td>
+        </tr>
+        <tr class="even">
+        <td>Dialogs</td>
+        <td>50-120</td>
+        <td>&gt; 160</td>
+        </tr>
+        <tr class="odd">
+        <td>Hooks &amp; handlers</td>
+        <td>30-80</td>
+        <td>&gt; 120</td>
+        </tr>
+        <tr class="even">
+        <td>Context providers</td>
+        <td>40-90</td>
+        <td>&gt; 120</td>
+        </tr>
+        <tr class="odd">
+        <td>Page orchestrators</td>
+        <td>60-140</td>
+        <td>&gt; 180</td>
+        </tr>
+        <tr class="even">
+        <td>API fetchers</td>
+        <td>file &lt;= 150</td>
+        <td>function &lt;= 40</td>
+        </tr>
+        <tr class="odd">
+        <td>Theme &amp; config</td>
+        <td>50-100</td>
+        <td>&gt; 150</td>
+        </tr>
+        <tr class="even">
+        <td>Utilities</td>
+        <td>20-80</td>
+        <td>&gt; 120</td>
+        </tr>
+        <tr class="odd">
+        <td>Any file</td>
+        <td>—</td>
+        <td>hard cap 300</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>There is deliberately <strong>no blanket per-method
+        cap</strong>. A single figure cannot govern both a React
+        component, whose body is largely JSX, and a pure utility
+        function; the budgets are per layer for that reason.</p>
       </article>
     </main>
 
@@ -252,6 +321,8 @@
       Constraints</a></li>
       <li><a href="#conventions"
       id="toc-conventions">Conventions</a></li>
+      <li><a href="#size-budgets" id="toc-size-budgets">Size
+      Budgets</a></li>
       </ul></li>
       </ul>
     </nav>

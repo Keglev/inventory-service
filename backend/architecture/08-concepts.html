@@ -180,6 +180,16 @@
         href="09-decisions/adr-0010-custom-domain-and-canonical-host.html">ADR-0010</a>)</td>
         </tr>
         <tr class="even">
+        <td>Audit attribution</td>
+        <td><code>createdBy</code> is read from the security context
+        (<code>SecurityAuditHelper.currentUsername()</code>), never from
+        the request body</td>
+        <td>The OAuth2 principal carries <code>email</code> as its name
+        attribute; unauthenticated callers (migrations, batch) attribute
+        to <code>system</code>. A client is not trusted to state who
+        created a row</td>
+        </tr>
+        <tr class="odd">
         <td>Demo mode</td>
         <td><code>AppProperties.isDemoReadonly</code> (env
         <code>APP_DEMO_READONLY</code>, default <code>true</code> in

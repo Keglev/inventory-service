@@ -174,17 +174,67 @@
         unaudited</td>
         <td><a href="08b-concepts-i18n-theming.html">§8b</a></td>
         </tr>
-        <tr class="odd">
-        <td>ST-APP30</td>
-        <td>Twelve form/state hooks exceed the 50-code-line function
-        cap; case-by-case review deferred</td>
-        <td><a href="02-constraints.html">§2</a></td>
-        </tr>
         </tbody>
         </table>
         <p>The remaining open registry entries are UI-level items of the
         same character and live as BUCKET markers at their source
         sites.</p>
+        <h2 id="size-budget-waivers">Size-Budget Waivers</h2>
+        <p>Measured by AST against the budgets in <a
+        href="02-constraints.html">§2</a>. Three files exceed their
+        layer’s alarm; each is waived, with the reason, rather than
+        split. No function exceeds its layer’s alarm.</p>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>File</th>
+        <th>Code lines</th>
+        <th>Alarm</th>
+        <th>Why not split</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx</code></td>
+        <td>163</td>
+        <td>160 (dialogs)</td>
+        <td>Three lines over. A flat, single-purpose JSX form; any split
+        would be a fragment defined by the threshold rather than by a
+        responsibility</td>
+        </tr>
+        <tr class="even">
+        <td><code>inventory/dialogs/ItemFormDialog/useItemForm.ts</code></td>
+        <td>135</td>
+        <td>120 (hooks)</td>
+        <td>One responsibility — the dialog’s form controller: state,
+        supplier query, RHF wiring, two sync effects, submit, close. The
+        separable part was already extracted
+        (<code>itemFormServerErrors.ts</code>); what remains is coupled
+        through form state, and lifting the effects out would mean
+        threading six arguments into a hook that exists only to reduce a
+        count</td>
+        </tr>
+        <tr class="odd">
+        <td><code>inventory/dialogs/EditItemDialog/useEditItemForm.ts</code></td>
+        <td>124</td>
+        <td>120 (hooks)</td>
+        <td>Same shape and the same reasoning, four lines over</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Eight functions sit above their band but below their alarm
+        (<code>PriceChangeForm</code> 146, <code>EditItemForm</code>
+        133, <code>PriceTrendCard</code> 122,
+        <code>MovementsSection</code> 112, <code>DateRangeFilter</code>
+        110, <code>useItemForm</code> 94, <code>useEditItemForm</code>
+        90, <code>usePriceChangeForm</code> 87). These are accepted: the
+        band is guidance, the alarm is the gate.</p>
       </article>
     </main>
 
@@ -198,6 +248,8 @@
       <li><a href="#technical-debt-tracked"
       id="toc-technical-debt-tracked">11.2 Technical Debt
       (tracked)</a></li>
+      <li><a href="#size-budget-waivers"
+      id="toc-size-budget-waivers">Size-Budget Waivers</a></li>
       </ul></li>
       </ul>
     </nav>

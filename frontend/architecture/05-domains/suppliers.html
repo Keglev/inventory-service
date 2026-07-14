@@ -159,6 +159,11 @@
         Inventory, the supplier dialogs do not take a
         <code>readOnly</code> prop; demo restriction relies on backend
         authorization.</p>
+        <p>The dialogs send no audit fields. <code>createdBy</code> is
+        assigned server-side from the authenticated principal, so a
+        client can neither forge it nor omit it; the create form
+        previously sent nothing and the update form sent the signed-in
+        user’s email, which the backend discarded.</p>
       </article>
     </main>
 
