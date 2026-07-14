@@ -35,7 +35,7 @@ Manual inventory tracking in small manufacturing companies leads to stock discre
 - **SAP-style soft delete with a zero-quantity gate** — inventory items are deactivated, never physically deleted; deletion is blocked (HTTP 409) until stock is zero, and the full stock history is retained as an append-only audit log.
 - **Single-path OAuth2 provisioning** — Google login (OAuth2/OIDC) provisions users through one authoritative service: find-or-create plus role-healing on every token load, with an admin allow-list. No duplicated provisioning logic across the OAuth2 and OIDC flows.
 - **Structured error contract** — all API errors return a consistent `{error, message, timestamp, fieldErrors?}` envelope from a layered `@ControllerAdvice` design (business handler ordered before the global handler, no type overlap).
-- **Flyway-versioned Oracle schema** — production uses `ddl-auto: none`; Flyway owns the Oracle Autonomous Database schema end to end, connecting through wallet-based auto-login (no runtime wallet password).
+- **Flyway-versioned Oracle schema** — Flyway owns the Oracle Autonomous Database schema end to end. Production runs `ddl-auto: validate`: Hibernate checks its mappings against the migrated schema and is never allowed to alter it. The database wallet is delivered to the container at runtime as an encrypted secret and unpacked by the start script, so no credential material exists in the image or the repository.
 - **Bilingual UI with strict i18n discipline** — full English/German localization with no in-code fallback strings; missing keys fail visibly instead of silently rendering English.
 - **Client-side demo mode** — a read-only demo path that requires no backend account, so reviewers can evaluate the UI in one click.
 
@@ -44,7 +44,7 @@ Manual inventory tracking in small manufacturing companies leads to stock discre
 ## Security
 
 - Google OAuth2 login with role-based access control (`ADMIN`, `USER`), enforced at method level via `@PreAuthorize` — not just at the route level.
-- Session-based authentication with a cross-origin cookie (`SameSite=None; Secure`) — deliberately not JWT: the backend is an OAuth2 login client, not a resource server, so no tokens are exposed to the browser.
+- Session-based authentication, deliberately not JWT: the backend is an OAuth2 login client, not a resource server, so no token is ever handed to the browser. In production the frontend proxies `/api`, `/oauth2` and `/logout` server-side, which makes browser traffic same-origin; the `SameSite=None; Secure` cookie policy is retained for the direct backend host.
 - Container images are scanned with Trivy in the CI pipeline before deployment.
 
 Provisioning design and the structured error contract are covered under [Technical Highlights](#technical-highlights); the full login flow is documented in the [Security Concepts (arc42 §8)](https://keglev.github.io/inventory-service/backend/architecture/08-concepts.html) and [ADR-0007: Cross-Origin Auth Cookie](https://keglev.github.io/inventory-service/backend/architecture/09-decisions/adr-0007-cross-origin-auth-cookie.html).
@@ -76,7 +76,7 @@ Provisioning design and the structured error contract are covered under [Technic
 - Java 21, Spring Boot 4.1 (Spring Security, Spring Session, Spring Data JPA)
 - Oracle Autonomous Database (Always Free tier, wallet authentication)
 - Flyway migrations, Jackson 3, Lombok
-- JUnit 5, Mockito, JaCoCo
+- JUnit 6 (Jupiter), Mockito, JaCoCo
 
 **Frontend**
 - React 19, TypeScript, Vite
@@ -93,7 +93,7 @@ Provisioning design and the structured error contract are covered under [Technic
 
 ## Quick Start
 
-Prerequisites: **JDK 21**, **Node 20+**, **Docker** (optional, for containerized runs).
+Prerequisites: **JDK 21**, **Node 24+**, **Docker** (optional, for containerized runs).
 
 ```bash
 # Backend (requires an Oracle ADB wallet + Google OAuth2 client; see note below)
@@ -104,7 +104,7 @@ Prerequisites: **JDK 21**, **Node 20+**, **Docker** (optional, for containerized
 
 # Frontend
 cd frontend
-npm install
+npm install --legacy-peer-deps   # the flag is required; the Dockerfile uses it too
 npm run dev        # development server
 npm run build      # production build
 npx vitest run     # test suite
@@ -119,8 +119,8 @@ npx vitest run     # test suite
 
 ## Testing & Code Quality
 
-- **Backend:** 589 tests — JUnit 5 + Mockito unit tests, `@WebMvcTest` controller slices with Spring Security integration, `@DataJpaTest` persistence tests on H2 in Oracle compatibility mode.
-- **Frontend:** 1,319 tests across 225 files — Vitest + React Testing Library, covering components, hooks, API fetchers, and i18n key resolution in both locales. Line coverage: ~86%.
+- **Backend:** 613 tests — JUnit 6 + Mockito unit tests, `@WebMvcTest` controller slices with Spring Security integration, `@DataJpaTest` persistence tests on H2 in Oracle compatibility mode.
+- **Frontend:** 1,585 tests across 250 files — Vitest + React Testing Library, covering components, hooks, API fetchers, and i18n key resolution in both locales. Coverage: 98% statements, 95% branches, 99% lines.
 - **Coverage** is generated on every CI build and published:
   - [Backend coverage (JaCoCo)](https://keglev.github.io/inventory-service/backend/coverage/index.html)
   - [Frontend coverage (Vitest)](https://keglev.github.io/inventory-service/frontend/coverage/index.html)
@@ -143,7 +143,6 @@ Each push to `main` runs the numbered GitHub Actions pipeline: build and test bo
 ## Roadmap
 
 - Event-driven stock updates: publish stock-change events to Kafka behind a feature flag, with a Testcontainers-verified consumer (architecture decision record to follow).
-- Frontend architecture documentation aligned to the arc42 format already used for the backend.
 
 ---
 
