@@ -4,6 +4,7 @@
 
 ![CI Backend](https://github.com/Keglev/inventory-service/actions/workflows/1-ci-test.yml/badge.svg)
 ![CI Frontend](https://github.com/Keglev/inventory-service/actions/workflows/5-frontend-ci.yml/badge.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
 Manual inventory tracking in small manufacturing companies leads to stock discrepancies, blind spots in purchasing, and slow decisions. SmartSupplyPro replaces that with a full-stack system for inventory, supplier, and stock-history management — built from real purchasing and production-planning experience, to enterprise standards: OAuth2 authentication, versioned database migrations, a documented REST API, bilingual UI (EN/DE), and a CI/CD pipeline with published test coverage.
 
@@ -22,7 +23,8 @@ Manual inventory tracking in small manufacturing companies leads to stock discre
 7. [Testing & Code Quality](#testing--code-quality)
 8. [CI/CD & Deployment](#cicd--deployment)
 9. [Roadmap](#roadmap)
-10. [Contact](#contact)
+10. [License](#license)
+11. [Contact](#contact)
 
 ---
 
@@ -142,6 +144,13 @@ Each push to `main` runs the numbered GitHub Actions pipeline: build and test bo
 
 - Event-driven stock updates: publish stock-change events to Kafka behind a feature flag, with a Testcontainers-verified consumer (architecture decision record to follow).
 - Frontend architecture documentation aligned to the arc42 format already used for the backend.
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE). Free to use, modify, and distribute,
+including commercially, with attribution.
 
 ---
 

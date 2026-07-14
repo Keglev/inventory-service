@@ -33,6 +33,14 @@
   <name>Inventory Service</name>
   <description>Inventory Service Pro</description>
 
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://github.com/Keglev/inventory-service/blob/main/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <!--
     Central overrides (kept minimal, only where needed):
       - tomcat.version            : patched for reported CVEs
