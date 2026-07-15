@@ -30,6 +30,13 @@ const locales = {
 
 export type SupportedLocale = keyof typeof locales; // 'en' | 'de'
 
+/**
+ * Vertical padding for compact table cells, in px. Deliberately 6 — one notch
+ * tighter than the 8px spacing step — to maximise data-grid row density without
+ * clipping text. Off the spacing scale by design.
+ */
+const TABLE_CELL_PADDING_Y = 6;
+
 export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark' = 'light') => {
   const base = createTheme(
     {
@@ -57,8 +64,7 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
         MuiAutocomplete: { defaultProps: { size: 'small' } },
         MuiTable: { defaultProps: { size: 'small' } },
         MuiTableCell: {
-          // BUCKET: magic pixel values (6) not on the spacing scale — token-ize (CM-APP1)
-          styleOverrides: { root: { paddingTop: 6, paddingBottom: 6 } },
+          styleOverrides: { root: { paddingTop: TABLE_CELL_PADDING_Y, paddingBottom: TABLE_CELL_PADDING_Y } },
         },
         MuiListItem: { defaultProps: { dense: true } },
         MuiListItemButton: { defaultProps: { dense: true } },
@@ -95,13 +101,9 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
         },
 
         MuiCssBaseline: {
+          // WHY: scrollbar styling is owned by global.css (loaded before React, shell-independent); only the body background reset lives here.
           styleOverrides: {
             body: { backgroundImage: 'none' },
-            '*::-webkit-scrollbar': { height: 8, width: 8 },
-            '*::-webkit-scrollbar-thumb': {
-              borderRadius: 8,
-              background: 'rgba(0,0,0,0.28)',
-            },
           },
         },
 

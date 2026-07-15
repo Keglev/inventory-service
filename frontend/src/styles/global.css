@@ -22,7 +22,7 @@ html, body, #root {
   padding: 0;
 }
 
-/* BUCKET: webkit scrollbar rules are also defined in MuiCssBaseline in theme/index.ts — consolidate to one location (CB-APP15) */
+/* WHY: scrollbar styling lives here as the single source — global.css loads before React and applies regardless of which MUI shell is mounted, so scrollbars stay consistent even outside a themed shell. Not duplicated in the theme. */
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -48,7 +48,7 @@ html, body, #root {
   margin: -1px;
 }
 
-/* BUCKET: !important overrides in print rules — audit whether theme or MUI already handles print backgrounds (CM-APP2) */
+/* WHY: MUI CssBaseline ships no print baseline, so these rules are the only print handling. !important is required to override the palette-driven background and text colors MUI injects on body and links at higher specificity. */
 @media print {
   body {
     background: white !important;
