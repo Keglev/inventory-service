@@ -1,69 +1,54 @@
-# React + TypeScript + Vite
+# SmartSupplyPro — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Single-page application for the SmartSupplyPro inventory management system.
+Part of the [inventory-service](https://github.com/Keglev/inventory-service)
+monorepo; see the repository root README for the full-stack overview and the
+[architecture documentation](https://keglev.github.io/inventory-service/) for
+design detail.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19.1 + TypeScript 6
+- Vite 7 (build and dev server)
+- MUI 7 (component library and theming)
+- TanStack Query 5 (server state)
+- React Router 7 (routing)
+- Axios (HTTP client)
+- react-i18next (English and German; German is the default display language)
+- Vitest 4 + Testing Library (unit and component tests)
 
-## Expanding the ESLint configuration
+Requires Node >= 24.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting started
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Install dependencies and start the dev server:
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+    npm install
+    npm run dev
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+The dev server proxies API calls to the backend; set `VITE_API_BASE` to point
+at a running backend instance.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `npm run dev` — start the Vite dev server with HMR
+- `npm run build` — type-check (`tsc -b`) and produce a production build
+- `npm run preview` — serve the production build locally
+- `npm run lint` — run ESLint
+- `npm test` — run the Vitest suite
+- `npm run docs` — generate the TypeDoc API reference
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Testing and coverage
+
+Tests run on Vitest with Testing Library. The coverage report is published
+automatically and available at
+[the coverage site](https://keglev.github.io/inventory-service/frontend/coverage/).
+
+## Deployment
+
+The frontend deploys to Koyeb automatically on push to `main`. The live
+application is at <https://www.smartsupplypro.de>.
+
+## License
+
+Released under the [MIT License](../LICENSE).
