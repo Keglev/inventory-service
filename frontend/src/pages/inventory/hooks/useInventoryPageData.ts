@@ -4,8 +4,9 @@
  *
  * @summary
  * Inventory data orchestration: composes the api-layer suppliers query
- * and inventory page fetch, applies client-side filters, and exposes
- * column definitions and row styling for the DataGrid.
+ * and inventory page fetch, forwards the search, supplier, and below-minimum
+ * filters (with pagination and sorting) to the server, and exposes column
+ * definitions and row styling for the DataGrid.
  *
  * @enterprise
  * - Composition over duplication. This hook composes the api-layer

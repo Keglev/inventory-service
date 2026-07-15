@@ -17,8 +17,9 @@
  *   only when both `from` and `to` are present; otherwise defaults
  *   apply and the quick selector is set to '180'.
  * - Section is read from the route segment `/analytics/:section?`.
- *   Valid values: 'overview' | 'pricing' | 'inventory' | 'finance'.
- *   Any unknown value falls back to 'overview'.
+ *   Valid values: 'overview' | 'movements' | 'pricing' | 'inventory' |
+ *   'finance', plus 'employees' when the employees view is enabled. Any
+ *   unknown value falls back to 'overview'.
  * - The suppliers list is fetched once with a 5-minute staleTime and
  *   is reused by both the supplier filter dropdown and the price-trend
  *   item search inside PriceTrendCard.

@@ -115,8 +115,8 @@ public class SupplierServiceImpl implements SupplierService {
     /**
      * {@inheritDoc}
      *
-     * <p>Deletion is blocked if any inventory items (active or historical)
-     * reference this supplier, to prevent orphaned stock records.</p>
+     * <p>Deletion is blocked when any inventory item with a positive on-hand
+     * quantity references this supplier, to prevent orphaned stock records.</p>
      */
     @Override
     public void delete(String id) {

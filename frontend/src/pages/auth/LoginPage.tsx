@@ -9,8 +9,10 @@
  *
  * @enterprise
  * - SSO-only by design: removes credential-handling responsibility from the
- *   frontend and shifts it to the IdP. Demo Mode is a client-only read-only
- *   session and does not call the backend.
+ *   frontend and shifts it to the IdP. Demo Mode is a client-only session with
+ *   no server-side token: loginAsDemo issues no request, and the demo session's
+ *   own data calls run unauthenticated (the client tolerates their expected 401s
+ *   instead of redirecting to login).
  * - Renders an error banner when ?error= is present in the URL (typical when
  *   the user cancels Google consent or the OAuth2 callback fails).
  *
