@@ -4,7 +4,7 @@
  *
  * @summary
  * Shared type surface for the DeleteItemDialog feature module. Centralizes
- * dialog props, content props, and the orchestrator-hook return shape.
+ * the content props and the orchestrator-hook return shape.
  *
  * @enterprise
  * - UseDeleteItemDialogReturn is the contract every view and field
@@ -13,30 +13,12 @@
  * - Query types are derived via ReturnType<typeof useSuppliersQuery>
  *   rather than re-declared, so a backend or hook signature change
  *   propagates here automatically.
- * - readOnly on DeleteItemDialogProps is the demo-mode flag: the form
- *   flow stays interactive but the final DELETE call is blocked at the
- *   handler.
  */
 
 import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
 import type { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
 import type { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
 import type { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
-
-/**
- * Props for DeleteItemDialog component
- * Controls visibility and callbacks for the dialog lifecycle
- */
-export interface DeleteItemDialogProps {
-  /** Whether dialog is open */
-  open: boolean;
-  /** Called when user closes dialog */
-  onClose: () => void;
-  /** Called after successful item deletion to refresh parent data */
-  onItemDeleted: () => void;
-  /** Demo mode: allows flow but prevents actual deletion */
-  readOnly?: boolean;
-}
 
 export interface DeleteItemContentProps {
   state: UseDeleteItemDialogReturn; // All state from hook
