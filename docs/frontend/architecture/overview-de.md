@@ -36,7 +36,7 @@ und ein **zweisprachiges Nutzererlebnis mit Deutsch als Erstsprache**.
 5. **Context für globalen Client-State** — Auth, Settings, Toast und Hilfe, Zugriff über Hooks, die außerhalb ihres Providers werfen
 6. **German-First-i18n** — localStorage wird beim Erstbesuch mit `de` vorbelegt; keine Fallback-Strings im Code
 7. **Dialoggetriebene Mutationen** — Create-/Edit-/Delete-Flows sind isolierte Dialog-Container je Domäne
-8. **Testbarkeit** — 1.319 Vitest-Tests in 225 Dateien (~86 % Zeilenabdeckung) über Unit-, Komponenten- und Routing-Contract-Ebenen
+8. **Testbarkeit** — ~1.600 Vitest-Tests in 251 Dateien (~99 % Zeilenabdeckung) über Unit-, Komponenten- und Routing-Contract-Ebenen
 
 ## Systemarchitektur
 

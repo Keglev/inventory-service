@@ -36,7 +36,7 @@ and **a German-first bilingual user experience**.
 5. **Context for global client state** — auth, settings, toast, and help, accessed through throwing hooks
 6. **German-first i18n** — localStorage pre-seeded to `de` on first visit; no fallback strings in code
 7. **Dialog-driven mutations** — create/edit/delete flows are isolated dialog containers per domain
-8. **Testability** — 1,319 Vitest tests across 225 files (~86% line coverage) spanning unit, component, and routing-contract layers
+8. **Testability** — ~1,600 Vitest tests across 251 files (~99% line coverage) spanning unit, component, and routing-contract layers
 
 ## System architecture
 

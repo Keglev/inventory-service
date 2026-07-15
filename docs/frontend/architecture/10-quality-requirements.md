@@ -25,7 +25,7 @@ graph LR
 | Property | Enforcement | Where |
 |---|---|---|
 | Every push builds and passes the full suite | `vitest --run --coverage` in workflow 5; type-check via `tsc -b` in the same workflow's image build | [§7](07-deployment.md) |
-| ~1,300 tests / ~86% line coverage, published per build | Vitest coverage to GitHub Pages | [§8c](08c-concepts-testing.md) |
+| ~1,600 tests / ~99% line coverage, published per build | Vitest coverage to GitHub Pages | [§8c](08c-concepts-testing.md) |
 | Translation keys valid at compile time | `resources.d.ts` typing from the EN JSON | [§8b](08b-concepts-i18n-theming.md) |
 | Missing i18n keys are visible bugs | No-fallback policy; keys added to both locales | [§8b](08b-concepts-i18n-theming.md) |
 | Mutations refresh exactly what they change | Query-family invalidation conventions | [§8](08-concepts.md) |

@@ -120,7 +120,7 @@ npx vitest run     # test suite
 ## Testing & Code Quality
 
 - **Backend:** 613 tests — JUnit 6 + Mockito unit tests, `@WebMvcTest` controller slices with Spring Security integration, `@DataJpaTest` persistence tests on H2 in Oracle compatibility mode.
-- **Frontend:** 1,585 tests across 250 files — Vitest + React Testing Library, covering components, hooks, API fetchers, and i18n key resolution in both locales. Coverage: 98% statements, 95% branches, 99% lines.
+- **Frontend:** 1,608 tests across 251 files — Vitest + React Testing Library, covering components, hooks, API fetchers, and i18n key resolution in both locales. Coverage: 99% statements, 97% branches, 99% lines.
 - **Coverage** is generated on every CI build and published:
   - [Backend coverage (JaCoCo)](https://keglev.github.io/inventory-service/backend/coverage/index.html)
   - [Frontend coverage (Vitest)](https://keglev.github.io/inventory-service/frontend/coverage/index.html)
