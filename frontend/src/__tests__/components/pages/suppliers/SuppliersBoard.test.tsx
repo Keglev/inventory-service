@@ -279,4 +279,26 @@ describe('SuppliersBoard', () => {
     expect(toolbarProps.editEnabled).toBe(expected.editEnabled);
     expect(toolbarProps.deleteEnabled).toBe(expected.deleteEnabled);
   });
+
+  it('closes each dialog by clearing its open flag', () => {
+    renderBoard();
+
+    // The board owns the close handlers it hands to SuppliersDialogs; each one
+    // simply flips the matching open flag off. Invoke them through the captured
+    // props rather than reaching into the component.
+    const dialogProps = spies.SuppliersDialogs.mock.calls[0]?.[0] as {
+      onCloseCreate: () => void;
+      onCloseEdit: () => void;
+      onCloseDelete: () => void;
+    };
+
+    dialogProps.onCloseCreate();
+    expect(runtime.state.setOpenCreate).toHaveBeenCalledWith(false);
+
+    dialogProps.onCloseEdit();
+    expect(runtime.state.setOpenEdit).toHaveBeenCalledWith(false);
+
+    dialogProps.onCloseDelete();
+    expect(runtime.state.setOpenDelete).toHaveBeenCalledWith(false);
+  });
 });

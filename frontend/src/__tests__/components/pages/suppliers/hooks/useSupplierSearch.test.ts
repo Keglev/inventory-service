@@ -62,6 +62,17 @@ describe('useSupplierSearch', () => {
     expect(result.current.searchLoading).toBe(true);
   });
 
+  it('yields an empty result list before the query has resolved', () => {
+    // useSupplierSearchQuery returns undefined data until the first fetch settles;
+    // the adapter must present that as an empty array, never undefined.
+    mocks.useSupplierSearchQuery.mockReturnValue({ data: undefined, isFetching: true });
+
+    const { result } = renderHook(() => useSupplierSearch());
+
+    expect(result.current.searchResults).toEqual([]);
+    expect(result.current.searchLoading).toBe(true);
+  });
+
   it('resets the query', () => {
     const { result } = renderHook(() => useSupplierSearch());
 

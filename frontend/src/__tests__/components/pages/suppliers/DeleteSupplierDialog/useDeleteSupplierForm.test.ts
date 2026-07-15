@@ -172,4 +172,44 @@ describe('useDeleteSupplierForm', () => {
     expect(result.current.error).toEqual(expect.any(String));
     expect(result.current.isDeleting).toBe(false);
   });
+
+  it('when the delete request throws, surfaces an error and clears loading', async () => {
+    // A rejected promise (network drop, unexpected throw) is a different path from a
+    // resolved { success: false } response: it lands in the catch arm.
+    const onDeleted = vi.fn();
+    mocks.deleteSupplier.mockRejectedValue(new Error('network down'));
+
+    const { result } = renderHook(() => useDeleteSupplierForm(onDeleted));
+
+    act(() => {
+      result.current.handleSelectSupplier(supplier);
+    });
+
+    await act(async () => {
+      await result.current.handleConfirmDelete();
+    });
+
+    expect(onDeleted).not.toHaveBeenCalled();
+    expect(result.current.error).toEqual(expect.any(String));
+    expect(result.current.isDeleting).toBe(false);
+  });
+
+  it('resetForm clears selection, error, confirmation and resets search', () => {
+    const { result } = renderHook(() => useDeleteSupplierForm(vi.fn()));
+
+    act(() => {
+      result.current.handleSelectSupplier(supplier);
+    });
+    expect(result.current.selectedSupplier).toEqual(supplier);
+
+    act(() => {
+      result.current.resetForm();
+    });
+
+    expect(result.current.selectedSupplier).toBeNull();
+    expect(result.current.showConfirmation).toBe(false);
+    expect(result.current.error).toBeNull();
+    // resetSearch is called once on select and once on reset.
+    expect(mocks.resetSearch).toHaveBeenCalledTimes(2);
+  });
 });

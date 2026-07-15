@@ -234,4 +234,19 @@ describe('DeleteSupplierDialog', () => {
     await user.click(screen.getByRole('button', { name: 'Confirm Delete' }));
     expect(formState.handleConfirmDelete).toHaveBeenCalledTimes(1);
   });
+
+  it('on successful deletion, toasts, notifies the parent and closes', () => {
+    const onClose = vi.fn();
+    const onSupplierDeleted = vi.fn();
+    renderDialog({ onClose, onSupplierDeleted });
+
+    // The dialog builds the hook with an onDeleted callback (asserted above as a
+    // function). Invoking it is what runs the success side effects the component owns.
+    const onDeleted = mocks.useDeleteSupplierForm.mock.calls[0]?.[0] as () => void;
+    onDeleted();
+
+    expect(mocks.toast).toHaveBeenCalledWith('Supplier removed from database', 'success');
+    expect(onSupplierDeleted).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
 });

@@ -290,6 +290,19 @@ describe('EditSupplierDialog', () => {
     expect(mocks.confirmation).toHaveBeenCalledWith(expect.objectContaining({ open: true }));
   });
 
+  it('cancelling the confirmation step closes it without resetting the whole form', () => {
+    const form = createEditSupplierDialogForm({ showConfirmation: true, selectedSupplier: baseSupplier });
+    renderDialog(form);
+
+    // The container passes the confirmation its own onCancel: step back to the edit
+    // form by turning the confirmation off, without discarding the pending edit.
+    const confirmationProps = mocks.confirmation.mock.calls[0]?.[0] as { onCancel: () => void };
+    confirmationProps.onCancel();
+
+    expect(form.setShowConfirmation).toHaveBeenCalledWith(false);
+    expect(form.resetForm).not.toHaveBeenCalled();
+  });
+
   it('invokes success callback returned to form hook', () => {
     const onClose = vi.fn();
     const onSupplierUpdated = vi.fn();
