@@ -140,7 +140,7 @@ describe('SettingsProvider', () => {
     consoleSpy.mockRestore();
   });
 
-  it('persists preference updates and syncs language changes', async () => {
+  it('persists preference updates and leaves formats unchanged on a language switch', async () => {
     getSystemInfoMock.mockResolvedValue({});
     const user = userEvent.setup();
 
@@ -153,7 +153,8 @@ describe('SettingsProvider', () => {
       expect.objectContaining({ dateFormat: 'YYYY-MM-DD' })
     );
 
-    // Trigger the language-sync effect by updating the i18n language and re-rendering.
+    // A language change must not rewrite formats: the chosen date format and the
+    // stored number format both survive the switch to German.
     i18nMock.language = 'de';
     rerender(
       <SettingsProvider>
@@ -161,10 +162,8 @@ describe('SettingsProvider', () => {
       </SettingsProvider>
     );
 
-    // Language sync only normalizes the common formats (MM/DD/YYYY <-> DD.MM.YYYY).
-    // Custom formats (e.g., YYYY-MM-DD) are intentionally preserved.
     await waitFor(() => expect(screen.getByTestId('date')).toHaveTextContent('YYYY-MM-DD'));
-    expect(screen.getByTestId('number')).toHaveTextContent('DE');
+    expect(screen.getByTestId('number')).toHaveTextContent('EN_US');
     expect(screen.getByTestId('density')).toHaveTextContent('comfortable');
 
     await user.click(screen.getByRole('button', { name: 'reset' }));
@@ -173,7 +172,7 @@ describe('SettingsProvider', () => {
     expect(screen.getByTestId('date')).toHaveTextContent('DD.MM.YYYY');
   });
 
-  it('converts US formats to German ones when the language switches to de', async () => {
+  it('keeps US formats when the language switches to de', async () => {
     getSystemInfoMock.mockResolvedValue({});
     // Stored prefs carry the US defaults (from beforeEach): MM/DD/YYYY + EN_US.
     const { rerender } = renderProvider();
@@ -187,11 +186,12 @@ describe('SettingsProvider', () => {
       </SettingsProvider>
     );
 
-    await waitFor(() => expect(screen.getByTestId('date')).toHaveTextContent('DD.MM.YYYY'));
-    expect(screen.getByTestId('number')).toHaveTextContent('DE');
+    // A German UI with US formats is a valid, preserved combination.
+    await waitFor(() => expect(screen.getByTestId('date')).toHaveTextContent('MM/DD/YYYY'));
+    expect(screen.getByTestId('number')).toHaveTextContent('EN_US');
   });
 
-  it('converts German formats back to US ones when the language switches to en', async () => {
+  it('keeps German formats when the language switches to en', async () => {
     getSystemInfoMock.mockResolvedValue({});
     i18nMock.language = 'de';
     storageMocks.loadPreferencesFromStorage.mockReturnValue({
@@ -211,7 +211,8 @@ describe('SettingsProvider', () => {
       </SettingsProvider>
     );
 
-    await waitFor(() => expect(screen.getByTestId('date')).toHaveTextContent('MM/DD/YYYY'));
-    expect(screen.getByTestId('number')).toHaveTextContent('EN_US');
+    // An English UI with German formats is a valid, preserved combination.
+    await waitFor(() => expect(screen.getByTestId('date')).toHaveTextContent('DD.MM.YYYY'));
+    expect(screen.getByTestId('number')).toHaveTextContent('DE');
   });
 });

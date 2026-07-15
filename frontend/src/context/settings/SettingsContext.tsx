@@ -13,9 +13,10 @@
  * - SINGLE production consumer of getSystemInfo() (utils/systemInfo), which
  *   returns only database/environment/status — nothing fabricated. This file
  *   applies a SECOND layer of 'unknown' fallbacks on top.
- * - Language-sync effect: on i18n.language change, format defaults are
- *   silently rewritten to match locale. KNOWN BUGS — see CB-APP33 (overwrites
- *   explicit user choice) and CB-APP34 (in-memory only, not persisted).
+ * - Format preferences are language-independent: the i18n language sets the
+ *   initial default (first load) and the reset baseline only. Once chosen, a
+ *   date/number format is sticky and a language change never rewrites it — a
+ *   German UI with a US date format is a valid, persisted combination.
  * - On /api/health fetch failure, systemInfo falls back to 'unknown' values
  *   rather than asserting a guessed environment.
  * - Consumed via hooks/useSettings.ts — the factory-built consumer hook with
@@ -79,24 +80,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     fetchSystemInfo();
   }, []);
-
-  /** Sync format defaults to current i18n language on language change. */
-  React.useEffect(() => {
-    setUserPreferencesState((prev) => {
-      const updated = { ...prev };
-      // BUCKET: silently overwrites explicit user-chosen formats (e.g. ISO YYYY-MM-DD survives but MM/DD/YYYY in a German UI gets overwritten on language change) — explicit preferences should be sticky (CB-APP33)
-      // BUCKET: mutates state only; does NOT call savePreferencesToStorage, so next mount reloads old prefs from storage until something else triggers persistence (CB-APP34)
-      if (i18n.language.startsWith('de')) {
-        if (updated.dateFormat === 'MM/DD/YYYY') updated.dateFormat = 'DD.MM.YYYY';
-        if (updated.numberFormat === 'EN_US') updated.numberFormat = 'DE';
-      } else {
-        if (updated.dateFormat === 'DD.MM.YYYY') updated.dateFormat = 'MM/DD/YYYY';
-        if (updated.numberFormat === 'DE') updated.numberFormat = 'EN_US';
-      }
-      
-      return updated;
-    });
-  }, [i18n.language]);
 
   /** Update preferences with partial merge; persists to localStorage. */
   const setUserPreferences = (prefs: Partial<UserPreferences>) => {

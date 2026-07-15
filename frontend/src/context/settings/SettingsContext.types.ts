@@ -43,8 +43,8 @@ export type NumberFormat = 'DE' | 'EN_US';
 export type TableDensity = 'comfortable' | 'compact';
 
 /**
- * User preferences persisted to localStorage
- * These are user-customizable settings synced with language changes
+ * User preferences persisted to localStorage.
+ * Language-independent once set; the i18n language only seeds initial defaults.
  */
 export interface UserPreferences {
   dateFormat: DateFormat;
