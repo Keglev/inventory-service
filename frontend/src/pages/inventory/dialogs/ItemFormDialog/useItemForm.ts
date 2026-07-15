@@ -35,6 +35,11 @@
  * - Demo mode (readOnly) short-circuits before the mutation so a demo
  *   user sees the same disabled-action message regardless of validation
  *   state.
+ *
+ * Size note: over the 120-line hook alarm. WAIVED — one cohesive form lifecycle
+ * (state, suppliers query, two sync effects, submit, close); the error mapping
+ * (applyItemFormServerError) and the default values (buildItemFormDefaults) are
+ * already factored out, and no separable second responsibility remains.
  */
 
 import * as React from 'react';
@@ -50,6 +55,21 @@ import type { SupplierOption } from '../../../../api/analytics/types';
 import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
 import { DEFAULT_MIN_QUANTITY } from '../../../../config/inventoryPolicy';
 
+/**
+ * Builds the react-hook-form default values for the item form from an optional
+ * initial row. Single source for both the useForm initializer and the
+ * reset-on-open effect, so the two cannot drift.
+ */
+function buildItemFormDefaults(initial?: InventoryRow | null): UpsertItemForm {
+  return {
+    name: initial?.name ?? '',
+    code: initial?.code ?? '',
+    supplierId: (initial?.supplierId as UpsertItemForm['supplierId']) ?? '',
+    quantity: initial?.onHand ?? 0,
+    price: 0,
+    reason: 'INITIAL_STOCK',
+  };
+}
 
 /**
  * Complete item form state and handlers
@@ -145,14 +165,7 @@ export function useItemForm({
     watch,
   } = useForm<UpsertItemForm>({
     resolver: zodResolver(itemFormSchema),
-    defaultValues: {
-      name: initial?.name ?? '',
-      code: initial?.code ?? '',
-      supplierId: initial?.supplierId ?? '',
-      quantity: initial?.onHand ?? 0,
-      price: 0,
-      reason: 'INITIAL_STOCK',
-    },
+    defaultValues: buildItemFormDefaults(initial),
   });
 
   // ================================
@@ -175,14 +188,7 @@ export function useItemForm({
    */
   React.useEffect(() => {
     if (!isOpen) return;
-    reset({
-      name: initial?.name ?? '',
-      code: initial?.code ?? '',
-      supplierId: (initial?.supplierId as UpsertItemForm['supplierId']) ?? '',
-      quantity: initial?.onHand ?? 0,
-      price: 0,
-      reason: 'INITIAL_STOCK',
-    });
+    reset(buildItemFormDefaults(initial));
     setFormError(null);
     clearErrors();
   }, [isOpen, initial, reset, clearErrors]);

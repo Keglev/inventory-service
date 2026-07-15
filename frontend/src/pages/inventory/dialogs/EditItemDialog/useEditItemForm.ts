@@ -26,6 +26,10 @@
  *   different from itemFormSchema (create/upsert, strict 2-value reason
  *   enum) and quantityAdjustSchema (loose reason string) -- the CB-E
  *   asymmetry does not surface in this file.
+ *
+ * Size note: over the 120-line hook alarm. WAIVED per the single-hook rationale
+ * above — one cohesive rename-form lifecycle (selection state, the three queries,
+ * two effects, one mutation); nothing separable to extract.
  */
 
 import * as React from 'react';
