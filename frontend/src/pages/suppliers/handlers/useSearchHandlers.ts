@@ -43,7 +43,7 @@ export function useSearchHandlers(state: UseSuppliersBoardStateReturn) {
       state.setSelectedSearchResult(supplier);
       state.setSelectedId(supplier.id);
       state.setPaginationModel({ ...state.paginationModel, page: 0 });
-      state.setSearchQuery(supplier.name ?? '');
+      state.setSearchQuery(supplier.name);
     },
     [state]
   );

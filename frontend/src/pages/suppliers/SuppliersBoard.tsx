@@ -76,17 +76,18 @@ const SuppliersBoard: React.FC = () => {
   // Data Fetching & Processing
   // =====================
   const data = useDataFetchingLogic(state);
-  const hasSelectedFromSearch = state.selectedSearchResult !== null;
-  
-  // Determine what to display:
-  // 1. If user selected a result from search dropdown: show only that selected supplier
-  // 2. If showAllSuppliers is true: show paginated suppliers
-  // 3. Otherwise: show nothing
-  const displayRows = hasSelectedFromSearch 
-    ? (state.selectedSearchResult ? [state.selectedSearchResult] : [])
+  const selectedResult = state.selectedSearchResult;
+
+  // What the grid shows, in priority order:
+  // 1. a supplier picked from the search dropdown -> only that one row
+  // 2. otherwise, if "show all" is on -> the paginated page
+  // 3. otherwise -> nothing
+  // A selected result is non-null by construction here, so it needs no further guard.
+  const displayRows = selectedResult
+    ? [selectedResult]
     : (state.showAllSuppliers ? data.suppliers : []);
-  const displayRowCount = hasSelectedFromSearch 
-    ? (state.selectedSearchResult ? 1 : 0)
+  const displayRowCount = selectedResult
+    ? 1
     : (state.showAllSuppliers ? data.total : 0);
 
   const { setOpenCreate, setOpenEdit, setOpenDelete } = state;
@@ -140,7 +141,7 @@ const SuppliersBoard: React.FC = () => {
         </Box>
 
         {/* Suppliers Table */}
-        {!state.showAllSuppliers && !hasSelectedFromSearch ? (
+        {!state.showAllSuppliers && !selectedResult ? (
           <Paper
             variant="outlined"
             sx={{
