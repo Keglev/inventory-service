@@ -65,7 +65,7 @@ Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialA
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService.WacIssue,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,EmployeeAnalyticsService,3,291,4,19,1,48,4,15,0,7
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,AnalyticsConverterHelper,7,206,6,38,0,32,6,25,0,9
-Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,StockAnalyticsService,5,360,4,16,1,74,5,21,1,15
+Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,StockAnalyticsService,5,382,4,16,1,78,5,22,1,16
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService.FinancialBuckets,0,21,0,0,0,7,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService.WacState,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,MonthlyStockMovementDTO,0,12,0,0,0,1,0,1,0,1
