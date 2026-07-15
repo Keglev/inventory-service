@@ -103,6 +103,33 @@ describe('EditSupplierConfirmation', () => {
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
+  it('shows a translated placeholder when a field goes from empty to filled, and back', () => {
+    // These are the branches a German user actually hits when a supplier had no
+    // contact details: the placeholder must be a translated key, never a literal.
+    const fromEmpty: SupplierRow = supplierRow({ contactName: null, phone: null, email: null });
+    const toValues: EditSupplierForm = editSupplierChanges({
+      contactName: 'New Contact',
+      phone: '555-6000',
+      email: 'new@acme.com',
+    });
+
+    renderConfirmation({ supplier: fromEmpty, changes: toValues });
+
+    expect(screen.getByText('(empty) → New Contact')).toBeInTheDocument();
+    expect(screen.getByText('(empty) → 555-6000')).toBeInTheDocument();
+    expect(screen.getByText('(empty) → new@acme.com')).toBeInTheDocument();
+  });
+
+  it('shows the placeholder on the after-side when a field is cleared', () => {
+    const cleared: EditSupplierForm = editSupplierChanges({ contactName: '', phone: '', email: '' });
+
+    renderConfirmation({ changes: cleared });
+
+    expect(screen.getByText('Old Contact → (empty)')).toBeInTheDocument();
+    expect(screen.getByText('555-5000 → (empty)')).toBeInTheDocument();
+    expect(screen.getByText('old@acme.com → (empty)')).toBeInTheDocument();
+  });
+
   it('hides change summary boxes when values are unchanged', () => {
     const unchanged: EditSupplierForm = {
       supplierId: 'supplier-1',

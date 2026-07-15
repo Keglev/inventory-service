@@ -57,7 +57,8 @@
   },
   "confirmations": {
     "changesCannotBeReversed": "Diese Änderungen können nicht rückgängig gemacht werden.",
-    "changes": "Änderungen"
+    "changes": "Änderungen",
+    "emptyValue": "(leer)"
   },
   "info": "Doppelklick zum Bearbeiten, verwenden Sie Schaltflächen zum Löschen",
   "empty": {

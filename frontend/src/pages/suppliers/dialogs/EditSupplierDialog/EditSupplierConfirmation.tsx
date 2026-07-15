@@ -130,8 +130,8 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
                     {t('suppliers:table.contactName')}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {supplier.contactName || '(empty)'} →{' '}
-                    {changes?.contactName || '(empty)'}
+                    {supplier.contactName || t('suppliers:confirmations.emptyValue')} →{' '}
+                    {changes?.contactName || t('suppliers:confirmations.emptyValue')}
                   </Typography>
                 </Box>
               )}
@@ -142,7 +142,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
                     {t('suppliers:table.phone')}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {supplier.phone || '(empty)'} → {changes?.phone || '(empty)'}
+                    {supplier.phone || t('suppliers:confirmations.emptyValue')} → {changes?.phone || t('suppliers:confirmations.emptyValue')}
                   </Typography>
                 </Box>
               )}
@@ -153,7 +153,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
                     {t('suppliers:table.email')}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {supplier.email || '(empty)'} → {changes?.email || '(empty)'}
+                    {supplier.email || t('suppliers:confirmations.emptyValue')} → {changes?.email || t('suppliers:confirmations.emptyValue')}
                   </Typography>
                 </Box>
               )}

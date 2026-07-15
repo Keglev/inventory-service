@@ -57,7 +57,8 @@
   },
   "confirmations": {
     "changesCannotBeReversed": "These changes cannot be reversed.",
-    "changes": "Changes"
+    "changes": "Changes",
+    "emptyValue": "(empty)"
   },
   "info": "Double-click to edit, use action buttons to delete",
   "empty": {
