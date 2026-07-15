@@ -14,14 +14,13 @@
  *   mismatches surface as runtime missing-key warnings, not compile errors.
  * - Cross-boundary import: reaches out of src/ into public/ — intentional; the
  *   English JSON files are the typing contract, not an implementation detail.
- * - Coupled to I18N_NAMESPACES in i18n/index.ts — both must be edited together
- *   when adding or removing a namespace. Tracked under CB-APP23.
+ * - Coupled to I18N_NAMESPACES in i18n/index.ts; a compile-time guard there
+ *   enforces that both enumerate the same namespaces, so a one-sided edit fails tsc.
  * - .d.ts file: no runtime emit; comment-only changes are safe.
  */
 
 import 'i18next';
 
-// BUCKET: eleven imports + eleven typed keys duplicate the I18N_NAMESPACES list in i18n/index.ts; investigate deriving the typed shape from a mapped type over the namespace tuple (CB-APP23)
 import common from '../../public/locales/en/common.json';
 import analytics from '../../public/locales/en/analytics.json';
 import auth from '../../public/locales/en/auth.json';

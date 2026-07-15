@@ -11,7 +11,7 @@
  *   No production code imports from this module's named exports; I18N_LS_KEY and
  *   I18N_NAMESPACES exist as test-pinning surface only (consumed by
  *   __tests__/unit/i18n/i18n.test.ts).
- * - Translation JSON lives in frontend/public/locales/{en,de}/<ns>.json. Nine
+ * - Translation JSON lives in frontend/public/locales/{en,de}/<ns>.json. Eleven
  *   namespaces match I18N_NAMESPACES exactly. EN files double as the typing source
  *   via resources.d.ts (see that file's header).
  * - German-first impression: on first visit, localStorage is pre-seeded with 'de'
@@ -32,9 +32,18 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 /** LocalStorage key used by i18next to persist the selected language. */
 export const I18N_LS_KEY = 'i18nextLng';
 
-// BUCKET: namespace list duplicated in resources.d.ts (11 imports + 11 typed resources keys); risk of drift on add/remove (CB-APP23)
 /** Namespaces we maintain as separate JSON files. */
 export const I18N_NAMESPACES = ['common', 'auth', 'system', 'analytics', 'inventory', 'errors', 'suppliers', 'footer', 'help', 'legal', 'landing'] as const;
+
+// Compile-time drift guard: the runtime namespace tuple above and the typed
+// `resources` declaration in resources.d.ts must enumerate the same namespaces.
+// Adding or removing a namespace in only one place fails the assignment below at tsc time.
+type _NamespaceTuple = (typeof I18N_NAMESPACES)[number];
+type _TypedNamespace = keyof import('i18next').CustomTypeOptions['resources'];
+type _ExactMatch<A, B> = [A] extends [B] ? ([B] extends [A] ? true : never) : never;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _namespacesMatchResources: _ExactMatch<_NamespaceTuple, _TypedNamespace> = true;
+void _namespacesMatchResources; // WHY: satisfies noUnusedLocals — this binding exists only for its type-check side effect.
 
 /**
  * Force initial language to DE unless the user already chose one.
@@ -89,8 +98,9 @@ i18n
   // Explicitly ensure all namespaces are loaded (might be async)
   i18n.loadNamespaces(I18N_NAMESPACES as unknown as string[]);
 
-  // BUCKET: dev tap is useful — drop the "remove later" instruction or remove the tap (CM-APP6)
-  // TEMP: expose for debugging in dev (remove later)
+  // WHY: expose the initialized i18next singleton on window in dev only, so the
+  // active language and loaded translations can be inspected from the console.
+  // Guarded by import.meta.env.DEV — never present in production builds.
   if (import.meta.env.DEV) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).i18next = i18n;
