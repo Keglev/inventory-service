@@ -47,10 +47,21 @@ export const HelpTopics = {
 export type HelpTopicsType = (typeof HelpTopics)[keyof typeof HelpTopics];
 
 /**
+ * i18n keys (common namespace) used as navigation labels. Typing these instead
+ * of plain strings makes t(item.label) key-checked at compile time — a renamed
+ * or removed key fails the build rather than rendering a raw key at runtime.
+ */
+export type NavLabelKey =
+  | 'nav.dashboard'
+  | 'nav.inventory'
+  | 'nav.suppliers'
+  | 'nav.analytics';
+
+/**
  * Navigation item configuration.
  *
  * @property route - Target route path
- * @property label - i18n key for navigation label
+ * @property label - typed i18n key (common namespace) for the navigation label
  * @property icon - MUI Icon component
  * @property disabled - Optional feature flag to disable navigation
  * @property tooltip - Optional tooltip message when disabled
@@ -58,7 +69,7 @@ export type HelpTopicsType = (typeof HelpTopics)[keyof typeof HelpTopics];
  */
 export interface NavItemConfig {
   route: AppRoutesType;
-  label: string;
+  label: NavLabelKey;
   icon: React.ComponentType<{ className?: string }>;
   disabled?: boolean;
   tooltip?: string;
