@@ -140,12 +140,6 @@ Each push to `main` runs the numbered GitHub Actions pipeline: build and test bo
 
 ---
 
-## Roadmap
-
-- Event-driven stock updates: publish stock-change events to Kafka behind a feature flag, with a Testcontainers-verified consumer (architecture decision record to follow).
-
----
-
 ## License
 
 Released under the [MIT License](LICENSE). Free to use, modify, and distribute,
