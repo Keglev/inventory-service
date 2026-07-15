@@ -121,10 +121,11 @@ context/settings/SettingsContext/README · Smart Supply Pro · API</title>
         (utils/systemInfo), which returns only
         database/environment/status — nothing fabricated. This file
         applies a SECOND layer of 'unknown' fallbacks on top.</li>
-        <li>Language-sync effect: on i18n.language change, format
-        defaults are silently rewritten to match locale. KNOWN BUGS —
-        see CB-APP33 (overwrites explicit user choice) and CB-APP34
-        (in-memory only, not persisted).</li>
+        <li>Format preferences are language-independent: the i18n
+        language sets the initial default (first load) and the reset
+        baseline only. Once chosen, a date/number format is sticky and a
+        language change never rewrites it — a German UI with a US date
+        format is a valid, persisted combination.</li>
         <li>On /api/health fetch failure, systemInfo falls back to
         'unknown' values rather than asserting a guessed
         environment.</li>
