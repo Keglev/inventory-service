@@ -206,21 +206,9 @@ public class StockAnalyticsService {
      * @throws InvalidRequestException if filter is null or date/quantity ranges are inverted
      */
     public List<StockUpdateResultDTO> getFilteredStockUpdates(StockUpdateFilterDTO filter) {
-        if (filter == null) {
-            throw new InvalidRequestException("filter must not be null");
-        }
-
-        LocalDateTime start = filter.getStartDate();
-        LocalDateTime end   = filter.getEndDate();
-
-        // Apply 30-day default only when both bounds are absent; partial bounds are honoured as-is
-        if (start == null && end == null) {
-            end   = LocalDateTime.now();
-            start = end.minusDays(30);
-        }
-        if (start != null && end != null && start.isAfter(end)) {
-            throw new InvalidRequestException("startDate must be on or before endDate");
-        }
+        LocalDateTime[] window = resolveFilterWindow(filter);
+        LocalDateTime start = window[0];
+        LocalDateTime end   = window[1];
 
         Integer min = filter.getMinChange();
         Integer max = filter.getMaxChange();
@@ -246,6 +234,33 @@ public class StockAnalyticsService {
                         asLocalDateTime(r[5])
                 ))
                 .toList();
+    }
+
+    /**
+     * Resolves and validates the date window for a stock-update filter.
+     *
+     * <p>Applies the 30-day default only when both bounds are absent; a single
+     * supplied bound is honoured as-is. This differs from the per-bound defaulting
+     * in {@code defaultAndValidateDateWindow}, so it is kept as a dedicated helper.</p>
+     *
+     * @param filter filter object (required, must not be null)
+     * @return normalized {@code [start, end]}; an element may be null when only one bound was supplied
+     * @throws InvalidRequestException if filter is null or the date range is inverted
+     */
+    private static LocalDateTime[] resolveFilterWindow(StockUpdateFilterDTO filter) {
+        if (filter == null) {
+            throw new InvalidRequestException("filter must not be null");
+        }
+        LocalDateTime start = filter.getStartDate();
+        LocalDateTime end   = filter.getEndDate();
+        if (start == null && end == null) {
+            end   = LocalDateTime.now();
+            start = end.minusDays(30);
+        }
+        if (start != null && end != null && start.isAfter(end)) {
+            throw new InvalidRequestException("startDate must be on or before endDate");
+        }
+        return new LocalDateTime[]{ start, end };
     }
 
     /**
