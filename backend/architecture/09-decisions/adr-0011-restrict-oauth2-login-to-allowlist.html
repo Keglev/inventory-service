@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0011-restrict-oauth2-login-to-allowlist · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0011-restrict-oauth2-login-to-an-email-allow-list">ADR-0011:
+        Restrict OAuth2 login to an email allow-list</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-07-16</p>
+        <h2 id="context">Context</h2>
+        <p>Authentication is Google OAuth2/OIDC. The user services
+        provisioned a local <code>AppUser</code> for every successfully
+        authenticated identity (find-or-create in
+        <code>UserProvisioningService</code>), and the admin allow-list
+        (<code>APP_ADMIN_EMAILS</code>) only decided the assigned role —
+        not who may sign in.</p>
+        <p>The practical effect: any Google account that completed the
+        consent screen was provisioned as a <code>USER</code> and gained
+        access to the live application and its data. On a portfolio
+        deployment intended for recruiters — who are expected to use the
+        read-only demo — this is an unintended open door: a technical
+        reviewer signing in with their own Google account would be
+        admitted.</p>
+        <p>Forces: - The demo path must stay open and frictionless (the
+        recruiter entry point). - Real sign-in must be limited to the
+        owner without standing up a separate identity store or
+        user-management UI. - An unauthorized attempt must fail
+        professionally — a branded, localized message, not a raw
+        provider error — and must not create a local account.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Gate OAuth2/OIDC sign-in on an allow-list, evaluated before
+        any provisioning. The gate reuses the existing
+        <code>APP_ADMIN_EMAILS</code> list via an
+        <code>isAllowedEmail</code> seam on both user services; an email
+        that is not allow-listed is rejected with an
+        <code>access_denied</code>
+        <code>OAuth2AuthenticationException</code> and no
+        <code>AppUser</code> is created. The OAuth2 failure handler maps
+        <code>access_denied</code> to a distinct frontend redirect
+        (<code>/login?error=unauthorized</code>), which renders a
+        localized “not authorized” message (EN/DE). The demo path is
+        unaffected — it never reaches the user services.</p>
+        <p>Access is intentionally equated with the admin list for now
+        (single owner). The <code>isAllowedEmail</code> seam is kept
+        separate from role assignment so a broader access list (for
+        example a non-admin reviewer tier) can be added later without
+        touching the login flow.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Leave login open, rely on the read-only demo for
+        recruiters.</strong> Rejected: any Google user still gets a
+        real, writable account against live data.</li>
+        <li><strong>Introduce a dedicated
+        <code>APP_ALLOWED_EMAILS</code> variable now.</strong> Deferred:
+        a second secret with no current consumer; the admin list already
+        names the only permitted identity, and the seam makes this a
+        one-line change later.</li>
+        <li><strong>Restrict only at the Google consent screen (Testing
+        mode / test users).</strong> Kept as a complementary layer, but
+        it cannot present a branded rejection — the user sees a generic
+        Google error — and does not protect a Production app.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>Only allow-listed identities can sign in; unauthorized
+        attempts get a clear, localized message and create no account.
+        The demo remains the recruiter path.</li>
+        <li>The gate is fail-closed: if <code>APP_ADMIN_EMAILS</code> is
+        empty, no one can sign in via Google. The owner’s email must
+        remain on the list.</li>
+        <li><code>USER</code>-role provisioning via Google is
+        unreachable while access equals the admin list; the provisioning
+        and role-healing logic is retained for the future broader-access
+        case and stays covered by tests.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Gate: <code>CustomOidcUserService</code> /
+        <code>CustomOAuth2UserService</code>
+        (<code>isAllowedEmail</code>, <code>access_denied</code> thrown
+        before <code>provision</code>).</li>
+        <li>Failure routing:
+        <code>OAuth2Config.oauthFailureHandler</code>
+        (<code>?error=unauthorized</code>).</li>
+        <li>UI: <code>LoginPage</code> renders
+        <code>auth:errorUnauthorized</code> (EN/DE).</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a href="adr-0007-cross-origin-auth-cookie.html">ADR-0007:
+        Cross-origin session cookie configuration</a></li>
+        <li>Section 8 Concepts — authentication flow
+        (<code>../08-concepts.md</code>)</li>
+        <li>Section 6 Runtime — login scenario
+        (<code>../06-runtime.md</code>)</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0011-restrict-oauth2-login-to-an-email-allow-list"
+      id="toc-adr-0011-restrict-oauth2-login-to-an-email-allow-list">ADR-0011:
+      Restrict OAuth2 login to an email allow-list</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>
