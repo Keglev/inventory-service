@@ -5,6 +5,10 @@ get:
   description: |
     Gets comprehensive dashboard summary with multiple analytics aggregated.
     Includes supplier distribution, low stock items, trends, and activity.
+
+    **Low-stock scope:** When no `supplierId` is supplied, `lowStockItems`
+    covers all suppliers (most critical first); with a `supplierId` it is
+    scoped to that supplier.
     
     **Defaults:** If dates not provided, uses last 30 days.
   operationId: getDashboardSummary
