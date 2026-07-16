@@ -119,6 +119,22 @@ class AnalyticsServiceImplQueryTest {
             assertEquals(3, out.get(0).quantity());
             assertEquals(5, out.get(0).minimumQuantity());
         }
+
+        @Test
+        void should_unpack_low_stock_items_for_all_suppliers_when_unfiltered() {
+            when(inventoryItemRepository.findItemsBelowMinimumStockFiltered(null))
+                    .thenReturn(Arrays.asList(
+                            new Object[]{"ItemA", 1,                    5},
+                            new Object[]{"ItemB", new BigDecimal("2"),  new BigDecimal("9")}
+                    ));
+
+            List<LowStockItemDTO> out = service.getItemsBelowMinimumStock();
+
+            assertEquals(2, out.size());
+            assertEquals("ItemA", out.get(0).itemName());
+            assertEquals(1, out.get(0).quantity());
+            assertEquals(5, out.get(0).minimumQuantity());
+        }
     }
 
     /**

@@ -129,6 +129,28 @@ public class StockAnalyticsService {
     }
 
     /**
+     * Identifies items below minimum stock across all suppliers.
+     * Low stock is defined as {@code currentQuantity < minimumQuantity}.
+     *
+     * <p>Unfiltered counterpart to {@link #getItemsBelowMinimumStock(String)},
+     * used by the dashboard summary when no supplier filter is applied. The
+     * underlying query treats a {@code null} supplier as "all suppliers".</p>
+     *
+     * @return low-stock items ordered by quantity ascending (most critical first)
+     */
+    public List<LowStockItemDTO> getItemsBelowMinimumStock() {
+        List<Object[]> rows = inventoryItemRepository.findItemsBelowMinimumStockFiltered(null);
+
+        return rows.stream()
+                .map(r -> new LowStockItemDTO(
+                        (String) r[0],
+                        asNumber(r[1]).intValue(),
+                        asNumber(r[2]).intValue()
+                ))
+                .toList();
+    }
+
+    /**
      * Aggregates stock movements into monthly buckets (stock-in vs stock-out).
      * Defaults to last 30 days when bounds are null.
      *

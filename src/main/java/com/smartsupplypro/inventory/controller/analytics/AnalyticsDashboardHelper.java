@@ -25,8 +25,9 @@ public class AnalyticsDashboardHelper {
     /**
      * Builds a comprehensive dashboard summary with multiple analytics.
      *
-     * <p>Aggregates stock per supplier, low-stock items (top 3),
-     * monthly stock movement, and top updated items (top 5).</p>
+     * <p>Aggregates stock per supplier, low-stock items (top 3 when a supplier
+     * is selected, top 5 across all suppliers otherwise), monthly stock
+     * movement, and top updated items (top 5, supplier-scoped).</p>
      *
      * @param supplierId optional supplier filter
      * @param startDate  start of date range
@@ -40,7 +41,7 @@ public class AnalyticsDashboardHelper {
                 .stockPerSupplier(stockAnalyticsService.getTotalStockPerSupplier())
                 .lowStockItems(isSupplierProvided(supplierId)
                         ? stockAnalyticsService.getItemsBelowMinimumStock(supplierId).stream().limit(3).toList()
-                        : List.of())
+                        : stockAnalyticsService.getItemsBelowMinimumStock().stream().limit(5).toList())
                 .monthlyStockMovement(stockAnalyticsService.getMonthlyStockMovement(
                         startDate.toLocalDate(), endDate.toLocalDate(), supplierId))
                 .topUpdatedItems(isSupplierProvided(supplierId)

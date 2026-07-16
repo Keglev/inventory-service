@@ -87,7 +87,7 @@ class AnalyticsDashboardHelperTest {
 
     @ParameterizedTest
     @MethodSource("missingSupplierValues")
-    void buildDashboardSummary_missingSupplier_shouldSkipSupplierSpecificLoads(String supplierId) {
+    void buildDashboardSummary_missingSupplier_shouldLoadGlobalLowStockAndSkipSupplierScopedLoads(String supplierId) {
         StockAnalyticsService stockAnalyticsService = mock(StockAnalyticsService.class);
         AnalyticsDashboardHelper helper = new AnalyticsDashboardHelper(stockAnalyticsService);
 
@@ -97,7 +97,13 @@ class AnalyticsDashboardHelperTest {
         List<StockPerSupplierDTO> stockPerSupplier = List.of(new StockPerSupplierDTO("Supplier A", 10));
         List<MonthlyStockMovementDTO> monthly = List.of(new MonthlyStockMovementDTO("2025-01", 100, 50));
 
+        List<LowStockItemDTO> globalLowStock = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            globalLowStock.add(new LowStockItemDTO("Low" + i, i, i + 10));
+        }
+
         when(stockAnalyticsService.getTotalStockPerSupplier()).thenReturn(stockPerSupplier);
+        when(stockAnalyticsService.getItemsBelowMinimumStock()).thenReturn(globalLowStock);
         when(stockAnalyticsService.getMonthlyStockMovement(eq(LocalDate.of(2025, 1, 1)), eq(LocalDate.of(2025, 1, 31)), eq(supplierId)))
                 .thenReturn(monthly);
 
@@ -107,9 +113,12 @@ class AnalyticsDashboardHelperTest {
         assertEquals(stockPerSupplier, summary.stockPerSupplier());
         assertEquals(monthly, summary.monthlyStockMovement());
 
-        assertTrue(summary.lowStockItems().isEmpty());
+        assertEquals(5, summary.lowStockItems().size());
+        assertEquals("Low0", summary.lowStockItems().get(0).itemName());
+        assertEquals("Low4", summary.lowStockItems().get(4).itemName());
         assertTrue(summary.topUpdatedItems().isEmpty());
 
+        verify(stockAnalyticsService).getItemsBelowMinimumStock();
         verify(stockAnalyticsService, never()).getItemsBelowMinimumStock(org.mockito.ArgumentMatchers.anyString());
         verify(stockAnalyticsService, never()).getItemUpdateFrequency(org.mockito.ArgumentMatchers.anyString());
     }
