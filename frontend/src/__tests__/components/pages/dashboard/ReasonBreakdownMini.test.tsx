@@ -27,7 +27,18 @@ vi.mock('@/hooks/useSettings', () => ({
 
 vi.mock('@mui/material/styles', async () => {
   const actual = await vi.importActual<typeof import('@mui/material/styles')>('@mui/material/styles');
-  return { ...actual, useTheme: () => ({ palette: { success: { main: '#70AD47' }, error: { main: '#C00000' } } }) };
+  return {
+    ...actual,
+    useTheme: () => ({
+      palette: {
+        success: { main: '#70AD47' },
+        error: { main: '#C00000' },
+        background: { paper: '#111111' },
+        divider: '#333333',
+        text: { primary: '#eeeeee' },
+      },
+    }),
+  };
 });
 
 vi.mock('recharts', () => ({

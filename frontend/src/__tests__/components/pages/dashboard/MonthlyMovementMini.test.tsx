@@ -40,6 +40,9 @@ vi.mock('@mui/material/styles', () => ({
     palette: {
       success: { main: '#4caf50' },
       error: { main: '#f44336' },
+      background: { paper: '#111111' },
+      divider: '#333333',
+      text: { primary: '#eeeeee' },
     },
   }),
 }));

@@ -48,6 +48,9 @@ vi.mock('@mui/material/styles', async () => {
         warning: { main: '#FFC000' },
         error: { main: '#C00000' },
         secondary: { main: '#7F7F7F' },
+        background: { paper: '#111111' },
+        divider: '#333333',
+        text: { primary: '#eeeeee' },
       },
     }),
   };

@@ -30,6 +30,7 @@ import { useTranslation } from 'react-i18next';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
 import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import { getTodayIso, getDaysAgoIso, formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { useSettings } from '../../../hooks/useSettings';
 
 /**
@@ -71,6 +72,7 @@ export default function MonthlyMovementMini() {
                   tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)}
                 />
                 <Tooltip
+                  {...chartTooltipProps(muiTheme)}
                   formatter={(value: number | string) =>
                     typeof value === 'number'
                       ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('units.pieces')}`

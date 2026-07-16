@@ -24,6 +24,7 @@ import { getDashboardLowStock } from '../../../api/analytics/dashboardSummary';
 import type { LowStockRow } from '../../../api/analytics/types';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 
 export default function LowStockMini() {
   const { t } = useTranslation('common');
@@ -62,6 +63,7 @@ export default function LowStockMini() {
                 />
                 <YAxis type="category" dataKey="itemName" width={110} />
                 <Tooltip
+                  {...chartTooltipProps(muiTheme)}
                   formatter={(value: number | string) =>
                     typeof value === 'number'
                       ? formatNumber(value, userPreferences.numberFormat, 0)

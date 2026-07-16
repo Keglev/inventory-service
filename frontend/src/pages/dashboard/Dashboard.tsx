@@ -110,8 +110,17 @@ const Dashboard: React.FC = () => {
           </Grid>
         </Grid>
 
-        {/* Analytics overview: 2x2 grid of at-a-glance charts */}
-        <Grid container spacing={2} sx={{ mb: 2 }}>
+        {/* Analytics overview: 2x2 grid of at-a-glance charts (equal-height cards per row) */}
+        <Grid
+          container
+          spacing={2}
+          sx={{
+            mb: 2,
+            alignItems: 'stretch',
+            '& > .MuiGrid-root': { display: 'flex' },
+            '& .MuiCard-root': { flexGrow: 1, width: '100%' },
+          }}
+        >
           <Grid size={{ xs: 12, md: 6 }}>
             <StockPerSupplierDonut />
           </Grid>

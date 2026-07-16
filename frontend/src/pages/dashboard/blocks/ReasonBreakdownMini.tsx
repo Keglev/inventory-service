@@ -25,6 +25,7 @@ import { getReasonBreakdown, type ReasonBreakdownRow } from '../../../api/analyt
 import { reasonLabel } from '../../analytics/sections/reasonLabels';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 
 export default function ReasonBreakdownMini() {
   const { t } = useTranslation('common');
@@ -67,6 +68,7 @@ export default function ReasonBreakdownMini() {
                 <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={0} angle={-30} textAnchor="end" height={60} />
                 <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
                 <Tooltip
+                  {...chartTooltipProps(muiTheme)}
                   formatter={(value: number | string) =>
                     typeof value === 'number'
                       ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${tAnalytics('analytics:units.pieces')}`
