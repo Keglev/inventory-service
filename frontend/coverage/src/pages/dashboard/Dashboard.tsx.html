@@ -198,7 +198,26 @@
 <a name='L133'></a><a href='#L133'>133</a>
 <a name='L134'></a><a href='#L134'>134</a>
 <a name='L135'></a><a href='#L135'>135</a>
-<a name='L136'></a><a href='#L136'>136</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -245,6 +264,17 @@
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -339,8 +369,9 @@
  *
  * @summary
  * Authenticated landing page. Renders three KPI cards (inventory count,
- * suppliers count, low-stock count), a 90-day stock-movement mini chart,
- * and primary navigation buttons for the core workflows.
+ * suppliers count, low-stock count), a 2x2 analytics overview grid
+ * (stock-per-supplier donut, movement-by-reason, 90-day stock movement,
+ * low-stock watchlist), and primary navigation buttons for the core workflows.
  *
  * @enterprise
  * - Resilience: KPI cards degrade to em-dash placeholders when their data
@@ -362,6 +393,9 @@ import { Box, Grid, Button, Stack, Typography, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useDashboardMetrics } from '../../api/analytics/hooks/useDashboardMetrics';
 import MonthlyMovementMini from './blocks/MonthlyMovementMini';
+import StockPerSupplierDonut from '../analytics/blocks/StockPerSupplierDonut';
+import ReasonBreakdownMini from './blocks/ReasonBreakdownMini';
+import LowStockMini from './blocks/LowStockMini';
 import StatCard from '../../components/ui/StatCard';
 import { useNavigate } from 'react-router-dom';
 import { HelpIconButton } from '../../features/help/components/HelpIconButton';
@@ -441,16 +475,27 @@ const Dashboard: React.FC = () =&gt; {
           &lt;/Grid&gt;
         &lt;/Grid&gt;
 &nbsp;
-        {/* Trending chart: Monthly stock movement over last 90 days */}
-        &lt;Box sx={{ mb: 2 }}&gt;
-          &lt;MonthlyMovementMini /&gt;
-        &lt;/Box&gt;
+        {/* Analytics overview: 2x2 grid of at-a-glance charts */}
+        &lt;Grid container spacing={2} sx={{ mb: 2 }}&gt;
+          &lt;Grid size={{ xs: 12, md: 6 }}&gt;
+            &lt;StockPerSupplierDonut /&gt;
+          &lt;/Grid&gt;
+          &lt;Grid size={{ xs: 12, md: 6 }}&gt;
+            &lt;ReasonBreakdownMini /&gt;
+          &lt;/Grid&gt;
+          &lt;Grid size={{ xs: 12, md: 6 }}&gt;
+            &lt;MonthlyMovementMini /&gt;
+          &lt;/Grid&gt;
+          &lt;Grid size={{ xs: 12, md: 6 }}&gt;
+            &lt;LowStockMini /&gt;
+          &lt;/Grid&gt;
+        &lt;/Grid&gt;
 &nbsp;
         {/* Action buttons for main workflows (responsive layout) */}
         &lt;Stack
           direction={{ xs: 'column', sm: 'row' }}
           spacing={1}
-          sx={{ mt: 'auto', pt: 1 }}
+          sx={{ pt: 1 }}
         &gt;
           &lt;Button variant="contained" onClick={() =&gt; navigate('/inventory')}&gt;
             {t('dashboard.actions.manageInventory')}
@@ -475,7 +520,7 @@ export default Dashboard;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-15T10:25:29.598Z
+                at 2026-07-16T07:59:25.953Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
