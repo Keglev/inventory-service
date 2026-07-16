@@ -12,9 +12,11 @@ flowchart TD
   A["Browser starts login"] --> B["CookieOAuth2AuthorizationRequestRepository stores OAuth2 state in HTTP-only cookie (OAUTH2_AUTH_REQUEST, TTL 180s)"]
   B --> C["Google authenticates — code exchange server-to-server"]
   C --> D["Token load: CustomOAuth2UserService / CustomOidcUserService"]
-  D --> E["UserProvisioningService.provision(email, name, isAdmin) — find or create AppUser, heal role against admin allow-list"]
+  D --> AG{"Email on admin allow-list?"}
+  AG -->|"no — access_denied"| G
+  AG -->|"yes"| E["UserProvisioningService.provision(email, name, isAdmin) — find or create AppUser, heal role against admin allow-list"]
   E --> F["OAuth2LoginSuccessHandler validates principal, redirects to frontend baseUrl + landingPath"]
-  C -->|failure| G["Failure handler (OAuth2Config): log cause, redirect to frontend login with ?error=oauth"]
+  C -->|failure| G["Failure handler (OAuth2Config): log cause, redirect to frontend login — ?error=oauth, or ?error=unauthorized when the email is not allow-listed"]
   F --> H["Session established (cookie)"]
   H -->|"POST /api/auth/logout"| I["Server session invalidated, session cookie cleared — frontend returns to login view"]
 ```
