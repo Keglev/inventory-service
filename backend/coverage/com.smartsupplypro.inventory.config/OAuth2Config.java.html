@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository;
 
@@ -20,9 +21,9 @@ public class OAuth2Config {
 
     private final AppProperties props;
 
-<span class="fc" id="L23">    public OAuth2Config(AppProperties props) {</span>
-<span class="fc" id="L24">        this.props = props;</span>
-<span class="fc" id="L25">    }</span>
+<span class="fc" id="L24">    public OAuth2Config(AppProperties props) {</span>
+<span class="fc" id="L25">        this.props = props;</span>
+<span class="fc" id="L26">    }</span>
 
     /**
      * Redirects to the frontend login page on OAuth2 failure instead of surfacing
@@ -30,11 +31,18 @@ public class OAuth2Config {
      */
     @Bean
     public AuthenticationFailureHandler oauthFailureHandler() {
-<span class="fc" id="L33">        return (request, response, exception) -&gt; {</span>
-<span class="fc" id="L34">            LoggerFactory.getLogger(OAuth2Config.class).warn(&quot;OAuth2 failure: {}&quot;, exception.toString());</span>
-<span class="fc" id="L35">            String target = props.getFrontend().getBaseUrl() + &quot;/login?error=oauth&quot;;</span>
-<span class="fc bfc" id="L36" title="All 2 branches covered.">            if (!response.isCommitted()) response.sendRedirect(target);</span>
-<span class="fc" id="L37">        };</span>
+<span class="fc" id="L34">        return (request, response, exception) -&gt; {</span>
+<span class="fc" id="L35">            LoggerFactory.getLogger(OAuth2Config.class).warn(&quot;OAuth2 failure: {}&quot;, exception.toString());</span>
+            // Distinguish an allow-list rejection (access_denied) from a generic OAuth failure
+            // so the frontend can show a specific &quot;not authorized&quot; message.
+<span class="fc" id="L38">            String errorCode = &quot;oauth&quot;;</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">            if (exception instanceof OAuth2AuthenticationException oae</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">                    &amp;&amp; &quot;access_denied&quot;.equals(oae.getError().getErrorCode())) {</span>
+<span class="fc" id="L41">                errorCode = &quot;unauthorized&quot;;</span>
+            }
+<span class="fc" id="L43">            String target = props.getFrontend().getBaseUrl() + &quot;/login?error=&quot; + errorCode;</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">            if (!response.isCommitted()) response.sendRedirect(target);</span>
+<span class="fc" id="L45">        };</span>
     }
 
     /**
@@ -43,7 +51,7 @@ public class OAuth2Config {
      */
     @Bean
     public AuthorizationRequestRepository&lt;OAuth2AuthorizationRequest&gt; authorizationRequestRepository() {
-<span class="fc" id="L46">        return new CookieOAuth2AuthorizationRequestRepository(props);</span>
+<span class="fc" id="L54">        return new CookieOAuth2AuthorizationRequestRepository(props);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -35,31 +36,41 @@ public class CustomOAuth2UserService implements OAuth2UserService&lt;OAuth2UserR
 
     private final UserProvisioningService userProvisioningService;
 
-<span class="fc" id="L38">    public CustomOAuth2UserService(UserProvisioningService userProvisioningService) {</span>
-<span class="fc" id="L39">        this.userProvisioningService = userProvisioningService;</span>
-<span class="fc" id="L40">    }</span>
+<span class="fc" id="L39">    public CustomOAuth2UserService(UserProvisioningService userProvisioningService) {</span>
+<span class="fc" id="L40">        this.userProvisioningService = userProvisioningService;</span>
+<span class="fc" id="L41">    }</span>
 
     private static Set&lt;String&gt; readAdminAllowlist() {
-<span class="nc" id="L43">        String raw = System.getenv().getOrDefault(&quot;APP_ADMIN_EMAILS&quot;, &quot;&quot;);</span>
-<span class="nc" id="L44">        return parseAdminAllowlist(raw);</span>
+<span class="nc" id="L44">        String raw = System.getenv().getOrDefault(&quot;APP_ADMIN_EMAILS&quot;, &quot;&quot;);</span>
+<span class="nc" id="L45">        return parseAdminAllowlist(raw);</span>
     }
 
     static Set&lt;String&gt; parseAdminAllowlist(String raw) {
-<span class="pc bpc" id="L48" title="2 of 4 branches missed.">        if (raw == null || raw.isBlank()) return Collections.emptySet();</span>
-<span class="fc" id="L49">        return Arrays.stream(raw.split(&quot;,&quot;))</span>
-<span class="fc" id="L50">            .map(String::trim)</span>
-<span class="fc bfc" id="L51" title="All 2 branches covered.">            .filter(s -&gt; !s.isEmpty())</span>
-<span class="fc" id="L52">            .map(String::toLowerCase)</span>
-<span class="fc" id="L53">            .collect(Collectors.toCollection(LinkedHashSet::new));</span>
+<span class="pc bpc" id="L49" title="2 of 4 branches missed.">        if (raw == null || raw.isBlank()) return Collections.emptySet();</span>
+<span class="fc" id="L50">        return Arrays.stream(raw.split(&quot;,&quot;))</span>
+<span class="fc" id="L51">            .map(String::trim)</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            .filter(s -&gt; !s.isEmpty())</span>
+<span class="fc" id="L53">            .map(String::toLowerCase)</span>
+<span class="fc" id="L54">            .collect(Collectors.toCollection(LinkedHashSet::new));</span>
     }
 
     protected boolean isAdminEmail(String email) {
-<span class="nc" id="L57">        return readAdminAllowlist().contains(email.toLowerCase());</span>
+<span class="nc" id="L58">        return readAdminAllowlist().contains(email.toLowerCase());</span>
+    }
+
+    /**
+     * Whether the given email is permitted to sign in. Access is currently
+     * limited to the admin allow-list; this seam keeps the login gate separate
+     * from role assignment so a broader access list can be added later without
+     * touching the OAuth2 login flow.
+     */
+    protected boolean isAllowedEmail(String email) {
+<span class="nc" id="L68">        return isAdminEmail(email);</span>
     }
 
     private static String toRoleAuthority(String roleName) {
-<span class="fc bfc" id="L61" title="All 4 branches covered.">        if (roleName == null || roleName.isBlank()) return &quot;ROLE_USER&quot;;</span>
-<span class="fc bfc" id="L62" title="All 2 branches covered.">        return roleName.startsWith(&quot;ROLE_&quot;) ? roleName : &quot;ROLE_&quot; + roleName;</span>
+<span class="fc bfc" id="L72" title="All 4 branches covered.">        if (roleName == null || roleName.isBlank()) return &quot;ROLE_USER&quot;;</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        return roleName.startsWith(&quot;ROLE_&quot;) ? roleName : &quot;ROLE_&quot; + roleName;</span>
     }
 
     /**
@@ -72,23 +83,30 @@ public class CustomOAuth2UserService implements OAuth2UserService&lt;OAuth2UserR
      */
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
-<span class="fc" id="L75">        OAuth2User oauthUser = loadFromProvider(request);</span>
+<span class="fc" id="L86">        OAuth2User oauthUser = loadFromProvider(request);</span>
 
-<span class="fc" id="L77">        String email = oauthUser.getAttribute(&quot;email&quot;);</span>
-<span class="fc" id="L78">        String name  = oauthUser.getAttribute(&quot;name&quot;);</span>
+<span class="fc" id="L88">        String email = oauthUser.getAttribute(&quot;email&quot;);</span>
+<span class="fc" id="L89">        String name  = oauthUser.getAttribute(&quot;name&quot;);</span>
 
-<span class="pc bpc" id="L80" title="1 of 4 branches missed.">        if (email == null || email.isBlank()) {</span>
-<span class="fc" id="L81">            throw new OAuth2AuthenticationException(&quot;Email not provided by OAuth2 provider.&quot;);</span>
+<span class="pc bpc" id="L91" title="1 of 4 branches missed.">        if (email == null || email.isBlank()) {</span>
+<span class="fc" id="L92">            throw new OAuth2AuthenticationException(&quot;Email not provided by OAuth2 provider.&quot;);</span>
         }
 
-<span class="fc" id="L84">        AppUser user = userProvisioningService.provision(email, name, isAdminEmail(email));</span>
+        // Access gate: only allow-listed identities may sign in; everyone else is
+        // rejected before provisioning so no local account is created for them.
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (!isAllowedEmail(email)) {</span>
+<span class="fc" id="L98">            throw new OAuth2AuthenticationException(</span>
+                    new OAuth2Error(&quot;access_denied&quot;, &quot;Email not authorized for this application&quot;, null));
+        }
 
-<span class="fc" id="L86">        String roleName = user.getRole().name();</span>
-<span class="fc" id="L87">        Map&lt;String, Object&gt; attributes = new HashMap&lt;&gt;(oauthUser.getAttributes());</span>
-<span class="fc" id="L88">        attributes.put(&quot;appRole&quot;, roleName);</span>
+<span class="fc" id="L102">        AppUser user = userProvisioningService.provision(email, name, isAdminEmail(email));</span>
 
-<span class="fc" id="L90">        return new DefaultOAuth2User(</span>
-<span class="fc" id="L91">                Collections.singletonList(new SimpleGrantedAuthority(toRoleAuthority(roleName))),</span>
+<span class="fc" id="L104">        String roleName = user.getRole().name();</span>
+<span class="fc" id="L105">        Map&lt;String, Object&gt; attributes = new HashMap&lt;&gt;(oauthUser.getAttributes());</span>
+<span class="fc" id="L106">        attributes.put(&quot;appRole&quot;, roleName);</span>
+
+<span class="fc" id="L108">        return new DefaultOAuth2User(</span>
+<span class="fc" id="L109">                Collections.singletonList(new SimpleGrantedAuthority(toRoleAuthority(roleName))),</span>
                 attributes,
                 &quot;email&quot;
         );
@@ -99,7 +117,7 @@ public class CustomOAuth2UserService implements OAuth2UserService&lt;OAuth2UserR
      * Extracted for testability — tests override this to avoid network calls.
      */
     protected OAuth2User loadFromProvider(OAuth2UserRequest request) throws OAuth2AuthenticationException {
-<span class="nc" id="L102">        return new DefaultOAuth2UserService().loadUser(request);</span>
+<span class="nc" id="L120">        return new DefaultOAuth2UserService().loadUser(request);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
