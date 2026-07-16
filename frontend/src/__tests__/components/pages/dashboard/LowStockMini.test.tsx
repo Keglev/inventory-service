@@ -1,3 +1,13 @@
+/**
+ * @file LowStockMini.test.tsx
+ * @module __tests__/components/pages/dashboard/LowStockMini
+ * @description
+ * Enterprise tests for LowStockMini:
+ * - Loading state (skeleton)
+ * - Empty state when the summary returns no low-stock rows
+ * - Renders quantity and minimum bars when data exists
+ */
+
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';

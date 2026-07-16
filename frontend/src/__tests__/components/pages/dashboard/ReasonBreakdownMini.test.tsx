@@ -1,3 +1,13 @@
+/**
+ * @file ReasonBreakdownMini.test.tsx
+ * @module __tests__/components/pages/dashboard/ReasonBreakdownMini
+ * @description
+ * Enterprise tests for ReasonBreakdownMini:
+ * - Loading state (skeleton)
+ * - Empty state when all reasons have zero movement
+ * - Renders increase and decrease bars for reasons with movement
+ */
+
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';

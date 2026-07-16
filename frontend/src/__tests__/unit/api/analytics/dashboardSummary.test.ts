@@ -1,3 +1,14 @@
+/**
+ * @file dashboardSummary.test.ts
+ * @module tests/unit/api/analytics/dashboardSummary
+ * @description Contract tests for getDashboardLowStock (api/analytics/dashboardSummary).
+ *
+ * Contract under test:
+ * - Calls GET /api/analytics/summary with no params.
+ * - Extracts and tolerantly parses lowStockItems into a stable row list.
+ * - Collapses missing payloads and transport errors to an empty list.
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../../../../api/httpClient', () => ({
