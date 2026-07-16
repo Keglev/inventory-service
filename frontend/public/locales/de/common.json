@@ -32,6 +32,18 @@
       "manageInventory": "Bestand verwalten",
       "manageSuppliers": "Lieferanten verwalten",
       "viewAnalytics": "Analysen ansehen"
+    },
+    "lowStockChart": {
+      "title": "Artikel unter Mindestbestand",
+      "empty": "Keine Artikel unter Mindestbestand",
+      "quantity": "Bestand",
+      "minimum": "Mindestbestand"
+    },
+    "reasons": {
+      "title": "Lagerbewegung nach Grund (Stück)",
+      "empty": "Keine Bewegung in diesem Zeitraum",
+      "increase": "Zugang",
+      "decrease": "Abgang"
     }
   },
   "actions": {

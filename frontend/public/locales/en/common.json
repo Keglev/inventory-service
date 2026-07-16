@@ -32,6 +32,18 @@
       "manageInventory": "Manage inventory",
       "manageSuppliers": "Manage suppliers",
       "viewAnalytics": "View analytics"
+    },
+    "lowStockChart": {
+      "title": "Low-stock watchlist",
+      "empty": "No items below minimum",
+      "quantity": "Quantity",
+      "minimum": "Minimum"
+    },
+    "reasons": {
+      "title": "Stock movement by reason (pieces)",
+      "empty": "No movement in this period",
+      "increase": "Increase",
+      "decrease": "Decrease"
     }
   },
   "actions": {

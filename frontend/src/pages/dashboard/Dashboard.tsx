@@ -4,8 +4,9 @@
  *
  * @summary
  * Authenticated landing page. Renders three KPI cards (inventory count,
- * suppliers count, low-stock count), a 90-day stock-movement mini chart,
- * and primary navigation buttons for the core workflows.
+ * suppliers count, low-stock count), a 2x2 analytics overview grid
+ * (stock-per-supplier donut, movement-by-reason, 90-day stock movement,
+ * low-stock watchlist), and primary navigation buttons for the core workflows.
  *
  * @enterprise
  * - Resilience: KPI cards degrade to em-dash placeholders when their data
@@ -27,6 +28,9 @@ import { Box, Grid, Button, Stack, Typography, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useDashboardMetrics } from '../../api/analytics/hooks/useDashboardMetrics';
 import MonthlyMovementMini from './blocks/MonthlyMovementMini';
+import StockPerSupplierDonut from '../analytics/blocks/StockPerSupplierDonut';
+import ReasonBreakdownMini from './blocks/ReasonBreakdownMini';
+import LowStockMini from './blocks/LowStockMini';
 import StatCard from '../../components/ui/StatCard';
 import { useNavigate } from 'react-router-dom';
 import { HelpIconButton } from '../../features/help/components/HelpIconButton';
@@ -106,16 +110,27 @@ const Dashboard: React.FC = () => {
           </Grid>
         </Grid>
 
-        {/* Trending chart: Monthly stock movement over last 90 days */}
-        <Box sx={{ mb: 2 }}>
-          <MonthlyMovementMini />
-        </Box>
+        {/* Analytics overview: 2x2 grid of at-a-glance charts */}
+        <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <StockPerSupplierDonut />
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <ReasonBreakdownMini />
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <MonthlyMovementMini />
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <LowStockMini />
+          </Grid>
+        </Grid>
 
         {/* Action buttons for main workflows (responsive layout) */}
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
           spacing={1}
-          sx={{ mt: 'auto', pt: 1 }}
+          sx={{ pt: 1 }}
         >
           <Button variant="contained" onClick={() => navigate('/inventory')}>
             {t('dashboard.actions.manageInventory')}
