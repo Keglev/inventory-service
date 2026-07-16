@@ -339,6 +339,9 @@
             Backend->>Google: POST /token — exchange code (server-to-server)
             Google-->>Backend: access_token + user info (email, name)
             Note over Backend,UPS: token load — CustomOidcUserService.loadUser
+            opt email not on admin allow-list
+                Backend-->>Browser: 302 /login?error=unauthorized (access_denied, no account created)
+            end
             Backend->>UPS: provision(email, name, isAdmin)
             UPS->>DB: findByEmail(email)
 
