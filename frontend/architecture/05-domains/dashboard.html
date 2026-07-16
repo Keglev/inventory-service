@@ -101,7 +101,7 @@
         <h1 id="dashboard-domain">§5.4 Dashboard Domain</h1>
         <p>The front-door overview under
         <code>frontend/src/pages/dashboard/</code>: three KPI cards, a
-        compact movement chart, and navigation shortcuts — built to
+        2×2 analytics overview grid, and navigation shortcuts — built to
         degrade gracefully rather than break.</p>
         <h2 id="kpi-row">KPI Row</h2>
         <p><code>useDashboardMetrics</code> (in
@@ -112,6 +112,36 @@
         helper catches all errors and returns 0, so the hook always
         resolves; <code>StatCard</code> renders a skeleton while loading
         and an em dash only for genuinely absent values.</p>
+        <h2 id="analytics-overview-grid">Analytics Overview Grid</h2>
+        <p>Below the KPI row, <code>Dashboard.tsx</code> renders a
+        responsive 2×2 grid (<code>Grid</code>
+        <code>size={{ xs: 12, md: 6 }}</code>, single column on mobile)
+        of at-a-glance charts, each a self-fetching block that degrades
+        to an empty state on error. Cards stretch to a shared height per
+        row, and every chart uses the theme-aware tooltip helper
+        (<code>utils/chartTooltip</code>) so the tooltip surface follows
+        light/dark mode.</p>
+        <ul>
+        <li><strong>Stock per supplier</strong> — reuses
+        <code>pages/analytics/blocks/StockPerSupplierDonut</code> (donut
+        over <code>getStockPerSupplier</code>), so dashboard and
+        analytics share one component and query.</li>
+        <li><strong>Movement by reason</strong> —
+        <code>blocks/ReasonBreakdownMini</code> groups increase/decrease
+        per <code>StockChangeReason</code> from
+        <code>getReasonBreakdown</code> (global, no filters), reusing
+        the analytics reason-label lookup.</li>
+        <li><strong>90-day stock movement</strong> —
+        <code>blocks/MonthlyMovementMini</code> (detailed below).</li>
+        <li><strong>Low-stock watchlist</strong> —
+        <code>blocks/LowStockMini</code> renders quantity-vs-minimum
+        bars from <code>getDashboardLowStock</code>, which reads
+        <code>GET /api/analytics/summary</code> and consumes its
+        <code>lowStockItems</code>. The summary returns the low-stock
+        list across all suppliers (most critical first) when no supplier
+        filter is applied, so the watchlist works without a supplier
+        selection.</li>
+        </ul>
         <h2 id="movement-mini-chart">Movement Mini Chart</h2>
         <p><code>blocks/MonthlyMovementMini.tsx</code> derives a rolling
         90-day window (<code>getDaysAgoIso(90)</code> to
@@ -140,6 +170,8 @@
       Dashboard Domain</a>
       <ul>
       <li><a href="#kpi-row" id="toc-kpi-row">KPI Row</a></li>
+      <li><a href="#analytics-overview-grid"
+      id="toc-analytics-overview-grid">Analytics Overview Grid</a></li>
       <li><a href="#movement-mini-chart"
       id="toc-movement-mini-chart">Movement Mini Chart</a></li>
       <li><a href="#navigation-help" id="toc-navigation-help">Navigation
