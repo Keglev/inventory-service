@@ -129,6 +129,28 @@ public class StockAnalyticsService {
     }
 
     /**
+     * Identifies items below minimum stock across all suppliers.
+     * Low stock is defined as {@code currentQuantity &lt; minimumQuantity}.
+     *
+     * &lt;p&gt;Unfiltered counterpart to {@link #getItemsBelowMinimumStock(String)},
+     * used by the dashboard summary when no supplier filter is applied. The
+     * underlying query treats a {@code null} supplier as &quot;all suppliers&quot;.&lt;/p&gt;
+     *
+     * @return low-stock items ordered by quantity ascending (most critical first)
+     */
+    public List&lt;LowStockItemDTO&gt; getItemsBelowMinimumStock() {
+<span class="fc" id="L142">        List&lt;Object[]&gt; rows = inventoryItemRepository.findItemsBelowMinimumStockFiltered(null);</span>
+
+<span class="fc" id="L144">        return rows.stream()</span>
+<span class="fc" id="L145">                .map(r -&gt; new LowStockItemDTO(</span>
+                        (String) r[0],
+<span class="fc" id="L147">                        asNumber(r[1]).intValue(),</span>
+<span class="fc" id="L148">                        asNumber(r[2]).intValue()</span>
+                ))
+<span class="fc" id="L150">                .toList();</span>
+    }
+
+    /**
      * Aggregates stock movements into monthly buckets (stock-in vs stock-out).
      * Defaults to last 30 days when bounds are null.
      *
@@ -141,20 +163,20 @@ public class StockAnalyticsService {
     public List&lt;MonthlyStockMovementDTO&gt; getMonthlyStockMovement(LocalDate startDate,
                                                                   LocalDate endDate,
                                                                   String supplierId) {
-<span class="fc" id="L144">        LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);</span>
+<span class="fc" id="L166">        LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);</span>
         // startOfDay/endOfDay so the inclusive bounds match TIMESTAMP column precision
-<span class="fc" id="L146">        LocalDateTime from = startOfDay(window[0]);</span>
-<span class="fc" id="L147">        LocalDateTime to   = endOfDay(window[1]);</span>
+<span class="fc" id="L168">        LocalDateTime from = startOfDay(window[0]);</span>
+<span class="fc" id="L169">        LocalDateTime to   = endOfDay(window[1]);</span>
 
-<span class="fc" id="L149">        List&lt;Object[]&gt; rows = stockHistoryRepository.getMonthlyStockMovementBySupplier(from, to, blankToNull(supplierId));</span>
+<span class="fc" id="L171">        List&lt;Object[]&gt; rows = stockHistoryRepository.getMonthlyStockMovementBySupplier(from, to, blankToNull(supplierId));</span>
 
-<span class="fc" id="L151">        return rows.stream()</span>
-<span class="fc" id="L152">                .map(r -&gt; new MonthlyStockMovementDTO(</span>
+<span class="fc" id="L173">        return rows.stream()</span>
+<span class="fc" id="L174">                .map(r -&gt; new MonthlyStockMovementDTO(</span>
                         (String) r[0],
-<span class="fc" id="L154">                        asNumber(r[1]).longValue(),</span>
-<span class="fc" id="L155">                        asNumber(r[2]).longValue()</span>
+<span class="fc" id="L176">                        asNumber(r[1]).longValue(),</span>
+<span class="fc" id="L177">                        asNumber(r[2]).longValue()</span>
                 ))
-<span class="fc" id="L157">                .toList();</span>
+<span class="fc" id="L179">                .toList();</span>
     }
 
     /**
@@ -172,21 +194,21 @@ public class StockAnalyticsService {
                                                        LocalDate endDate,
                                                        String supplierId,
                                                        String itemName) {
-<span class="fc" id="L175">        LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);</span>
+<span class="fc" id="L197">        LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);</span>
         // startOfDay/endOfDay so the inclusive bounds match TIMESTAMP column precision
-<span class="fc" id="L177">        LocalDateTime from = startOfDay(window[0]);</span>
-<span class="fc" id="L178">        LocalDateTime to   = endOfDay(window[1]);</span>
+<span class="fc" id="L199">        LocalDateTime from = startOfDay(window[0]);</span>
+<span class="fc" id="L200">        LocalDateTime to   = endOfDay(window[1]);</span>
 
-<span class="fc" id="L180">        List&lt;Object[]&gt; rows = stockHistoryRepository.getReasonBreakdown(</span>
-<span class="fc" id="L181">                from, to, blankToNull(supplierId), blankToNull(itemName));</span>
+<span class="fc" id="L202">        List&lt;Object[]&gt; rows = stockHistoryRepository.getReasonBreakdown(</span>
+<span class="fc" id="L203">                from, to, blankToNull(supplierId), blankToNull(itemName));</span>
 
-<span class="fc" id="L183">        return rows.stream()</span>
-<span class="fc" id="L184">                .map(r -&gt; new ReasonBreakdownDTO(</span>
+<span class="fc" id="L205">        return rows.stream()</span>
+<span class="fc" id="L206">                .map(r -&gt; new ReasonBreakdownDTO(</span>
                         (String) r[0],
-<span class="fc" id="L186">                        asNumber(r[1]).longValue(),</span>
-<span class="fc" id="L187">                        asNumber(r[2]).longValue()</span>
+<span class="fc" id="L208">                        asNumber(r[1]).longValue(),</span>
+<span class="fc" id="L209">                        asNumber(r[2]).longValue()</span>
                 ))
-<span class="fc" id="L189">                .toList();</span>
+<span class="fc" id="L211">                .toList();</span>
     }
 
     /**
@@ -194,7 +216,7 @@ public class StockAnalyticsService {
      * @return count of low-stock items
      */
     public long lowStockCount() {
-<span class="nc" id="L197">        return inventoryItemRepository.countWithQuantityBelow(5);</span>
+<span class="nc" id="L219">        return inventoryItemRepository.countWithQuantityBelow(5);</span>
     }
 
     /**
@@ -206,34 +228,34 @@ public class StockAnalyticsService {
      * @throws InvalidRequestException if filter is null or date/quantity ranges are inverted
      */
     public List&lt;StockUpdateResultDTO&gt; getFilteredStockUpdates(StockUpdateFilterDTO filter) {
-<span class="fc" id="L209">        LocalDateTime[] window = resolveFilterWindow(filter);</span>
-<span class="fc" id="L210">        LocalDateTime start = window[0];</span>
-<span class="fc" id="L211">        LocalDateTime end   = window[1];</span>
+<span class="fc" id="L231">        LocalDateTime[] window = resolveFilterWindow(filter);</span>
+<span class="fc" id="L232">        LocalDateTime start = window[0];</span>
+<span class="fc" id="L233">        LocalDateTime end   = window[1];</span>
 
-<span class="fc" id="L213">        Integer min = filter.getMinChange();</span>
-<span class="fc" id="L214">        Integer max = filter.getMaxChange();</span>
-<span class="pc bpc" id="L215" title="1 of 6 branches missed.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
-<span class="fc" id="L216">            throw new InvalidRequestException(&quot;minChange must be &lt;= maxChange&quot;);</span>
+<span class="fc" id="L235">        Integer min = filter.getMinChange();</span>
+<span class="fc" id="L236">        Integer max = filter.getMaxChange();</span>
+<span class="pc bpc" id="L237" title="1 of 6 branches missed.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
+<span class="fc" id="L238">            throw new InvalidRequestException(&quot;minChange must be &lt;= maxChange&quot;);</span>
         }
 
-<span class="fc" id="L219">        List&lt;Object[]&gt; rows = stockHistoryRepository.searchStockUpdates(</span>
+<span class="fc" id="L241">        List&lt;Object[]&gt; rows = stockHistoryRepository.searchStockUpdates(</span>
                 start, end,
-<span class="fc" id="L221">                blankToNull(filter.getItemName()),</span>
-<span class="fc" id="L222">                blankToNull(filter.getSupplierId()),</span>
-<span class="fc" id="L223">                blankToNull(filter.getCreatedBy()),</span>
+<span class="fc" id="L243">                blankToNull(filter.getItemName()),</span>
+<span class="fc" id="L244">                blankToNull(filter.getSupplierId()),</span>
+<span class="fc" id="L245">                blankToNull(filter.getCreatedBy()),</span>
                 min, max
         );
 
-<span class="fc" id="L227">        return rows.stream()</span>
-<span class="fc" id="L228">                .map(r -&gt; new StockUpdateResultDTO(</span>
+<span class="fc" id="L249">        return rows.stream()</span>
+<span class="fc" id="L250">                .map(r -&gt; new StockUpdateResultDTO(</span>
                         (String) r[0],
                         (String) r[1],
-<span class="fc" id="L231">                        asNumber(r[2]).intValue(),</span>
+<span class="fc" id="L253">                        asNumber(r[2]).intValue(),</span>
                         (String) r[3],
                         (String) r[4],
-<span class="fc" id="L234">                        asLocalDateTime(r[5])</span>
+<span class="fc" id="L256">                        asLocalDateTime(r[5])</span>
                 ))
-<span class="fc" id="L236">                .toList();</span>
+<span class="fc" id="L258">                .toList();</span>
     }
 
     /**
@@ -248,19 +270,19 @@ public class StockAnalyticsService {
      * @throws InvalidRequestException if filter is null or the date range is inverted
      */
     private static LocalDateTime[] resolveFilterWindow(StockUpdateFilterDTO filter) {
-<span class="fc bfc" id="L251" title="All 2 branches covered.">        if (filter == null) {</span>
-<span class="fc" id="L252">            throw new InvalidRequestException(&quot;filter must not be null&quot;);</span>
+<span class="fc bfc" id="L273" title="All 2 branches covered.">        if (filter == null) {</span>
+<span class="fc" id="L274">            throw new InvalidRequestException(&quot;filter must not be null&quot;);</span>
         }
-<span class="fc" id="L254">        LocalDateTime start = filter.getStartDate();</span>
-<span class="fc" id="L255">        LocalDateTime end   = filter.getEndDate();</span>
-<span class="pc bpc" id="L256" title="1 of 4 branches missed.">        if (start == null &amp;&amp; end == null) {</span>
-<span class="fc" id="L257">            end   = LocalDateTime.now();</span>
-<span class="fc" id="L258">            start = end.minusDays(30);</span>
+<span class="fc" id="L276">        LocalDateTime start = filter.getStartDate();</span>
+<span class="fc" id="L277">        LocalDateTime end   = filter.getEndDate();</span>
+<span class="pc bpc" id="L278" title="1 of 4 branches missed.">        if (start == null &amp;&amp; end == null) {</span>
+<span class="fc" id="L279">            end   = LocalDateTime.now();</span>
+<span class="fc" id="L280">            start = end.minusDays(30);</span>
         }
-<span class="pc bpc" id="L260" title="2 of 6 branches missed.">        if (start != null &amp;&amp; end != null &amp;&amp; start.isAfter(end)) {</span>
-<span class="fc" id="L261">            throw new InvalidRequestException(&quot;startDate must be on or before endDate&quot;);</span>
+<span class="pc bpc" id="L282" title="2 of 6 branches missed.">        if (start != null &amp;&amp; end != null &amp;&amp; start.isAfter(end)) {</span>
+<span class="fc" id="L283">            throw new InvalidRequestException(&quot;startDate must be on or before endDate&quot;);</span>
         }
-<span class="fc" id="L263">        return new LocalDateTime[]{ start, end };</span>
+<span class="fc" id="L285">        return new LocalDateTime[]{ start, end };</span>
     }
 
     /**
@@ -274,16 +296,16 @@ public class StockAnalyticsService {
      * @throws InvalidRequestException if {@code itemId} is blank or {@code start &gt; end}
      */
     public List&lt;PriceTrendDTO&gt; getPriceTrend(String itemId, String supplierId, LocalDate start, LocalDate end) {
-<span class="fc" id="L277">        String iid = requireNonBlank(itemId, &quot;itemId&quot;);</span>
-<span class="fc" id="L278">        LocalDate s = requireNonNull(start, &quot;start&quot;);</span>
-<span class="fc" id="L279">        LocalDate e = requireNonNull(end, &quot;end&quot;);</span>
+<span class="fc" id="L299">        String iid = requireNonBlank(itemId, &quot;itemId&quot;);</span>
+<span class="fc" id="L300">        LocalDate s = requireNonNull(start, &quot;start&quot;);</span>
+<span class="fc" id="L301">        LocalDate e = requireNonNull(end, &quot;end&quot;);</span>
 
-<span class="fc bfc" id="L281" title="All 2 branches covered.">        if (s.isAfter(e)) {</span>
-<span class="fc" id="L282">            throw new InvalidRequestException(&quot;start must be on or before end&quot;);</span>
+<span class="fc bfc" id="L303" title="All 2 branches covered.">        if (s.isAfter(e)) {</span>
+<span class="fc" id="L304">            throw new InvalidRequestException(&quot;start must be on or before end&quot;);</span>
         }
 
         // startOfDay/endOfDay so start and end dates are fully inclusive at TIMESTAMP precision
-<span class="fc" id="L286">        return stockHistoryRepository.getItemPriceTrend(iid, supplierId, startOfDay(s), endOfDay(e));</span>
+<span class="fc" id="L308">        return stockHistoryRepository.getItemPriceTrend(iid, supplierId, startOfDay(s), endOfDay(e));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
