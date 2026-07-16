@@ -118,6 +118,13 @@
         <p>Provisioning happens at token load —
         <code>UserProvisioningService</code> is the single authoritative
         provisioner, and role healing runs on every login.</p>
+        <p>Access is gated before provisioning: the user services reject
+        any email that is not on the admin allow-list with an
+        <code>access_denied</code> error, so no local account is created
+        for an unauthorized identity. The failure handler routes those
+        to the frontend login with <code>?error=unauthorized</code>
+        (distinct from the generic <code>?error=oauth</code>), which
+        renders a localized “not authorized” message.</p>
         <table>
         <thead>
         <tr class="header">

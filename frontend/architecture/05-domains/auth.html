@@ -107,10 +107,13 @@
         <code>useAuth().login()</code>, a full-page redirect (not XHR)
         to
         <code>${API_BASE}/oauth2/authorization/google?return=&lt;origin&gt;</code>.
-        A <code>?error=</code> query renders an error banner (canceled
-        consent, failed session verification). “Continue in Demo Mode”
-        calls <code>useAuth().loginAsDemo()</code>, persists the demo
-        user under <code>localStorage['ssp.demo.session']</code>, and
+        A <code>?error=</code> query renders an error banner:
+        <code>?error=unauthorized</code> shows a distinct “not
+        authorized” message (the Google account is not on the access
+        allow-list), while other values show a generic sign-in-failed
+        message. “Continue in Demo Mode” calls
+        <code>useAuth().loginAsDemo()</code>, persists the demo user
+        under <code>localStorage['ssp.demo.session']</code>, and
         navigates to the dashboard — a client-only, read-only session
         with no backend account.</p>
         <h2 id="callback-session-hydration">Callback &amp; Session
