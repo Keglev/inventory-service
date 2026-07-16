@@ -6,7 +6,7 @@
  * Unit tests for <HealthStatusDisplay /> — renders backend + database health indicators.
  *
  * Test strategy:
- * - Verify static labels ("Backend", "Database").
+ * - Verify label tooltips ("Backend", "Database").
  * - Verify state rendering for online/offline backend and database.
  * - Verify response time rendering behavior (shown only when meaningful).
  * - Verify i18n integration (translation keys are requested).
@@ -72,16 +72,16 @@ describe('HealthStatusDisplay', () => {
   // ---------------------------------------------------------------------------
   // Rendering: labels
   // ---------------------------------------------------------------------------
-  it('renders backend label', () => {
-    // Ensures the UI communicates what the first status refers to.
+  it('exposes the backend label as a tooltip', () => {
+    // Caption is a chip tooltip (title), not visible text, to keep the row compact.
     arrange();
-    expect(screen.getByText('Backend')).toBeInTheDocument();
+    expect(screen.getByTitle('Backend')).toBeInTheDocument();
   });
 
-  it('renders database label', () => {
-    // Ensures the UI communicates what the second status refers to.
+  it('exposes the database label as a tooltip', () => {
+    // Caption is a chip tooltip (title), not visible text, to keep the row compact.
     arrange();
-    expect(screen.getByText('Database')).toBeInTheDocument();
+    expect(screen.getByTitle('Database')).toBeInTheDocument();
   });
 
   // ---------------------------------------------------------------------------

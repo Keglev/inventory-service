@@ -3,8 +3,9 @@
  * @module app/footer/HealthStatusDisplay
  *
  * @summary
- * System health status display component.
- * Shows backend and database status with real-time response time information.
+ * System health status display component. Renders backend and database status
+ * as a single compact inline row (one flex child) so the footer stays one line
+ * tall; the backend response time appears inline when meaningful.
  *
  * @enterprise
  * - Pure presentational leaf: props-only, no state. Receives a HealthStatus prop
@@ -12,8 +13,9 @@
  * - HealthStatus is imported from the features/health barrel (single source
  *   of truth in useHealthCheck). The component reads only status/responseTime/
  *   database; the canonical timestamp field is unused here.
- * - All labels resolve via the footer i18n namespace; status dots and Chip
- *   borders both use semantic theme tokens (success/error).
+ * - All labels resolve via the footer i18n namespace; the "Backend"/"Database"
+ *   captions are chip tooltips (title) rather than visible text to keep the row
+ *   compact. Status dots and Chip borders use semantic theme tokens (success/error).
  */
 
 import { Box, Chip, Stack, Typography } from '@mui/material';
@@ -47,70 +49,45 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
   const backendColor = backendOnline ? 'success' : 'error';
   const dbColor = databaseOnline ? 'success' : 'error';
 
-  return (
-    <>
-      {/* Backend Status */}
-      <Box>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          display="block"
-          sx={{ mb: 0.25 }}
-        >
-          {t('footer:health.backend')}
-        </Typography>
-        <Stack direction="row" spacing={0.5} alignItems="center">
-          <Chip
-            icon={
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  bgcolor: backendOnline ? 'success.main' : 'error.main',
-                }}
-              />
-            }
-            label={backendOnline ? t('footer:status.online') : t('footer:status.offline')}
-            size="small"
-            variant="outlined"
-            sx={{ borderColor: backendColor, color: backendColor }}
-          />
-          {health.responseTime > 0 && (
-            <Typography variant="caption" color="text.secondary">
-              {health.responseTime}ms
-            </Typography>
-          )}
-        </Stack>
-      </Box>
+  const statusDot = (online: boolean) => (
+    <Box
+      sx={{
+        width: 8,
+        height: 8,
+        borderRadius: '50%',
+        bgcolor: online ? 'success.main' : 'error.main',
+      }}
+    />
+  );
 
-      {/* Database Status */}
-      <Box>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          display="block"
-          sx={{ mt: 0.5, mb: 0.25 }}
-        >
-          {t('footer:health.database')}
-        </Typography>
+  return (
+    <Stack direction="row" spacing={1.5} alignItems="center" sx={{ flexShrink: 0 }}>
+      {/* Backend: chip + inline response time. Caption lives in the tooltip. */}
+      <Stack direction="row" spacing={0.5} alignItems="center">
         <Chip
-          icon={
-            <Box
-              sx={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                bgcolor: databaseOnline ? 'success.main' : 'error.main',
-              }}
-            />
-          }
-          label={databaseOnline ? t('footer:health.oracleAdb') : t('footer:status.offline')}
+          title={t('footer:health.backend')}
+          icon={statusDot(backendOnline)}
+          label={backendOnline ? t('footer:status.online') : t('footer:status.offline')}
           size="small"
           variant="outlined"
-          sx={{ borderColor: dbColor, color: dbColor }}
+          sx={{ borderColor: backendColor, color: backendColor }}
         />
-      </Box>
-    </>
+        {health.responseTime > 0 && (
+          <Typography variant="caption" color="text.secondary">
+            {health.responseTime}ms
+          </Typography>
+        )}
+      </Stack>
+
+      {/* Database: chip. Caption lives in the tooltip. */}
+      <Chip
+        title={t('footer:health.database')}
+        icon={statusDot(databaseOnline)}
+        label={databaseOnline ? t('footer:health.oracleAdb') : t('footer:status.offline')}
+        size="small"
+        variant="outlined"
+        sx={{ borderColor: dbColor, color: dbColor }}
+      />
+    </Stack>
   );
 }
