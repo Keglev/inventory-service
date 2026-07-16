@@ -44,6 +44,19 @@ class CustomOAuth2UserServiceTest {
                     .isInstanceOfSatisfying(OAuth2AuthenticationException.class, ex ->
                             Assertions.assertThat(ex.getError().getErrorCode()).contains("Email not provided"));
         }
+
+        @Test
+        void should_throw_access_denied_when_email_not_on_allowlist() {
+            AppUserRepository repo = Mockito.mock(AppUserRepository.class);
+            OAuth2User upstream = CustomUserServiceTestSupport.oauth2UserWithAttributes(Map.of(
+                    "email", USER_EMAIL, "name", "Alice"));
+            CustomOAuth2UserService service = CustomUserServiceTestSupport.oauth2ServiceDenied(repo, upstream);
+
+            Assertions.assertThatThrownBy(() -> service.loadUser(Mockito.mock(OAuth2UserRequest.class)))
+                    .isInstanceOf(OAuth2AuthenticationException.class)
+                    .isInstanceOfSatisfying(OAuth2AuthenticationException.class, ex ->
+                            Assertions.assertThat(ex.getError().getErrorCode()).isEqualTo("access_denied"));
+        }
     }
 
     /**

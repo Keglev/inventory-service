@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,16 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         return readAdminAllowlist().contains(email.toLowerCase());
     }
 
+    /**
+     * Whether the given email is permitted to sign in. Access is currently
+     * limited to the admin allow-list; this seam keeps the login gate separate
+     * from role assignment so a broader access list can be added later without
+     * touching the OAuth2 login flow.
+     */
+    protected boolean isAllowedEmail(String email) {
+        return isAdminEmail(email);
+    }
+
     private static String toRoleAuthority(String roleName) {
         if (roleName == null || roleName.isBlank()) return "ROLE_USER";
         return roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName;
@@ -79,6 +90,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         if (email == null || email.isBlank()) {
             throw new OAuth2AuthenticationException("Email not provided by OAuth2 provider.");
+        }
+
+        // Access gate: only allow-listed identities may sign in; everyone else is
+        // rejected before provisioning so no local account is created for them.
+        if (!isAllowedEmail(email)) {
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error("access_denied", "Email not authorized for this application", null));
         }
 
         AppUser user = userProvisioningService.provision(email, name, isAdminEmail(email));

@@ -57,6 +57,17 @@ class CustomOidcUserServiceTest {
             Assertions.assertThatThrownBy(() -> service(repo, upstream, false).loadUser(request()))
                     .isInstanceOf(OAuth2AuthenticationException.class);
         }
+
+        @Test
+        void should_throw_access_denied_when_email_not_on_allowlist() {
+            AppUserRepository repo = mock(AppUserRepository.class);
+            OidcUser upstream = CustomUserServiceTestSupport.upstreamOidcUser(USER_EMAIL, "Alice");
+            Assertions.assertThatThrownBy(
+                    () -> CustomUserServiceTestSupport.oidcServiceDenied(repo, upstream).loadUser(request()))
+                    .isInstanceOf(OAuth2AuthenticationException.class)
+                    .isInstanceOfSatisfying(OAuth2AuthenticationException.class, ex ->
+                            Assertions.assertThat(ex.getError().getErrorCode()).isEqualTo("access_denied"));
+        }
     }
 
     /**

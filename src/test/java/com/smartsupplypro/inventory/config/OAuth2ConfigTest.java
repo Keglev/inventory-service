@@ -65,6 +65,20 @@ class OAuth2ConfigTest {
     }
 
     @Test
+    void should_redirectWithUnauthorizedError_when_failureIsAccessDenied() throws Exception {
+        HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
+        HttpServletResponse res = Mockito.mock(HttpServletResponse.class);
+        when(res.isCommitted()).thenReturn(false);
+
+        var denied = new org.springframework.security.oauth2.core.OAuth2AuthenticationException(
+                new org.springframework.security.oauth2.core.OAuth2Error("access_denied"));
+
+        config.oauthFailureHandler().onAuthenticationFailure(req, res, denied);
+
+        verify(res).sendRedirect("https://frontend.test/login?error=unauthorized");
+    }
+
+    @Test
     void should_useCookieBasedRepository_when_authorizationRequestRepositoryCreated() {
         assertThat(config.authorizationRequestRepository())
                 .isInstanceOf(CookieOAuth2AuthorizationRequestRepository.class);

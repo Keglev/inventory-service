@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository;
 
@@ -32,7 +33,14 @@ public class OAuth2Config {
     public AuthenticationFailureHandler oauthFailureHandler() {
         return (request, response, exception) -> {
             LoggerFactory.getLogger(OAuth2Config.class).warn("OAuth2 failure: {}", exception.toString());
-            String target = props.getFrontend().getBaseUrl() + "/login?error=oauth";
+            // Distinguish an allow-list rejection (access_denied) from a generic OAuth failure
+            // so the frontend can show a specific "not authorized" message.
+            String errorCode = "oauth";
+            if (exception instanceof OAuth2AuthenticationException oae
+                    && "access_denied".equals(oae.getError().getErrorCode())) {
+                errorCode = "unauthorized";
+            }
+            String target = props.getFrontend().getBaseUrl() + "/login?error=" + errorCode;
             if (!response.isCommitted()) response.sendRedirect(target);
         };
     }

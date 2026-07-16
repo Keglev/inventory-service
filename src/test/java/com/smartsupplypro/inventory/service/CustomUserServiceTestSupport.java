@@ -63,6 +63,15 @@ final class CustomUserServiceTestSupport {
         return new CustomOAuth2UserService(new UserProvisioningService(repo)) {
             @Override protected OAuth2User loadFromProvider(OAuth2UserRequest request) { return upstream; }
             @Override protected boolean isAdminEmail(String email) { return isAdmin; }
+            @Override protected boolean isAllowedEmail(String email) { return true; }
+        };
+    }
+
+    static CustomOAuth2UserService oauth2ServiceDenied(AppUserRepository repo, OAuth2User upstream) {
+        return new CustomOAuth2UserService(new UserProvisioningService(repo)) {
+            @Override protected OAuth2User loadFromProvider(OAuth2UserRequest request) { return upstream; }
+            @Override protected boolean isAdminEmail(String email) { return false; }
+            @Override protected boolean isAllowedEmail(String email) { return false; }
         };
     }
 
@@ -70,6 +79,15 @@ final class CustomUserServiceTestSupport {
         return new CustomOidcUserService(new UserProvisioningService(repo)) {
             @Override protected OidcUser loadFromProvider(OidcUserRequest request) { return upstream; }
             @Override protected boolean isAdminEmail(String email) { return isAdmin; }
+            @Override protected boolean isAllowedEmail(String email) { return true; }
+        };
+    }
+
+    static CustomOidcUserService oidcServiceDenied(AppUserRepository repo, OidcUser upstream) {
+        return new CustomOidcUserService(new UserProvisioningService(repo)) {
+            @Override protected OidcUser loadFromProvider(OidcUserRequest request) { return upstream; }
+            @Override protected boolean isAdminEmail(String email) { return false; }
+            @Override protected boolean isAllowedEmail(String email) { return false; }
         };
     }
 

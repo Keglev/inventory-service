@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
@@ -62,6 +63,16 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         return readAdminAllowlist().contains(email.toLowerCase());
     }
 
+    /**
+     * Whether the given email is permitted to sign in. Access is currently
+     * limited to the admin allow-list; this seam keeps the login gate separate
+     * from role assignment so a broader access list can be added later without
+     * touching the OAuth2 login flow.
+     */
+    protected boolean isAllowedEmail(String email) {
+        return isAdminEmail(email);
+    }
+
     private static String toRoleAuthority(Role role) {
         String name = (role == null) ? "USER" : role.name();
         return name.startsWith("ROLE_") ? name : "ROLE_" + name;
@@ -84,6 +95,13 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
 
         if (email == null || email.isBlank()) {
             throw new OAuth2AuthenticationException("Email not provided by OAuth2 provider.");
+        }
+
+        // Access gate: only allow-listed identities may sign in; everyone else is
+        // rejected before provisioning so no local account is created for them.
+        if (!isAllowedEmail(email)) {
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error("access_denied", "Email not authorized for this application", null));
         }
 
         AppUser user = userProvisioningService.provision(email, name, isAdminEmail(email));

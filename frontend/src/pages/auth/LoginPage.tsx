@@ -18,7 +18,7 @@
  *
  * @i18n
  * Uses 'auth' namespace. Keys: signIn, welcome, or, signInGoogle, ssoHint,
- * errorTitle, continueDemo.
+ * errorTitle, errorUnauthorized, continueDemo.
  */
 
 import {
@@ -35,6 +35,7 @@ export default function LoginPage() {
   const { search } = useLocation();
   const params = new URLSearchParams(search);
   const oauthError = params.get('error');
+  const errorMessage = oauthError === 'unauthorized' ? t('errorUnauthorized') : t('errorTitle');
 
   const { loginAsDemo, login } = useAuth();
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ export default function LoginPage() {
         <CardContent>
           {oauthError && (
             <Alert severity="error" sx={{ mb: 2 }}>
-              <strong>{t('errorTitle')}</strong>
+              <strong>{errorMessage}</strong>
             </Alert>
           )}
 

@@ -106,6 +106,15 @@ describe('LoginPage', () => {
       expect(screen.getByRole('alert')).toBeInTheDocument();
       expect(screen.getByText('Sign-in failed. Please try again.')).toBeInTheDocument();
     });
+
+    it('renders the not-authorized message when error=unauthorized', () => {
+      renderLoginPage('/login?error=unauthorized');
+
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(
+        screen.getByText("This Google account isn't authorized for this application. Use the demo below, or contact the site owner."),
+      ).toBeInTheDocument();
+    });
   });
 
   describe('actions', () => {
