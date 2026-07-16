@@ -8,7 +8,9 @@ global state in `context/auth/`.
 `LoginPage` is SSO-first: the Google button calls `useAuth().login()`, a
 full-page redirect (not XHR) to
 `${API_BASE}/oauth2/authorization/google?return=<origin>`. A `?error=` query
-renders an error banner (canceled consent, failed session verification).
+renders an error banner: `?error=unauthorized` shows a distinct "not authorized"
+message (the Google account is not on the access allow-list), while other values
+show a generic sign-in-failed message.
 "Continue in Demo Mode" calls `useAuth().loginAsDemo()`, persists the demo user
 under `localStorage['ssp.demo.session']`, and navigates to the dashboard — a
 client-only, read-only session with no backend account.

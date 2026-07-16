@@ -162,6 +162,12 @@ sequenceDiagram
     SH-->>Browser: Set-Cookie SESSION HTTP-only SameSite=None Secure, 302 to /auth
 ```
 
+Before provisioning, the user service applies an access gate: an email that is
+not on the admin allow-list is rejected with `access_denied` and no account is
+created, and the failure handler redirects the browser to
+`/login?error=unauthorized`. Only allow-listed identities reach the provisioning
+steps shown above.
+
 ## Scenario 3 — Analytics Read
 
 ```mermaid

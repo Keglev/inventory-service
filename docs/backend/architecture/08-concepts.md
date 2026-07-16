@@ -22,6 +22,12 @@ flowchart TD
 Provisioning happens at token load — `UserProvisioningService` is the single
 authoritative provisioner, and role healing runs on every login.
 
+Access is gated before provisioning: the user services reject any email that is
+not on the admin allow-list with an `access_denied` error, so no local account
+is created for an unauthorized identity. The failure handler routes those to the
+frontend login with `?error=unauthorized` (distinct from the generic
+`?error=oauth`), which renders a localized "not authorized" message.
+
 | Role | Rights |
 |---|---|
 | `ADMIN` | Full CRUD, analytics |
