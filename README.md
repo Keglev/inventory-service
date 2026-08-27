@@ -21,8 +21,8 @@ Manual inventory tracking in small manufacturing companies leads to stock discre
 5. [Tech Stack](#tech-stack)
 6. [Quick Start](#quick-start)
 7. [Testing & Code Quality](#testing--code-quality)
-8. [CI/CD & Deployment](#cicd--deployment)
-9. [Roadmap](#roadmap)
+8. [AI-Assisted Development](#ai-assisted-development)
+9. [CI/CD & Deployment](#cicd--deployment)
 10. [License](#license)
 11. [Contact](#contact)
 
@@ -125,6 +125,18 @@ npx vitest run     # test suite
   - [Backend coverage (JaCoCo)](https://keglev.github.io/inventory-service/backend/coverage/index.html)
   - [Frontend coverage (Vitest)](https://keglev.github.io/inventory-service/frontend/coverage/index.html)
   - [Testing concepts (arc42 §8c)](https://keglev.github.io/inventory-service/backend/architecture/08c-concepts-testing.html)
+
+---
+
+## AI-Assisted Development
+
+This project is developed with AI assistance, and the division of labour is worth stating plainly.
+
+Two tools are used. A chat-based model acts as architect and reviewer: designs are argued there, alternatives rejected, standards written, and change specifications drafted. An editor-integrated agent executes those specifications against the repository and reports what it did and where it deviated.
+
+Every architecture, domain, and security decision is mine. I write the standards the code is held to (per-layer size budgets, comment rules, i18n key parity, test naming), review every diff, and decide what is merged. The agent implements to a written specification and does not decide scope; where the specification turns out to be wrong about the code, it stops and says so rather than forcing the change. Several decisions in the [ADR log](https://keglev.github.io/inventory-service/backend/architecture/09-decisions/) were reversed by exactly that mechanism, including the removal of Kafka once source verification showed there was no service boundary for it to serve.
+
+Controls make this verifiable rather than a claim. Every claim in a specification is checked against source before it is acted on. Both tiers run the full test suite in CI and publish coverage. The commit history is public; from this point on, changes arrive as reviewed pull requests, and each pull request states what was verified and what was left undone.
 
 ---
 
