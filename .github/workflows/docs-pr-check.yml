@@ -1,0 +1,81 @@
+# =============================================================================
+# Smart Supply Pro – Docs PR Check
+#
+# Pull request gate for documentation changes. Builds the docs site exactly as
+# docs-pipeline.yml does (minus coverage and TypeDoc, which come from CI
+# artifacts) and checks that every internal link resolves. Nothing is uploaded
+# or deployed from this workflow. Its job is named build-and-test so it
+# satisfies the required status check for docs-only pull requests; the trigger
+# paths below must stay identical to the docs entries in the paths-ignore list
+# of 1-ci-test.yml. This file itself is absent from that list on purpose, so
+# editing the docs gate also runs the backend suite.
+# =============================================================================
+name: Docs PR Check
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'docs/**'
+      - '.github/scripts/docs/**'
+      - '.github/workflows/docs-pipeline.yml'
+      - 'lychee.toml'
+      - '.github/workflows/docs-pr-check.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: docs-pr-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Pin npm version
+        run: |
+          npm install -g npm@11.10.1
+          echo "npm: $(npm --version)"
+
+      - name: Install ReDoc CLI
+        run: npm install -g @redocly/cli
+
+      - name: Install Pandoc
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y pandoc
+
+      # Coverage and TypeDoc inputs are absent here by design; build-docs.sh skips them.
+      - name: Build docs site
+        run: bash .github/scripts/docs/build-docs.sh .
+
+      - name: Stage the site for link checking
+        run: |
+          mkdir -p target/link-check
+          cp -r target/docs target/link-check/inventory-service
+
+      - name: Check internal links
+        uses: lycheeverse/lychee-action@v2.9.0
+        with:
+          lycheeVersion: v0.24.2
+          fail: true
+          args: >-
+            --config lychee.toml
+            --root-dir "${{ github.workspace }}/target/link-check"
+            "target/link-check/inventory-service/**/*.html"
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## Docs PR Check" >> $GITHUB_STEP_SUMMARY
+          echo "- Site built and internal links checked; nothing published." >> $GITHUB_STEP_SUMMARY

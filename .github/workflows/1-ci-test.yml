@@ -3,38 +3,39 @@
 #
 # Compiles, tests, and generates JaCoCo coverage for the backend service.
 # On success, triggers: 2-docker-backend.yml (image build and scan).
+#
+# This is the repository's merge gate. Its job is named build-and-test, the
+# status check branch protection requires on main. Every path not claimed by
+# 5-frontend-ci.yml or docs-pr-check.yml falls through to this workflow, so a
+# pull request always has exactly one workflow reporting that check. A path
+# may be ignored below ONLY if another workflow gives that pull request a
+# build-and-test check; a path ignored everywhere leaves its pull requests
+# permanently blocked. README.md and LICENSE deliberately stay here: they are
+# outside docs/ and the docs build never reads them.
 # =============================================================================
 name: 1 Backend CI - Build & Test
 
 on:
   push:
-    branches: [ "main", "develop" ]
-    paths:
-      - 'inventory-service/src/**'
-      - 'inventory-service/pom.xml'
-      - 'inventory-service/mvnw'
-      - 'inventory-service/mvnw.cmd'
-      - 'inventory-service/.mvn/**'
-      - 'src/**'
-      - 'pom.xml'
-      - 'mvnw'
-      - 'mvnw.cmd'
-      - '.mvn/**'
-      - '.github/workflows/1-ci-test.yml'
+    branches: [ "main" ]
+    paths-ignore:
+      - 'frontend/**'
+      - 'ops/nginx/**'
+      - '.github/workflows/5-frontend-ci.yml'
+      - 'docs/**'
+      - '.github/scripts/docs/**'
+      - '.github/workflows/docs-pipeline.yml'
+      - 'lychee.toml'
   pull_request:
-    branches: [ "main", "develop" ]
-    paths:
-      - 'inventory-service/src/**'
-      - 'inventory-service/pom.xml'
-      - 'inventory-service/mvnw'
-      - 'inventory-service/mvnw.cmd'
-      - 'inventory-service/.mvn/**'
-      - 'src/**'
-      - 'pom.xml'
-      - 'mvnw'
-      - 'mvnw.cmd'
-      - '.mvn/**'
-      - '.github/workflows/1-ci-test.yml'
+    branches: [ "main" ]
+    paths-ignore:
+      - 'frontend/**'
+      - 'ops/nginx/**'
+      - '.github/workflows/5-frontend-ci.yml'
+      - 'docs/**'
+      - '.github/scripts/docs/**'
+      - '.github/workflows/docs-pipeline.yml'
+      - 'lychee.toml'
   workflow_dispatch:
 
 concurrency:
@@ -104,7 +105,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: jacoco-html-${{ github.sha }}
+          name: jacoco-html-${{ github.event.pull_request.head.sha || github.sha }}
           path: ${{ env.BACKEND_DIR }}/target/site/jacoco/
           retention-days: 30
 
@@ -112,5 +113,5 @@ jobs:
         if: always()
         run: |
           echo "## Backend Build & Test" >> $GITHUB_STEP_SUMMARY
-          echo "- **Coverage artifact:** \`jacoco-html-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Coverage artifact:** \`jacoco-html-${{ github.event.pull_request.head.sha || github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Next:** \`2-docker-backend.yml\` builds and scans the Docker image" >> $GITHUB_STEP_SUMMARY

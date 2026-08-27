@@ -1,0 +1,14 @@
+# Offline link check of the built docs site. Used by docs-pr-check.yml (PR gate)
+# and docs-pipeline.yml (publishing build) with the same pinned lychee version.
+offline = true
+require_https = false
+max_retries = 0
+no_progress = true
+exclude = [
+  # JaCoCo report: produced by 1-ci-test.yml, absent on docs-only builds.
+  "/inventory-service/backend/coverage/",
+  # Vitest coverage report: produced by 5-frontend-ci.yml, absent on docs-only builds.
+  "/inventory-service/frontend/coverage/",
+  # TypeDoc reference: needs frontend node_modules, which the PR check does not install.
+  "/inventory-service/frontend/api/",
+]

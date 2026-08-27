@@ -42,7 +42,9 @@ env:
 # Pull requests run tests and upload coverage only. Image build/push is gated to
 # push events so an unmerged branch can never overwrite the :latest tag.
 jobs:
-  build-and-dockerize:
+  # Named build-and-test so this workflow satisfies the required status check
+  # for frontend pull requests; see the header of 1-ci-test.yml.
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -74,7 +76,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: frontend-coverage-html-${{ github.sha }}
+          name: frontend-coverage-html-${{ github.event.pull_request.head.sha || github.sha }}
           path: frontend/coverage/
           retention-days: 30
 
@@ -118,7 +120,7 @@ jobs:
         if: always()
         run: |
           echo "## Frontend CI Results" >> $GITHUB_STEP_SUMMARY
-          echo "- **Coverage artifact:** \`frontend-coverage-html-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Coverage artifact:** \`frontend-coverage-html-${{ github.event.pull_request.head.sha || github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "- **Image:** not built on pull requests (tests only)" >> $GITHUB_STEP_SUMMARY
           else

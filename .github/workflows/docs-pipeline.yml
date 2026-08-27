@@ -25,6 +25,7 @@ on:
       - 'docs/**'
       - '.github/scripts/docs/**'
       - '.github/workflows/docs-pipeline.yml'
+      - 'lychee.toml'
 
 permissions:
   contents: write
@@ -126,6 +127,22 @@ jobs:
         run: |
           PROJECT_DIR="${{ steps.where.outputs.dir }}"
           bash .github/scripts/docs/build-docs.sh "$PROJECT_DIR"
+
+      # Same checker, same version and config as docs-pr-check.yml: the publishing
+      # build must not disagree with the PR gate about what a broken link is.
+      - name: Stage the site for link checking
+        run: |
+          mkdir -p target/link-check
+          cp -r "${{ steps.where.outputs.dir }}/target/docs" target/link-check/inventory-service
+      - name: Check internal links
+        uses: lycheeverse/lychee-action@v2.9.0
+        with:
+          lycheeVersion: v0.24.2
+          fail: true
+          args: >-
+            --config lychee.toml
+            --root-dir "${{ github.workspace }}/target/link-check"
+            "target/link-check/inventory-service/**/*.html"
 
       - name: Upload docs-site artifact
         uses: actions/upload-artifact@v7
