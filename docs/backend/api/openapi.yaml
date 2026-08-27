@@ -25,7 +25,7 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
-  - url: https://inventoryservice.fly.dev
+  - url: https://api.smartsupplypro.de
     description: Production
   - url: http://localhost:8081
     description: Local development
