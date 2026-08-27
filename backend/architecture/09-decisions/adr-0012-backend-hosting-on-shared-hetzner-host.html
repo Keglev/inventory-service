@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0012-backend-hosting-on-the-shared-hetzner-host">ADR-0012:
+        Backend hosting on the shared Hetzner host</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-08-28</p>
+        <h2 id="context">Context</h2>
+        <p>The backend ran on a 1 GB Fly.io VM, released by a manually
+        triggered <code>fly deploy</code>. The same portfolio already
+        pays for a Hetzner CX33 that runs the maintenance-assistant
+        project: a backend, a Keycloak, and a Caddy that terminates TLS
+        for the whole host. That machine was measured before the move at
+        1.7 GB of 7.7 GB used, with 6.0 GB available — enough to carry a
+        second demo application without touching the existing services’
+        limits.</p>
+        <p>Forces: - Two portfolio projects should not carry two hosting
+        bills when one machine has four fifths of its memory idle. -
+        Oracle Always Free requires the database allow-list to name a
+        stable IPv4. Any new home must have one that does not rotate. -
+        The manual <code>fly deploy</code> step is the last part of the
+        pipeline a human still drives; it should become as automatic as
+        the frontend path already is. - The neighbours must not be able
+        to lose memory to this container, and this container must not be
+        able to lose it to them.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Run the backend as a container on the CX33 host, released
+        automatically by <code>4-deploy-backend.yml</code> after the
+        image build and CVE scan succeed on <code>main</code>.</p>
+        <p>The container is capped at 1400 MiB, with
+        <code>memswap_limit</code> equal to <code>mem_limit</code>. The
+        limit is derived from the heap ceiling rather than from observed
+        RSS: <code>scripts/start.sh</code> sets
+        <code>-XX:MaxRAMPercentage=75</code>, so a 1400 MiB cgroup
+        yields roughly a 1 GiB heap — a deliberate step above the 768
+        MiB the JVM had on the 1 GB Fly.io VM. Without a cgroup limit
+        the JVM would size its heap against the host’s 7.5 GiB and
+        starve the neighbours (maintenance backend 1536m, Keycloak
+        1280m). A 2 GB swapfile was prepared on the maintenance side for
+        the neighbours’ indexing bursts; this container is deliberately
+        excluded from it, because a JVM paging its heap degrades far
+        worse than it restarts.</p>
+        <p>The service joins the maintenance-assistant project’s
+        existing compose network as an external network rather than
+        introducing a shared one. Caddy resolves
+        <code>ssp-backend</code> by container name and terminates TLS
+        for <code>api.smartsupplypro.de</code>. The coupling is explicit
+        and worth naming: this project depends on the neighbour’s
+        network identity, and the site block that routes to it lives in
+        the neighbour’s repository.</p>
+        <p>Images move from Docker Hub to GHCR under the repository’s
+        own package, so the backend release path authenticates with
+        <code>GITHUB_TOKEN</code> and carries no registry secret. The
+        host’s static IPv4, with auto-delete disabled, is the Oracle ACL
+        anchor. Host operating rules are fixed: root provisions
+        directories and hands them to <code>deploy</code>,
+        <code>deploy</code> operates them and has no sudo.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Stay on Fly.io.</strong> Rejected: a second bill for
+        an application the already-paid host can carry, and the manual
+        release step stays manual.</li>
+        <li><strong>AWS Lightsail with its own Caddy.</strong> Rejected:
+        the same job as the existing host for a second bill, and a
+        second TLS terminator to maintain.</li>
+        <li><strong>A second Hetzner server for this project
+        alone.</strong> Rejected: doubles the cost for demo traffic that
+        the current machine does not notice.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>One OOM event or one reboot now affects both portfolio
+        demos. This is the reason the memory limits are mandatory rather
+        than advisory, and the reason the container is kept off the
+        swapfile.</li>
+        <li>The release path no longer touches the database allow-list,
+        because the host IPv4 is fixed and already whitelisted.</li>
+        <li><code>api.smartsupplypro.de</code> and
+        <code>www.smartsupplypro.de</code> now share a registrable
+        domain. The session cookie can therefore move from
+        <code>SameSite=None</code> to <code>Lax</code> in a follow-up
+        change, narrowing the cross-site surface described in
+        ADR-0007.</li>
+        <li>Removing this service means removing the Caddy site block in
+        the maintenance-assistant repository; the two are no longer
+        independent.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Compose file: <code>docker/docker-compose.prod.yml</code>
+        (source of truth; copied to <code>/opt/smartsupplypro</code> on
+        every release).</li>
+        <li>Release workflow:
+        <code>.github/workflows/4-deploy-backend.yml</code>.</li>
+        <li>Host runbook, including the <code>.env.prod</code> variable
+        list: <code>docker/README.md</code>.</li>
+        <li><code>fly.toml</code> and <code>4-deploy-fly.yml</code> are
+        removed by the same change.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a href="adr-0007-cross-origin-auth-cookie.html">ADR-0007:
+        Cross-origin session cookie configuration</a></li>
+        <li><a href="adr-0009-runtime-wallet-delivery.html">ADR-0009:
+        Runtime wallet delivery via Fly secret</a></li>
+        <li><a
+        href="adr-0010-custom-domain-and-canonical-host.html">ADR-0010:
+        Custom domain with a canonical <code>www</code> host</a></li>
+        <li>Section 7 Deployment (<code>../07-deployment.md</code>)</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#adr-0012-backend-hosting-on-the-shared-hetzner-host"
+      id="toc-adr-0012-backend-hosting-on-the-shared-hetzner-host">ADR-0012:
+      Backend hosting on the shared Hetzner host</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js"></script>
+</body>
+</html>
