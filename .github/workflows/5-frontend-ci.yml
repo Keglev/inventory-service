@@ -14,13 +14,13 @@ on:
     paths:
       - 'frontend/**'
       - 'ops/nginx/**'
-      - '.github/workflows/5-ci-frontend.yml'
+      - '.github/workflows/5-frontend-ci.yml'
   pull_request:
     branches: [ "main" ]
     paths:
       - 'frontend/**'
       - 'ops/nginx/**'
-      - '.github/workflows/5-ci-frontend.yml'
+      - '.github/workflows/5-frontend-ci.yml'
   workflow_dispatch:
 
 permissions:
@@ -39,6 +39,8 @@ env:
   # Backend API base baked into the Vite production bundle
   VITE_API_BASE: https://inventoryservice.fly.dev
 
+# Pull requests run tests and upload coverage only. Image build/push is gated to
+# push events so an unmerged branch can never overwrite the :latest tag.
 jobs:
   build-and-dockerize:
     runs-on: ubuntu-latest
@@ -77,13 +79,16 @@ jobs:
           retention-days: 30
 
       - name: Set up Docker Buildx
+        if: github.event_name != 'pull_request'
         uses: docker/setup-buildx-action@v4
       - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Generate Docker metadata
+        if: github.event_name != 'pull_request'
         id: meta
         uses: docker/metadata-action@v6
         with:
@@ -94,6 +99,7 @@ jobs:
             type=sha
       # Build context is repo root so the Dockerfile can access ops/nginx config
       - name: Build and push image
+        if: github.event_name != 'pull_request'
         id: build
         uses: docker/build-push-action@v7
         with:
@@ -112,6 +118,10 @@ jobs:
         if: always()
         run: |
           echo "## Frontend CI Results" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image:** \`${{ env.IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Coverage artifact:** \`frontend-coverage-html-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Next:** \`6-deploy-frontend.yml\` deploys this image to Koyeb" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "- **Image:** not built on pull requests (tests only)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Image:** \`${{ env.IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- **Next:** \`6-deploy-frontend.yml\` deploys this image to Koyeb" >> $GITHUB_STEP_SUMMARY
+          fi

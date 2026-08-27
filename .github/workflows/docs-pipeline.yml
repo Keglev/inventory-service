@@ -5,8 +5,8 @@
 # Triggered after backend or frontend CI succeeds, or on docs-only pushes.
 # On success, triggers: 3-deploy-ghpages.yml (publishes to GitHub Pages).
 #
-# Artifacts consumed: jacoco-html-{SHA}            (from 1-ci-backend.yml, optional)
-#                     frontend-coverage-html-{SHA}  (from 5-ci-frontend.yml, optional)
+# Artifacts consumed: jacoco-html-{SHA}            (from 1-ci-test.yml, optional)
+#                     frontend-coverage-html-{SHA}  (from 5-frontend-ci.yml, optional)
 # Artifacts produced: docs-site                    (consumed by 3-deploy-ghpages.yml)
 # =============================================================================
 name: Docs Pipeline - OpenAPI & Architecture
@@ -17,6 +17,8 @@ on:
       - "1 Backend CI - Build & Test"
       - "5 Frontend CI - Build & Test"
     types: [completed]
+    # Only CI runs on main feed the public docs site; PR runs must never publish.
+    branches: [ "main" ]
   push:
     branches: [ "main" ]
     paths:
@@ -36,7 +38,9 @@ concurrency:
 jobs:
   build-docs:
     if: >
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+      (github.event_name == 'workflow_run'
+        && github.event.workflow_run.conclusion == 'success'
+        && github.event.workflow_run.head_branch == 'main')
       || github.event_name == 'push'
     runs-on: ubuntu-latest
 

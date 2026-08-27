@@ -1,7 +1,7 @@
 # =============================================================================
 # Smart Supply Pro – Backend Docker Build & Security Scan
 #
-# Triggered after 1-ci-backend.yml succeeds on main or develop.
+# Triggered after 1-ci-test.yml succeeds on main or develop.
 # Builds the production Docker image, scans for CVEs, and pushes to Docker Hub.
 # On success, triggers: 4-deploy-fly.yml (production deployment).
 # =============================================================================
