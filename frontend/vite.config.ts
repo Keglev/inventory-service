@@ -71,13 +71,13 @@ export default defineConfig({
     https: httpsConfig,
     proxy: {
       '/api': {
-        target: 'https://inventoryservice.fly.dev',
+        target: 'https://api.smartsupplypro.de',
         // Required when proxying to a different host; prevents the backend from
         // rejecting requests with a mismatched Host header.
         changeOrigin: true,
       },
-      '/oauth2': 'https://inventoryservice.fly.dev',
-      '/logout': 'https://inventoryservice.fly.dev',
+      '/oauth2': 'https://api.smartsupplypro.de',
+      '/logout': 'https://api.smartsupplypro.de',
     },
     port: 5173,
   },

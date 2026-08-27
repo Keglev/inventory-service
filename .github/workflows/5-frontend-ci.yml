@@ -37,7 +37,7 @@ env:
   # Pinned so local and CI environments stay aligned; update intentionally
   NPM_VERSION: '11.10.1'
   # Backend API base baked into the Vite production bundle
-  VITE_API_BASE: https://inventoryservice.fly.dev
+  VITE_API_BASE: https://api.smartsupplypro.de
 
 # Pull requests run tests and upload coverage only. Image build/push is gated to
 # push events so an unmerged branch can never overwrite the :latest tag.
