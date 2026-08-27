@@ -114,6 +114,6 @@ CMD ["/app/start.sh"]
 # HEALTHCHECK & PORT EXPOSURE
 # ==========================================================
 
-# Health probing handled by Fly.io via fly.toml — HEALTHCHECK omitted to keep image lean
+# Health probing is defined in docker/docker-compose.prod.yml — HEALTHCHECK omitted to keep the image lean
 EXPOSE 8081
 

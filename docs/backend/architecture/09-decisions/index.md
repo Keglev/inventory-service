@@ -26,6 +26,7 @@ ADRs do **not** document:
 - [ADR-0009: Runtime wallet delivery via Fly secret](./adr-0009-runtime-wallet-delivery.md)
 - [ADR-0010: Custom domain with a canonical `www` host](./adr-0010-custom-domain-and-canonical-host.md)
 - [ADR-0011: Restrict OAuth2 login to an email allow-list](./adr-0011-restrict-oauth2-login-to-allowlist.md)
+- [ADR-0012: Backend hosting on the shared Hetzner host](./adr-0012-backend-hosting-on-shared-hetzner-host.md)
 
 ---
 

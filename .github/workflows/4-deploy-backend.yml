@@ -1,0 +1,103 @@
+# =============================================================================
+# Smart Supply Pro – Backend Release to Hetzner
+#
+# Runs after 2-docker-backend.yml has pushed and scanned the image for a commit
+# on main. Copies the compose file from that commit to the host, validates it,
+# then pulls and restarts only the backend service. The compose file in the
+# repository is the source of truth; the host holds a copy plus .env.prod.
+#
+# The deploy user owns /opt/smartsupplypro and nothing else on the host, so
+# the compose file is the only thing this job ever writes there. .env.prod is
+# hand-managed on the host and never touched by CI.
+#
+# The deploy key is written from a secret through the environment, never
+# interpolated into a command line, and no step in this job uses set -x.
+# Host key: trust on first use, same reasoning as the sibling project.
+# =============================================================================
+name: 4 Deploy Backend to Hetzner
+
+on:
+  workflow_run:
+    workflows: ["2 Backend Docker - Build & Scan"]
+    types: [completed]
+    branches: [ "main" ]
+  workflow_dispatch:
+
+concurrency:
+  group: backend-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >
+      (github.event_name == 'workflow_run'
+        && github.event.workflow_run.conclusion == 'success'
+        && github.event.workflow_run.head_branch == 'main')
+      || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      IMAGE_TAG_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+      HEALTH_URL: https://api.smartsupplypro.de
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.IMAGE_TAG_SHA }}
+
+      - name: Install the deploy key
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          set -eu
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -T 15 "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          chmod 600 ~/.ssh/known_hosts
+
+      # The deploy user owns /opt/smartsupplypro and nothing else on the host, so
+      # the compose file is the only thing this job ever writes there; .env.prod
+      # is hand-managed on the host and never touched by CI.
+      - name: Ship the compose file
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set -eu
+          scp -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+            docker/docker-compose.prod.yml \
+            "${DEPLOY_USER}@${DEPLOY_HOST}:/opt/smartsupplypro/docker-compose.prod.yml"
+
+      # Pinning the SHA tag rather than :latest makes the deployed image the one
+      # this run scanned, and gives a rollback a concrete tag to return to.
+      - name: Validate, pull and restart the backend service
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set -eu
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "set -eu
+             cd /opt/smartsupplypro
+             export BACKEND_IMAGE=ghcr.io/keglev/inventory-service/backend:${IMAGE_TAG_SHA}
+             docker compose -f docker-compose.prod.yml --env-file .env.prod config -q
+             docker compose -f docker-compose.prod.yml --env-file .env.prod pull backend
+             docker compose -f docker-compose.prod.yml --env-file .env.prod up -d backend
+             docker image prune -f >/dev/null"
+
+      - name: Health check and smoke tests
+        run: bash .github/scripts/health-check.sh "${{ env.HEALTH_URL }}"
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## Backend Release" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** \`ghcr.io/keglev/inventory-service/backend:${{ env.IMAGE_TAG_SHA }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Host:** api.smartsupplypro.de" >> $GITHUB_STEP_SUMMARY
