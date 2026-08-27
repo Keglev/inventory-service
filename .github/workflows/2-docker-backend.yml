@@ -1,9 +1,9 @@
 # =============================================================================
 # Smart Supply Pro – Backend Docker Build & Security Scan
 #
-# Triggered after 1-ci-test.yml succeeds on main or develop.
-# Builds the production Docker image, scans for CVEs, and pushes to Docker Hub.
-# On success, triggers: 4-deploy-fly.yml (production deployment).
+# Triggered after 1-ci-test.yml succeeds on main. Builds the production image,
+# scans it for CVEs, and pushes it to GHCR under the repository's own package.
+# On success, triggers: 4-deploy-backend.yml (release to the Hetzner host).
 # =============================================================================
 name: 2 Backend Docker - Build & Scan
 
@@ -11,9 +11,9 @@ on:
   workflow_run:
     workflows: ["1 Backend CI - Build & Test"]
     types: [completed]
-    branches: [ "main", "develop" ]
-  push: 
-    branches: [ "main", "develop" ]
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
     paths:
       - 'scripts/start.sh'
       - 'Dockerfile'
@@ -39,7 +39,7 @@ jobs:
       packages: write
 
     env:
-      IMAGE_REPO: ${{ secrets.DOCKER_USERNAME }}/inventory-service
+      IMAGE_REPO: ghcr.io/keglev/inventory-service/backend
       IMAGE_TAG_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
 
     steps:
@@ -61,11 +61,14 @@ jobs:
             exit 1
           fi
 
-      - name: Login to Docker Hub
+      # GITHUB_TOKEN with packages: write is enough for the repository's own GHCR
+      # namespace; no registry secret exists for this step.
+      - name: Login to GHCR
         uses: docker/login-action@v4
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker image
         run: |
@@ -92,7 +95,7 @@ jobs:
           docker push $IMAGE_REPO:latest
           docker push $IMAGE_REPO:${IMAGE_TAG_SHA}
 
-      # Blocks 4-deploy-fly.yml if HIGH or CRITICAL CVEs are found in the image
+      # Blocks 4-deploy-backend.yml if HIGH or CRITICAL CVEs are found in the image
       - name: Scan image for CVEs (Trivy)
         uses: aquasecurity/trivy-action@v0.35.0
         with:
@@ -109,4 +112,4 @@ jobs:
         run: |
           echo "## Backend Docker Build & Scan" >> $GITHUB_STEP_SUMMARY
           echo "- **Image:** \`$IMAGE_REPO:${IMAGE_TAG_SHA}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Next:** \`4-deploy-fly.yml\` deploys this image to Fly.io" >> $GITHUB_STEP_SUMMARY
+          echo "- **Next:** \`4-deploy-backend.yml\` releases this image to the Hetzner host" >> $GITHUB_STEP_SUMMARY

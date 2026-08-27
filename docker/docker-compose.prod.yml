@@ -1,0 +1,47 @@
+# Production compose for the SmartSupplyPro backend on the shared Hetzner host.
+# Source of truth is this file; 4-deploy-backend.yml copies it to
+# /opt/smartsupplypro on every release. Secrets live in /opt/smartsupplypro/.env.prod
+# on the host only (variable list in docker/README.md).
+#
+# TLS termination and the public hostname belong to the Caddy instance of the
+# maintenance-assistant project on the same host. This project joins that
+# project's compose network so Caddy can resolve the container by name; nothing
+# else is shared, no other neighbour is addressed, and no port is published.
+services:
+  backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/keglev/inventory-service/backend:latest}
+    container_name: ssp-backend
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      SERVER_PORT: "8081"
+    # Sized from the heap ceiling, not from RSS: start.sh sets
+    # -XX:MaxRAMPercentage=75, so a 1400 MiB cgroup gives the JVM a ~1 GiB heap,
+    # a step above the 768 MiB it had on the 1 GB Fly.io VM. Without a limit the
+    # JVM would size itself against the host's 7.5 GiB and starve the neighbours
+    # (maintenance backend 1536m, Keycloak 1280m). memswap equals mem on purpose:
+    # the host swapfile exists for the neighbours' indexing bursts, and a JVM
+    # paging its heap is worse than a restart. Re-measure with docker stats
+    # after the first day.
+    mem_limit: 1400m
+    memswap_limit: 1400m
+    networks:
+      - edge
+    # eclipse-temurin:21-jre-alpine ships BusyBox wget.
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8081/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  edge:
+    external: true
+    name: maintenance-assistant_default

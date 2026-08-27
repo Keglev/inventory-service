@@ -87,7 +87,7 @@ Provisioning design and the structured error contract are covered under [Technic
 **DevOps & Infrastructure**
 - GitHub Actions (numbered workflow pipeline: CI test, Docker build with Trivy scan, docs, deploy)
 - Docker multi-stage builds
-- Fly.io (backend), Koyeb (frontend), GitHub Pages (docs + coverage)
+- Hetzner Cloud via Docker Compose and Caddy (backend), Koyeb (frontend), GitHub Pages (docs + coverage)
 
 ---
 
@@ -145,10 +145,10 @@ Controls make this verifiable rather than a claim. Every claim in a specificatio
 Each push to `main` runs the numbered GitHub Actions pipeline: build and test both stacks, generate and publish coverage, build the backend Docker image with a Trivy security scan, and deploy.
 
 - **Frontend:** fully automated — push to `main` builds and deploys to Koyeb with health checks.
-- **Backend:** deliberately uses a manually triggered `fly deploy`. Oracle's Always Free tier requires IP whitelisting for database connections; building locally uses the whitelisted IP and the Fly.io VM provides a stable production IP, eliminating daily whitelist churn.
+- **Backend:** released automatically after the image build and CVE scan pass on `main`. The workflow copies the compose file to the Hetzner host over SSH, validates it, pulls the SHA-tagged image from GHCR, restarts only the backend service and runs the health and smoke checks against the public hostname. Oracle's Always Free tier whitelists the host's static IPv4, so the release path never touches the database allow-list.
 
 **Live application:** <https://www.smartsupplypro.de>
-**Backend API:** <https://inventoryservice.fly.dev>
+**Backend API:** <https://api.smartsupplypro.de>
 
 ---
 
