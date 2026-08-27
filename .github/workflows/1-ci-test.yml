@@ -20,7 +20,7 @@ on:
       - 'mvnw'
       - 'mvnw.cmd'
       - '.mvn/**'
-      - '.github/workflows/1-ci-backend.yml'
+      - '.github/workflows/1-ci-test.yml'
   pull_request:
     branches: [ "main", "develop" ]
     paths:
@@ -34,7 +34,7 @@ on:
       - 'mvnw'
       - 'mvnw.cmd'
       - '.mvn/**'
-      - '.github/workflows/1-ci-backend.yml'
+      - '.github/workflows/1-ci-test.yml'
   workflow_dispatch:
 
 concurrency:

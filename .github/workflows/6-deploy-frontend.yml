@@ -1,7 +1,7 @@
 # =============================================================================
 # Smart Supply Pro – Deploy Frontend to Koyeb
 #
-# Triggered automatically after 5-ci-frontend.yml succeeds on main.
+# Triggered automatically after 5-frontend-ci.yml succeeds on main.
 # Manual trigger available for rollbacks or emergency deploys.
 # Deploys by image digest (not tag) for deterministic, rollback-safe releases.
 # =============================================================================

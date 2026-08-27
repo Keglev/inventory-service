@@ -11,6 +11,8 @@ on:
   workflow_run:
     workflows: ["Docs Pipeline - OpenAPI & Architecture"]
     types: [completed]
+    # Second guard behind docs-pipeline's own branch filter.
+    branches: [ "main" ]
 
 permissions:
   contents: write
