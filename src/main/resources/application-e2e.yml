@@ -1,0 +1,37 @@
+# =============================================================================
+# e2e profile - additive to `test`, never used alone.
+#
+# Activate as: --spring.profiles.active=test,e2e
+#
+# H2 is test-scoped in the pom and is not inside the packaged jar, so a plain
+# `java -jar` cannot start this profile. Launch the packaged jar with the H2
+# driver on the parent classpath instead (Boot's launcher delegates to it):
+#   java -cp target/inventory-service-*.jar:<m2>/com/h2database/h2/2.3.232/h2-2.3.232.jar \
+#        org.springframework.boot.loader.launch.JarLauncher --spring.profiles.active=test,e2e
+# The version is the H2 pin from the pom; keep the two in step.
+#
+# `test` supplies the H2 datasource, the stubbed OAuth client and create-drop.
+# This file adds only what a browser session in demo mode needs on top:
+#   - anonymous reads admitted (app.demo-readonly), as in production
+#   - a small seed so grids and charts are not empty (H2 syntax, separate from
+#     the Oracle demo seed in db/migration, which Flyway never runs on H2)
+#
+# Keeping `test` active matters: DatabaseDialectDetector selects H2 SQL by
+# profile name (test or h2), not by connection metadata. ADR-0009 (frontend).
+# =============================================================================
+spring:
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:db/e2e/e2e-seed.sql
+  jpa:
+    # Hibernate must create the schema before the seed runs; without this the
+    # data script executes first and fails on missing tables.
+    defer-datasource-initialization: true
+    show-sql: false
+logging:
+  level:
+    '[org.hibernate.SQL]': INFO
+    '[org.hibernate.type.descriptor.sql]': INFO
+app:
+  demo-readonly: true
