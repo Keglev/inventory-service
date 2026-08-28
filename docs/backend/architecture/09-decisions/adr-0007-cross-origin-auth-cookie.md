@@ -10,6 +10,11 @@ Accepted
 > browser traffic is same-origin via the serve-time rewrite proxy. See
 > [ADR-0008](adr-0008-serve-time-api-base-rewrite.md).
 
+> **Currency note (2026-08-28):** with the backend behind the same registrable
+> domain (ADR-0012), the cookies documented here were tightened from
+> `SameSite=None` to `SameSite=Lax`. The cross-origin analysis below is kept as
+> the record of why `None` was once required.
+
 ## Date
 2025-11-15 
 

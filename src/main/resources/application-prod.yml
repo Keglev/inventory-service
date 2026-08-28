@@ -58,7 +58,7 @@ server:
   servlet:
     session:
       cookie:
-        same-site: none                      # Allow cross-site cookies for OAuth2
+        same-site: lax                       # top-level OAuth2 redirect is Lax-compatible; cross-site path retired (ADR-0007/0012)
         secure: true                        # Ensure cookies are secure (HTTPS only)
 
 logging:

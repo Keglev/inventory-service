@@ -81,9 +81,9 @@ public class CookieOAuth2AuthorizationRequestRepository
         cookie.setSecure(isSecureOrForwardedHttps(request));
         cookie.setPath("/");
         cookie.setMaxAge(cookieMaxAge);
-        // SameSite=None required for cross-origin OAuth2 redirect from Google
-        // Secure=true enforced when HTTPS to comply with SameSite=None browser requirements
-        addCookieWithSameSite(response, cookie, "None");
+        // Lax suffices: the callback from Google is a top-level GET navigation.
+        // Secure=true stays mandatory whenever the request is HTTPS.
+        addCookieWithSameSite(response, cookie, "Lax");
     }
 
     @Override
@@ -118,7 +118,7 @@ public class CookieOAuth2AuthorizationRequestRepository
         r.setSecure(isSecureOrForwardedHttps(request));
         r.setPath("/");
         r.setMaxAge(300);
-        addCookieWithSameSite(response, r, "None");
+        addCookieWithSameSite(response, r, "Lax");
     }
 
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
@@ -127,7 +127,7 @@ public class CookieOAuth2AuthorizationRequestRepository
         cookie.setSecure(isSecureOrForwardedHttps(request));
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        addCookieWithSameSite(response, cookie, "None");
+        addCookieWithSameSite(response, cookie, "Lax");
     }
 
     private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {

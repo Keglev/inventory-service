@@ -54,13 +54,13 @@ class CorsConfigTest {
     }
 
     @Test
-    void should_useSameSiteNoneAndSecureCookie_when_cookieSerializerCreated() {
+    void should_useSameSiteLaxAndSecureCookie_when_cookieSerializerCreated() {
         CookieSerializer serializer = config.cookieSerializer();
 
         assertThat(serializer).isInstanceOf(DefaultCookieSerializer.class);
         DefaultCookieSerializer s = (DefaultCookieSerializer) serializer;
         // DefaultCookieSerializer lacks public getters across Spring Session versions — reflection required
-        assertThat(ReflectionTestUtils.getField(s, "sameSite")).isEqualTo("None");
+        assertThat(ReflectionTestUtils.getField(s, "sameSite")).isEqualTo("Lax");
         assertThat(ReflectionTestUtils.getField(s, "useSecureCookie")).isEqualTo(Boolean.TRUE);
     }
 
