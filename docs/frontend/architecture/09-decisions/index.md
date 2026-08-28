@@ -26,6 +26,7 @@ ADRs do **not** document:
 - [ADR-0006: Global state approach using Context modules (Auth/Settings/Toast/Help)](./adr-0006-global-state-with-context-modules.md)
 - [ADR-0007: i18n strategy and language/region settings integration](./adr-0007-i18n-strategy-and-language-region-settings.md)
 - [ADR-0008: Testing structure and taxonomy under src/__tests__](./adr-0008-testing-structure-and-taxonomy.md)
+- [ADR-0009: End-to-end testing with Playwright against a local demo stack](./adr-0009-end-to-end-testing-with-playwright.md)
 
 ---
 
