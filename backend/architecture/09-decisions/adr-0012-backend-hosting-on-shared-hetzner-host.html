@@ -187,6 +187,23 @@
         the maintenance-assistant repository; the two are no longer
         independent.</li>
         </ul>
+        <h3 id="cost-and-shared-fate">Cost and shared fate</h3>
+        <p>Hosting now costs one CX33 at EUR 10.51 per month, carrying
+        both portfolio backends, in place of the two separate provider
+        bills the previous arrangement required. What that money buys is
+        a single failure domain: a host outage, an OOM that the kernel
+        resolves badly, or a botched maintenance window takes both demos
+        down at the same moment, and neither can be recovered without
+        the other. For portfolio projects serving demo traffic to an
+        occasional reviewer, that is a reasonable price for halving the
+        cost and the operational surface. It would not be a defensible
+        design for a system with real customers, where separate failure
+        domains - or at minimum separate hosts - are the floor rather
+        than an optimisation. The mitigations that make the shared fate
+        tolerable are the per-container memory limits, the host
+        swapfile, <code>restart: unless-stopped</code> on every service,
+        and the maintenance discipline of the person who owns the host,
+        which is to say the same person who owns both projects.</p>
         <h2 id="implementation-notes">Implementation Notes</h2>
         <ul>
         <li>Compose file: <code>docker/docker-compose.prod.yml</code>
@@ -226,8 +243,11 @@
       <li><a href="#decision" id="toc-decision">Decision</a></li>
       <li><a href="#alternatives-considered"
       id="toc-alternatives-considered">Alternatives Considered</a></li>
-      <li><a href="#consequences"
-      id="toc-consequences">Consequences</a></li>
+      <li><a href="#consequences" id="toc-consequences">Consequences</a>
+      <ul>
+      <li><a href="#cost-and-shared-fate"
+      id="toc-cost-and-shared-fate">Cost and shared fate</a></li>
+      </ul></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
