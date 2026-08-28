@@ -42,13 +42,42 @@ jobs:
       IMAGE_TAG_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
 
     steps:
+      # A catch-all merge (README, LICENSE, workflow tweaks) still runs backend
+      # CI, but rebuilding and restarting a healthy backend for it serves
+      # nothing. Compare the released commit against its first parent and stop
+      # here when no path the image depends on has changed. 4-deploy-backend
+      # chains on this workflow's success, so skipping the build skips the
+      # release too; a skipped run is reported as success with no image.
+      - name: Checkout for change detection
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 2
+      - name: Decide whether the image must be rebuilt
+        id: gate
+        run: |
+          set -eu
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "build=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          changed=$(git diff --name-only HEAD^ HEAD)
+          echo "$changed"
+          if echo "$changed" | grep -qE '^(src/|pom\.xml|Dockerfile|scripts/|docker/docker-compose\.prod\.yml|\.github/workflows/(2-docker-backend|4-deploy-backend)\.yml)'; then
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "build=false" >> "$GITHUB_OUTPUT"
+            echo "No image-relevant change; skipping build and release." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Checkout code
+        if: steps.gate.outputs.build == 'true'
         uses: actions/checkout@v7
         with:
           ref: ${{ env.IMAGE_TAG_SHA }}
 
       # Supports both monorepo (inventory-service/Dockerfile) and flat (Dockerfile) layouts
       - name: Resolve backend directory
+        if: steps.gate.outputs.build == 'true'
         run: |
           set -euo pipefail
           if [ -f "inventory-service/Dockerfile" ]; then
@@ -63,6 +92,7 @@ jobs:
       # GITHUB_TOKEN with packages: write is enough for the repository's own GHCR
       # namespace; no registry secret exists for this step.
       - name: Login to GHCR
+        if: steps.gate.outputs.build == 'true'
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -70,6 +100,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker image
+        if: steps.gate.outputs.build == 'true'
         run: |
           set -euo pipefail
           docker build --no-cache \
@@ -80,6 +111,7 @@ jobs:
 
       # Verify the production image contains only runtime artifacts — no test sources or docs
       - name: Inspect image contents
+        if: steps.gate.outputs.build == 'true'
         run: |
           docker run --rm $IMAGE_REPO:${IMAGE_TAG_SHA} sh -c '
             echo "=== Runtime artifacts ==="
@@ -90,12 +122,14 @@ jobs:
           '
 
       - name: Push Docker images
+        if: steps.gate.outputs.build == 'true'
         run: |
           docker push $IMAGE_REPO:latest
           docker push $IMAGE_REPO:${IMAGE_TAG_SHA}
 
       # Blocks 4-deploy-backend.yml if HIGH or CRITICAL CVEs are found in the image
       - name: Scan image for CVEs (Trivy)
+        if: steps.gate.outputs.build == 'true'
         uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG_SHA }}
@@ -107,7 +141,7 @@ jobs:
           exit-code: '1'
 
       - name: Job summary
-        if: always()
+        if: always() && steps.gate.outputs.build == 'true'
         run: |
           echo "## Backend Docker Build & Scan" >> $GITHUB_STEP_SUMMARY
           echo "- **Image:** \`$IMAGE_REPO:${IMAGE_TAG_SHA}\`" >> $GITHUB_STEP_SUMMARY
