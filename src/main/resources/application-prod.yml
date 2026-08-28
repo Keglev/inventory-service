@@ -17,7 +17,7 @@ spring:
       # These settings prevent "ORA-17008: Closed connection" errors
       connection-timeout: 30000                # 30 seconds to establish connection
       validation-timeout: 5000                 # 5 seconds to validate connection
-      maximum-pool-size: 5                     # Keep pool small for Fly.io (512MB-1GB RAM)
+      maximum-pool-size: 5                     # Keep pool small; container is capped at 1400 MiB
       minimum-idle: 2                          # Maintain at least 2 idle connections
       max-lifetime: 240000                     # 4 minutes (less than Oracle's 5-min timeout)
       idle-timeout: 180000                     # 3 minutes idle before eviction
@@ -77,7 +77,7 @@ management:
 
 # -------- App-level (prod) --------
 app:
-  # Flip ON in Fly by setting APP_DEMO_READONLY="true" (kept off by default)
+  # Flip ON in production by setting APP_DEMO_READONLY="true" (kept off by default)
   demo-readonly: ${APP_DEMO_READONLY:true}
 
   cors:

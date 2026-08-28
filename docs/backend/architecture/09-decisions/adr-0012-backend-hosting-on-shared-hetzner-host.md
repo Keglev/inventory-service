@@ -73,6 +73,22 @@ them to `deploy`, `deploy` operates them and has no sudo.
 - Removing this service means removing the Caddy site block in the
   maintenance-assistant repository; the two are no longer independent.
 
+### Cost and shared fate
+
+Hosting now costs one CX33 at EUR 10.51 per month, carrying both portfolio
+backends, in place of the two separate provider bills the previous arrangement
+required. What that money buys is a single failure domain: a host outage, an OOM
+that the kernel resolves badly, or a botched maintenance window takes both demos
+down at the same moment, and neither can be recovered without the other. For
+portfolio projects serving demo traffic to an occasional reviewer, that is a
+reasonable price for halving the cost and the operational surface. It would not
+be a defensible design for a system with real customers, where separate failure
+domains - or at minimum separate hosts - are the floor rather than an
+optimisation. The mitigations that make the shared fate tolerable are the
+per-container memory limits, the host swapfile, `restart: unless-stopped` on
+every service, and the maintenance discipline of the person who owns the host,
+which is to say the same person who owns both projects.
+
 ## Implementation Notes
 - Compose file: `docker/docker-compose.prod.yml` (source of truth; copied to
   `/opt/smartsupplypro` on every release).
