@@ -19,7 +19,7 @@
 | Runtime (dev) | Node.js | 24+ |
 
 The frontend is deployed as a static build behind Nginx on Koyeb; it has no server
-runtime of its own. All data comes from the Spring Boot backend on Fly.io
+runtime of its own. All data comes from the Spring Boot backend at `api.smartsupplypro.de`
 (see [§3](03-context.md)).
 
 ## Organizational Constraints

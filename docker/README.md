@@ -50,7 +50,7 @@ removing that block too.
 
 The container is capped at 1400 MiB with swap equal to memory. `start.sh` sets
 `-XX:MaxRAMPercentage=75`, so the cgroup gives the JVM roughly a 1 GiB heap — a
-step above the 768 MiB it had on the 1 GB Fly.io VM. Without a limit the JVM
+step above the 768 MiB the previous 1 GB hosting tier allowed. Without a limit the JVM
 would size itself against the host's 7.5 GiB and starve the neighbours
 (maintenance backend 1536m, Keycloak 1280m). The host swapfile exists for the
 neighbours' indexing bursts; a JVM paging its heap is worse than a restart.

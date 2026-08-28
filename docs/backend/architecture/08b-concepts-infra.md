@@ -20,7 +20,7 @@ environment-specific knobs: demo-readonly flag, frontend base URL and landing pa
 CORS allowed origins, and OAuth2 state cookie settings. Every field defaults to a safe
 local-dev value and is overridable by environment variable without code changes.
 
-In production, HikariCP is tuned for Fly.io's RAM constraints: `maximum-pool-size=5`,
+In production, HikariCP is tuned for the container's 1400 MiB memory cap: `maximum-pool-size=5`,
 `max-lifetime=240000` ms (below Oracle ADB's 5-minute idle timeout), with a
 `SELECT 1 FROM DUAL` keepalive query.
 

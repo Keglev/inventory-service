@@ -48,7 +48,7 @@ flowchart TB
   State["Contexts (Auth, Settings, Toast, Hilfe)"]:::service
   Query["React-Query-Hooks"]:::service
   API["Domänen-Fetcher + httpClient (Axios)"]:::repository
-  Backend["Spring-Boot-Backend (Fly.io)"]:::repository
+  Backend["Spring-Boot-Backend (Hetzner)"]:::repository
 
   User --> Shell
   Shell --> Pages
@@ -98,7 +98,7 @@ rendert bewusst auf Deutsch.
 Der Produktions-Build wird von **Nginx auf Koyeb** ausgeliefert. Der Browser-Traffic
 ist **Same-Origin**: Nginx schreibt die eingebrannte API-Basis zur Auslieferungszeit
 auf den Frontend-Host um und reverse-proxyt `/api/*` sowie die OAuth-Pfade zum
-Backend auf Fly.io (kanonische Aufzeichnung: Backend-ADR-0008).
+Backend auf `api.smartsupplypro.de` (kanonische Aufzeichnung: Backend-ADR-0008).
 
 ```
 Source push

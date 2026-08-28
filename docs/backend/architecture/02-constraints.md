@@ -16,9 +16,9 @@
 CI use H2 in Oracle-compatibility mode. There is no PostgreSQL profile.
 
 **Oracle wallet authentication** — the wallet is delivered at runtime as a base64
-Fly secret, extracted by the startup script (which sets `TNS_ADMIN` itself), and
+value in the host environment file, extracted by the startup script (which sets `TNS_ADMIN` itself), and
 used in encrypted form with a runtime wallet password; the schema credentials
-(`DB_USER`/`DB_PASS`) are separate Fly secrets. See
+(`DB_USER`/`DB_PASS`) are separate entries in the same file. See
 [ADR 0009](09-decisions/adr-0009-runtime-wallet-delivery.md) and
 [ADR 0001](09-decisions/adr-0001-oracle-wallet-autologin.md).
 

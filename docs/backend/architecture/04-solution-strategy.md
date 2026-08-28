@@ -52,5 +52,5 @@ See [ADR 0004](09-decisions/adr-0004-http-status-as-envelope.md).
 No business state is held in memory between requests. Spring Security tracks the
 authenticated principal via an HTTP-only cookie, but the backend itself treats every
 request as self-contained. Additional instances can be added behind a load balancer
-without sticky sessions or a shared cache — a constraint imposed by Fly.io's
-single-instance-by-default deployment model that is satisfied at zero extra cost.
+without sticky sessions or a shared cache — a property the single-container
+deployment on the shared host relies on, satisfied at zero extra cost.

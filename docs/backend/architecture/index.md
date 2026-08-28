@@ -36,7 +36,7 @@ Google OAuth2 with role-based access control (RBAC).
 | [§4 Solution Strategy](04-solution-strategy.md) | Key strategic choices and the ADRs that justify each one |
 | [§5 Building Block View](05-building-blocks.md) | Layer breakdown — controller, service, repository, model — logical-architecture and ER diagrams |
 | [§6 Runtime View](06-runtime.md) | Request lifecycle, OAuth2 login flow, and analytics computation as sequence diagrams |
-| [§7 Deployment View](07-deployment.md) | Fly.io topology, GitHub Actions CI/CD pipeline, Docker image strategy, environment secrets |
+| [§7 Deployment View](07-deployment.md) | Hetzner topology, GitHub Actions CI/CD pipeline, Docker image strategy, environment secrets |
 | [§8 Cross-cutting Concepts](08-concepts.md) | Security, validation, exception handling, configuration profiles, persistence audit fields (`createdBy`, `createdAt`) |
 | [§9 Decisions](09-decisions/index.md) | Architecture Decision Records |
 | [§10 Quality Requirements](10-quality-requirements.md) | Test strategy, JaCoCo coverage gates, CI pipeline, Trivy CVE scan |

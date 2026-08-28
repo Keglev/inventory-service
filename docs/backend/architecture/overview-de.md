@@ -186,7 +186,7 @@ POST /inventory/items
 - **Pagination** — alle Listen-Endpunkte akzeptieren `Pageable`; unbegrenzte Abfragen werden blockiert
 - **`@EntityGraph`** — auf häufig genutzten Pfaden eingesetzt, um N+1-Abfragen zu vermeiden
 - **Benutzerdefinierte `@Query`** — natives SQL für komplexe Aggregationen, wo JPQL nicht ausreicht
-- **HikariCP-Tuning** — Connection Pool auf die RAM-Beschränkungen von Fly.io abgestimmt
+- **HikariCP-Tuning** — Connection Pool auf die Speichergrenze des Containers abgestimmt
 - **Zustandslose Services** — kein serverseitiger Session-State; horizontale Skalierung ist direkt möglich
 
 ## Testing
@@ -222,13 +222,13 @@ Umgebungsvariablen injiziert und nie in die Versionsverwaltung eingecheckt.
 
 ## Bereitstellung
 
-Das Backend wird über eine vollständig automatisierte GitHub-Actions-Pipeline auf **Fly.io** bereitgestellt:
+Das Backend wird über eine vollständig automatisierte GitHub-Actions-Pipeline auf dem gemeinsam genutzten **Hetzner**-Host bereitgestellt:
 
 ```
 Code-Push
   → 1-ci-test.yml         Maven-Build, JUnit-Tests, JaCoCo-Abdeckung
-  → 2-docker-backend.yml  Docker-Image-Build, Trivy-CVE-Scan, Push zu Docker Hub
-  → 4-deploy-fly.yml      Vorgebautes Image auf Fly.io deployen, Health-Check
+  → 2-docker-backend.yml  Docker-Image-Build, Trivy-CVE-Scan, Push zu GHCR
+  → 4-deploy-backend.yml  Geprüftes Image auf den Hetzner-Host ausliefern, Health-Check
 ```
 
 Das Docker-Image enthält ausschließlich das Produktions-JAR und `start.sh` —
