@@ -4,6 +4,11 @@
 # Triggered after 1-ci-test.yml succeeds on main. Builds the production image,
 # scans it for CVEs, and pushes it to GHCR under the repository's own package.
 # On success, triggers: 4-deploy-backend.yml (release to the Hetzner host).
+#
+# No push trigger on purpose: start.sh, the Dockerfile and this file all fall
+# through to 1-ci-test.yml, so the workflow_run chain covers them. A direct
+# push trigger would build and deploy in parallel with the tests it is
+# supposed to wait for.
 # =============================================================================
 name: 2 Backend Docker - Build & Scan
 
@@ -12,12 +17,6 @@ on:
     workflows: ["1 Backend CI - Build & Test"]
     types: [completed]
     branches: [ "main" ]
-  push:
-    branches: [ "main" ]
-    paths:
-      - 'scripts/start.sh'
-      - 'Dockerfile'
-      - '.github/workflows/2-docker-backend.yml'
   workflow_dispatch:
     inputs:
       image_tag:
