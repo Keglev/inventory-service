@@ -81,9 +81,9 @@ public class CookieOAuth2AuthorizationRequestRepository
 <span class="fc" id="L81">        cookie.setSecure(isSecureOrForwardedHttps(request));</span>
 <span class="fc" id="L82">        cookie.setPath(&quot;/&quot;);</span>
 <span class="fc" id="L83">        cookie.setMaxAge(cookieMaxAge);</span>
-        // SameSite=None required for cross-origin OAuth2 redirect from Google
-        // Secure=true enforced when HTTPS to comply with SameSite=None browser requirements
-<span class="fc" id="L86">        addCookieWithSameSite(response, cookie, &quot;None&quot;);</span>
+        // Lax suffices: the callback from Google is a top-level GET navigation.
+        // Secure=true stays mandatory whenever the request is HTTPS.
+<span class="fc" id="L86">        addCookieWithSameSite(response, cookie, &quot;Lax&quot;);</span>
 <span class="fc" id="L87">    }</span>
 
     @Override
@@ -118,7 +118,7 @@ public class CookieOAuth2AuthorizationRequestRepository
 <span class="fc" id="L118">        r.setSecure(isSecureOrForwardedHttps(request));</span>
 <span class="fc" id="L119">        r.setPath(&quot;/&quot;);</span>
 <span class="fc" id="L120">        r.setMaxAge(300);</span>
-<span class="fc" id="L121">        addCookieWithSameSite(response, r, &quot;None&quot;);</span>
+<span class="fc" id="L121">        addCookieWithSameSite(response, r, &quot;Lax&quot;);</span>
 <span class="fc" id="L122">    }</span>
 
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
@@ -127,7 +127,7 @@ public class CookieOAuth2AuthorizationRequestRepository
 <span class="fc" id="L127">        cookie.setSecure(isSecureOrForwardedHttps(request));</span>
 <span class="fc" id="L128">        cookie.setPath(&quot;/&quot;);</span>
 <span class="fc" id="L129">        cookie.setMaxAge(0);</span>
-<span class="fc" id="L130">        addCookieWithSameSite(response, cookie, &quot;None&quot;);</span>
+<span class="fc" id="L130">        addCookieWithSameSite(response, cookie, &quot;Lax&quot;);</span>
 <span class="fc" id="L131">    }</span>
 
     private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {

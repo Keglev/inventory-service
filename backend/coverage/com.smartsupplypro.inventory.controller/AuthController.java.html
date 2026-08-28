@@ -108,9 +108,9 @@ public class AuthController {
 
         // Expire cookies for API clients (SPA/mobile) that can't follow the standard form-POST /logout
 <span class="fc" id="L110">        ResponseCookie jsess = ResponseCookie.from(&quot;JSESSIONID&quot;, &quot;&quot;)</span>
-<span class="fc" id="L111">                .path(&quot;/&quot;).httpOnly(true).secure(true).sameSite(&quot;None&quot;).maxAge(0).build();</span>
+<span class="fc" id="L111">                .path(&quot;/&quot;).httpOnly(true).secure(true).sameSite(&quot;Lax&quot;).maxAge(0).build();</span>
 <span class="fc" id="L112">        ResponseCookie session = ResponseCookie.from(&quot;SESSION&quot;, &quot;&quot;)</span>
-<span class="fc" id="L113">                .path(&quot;/&quot;).httpOnly(true).secure(true).sameSite(&quot;None&quot;).maxAge(0).build();</span>
+<span class="fc" id="L113">                .path(&quot;/&quot;).httpOnly(true).secure(true).sameSite(&quot;Lax&quot;).maxAge(0).build();</span>
 
 <span class="fc" id="L115">        return ResponseEntity.noContent()</span>
 <span class="fc" id="L116">                .header(&quot;Set-Cookie&quot;, jsess.toString())</span>

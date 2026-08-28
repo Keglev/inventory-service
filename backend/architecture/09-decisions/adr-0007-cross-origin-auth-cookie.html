@@ -114,6 +114,14 @@
         See <a
         href="adr-0008-serve-time-api-base-rewrite.html">ADR-0008</a>.</p>
         </blockquote>
+        <blockquote>
+        <p><strong>Currency note (2026-08-28):</strong> with the backend
+        behind the same registrable domain (ADR-0012), the cookies
+        documented here were tightened from <code>SameSite=None</code>
+        to <code>SameSite=Lax</code>. The cross-origin analysis below is
+        kept as the record of why <code>None</code> was once
+        required.</p>
+        </blockquote>
         <h2 id="date">Date</h2>
         <p>2025-11-15</p>
         <h2 id="context">Context</h2>

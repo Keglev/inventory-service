@@ -102,7 +102,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 <span class="fc" id="L102">        clear.setSecure(isSecureOrForwardedHttps(request));</span>
         // Not HttpOnly: frontend created it non-HttpOnly so clearing must match
 <span class="fc" id="L104">        clear.setHttpOnly(false);</span>
-<span class="fc" id="L105">        addCookieWithSameSite(response, clear, &quot;None&quot;);</span>
+<span class="fc" id="L105">        addCookieWithSameSite(response, clear, &quot;Lax&quot;);</span>
 <span class="fc" id="L106">    }</span>
 
     private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
