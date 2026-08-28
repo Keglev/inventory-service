@@ -3,8 +3,8 @@
 # build-docs.sh — Documentation build orchestrator
 # Usage: .github/scripts/docs/build-docs.sh <project-dir>
 #
-# Writes the Lua filter, builds the theme assets, then delegates to sibling
-# scripts for each doc type. Output tree mirrors the deployed site under
+# Copies the Lua filter into place, builds the theme assets, then delegates to
+# sibling scripts for each doc type. Output tree mirrors the deployed site under
 # <project-dir>/target/docs.
 # Prerequisites: pandoc, redocly CLI, npx
 # =============================================================================
@@ -20,29 +20,22 @@ LUA_FILTER="$PROJECT_DIR/scripts/md-to-html-links.lua"
 # Resolve sibling script directory at runtime — safe regardless of working directory
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Cache-busting token for the theme assets. GitHub Pages serves them with
+# max-age=600, so without a per-deploy suffix there is a ten-minute window in
+# which fresh markup can be paired with a stale cached stylesheet. The commit
+# SHA changes exactly when the assets might have, and falls back to a timestamp
+# outside a git checkout.
+BUILD_ID="$(git -C "$PROJECT_DIR" rev-parse --short HEAD 2>/dev/null || date +%s)"
+
 # ---------------------------------------------------------------------------
-# Lua filter — owned here to avoid duplication across sibling scripts.
+# Lua filter — tracked at .github/scripts/docs/md-to-html-links.lua and copied
+# into place here, so the filter is reviewed like any other source file.
 # Converts .md links to .html and wraps mermaid blocks in a div for the browser.
-# (Filter logic optimization remains deferred.)
 # ---------------------------------------------------------------------------
 write_lua_filter() {
   mkdir -p "$PROJECT_DIR/scripts"
-  cat > "$LUA_FILTER" << 'LUA'
-function Link(el)
-  el.target = el.target:gsub("%.md#", ".html#")
-  el.target = el.target:gsub("%.md$", ".html")
-  return el
-end
-
-function CodeBlock(el)
-  if el.classes:includes('mermaid') then
-    local html = '<div class="mermaid">\n' .. el.text .. '\n</div>'
-    return pandoc.RawBlock('html', html)
-  end
-  return el
-end
-LUA
-  echo "✓ Lua filter written"
+  cp "$SCRIPTS_DIR/md-to-html-links.lua" "$LUA_FILTER"
+  echo "✓ Lua filter copied into place"
 }
 
 # ---------------------------------------------------------------------------
@@ -64,6 +57,21 @@ build_theme_assets() {
     > "$ASSETS_DIR/docs.css"
   cp "$THEME_DIR/js/docs.js" "$ASSETS_DIR/docs.js"
   echo "✓ Theme assets built (docs.css, docs.js)"
+}
+
+# Rewrites every unversioned theme-asset reference in the built output. Applied
+# after all generators have run, so it covers the pandoc templates, the ReDoc
+# wrapper and the copied landing pages alike without each having to know the id.
+version_assets() {
+  local count
+  count=$(grep -rl -e 'assets/docs\.css"' -e 'assets/docs\.js"' \
+    --include='*.html' "$OUTPUT_DIR" 2>/dev/null | wc -l)
+  grep -rl -e 'assets/docs\.css"' -e 'assets/docs\.js"' \
+    --include='*.html' "$OUTPUT_DIR" 2>/dev/null \
+    | xargs -r sed -i \
+        -e "s|assets/docs\.css\"|assets/docs.css?v=${BUILD_ID}\"|g" \
+        -e "s|assets/docs\.js\"|assets/docs.js?v=${BUILD_ID}\"|g"
+  echo "✓ Theme asset links versioned (?v=${BUILD_ID}) in ${count} page(s)"
 }
 
 # Landing pages are static HTML served at the site root.
@@ -110,6 +118,7 @@ bash "$SCRIPTS_DIR/build-typedoc-html.sh"      "$PROJECT_DIR" "$LUA_FILTER"
 bash "$SCRIPTS_DIR/build-architecture-docs.sh" "$PROJECT_DIR"
 copy_backend_coverage
 copy_frontend_coverage
+version_assets
 
 echo ""
 echo "✓ Docs build complete — $(find "$OUTPUT_DIR" -type f | wc -l) files, $(du -sh "$OUTPUT_DIR" | cut -f1)"
