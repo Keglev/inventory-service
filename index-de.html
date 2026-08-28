@@ -60,6 +60,35 @@
       </div>
     </section>
 
+    <section class="intro" id="project">
+      <h2>Projektvorstellung</h2>
+
+      <div>
+        <h3>Was es ist</h3>
+        <p>Ein Warenwirtschaftssystem für kleine Unternehmen: Artikel, Lieferanten, Lagerbewegungen mit lückenlosem Audit-Trail und Auswertungen. Java 21 und Spring Boot im Backend, React und TypeScript im Frontend, Oracle Autonomous Database. Es läuft produktiv unter <a href="https://www.smartsupplypro.de">www.smartsupplypro.de</a> mit einem schreibgeschützten Demo-Zugang, auf Deutsch und Englisch.</p>
+      </div>
+
+      <div>
+        <h3>Woher es kommt</h3>
+        <p>Die Regeln stammen aus meiner Berufserfahrung in Fertigung und Logistik: Kein Bestand bewegt sich ohne dokumentierten Grund, Artikel werden deaktiviert statt gelöscht, damit die Historie für Prüfzwecke vollständig bleibt, und systemseitige Preisänderungen sind als solche gekennzeichnet. Jede Regel ist eine Entscheidung, die ich mitsamt den verworfenen Alternativen im Entscheidungslog festgehalten habe.</p>
+      </div>
+
+      <div>
+        <h3>Wie es gebaut wurde</h3>
+        <p>Drei Rollen, klar getrennt. Ein Chat-Modell entwirft und prüft: Dort werden Alternativen abgewogen und Spezifikationen geschrieben. Ein in den Editor integrierter Agent setzt diese Spezifikationen um und berichtet, was er getan hat und wo er abgewichen ist. Jede Fach- und Architekturentscheidung ist meine; ich prüfe jeden Diff und entscheide, was gemergt wird. Erweist sich eine Spezifikation als falsch gegenüber dem Code, hält der Agent an, statt die Änderung zu erzwingen.</p>
+      </div>
+
+      <div>
+        <h3>Warum das überprüfbar ist</h3>
+        <p>Jede Behauptung einer Spezifikation wird vor der Umsetzung am Quellcode geprüft, und revidierte Entscheidungen bleiben im Log — einschließlich der Entfernung von Kafka, nachdem die Prüfung keine Servicegrenze dafür ergab. Die CI führt auf beiden Ebenen die vollständige Testsuite aus und veröffentlicht die Coverage-Berichte auf dieser Seite. Die Historie ist öffentlich, und Änderungen kommen inzwischen als geprüfte Pull Requests, die festhalten, was verifiziert wurde und was offen blieb.</p>
+      </div>
+
+      <div>
+        <h3>Was Sie in zwei Minuten sehen können</h3>
+        <p>Die <a href="https://www.smartsupplypro.de">laufende Anwendung</a> (Demo-Zugang, keine Registrierung). Das <a href="/inventory-service/backend/architecture/09-decisions/index.html">Entscheidungslog</a>. Die <a href="https://github.com/Keglev/inventory-service/pulls?q=is%3Apr+is%3Amerged">Pull-Request-Historie</a>, insbesondere die Serien zur CI-Absicherung und zur Hosting-Migration.</p>
+      </div>
+    </section>
+
     <div class="card-grid">
       <a class="card" href="/inventory-service/backend/architecture/overview-de.html">
         <span class="card-tag">Backend</span>
