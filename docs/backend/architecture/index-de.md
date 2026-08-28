@@ -37,7 +37,7 @@ Zugriffskontrolle (RBAC) abgesichert.
 | [§4 Lösungsstrategie](04-solution-strategy.md) | Wesentliche strategische Entscheidungen und die ADRs, die sie begründen |
 | [§5 Bausteinsicht](05-building-blocks.md) | Schichtaufbau — Controller, Service, Repository, Modell — Logikarchitektur- und ER-Diagramme |
 | [§6 Laufzeitsicht](06-runtime.md) | Anfrage-Lebenszyklus, OAuth2-Login-Flow und Analyseberechnung als Sequenzdiagramme |
-| [§7 Verteilungssicht](07-deployment.md) | Fly.io-Topologie, GitHub-Actions-CI/CD-Pipeline, Docker-Image-Strategie, Umgebungsgeheimnisse |
+| [§7 Verteilungssicht](07-deployment.md) | Hetzner-Topologie, GitHub-Actions-CI/CD-Pipeline, Docker-Image-Strategie, Umgebungsgeheimnisse |
 | [§8 Querschnittliche Konzepte](08-concepts.md) | Sicherheit, Validierung, Fehlerbehandlung, Konfigurationsprofile, Persistenz-Audit-Felder (`createdBy`, `createdAt`) |
 | [§9 Entscheidungen](09-decisions/index.md) | Architecture Decision Records |
 | [§10 Qualitätsziele](10-quality-requirements.md) | Teststrategie, JaCoCo-Abdeckungsgrenzen, CI-Pipeline, Trivy-CVE-Scan |

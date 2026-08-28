@@ -186,7 +186,7 @@ POST /inventory/items
 - **Pagination** — all list endpoints accept `Pageable`; unbounded queries are blocked
 - **`@EntityGraph`** — used on hot paths to avoid N+1 queries
 - **Custom `@Query`** — native SQL for complex aggregations where JPQL falls short
-- **HikariCP tuning** — connection pool sized for Fly.io RAM constraints
+- **HikariCP tuning** — connection pool sized for the container memory cap
 - **Stateless services** — no server-side session state; horizontal scaling is straightforward
 
 ## Testing
@@ -222,13 +222,13 @@ environment variables and never committed to source control.
 
 ## Deployment
 
-The backend is deployed to **Fly.io** via a fully automated GitHub Actions pipeline:
+The backend is released to the shared **Hetzner** host via a fully automated GitHub Actions pipeline:
 
 ```
 Source push
   → 1-ci-test.yml         Maven build, JUnit tests, JaCoCo coverage
-  → 2-docker-backend.yml  Docker image build, Trivy CVE scan, push to Docker Hub
-  → 4-deploy-fly.yml      Deploy pre-built image to Fly.io, health check
+  → 2-docker-backend.yml  Docker image build, Trivy CVE scan, push to GHCR
+  → 4-deploy-backend.yml  Release the scanned image to the Hetzner host, health check
 ```
 
 The Docker image contains only the production JAR and `start.sh`; no test sources

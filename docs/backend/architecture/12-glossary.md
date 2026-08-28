@@ -16,9 +16,9 @@ where a term is treated in depth.
 | DTO (Data Transfer Object) | The only object types that cross the controller boundary; 16 in the `dto/` package. See [ADR-0003](./09-decisions/adr-0003-dto-boundary-no-entity-exposure.md) |
 | `@EntityGraph` | JPA fetch hint on `InventoryItemRepository` loading `supplier` in a single join to avoid N+1 queries |
 | ErrorResponse | The canonical error record `{error, message, timestamp}` with an optional `fieldErrors` map on validation failures; `error` = `HttpStatus.name().toLowerCase()`. See [ADR-0004](./09-decisions/adr-0004-http-status-as-envelope.md) |
-| Fly.io | Hosting platform for the backend (port 8081, health check `/api/health`) |
+| Hetzner Cloud | Shared host running the backend container (port 8081, health check `/api/health`) |
 | GlobalExceptionHandler | `@ControllerAdvice` for framework and uncaught exceptions; applies `sanitize()`. See [ADR-0005](./09-decisions/adr-0005-error-message-sanitization.md) |
-| HikariCP | JDBC connection pool, sized for Fly.io memory constraints |
+| HikariCP | JDBC connection pool, sized for the container memory cap |
 | InventoryItem | Core domain entity representing a tracked stock item, linked to a `Supplier` |
 | JaCoCo | Java code-coverage tool run in the CI pipeline |
 | Koyeb | Hosting platform for the React frontend; the cross-origin request origin |
@@ -35,4 +35,4 @@ where a term is treated in depth.
 | `TNS_ADMIN` | Environment variable pointing the JDBC driver at the wallet directory |
 | Trivy | Container-image CVE scanner run in the Docker build workflow |
 | WAC | Weighted Average Cost inventory costing method used by `AnalyticsService` |
-| Wallet (Oracle) | Directory of TLS certificates and config (`tnsnames.ora`, `ewallet.p12`, …) authenticating the DB connection; delivered at runtime as a Fly secret. See [ADR-0009](./09-decisions/adr-0009-runtime-wallet-delivery.md) |
+| Wallet (Oracle) | Directory of TLS certificates and config (`tnsnames.ora`, `ewallet.p12`, …) authenticating the DB connection; delivered at runtime from the host environment file. See [ADR-0009](./09-decisions/adr-0009-runtime-wallet-delivery.md) |

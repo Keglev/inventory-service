@@ -48,7 +48,7 @@ flowchart TB
   State["Contexts (auth, settings, toast, help)"]:::service
   Query["React Query hooks"]:::service
   API["Domain fetchers + httpClient (Axios)"]:::repository
-  Backend["Spring Boot backend (Fly.io)"]:::repository
+  Backend["Spring Boot backend (Hetzner)"]:::repository
 
   User --> Shell
   Shell --> Pages
@@ -95,7 +95,7 @@ exists in both locale files. First visit renders German by design.
 
 The production build is served by **Nginx on Koyeb**. Browser traffic is
 **same-origin**: Nginx rewrites the baked API base to the frontend host at serve
-time and reverse-proxies `/api/*` and the OAuth paths to the backend on Fly.io
+time and reverse-proxies `/api/*` and the OAuth paths to the backend at `api.smartsupplypro.de`
 (canonical record: backend ADR-0008).
 
 ```

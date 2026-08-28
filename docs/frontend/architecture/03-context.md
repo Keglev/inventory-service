@@ -14,7 +14,7 @@ unauthenticated **demo mode** for reviewers.
 
 | External System | Role | Integration |
 |---|---|---|
-| Spring Boot API (Fly.io) | Sole data source | REST/JSON over HTTPS; the browser calls the **Koyeb origin** — Nginx rewrites the built API base at serve time and reverse-proxies `/api/*` to Fly.io; session carried by an HTTP-only `Secure` cookie re-domained by the proxy |
+| Spring Boot API (Hetzner) | Sole data source | REST/JSON over HTTPS; the browser calls the **Koyeb origin** — Nginx rewrites the built API base at serve time and reverse-proxies `/api/*` to the backend; session carried by an HTTP-only `Secure` cookie re-domained by the proxy |
 | Google OAuth2 | Identity provider | Full-page redirect to Google; the code exchange happens backend-to-backend — the SPA never sees a token. On success the backend redirects to the SPA's `/auth` route |
 | GitHub Pages | Documentation host | Published API reference, architecture docs, and coverage reports linked from the app footer |
 
@@ -25,7 +25,7 @@ graph TB
     User["End User\n(USER / ADMIN)"]:::actor
     Reviewer["Reviewer\n(demo mode)"]:::actor
     SPA["React SPA\n(Koyeb, static + Nginx)"]:::controller
-    Backend["Spring Boot API\n(Fly.io)"]:::service
+    Backend["Spring Boot API\n(Hetzner)"]:::service
     OAuth["Google OAuth2"]:::external
 
     User     -->|"HTTPS"| SPA
@@ -52,12 +52,12 @@ Koyeb hosting, and GitHub Pages.
 
 ## Key Integration Facts
 
-- **Same-origin via serve-time rewrite**: the build bakes the Fly.io origin into the
+- **Same-origin via serve-time rewrite**: the build bakes the backend origin into the
   bundle (`VITE_API_BASE`), and Koyeb's Nginx rewrites it to the frontend host as the
   bundle is served (`sub_filter`), then reverse-proxies `/api/*` and the OAuth2 paths
-  to Fly.io — so browser traffic stays on one origin and the session cookie is
-  re-domained by the proxy. The backend also keeps `SameSite=None` plus a CORS
-  allow-list permitting direct calls to the Fly.io origin; that earlier direct
+  to `api.smartsupplypro.de` — so browser traffic stays on one origin and the session
+  cookie is re-domained by the proxy. The backend uses `SameSite=Lax` plus a CORS
+  allow-list permitting direct calls to the API origin; that earlier direct
   cross-origin design is documented in
   [ADR-0007 (backend)](../../backend/architecture/09-decisions/adr-0007-cross-origin-auth-cookie.md),
   which predates the rewrite.

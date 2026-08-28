@@ -23,7 +23,7 @@ Nginx delivery rules:
   filenames are content-hashed; `index.html` is never cached, so deployments
   propagate immediately.
 - gzip for text assets.
-- **Serve-time API-base rewrite + reverse proxy**: the build bakes the Fly.io
+- **Serve-time API-base rewrite + reverse proxy**: the build bakes the backend
   origin into the bundle; Nginx rewrites it to the frontend host as the bundle is
   served and reverse-proxies `/api/*` and the OAuth2 paths to the backend, making
   browser traffic same-origin. Full mechanism, verification, and fragility notes:
