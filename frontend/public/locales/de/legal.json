@@ -30,7 +30,7 @@
     },
     "hosting": {
       "title": "2. Hosting und Server-Logfiles",
-      "body": "Das Frontend dieser Website wird bei Koyeb, das Backend bei Fly.io betrieben. Beim Aufruf der Website verarbeiten die Hosting-Anbieter automatisch technisch notwendige Daten in Server-Logfiles: IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Ressource, übertragene Datenmenge und User-Agent des Browsers.\n\nRechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem sicheren, stabilen und missbrauchsfreien Betrieb). Die Logdaten werden nicht mit anderen Datenquellen zusammengeführt und nach kurzer Zeit automatisch gelöscht."
+      "body": "Das Frontend dieser Website wird bei Koyeb, das Backend auf einem Hetzner-Cloud-Server in Deutschland betrieben. Beim Aufruf der Website verarbeiten die Hosting-Anbieter automatisch technisch notwendige Daten in Server-Logfiles: IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Ressource, übertragene Datenmenge und User-Agent des Browsers.\n\nRechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem sicheren, stabilen und missbrauchsfreien Betrieb). Die Logdaten werden nicht mit anderen Datenquellen zusammengeführt und nach kurzer Zeit automatisch gelöscht."
     },
     "oauth": {
       "title": "3. Anmeldung über Google (OAuth 2.0)",
@@ -46,7 +46,7 @@
     },
     "transfer": {
       "title": "6. Datenübermittlung in Drittländer",
-      "body": "Die eingesetzten Hosting-Anbieter (Koyeb, Fly.io) und Google können Daten in den USA verarbeiten. Die Übermittlung stützt sich auf den Angemessenheitsbeschluss der EU-Kommission zum EU-U.S. Data Privacy Framework bzw. auf EU-Standardvertragsklauseln (Art. 45, 46 DSGVO)."
+      "body": "Koyeb und Google können Daten in den USA verarbeiten; das Backend wird von Hetzner in Deutschland betrieben. Die Übermittlung stützt sich auf den Angemessenheitsbeschluss der EU-Kommission zum EU-U.S. Data Privacy Framework bzw. auf EU-Standardvertragsklauseln (Art. 45, 46 DSGVO)."
     },
     "retention": {
       "title": "7. Speicherdauer",

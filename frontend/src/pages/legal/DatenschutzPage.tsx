@@ -8,7 +8,7 @@
  *
  * @enterprise
  * - Art. 13 GDPR information covering exactly what this app does: hosting
- *   server logs (Koyeb/Fly.io), Google OAuth sign-in, technically required
+ *   server logs (Koyeb/Hetzner), Google OAuth sign-in, technically required
  *   LocalStorage (no consent banner needed, § 25 (2) TDDDG), demo data,
  *   EU/US transfer note, retention, data-subject rights.
  * - Section list is a typed const array; adding a section means adding the

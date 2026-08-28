@@ -18,7 +18,7 @@ services:
       SERVER_PORT: "8081"
     # Sized from the heap ceiling, not from RSS: start.sh sets
     # -XX:MaxRAMPercentage=75, so a 1400 MiB cgroup gives the JVM a ~1 GiB heap,
-    # a step above the 768 MiB it had on the 1 GB Fly.io VM. Without a limit the
+    # a step above the 768 MiB ceiling of the previous 1 GB hosting tier. Without a limit the
     # JVM would size itself against the host's 7.5 GiB and starve the neighbours
     # (maintenance backend 1536m, Keycloak 1280m). memswap equals mem on purpose:
     # the host swapfile exists for the neighbours' indexing bursts, and a JVM

@@ -7,7 +7,7 @@
 # - CI should pass build-time args for traceability (PROFILE, but never runtime secrets).
 # - Do NOT copy frontend assets into this image; frontend is built separately.
 # - Security posture: run as non-root, do not bake secrets, and prefer runtime secret
-#   injection via platform secret stores (Fly.io/Borg/Secrets Manager).
+#   injection via the host's env file or a secret store; never baked in.
 #
 # Build-time inputs (examples passed by CI):
 #   PROFILE=prod            # build profile (default prod)

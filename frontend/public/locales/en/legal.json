@@ -30,7 +30,7 @@
     },
     "hosting": {
       "title": "2. Hosting and server log files",
-      "body": "The frontend of this website is hosted on Koyeb; the backend runs on Fly.io. When you visit the website, the hosting providers automatically process technically necessary data in server log files: IP address, date and time of access, requested resource, transferred data volume, and browser user agent.\n\nThe legal basis is Art. 6 (1)(f) GDPR (legitimate interest in secure, stable, and abuse-free operation). Log data is not merged with other data sources and is deleted automatically after a short period."
+      "body": "The frontend of this website is hosted on Koyeb; the backend runs on a Hetzner Cloud server in Germany. When you visit the website, the hosting providers automatically process technically necessary data in server log files: IP address, date and time of access, requested resource, transferred data volume, and browser user agent.\n\nThe legal basis is Art. 6 (1)(f) GDPR (legitimate interest in secure, stable, and abuse-free operation). Log data is not merged with other data sources and is deleted automatically after a short period."
     },
     "oauth": {
       "title": "3. Sign-in with Google (OAuth 2.0)",
@@ -46,7 +46,7 @@
     },
     "transfer": {
       "title": "6. Data transfers to third countries",
-      "body": "The hosting providers used (Koyeb, Fly.io) and Google may process data in the USA. Transfers are based on the EU Commission's adequacy decision for the EU-U.S. Data Privacy Framework or on EU standard contractual clauses (Art. 45, 46 GDPR)."
+      "body": "Koyeb and Google may process data in the USA; the backend is hosted by Hetzner in Germany. Transfers are based on the EU Commission's adequacy decision for the EU-U.S. Data Privacy Framework or on EU standard contractual clauses (Art. 45, 46 GDPR)."
     },
     "retention": {
       "title": "7. Retention period",

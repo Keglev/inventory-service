@@ -1,7 +1,7 @@
 #!/bin/sh
 # start.sh — Secure runtime bootstrap (BusyBox-compatible)
 # --------------------------------------------------------------------
-# - Wallet-only mode enforced (Fly secrets required at runtime)
+# - Wallet-only mode enforced (wallet delivered via environment at runtime)
 # - No logging of sensitive data (no wallet file listing, no tnsnames dump)
 # - Temp artifacts removed; env secrets unset after use
 # - Conservative JVM sizing via MaxRAMPercentage (tunable via JAVA_OPTS)
@@ -21,7 +21,7 @@ if [ -z "${ORACLE_WALLET_B64:-}" ]; then
   echo "ERROR: ORACLE_WALLET_B64 is not set (runtime secret required)"; exit 1
 fi
 
-# Decode the base64 wallet (delivered as a Fly secret) and extract it
+# Decode the base64 wallet (delivered as an environment variable) and extract it
 mkdir -p /app/wallet
 printf "%s" "${ORACLE_WALLET_B64}" | base64 -d > /app/wallet.zip
 
@@ -58,7 +58,7 @@ fi
 [ -n "${DB_USER:-}" ] && export SPRING_DATASOURCE_USERNAME="${DB_USER}"
 [ -n "${DB_PASS:-}" ] && export SPRING_DATASOURCE_PASSWORD="${DB_PASS}"
 
-# JVM opts - avoid fixed -Xmx; prefer percentage for Fly memory tiers
+# JVM opts - avoid fixed -Xmx; the percentage tracks the container memory limit
 JAVA_OPTS="${JAVA_OPTS:-} \
  -Dserver.address=0.0.0.0 \
  -Dserver.port=${SERVER_PORT} \
