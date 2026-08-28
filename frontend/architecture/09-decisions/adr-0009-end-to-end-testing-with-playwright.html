@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend ·
+09-decisions/adr-0009-end-to-end-testing-with-playwright · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=603a1c3a5" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/frontend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/frontend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/frontend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/frontend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/frontend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/frontend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/frontend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/frontend/architecture/08b-concepts-i18n-theming.html">Concepts: i18n &amp; Theming</a></li>
+    <li><a href="/inventory-service/frontend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/frontend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/frontend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0009-end-to-end-testing-with-playwright-against-a-local-demo-stack">ADR-0009:
+        End-to-end testing with Playwright against a local demo
+        stack</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-08-28</p>
+        <h2 id="context">Context</h2>
+        <p>The frontend test stack ends at Vitest component tests
+        (ADR-0008). Nothing exercises a rendered browser against a
+        running backend: routing after the demo login, the locale
+        switch, DataGrid rendering with real API payloads, and the
+        error-envelope handling all pass unit tests while remaining
+        untested as flows. The maintenance-assistant project closed the
+        same gap with a Playwright suite that runs inside the CI runner
+        against its own backend; the pattern is proven and its lessons
+        (advisory first, no production traffic, no credentials in the
+        workflow file) apply here unchanged.</p>
+        <p>Forces: - Pull-request runs must be side-effect free and must
+        not reach production (established by the PR-safety series, PRs
+        #20 to #31). - Google OAuth is bound to the canonical origin
+        (ADR-0010 backend). An authenticated flow cannot run from a CI
+        runner; demo mode can. - Demo mode is a client-side session, but
+        every data request still goes to the backend anonymously and is
+        admitted by <code>app.demo-readonly</code>. A browser test in
+        demo mode therefore needs a backend. - The <code>test</code>
+        profile already gives an H2 backend in Oracle mode with the
+        OAuth client stubbed, but Flyway is disabled there, so the
+        Oracle demo seed (V3) never reaches H2, and
+        <code>demo-readonly</code> is <code>false</code>. - The frontend
+        Nginx image proxies API calls to
+        <code>api.smartsupplypro.de</code> by name. A container built
+        from the PR cannot be pointed at a local backend without
+        changing production configuration.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Add a Playwright suite under <code>frontend/e2e/</code> that
+        runs in CI against a local stack: the backend started from the
+        PR’s source on H2 with an additive <code>e2e</code> profile
+        (<code>spring.profiles.active=test,e2e</code>) that enables
+        <code>demo-readonly</code> and loads an e2e-only seed; the
+        frontend served by <code>vite preview</code> with
+        <code>VITE_API_BASE</code> pointing at that backend. Tests use
+        demo mode only. Chromium only. The job reports under its own
+        name (<code>e2e</code>) and is advisory; it becomes a required
+        check after ten consecutive green pull-request runs with no
+        infrastructure-caused failure.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li>Production backend as the e2e target: zero setup, but PR
+        runs would read live data cross-origin from a runner, and a host
+        incident would fail the check for reasons unrelated to the
+        change. Rejected: violates the side-effect-free PR
+        principle.</li>
+        <li>Playwright route mocking with JSON fixtures, no backend:
+        hermetic and fast, but asserts the frontend against fixtures
+        that drift silently from the API. Rejected: contract honesty
+        matters more than the minutes saved.</li>
+        <li>Koyeb PR preview deployments: feasible on the Starter plan
+        (about 5 ct per PR-day, quota 25 apps / 50 services), but
+        previews would be demo-mode only anyway, would hit the
+        production backend and data, require hand-built tooling, and
+        depend on a platform in post-acquisition transition.
+        Rejected.</li>
+        <li>Vercel migration for native previews: loses the Nginx
+        serve-time rewrite architecture (ADR-0008 backend).
+        Rejected.</li>
+        <li>Testing the built Nginx container instead of
+        <code>vite preview</code>: would need a proxy-target build
+        argument in production Nginx config for a test concern.
+        Deferred; the container is already smoke-tested by the deploy
+        workflow.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <p>Positive: - Browser-level regressions surface on the pull
+        request, before Koyeb deploys. - The stack is hermetic: no
+        secrets, no network dependency on Hetzner or Oracle. - Backend
+        and frontend of the same PR are tested together, so an API
+        change that breaks a rendered flow fails in the PR that
+        introduced it.</p>
+        <p>Negative / accepted: - Only demo-mode flows are covered;
+        authenticated-only screens (employee analytics for ADMIN) stay
+        under unit tests. - H2 in Oracle mode is not Oracle;
+        dialect-specific behaviour remains covered by the Oracle
+        integration tests, not by e2e. - One more seed to keep in step
+        with the domain (e2e seed vs V3 demo seed). - Job time of
+        roughly 10 to 15 minutes per PR touching frontend or
+        backend.</p>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Backend: <code>application-e2e.yml</code> (profile additive
+        to <code>test</code>): <code>demo-readonly:   true</code>,
+        <code>spring.sql.init</code> loading <code>e2e-seed.sql</code>,
+        frontend base URL set to the preview origin so CORS admits it.
+        <code>DatabaseDialectDetector</code> stays on H2 because
+        <code>test</code> remains active.</li>
+        <li>Frontend: <code>playwright.config.ts</code> with
+        <code>webServer</code> running <code>vite preview</code> on a
+        fixed port; <code>VITE_API_BASE=http://localhost:8081</code> at
+        build time; <code>npm run   e2e</code> script; report and traces
+        uploaded only on failure.</li>
+        <li>Workflow <code>7-frontend-e2e.yml</code>:
+        <code>pull_request</code> and <code>push</code> on
+        <code>frontend/**</code>, <code>src/**</code>,
+        <code>pom.xml</code>, its own file. Job name <code>e2e</code>,
+        never <code>build-and-test</code> (branch protection, L-AQ).
+        Concurrency group per ref, cancel in progress.</li>
+        <li>First suite: login page renders (EN/DE), demo entry reaches
+        the dashboard, inventory grid shows seeded rows, locale switch
+        keeps the route.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li>ADR-0008: Testing structure and taxonomy</li>
+        <li>ADR-0007: i18n strategy and language/region settings</li>
+        <li>Backend ADR-0010: Custom domain and canonical host</li>
+        <li>Backend ADR-0012: Backend hosting on the shared Hetzner
+        host</li>
+        <li>maintenance-assistant ADR-007: End-to-end testing
+        strategy</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0009-end-to-end-testing-with-playwright-against-a-local-demo-stack"
+      id="toc-adr-0009-end-to-end-testing-with-playwright-against-a-local-demo-stack">ADR-0009:
+      End-to-end testing with Playwright against a local demo stack</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js?v=603a1c3a5"></script>
+</body>
+</html>
