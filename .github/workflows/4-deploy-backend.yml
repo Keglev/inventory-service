@@ -43,12 +43,41 @@ jobs:
       HEALTH_URL: https://api.smartsupplypro.de
 
     steps:
+      # A catch-all merge (README, LICENSE, workflow tweaks) still runs backend
+      # CI, but rebuilding and restarting a healthy backend for it serves
+      # nothing. Compare the released commit against its first parent and stop
+      # here when no path the image depends on has changed. 4-deploy-backend
+      # chains on this workflow's success, so skipping the build skips the
+      # release too; a skipped run is reported as success with no image.
+      - name: Checkout for change detection
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 2
+      - name: Decide whether the image must be rebuilt
+        id: gate
+        run: |
+          set -eu
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "build=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          changed=$(git diff --name-only HEAD^ HEAD)
+          echo "$changed"
+          if echo "$changed" | grep -qE '^(src/|pom\.xml|Dockerfile|scripts/|docker/docker-compose\.prod\.yml|\.github/workflows/(2-docker-backend|4-deploy-backend)\.yml)'; then
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "build=false" >> "$GITHUB_OUTPUT"
+            echo "No image-relevant change; nothing to release." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Checkout code
+        if: steps.gate.outputs.build == 'true'
         uses: actions/checkout@v7
         with:
           ref: ${{ env.IMAGE_TAG_SHA }}
 
       - name: Install the deploy key
+        if: steps.gate.outputs.build == 'true'
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
@@ -65,6 +94,7 @@ jobs:
       # the compose file is the only thing this job ever writes there; .env.prod
       # is hand-managed on the host and never touched by CI.
       - name: Ship the compose file
+        if: steps.gate.outputs.build == 'true'
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
@@ -77,6 +107,7 @@ jobs:
       # Pinning the SHA tag rather than :latest makes the deployed image the one
       # this run scanned, and gives a rollback a concrete tag to return to.
       - name: Validate, pull and restart the backend service
+        if: steps.gate.outputs.build == 'true'
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
@@ -93,10 +124,11 @@ jobs:
              docker image prune -f >/dev/null"
 
       - name: Health check and smoke tests
+        if: steps.gate.outputs.build == 'true'
         run: bash .github/scripts/health-check.sh "${{ env.HEALTH_URL }}"
 
       - name: Job summary
-        if: always()
+        if: always() && steps.gate.outputs.build == 'true'
         run: |
           echo "## Backend Release" >> $GITHUB_STEP_SUMMARY
           echo "- **Image:** \`ghcr.io/keglev/inventory-service/backend:${{ env.IMAGE_TAG_SHA }}\`" >> $GITHUB_STEP_SUMMARY
