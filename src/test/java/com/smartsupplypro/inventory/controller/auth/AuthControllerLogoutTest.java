@@ -76,7 +76,7 @@ class AuthControllerLogoutTest {
             assertThat(c, containsString("Max-Age=0"));
             assertThat(c, containsString("Path=/"));
             assertThat(c, anyOf(containsString("HttpOnly"), containsString("httponly")));
-            assertThat(c, containsString("SameSite=None"));
+            assertThat(c, containsString("SameSite=Lax"));
             assertThat(c, containsString("Secure"));
         }
     }

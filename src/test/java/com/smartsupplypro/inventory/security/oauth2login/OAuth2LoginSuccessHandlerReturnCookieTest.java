@@ -71,7 +71,7 @@ class OAuth2LoginSuccessHandlerReturnCookieTest {
             assertThat(res.getRedirectedUrl()).isEqualTo(baseUrl + "/auth");
             assertThat(res.getHeaders("Set-Cookie")).anySatisfy(h -> assertThat(h)
                 .contains("SSP_RETURN=").contains("Path=/").contains("Max-Age=0")
-                .contains("SameSite=None").contains("Secure").doesNotContain("HttpOnly"));
+                .contains("SameSite=Lax").contains("Secure").doesNotContain("HttpOnly"));
         }
 
         @Test
@@ -139,7 +139,7 @@ class OAuth2LoginSuccessHandlerReturnCookieTest {
             assertThat(res.getRedirectedUrl()).isEqualTo(baseUrl + "/api/me");
             assertThat(res.getHeaders("Set-Cookie")).anySatisfy(h -> assertThat(h)
                 .contains("SSP_RETURN=").contains("Max-Age=0")
-                .contains("SameSite=None").doesNotContain("Secure"));
+                .contains("SameSite=Lax").doesNotContain("Secure"));
         }
 
         @Test
@@ -158,7 +158,7 @@ class OAuth2LoginSuccessHandlerReturnCookieTest {
 
             assertThat(res.getRedirectedUrl()).isEqualTo(baseUrl + "/api/me");
             assertThat(res.getHeaders("Set-Cookie")).anySatisfy(h ->
-                assertThat(h).contains("SSP_RETURN=").contains("SameSite=None"));
+                assertThat(h).contains("SSP_RETURN=").contains("SameSite=Lax"));
         }
     }
 

@@ -52,7 +52,7 @@ class CookieOAuth2AuthorizationRequestRepositorySaveTest {
                     CookieOAuth2AuthorizationRequestRepositoryTestSupport.AUTH_COOKIE + "="))
                 .anyMatch(h -> h.contains("Max-Age=0"))
                 .anyMatch(h -> h.contains("HttpOnly"))
-                .anyMatch(h -> h.contains("SameSite=None"))
+                .anyMatch(h -> h.contains("SameSite=Lax"))
                 .anyMatch(h -> h.contains("Secure"));
         }
     }
@@ -90,7 +90,7 @@ class CookieOAuth2AuthorizationRequestRepositorySaveTest {
 
             assertThat(returnHdr).startsWith(
                 CookieOAuth2AuthorizationRequestRepositoryTestSupport.RETURN_COOKIE + "=" + returnOrigin)
-                .contains("SameSite=None").contains("Secure").doesNotContain("HttpOnly");
+                .contains("SameSite=Lax").contains("Secure").doesNotContain("HttpOnly");
             assertThat(authHdr).contains("HttpOnly").contains("Max-Age=180");
         }
 

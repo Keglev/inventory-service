@@ -45,13 +45,14 @@ public class CorsConfig {
     }
 
     /**
-     * SameSite=None is required so the browser sends the session cookie on cross-origin requests.
-     * Secure=true is mandatory when SameSite=None per the browser spec.
+     * The browser only ever sees the frontend origin; the Koyeb Nginx and the Hetzner Caddy
+     * present the cookie as first-party, and Lax still covers the top-level redirect from Google.
+     * SameSite=None was required by the retired direct cross-origin path (ADR-0007).
      */
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setSameSite("None");
+        serializer.setSameSite("Lax");
         serializer.setUseSecureCookie(true);
         serializer.setCookiePath("/");
         return serializer;
