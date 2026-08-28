@@ -376,7 +376,7 @@
         natives SQL für komplexe Aggregationen, wo JPQL nicht
         ausreicht</li>
         <li><strong>HikariCP-Tuning</strong> — Connection Pool auf die
-        RAM-Beschränkungen von Fly.io abgestimmt</li>
+        Speichergrenze des Containers abgestimmt</li>
         <li><strong>Zustandslose Services</strong> — kein serverseitiger
         Session-State; horizontale Skalierung ist direkt möglich</li>
         </ul>
@@ -419,12 +419,12 @@
         und nie in die Versionsverwaltung eingecheckt.</p>
         <h2 id="bereitstellung">Bereitstellung</h2>
         <p>Das Backend wird über eine vollständig automatisierte
-        GitHub-Actions-Pipeline auf <strong>Fly.io</strong>
-        bereitgestellt:</p>
+        GitHub-Actions-Pipeline auf dem gemeinsam genutzten
+        <strong>Hetzner</strong>-Host bereitgestellt:</p>
         <pre><code>Code-Push
   → 1-ci-test.yml         Maven-Build, JUnit-Tests, JaCoCo-Abdeckung
-  → 2-docker-backend.yml  Docker-Image-Build, Trivy-CVE-Scan, Push zu Docker Hub
-  → 4-deploy-fly.yml      Vorgebautes Image auf Fly.io deployen, Health-Check</code></pre>
+  → 2-docker-backend.yml  Docker-Image-Build, Trivy-CVE-Scan, Push zu GHCR
+  → 4-deploy-backend.yml  Geprüftes Image auf den Hetzner-Host ausliefern, Health-Check</code></pre>
         <p>Das Docker-Image enthält ausschließlich das Produktions-JAR
         und <code>start.sh</code> — keine Testquellen oder
         Dokumentation.</p>

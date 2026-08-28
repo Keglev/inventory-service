@@ -150,11 +150,12 @@
         supported database. Local development and CI use H2 in
         Oracle-compatibility mode. There is no PostgreSQL profile.</p>
         <p><strong>Oracle wallet authentication</strong> — the wallet is
-        delivered at runtime as a base64 Fly secret, extracted by the
-        startup script (which sets <code>TNS_ADMIN</code> itself), and
-        used in encrypted form with a runtime wallet password; the
-        schema credentials (<code>DB_USER</code>/<code>DB_PASS</code>)
-        are separate Fly secrets. See <a
+        delivered at runtime as a base64 value in the host environment
+        file, extracted by the startup script (which sets
+        <code>TNS_ADMIN</code> itself), and used in encrypted form with
+        a runtime wallet password; the schema credentials
+        (<code>DB_USER</code>/<code>DB_PASS</code>) are separate entries
+        in the same file. See <a
         href="09-decisions/adr-0009-runtime-wallet-delivery.html">ADR
         0009</a> and <a
         href="09-decisions/adr-0001-oracle-wallet-autologin.html">ADR

@@ -366,7 +366,7 @@
         <li><strong>Custom <code>@Query</code></strong> — native SQL for
         complex aggregations where JPQL falls short</li>
         <li><strong>HikariCP tuning</strong> — connection pool sized for
-        Fly.io RAM constraints</li>
+        the container memory cap</li>
         <li><strong>Stateless services</strong> — no server-side session
         state; horizontal scaling is straightforward</li>
         </ul>
@@ -408,12 +408,13 @@
         credentials) are injected via environment variables and never
         committed to source control.</p>
         <h2 id="deployment">Deployment</h2>
-        <p>The backend is deployed to <strong>Fly.io</strong> via a
-        fully automated GitHub Actions pipeline:</p>
+        <p>The backend is released to the shared
+        <strong>Hetzner</strong> host via a fully automated GitHub
+        Actions pipeline:</p>
         <pre><code>Source push
   → 1-ci-test.yml         Maven build, JUnit tests, JaCoCo coverage
-  → 2-docker-backend.yml  Docker image build, Trivy CVE scan, push to Docker Hub
-  → 4-deploy-fly.yml      Deploy pre-built image to Fly.io, health check</code></pre>
+  → 2-docker-backend.yml  Docker image build, Trivy CVE scan, push to GHCR
+  → 4-deploy-backend.yml  Release the scanned image to the Hetzner host, health check</code></pre>
         <p>The Docker image contains only the production JAR and
         <code>start.sh</code>; no test sources or documentation are
         included.</p>

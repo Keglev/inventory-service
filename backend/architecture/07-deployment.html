@@ -100,51 +100,73 @@
       <article class="doc-body">
         <h1 id="deployment-view">§7 Deployment View</h1>
         <h2 id="topology">Topology</h2>
-        <p>The backend runs on <strong>Fly.io</strong> (region
-        <code>fra</code>, Frankfurt) as a Docker container on a
-        <code>shared-cpu-1x</code> / 1 GB RAM machine, listening
-        internally on port 8081. The React frontend SPA is served by
-        <strong>Koyeb</strong> on the project’s own domain
+        <p>The backend runs as a single <strong>Docker Compose</strong>
+        service (<code>ssp-backend</code>) on a shared <strong>Hetzner
+        Cloud CX33</strong>, which also hosts the maintenance-assistant
+        project. The container listens internally on port 8081 and
+        publishes no port of its own. TLS and the public hostname
+        <code>https://api.smartsupplypro.de</code> are terminated by the
+        neighbouring project’s <strong>Caddy</strong>, which reaches the
+        container by name over the compose network the two projects
+        share and forwards <code>X-Forwarded-Host</code> as the
+        canonical <code>www</code> origin.</p>
+        <p>The React frontend SPA is served by <strong>Koyeb</strong> on
+        the project’s own domain
         (<code>https://www.smartsupplypro.de</code>, <a
         href="09-decisions/adr-0010-custom-domain-and-canonical-host.html">ADR
         0010</a>) behind <strong>Nginx</strong>
         (<code>ops/nginx/</code>), which rewrites the built API base to
         the frontend host at serve time (<code>sub_filter</code>) and
         reverse-proxies <code>/api/*</code> and the OAuth2 paths to the
-        Fly.io backend — browser traffic is same-origin on Koyeb, with
-        the session cookie re-domained by the proxy. The backend retains
-        <code>SameSite=None</code> plus a CORS allow-list for the
-        canonical frontend origin, which also permits direct calls to
-        the Fly.io origin (see <a
+        backend — browser traffic is same-origin on Koyeb, with the
+        session cookie re-domained by the proxy. Because the API and the
+        frontend now share a registrable domain, the session cookie is
+        <code>SameSite=Lax</code> rather than <code>SameSite=None</code>
+        (<a
+        href="09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.html">ADR
+        0012</a>; the cross-origin reasoning it replaces is recorded in
+        <a
         href="09-decisions/adr-0007-cross-origin-auth-cookie.html">ADR
-        0007</a>, which predates the serve-time rewrite). Persistent
-        data lives in <strong>Oracle Autonomous Database 23ai</strong>,
-        authenticated over mTLS via an Oracle wallet delivered as a
-        runtime secret (<a
+        0007</a>).</p>
+        <p>Persistent data lives in <strong>Oracle Autonomous Database
+        23ai</strong>, authenticated over mTLS via an Oracle wallet
+        delivered as a runtime secret (<a
         href="09-decisions/adr-0009-runtime-wallet-delivery.html">ADR
-        0009</a>). Architecture and API documentation are published to
-        <strong>GitHub Pages</strong> via a separate docs pipeline.</p>
+        0009</a>). Database access is additionally restricted by an
+        Oracle <strong>IP access control list</strong> holding the
+        host’s static IPv4 address, so the database is reachable only
+        from that machine. Architecture and API documentation are
+        published to <strong>GitHub Pages</strong> via a separate docs
+        pipeline.</p>
+        <p><strong>Previous hosting.</strong> The backend previously ran
+        on a single-tenant 1 GB VM at a managed platform provider. The
+        migration to the shared host, its cost and the shared-fate
+        trade-off it accepts are recorded in <a
+        href="09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.html">ADR
+        0012</a>.</p>
         <h2 id="deployment-diagram">Deployment Diagram</h2>
         <div class="mermaid">
         graph TB
             Dev["Developer\ngit push to main"]:::actor
             GHA["GitHub Actions"]:::external
-            DH["Docker Hub\nckbuzin/inventory-service"]:::external
-            Fly["Fly.io — fra\ninventoryservice\nport 8081"]:::service
-            OADB["Oracle Autonomous DB\n23ai — wallet auth"]:::repository
+            GHCR["GHCR\nghcr.io/keglev/inventory-service/backend"]:::external
+            Caddy["Caddy — shared host\napi.smartsupplypro.de\nTLS termination"]:::controller
+            SSP["ssp-backend\nCompose service\nport 8081"]:::service
+            OADB["Oracle Autonomous DB\n23ai — wallet auth + IP ACL"]:::repository
             Koyeb["Koyeb\nReact SPA + Nginx\nwww.smartsupplypro.de"]:::controller
             GHP["GitHub Pages\nAPI + architecture docs"]:::external
             User["End User"]:::actor
 
             Dev -->|push| GHA
-            GHA -->|2-docker-backend.yml\ndocker build + Trivy + push :SHA| DH
-            DH -.->|image pull on deploy| Fly
-            GHA -->|4-deploy-fly.yml\nflyctl deploy --image SHA| Fly
+            GHA -->|2-docker-backend.yml\ndocker build + Trivy + push :SHA| GHCR
+            GHA -->|4-deploy-backend.yml\nscp compose + pull + up over SSH| SSP
+            GHCR -.->|image pull on release| SSP
             GHA -->|6-deploy-frontend.yml| Koyeb
             GHA -->|3-deploy-ghpages.yml| GHP
-            Fly -->|"JDBC over mTLS\nwallet from runtime secret"| OADB
+            SSP -->|"JDBC over mTLS\nwallet from .env.prod"| OADB
             User -->|HTTPS| Koyeb
-            Koyeb -->|/api/* reverse proxy| Fly
+            Koyeb -->|/api/* reverse proxy| Caddy
+            Caddy -->|compose network\nby container name| SSP
 
             classDef actor      fill:#6b7280,color:#fff,stroke:#4b5563;
             classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
@@ -153,8 +175,7 @@
             classDef external   fill:#4f46e5,color:#fff,stroke:#3730a3;
         </div>
         <h2 id="cicd-pipeline">CI/CD Pipeline</h2>
-        <p>Seven GitHub Actions workflows run on push to
-        <code>main</code>:</p>
+        <p>Eight GitHub Actions workflows make up the pipeline:</p>
         <table>
         <colgroup>
         <col style="width: 50%" />
@@ -176,36 +197,47 @@
         <td><code>2-docker-backend.yml</code></td>
         <td><code>docker build</code> (prod profile), Trivy CVE scan
         (blocks on HIGH/CRITICAL), <code>docker push :SHA :latest</code>
-        to Docker Hub</td>
+        to GHCR</td>
         </tr>
         <tr class="odd">
-        <td><code>4-deploy-fly.yml</code></td>
-        <td><code>flyctl deploy --image &lt;SHA&gt;</code> (5-minute
-        wait timeout), then a health-check script against
-        <code>/api/health</code>; rollback is manual — the workflow
-        supports a manual trigger to redeploy a previous image</td>
+        <td><code>4-deploy-backend.yml</code></td>
+        <td>Copies the compose file to the host over SSH, validates it,
+        pulls the SHA-tagged image, restarts only the backend service,
+        then runs the health and smoke checks against
+        <code>api.smartsupplypro.de</code></td>
         </tr>
         <tr class="even">
         <td><code>docs-pipeline.yml</code></td>
-        <td>Generates OpenAPI docs (Redocly) and converts architecture
-        markdown to HTML (Pandoc + Lua filter)</td>
+        <td>Generates OpenAPI docs (Redocly), converts architecture
+        markdown to HTML (Pandoc + Lua filter) and checks internal
+        links</td>
         </tr>
         <tr class="odd">
+        <td><code>docs-pr-check.yml</code></td>
+        <td>Pull request gate for documentation: builds the site and
+        verifies internal links without publishing</td>
+        </tr>
+        <tr class="even">
         <td><code>3-deploy-ghpages.yml</code></td>
         <td>Publishes docs-site artifact to the <code>gh-pages</code>
         branch (GitHub Pages)</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>5-frontend-ci.yml</code></td>
         <td>Vitest unit tests, Docker image build (Nginx + Vite bundle),
         push to Docker Hub</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>6-deploy-frontend.yml</code></td>
         <td>Deploys built frontend to Koyeb</td>
         </tr>
         </tbody>
         </table>
+        <p>The backend chain is strictly sequential: the image is built
+        only after the test suite passes, and the release runs only
+        after the image has been scanned. There is no direct push
+        trigger on the image build, so nothing is released in parallel
+        with the tests meant to gate it.</p>
         <h3 id="backend-pipeline-chain">Backend Pipeline Chain</h3>
         <div class="mermaid">
         %%{init: {"sequence": {"useMaxWidth": false}}}%%
@@ -214,9 +246,9 @@
             participant GH as GitHub
             participant CI as 1-ci-test.yml
             participant Docker as 2-docker-backend.yml
-            participant DH as Docker Hub
-            participant Deploy as 4-deploy-fly.yml
-            participant Fly as Fly.io
+            participant GHCR as GHCR
+            participant Deploy as 4-deploy-backend.yml
+            participant Host as Hetzner host
 
             Dev->>GH: git push origin main
             GH->>CI: trigger
@@ -224,28 +256,31 @@
             CI->>Docker: trigger on CI success
             Docker->>Docker: docker build (prod profile)
             Docker->>Docker: Trivy scan — block on HIGH/CRITICAL
-            Docker->>DH: docker push :SHA + :latest
-            DH-->>Deploy: trigger on Docker success
-            Deploy->>Fly: flyctl deploy --image ckbuzin/inventory-service:SHA
-            Fly->>Fly: health check GET /api/health (grace 30 s, interval 10 s)
-            alt health check passes
-                Fly-->>Deploy: deployment confirmed
-            else health check fails
-                Fly-->>Deploy: auto_rollback = true — previous image restored
+            Docker->>GHCR: docker push :SHA + :latest
+            GHCR-->>Deploy: trigger on Docker success
+            Deploy->>Host: scp docker-compose.prod.yml
+            Deploy->>Host: compose config, pull backend, up -d backend
+            Deploy->>Host: health check + smoke tests via api.smartsupplypro.de
+            alt checks pass
+                Host-->>Deploy: release confirmed
+            else checks fail
+                Host-->>Deploy: workflow fails; roll back by releasing a previous SHA
             end
         </div>
         <h2 id="immutable-sha-strategy">Immutable SHA Strategy</h2>
         <p>Every Docker image is tagged with the commit SHA (e.g.,
-        <code>ckbuzin/inventory-service:a1b2c3d</code>).
-        <code>4-deploy-fly.yml</code> always deploys by SHA, never by
-        <code>latest</code>. This means:</p>
+        <code>ghcr.io/keglev/inventory-service/backend:a1b2c3d</code>).
+        <code>4-deploy-backend.yml</code> always releases by SHA, never
+        by <code>latest</code>, so the container that runs is the one
+        the pipeline scanned. This means:</p>
         <ul>
-        <li>Any commit can be redeployed exactly by re-running
-        <code>flyctl deploy --image &lt;SHA&gt;</code>.</li>
-        <li>Rolling back is deploying the previous SHA — no rebuild
+        <li>Any commit can be released exactly by exporting
+        <code>BACKEND_IMAGE</code> to its SHA tag and running
+        <code>docker compose up -d backend</code> on the host.</li>
+        <li>Rolling back is releasing the previous SHA — no rebuild
         required.</li>
         <li>The <code>latest</code> tag is a convenience alias only and
-        is never used in production deploys.</li>
+        is never used in production releases.</li>
         </ul>
         <h2 id="runtime-environment">Runtime Environment</h2>
         <table>
@@ -280,24 +315,32 @@
         <td>Production</td>
         <td><code>prod</code></td>
         <td>Oracle Autonomous DB 23ai</td>
-        <td>Fly.io secrets vault</td>
+        <td><code>/opt/smartsupplypro/.env.prod</code> on the host</td>
         </tr>
         </tbody>
         </table>
-        <p><code>SPRING_PROFILES_ACTIVE=prod</code> is set in
-        <code>fly.toml</code> <code>[env]</code>. Non-sensitive runtime
-        flags (<code>APP_DEMO_READONLY</code>,
+        <p><code>SPRING_PROFILES_ACTIVE=prod</code> and the
+        non-sensitive runtime flags (<code>APP_DEMO_READONLY</code>,
         <code>APP_FRONTEND_BASE_URL</code>,
-        <code>APP_FRONTEND_LANDING_PATH</code>) are also declared in
-        <code>fly.toml</code>. Sensitive credentials are stored
-        exclusively as Fly.io secrets and injected as environment
-        variables at container start — they are never committed to
-        source control.</p>
+        <code>APP_FRONTEND_LANDING_PATH</code>) are set in the same env
+        file. Sensitive credentials live only in
+        <code>/opt/smartsupplypro/.env.prod</code>, which is
+        hand-managed on the host and never written, read or logged by CI
+        — the release workflow copies the compose file and nothing
+        else.</p>
+        <p>The container is capped at <strong>1400 MiB</strong> with
+        swap excluded, and the JVM sizes its heap against that cap
+        through <code>-XX:MaxRAMPercentage=75</code> rather than a fixed
+        <code>-Xmx</code>, which yields roughly a 1 GiB heap. The limit
+        is mandatory rather than advisory: without it the JVM would
+        measure itself against the whole host and starve the
+        neighbouring project’s containers.</p>
         <h2 id="oracle-wallet-authentication">Oracle Wallet
         Authentication</h2>
         <p>The wallet is <strong>not</strong> part of the image or the
         repository. At startup, <code>scripts/start.sh</code> decodes
-        the <code>ORACLE_WALLET_B64</code> Fly secret, extracts it to
+        the base64 <code>ORACLE_WALLET_B64</code> value from the host
+        env file, extracts it to
         <code>/app/wallet/Wallet_sspdb_fixed</code>, verifies
         <code>tnsnames.ora</code> and <code>ewallet.p12</code>, sets
         <code>TNS_ADMIN</code> itself, and passes the runtime wallet
@@ -308,6 +351,10 @@
         0009</a>.</p>
         <h2 id="environment-variables-and-secrets">Environment Variables
         and Secrets</h2>
+        <p>All production values come from
+        <code>/opt/smartsupplypro/.env.prod</code> on the host. The full
+        key list and the host operating rules are kept in
+        <code>docker/README.md</code>.</p>
         <table>
         <colgroup>
         <col style="width: 33%" />
@@ -324,51 +371,66 @@
         <tbody>
         <tr class="odd">
         <td><code>SPRING_PROFILES_ACTIVE</code></td>
-        <td><code>fly.toml [env]</code></td>
+        <td><code>.env.prod</code></td>
         <td>Activates <code>prod</code> profile</td>
         </tr>
         <tr class="even">
         <td><code>APP_DEMO_READONLY</code></td>
-        <td><code>fly.toml [env]</code></td>
+        <td><code>.env.prod</code></td>
         <td>Enables read-only demo mode</td>
         </tr>
         <tr class="odd">
         <td><code>APP_FRONTEND_BASE_URL</code></td>
-        <td><code>fly.toml [env]</code></td>
-        <td>CORS allowed origin for Koyeb frontend</td>
+        <td><code>.env.prod</code></td>
+        <td>CORS allowed origin for the Koyeb frontend</td>
         </tr>
         <tr class="even">
+        <td><code>APP_FRONTEND_LANDING_PATH</code></td>
+        <td><code>.env.prod</code></td>
+        <td>Post-login redirect path in the SPA</td>
+        </tr>
+        <tr class="odd">
         <td><code>ORACLE_WALLET_B64</code></td>
-        <td>Fly.io secret</td>
+        <td><code>.env.prod</code></td>
         <td>Base64 wallet archive, extracted by <code>start.sh</code> at
         startup</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>ORACLE_WALLET_PASSWORD</code></td>
-        <td>Fly.io secret</td>
+        <td><code>.env.prod</code></td>
         <td>Opens the encrypted wallet
         (<code>oracle.net.wallet_password</code>)</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>DB_URL</code>, <code>DB_USER</code>,
         <code>DB_PASS</code></td>
-        <td>Fly.io secrets</td>
+        <td><code>.env.prod</code></td>
         <td>Datasource URL (TNS alias) and schema credentials</td>
         </tr>
-        <tr class="odd">
-        <td><code>TNS_ADMIN</code></td>
-        <td>Set by <code>start.sh</code></td>
-        <td>Points to the extracted wallet directory (not a secret)</td>
-        </tr>
         <tr class="even">
-        <td><code>OAUTH2_CLIENT_ID</code></td>
-        <td>Fly.io secret</td>
+        <td><code>SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID</code></td>
+        <td><code>.env.prod</code></td>
         <td>Google OAuth2 client ID</td>
         </tr>
         <tr class="odd">
-        <td><code>OAUTH2_CLIENT_SECRET</code></td>
-        <td>Fly.io secret</td>
+        <td><code>SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET</code></td>
+        <td><code>.env.prod</code></td>
         <td>Google OAuth2 client secret</td>
+        </tr>
+        <tr class="even">
+        <td><code>APP_ADMIN_EMAILS</code></td>
+        <td><code>.env.prod</code></td>
+        <td>Sign-in allow-list and admin role assignment</td>
+        </tr>
+        <tr class="odd">
+        <td><code>SERVER_PORT</code></td>
+        <td>Compose <code>environment:</code></td>
+        <td>Internal listen port (8081)</td>
+        </tr>
+        <tr class="even">
+        <td><code>TNS_ADMIN</code></td>
+        <td>Set by <code>start.sh</code></td>
+        <td>Points to the extracted wallet directory (not a secret)</td>
         </tr>
         </tbody>
         </table>

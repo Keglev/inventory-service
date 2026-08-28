@@ -172,11 +172,11 @@
         <tr class="even">
         <td>Session cookie</td>
         <td><code>HttpOnly</code>, <code>Secure=true</code>,
-        <code>SameSite=None</code></td>
+        <code>SameSite=Lax</code></td>
         <td>Same-origin behind the serve-time rewrite proxy;
-        <code>None</code> retained so the direct Fly.io-origin path
-        stays functional (<a
-        href="09-decisions/adr-0008-serve-time-api-base-rewrite.html">ADR-0008</a>)</td>
+        <code>Lax</code> since the API and the frontend share a
+        registrable domain (<a
+        href="09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.html">ADR-0012</a>)</td>
         </tr>
         <tr class="odd">
         <td>CORS allowed origins</td>

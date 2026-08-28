@@ -169,21 +169,21 @@
         <tr class="even">
         <td>Q-02</td>
         <td>Security — credential safety</td>
-        <td>The production image and Fly.io configuration are
+        <td>The production image and the host configuration are
         inspected</td>
         <td>The image and repository contain no credential material at
         all — the wallet, its password, and the schema credentials are
-        Fly secrets delivered at runtime; startup fails fast if any is
-        missing. See <a
+        delivered at runtime from the host environment file; startup
+        fails fast if any is missing. See <a
         href="./09-decisions/adr-0009-runtime-wallet-delivery.html">ADR-0009</a></td>
         </tr>
         <tr class="odd">
         <td>Q-03</td>
         <td>Security — cross-origin auth</td>
         <td>A browser request from the Koyeb frontend origin calls the
-        Fly.io backend</td>
+        backend at <code>api.smartsupplypro.de</code></td>
         <td>The session cookie is sent
-        <code>SameSite=None; Secure</code>; the request authenticates;
+        <code>SameSite=Lax; Secure</code>; the request authenticates;
         OAuth2 success redirects to <code>/auth</code>. See <a
         href="./06-runtime.html">§6</a></td>
         </tr>

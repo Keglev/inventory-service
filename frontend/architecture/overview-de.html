@@ -221,7 +221,7 @@
           State["Contexts (Auth, Settings, Toast, Hilfe)"]:::service
           Query["React-Query-Hooks"]:::service
           API["Domänen-Fetcher + httpClient (Axios)"]:::repository
-          Backend["Spring-Boot-Backend (Fly.io)"]:::repository
+          Backend["Spring-Boot-Backend (Hetzner)"]:::repository
 
           User --> Shell
           Shell --> Pages
@@ -304,8 +304,8 @@
         <strong>Same-Origin</strong>: Nginx schreibt die eingebrannte
         API-Basis zur Auslieferungszeit auf den Frontend-Host um und
         reverse-proxyt <code>/api/*</code> sowie die OAuth-Pfade zum
-        Backend auf Fly.io (kanonische Aufzeichnung:
-        Backend-ADR-0008).</p>
+        Backend auf <code>api.smartsupplypro.de</code> (kanonische
+        Aufzeichnung: Backend-ADR-0008).</p>
         <pre><code>Source push
   → 5-frontend-ci.yml       type-check, lint, Vitest suite
   → 6-deploy-frontend.yml   Docker build (Nginx), deploy to Koyeb</code></pre>

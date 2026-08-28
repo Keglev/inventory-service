@@ -138,12 +138,12 @@
         </tr>
         <tr class="even">
         <td>R-02</td>
-        <td>The wallet transits Fly’s secret store as a base64 value and
-        exists extracted on the running container’s filesystem; the
-        trust boundary is the platform’s secret handling and the live
+        <td>The wallet is held as a base64 value in the host environment
+        file and exists extracted on the running container’s filesystem;
+        the trust boundary is the host’s file protections and the live
         machine rather than the image.</td>
-        <td>Low–Medium — requires platform or live-machine compromise;
-        the encrypted wallet additionally needs
+        <td>Low–Medium — requires host or live-machine compromise; the
+        encrypted wallet additionally needs
         <code>ORACLE_WALLET_PASSWORD</code>, and ADB still enforces
         network/credential checks</td>
         <td>Low</td>

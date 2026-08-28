@@ -152,8 +152,8 @@
         OAuth2 state cookie settings. Every field defaults to a safe
         local-dev value and is overridable by environment variable
         without code changes.</p>
-        <p>In production, HikariCP is tuned for Fly.io’s RAM
-        constraints: <code>maximum-pool-size=5</code>,
+        <p>In production, HikariCP is tuned for the container’s 1400 MiB
+        memory cap: <code>maximum-pool-size=5</code>,
         <code>max-lifetime=240000</code> ms (below Oracle ADB’s 5-minute
         idle timeout), with a <code>SELECT 1 FROM DUAL</code> keepalive
         query.</p>

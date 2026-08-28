@@ -219,7 +219,7 @@
           State["Contexts (auth, settings, toast, help)"]:::service
           Query["React Query hooks"]:::service
           API["Domain fetchers + httpClient (Axios)"]:::repository
-          Backend["Spring Boot backend (Fly.io)"]:::repository
+          Backend["Spring Boot backend (Hetzner)"]:::repository
 
           User --> Shell
           Shell --> Pages
@@ -300,8 +300,8 @@
         Koyeb</strong>. Browser traffic is <strong>same-origin</strong>:
         Nginx rewrites the baked API base to the frontend host at serve
         time and reverse-proxies <code>/api/*</code> and the OAuth paths
-        to the backend on Fly.io (canonical record: backend
-        ADR-0008).</p>
+        to the backend at <code>api.smartsupplypro.de</code> (canonical
+        record: backend ADR-0008).</p>
         <pre><code>Source push
   → 5-frontend-ci.yml       type-check, lint, Vitest suite
   → 6-deploy-frontend.yml   Docker build (Nginx), deploy to Koyeb</code></pre>

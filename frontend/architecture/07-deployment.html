@@ -125,7 +125,7 @@
         cached, so deployments propagate immediately.</li>
         <li>gzip for text assets.</li>
         <li><strong>Serve-time API-base rewrite + reverse
-        proxy</strong>: the build bakes the Fly.io origin into the
+        proxy</strong>: the build bakes the backend origin into the
         bundle; Nginx rewrites it to the frontend host as the bundle is
         served and reverse-proxies <code>/api/*</code> and the OAuth2
         paths to the backend, making browser traffic same-origin. Full

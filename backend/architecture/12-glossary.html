@@ -177,9 +177,9 @@
         href="./09-decisions/adr-0004-http-status-as-envelope.html">ADR-0004</a></td>
         </tr>
         <tr class="odd">
-        <td>Fly.io</td>
-        <td>Hosting platform for the backend (port 8081, health check
-        <code>/api/health</code>)</td>
+        <td>Hetzner Cloud</td>
+        <td>Shared host running the backend container (port 8081, health
+        check <code>/api/health</code>)</td>
         </tr>
         <tr class="even">
         <td>GlobalExceptionHandler</td>
@@ -189,8 +189,8 @@
         </tr>
         <tr class="odd">
         <td>HikariCP</td>
-        <td>JDBC connection pool, sized for Fly.io memory
-        constraints</td>
+        <td>JDBC connection pool, sized for the container memory
+        cap</td>
         </tr>
         <tr class="even">
         <td>InventoryItem</td>
@@ -284,8 +284,8 @@
         <td>Wallet (Oracle)</td>
         <td>Directory of TLS certificates and config
         (<code>tnsnames.ora</code>, <code>ewallet.p12</code>, …)
-        authenticating the DB connection; delivered at runtime as a Fly
-        secret. See <a
+        authenticating the DB connection; delivered at runtime from the
+        host environment file. See <a
         href="./09-decisions/adr-0009-runtime-wallet-delivery.html">ADR-0009</a></td>
         </tr>
         </tbody>
