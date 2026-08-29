@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase.Replace;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +28,10 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
  * using {@link org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest}.
  */
 @DataJpaTest
+// Keep the Oracle-mode H2 URL from application-test.yml. The default replaces
+// it with a plain embedded H2, on which Hibernate's `escape ''` LIKE suffix is
+// harmless; in Oracle mode '' is NULL and every LIKE silently matches nothing.
+@AutoConfigureTestDatabase(replace = Replace.NONE)
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
 class InventoryItemRepositoryTest {
