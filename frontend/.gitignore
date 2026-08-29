@@ -40,3 +40,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+
+# Playwright output (ADR-0009): reports and traces are CI artifacts, never tracked
+playwright-report
+test-results

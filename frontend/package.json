@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
+    "e2e": "playwright test",
     "docs": "typedoc --options ./typedoc.json",
     "docs:clean": "rimraf docs && typedoc"
   },
@@ -41,6 +42,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
+    "@playwright/test": "^1.62.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
