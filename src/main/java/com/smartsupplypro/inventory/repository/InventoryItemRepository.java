@@ -87,12 +87,16 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * @param belowMinimumOnly when true, only items with quantity below minimumQuantity
      * @param pageable         pagination and sorting parameters
      * @return paginated results with supplier association eagerly loaded
+     *
+     * <p>The explicit {@code ESCAPE '\'} is deliberate. Without it Hibernate's H2
+     * dialect appends {@code ESCAPE ''}, and H2 in Oracle mode treats {@code ''}
+     * as NULL, so every LIKE matches nothing. Oracle accepts the same clause.
      */
     @EntityGraph(attributePaths = {"supplier"})
     @Query("SELECT i FROM InventoryItem i "
         + "WHERE i.active = true "
-        + "AND (LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%')) "
-        + "OR LOWER(i.sku) LIKE LOWER(CONCAT('%', :name, '%'))) "
+        + "AND (LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%')) ESCAPE '\\' "
+        + "OR LOWER(i.sku) LIKE LOWER(CONCAT('%', :name, '%')) ESCAPE '\\') "
         + "AND (:supplierId IS NULL OR i.supplierId = :supplierId) "
         + "AND (:belowMinimumOnly = false OR i.quantity < i.minimumQuantity)")
     Page<InventoryItem> searchActiveItems(@Param("name") String name,
