@@ -27,8 +27,8 @@ const normalize = (lng?: string): SupportedLocale => (lng?.startsWith('en') ? 'e
 
 interface UseLocaleReturn {
   locale: SupportedLocale;
-  changeLocale: (locale: SupportedLocale) => void;
-  toggleLocale: () => void;
+  changeLocale: (locale: SupportedLocale) => Promise<void>;
+  toggleLocale: () => Promise<void>;
 }
 
 export const useLocale = (i18n: i18n): UseLocaleReturn => {
@@ -43,16 +43,17 @@ export const useLocale = (i18n: i18n): UseLocaleReturn => {
     };
   }, [i18n]);
 
-  const changeLocale = (next: SupportedLocale) => {
+  const changeLocale = async (next: SupportedLocale): Promise<void> => {
     localStorage.setItem(LS_KEY, next);
     setLocaleState(next);
-    i18n.changeLanguage(next);
+    // Awaited so callers can resolve strings AFTER the switch: i18next fetches
+    // /locales/<lng>/<ns>.json on demand, so a synchronous t() right after the
+    // call can still answer in the outgoing language.
+    await i18n.changeLanguage(next);
   };
 
-  const toggleLocale = () => {
-    const next: SupportedLocale = locale === 'de' ? 'en' : 'de';
-    changeLocale(next);
-  };
+  const toggleLocale = (): Promise<void> =>
+    changeLocale(locale === 'de' ? 'en' : 'de');
 
   return { locale, changeLocale, toggleLocale };
 };

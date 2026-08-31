@@ -100,13 +100,13 @@ describe('useLocale', () => {
     expect(result.current.locale).toBe('en');
   });
 
-  it('changeLocale updates state, storage, and calls i18n.changeLanguage', () => {
+  it('changeLocale updates state, storage, and calls i18n.changeLanguage', async () => {
     // Contract: changeLocale updates UI state + persistence + underlying i18n engine.
     const fake = createFakeI18n('de');
     const { result } = renderHook(() => useLocale(fake as unknown as i18n));
 
-    act(() => {
-      result.current.changeLocale('en');
+    await act(async () => {
+      await result.current.changeLocale('en');
     });
 
     expect(result.current.locale).toBe('en');
@@ -114,19 +114,19 @@ describe('useLocale', () => {
     expect(fake.changeLanguage).toHaveBeenCalledWith('en');
   });
 
-  it('toggleLocale flips between supported locales and persists', () => {
+  it('toggleLocale flips between supported locales and persists', async () => {
     // Contract: toggleLocale flips de <-> en and persists the resulting value.
     const fake = createFakeI18n('de');
     const { result } = renderHook(() => useLocale(fake as unknown as i18n));
 
-    act(() => {
-      result.current.toggleLocale();
+    await act(async () => {
+      await result.current.toggleLocale();
     });
 
     expect(result.current.locale).toBe('en');
 
-    act(() => {
-      result.current.toggleLocale();
+    await act(async () => {
+      await result.current.toggleLocale();
     });
 
     // The reverse arm: en flips back to de.

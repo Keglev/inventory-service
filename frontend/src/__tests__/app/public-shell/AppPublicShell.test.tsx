@@ -25,13 +25,20 @@ import { ToastContext } from '../../../context/toast/ToastContext';
 
 /* ----------------------------- i18n stub ----------------------------- */
 // Keep translation deterministic; component only needs i18n object presence.
+// The active language is mutable so a test can prove WHEN a string was
+// resolved: the language-changed toast must be built after the switch, not
+// before it. Every other key stays a bare key so unrelated assertions are
+// unaffected.
+const mockLanguage = vi.hoisted(() => ({ current: 'en' }));
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     i18n: {
-      language: 'en',
+      language: mockLanguage.current,
       changeLanguage: vi.fn(),
     },
-    t: (key: string) => key,
+    t: (key: string) =>
+      key === 'shell.languageChanged' ? `${key}:${mockLanguage.current}` : key,
   }),
 }));
 
@@ -173,9 +180,18 @@ describe('AppPublicShell', () => {
   });
 
   it.each([
-    { locale: 'en', expectedMsg: 'shell.languageChanged' },
-    { locale: 'de', expectedMsg: 'shell.languageChanged' },
-  ])('invokes the locale toggle handler (locale=$locale)', ({ locale, expectedMsg }) => {
+    { locale: 'en', expectedMsg: 'shell.languageChanged:de' },
+    { locale: 'de', expectedMsg: 'shell.languageChanged:en' },
+  ])('invokes the locale toggle handler (locale=$locale)', async ({ locale, expectedMsg }) => {
+    mockLanguage.current = locale;
+    // The toggle resolves only once the language has actually flipped, exactly
+    // as the real hook awaits i18n.changeLanguage.
+    mockToggleLocale.mockImplementation(async () => {
+      // Flip only after a microtask: i18next loads the locale bundle before it
+      // resolves, so a caller that does not await still sees the old language.
+      await Promise.resolve();
+      mockLanguage.current = locale === 'de' ? 'en' : 'de';
+    });
     mockUseLocale.mockReturnValue({
       locale,
       toggleLocale: mockToggleLocale,
@@ -183,12 +199,15 @@ describe('AppPublicShell', () => {
 
     renderShell();
 
-    const onLocaleToggle = lastHeaderProps?.onLocaleToggle as undefined | (() => void);
+    const onLocaleToggle = lastHeaderProps?.onLocaleToggle as
+      | undefined
+      | (() => void | Promise<void>);
     expect(typeof onLocaleToggle).toBe('function');
 
-    onLocaleToggle?.();
+    await onLocaleToggle?.();
 
     expect(mockToggleLocale).toHaveBeenCalledTimes(1);
+    // The toast names the language the user switched TO, not the one left.
     expect(mockShowToast).toHaveBeenCalledWith(expectedMsg, 'info');
   });
 
