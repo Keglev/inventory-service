@@ -122,7 +122,7 @@ describe('InventoryFilterPanel', () => {
     setup();
 
     expect(screen.getByRole('textbox', { name: /search/i })).toBeInTheDocument();
-    expect(screen.getByRole('combobox')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Supplier' })).toBeInTheDocument();
     expect(
       screen.getByRole('checkbox', { name: /below minimum quantity only/i }),
     ).toBeInTheDocument();

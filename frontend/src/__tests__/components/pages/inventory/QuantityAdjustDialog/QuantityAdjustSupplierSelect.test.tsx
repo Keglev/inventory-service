@@ -44,7 +44,7 @@ describe('QuantityAdjustSupplierSelect', () => {
     );
 
     expect(screen.getByText('Step 1: Select Supplier')).toBeInTheDocument();
-    const combo = screen.getByRole('combobox');
+    const combo = screen.getByRole('combobox', { name: 'Supplier' });
     await user.click(combo);
 
     expect(await screen.findByRole('option', { name: 'Supplier One' })).toBeInTheDocument();

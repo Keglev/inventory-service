@@ -41,8 +41,9 @@ export const QuantityAdjustSupplierSelect: React.FC<QuantityAdjustSupplierSelect
       </Typography>
 
       <FormControl fullWidth size="small">
-        <InputLabel>{t('inventory:table.supplier')}</InputLabel>
+        <InputLabel id="quantity-adjust-supplier-label">{t('inventory:table.supplier')}</InputLabel>
         <Select
+          labelId="quantity-adjust-supplier-label"
           value={selectedSupplier?.id || ''}
           label={t('inventory:table.supplier')}
           onChange={(e) => {

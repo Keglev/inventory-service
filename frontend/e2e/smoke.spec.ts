@@ -55,8 +55,9 @@ test('inventory grid shows the seeded rows', async ({ page }) => {
   await enterDemo(page, /Continue in Demo Mode/i);
   await page.goto('/inventory');
   // The board sends no search until a supplier is chosen (mandatory step 1).
-  // The MUI Select is the page's only combobox and carries no accessible name.
-  await page.getByRole('combobox').click();
+  // The filter Select is now selectable by its accessible name; the test runs
+  // with the English locale preset, so the name is the English label.
+  await page.getByRole('combobox', { name: 'Supplier' }).click();
   await page.getByRole('option', { name: 'Nordlicht Werkzeuge GmbH' }).click();
   // All three items of that supplier, incl. the one below minimum quantity.
   await expect(page.getByText('Hammer 300 g')).toBeVisible();

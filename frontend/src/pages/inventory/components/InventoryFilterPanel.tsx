@@ -69,10 +69,11 @@ export const InventoryFilterPanel: React.FC<InventoryFilterPanelProps> = ({
       {/* Supplier dropdown on the left */}
       <Box sx={{ flex: 1, minWidth: 220 }}>
         <FormControl size="small" fullWidth>
-          <InputLabel>
+          <InputLabel id="inventory-supplier-filter-label">
             {t('inventory:filter.supplier')}
           </InputLabel>
           <Select
+            labelId="inventory-supplier-filter-label"
             value={String(supplierId ?? '')}
             label={t('inventory:filter.supplier')}
             onChange={(e) => setSupplierId(e.target.value || null)}
