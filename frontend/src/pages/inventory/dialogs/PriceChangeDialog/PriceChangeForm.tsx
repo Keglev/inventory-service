@@ -68,8 +68,9 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
           disabled={state.suppliersLoading}
           data-testid="supplier-form-control"
         >
-          <InputLabel>{t('inventory:table.supplier')}</InputLabel>
+          <InputLabel id="price-change-supplier-label">{t('inventory:table.supplier')}</InputLabel>
           <Select
+            labelId="price-change-supplier-label"
             value={state.selectedSupplier?.id || ''}
             label={t('inventory:table.supplier')}
             onChange={(e) => {

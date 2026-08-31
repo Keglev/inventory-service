@@ -150,7 +150,10 @@ describe('PriceChangeForm', () => {
   it('renders supplier select dropdown', () => {
     renderForm();
 
-    const supplierSelect = within(screen.getByTestId('supplier-form-control')).getByRole('combobox');
+    const supplierSelect = within(screen.getByTestId('supplier-form-control')).getByRole(
+      'combobox',
+      { name: 'inventory:table.supplier' },
+    );
     expect(supplierSelect).toBeInTheDocument();
   });
 
