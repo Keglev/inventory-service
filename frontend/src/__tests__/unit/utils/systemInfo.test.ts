@@ -31,10 +31,13 @@ describe('getSystemInfo', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal('fetch', fetchMock);
+    // Pin the same-origin arm; the probe now reads VITE_API_BASE.
+    vi.stubEnv('VITE_API_BASE', '');
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 
   const okResponse = (body: unknown) => ({
@@ -87,6 +90,20 @@ describe('getSystemInfo', () => {
       database: 'unknown',
       environment: 'Production (Koyeb)',
       status: 'unknown',
+    });
+  });
+
+  it('targets the configured API origin when one is set', async () => {
+    vi.stubEnv('VITE_API_BASE', 'https://backend.example.com/');
+    fetchMock.mockResolvedValue(
+      okResponse({ status: 'ok', database: 'ok', databaseProduct: 'Oracle', timestamp: 1 })
+    );
+
+    await getSystemInfo();
+
+    expect(fetchMock).toHaveBeenCalledWith('https://backend.example.com/api/health', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
     });
   });
 });

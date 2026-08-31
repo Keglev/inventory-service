@@ -4,7 +4,7 @@
  * @description Contract tests for the `useHealthCheck` hook.
  *
  * Contract under test:
- * - Performs an initial `/api/health` request on mount.
+ * - Performs an initial health request on mount, prefixed with VITE_API_BASE.
  * - Requires JSON content-type; non-JSON responses transition to offline.
  * - Validates response shape at runtime; invalid shapes transition to offline.
  * - Polls every 15 minutes.
@@ -44,6 +44,9 @@ describe('useHealthCheck', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal('fetch', fetchMock);
+    // The probe builds its URL from VITE_API_BASE; pin the same-origin arm so
+    // the default assertions do not depend on the machine's environment.
+    vi.stubEnv('VITE_API_BASE', '');
 
     // Keep console output deterministic and avoid polluting test logs.
     warnMock = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
@@ -53,6 +56,7 @@ describe('useHealthCheck', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
 
     warnMock.mockRestore();
     errorMock.mockRestore();
@@ -80,6 +84,25 @@ describe('useHealthCheck', () => {
       responseTime: 55,
       timestamp: 123,
     });
+
+    unmount();
+  });
+
+  it('targets the configured API origin when one is set', async () => {
+    vi.stubEnv('VITE_API_BASE', 'https://backend.example.com/');
+    fetchMock.mockResolvedValue(
+      makeResponse({
+        contentType: 'application/json',
+        json: { status: 'ok', database: 'ok', timestamp: 123 },
+      })
+    );
+
+    const { result, unmount } = renderHook(() => useHealthCheck());
+
+    expect(fetchMock).toHaveBeenCalledWith('https://backend.example.com/api/health', {
+      credentials: 'include',
+    });
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
     unmount();
   });

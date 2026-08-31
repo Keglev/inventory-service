@@ -8,6 +8,9 @@
  * - Uses raw `fetch` (not the project-standard httpClient) by INTENT: health probe must be interceptor-less to avoid
  *   feedback loops (httpClient has auth/error interceptors that would redirect, retry, or toast on health failures).
  *   Raw fetch isolates the probe from app-level error handling.
+ * - The URL still comes from VITE_API_BASE via api/apiBase, so the probe targets the same backend as every other
+ *   request. A relative path followed the serving origin instead: the static server under `vite preview`, and the
+ *   production backend behind the dev proxy.
  * - 15-min poll interval is a balance between freshness and load. Manual refetch is exposed for UI-triggered refreshes
  *   (refresh button in HealthBadge etc.).
  * - Backend contract (verified against source): /api/health returns a flat JSON body
@@ -18,6 +21,7 @@
  */
 
 import * as React from 'react';
+import { apiUrl } from '../../../api/apiBase';
 import { logError, logWarn } from '../../../utils/logger';
 
 /** Health status structure returned by the hook. */
@@ -54,7 +58,7 @@ export const useHealthCheck = () => {
     try {
       const start = performance.now();
 
-      const response = await fetch('/api/health', {
+      const response = await fetch(apiUrl('/api/health'), {
         credentials: 'include',
       });
       const elapsed = Math.round(performance.now() - start);

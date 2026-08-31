@@ -15,8 +15,11 @@
  *   e.g. "Oracle", "H2"); environment comes from config/appMeta
  *   (build-time truth, same source as footer and hamburger menu).
  * - No caching by design: the single consumer fetches once per mount.
+ * - The URL comes from VITE_API_BASE via api/apiBase; a relative path
+ *   followed the serving origin instead of the configured backend.
  */
 
+import { apiUrl } from '../api/apiBase';
 import { logError, logWarn } from './logger';
 import { APP_ENVIRONMENT } from '../config/appMeta';
 
@@ -36,7 +39,7 @@ export const getSystemInfo = async () => {
   };
 
   try {
-    const response = await fetch('/api/health', {
+    const response = await fetch(apiUrl('/api/health'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
