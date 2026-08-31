@@ -75,13 +75,17 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
     handleClose();
   });
 
+  // Destructured so the callback depends on the function itself rather than the
+  // whole form object, which is a new reference on every render.
+  const { resetForm } = form;
+
   /**
    * Handle dialog close.
    */
   const handleClose = React.useCallback(() => {
-    form.resetForm();
+    resetForm();
     onClose();
-  }, [form.resetForm, onClose]);
+  }, [resetForm, onClose]);
 
   /**
    * Handle showing confirmation dialog.

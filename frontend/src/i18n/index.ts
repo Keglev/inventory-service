@@ -41,7 +41,6 @@ export const I18N_NAMESPACES = ['common', 'auth', 'system', 'analytics', 'invent
 type _NamespaceTuple = (typeof I18N_NAMESPACES)[number];
 type _TypedNamespace = keyof import('i18next').CustomTypeOptions['resources'];
 type _ExactMatch<A, B> = [A] extends [B] ? ([B] extends [A] ? true : never) : never;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _namespacesMatchResources: _ExactMatch<_NamespaceTuple, _TypedNamespace> = true;
 void _namespacesMatchResources; // WHY: satisfies noUnusedLocals — this binding exists only for its type-check side effect.
 

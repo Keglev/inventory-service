@@ -10,7 +10,11 @@ import tseslint from 'typescript-eslint'
 import { globalIgnores } from 'eslint/config'
 
 export default tseslint.config([
-  globalIgnores(['dist']),
+  // 'coverage' holds the generated Istanbul report: vendored scripts that carry
+  // their own disable directives and are not ours to fix. It is gitignored, but
+  // it exists on any machine that has run the suite with --coverage, and under
+  // --max-warnings 0 linting it would fail the run.
+  globalIgnores(['dist', 'coverage']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
