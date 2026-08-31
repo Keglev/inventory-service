@@ -93,11 +93,11 @@ describe('useShellSettings', () => {
     expect(localStorage.getItem('themeMode')).toBeNull();
   });
 
-  it('persists, propagates, and notifies on locale change', () => {
+  it('persists, propagates, and notifies on locale change', async () => {
     const { result } = renderHook(() => useShellSettings(notify));
 
-    act(() => {
-      result.current.handleLocaleChange('en');
+    await act(async () => {
+      await result.current.handleLocaleChange('en');
     });
 
     expect(result.current.locale).toBe('en');

@@ -36,7 +36,7 @@ export interface ShellSettings {
   themeMode: 'light' | 'dark';
   theme: ReturnType<typeof buildTheme>;
   handleThemeModeChange: (nextMode: 'light' | 'dark') => void;
-  handleLocaleChange: (next: SupportedLocale) => void;
+  handleLocaleChange: (next: SupportedLocale) => Promise<void>;
 }
 
 export function useShellSettings(notify: Notify): ShellSettings {
@@ -79,12 +79,13 @@ export function useShellSettings(notify: Notify): ShellSettings {
     });
   };
 
-  const handleLocaleChange = (next: SupportedLocale) => {
+  const handleLocaleChange = async (next: SupportedLocale): Promise<void> => {
     localStorage.setItem(LS_LANGUAGE_KEY, next);
     setLocale(next);
-    i18n.changeLanguage(next);
-    // Resolve in the language just selected so the toast names the new language.
-    notify(t('common:shell.languageChanged', { lng: next }), 'info');
+    // Awaited so the toast resolves after the new bundle is loaded; i18next
+    // fetches locale files on demand.
+    await i18n.changeLanguage(next);
+    notify(t('common:shell.languageChanged'), 'info');
   };
 
   return { locale, themeMode, theme, handleThemeModeChange, handleLocaleChange };

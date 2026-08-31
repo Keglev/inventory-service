@@ -214,12 +214,12 @@ describe('AppShell', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/logout-success', { replace: true });
   });
 
-  it('changes locale, persists selection, and shows a confirmation toast', () => {
+  it('changes locale, persists selection, and shows a confirmation toast', async () => {
     // Locale changes should persist in localStorage and display a user-facing confirmation.
     renderAppShell();
 
-    act(() => {
-      getHeader().onLocaleChange('en');
+    await act(async () => {
+      await getHeader().onLocaleChange('en');
     });
 
     expect(fakeI18n.changeLanguage).toHaveBeenCalledWith('en');

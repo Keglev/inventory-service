@@ -42,10 +42,11 @@ const AppPublicShell: React.FC = () => {
 
   const theme = React.useMemo(() => buildTheme(locale, themeMode), [locale, themeMode]);
 
-  const handleToggleLocale = () => {
-    toggleLocale();
-    // Resolve in the language just selected so the toast names the new language.
-    showToast(t('shell.languageChanged', { lng: locale === 'de' ? 'de' : 'en' }), 'info');
+  const handleToggleLocale = async () => {
+    await toggleLocale();
+    // Resolved after the switch: `t` is bound to no fixed language, so it
+    // answers in the one now active, with its bundle guaranteed loaded.
+    showToast(t('shell.languageChanged'), 'info');
   };
 
   const handleToggleThemeMode = () => {
