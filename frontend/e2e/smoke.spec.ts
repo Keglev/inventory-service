@@ -2,19 +2,28 @@
  * @file smoke.spec.ts
  * @module e2e
  * @testing First browser suite (ADR-0009): proves the local stack, not the UI.
- * @description Four tests against the e2e seed: the login page renders in
- *   both locales, the demo entry lands on the dashboard with a healthy header
- *   badge, and the inventory grid shows the seeded rows. Locale is preset
- *   through the i18next storage key so no UI control is needed for it; the
- *   language switcher gets its own test once its selector is pinned.
+ * @description Five tests against the e2e seed: the login page renders in
+ *   both locales, the header language switcher flips the locale and persists
+ *   it across a reload, the demo entry lands on the dashboard with a healthy
+ *   header badge, and the inventory grid shows the seeded rows. Locale is
+ *   seeded through the i18next storage key so no UI control is needed for the
+ *   tests that are not about the switcher.
  */
 import { test, expect, type Page } from '@playwright/test';
 
 const I18N_KEY = 'i18nextLng';
 
+// Seeds the starting locale WITHOUT overriding what the app later stores.
+// addInitScript re-runs on every navigation, reload included, so an
+// unconditional write would silently re-force the seed after page.reload()
+// and make any persistence assertion test the fixture instead of the app.
 async function presetLocale(page: Page, lng: 'en' | 'de'): Promise<void> {
   await page.addInitScript(
-    ([key, value]) => window.localStorage.setItem(key, value),
+    ([key, value]) => {
+      if (!window.localStorage.getItem(key)) {
+        window.localStorage.setItem(key, value);
+      }
+    },
     [I18N_KEY, lng],
   );
 }
@@ -37,6 +46,32 @@ test.describe('login page', () => {
     await page.goto('/login');
     await expect(page.getByRole('button', { name: /Im Demo-Modus fortfahren/i })).toBeVisible();
   });
+});
+
+test('the header switcher changes locale and the choice survives a reload', async ({
+  page,
+}) => {
+  await presetLocale(page, 'en');
+  await page.goto('/login');
+  await expect(page.getByRole('button', { name: /Continue in Demo Mode/i })).toBeVisible();
+
+  // The toggle's accessible name is the tooltip text (MUI sets aria-label from
+  // it, overriding the flag img's alt), so the name is itself localised and
+  // doubles as the assertion that the switch took effect.
+  await page.getByRole('button', { name: 'Switch language' }).click();
+  await expect(page.getByRole('button', { name: /Im Demo-Modus fortfahren/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sprache wechseln' })).toBeVisible();
+
+  // useLocale writes the same key the i18next detector reads first.
+  await expect
+    .poll(() => page.evaluate(() => window.localStorage.getItem('i18nextLng')))
+    .toBe('de');
+
+  await page.reload();
+  await expect(page.getByRole('button', { name: /Im Demo-Modus fortfahren/i })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Sprache wechseln' }).click();
+  await expect(page.getByRole('button', { name: /Continue in Demo Mode/i })).toBeVisible();
 });
 
 test('demo entry lands on the dashboard', async ({ page }) => {
