@@ -2,7 +2,8 @@
 # Smart Supply Pro – Frontend CI
 #
 # Triggers on push/PR to main when frontend or Nginx config files change.
-# Runs Vitest unit tests outside Docker to get GitHub annotation support.
+# Runs ESLint, then Vitest unit tests outside Docker to get GitHub annotation
+# support. Lint failures block the merge through the build-and-test check.
 # Builds and pushes a Docker image (Nginx + Vite bundle) tagged by commit SHA.
 # On success, triggers: 6-deploy-frontend.yml (Koyeb deployment).
 # =============================================================================
@@ -65,6 +66,13 @@ jobs:
       - name: Install dependencies
         working-directory: frontend
         run: npm ci
+
+      # Lint before the tests: it is the cheapest failure, and at this point
+      # frontend/coverage/ does not exist yet, so no generated Istanbul file is
+      # linted. Errors fail the job; warnings do not gate yet.
+      - name: Lint (ESLint)
+        working-directory: frontend
+        run: npm run lint
 
       # Tests run outside Docker so failures appear as inline GitHub annotations
       - name: Run unit tests (Vitest)
