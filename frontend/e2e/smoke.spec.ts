@@ -3,10 +3,10 @@
  * @module e2e
  * @testing First browser suite (ADR-0009): proves the local stack, not the UI.
  * @description Four tests against the e2e seed: the login page renders in
- *   both locales, the demo entry lands on the dashboard, and the inventory grid
- *   shows the seeded rows. Locale is preset through the i18next storage key so
- *   no UI control is needed for it; the language switcher gets its own test
- *   once its selector is pinned.
+ *   both locales, the demo entry lands on the dashboard with a healthy header
+ *   badge, and the inventory grid shows the seeded rows. Locale is preset
+ *   through the i18next storage key so no UI control is needed for it; the
+ *   language switcher gets its own test once its selector is pinned.
  */
 import { test, expect, type Page } from '@playwright/test';
 
@@ -43,6 +43,11 @@ test('demo entry lands on the dashboard', async ({ page }) => {
   await presetLocale(page, 'en');
   await enterDemo(page, /Continue in Demo Mode/i);
   await expect(page.getByRole('heading', { name: /Dashboard/i }).first()).toBeVisible();
+  // The header badge reads "System OK" (same string in both locales) only when
+  // the health probe reached the local backend and it reported the database up.
+  // This is the request-level proof that the probe no longer follows the
+  // serving origin.
+  await expect(page.getByText('System OK')).toBeVisible();
 });
 
 test('inventory grid shows the seeded rows', async ({ page }) => {
