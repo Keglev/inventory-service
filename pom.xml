@@ -293,6 +293,52 @@
               <outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
             </configuration>
           </execution>
+          <!--
+            Coverage floor. The project standard is 85% on every counter; these
+            minima sit just under the values measured when the rule was added
+            (instruction 98.0, line 98.2, branch 91.2, method 94.7) so a
+            regression fails while it is still one change old, rather than only
+            once the 85% standard has already been breached. Branch gets the
+            widest margin because it moves fastest when conditionals are added.
+            BUNDLE level only: per-package minima on small denominators fail on
+            normal work rather than on real regressions.
+          -->
+          <execution>
+            <id>check</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>BUNDLE</element>
+                  <limits>
+                    <limit>
+                      <counter>INSTRUCTION</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.96</minimum>
+                    </limit>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.96</minimum>
+                    </limit>
+                    <limit>
+                      <counter>BRANCH</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.89</minimum>
+                    </limit>
+                    <limit>
+                      <counter>METHOD</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.92</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
 
