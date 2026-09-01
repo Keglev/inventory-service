@@ -4,6 +4,9 @@
 # Triggered automatically after 5-frontend-ci.yml succeeds on main.
 # Manual trigger available for rollbacks or emergency deploys.
 # Deploys by image digest (not tag) for deterministic, rollback-safe releases.
+# After the health gate, asserts the serve-time API-base rewrite ran (ADR-0008,
+# FR-01): the check reads the bytes the browser receives, which is the only
+# place that transform is visible.
 # =============================================================================
 name: 6 Deploy Frontend to Koyeb
 
@@ -27,6 +30,9 @@ jobs:
       KOYEB_APP: ${{ secrets.KOYEB_APP }}
       KOYEB_SERVICE: ${{ secrets.KOYEB_SERVICE }}
       FRONTEND_URL: https://www.smartsupplypro.de
+      # Origin baked into the bundle by 5-frontend-ci.yml; the rewrite check
+      # asserts it is absent from the bytes the browser receives.
+      API_ORIGIN: https://api.smartsupplypro.de
 
     steps:
       - name: Checkout code
@@ -122,6 +128,12 @@ jobs:
 
       - name: Health check and smoke tests
         run: bash .github/scripts/health-check.sh "${{ env.FRONTEND_URL }}"
+      # health-check.sh is shared with 4-deploy-backend.yml, so this
+      # frontend-only assertion lives in its own script rather than growing
+      # that one. It runs after the health gate: a service that is not serving
+      # yet would fail here for the wrong reason.
+      - name: Verify serve-time API-base rewrite
+        run: bash .github/scripts/verify-served-bundle.sh "${{ env.FRONTEND_URL }}" "${{ env.API_ORIGIN }}"
       - name: Job summary
         if: always()
         run: |
