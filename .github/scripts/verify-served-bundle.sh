@@ -9,9 +9,11 @@
 # running the app keeps working over the direct cross-origin path, so the
 # topology flips without a symptom. This is the detection FR-01 calls cheap.
 #
-# Hosts are compared without the scheme: sub_filter writes https:// regardless
-# of how the bundle is fetched, so a scheme-sensitive match would fail against a
-# local container over http.
+# Hosts are compared without scheme or port. sub_filter writes "https://$host",
+# and nginx's $host carries no port, so the rewritten bundle names the bare
+# hostname however the request was addressed. Matching on "localhost:8080" would
+# find nothing in a bundle that says "https://localhost", which is exactly what a
+# local container run produces.
 #
 # Exit 1 when the entry bundle still carries the backend host, and when it
 # carries neither host - the second case means the assertion went vacuous rather
@@ -22,11 +24,12 @@ set -euo pipefail
 BASE_URL="${1:?Usage: verify-served-bundle.sh <frontend-url> <backend-origin>}"
 BACKEND_ORIGIN="${2:?Usage: verify-served-bundle.sh <frontend-url> <backend-origin>}"
 
-# Strip scheme and any trailing slash so both arguments reduce to a bare host.
+# Reduce an argument to a bare hostname: no scheme, no path, no port.
 host_of() {
   local v="${1#http://}"
   v="${v#https://}"
-  printf '%s' "${v%%/*}"
+  v="${v%%/*}"
+  printf '%s' "${v%:[0-9]*}"
 }
 
 FRONTEND_HOST="$(host_of "$BASE_URL")"
