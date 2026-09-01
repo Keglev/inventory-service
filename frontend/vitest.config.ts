@@ -92,6 +92,20 @@ export default defineConfig({
         'src/**/index.tsx',
         'src/__tests__/**',
       ],
+      // Coverage floor, the frontend counterpart to the JaCoCo bundle rule.
+      // The project standard is 85% on every counter; these sit just under the
+      // values measured when the rule was added (statements 99.12, branches
+      // 96.36, functions 99.03, lines 99.54) so a regression fails while it is
+      // still one change old, rather than only once the standard has already
+      // been breached. Branches get the widest margin: they move fastest when
+      // conditionals are added. Global, not perFile, because a per-file floor
+      // fails on ordinary work in small modules.
+      thresholds: {
+        statements: 97,
+        branches: 94,
+        functions: 97,
+        lines: 97,
+      },
     },
   },
 });
