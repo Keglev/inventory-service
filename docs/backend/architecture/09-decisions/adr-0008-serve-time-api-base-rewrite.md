@@ -55,3 +55,25 @@ the rewrite is active and load-bearing.
   the build.
 - **Direct cross-origin only** (ADR-0007 as-is): simplest configuration, but exposed
   to third-party-cookie restrictions.
+
+## Correction (2026-09-02)
+The **Known fragility** paragraph above misstates nginx's history. nginx has mapped
+`.js` to `application/javascript` in its bundled `conf/mime.types` since 1.5.4
+(27 Aug 2013), when it replaced `application/x-javascript`, and still does on
+`master`; the mapping is identical on `release-1.20.2`, `release-1.21.1`,
+`release-1.27.5` and `release-1.29.0`. No release emits `text/javascript`, so a
+bump of the `nginx:1.27-alpine` base image cannot flip the type. Checked against
+those release branches and `nginx.org/en/CHANGES`.
+
+The decision stands and the fragility is real, but its cause is narrower than
+recorded: the rewrite depends on whatever serves the bundle continuing to label it
+with a type listed in `sub_filter_types`, which a change of serving product or an
+edited MIME map could break — not a version bump. Two things follow, both now in
+place. `sub_filter_types` lists `application/javascript text/javascript`, and the
+detection this section called cheap runs on every frontend deploy; see
+[ADR-0010 (frontend)](../../../frontend/architecture/09-decisions/adr-0010-verifying-frontend-deploys.md).
+
+The Decision section's parenthetical also predates the change that dropped the
+implicit `text/html`, and the Context section names Fly.io, which the backend left
+in August 2026. Both are left as written. An ADR records what was decided and on
+what understanding; this note records where the understanding was wrong.

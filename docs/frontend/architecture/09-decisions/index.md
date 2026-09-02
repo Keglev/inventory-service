@@ -27,6 +27,7 @@ ADRs do **not** document:
 - [ADR-0007: i18n strategy and language/region settings integration](./adr-0007-i18n-strategy-and-language-region-settings.md)
 - [ADR-0008: Testing structure and taxonomy under src/__tests__](./adr-0008-testing-structure-and-taxonomy.md)
 - [ADR-0009: End-to-end testing with Playwright against a local demo stack](./adr-0009-end-to-end-testing-with-playwright.md)
+- [ADR-0010: Verifying a frontend deploy against the bytes the browser receives](./adr-0010-verifying-frontend-deploys.md)
 
 ---
 
