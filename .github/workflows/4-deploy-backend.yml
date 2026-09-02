@@ -127,6 +127,16 @@ jobs:
         if: steps.gate.outputs.build == 'true'
         run: bash .github/scripts/health-check.sh "${{ env.HEALTH_URL }}"
 
+      # A green deploy says the release was accepted, not that it is running.
+      # This asserts the jar answering requests reports the commit just
+      # released. It runs after the health gate on purpose: compose recreates
+      # the container, so the service is down rather than serving the previous
+      # release, and health-check.sh is what waits for it to come back. The
+      # frontend orders these the other way round for the opposite reason.
+      - name: Verify the running jar is the released commit
+        if: steps.gate.outputs.build == 'true'
+        run: bash .github/scripts/verify-backend-build.sh "${{ env.HEALTH_URL }}" "${{ env.IMAGE_TAG_SHA }}"
+
       - name: Job summary
         if: always() && steps.gate.outputs.build == 'true'
         run: |
