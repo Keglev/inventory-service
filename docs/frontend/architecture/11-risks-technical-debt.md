@@ -8,7 +8,7 @@ BUCKET markers in source.
 
 | ID | Risk | Impact | Mitigation / plan |
 |---|---|---|---|
-| FR-01 | The serve-time API-base rewrite depends on Nginx MIME mapping (`sub_filter_types`); a base-image bump could silently disable it | Low — the retained direct cross-origin path keeps the app working; topology flips invisibly | Documented in [ADR-0008 (backend)](../../backend/architecture/09-decisions/adr-0008-serve-time-api-base-rewrite.md); cheap detection is checking the served bundle for the backend origin |
+| FR-01 | The serve-time API-base rewrite applies only to responses whose type is listed in `sub_filter_types`; if the serving layer stops using such a type, the rewrite no-ops in silence | Low — the retained direct cross-origin path keeps the app working; topology flips invisibly | `sub_filter_types` lists both JavaScript types, and every deploy asserts the rewrite ran ([ADR-0010](09-decisions/adr-0010-verifying-frontend-deploys.md)). A base-image bump is not a cause: nginx has mapped `.js` to `application/javascript` since 1.5.4 — see the correction in [ADR-0008 (backend)](../../backend/architecture/09-decisions/adr-0008-serve-time-api-base-rewrite.md) |
 | FR-02 | Routes load eagerly — no code splitting; initial bundle grows with every feature | Low–Medium over time | Page-module boundaries are the ready seams ([§6](06-runtime.md)); revisit when initial-load metrics warrant |
 
 ## 11.2 Technical Debt (tracked)
