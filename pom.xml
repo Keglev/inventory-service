@@ -3,14 +3,16 @@
   ========================================================================
    Smart Supply Pro — Inventory Service (Spring Boot / Maven)
    Goals:
-     • Keep versions centrally managed and linter-friendly
-     • Pin specific components to patched levels for CVE remediation
+     • Let the Spring Boot parent decide every managed version
+     • Override a managed version only with the reason recorded beside it
      • Preserve standard Spring Boot conventions
   Notes:
-     • We use BOTH a parent (spring-boot-starter-parent) and an explicit
-       import of spring-boot-dependencies BOM to satisfy IDE linters.
-     • Security pins (properties) propagate to all Spring Security modules.
-     • Framework pin ensures spring-core and friends are patched.
+     • A second spring-boot-dependencies import used to sit beside the parent
+       on a different version. It won for some artifacts and lost for others,
+       so the resolved stack depended on Maven's ordering rather than on any
+       decision made here. The parent is now the only source.
+     • Overrides state what they change and why. A pin whose reasoning has
+       expired is worse than no pin: it reads as protection that is not there.
   ========================================================================
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -22,7 +24,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.1</version>
     <relativePath/>
   </parent>
 
@@ -42,56 +44,29 @@
   </licenses>
 
   <!--
-    Central overrides (kept minimal, only where needed):
-      - tomcat.version            : patched for reported CVEs
-      - spring-security.version   : 6.5.4 (CVE-2025-41248 fix)
-      - spring-framework.version  : 6.2.11 (CVE-2025-41249 fix)
+    Managed-version overrides. Two remain; each says what it changes and why.
   -->
   <properties>
     <java.version>21</java.version>
-    <!-- Pin H2 below 2.4: H2 2.4.240 mis-validates Hibernate-generated CHECK
-         constraints for boolean @Convert columns (h2database #4323), breaking
-         @DataJpaTest inserts. Remove once a fixed 2.4.x is released. -->
+    <!-- H2 2.4.240 mis-validates the CHECK constraint Hibernate generates for
+         boolean @Convert columns (h2database #4323). Measured 2026-09-02:
+         building with -Dh2.version=2.4.240 gives 35 errors across 10
+         @DataJpaTest classes, every one on an INSERT into inventory_item
+         carrying the active flag, reported as H2 error 23514. This pin is the
+         only thing keeping those tests green. Remove once a fixed 2.4.x ships. -->
     <h2.version>2.3.232</h2.version>
+    <!-- Holds embedded Tomcat on the 10.1.x line. Spring Boot 4.1 manages
+         11.0.24 and compiles against Servlet 6.1; Tomcat 10.1.x implements
+         6.0, so this runs the container below the baseline the framework was
+         built for. Under review. -->
     <tomcat.version>10.1.55</tomcat.version>
-    <spring-security.version>6.5.4</spring-security.version>
-    <spring-framework.version>6.2.11</spring-framework.version>
-    <!-- Override Spring Boot managed Jackson BOM to address CVE-2026-54512, CVE-2026-54513 -->
-    <jackson-bom.version>2.21.4</jackson-bom.version>
     <!-- Commit written into build-info.properties so the running jar can name the
          source it was built from. CI passes the real value through the Docker
          build; a local build reports "unknown" rather than claiming a commit. -->
     <build.commit>unknown</build.commit>
   </properties>
 
-  <!--
-    Explicit BOM import:
-      - Makes dependency management visible to IDE linters.
-      - Works alongside the parent; the import is the same BOM (3.5.15).
-      - Property overrides above are honored by this BOM.
-  -->
-  <dependencyManagement>
-    <dependencies>
-      <!-- Override Jackson versions consistently (Trivy: GHSA-72hv-8253-57qq) -->
-      <dependency>
-        <groupId>tools.jackson</groupId>
-        <artifactId>jackson-bom</artifactId>
-        <version>3.1.5</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>4.0.7</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
-  <!-- Application dependencies (versions omitted—managed by BOM) -->
+  <!-- Application dependencies (versions omitted—managed by the parent) -->
   <dependencies>
     <!-- Spring Boot starters -->
     <dependency>
