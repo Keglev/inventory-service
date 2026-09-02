@@ -128,12 +128,22 @@ jobs:
           docker push $IMAGE_REPO:latest
           docker push $IMAGE_REPO:${IMAGE_TAG_SHA}
 
-      # Blocks 4-deploy-backend.yml if HIGH or CRITICAL CVEs are found in the image
+      # Blocks 4-deploy-backend.yml if HIGH or CRITICAL CVEs are found in the image.
+      #
+      # Pinned by commit SHA, not by tag. In March 2026 an attacker force-pushed
+      # nearly every version tag of this action, and every tag of the setup-trivy
+      # action it calls, to credential-stealing code. A tag can be moved; a commit
+      # cannot. The version lives in the trailing comment so it stays readable.
+      #
+      # The scanner version is set here rather than inherited. The action's own
+      # default trails its releases, which is how this pipeline ended up several
+      # Trivy versions behind without anything in this repository saying so.
       - name: Scan image for CVEs (Trivy)
         if: steps.gate.outputs.build == 'true'
-        uses: aquasecurity/trivy-action@v0.35.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG_SHA }}
+          version: v0.74.0
           format: table
           scanners: vuln
           vuln-type: os,library
