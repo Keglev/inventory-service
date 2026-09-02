@@ -44,7 +44,7 @@
   </licenses>
 
   <!--
-    Managed-version overrides. Two remain; each says what it changes and why.
+    Managed-version override. One remains, and it says what it changes and why.
   -->
   <properties>
     <java.version>21</java.version>
@@ -55,11 +55,6 @@
          carrying the active flag, reported as H2 error 23514. This pin is the
          only thing keeping those tests green. Remove once a fixed 2.4.x ships. -->
     <h2.version>2.3.232</h2.version>
-    <!-- Holds embedded Tomcat on the 10.1.x line. Spring Boot 4.1 manages
-         11.0.24 and compiles against Servlet 6.1; Tomcat 10.1.x implements
-         6.0, so this runs the container below the baseline the framework was
-         built for. Under review. -->
-    <tomcat.version>10.1.55</tomcat.version>
     <!-- Commit written into build-info.properties so the running jar can name the
          source it was built from. CI passes the real value through the Docker
          build; a local build reports "unknown" rather than claiming a commit. -->
