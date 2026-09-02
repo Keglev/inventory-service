@@ -96,8 +96,17 @@ public class SecurityConfig {
                 .permitAll()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-            // CSRF disabled for REST endpoints and logout; session integrity relies on SameSite=None + Secure cookies
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/logout", "/actuator/**"));
+            // CSRF is disabled for the REST surface and for logout. Session integrity
+            // rests on Secure, HttpOnly cookies with SameSite=Lax, which a browser
+            // withholds from cross-site requests; the frontend reaches this service
+            // same-origin through the serving proxy (ADR-0008), so a cross-site form
+            // cannot carry the session. SameSite=None belonged to the direct
+            // cross-origin topology retired with ADR-0007; see CorsConfig.
+            // Actuator is deliberately absent from this list. The two endpoints it
+            // exposes are GET, and CSRF does not apply to safe methods, so the
+            // wildcard that used to sit here exempted nothing while contradicting
+            // the named matchers in SecurityAuthorizationHelper.
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/logout"));
 
         return http.build();
     }
