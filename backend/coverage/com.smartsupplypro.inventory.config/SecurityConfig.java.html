@@ -96,10 +96,19 @@ public class SecurityConfig {
 <span class="fc" id="L96">                .permitAll()</span>
             )
 <span class="fc" id="L98">            .sessionManagement(session -&gt; session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))</span>
-            // CSRF disabled for REST endpoints and logout; session integrity relies on SameSite=None + Secure cookies
-<span class="fc" id="L100">            .csrf(csrf -&gt; csrf.ignoringRequestMatchers(&quot;/api/**&quot;, &quot;/logout&quot;, &quot;/actuator/**&quot;));</span>
+            // CSRF is disabled for the REST surface and for logout. Session integrity
+            // rests on Secure, HttpOnly cookies with SameSite=Lax, which a browser
+            // withholds from cross-site requests; the frontend reaches this service
+            // same-origin through the serving proxy (ADR-0008), so a cross-site form
+            // cannot carry the session. SameSite=None belonged to the direct
+            // cross-origin topology retired with ADR-0007; see CorsConfig.
+            // Actuator is deliberately absent from this list. The two endpoints it
+            // exposes are GET, and CSRF does not apply to safe methods, so the
+            // wildcard that used to sit here exempted nothing while contradicting
+            // the named matchers in SecurityAuthorizationHelper.
+<span class="fc" id="L109">            .csrf(csrf -&gt; csrf.ignoringRequestMatchers(&quot;/api/**&quot;, &quot;/logout&quot;));</span>
 
-<span class="fc" id="L102">        return http.build();</span>
+<span class="fc" id="L111">        return http.build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
