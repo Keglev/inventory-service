@@ -7,6 +7,9 @@
 # After the health gate, asserts the serve-time API-base rewrite ran (ADR-0008,
 # FR-01): the check reads the bytes the browser receives, which is the only
 # place that transform is visible.
+# Those checks only mean something once the new image is the one answering, so
+# the deploy first waits for the commit's build id to appear in the served
+# bundle rather than trusting the platform's HEALTHY status.
 # =============================================================================
 name: 6 Deploy Frontend to Koyeb
 
@@ -103,6 +106,9 @@ jobs:
           echo "::error::All deploy attempts failed"
           exit 1
       # Poll Koyeb platform status — more reliable than curl during edge propagation
+      # It does NOT prove the new image is serving: the service stays HEALTHY
+      # through a rolling update, so this loop can match the outgoing deployment
+      # on its first iteration. The build gate below waits for the rollout.
       - name: Wait for Koyeb service to be healthy
         run: |
           set -euo pipefail
@@ -125,6 +131,13 @@ jobs:
           koyeb service instances list "$SVC"      || true
           echo "::endgroup::"
           exit 1
+
+      # Blocks until the commit being deployed is the one answering requests.
+      # Without it the two checks below can pass against the outgoing image,
+      # which is what happened on the 2026-09-02 rollout. The build id is the
+      # commit SHA, inlined into the bundle by 5-frontend-ci.yml.
+      - name: Wait for the new build to reach the edge
+        run: bash .github/scripts/wait-for-build.sh "${{ env.FRONTEND_URL }}" "${{ github.event.workflow_run.head_sha || github.sha }}"
 
       - name: Health check and smoke tests
         run: bash .github/scripts/health-check.sh "${{ env.FRONTEND_URL }}"
