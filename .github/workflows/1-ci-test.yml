@@ -66,21 +66,19 @@ jobs:
             exit 1
           fi
 
+      # setup-java's own maven cache is the only one. A second actions/cache step
+      # on ~/.m2 used to sit below this, described as a fallback for when this
+      # cache missed. It could not act as one: both keys hashed pom.xml, so they
+      # missed together, and every run restored the same directory twice and
+      # saved it twice. It was also half of the repository's Maven cache
+      # footprint, competing with the image scanner's database for the 10 GB
+      # Actions cache budget.
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
-
-      # Secondary cache layer — reduces cold-start time when setup-java cache misses
-      - name: Cache Maven packages
-        uses: actions/cache@v6
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'inventory-service/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
 
       - name: Build and test
         run: |
