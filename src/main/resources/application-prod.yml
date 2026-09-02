@@ -70,10 +70,17 @@ management:
   endpoints:
     web:
       exposure:
-        include: health                           # Only expose health endpoint publicly
+        # health and info only. info carries build-info.properties: artifact,
+        # version, build time, and the commit the jar was built from. The deploy
+        # asserts against it. None of that is secret on a public repository, and
+        # the frontend bundle already ships the same commit.
+        include: health,info
   endpoint:
     health:
       show-details: never                         # Hide internals in production for security reasons
+  info:
+    build:
+      enabled: true                               # Contribute build-info.properties to /actuator/info
 
 # -------- App-level (prod) --------
 app:

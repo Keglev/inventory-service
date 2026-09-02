@@ -58,6 +58,10 @@
     <spring-framework.version>6.2.11</spring-framework.version>
     <!-- Override Spring Boot managed Jackson BOM to address CVE-2026-54512, CVE-2026-54513 -->
     <jackson-bom.version>2.21.4</jackson-bom.version>
+    <!-- Commit written into build-info.properties so the running jar can name the
+         source it was built from. CI passes the real value through the Docker
+         build; a local build reports "unknown" rather than claiming a commit. -->
+    <build.commit>unknown</build.commit>
   </properties>
 
   <!--
@@ -354,6 +358,23 @@
             </exclude>
           </excludes>
         </configuration>
+        <executions>
+          <!-- Writes META-INF/build-info.properties into the artifact. The commit
+               is a property of the jar, not of the environment that starts it:
+               a value read from the environment at run time would report what the
+               deployer asserted, which is exactly what needs checking. -->
+          <execution>
+            <id>build-info</id>
+            <goals>
+              <goal>build-info</goal>
+            </goals>
+            <configuration>
+              <additionalProperties>
+                <commit>${build.commit}</commit>
+              </additionalProperties>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

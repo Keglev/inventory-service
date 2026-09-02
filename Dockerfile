@@ -11,6 +11,7 @@
 #
 # Build-time inputs (examples passed by CI):
 #   PROFILE=prod            # build profile (default prod)
+#   BUILD_COMMIT=<sha>      # commit recorded in build-info.properties (default unknown)
 #
 # Runtime is driven by scripts/start.sh which performs wallet decoding and secure startup.
 
@@ -53,8 +54,13 @@ COPY src/ src/
 ARG PROFILE=prod
 ENV SPRING_PROFILES_ACTIVE=${PROFILE}
 
+# Commit this image is built from, baked into the jar by Maven rather than set as
+# a runtime variable. The deploy asserts what the running jar reports, so the
+# value has to originate in the build that produced it.
+ARG BUILD_COMMIT=unknown
+
 # Package the application JAR (skip tests here for faster Docker builds)
-RUN mvn -q -B -DskipTests -P ${PROFILE} package
+RUN mvn -q -B -DskipTests -P ${PROFILE} -Dbuild.commit=${BUILD_COMMIT} package
 
 # (Optional) Clean Maven cache to keep intermediate layers lean and reduce memory
 # pressure on constrained builders. This does not affect the final runtime image.

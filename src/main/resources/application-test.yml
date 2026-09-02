@@ -60,10 +60,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health            # Allow health check exposure in test profile
+        include: health,info       # info mirrors prod so the build-info wiring is under test
   endpoint:
     health:
       show-details: always         # Always show detailed health info (for CI assertions)
+  info:
+    build:
+      enabled: true                # Contribute build-info.properties to /actuator/info
 
 # -------- App-level (test) --------
 app:

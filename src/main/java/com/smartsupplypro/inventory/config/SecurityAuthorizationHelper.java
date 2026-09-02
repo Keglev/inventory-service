@@ -28,7 +28,11 @@ public class SecurityAuthorizationHelper {
         auth.requestMatchers("/logout").permitAll();
         auth.requestMatchers(
                 "/",
-                "/actuator/**",
+                // Named rather than /actuator/**: only these two are meant to be
+                // public. The wildcard also published the discovery index, and it
+                // would silently expose anything later added to the exposure list.
+                "/actuator/health",
+                "/actuator/info",
                 "/health/**",
                 "/api/health/**",
                 "/oauth2/**",
