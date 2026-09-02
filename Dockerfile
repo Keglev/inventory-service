@@ -49,7 +49,9 @@ COPY pom.xml .
 COPY .mvn/ .mvn/
 COPY src/ src/
 
-# Build profile (defaults to prod). You can still override:
+# Spring profile the container starts under (defaults to prod). This is a
+# runtime setting only; the pom declares no Maven build profiles, so nothing is
+# selected at package time. Override with:
 #   docker build --build-arg PROFILE=prod ...
 ARG PROFILE=prod
 ENV SPRING_PROFILES_ACTIVE=${PROFILE}
@@ -60,7 +62,7 @@ ENV SPRING_PROFILES_ACTIVE=${PROFILE}
 ARG BUILD_COMMIT=unknown
 
 # Package the application JAR (skip tests here for faster Docker builds)
-RUN mvn -q -B -DskipTests -P ${PROFILE} -Dbuild.commit=${BUILD_COMMIT} package
+RUN mvn -q -B -DskipTests -Dbuild.commit=${BUILD_COMMIT} package
 
 # (Optional) Clean Maven cache to keep intermediate layers lean and reduce memory
 # pressure on constrained builders. This does not affect the final runtime image.
