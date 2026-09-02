@@ -20,7 +20,7 @@
     })();
   </script>
 
-  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=aab4d6e0e3" />
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=22a2b9c350" />
 </head>
 
 <body>
@@ -175,6 +175,36 @@
         simplest configuration, but exposed to third-party-cookie
         restrictions.</li>
         </ul>
+        <h2 id="correction-2026-09-02">Correction (2026-09-02)</h2>
+        <p>The <strong>Known fragility</strong> paragraph above
+        misstates nginx’s history. nginx has mapped <code>.js</code> to
+        <code>application/javascript</code> in its bundled
+        <code>conf/mime.types</code> since 1.5.4 (27 Aug 2013), when it
+        replaced <code>application/x-javascript</code>, and still does
+        on <code>master</code>; the mapping is identical on
+        <code>release-1.20.2</code>, <code>release-1.21.1</code>,
+        <code>release-1.27.5</code> and <code>release-1.29.0</code>. No
+        release emits <code>text/javascript</code>, so a bump of the
+        <code>nginx:1.27-alpine</code> base image cannot flip the type.
+        Checked against those release branches and
+        <code>nginx.org/en/CHANGES</code>.</p>
+        <p>The decision stands and the fragility is real, but its cause
+        is narrower than recorded: the rewrite depends on whatever
+        serves the bundle continuing to label it with a type listed in
+        <code>sub_filter_types</code>, which a change of serving product
+        or an edited MIME map could break — not a version bump. Two
+        things follow, both now in place. <code>sub_filter_types</code>
+        lists <code>application/javascript text/javascript</code>, and
+        the detection this section called cheap runs on every frontend
+        deploy; see <a
+        href="../../../frontend/architecture/09-decisions/adr-0010-verifying-frontend-deploys.html">ADR-0010
+        (frontend)</a>.</p>
+        <p>The Decision section’s parenthetical also predates the change
+        that dropped the implicit <code>text/html</code>, and the
+        Context section names Fly.io, which the backend left in August
+        2026. Both are left as written. An ADR records what was decided
+        and on what understanding; this note records where the
+        understanding was wrong.</p>
       </article>
     </main>
 
@@ -193,6 +223,8 @@
       id="toc-consequences">Consequences</a></li>
       <li><a href="#alternatives-considered"
       id="toc-alternatives-considered">Alternatives considered</a></li>
+      <li><a href="#correction-2026-09-02"
+      id="toc-correction-2026-09-02">Correction (2026-09-02)</a></li>
       </ul></li>
       </ul>
     </nav>
@@ -203,6 +235,6 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script src="/inventory-service/assets/docs.js?v=aab4d6e0e3"></script>
+  <script src="/inventory-service/assets/docs.js?v=22a2b9c350"></script>
 </body>
 </html>

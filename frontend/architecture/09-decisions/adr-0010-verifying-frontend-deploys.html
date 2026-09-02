@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frontend · 05-domains/system · Smart Supply Pro Docs</title>
+  <title>Frontend ·
+09-decisions/adr-0010-verifying-frontend-deploys · Smart Supply Pro Docs</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -98,23 +99,106 @@
 
     <main class="content" id="main">
       <article class="doc-body">
-        <h1 id="system-domain">§5.7 System Domain</h1>
-        <p>System-level pages under
-        <code>frontend/src/pages/system/</code>: currently the 404
-        not-found page, rendered as the router’s catch-all inside the
-        public shell (so the header, footer, and legal links stay
-        reachable on unknown paths). Its action button adapts to session
-        state — <code>/dashboard</code> for an authenticated user,
-        <code>/login</code> otherwise — and the page is fully localized
-        like every other page.</p>
+        <h1
+        id="adr-0010-verifying-a-frontend-deploy-against-the-bytes-the-browser-receives">ADR-0010:
+        Verifying a frontend deploy against the bytes the browser
+        receives</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted — 2026-09-02.</p>
+        <h2 id="context">Context</h2>
+        <p>Two properties of the production frontend cannot be
+        established from the repository. The serve-time API-base rewrite
+        (<a
+        href="../../../backend/architecture/09-decisions/adr-0008-serve-time-api-base-rewrite.html">ADR-0008
+        (backend)</a>) exists only in the response body, and the
+        identity of the running image exists only in whatever the edge
+        is currently serving. Neither is visible in the source tree, in
+        the built artifact, or in a green build.</p>
+        <p>The deploy workflow gated on the platform’s own status: it
+        polled <code>koyeb service describe</code> until the output
+        contained <code>healthy</code>. That is the service’s aggregate
+        status, which stays healthy throughout a rolling update, so the
+        poll returned on its first iteration and every check after it
+        ran against the outgoing image. On the 2026-09-02 rollout the
+        health check and the bundle check both passed, and both passed
+        on the previous build. The following deploy measured the gap:
+        the new build reached the edge about thirty seconds after the
+        platform reported healthy.</p>
+        <h2 id="decision">Decision</h2>
+        <p>The deploy establishes what it is looking at before it looks,
+        by reading what the edge serves:</p>
+        <ol type="1">
+        <li><code>wait-for-build.sh</code> polls the served entry chunk
+        until it contains the commit SHA being deployed. CI already
+        passes that SHA as <code>VITE_BUILD_ID</code> and the app reads
+        it as build metadata, so Vite inlines it — the bundle identifies
+        its own build with no extra artifact.</li>
+        <li><code>health-check.sh</code> runs the availability and smoke
+        checks.</li>
+        <li><code>verify-served-bundle.sh</code> asserts that the
+        backend host is absent from the entry chunk and the frontend
+        host is present, which is the detection ADR-0008 named for its
+        own fragility.</li>
+        </ol>
+        <p>The platform poll is kept ahead of these as a fast failure
+        when the service is genuinely down, with a comment recording
+        what it does not establish.</p>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>A rollout that never reaches the edge fails the workflow
+        instead of passing on the previous release.</li>
+        <li>Every check after step 1 is known to describe the deployed
+        build.</li>
+        <li>A silent loss of the serve-time rewrite fails the deploy
+        rather than returning production to the cross-origin path
+        unnoticed.</li>
+        <li>The deploy takes roughly thirty seconds longer, spent
+        establishing a fact the pipeline previously assumed.</li>
+        <li>The verification asserts on HTTP responses rather than on
+        one provider’s status vocabulary, so a hosting change does not
+        invalidate it.</li>
+        <li>The frontend host and backend origin are workflow variables;
+        a domain change is an edit to
+        <code>6-deploy-frontend.yml</code>, not to the scripts.</li>
+        <li>The backend deploy shares the same readiness pattern and is
+        not covered here. It has no equivalent build identifier in its
+        responses and needs its own mechanism.</li>
+        </ul>
+        <h2 id="alternatives-considered">Alternatives considered</h2>
+        <ul>
+        <li><strong>Poll the platform for the specific new
+        deployment</strong> rather than the service: plausible, but it
+        exchanges one dependence on the provider’s status semantics for
+        another, and those semantics are what failed.</li>
+        <li><strong>A version endpoint</strong> written at image build
+        time: equivalent evidence, an extra artifact, and one more thing
+        to keep in step with the bundle. The SHA already ships inside
+        the bundle.</li>
+        <li><strong>Trust the green build</strong>: what was in place.
+        It cannot observe serving-layer transforms or rollout timing,
+        which is how both defects survived.</li>
+        </ul>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#system-domain" id="toc-system-domain">§5.7 System
-      Domain</a></li>
+      <li><a
+      href="#adr-0010-verifying-a-frontend-deploy-against-the-bytes-the-browser-receives"
+      id="toc-adr-0010-verifying-a-frontend-deploy-against-the-bytes-the-browser-receives">ADR-0010:
+      Verifying a frontend deploy against the bytes the browser
+      receives</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives considered</a></li>
+      </ul></li>
       </ul>
     </nav>
       </div>

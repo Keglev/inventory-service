@@ -20,7 +20,7 @@
     })();
   </script>
 
-  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=aab4d6e0e3" />
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=22a2b9c350" />
 </head>
 
 <body>
@@ -124,15 +124,20 @@
         <tbody>
         <tr class="odd">
         <td>FR-01</td>
-        <td>The serve-time API-base rewrite depends on Nginx MIME
-        mapping (<code>sub_filter_types</code>); a base-image bump could
-        silently disable it</td>
+        <td>The serve-time API-base rewrite applies only to responses
+        whose type is listed in <code>sub_filter_types</code>; if the
+        serving layer stops using such a type, the rewrite no-ops in
+        silence</td>
         <td>Low — the retained direct cross-origin path keeps the app
         working; topology flips invisibly</td>
-        <td>Documented in <a
+        <td><code>sub_filter_types</code> lists both JavaScript types,
+        and every deploy asserts the rewrite ran (<a
+        href="09-decisions/adr-0010-verifying-frontend-deploys.html">ADR-0010</a>).
+        A base-image bump is not a cause: nginx has mapped
+        <code>.js</code> to <code>application/javascript</code> since
+        1.5.4 — see the correction in <a
         href="../../backend/architecture/09-decisions/adr-0008-serve-time-api-base-rewrite.html">ADR-0008
-        (backend)</a>; cheap detection is checking the served bundle for
-        the backend origin</td>
+        (backend)</a></td>
         </tr>
         <tr class="even">
         <td>FR-02</td>
@@ -260,6 +265,6 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script src="/inventory-service/assets/docs.js?v=aab4d6e0e3"></script>
+  <script src="/inventory-service/assets/docs.js?v=22a2b9c350"></script>
 </body>
 </html>
