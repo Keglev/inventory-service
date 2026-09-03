@@ -185,14 +185,16 @@ describe('MonthlyMovementMini', () => {
     expect(screen.getByTestId('bar-stockOut')).toBeInTheDocument();
   });
 
-  it('tolerates a missing payload and formats axis/tooltip values', async () => {
-    mockGetMonthlyStockMovement.mockResolvedValue(
-      undefined as unknown as Awaited<ReturnType<typeof mockGetMonthlyStockMovement>>,
-    );
+  it('tolerates an empty payload and formats axis/tooltip values', async () => {
+    // getMonthlyStockMovement is typed Promise<MonthlyMovement[]> and returns []
+    // on a non-array body and on any thrown error, so undefined is unreachable.
+    // Stubbing it here forced a state production cannot produce and made TanStack
+    // Query warn that a query function must not resolve undefined.
+    mockGetMonthlyStockMovement.mockResolvedValue([]);
 
     renderMonthlyMovementMini(queryClient);
 
-    // With no payload the chart still renders on an empty array.
+    // With an empty payload the chart still renders.
     await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
 
     expect(lastYTickFormatter?.(1234)).toBe('1234');
