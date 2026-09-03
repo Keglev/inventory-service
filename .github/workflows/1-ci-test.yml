@@ -11,7 +11,9 @@
 # may be ignored below ONLY if another workflow gives that pull request a
 # build-and-test check; a path ignored everywhere leaves its pull requests
 # permanently blocked. README.md and LICENSE deliberately stay here: they are
-# outside docs/ and the docs build never reads them.
+# outside docs/ and the docs build never reads them. docs-pr-check.yml
+# triggers on itself, so its own file is ignored below as well; without
+# that entry a pull request editing it is reported by both workflows.
 # =============================================================================
 name: 1 Backend CI - Build & Test
 
@@ -26,6 +28,7 @@ on:
       - '.github/scripts/docs/**'
       - '.github/workflows/docs-pipeline.yml'
       - 'lychee.toml'
+      - '.github/workflows/docs-pr-check.yml'
   pull_request:
     branches: [ "main" ]
     paths-ignore:
@@ -36,6 +39,7 @@ on:
       - '.github/scripts/docs/**'
       - '.github/workflows/docs-pipeline.yml'
       - 'lychee.toml'
+      - '.github/workflows/docs-pr-check.yml'
   workflow_dispatch:
 
 concurrency:
