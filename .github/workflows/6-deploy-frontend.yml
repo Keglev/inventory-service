@@ -83,7 +83,13 @@ jobs:
             echo "::error::Invalid image reference: $REF"
             exit 1
           fi
-      # Koyeb <-> registry connectivity can be flaky — retries reduce transient failures
+      # Koyeb <-> registry connectivity can be flaky — retries reduce transient failures.
+      # No registry credential is attached. docker.io/ckbuzin/ssp-frontend is public
+      # (Docker Hub reports is_private false) and Koyeb marks the field optional. This
+      # command used to pass one on every deploy, which re-attached it to the service
+      # definition each time and silently reverted any change made in the console.
+      # Measured 2026-09-03: the deploy that put 2707e5e6 live ran with
+      # image_registry_secret empty.
       - name: Deploy to Koyeb
         run: |
           set -euo pipefail
@@ -94,8 +100,7 @@ jobs:
           for attempt in 1 2 3 4 5; do
             if koyeb service update "$SVC" \
               --docker "$REF" \
-              --ports 8080:http \
-              --docker-private-registry-secret docker-hub-registry; then
+              --ports 8080:http; then
               echo "Deploy accepted"
               exit 0
             fi
