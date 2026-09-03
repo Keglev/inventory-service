@@ -8,8 +8,12 @@ FROM node:24-bookworm-slim AS base
 WORKDIR /app
 
 # Build context is repo root, so package files live under frontend/ relative to context.
-COPY frontend/package*.json ./
-RUN npm ci --legacy-peer-deps
+# The .npmrc travels with them: it carries the peer-resolution setting this tree needs,
+# and copying it here means the image build and a developer's install obey one file
+# instead of each carrying its own flag. See frontend/.npmrc for what it works around
+# and when it can be deleted.
+COPY frontend/package*.json frontend/.npmrc ./
+RUN npm ci
 
 COPY frontend/ .
 
