@@ -11,7 +11,14 @@
     "ignoreDeprecations": "6.0",
     // vitest/globals matches globals: true in vitest.config.ts, providing describe/it/expect
     // types without explicit imports in every test file.
-    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
+    // "node" is required by src/__tests__/test/setupTests.ts, which imports createRequire
+    // from 'module' and types a NodeModule parameter while patching Module._load to stub
+    // @mui/icons-material. Those globals used to arrive by accident: jest-dom's
+    // types/jest.d.ts opens with /// <reference types="jest" />, and a triple-slash
+    // reference is followed regardless of this array, so the jest package's type graph
+    // pulled in @types/node. Declaring it here makes the dependency real rather than a
+    // side effect of an unused devDependency. Verified 2026-09-03.
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom", "node"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
