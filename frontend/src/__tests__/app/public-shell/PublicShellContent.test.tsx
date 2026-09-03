@@ -19,6 +19,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import PublicShellContent from '../../../app/public-shell/PublicShellContent';
+import { tEn } from '../../test/i18nEn';
+
+// -----------------------------------------------------------------------------
+// i18n mock
+// -----------------------------------------------------------------------------
+// The component calls useTranslation('common'). Without this the real hook runs
+// with no initialised instance and react-i18next logs NO_I18NEXT_INSTANCE.
+const mockUseTranslation = vi.hoisted(() => vi.fn());
+
+vi.mock('react-i18next', () => ({
+  useTranslation: mockUseTranslation,
+}));
 
 /**
  * Router stub:
@@ -44,6 +56,11 @@ describe('PublicShellContent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     outletShouldSuspend.value = false;
+
+    mockUseTranslation.mockReturnValue({
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
+      i18n: { changeLanguage: vi.fn() },
+    });
   });
 
   function renderContent() {
