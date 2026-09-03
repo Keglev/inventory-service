@@ -122,3 +122,12 @@ docs/api/openapi/openapi.yaml
 # /docs/architecture/security-overview.html
 # archive of docs backups
 /docs/_bak/
+
+###############################################################################
+# Local coding-agent configuration
+###############################################################################
+# Settings for the coding agent used on this workstation. They configure one
+# machine, not the project, and can carry local paths, so they stay out of the
+# repository. The commit and pull-request standards the agent has to follow are
+# stated in the instructions it is given for each change, not in a config file.
+.claude/
