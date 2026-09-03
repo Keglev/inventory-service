@@ -108,7 +108,7 @@ describe('FooterLinks', () => {
   });
 
   it('requests translations for all link labels', () => {
-    const mockT = vi.fn((_key: string, defaultValue: string) => defaultValue);
+    const mockT = vi.fn((key: string) => tEn(key));
     mockUseTranslation.mockReturnValue({
       t: mockT,
       i18n: { changeLanguage: vi.fn() },

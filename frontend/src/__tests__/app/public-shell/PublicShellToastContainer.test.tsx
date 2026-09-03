@@ -18,6 +18,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PublicShellToastContainer from '../../../app/public-shell/PublicShellToastContainer';
+import { tEn } from '../../test/i18nEn';
+
+// -----------------------------------------------------------------------------
+// i18n mock
+// -----------------------------------------------------------------------------
+// The component calls useTranslation('common'). Without this the real hook runs
+// with no initialised instance and react-i18next logs NO_I18NEXT_INSTANCE.
+const mockUseTranslation = vi.hoisted(() => vi.fn());
+
+vi.mock('react-i18next', () => ({
+  useTranslation: mockUseTranslation,
+}));
 
 type Severity = 'success' | 'info' | 'warning' | 'error';
 type Toast = { open: boolean; msg: string; severity: Severity };
@@ -25,6 +37,11 @@ type Toast = { open: boolean; msg: string; severity: Severity };
 describe('PublicShellToastContainer', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mockUseTranslation.mockReturnValue({
+      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
+      i18n: { changeLanguage: vi.fn() },
+    });
   });
 
   function renderToast(toast: Toast, onClose: () => void = vi.fn()) {
