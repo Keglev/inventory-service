@@ -7,6 +7,15 @@
 FROM node:24-bookworm-slim AS base
 WORKDIR /app
 
+# The CI workflows install this exact npm before running npm ci, so that lockfile
+# metadata does not churn between environments. The image build is the artifact
+# users receive, so it installs with the same client. 5-frontend-ci.yml passes its
+# NPM_VERSION here; the default below only applies to a manual local build. On
+# 2026-09-03 the unpinned image ran npm 11.19.0 while CI ran 11.10.1 against one
+# lockfile, and the two printed different install warnings.
+ARG NPM_VERSION=11.10.1
+RUN npm install -g "npm@${NPM_VERSION}" && npm --version
+
 # Build context is repo root, so package files live under frontend/ relative to context.
 # The .npmrc travels with them: it carries the peer-resolution setting this tree needs,
 # and copying it here means the image build and a developer's install obey one file
