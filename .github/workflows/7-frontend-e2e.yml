@@ -45,6 +45,10 @@ concurrency:
 env:
   H2_VERSION: 2.3.232
   BACKEND_URL: http://localhost:8081
+  # Same pin as 5-frontend-ci.yml. Without it this job took whatever npm the
+  # Node 24 image happened to ship, which is why the two jobs printed different
+  # install warnings for the same lockfile on 2026-09-03.
+  NPM_VERSION: '11.10.1'
 
 jobs:
   e2e:
@@ -85,6 +89,13 @@ jobs:
           node-version: '24'
           cache: 'npm'
           cache-dependency-path: 'frontend/package-lock.json'
+
+      # npm version drift causes lockfile metadata churn; pin to keep CI deterministic
+      - name: Pin npm version
+        run: |
+          set -euo pipefail
+          npm install -g "npm@${NPM_VERSION}"
+          echo "npm: $(npm --version)"
 
       - name: Install frontend dependencies
         working-directory: frontend
