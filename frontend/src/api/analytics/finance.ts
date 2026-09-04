@@ -48,7 +48,7 @@ const ZERO_FINANCE: FinancialSummary = {
 /**
  * Fetch financial summary for a date window.
  * Backend: GET /api/analytics/financial/summary?from&to[&supplierId]
- * Returns {@link ZERO_FINANCE} on network errors or unrecognised response shapes.
+ * Returns `ZERO_FINANCE` on network errors or unrecognised response shapes.
  */
 export async function getFinancialSummary(
   p?: { from?: string; to?: string; supplierId?: string }
