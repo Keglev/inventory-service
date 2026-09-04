@@ -86,6 +86,14 @@ replaced=0
 carried=0
 for subtree in "${SUBTREES[@]}"; do
   if [ -d "$BUILT_DIR/$subtree" ]; then
+    # An empty built subtree is a bug, never an instruction to publish nothing.
+    # A generator that creates its output directory and then writes no files
+    # would otherwise replace a published subtree with an empty one and delete
+    # every page in it, silently and on main.
+    if [ -z "$(find "$BUILT_DIR/$subtree" -type f -print -quit)" ]; then
+      echo "::error::Built subtree $subtree exists but contains no files"
+      exit 1
+    fi
     rm -rf "${OUTPUT_DIR:?}/$subtree"
     mkdir -p "$(dirname "$OUTPUT_DIR/$subtree")"
     cp -R "$BUILT_DIR/$subtree" "$OUTPUT_DIR/$subtree"

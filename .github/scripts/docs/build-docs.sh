@@ -20,6 +20,16 @@ LUA_FILTER="$PROJECT_DIR/scripts/md-to-html-links.lua"
 # Resolve sibling script directory at runtime — safe regardless of working directory
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Which generators run. Unset means run, so a caller that knows nothing about
+# these — docs-pr-check.yml — still builds the whole site. docs-pipeline.yml sets
+# them from its change gate. The theme assets and the landing pages are not
+# selectable: they are four files, version_assets hashes the built assets to
+# stamp whichever pages this run did produce, and every page needs that token.
+: "${DOCS_BUILD_REDOC:=true}"
+: "${DOCS_BUILD_TYPEDOC:=true}"
+: "${DOCS_BUILD_ARCH_BACKEND:=true}"
+: "${DOCS_BUILD_ARCH_FRONTEND:=true}"
+
 # ---------------------------------------------------------------------------
 # Lua filter — tracked at .github/scripts/docs/md-to-html-links.lua and copied
 # into place here, so the filter is reviewed like any other source file.
@@ -68,13 +78,20 @@ version_assets() {
   # bust the cached script. Computed after build_theme_assets, on the built files.
   css_id="$(sha256sum "$ASSETS_DIR/docs.css" | cut -c1-10)"
   js_id="$(sha256sum "$ASSETS_DIR/docs.js"  | cut -c1-10)"
-  count=$(grep -rl -e 'assets/docs\.css"' -e 'assets/docs\.js"' \
-    --include='*.html' "$OUTPUT_DIR" 2>/dev/null | wc -l)
-  grep -rl -e 'assets/docs\.css"' -e 'assets/docs\.js"' \
-    --include='*.html' "$OUTPUT_DIR" 2>/dev/null \
-    | xargs -r sed -i \
-        -e "s|assets/docs\.css\"|assets/docs.css?v=${css_id}\"|g" \
-        -e "s|assets/docs\.js\"|assets/docs.js?v=${js_id}\"|g"
+  # The match list is taken once and guarded. grep exits 1 when nothing matches,
+  # and under `set -o pipefail` that ends the build. It cannot happen today
+  # because the landing pages are always copied and always reference both assets,
+  # but it becomes reachable the moment a caller selects no generators.
+  local files
+  files="$(grep -rl -e 'assets/docs\.css"' -e 'assets/docs\.js"' \
+    --include='*.html' "$OUTPUT_DIR" 2>/dev/null || true)"
+  count=$(printf '%s\n' "$files" | sed '/^$/d' | wc -l)
+  if [ "$count" -gt 0 ]; then
+    printf '%s\n' "$files" | sed '/^$/d' \
+      | xargs -r sed -i \
+          -e "s|assets/docs\.css\"|assets/docs.css?v=${css_id}\"|g" \
+          -e "s|assets/docs\.js\"|assets/docs.js?v=${js_id}\"|g"
+  fi
   echo "✓ Theme asset links versioned (css ?v=${css_id}, js ?v=${js_id}) in ${count} page(s)"
 }
 
@@ -117,9 +134,26 @@ mkdir -p "$OUTPUT_DIR"
 write_lua_filter
 build_theme_assets
 copy_landing_pages
-bash "$SCRIPTS_DIR/build-openapi-docs.sh"      "$PROJECT_DIR"
-bash "$SCRIPTS_DIR/build-typedoc-html.sh"      "$PROJECT_DIR" "$LUA_FILTER"
-bash "$SCRIPTS_DIR/build-architecture-docs.sh" "$PROJECT_DIR"
+if [ "$DOCS_BUILD_REDOC" = "true" ]; then
+  bash "$SCRIPTS_DIR/build-openapi-docs.sh" "$PROJECT_DIR"
+else
+  echo "ℹ️  ReDoc not selected — skipping"
+fi
+
+if [ "$DOCS_BUILD_TYPEDOC" = "true" ]; then
+  bash "$SCRIPTS_DIR/build-typedoc-html.sh" "$PROJECT_DIR" "$LUA_FILTER"
+else
+  echo "ℹ️  TypeDoc pages not selected — skipping"
+fi
+
+ARCH_CONTEXTS=()
+[ "$DOCS_BUILD_ARCH_BACKEND" = "true" ]  && ARCH_CONTEXTS+=(backend)  || true
+[ "$DOCS_BUILD_ARCH_FRONTEND" = "true" ] && ARCH_CONTEXTS+=(frontend) || true
+if [ "${#ARCH_CONTEXTS[@]}" -gt 0 ]; then
+  bash "$SCRIPTS_DIR/build-architecture-docs.sh" "$PROJECT_DIR" "${ARCH_CONTEXTS[@]}"
+else
+  echo "ℹ️  No architecture context selected — skipping"
+fi
 copy_backend_coverage
 copy_frontend_coverage
 version_assets
