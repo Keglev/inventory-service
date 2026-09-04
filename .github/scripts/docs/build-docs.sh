@@ -53,8 +53,11 @@ build_theme_assets() {
 }
 
 # Rewrites every unversioned theme-asset reference in the built output. Applied
-# after all generators have run, so it covers the pandoc templates, the ReDoc
-# wrapper and the copied landing pages alike without each having to know the id.
+# after all generators have run, so the pandoc templates and the copied landing
+# pages are covered without either having to know the id. It does not reach
+# backend/api, and the earlier claim here that it did was wrong: ReDoc emits a
+# self-contained bundle that references neither assets/docs.css nor assets/docs.js,
+# so that page carries no token because there is nothing on it to stamp.
 version_assets() {
   local count css_id js_id
   # Each asset is stamped with a hash of its own bytes, so the token changes when

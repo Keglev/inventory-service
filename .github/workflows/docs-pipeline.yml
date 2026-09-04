@@ -181,12 +181,41 @@ jobs:
           PROJECT_DIR="${{ steps.where.outputs.dir }}"
           bash .github/scripts/docs/build-docs.sh "$PROJECT_DIR"
 
+      # The site currently published, fetched one commit deep, so the assembly below
+      # has something to lay this build over. A missing branch is tolerated and
+      # nothing else is: before the first ever publish there is no gh-pages, and the
+      # assembly then falls back to this build alone, which is what the pipeline did
+      # unconditionally until now.
+      - name: Fetch the published site
+        run: |
+          set -euo pipefail
+          if git fetch --depth=1 origin gh-pages; then
+            mkdir -p target/gh-pages
+            git archive FETCH_HEAD | tar -x -C target/gh-pages
+            echo "Published site: $(find target/gh-pages -type f | wc -l) files"
+          else
+            echo "::warning::No gh-pages branch found — assembling from this build alone"
+          fi
+
+      # What gets published is this build laid over the published site, one subtree
+      # at a time. Every subtree is still rebuilt on every run, so this is expected
+      # to change nothing today: the published output after this commit must be
+      # byte-identical to the output before it. It earns its place once the build is
+      # split into gated jobs, because a subtree a run did not rebuild is then
+      # carried forward instead of vanishing.
+      - name: Assemble the site to publish
+        run: |
+          bash .github/scripts/docs/assemble-site.sh \
+            "${{ steps.where.outputs.dir }}" target/gh-pages
+
       # Same checker, same version and config as docs-pr-check.yml: the publishing
-      # build must not disagree with the PR gate about what a broken link is.
+      # build must not disagree with the PR gate about what a broken link is. It
+      # reads the assembled tree, so it checks the site that is about to be
+      # published rather than a fragment of it.
       - name: Stage the site for link checking
         run: |
           mkdir -p target/link-check
-          cp -r "${{ steps.where.outputs.dir }}/target/docs" target/link-check/inventory-service
+          cp -r "${{ steps.where.outputs.dir }}/target/publish" target/link-check/inventory-service
       - name: Check internal links
         uses: lycheeverse/lychee-action@v2.9.0
         with:
@@ -197,8 +226,10 @@ jobs:
             --root-dir "${{ github.workspace }}/target/link-check"
             "target/link-check/inventory-service/**/*.html"
 
+      # The assembled tree, not the built one. 3-deploy-ghpages.yml replaces the
+      # branch wholesale, so what it receives has to be a complete site.
       - name: Upload docs-site artifact
         uses: actions/upload-artifact@v7
         with:
           name: docs-site
-          path: ${{ steps.where.outputs.dir }}/target/docs
+          path: ${{ steps.where.outputs.dir }}/target/publish
