@@ -20,13 +20,6 @@ LUA_FILTER="$PROJECT_DIR/scripts/md-to-html-links.lua"
 # Resolve sibling script directory at runtime — safe regardless of working directory
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Cache-busting token for the theme assets. GitHub Pages serves them with
-# max-age=600, so without a per-deploy suffix there is a ten-minute window in
-# which fresh markup can be paired with a stale cached stylesheet. The commit
-# SHA changes exactly when the assets might have, and falls back to a timestamp
-# outside a git checkout.
-BUILD_ID="$(git -C "$PROJECT_DIR" rev-parse --short HEAD 2>/dev/null || date +%s)"
-
 # ---------------------------------------------------------------------------
 # Lua filter — tracked at .github/scripts/docs/md-to-html-links.lua and copied
 # into place here, so the filter is reviewed like any other source file.
@@ -63,15 +56,23 @@ build_theme_assets() {
 # after all generators have run, so it covers the pandoc templates, the ReDoc
 # wrapper and the copied landing pages alike without each having to know the id.
 version_assets() {
-  local count
+  local count css_id js_id
+  # Each asset is stamped with a hash of its own bytes, so the token changes when
+  # the file changes and at no other time. It used to be the commit SHA, which
+  # changes on every commit: that rewrote all 277 pages on every publish, grew
+  # gh-pages by roughly 1700 lines each time, and buried real documentation
+  # changes in the diff. Hashing per asset also means a stylesheet edit does not
+  # bust the cached script. Computed after build_theme_assets, on the built files.
+  css_id="$(sha256sum "$ASSETS_DIR/docs.css" | cut -c1-10)"
+  js_id="$(sha256sum "$ASSETS_DIR/docs.js"  | cut -c1-10)"
   count=$(grep -rl -e 'assets/docs\.css"' -e 'assets/docs\.js"' \
     --include='*.html' "$OUTPUT_DIR" 2>/dev/null | wc -l)
   grep -rl -e 'assets/docs\.css"' -e 'assets/docs\.js"' \
     --include='*.html' "$OUTPUT_DIR" 2>/dev/null \
     | xargs -r sed -i \
-        -e "s|assets/docs\.css\"|assets/docs.css?v=${BUILD_ID}\"|g" \
-        -e "s|assets/docs\.js\"|assets/docs.js?v=${BUILD_ID}\"|g"
-  echo "✓ Theme asset links versioned (?v=${BUILD_ID}) in ${count} page(s)"
+        -e "s|assets/docs\.css\"|assets/docs.css?v=${css_id}\"|g" \
+        -e "s|assets/docs\.js\"|assets/docs.js?v=${js_id}\"|g"
+  echo "✓ Theme asset links versioned (css ?v=${css_id}, js ?v=${js_id}) in ${count} page(s)"
 }
 
 # Landing pages are static HTML served at the site root.
