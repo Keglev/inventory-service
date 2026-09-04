@@ -48,10 +48,12 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Preserve existing coverage reports when the current build did not regenerate
-          # them. Backend coverage is absent on docs-only pushes; frontend coverage is
-          # absent on every build not triggered by frontend CI — without this backup the
-          # wipe below would delete it on each backend or docs deploy.
+          # Preserve existing coverage reports when the artifact does not carry them.
+          # Since docs-pipeline assembles over the published site this no longer fires
+          # on a normal run: a report the build did not regenerate arrives from
+          # gh-pages inside the artifact. What it still guards is the fallback, when
+          # the fetch of gh-pages fails and the pipeline assembles from its own output
+          # alone. Without this the wipe below would then delete 875 published files.
           for SIDE in backend frontend; do
             if [ ! -d "docs-site/$SIDE/coverage" ] && [ -d "$SIDE/coverage" ]; then
               echo "$SIDE coverage not in current build — preserving existing report"

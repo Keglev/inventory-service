@@ -77,6 +77,73 @@ jobs:
             exit 1
           fi
 
+      # Which of the four generated subtrees this merge can possibly have changed.
+      # Same shape as the change gate in 2-docker-backend.yml: compare the released
+      # commit against its first parent, which is exact for the squash merges this
+      # repository lands and covers only the last commit of a multi-commit push.
+      #
+      # Three outcomes. A theme, generator-script or pipeline change rebuilds all
+      # four, because the nav partial and the templates are embedded in every page
+      # and a half-rebuilt site would serve two different navigations. A source
+      # change under one of the four listed prefixes rebuilds that subtree alone.
+      # Everything else — README.md, LICENSE, pom.xml, Dockerfile, src/**,
+      # ops/nginx/**, docker/**, scripts/**, lychee.toml, the other workflows —
+      # rebuilds nothing, and the run still assembles, link-checks and publishes,
+      # because the coverage report that a backend or frontend CI run carries in is
+      # new even when no page is.
+      - name: Decide which parts of the site to rebuild
+        id: gate
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only HEAD^ HEAD)"
+          echo "$changed"
+
+          full=false
+          if echo "$changed" | grep -qE '^(docs/_theme/|\.github/scripts/docs/|\.github/workflows/docs-pipeline\.yml$)'; then
+            full=true
+          fi
+
+          typedoc="$full"; redoc="$full"
+          arch_backend="$full"; arch_frontend="$full"
+
+          if echo "$changed" | grep -qE '^frontend/(src/|typedoc\.json$|package\.json$|package-lock\.json$|tsconfig\.app\.json$)'; then
+            typedoc=true
+          fi
+          if echo "$changed" | grep -qE '^docs/backend/api/'; then
+            redoc=true
+          fi
+          if echo "$changed" | grep -qE '^docs/backend/architecture/'; then
+            arch_backend=true
+          fi
+          if echo "$changed" | grep -qE '^docs/frontend/architecture/'; then
+            arch_frontend=true
+          fi
+
+          # build-typedoc-html.sh and build-architecture-docs.sh both render through
+          # pandoc, so the install is needed if any of those three is selected.
+          pandoc=false
+          if [ "$typedoc" = true ] || [ "$arch_backend" = true ] || [ "$arch_frontend" = true ]; then
+            pandoc=true
+          fi
+
+          {
+            echo "full=$full"
+            echo "typedoc=$typedoc"
+            echo "redoc=$redoc"
+            echo "arch_backend=$arch_backend"
+            echo "arch_frontend=$arch_frontend"
+            echo "pandoc=$pandoc"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### Docs rebuild plan"
+            echo "- full rebuild: $full"
+            echo "- frontend/api (TypeDoc): $typedoc"
+            echo "- backend/api (ReDoc): $redoc"
+            echo "- backend/architecture: $arch_backend"
+            echo "- frontend/architecture: $arch_frontend"
+          } >> "$GITHUB_STEP_SUMMARY"
+
       # JaCoCo is only available when triggered after backend CI — absent on docs-only pushes
       - name: Download JaCoCo artifact
         if: >
@@ -125,6 +192,7 @@ jobs:
       # records the bundled renderer, not the tool that ran it. Bump deliberately and
       # check the output.
       - name: Install ReDoc CLI
+        if: steps.gate.outputs.redoc == 'true'
         run: |
           set -euo pipefail
           npm install -g @redocly/cli@2.51.1
@@ -138,6 +206,7 @@ jobs:
       # version fails loudly here instead of silently re-rendering 64 pages. Pandoc
       # converts those pages through a Lua filter, so its version is published output.
       - name: Install Pandoc
+        if: steps.gate.outputs.pandoc == 'true'
         run: |
           set -euo pipefail
           sudo apt-get update -qq
@@ -152,6 +221,7 @@ jobs:
       # the next step was fixed for in eee1b410. An absent frontend directory is
       # still tolerated; nothing else is.
       - name: Install frontend dependencies
+        if: steps.gate.outputs.typedoc == 'true'
         run: |
           set -euo pipefail
           if [ -d "frontend" ]; then
@@ -168,6 +238,7 @@ jobs:
       # survived unnoticed. Measured: exit 0 on the clean baseline, exit 3 with a single
       # warning reintroduced.
       - name: Generate TypeDoc markdown
+        if: steps.gate.outputs.typedoc == 'true'
         run: |
           if [ -f "frontend/typedoc.json" ]; then
             cd frontend
@@ -176,7 +247,15 @@ jobs:
             echo "No frontend/typedoc.json — skipping TypeDoc"
           fi
 
+      # The generators the gate selected. build-docs.sh treats an unset variable as
+      # "build it", so docs-pr-check.yml, which sets none of these, keeps building
+      # the whole site.
       - name: Build docs site
+        env:
+          DOCS_BUILD_REDOC: ${{ steps.gate.outputs.redoc }}
+          DOCS_BUILD_TYPEDOC: ${{ steps.gate.outputs.typedoc }}
+          DOCS_BUILD_ARCH_BACKEND: ${{ steps.gate.outputs.arch_backend }}
+          DOCS_BUILD_ARCH_FRONTEND: ${{ steps.gate.outputs.arch_frontend }}
         run: |
           PROJECT_DIR="${{ steps.where.outputs.dir }}"
           bash .github/scripts/docs/build-docs.sh "$PROJECT_DIR"

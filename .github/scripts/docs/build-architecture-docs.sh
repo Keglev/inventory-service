@@ -21,7 +21,13 @@ LUA_FILTER="$PROJECT_DIR/scripts/md-to-html-links.lua"
 # (older versions ignore the template's own directory for partials).
 DATA_DIR="$DOCS_DIR/_theme"
 
-mkdir -p "$OUTPUT_DIR/backend/architecture" "$OUTPUT_DIR/frontend/architecture"
+# Contexts to convert, given as arguments after the project directory. Absent,
+# both are converted, which is what docs-pr-check.yml relies on.
+if [ "$#" -gt 1 ]; then
+  CONTEXTS=("${@:2}")
+else
+  CONTEXTS=(backend frontend)
+fi
 
 # Converts all .md files in docs/<context>/architecture/ to HTML, preserving
 # subdirectory structure. Output mirrors the deployed URL tree:
@@ -71,6 +77,13 @@ convert_arch() {
   done
 }
 
-convert_arch backend
-convert_arch frontend
+# Only the selected contexts get a directory. Creating both unconditionally, as
+# this script used to, would leave an empty target/docs/<other>/architecture on a
+# partial build — and an empty built subtree is indistinguishable from a rebuilt
+# one to assemble-site.sh, which would then replace the published pages with
+# nothing.
+for CTX in "${CONTEXTS[@]}"; do
+  mkdir -p "$OUTPUT_DIR/$CTX/architecture"
+  convert_arch "$CTX"
+done
 echo "✓ Architecture docs complete"
