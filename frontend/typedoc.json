@@ -29,5 +29,22 @@
     "**/App.tsx"
   ],
   // Suppresses TypeDoc's default behaviour of prepending the project README to generated docs.
-  "readme": "none"
+  "readme": "none",
+
+  // blockTags REPLACES TypeDoc's defaults rather than extending them: measured
+  // 2026-09-03, declaring only the three project tags took the warning count from
+  // 64 to 241 because @param, @returns, @module and @summary became unknown. The
+  // 42 defaults for typedoc 0.28 are therefore listed first, then the tags this
+  // project uses: @file names the source file, @enterprise records the rationale
+  // a reviewer needs, @backend cites the endpoint a fetcher calls.
+  "blockTags": [
+    "@defaultValue", "@deprecated", "@example", "@jsx", "@param", "@privateRemarks",
+    "@remarks", "@returns", "@see", "@throws", "@typeParam", "@author",
+    "@callback", "@category", "@categoryDescription", "@default", "@document", "@extends",
+    "@augments", "@yields", "@group", "@groupDescription", "@import", "@inheritDoc",
+    "@license", "@module", "@mergeModuleWith", "@prop", "@property", "@return",
+    "@satisfies", "@since", "@sortStrategy", "@template", "@this", "@type",
+    "@typedef", "@summary", "@preventInline", "@inlineType", "@preventExpand", "@expandType",
+    "@file", "@enterprise", "@backend"
+  ]
 }

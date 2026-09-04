@@ -8,7 +8,7 @@
  * @enterprise
  * - Every message is an i18n KEY, never display text; utils/fieldErrorText resolves it
  *   at the render boundary, so client and server rejections of a field read identically.
- * - Email is validated client-side to match backend @Email constraint; other fields have no format rules.
+ * - Email is validated client-side to match the backend's `@Email` constraint; other fields have no format rules.
  * - Optional string fields transform empty strings to null so the backend receives a clean null, not "".
  */
 
