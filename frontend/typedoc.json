@@ -31,6 +31,18 @@
   // Suppresses TypeDoc's default behaviour of prepending the project README to generated docs.
   "readme": "none",
 
+  // The revision stamped into every "Defined in" source link. Left unset, TypeDoc
+  // falls back to `git rev-parse HEAD`, so each link carried the SHA of whatever
+  // commit happened to be publishing: 152 of the 211 generated pages were rewritten
+  // on every docs publish, 324 lines, with no source change behind any of it.
+  // Measured on the 2026-09-04 publish, and the same defect the theme asset tokens
+  // were fixed for in 03d15021. The branch name is written out rather than using
+  // TypeDoc's "{branch}" placeholder: the docs pipeline checks out a commit, not a
+  // branch, so `git branch --show-current` is empty on the runner and the fallback
+  // to the SHA would apply anyway. Links therefore track main, which is the only
+  // revision this site is ever published from.
+  "gitRevision": "main",
+
   // blockTags REPLACES TypeDoc's defaults rather than extending them: measured
   // 2026-09-03, declaring only the three project tags took the warning count from
   // 64 to 241 because @param, @returns, @module and @summary became unknown. The
