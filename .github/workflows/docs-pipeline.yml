@@ -114,11 +114,17 @@ jobs:
         run: |
           [ -d "frontend" ] && cd frontend && npm ci || echo "No frontend directory — skipping"
 
+      # Blocking since 2026-09-04. This step swallowed failures while it printed 64
+      # warnings on every run; a4088857 declared the project's block tags and took that
+      # to zero, so a warning now means something changed. --treatWarningsAsErrors is
+      # the part that bites: TypeDoc exits 0 when it only warns, which is how those 64
+      # survived unnoticed. Measured: exit 0 on the clean baseline, exit 3 with a single
+      # warning reintroduced.
       - name: Generate TypeDoc markdown
         run: |
           if [ -f "frontend/typedoc.json" ]; then
             cd frontend
-            npx typedoc --options typedoc.json || echo "TypeDoc failed — continuing (non-blocking)"
+            npx typedoc --options typedoc.json --treatWarningsAsErrors
           else
             echo "No frontend/typedoc.json — skipping TypeDoc"
           fi
