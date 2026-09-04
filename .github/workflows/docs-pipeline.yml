@@ -50,12 +50,18 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      # Checkout the commit that triggered upstream CI, or HEAD for direct pushes
+      # Checkout the commit that triggered upstream CI, or HEAD for direct pushes.
+      # Two commits, not the whole repository: this build reads no history, and a
+      # full-depth checkout pulled every branch and every tag on every run for
+      # nothing, measured at 8 to 9 seconds. Two rather than one keeps the merge's
+      # parent present, so a diff of what a merge actually changed stays possible
+      # without a second fetch; 2-docker-backend.yml checks out at this depth for
+      # exactly that reason.
       - name: Checkout code
         uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-          fetch-depth: 0
+          fetch-depth: 2
 
       # Supports flat layout (pom.xml + docs/) and monorepo (backend/pom.xml + backend/docs/)
       - name: Detect project root
@@ -95,10 +101,18 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      # The same cache declaration 5-frontend-ci.yml and 7-frontend-e2e.yml carry,
+      # keyed on the same lockfile, so this job restores the tree those jobs have
+      # already built instead of installing cold on every run. The lockfile has
+      # changed 18 times in 1439 commits; only on those runs does every job miss
+      # and one lose the race to write the entry, which is a warning and not a
+      # failure. Every other run is an exact hit and writes nothing.
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
 
       - name: Pin npm version
         run: |
@@ -130,10 +144,22 @@ jobs:
           sudo apt-get install -y pandoc=3.1.3+ds-2
           pandoc --version | head -n 1
 
-      # Install frontend deps so TypeDoc can generate markdown from source
+      # Install frontend deps so TypeDoc can generate markdown from source. The
+      # previous form chained the install onto a directory test and then swallowed
+      # whatever came back with a trailing echo, so a failed install and an absent
+      # directory produced the same message and the same exit 0 and the build went
+      # on to render a site from whatever happened to be there. That is the defect
+      # the next step was fixed for in eee1b410. An absent frontend directory is
+      # still tolerated; nothing else is.
       - name: Install frontend dependencies
         run: |
-          [ -d "frontend" ] && cd frontend && npm ci || echo "No frontend directory — skipping"
+          set -euo pipefail
+          if [ -d "frontend" ]; then
+            cd frontend
+            npm ci
+          else
+            echo "No frontend directory — skipping"
+          fi
 
       # Blocking since 2026-09-04. This step swallowed failures while it printed 64
       # warnings on every run; a4088857 declared the project's block tags and took that
