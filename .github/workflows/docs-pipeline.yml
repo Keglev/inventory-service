@@ -32,9 +32,15 @@ permissions:
   actions: read
 
 # Cancel in-progress builds when a newer commit arrives
+# Runs queue, they do not cancel each other. A merge touching docs, backend and
+# frontend triggers this pipeline up to three times — once on its own push and
+# once behind each CI workflow — and each of those runs carries a different
+# artifact. Cancelling an overtaken run silently drops the coverage report it was
+# about to publish. Queuing is safe because the publisher replaces only the paths
+# a run's MANIFEST claims, so order does not change the result.
 concurrency:
   group: docs-pipeline-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build-docs:
@@ -305,10 +311,12 @@ jobs:
             --root-dir "${{ github.workspace }}/target/link-check"
             "target/link-check/inventory-service/**/*.html"
 
-      # The assembled tree, not the built one. 3-deploy-ghpages.yml replaces the
-      # branch wholesale, so what it receives has to be a complete site.
+      # The built tree plus its MANIFEST, not the assembled site. What a run
+      # publishes is what it produced; the assembled tree exists so the link check
+      # can see a whole site, and shipping it would make every run overwrite
+      # subtrees it never built.
       - name: Upload docs-site artifact
         uses: actions/upload-artifact@v7
         with:
           name: docs-site
-          path: ${{ steps.where.outputs.dir }}/target/publish
+          path: ${{ steps.where.outputs.dir }}/target/docs

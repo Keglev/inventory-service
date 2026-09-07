@@ -44,45 +44,38 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      # Replace exactly the paths the run produced, named in MANIFEST, and leave the
+      # rest of the branch untouched. The branch is no longer wiped and rewritten:
+      # a merge touching docs, backend and frontend produces up to three pipeline
+      # runs carrying three different artifacts, and each must be able to publish
+      # its own part without reverting the others, in whatever order they land.
+      #
+      # Each listed directory is removed before it is copied, so a page deleted at
+      # source disappears rather than lingering. The previous backup-and-restore of
+      # the coverage reports is gone with the wipe that made it necessary.
       - name: Sync docs-site into gh-pages root
         run: |
           set -euo pipefail
 
-          # Preserve existing coverage reports when the artifact does not carry them.
-          # Since docs-pipeline assembles over the published site this no longer fires
-          # on a normal run: a report the build did not regenerate arrives from
-          # gh-pages inside the artifact. What it still guards is the fallback, when
-          # the fetch of gh-pages fails and the pipeline assembles from its own output
-          # alone. Without this the wipe below would then delete 875 published files.
-          for SIDE in backend frontend; do
-            if [ ! -d "docs-site/$SIDE/coverage" ] && [ -d "$SIDE/coverage" ]; then
-              echo "$SIDE coverage not in current build — preserving existing report"
-              mkdir -p "/tmp/coverage-backup/$SIDE"
-              cp -R "$SIDE/coverage" "/tmp/coverage-backup/$SIDE/"
-            fi
-          done
-
-          # Clear gh-pages content, keeping only .git and .github metadata
-          find . -mindepth 1 -maxdepth 1 \
-            ! -name '.git' ! -name '.github' ! -name 'docs-site' \
-            -exec rm -rf {} +
-
-          if [ -d "docs-site" ] && [ "$(ls -A docs-site)" ]; then
-            cp -R docs-site/* .
-            rm -rf docs-site
-          else
-            echo "::error::docs-site artifact is empty or missing"
+          if [ ! -s "docs-site/MANIFEST" ]; then
+            echo "::error::docs-site artifact carries no MANIFEST"
             exit 1
           fi
 
-          for SIDE in backend frontend; do
-            if [ -d "/tmp/coverage-backup/$SIDE/coverage" ]; then
-              mkdir -p "$SIDE/coverage"
-              cp -R "/tmp/coverage-backup/$SIDE/coverage/." "$SIDE/coverage/"
-              echo "Restored existing $SIDE coverage"
+          echo "Publishing $(wc -l < docs-site/MANIFEST) path(s):"
+          while IFS= read -r ENTRY; do
+            [ -n "$ENTRY" ] || continue
+            if [ ! -e "docs-site/$ENTRY" ]; then
+              echo "::error::MANIFEST names $ENTRY but the artifact does not contain it"
+              exit 1
             fi
-          done
-          rm -rf /tmp/coverage-backup
+            rm -rf "./${ENTRY:?}"
+            mkdir -p "$(dirname "./$ENTRY")"
+            cp -R "docs-site/$ENTRY" "./$ENTRY"
+            echo "  published $ENTRY"
+          done < docs-site/MANIFEST
+
+          rm -rf docs-site
 
       - name: Inject back-to-docs link into coverage report
         run: |
