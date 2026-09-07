@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0013-docs-pipeline-rebuilds-by-change · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=a061f5ab8d" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0013-the-docs-pipeline-rebuilds-and-publishes-by-change">ADR-0013:
+        The docs pipeline rebuilds, and publishes, by change</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-09-07</p>
+        <h2 id="context">Context</h2>
+        <p>The published documentation site is four generated subtrees
+        plus two coverage reports and two landing pages: 1,192 files on
+        <code>gh-pages</code>. Until this change every run of
+        <code>docs-pipeline.yml</code> regenerated all four subtrees and
+        replaced the whole branch with the result, whatever the merge
+        had actually touched.</p>
+        <p>Three costs came out of that, all measured on real runs
+        rather than estimated.</p>
+        <p>The work was mostly wasted. On the run for
+        <code>02d420e7</code>, of roughly 65 seconds of job time about
+        50 went on installs and generators whose inputs had not changed:
+        pandoc 10s, <code>npm ci</code> 19s, TypeDoc 7s, the pandoc
+        conversions 16s. Across the sixteen merges before this wave,
+        three touched <code>frontend/src</code>, and none touched
+        <code>docs/_theme</code>, <code>docs/backend/api</code> or
+        either architecture tree.</p>
+        <p>The history was unreadable. Every publish rewrote all 277
+        themed pages, because the cache-busting token was stamped from
+        the commit SHA, and a further 152 because TypeDoc embedded the
+        publishing commit in every source link. A real documentation
+        change was indistinguishable from the noise around it.</p>
+        <p>And the branch was not safe under concurrency. One merge can
+        trigger this pipeline up to three times — once on its own push,
+        once behind <code>1-ci-test.yml</code> and once behind
+        <code>5-frontend-ci.yml</code> — and each run carries a
+        different artifact: one has JaCoCo, one has the Vitest report
+        and the TypeDoc pages, one has neither. A run that published the
+        whole site published the parts it did not build, taken from a
+        copy of <code>gh-pages</code> read minutes earlier during its
+        build. Nothing serialises that read against another run’s
+        push.</p>
+        <p>Forces: - The link check must keep its meaning. Every page
+        embeds <code>nav-backend.html</code> or
+        <code>nav-frontend.html</code>, and both link across subtrees,
+        so a run that stages only what it rebuilt hands the checker a
+        broken site. Measured against the published tree: staging
+        <code>backend/architecture</code> alone leaves 210 of its 720
+        checked links unresolved, from five distinct missing targets.
+        That fails the gate; it does not merely weaken it. - Coverage
+        arrives from CI and is not derivable from the repository, so a
+        run that did not receive it must not be able to remove it. - No
+        mechanism exists by which one pipeline run can know that another
+        is in flight, and none is wanted.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Each run rebuilds only the subtrees its merge can have
+        changed, and publishes only the paths it built.</p>
+        <p>A gate step compares the released commit against its first
+        parent, in the shape <code>2-docker-backend.yml</code> already
+        uses, and classifies the change:</p>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>change</th>
+        <th>rebuilds</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>docs/_theme/**</code>,
+        <code>.github/scripts/docs/**</code>,
+        <code>docs-pipeline.yml</code></td>
+        <td>all four subtrees</td>
+        </tr>
+        <tr class="even">
+        <td><code>frontend/src/**</code>, <code>typedoc.json</code>,
+        <code>package*.json</code>, <code>tsconfig.app.json</code></td>
+        <td><code>frontend/api</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>docs/backend/api/**</code></td>
+        <td><code>backend/api</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>docs/backend/architecture/**</code></td>
+        <td><code>backend/architecture</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>docs/frontend/architecture/**</code></td>
+        <td><code>frontend/architecture</code></td>
+        </tr>
+        <tr class="even">
+        <td>everything else</td>
+        <td>nothing</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>The theme is not gateable per subtree: the navigation partial
+        and the page templates are embedded in every page, so a
+        half-rebuilt site would serve two different navigations. The
+        theme assets and the two landing pages are always built — four
+        files — because <code>version_assets</code> hashes the built
+        assets to stamp whichever pages the run did produce.</p>
+        <p>Coverage is not path-gated at all. It follows whichever CI
+        workflow chained into the run, which is the only thing that
+        determines whether a fresh report exists.</p>
+        <p><code>assemble-site.sh</code> then lays the build over a
+        shallow copy of the published site, subtree by subtree, and
+        records in <code>MANIFEST</code> what it replaced. The assembled
+        tree is what the link checker reads, so the check runs against
+        the site as it will be published rather than against a fragment.
+        The tree is <em>not</em> what gets published: the artifact is
+        the built tree plus its <code>MANIFEST</code>, and
+        <code>3-deploy-ghpages.yml</code> replaces exactly those paths
+        and leaves the branch otherwise untouched.</p>
+        <p>That is what makes the concurrent runs safe, and it is a
+        different approach from coordinating them. Runs are not made
+        aware of each other; each is confined to what it owns, so any
+        interleaving produces the same branch. Verified against the
+        published site by assembling three runs from one pre-publish
+        snapshot and publishing them in three different orders:
+        byte-identical every time, where the previous publisher lost two
+        of the three contributions.</p>
+        <p>For the same reason <code>cancel-in-progress</code> is now
+        <code>false</code> on this pipeline. Cancelling an overtaken run
+        silently dropped the coverage report it was about to publish,
+        and queuing is only safe once a run publishes just its own
+        paths.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <p><strong>Stage only the rebuilt subtrees for the link check,
+        and widen the exclusion list until it passes.</strong> Rejected
+        on the 210-broken-links measurement above: the exclusions would
+        have to grow until the check no longer covers the cross-subtree
+        navigation, which is the part most likely to rot.</p>
+        <p><strong>Publish the assembled tree and keep replacing the
+        branch wholesale.</strong> This is what the first version of the
+        change did, and it is what introduced the lost-update window:
+        the assembly reads <code>gh-pages</code> during the build, the
+        publisher writes it during the deploy, and nothing serialises
+        the two.</p>
+        <p><strong>One gated job per subtree instead of step conditions
+        in one job.</strong> Rejected. The saving comes from not doing
+        the work, not from doing it in parallel, and five jobs would pay
+        checkout and tool installation four extra times to hand their
+        output to an assembly job through artifacts.</p>
+        <p><strong>Detect concurrent runs and suppress the redundant
+        ones.</strong> Rejected as unimplementable. A run cannot know
+        what another run is carrying, and the alternative — making each
+        run’s writes disjoint — removes the need to know.</p>
+        <p><strong>A nightly full rebuild as a safety net.</strong>
+        Rejected previously and not revisited: a scheduled job that
+        republishes everything reintroduces exactly the churn and the
+        lost-update window this decision removes.</p>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>The pipeline no longer runs its expensive steps for merges
+        that cannot have changed a page. <code>README.md</code>,
+        <code>pom.xml</code>, <code>Dockerfile</code>,
+        <code>src/**</code>, <code>ops/nginx/**</code>,
+        <code>docker/**</code>, <code>scripts/**</code> and
+        <code>lychee.toml</code> rebuild nothing — and those runs still
+        assemble, check links and publish, because a <code>src/**</code>
+        merge produces a new JaCoCo report even though no page
+        changed.</li>
+        <li>The branch is never wiped. A subtree that is retired will
+        have to be deleted from <code>gh-pages</code> by hand; nothing
+        removes a path no <code>MANIFEST</code> names.</li>
+        <li>The artifact carries only what the run built: 0.9 MB and 1.5
+        MB on the two runs for <code>021e96c6</code>, against 3.4 MB
+        before and the 18 MB the assembled tree would have been.</li>
+        <li>The gate reads one commit against its first parent. That is
+        exact for the squash merges this repository lands, and covers
+        only the last commit of a multi-commit push.</li>
+        <li><code>docs-pr-check.yml</code> is deliberately not gated.
+        <code>build-docs.sh</code> treats an unset
+        <code>DOCS_BUILD_*</code> as “build it”, so the pull-request
+        check still exercises every generator end to end before a change
+        reaches <code>main</code>, which is the property that makes it
+        worth its ninety seconds.</li>
+        <li>Determinism became a prerequisite rather than a nicety. Both
+        the SHA-stamped asset token and TypeDoc’s SHA-stamped source
+        links had to be fixed first, or a gated build could not be shown
+        to have changed nothing.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Gate and step conditions:
+        <code>.github/workflows/docs-pipeline.yml</code>.</li>
+        <li>Generator selection: <code>DOCS_BUILD_REDOC</code>,
+        <code>DOCS_BUILD_TYPEDOC</code>,
+        <code>DOCS_BUILD_ARCH_BACKEND</code>,
+        <code>DOCS_BUILD_ARCH_FRONTEND</code> in
+        <code>.github/scripts/docs/build-docs.sh</code>.</li>
+        <li>Assembly and <code>MANIFEST</code>:
+        <code>.github/scripts/docs/assemble-site.sh</code>.</li>
+        <li>Manifest-driven publish:
+        <code>.github/workflows/3-deploy-ghpages.yml</code>.</li>
+        <li>Delivered as PRs #77 to #81.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a
+        href="adr-0012-backend-hosting-on-shared-hetzner-host.html">ADR-0012:
+        Backend hosting on the shared Hetzner host</a></li>
+        <li>Section 7 Deployment (<code>../07-deployment.md</code>)</li>
+        <li>Frontend decisions index
+        (<code>../../../frontend/architecture/09-decisions/index.md</code>)</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0013-the-docs-pipeline-rebuilds-and-publishes-by-change"
+      id="toc-adr-0013-the-docs-pipeline-rebuilds-and-publishes-by-change">ADR-0013:
+      The docs pipeline rebuilds, and publishes, by change</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js?v=3354f25964"></script>
+</body>
+</html>
