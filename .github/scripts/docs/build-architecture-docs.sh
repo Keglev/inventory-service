@@ -56,7 +56,7 @@ resolve_context() {
     decisions)
       SRC_DIR="$DOCS_DIR/decisions"
       DST_DIR="$OUTPUT_DIR/decisions"
-      NAV_META=()
+      NAV_META=(--metadata=decisionsnav:true)
       TITLE_PREFIX="Decisions"
       ;;
     *)

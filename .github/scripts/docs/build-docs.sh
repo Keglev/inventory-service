@@ -29,6 +29,7 @@ SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 : "${DOCS_BUILD_TYPEDOC:=true}"
 : "${DOCS_BUILD_ARCH_BACKEND:=true}"
 : "${DOCS_BUILD_ARCH_FRONTEND:=true}"
+: "${DOCS_BUILD_DECISIONS:=true}"
 
 # ---------------------------------------------------------------------------
 # Lua filter — tracked at .github/scripts/docs/md-to-html-links.lua and copied
@@ -149,6 +150,7 @@ fi
 ARCH_CONTEXTS=()
 [ "$DOCS_BUILD_ARCH_BACKEND" = "true" ]  && ARCH_CONTEXTS+=(backend)  || true
 [ "$DOCS_BUILD_ARCH_FRONTEND" = "true" ] && ARCH_CONTEXTS+=(frontend) || true
+[ "$DOCS_BUILD_DECISIONS" = "true" ]     && ARCH_CONTEXTS+=(decisions) || true
 if [ "${#ARCH_CONTEXTS[@]}" -gt 0 ]; then
   bash "$SCRIPTS_DIR/build-architecture-docs.sh" "$PROJECT_DIR" "${ARCH_CONTEXTS[@]}"
 else
