@@ -3,8 +3,10 @@
 [Back to Decisions Index (ADRs)](index.md)
 
 ## Status
-Accepted — documented retroactively on 2026-07-13; the mechanism predates this record
-and was previously described only in `ops/nginx/default.conf` comments.
+Accepted
+
+## Date
+2026-07-13
 
 ## Context
 The production build bakes an absolute backend origin into the JavaScript bundle
@@ -17,6 +19,9 @@ a `SameSite=None; Secure` cookie and a CORS allow-list
 Cross-site cookies are an increasingly fragile foundation: browsers restrict
 third-party cookies progressively, and every authenticated call depends on the
 `SameSite=None` exemption surviving browser policy changes.
+
+This record is retroactive: the mechanism predates it and was previously described
+only in `ops/nginx/default.conf` comments.
 
 ## Decision
 Koyeb's Nginx makes production browser traffic **same-origin** without changing the
@@ -34,6 +39,14 @@ Verified empirically (2026-07-13): a local production build places the Fly.io or
 in the entry bundle; the deployed entry bundle served from Koyeb does not contain it —
 the rewrite is active and load-bearing.
 
+## Alternatives Considered
+- **Relative API base** (empty `VITE_API_BASE`): same-origin natively, no rewrite
+  needed; requires the OAuth2 redirect targets and any absolute-URL assumptions to be
+  revisited. Cleaner long-term; the rewrite achieves the same result without touching
+  the build.
+- **Direct cross-origin only** (ADR-0007 as-is): simplest configuration, but exposed
+  to third-party-cookie restrictions.
+
 ## Consequences
 - Browser traffic is same-origin; the session cookie is first-party and independent of
   third-party-cookie policy changes.
@@ -47,14 +60,6 @@ the rewrite is active and load-bearing.
   direct cross-origin path. That path still works (previous point), but the flip would
   be invisible without a check; verifying the served bundle for the backend origin is
   the cheap detection.
-
-## Alternatives considered
-- **Relative API base** (empty `VITE_API_BASE`): same-origin natively, no rewrite
-  needed; requires the OAuth2 redirect targets and any absolute-URL assumptions to be
-  revisited. Cleaner long-term; the rewrite achieves the same result without touching
-  the build.
-- **Direct cross-origin only** (ADR-0007 as-is): simplest configuration, but exposed
-  to third-party-cookie restrictions.
 
 ## Correction (2026-09-02)
 The **Known fragility** paragraph above misstates nginx's history. nginx has mapped

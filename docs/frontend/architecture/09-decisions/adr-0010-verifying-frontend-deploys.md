@@ -3,7 +3,10 @@
 [Back to Decisions Index (ADRs)](index.md)
 
 ## Status
-Accepted — 2026-09-02.
+Accepted
+
+## Date
+2026-09-02
 
 ## Context
 Two properties of the production frontend cannot be established from the
@@ -38,6 +41,16 @@ edge serves:
 The platform poll is kept ahead of these as a fast failure when the service is
 genuinely down, with a comment recording what it does not establish.
 
+## Alternatives Considered
+- **Poll the platform for the specific new deployment** rather than the service:
+  plausible, but it exchanges one dependence on the provider's status semantics
+  for another, and those semantics are what failed.
+- **A version endpoint** written at image build time: equivalent evidence, an
+  extra artifact, and one more thing to keep in step with the bundle. The SHA
+  already ships inside the bundle.
+- **Trust the green build**: what was in place. It cannot observe serving-layer
+  transforms or rollout timing, which is how both defects survived.
+
 ## Consequences
 - A rollout that never reaches the edge fails the workflow instead of passing on
   the previous release.
@@ -52,13 +65,3 @@ genuinely down, with a comment recording what it does not establish.
   an edit to `6-deploy-frontend.yml`, not to the scripts.
 - The backend deploy shares the same readiness pattern and is not covered here. It
   has no equivalent build identifier in its responses and needs its own mechanism.
-
-## Alternatives considered
-- **Poll the platform for the specific new deployment** rather than the service:
-  plausible, but it exchanges one dependence on the provider's status semantics
-  for another, and those semantics are what failed.
-- **A version endpoint** written at image build time: equivalent evidence, an
-  extra artifact, and one more thing to keep in step with the bundle. The SHA
-  already ships inside the bundle.
-- **Trust the green build**: what was in place. It cannot observe serving-layer
-  transforms or rollout timing, which is how both defects survived.

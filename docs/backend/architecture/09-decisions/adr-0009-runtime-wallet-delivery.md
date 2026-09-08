@@ -7,9 +7,7 @@ Accepted — supersedes the delivery and password model of
 [ADR-0001](adr-0001-oracle-wallet-autologin.md)
 
 ## Date
-2026-07-14 (records an operational change that predates this ADR; documented
-retroactively when the docs accuracy pass found the chapters describing the
-superseded mechanism)
+2026-07-14
 
 ## Context
 [ADR-0001](adr-0001-oracle-wallet-autologin.md) decided to bundle an auto-login
@@ -26,6 +24,10 @@ Forces/constraints:
   action (update a secret, restart), not a build-pipeline action.
 - **Fail fast**: a container started without its credentials must exit with a
   clear error instead of booting into a broken state.
+
+This record is retroactive: it documents an operational change that predates it,
+written when a docs accuracy pass found chapters still describing the superseded
+mechanism.
 
 ## Decision
 The wallet is removed from the repository (`oracle_wallet/` is gitignored) and from
