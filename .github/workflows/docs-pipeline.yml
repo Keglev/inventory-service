@@ -83,15 +83,15 @@ jobs:
             exit 1
           fi
 
-      # Which of the four generated subtrees this merge can possibly have changed.
+      # Which of the five generated subtrees this merge can possibly have changed.
       # Same shape as the change gate in 2-docker-backend.yml: compare the released
       # commit against its first parent, which is exact for the squash merges this
       # repository lands and covers only the last commit of a multi-commit push.
       #
       # Three outcomes. A theme, generator-script or pipeline change rebuilds all
-      # four, because the nav partial and the templates are embedded in every page
+      # five, because the nav partial and the templates are embedded in every page
       # and a half-rebuilt site would serve two different navigations. A source
-      # change under one of the four listed prefixes rebuilds that subtree alone.
+      # change under one of the five listed prefixes rebuilds that subtree alone.
       # Everything else — README.md, LICENSE, pom.xml, Dockerfile, src/**,
       # ops/nginx/**, docker/**, scripts/**, lychee.toml, the other workflows —
       # rebuilds nothing, and the run still assembles, link-checks and publishes,
@@ -110,7 +110,7 @@ jobs:
           fi
 
           typedoc="$full"; redoc="$full"
-          arch_backend="$full"; arch_frontend="$full"
+          arch_backend="$full"; arch_frontend="$full"; decisions="$full"
 
           if echo "$changed" | grep -qE '^frontend/(src/|typedoc\.json$|package\.json$|package-lock\.json$|tsconfig\.app\.json$)'; then
             typedoc=true
@@ -124,11 +124,16 @@ jobs:
           if echo "$changed" | grep -qE '^docs/frontend/architecture/'; then
             arch_frontend=true
           fi
+          if echo "$changed" | grep -qE '^docs/decisions/'; then
+            decisions=true
+          fi
 
           # build-typedoc-html.sh and build-architecture-docs.sh both render through
-          # pandoc, so the install is needed if any of those three is selected.
+          # pandoc, so the install is needed if any of those four is selected. The
+          # decisions index is converted by build-architecture-docs.sh like the two
+          # architecture trees, from a different source directory.
           pandoc=false
-          if [ "$typedoc" = true ] || [ "$arch_backend" = true ] || [ "$arch_frontend" = true ]; then
+          if [ "$typedoc" = true ] || [ "$arch_backend" = true ] || [ "$arch_frontend" = true ] || [ "$decisions" = true ]; then
             pandoc=true
           fi
 
@@ -138,6 +143,7 @@ jobs:
             echo "redoc=$redoc"
             echo "arch_backend=$arch_backend"
             echo "arch_frontend=$arch_frontend"
+            echo "decisions=$decisions"
             echo "pandoc=$pandoc"
           } >> "$GITHUB_OUTPUT"
 
@@ -148,6 +154,7 @@ jobs:
             echo "- backend/api (ReDoc): $redoc"
             echo "- backend/architecture: $arch_backend"
             echo "- frontend/architecture: $arch_frontend"
+            echo "- decisions: $decisions"
           } >> "$GITHUB_STEP_SUMMARY"
 
       # JaCoCo is only available when triggered after backend CI — absent on docs-only pushes
@@ -262,6 +269,7 @@ jobs:
           DOCS_BUILD_TYPEDOC: ${{ steps.gate.outputs.typedoc }}
           DOCS_BUILD_ARCH_BACKEND: ${{ steps.gate.outputs.arch_backend }}
           DOCS_BUILD_ARCH_FRONTEND: ${{ steps.gate.outputs.arch_frontend }}
+          DOCS_BUILD_DECISIONS: ${{ steps.gate.outputs.decisions }}
         run: |
           PROJECT_DIR="${{ steps.where.outputs.dir }}"
           bash .github/scripts/docs/build-docs.sh "$PROJECT_DIR"

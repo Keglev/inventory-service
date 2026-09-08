@@ -35,6 +35,7 @@ OUTPUT_DIR="$PROJECT_DIR/target/publish"
 # dropped on the next run.
 SUBTREES=(
   "assets"
+  "decisions"
   "backend/api"
   "backend/architecture"
   "backend/coverage"
@@ -69,7 +70,7 @@ for entry in "$BUILT_DIR"/*; do
     esac
   fi
   case "$name" in
-    assets) continue ;;
+    assets|decisions) continue ;;
     backend|frontend)
       for child in "$entry"/*; do
         [ -e "$child" ] || continue
