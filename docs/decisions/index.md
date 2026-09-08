@@ -35,6 +35,7 @@ Source: [Backend architecture, section 9](../backend/architecture/09-decisions/i
 | 0011 | [Restrict OAuth2 login to an email allow-list](../backend/architecture/09-decisions/adr-0011-restrict-oauth2-login-to-allowlist.md) |
 | 0012 | [Backend hosting on the shared Hetzner host](../backend/architecture/09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.md) |
 | 0013 | [The docs pipeline rebuilds, and publishes, by change](../backend/architecture/09-decisions/adr-0013-docs-pipeline-rebuilds-by-change.md) |
+| 0014 | [Decision records stay in each tier's arc42 section 9](../backend/architecture/09-decisions/adr-0014-decisions-stay-in-arc42-section-9.md) |
 
 Backend ADR-0009 supersedes the wallet delivery and password model of backend
 ADR-0001; the auto-login mechanism ADR-0001 chose still stands.
