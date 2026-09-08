@@ -3,8 +3,8 @@
 # build-architecture-docs.sh — Converts architecture markdown guides to HTML
 # Usage: .github/scripts/docs/build-architecture-docs.sh <project-dir>
 #
-# Expects the Lua filter at <project-dir>/scripts/md-to-html-links.lua,
-# written by build-docs.sh before this script is called.
+# Reads the pandoc Lua filter from this script's own directory, where it is
+# tracked.
 # Prerequisites: pandoc
 # =============================================================================
 set -euo pipefail
@@ -14,7 +14,10 @@ PROJECT_DIR="${1:?Usage: build-architecture-docs.sh <project-dir>}"
 DOCS_DIR="$PROJECT_DIR/docs"
 OUTPUT_DIR="$PROJECT_DIR/target/docs"
 TEMPLATE="$DOCS_DIR/_theme/app-docs.html"
-LUA_FILTER="$PROJECT_DIR/scripts/md-to-html-links.lua"
+
+# Resolve sibling script directory at runtime - safe regardless of working directory
+SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LUA_FILTER="$SCRIPTS_DIR/md-to-html-links.lua"
 
 # Pandoc resolves the $nav()$ partial from <data-dir>/templates/. Setting this
 # explicitly makes partial resolution work the same on old and new pandoc
