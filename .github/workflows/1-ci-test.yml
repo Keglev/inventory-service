@@ -5,15 +5,18 @@
 # On success, triggers: 2-docker-backend.yml (image build and scan).
 #
 # This is the repository's merge gate. Its job is named build-and-test, the
-# status check branch protection requires on main. Every path not claimed by
-# 5-frontend-ci.yml or docs-pr-check.yml falls through to this workflow, so a
-# pull request always has exactly one workflow reporting that check. A path
-# may be ignored below ONLY if another workflow gives that pull request a
-# build-and-test check; a path ignored everywhere leaves its pull requests
-# permanently blocked. README.md and LICENSE deliberately stay here: they are
-# outside docs/ and the docs build never reads them. docs-pr-check.yml
-# triggers on itself, so its own file is ignored below as well; without
-# that entry a pull request editing it is reported by both workflows.
+# status check branch protection requires on main. Three workflows declare a job
+# by that name: this one, 5-frontend-ci.yml and docs-pr-check.yml. The invariant
+# is coverage, not exclusivity. Every path reaches at least one of them, so no
+# pull request is left without the required check. A pull request confined to one
+# family is reported by exactly one workflow; one that spans families is reported
+# by each workflow whose paths it touches, and the check passes only when all of
+# them pass. A path may be ignored below ONLY if another workflow gives that pull
+# request a build-and-test check; a path ignored everywhere leaves its pull
+# requests permanently blocked. README.md and LICENSE deliberately stay here:
+# they are outside docs/ and the docs build never reads them. docs-pr-check.yml
+# triggers on itself, and its own file is ignored below, so a pull request
+# editing the docs gate is reported by that workflow alone.
 # =============================================================================
 name: 1 Backend CI - Build & Test
 

@@ -7,8 +7,9 @@
 # or deployed from this workflow. Its job is named build-and-test so it
 # satisfies the required status check for docs-only pull requests; the trigger
 # paths below must stay identical to the docs entries in the paths-ignore list
-# of 1-ci-test.yml. This file itself is absent from that list on purpose, so
-# editing the docs gate also runs the backend suite.
+# of 1-ci-test.yml, this file included. A pull request editing this file is
+# therefore reported by this workflow alone, which is the intent: the docs gate
+# checks itself.
 # =============================================================================
 name: Docs PR Check
 
