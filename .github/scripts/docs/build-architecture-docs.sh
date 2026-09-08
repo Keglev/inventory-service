@@ -84,6 +84,13 @@ convert_arch() {
   count=$(find "$SRC_DIR" -type f -name "*.md" | wc -l)
   [ "$count" -eq 0 ] && echo "ℹ️  No .md files in $SRC_DIR — skipping $CONTEXT" && return 0
 
+  # Created only after both guards have passed. The caller loop used to create
+  # it before calling this function, which left an empty target/docs/<context>
+  # behind for a selected context whose source is absent. An empty built subtree
+  # is indistinguishable from a rebuilt one to assemble-site.sh, which would then
+  # replace the published pages with nothing.
+  mkdir -p "$DST_DIR"
+
   echo "==> [build-architecture-docs] Converting $count file(s) for $CONTEXT"
 
   find "$SRC_DIR" -type f -name "*.md" | while read -r md; do
@@ -111,14 +118,9 @@ convert_arch() {
   done
 }
 
-# Only the selected contexts get a directory. Creating both unconditionally, as
-# this script used to, would leave an empty target/docs/<other>/architecture on a
-# partial build — and an empty built subtree is indistinguishable from a rebuilt
-# one to assemble-site.sh, which would then replace the published pages with
-# nothing.
+# Only the selected contexts are built, and only a context that produced pages
+# gets a directory. convert_arch creates its own destination after its guards.
 for CTX in "${CONTEXTS[@]}"; do
-  resolve_context "$CTX"
-  mkdir -p "$DST_DIR"
   convert_arch "$CTX"
 done
 echo "✓ Architecture docs complete"
