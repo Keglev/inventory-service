@@ -22,24 +22,58 @@ LUA_FILTER="$PROJECT_DIR/scripts/md-to-html-links.lua"
 DATA_DIR="$DOCS_DIR/_theme"
 
 # Contexts to convert, given as arguments after the project directory. Absent,
-# both are converted, which is what docs-pr-check.yml relies on.
+# the two architecture trees are converted, which is what docs-pr-check.yml
+# relies on.
 if [ "$#" -gt 1 ]; then
   CONTEXTS=("${@:2}")
 else
   CONTEXTS=(backend frontend)
 fi
 
-# Converts all .md files in docs/<context>/architecture/ to HTML, preserving
+# A context resolves to four things: a source directory, a destination under
+# target/docs, a sidebar and a title prefix. Two contexts share the shape
+# docs/<name>/architecture; the system-wide decisions index does not, because it
+# sits at docs/decisions with no tier above it. Interpolating the context name
+# into a path therefore cannot reach every subtree this script builds, so the
+# mapping is written out as a table. Adding a subtree means adding a case here,
+# not teaching the callers a new path shape.
+# Sets SRC_DIR, DST_DIR, NAV_META and TITLE_PREFIX; fails on an unknown name,
+# which the previous code reported as a missing directory and skipped.
+resolve_context() {
+  case "$1" in
+    backend)
+      SRC_DIR="$DOCS_DIR/backend/architecture"
+      DST_DIR="$OUTPUT_DIR/backend/architecture"
+      NAV_META=(--metadata=backendnav:true)
+      TITLE_PREFIX="Backend"
+      ;;
+    frontend)
+      SRC_DIR="$DOCS_DIR/frontend/architecture"
+      DST_DIR="$OUTPUT_DIR/frontend/architecture"
+      NAV_META=()
+      TITLE_PREFIX="Frontend"
+      ;;
+    decisions)
+      SRC_DIR="$DOCS_DIR/decisions"
+      DST_DIR="$OUTPUT_DIR/decisions"
+      NAV_META=()
+      TITLE_PREFIX="Decisions"
+      ;;
+    *)
+      echo "✗ build-architecture-docs: unknown context '$1'" >&2
+      return 1
+      ;;
+  esac
+}
+
+# Converts all .md files in the context's source directory to HTML, preserving
 # subdirectory structure. Output mirrors the deployed URL tree:
-#   backend  → target/docs/backend/architecture/
-#   frontend → target/docs/frontend/architecture/
+#   backend   → target/docs/backend/architecture/
+#   frontend  → target/docs/frontend/architecture/
+#   decisions → target/docs/decisions/
 convert_arch() {
   local CONTEXT="$1"
-  local SRC_DIR="$DOCS_DIR/$CONTEXT/architecture"
-  # Backend pages get the backend sidebar; everything else gets the frontend one.
-  local NAV_META=()
-  [ "$CONTEXT" = "backend" ] && NAV_META=(--metadata=backendnav:true)
-  local DST_DIR="$OUTPUT_DIR/$CONTEXT/architecture"
+  resolve_context "$CONTEXT"
 
   if [ ! -d "$SRC_DIR" ]; then
     echo "ℹ️  No architecture docs at $SRC_DIR — skipping $CONTEXT"
@@ -68,7 +102,7 @@ convert_arch() {
       --data-dir="$DATA_DIR" \
       --template "$TEMPLATE" \
       --lua-filter "$LUA_FILTER" \
-      --metadata=title:"${CONTEXT^} · ${rel%.md}" \
+      --metadata=title:"$TITLE_PREFIX · ${rel%.md}" \
       --metadata=lang:"$lang" \
       "${NAV_META[@]}" \
       --toc --toc-depth=3 --standalone \
@@ -83,7 +117,8 @@ convert_arch() {
 # one to assemble-site.sh, which would then replace the published pages with
 # nothing.
 for CTX in "${CONTEXTS[@]}"; do
-  mkdir -p "$OUTPUT_DIR/$CTX/architecture"
+  resolve_context "$CTX"
+  mkdir -p "$DST_DIR"
   convert_arch "$CTX"
 done
 echo "✓ Architecture docs complete"
