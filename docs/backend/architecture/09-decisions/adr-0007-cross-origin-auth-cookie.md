@@ -16,7 +16,7 @@ Accepted
 > the record of why `None` was once required.
 
 ## Date
-2025-11-15 
+2025-11-15
 
 ## Context
 SmartSupplyPro is deployed as two separate services on two different origins: the
