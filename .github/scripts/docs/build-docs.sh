@@ -15,10 +15,17 @@ DOCS_DIR="$PROJECT_DIR/docs"
 THEME_DIR="$DOCS_DIR/_theme"
 OUTPUT_DIR="$PROJECT_DIR/target/docs"
 ASSETS_DIR="$OUTPUT_DIR/assets"
-LUA_FILTER="$PROJECT_DIR/scripts/md-to-html-links.lua"
 
 # Resolve sibling script directory at runtime — safe regardless of working directory
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# The pandoc Lua filter is read where it is tracked. It rewrites .md link targets
+# to .html and wraps mermaid code blocks in a div the browser renders, so every
+# pandoc invocation in this build is passed it. This script used to copy the file
+# into the project's tracked scripts/ directory before use, which left an
+# untracked build output in a source directory after every local build and gave
+# the filter a second location to go stale in.
+LUA_FILTER="$SCRIPTS_DIR/md-to-html-links.lua"
 
 # Which generators run. Unset means run, so a caller that knows nothing about
 # these — docs-pr-check.yml — still builds the whole site. docs-pipeline.yml sets
@@ -30,17 +37,6 @@ SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 : "${DOCS_BUILD_ARCH_BACKEND:=true}"
 : "${DOCS_BUILD_ARCH_FRONTEND:=true}"
 : "${DOCS_BUILD_DECISIONS:=true}"
-
-# ---------------------------------------------------------------------------
-# Lua filter — tracked at .github/scripts/docs/md-to-html-links.lua and copied
-# into place here, so the filter is reviewed like any other source file.
-# Converts .md links to .html and wraps mermaid blocks in a div for the browser.
-# ---------------------------------------------------------------------------
-write_lua_filter() {
-  mkdir -p "$PROJECT_DIR/scripts"
-  cp "$SCRIPTS_DIR/md-to-html-links.lua" "$LUA_FILTER"
-  echo "✓ Lua filter copied into place"
-}
 
 # ---------------------------------------------------------------------------
 # Theme assets — concatenate the CSS partials into one stylesheet and copy the
@@ -132,7 +128,6 @@ copy_frontend_coverage() {
 echo "==> [build-docs] Starting (PROJECT_DIR=$PROJECT_DIR)"
 mkdir -p "$OUTPUT_DIR"
 
-write_lua_filter
 build_theme_assets
 copy_landing_pages
 if [ "$DOCS_BUILD_REDOC" = "true" ]; then
