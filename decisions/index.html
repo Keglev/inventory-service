@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decisions · index · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=a061f5ab8d" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Sidebar for the system-wide decisions index, included by the doc templates as
+     a Pandoc partial. That page belongs to neither tier, so it gets neither
+     tier's sidebar: it links to both instead. The active link is marked at
+     runtime by docs.js. Do not put template syntax in this comment - a partial
+     is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+  </ul>
+
+  <p class="nav-title">Decisions</p>
+  <ul>
+    <li><a href="/inventory-service/decisions/index.html">All decisions</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Backend records (arc42 &sect;9)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/09-decisions/index.html">Frontend records (arc42 &sect;9)</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1 id="architecture-decisions">Architecture Decisions</h1>
+        <p>Every architecture decision in this system, backend and
+        frontend, in one place.</p>
+        <p>An ADR records <strong>why</strong> a design was chosen,
+        which alternatives were rejected and for what reason, and what
+        the choice costs. It does not describe how a component works;
+        that is the job of the architecture documents around it.</p>
+        <p>The records themselves live inside each tier’s arc42
+        documentation, in section 9, next to the sections that reference
+        them. This page is an index over both, so the whole set is
+        reachable from one place without moving any record out of the
+        document it belongs to.</p>
+        <p>Numbering is per tier and never reused within a tier, so the
+        same number can appear in both columns below. A reference from
+        outside a tier names the tier: backend ADR-0004 is the error
+        envelope, frontend ADR-0004 is the dialog workflow.</p>
+        <h2 id="backend">Backend</h2>
+        <p>Source: <a
+        href="../backend/architecture/09-decisions/index.html">Backend
+        architecture, section 9</a></p>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>#</th>
+        <th>Decision</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>0001</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0001-oracle-wallet-autologin.html">Oracle
+        Wallet auto-login for database authentication</a></td>
+        </tr>
+        <tr class="even">
+        <td>0002</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0002-manual-mapping-over-mapstruct.html">Manual
+        mapping over MapStruct</a></td>
+        </tr>
+        <tr class="odd">
+        <td>0003</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0003-dto-boundary-no-entity-exposure.html">DTO
+        boundary — no entity exposure across layers</a></td>
+        </tr>
+        <tr class="even">
+        <td>0004</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0004-http-status-as-envelope.html">HTTP
+        status as the error envelope (no success wrapper)</a></td>
+        </tr>
+        <tr class="odd">
+        <td>0005</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0005-error-message-sanitization.html">Error
+        message sanitization in GlobalExceptionHandler</a></td>
+        </tr>
+        <tr class="even">
+        <td>0006</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0006-dialect-aware-analytics-queries.html">Custom
+        repository implementations for dialect-aware analytics
+        queries</a></td>
+        </tr>
+        <tr class="odd">
+        <td>0007</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0007-cross-origin-auth-cookie.html">Cross-origin
+        session cookie configuration for split frontend/backend
+        deployment</a></td>
+        </tr>
+        <tr class="even">
+        <td>0008</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0008-serve-time-api-base-rewrite.html">Serve-time
+        API-base rewrite and same-origin proxy</a></td>
+        </tr>
+        <tr class="odd">
+        <td>0009</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0009-runtime-wallet-delivery.html">Runtime
+        wallet delivery via Fly secret</a></td>
+        </tr>
+        <tr class="even">
+        <td>0010</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0010-custom-domain-and-canonical-host.html">Custom
+        domain with a canonical <code>www</code> host</a></td>
+        </tr>
+        <tr class="odd">
+        <td>0011</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0011-restrict-oauth2-login-to-allowlist.html">Restrict
+        OAuth2 login to an email allow-list</a></td>
+        </tr>
+        <tr class="even">
+        <td>0012</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.html">Backend
+        hosting on the shared Hetzner host</a></td>
+        </tr>
+        <tr class="odd">
+        <td>0013</td>
+        <td><a
+        href="../backend/architecture/09-decisions/adr-0013-docs-pipeline-rebuilds-by-change.html">The
+        docs pipeline rebuilds, and publishes, by change</a></td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Backend ADR-0009 supersedes the wallet delivery and password
+        model of backend ADR-0001; the auto-login mechanism ADR-0001
+        chose still stands.</p>
+        <h2 id="frontend">Frontend</h2>
+        <p>Source: <a
+        href="../frontend/architecture/09-decisions/index.html">Frontend
+        architecture, section 9</a></p>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>#</th>
+        <th>Decision</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>0001</td>
+        <td><a
+        href="../frontend/architecture/09-decisions/adr-0001-frontend-folder-structure-strategy.html">Frontend
+        folder structure strategy (App Shell + Pages + API +
+        Cross-cutting)</a></td>
+        </tr>
+        <tr class="even">
+        <td>0002</td>
+        <td><a
+        href="../frontend/architecture/09-decisions/adr-0002-api-layer-abstraction-httpclient-and-domain-modules.html">API
+        layer abstraction with shared httpClient and domain
+        modules</a></td>
+        </tr>
+        <tr class="odd">
+        <td>0003</td>
+        <td><a
+        href="../frontend/architecture/09-decisions/adr-0003-page-model-and-domain-separation.html">Page
+        model and domain separation
+        (Inventory/Suppliers/Analytics)</a></td>
+        </tr>
+        <tr class="even">
+        <td>0004</td>
+        <td><a
+        href="../frontend/architecture/09-decisions/adr-0004-dialog-workflow-architecture.html">Dialog/workflow
+        architecture (Dialog folders + orchestration pattern)</a></td>
+        </tr>
+        <tr class="odd">
+        <td>0005</td>
+        <td><a
+        href="../frontend/architecture/09-decisions/adr-0005-shell-split-authenticated-vs-public.html">Application
+        shell split: authenticated shell vs public shell</a></td>
+        </tr>
+        <tr class="even">
+        <td>0006</td>
+        <td><a
+        href="../frontend/architecture/09-decisions/adr-0006-global-state-with-context-modules.html">Global
+        state approach using Context modules
+        (Auth/Settings/Toast/Help)</a></td>
+        </tr>
+        <tr class="odd">
+        <td>0007</td>
+        <td><a
+        href="../frontend/architecture/09-decisions/adr-0007-i18n-strategy-and-language-region-settings.html">i18n
+        strategy and language/region settings integration</a></td>
+        </tr>
+        <tr class="even">
+        <td>0008</td>
+        <td><a
+        href="../frontend/architecture/09-decisions/adr-0008-testing-structure-and-taxonomy.html">Testing
+        structure and taxonomy under src/<strong>tests</strong></a></td>
+        </tr>
+        <tr class="odd">
+        <td>0009</td>
+        <td><a
+        href="../frontend/architecture/09-decisions/adr-0009-end-to-end-testing-with-playwright.html">End-to-end
+        testing with Playwright against a local demo stack</a></td>
+        </tr>
+        <tr class="even">
+        <td>0010</td>
+        <td><a
+        href="../frontend/architecture/09-decisions/adr-0010-verifying-frontend-deploys.html">Verifying
+        a frontend deploy against the bytes the browser
+        receives</a></td>
+        </tr>
+        </tbody>
+        </table>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a href="#architecture-decisions"
+      id="toc-architecture-decisions">Architecture Decisions</a>
+      <ul>
+      <li><a href="#backend" id="toc-backend">Backend</a></li>
+      <li><a href="#frontend" id="toc-frontend">Frontend</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js?v=3354f25964"></script>
+</body>
+</html>
