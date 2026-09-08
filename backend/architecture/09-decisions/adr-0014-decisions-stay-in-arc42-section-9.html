@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0014-decisions-stay-in-arc42-section-9 · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=a061f5ab8d" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+    <li><a href="/inventory-service/decisions/index.html">All decisions</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0014-decision-records-stay-in-each-tiers-arc42-section-9-with-one-index-over-both">ADR-0014:
+        Decision records stay in each tier’s arc42 section 9, with one
+        index over both</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-09-08</p>
+        <h2 id="context">Context</h2>
+        <p>This system is documented with arc42 in two tiers,
+        <code>docs/backend/architecture/</code> and
+        <code>docs/frontend/architecture/</code>, and each tier keeps
+        its decision records where arc42 puts them: section 9,
+        <code>09-decisions/</code>. Each tier numbers its own sequence.
+        At the time of this decision the backend holds ADR-0001 to
+        ADR-0013 and the frontend ADR-0001 to ADR-0010, 23 records
+        across two directories.</p>
+        <p>Two problems followed from that arrangement.</p>
+        <p>The set was not discoverable. The site’s landing page
+        described “the decision log” and linked to the backend’s section
+        9, so the ten frontend records were reachable only by a reader
+        who had already found the frontend architecture tree. Nothing
+        anywhere listed all 23.</p>
+        <p>And the numbers collide. ADR-0001 to ADR-0010 exist in both
+        tiers, so an unqualified “ADR-0004” is ambiguous: backend
+        ADR-0004 is the HTTP-status error envelope, frontend ADR-0004 is
+        the dialog workflow architecture.</p>
+        <p>The obvious remedy for both — one central log with one
+        sequence, the convention MADR uses with its flat
+        <code>docs/adr/</code> — is a different documentation standard
+        from the one this repository follows, and adopting it here is
+        not free. Measured on <code>main</code> before this decision: 23
+        record files would move and be renumbered, 111 link paths would
+        be rewritten, 157 uppercase <code>ADR-0NNN</code> mentions
+        across 43 files would need re-reading, and 25 published URLs
+        would be retired, 23 record pages plus both tier indexes.</p>
+        <p>Forces: - Relative links must resolve in the repository as
+        well as on the published site. A backend record is reached from
+        <code>04-solution-strategy.md</code> as
+        <code>./09-decisions/adr-0004-...md</code>, which reads
+        correctly in an editor, in a GitHub file view and in the
+        generated HTML. Moving the records out of the tier ends that
+        co-location for all 23. - Published URLs are the addresses the
+        README and external references use. The repository README links
+        backend ADR-0007 by its absolute published URL. -
+        Discoverability is a separate problem from placement, and can be
+        solved without moving anything. - Every additional published
+        subtree costs a change-gate entry, a <code>MANIFEST</code> path,
+        a navigation entry, a landing-page card and a conversion path,
+        per ADR-0013.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Records stay in
+        <code>docs/&lt;tier&gt;/architecture/09-decisions/</code>, each
+        tier keeping its own sequence, and a single index at
+        <code>docs/decisions/</code> lists all of them.</p>
+        <p>The index is an index, not a log. It holds no record text and
+        owns no numbers. Each entry states its tier, links into the
+        record where that record already lives, and carries its title.
+        Adding a record means adding a line to its tier index and a line
+        to this one; the record itself exists in exactly one place.</p>
+        <p>Prose referring to a record from outside its tier names the
+        tier: “backend ADR-0004”, not “ADR-0004”. Within a tier’s own
+        documents the bare number keeps its current meaning.</p>
+        <p>The index page belongs to neither tier and therefore gets
+        neither tier’s sidebar. A third navigation partial links to
+        both.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>One central log with a single sequence.</strong>
+        Rejected on cost against benefit. It removes the ten colliding
+        numbers and costs the 23 moves, 111 link rewrites, 157 mentions
+        to re-verify and 25 retired URLs measured above, plus a
+        navigation partial for a subtree belonging to neither tier and a
+        conversion path that the tier-shaped
+        <code>docs/&lt;context&gt;/architecture</code> mapping could not
+        express. The collision it removes is instead handled by naming
+        the tier, which costs one convention.</li>
+        <li><strong>Two directories, globally unique numbers</strong>,
+        continuing the frontend sequence at 0014. Rejected: it breaks
+        ten published frontend URLs and every link to them, and still
+        leaves the records spread over two directories. It pays a large
+        part of the migration cost and buys neither co-location nor a
+        single log.</li>
+        <li><strong>No index, fix only the landing-page link</strong> so
+        that it names both tier indexes. Rejected: it repairs one
+        sentence and leaves the reader to hold two lists in their head.
+        Nothing would list the decisions of this system as one set.</li>
+        <li><strong>Adopt MADR across the repository</strong> so that
+        placement is uniform with the flat convention. Rejected as
+        disproportionate: it would relocate every architecture artefact,
+        not only the decisions, to change where one category of document
+        sits.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>The arc42 documents stay self-contained. Each tier’s section
+        9 is complete on its own and its relative links resolve in the
+        repository and on the site alike.</li>
+        <li>No published URL moves. All 23 record pages and both tier
+        indexes keep the addresses they have had since they were
+        published, including the ADR-0007 link in the repository
+        README.</li>
+        <li>The whole set is reachable in one place, and both landing
+        pages and both tier sidebars point at it.</li>
+        <li>The collision remains and is managed rather than removed. An
+        unqualified “ADR-0004” is ambiguous outside its own tier. This
+        is the accepted cost of the decision.</li>
+        <li>The index is a second place to edit when a record is added.
+        Forgetting it leaves the index incomplete rather than the site
+        broken, which is why the page is a listing and not a source of
+        record text.</li>
+        <li>The site gains a fifth generated subtree,
+        <code>decisions/</code>, with the standing costs ADR-0013
+        describes. Its gate entry is <code>docs/decisions/**</code>; a
+        change there rebuilds that subtree alone.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Index source: <code>docs/decisions/index.md</code>,
+        published at <code>decisions/index.html</code>.</li>
+        <li>Conversion:
+        <code>.github/scripts/docs/build-architecture-docs.sh</code>
+        resolves a context to a source directory, a destination, a
+        sidebar and a title prefix through a table, so a subtree that is
+        not <code>docs/&lt;tier&gt;/architecture</code> can be
+        built.</li>
+        <li>Generator selection: <code>DOCS_BUILD_DECISIONS</code> in
+        <code>.github/scripts/docs/build-docs.sh</code>. Unset means
+        build it.</li>
+        <li>Gate and publish: the <code>decisions</code> output in
+        <code>.github/workflows/docs-pipeline.yml</code>, and
+        <code>decisions</code> in the <code>SUBTREES</code> list and the
+        layout guard of
+        <code>.github/scripts/docs/assemble-site.sh</code>.</li>
+        <li>Sidebar:
+        <code>docs/_theme/templates/nav-decisions.html</code>, selected
+        by the <code>decisionsnav</code> metadata flag in
+        <code>docs/_theme/app-docs.html</code>.</li>
+        <li>Links in: both tier navigation partials and both landing
+        pages.</li>
+        <li>Delivered as PRs #83 to #86.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a
+        href="adr-0013-docs-pipeline-rebuilds-by-change.html">ADR-0013:
+        The docs pipeline rebuilds, and publishes, by change</a></li>
+        <li>Frontend decisions index
+        (<code>../../../frontend/architecture/09-decisions/index.md</code>)</li>
+        <li>System-wide decisions index
+        (<code>../../../decisions/index.md</code>)</li>
+        <li>arc42 section 9, Architecture Decisions:
+        https://docs.arc42.org/section-9/</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0014-decision-records-stay-in-each-tiers-arc42-section-9-with-one-index-over-both"
+      id="toc-adr-0014-decision-records-stay-in-each-tiers-arc42-section-9-with-one-index-over-both">ADR-0014:
+      Decision records stay in each tier’s arc42 section 9, with one
+      index over both</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js?v=3354f25964"></script>
+</body>
+</html>
