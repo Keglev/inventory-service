@@ -105,9 +105,9 @@
         Serve-time API-base rewrite and same-origin proxy</h1>
         <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
         <h2 id="status">Status</h2>
-        <p>Accepted — documented retroactively on 2026-07-13; the
-        mechanism predates this record and was previously described only
-        in <code>ops/nginx/default.conf</code> comments.</p>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-07-13</p>
         <h2 id="context">Context</h2>
         <p>The production build bakes an absolute backend origin into
         the JavaScript bundle
@@ -122,6 +122,9 @@
         browsers restrict third-party cookies progressively, and every
         authenticated call depends on the <code>SameSite=None</code>
         exemption surviving browser policy changes.</p>
+        <p>This record is retroactive: the mechanism predates it and was
+        previously described only in <code>ops/nginx/default.conf</code>
+        comments.</p>
         <h2 id="decision">Decision</h2>
         <p>Koyeb’s Nginx makes production browser traffic
         <strong>same-origin</strong> without changing the build:</p>
@@ -142,6 +145,18 @@
         places the Fly.io origin in the entry bundle; the deployed entry
         bundle served from Koyeb does not contain it — the rewrite is
         active and load-bearing.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Relative API base</strong> (empty
+        <code>VITE_API_BASE</code>): same-origin natively, no rewrite
+        needed; requires the OAuth2 redirect targets and any
+        absolute-URL assumptions to be revisited. Cleaner long-term; the
+        rewrite achieves the same result without touching the
+        build.</li>
+        <li><strong>Direct cross-origin only</strong> (ADR-0007 as-is):
+        simplest configuration, but exposed to third-party-cookie
+        restrictions.</li>
+        </ul>
         <h2 id="consequences">Consequences</h2>
         <ul>
         <li>Browser traffic is same-origin; the session cookie is
@@ -163,18 +178,6 @@
         point), but the flip would be invisible without a check;
         verifying the served bundle for the backend origin is the cheap
         detection.</li>
-        </ul>
-        <h2 id="alternatives-considered">Alternatives considered</h2>
-        <ul>
-        <li><strong>Relative API base</strong> (empty
-        <code>VITE_API_BASE</code>): same-origin natively, no rewrite
-        needed; requires the OAuth2 redirect targets and any
-        absolute-URL assumptions to be revisited. Cleaner long-term; the
-        rewrite achieves the same result without touching the
-        build.</li>
-        <li><strong>Direct cross-origin only</strong> (ADR-0007 as-is):
-        simplest configuration, but exposed to third-party-cookie
-        restrictions.</li>
         </ul>
         <h2 id="correction-2026-09-02">Correction (2026-09-02)</h2>
         <p>The <strong>Known fragility</strong> paragraph above
@@ -218,12 +221,13 @@
       Serve-time API-base rewrite and same-origin proxy</a>
       <ul>
       <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
       <li><a href="#context" id="toc-context">Context</a></li>
       <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
       <li><a href="#consequences"
       id="toc-consequences">Consequences</a></li>
-      <li><a href="#alternatives-considered"
-      id="toc-alternatives-considered">Alternatives considered</a></li>
       <li><a href="#correction-2026-09-02"
       id="toc-correction-2026-09-02">Correction (2026-09-02)</a></li>
       </ul></li>

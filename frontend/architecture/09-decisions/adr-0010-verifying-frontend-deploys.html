@@ -106,7 +106,9 @@
         receives</h1>
         <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
         <h2 id="status">Status</h2>
-        <p>Accepted — 2026-09-02.</p>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-09-02</p>
         <h2 id="context">Context</h2>
         <p>Two properties of the production frontend cannot be
         established from the repository. The serve-time API-base rewrite
@@ -145,6 +147,20 @@
         <p>The platform poll is kept ahead of these as a fast failure
         when the service is genuinely down, with a comment recording
         what it does not establish.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Poll the platform for the specific new
+        deployment</strong> rather than the service: plausible, but it
+        exchanges one dependence on the provider’s status semantics for
+        another, and those semantics are what failed.</li>
+        <li><strong>A version endpoint</strong> written at image build
+        time: equivalent evidence, an extra artifact, and one more thing
+        to keep in step with the bundle. The SHA already ships inside
+        the bundle.</li>
+        <li><strong>Trust the green build</strong>: what was in place.
+        It cannot observe serving-layer transforms or rollout timing,
+        which is how both defects survived.</li>
+        </ul>
         <h2 id="consequences">Consequences</h2>
         <ul>
         <li>A rollout that never reaches the edge fails the workflow
@@ -166,20 +182,6 @@
         not covered here. It has no equivalent build identifier in its
         responses and needs its own mechanism.</li>
         </ul>
-        <h2 id="alternatives-considered">Alternatives considered</h2>
-        <ul>
-        <li><strong>Poll the platform for the specific new
-        deployment</strong> rather than the service: plausible, but it
-        exchanges one dependence on the provider’s status semantics for
-        another, and those semantics are what failed.</li>
-        <li><strong>A version endpoint</strong> written at image build
-        time: equivalent evidence, an extra artifact, and one more thing
-        to keep in step with the bundle. The SHA already ships inside
-        the bundle.</li>
-        <li><strong>Trust the green build</strong>: what was in place.
-        It cannot observe serving-layer transforms or rollout timing,
-        which is how both defects survived.</li>
-        </ul>
       </article>
     </main>
 
@@ -193,12 +195,13 @@
       receives</a>
       <ul>
       <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
       <li><a href="#context" id="toc-context">Context</a></li>
       <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
       <li><a href="#consequences"
       id="toc-consequences">Consequences</a></li>
-      <li><a href="#alternatives-considered"
-      id="toc-alternatives-considered">Alternatives considered</a></li>
       </ul></li>
       </ul>
     </nav>

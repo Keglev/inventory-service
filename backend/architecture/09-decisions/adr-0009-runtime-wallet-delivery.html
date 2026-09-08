@@ -109,9 +109,7 @@
         <p>Accepted — supersedes the delivery and password model of <a
         href="adr-0001-oracle-wallet-autologin.html">ADR-0001</a></p>
         <h2 id="date">Date</h2>
-        <p>2026-07-14 (records an operational change that predates this
-        ADR; documented retroactively when the docs accuracy pass found
-        the chapters describing the superseded mechanism)</p>
+        <p>2026-07-14</p>
         <h2 id="context">Context</h2>
         <p><a href="adr-0001-oracle-wallet-autologin.html">ADR-0001</a>
         decided to bundle an auto-login Oracle wallet
@@ -131,6 +129,9 @@
         fast</strong>: a container started without its credentials must
         exit with a clear error instead of booting into a broken
         state.</p>
+        <p>This record is retroactive: it documents an operational
+        change that predates it, written when a docs accuracy pass found
+        chapters still describing the superseded mechanism.</p>
         <h2 id="decision">Decision</h2>
         <p>The wallet is removed from the repository
         (<code>oracle_wallet/</code> is gitignored) and from the image.
