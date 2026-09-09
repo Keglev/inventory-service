@@ -1,23 +1,12 @@
 package com.smartsupplypro.inventory.controller.security;
 
-import java.util.Collections;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
-import static org.springframework.security.config.Customizer.withDefaults;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,7 +15,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.smartsupplypro.inventory.config.AppProperties;
 import com.smartsupplypro.inventory.controller.EmployeeAnalyticsController;
-import com.smartsupplypro.inventory.service.impl.analytics.EmployeeAnalyticsService;
 
 /**
  * Access policy for the per-employee analytics endpoints:
@@ -40,7 +28,7 @@ import com.smartsupplypro.inventory.service.impl.analytics.EmployeeAnalyticsServ
 )
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")
-@Import(EmployeeAnalyticsControllerSecurityTest.TestSupport.class)
+@Import(EmployeeAnalyticsSecurityTestSupport.class)
 class EmployeeAnalyticsControllerSecurityTest {
 
     @Autowired MockMvc mockMvc;
@@ -88,33 +76,4 @@ class EmployeeAnalyticsControllerSecurityTest {
                .andExpect(status().isForbidden());
     }
 
-    @TestConfiguration
-    @EnableMethodSecurity
-    static class TestSupport {
-
-        @Bean
-        EmployeeAnalyticsService employeeAnalyticsService() {
-            EmployeeAnalyticsService mock = Mockito.mock(EmployeeAnalyticsService.class);
-            when(mock.getEmployeeActivity(any(), any(), any(), any())).thenReturn(Collections.emptyList());
-            when(mock.getEmployeeChanges(any(), any(), any(), any(), any())).thenReturn(Page.empty());
-            return mock;
-        }
-
-        @Bean("appProperties")
-        AppProperties appProperties() {
-            return new AppProperties();
-        }
-
-        // Mirrors the prod chain when demo mode is enabled: GET requests reach the
-        // controller for anonymous callers; @PreAuthorize performs the gating.
-        @Bean
-        SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .httpBasic(withDefaults())
-                .formLogin(form -> form.disable());
-            return http.build();
-        }
-    }
 }

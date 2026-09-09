@@ -2,18 +2,11 @@ package com.smartsupplypro.inventory.security;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -34,9 +27,6 @@ import com.smartsupplypro.inventory.config.SecurityAuthorizationHelper;
 import com.smartsupplypro.inventory.config.SecurityConfig;
 import com.smartsupplypro.inventory.config.SecurityEntryPointHelper;
 import com.smartsupplypro.inventory.config.SecurityFilterHelper;
-import com.smartsupplypro.inventory.repository.AppUserRepository;
-import com.smartsupplypro.inventory.service.CustomOAuth2UserService;
-import com.smartsupplypro.inventory.service.CustomOidcUserService;
 
 /**
  * Tests for the demo-readonly authorization branch in {@link SecurityAuthorizationHelper}:
@@ -58,7 +48,7 @@ import com.smartsupplypro.inventory.service.CustomOidcUserService;
     SecurityEntryPointHelper.class,
     OAuth2Config.class,
     SecurityConfigDemoReadonlyAuthorizationTest.DemoApiStubController.class,
-    SecurityConfigDemoReadonlyAuthorizationTest.TestBeans.class
+    SecurityConfigDemoReadonlyTestBeans.class
 })
 class SecurityConfigDemoReadonlyAuthorizationTest {
 
@@ -116,45 +106,4 @@ class SecurityConfigDemoReadonlyAuthorizationTest {
         public String patchPrice(@PathVariable String id) { return "{\"status\":\"patched\"}"; }
     }
 
-    @TestConfiguration
-    static class TestBeans {
-
-        @Bean
-        OAuth2LoginSuccessHandler successHandler() {
-            return Mockito.mock(OAuth2LoginSuccessHandler.class);
-        }
-
-        @Bean
-        AppUserRepository appUserRepository() {
-            return Mockito.mock(AppUserRepository.class);
-        }
-
-        @Bean
-        CustomOAuth2UserService customOAuth2UserService(AppUserRepository repo) {
-            return Mockito.mock(CustomOAuth2UserService.class);
-        }
-
-        @Bean
-        CustomOidcUserService customOidcUserService(AppUserRepository repo) {
-            return Mockito.mock(CustomOidcUserService.class);
-        }
-
-        @Bean
-        ClientRegistrationRepository clientRegistrationRepository() {
-            // Stub Google registration satisfies the OAuth2 filter chain without real credentials.
-            ClientRegistration google = ClientRegistration.withRegistrationId("google")
-                .clientId("dummy")
-                .clientSecret("dummy")
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
-                .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
-                .tokenUri("https://oauth2.googleapis.com/token")
-                .userInfoUri("https://openidconnect.googleapis.com/v1/userinfo")
-                .userNameAttributeName("sub")
-                .scope("openid", "profile", "email")
-                .clientName("Google")
-                .build();
-            return new InMemoryClientRegistrationRepository(google);
-        }
-    }
 }
