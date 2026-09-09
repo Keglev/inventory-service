@@ -38,6 +38,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none                            # Do not auto-create schemas by default
+    # This is a REST API: responses are serialised from DTOs built inside the
+    # service layer, and no view is rendered. Leaving the EntityManager open for
+    # the whole request bought nothing and hid one untransacted lazy read until
+    # the query behind it was fixed. Spring warns twice per run when unset.
+    open-in-view: false
 
   main:
     allow-bean-definition-overriding: true      # Useful when using multiple configs (e.g., testing mocks)

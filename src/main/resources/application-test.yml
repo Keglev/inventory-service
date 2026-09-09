@@ -27,7 +27,6 @@ spring:
     enabled: false                # Tests use H2 create-drop; migrations are Oracle-specific
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect # Use H2 dialect for compatibility
     hibernate:
       ddl-auto: create-drop       # Create schema on startup, drop it on shutdown
     properties:
