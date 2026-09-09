@@ -18,7 +18,7 @@ import jakarta.persistence.EntityManager;
 /**
  * H2 integration test for the per-employee daily change-count aggregation.
  */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
 class StockTrendAnalyticsRepositoryImplEmployeeH2Test {

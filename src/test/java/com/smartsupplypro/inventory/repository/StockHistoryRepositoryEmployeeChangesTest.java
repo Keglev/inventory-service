@@ -20,7 +20,7 @@ import jakarta.persistence.EntityManager;
  * H2 integration test for the paginated per-employee change list, including the
  * case-insensitive creator filter and the newest-first ordering.
  */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
 class StockHistoryRepositoryEmployeeChangesTest {

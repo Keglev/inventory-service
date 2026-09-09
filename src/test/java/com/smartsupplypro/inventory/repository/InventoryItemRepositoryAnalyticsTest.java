@@ -27,7 +27,7 @@ import jakarta.persistence.PersistenceContext;
  * Suppliers are inserted via native SQL to guarantee known IDs; items are persisted via
  * JPA then supplier_id is patched with a native UPDATE to avoid entity-mapping ambiguity.</p>
  */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
 class InventoryItemRepositoryAnalyticsTest {

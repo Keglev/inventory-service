@@ -28,7 +28,7 @@ import jakarta.persistence.EntityManager;
  * <p>Verifies supplier filtering and result ordering (itemId ASC, timestamp ASC)
  * for the JPQL projection method {@code streamEventsForWAC}.</p>
  */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
 class StockHistoryCustomRepositoryImplTest {

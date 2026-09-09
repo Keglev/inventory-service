@@ -21,7 +21,7 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
  * Integration tests for {@link SupplierRepository} query correctness
  * using {@link org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest}.
  */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
