@@ -55,6 +55,13 @@
          carrying the active flag, reported as H2 error 23514. This pin is the
          only thing keeping those tests green. Remove once a fixed 2.4.x ships. -->
     <h2.version>2.3.232</h2.version>
+    <!-- Ahead of the Spring Boot 4.1.1 BOM, which pins Tomcat 11.0.24. Trivy
+         failed the image build on 2026-09-09 with three CRITICAL findings
+         against tomcat-embed-core 11.0.24, all fixed in 11.0.25:
+         CVE-2026-65182, CVE-2026-65905, CVE-2026-68525. No Spring Boot release
+         carries the newer Tomcat yet; 4.1.1 is the latest published. Drop this
+         pin once a Boot release brings 11.0.25 or later of its own accord. -->
+    <tomcat.version>11.0.25</tomcat.version>
     <!-- Commit written into build-info.properties so the running jar can name the
          source it was built from. CI passes the real value through the Docker
          build; a local build reports "unknown" rather than claiming a commit. -->
