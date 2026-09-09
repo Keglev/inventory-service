@@ -30,7 +30,6 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect # Use H2 dialect for compatibility
     hibernate:
       ddl-auto: create-drop       # Create schema on startup, drop it on shutdown
-    show-sql: true                # Log all executed SQL statements (useful for debugging)
     properties:
       hibernate:
         '[format_sql]': true                   # Format SQL for easier reading in logs
@@ -45,13 +44,17 @@ spring:
       enabled: true               # Enable browser-based H2 console for debugging
       path: /h2-console           # Accessible at /h2-console (only in local/test environments)
 
-logging:
-  file:
-    name: logs/test-application.log  # Log file for test runs
-  level:
-    '[org.hibernate.SQL]': DEBUG     # Detailed Hibernate SQL logging
-    '[org.hibernate.type.descriptor.sql]': trace # Log SQL parameter values
-    root: INFO                    # Verbose logging for test diagnostics
+# Logging for tests lives in src/test/resources/logback-test.xml and nowhere
+# else. This profile used to set a root level and two Hibernate levels here,
+# which silently overrode that file and defeated its stated purpose. One of the
+# two levels never worked at all: Hibernate 6 renamed the parameter-binding
+# logger, so it logged nothing while claiming to log parameter values.
+#
+# To see the statements a test executes, add this to the Maven command:
+#   -Dlogging.level.org.hibernate.SQL=DEBUG
+# Verified to reach the forked test JVM. Do not also switch the statement echo
+# back on: the two are separate channels for the same output and enabling both
+# prints every statement twice, which is what this profile used to do.
 
 server:
   port: 8081                       # Ensure consistent port for testing environments
