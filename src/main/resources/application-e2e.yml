@@ -28,10 +28,5 @@ spring:
     # Hibernate must create the schema before the seed runs; without this the
     # data script executes first and fails on missing tables.
     defer-datasource-initialization: true
-    show-sql: false
-logging:
-  level:
-    '[org.hibernate.SQL]': INFO
-    '[org.hibernate.type.descriptor.sql]': INFO
 app:
   demo-readonly: true

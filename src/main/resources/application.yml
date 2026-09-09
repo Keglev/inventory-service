@@ -38,7 +38,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none                            # Do not auto-create schemas by default
-    show-sql: true                              # Overridden to false in prod profile 
 
   main:
     allow-bean-definition-overriding: true      # Useful when using multiple configs (e.g., testing mocks)
@@ -53,11 +52,12 @@ server:
         same-site: lax                               # top-level OAuth2 redirect is Lax-compatible; cross-site path retired (ADR-0007/0012)
         secure: true                                 # Use secure cookies (set to false in dev if not using HTTPS)
 
-logging:
-  level:
-    '[org.springframework.jdbc.core]': DEBUG     # Enable detailed JDBC logs for dev/debugging
-    '[org.hibernate.SQL]': DEBUG                 # Hibernate SQL logging (override in prod)
-# Both overridden in prod profile — global defaults support local development only    
+# SQL logging is OFF by default here; a profile that wants it opts in. This file
+# used to switch it on globally through three separate keys, which left every
+# profile to remember to cancel all three. prod cancelled one, so the other two
+# survived and production logged every statement Hibernate executed. e2e
+# cancelled two. A default that must be cancelled in three places gets cancelled
+# in two.
 
 # -------- App-level knobs used by SecurityConfig & SuccessHandler --------
 app:

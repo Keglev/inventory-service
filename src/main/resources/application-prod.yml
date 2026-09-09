@@ -34,7 +34,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate                       # Schema is owned by Flyway; Hibernate only validates mappings
-    show-sql: false                            # Disable SQL logging for performance and security
     properties:
       hibernate:
         dialect: org.hibernate.dialect.OracleDialect
