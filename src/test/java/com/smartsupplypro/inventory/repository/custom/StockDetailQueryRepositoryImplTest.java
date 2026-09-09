@@ -24,7 +24,7 @@ import jakarta.persistence.EntityManager;
  * <p>Verifies predicate composition and result correctness
  * for runtime-constructed queries.</p>
  */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
 class StockDetailQueryRepositoryImplTest {

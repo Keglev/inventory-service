@@ -29,7 +29,7 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
  * Integration tests for {@link StockHistoryRepository} filtering query correctness
  * using {@link org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest}.
  */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
 class StockHistoryRepositoryFilteringTest {

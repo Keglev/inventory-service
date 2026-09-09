@@ -27,7 +27,7 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
  * Integration tests for {@link InventoryItemRepository} query correctness
  * using {@link org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest}.
  */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 // Keep the Oracle-mode H2 URL from application-test.yml. The default replaces
 // it with a plain embedded H2, on which Hibernate's `escape ''` LIKE suffix is
 // harmless; in Oracle mode '' is NULL and every LIKE silently matches nothing.

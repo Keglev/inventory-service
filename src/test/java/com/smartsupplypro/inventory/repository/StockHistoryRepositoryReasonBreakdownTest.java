@@ -19,7 +19,7 @@ import jakarta.persistence.EntityManager;
  * H2 integration test for the per-reason sign-split aggregation, including the
  * optional supplier and item-name filters.
  */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
 class StockHistoryRepositoryReasonBreakdownTest {

@@ -26,7 +26,7 @@ import jakarta.persistence.EntityManager;
  * <p>Verifies H2 execution path for monthly movement aggregation,
  * daily valuation, and price trend DTO mapping.</p>
  */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
 class StockTrendAnalyticsRepositoryImplH2Test {

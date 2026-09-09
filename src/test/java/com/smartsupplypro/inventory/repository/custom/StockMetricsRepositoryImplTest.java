@@ -22,7 +22,7 @@ import jakarta.persistence.EntityManager;
  * <p>Verifies supplier filter normalization and dialect-specific SQL selection
  * for stock metrics queries.</p>
  */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
 @Import(DatabaseDialectDetector.class)
 class StockMetricsRepositoryImplTest {
