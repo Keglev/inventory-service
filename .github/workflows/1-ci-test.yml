@@ -91,7 +91,7 @@ jobs:
         run: |
           set -euo pipefail
           cd "$BACKEND_DIR"
-          mvn -U clean verify -Dspring.profiles.active=test -Dtestcontainers.enabled=false
+          mvn clean verify -Dspring.profiles.active=test -Dtestcontainers.enabled=false
         env:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
@@ -99,11 +99,13 @@ jobs:
           SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID: ${{ secrets.SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID }}
           SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET: ${{ secrets.SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET }}
 
-      # Non-blocking — useful for tracking Spring version drift between dependency updates
+      # Non-blocking — useful for tracking Spring version drift between dependency updates.
+      # Not -q: dependency:list writes at INFO, which -q suppresses, so the grep
+      # matched nothing and this step printed nothing from the day it was added.
       - name: Show Spring and Security versions
         run: |
           cd "$BACKEND_DIR"
-          mvn -q dependency:list -DincludeGroupIds=org.springframework,org.springframework.security | \
+          mvn -ntp dependency:list -DincludeGroupIds=org.springframework,org.springframework.security | \
             grep -E 'spring-core|spring-security-core' || true
 
       - name: Upload JaCoCo coverage artifact
