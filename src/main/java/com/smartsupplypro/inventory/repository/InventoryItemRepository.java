@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,21 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     @EntityGraph(attributePaths = {"supplier"})
     @NonNull
     List<InventoryItem> findAll();
+
+    /**
+     * Fetches one item with supplier eagerly loaded.
+     *
+     * <p>Without this override the inherited method leaves {@code supplier} as a
+     * lazy proxy. {@code InventoryItemServiceImpl.getById} is not transactional
+     * and its mapper reads {@code supplier.getName()}, so the proxy was resolved
+     * only because {@code spring.jpa.open-in-view} keeps a session open for the
+     * whole request. That also cost a second query per call, which is the N+1
+     * the other reads here already avoid.</p>
+     */
+    @Override
+    @EntityGraph(attributePaths = {"supplier"})
+    @NonNull
+    Optional<InventoryItem> findById(@NonNull String id);
 
     /** Fetches all ACTIVE items (soft-deleted items excluded) with supplier eagerly loaded. */
     @EntityGraph(attributePaths = {"supplier"})
