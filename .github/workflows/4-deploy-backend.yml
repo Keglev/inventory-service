@@ -27,6 +27,15 @@ concurrency:
   group: backend-deploy
   cancel-in-progress: false
 
+# The login name is configuration, not a credential; the SSH key is the
+# credential and stays a secret. Holding it as a secret bought nothing and cost
+# readability: GitHub masks every occurrence of a secret's value anywhere in a
+# run, and this value is an ordinary English word, so the workflow name, the job
+# name and any path containing it all rendered as ***. Deploy runs were hard to
+# identify in the Actions list.
+env:
+  DEPLOY_USER: deploy
+
 jobs:
   deploy:
     if: >
@@ -97,7 +106,6 @@ jobs:
         if: steps.gate.outputs.build == 'true'
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
           set -eu
           scp -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
@@ -110,7 +118,6 @@ jobs:
         if: steps.gate.outputs.build == 'true'
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
           set -eu
           ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
