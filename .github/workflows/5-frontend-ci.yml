@@ -2,8 +2,10 @@
 # Smart Supply Pro – Frontend CI
 #
 # Triggers on push/PR to main when frontend or Nginx config files change.
-# Runs ESLint, then Vitest unit tests outside Docker to get GitHub annotation
-# support. Lint failures block the merge through the build-and-test check.
+# Audits the installed dependency tree, then runs ESLint, then Vitest unit tests
+# outside Docker to get GitHub annotation support. An advisory of high severity
+# or above in a dependency that ships to the browser fails the job; lint errors
+# fail it too. Both block the merge through the build-and-test check.
 # Builds and pushes a Docker image (Nginx + Vite bundle) tagged by commit SHA.
 # On success, triggers: 6-deploy-frontend.yml (Koyeb deployment).
 # =============================================================================
@@ -66,6 +68,37 @@ jobs:
       - name: Install dependencies
         working-directory: frontend
         run: npm ci
+
+      # The backend image is scanned by Trivy with a hard fail on fixed
+      # CRITICAL and HIGH findings; this is the frontend's equivalent, and it
+      # is deliberately scoped the same way, to what actually ships.
+      #   PASSES when no dependency reachable from "dependencies" carries an
+      #     advisory of high severity or above.
+      #   FAILS when one does, at which point the job stops before lint.
+      #   DOES NOT CHECK devDependencies. A Vitest or ESLint advisory is real
+      #     but it does not reach a browser, and a gate that blocks an
+      #     unrelated merge on one gets ignored or removed. The step below
+      #     reports the full tree instead.
+      - name: Audit dependencies that ship (gate)
+        working-directory: frontend
+        run: npm audit --omit=dev --audit-level=high
+
+      # Runs even when the gate above fails, so the failure arrives with the
+      # full picture attached rather than an exit code alone.
+      - name: Report the full dependency tree
+        if: always()
+        working-directory: frontend
+        run: |
+          set -euo pipefail
+          {
+            echo "## Dependency audit"
+            echo ""
+            echo '```'
+            npm audit 2>&1 || true
+            echo '```'
+            echo ""
+            echo "Development-only findings are reported here and do not fail the job."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # Lint before the tests: it is the cheapest failure, and at this point
       # frontend/coverage/ does not exist yet, so no generated Istanbul file is
