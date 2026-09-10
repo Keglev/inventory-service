@@ -189,6 +189,25 @@ jobs:
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           exit-code: '1'
+          # The action caches Trivy's databases by default, under a key it
+          # hardcodes as cache-trivy-<date> with a cache-trivy- restore prefix,
+          # so the backend scan and this one share one entry and the key is not
+          # configurable. On 2026-09-10 this step restored 964 MB, was told by
+          # Trivy that the database still needed updating, downloaded the 112 MB
+          # database anyway in 3.3 s, and wrote 964 MB back under a new daily
+          # key: 25 s spent to avoid 3 s, and a gigabyte a day against a cache
+          # budget this repository has already had to defend once (see the note
+          # above the JDK step in 1-ci-test.yml).
+          #
+          # Most of that gigabyte is the Java database, which this scan never
+          # opens: the image is Nginx and static assets, and the same run logged
+          # "Number of language-specific files num=0". The backend image ships a
+          # jar and does need it, so the backend step keeps its cache.
+          #
+          # One input governs both caches, so this also gives up the 44 MB
+          # binary cache; setup-trivy falls back to its install script and a
+          # 50 MB release download instead.
+          cache: false
 
       - name: Job summary
         if: always()
