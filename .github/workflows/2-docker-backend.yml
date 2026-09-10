@@ -49,7 +49,7 @@ jobs:
       # chains on this workflow's success, so skipping the build skips the
       # release too; a skipped run is reported as success with no image.
       - name: Checkout for change detection
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 2
@@ -71,7 +71,7 @@ jobs:
 
       - name: Checkout code
         if: steps.gate.outputs.build == 'true'
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.IMAGE_TAG_SHA }}
 
@@ -93,7 +93,7 @@ jobs:
       # namespace; no registry secret exists for this step.
       - name: Login to GHCR
         if: steps.gate.outputs.build == 'true'
-        uses: docker/login-action@v4
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
