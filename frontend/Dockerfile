@@ -46,10 +46,21 @@ FROM base AS build
 RUN npm run build
 
 # Minimal Nginx image that serves the static assets — no node_modules, no source, no build tooling.
-FROM nginx:1.27-alpine AS runtime
+# Stable line, pinned like every other version in this repository. Measured with
+# Trivy on 2026-09-10: nginx:1.27-alpine carried Alpine 3.21.3 with 2 CRITICAL
+# and 34 fixed HIGH findings; nginx:1.30-alpine carries Alpine 3.24.1, the same
+# generation the backend runtime runs, with 0 CRITICAL and 7 fixed HIGH.
+FROM nginx:1.30-alpine AS runtime
 
-# Alpine ships without a full CA bundle; needed for HTTPS proxy_pass to upstream services.
-RUN apk add --no-cache ca-certificates && update-ca-certificates
+# ca-certificates: Alpine ships without a full CA bundle, needed for HTTPS
+# proxy_pass to upstream services.
+# apk upgrade: the seven remaining findings above are packages the base image
+# lags on, not packages without a fix. Alpine 3.24 publishes libuuid 2.42.3-r1
+# against libuuid 2.42.1-r0 in the base. The backend runtime stage has carried
+# this same upgrade from the start, which is why its image passes the Trivy gate
+# while its own base does not. Without it, a scan of this image reports whatever
+# the base was built with, however recently the image itself was built.
+RUN apk add --no-cache ca-certificates && update-ca-certificates && apk upgrade --no-cache
 
 # Paths are relative to the repo-root build context, not the container filesystem.
 COPY ops/nginx/nginx.conf /etc/nginx/nginx.conf
