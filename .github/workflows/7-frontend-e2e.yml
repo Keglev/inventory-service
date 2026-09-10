@@ -14,6 +14,9 @@
 # H2 is test-scoped and absent from the jar, so the backend is launched with
 # the H2 driver on the parent classpath via Boot's JarLauncher (see the header
 # of src/main/resources/application-e2e.yml). The version is the pom's H2 pin.
+#
+# Playwright browsers are cached under the resolved Playwright version. A cache
+# hit installs the OS font packages only and downloads no browser.
 # =============================================================================
 name: 7 Frontend E2E - Playwright
 
@@ -101,9 +104,43 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      # The browsers are the largest download in this job: measured on
+      # 2026-09-09, Chromium 184 MB, the headless shell 115 MB and FFmpeg 2 MB,
+      # about 22 s, on every run. They change only when Playwright changes, so
+      # the key is the resolved version rather than a hash of the lockfile: a
+      # hash would discard three valid browsers whenever any unrelated
+      # dependency moved. There are deliberately no restore-keys. A near miss
+      # restores the previous version's directories, which Playwright ignores
+      # and re-downloads, and both copies are then saved under the new key
+      # against a cache budget this repository already watches (see the note
+      # above the JDK step in 1-ci-test.yml).
+      - name: Resolve the Playwright version
+        id: playwright
+        working-directory: frontend
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Playwright $version"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      # The font packages are apt-installed and outside the cached directory, so
+      # they are fetched either way; only the browser download is skippable.
       - name: Install Chromium
         working-directory: frontend
-        run: npx playwright install --with-deps chromium
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps chromium
+          else
+            npx playwright install --with-deps chromium
+          fi
 
       # The API origin is baked into the bundle at build time (VITE_API_BASE)
       - name: Build frontend against the local backend
