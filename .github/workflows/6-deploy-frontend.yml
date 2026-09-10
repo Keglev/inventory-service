@@ -47,20 +47,38 @@ jobs:
         id: img
         run: bash .github/scripts/resolve-image-digest.sh "${{ secrets.DOCKER_USERNAME }}" "ssp-frontend" "${{ github.event.workflow_run.head_sha || github.sha }}"
 
+      # This step runs in the job that writes the deploy token to
+      # $HOME/.koyeb.yaml two steps later, so what it executes matters. Until
+      # now it asked the GitHub API for the latest release and ran whatever came
+      # back: the 2026-09-10 deploy installed v5.10.2 while the hardcoded
+      # fallback still read 4.4.1, four majors behind, which is a fair measure of
+      # how long it had been since anyone looked at it.
+      #
+      # Now one pinned version, and the archive is checked against the digest the
+      # release publishes before anything is extracted. A moved release, a
+      # substituted asset or a truncated download fails the step rather than
+      # being executed.
+      #
+      # To upgrade: raise both values in one commit. The digest is the
+      # linux_amd64 line of
+      # https://github.com/koyeb/koyeb-cli/releases/download/v<version>/checksums.txt
       - name: Install Koyeb CLI
+        env:
+          KOYEB_CLI_VERSION: '5.10.2'
+          KOYEB_CLI_SHA256: 'a6dc0b3079d1c345571891c0d12592db07a9730578afc915e2ddda88a0556c28'
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.koyeb/bin"
-          VER="$(curl -fsSL --retry 5 --retry-delay 2 \
-            https://api.github.com/repos/koyeb/koyeb-cli/releases/latest \
-            | grep -oE '"tag_name":\s*"v[0-9.]+"' | head -n1 \
-            | sed -E 's/.*"v([^"]+)".*/\1/')" || VER="4.4.1"
-          [ -z "$VER" ] && VER="4.4.1"
+          archive="$RUNNER_TEMP/koyeb-cli.tar.gz"
           curl -fsSL --retry 5 --retry-delay 2 \
-            "https://github.com/koyeb/koyeb-cli/releases/download/v${VER}/koyeb-cli_${VER}_linux_amd64.tar.gz" \
-            | tar -xzC "$HOME/.koyeb/bin"
+            "https://github.com/koyeb/koyeb-cli/releases/download/v${KOYEB_CLI_VERSION}/koyeb-cli_${KOYEB_CLI_VERSION}_linux_amd64.tar.gz" \
+            -o "$archive"
+          echo "${KOYEB_CLI_SHA256}  ${archive}" | sha256sum -c -
+          tar -xzC "$HOME/.koyeb/bin" -f "$archive"
+          rm -f "$archive"
+          test -x "$HOME/.koyeb/bin/koyeb"
           echo "$HOME/.koyeb/bin" >> "$GITHUB_PATH"
-          echo "Koyeb CLI installed: v${VER}"
+          echo "Koyeb CLI pinned: v${KOYEB_CLI_VERSION}"
       # Write token to a restricted file — avoids exposing it via environment variables
       - name: Authenticate Koyeb
         env:
