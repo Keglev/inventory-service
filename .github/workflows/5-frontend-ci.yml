@@ -6,7 +6,9 @@
 # outside Docker to get GitHub annotation support. An advisory of high severity
 # or above in a dependency that ships to the browser fails the job; lint errors
 # fail it too. Both block the merge through the build-and-test check.
-# Builds and pushes a Docker image (Nginx + Vite bundle) tagged by commit SHA.
+# Builds and pushes a Docker image (Nginx + Vite bundle) tagged by commit SHA,
+# then scans it with Trivy on the same terms as the backend image. A fixed CVE
+# of high severity or above in the image fails the job, which stops the deploy.
 # On success, triggers: 6-deploy-frontend.yml (Koyeb deployment).
 # =============================================================================
 name: 5 Frontend CI - Build & Test
@@ -157,6 +159,36 @@ jobs:
             NPM_VERSION=${{ env.NPM_VERSION }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      # The backend image has been scanned since it existed; this image never
+      # was. Same action, same version, same terms, so the two images are held
+      # to one standard rather than two.
+      #   PASSES when the image carries no CVE of high severity or above that
+      #     has a published fix.
+      #   FAILS the job, which stops 6-deploy-frontend: that workflow runs only
+      #     when this one concludes success. The image is on Docker Hub by then
+      #     and is deliberately left there, tagged by commit SHA, so the
+      #     scan report can be reproduced against the exact artifact.
+      #   DOES NOT CHECK findings with no fix available. ignore-unfixed keeps
+      #     the gate actionable; an unfixable finding would block every merge
+      #     until upstream moved, which is how a gate gets switched off.
+      #
+      # Pinned by commit SHA for the reason recorded in 2-docker-backend.yml:
+      # in March 2026 every version tag of this action was force-pushed to
+      # credential-stealing code. The scanner version is set explicitly rather
+      # than inherited, because the action's own default trails its releases.
+      - name: Scan image for CVEs (Trivy)
+        if: github.event_name != 'pull_request'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: docker.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          version: v0.74.0
+          format: table
+          scanners: vuln
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
 
       - name: Job summary
         if: always()
