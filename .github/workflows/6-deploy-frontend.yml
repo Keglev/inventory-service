@@ -29,9 +29,14 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/ssp-frontend
-      KOYEB_APP: ${{ secrets.KOYEB_APP }}
-      KOYEB_SERVICE: ${{ secrets.KOYEB_SERVICE }}
+      # All three are names, not credentials. KOYEB_APP held the string
+      # "inventory-service", so GitHub masked it everywhere in this log -
+      # including the repository name, rendering checkout as
+      # "Syncing repository: Keglev/***" and every path as /***/***.
+      # KOYEB_TOKEN and DOCKER_PASSWORD are the credentials and stay secrets.
+      IMAGE_NAME: ckbuzin/ssp-frontend
+      KOYEB_APP: inventory-service
+      KOYEB_SERVICE: web-service
       FRONTEND_URL: https://www.smartsupplypro.de
       # Origin baked into the bundle by 5-frontend-ci.yml; the rewrite check
       # asserts it is absent from the bytes the browser receives.
@@ -45,7 +50,7 @@ jobs:
       # Docker Hub can be eventually consistent — retries reduce post-push flakiness.
       - name: Resolve image digest
         id: img
-        run: bash .github/scripts/resolve-image-digest.sh "${{ secrets.DOCKER_USERNAME }}" "ssp-frontend" "${{ github.event.workflow_run.head_sha || github.sha }}"
+        run: bash .github/scripts/resolve-image-digest.sh "ckbuzin" "ssp-frontend" "${{ github.event.workflow_run.head_sha || github.sha }}"
 
       # This step runs in the job that writes the deploy token to
       # $HOME/.koyeb.yaml two steps later, so what it executes matters. Until

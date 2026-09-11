@@ -38,7 +38,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/ssp-frontend
+  # The Docker Hub account name is configuration, not a credential: it is
+  # printed on every public image page. Held as a secret it was masked
+  # everywhere it appeared, which is how #99 turned a successful deploy into a
+  # log reading "4 *** Backend to Hetzner". DOCKER_PASSWORD stays a secret.
+  IMAGE_NAME: ckbuzin/ssp-frontend
   # Pinned so local and CI environments stay aligned; update intentionally
   NPM_VERSION: '11.10.1'
   # Backend API base baked into the Vite production bundle
@@ -130,7 +134,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
+          username: ckbuzin
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Generate Docker metadata
         if: github.event_name != 'pull_request'
