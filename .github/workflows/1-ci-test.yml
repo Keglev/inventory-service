@@ -137,6 +137,28 @@ jobs:
           path: ${{ env.BACKEND_DIR }}/target/site/jacoco/
           retention-days: 30
 
+      # Only on failure, and deliberately so. Surefire writes one XML and one
+      # .txt per test class under target/surefire-reports; the .txt carries the
+      # exception and stack trace for each failure. On a green run that is 129
+      # files nobody reads.
+      #
+      # On a red run it is the difference between downloading one artifact and
+      # searching a 50,000-line log. PR #110 failed with 177 context-load errors
+      # from a single root cause, and finding that cause meant paging through
+      # the raw log because these files were not kept.
+      #
+      # if-no-files-found: warn, not error - a compilation failure produces no
+      # reports at all, and this step must not turn that into a second, less
+      # informative failure.
+      - name: Upload surefire reports on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: surefire-reports-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ env.BACKEND_DIR }}/target/surefire-reports/
+          retention-days: 30
+          if-no-files-found: warn
+
       - name: Job summary
         if: always()
         run: |
