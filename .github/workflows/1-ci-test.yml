@@ -87,17 +87,38 @@ jobs:
           java-version: '21'
           cache: maven
 
+      # This step deliberately receives no secrets. The test profile supplies
+      # everything the suite needs: application-test.yml sets the datasource to
+      # H2 and the Google registration to test-client-id/test-client-secret.
+      #
+      # SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID is the
+      # relaxed-binding form of spring.security.oauth2.client.registration
+      # .google.client-id, and an environment variable outranks profile YAML, so
+      # passing it did not feed the ${...} in application.yml - it overrode the
+      # test profile's literal. Every run therefore tested against the real
+      # client id rather than the dummy one the file states.
+      #
+      # It also made the job depend on secrets being present. A Dependabot pull
+      # request cannot see repository secrets, so the variable arrived empty,
+      # overrode test-client-id with "", and 177 tests failed to load a context
+      # (PR #110, 2026-09-11). Granting Dependabot those secrets was the wrong
+      # fix: the database is behind an IP allowlist it could never reach, and a
+      # dependency bot has no business holding production credentials.
+      #
+      # DB_URL, DB_USER and DB_PASS were a different shape of the same mistake.
+      # They are not Spring property names, so they are only read through
+      # ${DB_URL} in the base and prod profiles - neither of which is active
+      # here. scripts/start.sh maps them to SPRING_DATASOURCE_URL in the
+      # container, which is where they belong.
+      #
+      # 7-frontend-e2e already proves this: it launches the same jar with
+      # --spring.profiles.active=test,e2e and no secrets at all, and the backend
+      # reports healthy in about two seconds.
       - name: Build and test
         run: |
           set -euo pipefail
           cd "$BACKEND_DIR"
           mvn clean verify -Dspring.profiles.active=test -Dtestcontainers.enabled=false
-        env:
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASS: ${{ secrets.DB_PASS }}
-          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID: ${{ secrets.SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID }}
-          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET: ${{ secrets.SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET }}
 
       # Non-blocking — useful for tracking Spring version drift between dependency updates.
       # Not -q: dependency:list writes at INFO, which -q suppresses, so the grep
