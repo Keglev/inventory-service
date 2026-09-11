@@ -29,14 +29,23 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # All three are names, not credentials. KOYEB_APP held the string
-      # "inventory-service", so GitHub masked it everywhere in this log -
-      # including the repository name, rendering checkout as
-      # "Syncing repository: Keglev/***" and every path as /***/***.
-      # KOYEB_TOKEN and DOCKER_PASSWORD are the credentials and stay secrets.
+      # Names, not credentials. Holding them as secrets masked their values
+      # everywhere: KOYEB_APP was the string "inventory-service", this
+      # repository's own name, so checkout rendered as "Syncing repository:
+      # Keglev/***" and every path as /***/***. KOYEB_TOKEN and DOCKER_PASSWORD
+      # are the credentials and stay secrets.
+      #
+      # The service is identified by its short ID rather than by app/service.
+      # #113 wrote "inventory-service/web-service" and the deploy was rejected:
+      # "Web Service" is the type Koyeb shows beside a service, not its name.
+      # 8d13ab85 is this service's short ID, read from the successful deploy of
+      # 2026-09-10, and the CLI names it as a supported identifier alongside the
+      # full UUID and the app/service form.
+      #
+      # If this ever stops resolving, the service was recreated and has a new
+      # ID. "koyeb service list" prints it.
       IMAGE_NAME: ckbuzin/ssp-frontend
-      KOYEB_APP: inventory-service
-      KOYEB_SERVICE: web-service
+      KOYEB_SERVICE_ID: 8d13ab85
       FRONTEND_URL: https://www.smartsupplypro.de
       # Origin baked into the bundle by 5-frontend-ci.yml; the rewrite check
       # asserts it is absent from the bytes the browser receives.
@@ -116,7 +125,7 @@ jobs:
       - name: Deploy to Koyeb
         run: |
           set -euo pipefail
-          SVC="${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}"
+          SVC="${{ env.KOYEB_SERVICE_ID }}"
           REF="${{ steps.img.outputs.image_ref }}"
           echo "Updating $SVC to $REF"
 
@@ -140,7 +149,7 @@ jobs:
       - name: Wait for Koyeb service to be healthy
         run: |
           set -euo pipefail
-          SVC="${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}"
+          SVC="${{ env.KOYEB_SERVICE_ID }}"
           echo "Waiting for $SVC to be HEALTHY..."
 
           for i in $(seq 1 60); do
@@ -179,6 +188,6 @@ jobs:
         if: always()
         run: |
           echo "## Frontend Deployment – Koyeb" >> $GITHUB_STEP_SUMMARY
-          echo "- **Service:** \`${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Service:** \`${{ env.KOYEB_SERVICE_ID }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Image:** \`${{ steps.img.outputs.image_ref }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **URL:** ${{ env.FRONTEND_URL }}" >> $GITHUB_STEP_SUMMARY
