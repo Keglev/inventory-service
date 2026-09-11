@@ -1,0 +1,38 @@
+# =============================================================================
+# Smart Supply Pro - Dependabot
+#
+# Every action in this repository is pinned to a commit. A pin nobody updates
+# is how the Koyeb CLI fallback ended up four major versions stale, so the pins
+# need something that moves them. Dependabot rewrites both the commit and the
+# trailing version comment, which is the reason the comments are there.
+#
+# Scope is github-actions only, deliberately. The npm and Maven trees have
+# their own gates - the frontend audit in 5-frontend-ci and Trivy on both
+# images - and adding those ecosystems here would trade a real signal for a
+# stream of pull requests.
+#
+# One grouped pull request a month, not one per action. Thirty-three references
+# across eleven actions would otherwise produce a queue nobody reads, and these
+# updates are reviewed together or not at all.
+#
+# No labels: generated release notes group by pull request label, this
+# repository does not label pull requests, and 8-release depends on that.
+# =============================================================================
+version: 2
+
+updates:
+  # "/" is the repository root, which is where Dependabot looks for
+  # .github/workflows - not a directory to point at the workflows themselves.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 1
+    labels: []
+    commit-message:
+      # Conventional Commits, so the generated release notes stay readable.
+      prefix: ci
+    groups:
+      actions:
+        patterns:
+          - "*"
