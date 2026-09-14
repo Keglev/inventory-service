@@ -164,7 +164,6 @@ jobs:
             VITE_API_BASE=${{ env.VITE_API_BASE }}
             VITE_BUILD_ID=${{ github.sha }}
             VITE_APP_ENVIRONMENT=Production (Koyeb)
-            RUN_TESTS=false
             NPM_VERSION=${{ env.NPM_VERSION }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
