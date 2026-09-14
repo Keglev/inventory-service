@@ -13,7 +13,7 @@ The router loads pages eagerly — chunking is by vendor, not by route
 
 A multi-stage Docker build (context = repo root, so `ops/nginx/` travels with the
 frontend source): dependency stage (`npm ci --legacy-peer-deps`), test stage
-(vitest), build stage (`vite build`), and an `nginx:1.27-alpine` runtime serving
+(vitest), build stage (`vite build`), and an `nginx:1.30-alpine` runtime serving
 `dist/` with both Nginx configs copied in.
 
 Nginx delivery rules:
@@ -36,10 +36,14 @@ The container runs on **Koyeb**, reachable on the project's own domain
 [ADR-0010 (backend)](../../backend/architecture/09-decisions/adr-0010-custom-domain-and-canonical-host.md)).
 Two numbered workflows own the frontend:
 
-- **5-frontend-ci** — build and full Vitest suite on every push to `main`.
-- **6-deploy-frontend** — builds and deploys to Koyeb via the Koyeb CLI, then
-  polls the platform's service status (up to 60 attempts) until it reports
-  healthy — more reliable than probing the URL during edge propagation.
+- **5-frontend-ci** — audits the shipped dependency tree (gate), lints, runs
+  the full Vitest suite, then builds and Trivy-scans the runtime image before
+  it can reach Docker Hub.
+- **6-deploy-frontend** — deploys by image digest, then waits for the commit's
+  build id to appear in the served bundle before trusting the platform's own
+  status, which stays `healthy` throughout a rolling update and cannot verify
+  a release on its own
+  ([ADR-0010](09-decisions/adr-0010-verifying-frontend-deploys.md)).
 
 Architecture and API documentation deploy separately via the docs pipeline to
 GitHub Pages.
