@@ -146,6 +146,11 @@ jobs:
       # It does NOT prove the new image is serving: the service stays HEALTHY
       # through a rolling update, so this loop can match the outgoing deployment
       # on its first iteration. The build gate below waits for the rollout.
+      #
+      # -w matters here. Without it the pattern matches UNHEALTHY as well, since
+      # that string contains "healthy", so the one status this loop exists to
+      # detect would have exited the step successfully. The word boundary makes
+      # UNHEALTHY, DEGRADED, ERROR and STOPPING all fall through to the retry.
       - name: Wait for Koyeb service to be healthy
         run: |
           set -euo pipefail
@@ -154,7 +159,7 @@ jobs:
 
           for i in $(seq 1 60); do
             if koyeb service describe "$SVC" 2>/dev/null \
-              | tr '[:upper:]' '[:lower:]' | grep -q 'healthy'; then
+              | tr '[:upper:]' '[:lower:]' | grep -qw 'healthy'; then
               echo "Service is HEALTHY"
               exit 0
             fi
