@@ -35,6 +35,7 @@ jobs:
     # ubuntu-latest migrates to the next LTS that version is simply not there, so
     # the OS is fixed here and the migration becomes something to schedule.
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     permissions:
       contents: read
 
@@ -42,10 +43,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # Scoped to the frontend lockfile, the same key the other three Node jobs
+      # use. Without it every docs pull request paid for a cold install of the
+      # ReDoc and TypeDoc toolchain.
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
 
       - name: Pin npm version
         run: |
