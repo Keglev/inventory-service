@@ -176,7 +176,7 @@
             classDef external   fill:#4f46e5,color:#fff,stroke:#3730a3;
         </div>
         <h2 id="cicd-pipeline">CI/CD Pipeline</h2>
-        <p>Eight GitHub Actions workflows make up the pipeline:</p>
+        <p>Ten GitHub Actions workflows make up the pipeline:</p>
         <table>
         <colgroup>
         <col style="width: 50%" />
@@ -225,12 +225,30 @@
         </tr>
         <tr class="odd">
         <td><code>5-frontend-ci.yml</code></td>
-        <td>Vitest unit tests, Docker image build (Nginx + Vite bundle),
-        push to Docker Hub</td>
+        <td>Audits the shipped dependency tree (gate), lints, runs
+        Vitest, then builds and Trivy-scans the image before it reaches
+        Docker Hub</td>
         </tr>
         <tr class="even">
         <td><code>6-deploy-frontend.yml</code></td>
-        <td>Deploys built frontend to Koyeb</td>
+        <td>Deploys the scanned image to Koyeb by digest, then verifies
+        the commit’s build id reached the served bundle before trusting
+        the platform’s status</td>
+        </tr>
+        <tr class="odd">
+        <td><code>7-frontend-e2e.yml</code></td>
+        <td>Playwright suite against a local stack built from the commit
+        (packaged jar on H2, <code>test,e2e</code> profile; frontend
+        served via <code>vite preview</code>); advisory until ten
+        consecutive green runs, so branch protection does not require
+        it</td>
+        </tr>
+        <tr class="even">
+        <td><code>8-release.yml</code></td>
+        <td>On a <code>v*.*.*</code> tag push, verifies both tiers
+        report that version, then publishes the GitHub Release with
+        notes generated from the merged pull requests since the previous
+        tag</td>
         </tr>
         </tbody>
         </table>
@@ -239,6 +257,11 @@
         after the image has been scanned. There is no direct push
         trigger on the image build, so nothing is released in parallel
         with the tests meant to gate it.</p>
+        <p>Every action reference across all ten workflows is pinned to
+        a commit SHA rather than a mutable tag;
+        <code>dependabot.yml</code> opens one grouped pull request a
+        month to move those pins, which is the only way they get updated
+        at all.</p>
         <h3 id="backend-pipeline-chain">Backend Pipeline Chain</h3>
         <div class="mermaid">
         %%{init: {"sequence": {"useMaxWidth": false}}}%%
