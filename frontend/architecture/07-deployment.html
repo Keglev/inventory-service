@@ -114,7 +114,7 @@
         <code>ops/nginx/</code> travels with the frontend source):
         dependency stage (<code>npm ci --legacy-peer-deps</code>), test
         stage (vitest), build stage (<code>vite build</code>), and an
-        <code>nginx:1.27-alpine</code> runtime serving
+        <code>nginx:1.30-alpine</code> runtime serving
         <code>dist/</code> with both Nginx configs copied in.</p>
         <p>Nginx delivery rules:</p>
         <ul>
@@ -142,12 +142,16 @@
         href="../../backend/architecture/09-decisions/adr-0010-custom-domain-and-canonical-host.html">ADR-0010
         (backend)</a>). Two numbered workflows own the frontend:</p>
         <ul>
-        <li><strong>5-frontend-ci</strong> — build and full Vitest suite
-        on every push to <code>main</code>.</li>
-        <li><strong>6-deploy-frontend</strong> — builds and deploys to
-        Koyeb via the Koyeb CLI, then polls the platform’s service
-        status (up to 60 attempts) until it reports healthy — more
-        reliable than probing the URL during edge propagation.</li>
+        <li><strong>5-frontend-ci</strong> — audits the shipped
+        dependency tree (gate), lints, runs the full Vitest suite, then
+        builds and Trivy-scans the runtime image before it can reach
+        Docker Hub.</li>
+        <li><strong>6-deploy-frontend</strong> — deploys by image
+        digest, then waits for the commit’s build id to appear in the
+        served bundle before trusting the platform’s own status, which
+        stays <code>healthy</code> throughout a rolling update and
+        cannot verify a release on its own (<a
+        href="09-decisions/adr-0010-verifying-frontend-deploys.html">ADR-0010</a>).</li>
         </ul>
         <p>Architecture and API documentation deploy separately via the
         docs pipeline to GitHub Pages.</p>
