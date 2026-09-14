@@ -153,7 +153,7 @@ jobs:
         run: |
           for i in $(seq 1 60); do
             if curl -sf "${BACKEND_URL}/actuator/health" | grep -q '"UP"'; then
-              echo "backend healthy after $((i*2))s"; exit 0
+              echo "backend healthy after $(((i-1)*2))s"; exit 0
             fi
             sleep 2
           done

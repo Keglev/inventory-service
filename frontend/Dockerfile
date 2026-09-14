@@ -35,13 +35,13 @@ ENV VITE_BUILD_ID=$VITE_BUILD_ID
 ARG VITE_APP_ENVIRONMENT="Production (Koyeb)"
 ENV VITE_APP_ENVIRONMENT=$VITE_APP_ENVIRONMENT
 
-# Runs the test suite; decoupled from build so CI can fail fast without tainting the build cache.
-# Pass --build-arg RUN_TESTS=false when tests run outside Docker (e.g. for GitHub Actions annotations).
-FROM base AS test
-ARG RUN_TESTS=true
-RUN if [ "$RUN_TESTS" = "true" ]; then npm run test --if-present -- --run; else echo "Skipping tests in Docker build"; fi
-
 # Produces the optimised static bundle under /app/dist; nothing else carries forward to the runtime image.
+#
+# There is no test stage here. BuildKit builds only the stages the target
+# depends on, and the chain to the runtime image is base -> build -> runtime,
+# so a stage nothing copies from was never built by any pipeline invocation.
+# Vitest runs in 5-frontend-ci before the image is built, where its failures
+# become GitHub Actions annotations.
 FROM base AS build
 RUN npm run build
 
