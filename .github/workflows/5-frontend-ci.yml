@@ -28,9 +28,13 @@ on:
       - '.github/workflows/5-frontend-ci.yml'
   workflow_dispatch:
 
+# Read scope only. This workflow publishes to Docker Hub, authenticated with
+# DOCKER_PASSWORD, and never to the GitHub container registry, so GITHUB_TOKEN
+# needs no write access to the GitHub package namespace. 2-docker-backend is
+# the workflow that does publish there, and it asks for that scope at job
+# level rather than for the whole file.
 permissions:
   contents: read
-  packages: write
 
 # Only one frontend build at a time — do not cancel in progress to avoid broken image state
 concurrency:
