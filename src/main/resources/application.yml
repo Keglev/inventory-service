@@ -27,7 +27,13 @@ spring:
       client:
         registration:
           google:
-            client-id: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}      # These values are injected via secrets or env vars
+            # SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID overrides
+            # this property via Spring's relaxed binding, which outranks any profile
+            # YAML - including application-test.yml's literal placeholder - even when
+            # the variable is set to an empty string. Set it only in .env.prod; it
+            # must stay unset in test/CI, or the placeholder below never applies.
+            # client-secret works the same way.
+            client-id: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}
             client-secret: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET}
             scope:
               - openid
