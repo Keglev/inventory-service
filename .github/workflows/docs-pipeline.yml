@@ -54,6 +54,7 @@ jobs:
     # ubuntu-latest migrates to the next LTS that version is simply not there, so
     # the OS is fixed here and the migration becomes something to schedule.
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
 
     steps:
       # Checkout the commit that triggered upstream CI, or HEAD for direct pushes.
