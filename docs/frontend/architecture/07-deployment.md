@@ -12,9 +12,12 @@ The router loads pages eagerly — chunking is by vendor, not by route
 ## Container & Delivery
 
 A multi-stage Docker build (context = repo root, so `ops/nginx/` travels with the
-frontend source): dependency stage (`npm ci --legacy-peer-deps`), test stage
-(vitest), build stage (`vite build`), and an `nginx:1.30-alpine` runtime serving
-`dist/` with both Nginx configs copied in.
+frontend source): a base stage that installs dependencies with `npm ci`, a build
+stage that runs `vite build`, and an `nginx:1.30-alpine` runtime serving `dist/`
+with both Nginx configs copied in. There is no test stage: Vitest runs in
+`5-frontend-ci` ahead of the image build, where a failure surfaces as a GitHub
+annotation. Peer resolution comes from `frontend/.npmrc`, which the build copies
+alongside the package files, rather than from a flag on the command line.
 
 Nginx delivery rules:
 
