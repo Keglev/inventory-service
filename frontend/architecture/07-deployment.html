@@ -111,11 +111,17 @@
         (see <a href="06-runtime.html">§6</a>).</p>
         <h2 id="container-delivery">Container &amp; Delivery</h2>
         <p>A multi-stage Docker build (context = repo root, so
-        <code>ops/nginx/</code> travels with the frontend source):
-        dependency stage (<code>npm ci --legacy-peer-deps</code>), test
-        stage (vitest), build stage (<code>vite build</code>), and an
+        <code>ops/nginx/</code> travels with the frontend source): a
+        base stage that installs dependencies with <code>npm ci</code>,
+        a build stage that runs <code>vite build</code>, and an
         <code>nginx:1.30-alpine</code> runtime serving
-        <code>dist/</code> with both Nginx configs copied in.</p>
+        <code>dist/</code> with both Nginx configs copied in. There is
+        no test stage: Vitest runs in <code>5-frontend-ci</code> ahead
+        of the image build, where a failure surfaces as a GitHub
+        annotation. Peer resolution comes from
+        <code>frontend/.npmrc</code>, which the build copies alongside
+        the package files, rather than from a flag on the command
+        line.</p>
         <p>Nginx delivery rules:</p>
         <ul>
         <li>SPA fallback (<code>try_files ... /index.html</code>) for
