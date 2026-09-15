@@ -6,9 +6,11 @@
 # outside Docker to get GitHub annotation support. An advisory of high severity
 # or above in a dependency that ships to the browser fails the job; lint errors
 # fail it too. Both block the merge through the build-and-test check.
-# Builds and pushes a Docker image (Nginx + Vite bundle) tagged by commit SHA,
-# then scans it with Trivy on the same terms as the backend image. A fixed CVE
-# of high severity or above in the image fails the job, which stops the deploy.
+# Builds a Docker image (Nginx + Vite bundle) into the runner's Docker daemon,
+# scans it with Trivy on the same terms as the backend image, and publishes it
+# to Docker Hub tagged by commit SHA only once the scan has passed. A fixed CVE
+# of high severity or above fails the job before the image reaches the
+# registry, which stops the deploy with it.
 # On success, triggers: 6-deploy-frontend.yml (Koyeb deployment).
 # =============================================================================
 name: 5 Frontend CI - Build & Test
@@ -152,14 +154,29 @@ jobs:
             type=raw,value=${{ github.sha }}
             type=sha
       # Build context is repo root so the Dockerfile can access ops/nginx config
-      - name: Build and push image
+      #
+      # The image is exported to the runner's Docker daemon and goes no further
+      # until the scan below has passed; publishing is the last step of the job.
+      # Until 2026-09-14 this step published all three tags and Trivy ran
+      # afterwards, so a rejected image was already on a public registry by the
+      # time the gate fired, `latest` among the tags that had moved to it. The
+      # deploy was blocked either way, because 6-deploy-frontend runs only on
+      # this job's success; the registry was not.
+      #
+      # provenance is written down rather than left at its default. Attestations
+      # are produced by the registry exporter, and a daemon export cannot carry
+      # them, so the default is inoperative here rather than merely unused. The
+      # index that used to be published carried one and nothing in this
+      # repository ever read it.
+      - name: Build image
         if: github.event_name != 'pull_request'
         id: build
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           context: .
           file: frontend/Dockerfile
-          push: true
+          load: true
+          provenance: false
           build-args: |
             VITE_API_BASE=${{ env.VITE_API_BASE }}
             VITE_BUILD_ID=${{ github.sha }}
@@ -168,15 +185,27 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      # Trivy reads the local daemon for a reference it can find there. If the
+      # export above had silently not happened, it would fall back to the
+      # registry, where this tag does not exist yet, and the job would fail on a
+      # pull error dressed up as a scan failure. Fail on the missing image
+      # instead, where the message says what is wrong.
+      - name: Confirm the image reached the local daemon
+        if: github.event_name != 'pull_request'
+        run: |
+          set -euo pipefail
+          docker image inspect "${IMAGE_NAME}:${GITHUB_SHA}" --format 'local image id {{.Id}}'
+
       # The backend image has been scanned since it existed; this image never
       # was. Same action, same version, same terms, so the two images are held
       # to one standard rather than two.
       #   PASSES when the image carries no CVE of high severity or above that
       #     has a published fix.
-      #   FAILS the job, which stops 6-deploy-frontend: that workflow runs only
-      #     when this one concludes success. The image is on Docker Hub by then
-      #     and is deliberately left there, tagged by commit SHA, so the
-      #     scan report can be reproduced against the exact artifact.
+      #   FAILS the job before the publishing step below runs, so the image
+      #     never leaves the runner, and stops 6-deploy-frontend with it: that
+      #     workflow runs only when this one concludes success. A rejected
+      #     image is not kept anywhere; to reproduce a finding, build the
+      #     commit locally with the same build arguments.
       #   DOES NOT CHECK findings with no fix available. ignore-unfixed keeps
       #     the gate actionable; an unfixable finding would block every merge
       #     until upstream moved, which is how a gate gets switched off.
@@ -216,6 +245,28 @@ jobs:
           # binary cache; setup-trivy falls back to its install script and a
           # 50 MB release download instead.
           cache: false
+
+      # The only step in this job that changes anything outside the runner, and
+      # deliberately the last one. Every tag the metadata step produced is moved
+      # at once, `latest` included, so a tag on this repository names an image
+      # that passed the scan above rather than one that was merely built.
+      #
+      # A daemon push publishes a single-platform manifest where the previous
+      # arrangement published an OCI index. 6-deploy-frontend deploys whatever
+      # digest the tag resolves to and resolve-image-digest.sh asks for both
+      # media types, so the handoff is unchanged; the digest itself is a
+      # different one from what the same image would have carried before.
+      - name: Publish image to Docker Hub
+        if: github.event_name != 'pull_request'
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          set -euo pipefail
+          while read -r tag; do
+            [ -n "$tag" ] || continue
+            echo "==> $tag"
+            docker push "$tag"
+          done <<< "$TAGS"
 
       - name: Job summary
         if: always()
