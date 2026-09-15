@@ -123,13 +123,13 @@ jobs:
             ls /app/docs    2>&1 || echo "OK: no docs directory"
           '
 
-      - name: Push Docker images
-        if: steps.gate.outputs.build == 'true'
-        run: |
-          docker push $IMAGE_REPO:latest
-          docker push $IMAGE_REPO:${IMAGE_TAG_SHA}
-
-      # Blocks 4-deploy-backend.yml if HIGH or CRITICAL CVEs are found in the image.
+      # Blocks 4-deploy-backend.yml if HIGH or CRITICAL CVEs are found in the
+      # image, and now does so before that image is published. Until 2026-09-15
+      # the push ran here, between the inspection above and this scan, so a
+      # rejected image was already on GHCR under both tags, :latest included, by
+      # the time the gate fired. The release was blocked either way, because
+      # 4-deploy-backend chains on this workflow's success; the registry was
+      # not. The frontend image was reordered for the same reason in #124.
       #
       # Pinned by commit SHA, not by tag. In March 2026 an attacker force-pushed
       # nearly every version tag of this action, and every tag of the setup-trivy
@@ -151,6 +151,18 @@ jobs:
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           exit-code: '1'
+
+      # The only step here that publishes anything, and deliberately the last
+      # one that could. Both tags move together once the scan above has passed,
+      # so a tag in this package names an image that cleared the gate rather
+      # than one that was merely built. The scan reads the local daemon, where
+      # the build step left the image; until this step runs there is nothing
+      # under that tag on GHCR for it to have read instead.
+      - name: Push Docker images
+        if: steps.gate.outputs.build == 'true'
+        run: |
+          docker push $IMAGE_REPO:latest
+          docker push $IMAGE_REPO:${IMAGE_TAG_SHA}
 
       - name: Job summary
         if: always() && steps.gate.outputs.build == 'true'
