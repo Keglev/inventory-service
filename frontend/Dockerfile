@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for the Vite/React frontend.
 # Build context must be the repo root so ops/nginx configs are accessible alongside frontend source.
-# Stages: base (deps) → test (CI validation) → build (Vite bundle) → runtime (Nginx static server).
+# Stages: base (deps) → build (Vite bundle) → runtime (Nginx static server).
 
 # Installs npm dependencies into a cached layer; subsequent stages inherit from here
 # rather than re-running npm ci on every source change.
