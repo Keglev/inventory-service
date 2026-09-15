@@ -6,11 +6,11 @@
 # outside Docker to get GitHub annotation support. An advisory of high severity
 # or above in a dependency that ships to the browser fails the job; lint errors
 # fail it too. Both block the merge through the build-and-test check.
-# Builds a Docker image (Nginx + Vite bundle) into the runner's Docker daemon,
-# scans it with Trivy on the same terms as the backend image, and publishes it
-# to Docker Hub tagged by commit SHA only once the scan has passed. A fixed CVE
-# of high severity or above fails the job before the image reaches the
-# registry, which stops the deploy with it.
+# Builds a Docker image (Nginx + Vite bundle) into the runner's Docker daemon
+# and scans it with Trivy on the same terms as the backend image. A fixed CVE
+# of high severity or above fails the job. Pull requests build and scan too and
+# stop there; only a push to main publishes to Docker Hub, tagged by commit
+# SHA, and only once the scan has passed.
 # On success, triggers: 6-deploy-frontend.yml (Koyeb deployment).
 # =============================================================================
 name: 5 Frontend CI - Build & Test
@@ -54,8 +54,16 @@ env:
   # Backend API base baked into the Vite production bundle
   VITE_API_BASE: https://api.smartsupplypro.de
 
-# Pull requests run tests and upload coverage only. Image build/push is gated to
-# push events so an unmerged branch can never overwrite the :latest tag.
+# A pull request runs everything except the two steps that talk to Docker Hub:
+# it builds the image, scans it, and fails the required build-and-test check
+# when the scan finds a fixed CVE of high severity or above. The finding
+# arrives at the review rather than at the merge, which is only affordable
+# because building an image is no longer the same step as publishing one.
+#
+# The registry login and the publish step stay gated to push events. An
+# unmerged branch therefore cannot move :latest, and a pull request from a
+# fork, which carries no secrets, still runs the whole gate, because nothing on
+# the pull-request path needs a credential.
 jobs:
   # Named build-and-test so this workflow satisfies the required status check
   # for frontend pull requests; see the header of 1-ci-test.yml.
@@ -135,8 +143,12 @@ jobs:
           retention-days: 30
 
       - name: Set up Docker Buildx
-        if: github.event_name != 'pull_request'
         uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+      # Only the publish step needs this credential, so only the publish path
+      # asks for it. A build on a pull request pulls its base images
+      # anonymously. If Docker Hub's anonymous pull limit ever bites on a shared
+      # runner address, the answer is to log in on every event here, not to stop
+      # scanning pull requests.
       - name: Login to Docker Hub
         if: github.event_name != 'pull_request'
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -144,13 +156,16 @@ jobs:
           username: ckbuzin
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Generate Docker metadata
-        if: github.event_name != 'pull_request'
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: docker.io/${{ env.IMAGE_NAME }}
+          # :latest is a published coordinate and this job now builds images it
+          # does not publish, so is_default_branch keeps that tag off a
+          # pull-request build. Such a build is tagged by SHA and goes no
+          # further than the runner that made it.
           tags: |
-            type=raw,value=latest
+            type=raw,value=latest,enable={{is_default_branch}}
             type=raw,value=${{ github.sha }}
             type=sha
       # Build context is repo root so the Dockerfile can access ops/nginx config
@@ -169,7 +184,6 @@ jobs:
       # index that used to be published carried one and nothing in this
       # repository ever read it.
       - name: Build image
-        if: github.event_name != 'pull_request'
         id: build
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
@@ -191,7 +205,6 @@ jobs:
       # pull error dressed up as a scan failure. Fail on the missing image
       # instead, where the message says what is wrong.
       - name: Confirm the image reached the local daemon
-        if: github.event_name != 'pull_request'
         run: |
           set -euo pipefail
           docker image inspect "${IMAGE_NAME}:${GITHUB_SHA}" --format 'local image id {{.Id}}'
@@ -203,9 +216,11 @@ jobs:
       #     has a published fix.
       #   FAILS the job before the publishing step below runs, so the image
       #     never leaves the runner, and stops 6-deploy-frontend with it: that
-      #     workflow runs only when this one concludes success. A rejected
-      #     image is not kept anywhere; to reproduce a finding, build the
-      #     commit locally with the same build arguments.
+      #     workflow runs only when this one concludes success. On a pull
+      #     request there is nothing to publish and nothing to deploy, so the
+      #     same failure lands on the required build-and-test check instead. A
+      #     rejected image is not kept anywhere; to reproduce a finding, build
+      #     the commit locally with the same build arguments.
       #   DOES NOT CHECK findings with no fix available. ignore-unfixed keeps
       #     the gate actionable; an unfixable finding would block every merge
       #     until upstream moved, which is how a gate gets switched off.
@@ -215,7 +230,6 @@ jobs:
       # credential-stealing code. The scanner version is set explicitly rather
       # than inherited, because the action's own default trails its releases.
       - name: Scan image for CVEs (Trivy)
-        if: github.event_name != 'pull_request'
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: docker.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
@@ -274,7 +288,7 @@ jobs:
           echo "## Frontend CI Results" >> $GITHUB_STEP_SUMMARY
           echo "- **Coverage artifact:** \`frontend-coverage-html-${{ github.event.pull_request.head.sha || github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "- **Image:** not built on pull requests (tests only)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Image:** built and scanned, not published" >> $GITHUB_STEP_SUMMARY
           else
             echo "- **Image:** \`${{ env.IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
             echo "- **Next:** \`6-deploy-frontend.yml\` deploys this image to Koyeb" >> $GITHUB_STEP_SUMMARY
