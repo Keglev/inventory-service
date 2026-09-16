@@ -90,6 +90,36 @@ Negative / accepted:
 - First suite: login page renders (EN/DE), demo entry reaches the dashboard,
   inventory grid shows seeded rows, locale switch keeps the route.
 
+## Amendment 2026-09-16: the check was promoted
+
+The Decision set a precondition: the job reports under its own name and stays
+advisory until ten consecutive green pull-request runs with no
+infrastructure-caused failure. That precondition was met and the promotion has
+happened. Nothing above is edited; the decision, its alternatives and its status
+stand as recorded. This block states what has since changed about them.
+
+Counted on 2026-09-15, over the thirty most recent pull-request runs of
+`7-frontend-e2e.yml`: thirty green, with no failure and no cancellation anywhere
+in that window. The contract asked for ten.
+
+Superseded by this block:
+
+- Decision: "The job reports under its own name (`e2e`) and is advisory." Since
+  2026-09-16 the job is named `build-and-test` and a red run blocks the merge.
+- Implementation Notes: "Job name `e2e`, never `build-and-test`." The rename is
+  what performs the promotion. Branch protection matches a check by its name, and
+  three other workflows already declare a job by that name, so this one joins the
+  existing required check rather than adding a new one.
+
+Corrected by this block:
+
+- Consequences: "Job time of roughly 10 to 15 minutes per PR touching frontend or
+  backend." Measured over the same thirty runs: about 1m48s at the median, 1m18s
+  fastest, 2m42s slowest, none over three minutes. The estimate was written
+  before the suite existed and was never checked against a run.
+
+Promoted in pull request #129, merged as `ab5aa0b48c`.
+
 ## References
 - ADR-0008: Testing structure and taxonomy
 - ADR-0007: i18n strategy and language/region settings
