@@ -7,7 +7,7 @@
 spring:
   datasource:
     # Oracle-compat mode + keep DB alive for the test JVM
-    url: jdbc:h2:mem:ssp;MODE=Oracle;DATABASE_TO_UPPER=true;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE     
+    url: jdbc:h2:mem:ssp;MODE=Oracle;DATABASE_TO_UPPER=true;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa                    # Default username
     password:                       # No password required for in-memory use
@@ -78,4 +78,4 @@ app:
     base-url: http://localhost:8081
     landing-path: /api/me
 
-# Overrides schema for H2 tests (used in @Table(schema = "$(USERS_SCHEMA:ADMIN)")) 
+# Overrides schema for H2 tests (used in @Table(schema = "$(USERS_SCHEMA:ADMIN)"))
