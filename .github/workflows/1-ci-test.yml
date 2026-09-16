@@ -75,6 +75,22 @@ jobs:
             exit 1
           fi
 
+      # Lints the Dockerfile before the test suite, because a finding here is
+      # about the file in this pull request and needs no build to appear. It
+      # runs here rather than in 2-docker-backend, which has no pull_request
+      # trigger: a lint that could only fail after the merge would stop a
+      # release instead of stopping a merge.
+      #
+      # Pinned by version tag, not by digest. Dependabot's scope in this
+      # repository is github-actions only, so a digest here would be a pin
+      # nothing moves - the failure mode dependabot.yml's own header describes.
+      #
+      # The warnings that remain in both Dockerfiles carry inline
+      # `hadolint ignore=` pragmas with their reasons, so a clean run means the
+      # file matches what was decided, not that nothing was ever found.
+      - name: Lint the Dockerfile (hadolint)
+        run: docker run --rm -i hadolint/hadolint:v2.15.1-alpine < "$BACKEND_DIR/Dockerfile"
+
       # setup-java's own maven cache is the only one. A second actions/cache step
       # on ~/.m2 used to sit below this, described as a fallback for when this
       # cache missed. It could not act as one: both keys hashed pom.xml, so they
