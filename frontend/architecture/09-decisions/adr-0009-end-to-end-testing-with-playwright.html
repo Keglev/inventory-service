@@ -212,6 +212,42 @@
         the dashboard, inventory grid shows seeded rows, locale switch
         keeps the route.</li>
         </ul>
+        <h2 id="amendment-2026-09-16-the-check-was-promoted">Amendment
+        2026-09-16: the check was promoted</h2>
+        <p>The Decision set a precondition: the job reports under its
+        own name and stays advisory until ten consecutive green
+        pull-request runs with no infrastructure-caused failure. That
+        precondition was met and the promotion has happened. Nothing
+        above is edited; the decision, its alternatives and its status
+        stand as recorded. This block states what has since changed
+        about them.</p>
+        <p>Counted on 2026-09-15, over the thirty most recent
+        pull-request runs of <code>7-frontend-e2e.yml</code>: thirty
+        green, with no failure and no cancellation anywhere in that
+        window. The contract asked for ten.</p>
+        <p>Superseded by this block:</p>
+        <ul>
+        <li>Decision: “The job reports under its own name
+        (<code>e2e</code>) and is advisory.” Since 2026-09-16 the job is
+        named <code>build-and-test</code> and a red run blocks the
+        merge.</li>
+        <li>Implementation Notes: “Job name <code>e2e</code>, never
+        <code>build-and-test</code>.” The rename is what performs the
+        promotion. Branch protection matches a check by its name, and
+        three other workflows already declare a job by that name, so
+        this one joins the existing required check rather than adding a
+        new one.</li>
+        </ul>
+        <p>Corrected by this block:</p>
+        <ul>
+        <li>Consequences: “Job time of roughly 10 to 15 minutes per PR
+        touching frontend or backend.” Measured over the same thirty
+        runs: about 1m48s at the median, 1m18s fastest, 2m42s slowest,
+        none over three minutes. The estimate was written before the
+        suite existed and was never checked against a run.</li>
+        </ul>
+        <p>Promoted in pull request #129, merged as
+        <code>ab5aa0b48c</code>.</p>
         <h2 id="references">References</h2>
         <ul>
         <li>ADR-0008: Testing structure and taxonomy</li>
@@ -243,6 +279,9 @@
       id="toc-consequences">Consequences</a></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#amendment-2026-09-16-the-check-was-promoted"
+      id="toc-amendment-2026-09-16-the-check-was-promoted">Amendment
+      2026-09-16: the check was promoted</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
