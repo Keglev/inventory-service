@@ -7,9 +7,11 @@
 # `vite preview` on 5173, the origin the backend's default CORS list admits.
 # Nothing here touches Hetzner, Oracle, Koyeb or any secret.
 #
-# Job name is `e2e`, deliberately NOT `build-and-test`: this check is advisory
-# until ten consecutive green PR runs; branch protection only requires
-# `build-and-test`. Renaming the job to the required name would make it a gate.
+# The job is named `build-and-test`, which is the status check branch protection
+# requires on main, so a red run here now blocks the merge. It reported under its
+# own name and was advisory until the precondition in ADR-0009 was met: that
+# contract asked for ten green pull-request runs in a row, and the count stood at
+# thirty on 2026-09-15. The amendment block on ADR-0009 records the promotion.
 #
 # H2 is test-scoped and absent from the jar, so the backend is launched with
 # the H2 driver on the parent classpath via Boot's JarLauncher (see the header
@@ -54,8 +56,9 @@ env:
   NPM_VERSION: '11.10.1'
 
 jobs:
-  e2e:
-    name: e2e
+  # Named build-and-test so this workflow satisfies the required status check;
+  # see the header of 1-ci-test.yml for why four workflows share the name.
+  build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 25
 

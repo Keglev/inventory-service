@@ -80,7 +80,7 @@ Ten GitHub Actions workflows make up the pipeline:
 | `3-deploy-ghpages.yml` | Publishes docs-site artifact to the `gh-pages` branch (GitHub Pages) |
 | `5-frontend-ci.yml` | Audits the shipped dependency tree (gate), lints, runs Vitest, then builds and Trivy-scans the image before it reaches Docker Hub |
 | `6-deploy-frontend.yml` | Deploys the scanned image to Koyeb by digest, then verifies the commit's build id reached the served bundle before trusting the platform's status |
-| `7-frontend-e2e.yml` | Playwright suite against a local stack built from the commit (packaged jar on H2, `test,e2e` profile; frontend served via `vite preview`); advisory until ten consecutive green runs, so branch protection does not require it |
+| `7-frontend-e2e.yml` | Playwright suite against a local stack built from the commit (packaged jar on H2, `test,e2e` profile; frontend served via `vite preview`); reports as `build-and-test`, so a red run blocks the merge |
 | `8-release.yml` | On a `v*.*.*` tag push, verifies both tiers report that version, then publishes the GitHub Release with notes generated from the merged pull requests since the previous tag |
 
 The backend chain is strictly sequential: the image is built only after the test

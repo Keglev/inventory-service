@@ -5,8 +5,9 @@
 # On success, triggers: 2-docker-backend.yml (image build and scan).
 #
 # This is the repository's merge gate. Its job is named build-and-test, the
-# status check branch protection requires on main. Three workflows declare a job
-# by that name: this one, 5-frontend-ci.yml and docs-pr-check.yml. The invariant
+# status check branch protection requires on main. Four workflows declare a job
+# by that name: this one, 5-frontend-ci.yml, 7-frontend-e2e.yml and
+# docs-pr-check.yml. The invariant
 # is coverage, not exclusivity. Every path reaches at least one of them, so no
 # pull request is left without the required check. A pull request confined to one
 # family is reported by exactly one workflow; one that spans families is reported
