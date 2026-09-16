@@ -239,9 +239,8 @@
         <td><code>7-frontend-e2e.yml</code></td>
         <td>Playwright suite against a local stack built from the commit
         (packaged jar on H2, <code>test,e2e</code> profile; frontend
-        served via <code>vite preview</code>); advisory until ten
-        consecutive green runs, so branch protection does not require
-        it</td>
+        served via <code>vite preview</code>); reports as
+        <code>build-and-test</code>, so a red run blocks the merge</td>
         </tr>
         <tr class="even">
         <td><code>8-release.yml</code></td>
