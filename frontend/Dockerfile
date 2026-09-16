@@ -60,6 +60,10 @@ FROM nginx:1.30-alpine AS runtime
 # this same upgrade from the start, which is why its image passes the Trivy gate
 # while its own base does not. Without it, a scan of this image reports whatever
 # the base was built with, however recently the image itself was built.
+# Versions are deliberately unpinned, for the reason the comment above gives:
+# pinning would freeze the packages this upgrade exists to move, and Alpine
+# drops superseded versions from its index within weeks.
+# hadolint ignore=DL3018
 RUN apk add --no-cache ca-certificates && update-ca-certificates && apk upgrade --no-cache
 
 # Paths are relative to the repo-root build context, not the container filesystem.
@@ -72,6 +76,9 @@ COPY --from=build /app/dist /usr/share/nginx/html
 ENV PORT=8080
 EXPOSE 8080
 
+# Shell form is required here: JSON notation has no shell, and the `|| exit 1`
+# is what turns a non-zero wget into an unhealthy verdict instead of an error.
+# hadolint ignore=DL3025
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD wget -q -O- http://127.0.0.1:8080/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]

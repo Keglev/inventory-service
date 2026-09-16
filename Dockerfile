@@ -81,6 +81,10 @@ WORKDIR /app
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # unzip: extracts Oracle Wallet; coreutils: provides base64 decoding for wallet secrets 
+# Versions are deliberately unpinned. Alpine drops superseded packages from its
+# index within weeks, so a pinned build breaks on the next refresh, and pinning
+# would freeze the very packages the upgrade on this line exists to move.
+# hadolint ignore=DL3018
 RUN apk add --no-cache unzip coreutils && apk upgrade --no-cache
 
 # ==========================================================
@@ -117,7 +121,11 @@ RUN set -eux; \
 # Set correct file ownership for the non-root user
 RUN chown -R appuser:appgroup /app
 
-# Drop privileges - must be last
+# Drop privileges - must be last.
+# The name is deliberate. A numeric id would matter only if a host mapped uids
+# into this container; nothing in this deployment does, and the name keeps this
+# line in step with the adduser that created it.
+# hadolint ignore=DL3066
 USER appuser
 
 # Startup delegates to start.sh: wallet decode + JVM flags + Spring Boot launch
