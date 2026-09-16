@@ -74,6 +74,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # First step after checkout so a Dockerfile finding fails in seconds
+      # instead of after the install, the audit, the lint and the test suite.
+      # Pinned by version tag rather than digest, for the reason given in
+      # 1-ci-test.yml where the backend Dockerfile is linted.
+      - name: Lint the Dockerfile (hadolint)
+        run: docker run --rm -i hadolint/hadolint:v2.15.1-alpine < frontend/Dockerfile
+
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
