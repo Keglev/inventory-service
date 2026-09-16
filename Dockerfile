@@ -103,10 +103,15 @@ COPY --chown=appuser:appgroup --chmod=0755 scripts/start.sh /app/start.sh
 # Copy packaged JAR from build stage with correct ownership
 COPY --from=build --chown=appuser:appgroup /build/target/*.jar /app/
 
-# Normalize to /app/app.jar (must run as root before switching user)
+# Normalize to /app/app.jar (must run as root before switching user).
+# The COPY above takes target/*.jar, and the Spring Boot repackage leaves exactly
+# one match: the unpackaged artefact beside it ends in .jar.original, which the
+# glob does not take. So the glob is expanded directly rather than filtered
+# through `ls | head`. If that assumption is ever violated, mv is handed two
+# sources and a non-directory target and fails, instead of silently moving
+# whichever one sorted first.
 RUN set -eux; \
-    JAR="$(ls -1 /app/*.jar | head -n1)"; \
-    mv "$JAR" /app/app.jar; \
+    mv /app/*.jar /app/app.jar; \
     chown appuser:appgroup /app/app.jar
 
 # Set correct file ownership for the non-root user
