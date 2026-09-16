@@ -1,0 +1,76 @@
+# =============================================================================
+# Smart Supply Pro – YAML Lint
+#
+# Pull request check for YAML hygiene. Every tracked .yml and .yaml file must
+# parse, end with a newline, and carry no trailing whitespace. The rules and the
+# scope both live in .github/scripts/check-yaml.sh, so there is one place to
+# change either.
+#
+# Unnumbered on purpose. The numbered workflows communicate the order of the
+# build-and-deploy sequence in the Actions UI, and a lint has no position in it.
+#
+# The job is named `yaml-lint`, deliberately NOT `build-and-test`: this check is
+# advisory until it has proven itself across a run of pull requests. Branch
+# protection requires only `build-and-test`, so renaming the job is what would
+# turn this into a gate. See the header of 1-ci-test.yml for why four workflows
+# share that name today.
+#
+# Three outcomes. A pull request touching any .yml or .yaml file runs this,
+# except one confined to docs/backend/api, which is OpenAPI and is gated by
+# Redocly in docs-pipeline.yml. A change to the script runs it, because the
+# checks are the thing being changed. Everything else does not run it at all:
+# no job, no check, no minutes.
+# =============================================================================
+name: YAML Lint
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - '**.yml'
+      - '**.yaml'
+      - '.github/scripts/check-yaml.sh'
+      - '!docs/backend/api/**'
+  workflow_dispatch:
+
+concurrency:
+  group: yaml-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  yaml-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+
+      # Pinned for the same reason the ReDoc and Pandoc versions are pinned: a
+      # parser that changes version changes what the gate means. The npm client
+      # is deliberately NOT pinned here, unlike the four jobs that install the
+      # frontend tree: one global package has no peer graph to resolve, so the
+      # client version cannot change the outcome, and a sixth pin site would
+      # make the existing five harder to move.
+      - name: Install the YAML parser
+        run: |
+          set -euo pipefail
+          npm install -g js-yaml@5.4.2
+          js-yaml --help | head -n 1
+
+      - name: Check YAML
+        run: bash .github/scripts/check-yaml.sh
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## YAML Lint" >> $GITHUB_STEP_SUMMARY
+          echo "- Checks: parse (including duplicate keys), trailing whitespace, final newline." >> $GITHUB_STEP_SUMMARY
+          echo "- Advisory: this check does not gate merges yet." >> $GITHUB_STEP_SUMMARY
