@@ -36,14 +36,14 @@ This is a solo-developer portfolio project. Consequences:
 |---|---|
 | i18n | No in-code English fallback strings; missing keys are added to BOTH `public/locales/en` and `/de`. The EN JSON is the typing source (`resources.d.ts`) |
 | Tests | Centralized under `frontend/src/__tests__/` (not co-located); documented by name; one canonical header dialect |
-| Size standard | Per-layer code-line budgets (table below), measured by AST over code lines only; documented waivers where a split would be artificial |
+| Size standard | Per-layer code-line budgets (table below), measured over code lines only; documented waivers where a split would be artificial |
 | Comments | Four-tag JSDoc headers (`@file`/`@module`/`@summary`/`@enterprise`); inline comments explain WHY, never WHAT; ASCII-only outside German legal content |
 | Errors | The API layer tolerates and maps the backend's structured error envelope `{error, message, timestamp, fieldErrors?}` to user-friendly messages |
 
 ## Size Budgets
 
 Sizes are measured per file and per function over **code lines only** — blank lines
-and comments are excluded, and the test tree is not measured. Two thresholds per
+and comments are excluded. Two thresholds per
 layer: the **band** is the shape a unit of that kind normally takes, and the
 **alarm** is the gate. Exceeding the band is a signal to look; exceeding the alarm
 requires either a split or a waiver recorded in
@@ -59,7 +59,13 @@ requires either a split or a waiver recorded in
 | API fetchers | file <= 150 | function <= 40 |
 | Theme & config | 50-100 | > 150 |
 | Utilities | 20-80 | > 120 |
-| Any file | — | hard cap 300 |
+| Spec: component/page | 100-350 | > 450 |
+| Spec: service | 40-150 | > 200 |
+| Any source file | — | hard cap 300 |
+
+The two spec rows govern the Vitest tree under `frontend/src/__tests__/`; the
+Playwright suite under `frontend/e2e/` is outside them. The hard cap is a
+source-file rule, so a spec is gated by its own alarm rather than by 300.
 
 There is deliberately **no blanket per-method cap**. A single figure cannot govern
 both a React component, whose body is largely JSX, and a pure utility function; the
