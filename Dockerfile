@@ -66,7 +66,7 @@ RUN mvn -q -B -DskipTests -Dbuild.commit=${BUILD_COMMIT} package
 
 # (Optional) Clean Maven cache to keep intermediate layers lean and reduce memory
 # pressure on constrained builders. This does not affect the final runtime image.
-RUN rm -rf /root/.m2/repository || true     
+RUN rm -rf /root/.m2/repository || true
 
 # -----------------------------------------------------------------------------
 # 3) Runtime Stage (JRE only, non-root)
@@ -80,7 +80,7 @@ WORKDIR /app
 # Create non-root user — container security best practice
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# unzip: extracts Oracle Wallet; coreutils: provides base64 decoding for wallet secrets 
+# unzip: extracts Oracle Wallet; coreutils: provides base64 decoding for wallet secrets
 # Versions are deliberately unpinned. Alpine drops superseded packages from its
 # index within weeks, so a pinned build breaks on the next refresh, and pinning
 # would freeze the very packages the upgrade on this line exists to move.
