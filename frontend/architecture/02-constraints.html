@@ -218,8 +218,8 @@
         </tr>
         <tr class="odd">
         <td>Size standard</td>
-        <td>Per-layer code-line budgets (table below), measured by AST
-        over code lines only; documented waivers where a split would be
+        <td>Per-layer code-line budgets (table below), measured over
+        code lines only; documented waivers where a split would be
         artificial</td>
         </tr>
         <tr class="even">
@@ -241,11 +241,11 @@
         <h2 id="size-budgets">Size Budgets</h2>
         <p>Sizes are measured per file and per function over
         <strong>code lines only</strong> — blank lines and comments are
-        excluded, and the test tree is not measured. Two thresholds per
-        layer: the <strong>band</strong> is the shape a unit of that
-        kind normally takes, and the <strong>alarm</strong> is the gate.
-        Exceeding the band is a signal to look; exceeding the alarm
-        requires either a split or a waiver recorded in <a
+        excluded. Two thresholds per layer: the <strong>band</strong> is
+        the shape a unit of that kind normally takes, and the
+        <strong>alarm</strong> is the gate. Exceeding the band is a
+        signal to look; exceeding the alarm requires either a split or a
+        waiver recorded in <a
         href="11-risks-technical-debt.html">§11</a>.</p>
         <table>
         <thead>
@@ -297,12 +297,27 @@
         <td>&gt; 120</td>
         </tr>
         <tr class="odd">
-        <td>Any file</td>
+        <td>Spec: component/page</td>
+        <td>100-350</td>
+        <td>&gt; 450</td>
+        </tr>
+        <tr class="even">
+        <td>Spec: service</td>
+        <td>40-150</td>
+        <td>&gt; 200</td>
+        </tr>
+        <tr class="odd">
+        <td>Any source file</td>
         <td>—</td>
         <td>hard cap 300</td>
         </tr>
         </tbody>
         </table>
+        <p>The two spec rows govern the Vitest tree under
+        <code>frontend/src/__tests__/</code>; the Playwright suite under
+        <code>frontend/e2e/</code> is outside them. The hard cap is a
+        source-file rule, so a spec is gated by its own alarm rather
+        than by 300.</p>
         <p>There is deliberately <strong>no blanket per-method
         cap</strong>. A single figure cannot govern both a React
         component, whose body is largely JSX, and a pure utility
