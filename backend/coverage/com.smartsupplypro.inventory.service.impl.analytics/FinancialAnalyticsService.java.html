@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
  * purchases, returns, COGS, and write-offs.&lt;/p&gt;
  *
  * &lt;p&gt;&lt;strong&gt;WAC formula&lt;/strong&gt;:
- * {@code newWAC = (oldQty × oldWAC + inboundQty × unitCost) / (oldQty + inboundQty)}&lt;/p&gt;
+ * {@code newWAC = (oldQty * oldWAC + inboundQty * unitCost) / (oldQty + inboundQty)}&lt;/p&gt;
  *
  * &lt;p&gt;Exceeds the 200-line guideline due to private WAC calculation helpers
  * ({@code applyInbound}, {@code issueAt}, phase helpers) that must remain
@@ -93,7 +93,7 @@ public class FinancialAnalyticsService {
 <span class="fc" id="L93">        return buildSummary(from, to, b);</span>
     }
 
-    // ── Phase helpers ─────────────────────────────────────────────────────────
+    // -- Phase helpers ---------------------------------------------------------
 
     /**
      * Replays all events that occurred before {@code start} to build the opening WAC
@@ -212,7 +212,7 @@ public class FinancialAnalyticsService {
 <span class="fc" id="L212">                .build();</span>
     }
 
-    // ── WAC algorithm — data structures ──────────────────────────────────────
+    // -- WAC algorithm — data structures --------------------------------------
 
     /** Current inventory state (running quantity + WAC) for a single item. */
 <span class="fc" id="L218">    private record WacState(long qty, BigDecimal avgCost) {}</span>
@@ -231,12 +231,12 @@ public class FinancialAnalyticsService {
 <span class="fc" id="L231">        BigDecimal endingValue   = BigDecimal.ZERO;</span>
     }
 
-    // ── WAC algorithm — core operations ──────────────────────────────────────
+    // -- WAC algorithm — core operations --------------------------------------
 
     /**
      * Recalculates WAC after an inbound stock movement.
      *
-     * &lt;p&gt;Formula: {@code newWAC = (oldQty × oldWAC + inboundQty × unitCost) / newQty}
+     * &lt;p&gt;Formula: {@code newWAC = (oldQty * oldWAC + inboundQty * unitCost) / newQty}
      * — blends old and new costs proportionally when stock arrives at different prices.&lt;/p&gt;
      */
     private static WacState applyInbound(WacState st, int qtyIn, BigDecimal unitCost) {
