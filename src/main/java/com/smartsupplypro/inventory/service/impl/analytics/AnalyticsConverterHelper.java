@@ -18,7 +18,7 @@ final class AnalyticsConverterHelper {
 
     private AnalyticsConverterHelper() {}
 
-    // ── Date/Time conversions ─────────────────────────────────────────────────
+    // -- Date/Time conversions -------------------------------------------------
 
     /**
      * Converts a date-like projection value to {@link LocalDate}.
@@ -76,7 +76,7 @@ final class AnalyticsConverterHelper {
         throw new IllegalStateException("Expected numeric type but got: " + o);
     }
 
-    // ── Date window utilities ─────────────────────────────────────────────────
+    // -- Date window utilities -------------------------------------------------
 
     /**
      * Applies a 30-day default window when bounds are null and validates {@code start <= end}.
@@ -100,12 +100,12 @@ final class AnalyticsConverterHelper {
         return LocalDateTime.of(d, LocalTime.MIN);
     }
 
-    /** Returns the end-of-day boundary (23:59:59.999…) for the given date (inclusive upper bound). */
+    /** Returns the end-of-day boundary (23:59:59.999...) for the given date (inclusive upper bound). */
     static LocalDateTime endOfDay(LocalDate d) {
         return LocalDateTime.of(d, LocalTime.MAX);
     }
 
-    // ── String utilities ──────────────────────────────────────────────────────
+    // -- String utilities ------------------------------------------------------
 
     /**
      * Returns null if the string is blank, otherwise a trimmed value.

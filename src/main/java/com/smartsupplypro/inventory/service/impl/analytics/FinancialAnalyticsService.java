@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
  * purchases, returns, COGS, and write-offs.</p>
  *
  * <p><strong>WAC formula</strong>:
- * {@code newWAC = (oldQty × oldWAC + inboundQty × unitCost) / (oldQty + inboundQty)}</p>
+ * {@code newWAC = (oldQty * oldWAC + inboundQty * unitCost) / (oldQty + inboundQty)}</p>
  *
  * <p>Exceeds the 200-line guideline due to private WAC calculation helpers
  * ({@code applyInbound}, {@code issueAt}, phase helpers) that must remain
@@ -93,7 +93,7 @@ public class FinancialAnalyticsService {
         return buildSummary(from, to, b);
     }
 
-    // ── Phase helpers ─────────────────────────────────────────────────────────
+    // -- Phase helpers ---------------------------------------------------------
 
     /**
      * Replays all events that occurred before {@code start} to build the opening WAC
@@ -212,7 +212,7 @@ public class FinancialAnalyticsService {
                 .build();
     }
 
-    // ── WAC algorithm — data structures ──────────────────────────────────────
+    // -- WAC algorithm — data structures --------------------------------------
 
     /** Current inventory state (running quantity + WAC) for a single item. */
     private record WacState(long qty, BigDecimal avgCost) {}
@@ -231,12 +231,12 @@ public class FinancialAnalyticsService {
         BigDecimal endingValue   = BigDecimal.ZERO;
     }
 
-    // ── WAC algorithm — core operations ──────────────────────────────────────
+    // -- WAC algorithm — core operations --------------------------------------
 
     /**
      * Recalculates WAC after an inbound stock movement.
      *
-     * <p>Formula: {@code newWAC = (oldQty × oldWAC + inboundQty × unitCost) / newQty}
+     * <p>Formula: {@code newWAC = (oldQty * oldWAC + inboundQty * unitCost) / newQty}
      * — blends old and new costs proportionally when stock arrives at different prices.</p>
      */
     private static WacState applyInbound(WacState st, int qtyIn, BigDecimal unitCost) {
