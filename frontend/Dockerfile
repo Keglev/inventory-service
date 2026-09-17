@@ -1,6 +1,12 @@
-# Multi-stage Dockerfile for the Vite/React frontend.
-# Build context must be the repo root so ops/nginx configs are accessible alongside frontend source.
-# Stages: base (deps) → build (Vite bundle) → runtime (Nginx static server).
+# =============================================================================
+# Smart Supply Pro – Frontend image
+#
+# Multi-stage build for the Vite/React frontend. The build context must be the
+# repository root rather than frontend/, so the ops/nginx configs are readable
+# alongside the frontend source.
+#
+# Stages: base (deps) -> build (Vite bundle) -> runtime (Nginx static server).
+# =============================================================================
 
 # Installs npm dependencies into a cached layer; subsequent stages inherit from here
 # rather than re-running npm ci on every source change.
