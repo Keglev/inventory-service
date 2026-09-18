@@ -1,0 +1,261 @@
+<!-- ===========================================================================
+     Smart Supply Pro Docs — Architecture page template
+     Pandoc template for the architecture pages; build-architecture-docs.sh
+     renders the Markdown tree through it.
+
+     Pandoc copies this comment into every page the template produces, so it
+     is written for anyone reading a published page source. A dollar sign
+     here would be read as template syntax and substituted, so the comment
+     carries none.
+     ======================================================================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend ·
+09-decisions/adr-0011-gating-the-frontend-image-on-its-http-contract · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=a061f5ab8d" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+    <li><a href="/inventory-service/decisions/index.html">All decisions</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/frontend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/frontend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/frontend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/frontend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/frontend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/frontend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/frontend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/frontend/architecture/08b-concepts-i18n-theming.html">Concepts: i18n &amp; Theming</a></li>
+    <li><a href="/inventory-service/frontend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/frontend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/frontend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0011-gating-the-frontend-image-on-the-http-contract-it-serves">ADR-0011:
+        Gating the frontend image on the HTTP contract it serves</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-09-18</p>
+        <h2 id="context">Context</h2>
+        <p>The Playwright suite (<a
+        href="adr-0009-end-to-end-testing-with-playwright.html">ADR-0009</a>)
+        runs the production bundle under <code>vite preview</code>,
+        which serves <code>dist/</code> directly. The artifact users
+        receive is not that: it is an Nginx image built from
+        <code>ops/nginx/default.conf</code>, and every serve-time
+        behaviour in that file was executed by nothing the repository
+        ran.</p>
+        <p>Some of it was already proven after deploy (<a
+        href="adr-0010-verifying-frontend-deploys.html">ADR-0010</a>):
+        <code>health-check.sh</code> reaches <code>/api/health</code>
+        through the proxy location, and
+        <code>verify-served-bundle.sh</code> proves the serve-time
+        rewrite ran in the bundle the edge serves. The rest was proven
+        nowhere. The SPA fallback, the 404 on a missing asset, the
+        caching headers, and the four security headers were established
+        only by the config being read.</p>
+        <p>The security headers are the sharpest case.
+        <code>add_header</code> does not accumulate across levels, so a
+        location that declares one drops every header inherited from
+        above. <code>default.conf</code> therefore repeats the same four
+        headers in each of its three file-serving locations, and its own
+        comment records that the three copies must stay in sync. Nothing
+        checked that they did. A location added without its copy serves
+        them missing, silently, and no test in the repository would
+        notice.</p>
+        <h2 id="decision">Decision</h2>
+        <p>A curl-based gate,
+        <code>.github/scripts/verify-image-contract.sh</code>, runs in
+        <code>5-frontend-ci.yml</code> against the image that job has
+        just built and started. It runs <code>nginx -t</code> inside the
+        container, then asserts over HTTP:</p>
+        <ol type="1">
+        <li><code>/</code>, <code>/index.html</code> and a deep link
+        each return 200 with <code>Cache-Control:    no-cache</code>,
+        which is the SPA fallback serving the shell.</li>
+        <li>A missing file under <code>/assets/</code> returns 404
+        rather than the shell.</li>
+        <li>The content-hashed entry bundle, discovered from the served
+        <code>index.html</code> rather than named, returns 200 with
+        <code>max-age=31536000</code> and <code>immutable</code>.</li>
+        <li>All four security headers are present on every one of those
+        responses, which is what holds the three copies in sync.</li>
+        </ol>
+        <p>The gate proves it can fail before it is trusted, on every
+        run rather than once at review time. <code>--selftest</code>
+        puts a wrong status, an absent header and a present header
+        carrying the wrong value through the same three comparisons and
+        exits 1 unless all three are reported. No check runs inside a
+        pipeline, because a failure count incremented on the right-hand
+        side of a pipe lands in a subshell and is lost.</p>
+        <p>The proxy locations are excluded. They
+        <code>proxy_pass</code> to the production backend, so exercising
+        them from CI would put CI traffic on production, and
+        <code>/api/</code> is proven after deploy instead. The
+        serve-time rewrite is excluded for a different reason: it
+        substitutes against <code>$host</code>, which is
+        <code>127.0.0.1</code> in CI and the real host in production, so
+        the CI result would not describe the deployed behaviour.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>A second Playwright project against the
+        image.</strong> It would render the SPA fallback rather than
+        inferring it from a status and a content type. Every other
+        assertion here is a status, a header or a body match, so the
+        browser buys one assertion and costs a browser run and a second
+        <code>baseURL</code> in a config whose current one is
+        load-bearing.</li>
+        <li><strong>Post-deploy only, extending ADR-0010’s
+        scripts.</strong> It would test the true artifact behind the
+        real edge. It also reports after the image is live, and the
+        failures this gate is built for, a dropped header or a broken
+        fallback, are exactly the ones that should not reach production
+        first.</li>
+        <li><strong><code>nginx -t</code> alone.</strong> It proves the
+        config parses. Every defect described above parses.</li>
+        <li><strong>A stub backend so the proxy locations can be
+        exercised.</strong> A stub proves the proxy reaches the stub.
+        The failure worth catching there is a mismatch with the real
+        backend, which a stub is guaranteed not to have.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>A dropped security header, a broken SPA fallback, an asset
+        404 turned into an HTML response, or a caching regression fails
+        the pull request rather than reaching the edge.</li>
+        <li>The job needs a running container. It already builds one and
+        lints the Dockerfile with docker, so no new capability enters
+        CI.</li>
+        <li>The gate cannot be reproduced on a workstation without
+        docker. A failure has to be read from the job log, which is why
+        every assertion names what it expected and what it got.</li>
+        <li><code>5-frontend-ci.yml</code> triggers on the gate script
+        as well as on <code>frontend/**</code> and
+        <code>ops/nginx/**</code>, so a change to the gate runs the
+        gate.</li>
+        <li>The expected values were measured against the deployed
+        image, not read off the config, so the gate asserts what
+        production does rather than what the file appears to say.</li>
+        <li>One known oddity is deliberately not asserted: a 404 under
+        <code>/assets/</code> carries <code>public, immutable</code>
+        with no <code>max-age</code>, because <code>expires</code> does
+        not fire on a 404 while <code>add_header ... always</code> does.
+        It is untidy rather than harmful.</li>
+        <li>No timing figure is recorded here. The step’s cost has not
+        been measured; if it matters later it belongs in a dated
+        amendment, as ADR-0009 carries.</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0011-gating-the-frontend-image-on-the-http-contract-it-serves"
+      id="toc-adr-0011-gating-the-frontend-image-on-the-http-contract-it-serves">ADR-0011:
+      Gating the frontend image on the HTTP contract it serves</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js?v=3354f25964"></script>
+</body>
+</html>
