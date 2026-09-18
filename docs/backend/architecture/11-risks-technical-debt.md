@@ -23,3 +23,25 @@ the code or decision it concerns.
 | TD-03 | No optimistic locking (`@Version`) anywhere; concurrent updates to the same row last-write-wins. | Low — acceptable for current single-writer workload | Accepted; revisit if concurrent edit volume grows |
 | TD-05 | Docs UI: double scrollbars on documentation pages. | Low — cosmetic | Fix in the docs cleanup pass |
 | TD-07 | `DatabaseDialectDetector` selects SQL dialect from the active Spring profile, not from the real datasource. An H2 datasource without a `test` or `h2` profile active silently produces Oracle SQL that fails at query execution rather than at startup. | Low — misconfiguration surfaces as a runtime query error, not a clear startup failure | Consider validating dialect against actual connection metadata, or failing fast on a profile/datasource mismatch |
+
+## 11.3 Size-Budget Waivers
+
+Measured over code lines against the budgets in [§2](02-constraints.md). One file
+and four methods exceed their alarm; each is waived below, with the same reason
+stated at the site in the code. No method reaches the 50 hard cap and no file
+reaches the 300 hard cap.
+
+| Waived | Measured | Alarm | Reason |
+|------|------|--------|------------|
+| `repository/custom/util/StockTrendSqlBuilder.java` | 168 | 150 (repository) | 124 of the 168 code lines are SQL inside text blocks. Splitting the file moves SQL between files without reducing it. |
+| `SecurityAuthorizationHelper::configureAuthorization` | 34 | 30 | One ordered matcher chain, evaluated most-specific first. The order is the behaviour, and splitting the chain would hide it. |
+| `SecurityConfig::securityFilterChain` | 31 | 30 | One fluent `HttpSecurity` statement. The parts that can be extracted already are, into the entry-point, filter and authorization helpers. |
+| `StockTrendSqlBuilder::buildH2DailyValuationSql` | 33 | 30 | 29 of the 33 code lines are one SQL text block. |
+| `StockTrendSqlBuilder::buildOracleDailyValuationSql` | 32 | 30 | 28 of the 32 code lines are one SQL text block. |
+
+Two files sit above their target and below their alarm and are watched rather
+than waived: `StockHistoryRepository.java` at 113 and
+`StockTrendAnalyticsRepositoryImpl.java` at 91, both against a repository target
+of 80. Thirteen methods sit between the target of 20 and the alarm of 30, the
+largest being `EmployeeAnalyticsService::getEmployeeActivity` at 29. The band is
+guidance, the alarm is the gate.

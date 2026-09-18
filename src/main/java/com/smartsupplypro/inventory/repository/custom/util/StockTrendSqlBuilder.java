@@ -3,6 +3,9 @@ package com.smartsupplypro.inventory.repository.custom.util;
 /**
  * SQL factory for {@code StockTrendAnalyticsRepositoryImpl} — produces time-series analytics queries for H2 and Oracle.
  */
+// SIZE WAIVER: 168 code lines against a 150 alarm, of which 124 are SQL inside
+// text blocks. Splitting the file moves SQL between files without reducing it.
+// Recorded in docs/backend/architecture/11-risks-technical-debt.md.
 public final class StockTrendSqlBuilder {
 
     private StockTrendSqlBuilder() {}
@@ -70,6 +73,7 @@ public final class StockTrendSqlBuilder {
      *
      * @return SQL ordered by day ascending; accepts {@code :start}, {@code :end}, {@code :supplierId}
      */
+    // SIZE WAIVER: 33 code lines against a 30 alarm; 29 of them are one SQL text block.
     public static String buildH2DailyValuationSql() {
         return """
             WITH events AS (
@@ -111,6 +115,7 @@ public final class StockTrendSqlBuilder {
      *
      * @return SQL ordered by day ascending; accepts {@code :start}, {@code :end}, {@code :supplierId}
      */
+    // SIZE WAIVER: 32 code lines against a 30 alarm; 28 of them are one SQL text block.
     public static String buildOracleDailyValuationSql() {
         return """
             WITH events AS (
