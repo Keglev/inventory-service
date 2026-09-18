@@ -19,6 +19,9 @@ public class SecurityAuthorizationHelper {
      * Applies public-access, optional demo read-only, and role-based authorization rules
      * in the order Spring Security evaluates them (most-specific first).
      */
+    // SIZE WAIVER: 34 code lines against a 30 alarm. The matchers are evaluated
+    // most-specific first, so the order is the behaviour and splitting the chain
+    // would hide it. Recorded in docs/backend/architecture/11-risks-technical-debt.md.
     public void configureAuthorization(
             AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth,
             boolean isDemoReadonly
