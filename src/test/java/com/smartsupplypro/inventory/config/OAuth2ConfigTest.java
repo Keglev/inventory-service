@@ -43,7 +43,7 @@ class OAuth2ConfigTest {
     }
 
     @Test
-    void should_redirectToFrontendLoginWithError_when_oauthFailsAndResponseNotCommitted() throws Exception {
+    void should_redirect_to_the_frontend_login_with_an_error_when_the_response_is_not_committed() throws Exception {
         HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
         HttpServletResponse res = Mockito.mock(HttpServletResponse.class);
         when(res.isCommitted()).thenReturn(false);
@@ -54,7 +54,7 @@ class OAuth2ConfigTest {
     }
 
     @Test
-    void should_notRedirect_when_oauthFailsButResponseAlreadyCommitted() throws Exception {
+    void should_not_redirect_when_the_response_is_already_committed() throws Exception {
         HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
         HttpServletResponse res = Mockito.mock(HttpServletResponse.class);
         when(res.isCommitted()).thenReturn(true);
@@ -65,7 +65,7 @@ class OAuth2ConfigTest {
     }
 
     @Test
-    void should_redirectWithUnauthorizedError_when_failureIsAccessDenied() throws Exception {
+    void should_redirect_with_an_unauthorized_error_when_the_failure_is_access_denied() throws Exception {
         HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
         HttpServletResponse res = Mockito.mock(HttpServletResponse.class);
         when(res.isCommitted()).thenReturn(false);
@@ -79,7 +79,7 @@ class OAuth2ConfigTest {
     }
 
     @Test
-    void should_useCookieBasedRepository_when_authorizationRequestRepositoryCreated() {
+    void should_use_the_cookie_based_repository_when_it_is_created() {
         assertThat(config.authorizationRequestRepository())
                 .isInstanceOf(CookieOAuth2AuthorizationRequestRepository.class);
     }

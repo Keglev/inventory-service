@@ -28,7 +28,7 @@ class CookieOAuth2AuthorizationRequestRepositoryTest {
     class WhenCookieIsValid {
 
         @Test
-        void should_round_trip_authorization_request_through_cookie() {
+        void should_round_trip_the_authorization_request_when_it_travels_through_the_cookie() {
             MockHttpServletRequest req = new MockHttpServletRequest();
             req.setSecure(true);
             MockHttpServletResponse res = new MockHttpServletResponse();
@@ -67,7 +67,7 @@ class CookieOAuth2AuthorizationRequestRepositoryTest {
     class WhenCookieIsRemoved {
 
         @Test
-        void should_return_existing_request_and_write_deletion_cookie() {
+        void should_return_the_existing_request_and_write_a_deletion_cookie_when_it_is_removed() {
             OAuth2AuthorizationRequest original =
                     CookieOAuth2AuthorizationRequestRepositoryTestSupport.sampleAuthorizationRequest();
 

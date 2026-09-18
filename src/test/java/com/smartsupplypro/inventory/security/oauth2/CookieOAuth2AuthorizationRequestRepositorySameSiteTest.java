@@ -19,7 +19,7 @@ class CookieOAuth2AuthorizationRequestRepositorySameSiteTest {
     private static final String HEADER_SET_COOKIE = "Set-Cookie";
 
     @Test
-    void should_format_cookie_with_safe_defaults_for_null_value_and_blank_same_site() throws Exception {
+    void should_format_the_cookie_with_safe_defaults_when_the_value_is_null_and_the_same_site_is_blank() throws Exception {
         // Directly targeting the private helper is the only practical path to branch coverage here.
         Method m = CookieOAuth2AuthorizationRequestRepository.class.getDeclaredMethod(
             "addCookieWithSameSite",

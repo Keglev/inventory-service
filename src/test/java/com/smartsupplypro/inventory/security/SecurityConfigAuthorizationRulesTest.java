@@ -55,7 +55,7 @@ class SecurityConfigAuthorizationRulesTest {
     class WhenUnauthenticated {
 
         @Test
-        void should_return401Json_when_unauthenticatedApiRequest() throws Exception {
+        void should_return_401_json_when_an_api_request_is_unauthenticated() throws Exception {
             mvc.perform(get("/api/admin/ping").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(header().string("Content-Type",
@@ -64,20 +64,20 @@ class SecurityConfigAuthorizationRulesTest {
         }
 
         @Test
-        void should_redirectToFrontendLogin_when_unauthenticatedWebRequest() throws Exception {
+        void should_redirect_to_the_frontend_login_when_a_web_request_is_unauthenticated() throws Exception {
             mvc.perform(get("/api/admin/ping"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location", "https://frontend.test/login"));
         }
 
         @Test
-        void should_return401_when_demoReadonlyOffAndUnauthenticatedInventoryGet() throws Exception {
+        void should_return_401_when_demo_readonly_is_off_and_an_inventory_get_is_unauthenticated() throws Exception {
             mvc.perform(get("/api/inventory/demo-ok").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
         }
 
         @Test
-        void should_reachMvc_when_apiHealthRequested() throws Exception {
+        void should_reach_mvc_when_the_api_health_endpoint_is_requested() throws Exception {
             // 404 confirms the request passed security and reached MVC (no handler registered in this slice).
             mvc.perform(get("/api/health").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
@@ -92,14 +92,14 @@ class SecurityConfigAuthorizationRulesTest {
 
         @Test
         @WithMockUser(username = "user", roles = "USER")
-        void should_return403_when_userRoleAccessesAdminEndpoint() throws Exception {
+        void should_return_403_when_the_user_role_accesses_an_admin_endpoint() throws Exception {
             mvc.perform(get("/api/admin/ping").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
         }
 
         @Test
         @WithMockUser(username = "admin", roles = "ADMIN")
-        void should_return200_when_adminRoleAccessesAdminEndpoint() throws Exception {
+        void should_return_200_when_the_admin_role_accesses_an_admin_endpoint() throws Exception {
             mvc.perform(get("/api/admin/ping").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("admin ok"));
@@ -107,7 +107,7 @@ class SecurityConfigAuthorizationRulesTest {
 
         @Test
         @WithMockUser(username = "user", roles = "USER")
-        void should_return200_when_demoReadonlyOffAndAuthenticatedInventoryGet() throws Exception {
+        void should_return_200_when_demo_readonly_is_off_and_an_inventory_get_is_authenticated() throws Exception {
             mvc.perform(get("/api/inventory/demo-ok").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"status\":\"ok\"}"));
@@ -121,7 +121,7 @@ class SecurityConfigAuthorizationRulesTest {
     class WhenLoggingOut {
 
         @Test
-        void should_return204_when_apiLogoutWithApiRequestAttribute() throws Exception {
+        void should_return_204_when_an_api_logout_carries_the_api_request_attribute() throws Exception {
             mvc.perform(post("/logout")
                     .requestAttr("IS_API_REQUEST", Boolean.TRUE)
                     .accept(MediaType.APPLICATION_JSON))
@@ -129,7 +129,7 @@ class SecurityConfigAuthorizationRulesTest {
         }
 
         @Test
-        void should_redirectToReturnUrl_when_logoutReturnParamMatchesFrontendBase() throws Exception {
+        void should_redirect_to_the_return_url_when_the_logout_return_param_matches_the_frontend_base() throws Exception {
             mvc.perform(post("/logout")
                     .param("return", "https://frontend.test/custom")
                     .accept(MediaType.TEXT_HTML))
@@ -138,7 +138,7 @@ class SecurityConfigAuthorizationRulesTest {
         }
 
         @Test
-        void should_redirectToSafeDefault_when_logoutReturnParamIsExternal() throws Exception {
+        void should_redirect_to_a_safe_default_when_the_logout_return_param_is_external() throws Exception {
             mvc.perform(post("/logout")
                     .param("return", "https://evil.example/phish")
                     .accept(MediaType.TEXT_HTML))
@@ -147,7 +147,7 @@ class SecurityConfigAuthorizationRulesTest {
         }
 
         @Test
-        void should_redirectToSafeDefault_when_logoutHasNoReturnParam() throws Exception {
+        void should_redirect_to_a_safe_default_when_the_logout_has_no_return_param() throws Exception {
             mvc.perform(post("/logout").accept(MediaType.TEXT_HTML))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location", "https://frontend.test/logout-success"));

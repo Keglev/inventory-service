@@ -36,7 +36,7 @@ class SecurityFilterHelperTest {
 
     @Test
     @DisplayName("API filter sets IS_API_REQUEST when uri starts with /api/ and Accept contains application/json")
-    void apiDetectionFilter_apiJsonRequest_setsAttribute() throws Exception {
+    void should_set_the_attribute_when_the_request_is_api_json() throws Exception {
         // This is the "API-shaped" request used throughout the security configuration:
         // - path under /api/
         // - Accept includes application/json
@@ -51,7 +51,7 @@ class SecurityFilterHelperTest {
 
     @Test
     @DisplayName("API filter does not set attribute when Accept is missing")
-    void apiDetectionFilter_missingAccept_doesNotSetAttribute() throws Exception {
+    void should_not_set_the_attribute_when_the_accept_header_is_missing() throws Exception {
         // Without an explicit JSON Accept header, treat the request as browser navigation.
         MockHttpServletRequest req = new MockHttpServletRequest("GET", "/api/admin/ping");
         MockHttpServletResponse res = new MockHttpServletResponse();
@@ -63,7 +63,7 @@ class SecurityFilterHelperTest {
 
     @Test
     @DisplayName("API filter does not set attribute when Accept is present but not JSON")
-    void apiDetectionFilter_nonJsonAccept_doesNotSetAttribute() throws Exception {
+    void should_not_set_the_attribute_when_the_accept_header_is_not_json() throws Exception {
         // Accept:text/html is a strong signal that the request expects a redirect-based UX.
         MockHttpServletRequest req = new MockHttpServletRequest("GET", "/api/admin/ping");
         req.addHeader("Accept", "text/html");
@@ -76,7 +76,7 @@ class SecurityFilterHelperTest {
 
     @Test
     @DisplayName("API filter does not set attribute when request is not under /api/")
-    void apiDetectionFilter_nonApiUri_doesNotSetAttribute() throws Exception {
+    void should_not_set_the_attribute_when_the_uri_is_not_an_api_uri() throws Exception {
         // Non-API endpoints (e.g., /logout) should not be treated as JSON API requests by default.
         MockHttpServletRequest req = new MockHttpServletRequest("GET", "/logout");
         req.addHeader("Accept", "application/json");

@@ -27,7 +27,7 @@ class CorsConfigTest {
     }
 
     @Test
-    void should_allowConfiguredOrigins_when_corsSourceQueried() {
+    void should_allow_configured_origins_when_the_cors_source_is_queried() {
         CorsConfigurationSource source = config.corsConfigurationSource();
         CorsConfiguration cors = source.getCorsConfiguration(new MockHttpServletRequest("GET", "/api/ping"));
 
@@ -37,24 +37,24 @@ class CorsConfigTest {
     }
 
     @Test
-    void should_requireCredentials_when_corsConfigured() {
+    void should_require_credentials_when_cors_is_configured() {
         CorsConfiguration cors = getCors();
         assertThat(cors.getAllowCredentials()).isTrue();
     }
 
     @Test
-    void should_exposeSetCookieHeader_when_corsConfigured() {
+    void should_expose_the_set_cookie_header_when_cors_is_configured() {
         assertThat(getCors().getExposedHeaders()).contains("Set-Cookie");
     }
 
     @Test
-    void should_allowAllStandardHttpMethods_when_corsConfigured() {
+    void should_allow_all_standard_http_methods_when_cors_is_configured() {
         assertThat(getCors().getAllowedMethods())
                 .contains("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
     }
 
     @Test
-    void should_useSameSiteLaxAndSecureCookie_when_cookieSerializerCreated() {
+    void should_use_a_same_site_lax_and_secure_cookie_when_the_serializer_is_created() {
         CookieSerializer serializer = config.cookieSerializer();
 
         assertThat(serializer).isInstanceOf(DefaultCookieSerializer.class);

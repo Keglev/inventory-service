@@ -53,7 +53,7 @@ class OAuth2LoginSuccessHandlerReturnCookieTest {
     class WhenReturnCookieIsAllowlisted {
 
         @Test
-        void should_redirect_to_return_url_and_clear_cookie_with_secure_via_forwarded_https()
+        void should_redirect_to_the_return_url_and_clear_the_cookie_when_the_cookie_is_allowlisted()
                 throws Exception {
             String baseUrl = "https://localhost:8081";
             stubFrontend(baseUrl, "/api/me");

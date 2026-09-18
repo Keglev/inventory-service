@@ -34,7 +34,7 @@ class DemoReadonlySecurityTest {
     class WhenRequestIsUnauthenticatedRead {
 
         @Test
-        void should_permit_unauthenticated_get_on_inventory_endpoint_in_demo_mode() throws Exception {
+        void should_permit_an_unauthenticated_get_on_inventory_when_demo_mode_is_on() throws Exception {
             mockMvc.perform(get("/api/inventory/demo-ok").accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isOk())
                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -42,7 +42,7 @@ class DemoReadonlySecurityTest {
         }
 
         @Test
-        void should_permit_unauthenticated_get_on_analytics_endpoint_in_demo_mode() throws Exception {
+        void should_permit_an_unauthenticated_get_on_analytics_when_demo_mode_is_on() throws Exception {
             mockMvc.perform(get("/api/analytics/summary").accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isOk())
                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -57,7 +57,7 @@ class DemoReadonlySecurityTest {
     class WhenRequestIsUnauthenticatedWrite {
 
         @Test
-        void should_block_unauthenticated_write_request_in_demo_mode() throws Exception {
+        void should_block_an_unauthenticated_write_when_demo_mode_is_on() throws Exception {
             mockMvc.perform(patch("/api/inventory/123/price").accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isUnauthorized())
                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))

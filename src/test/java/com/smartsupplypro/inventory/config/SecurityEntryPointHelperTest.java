@@ -16,7 +16,7 @@ class SecurityEntryPointHelperTest {
     private final SecurityEntryPointHelper helper = new SecurityEntryPointHelper();
 
     @Test
-    void should_return401Json_when_apiEntryPointInvoked() throws Exception {
+    void should_return_401_json_when_the_api_entry_point_is_invoked() throws Exception {
         AuthenticationEntryPoint entryPoint = helper.createApiEntryPoint();
 
         MockHttpServletRequest req = new MockHttpServletRequest("GET", "/api/inventory/demo-ok");
@@ -31,7 +31,7 @@ class SecurityEntryPointHelperTest {
     }
 
     @Test
-    void should_redirectToFrontendLogin_when_webEntryPointInvoked() throws Exception {
+    void should_redirect_to_the_frontend_login_when_the_web_entry_point_is_invoked() throws Exception {
         AuthenticationEntryPoint entryPoint = helper.createWebEntryPoint("https://frontend.example");
 
         MockHttpServletRequest req = new MockHttpServletRequest("GET", "/api/admin/ping");
@@ -44,7 +44,7 @@ class SecurityEntryPointHelperTest {
     }
 
     @Test
-    void should_return204_when_logoutHandlerInvokedWithApiRequestAttribute() throws Exception {
+    void should_return_204_when_the_logout_handler_sees_the_api_request_attribute() throws Exception {
         LogoutSuccessHandler handler = helper.createLogoutSuccessHandler(propsWithBase("https://frontend.test"));
 
         MockHttpServletRequest req = new MockHttpServletRequest("POST", "/logout");
@@ -57,7 +57,7 @@ class SecurityEntryPointHelperTest {
     }
 
     @Test
-    void should_redirectToLogoutSuccess_when_logoutHandlerInvokedFromBrowser() throws Exception {
+    void should_redirect_to_the_logout_success_page_when_the_logout_comes_from_a_browser() throws Exception {
         LogoutSuccessHandler handler = helper.createLogoutSuccessHandler(propsWithBase("https://frontend.test"));
 
         MockHttpServletRequest req = new MockHttpServletRequest("POST", "/logout");
@@ -69,7 +69,7 @@ class SecurityEntryPointHelperTest {
     }
 
     @Test
-    void should_redirectToReturnParam_when_returnParamMatchesFrontendBase() throws Exception {
+    void should_redirect_to_the_return_param_when_it_matches_the_frontend_base() throws Exception {
         LogoutSuccessHandler handler = helper.createLogoutSuccessHandler(propsWithBase("https://frontend.test"));
 
         MockHttpServletRequest req = new MockHttpServletRequest("POST", "/logout");
@@ -82,7 +82,7 @@ class SecurityEntryPointHelperTest {
     }
 
     @Test
-    void should_redirectToSafeDefault_when_returnParamIsExternalUrl() throws Exception {
+    void should_redirect_to_a_safe_default_when_the_return_param_is_an_external_url() throws Exception {
         LogoutSuccessHandler handler = helper.createLogoutSuccessHandler(propsWithBase("https://frontend.test"));
 
         MockHttpServletRequest req = new MockHttpServletRequest("POST", "/logout");
