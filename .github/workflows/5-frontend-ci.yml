@@ -217,6 +217,36 @@ jobs:
           set -euo pipefail
           docker image inspect "${IMAGE_NAME}:${GITHUB_SHA}" --format 'local image id {{.Id}}'
 
+      # The Playwright suite runs the bundle under `vite preview`, which serves
+      # dist/ directly and executes none of ops/nginx. The SPA fallback, the
+      # asset 404, the caching headers and the four security headers that
+      # default.conf repeats in three locations were therefore proven nowhere.
+      # This starts the image just built and asserts that contract over HTTP.
+      #   The selftest runs first, against the same container: it puts each
+      #   comparison against a value that must fail, so a gate that can no
+      #   longer fail cannot pass in silence.
+      #   The proxy locations are deliberately not exercised. They proxy_pass to
+      #   the production backend, and /api/ is proven after deploy by
+      #   health-check.sh instead.
+      # Recorded in ADR-0011, which lands in the next commit of this wave.
+      - name: Verify the image HTTP contract
+        run: |
+          set -euo pipefail
+          docker run -d --rm --name ssp-frontend-contract -p 8080:8080 \
+            "${IMAGE_NAME}:${GITHUB_SHA}"
+          trap 'docker rm -f ssp-frontend-contract >/dev/null 2>&1 || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl -fsS -o /dev/null http://127.0.0.1:8080/; then break; fi
+            if [ "$attempt" -eq 30 ]; then
+              echo "::error::the image did not start serving within 30 seconds"
+              exit 1
+            fi
+            sleep 1
+          done
+          docker exec ssp-frontend-contract nginx -t
+          bash .github/scripts/verify-image-contract.sh --selftest http://127.0.0.1:8080
+          bash .github/scripts/verify-image-contract.sh http://127.0.0.1:8080
+
       # The backend image has been scanned since it existed; this image never
       # was. Same action, same version, same terms, so the two images are held
       # to one standard rather than two.
