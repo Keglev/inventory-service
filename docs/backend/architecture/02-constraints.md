@@ -41,3 +41,34 @@ This is a solo-developer portfolio project. Constraints that follow from that co
 | DTO boundary | Entities never exposed by controllers; DTOs never passed into repositories. See [ADR 0003](09-decisions/adr-0003-dto-boundary-no-entity-exposure.md) |
 | Error shape | `{ "error": "<token>", "message": "...", "timestamp": "...", "fieldErrors"? }` — one canonical shape, with `fieldErrors` (field → message map) present only on bean-validation failures; error token = `HttpStatus.name().toLowerCase()` (e.g. `bad_request`, `not_found`) |
 | Link format | All cross-document links use `.md` extension (Pandoc rewrites at build time) |
+| Size standard | Per-layer code-line budgets (table below), measured over code lines only; documented waivers where a split would be artificial |
+
+## Size Standard
+
+Sizes are measured over **code lines only** — blank lines and comments are
+excluded. The bands govern `src/main/java`. Each layer carries two thresholds: a
+target the code is expected to sit inside, and an alarm above which the file is
+a finding.
+
+| Layer | Target (code lines) | Alarm |
+|---|---|---|
+| Controller | 50-150 | > 200 |
+| Service and service/impl | 100-250 | > 300 |
+| Repository | 20-80 | > 150 |
+| Model | 30-100 | > 150 |
+| Config | 50-150 | > 200 |
+| Security | 50-200 | > 300 |
+| DTO and mapper | 20-80 | > 120 |
+| Exception | 10-50 | > 100 |
+| Exception advice | 80-150 | > 200 |
+| Validation | 20-80 | > 120 |
+| Enums | 10-40 | > 80 |
+| Any source file | — | hard cap 300 |
+
+Methods carry one rule across every layer: target 20 code lines, alarm 30, hard
+cap 50. A method's code lines are counted from its opening brace through its
+closing brace, inclusive.
+
+A file or method above its target and below its alarm is watched, not a finding.
+Above its alarm it is a finding, and it is either split or takes a written waiver
+recorded in [§11](11-risks-technical-debt.md).
