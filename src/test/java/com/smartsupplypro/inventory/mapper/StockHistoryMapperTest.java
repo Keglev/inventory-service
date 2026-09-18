@@ -29,12 +29,12 @@ class StockHistoryMapperTest {
     class ToDTO {
 
         @Test
-        void should_return_null_for_null_input() {
+        void should_return_null_when_the_entity_is_null() {
             assertNull(mapper.toDTO(null));
         }
 
         @Test
-        void should_convert_enum_reason_to_its_string_name() {
+        void should_convert_the_reason_to_its_string_name_when_mapping_to_a_dto() {
             StockHistory entity = StockHistory.builder()
                     .id("h-1").itemId("i-1").change(5)
                     .reason(StockChangeReason.INITIAL_STOCK).createdBy("admin")
@@ -61,12 +61,12 @@ class StockHistoryMapperTest {
     class ToEntity {
 
         @Test
-        void should_return_null_for_null_input() {
+        void should_return_null_when_the_dto_is_null() {
             assertNull(mapper.toEntity(null));
         }
 
         @Test
-        void should_parse_valid_reason_string_to_enum() {
+        void should_parse_the_reason_to_an_enum_when_the_string_is_valid() {
             StockHistoryDTO dto = StockHistoryDTO.builder()
                     .id("h-3").itemId("i-3").change(10).reason("PRICE_CHANGE")
                     .createdBy("sys").timestamp(LocalDateTime.of(2026, 1, 1, 0, 0)).build();
@@ -84,7 +84,7 @@ class StockHistoryMapperTest {
         }
 
         @Test
-        void should_throw_for_invalid_reason_string_with_context_message() {
+        void should_throw_with_context_when_the_reason_string_is_invalid() {
             StockHistoryDTO dto = StockHistoryDTO.builder()
                     .id("h-5").itemId("i-5").change(1).reason("INVALID")
                     .createdBy("admin").timestamp(LocalDateTime.of(2026, 1, 1, 0, 0)).build();

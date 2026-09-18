@@ -60,7 +60,7 @@ class InventoryItemSecurityValidatorTest {
     @Nested
     class AuthenticationGuards {
         @Test
-        void should_reject_unauthenticated_request_with_401() {
+        void should_reject_with_401_when_the_request_is_unauthenticated() {
             SecurityContextHolder.clearContext();
             ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                     () -> InventoryItemSecurityValidator.validateUpdatePermissions(
@@ -69,7 +69,7 @@ class InventoryItemSecurityValidatorTest {
         }
 
         @Test
-        void should_reject_non_oauth_principal_with_401() {
+        void should_reject_with_401_when_the_principal_is_not_oauth() {
             SecurityContextHolder.getContext()
                     .setAuthentication(new TestingAuthenticationToken("principal", "n/a"));
             ResponseStatusException ex = assertThrows(ResponseStatusException.class,
@@ -85,7 +85,7 @@ class InventoryItemSecurityValidatorTest {
     @Nested
     class AdminPermissions {
         @Test
-        void should_allow_admin_to_change_name_and_supplier() {
+        void should_allow_the_change_when_an_admin_edits_name_and_supplier() {
             setAuth(oauth("ROLE_ADMIN"));
             assertDoesNotThrow(() -> InventoryItemSecurityValidator.validateUpdatePermissions(
                     existing(), incoming("New Name", "supplier-2")));
@@ -98,7 +98,7 @@ class InventoryItemSecurityValidatorTest {
     @Nested
     class UserPermissions {
         @Test
-        void should_forbid_user_from_changing_name() {
+        void should_forbid_the_change_when_a_user_edits_the_name() {
             setAuth(oauth("ROLE_USER"));
             assertEquals(HttpStatus.FORBIDDEN, assertThrows(ResponseStatusException.class,
                     () -> InventoryItemSecurityValidator.validateUpdatePermissions(
@@ -106,7 +106,7 @@ class InventoryItemSecurityValidatorTest {
         }
 
         @Test
-        void should_forbid_user_from_changing_supplier() {
+        void should_forbid_the_change_when_a_user_edits_the_supplier() {
             setAuth(oauth("ROLE_USER"));
             assertEquals(HttpStatus.FORBIDDEN, assertThrows(ResponseStatusException.class,
                     () -> InventoryItemSecurityValidator.validateUpdatePermissions(
@@ -114,7 +114,7 @@ class InventoryItemSecurityValidatorTest {
         }
 
         @Test
-        void should_default_unknown_authority_to_user_restrictions() {
+        void should_apply_user_restrictions_when_the_authority_is_unknown() {
             // unrecognised authority falls back to the most restrictive role
             setAuth(oauth("ROLE_VIEWER"));
             assertEquals(HttpStatus.FORBIDDEN, assertThrows(ResponseStatusException.class,
@@ -123,7 +123,7 @@ class InventoryItemSecurityValidatorTest {
         }
 
         @Test
-        void should_allow_user_to_change_quantity_and_price() {
+        void should_allow_the_change_when_a_user_edits_quantity_and_price() {
             setAuth(oauth("ROLE_USER"));
             InventoryItem e = existing();
             assertDoesNotThrow(() -> InventoryItemSecurityValidator.validateUpdatePermissions(

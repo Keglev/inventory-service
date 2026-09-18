@@ -60,7 +60,7 @@ class InventoryItemLookupValidatorTest {
     @Nested
     class UniquenessChecks {
         @Test
-        void should_throw_on_duplicate_name_and_price_with_excludeId() {
+        void should_throw_when_another_item_shares_name_and_price_and_an_exclude_id_is_given() {
             InventoryItemRepository repo = mock(InventoryItemRepository.class);
             InventoryItem existing = new InventoryItem();
             existing.setId("existing-id"); existing.setName("DuplicateItem");
@@ -73,7 +73,7 @@ class InventoryItemLookupValidatorTest {
         }
 
         @Test
-        void should_allow_same_id_or_different_price_with_excludeId() {
+        void should_allow_when_the_match_is_the_same_id_or_a_different_price() {
             InventoryItemRepository repo = mock(InventoryItemRepository.class);
             InventoryItem sameId = new InventoryItem();
             sameId.setId("item-1"); sameId.setName("Widget"); sameId.setPrice(new BigDecimal("10.00"));
@@ -86,7 +86,7 @@ class InventoryItemLookupValidatorTest {
         }
 
         @Test
-        void should_throw_on_duplicate_name_and_price_without_excludeId() {
+        void should_throw_when_another_item_shares_name_and_price_and_no_exclude_id_is_given() {
             InventoryItemRepository repo = mock(InventoryItemRepository.class);
             InventoryItem existing = new InventoryItem();
             existing.setId("existing-1"); existing.setName("Widget");
@@ -113,7 +113,7 @@ class InventoryItemLookupValidatorTest {
     @Nested
     class SkuUniquenessChecks {
         @Test
-        void validateSkuNotExists_throwsWhenAnotherItemHasSameSku() {
+        void should_throw_when_another_item_has_the_same_sku() {
             InventoryItemRepository repo = mock(InventoryItemRepository.class);
             InventoryItem other = new InventoryItem();
             other.setId("other-id");
@@ -125,7 +125,7 @@ class InventoryItemLookupValidatorTest {
         }
 
         @Test
-        void validateSkuNotExists_passesWhenOnlySelfHasSku() {
+        void should_pass_when_only_the_same_item_has_the_sku() {
             InventoryItemRepository repo = mock(InventoryItemRepository.class);
             InventoryItem self = new InventoryItem();
             self.setId("self-id");
