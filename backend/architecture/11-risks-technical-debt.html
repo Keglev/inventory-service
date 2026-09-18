@@ -254,6 +254,74 @@
         </tr>
         </tbody>
         </table>
+        <h2 id="size-budget-waivers">11.3 Size-Budget Waivers</h2>
+        <p>Measured over code lines against the budgets in <a
+        href="02-constraints.html">§2</a>. One file and four methods
+        exceed their alarm; each is waived below, with the same reason
+        stated at the site in the code. No method reaches the 50 hard
+        cap and no file reaches the 300 hard cap.</p>
+        <table>
+        <colgroup>
+        <col style="width: 18%" />
+        <col style="width: 18%" />
+        <col style="width: 25%" />
+        <col style="width: 37%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Waived</th>
+        <th>Measured</th>
+        <th>Alarm</th>
+        <th>Reason</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>repository/custom/util/StockTrendSqlBuilder.java</code></td>
+        <td>168</td>
+        <td>150 (repository)</td>
+        <td>124 of the 168 code lines are SQL inside text blocks.
+        Splitting the file moves SQL between files without reducing
+        it.</td>
+        </tr>
+        <tr class="even">
+        <td><code>SecurityAuthorizationHelper::configureAuthorization</code></td>
+        <td>34</td>
+        <td>30</td>
+        <td>One ordered matcher chain, evaluated most-specific first.
+        The order is the behaviour, and splitting the chain would hide
+        it.</td>
+        </tr>
+        <tr class="odd">
+        <td><code>SecurityConfig::securityFilterChain</code></td>
+        <td>31</td>
+        <td>30</td>
+        <td>One fluent <code>HttpSecurity</code> statement. The parts
+        that can be extracted already are, into the entry-point, filter
+        and authorization helpers.</td>
+        </tr>
+        <tr class="even">
+        <td><code>StockTrendSqlBuilder::buildH2DailyValuationSql</code></td>
+        <td>33</td>
+        <td>30</td>
+        <td>29 of the 33 code lines are one SQL text block.</td>
+        </tr>
+        <tr class="odd">
+        <td><code>StockTrendSqlBuilder::buildOracleDailyValuationSql</code></td>
+        <td>32</td>
+        <td>30</td>
+        <td>28 of the 32 code lines are one SQL text block.</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Two files sit above their target and below their alarm and
+        are watched rather than waived:
+        <code>StockHistoryRepository.java</code> at 113 and
+        <code>StockTrendAnalyticsRepositoryImpl.java</code> at 91, both
+        against a repository target of 80. Thirteen methods sit between
+        the target of 20 and the alarm of 30, the largest being
+        <code>EmployeeAnalyticsService::getEmployeeActivity</code> at
+        29. The band is guidance, the alarm is the gate.</p>
       </article>
     </main>
 
@@ -266,6 +334,8 @@
       <li><a href="#risks" id="toc-risks">11.1 Risks</a></li>
       <li><a href="#technical-debt" id="toc-technical-debt">11.2
       Technical Debt</a></li>
+      <li><a href="#size-budget-waivers"
+      id="toc-size-budget-waivers">11.3 Size-Budget Waivers</a></li>
       </ul></li>
       </ul>
     </nav>
