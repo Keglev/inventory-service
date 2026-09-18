@@ -13,7 +13,7 @@ class DuplicateResourceExceptionTest {
 
     @Test
     @DisplayName("message constructor: stores message and no cause")
-    void messageConstructor_storesMessageAndNoCause() {
+    void should_store_the_message_and_no_cause_when_built_from_a_message() {
         DuplicateResourceException ex = new DuplicateResourceException("Supplier already exists");
 
         assertEquals("Supplier already exists", ex.getMessage());
@@ -22,7 +22,7 @@ class DuplicateResourceExceptionTest {
 
     @Test
     @DisplayName("message+cause constructor: stores both")
-    void messageCauseConstructor_storesBoth() {
+    void should_store_the_message_and_the_cause_when_built_from_both() {
         Throwable cause = new RuntimeException("root");
         DuplicateResourceException ex = new DuplicateResourceException("Item SKU conflict", cause);
 

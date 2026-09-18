@@ -14,7 +14,7 @@ class StockChangeReasonTest {
 
     @Test
     @DisplayName("fromString: trims, normalizes case, and maps to enum constant")
-    void fromString_trimsAndNormalizes() {
+    void should_trim_and_normalize_when_parsing_from_string() {
         assertSame(StockChangeReason.SOLD, StockChangeReason.fromString("sold"));
         assertSame(StockChangeReason.SOLD, StockChangeReason.fromString(" SOLD "));
         assertSame(StockChangeReason.RETURNED_BY_CUSTOMER,
@@ -23,7 +23,7 @@ class StockChangeReasonTest {
 
     @Test
     @DisplayName("fromString: rejects null and blank with descriptive message")
-    void fromString_rejectsNullAndBlank() {
+    void should_reject_when_value_null_or_blank() {
         IllegalArgumentException nullEx = assertThrows(IllegalArgumentException.class,
                 () -> StockChangeReason.fromString(null));
         assertTrue(nullEx.getMessage().toLowerCase().contains("cannot be null or empty"));
@@ -35,7 +35,7 @@ class StockChangeReasonTest {
 
     @Test
     @DisplayName("fromString: rejects unknown values with a cause")
-    void fromString_rejectsUnknown() {
+    void should_reject_when_value_unknown() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> StockChangeReason.fromString("not-a-reason"));
         assertNotNull(ex.getCause());
