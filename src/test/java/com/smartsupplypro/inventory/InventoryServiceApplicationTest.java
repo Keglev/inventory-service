@@ -46,7 +46,7 @@ class InventoryServiceApplicationTest {
     }
 
     @Test
-    void contextLoads() {
+    void should_load_the_context_when_the_application_starts() {
         // Context load failure will automatically fail the test
     }
 }

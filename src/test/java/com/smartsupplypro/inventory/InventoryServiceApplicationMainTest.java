@@ -45,7 +45,7 @@ class InventoryServiceApplicationMainTest {
     @Test
     @Timeout(value = 30)
     @DisplayName("main starts and closes cleanly when the close flag is provided")
-    void main_startsAndClosesCleanly_whenCloseFlagProvided() {
+    void should_start_and_close_cleanly_when_close_flag_provided() {
         assertDoesNotThrow(
                 () -> InventoryServiceApplication.main(
                         new String[] {
@@ -62,7 +62,7 @@ class InventoryServiceApplicationMainTest {
     @Test
     @Timeout(value = 30)
     @DisplayName("run starts and returns an active context when the close flag is NOT provided")
-    void run_startsAndReturnsActiveContext_whenCloseFlagNotProvided() {
+    void should_return_active_context_when_close_flag_not_provided() {
         try (ConfigurableApplicationContext applicationContext = InventoryServiceApplication.run(
                     new String[] {
                         "--spring.profiles.active=test",
@@ -79,13 +79,13 @@ class InventoryServiceApplicationMainTest {
 
     @Test
     @DisplayName("shouldCloseAfterStartup returns false for null args")
-    void shouldCloseAfterStartup_returnsFalse_whenArgsNull() throws Exception {
+    void should_return_false_when_args_null() throws Exception {
         assertFalse((boolean) shouldCloseAfterStartup.invoke(null, new Object[] { null }));
     }
 
     @Test
     @DisplayName("shouldCloseAfterStartup returns false for empty args")
-    void shouldCloseAfterStartup_returnsFalse_whenArgsEmpty() throws Exception {
+    void should_return_false_when_args_empty() throws Exception {
         assertFalse((boolean) shouldCloseAfterStartup.invoke(null, (Object) new String[0]));
     }
 }

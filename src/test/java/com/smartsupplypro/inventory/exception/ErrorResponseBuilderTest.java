@@ -13,7 +13,7 @@ class ErrorResponseBuilderTest {
 
     @Test
     @DisplayName("record: components are stored and accessible via accessors")
-    void record_storesAndExposesComponents() {
+    void should_store_and_expose_its_components_when_the_record_is_created() {
         ErrorResponse response = new ErrorResponse("bad_request", "Invalid input", "2026-01-01T00:00:00Z");
 
         assertEquals("bad_request", response.error());
@@ -23,7 +23,7 @@ class ErrorResponseBuilderTest {
 
     @Test
     @DisplayName("record: fieldErrors component is stored; three-arg constructor leaves it null")
-    void record_fieldErrorsComponent() {
+    void should_expose_field_errors_when_the_record_carries_them() {
         ErrorResponse withFields = new ErrorResponse(
             "conflict", "SKU exists", "2026-01-01T00:00:00Z",
             java.util.Map.of("sku", "SKU exists"));

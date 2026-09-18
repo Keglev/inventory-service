@@ -61,27 +61,27 @@ class GlobalExceptionHandlerBadRequestTest {
 
     /** 400 Bad Request for malformed or missing request data. */
     @Nested class WhenBadRequest {
-        @Test void missingParameter_returns400() throws Exception {
+        @Test void should_return_400_when_a_parameter_is_missing() throws Exception {
             mockMvc.perform(get("/err/param-missing"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Missing required parameter: q"));
         }
-        @Test void parameterTypeMismatch_returns400() throws Exception {
+        @Test void should_return_400_when_a_parameter_type_mismatches() throws Exception {
             mockMvc.perform(get("/err/param-type").param("n", "abc"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Invalid parameter value: n"));
         }
-        @Test void unreadableBody_returns400() throws Exception {
+        @Test void should_return_400_when_the_body_is_unreadable() throws Exception {
             mockMvc.perform(post("/err/parse").contentType(MediaType.APPLICATION_JSON).content("{"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Request body is invalid or unreadable"));
         }
-        @Test void constraintViolation_returns400() throws Exception {
+        @Test void should_return_400_when_a_constraint_is_violated() throws Exception {
             mockMvc.perform(get("/err/constraint"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Constraint violation"));
         }
-        @Test void beanValidation_returns400WithFieldErrors() throws Exception {
+        @Test void should_return_400_with_field_errors_when_bean_validation_fails() throws Exception {
             mockMvc.perform(post("/err/valid").contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("bad_request"))
@@ -91,17 +91,17 @@ class GlobalExceptionHandlerBadRequestTest {
 
     /** Status-derivation edge cases. */
     @Nested class WhenEdgeCases {
-        @Test void responseStatusWithoutReason_usesStatusPhrase() throws Exception {
+        @Test void should_use_the_status_phrase_when_the_response_status_has_no_reason() throws Exception {
             mockMvc.perform(get("/err/rse-noreason"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Bad Request"));
         }
-        @Test void responseStatusWithBlankReason_usesStatusPhrase() throws Exception {
+        @Test void should_use_the_status_phrase_when_the_response_status_reason_is_blank() throws Exception {
             mockMvc.perform(get("/err/rse-blank"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Not Found"));
         }
-        @Test void responseStatusWithUnresolvableStatus_returns500() throws Exception {
+        @Test void should_return_500_when_the_response_status_is_unresolvable() throws Exception {
             mockMvc.perform(get("/err/rse-badstatus"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message").value("Request failed"));

@@ -52,17 +52,17 @@ class GlobalExceptionHandlerTest {
 
     /** 404 Not Found responses. */
     @Nested class WhenNotFound {
-        @Test void noMessage_fallsBackToDefault() throws Exception {
+        @Test void should_fall_back_to_the_default_when_the_not_found_error_has_no_message() throws Exception {
             mockMvc.perform(get("/err/nse"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Resource not found"));
         }
-        @Test void withMessage_passesThrough() throws Exception {
+        @Test void should_pass_the_message_through_when_the_not_found_error_has_one() throws Exception {
             mockMvc.perform(get("/err/iae-m"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Item 1 not found"));
         }
-        @Test void blankMessage_fallsBackToDefault() throws Exception {
+        @Test void should_fall_back_to_the_default_when_the_not_found_message_is_blank() throws Exception {
             mockMvc.perform(get("/err/iae-blank"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Resource not found"));
@@ -71,12 +71,12 @@ class GlobalExceptionHandlerTest {
 
     /** 401 and 403 security responses. */
     @Nested class WhenSecurityViolated {
-        @Test void authenticationException_returns401() throws Exception {
+        @Test void should_return_401_when_authentication_fails() throws Exception {
             mockMvc.perform(get("/err/auth"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Authentication required"));
         }
-        @Test void accessDenied_returns403() throws Exception {
+        @Test void should_return_403_when_access_is_denied() throws Exception {
             mockMvc.perform(get("/err/denied"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").value("You are not allowed to perform this operation."));
@@ -85,12 +85,12 @@ class GlobalExceptionHandlerTest {
 
     /** 409 Conflict responses. */
     @Nested class WhenConflict {
-        @Test void dataIntegrity_returns409() throws Exception {
+        @Test void should_return_409_when_data_integrity_is_violated() throws Exception {
             mockMvc.perform(get("/err/data"))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("Data conflict - constraint violation"));
         }
-        @Test void optimisticLock_returns409() throws Exception {
+        @Test void should_return_409_when_an_optimistic_lock_fails() throws Exception {
             mockMvc.perform(get("/err/lock"))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("Concurrent update detected - please refresh and retry"));
@@ -99,12 +99,12 @@ class GlobalExceptionHandlerTest {
 
     /** Pass-through and fallback responses. */
     @Nested class WhenPassThrough {
-        @Test void responseStatusException_preservesStatusAndMessage() throws Exception {
+        @Test void should_preserve_the_status_and_message_when_a_response_status_exception_is_thrown() throws Exception {
             mockMvc.perform(get("/err/rse"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Supplier not found"));
         }
-        @Test void unhandledException_returns500() throws Exception {
+        @Test void should_return_500_when_an_exception_is_unhandled() throws Exception {
             mockMvc.perform(get("/err/boom"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message").value("Unexpected server error"));
