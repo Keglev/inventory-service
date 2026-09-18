@@ -103,7 +103,7 @@ class SupplierValidatorTest {
         }
 
         @Test
-        void should_allow_when_getId_throws_and_excludeId_is_null() {
+        void should_allow_when_get_id_throws_and_the_exclude_id_is_null() {
             SupplierRepository repo = mock(SupplierRepository.class);
             when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(brokenSupplier()));
             // null falls back to null via reflective failure; Objects.equals(null, null) == true
@@ -111,7 +111,7 @@ class SupplierValidatorTest {
         }
 
         @Test
-        void should_reject_when_getId_throws_and_excludeId_differs() {
+        void should_reject_when_get_id_throws_and_the_exclude_id_differs() {
             SupplierRepository repo = mock(SupplierRepository.class);
             when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(brokenSupplier()));
             DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,

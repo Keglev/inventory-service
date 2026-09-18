@@ -25,12 +25,12 @@ class SupplierMapperTest {
     class ToDTO {
 
         @Test
-        void should_return_null_for_null_input() {
+        void should_return_null_when_the_entity_is_null() {
             assertNull(mapper.toDTO(null));
         }
 
         @Test
-        void should_map_all_fields_including_audit_metadata() {
+        void should_map_all_fields_and_audit_metadata_when_mapping_to_a_dto() {
             LocalDateTime ts = LocalDateTime.of(2024, 12, 31, 23, 59);
             Supplier supplier = Supplier.builder()
                     .id("s-1").name("Acme").contactName("Alice")
@@ -46,7 +46,7 @@ class SupplierMapperTest {
         }
 
         @Test
-        void should_preserve_null_optional_contact_fields() {
+        void should_preserve_nulls_when_optional_contact_fields_are_absent() {
             Supplier supplier = Supplier.builder()
                     .id("s-2").name("Minimal").createdBy("sys")
                     .contactName(null).phone(null).email(null).build();
@@ -64,12 +64,12 @@ class SupplierMapperTest {
     class ToEntity {
 
         @Test
-        void should_return_null_for_null_input() {
+        void should_return_null_when_the_dto_is_null() {
             assertNull(mapper.toEntity(null));
         }
 
         @Test
-        void should_trim_and_normalize_blank_strings_to_null() {
+        void should_normalize_blank_strings_to_null_when_mapping_to_an_entity() {
             SupplierDTO dto = SupplierDTO.builder()
                     .id("s-3").name("  Acme  ").contactName("   ")
                     .phone(null).email("  a@acme.test  ").build();
@@ -81,7 +81,7 @@ class SupplierMapperTest {
         }
 
         @Test
-        void should_not_include_audit_fields_from_dto() {
+        void should_omit_audit_fields_when_mapping_to_an_entity() {
             // Audit fields must not be copied from the DTO; the service layer sets them
             SupplierDTO dto = SupplierDTO.builder()
                     .id("s-4").name("Acme")

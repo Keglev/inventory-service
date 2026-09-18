@@ -41,7 +41,7 @@ class StockHistoryValidatorTest {
         }
 
         @Test
-        void should_fail_when_itemId_is_null() {
+        void should_fail_when_the_item_id_is_null() {
             StockHistoryDTO dto = StockHistoryDTO.builder().id("sh-1").itemId(null)
                     .change(5).reason("SOLD").createdBy("admin").build();
             assertEquals("Item ID cannot be null or empty",
@@ -50,7 +50,7 @@ class StockHistoryValidatorTest {
         }
 
         @Test
-        void should_fail_when_itemId_is_blank() {
+        void should_fail_when_the_item_id_is_blank() {
             // boundary: blank string must be rejected the same as null
             StockHistoryDTO dto = StockHistoryDTO.builder().id("sh-1").itemId("   ")
                     .change(5).reason("SOLD").createdBy("admin").build();
@@ -103,7 +103,7 @@ class StockHistoryValidatorTest {
         }
 
         @Test
-        void should_fail_when_createdBy_is_null() {
+        void should_fail_when_created_by_is_null() {
             StockHistoryDTO dto = StockHistoryDTO.builder().id("sh-1").itemId("item-1")
                     .change(5).reason("SOLD").createdBy(null).build();
             assertEquals("CreatedBy must be provided",
@@ -112,7 +112,7 @@ class StockHistoryValidatorTest {
         }
 
         @Test
-        void should_fail_when_createdBy_is_blank() {
+        void should_fail_when_created_by_is_blank() {
             StockHistoryDTO dto = StockHistoryDTO.builder().id("sh-1").itemId("item-1")
                     .change(5).reason("SOLD").createdBy(" ").build();
             assertEquals("CreatedBy must be provided",
@@ -121,7 +121,7 @@ class StockHistoryValidatorTest {
         }
 
         @Test
-        void should_pass_for_all_valid_reasons() {
+        void should_pass_when_the_reason_is_any_valid_reason() {
             for (StockChangeReason reason : StockChangeReason.values()) {
                 StockHistoryDTO dto = StockHistoryDTO.builder().id("sh-1").itemId("item-1")
                         .change(5).reason(reason.name()).createdBy("admin").build();
@@ -144,7 +144,7 @@ class StockHistoryValidatorTest {
         }
 
         @Test
-        void should_fail_when_price_change_has_negative_priceAtChange() {
+        void should_fail_when_a_price_change_has_a_negative_price_at_change() {
             StockHistoryDTO dto = StockHistoryDTO.builder().id("sh-1").itemId("item-1")
                     .change(0).reason(StockChangeReason.PRICE_CHANGE.name())
                     .createdBy("admin").priceAtChange(new BigDecimal("-0.01")).build();
@@ -154,7 +154,7 @@ class StockHistoryValidatorTest {
         }
 
         @Test
-        void should_ignore_priceAtChange_for_non_price_change() {
+        void should_ignore_the_price_at_change_when_the_reason_is_not_a_price_change() {
             StockHistoryDTO dto = StockHistoryDTO.builder().id("sh-1").itemId("item-1")
                     .change(1).reason(StockChangeReason.SOLD.name())
                     .createdBy("admin").priceAtChange(new BigDecimal("-0.01")).build();
@@ -162,7 +162,7 @@ class StockHistoryValidatorTest {
         }
 
         @Test
-        void should_accept_every_reason_and_reject_only_null() {
+        void should_accept_every_reason_and_reject_only_null_when_validating_the_reason() {
             // validateEnum is an explicit allow-list covering all current
             // reasons; disposal reasons (DESTROYED/DAMAGED/EXPIRED/LOST) are
             // accepted so they can back stock reductions and deletions. Only

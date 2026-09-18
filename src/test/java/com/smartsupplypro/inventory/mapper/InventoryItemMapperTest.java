@@ -27,12 +27,12 @@ class InventoryItemMapperTest {
     class ToDTO {
 
         @Test
-        void should_return_null_for_null_input() {
+        void should_return_null_when_the_entity_is_null() {
             assertNull(mapper.toDTO(null));
         }
 
         @Test
-        void should_compute_total_value_as_price_times_quantity() {
+        void should_compute_the_total_value_when_price_and_quantity_are_set() {
             InventoryItem entity = InventoryItem.builder()
                     .id("i-1").name("SSD").sku("SKU-MAP-E1").quantity(3).price(new BigDecimal("12.34"))
                     .supplierId("s-1").minimumQuantity(1).createdBy("admin")
@@ -54,7 +54,7 @@ class InventoryItemMapperTest {
         }
 
         @Test
-        void should_resolve_supplier_name_from_loaded_relationship() {
+        void should_resolve_the_supplier_name_when_the_relationship_is_loaded() {
             Supplier supplier = Supplier.builder().id("s-1").name("Acme").createdBy("sys").build();
             InventoryItem entity = InventoryItem.builder()
                     .id("i-3").name("Widget").sku("SKU-MAP-E3").quantity(1).price(new BigDecimal("1.00"))
@@ -82,12 +82,12 @@ class InventoryItemMapperTest {
     class ToEntity {
 
         @Test
-        void should_return_null_for_null_input() {
+        void should_return_null_when_the_dto_is_null() {
             assertNull(mapper.toEntity(null));
         }
 
         @Test
-        void should_map_all_persistence_fields() {
+        void should_map_all_persistence_fields_when_mapping_to_an_entity() {
             InventoryItemDTO dto = InventoryItemDTO.builder()
                     .id("i-9").name("SSD").sku("SKU-MAP-D1").quantity(7).price(new BigDecimal("10.00"))
                     .supplierId("s-1").minimumQuantity(2).createdBy("admin")
@@ -104,7 +104,7 @@ class InventoryItemMapperTest {
         }
 
         @Test
-        void should_not_include_computed_dto_fields_in_entity() {
+        void should_omit_computed_dto_fields_when_mapping_to_an_entity() {
             // totalValue and supplierName are DTO-only; passing them in must not affect the entity
             InventoryItemDTO dto = InventoryItemDTO.builder()
                     .id("i-10").name("Bolt").sku("SKU-MAP-D2").quantity(1).price(new BigDecimal("1.00"))
