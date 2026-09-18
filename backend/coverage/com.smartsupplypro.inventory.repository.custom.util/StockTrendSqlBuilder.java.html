@@ -3,6 +3,9 @@
 /**
  * SQL factory for {@code StockTrendAnalyticsRepositoryImpl} — produces time-series analytics queries for H2 and Oracle.
  */
+// SIZE WAIVER: 168 code lines against a 150 alarm, of which 124 are SQL inside
+// text blocks. Splitting the file moves SQL between files without reducing it.
+// Recorded in docs/backend/architecture/11-risks-technical-debt.md.
 public final class StockTrendSqlBuilder {
 
     private StockTrendSqlBuilder() {}
@@ -17,7 +20,7 @@ public final class StockTrendSqlBuilder {
      * @return SQL ordered by month ascending; always accepts {@code :start} and {@code :end}
      */
     public static String buildH2MonthlyMovementSql(boolean withSupplierFilter) {
-<span class="fc" id="L20">        final String baseQuery = &quot;&quot;&quot;</span>
+<span class="fc" id="L23">        final String baseQuery = &quot;&quot;&quot;</span>
             SELECT CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
                           LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0')) AS month_str,
                    SUM(CASE WHEN sh.quantity_change &gt; 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
@@ -30,10 +33,10 @@ public final class StockTrendSqlBuilder {
                             LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'))
             ORDER BY 1
         &quot;&quot;&quot;;
-<span class="fc bfc" id="L33" title="All 2 branches covered.">        final String join = withSupplierFilter ? &quot;JOIN inventory_item i ON sh.item_id = i.id&quot; : &quot;&quot;;</span>
-<span class="fc bfc" id="L34" title="All 2 branches covered.">        final String filter = withSupplierFilter</span>
-<span class="fc" id="L35">            ? &quot;AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))&quot; : &quot;&quot;;</span>
-<span class="fc" id="L36">        return String.format(baseQuery, join, filter);</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        final String join = withSupplierFilter ? &quot;JOIN inventory_item i ON sh.item_id = i.id&quot; : &quot;&quot;;</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        final String filter = withSupplierFilter</span>
+<span class="fc" id="L38">            ? &quot;AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))&quot; : &quot;&quot;;</span>
+<span class="fc" id="L39">        return String.format(baseQuery, join, filter);</span>
     }
 
     /**
@@ -45,7 +48,7 @@ public final class StockTrendSqlBuilder {
      * @return SQL ordered by month ascending; always accepts {@code :start} and {@code :end}
      */
     public static String buildOracleMonthlyMovementSql(boolean withSupplierFilter) {
-<span class="fc" id="L48">        final String baseQuery = &quot;&quot;&quot;</span>
+<span class="fc" id="L51">        final String baseQuery = &quot;&quot;&quot;</span>
             SELECT TO_CHAR(sh.created_at, 'YYYY-MM') AS month_str,
                    SUM(CASE WHEN sh.quantity_change &gt; 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
                    SUM(CASE WHEN sh.quantity_change &lt; 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS stock_out
@@ -56,10 +59,10 @@ public final class StockTrendSqlBuilder {
             GROUP BY TO_CHAR(sh.created_at, 'YYYY-MM')
             ORDER BY 1
         &quot;&quot;&quot;;
-<span class="fc bfc" id="L59" title="All 2 branches covered.">        final String join = withSupplierFilter ? &quot;JOIN inventory_item i ON sh.item_id = i.id&quot; : &quot;&quot;;</span>
-<span class="fc bfc" id="L60" title="All 2 branches covered.">        final String filter = withSupplierFilter</span>
-<span class="fc" id="L61">            ? &quot;AND (:supplierId IS NULL OR i.supplier_id = :supplierId)&quot; : &quot;&quot;;</span>
-<span class="fc" id="L62">        return String.format(baseQuery, join, filter);</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        final String join = withSupplierFilter ? &quot;JOIN inventory_item i ON sh.item_id = i.id&quot; : &quot;&quot;;</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        final String filter = withSupplierFilter</span>
+<span class="fc" id="L64">            ? &quot;AND (:supplierId IS NULL OR i.supplier_id = :supplierId)&quot; : &quot;&quot;;</span>
+<span class="fc" id="L65">        return String.format(baseQuery, join, filter);</span>
     }
 
     /**
@@ -70,8 +73,9 @@ public final class StockTrendSqlBuilder {
      *
      * @return SQL ordered by day ascending; accepts {@code :start}, {@code :end}, {@code :supplierId}
      */
+    // SIZE WAIVER: 33 code lines against a 30 alarm; 29 of them are one SQL text block.
     public static String buildH2DailyValuationSql() {
-<span class="fc" id="L74">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L78">        return &quot;&quot;&quot;</span>
             WITH events AS (
                 SELECT
                     CAST(sh.created_at AS DATE) AS day_date,
@@ -111,8 +115,9 @@ public final class StockTrendSqlBuilder {
      *
      * @return SQL ordered by day ascending; accepts {@code :start}, {@code :end}, {@code :supplierId}
      */
+    // SIZE WAIVER: 32 code lines against a 30 alarm; 28 of them are one SQL text block.
     public static String buildOracleDailyValuationSql() {
-<span class="fc" id="L115">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L120">        return &quot;&quot;&quot;</span>
             WITH events AS (
                 SELECT
                     CAST(TRUNC(sh.created_at) AS DATE) AS day_date,
@@ -152,7 +157,7 @@ public final class StockTrendSqlBuilder {
      * @return SQL ordered by day ascending; accepts {@code :start}, {@code :end}, {@code :itemId}, {@code :supplierId}
      */
     public static String buildH2PriceTrendSql() {
-<span class="fc" id="L155">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L160">        return &quot;&quot;&quot;</span>
             SELECT CONCAT(
                        CAST(YEAR(sh.created_at) AS VARCHAR), '-',
                        LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'), '-',
@@ -181,7 +186,7 @@ public final class StockTrendSqlBuilder {
      * @return SQL ordered by day ascending; accepts {@code :start}, {@code :end}, {@code :itemId}, {@code :supplierId}
      */
     public static String buildOraclePriceTrendSql() {
-<span class="fc" id="L184">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L189">        return &quot;&quot;&quot;</span>
             SELECT TO_CHAR(sh.created_at, 'YYYY-MM-DD') AS day_str,
                    AVG(sh.price_at_change) AS price
             FROM stock_history sh
@@ -205,7 +210,7 @@ public final class StockTrendSqlBuilder {
      * @return SQL ordered by day then creator; accepts {@code :start} and {@code :end}
      */
     public static String buildH2DailyEmployeeActivitySql() {
-<span class="fc" id="L208">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L213">        return &quot;&quot;&quot;</span>
             SELECT sh.created_by,
                    CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
                           LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'), '-',
@@ -230,7 +235,7 @@ public final class StockTrendSqlBuilder {
      * @return SQL ordered by day then creator; accepts {@code :start} and {@code :end}
      */
     public static String buildOracleDailyEmployeeActivitySql() {
-<span class="nc" id="L233">        return &quot;&quot;&quot;</span>
+<span class="nc" id="L238">        return &quot;&quot;&quot;</span>
             SELECT sh.created_by,
                    TO_CHAR(sh.created_at, 'YYYY-MM-DD') AS day_str,
                    COUNT(*) AS change_count

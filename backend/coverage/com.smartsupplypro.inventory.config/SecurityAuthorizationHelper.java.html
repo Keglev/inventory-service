@@ -19,14 +19,17 @@ import org.springframework.stereotype.Component;
      * Applies public-access, optional demo read-only, and role-based authorization rules
      * in the order Spring Security evaluates them (most-specific first).
      */
+    // SIZE WAIVER: 34 code lines against a 30 alarm. The matchers are evaluated
+    // most-specific first, so the order is the behaviour and splitting the chain
+    // would hide it. Recorded in docs/backend/architecture/11-risks-technical-debt.md.
     public void configureAuthorization(
             AuthorizeHttpRequestsConfigurer&lt;HttpSecurity&gt;.AuthorizationManagerRequestMatcherRegistry auth,
             boolean isDemoReadonly
     ) {
         // CORS preflight and public endpoints
-<span class="fc" id="L27">        auth.requestMatchers(HttpMethod.OPTIONS, &quot;/**&quot;).permitAll();</span>
-<span class="fc" id="L28">        auth.requestMatchers(&quot;/logout&quot;).permitAll();</span>
-<span class="fc" id="L29">        auth.requestMatchers(</span>
+<span class="fc" id="L30">        auth.requestMatchers(HttpMethod.OPTIONS, &quot;/**&quot;).permitAll();</span>
+<span class="fc" id="L31">        auth.requestMatchers(&quot;/logout&quot;).permitAll();</span>
+<span class="fc" id="L32">        auth.requestMatchers(</span>
                 &quot;/&quot;,
                 // Named rather than /actuator/**: only these two are meant to be
                 // public. The wildcard also published the discovery index, and it
@@ -39,33 +42,33 @@ import org.springframework.stereotype.Component;
                 &quot;/login/oauth2/**&quot;,
                 &quot;/login/**&quot;,
                 &quot;/error&quot;
-<span class="fc" id="L42">        ).permitAll();</span>
+<span class="fc" id="L45">        ).permitAll();</span>
 
-<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (isDemoReadonly) {</span>
-<span class="fc" id="L45">            auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).permitAll();</span>
-<span class="fc" id="L46">            auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).permitAll();</span>
-<span class="fc" id="L47">            auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).permitAll();</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (isDemoReadonly) {</span>
+<span class="fc" id="L48">            auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).permitAll();</span>
+<span class="fc" id="L49">            auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).permitAll();</span>
+<span class="fc" id="L50">            auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).permitAll();</span>
         }
 
-<span class="fc" id="L50">        auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).authenticated();</span>
-<span class="fc" id="L51">        auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).authenticated();</span>
-<span class="fc" id="L52">        auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).authenticated();</span>
+<span class="fc" id="L53">        auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).authenticated();</span>
+<span class="fc" id="L54">        auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).authenticated();</span>
+<span class="fc" id="L55">        auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).authenticated();</span>
 
-<span class="fc" id="L54">        auth.requestMatchers(&quot;/api/admin/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
+<span class="fc" id="L57">        auth.requestMatchers(&quot;/api/admin/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
 
         // Inventory &amp; supplier mutations require an active USER or ADMIN role
-<span class="fc" id="L57">        auth.requestMatchers(HttpMethod.POST,   &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L58">        auth.requestMatchers(HttpMethod.PUT,    &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L59">        auth.requestMatchers(HttpMethod.PATCH,  &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L60">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L60">        auth.requestMatchers(HttpMethod.POST,   &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L61">        auth.requestMatchers(HttpMethod.PUT,    &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L62">        auth.requestMatchers(HttpMethod.PATCH,  &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L63">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
 
-<span class="fc" id="L62">        auth.requestMatchers(HttpMethod.POST,   &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L63">        auth.requestMatchers(HttpMethod.PUT,    &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L64">        auth.requestMatchers(HttpMethod.PATCH,  &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L65">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L65">        auth.requestMatchers(HttpMethod.POST,   &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L66">        auth.requestMatchers(HttpMethod.PUT,    &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L67">        auth.requestMatchers(HttpMethod.PATCH,  &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L68">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
 
-<span class="fc" id="L67">        auth.requestMatchers(&quot;/api/**&quot;).authenticated();</span>
-<span class="fc" id="L68">        auth.anyRequest().authenticated();</span>
-<span class="fc" id="L69">    }</span>
+<span class="fc" id="L70">        auth.requestMatchers(&quot;/api/**&quot;).authenticated();</span>
+<span class="fc" id="L71">        auth.anyRequest().authenticated();</span>
+<span class="fc" id="L72">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
