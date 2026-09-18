@@ -23,7 +23,7 @@ class SecurityAuditHelperTest {
     }
 
     @Test
-    void should_return_authenticated_username() {
+    void should_return_the_username_when_the_user_is_authenticated() {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(new TestingAuthenticationToken("carlos@example.com", null));
         SecurityContextHolder.setContext(context);

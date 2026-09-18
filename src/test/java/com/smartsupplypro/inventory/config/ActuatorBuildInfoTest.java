@@ -35,7 +35,7 @@ class ActuatorBuildInfoTest {
     private MockMvc mockMvc;
 
     @Test
-    void infoEndpointIsPublicAndNamesTheBuildCommit() throws Exception {
+    void should_be_public_and_name_the_build_commit_when_the_info_endpoint_is_requested() throws Exception {
         mockMvc.perform(get("/actuator/info"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.build.commit").exists());

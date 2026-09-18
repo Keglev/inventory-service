@@ -59,7 +59,7 @@ class SecuritySmokeTest {
     class WhenCheckingContextAndAccess {
 
         @Test
-        void should_autowireAllCriticalBeans_when_contextLoads() {
+        void should_autowire_all_critical_beans_when_the_context_loads() {
             assertThat(successHandler).isNotNull();
             assertThat(customOAuth2UserService).isNotNull();
             assertThat(clientRegistrationRepository.findByRegistrationId("google")).isNotNull();
@@ -68,7 +68,7 @@ class SecuritySmokeTest {
 
         @Test
         @WithMockUser(username = "admin", roles = "ADMIN")
-        void should_return200_when_adminRoleAccessesAdminEndpoint() throws Exception {
+        void should_return_200_when_the_admin_role_accesses_an_admin_endpoint() throws Exception {
             mvc.perform(get("/api/admin/ping").accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isOk())
                .andExpect(content().string("admin ok"));
@@ -76,7 +76,7 @@ class SecuritySmokeTest {
 
         @Test
         @WithMockUser(username = "user", roles = "USER")
-        void should_return403_when_userRoleAccessesAdminEndpoint() throws Exception {
+        void should_return_403_when_the_user_role_accesses_an_admin_endpoint() throws Exception {
             mvc.perform(get("/api/admin/ping").accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isForbidden());
         }
@@ -89,7 +89,7 @@ class SecuritySmokeTest {
     class WhenCheckingInfrastructure {
 
         @Test
-        void should_allowOriginWithCredentials_when_corsPreflightFromDevFrontend() throws Exception {
+        void should_allow_the_origin_with_credentials_when_a_cors_preflight_comes_from_the_dev_frontend() throws Exception {
             mvc.perform(options("/api/admin/ping")
                     .header("Origin", "http://localhost:5173")
                     .header("Access-Control-Request-Method", "GET"))
@@ -99,7 +99,7 @@ class SecuritySmokeTest {
         }
 
         @Test
-        void should_redirectToOAuthProvider_when_authorizationEndpointAccessed() throws Exception {
+        void should_redirect_to_the_oauth_provider_when_the_authorization_endpoint_is_accessed() throws Exception {
             mvc.perform(get("/oauth2/authorization/google"))
                .andExpect(status().is3xxRedirection());
         }

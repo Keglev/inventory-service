@@ -50,7 +50,7 @@ class OAuth2LoginSuccessHandlerProvisioningTest {
     class WhenAuthenticationSucceeds {
 
         @Test
-        void should_redirect_to_frontend_landing_on_login_success() throws Exception {
+        void should_redirect_to_the_frontend_landing_page_when_login_succeeds() throws Exception {
             stubFrontend("https://localhost:8081", "/api/me");
             MockHttpServletResponse res =
                     new OAuth2LoginSuccessHandlerTestSupport.LenientRedirectResponse();

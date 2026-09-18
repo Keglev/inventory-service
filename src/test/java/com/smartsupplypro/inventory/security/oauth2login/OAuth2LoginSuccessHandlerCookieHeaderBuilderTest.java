@@ -17,7 +17,7 @@ import jakarta.servlet.http.Cookie;
 class OAuth2LoginSuccessHandlerCookieHeaderBuilderTest {
 
     @Test
-    void should_format_cookie_with_path_default_flags_and_no_blank_same_site() throws Exception {
+    void should_format_the_cookie_with_path_and_default_flags_when_the_same_site_is_blank() throws Exception {
         // Directly targeting the private helper is the only practical path to full branch coverage.
         Method m = OAuth2LoginSuccessHandler.class.getDeclaredMethod(
             "addCookieWithSameSite",

@@ -62,28 +62,28 @@ class SecurityConfigDemoReadonlyAuthorizationTest {
     class WhenDemoReadonlyIsEnabled {
 
         @Test
-        void should_allowAnonymousGet_when_demoReadonlyOnAndInventoryEndpoint() throws Exception {
+        void should_allow_an_anonymous_get_when_demo_readonly_is_on_and_the_endpoint_is_inventory() throws Exception {
             mvc.perform(get("/api/inventory/demo-ok").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"status\":\"ok\"}"));
         }
 
         @Test
-        void should_allowAnonymousGet_when_demoReadonlyOnAndAnalyticsEndpoint() throws Exception {
+        void should_allow_an_anonymous_get_when_demo_readonly_is_on_and_the_endpoint_is_analytics() throws Exception {
             mvc.perform(get("/api/analytics/summary").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"status\":\"ok\"}"));
         }
 
         @Test
-        void should_return401_when_demoReadonlyOnAndUnauthenticatedInventoryPatch() throws Exception {
+        void should_return_401_when_demo_readonly_is_on_and_an_inventory_patch_is_unauthenticated() throws Exception {
             mvc.perform(patch("/api/inventory/item-1/price").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
         }
 
         @Test
         @WithMockUser(username = "user", roles = "USER")
-        void should_return200_when_demoReadonlyOnAndAuthenticatedInventoryPatch() throws Exception {
+        void should_return_200_when_demo_readonly_is_on_and_an_inventory_patch_is_authenticated() throws Exception {
             mvc.perform(patch("/api/inventory/item-1/price").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"status\":\"patched\"}"));

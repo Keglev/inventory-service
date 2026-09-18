@@ -36,7 +36,7 @@ class ApiEntryPointBehaviourTest {
     class WhenRequestIsUnauthenticatedApi {
 
         @Test
-        void apiJsonRequest_unauth_returns401Json() throws Exception {
+        void should_return_401_json_when_an_unauthenticated_api_request_arrives() throws Exception {
             mockMvc.perform(get("/api/protected").accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isUnauthorized())
                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -44,7 +44,7 @@ class ApiEntryPointBehaviourTest {
         }
 
         @Test
-        void apiWithoutJsonAccept_behavesLikeWeb_redirects() throws Exception {
+        void should_redirect_like_a_web_request_when_the_api_request_has_no_json_accept() throws Exception {
             mockMvc.perform(get("/api/protected").accept(MediaType.TEXT_HTML))
                    .andExpect(status().is3xxRedirection())
                    .andExpect(header().string("Location",
@@ -59,7 +59,7 @@ class ApiEntryPointBehaviourTest {
     class WhenRequestIsUnauthenticatedWeb {
 
         @Test
-        void webRequest_unauth_redirectsToLogin() throws Exception {
+        void should_redirect_to_the_login_page_when_an_unauthenticated_web_request_arrives() throws Exception {
             mockMvc.perform(get("/web/home").accept(MediaType.TEXT_HTML))
                    .andExpect(status().is3xxRedirection())
                    .andExpect(header().string("Location",
