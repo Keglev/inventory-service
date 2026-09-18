@@ -22,12 +22,14 @@ on:
       - 'frontend/**'
       - 'ops/nginx/**'
       - '.github/workflows/5-frontend-ci.yml'
+      - '.github/scripts/verify-image-contract.sh'
   pull_request:
     branches: [ "main" ]
     paths:
       - 'frontend/**'
       - 'ops/nginx/**'
       - '.github/workflows/5-frontend-ci.yml'
+      - '.github/scripts/verify-image-contract.sh'
   workflow_dispatch:
 
 # Read scope only. This workflow publishes to Docker Hub, authenticated with
