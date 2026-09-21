@@ -1,0 +1,262 @@
+<!-- ===========================================================================
+     Smart Supply Pro Docs — Architecture page template
+     Pandoc template for the architecture pages; build-architecture-docs.sh
+     renders the Markdown tree through it.
+
+     Pandoc copies this comment into every page the template produces, so it
+     is written for anyone reading a published page source. A dollar sign
+     here would be read as template syntax and substituted, so the comment
+     carries none.
+     ======================================================================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0015-pages-deployed-from-the-publisher-job · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=a061f5ab8d" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+    <li><a href="/inventory-service/decisions/index.html">All decisions</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0015-github-pages-is-deployed-by-the-publisher-job-not-by-githubs-branch-build">ADR-0015:
+        GitHub Pages is deployed by the publisher job, not by GitHub’s
+        branch build</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-09-21</p>
+        <h2 id="context">Context</h2>
+        <p>The docs site is assembled by <code>docs-pipeline.yml</code>
+        and written to the <code>gh-pages</code> branch by
+        <code>3-deploy-ghpages.yml</code>, which replaces only the paths
+        a run’s <code>MANIFEST</code> names (<a
+        href="adr-0013-docs-pipeline-rebuilds-by-change.html">ADR-0013</a>).
+        Until this decision the Pages source was “Deploy from a branch”:
+        every push to <code>gh-pages</code> made GitHub start its own
+        managed workflow, <code>pages-build-deployment</code>, which
+        built and deployed the branch.</p>
+        <p>That last step sat outside the repository’s control, and it
+        showed:</p>
+        <ul>
+        <li>For the single <code>gh-pages</code> push of 2026-09-21
+        15:15 UTC (<code>126b31f77d</code>), GitHub started two managed
+        runs one second apart. One failed after four seconds with no
+        step logs; the other deployed. The repository’s own workflows
+        had run exactly once each, and nothing in them could have
+        prevented the duplicate.</li>
+        <li>The managed workflow’s build step runs on Node.js 20, which
+        GitHub has deprecated, and it runs a Jekyll build the site does
+        not need: every page is already HTML when it reaches the
+        branch.</li>
+        <li>The deployment was invisible to the repository’s own logs;
+        it had to be looked up separately in the managed workflow’s
+        history.</li>
+        </ul>
+        <h2 id="decision">Decision</h2>
+        <p>The Pages source is “GitHub Actions”.
+        <code>3-deploy-ghpages.yml</code> keeps writing the branch
+        exactly as before and then, in the same job, uploads the branch
+        tree with <code>actions/upload-pages-artifact</code> and deploys
+        it with <code>actions/deploy-pages</code>, both pinned by
+        commit.</p>
+        <ul>
+        <li>The branch stays the store. The manifest publisher, the
+        back-to-docs injection and the history of every published change
+        are unchanged.</li>
+        <li>A deployment happens only when the push changed the branch,
+        or when the run is a re-run, so a failed deployment can be
+        retried without a new commit. A run that publishes nothing
+        deploys nothing.</li>
+        <li>The job already runs in the <code>ghpages-deploy</code>
+        concurrency queue, which never cancels. The same queue now
+        orders deployments: one per push, never two at once.</li>
+        <li>The job deploys to the <code>github-pages</code>
+        environment, which admits the default branch.</li>
+        </ul>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Keep branch deployment and accept the
+        duplicate.</strong> The duplicate was harmless the time it was
+        observed, but it cannot be prevented from inside the repository,
+        and the Node.js 20 build step would stay.</li>
+        <li><strong>Deploy from the docs pipeline’s artifact and retire
+        the branch.</strong> This removes a moving part, but each
+        pipeline run carries only the paths it rebuilt; deploying one
+        run’s artifact would unpublish everything else. The branch is
+        what holds the union.</li>
+        <li><strong>A second job for the deployment.</strong> It would
+        need the tree passed between jobs as an artifact; deploying from
+        the job that just pushed uses the tree it already has.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>One push to <code>gh-pages</code> produces at most one
+        deployment, started by this repository, and it appears in this
+        workflow’s own run.</li>
+        <li>The source is a repository setting, not code, and it is part
+        of this decision: switched back to a branch, GitHub’s own build
+        would resume beside the deploy steps, and the single deployment
+        path would be lost.</li>
+        <li>The <code>github-pages</code> environment must admit
+        <code>main</code>. A branch-sourced site restricts it to the
+        publishing branch, so the rule is changed with the source.</li>
+        <li>A merge that triggers several pipeline runs still produces
+        several deployments, one per <code>gh-pages</code> push, each
+        carrying different content (<a
+        href="adr-0013-docs-pipeline-rebuilds-by-change.html">ADR-0013</a>).</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li><code>3-deploy-ghpages.yml</code> gains
+        <code>pages: write</code> and <code>id-token: write</code>, the
+        <code>github-pages</code> environment, and two steps gated on
+        the push step’s <code>changed</code> output or on
+        <code>github.run_attempt &gt; 1</code>.</li>
+        <li><code>upload-pages-artifact</code> excludes
+        <code>.git</code> and hidden files. The branch holds no hidden
+        files, and the branch build ignored them as well, so the
+        deployed set is the same.</li>
+        <li>Verified after the switch against the published site and the
+        absence of a <code>pages-build-deployment</code> run for the
+        push, not against a green tick.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a
+        href="adr-0013-docs-pipeline-rebuilds-by-change.html">ADR-0013:
+        The docs pipeline rebuilds, and publishes, by change</a></li>
+        <li>Configuring a publishing source for GitHub Pages:
+        https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site</li>
+        <li>System-wide decisions index
+        (<code>../../../decisions/index.md</code>)</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0015-github-pages-is-deployed-by-the-publisher-job-not-by-githubs-branch-build"
+      id="toc-adr-0015-github-pages-is-deployed-by-the-publisher-job-not-by-githubs-branch-build">ADR-0015:
+      GitHub Pages is deployed by the publisher job, not by GitHub’s
+      branch build</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js?v=3354f25964"></script>
+</body>
+</html>
