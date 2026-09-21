@@ -24,19 +24,19 @@ import { fieldErrorText } from '../../../utils/fieldErrorText';
 const t = tEn as unknown as Parameters<typeof fieldErrorText>[1];
 
 describe('fieldErrorText', () => {
-  it('should_return_empty_string_when_the_field_is_valid', () => {
+  it('returns an empty string when the field is valid', () => {
     expect(fieldErrorText(undefined, t)).toBe('');
   });
 
-  it('should_return_empty_string_when_the_error_carries_no_message', () => {
+  it('returns an empty string when the error carries no message', () => {
     expect(fieldErrorText({ type: 'required' } as FieldError, t)).toBe('');
   });
 
-  it('should_return_empty_string_when_the_message_is_an_empty_string', () => {
+  it('returns an empty string when the message is an empty string', () => {
     expect(fieldErrorText({ type: 'required', message: '' } as FieldError, t)).toBe('');
   });
 
-  it('should_resolve_the_key_to_locale_copy_when_the_message_is_an_i18n_key', () => {
+  it('resolves the key to locale copy when the message is an i18n key', () => {
     const out = fieldErrorText(
       { type: 'too_small', message: 'errors:validation.required' } as FieldError,
       t
@@ -45,7 +45,7 @@ describe('fieldErrorText', () => {
     expect(out).not.toBe('errors:validation.required');
   });
 
-  it('should_resolve_every_key_the_shared_validation_subtree_publishes', () => {
+  it('resolves every key the shared validation subtree publishes', () => {
     const keys = [
       'errors:validation.required',
       'errors:validation.invalidEmail',
@@ -62,7 +62,7 @@ describe('fieldErrorText', () => {
     }
   });
 
-  it('should_ignore_a_non_string_message_rather_than_stringify_it', () => {
+  it('ignores a non-string message rather than stringifying it', () => {
     const nested = { type: 'custom', message: { deep: true } } as unknown as FieldError;
     expect(fieldErrorText(nested, t)).toBe('');
   });

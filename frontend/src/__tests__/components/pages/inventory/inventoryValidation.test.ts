@@ -34,7 +34,7 @@ describe('inventoryValidation', () => {
       reason: 'INITIAL_STOCK' as const,
     };
 
-    it('should validate valid item form data', () => {
+    it('accepts valid item form data', () => {
       expectValid(itemFormSchema, validData);
     });
 
@@ -61,7 +61,7 @@ describe('inventoryValidation', () => {
           reason: 'INITIAL_STOCK' as const,
         },
       ],
-    ])('should validate with %s', (_, data) => {
+    ])('accepts data with %s', (_, data) => {
       const result = itemFormSchema.safeParse(data);
       expectValid(itemFormSchema, data, result.success ? result.data : undefined);
     });
@@ -139,7 +139,7 @@ describe('inventoryValidation', () => {
         },
         'errors:validation.required',
       ],
-    ])('should reject %s', (_, data, message) => {
+    ])('rejects %s', (_, data, message) => {
       expectInvalidMessage(itemFormSchema, data, message);
     });
   });
@@ -215,7 +215,7 @@ describe('inventoryValidation', () => {
   });
 
   describe('priceChangeSchema', () => {
-    it('should validate valid price change data', () => {
+    it('accepts valid price change data', () => {
       const validData = {
         itemId: 'item-789',
         newPrice: 99.99,
@@ -240,13 +240,13 @@ describe('inventoryValidation', () => {
         { itemId: 'item-789', newPrice: -15.5 },
         'errors:validation.positive',
       ],
-    ])('should reject %s', (_, data, message) => {
+    ])('rejects %s', (_, data, message) => {
       expectInvalidMessage(priceChangeSchema, data, message);
     });
   });
 
   describe('editItemSchema', () => {
-    it('should validate valid edit item data', () => {
+    it('accepts valid edit item data', () => {
       expectValid(editItemSchema, { itemId: 'item-111', newName: 'Updated Item Name' });
     });
 
@@ -257,17 +257,17 @@ describe('inventoryValidation', () => {
         'errors:validation.required',
       ],
       ['empty newName', { itemId: 'item-111', newName: '' }, 'errors:validation.required'],
-    ])('should reject %s', (_, data, message) => {
+    ])('rejects %s', (_, data, message) => {
       expectInvalidMessage(editItemSchema, data, message);
     });
   });
 
   describe('deleteItemSchema', () => {
-    it('should validate valid delete item data', () => {
+    it('accepts valid delete item data', () => {
       expectValid(deleteItemSchema, { itemId: 'item-222' });
     });
 
-    it('should reject empty itemId', () => {
+    it('rejects an empty itemId', () => {
       expectInvalidMessage(deleteItemSchema, { itemId: '' }, 'errors:validation.required');
     });
   });

@@ -61,7 +61,7 @@ describe('useSearchHandlers', () => {
     vi.clearAllMocks();
   });
 
-  it('should return handler functions', () => {
+  it('returns its handler functions', () => {
     const handlers = renderHandlers(createState());
     expect(handlers).toEqual(
       expect.objectContaining({
@@ -72,7 +72,7 @@ describe('useSearchHandlers', () => {
     );
   });
 
-  it('handleSearchChange should update search query and reset selection', () => {
+  it('updates the query and resets the selection when the search changes', () => {
     const state = createState({
       paginationModel: { page: 2, pageSize: 10 },
       selectedId: '123',
@@ -89,7 +89,7 @@ describe('useSearchHandlers', () => {
     expect(state.setPaginationModel).toHaveBeenCalledWith({ page: 0, pageSize: 10 });
   });
 
-  it('handleSearchResultSelect should select result and update query', () => {
+  it('selects the result and updates the query when a search result is chosen', () => {
     const supplier = supplierRow({ id: '123', name: 'Acme Corp' });
     const state = createState({ paginationModel: { page: 1, pageSize: 10 } });
     const handlers = renderHandlers(state);
@@ -104,7 +104,7 @@ describe('useSearchHandlers', () => {
     expect(state.setPaginationModel).toHaveBeenCalledWith({ page: 0, pageSize: 10 });
   });
 
-  it('handleClearSearchSelection should clear all search state', () => {
+  it('clears all search state when the search selection is cleared', () => {
     const state = createState({
       selectedId: '123',
       searchQuery: 'acme',
@@ -120,7 +120,7 @@ describe('useSearchHandlers', () => {
     expect(state.setSearchQuery).toHaveBeenCalledWith('');
   });
 
-  it('handleSearchChange supports empty query', () => {
+  it('accepts an empty query when the search changes', () => {
     const state = createState({ paginationModel: { page: 1, pageSize: 10 }, selectedId: '123', searchQuery: 'test' });
     const handlers = renderHandlers(state);
 
@@ -131,7 +131,7 @@ describe('useSearchHandlers', () => {
     expect(state.setSelectedId).toHaveBeenCalledWith(null);
   });
 
-  it('handleSearchResultSelect supports supplier with empty name', () => {
+  it('accepts a supplier with an empty name when a search result is chosen', () => {
     const state = createState();
     const handlers = renderHandlers(state);
 

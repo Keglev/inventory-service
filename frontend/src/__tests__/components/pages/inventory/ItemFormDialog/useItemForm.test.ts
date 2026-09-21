@@ -148,7 +148,7 @@ describe('useItemForm', () => {
     });
   });
 
-  it('handleClose clears state and calls onClose', () => {
+  it('clears state and calls onClose when handleClose runs', () => {
     const onClose = vi.fn();
     const { result } = renderUseItemForm({ onClose, initial: undefined });
 
@@ -166,7 +166,7 @@ describe('useItemForm', () => {
     expect(result.current.formError).toBeNull();
   });
 
-  it('onSubmit honors readOnly (demo mode) and does not call upsertItem', async () => {
+  it('skips upsertItem when submitted in read-only demo mode', async () => {
     const { result } = renderUseItemForm({ readOnly: true });
 
     await submitValid(result);
@@ -178,7 +178,7 @@ describe('useItemForm', () => {
     });
   });
 
-  it('onSubmit success path: toasts, calls onSaved, and closes', async () => {
+  it('toasts, calls onSaved and closes when a submit succeeds', async () => {
     mockUpsertItem.mockResolvedValue({ ok: true });
 
     const onClose = vi.fn();
@@ -193,7 +193,7 @@ describe('useItemForm', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('onSubmit success path works when onSaved is omitted (default no-op)', async () => {
+  it('succeeds when submitted without an onSaved callback', async () => {
     mockUpsertItem.mockResolvedValue({ ok: true });
     const onClose = vi.fn();
     const { result } = renderUseItemForm({ onClose });

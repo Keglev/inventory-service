@@ -100,7 +100,7 @@ describe('useLocale', () => {
     expect(result.current.locale).toBe('en');
   });
 
-  it('changeLocale updates state, storage, and calls i18n.changeLanguage', async () => {
+  it('updates state and storage and calls i18n.changeLanguage when changeLocale is called', async () => {
     // Contract: changeLocale updates UI state + persistence + underlying i18n engine.
     const fake = createFakeI18n('de');
     const { result } = renderHook(() => useLocale(fake as unknown as i18n));
@@ -114,7 +114,7 @@ describe('useLocale', () => {
     expect(fake.changeLanguage).toHaveBeenCalledWith('en');
   });
 
-  it('toggleLocale flips between supported locales and persists', async () => {
+  it('flips between supported locales and persists when toggleLocale is called', async () => {
     // Contract: toggleLocale flips de <-> en and persists the resulting value.
     const fake = createFakeI18n('de');
     const { result } = renderHook(() => useLocale(fake as unknown as i18n));

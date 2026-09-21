@@ -28,7 +28,7 @@ const deps = () => {
 };
 
 describe('applyItemFormServerError', () => {
-  it('should_attach_the_duplicate_name_key_when_a_conflict_names_the_name_field', () => {
+  it('attaches the duplicate-name key when a conflict names the name field', () => {
     const d = deps();
     applyItemFormServerError(
       { errorToken: 'conflict', fieldErrors: { name: 'An inventory item with this name and price already exists.' } },
@@ -39,7 +39,7 @@ describe('applyItemFormServerError', () => {
     });
   });
 
-  it('should_attach_the_duplicate_sku_key_to_the_code_input_when_a_conflict_names_sku', () => {
+  it('attaches the duplicate-sku key to the code input when a conflict names sku', () => {
     const d = deps();
     applyItemFormServerError(
       { errorToken: 'conflict', fieldErrors: { sku: 'Another inventory item with this SKU already exists.' } },
@@ -51,7 +51,7 @@ describe('applyItemFormServerError', () => {
     });
   });
 
-  it('should_never_let_the_servers_english_message_reach_an_input', () => {
+  it('never lets the English server message reach an input', () => {
     const d = deps();
     const english = 'Another inventory item with this SKU already exists.';
     applyItemFormServerError({ errorToken: 'conflict', fieldErrors: { sku: english } }, d);
@@ -63,7 +63,7 @@ describe('applyItemFormServerError', () => {
     }
   });
 
-  it('should_flag_the_field_neutrally_when_the_token_is_not_a_conflict', () => {
+  it('flags the field neutrally when the token is not a conflict', () => {
     const d = deps();
     // 400 bean validation: the server reports that a rule fired, not which one.
     applyItemFormServerError(
@@ -73,7 +73,7 @@ describe('applyItemFormServerError', () => {
     expect(d.setError).toHaveBeenCalledWith('price', { message: 'errors:validation.invalid' });
   });
 
-  it('should_attribute_every_field_the_server_names', () => {
+  it('attributes every field the server names', () => {
     const d = deps();
     applyItemFormServerError(
       { errorToken: 'bad_request', fieldErrors: { name: 'x', quantity: 'y', supplierId: 'z' } },
@@ -85,13 +85,13 @@ describe('applyItemFormServerError', () => {
     );
   });
 
-  it('should_raise_the_banner_when_at_least_one_input_was_flagged', () => {
+  it('raises the banner when at least one input was flagged', () => {
     const d = deps();
     applyItemFormServerError({ errorToken: 'conflict', fieldErrors: { name: 'x' } }, d);
     expect(d.setFormError).toHaveBeenCalledWith('errors:form.validationFailed');
   });
 
-  it('should_fall_back_to_the_form_level_message_when_no_named_field_maps_to_an_input', () => {
+  it('falls back to the form-level message when no named field maps to an input', () => {
     const d = deps();
     applyItemFormServerError(
       { errorToken: 'bad_request', fieldErrors: { somethingUnmapped: 'x' } },
@@ -101,7 +101,7 @@ describe('applyItemFormServerError', () => {
     expect(d.setFormError).toHaveBeenCalledWith('errors:inventory.server.serverError');
   });
 
-  it('should_fall_back_to_the_name_field_when_a_conflict_carries_no_field_attribution', () => {
+  it('falls back to the name field when a conflict carries no field attribution', () => {
     const d = deps();
     applyItemFormServerError({ errorToken: 'conflict' }, d);
     expect(d.setError).toHaveBeenCalledWith('name', {
@@ -110,7 +110,7 @@ describe('applyItemFormServerError', () => {
     expect(d.setFormError).toHaveBeenCalledWith('errors:form.validationFailed');
   });
 
-  it('should_use_the_generic_server_message_for_an_unrelated_token', () => {
+  it('uses the generic server message when the token is unrelated', () => {
     const d = deps();
     applyItemFormServerError({ errorToken: 'not_found' }, d);
     expect(d.setError).not.toHaveBeenCalled();

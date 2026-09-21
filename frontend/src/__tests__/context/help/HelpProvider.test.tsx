@@ -61,7 +61,7 @@ describe('HelpProvider', () => {
     expect(screen.getByTestId('child')).toBeInTheDocument();
   });
 
-  it('openHelp(topicId) opens help and sets topic', async () => {
+  it('opens help and sets the topic when openHelp is called with a topic id', async () => {
     const user = userEvent.setup();
     renderHelp();
 
@@ -74,7 +74,7 @@ describe('HelpProvider', () => {
     expect(screen.getByTestId('topic')).toHaveTextContent('topic-1');
   });
 
-  it('closeHelp() closes immediately and clears topic after the animation delay', async () => {
+  it('closes at once and clears the topic after the animation delay when closeHelp is called', async () => {
     vi.useFakeTimers();
     renderHelp();
 

@@ -139,7 +139,7 @@ describe('AuthProvider', () => {
     expect(screen.getByTestId('user-role')).toHaveTextContent('');
   });
 
-  it('loginAsDemo() sets demo user and persists it', async () => {
+  it('sets and persists the demo user when loginAsDemo is called', async () => {
     httpClientMock.get.mockResolvedValue({
       data: { email: 'test@example.com', fullName: 'Test User', role: 'USER' },
     });
@@ -155,7 +155,7 @@ describe('AuthProvider', () => {
     expect(Storage.prototype.setItem).toHaveBeenCalledWith(DEMO_KEY, expect.any(String));
   });
 
-  it('logout() clears user, broadcasts cross-tab flag, and resets logoutInProgress after the safety timeout', async () => {
+  it('clears the user, broadcasts the cross-tab flag and resets logoutInProgress after the safety timeout when logout is called', async () => {
     vi.useFakeTimers();
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => (key === DEMO_KEY ? demoUserJson() : null));
 
@@ -206,7 +206,7 @@ describe('AuthProvider', () => {
     expect(httpClientMock.get).toHaveBeenCalledWith('/api/me', expect.anything());
   });
 
-  it('login() redirects to the Google OAuth2 authorization endpoint', async () => {
+  it('redirects to the Google OAuth2 authorization endpoint when login is called', async () => {
     httpClientMock.get.mockRejectedValue(new Error('no session'));
     const assign = vi.fn();
     const originalLocation = window.location;
