@@ -59,7 +59,7 @@ class InventoryItemRepositoryTest {
     class NameSearch {
 
         @Test
-        void should_find_items_by_exact_name_case_insensitive() {
+        void should_find_the_items_when_the_name_matches_in_any_case() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-1").name("Wrench").sku("SKU-REP-1").price(BigDecimal.valueOf(8))
                     .quantity(20).minimumQuantity(5).supplier(supplier1).build());
@@ -80,7 +80,7 @@ class InventoryItemRepositoryTest {
         }
 
         @Test
-        void should_return_items_sorted_by_price_ascending_for_name_filter() {
+        void should_sort_by_price_ascending_when_filtering_by_name() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-3").name("Screw").sku("SKU-REP-3").price(BigDecimal.valueOf(1))
                     .quantity(100).minimumQuantity(10).supplier(supplier1).build());
@@ -110,7 +110,7 @@ class InventoryItemRepositoryTest {
         }
 
         @Test
-        void should_filter_by_supplier_when_supplierId_given() {
+        void should_filter_by_supplier_when_a_supplier_id_is_given() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-s1").name("Plate").sku("SKU-REP-S1").price(BigDecimal.valueOf(3))
                     .quantity(10).minimumQuantity(5).supplier(supplier1).supplierId("sup-1").build());
@@ -140,7 +140,7 @@ class InventoryItemRepositoryTest {
         }
 
         @Test
-        void should_honor_pageable_sort_over_any_default() {
+        void should_honor_the_pageable_sort_when_it_differs_from_the_default() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-o1").name("Alpha").sku("SKU-REP-O1").price(BigDecimal.valueOf(50))
                     .quantity(10).minimumQuantity(5).supplier(supplier1).build());
@@ -161,7 +161,7 @@ class InventoryItemRepositoryTest {
     class SupplierAssociation {
 
         @Test
-        void should_confirm_active_stock_exists_for_supplier_above_threshold() {
+        void should_confirm_active_stock_when_a_supplier_holds_more_than_the_threshold() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-5").name("Bolt").sku("SKU-REP-5").price(BigDecimal.valueOf(2))
                     .quantity(30).minimumQuantity(5).supplier(supplier1).build());
@@ -186,7 +186,7 @@ class InventoryItemRepositoryTest {
     class StockThreshold {
 
         @Test
-        void should_return_items_below_minimum_stock_filtered_by_supplier() {
+        void should_return_items_below_minimum_stock_when_a_supplier_is_given() {
             InventoryItem low1 = InventoryItem.builder()
                     .id("item-low-1").name("Pen Blue").sku("SKU-REP-7").quantity(2)
                     .minimumQuantity(5).price(BigDecimal.TEN).supplier(supplier1).build();
@@ -203,7 +203,7 @@ class InventoryItemRepositoryTest {
         }
 
         @Test
-        void should_count_items_with_quantity_strictly_below_threshold() {
+        void should_count_the_items_when_their_quantity_is_strictly_below_the_threshold() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-cnt-1").name("Pin").sku("SKU-REP-9").quantity(3)
                     .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier1).build());

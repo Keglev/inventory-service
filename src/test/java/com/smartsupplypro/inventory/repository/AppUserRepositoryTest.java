@@ -44,7 +44,7 @@ class AppUserRepositoryTest {
     class EmailLookup {
 
         @Test
-        void should_find_user_by_email_after_save() {
+        void should_find_the_user_when_looked_up_by_email_after_a_save() {
             appUserRepository.save(createUser("test@example.com"));
 
             Optional<AppUser> result = appUserRepository.findByEmail("test@example.com");
@@ -59,7 +59,7 @@ class AppUserRepositoryTest {
         }
 
         @Test
-        void should_treat_email_lookup_as_case_sensitive() {
+        void should_find_nothing_when_the_email_case_differs() {
             appUserRepository.save(createUser("CaseSensitive@Example.com"));
 
             // H2 string comparison is case-sensitive for exact equality
@@ -75,7 +75,7 @@ class AppUserRepositoryTest {
     class UserCount {
 
         @Test
-        void should_reflect_correct_count_after_insertions() {
+        void should_report_the_correct_count_when_users_have_been_inserted() {
             appUserRepository.save(createUser("a@example.com"));
             appUserRepository.save(createUser("b@example.com"));
 
@@ -90,7 +90,7 @@ class AppUserRepositoryTest {
     class ConstraintValidation {
 
         @Test
-        void should_throw_on_duplicate_email() {
+        void should_throw_when_the_email_is_already_taken() {
             AppUser user1 = new AppUser("duplicate@example.com", "Original User");
             user1.setRole(Role.USER);
             appUserRepository.saveAndFlush(user1);

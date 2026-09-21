@@ -77,7 +77,7 @@ class StockTrendAnalyticsRepositoryImplH2Test {
     class MonthlyMovement {
 
         @Test
-        void should_aggregate_stock_in_and_out_by_month() {
+        void should_aggregate_stock_in_and_out_when_grouping_by_month() {
             seedTestData();
             StockTrendAnalyticsRepositoryImpl repo = repoH2();
 
@@ -96,7 +96,7 @@ class StockTrendAnalyticsRepositoryImplH2Test {
         }
 
         @Test
-        void should_filter_monthly_movement_by_supplier_and_normalize_blank_to_null() {
+        void should_filter_the_monthly_movement_and_treat_blank_as_null_when_a_supplier_is_given() {
             seedTestData();
             StockTrendAnalyticsRepositoryImpl repo = repoH2();
 
@@ -122,7 +122,7 @@ class StockTrendAnalyticsRepositoryImplH2Test {
     class DailyValuation {
 
         @Test
-        void should_return_closing_stock_value_per_day() {
+        void should_return_the_closing_stock_value_when_grouping_by_day() {
             seedTestData();
             StockTrendAnalyticsRepositoryImpl repo = repoH2();
 
@@ -149,7 +149,7 @@ class StockTrendAnalyticsRepositoryImplH2Test {
     class PriceTrend {
 
         @Test
-        void should_map_price_trend_to_dto_and_honor_supplier_filter() {
+        void should_map_the_price_trend_to_a_dto_when_a_supplier_filter_is_given() {
             seedTestData();
             StockTrendAnalyticsRepositoryImpl repo = repoH2();
 

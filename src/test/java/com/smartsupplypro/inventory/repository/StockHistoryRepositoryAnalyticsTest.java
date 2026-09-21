@@ -93,7 +93,7 @@ class StockHistoryRepositoryAnalyticsTest {
     class AggregationQueries {
 
         @Test
-        void should_return_stock_value_aggregated_by_day() {
+        void should_aggregate_the_stock_value_when_grouping_by_day() {
             List<Object[]> result = stockHistoryRepository.getDailyStockValuation(now.minusDays(3), now, null);
 
             assertEquals(2, result.size());
@@ -101,7 +101,7 @@ class StockHistoryRepositoryAnalyticsTest {
         }
 
         @Test
-        void should_return_total_stock_per_supplier() {
+        void should_return_the_total_stock_when_grouping_by_supplier() {
             List<Object[]> result = stockHistoryRepository.getTotalStockBySupplier();
 
             assertTrue(result.size() >= 2);
@@ -112,7 +112,7 @@ class StockHistoryRepositoryAnalyticsTest {
         }
 
         @Test
-        void should_return_update_counts_per_item_grouped_by_supplier() {
+        void should_return_update_counts_per_item_when_grouping_by_supplier() {
             List<Object[]> result = stockHistoryRepository.getUpdateCountByItem(supplierA.getId());
 
             assertEquals(2, result.size());
@@ -132,7 +132,7 @@ class StockHistoryRepositoryAnalyticsTest {
     class MovementReporting {
 
         @Test
-        void should_return_monthly_stock_movement_globally() {
+        void should_return_the_monthly_movement_when_no_supplier_is_given() {
             List<Object[]> result = stockHistoryRepository.getMonthlyStockMovement(
                     now.minusMonths(1), now.plusDays(1));
 
@@ -143,7 +143,7 @@ class StockHistoryRepositoryAnalyticsTest {
         }
 
         @Test
-        void should_return_monthly_stock_movement_filtered_by_supplier() {
+        void should_return_the_monthly_movement_when_a_supplier_is_given() {
             List<Object[]> result = stockHistoryRepository.getMonthlyStockMovementBySupplier(
                     now.minusMonths(1), now.plusDays(1), supplierA.getId());
 
@@ -152,7 +152,7 @@ class StockHistoryRepositoryAnalyticsTest {
         }
 
         @Test
-        void should_return_items_below_minimum_stock_for_supplier() {
+        void should_return_items_below_minimum_stock_when_a_supplier_is_given() {
             item2.setQuantity(3);
             item2.setMinimumQuantity(5);
             inventoryItemRepository.save(item2);
@@ -161,7 +161,7 @@ class StockHistoryRepositoryAnalyticsTest {
         }
 
         @Test
-        void should_return_filtered_stock_updates_for_tabular_export() {
+        void should_return_the_filtered_updates_when_exporting_a_table() {
             List<Object[]> result = stockHistoryRepository.searchStockUpdates(
                     now.minusDays(3), now, "Wrench", supplierA.getId(), "admin", -10, 20);
 
@@ -179,7 +179,7 @@ class StockHistoryRepositoryAnalyticsTest {
     class PriceTrend {
 
         @Test
-        void should_return_price_trend_dtos_for_item_and_date_range() {
+        void should_return_price_trend_rows_when_an_item_and_date_range_are_given() {
             List<PriceTrendDTO> result = stockHistoryRepository.getPriceTrend(
                     item1.getId(), now.minusDays(3), now);
 
@@ -188,7 +188,7 @@ class StockHistoryRepositoryAnalyticsTest {
         }
 
         @Test
-        void should_return_supplier_filtered_price_trend_via_custom_query() {
+        void should_return_supplier_filtered_price_trend_rows_when_the_custom_query_runs() {
             List<PriceTrendDTO> result = stockHistoryRepository
                     .getItemPriceTrend(item1.getId(), supplierA.getId(), now.minusDays(3), now);
 

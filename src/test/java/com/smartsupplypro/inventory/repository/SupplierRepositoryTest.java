@@ -48,7 +48,7 @@ class SupplierRepositoryTest {
     class NameLookup {
 
         @Test
-        void should_find_supplier_regardless_of_name_casing() {
+        void should_find_the_supplier_when_the_name_case_differs() {
             save("Acme GmbH");
 
             assertTrue(supplierRepository.findByNameIgnoreCase("Acme GmbH").isPresent());
@@ -67,7 +67,7 @@ class SupplierRepositoryTest {
     class NameSearch {
 
         @Test
-        void should_return_matching_suppliers_for_substring_case_insensitive() {
+        void should_return_matching_suppliers_when_a_substring_matches_in_any_case() {
             save("SuperCo");
             save("SuperMart");
             save("OtherCompany");
@@ -94,7 +94,7 @@ class SupplierRepositoryTest {
     class ExistenceCheck {
 
         @Test
-        void should_confirm_existence_for_known_name_regardless_of_case() {
+        void should_confirm_existence_when_a_known_name_is_given_in_any_case() {
             save("MegaSupply");
 
             assertTrue(supplierRepository.existsByNameIgnoreCase("megasupply"));

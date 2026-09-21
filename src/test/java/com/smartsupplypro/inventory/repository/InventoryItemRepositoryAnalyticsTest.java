@@ -65,7 +65,7 @@ class InventoryItemRepositoryAnalyticsTest {
     class BelowMinimumStock {
 
         @Test
-        void should_return_only_items_strictly_below_minimum_for_supplier() {
+        void should_return_only_items_strictly_below_minimum_when_a_supplier_is_given() {
             List<Object[]> result = repository.findItemsBelowMinimumStockFiltered("S1");
 
             // S1-eq (qty==min) and S1-high (qty>min) must be excluded
@@ -73,7 +73,7 @@ class InventoryItemRepositoryAnalyticsTest {
         }
 
         @Test
-        void should_isolate_results_to_the_requested_supplier() {
+        void should_isolate_the_results_when_another_supplier_has_matching_items() {
             List<Object[]> s1 = repository.findItemsBelowMinimumStockFiltered("S1");
             List<Object[]> s2 = repository.findItemsBelowMinimumStockFiltered("S2");
 
