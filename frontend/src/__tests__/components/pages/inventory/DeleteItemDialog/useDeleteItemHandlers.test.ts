@@ -114,7 +114,7 @@ describe('useDeleteItemHandlers', () => {
   });
 
   describe('basic dialog actions', () => {
-    it('handleClose resets state and calls onClose', () => {
+    it('resets state and calls onClose when handleClose runs', () => {
       const { result, state, onClose, onItemDeleted } = setup();
 
       act(() => {
@@ -126,7 +126,7 @@ describe('useDeleteItemHandlers', () => {
       expect(onItemDeleted).not.toHaveBeenCalled();
     });
 
-    it('handleCancelConfirmation hides confirmation and shows an info toast', () => {
+    it('hides the confirmation and shows an info toast when the confirmation is cancelled', () => {
       const { result, state } = setup();
 
       act(() => {
@@ -139,7 +139,7 @@ describe('useDeleteItemHandlers', () => {
   });
 
   describe('submit flow', () => {
-    it('onSubmit sets a form error when no item is selected', async () => {
+    it('sets a form error when submitted with no item selected', async () => {
       const { result, state } = setup({ state: { selectedItem: null } });
 
       await act(async () => {
@@ -150,7 +150,7 @@ describe('useDeleteItemHandlers', () => {
       expect(state.setShowConfirmation).not.toHaveBeenCalledWith(true);
     });
 
-    it('onSubmit opens confirmation when an item is selected', async () => {
+    it('opens the confirmation when submitted with an item selected', async () => {
       const { result, state } = setup({
         state: { selectedItem: { id: 'item-1', name: 'Item 1' } as unknown as UseDeleteItemStateReturn['selectedItem'] },
       });

@@ -51,7 +51,7 @@ describe('useFilterHandlers', () => {
     vi.clearAllMocks();
   });
 
-  it('should return handler functions', () => {
+  it('returns its handler functions', () => {
     const handlers = renderHandlers(createState());
     expect(handlers).toEqual(expect.objectContaining({ handleToggleShowAll: expect.any(Function) }));
   });

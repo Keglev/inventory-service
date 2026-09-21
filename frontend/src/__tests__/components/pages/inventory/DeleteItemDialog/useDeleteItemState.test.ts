@@ -116,7 +116,7 @@ describe('useDeleteItemState', () => {
     expect(setValue).toHaveBeenCalledWith('itemId', 'item-2');
   });
 
-  it('resetAll clears selections and triggers form reset', async () => {
+  it('clears selections and resets the form when resetAll is called', async () => {
     const reset = vi.fn();
     const formStub = createFormStub({ reset });
     useFormMock.mockReturnValue(formStub);

@@ -73,7 +73,7 @@ describe('useDialogHandlers', () => {
     vi.clearAllMocks();
   });
 
-  it('should return handler functions', () => {
+  it('returns its handler functions', () => {
     const handlers = renderHandlers(createState());
 
     // Keep this assertion shallow: behavioral contracts are covered below.

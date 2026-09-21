@@ -245,7 +245,7 @@ describe('usePriceChangeForm', () => {
     expect(hook.result.current.formError).toBe('errors:inventory.requests.failedToChangePrice');
   });
 
-  it('handleClose resets selection state and calls onClose', async () => {
+  it('resets selection state and calls onClose when handleClose runs', async () => {
     const hook = renderForm();
     await selectItem(hook);
 

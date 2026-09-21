@@ -42,7 +42,7 @@ describe('useStockAnalytics hooks', () => {
     vi.clearAllMocks();
   });
 
-  it('useStockValueQuery calls getStockValueOverTime with AnalyticsParams', async () => {
+  it('calls getStockValueOverTime with AnalyticsParams when useStockValueQuery runs', async () => {
     // Arrange
     vi.mocked(getStockValueOverTime).mockResolvedValue([] as never);
 
@@ -64,7 +64,7 @@ describe('useStockAnalytics hooks', () => {
     expect(getStockValueOverTime).toHaveBeenCalledWith(params);
   });
 
-  it('useMonthlyMovementQuery calls getMonthlyStockMovement with StockMovementParams', async () => {
+  it('calls getMonthlyStockMovement with StockMovementParams when useMonthlyMovementQuery runs', async () => {
     // Arrange
     vi.mocked(getMonthlyStockMovement).mockResolvedValue([] as never);
 
@@ -86,7 +86,7 @@ describe('useStockAnalytics hooks', () => {
     expect(getMonthlyStockMovement).toHaveBeenCalledWith(params);
   });
 
-  it('useStockPerSupplierQuery calls getStockPerSupplier', async () => {
+  it('calls getStockPerSupplier when useStockPerSupplierQuery runs', async () => {
     // Arrange
     vi.mocked(getStockPerSupplier).mockResolvedValue([] as never);
 

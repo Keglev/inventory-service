@@ -43,7 +43,7 @@ describe('usePriceAndFinancials hooks', () => {
     vi.clearAllMocks();
   });
 
-  it('usePriceTrendQuery calls getPriceTrend with itemId + params', async () => {
+  it('calls getPriceTrend with itemId and params when usePriceTrendQuery runs', async () => {
     // Arrange
     vi.mocked(getPriceTrend).mockResolvedValue([] as never);
 
@@ -66,7 +66,7 @@ describe('usePriceAndFinancials hooks', () => {
     expect(getPriceTrend).toHaveBeenCalledWith('ITEM-123', params);
   });
 
-  it('useFinancialSummaryQuery calls getFinancialSummary with params', async () => {
+  it('calls getFinancialSummary with params when useFinancialSummaryQuery runs', async () => {
     // Arrange
     vi.mocked(getFinancialSummary).mockResolvedValue({} as never);
 

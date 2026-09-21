@@ -194,7 +194,7 @@ describe('useDeleteSupplierForm', () => {
     expect(result.current.isDeleting).toBe(false);
   });
 
-  it('resetForm clears selection, error, confirmation and resets search', () => {
+  it('clears selection, error and confirmation and resets search when resetForm is called', () => {
     const { result } = renderHook(() => useDeleteSupplierForm(vi.fn()));
 
     act(() => {

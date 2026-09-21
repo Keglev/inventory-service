@@ -40,7 +40,7 @@ describe('useThemeMode', () => {
     expect(result.current.themeMode).toBe('dark');
   });
 
-  it('setThemeMode updates state and persists the preference', () => {
+  it('updates state and persists the preference when setThemeMode is called', () => {
     // Contract: explicit set should update both in-memory state and persistence.
     const { result } = renderHook(() => useThemeMode());
 
@@ -52,7 +52,7 @@ describe('useThemeMode', () => {
     expect(localStorage.getItem('themeMode')).toBe('dark');
   });
 
-  it('toggleThemeMode flips between light and dark and persists', () => {
+  it('flips between light and dark and persists when toggleThemeMode is called', () => {
     // Contract: toggle is symmetric and persists the resulting state.
     const { result } = renderHook(() => useThemeMode());
 
