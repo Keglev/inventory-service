@@ -40,38 +40,38 @@ class EmployeeAnalyticsControllerSecurityTest {
     }
 
     @Test
-    void byEmployee_admin_is200() throws Exception {
+    void should_return_200_when_an_admin_requests_changes_by_employee() throws Exception {
         mockMvc.perform(get("/api/analytics/by-employee").with(user("a").roles("ADMIN")))
                .andExpect(status().isOk());
     }
 
     @Test
-    void byEmployee_regularUser_is403() throws Exception {
+    void should_return_403_when_a_regular_user_requests_changes_by_employee() throws Exception {
         mockMvc.perform(get("/api/analytics/by-employee").with(user("u").roles("USER")))
                .andExpect(status().isForbidden());
     }
 
     @Test
-    void byEmployee_anonymous_withDemoReadonly_is200() throws Exception {
+    void should_return_200_when_an_anonymous_caller_requests_by_employee_in_demo_readonly() throws Exception {
         appProperties.setDemoReadonly(true);
         mockMvc.perform(get("/api/analytics/by-employee"))
                .andExpect(status().isOk());
     }
 
     @Test
-    void byEmployee_anonymous_withoutDemoReadonly_is403() throws Exception {
+    void should_return_403_when_an_anonymous_caller_requests_by_employee_outside_demo_readonly() throws Exception {
         mockMvc.perform(get("/api/analytics/by-employee"))
                .andExpect(status().isForbidden());
     }
 
     @Test
-    void employeeChanges_admin_is200() throws Exception {
+    void should_return_200_when_an_admin_requests_employee_changes() throws Exception {
         mockMvc.perform(get("/api/analytics/employee-changes").with(user("a").roles("ADMIN")))
                .andExpect(status().isOk());
     }
 
     @Test
-    void employeeChanges_regularUser_is403() throws Exception {
+    void should_return_403_when_a_regular_user_requests_employee_changes() throws Exception {
         mockMvc.perform(get("/api/analytics/employee-changes").with(user("u").roles("USER")))
                .andExpect(status().isForbidden());
     }

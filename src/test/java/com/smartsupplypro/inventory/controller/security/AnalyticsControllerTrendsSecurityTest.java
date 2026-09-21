@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AnalyticsControllerTrendsSecurityTest extends AbstractAnalyticsControllerSecurityTest {
 
     @Test
-    void monthlyStockMovement_unauthenticated_is401() throws Exception {
+    void should_return_401_when_monthly_stock_movement_is_requested_unauthenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/monthly-stock-movement")
                         .param("start","2024-02-01")
                         .param("end","2024-03-31"))
@@ -22,7 +22,7 @@ class AnalyticsControllerTrendsSecurityTest extends AbstractAnalyticsControllerS
     }
 
     @Test
-    void monthlyStockMovement_authenticatedUser_is200() throws Exception {
+    void should_return_200_when_monthly_stock_movement_is_requested_authenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/monthly-stock-movement")
                         .param("start","2024-02-01")
                         .param("end","2024-03-31")
@@ -31,7 +31,7 @@ class AnalyticsControllerTrendsSecurityTest extends AbstractAnalyticsControllerS
     }
 
     @Test
-    void priceTrend_unauthenticated_is401() throws Exception {
+    void should_return_401_when_the_price_trend_is_requested_unauthenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/price-trend")
                         .param("itemId","I1")
                         .param("start", LocalDate.now().minusDays(7).toString())
@@ -40,7 +40,7 @@ class AnalyticsControllerTrendsSecurityTest extends AbstractAnalyticsControllerS
     }
 
     @Test
-    void priceTrend_authenticatedUser_is200() throws Exception {
+    void should_return_200_when_the_price_trend_is_requested_authenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/price-trend")
                         .param("itemId","I1")
                         .param("start", LocalDate.now().minusDays(7).toString())

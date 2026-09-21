@@ -12,13 +12,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class StockReasonAnalyticsControllerSecurityTest extends AbstractAnalyticsControllerSecurityTest {
 
     @Test
-    void reasonBreakdownGET_unauthenticated_is401() throws Exception {
+    void should_return_401_when_the_reason_breakdown_is_requested_unauthenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/reason-breakdown"))
                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void reasonBreakdownGET_authenticatedUser_is200() throws Exception {
+    void should_return_200_when_the_reason_breakdown_is_requested_authenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/reason-breakdown")
                         .param("startDate", "2026-01-01")
                         .param("endDate", "2026-06-30")

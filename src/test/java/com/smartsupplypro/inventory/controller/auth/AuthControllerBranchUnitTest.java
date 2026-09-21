@@ -28,7 +28,7 @@ class AuthControllerBranchUnitTest {
     }
 
     @Test
-    void me_whenPrincipalNull_throwsUnauthorized() {
+    void should_throw_unauthorized_when_the_principal_is_null_on_me() {
         AuthController controller = newController();
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> controller.me(null));
@@ -41,7 +41,7 @@ class AuthControllerBranchUnitTest {
     }
 
     @Test
-    void meAuthorities_whenPrincipalNull_throwsUnauthorized() {
+    void should_throw_unauthorized_when_the_principal_is_null_on_me_authorities() {
         AuthController controller = newController();
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> controller.meAuthorities(null));

@@ -57,7 +57,7 @@ class StockHistoryControllerEndpointsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void getAll_whenAuthenticated_returnsList(String role) throws Exception {
+    void should_return_the_list_when_all_history_is_requested_authenticated(String role) throws Exception {
         when(stockHistoryService.getAll()).thenReturn(List.of(history));
 
         mockMvc.perform(get("/api/stock-history")
@@ -69,7 +69,7 @@ class StockHistoryControllerEndpointsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void getAll_whenEmpty_returnsEmptyList(String role) throws Exception {
+    void should_return_an_empty_list_when_there_is_no_history(String role) throws Exception {
         when(stockHistoryService.getAll()).thenReturn(List.of());
 
         mockMvc.perform(get("/api/stock-history")
@@ -80,7 +80,7 @@ class StockHistoryControllerEndpointsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void getByItemId_whenAuthenticated_returnsHistory(String role) throws Exception {
+    void should_return_the_history_when_looking_up_by_item_id(String role) throws Exception {
         when(stockHistoryService.getByItemId("item-1")).thenReturn(List.of(history));
 
         mockMvc.perform(get("/api/stock-history/item/item-1")
@@ -91,7 +91,7 @@ class StockHistoryControllerEndpointsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void getByReason_whenAuthenticated_returnsHistory(String role) throws Exception {
+    void should_return_the_history_when_looking_up_by_reason(String role) throws Exception {
         when(stockHistoryService.getByReason(StockChangeReason.SOLD)).thenReturn(List.of(history));
 
         mockMvc.perform(get("/api/stock-history/reason/SOLD")
@@ -102,7 +102,7 @@ class StockHistoryControllerEndpointsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void getByReason_whenInvalidEnum_returnsBadRequest(String role) throws Exception {
+    void should_return_400_when_the_reason_is_not_a_valid_value(String role) throws Exception {
         mockMvc.perform(get("/api/stock-history/reason/INVALID_REASON")
                         .with(user("mockuser").roles(role)))
                 .andExpect(status().isBadRequest());
@@ -110,14 +110,14 @@ class StockHistoryControllerEndpointsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void getByReason_whenLowercase_returnsBadRequest(String role) throws Exception {
+    void should_return_400_when_the_reason_is_lowercase(String role) throws Exception {
         mockMvc.perform(get("/api/stock-history/reason/sold")
                         .with(user("mockuser").roles(role)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void getAll_withoutAuthentication_returnsUnauthorized() throws Exception {
+    void should_return_401_when_all_history_is_requested_unauthenticated() throws Exception {
         mockMvc.perform(get("/api/stock-history"))
                 .andExpect(status().isUnauthorized());
     }

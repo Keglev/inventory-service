@@ -12,20 +12,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AnalyticsControllerSummarySecurityTest extends AbstractAnalyticsControllerSecurityTest {
 
     @Test
-    void summary_unauthenticated_is401() throws Exception {
+    void should_return_401_when_the_summary_is_requested_unauthenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/summary"))
                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void summary_authenticatedUser_is200() throws Exception {
+    void should_return_200_when_the_summary_is_requested_authenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/summary")
                         .with(user("u").roles(USER)))
                .andExpect(status().isOk());
     }
 
     @Test
-    void financialSummary_unauthenticated_is401() throws Exception {
+    void should_return_401_when_the_financial_summary_is_requested_unauthenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/financial/summary")
                         .param("from","2024-02-01")
                         .param("to","2024-02-28"))
@@ -33,7 +33,7 @@ class AnalyticsControllerSummarySecurityTest extends AbstractAnalyticsController
     }
 
     @Test
-    void financialSummary_authenticatedUser_is200() throws Exception {
+    void should_return_200_when_the_financial_summary_is_requested_authenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/financial/summary")
                         .param("from","2024-02-01")
                         .param("to","2024-02-28")

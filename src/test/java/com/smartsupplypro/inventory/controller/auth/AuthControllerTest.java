@@ -57,7 +57,7 @@ public class AuthControllerTest {
 
     @ParameterizedTest
     @EnumSource(Role.class)
-    void shouldReturnCurrentUser_givenRole(Role role) throws Exception {
+    void should_return_the_current_user_when_a_role_is_present(Role role) throws Exception {
         String email = role.name().toLowerCase() + "@example.com";
 
         AppUser user = new AppUser();
@@ -77,7 +77,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    void shouldReturn401WhenUserNotFound() throws Exception {
+    void should_return_401_when_the_user_is_not_found() throws Exception {
         String email = "nonexistent@example.com";
         when(appUserRepository.findByEmail(email)).thenReturn(Optional.empty());
 
@@ -89,7 +89,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    void testGetCurrentUser_shouldReturn401_whenEmailMissing() throws Exception {
+    void should_return_401_when_the_email_is_missing() throws Exception {
         Map<String, Object> attributes = Map.of("name", "Mock Name");
 
         OAuth2User principal = new DefaultOAuth2User(
@@ -109,14 +109,14 @@ public class AuthControllerTest {
     }
 
     @Test
-    void testGetCurrentUser_shouldReturn401_whenNoAuth() throws Exception {
+    void should_return_401_when_there_is_no_authentication() throws Exception {
         mockMvc.perform(get("/api/me").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Unauthorized"));
     }
 
     @Test
-    void testGetCurrentUser_shouldSucceed_whenOnlyEmailPresent() throws Exception {
+    void should_succeed_when_only_the_email_is_present() throws Exception {
         String email = "emailonly@example.com";
 
         AppUser user = new AppUser();

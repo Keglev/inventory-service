@@ -14,20 +14,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AnalyticsControllerStockUpdatesSecurityTest extends AbstractAnalyticsControllerSecurityTest {
 
     @Test
-    void stockUpdatesGET_unauthenticated_is401() throws Exception {
+    void should_return_401_when_stock_updates_are_fetched_by_get_unauthenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/stock-updates"))
                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void stockUpdatesGET_authenticatedUser_is200() throws Exception {
+    void should_return_200_when_stock_updates_are_fetched_by_get_authenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/stock-updates")
                         .with(user("u").roles(USER)))
                .andExpect(status().isOk());
     }
 
     @Test
-    void stockUpdatesPOST_unauthenticated_is401() throws Exception {
+    void should_return_401_when_stock_updates_are_posted_unauthenticated() throws Exception {
         mockMvc.perform(post("/api/analytics/stock-updates/query")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"itemName\":\"x\"}"))
@@ -35,7 +35,7 @@ class AnalyticsControllerStockUpdatesSecurityTest extends AbstractAnalyticsContr
     }
 
     @Test
-    void stockUpdatesPOST_authenticatedUser_is200() throws Exception {
+    void should_return_200_when_stock_updates_are_posted_authenticated() throws Exception {
         mockMvc.perform(post("/api/analytics/stock-updates/query")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"itemName\":\"x\"}")
