@@ -22,7 +22,7 @@ class AnalyticsControllerValidationHelperTest {
     private final AnalyticsControllerValidationHelper helper = new AnalyticsControllerValidationHelper();
 
     @Test
-    void validateDateRange_shouldRejectNulls() {
+    void should_reject_when_a_date_range_bound_is_null() {
         InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> helper.validateDateRange(null, LocalDate.now(), "start", "end"));
         assertEquals("start and end are required", ex.getMessage());
@@ -33,7 +33,7 @@ class AnalyticsControllerValidationHelperTest {
     }
 
     @Test
-    void validateDateRange_shouldRejectStartAfterEnd() {
+    void should_reject_when_the_date_range_start_is_after_the_end() {
         LocalDate start = LocalDate.of(2025, 1, 2);
         LocalDate end = LocalDate.of(2025, 1, 1);
 
@@ -43,7 +43,7 @@ class AnalyticsControllerValidationHelperTest {
     }
 
     @Test
-    void validateDateRange_shouldAcceptValidRange() {
+    void should_accept_when_the_date_range_is_valid() {
         LocalDate start = LocalDate.of(2025, 1, 1);
         LocalDate end = LocalDate.of(2025, 1, 2);
 
@@ -51,7 +51,7 @@ class AnalyticsControllerValidationHelperTest {
     }
 
     @Test
-    void validateDateTimeRange_shouldRejectStartAfterEndWhenBothPresent() {
+    void should_reject_when_both_datetime_bounds_are_present_and_inverted() {
         LocalDateTime start = LocalDateTime.of(2025, 1, 2, 0, 0);
         LocalDateTime end = LocalDateTime.of(2025, 1, 1, 0, 0);
 
@@ -61,7 +61,7 @@ class AnalyticsControllerValidationHelperTest {
     }
 
     @Test
-    void validateDateTimeRange_shouldAllowNullBounds() {
+    void should_allow_when_a_datetime_bound_is_null() {
         LocalDateTime now = LocalDateTime.of(2025, 1, 1, 0, 0);
 
         assertDoesNotThrow(() -> helper.validateDateTimeRange(null, now, "startDate", "endDate"));
@@ -70,7 +70,7 @@ class AnalyticsControllerValidationHelperTest {
     }
 
     @Test
-    void requireNonBlank_shouldRejectNullOrBlank() {
+    void should_reject_when_a_required_value_is_null_or_blank() {
         InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> helper.requireNonBlank(null, "supplierId"));
         assertEquals("supplierId must not be blank", ex.getMessage());
@@ -81,19 +81,19 @@ class AnalyticsControllerValidationHelperTest {
     }
 
     @Test
-    void requireNonBlank_shouldAcceptNonBlank() {
+    void should_accept_when_a_required_value_is_not_blank() {
         assertDoesNotThrow(() -> helper.requireNonBlank("s1", "supplierId"));
     }
 
     @Test
-    void validateNumericRange_shouldRejectMinGreaterThanMax() {
+    void should_reject_when_the_numeric_min_exceeds_the_max() {
         InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> helper.validateNumericRange(10, 5, "min", "max"));
         assertEquals("min must be <= max", ex.getMessage());
     }
 
     @Test
-    void validateNumericRange_shouldAllowNullsAndValidRange() {
+    void should_allow_when_the_numeric_range_is_null_or_valid() {
         assertDoesNotThrow(() -> helper.validateNumericRange(null, 5, "min", "max"));
         assertDoesNotThrow(() -> helper.validateNumericRange(5, null, "min", "max"));
         assertDoesNotThrow(() -> helper.validateNumericRange(null, null, "min", "max"));
@@ -102,7 +102,7 @@ class AnalyticsControllerValidationHelperTest {
     }
 
     @Test
-    void applyDefaultDateWindow_shouldDefaultLast30DaysWhenBothNull() {
+    void should_default_to_the_last_30_days_when_both_dates_are_null() {
         LocalDateTime[] window = helper.applyDefaultDateWindow(null, null);
 
         assertNotNull(window);
@@ -114,7 +114,7 @@ class AnalyticsControllerValidationHelperTest {
     }
 
     @Test
-    void applyDefaultDateWindow_shouldNotChangeIfEitherDateProvided() {
+    void should_leave_the_window_unchanged_when_either_date_is_provided() {
         LocalDateTime start = LocalDateTime.of(2025, 1, 1, 0, 0);
         LocalDateTime end = LocalDateTime.of(2025, 1, 31, 0, 0);
 
@@ -132,7 +132,7 @@ class AnalyticsControllerValidationHelperTest {
     }
 
     @Test
-    void validateStockUpdateFilter_shouldValidateDateTimeAndNumericRanges() {
+    void should_validate_datetime_and_numeric_ranges_when_checking_a_stock_update_filter() {
         StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
         filter.setStartDate(LocalDateTime.of(2025, 1, 2, 0, 0));
         filter.setEndDate(LocalDateTime.of(2025, 1, 1, 0, 0));
@@ -155,7 +155,7 @@ class AnalyticsControllerValidationHelperTest {
     }
 
     @Test
-    void buildFilter_populatesAllFields() {
+    void should_populate_every_field_when_building_a_filter() {
         LocalDateTime start = LocalDateTime.of(2025, 1, 1, 0, 0);
         LocalDateTime end = LocalDateTime.of(2025, 1, 31, 0, 0);
 
@@ -172,7 +172,7 @@ class AnalyticsControllerValidationHelperTest {
     }
 
     @Test
-    void buildFilter_allowsNullFields() {
+    void should_allow_null_fields_when_building_a_filter() {
         StockUpdateFilterDTO filter = helper.buildFilter(null, null, null, null, null, null, null);
 
         assertNotNull(filter);

@@ -59,7 +59,7 @@ public class AnalyticsControllerBasicTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldReturnStockPerSupplier(String role) throws Exception {
+    void should_return_stock_per_supplier_when_requested(String role) throws Exception {
         List<StockPerSupplierDTO> sample = List.of(
             new StockPerSupplierDTO("Supplier A", 100),
             new StockPerSupplierDTO("Supplier B", 50)
@@ -75,7 +75,7 @@ public class AnalyticsControllerBasicTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldReturnLowStockItems(String role) throws Exception {
+    void should_return_low_stock_items_when_a_supplier_is_given(String role) throws Exception {
         List<LowStockItemDTO> sample = List.of(new LowStockItemDTO("ItemX", 5, 10));
         when(stockAnalyticsService.getItemsBelowMinimumStock("s1")).thenReturn(sample);
 
@@ -87,7 +87,7 @@ public class AnalyticsControllerBasicTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldReturn400WhenSupplierIdMissingInLowStock(String role) throws Exception {
+    void should_return_400_when_the_low_stock_supplier_id_is_missing(String role) throws Exception {
         mockMvc.perform(get("/api/analytics/low-stock-items")
                 .with(user("mockuser").roles(role)))
             .andExpect(status().isBadRequest());
@@ -95,7 +95,7 @@ public class AnalyticsControllerBasicTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldReturnMonthlyStockMovement(String role) throws Exception {
+    void should_return_the_monthly_stock_movement_when_requested(String role) throws Exception {
         List<MonthlyStockMovementDTO> sample = List.of(
             new MonthlyStockMovementDTO("2024-01", 15L, 5L)
         );
@@ -112,7 +112,7 @@ public class AnalyticsControllerBasicTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldReturnItemUpdateFrequency(String role) throws Exception {
+    void should_return_the_item_update_frequency_when_a_supplier_is_given(String role) throws Exception {
         List<ItemUpdateFrequencyDTO> sample = List.of(new ItemUpdateFrequencyDTO("ItemX", 3));
         when(stockAnalyticsService.getItemUpdateFrequency("s1")).thenReturn(sample);
 
@@ -124,20 +124,20 @@ public class AnalyticsControllerBasicTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldReturn400WhenSupplierIdMissingInUpdateFrequency(String role) throws Exception {
+    void should_return_400_when_the_update_frequency_supplier_id_is_missing(String role) throws Exception {
         mockMvc.perform(get("/api/analytics/item-update-frequency")
                 .with(user("mockuser").roles(role)))
             .andExpect(status().isBadRequest());
     }
 
     @Test
-    void shouldReturn401WhenNoAuth() throws Exception {
+    void should_return_401_when_the_request_is_unauthenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/stock-per-supplier"))
             .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void shouldReturn200WhenAuthenticatedWithoutSpecificRoles() throws Exception {
+    void should_return_200_when_authenticated_without_specific_roles() throws Exception {
         mockMvc.perform(get("/api/analytics/stock-per-supplier")
                 .with(user("userWithNoRoles")))
             .andExpect(status().isOk());

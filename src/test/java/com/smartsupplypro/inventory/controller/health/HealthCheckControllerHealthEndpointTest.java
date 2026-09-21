@@ -58,7 +58,7 @@ class HealthCheckControllerHealthEndpointTest {
     }
 
     @Test
-    void health_whenDbUp_returns200() throws Exception {
+    void should_return_200_when_the_database_is_up() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
         when(statement.executeQuery()).thenReturn(resultSet);
@@ -82,7 +82,7 @@ class HealthCheckControllerHealthEndpointTest {
     }
 
     @Test
-    void health_whenDbDown_returns503() throws Exception {
+    void should_return_503_when_the_database_is_down() throws Exception {
         when(dataSource.getConnection()).thenThrow(new SQLException("db down"));
 
         ResponseEntity<Map<String, Object>> response = newController().health();
@@ -96,7 +96,7 @@ class HealthCheckControllerHealthEndpointTest {
     }
 
     @Test
-    void health_whenPrepareStatementThrows_returns503() throws Exception {
+    void should_return_503_when_prepare_statement_throws() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(PING_SQL)).thenThrow(new SQLException("prepare failed"));
 
@@ -110,7 +110,7 @@ class HealthCheckControllerHealthEndpointTest {
     }
 
     @Test
-    void health_whenExecuteQueryThrows_returns503() throws Exception {
+    void should_return_503_when_execute_query_throws() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
         when(statement.executeQuery()).thenThrow(new SQLException("execute failed"));
@@ -125,7 +125,7 @@ class HealthCheckControllerHealthEndpointTest {
     }
 
     @Test
-    void health_cachesDatabaseProduct_afterFirstSuccessfulPing() throws Exception {
+    void should_cache_the_database_product_when_the_first_ping_succeeds() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
         when(statement.executeQuery()).thenReturn(resultSet);
@@ -142,7 +142,7 @@ class HealthCheckControllerHealthEndpointTest {
     }
 
     @Test
-    void health_whenProductNameNull_reportsUnknown() throws Exception {
+    void should_report_unknown_when_the_product_name_is_null() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
         when(statement.executeQuery()).thenReturn(resultSet);
@@ -157,7 +157,7 @@ class HealthCheckControllerHealthEndpointTest {
     }
 
     @Test
-    void health_whenProductNameBlank_reportsUnknown() throws Exception {
+    void should_report_unknown_when_the_product_name_is_blank() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
         when(statement.executeQuery()).thenReturn(resultSet);
@@ -171,7 +171,7 @@ class HealthCheckControllerHealthEndpointTest {
     }
 
     @Test
-    void health_whenMetadataThrows_reportsUnknownButStaysUp() throws Exception {
+    void should_report_unknown_and_stay_up_when_the_metadata_throws() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
         when(statement.executeQuery()).thenReturn(resultSet);
