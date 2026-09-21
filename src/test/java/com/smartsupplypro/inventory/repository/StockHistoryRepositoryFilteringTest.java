@@ -106,7 +106,7 @@ class StockHistoryRepositoryFilteringTest {
 
         @Test
         void should_return_every_entry_when_looking_up_by_item_id() {
-            List<StockHistory> result = stockHistoryRepository.findByItemId(item1.getId());
+            List<StockHistory> result = stockHistoryRepository.findByItemIdOrderByTimestampDesc(item1.getId());
 
             assertEquals(2, result.size());
             assertTrue(result.stream().allMatch(h -> h.getItemId().equals(item1.getId())));
@@ -114,7 +114,7 @@ class StockHistoryRepositoryFilteringTest {
 
         @Test
         void should_return_only_matching_entries_when_a_change_reason_is_given() {
-            List<StockHistory> result = stockHistoryRepository.findByReason(StockChangeReason.INITIAL_STOCK);
+            List<StockHistory> result = stockHistoryRepository.findByReasonOrderByTimestampDesc(StockChangeReason.INITIAL_STOCK);
 
             assertEquals(1, result.size());
             assertEquals(StockChangeReason.INITIAL_STOCK, result.get(0).getReason());

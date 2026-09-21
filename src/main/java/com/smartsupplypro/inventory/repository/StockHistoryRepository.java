@@ -156,10 +156,6 @@ public interface StockHistoryRepository
 
     List<StockHistory> findByReasonOrderByTimestampDesc(StockChangeReason reason);
 
-    List<StockHistory> findByItemId(String itemId);
-
-    List<StockHistory> findByReason(StockChangeReason reason);
-
     /**
      * Retrieves time-ordered price snapshots for an item within a date range.
      * Only entries with a non-null {@code priceAtChange} are included.
