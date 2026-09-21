@@ -45,7 +45,7 @@ public class StockAnalyticsService {
     private final InventoryItemRepository inventoryItemRepository;
 
     /**
-     * Retrieves daily inventory value (quantity × price) over a date range.
+     * Retrieves daily inventory value (quantity * price) over a date range.
      * Defaults to last 30 days when bounds are null.
      *
      * @param startDate inclusive start date (nullable)
