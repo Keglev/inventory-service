@@ -1,58 +1,44 @@
 /**
  * @module api/inventory/itemMutations
  *
- * Item lifecycle mutations (create, update, rename, delete) for the inventory API.
- * Uses POST /api/inventory to create, PUT /api/inventory/{id} to update,
- * PATCH /api/inventory/{id}/name to rename, and DELETE /api/inventory/{id} to remove.
+ * Item lifecycle mutations (create, rename, delete) for the inventory API.
+ * Uses POST /api/inventory to create, PATCH /api/inventory/{id}/name to rename,
+ * and DELETE /api/inventory/{id} to remove.
  * All functions return typed response objects rather than throwing.
  */
 
 import http from '../httpClient';
 import { normalizeInventoryRow } from './normalizers';
-import type { UpsertItemRequest, UpsertItemResponse } from './types';
+import type { CreateItemRequest, UpsertItemResponse } from './types';
 import { errorMessage, extractApiError } from '../shared/errorHandling';
 import { INVENTORY_BASE } from '../shared/constants';
 
 export { INVENTORY_BASE };
 
 /**
- * Collapses POST (create) and PUT (update) into one call — presence of `id` selects the verb.
- * Hits POST /api/inventory when `id` is absent, PUT /api/inventory/{id} when present.
+ * Creates an item via POST /api/inventory. Existing items are changed only
+ * through the dedicated rename, price and quantity mutations, so the
+ * client has no full-update call.
  *
- * @param req - Upsert payload; omit `id` for create, include it for update
+ * @param req - Create payload
  * @returns Response object with ok status, normalized item, and optional error
  *
  * @example
  * ```typescript
- * // Create new item
- * const result = await upsertItem({
+ * const result = await createItem({
  *   name: 'Widget A',
+ *   sku: 'WID-A',
  *   supplierId: 'SUP-001',
  *   quantity: 100,
  *   price: 25.50
  * });
- *
- * // Update existing item
- * const updateResult = await upsertItem({
- *   id: 'ITEM-123',
- *   name: 'Widget A v2',
- *   supplierId: 'SUP-001',
- *   quantity: 50,
- *   price: 27.00
- * });
  * ```
  */
-export async function upsertItem(req: UpsertItemRequest): Promise<UpsertItemResponse> {
+export async function createItem(req: CreateItemRequest): Promise<UpsertItemResponse> {
   try {
-    if (req.id) {
-      const res = await http.put(`${INVENTORY_BASE}/${encodeURIComponent(req.id)}`, req);
-      const row = normalizeInventoryRow(res?.data as unknown);
-      return { ok: true, item: row ?? undefined };
-    } else {
-      const res = await http.post(`${INVENTORY_BASE}`, req);
-      const row = normalizeInventoryRow(res?.data as unknown);
-      return { ok: true, item: row ?? undefined };
-    }
+    const res = await http.post(`${INVENTORY_BASE}`, req);
+    const row = normalizeInventoryRow(res?.data as unknown);
+    return { ok: true, item: row ?? undefined };
   } catch (e: unknown) {
     const apiError = extractApiError(e);
     return {

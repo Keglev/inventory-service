@@ -1,7 +1,7 @@
 /**
  * @file itemMutations.test.ts
  * @module tests/unit/api/inventory/itemMutations
- * @description Contract tests for upsertItem / renameItem / deleteItem.
+ * @description Contract tests for createItem / renameItem / deleteItem.
  *
  * Contract under test:
  * - Guarantees the inventory mutation contracts: correct HTTP verb +
@@ -39,7 +39,7 @@ vi.mock('@/api/shared/errorHandling', async (importOriginal) => {
 import http from '../../../../api/httpClient';
 import { normalizeInventoryRow } from '../../../../api/inventory/normalizers';
 import { errorMessage } from '../../../../api/shared/errorHandling';
-import { deleteItem, renameItem, upsertItem } from '../../../../api/inventory/itemMutations';
+import { createItem, deleteItem, renameItem } from '../../../../api/inventory/itemMutations';
 import { INVENTORY_BASE } from '../../../../api/shared/constants';
 import type { InventoryRow } from '../../../../api/inventory/types';
 
@@ -79,28 +79,16 @@ describe('itemMutations', () => {
     vi.clearAllMocks();
   });
 
-  describe('upsertItem', () => {
-    it('creates a new item when id is missing', async () => {
+  describe('createItem', () => {
+    it('creates an item via POST', async () => {
       const dto = { id: 'ITEM-1' };
       const row = buildRow();
       httpMock.post.mockResolvedValue({ data: dto });
       normalizeMock.mockReturnValue(row);
 
-      const result = await upsertItem({ ...baseRequest });
+      const result = await createItem({ ...baseRequest });
 
       expect(httpMock.post).toHaveBeenCalledWith(`${INVENTORY_BASE}`, baseRequest);
-      expect(result).toEqual({ ok: true, item: row });
-    });
-
-    it('updates an item when id is present', async () => {
-      const dto = { id: 'ITEM-1' };
-      const row = buildRow();
-      httpMock.put.mockResolvedValue({ data: dto });
-      normalizeMock.mockReturnValue(row);
-
-      const result = await upsertItem({ id: 'ITEM-1', ...baseRequest });
-
-      expect(httpMock.put).toHaveBeenCalledWith(`${INVENTORY_BASE}/ITEM-1`, { id: 'ITEM-1', ...baseRequest });
       expect(result).toEqual({ ok: true, item: row });
     });
 
@@ -108,26 +96,17 @@ describe('itemMutations', () => {
       httpMock.post.mockResolvedValue({ data: 'not-a-row' });
       normalizeMock.mockReturnValue(null);
 
-      const result = await upsertItem({ ...baseRequest });
+      const result = await createItem({ ...baseRequest });
 
       expect(result).toEqual({ ok: true, item: undefined });
     });
 
-    it('degrades a malformed update response to ok without an item', async () => {
-      httpMock.put.mockResolvedValue({ data: 'not-a-row' });
-      normalizeMock.mockReturnValue(null);
-
-      const result = await upsertItem({ id: 'ITEM-1', ...baseRequest });
-
-      expect(result).toEqual({ ok: true, item: undefined });
-    });
-
-    it('returns error details when upsert fails', async () => {
+    it('returns error details when create fails', async () => {
       const failure = new Error('network');
       httpMock.post.mockRejectedValue(failure);
       errorMessageMock.mockReturnValue('Network offline');
 
-      const result = await upsertItem({ ...baseRequest });
+      const result = await createItem({ ...baseRequest });
 
       expect(errorMessageMock).toHaveBeenCalledWith(failure);
       expect(result).toEqual({
@@ -149,7 +128,7 @@ describe('itemMutations', () => {
       httpMock.post.mockRejectedValue(failure);
       errorMessageMock.mockReturnValue('Bad request');
 
-      const result = await upsertItem({ ...baseRequest });
+      const result = await createItem({ ...baseRequest });
 
       expect(result).toEqual({
         ok: false, error: 'Bad request', errorToken: 'bad_request', status: 400,

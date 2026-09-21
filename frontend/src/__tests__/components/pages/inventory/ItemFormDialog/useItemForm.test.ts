@@ -25,7 +25,7 @@ const mockUseSuppliersQuery = vi.hoisted(() =>
   })),
 );
 
-const mockUpsertItem = vi.hoisted(() => vi.fn());
+const mockCreateItem = vi.hoisted(() => vi.fn());
 const mockToast = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
@@ -39,7 +39,7 @@ vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
 }));
 
 vi.mock('../../../../../api/inventory/itemMutations', () => ({
-  upsertItem: mockUpsertItem,
+  createItem: mockCreateItem,
 }));
 
 vi.mock('../../../../../context/toast/ToastContext', () => ({
@@ -89,7 +89,7 @@ async function submitValid(result: { current: unknown }) {
 describe('useItemForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUpsertItem.mockReset();
+    mockCreateItem.mockReset();
     mockToast.mockReset();
     mockUseSuppliersQuery.mockReturnValue({
       data: [],
@@ -139,12 +139,12 @@ describe('useItemForm', () => {
     expect(result.current.formError).toBeNull();
   });
 
-  it('skips upsertItem when submitted in read-only demo mode', async () => {
+  it('skips createItem when submitted in read-only demo mode', async () => {
     const { result } = renderUseItemForm({ readOnly: true });
 
     await submitValid(result);
 
-    expect(mockUpsertItem).not.toHaveBeenCalled();
+    expect(mockCreateItem).not.toHaveBeenCalled();
 
     await waitFor(() => {
       expect(result.current.formError).toBe('You are in demo mode and cannot perform this operation.');
@@ -152,7 +152,7 @@ describe('useItemForm', () => {
   });
 
   it('toasts, calls onSaved and closes when a submit succeeds', async () => {
-    mockUpsertItem.mockResolvedValue({ ok: true });
+    mockCreateItem.mockResolvedValue({ ok: true });
 
     const onClose = vi.fn();
     const onSaved = vi.fn();
@@ -160,24 +160,24 @@ describe('useItemForm', () => {
 
     await submitValid(result);
 
-    expect(mockUpsertItem).toHaveBeenCalledTimes(1);
+    expect(mockCreateItem).toHaveBeenCalledTimes(1);
     expect(mockToast).toHaveBeenCalledWith('Item successfully saved.', 'success');
     expect(onSaved).toHaveBeenCalledTimes(1);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('succeeds when submitted without an onSaved callback', async () => {
-    mockUpsertItem.mockResolvedValue({ ok: true });
+    mockCreateItem.mockResolvedValue({ ok: true });
     const onClose = vi.fn();
     const { result } = renderUseItemForm({ onClose });
     await submitValid(result);
-    expect(mockUpsertItem).toHaveBeenCalledTimes(1);
+    expect(mockCreateItem).toHaveBeenCalledTimes(1);
     expect(mockToast).toHaveBeenCalledWith('Item successfully saved.', 'success');
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('maps a conflict token to a name field error carrying an i18n key', async () => {
-    mockUpsertItem.mockResolvedValue({ ok: false, error: 'whatever', errorToken: 'conflict' });
+    mockCreateItem.mockResolvedValue({ ok: false, error: 'whatever', errorToken: 'conflict' });
 
     const { result } = renderUseItemForm();
     await submitValid(result);
@@ -192,7 +192,7 @@ describe('useItemForm', () => {
   });
 
   it('maps backend fieldErrors to form fields (sku maps to code) and discards the English message', async () => {
-    mockUpsertItem.mockResolvedValue({
+    mockCreateItem.mockResolvedValue({
       ok: false,
       error: 'whatever',
       errorToken: 'conflict',
@@ -215,7 +215,7 @@ describe('useItemForm', () => {
   });
 
   it('uses a generic message for a not_found token', async () => {
-    mockUpsertItem.mockResolvedValue({ ok: false, error: 'Supplier not found', errorToken: 'not_found' });
+    mockCreateItem.mockResolvedValue({ ok: false, error: 'Supplier not found', errorToken: 'not_found' });
 
     const { result } = renderUseItemForm();
     await submitValid(result);
@@ -226,7 +226,7 @@ describe('useItemForm', () => {
   });
 
   it('uses a generic message for an unmapped failure', async () => {
-    mockUpsertItem.mockResolvedValue({ ok: false, error: 'Boom' });
+    mockCreateItem.mockResolvedValue({ ok: false, error: 'Boom' });
 
     const { result } = renderUseItemForm();
     await submitValid(result);

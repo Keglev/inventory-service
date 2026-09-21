@@ -72,14 +72,11 @@ export interface ItemDetails {
 }
 
 /**
- * Create or update request shape (UI -> API).
- * When id is undefined, operation is create; when present, it's update.
+ * Create request shape (UI -> API).
  */
-export interface UpsertItemRequest {
-  /** undefined -> create, present -> update */
-  id?: string;
+export interface CreateItemRequest {
   name: string;
-  /** Stock Keeping Unit; required by the backend on create and update */
+  /** Stock Keeping Unit; required by the backend on create */
   sku: string;
   supplierId: string | number;
   /** Initial quantity for new items */

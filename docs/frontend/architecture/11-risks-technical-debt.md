@@ -38,7 +38,6 @@ Seven functions sit above their band but below their alarm (`PriceChangeForm` 14
 110, `useEditItemForm` 90, `usePriceChangeForm` 87). These are accepted: the band
 is guidance, the alarm is the gate.
 
-Two spec files sit above the service band and below its alarm
-(`unit/api/suppliers/supplierMutations.test.ts` 173,
-`unit/api/inventory/itemMutations.test.ts` 163). No spec approaches either spec
-alarm; the largest in the tree is 244 code lines.
+One spec file sits above the service band and below its alarm
+(`unit/api/suppliers/supplierMutations.test.ts` 173). No spec approaches either
+spec alarm; the largest in the tree is 244 code lines.

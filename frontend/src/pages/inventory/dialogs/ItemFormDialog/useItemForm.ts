@@ -5,8 +5,8 @@
  * @summary
  * Orchestrator hook for the create-item flow. Owns the react-hook-form
  * instance, the suppliers query, the reset-on-open effect, and the
- * submit pipeline (validate, map to UpsertItemRequest, call
- * upsertItem, map errors).
+ * submit pipeline (validate, map to CreateItemRequest, call
+ * createItem, map errors).
  *
  * @enterprise
  * - itemFormSchema constrains reason to the 2-value subset
@@ -18,7 +18,7 @@
  *   a previous session does not leak into the next one. handleClose
  *   clears the controlled supplier selection, which the form reset
  *   does not reach.
- * - Submit pipeline maps form values to UpsertItemRequest:
+ * - Submit pipeline maps form values to CreateItemRequest:
  *   reason -> notes (backend stores the reason as the StockHistory
  *   notes column for this flow), and minQty defaults to DEFAULT_MIN_QUANTITY.
  *   The minQty value is the same low-stock baseline that drives
@@ -45,10 +45,10 @@ import { useForm, type Control, type UseFormStateReturn, type UseFormSetValue, t
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast/ToastContext';
-import { upsertItem } from '../../../../api/inventory/itemMutations';
+import { createItem } from '../../../../api/inventory/itemMutations';
 import { itemFormSchema, type UpsertItemForm } from '../../validation/inventoryValidation';
 import { applyItemFormServerError } from './itemFormServerErrors';
-import type { UpsertItemRequest } from '../../../../api/inventory/types';
+import type { CreateItemRequest } from '../../../../api/inventory/types';
 import type { SupplierOption } from '../../../../api/analytics/types';
 import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
 import { DEFAULT_MIN_QUANTITY } from '../../../../config/inventoryPolicy';
@@ -183,7 +183,7 @@ export function useItemForm({
    * 
    * @enterprise
    * - Honors readOnly (demo mode) flag
-   * - Maps form values to UpsertItemRequest (reason -> notes, onHand -> quantity)
+   * - Maps form values to CreateItemRequest (reason -> notes, onHand -> quantity)
    * - Auto-sets minQty to DEFAULT_MIN_QUANTITY
    * - Maps field-level and generic errors from backend
    * - Triggers onSaved callback and closes on success
@@ -199,7 +199,7 @@ export function useItemForm({
     }
 
     // Map form values to backend request shape
-    const requestData: UpsertItemRequest = {
+    const requestData: CreateItemRequest = {
       name: values.name,
       sku: values.code,
       supplierId: values.supplierId,
@@ -209,7 +209,7 @@ export function useItemForm({
       notes: values.reason,
     };
 
-    const res = await upsertItem(requestData);
+    const res = await createItem(requestData);
     if (res.ok) {
       toast(t('inventory:status.formSaved'), 'success');
       onSaved();
