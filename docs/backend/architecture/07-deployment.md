@@ -77,7 +77,7 @@ Ten GitHub Actions workflows make up the pipeline:
 | `4-deploy-backend.yml` | Copies the compose file to the host over SSH, validates it, pulls the SHA-tagged image, restarts only the backend service, then runs the health and smoke checks against `api.smartsupplypro.de` |
 | `docs-pipeline.yml` | Generates OpenAPI docs (Redocly), converts architecture markdown to HTML (Pandoc + Lua filter) and checks internal links |
 | `docs-pr-check.yml` | Pull request gate for documentation: builds the site and verifies internal links without publishing |
-| `3-deploy-ghpages.yml` | Publishes docs-site artifact to the `gh-pages` branch (GitHub Pages) |
+| `3-deploy-ghpages.yml` | Publishes the docs-site artifact to the `gh-pages` branch, then deploys that branch to GitHub Pages ([ADR 0015](09-decisions/adr-0015-pages-deployed-from-the-publisher-job.md)) |
 | `5-frontend-ci.yml` | Audits the shipped dependency tree (gate), lints, runs Vitest, then builds and Trivy-scans the image before it reaches Docker Hub |
 | `6-deploy-frontend.yml` | Deploys the scanned image to Koyeb by digest, then verifies the commit's build id reached the served bundle before trusting the platform's status |
 | `7-frontend-e2e.yml` | Playwright suite against a local stack built from the commit (packaged jar on H2, `test,e2e` profile; frontend served via `vite preview`); reports as `build-and-test`, so a red run blocks the merge |
