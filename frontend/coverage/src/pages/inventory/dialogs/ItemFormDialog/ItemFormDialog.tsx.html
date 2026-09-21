@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">88.88% </span>
+                <span class="strong">85.71% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/9</span>
+                <span class='fraction'>6/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">88.88% </span>
+                <span class="strong">85.71% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/9</span>
+                <span class='fraction'>6/7</span>
             </div>
         
             
@@ -179,21 +179,7 @@
 <a name='L114'></a><a href='#L114'>114</a>
 <a name='L115'></a><a href='#L115'>115</a>
 <a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a>
-<a name='L120'></a><a href='#L120'>120</a>
-<a name='L121'></a><a href='#L121'>121</a>
-<a name='L122'></a><a href='#L122'>122</a>
-<a name='L123'></a><a href='#L123'>123</a>
-<a name='L124'></a><a href='#L124'>124</a>
-<a name='L125'></a><a href='#L125'>125</a>
-<a name='L126'></a><a href='#L126'>126</a>
-<a name='L127'></a><a href='#L127'>127</a>
-<a name='L128'></a><a href='#L128'>128</a>
-<a name='L129'></a><a href='#L129'>129</a>
-<a name='L130'></a><a href='#L130'>130</a>
-<a name='L131'></a><a href='#L131'>131</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L117'></a><a href='#L117'>117</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -244,26 +230,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -328,16 +300,14 @@
  * @module pages/inventory/dialogs/ItemFormDialog/ItemFormDialog
  *
  * @summary
- * Root dialog for create-or-edit item. Title, body (ItemForm), and
- * actions change based on whether `initial?.id` is set. Delegates all
- * state and submission to useItemForm.
+ * Root dialog for creating an item. Renders ItemForm and the dialog
+ * actions; delegates all state and submission to useItemForm.
  *
  * @enterprise
- * - One dialog, two modes. Create vs edit is decided by initial?.id;
- *   the dialog title, submit label, and the visibility of the reason
- *   field all key off this single check. Splitting into two components
- *   would duplicate the form-field layout and the supplier alignment
- *   effect.
+ * - Create only. An existing item is changed through the dedicated
+ *   dialogs (EditItemDialog for the name, PriceChangeDialog,
+ *   QuantityAdjustDialog), each with its own reason flow, so this
+ *   dialog carries no edit branch.
  * - Help opens the in-app drawer via the shared HelpIconButton component,
  *   matching the sibling dialogs. The tooltip key
  *   resolves to the shared common:actions.help leaf.
@@ -370,28 +340,16 @@ import type { ItemFormDialogProps } from './ItemFormDialog.types';
  * 
  * @param isOpen - Whether dialog is visible
  * @param onClose - Called on cancel or successful save
- * @param initial - Initial item data (undefined for create mode)
  */
 export function ItemFormDialog({
   isOpen,
   onClose,
-  initial,
   onSaved,
 }: ItemFormDialogProps) {
   const { t } = useTranslation(['common', 'inventory']);
 &nbsp;
   // All form state and handlers delegated to hook
-  const state = useItemForm({ isOpen, onClose, initial, onSaved });
-&nbsp;
-  // Dialog title reflects create vs edit mode
-  const dialogTitle = initial?.id
-    ? t('inventory:dialogs.editItemTitle')
-    : t('inventory:dialogs.createItemTitle');
-&nbsp;
-  // Button label also changes based on mode
-  const submitLabel = initial?.id
-    ? t('common:actions.save')
-    : t('common:actions.create');
+  const state = useItemForm({ isOpen, onClose, onSaved });
 &nbsp;
   return (
     &lt;Dialog
@@ -408,16 +366,16 @@ export function ItemFormDialog({
           alignItems: 'center',
         }}
       &gt;
-        &lt;span&gt;{dialogTitle}&lt;/span&gt;
+        &lt;span&gt;{t('inventory:dialogs.createItemTitle')}&lt;/span&gt;
         &lt;HelpIconButton
-          topicId={initial?.id ? 'inventory.editItem' : 'inventory.manage'}
+          topicId="inventory.manage"
           tooltip={t('common:actions.help')}
         /&gt;
       &lt;/DialogTitle&gt;
 &nbsp;
       {/* Form content */}
       &lt;DialogContent&gt;
-        &lt;ItemForm state={state} initial={initial} /&gt;
+        &lt;ItemForm state={state} /&gt;
       &lt;/DialogContent&gt;
 &nbsp;
       {/* Dialog actions */}
@@ -434,7 +392,7 @@ export function ItemFormDialog({
             }}
             disabled={state.formState.isSubmitting}
           &gt;
-            {submitLabel}
+            {t('common:actions.create')}
           &lt;/Button&gt;
           {state.formState.isSubmitting &amp;&amp; (
             &lt;CircularProgress
@@ -460,7 +418,7 @@ export function ItemFormDialog({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-09-21T07:35:01.859Z
+                at 2026-09-21T16:41:26.146Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>10/10</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -223,25 +223,7 @@
 <a name='L158'></a><a href='#L158'>158</a>
 <a name='L159'></a><a href='#L159'>159</a>
 <a name='L160'></a><a href='#L160'>160</a>
-<a name='L161'></a><a href='#L161'>161</a>
-<a name='L162'></a><a href='#L162'>162</a>
-<a name='L163'></a><a href='#L163'>163</a>
-<a name='L164'></a><a href='#L164'>164</a>
-<a name='L165'></a><a href='#L165'>165</a>
-<a name='L166'></a><a href='#L166'>166</a>
-<a name='L167'></a><a href='#L167'>167</a>
-<a name='L168'></a><a href='#L168'>168</a>
-<a name='L169'></a><a href='#L169'>169</a>
-<a name='L170'></a><a href='#L170'>170</a>
-<a name='L171'></a><a href='#L171'>171</a>
-<a name='L172'></a><a href='#L172'>172</a>
-<a name='L173'></a><a href='#L173'>173</a>
-<a name='L174'></a><a href='#L174'>174</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L161'></a><a href='#L161'>161</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -301,15 +283,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -328,8 +304,7 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -408,21 +383,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file ItemForm.tsx
  * @module pages/inventory/dialogs/ItemFormDialog/ItemForm
  *
  * @summary
- * Field layout for the create-or-edit item flow: supplier, name, code,
- * quantity, price, and (create-mode only) reason. Wired to the shared
- * react-hook-form instance from useItemForm.
+ * Field layout for the create-item flow: supplier, name, code,
+ * quantity, price, and reason. Wired to the shared react-hook-form
+ * instance from useItemForm.
  *
  * @enterprise
- * - Reason dropdown renders only in create mode (gated by !initial?.id).
- *   In edit mode the existing item already has a creation reason on its
- *   StockHistory and re-prompting would be misleading; price/quantity
- *   edits go through dedicated dialogs (PriceChangeDialog,
+ * - The reason records why the first stock exists. Later price and
+ *   quantity changes go through dedicated dialogs (PriceChangeDialog,
  *   QuantityAdjustDialog) with their own reason flows.
  * - Reason options are limited to INITIAL_STOCK | MANUAL_UPDATE -- the
  *   exact 2-value subset enforced by itemFormSchema and by the backend
@@ -452,34 +424,25 @@ import { useTranslation } from 'react-i18next';
 import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import type { SupplierOption } from '../../../../api/analytics/types';
 import type { UpsertItemForm } from '../../validation/inventoryValidation';
-import type { InventoryRow } from '../../../../api/inventory/types';
 import type { UseItemFormReturn } from './useItemForm';
 &nbsp;
 /**
  * ItemForm - Render all form fields
  * 
  * @param state - Complete form state and handlers from useItemForm
- * @param initial - Initial item data for checking edit mode
  * 
  * @enterprise
  * - Error banner at top for generic form errors
  * - Supplier Autocomplete fully controlled to prevent desync
  * - Code / SKU field editable, required
  * - Quantity and price with numeric constraints
- * - Reason dropdown only shown in create mode (no initial?.id)
  */
 const CREATE_REASON_OPTIONS = [
   { value: 'INITIAL_STOCK', i18nKey: 'stockReasons.initial_stock' },
   { value: 'MANUAL_UPDATE', i18nKey: 'stockReasons.manual_update' },
 ] as const;
 &nbsp;
-export function ItemForm({
-  state,
-  initial,
-}: {
-  state: UseItemFormReturn;
-  initial?: InventoryRow | null;
-}) {
+export function ItemForm({ state }: { state: UseItemFormReturn }) {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
 &nbsp;
   return (
@@ -549,36 +512,34 @@ export function ItemForm({
         }}
       /&gt;
 &nbsp;
-      {/* Reason dropdown - Create mode only */}
-      {!initial?.id &amp;&amp; (
-        &lt;FormControl error={!!state.formState.errors.reason}&gt;
-          &lt;InputLabel id="reason-label"&gt;
-            {t('inventory:fields.reasonLabel')}
-          &lt;/InputLabel&gt;
-          &lt;Select
-            labelId="reason-label"
-            label={t('inventory:fields.reasonLabel')}
-            value={state.watch('reason') ?? 'INITIAL_STOCK'}
-            onChange={(e) =&gt;
-              state.setValue('reason', e.target.value as UpsertItemForm['reason'], {
-                shouldValidate: true,
-              })
-            }
-          &gt;
-            {/* Render all reason options */}
-            {CREATE_REASON_OPTIONS.map((opt) =&gt; (
-              &lt;MenuItem key={opt.value} value={opt.value}&gt;
-                {t(`inventory:${opt.i18nKey}`, opt.value)}
-              &lt;/MenuItem&gt;
-            ))}
-          &lt;/Select&gt;
-          {state.formState.errors.reason?.message &amp;&amp; (
-            &lt;Box sx={{ mt: 0.5, color: 'error.main', fontSize: 12 }}&gt;
-              {fieldErrorText(state.formState.errors.reason, t)}
-            &lt;/Box&gt;
-          )}
-        &lt;/FormControl&gt;
-      )}
+      {/* Reason dropdown */}
+      &lt;FormControl error={!!state.formState.errors.reason}&gt;
+        &lt;InputLabel id="reason-label"&gt;
+          {t('inventory:fields.reasonLabel')}
+        &lt;/InputLabel&gt;
+        &lt;Select
+          labelId="reason-label"
+          label={t('inventory:fields.reasonLabel')}
+          value={state.watch('reason') ?? 'INITIAL_STOCK'}
+          onChange={(e) =&gt;
+            state.setValue('reason', e.target.value as UpsertItemForm['reason'], {
+              shouldValidate: true,
+            })
+          }
+        &gt;
+          {/* Render all reason options */}
+          {CREATE_REASON_OPTIONS.map((opt) =&gt; (
+            &lt;MenuItem key={opt.value} value={opt.value}&gt;
+              {t(`inventory:${opt.i18nKey}`, opt.value)}
+            &lt;/MenuItem&gt;
+          ))}
+        &lt;/Select&gt;
+        {state.formState.errors.reason?.message &amp;&amp; (
+          &lt;Box sx={{ mt: 0.5, color: 'error.main', fontSize: 12 }}&gt;
+            {fieldErrorText(state.formState.errors.reason, t)}
+          &lt;/Box&gt;
+        )}
+      &lt;/FormControl&gt;
     &lt;/Box&gt;
   );
 }
@@ -589,7 +550,7 @@ export function ItemForm({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-09-21T07:35:01.955Z
+                at 2026-09-21T16:41:26.255Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>
