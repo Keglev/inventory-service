@@ -65,7 +65,7 @@ class StockMetricsRepositoryImplTest {
     class TotalStockBySupplier {
 
         @Test
-        void should_return_totals_ordered_by_quantity_in_h2_dialect() {
+        void should_return_totals_ordered_by_quantity_when_the_dialect_is_h2() {
             seedTestData();
             StockMetricsRepositoryImpl repo = repoWithDialect(true);
 
@@ -86,7 +86,7 @@ class StockMetricsRepositoryImplTest {
     class UpdateCountByItem {
 
         @Test
-        void should_filter_by_supplier_and_treat_blank_as_null_in_oracle_dialect() {
+        void should_filter_by_supplier_and_treat_blank_as_null_when_the_dialect_is_oracle() {
             seedTestData();
             StockMetricsRepositoryImpl repo = repoWithDialect(false);
 
@@ -110,7 +110,7 @@ class StockMetricsRepositoryImplTest {
     class BelowMinimumStock {
 
         @Test
-        void should_filter_below_minimum_stock_by_supplier_case_insensitive_in_oracle_dialect() {
+        void should_filter_below_minimum_stock_by_supplier_in_any_case_when_the_dialect_is_oracle() {
             seedTestData();
             StockMetricsRepositoryImpl repo = repoWithDialect(false);
 

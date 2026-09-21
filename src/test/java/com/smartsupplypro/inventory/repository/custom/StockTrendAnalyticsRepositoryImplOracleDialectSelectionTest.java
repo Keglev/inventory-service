@@ -27,7 +27,7 @@ class StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest {
     @Mock private Query query;
 
     @Test
-    void should_select_oracle_sql_for_all_methods_and_normalize_blank_supplier_to_null() {
+    void should_select_oracle_sql_and_treat_a_blank_supplier_as_null_when_every_method_runs() {
         org.mockito.Mockito.when(detector.isH2()).thenReturn(false);
         org.mockito.Mockito.when(em.createNativeQuery(org.mockito.ArgumentMatchers.anyString())).thenReturn(query);
         org.mockito.Mockito.when(query.setParameter(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any()))

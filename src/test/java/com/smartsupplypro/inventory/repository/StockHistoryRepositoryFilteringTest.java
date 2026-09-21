@@ -90,7 +90,7 @@ class StockHistoryRepositoryFilteringTest {
     class DateRangeFiltering {
 
         @Test
-        void should_return_paginated_results_matching_all_filters() {
+        void should_return_paginated_results_when_all_filters_match() {
             Page<StockHistory> result = stockHistoryRepository.findFiltered(
                     now.minusDays(3), now, "Wrench", supplierA.getId(), PageRequest.of(0, 10));
 
@@ -105,7 +105,7 @@ class StockHistoryRepositoryFilteringTest {
     class ItemAndReasonLookup {
 
         @Test
-        void should_return_all_history_entries_for_item_id() {
+        void should_return_every_entry_when_looking_up_by_item_id() {
             List<StockHistory> result = stockHistoryRepository.findByItemId(item1.getId());
 
             assertEquals(2, result.size());
@@ -113,7 +113,7 @@ class StockHistoryRepositoryFilteringTest {
         }
 
         @Test
-        void should_return_history_entries_matching_change_reason() {
+        void should_return_only_matching_entries_when_a_change_reason_is_given() {
             List<StockHistory> result = stockHistoryRepository.findByReason(StockChangeReason.INITIAL_STOCK);
 
             assertEquals(1, result.size());

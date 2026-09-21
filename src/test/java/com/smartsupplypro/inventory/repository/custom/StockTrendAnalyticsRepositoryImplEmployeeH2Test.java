@@ -53,7 +53,7 @@ class StockTrendAnalyticsRepositoryImplEmployeeH2Test {
     }
 
     @Test
-    void aggregates_changeCounts_perEmployee_perDay() {
+    void should_aggregate_change_counts_per_employee_when_grouping_by_day() {
         seedTestData();
         StockTrendAnalyticsRepositoryImpl repo = repoH2();
 
@@ -74,7 +74,7 @@ class StockTrendAnalyticsRepositoryImplEmployeeH2Test {
     }
 
     @Test
-    void filtersBySupplier_whenSupplierIdGiven() {
+    void should_filter_by_supplier_when_a_supplier_id_is_given() {
         seedTestData();
         StockTrendAnalyticsRepositoryImpl repo = repoH2();
 

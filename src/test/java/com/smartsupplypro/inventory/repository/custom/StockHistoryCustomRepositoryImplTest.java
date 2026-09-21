@@ -69,7 +69,7 @@ class StockHistoryCustomRepositoryImplTest {
     class WacEventStreaming {
 
         @Test
-        void should_order_events_by_item_then_time_and_filter_by_supplier() {
+        void should_order_events_by_item_and_time_when_a_supplier_filter_is_given() {
             em.persist(sh("itemA", "sup1", at(2024,2,1, 9,0), +5, bd("4.00"), StockChangeReason.INITIAL_STOCK));
             em.persist(sh("itemA", "sup1", at(2024,2,1,10,0), -2, null, StockChangeReason.SOLD));
             em.persist(sh("itemB", "sup1", at(2024,2,2,10,0), +3, bd("5.50"), StockChangeReason.INITIAL_STOCK));

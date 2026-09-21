@@ -63,7 +63,7 @@ class StockHistoryRepositoryReasonBreakdownTest {
     }
 
     @Test
-    void aggregates_signSplit_perReason_orderedByReason() {
+    void should_aggregate_the_sign_split_per_reason_when_ordering_by_reason() {
         List<Object[]> out = stockHistoryRepository.getReasonBreakdown(from, to, null, null);
 
         assertEquals(4, out.size());
@@ -84,7 +84,7 @@ class StockHistoryRepositoryReasonBreakdownTest {
     }
 
     @Test
-    void filters_bySupplier() {
+    void should_filter_the_breakdown_when_a_supplier_is_given() {
         List<Object[]> out = stockHistoryRepository.getReasonBreakdown(from, to, "sup2", null);
 
         assertEquals(1, out.size());
@@ -93,7 +93,7 @@ class StockHistoryRepositoryReasonBreakdownTest {
     }
 
     @Test
-    void filters_byPartialItemName_caseInsensitive() {
+    void should_filter_the_breakdown_when_a_partial_item_name_matches_in_any_case() {
         List<Object[]> out = stockHistoryRepository.getReasonBreakdown(from, to, null, "item b");
 
         assertEquals(1, out.size());
@@ -102,7 +102,7 @@ class StockHistoryRepositoryReasonBreakdownTest {
     }
 
     @Test
-    void emptyWindow_returnsNoRows() {
+    void should_return_no_rows_when_the_window_is_empty() {
         List<Object[]> out = stockHistoryRepository.getReasonBreakdown(
                 LocalDateTime.of(2025, 1, 1, 0, 0), LocalDateTime.of(2025, 1, 31, 23, 59), null, null);
 

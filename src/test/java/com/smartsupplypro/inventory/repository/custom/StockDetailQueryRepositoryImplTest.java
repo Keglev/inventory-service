@@ -67,7 +67,7 @@ class StockDetailQueryRepositoryImplTest {
     class StockUpdateSearch {
 
         @Test
-        void should_normalize_optional_filters_and_return_all_rows_in_h2_dialect() {
+        void should_normalize_optional_filters_and_return_all_rows_when_the_dialect_is_h2() {
             seedTestData();
             StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
 
@@ -85,7 +85,7 @@ class StockDetailQueryRepositoryImplTest {
         }
 
         @Test
-        void should_select_oracle_dialect_sql_and_narrow_results_by_supplier() {
+        void should_narrow_the_results_by_supplier_when_the_dialect_is_oracle() {
             seedTestData();
             StockDetailQueryRepositoryImpl repo = repoWithDialect(false);
 
@@ -104,7 +104,7 @@ class StockDetailQueryRepositoryImplTest {
     class WacEventStreaming {
 
         @Test
-        void should_stream_events_ordered_by_item_then_time_with_supplier_filter() {
+        void should_stream_events_ordered_by_item_and_time_when_a_supplier_filter_is_given() {
             seedTestData();
             StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
 

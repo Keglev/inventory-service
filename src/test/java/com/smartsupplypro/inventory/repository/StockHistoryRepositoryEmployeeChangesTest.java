@@ -60,7 +60,7 @@ class StockHistoryRepositoryEmployeeChangesTest {
     }
 
     @Test
-    void paginates_andFiltersByCreator_caseInsensitive() {
+    void should_paginate_and_filter_when_the_creator_matches_in_any_case() {
         Page<Object[]> page = stockHistoryRepository.findEmployeeChanges(
                 from, to, "ALICE@EXAMPLE.COM", null, PageRequest.of(0, 2));
 
@@ -76,7 +76,7 @@ class StockHistoryRepositoryEmployeeChangesTest {
     }
 
     @Test
-    void nullCreator_returnsAllEmployees() {
+    void should_return_all_employees_when_the_creator_is_null() {
         Page<Object[]> page = stockHistoryRepository.findEmployeeChanges(
                 from, to, null, null, PageRequest.of(0, 10));
 
@@ -84,7 +84,7 @@ class StockHistoryRepositoryEmployeeChangesTest {
     }
 
     @Test
-    void filtersBySupplier_whenSupplierIdGiven() {
+    void should_filter_by_supplier_when_a_supplier_id_is_given() {
         Page<Object[]> matching = stockHistoryRepository.findEmployeeChanges(
                 from, to, null, "sup1", PageRequest.of(0, 10));
         Page<Object[]> nonMatching = stockHistoryRepository.findEmployeeChanges(
