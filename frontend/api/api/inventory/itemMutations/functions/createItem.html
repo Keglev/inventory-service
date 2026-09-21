@@ -15,7 +15,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</title>
+api/inventory/itemMutations/functions/createItem · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -117,103 +117,53 @@ api/inventory/types/interfaces/UpsertItemRequest · Smart Supply Pro · API</tit
         href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
         <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/inventory/types</a> /
-        UpsertItemRequest</p>
-        <h1 id="interface-upsertitemrequest">Interface:
-        UpsertItemRequest</h1>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L78">api/inventory/types.ts:78</a></p>
-        <p>Create or update request shape (UI -&gt; API). When id is
-        undefined, operation is create; when present, it's update.</p>
-        <h2 id="properties">Properties</h2>
-        <h3 id="id">id?</h3>
+        href="../README.html">api/inventory/itemMutations</a> /
+        createItem</p>
+        <h1 id="function-createitem">Function: createItem()</h1>
         <blockquote>
-        <p><code>optional</code> <strong>id</strong>:
-        <code>string</code></p>
+        <p><strong>createItem</strong>(<code>req</code>):
+        <code>Promise</code>&lt;<a
+        href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L80">api/inventory/types.ts:80</a></p>
-        <p>undefined -&gt; create, present -&gt; update</p>
-        <hr />
-        <h3 id="minqty">minQty?</h3>
-        <blockquote>
-        <p><code>optional</code> <strong>minQty</strong>:
-        <code>number</code> | <code>null</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L90">api/inventory/types.ts:90</a></p>
-        <p>Minimum-stock threshold. The form layer sets this to a fixed
-        baseline of 5; items below it flag as low-stock.</p>
-        <hr />
-        <h3 id="name">name</h3>
-        <blockquote>
-        <p><strong>name</strong>: <code>string</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L81">api/inventory/types.ts:81</a></p>
-        <hr />
-        <h3 id="notes">notes?</h3>
-        <blockquote>
-        <p><code>optional</code> <strong>notes</strong>:
-        <code>string</code> | <code>null</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L92">api/inventory/types.ts:92</a></p>
-        <p>Notes/reason for creation</p>
-        <hr />
-        <h3 id="price">price</h3>
-        <blockquote>
-        <p><strong>price</strong>: <code>number</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L88">api/inventory/types.ts:88</a></p>
-        <p>Unit price</p>
-        <hr />
-        <h3 id="quantity">quantity</h3>
-        <blockquote>
-        <p><strong>quantity</strong>: <code>number</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L86">api/inventory/types.ts:86</a></p>
-        <p>Initial quantity for new items</p>
-        <hr />
-        <h3 id="sku">sku</h3>
-        <blockquote>
-        <p><strong>sku</strong>: <code>string</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L83">api/inventory/types.ts:83</a></p>
-        <p>Stock Keeping Unit; required by the backend on create and
-        update</p>
-        <hr />
-        <h3 id="supplierid">supplierId</h3>
-        <blockquote>
-        <p><strong>supplierId</strong>: <code>string</code> |
-        <code>number</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L84">api/inventory/types.ts:84</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/itemMutations.ts#L37">api/inventory/itemMutations.ts:37</a></p>
+        <p>Creates an item via POST /api/inventory. Existing items are
+        changed only through the dedicated rename, price and quantity
+        mutations, so the client has no full-update call.</p>
+        <h2 id="parameters">Parameters</h2>
+        <h3 id="req">req</h3>
+        <p><a
+        href="../../types/interfaces/CreateItemRequest.html"><code>CreateItemRequest</code></a></p>
+        <p>Create payload</p>
+        <h2 id="returns">Returns</h2>
+        <p><code>Promise</code>&lt;<a
+        href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
+        <p>Response object with ok status, normalized item, and optional
+        error</p>
+        <h2 id="example">Example</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="cf">await</span> <span class="fu">createItem</span>({</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  name<span class="op">:</span> <span class="st">&#39;Widget A&#39;</span><span class="op">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  sku<span class="op">:</span> <span class="st">&#39;WID-A&#39;</span><span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  supplierId<span class="op">:</span> <span class="st">&#39;SUP-001&#39;</span><span class="op">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  quantity<span class="op">:</span> <span class="dv">100</span><span class="op">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  price<span class="op">:</span> <span class="fl">25.50</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#interface-upsertitemrequest"
-      id="toc-interface-upsertitemrequest">Interface:
-      UpsertItemRequest</a>
+      <li><a href="#function-createitem"
+      id="toc-function-createitem">Function: createItem()</a>
       <ul>
-      <li><a href="#properties" id="toc-properties">Properties</a>
+      <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
-      <li><a href="#id" id="toc-id">id?</a></li>
-      <li><a href="#minqty" id="toc-minqty">minQty?</a></li>
-      <li><a href="#name" id="toc-name">name</a></li>
-      <li><a href="#notes" id="toc-notes">notes?</a></li>
-      <li><a href="#price" id="toc-price">price</a></li>
-      <li><a href="#quantity" id="toc-quantity">quantity</a></li>
-      <li><a href="#sku" id="toc-sku">sku</a></li>
-      <li><a href="#supplierid" id="toc-supplierid">supplierId</a></li>
+      <li><a href="#req" id="toc-req">req</a></li>
       </ul></li>
+      <li><a href="#returns" id="toc-returns">Returns</a></li>
+      <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>
     </nav>
