@@ -40,7 +40,7 @@ public interface StockTrendAnalyticsRepository {
     List<Object[]> getMonthlyStockMovementBySupplier(LocalDateTime start, LocalDateTime end, String supplierId);
 
     /**
-     * Returns daily total inventory value (closing quantity × price) over a time window.
+     * Returns daily total inventory value (closing quantity * price) over a time window.
      *
      * <p>Computes the closing quantity per item per day using cumulative window sums,
      * then multiplies by the price at that point and aggregates across all items.

@@ -66,7 +66,7 @@ public final class StockTrendSqlBuilder {
     }
 
     /**
-     * Returns the H2 SQL for daily inventory valuation (quantity × price per day).
+     * Returns the H2 SQL for daily inventory valuation (quantity * price per day).
      *
      * <p>Uses a CTE with {@code SUM() OVER} window function to compute running quantity;
      * {@code ROW_NUMBER()} selects the closing value per item per day.
@@ -109,7 +109,7 @@ public final class StockTrendSqlBuilder {
     }
 
     /**
-     * Returns the Oracle SQL for daily inventory valuation (quantity × price per day).
+     * Returns the Oracle SQL for daily inventory valuation (quantity * price per day).
      *
      * <p>Uses {@code TRUNC()} instead of {@code CAST(... AS DATE)} for day truncation.
      *

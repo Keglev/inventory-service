@@ -8,7 +8,7 @@ import java.time.LocalDate;
  * <p>Returned by {@link com.smartsupplypro.inventory.controller.AnalyticsController#getStockValueOverTime()}.</p>
  *
  * @param date       date of this valuation snapshot
- * @param totalValue total inventory value on this date, calculated as the sum of quantity × price
+ * @param totalValue total inventory value on this date, calculated as the sum of quantity * price
  */
 public record StockValueOverTimeDTO(
         LocalDate date,
