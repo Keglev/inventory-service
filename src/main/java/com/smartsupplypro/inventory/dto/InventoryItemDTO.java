@@ -51,7 +51,7 @@ public class InventoryItemDTO {
     @Positive(message = "Price must be greater than zero")
     private BigDecimal price;
 
-    /** Backend-calculated product of quantity × price; not submitted by clients. */
+    /** Backend-calculated product of quantity * price; not submitted by clients. */
     private BigDecimal totalValue;
 
     @NotBlank(message = "Supplier ID is mandatory")

@@ -19,7 +19,7 @@ public class InventoryItemMapper {
     /**
      * Converts an inventory item entity to a response DTO.
      *
-     * <p>{@code totalValue} is computed as price × quantity rather than mapped directly.
+     * <p>{@code totalValue} is computed as price * quantity rather than mapped directly.
      * {@code supplierName} is resolved from the loaded supplier relationship.</p>
      */
     public InventoryItemDTO toDTO(InventoryItem item) {
