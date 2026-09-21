@@ -2,9 +2,8 @@
  * @file ItemForm.test.tsx
  * @module __tests__/components/pages/inventory/ItemFormDialog/ItemForm
  * @description Contract tests for ItemForm:
- * - Renders all expected fields for create and edit modes
+ * - Renders all expected fields, including Reason
  * - Shows generic form error banner when present
- * - Reason dropdown is create-only (hidden when editing an existing item)
  *
  * Out of scope:
  * - RHF validation rules and submission workflow
@@ -109,8 +108,8 @@ function createMockState(overrides: Partial<UseItemFormReturn> = {}): UseItemFor
   return { ...baseState, ...overrides };
 }
 
-function renderItemForm(state: UseItemFormReturn, initial?: unknown) {
-  return render(<ItemForm state={state} initial={initial as never} />);
+function renderItemForm(state: UseItemFormReturn) {
+  return render(<ItemForm state={state} />);
 }
 
 describe('ItemForm', () => {
@@ -118,7 +117,7 @@ describe('ItemForm', () => {
     vi.clearAllMocks();
   });
 
-  it('renders all base fields in create mode (including Reason)', () => {
+  it('renders all base fields including Reason', () => {
     const state = createMockState({
       suppliers: [
         { id: 'sup-1', label: 'Supplier A' },
@@ -126,7 +125,7 @@ describe('ItemForm', () => {
       ],
     });
 
-    renderItemForm(state, undefined);
+    renderItemForm(state);
 
     // Base fields
     expect(screen.getByLabelText('Supplier')).toBeInTheDocument();
@@ -135,30 +134,14 @@ describe('ItemForm', () => {
     expect(screen.getByLabelText('Initial Quantity')).toBeInTheDocument();
     expect(screen.getByLabelText('Price')).toBeInTheDocument();
 
-    // Create-only reason dropdown
+    // Reason dropdown
     expect(screen.getByLabelText('Reason')).toBeInTheDocument();
-  });
-
-  it('hides Reason dropdown in edit mode (initial has id)', () => {
-    const state = createMockState();
-
-    const initial = {
-      id: 'item-1',
-      name: 'Existing Item',
-      code: 'EX-001',
-      onHand: 10,
-      createdAt: new Date().toISOString(),
-    };
-
-    renderItemForm(state, initial);
-
-    expect(screen.queryByLabelText('Reason')).not.toBeInTheDocument();
   });
 
   it('renders a generic error banner when formError is set', () => {
     const state = createMockState({ formError: 'Form submission failed' });
 
-    renderItemForm(state, undefined);
+    renderItemForm(state);
 
     // ItemForm uses MUI <Alert>, but we assert on user-visible text to avoid MUI internals.
     expect(screen.getByText('Form submission failed')).toBeInTheDocument();
@@ -172,7 +155,7 @@ describe('ItemForm', () => {
       ],
     });
 
-    renderItemForm(state, undefined);
+    renderItemForm(state);
 
     // We do not test Autocomplete popup behavior here; just that the control exists.
     // Supplier option rendering/popups are MUI internals.
@@ -184,7 +167,7 @@ describe('ItemForm', () => {
       suppliers: [{ id: 'sup-1', label: 'Supplier A' }],
     });
 
-    renderItemForm(state, undefined);
+    renderItemForm(state);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const autocompleteProps = muiSpies.autocompleteProps.mock.calls[0]?.[0] as any;
@@ -207,7 +190,7 @@ describe('ItemForm', () => {
       }) as unknown) as UseItemFormReturn['watch'],
     });
 
-    renderItemForm(state, undefined);
+    renderItemForm(state);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const selectProps = muiSpies.selectProps.mock.calls[0]?.[0] as any;
@@ -232,7 +215,7 @@ describe('ItemForm', () => {
       } as unknown as UseItemFormReturn['formState'],
     });
 
-    renderItemForm(state, undefined);
+    renderItemForm(state);
 
     // The key is resolved, not echoed: what reaches the user is locale copy.
     expect(screen.getAllByText(tEn('errors:validation.required')).length).toBeGreaterThan(0);

@@ -31,9 +31,9 @@ selection.
 `InventoryDialogs` is a pure switchboard receiving open/close props, the selected
 row, and `isDemo` for read-only enforcement. The flows:
 
-- **Create** (`ItemFormDialog`) — create-only; no edit mode is wired (the dialog
-  receives no initial values anywhere in the app). Requires name + supplier;
-  quantity/price non-negative; reason limited to `INITIAL_STOCK`/`MANUAL_UPDATE`.
+- **Create** (`ItemFormDialog`) — create-only; the dialog has no edit mode.
+  Requires name + supplier; quantity/price non-negative; reason limited to
+  `INITIAL_STOCK`/`MANUAL_UPDATE`.
 - **Rename** (`EditItemDialog`) — the ONLY edit operation: guided
   supplier → item → new-name flow, admin-gated, name unique per supplier,
   produces no stock-history row.

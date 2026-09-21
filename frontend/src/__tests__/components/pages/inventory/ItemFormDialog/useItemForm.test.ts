@@ -10,7 +10,6 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { useItemForm } from '../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm';
 import type { UseItemFormReturn } from '../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm';
 import type { SupplierOption } from '../../../../../api/analytics/types';
-import type { InventoryRow } from '../../../../../api/inventory/types';
 import { tEn } from '../../../../test/i18nEn';
 
 // -------------------------------------
@@ -99,7 +98,7 @@ describe('useItemForm', () => {
   });
 
   it('initializes with default state for create flow', () => {
-    const { result } = renderUseItemForm({ initial: undefined, onSaved: vi.fn() });
+    const { result } = renderUseItemForm({ onSaved: vi.fn() });
 
     expect(result.current.supplierValue).toBeNull();
     expect(result.current.formError).toBeNull();
@@ -122,35 +121,9 @@ describe('useItemForm', () => {
     expect(mockUseSuppliersQuery).toHaveBeenCalledWith(true);
   });
 
-  it('aligns supplierValue to initial.supplierId when suppliers load', async () => {
-    mockUseSuppliersQuery.mockReturnValue({
-      data: [
-        { id: 'sup-1', label: 'Supplier A' },
-        { id: 'sup-2', label: 'Supplier B' },
-      ],
-      isLoading: false,
-    });
-
-    const initial: InventoryRow = {
-      id: 'item-1',
-      name: 'Existing',
-      code: 'EX-1',
-      supplierId: 'sup-2',
-      onHand: 5,
-      minQty: 0,
-      createdAt: new Date().toISOString(),
-    };
-
-    const { result } = renderUseItemForm({ initial });
-
-    await waitFor(() => {
-      expect(result.current.supplierValue).toEqual({ id: 'sup-2', label: 'Supplier B' });
-    });
-  });
-
   it('clears state and calls onClose when handleClose runs', () => {
     const onClose = vi.fn();
-    const { result } = renderUseItemForm({ onClose, initial: undefined });
+    const { result } = renderUseItemForm({ onClose });
 
     act(() => {
       result.current.setSupplierValue({ id: 'sup-1', label: 'Supplier A' });

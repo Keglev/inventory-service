@@ -1,5 +1,3 @@
-import type { InventoryRow } from '../../../../api/inventory/types';
-
 /**
  * ItemFormDialogProps - Main dialog component props
  */
@@ -12,7 +10,4 @@ export interface ItemFormDialogProps {
 
   /** Optional callback after successful save */
   onSaved?: () => void;
-
-  /** Initial item data for edit mode; undefined for create */
-  initial?: InventoryRow | null;
 }

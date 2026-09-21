@@ -3,9 +3,9 @@
  * @module pages/inventory/dialogs/ItemFormDialog/useItemForm
  *
  * @summary
- * Orchestrator hook for the create-or-edit item flow. Owns the
- * react-hook-form instance, the suppliers query, two sync effects, and
- * the submit pipeline (validate, map to UpsertItemRequest, call
+ * Orchestrator hook for the create-item flow. Owns the react-hook-form
+ * instance, the suppliers query, the reset-on-open effect, and the
+ * submit pipeline (validate, map to UpsertItemRequest, call
  * upsertItem, map errors).
  *
  * @enterprise
@@ -14,12 +14,10 @@
  *   for create/upsert. The locked 11-value StockChangeReason enum covers
  *   removals and other flows that do not belong on creation. CM-3
  *   closure: subset is intentional and backend-authoritative.
- * - Two effects keep state coherent. The supplier-alignment effect
- *   addresses a real race: defaultValues are set before suppliers
- *   load, so the controlled Autocomplete needs to be re-aligned to
- *   the loaded SupplierOption once the list arrives. The reset-on-open
- *   effect guarantees a clean state on every open, so a previous edit
- *   session does not leak into a new create.
+ * - The reset-on-open effect guarantees a clean state on every open, so
+ *   a previous session does not leak into the next one. handleClose
+ *   clears the controlled supplier selection, which the form reset
+ *   does not reach.
  * - Submit pipeline maps form values to UpsertItemRequest:
  *   reason -> notes (backend stores the reason as the StockHistory
  *   notes column for this flow), and minQty defaults to DEFAULT_MIN_QUANTITY.
@@ -37,9 +35,9 @@
  *   state.
  *
  * Size note: over the 120-line hook alarm. WAIVED — one cohesive form lifecycle
- * (state, suppliers query, two sync effects, submit, close); the error mapping
- * (applyItemFormServerError) and the default values (buildItemFormDefaults) are
- * already factored out, and no separable second responsibility remains.
+ * (state, suppliers query, the reset-on-open effect, submit, close); the error
+ * mapping (applyItemFormServerError) and the default values (ITEM_FORM_DEFAULTS)
+ * are already factored out, and no separable second responsibility remains.
  */
 
 import * as React from 'react';
@@ -50,26 +48,23 @@ import { useToast } from '../../../../context/toast/ToastContext';
 import { upsertItem } from '../../../../api/inventory/itemMutations';
 import { itemFormSchema, type UpsertItemForm } from '../../validation/inventoryValidation';
 import { applyItemFormServerError } from './itemFormServerErrors';
-import type { UpsertItemRequest, InventoryRow } from '../../../../api/inventory/types';
+import type { UpsertItemRequest } from '../../../../api/inventory/types';
 import type { SupplierOption } from '../../../../api/analytics/types';
 import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
 import { DEFAULT_MIN_QUANTITY } from '../../../../config/inventoryPolicy';
 
 /**
- * Builds the react-hook-form default values for the item form from an optional
- * initial row. Single source for both the useForm initializer and the
- * reset-on-open effect, so the two cannot drift.
+ * Default values for a new item. Single source for both the useForm
+ * initializer and the reset-on-open effect, so the two cannot drift.
  */
-function buildItemFormDefaults(initial?: InventoryRow | null): UpsertItemForm {
-  return {
-    name: initial?.name ?? '',
-    code: initial?.code ?? '',
-    supplierId: (initial?.supplierId as UpsertItemForm['supplierId']) ?? '',
-    quantity: initial?.onHand ?? 0,
-    price: 0,
-    reason: 'INITIAL_STOCK',
-  };
-}
+const ITEM_FORM_DEFAULTS: UpsertItemForm = {
+  name: '',
+  code: '',
+  supplierId: '',
+  quantity: 0,
+  price: 0,
+  reason: 'INITIAL_STOCK',
+};
 
 /**
  * Complete item form state and handlers
@@ -107,7 +102,6 @@ export interface UseItemFormReturn {
  * Orchestrator hook managing item form workflow
  * 
  * @param params.isOpen - Whether dialog is currently open (controls query firing)
- * @param params.initial - Initial item data for edit mode (undefined for create)
  * @param params.onClose - Callback when dialog closes
  * @param params.onSaved - Optional callback after successful save
  * @param params.readOnly - Demo mode flag (disables submission)
@@ -118,17 +112,14 @@ export interface UseItemFormReturn {
  * - Controlled Autocomplete to prevent UI/RHF desync
  * - Intelligent error mapping: detects duplicate name/code and fields supplier issues
  * - Form state resets on dialog open to ensure clean state
- * - Supplier alignment effect handles race conditions when list loads late
  */
 export function useItemForm({
   isOpen,
-  initial,
   onClose,
   onSaved = () => {},
   readOnly = false,
 }: {
   isOpen: boolean;
-  initial?: InventoryRow | null;
   onClose: () => void;
   onSaved?: () => void;
   readOnly?: boolean;
@@ -165,7 +156,7 @@ export function useItemForm({
     watch,
   } = useForm<UpsertItemForm>({
     resolver: zodResolver(itemFormSchema),
-    defaultValues: buildItemFormDefaults(initial),
+    defaultValues: ITEM_FORM_DEFAULTS,
   });
 
   // ================================
@@ -173,25 +164,14 @@ export function useItemForm({
   // ================================
 
   /**
-   * Align controlled Autocomplete with initial supplierId when suppliers load
-   * Prevents race condition where suppliers arrive after defaultValues set
-   */
-  React.useEffect(() => {
-    if (!suppliers.length) return;
-    const match = suppliers.find((s) => String(s.id) === String(initial?.supplierId)) ?? null;
-    setSupplierValue(match);
-  }, [suppliers, initial?.supplierId]);
-
-  /**
-   * Reset form state when dialog opens with different initial data
-   * Ensures predictable state for Create vs Edit flows
+   * Reset form state each time the dialog opens
    */
   React.useEffect(() => {
     if (!isOpen) return;
-    reset(buildItemFormDefaults(initial));
+    reset(ITEM_FORM_DEFAULTS);
     setFormError(null);
     clearErrors();
-  }, [isOpen, initial, reset, clearErrors]);
+  }, [isOpen, reset, clearErrors]);
 
   // ================================
   // Handlers
