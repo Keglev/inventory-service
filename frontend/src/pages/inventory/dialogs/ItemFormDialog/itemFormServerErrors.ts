@@ -1,7 +1,7 @@
 /**
  * @file itemFormServerErrors.ts
  * @module pages/inventory/dialogs/ItemFormDialog/itemFormServerErrors
- * @summary Maps failed upsert responses onto react-hook-form field and form-level errors.
+ * @summary Maps failed create responses onto react-hook-form field and form-level errors.
  * @enterprise
  * Extracted from useItemForm so the server-error-to-form translation is a
  * separate responsibility from form orchestration. Callbacks are injected so
