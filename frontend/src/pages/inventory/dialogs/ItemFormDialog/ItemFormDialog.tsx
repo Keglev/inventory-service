@@ -3,16 +3,14 @@
  * @module pages/inventory/dialogs/ItemFormDialog/ItemFormDialog
  *
  * @summary
- * Root dialog for create-or-edit item. Title, body (ItemForm), and
- * actions change based on whether `initial?.id` is set. Delegates all
- * state and submission to useItemForm.
+ * Root dialog for creating an item. Renders ItemForm and the dialog
+ * actions; delegates all state and submission to useItemForm.
  *
  * @enterprise
- * - One dialog, two modes. Create vs edit is decided by initial?.id;
- *   the dialog title, submit label, and the visibility of the reason
- *   field all key off this single check. Splitting into two components
- *   would duplicate the form-field layout and the supplier alignment
- *   effect.
+ * - Create only. An existing item is changed through the dedicated
+ *   dialogs (EditItemDialog for the name, PriceChangeDialog,
+ *   QuantityAdjustDialog), each with its own reason flow, so this
+ *   dialog carries no edit branch.
  * - Help opens the in-app drawer via the shared HelpIconButton component,
  *   matching the sibling dialogs. The tooltip key
  *   resolves to the shared common:actions.help leaf.
@@ -45,28 +43,16 @@ import type { ItemFormDialogProps } from './ItemFormDialog.types';
  * 
  * @param isOpen - Whether dialog is visible
  * @param onClose - Called on cancel or successful save
- * @param initial - Initial item data (undefined for create mode)
  */
 export function ItemFormDialog({
   isOpen,
   onClose,
-  initial,
   onSaved,
 }: ItemFormDialogProps) {
   const { t } = useTranslation(['common', 'inventory']);
 
   // All form state and handlers delegated to hook
-  const state = useItemForm({ isOpen, onClose, initial, onSaved });
-
-  // Dialog title reflects create vs edit mode
-  const dialogTitle = initial?.id
-    ? t('inventory:dialogs.editItemTitle')
-    : t('inventory:dialogs.createItemTitle');
-
-  // Button label also changes based on mode
-  const submitLabel = initial?.id
-    ? t('common:actions.save')
-    : t('common:actions.create');
+  const state = useItemForm({ isOpen, onClose, onSaved });
 
   return (
     <Dialog
@@ -83,16 +69,16 @@ export function ItemFormDialog({
           alignItems: 'center',
         }}
       >
-        <span>{dialogTitle}</span>
+        <span>{t('inventory:dialogs.createItemTitle')}</span>
         <HelpIconButton
-          topicId={initial?.id ? 'inventory.editItem' : 'inventory.manage'}
+          topicId="inventory.manage"
           tooltip={t('common:actions.help')}
         />
       </DialogTitle>
 
       {/* Form content */}
       <DialogContent>
-        <ItemForm state={state} initial={initial} />
+        <ItemForm state={state} />
       </DialogContent>
 
       {/* Dialog actions */}
@@ -109,7 +95,7 @@ export function ItemFormDialog({
             }}
             disabled={state.formState.isSubmitting}
           >
-            {submitLabel}
+            {t('common:actions.create')}
           </Button>
           {state.formState.isSubmitting && (
             <CircularProgress

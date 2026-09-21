@@ -30,13 +30,13 @@ exceeds its layer's alarm.
 | File | Code lines | Alarm | Why not split |
 |---|---|---|---|
 | `inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` | 164 | 160 (dialogs) | Four lines over. A flat, single-purpose JSX form; any split would be a fragment defined by the threshold rather than by a responsibility |
-| `inventory/dialogs/ItemFormDialog/useItemForm.ts` | 131 | 120 (hooks) | One responsibility — the dialog's form controller: state, supplier query, RHF wiring, two sync effects, submit, close. The separable part was already extracted (`itemFormServerErrors.ts`); what remains is coupled through form state, and lifting the effects out would mean threading six arguments into a hook that exists only to reduce a count |
+| `inventory/dialogs/ItemFormDialog/useItemForm.ts` | 122 | 120 (hooks) | One responsibility — the create dialog's form controller: state, supplier query, RHF wiring, the reset-on-open effect, submit, close. The separable parts were already extracted (`itemFormServerErrors.ts`, the default values); what remains is coupled through form state, and lifting the effect out would mean threading form internals into a hook that exists only to reduce a count |
 | `inventory/dialogs/EditItemDialog/useEditItemForm.ts` | 124 | 120 (hooks) | Same shape and the same reasoning, four lines over |
 
-Eight functions sit above their band but below their alarm (`PriceChangeForm` 146,
+Seven functions sit above their band but below their alarm (`PriceChangeForm` 146,
 `EditItemForm` 133, `PriceTrendCard` 122, `MovementsSection` 112, `DateRangeFilter`
-110, `useItemForm` 94, `useEditItemForm` 90, `usePriceChangeForm` 87). These are
-accepted: the band is guidance, the alarm is the gate.
+110, `useEditItemForm` 90, `usePriceChangeForm` 87). These are accepted: the band
+is guidance, the alarm is the gate.
 
 Two spec files sit above the service band and below its alarm
 (`unit/api/suppliers/supplierMutations.test.ts` 173,

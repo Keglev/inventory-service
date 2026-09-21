@@ -2,12 +2,12 @@
  * @file ItemFormDialog.test.tsx
  * @module __tests__/components/pages/inventory/ItemFormDialog/ItemFormDialog
  * @description Contract tests for ItemFormDialog:
- * - Renders correct mode (create vs edit) and action labels.
+ * - Renders the create title and action labels.
  * - Wires dialog props into useItemForm and passes state into ItemForm.
  * - Submits via RHF handleSubmit(state.onSubmit) when primary action is clicked.
  * - Calls state.handleClose on cancel.
  * - Shows progress and disables actions while submitting.
- * - Opens the correct contextual help topic (create/edit) via HelpIconButton.
+ * - Opens the create-item help topic via HelpIconButton.
  *
  * Out of scope:
  * - useItemForm internals (validation, mutations, toast)
@@ -17,13 +17,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { ComponentProps } from 'react';
 
 import type { UseItemFormReturn } from '../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm';
 import { ItemFormDialog } from '../../../../../pages/inventory/dialogs/ItemFormDialog/ItemFormDialog';
 import { tEn } from '../../../../test/i18nEn';
-
-type ItemFormDialogProps = ComponentProps<typeof ItemFormDialog>;
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -114,7 +111,7 @@ beforeEach(() => {
 });
 
 describe('ItemFormDialog', () => {
-  it('renders create mode title and submits via handleSubmit(state.onSubmit)', async () => {
+  it('renders the create title and submits via handleSubmit(state.onSubmit)', async () => {
     const user = userEvent.setup();
 
     const submitHandler = vi.fn();
@@ -132,7 +129,7 @@ describe('ItemFormDialog', () => {
 
     render(<ItemFormDialog isOpen={true} onClose={onClose} onSaved={onSaved} />);
 
-    // Mode-specific title + primary action label
+    // Title + primary action label
     // WHY: the labeled help button inside DialogTitle contributes to the heading's accessible name.
     expect(screen.getByRole('heading', { name: /Create Item/ })).toBeInTheDocument();
 
@@ -144,19 +141,18 @@ describe('ItemFormDialog', () => {
 
     // Dialog passes hook state down to the form
     expect(itemFormPropsSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ state, initial: undefined }),
+      expect.objectContaining({ state }),
     );
 
     // Hook called with dialog contract
     expect(useItemFormMock).toHaveBeenCalledWith({
       isOpen: true,
       onClose,
-      initial: undefined,
       onSaved,
     });
   });
 
-  it('renders edit mode and calls state.handleClose on Cancel', async () => {
+  it('calls state.handleClose when Cancel is clicked', async () => {
     const user = userEvent.setup();
 
     const handleCloseSpy = vi.fn();
@@ -170,14 +166,10 @@ describe('ItemFormDialog', () => {
     render(
       <ItemFormDialog
         isOpen={true}
-        initial={{ id: 'item-1', name: 'Item 1', code: 'CODE', onHand: 5 } as ItemFormDialogProps['initial']}
         onClose={vi.fn()}
         onSaved={vi.fn()}
       />,
     );
-
-    expect(screen.getByRole('heading', { name: /Edit Item/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(handleCloseSpy).toHaveBeenCalledTimes(1);
@@ -190,19 +182,19 @@ describe('ItemFormDialog', () => {
 
     useItemFormMock.mockReturnValue(state);
 
-    render(<ItemFormDialog isOpen={true} onClose={vi.fn()} onSaved={vi.fn()} initial={null} />);
+    render(<ItemFormDialog isOpen={true} onClose={vi.fn()} onSaved={vi.fn()} />);
 
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Create' })).toBeDisabled();
   });
 
-  it('opens the create-item help topic when creating', async () => {
+  it('opens the create-item help topic', async () => {
     const user = userEvent.setup();
 
     useItemFormMock.mockReturnValue(createState());
 
-    render(<ItemFormDialog isOpen={true} onClose={vi.fn()} onSaved={vi.fn()} initial={undefined} />);
+    render(<ItemFormDialog isOpen={true} onClose={vi.fn()} onSaved={vi.fn()} />);
 
     expect(helpButtonPropsSpy).toHaveBeenCalledWith(
       expect.objectContaining({ topicId: 'inventory.manage' }),
@@ -210,27 +202,5 @@ describe('ItemFormDialog', () => {
 
     await user.click(screen.getByRole('button', { name: 'Open help' }));
     expect(openHelpMock).toHaveBeenCalledWith('inventory.manage');
-  });
-
-  it('opens the edit-item help topic when editing', async () => {
-    const user = userEvent.setup();
-
-    useItemFormMock.mockReturnValue(createState());
-
-    render(
-      <ItemFormDialog
-        isOpen={true}
-        onClose={vi.fn()}
-        onSaved={vi.fn()}
-        initial={{ id: 'existing' } as ItemFormDialogProps['initial']}
-      />,
-    );
-
-    expect(helpButtonPropsSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ topicId: 'inventory.editItem' }),
-    );
-
-    await user.click(screen.getByRole('button', { name: 'Open help' }));
-    expect(openHelpMock).toHaveBeenCalledWith('inventory.editItem');
   });
 });
