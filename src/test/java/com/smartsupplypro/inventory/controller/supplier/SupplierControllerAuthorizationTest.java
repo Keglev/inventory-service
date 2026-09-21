@@ -55,7 +55,7 @@ class SupplierControllerAuthorizationTest {
     }
 
     @Test
-    void create_forbiddenForUser() throws Exception {
+    void should_return_403_when_a_user_creates_a_supplier() throws Exception {
         SupplierDTO create = SupplierDTO.builder()
                 .name(dto.getName())
                 .contactName(dto.getContactName())
@@ -73,7 +73,7 @@ class SupplierControllerAuthorizationTest {
     }
 
     @Test
-    void update_forbiddenForUser() throws Exception {
+    void should_return_403_when_a_user_updates_a_supplier() throws Exception {
         SupplierDTO body = SupplierDTO.builder()
                 .id("sup-1")
                 .name(dto.getName())
@@ -92,7 +92,7 @@ class SupplierControllerAuthorizationTest {
     }
 
     @Test
-    void delete_forbiddenForUser() throws Exception {
+    void should_return_403_when_a_user_deletes_a_supplier() throws Exception {
         mockMvc.perform(delete("/api/suppliers/sup-1")
                         .with(user("u").roles("USER"))
                         .with(csrf()))

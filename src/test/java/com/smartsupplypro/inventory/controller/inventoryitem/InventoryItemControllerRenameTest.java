@@ -62,7 +62,7 @@ class InventoryItemControllerRenameTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void rename_admin_ok() throws Exception {
+        void should_rename_when_the_caller_is_an_admin() throws Exception {
             when(inventoryItemService.renameItem(eq("i-1"), eq("Laptop Monitor")))
                 .thenReturn(sampleWithName("i-1", "Laptop Monitor"));
 
@@ -73,7 +73,7 @@ class InventoryItemControllerRenameTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void rename_specialCharacters_ok() throws Exception {
+        void should_rename_when_the_name_has_special_characters() throws Exception {
             String specialName = "Monitor 24\" (Premium)";
             when(inventoryItemService.renameItem(eq("i-1"), eq(specialName)))
                 .thenReturn(sampleWithName("i-1", specialName));
@@ -90,14 +90,14 @@ class InventoryItemControllerRenameTest {
 
         @Test
         @WithMockUser(roles = "USER")
-        void rename_user_forbidden() throws Exception {
+        void should_return_403_when_a_user_renames() throws Exception {
             mockMvc.perform(patch("/api/inventory/i-1/name").with(csrf())
                     .param("name", "New Name"))
                 .andExpect(status().isForbidden());
         }
 
         @Test
-        void rename_unauthenticated_401() throws Exception {
+        void should_return_401_when_renaming_unauthenticated() throws Exception {
             mockMvc.perform(patch("/api/inventory/i-1/name").with(csrf())
                     .param("name", "New Name"))
                 .andExpect(status().isUnauthorized());
@@ -110,7 +110,7 @@ class InventoryItemControllerRenameTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void rename_emptyName_returns400() throws Exception {
+        void should_return_400_when_the_name_is_empty() throws Exception {
             doThrow(new IllegalArgumentException("Item name cannot be empty"))
                 .when(inventoryItemService).renameItem(eq("i-1"), eq(""));
 
@@ -121,7 +121,7 @@ class InventoryItemControllerRenameTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void rename_whitespaceOnlyName_returns400() throws Exception {
+        void should_return_400_when_the_name_is_only_whitespace() throws Exception {
             doThrow(new IllegalArgumentException("Item name cannot be empty"))
                 .when(inventoryItemService).renameItem(eq("i-1"), eq("   "));
 
@@ -132,7 +132,7 @@ class InventoryItemControllerRenameTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void rename_missingNameParam_returns400() throws Exception {
+        void should_return_400_when_the_name_parameter_is_missing() throws Exception {
             mockMvc.perform(patch("/api/inventory/i-1/name").with(csrf()))
                 .andExpect(status().isBadRequest());
         }
@@ -144,7 +144,7 @@ class InventoryItemControllerRenameTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void rename_duplicateName_returns409() throws Exception {
+        void should_return_409_when_the_name_is_a_duplicate() throws Exception {
             String duplicateName = "Existing Item Name";
             doThrow(new DuplicateResourceException(
                 "An item with this name already exists for this supplier"))
@@ -157,7 +157,7 @@ class InventoryItemControllerRenameTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void rename_caseInsensitiveDuplicate_returns409() throws Exception {
+        void should_return_409_when_the_name_duplicates_in_another_case() throws Exception {
             doThrow(new DuplicateResourceException(
                 "An item with this name already exists for this supplier"))
                 .when(inventoryItemService).renameItem(eq("i-1"), eq("monitor"));
@@ -174,7 +174,7 @@ class InventoryItemControllerRenameTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void rename_notFound_returns404() throws Exception {
+        void should_return_404_when_the_item_does_not_exist() throws Exception {
             doThrow(new IllegalArgumentException("Item not found: i-999"))
                 .when(inventoryItemService).renameItem(eq("i-999"), eq("New Name"));
 

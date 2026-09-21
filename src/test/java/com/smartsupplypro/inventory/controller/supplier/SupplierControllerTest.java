@@ -87,7 +87,7 @@ class SupplierControllerTest {
     class WhenReading {
 
         @Test
-        void listAll_asUser_ok() throws Exception {
+        void should_list_all_suppliers_when_the_caller_is_a_user() throws Exception {
             given(supplierService.findAll()).willReturn(List.of(dto));
 
             mockMvc.perform(get("/api/suppliers").with(user("u").roles("USER")))
@@ -96,7 +96,7 @@ class SupplierControllerTest {
         }
 
         @Test
-        void getById_found_asUser_ok() throws Exception {
+        void should_return_the_supplier_when_it_exists() throws Exception {
             given(supplierService.findById("sup-1")).willReturn(Optional.of(dto));
 
             mockMvc.perform(get("/api/suppliers/sup-1").with(user("u").roles("USER")))
@@ -105,7 +105,7 @@ class SupplierControllerTest {
         }
 
         @Test
-        void getById_notFound_mapsTo404() throws Exception {
+        void should_return_404_when_the_supplier_does_not_exist() throws Exception {
             given(supplierService.findById("missing")).willReturn(Optional.empty());
 
             mockMvc.perform(get("/api/suppliers/missing").with(user("u").roles("USER")))
@@ -114,7 +114,7 @@ class SupplierControllerTest {
         }
 
         @Test
-        void search_byName_asUser_ok() throws Exception {
+        void should_return_matches_when_searching_by_name() throws Exception {
             given(supplierService.findByName("ac")).willReturn(List.of(dto));
 
             mockMvc.perform(get("/api/suppliers/search")
@@ -130,7 +130,7 @@ class SupplierControllerTest {
     class WhenWritingAsAdmin {
 
         @Test
-        void create_asAdmin_201_withLocation() throws Exception {
+        void should_return_201_and_a_location_when_an_admin_creates() throws Exception {
             given(supplierService.create(any(SupplierDTO.class))).willReturn(dto);
 
             mockMvc.perform(post("/api/suppliers")
@@ -147,7 +147,7 @@ class SupplierControllerTest {
          * or the UI cannot create a supplier at all.
          */
         @Test
-        void create_withoutCreatedBy_201() throws Exception {
+        void should_return_201_when_created_by_is_omitted() throws Exception {
             given(supplierService.create(any(SupplierDTO.class))).willReturn(dto);
 
             mockMvc.perform(post("/api/suppliers")
@@ -159,7 +159,7 @@ class SupplierControllerTest {
         }
 
         @Test
-        void create_withIdProvided_returns400() throws Exception {
+        void should_return_400_when_an_id_is_provided_on_create() throws Exception {
             mockMvc.perform(post("/api/suppliers")
                             .with(user("admin").roles("ADMIN")).with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
@@ -169,7 +169,7 @@ class SupplierControllerTest {
         }
 
         @Test
-        void create_duplicateName_mapsTo409() throws Exception {
+        void should_return_409_when_the_name_is_a_duplicate() throws Exception {
             given(supplierService.create(any(SupplierDTO.class)))
                     .willThrow(new DuplicateResourceException("Supplier already exists", "name"));
 
@@ -185,7 +185,7 @@ class SupplierControllerTest {
         }
 
         @Test
-        void update_asAdmin_ok_pathIdWins() throws Exception {
+        void should_use_the_path_id_when_an_admin_updates() throws Exception {
             SupplierDTO body = SupplierDTO.builder()
                     .id("sup-1").name("Acme Updated").contactName(dto.getContactName())
                     .phone(dto.getPhone()).email(dto.getEmail()).createdBy("admin").build();
@@ -201,7 +201,7 @@ class SupplierControllerTest {
         }
 
         @Test
-        void update_mismatchedIds_returns400() throws Exception {
+        void should_return_400_when_the_path_and_body_ids_differ() throws Exception {
             SupplierDTO body = SupplierDTO.builder()
                     .id("different").name(dto.getName()).contactName(dto.getContactName())
                     .phone(dto.getPhone()).email(dto.getEmail()).createdBy("admin").build();
@@ -215,14 +215,14 @@ class SupplierControllerTest {
         }
 
         @Test
-        void delete_asAdmin_noContent() throws Exception {
+        void should_return_204_when_an_admin_deletes() throws Exception {
             mockMvc.perform(delete("/api/suppliers/sup-1")
                             .with(user("admin").roles("ADMIN")).with(csrf()))
                     .andExpect(status().isNoContent());
         }
 
         @Test
-        void delete_withLinkedItems_mapsTo409() throws Exception {
+        void should_return_409_when_the_supplier_has_linked_items() throws Exception {
             doThrow(new IllegalStateException("Cannot delete supplier with linked items"))
                     .when(supplierService).delete("sup-1");
 
@@ -235,7 +235,7 @@ class SupplierControllerTest {
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {"  "})
-        void create_invalidName_400(String badName) throws Exception {
+        void should_return_400_when_the_name_is_invalid(String badName) throws Exception {
             SupplierDTO create = SupplierDTO.builder()
                     .name(badName).contactName(dto.getContactName())
                     .phone(dto.getPhone()).email(dto.getEmail()).createdBy("admin").build();
