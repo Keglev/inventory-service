@@ -65,10 +65,8 @@ class SupplierServiceCreateTest extends SupplierServiceTestBase {
         verify(supplierRepository).save(any(Supplier.class));
     }
 
-    /**
-     * The client sends no createdBy — the UI never has — so the service must supply it
-     * or the insert fails against a NOT NULL column.
-     */
+    // The client sends no createdBy — the UI never has — so the service must supply it
+    // or the insert fails against a NOT NULL column.
     @Test
     void should_attribute_creation_to_the_user_when_the_client_sends_no_created_by() {
         authenticateAs("carlos@example.com");
@@ -85,10 +83,8 @@ class SupplierServiceCreateTest extends SupplierServiceTestBase {
         assertEquals("carlos@example.com", captor.getValue().getCreatedBy());
     }
 
-    /**
-     * A client-supplied value must not be trusted: attribution comes from the security
-     * context, so a forged createdBy in the request body is discarded.
-     */
+    // A client-supplied value must not be trusted: attribution comes from the security
+    // context, so a forged createdBy in the request body is discarded.
     @Test
     void should_ignore_it_when_the_client_supplies_created_by() {
         authenticateAs("carlos@example.com");
