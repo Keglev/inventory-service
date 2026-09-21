@@ -142,10 +142,8 @@ class SupplierControllerTest {
                     .andExpect(jsonPath("$.id").value("sup-1"));
         }
 
-        /**
-         * Regression: createdBy is server-owned. A payload without it must be accepted,
-         * or the UI cannot create a supplier at all.
-         */
+        // Regression: createdBy is server-owned. A payload without it must be accepted,
+        // or the UI cannot create a supplier at all.
         @Test
         void should_return_201_when_created_by_is_omitted() throws Exception {
             given(supplierService.create(any(SupplierDTO.class))).willReturn(dto);
