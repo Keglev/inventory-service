@@ -47,7 +47,7 @@ class InventoryItemControllerPatchTest {
 
     @Test
     @WithMockUser(roles = "USER")
-    void patch_quantity_user_ok() throws Exception {
+    void should_allow_the_patch_when_a_user_changes_the_quantity() throws Exception {
         when(inventoryItemService.adjustQuantity(eq("i-1"), eq(5), eq(StockChangeReason.SOLD)))
             .thenReturn(sample("i-1"));
 
@@ -59,7 +59,7 @@ class InventoryItemControllerPatchTest {
 
     @Test
     @WithMockUser(roles = "USER")
-    void patch_price_user_ok() throws Exception {
+    void should_allow_the_patch_when_a_user_changes_the_price() throws Exception {
         when(inventoryItemService.updatePrice(eq("i-1"), eq(new BigDecimal("149.99"))))
             .thenReturn(sample("i-1"));
 

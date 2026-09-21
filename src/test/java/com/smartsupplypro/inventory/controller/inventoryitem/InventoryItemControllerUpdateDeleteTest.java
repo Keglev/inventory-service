@@ -58,7 +58,7 @@ class InventoryItemControllerUpdateDeleteTest {
 
         @Test
         @WithMockUser(roles = "USER")
-        void update_user_forbidden_fieldChange() throws Exception {
+        void should_return_403_when_a_user_changes_a_restricted_field() throws Exception {
             when(inventoryItemService.update(eq("i-1"), any(InventoryItemDTO.class)))
                 .thenThrow(new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.FORBIDDEN,
@@ -73,7 +73,7 @@ class InventoryItemControllerUpdateDeleteTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void update_foundOrMissing() throws Exception {
+        void should_update_or_return_404_when_the_item_is_found_or_missing() throws Exception {
             InventoryItemDTO updated = sample("i-1");
             when(inventoryItemService.update(eq("i-1"), any(InventoryItemDTO.class)))
                 .thenReturn(Optional.of(updated));
@@ -98,21 +98,21 @@ class InventoryItemControllerUpdateDeleteTest {
     class DeleteItem {
 
         @Test
-        void delete_unauthenticated_401() throws Exception {
+        void should_return_401_when_deleting_unauthenticated() throws Exception {
             mockMvc.perform(delete("/api/inventory/i-1").with(csrf()))
                 .andExpect(status().isUnauthorized());
         }
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void delete_admin_noContent() throws Exception {
+        void should_return_204_when_an_admin_deletes() throws Exception {
             mockMvc.perform(delete("/api/inventory/i-1").with(csrf()))
                 .andExpect(status().isNoContent());
         }
 
         @Test
         @WithMockUser(roles = "USER")
-        void delete_user_forbidden() throws Exception {
+        void should_return_403_when_a_user_deletes() throws Exception {
             mockMvc.perform(delete("/api/inventory/i-1").with(csrf()))
                 .andExpect(status().isForbidden());
         }

@@ -80,7 +80,7 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void create_returns201AndLocation() throws Exception {
+        void should_return_201_and_a_location_when_an_item_is_created() throws Exception {
             InventoryItemDTO request = withoutId();
             InventoryItemDTO created = sample("i-1");
             when(inventoryItemService.save(any())).thenReturn(created);
@@ -95,7 +95,7 @@ class InventoryItemControllerCreateReadTest {
         }
 
         @Test
-        void create_unauthenticated_401() throws Exception {
+        void should_return_401_when_creating_unauthenticated() throws Exception {
             mockMvc.perform(post("/api/inventory").with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(withoutId())))
@@ -104,7 +104,7 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "USER")
-        void create_user_forbidden_403() throws Exception {
+        void should_return_403_when_a_user_creates_an_item() throws Exception {
             mockMvc.perform(post("/api/inventory").with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(withoutId())))
@@ -113,7 +113,7 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void create_invalid_400() throws Exception {
+        void should_return_400_when_the_item_is_invalid() throws Exception {
             mockMvc.perform(post("/api/inventory").with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(invalid())))
@@ -122,7 +122,7 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void create_missingSku_400_withFieldErrors() throws Exception {
+        void should_return_400_with_field_errors_when_the_sku_is_missing() throws Exception {
             InventoryItemDTO request = withoutId();
             request.setSku(null);
 
@@ -135,7 +135,7 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void create_duplicate_409() throws Exception {
+        void should_return_409_when_the_item_is_a_duplicate() throws Exception {
             when(inventoryItemService.save(any()))
                 .thenThrow(new DuplicateResourceException("Item name already exists"));
             mockMvc.perform(post("/api/inventory").with(csrf())
@@ -151,7 +151,7 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "USER")
-        void getById_foundOrNotFound() throws Exception {
+        void should_return_the_item_or_404_when_looking_up_by_id() throws Exception {
             when(inventoryItemService.getById("i-1")).thenReturn(Optional.of(sample("i-1")));
             when(inventoryItemService.getById("missing")).thenReturn(Optional.empty());
 
@@ -165,7 +165,7 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "USER")
-        void getAll_returnsList() throws Exception {
+        void should_return_the_list_when_items_exist() throws Exception {
             when(inventoryItemService.getAll()).thenReturn(List.of(sample("i-1"), sample("i-2")));
             mockMvc.perform(get("/api/inventory"))
                 .andExpect(status().isOk())
@@ -175,7 +175,7 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "USER")
-        void getAll_returnsEmptyList() throws Exception {
+        void should_return_an_empty_list_when_no_items_exist() throws Exception {
             when(inventoryItemService.getAll()).thenReturn(List.of());
             mockMvc.perform(get("/api/inventory"))
                 .andExpect(status().isOk())
@@ -184,7 +184,7 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "USER")
-        void search_pageableAndSort() throws Exception {
+        void should_apply_paging_and_sort_when_searching() throws Exception {
             when(inventoryItemService.searchItems(eq("mon"), eq(null), eq(false), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(sample("i-2"))));
 
@@ -199,7 +199,7 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "USER")
-        void search_allParamsOptional_nameOmitted() throws Exception {
+        void should_search_when_every_parameter_including_name_is_omitted() throws Exception {
             when(inventoryItemService.searchItems(eq(""), eq(null), eq(false), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(sample("i-3"))));
 
@@ -210,7 +210,7 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "USER")
-        void search_forwardsSupplierIdAndBelowMinimumFlags() throws Exception {
+        void should_forward_the_supplier_id_and_below_minimum_flag_when_searching() throws Exception {
             when(inventoryItemService.searchItems(eq("bolt"), eq("sup-9"), eq(true), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(sample("i-4"))));
 
@@ -224,7 +224,7 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "USER")
-        void inventoryCount_accessibleToAuthenticatedUser() throws Exception {
+        void should_return_the_count_when_the_user_is_authenticated() throws Exception {
             when(inventoryItemService.countItems()).thenReturn(5L);
             mockMvc.perform(get("/api/inventory/count"))
                 .andExpect(status().isOk());
