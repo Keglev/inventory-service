@@ -66,7 +66,7 @@ class HealthCheckControllerDbEndpointTest {
     }
 
     @Test
-    void checkDatabaseConnection_whenRow_returnsUp() throws Exception {
+    void should_return_up_when_the_database_returns_a_row() throws Exception {
         stubDbQuery();
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getString("ip")).thenReturn("1.2.3.4");
@@ -80,7 +80,7 @@ class HealthCheckControllerDbEndpointTest {
     }
 
     @Test
-    void checkDatabaseConnection_whenNoRow_returnsDown() throws Exception {
+    void should_return_down_when_the_database_returns_no_row() throws Exception {
         stubDbQuery();
         when(resultSet.next()).thenReturn(false);
 
@@ -91,7 +91,7 @@ class HealthCheckControllerDbEndpointTest {
     }
 
     @Test
-    void checkDatabaseConnection_whenDataSourceThrows_returnsDownWithError() throws Exception {
+    void should_return_down_with_an_error_when_the_data_source_throws() throws Exception {
         when(dataSource.getConnection()).thenThrow(new SQLException("no route"));
 
         ResponseEntity<String> response = newController().checkDatabaseConnection();
@@ -101,7 +101,7 @@ class HealthCheckControllerDbEndpointTest {
     }
 
     @Test
-    void checkDatabaseConnection_whenPrepareStatementThrows_returnsDownWithError() throws Exception {
+    void should_return_down_with_an_error_when_prepare_statement_throws() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(IP_SQL)).thenThrow(new SQLException("prepare failed"));
 
@@ -113,7 +113,7 @@ class HealthCheckControllerDbEndpointTest {
     }
 
     @Test
-    void checkDatabaseConnection_whenExecuteQueryThrows_returnsDownWithError() throws Exception {
+    void should_return_down_with_an_error_when_execute_query_throws() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(IP_SQL)).thenReturn(statement);
         when(statement.executeQuery()).thenThrow(new SQLException("execute failed"));
@@ -126,7 +126,7 @@ class HealthCheckControllerDbEndpointTest {
     }
 
     @Test
-    void checkDatabaseConnection_whenCloseThrowsAfterSuccess_returnsDown() throws Exception {
+    void should_return_down_when_close_throws_after_a_successful_query() throws Exception {
         stubDbQuery();
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getString("ip")).thenReturn("1.2.3.4");
@@ -139,7 +139,7 @@ class HealthCheckControllerDbEndpointTest {
     }
 
     @Test
-    void checkDatabaseConnection_whenQueryAndCloseThrow_returnsDown() throws Exception {
+    void should_return_down_when_both_the_query_and_close_throw() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(IP_SQL)).thenReturn(statement);
         when(statement.executeQuery()).thenThrow(new SQLException("execute failed"));
@@ -153,7 +153,7 @@ class HealthCheckControllerDbEndpointTest {
     }
 
     @Test
-    void checkDatabaseConnection_whenNextThrows_returnsDownWithError() throws Exception {
+    void should_return_down_with_an_error_when_next_throws() throws Exception {
         stubDbQuery();
         when(resultSet.next()).thenThrow(new SQLException("next failed"));
 
@@ -165,7 +165,7 @@ class HealthCheckControllerDbEndpointTest {
     }
 
     @Test
-    void checkDatabaseConnection_whenNextAndCloseThrow_returnsDownWithError() throws Exception {
+    void should_return_down_with_an_error_when_next_and_close_both_throw() throws Exception {
         stubDbQuery();
         when(resultSet.next()).thenThrow(new SQLException("next failed"));
         doThrow(new SQLException("close failed")).when(resultSet).close();
@@ -178,7 +178,7 @@ class HealthCheckControllerDbEndpointTest {
     }
 
     @Test
-    void checkDatabaseConnection_whenCloseThrowsError_propagates() throws Exception {
+    void should_propagate_when_close_throws_an_error() throws Exception {
         stubDbQuery();
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getString("ip")).thenReturn("1.2.3.4");
@@ -189,7 +189,7 @@ class HealthCheckControllerDbEndpointTest {
     }
 
     @Test
-    void checkDatabaseConnection_whenGetStringThrows_returnsDownWithError() throws Exception {
+    void should_return_down_with_an_error_when_get_string_throws() throws Exception {
         stubDbQuery();
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getString("ip")).thenThrow(new SQLException("getString failed"));

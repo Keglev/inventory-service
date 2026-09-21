@@ -103,7 +103,7 @@ public class AnalyticsControllerFinancialTest {
 
     @WithMockUser
     @Test
-    void stockValue_ok_withAuthenticatedUser() throws Exception {
+    void should_return_the_stock_value_when_the_user_is_authenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/stock-value")
                 .param("start", "2025-08-01")
                 .param("end", "2025-08-31"))
@@ -113,7 +113,7 @@ public class AnalyticsControllerFinancialTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldReturnDashboardSummaryWithDefaults(String role) throws Exception {
+    void should_return_the_dashboard_summary_when_no_parameters_are_given(String role) throws Exception {
         DashboardSummaryDTO summary = DashboardSummaryDTO.builder()
                 .stockPerSupplier(List.of(new StockPerSupplierDTO("Supplier A", 100)))
                 .lowStockItems(List.of(new LowStockItemDTO("ItemX", 5, 10)))
@@ -134,7 +134,7 @@ public class AnalyticsControllerFinancialTest {
     }
 
     @Test
-    void financialSummary_returnsOk() throws Exception {
+    void should_return_the_financial_summary_when_the_range_is_valid() throws Exception {
         FinancialSummaryDTO dto = FinancialSummaryDTO.builder()
             .method("WAC")
             .fromDate("2024-02-01")
@@ -172,7 +172,7 @@ public class AnalyticsControllerFinancialTest {
     }
 
     @Test
-    void financialSummary_unauthenticated_isUnauthorized() throws Exception {
+    void should_return_401_when_the_financial_summary_is_requested_unauthenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/financial/summary")
                 .param("from", "2024-02-01")
                 .param("to", "2024-02-28"))
@@ -180,7 +180,7 @@ public class AnalyticsControllerFinancialTest {
     }
 
     @Test
-    void financialSummary_fromAfterTo_returnsBadRequest() throws Exception {
+    void should_return_400_when_from_is_after_to() throws Exception {
         mockMvc.perform(get("/api/analytics/financial/summary")
                 .param("from", "2024-03-01")
                 .param("to", "2024-02-01")

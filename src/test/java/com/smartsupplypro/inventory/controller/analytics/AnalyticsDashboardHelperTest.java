@@ -32,7 +32,7 @@ import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService
 class AnalyticsDashboardHelperTest {
 
     @Test
-    void buildDashboardSummary_supplierProvided_shouldAggregateAndLimitTopN() {
+    void should_aggregate_and_limit_to_top_n_when_a_supplier_is_provided() {
         StockAnalyticsService stockAnalyticsService = mock(StockAnalyticsService.class);
         AnalyticsDashboardHelper helper = new AnalyticsDashboardHelper(stockAnalyticsService);
 
@@ -87,7 +87,7 @@ class AnalyticsDashboardHelperTest {
 
     @ParameterizedTest
     @MethodSource("missingSupplierValues")
-    void buildDashboardSummary_missingSupplier_shouldLoadGlobalLowStockAndSkipSupplierScopedLoads(String supplierId) {
+    void should_load_global_low_stock_and_skip_supplier_scoped_loads_when_no_supplier_is_given(String supplierId) {
         StockAnalyticsService stockAnalyticsService = mock(StockAnalyticsService.class);
         AnalyticsDashboardHelper helper = new AnalyticsDashboardHelper(stockAnalyticsService);
 

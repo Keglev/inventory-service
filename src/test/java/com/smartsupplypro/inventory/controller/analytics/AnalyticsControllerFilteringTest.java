@@ -67,7 +67,7 @@ public class AnalyticsControllerFilteringTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldReturnFilteredStockUpdatesViaPost(String role) throws Exception {
+    void should_return_filtered_stock_updates_when_posted(String role) throws Exception {
         List<StockUpdateResultDTO> sample = List.of(
             new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
         );
@@ -89,7 +89,7 @@ public class AnalyticsControllerFilteringTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldReturnFilteredStockUpdatesViaGet(String role) throws Exception {
+    void should_return_filtered_stock_updates_when_requested_by_get(String role) throws Exception {
         List<StockUpdateResultDTO> sample = List.of(
             new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
         );
@@ -107,7 +107,7 @@ public class AnalyticsControllerFilteringTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldUseDefaultDateWhenMissingStartDateInPost(String role) throws Exception {
+    void should_use_the_default_start_date_when_it_is_missing_from_a_post(String role) throws Exception {
         List<StockUpdateResultDTO> sample = List.of(
             new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
         );
@@ -126,7 +126,7 @@ public class AnalyticsControllerFilteringTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldUseDefaultDateWhenMissingStartDateInGet(String role) throws Exception {
+    void should_use_the_default_start_date_when_it_is_missing_from_a_get(String role) throws Exception {
         List<StockUpdateResultDTO> sample = List.of(
             new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
         );
@@ -142,7 +142,7 @@ public class AnalyticsControllerFilteringTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldUseDefaultDateWhenMissingEndDateInPost(String role) throws Exception {
+    void should_use_the_default_end_date_when_it_is_missing_from_a_post(String role) throws Exception {
         List<StockUpdateResultDTO> sample = List.of(
             new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
         );
@@ -161,7 +161,7 @@ public class AnalyticsControllerFilteringTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldReturnEmptyWhenNoFiltersProvidedInGet(String role) throws Exception {
+    void should_return_empty_when_a_get_carries_no_filters(String role) throws Exception {
         when(stockAnalyticsService.getFilteredStockUpdates(any(StockUpdateFilterDTO.class)))
             .thenReturn(Collections.emptyList());
 
@@ -173,7 +173,7 @@ public class AnalyticsControllerFilteringTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void shouldReturn400WhenStartDateFormatInvalidInGet(String role) throws Exception {
+    void should_return_400_when_the_start_date_format_is_invalid(String role) throws Exception {
         mockMvc.perform(get("/api/analytics/stock-updates")
                 .with(user("mockuser").roles(role))
                 .param("startDate", "invalid-date"))
@@ -182,7 +182,7 @@ public class AnalyticsControllerFilteringTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void shouldReturnEmptyListWhenPostBodyMissing(String role) throws Exception {
+    void should_return_an_empty_list_when_the_post_body_is_missing(String role) throws Exception {
         mockMvc.perform(post("/api/analytics/stock-updates/query")
                 .with(user("mockuser").roles(role))
                 .contentType(MediaType.APPLICATION_JSON)
