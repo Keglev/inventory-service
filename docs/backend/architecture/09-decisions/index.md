@@ -29,6 +29,7 @@ ADRs do **not** document:
 - [ADR-0012: Backend hosting on the shared Hetzner host](./adr-0012-backend-hosting-on-shared-hetzner-host.md)
 - [ADR-0013: The docs pipeline rebuilds, and publishes, by change](./adr-0013-docs-pipeline-rebuilds-by-change.md)
 - [ADR-0014: Decision records stay in each tier's arc42 section 9](./adr-0014-decisions-stay-in-arc42-section-9.md)
+- [ADR-0015: GitHub Pages is deployed by the publisher job](./adr-0015-pages-deployed-from-the-publisher-job.md)
 
 ---
 

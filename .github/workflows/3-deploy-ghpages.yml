@@ -3,7 +3,8 @@
 #
 # Triggered after docs-pipeline.yml succeeds.
 # Consumes: docs-site artifact (built by docs-pipeline.yml).
-# Publishes static documentation to the gh-pages branch.
+# Publishes static documentation to the gh-pages branch, then deploys that
+# branch to GitHub Pages from this job (Pages source: GitHub Actions).
 # =============================================================================
 name: 3 Deploy Docs to GitHub Pages
 
@@ -17,8 +18,11 @@ on:
 permissions:
   contents: write
   actions: read
+  pages: write
+  id-token: write
 
-# Prevent concurrent gh-pages pushes — parallel runs cause branch merge conflicts
+# Prevent concurrent gh-pages pushes — parallel runs cause branch merge conflicts.
+# The same queue orders the deployments: one per push, never two at once.
 concurrency:
   group: ghpages-deploy
   cancel-in-progress: false
@@ -28,6 +32,9 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
 
     steps:
       - name: Checkout gh-pages branch
@@ -93,6 +100,7 @@ jobs:
           done
 
       - name: Commit and push to gh-pages
+        id: publish
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -101,10 +109,27 @@ jobs:
             git add .
             git commit -m "docs: publish from workflow_run ${{ github.event.workflow_run.id }}"
             git push origin gh-pages
+            echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "Documentation published"
           else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No changes to publish"
           fi
+
+      # Deploy the branch as just pushed. Three outcomes: the branch changed, so
+      # it is deployed; nothing changed, so the live site already matches and
+      # nothing is deployed; or this is a re-run, which deploys regardless, so a
+      # failed deployment can be retried without a new commit.
+      - name: Upload the gh-pages tree as the Pages artifact
+        if: steps.publish.outputs.changed == 'true' || github.run_attempt > 1
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        if: steps.publish.outputs.changed == 'true' || github.run_attempt > 1
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
 
       - name: Job summary
         if: always()
