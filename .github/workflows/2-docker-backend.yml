@@ -31,7 +31,7 @@ concurrency:
 jobs:
   docker-build-and-scan:
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     permissions:
