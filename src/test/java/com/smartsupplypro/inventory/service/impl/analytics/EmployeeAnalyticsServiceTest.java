@@ -46,7 +46,7 @@ class EmployeeAnalyticsServiceTest {
     }
 
     @Test
-    void monthlyRollup_mergesDays_andResolvesDisplayName() {
+    void should_merge_days_and_resolve_the_display_name_when_rolling_up_by_month() {
         when(stockHistoryRepository.getDailyEmployeeActivity(any(), any(), any()))
                 .thenReturn(List.of(
                         row("jonas.weber@example.com", "2026-03-02", 3),
@@ -64,7 +64,7 @@ class EmployeeAnalyticsServiceTest {
     }
 
     @Test
-    void weeklyRollup_usesIsoWeek_acrossYearBoundary() {
+    void should_use_the_iso_week_when_rolling_up_across_a_year_boundary() {
         // 2025-12-29 (Mon) and 2026-01-01 (Thu) are BOTH in ISO week 2026-W01
         when(stockHistoryRepository.getDailyEmployeeActivity(any(), any(), any()))
                 .thenReturn(List.of(
@@ -81,7 +81,7 @@ class EmployeeAnalyticsServiceTest {
     }
 
     @Test
-    void daily_keepsSeparateDays_andFallsBackToEmail() {
+    void should_keep_days_separate_and_fall_back_to_email_when_rolling_up_by_day() {
         when(stockHistoryRepository.getDailyEmployeeActivity(any(), any(), any()))
                 .thenReturn(List.of(
                         row("ghost@example.com", "2026-02-01", 1),
@@ -99,7 +99,7 @@ class EmployeeAnalyticsServiceTest {
     }
 
     @Test
-    void displayNameLookup_toleratesNullUserName() {
+    void should_tolerate_a_null_user_name_when_looking_up_the_display_name() {
         when(stockHistoryRepository.getDailyEmployeeActivity(any(), any(), any()))
                 .thenReturn(List.<Object[]>of(row("ghost@example.com", "2026-02-01", 1)));
         when(appUserRepository.findAll()).thenReturn(List.of(user("ghost@example.com", null)));
@@ -111,13 +111,13 @@ class EmployeeAnalyticsServiceTest {
     }
 
     @Test
-    void unknownGranularity_throwsInvalidRequest() {
+    void should_throw_invalid_request_when_the_granularity_is_unknown() {
         assertThrows(InvalidRequestException.class, () ->
                 service.getEmployeeActivity("hourly", LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 28), null));
     }
 
     @Test
-    void getEmployeeChanges_mapsProjectionRows() {
+    void should_map_the_projection_rows_when_employee_changes_are_requested() {
         Object[] r = new Object[] {
                 "Item A", "Supplier One", -3, "SOLD", "jonas.weber@example.com",
                 Timestamp.valueOf(LocalDateTime.of(2026, 2, 3, 9, 0))

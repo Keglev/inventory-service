@@ -149,7 +149,7 @@ class InventoryItemServiceImplUpdateTest {
     }
 
     @Test
-    void should_propagate_optimistic_lock_exception_on_concurrent_modification() {
+    void should_propagate_the_optimistic_lock_exception_when_modified_concurrently() {
         when(repository.findById("id-1")).thenReturn(Optional.of(copyOf(existing)));
         when(repository.save(any())).thenThrow(
                 new ObjectOptimisticLockingFailureException(InventoryItem.class, "id-1"));

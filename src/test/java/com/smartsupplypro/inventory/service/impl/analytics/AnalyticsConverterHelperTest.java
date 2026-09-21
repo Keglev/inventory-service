@@ -32,7 +32,7 @@ class AnalyticsConverterHelperTest {
     class DateConversion {
 
         @Test
-        void should_convert_local_date_sql_date_timestamp_and_string_to_local_date() {
+        void should_return_a_local_date_when_given_a_local_date_sql_date_timestamp_or_string() {
             LocalDate d = LocalDate.parse("2024-02-01");
             assertEquals(d, AnalyticsConverterHelper.asLocalDate(d));
             assertEquals(d, AnalyticsConverterHelper.asLocalDate(java.sql.Date.valueOf(d)));
@@ -41,7 +41,7 @@ class AnalyticsConverterHelperTest {
         }
 
         @Test
-        void should_parse_iso_datetime_string_via_to_string_fallback() {
+        void should_parse_the_iso_datetime_when_falling_back_to_to_string() {
             Object o = new Object() {
                 @Override public String toString() { return "2024-02-01T10:00:00"; }
             };
@@ -49,21 +49,21 @@ class AnalyticsConverterHelperTest {
         }
 
         @Test
-        void should_throw_for_unsupported_date_type() {
+        void should_throw_when_the_date_type_is_unsupported() {
             IllegalStateException ex = assertThrows(IllegalStateException.class,
                     () -> AnalyticsConverterHelper.asLocalDate(123));
             assertNotNull(ex.getMessage());
         }
 
         @Test
-        void should_convert_local_date_time_and_timestamp() {
+        void should_convert_when_given_a_local_date_time_or_timestamp() {
             LocalDateTime ldt = LocalDateTime.parse("2024-02-01T10:00:00");
             assertEquals(ldt, AnalyticsConverterHelper.asLocalDateTime(ldt));
             assertEquals(ldt, AnalyticsConverterHelper.asLocalDateTime(Timestamp.valueOf(ldt)));
         }
 
         @Test
-        void should_throw_for_unsupported_datetime_type() {
+        void should_throw_when_the_datetime_type_is_unsupported() {
             IllegalStateException ex = assertThrows(IllegalStateException.class,
                     () -> AnalyticsConverterHelper.asLocalDateTime("2024-02-01"));
             assertNotNull(ex.getMessage());
@@ -77,7 +77,7 @@ class AnalyticsConverterHelperTest {
     class AsNumber {
 
         @Test
-        void should_treat_null_as_zero_and_support_number_and_big_decimal() {
+        void should_treat_null_as_zero_and_accept_number_and_big_decimal_when_coercing() {
             // null -> BigDecimal.ZERO to simplify aggregation
             assertEquals(BigDecimal.ZERO, (BigDecimal) AnalyticsConverterHelper.asNumber(null));
             assertEquals(3L, AnalyticsConverterHelper.asNumber(3L).longValue());
@@ -85,7 +85,7 @@ class AnalyticsConverterHelperTest {
         }
 
         @Test
-        void should_throw_for_unsupported_type() {
+        void should_throw_when_the_numeric_type_is_unsupported() {
             IllegalStateException ex = assertThrows(IllegalStateException.class,
                     () -> AnalyticsConverterHelper.asNumber("not-a-number"));
             assertNotNull(ex.getMessage());
@@ -115,7 +115,7 @@ class AnalyticsConverterHelperTest {
         }
 
         @Test
-        void should_use_midnight_and_end_of_day_boundaries() {
+        void should_use_midnight_and_end_of_day_when_building_a_date_window() {
             LocalDate d = LocalDate.parse("2024-02-01");
             assertEquals(LocalDateTime.of(d, LocalTime.MIN), AnalyticsConverterHelper.startOfDay(d));
             assertEquals(LocalDateTime.of(d, LocalTime.MAX), AnalyticsConverterHelper.endOfDay(d));
@@ -129,14 +129,14 @@ class AnalyticsConverterHelperTest {
     class StringPreconditions {
 
         @Test
-        void should_normalize_blank_and_null_strings_to_null() {
+        void should_return_null_when_the_string_is_blank_or_null() {
             assertNull(AnalyticsConverterHelper.blankToNull(null));
             assertNull(AnalyticsConverterHelper.blankToNull("  \t  "));
             assertEquals("abc", AnalyticsConverterHelper.blankToNull("  abc  "));
         }
 
         @Test
-        void should_enforce_non_blank_and_non_null_preconditions() {
+        void should_enforce_non_blank_and_non_null_when_a_precondition_is_checked() {
             InvalidRequestException blankEx = assertThrows(InvalidRequestException.class,
                     () -> AnalyticsConverterHelper.requireNonBlank("   ", "q"));
             assertEquals("q must not be blank", blankEx.getMessage());

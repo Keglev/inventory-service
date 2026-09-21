@@ -167,7 +167,7 @@ class CustomOidcUserServiceTest {
         }
 
         @Test
-        void should_heal_null_role_to_user_and_persist() {
+        void should_heal_the_role_to_user_and_persist_when_the_stored_role_is_null() {
             AppUserRepository repo = mock(AppUserRepository.class);
             OidcUser upstream = CustomUserServiceTestSupport.upstreamOidcUser(USER_EMAIL, "Alice");
             AppUser existing = appUser(USER_EMAIL, "Alice", null);

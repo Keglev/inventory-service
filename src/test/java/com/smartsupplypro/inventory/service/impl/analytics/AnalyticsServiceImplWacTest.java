@@ -50,7 +50,7 @@ class AnalyticsServiceImplWacTest {
     class WacCalculation {
 
         @Test
-        void should_calculate_correct_cogs_and_ending_inventory_for_basic_purchase_then_sale() {
+        void should_calculate_cogs_and_ending_inventory_when_a_purchase_is_followed_by_a_sale() {
             var events = List.of(
                     new StockEventRowDTO("item1", "sup1", at(2024, 2, 1, 10, 0), 10, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),
                     new StockEventRowDTO("item1", "sup1", at(2024, 2, 2,  9, 0), -4, null,                   StockChangeReason.SOLD)
@@ -70,7 +70,7 @@ class AnalyticsServiceImplWacTest {
         }
 
         @Test
-        void should_replay_pre_window_opening_inventory_and_blend_with_in_window_purchases() {
+        void should_blend_opening_inventory_with_window_purchases_when_history_predates_the_window() {
             var events = List.of(
                     // Pre-window: 5 units @ $4.00
                     new StockEventRowDTO("item1", "sup1", at(2024, 1, 31, 23, 0),  5, new BigDecimal("4.00"), StockChangeReason.INITIAL_STOCK),

@@ -42,7 +42,7 @@ class FinancialAnalyticsServiceWacBucketsTest {
     }
 
     @Test
-    void should_cover_returns_write_offs_return_to_supplier_and_null_price_fallback() {
+    void should_cover_every_bucket_and_fall_back_when_a_price_is_null() {
         var events = List.of(
             // Pre-window opening replay (item1)
             new StockEventRowDTO("item1", "sup1", at(2024, 1, 31, 10, 0), +10, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),

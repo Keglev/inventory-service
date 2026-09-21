@@ -52,7 +52,7 @@ class AnalyticsServiceImplQueryTest {
     class AggregatedStockQueries {
 
         @Test
-        void should_map_date_and_numeric_columns_to_dto() {
+        void should_map_date_and_numeric_columns_when_building_the_dto() {
             when(stockHistoryRepository.getDailyStockValuation(any(), any(), isNull()))
                     .thenReturn(Arrays.asList(
                             new Object[]{Date.valueOf("2024-02-01"), new BigDecimal("10.50")},
@@ -68,7 +68,7 @@ class AnalyticsServiceImplQueryTest {
         }
 
         @Test
-        void should_map_supplier_name_and_convert_mixed_numeric_types_to_long() {
+        void should_map_the_supplier_name_and_coerce_to_long_when_numeric_types_are_mixed() {
             when(stockHistoryRepository.getTotalStockBySupplier())
                     .thenReturn(Arrays.asList(
                             new Object[]{"Acme",   new BigDecimal("42")},
@@ -90,7 +90,7 @@ class AnalyticsServiceImplQueryTest {
     class SupplierScopedQueries {
 
         @Test
-        void should_map_item_update_frequency_with_mixed_numeric_types() {
+        void should_map_the_update_frequency_when_numeric_types_are_mixed() {
             when(stockHistoryRepository.getUpdateCountByItem("S1"))
                     .thenReturn(Arrays.asList(
                             new Object[]{"ItemA", new BigDecimal("5")},
@@ -105,7 +105,7 @@ class AnalyticsServiceImplQueryTest {
         }
 
         @Test
-        void should_unpack_low_stock_items_with_mixed_numeric_types() {
+        void should_unpack_low_stock_items_when_numeric_types_are_mixed() {
             when(inventoryItemRepository.findItemsBelowMinimumStockFiltered("S1"))
                     .thenReturn(Arrays.asList(
                             new Object[]{"ItemA", 3,                    5},
@@ -144,7 +144,7 @@ class AnalyticsServiceImplQueryTest {
     class FilteredStockUpdates {
 
         @Test
-        void should_map_all_result_row_fields_to_dto() {
+        void should_map_every_result_row_field_when_building_the_dto() {
             Timestamp ts = Timestamp.valueOf(LocalDateTime.of(2024, 2, 10, 12, 0));
             when(stockHistoryRepository.searchStockUpdates(any(), any(), any(), any(), any(), any(), any()))
                     .thenReturn(Collections.singletonList(
@@ -170,7 +170,7 @@ class AnalyticsServiceImplQueryTest {
         }
 
         @Test
-        void should_normalize_blank_strings_to_null_before_passing_to_repository() {
+        void should_pass_null_to_the_repository_when_a_filter_string_is_blank() {
             when(stockHistoryRepository.searchStockUpdates(any(), any(), any(), any(), any(), any(), any()))
                     .thenReturn(Collections.emptyList());
 
@@ -197,7 +197,7 @@ class AnalyticsServiceImplQueryTest {
     class TimeSeriesQueries {
 
         @Test
-        void should_map_month_and_convert_stock_in_and_out_to_long() {
+        void should_map_the_month_and_coerce_stock_in_and_out_when_building_the_series() {
             when(stockHistoryRepository.getMonthlyStockMovementBySupplier(any(), any(), isNull()))
                     .thenReturn(Arrays.asList(
                             new Object[]{"2024-02", new BigDecimal("5"), 2},
@@ -214,7 +214,7 @@ class AnalyticsServiceImplQueryTest {
         }
 
         @Test
-        void should_delegate_to_repository_with_converted_date_boundaries() {
+        void should_delegate_with_converted_boundaries_when_querying_a_time_series() {
             List<PriceTrendDTO> expected = Arrays.asList(
                     new PriceTrendDTO("2024-02-01", new BigDecimal("4.25")),
                     new PriceTrendDTO("2024-02-02", new BigDecimal("4.40"))

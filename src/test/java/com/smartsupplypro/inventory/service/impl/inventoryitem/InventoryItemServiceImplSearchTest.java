@@ -51,7 +51,7 @@ class InventoryItemServiceImplSearchTest {
     }
 
     @Test
-    void should_delegate_to_repository_and_map_results_to_dtos() {
+    void should_delegate_and_map_the_results_when_searching() {
         InventoryItem e1 = new InventoryItem();
         e1.setId("i-1"); e1.setName("AAA");
         e1.setPrice(new BigDecimal("10.00")); e1.setQuantity(5);

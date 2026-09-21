@@ -42,7 +42,7 @@ class InventoryItemAuditHelperTest {
     class LogInitialStock {
 
         @Test
-        void should_log_initial_stock_reason_with_authenticated_username() {
+        void should_log_the_initial_stock_reason_when_a_user_is_authenticated() {
             authenticateAs("admin");
             InventoryItem item = item("item-1", 5, new BigDecimal("12.50"));
 
@@ -90,7 +90,7 @@ class InventoryItemAuditHelperTest {
         }
 
         @Test
-        void should_log_provided_reason_for_quantity_adjustment() {
+        void should_log_the_provided_reason_when_the_quantity_is_adjusted() {
             authenticateAs("admin");
             helper.logQuantityAdjustment(item("item-1", 5, new BigDecimal("10.00")),
                     3, StockChangeReason.RETURNED_BY_CUSTOMER);
@@ -106,7 +106,7 @@ class InventoryItemAuditHelperTest {
     class LogPriceChange {
 
         @Test
-        void should_log_price_change_reason_with_zero_delta() {
+        void should_log_a_zero_delta_when_the_price_changes() {
             authenticateAs("admin");
             helper.logPriceChange("item-1", new BigDecimal("99.99"));
             verify(stockHistoryService).logStockChange(

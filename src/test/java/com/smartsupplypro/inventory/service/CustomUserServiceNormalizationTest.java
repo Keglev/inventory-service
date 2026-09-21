@@ -21,7 +21,7 @@ class CustomUserServiceNormalizationTest {
     class AdminAllowlist {
 
         @Test
-        void should_trim_lowercase_and_deduplicate_email_entries() {
+        void should_trim_lowercase_and_deduplicate_when_building_the_admin_allowlist() {
             Set<String> parsed = CustomOAuth2UserService.parseAdminAllowlist(
                     "  Admin@corp.com , manager@corp.com,, ADMIN@corp.com ,   ops@corp.com  ");
             Assertions.assertThat(parsed)
@@ -29,7 +29,7 @@ class CustomUserServiceNormalizationTest {
         }
 
         @Test
-        void should_apply_same_normalization_for_oidc_service() {
+        void should_apply_the_same_normalization_when_the_oidc_service_builds_it() {
             Set<String> parsed = CustomOidcUserService.parseAdminAllowlist(
                     "  Admin@corp.com , manager@corp.com,, ADMIN@corp.com ,   ops@corp.com  ");
             Assertions.assertThat(parsed)
@@ -50,7 +50,7 @@ class CustomUserServiceNormalizationTest {
     class RoleAuthorityNormalization {
 
         @Test
-        void should_normalize_oauth2_role_name_variants_to_role_prefixed_authority() throws Exception {
+        void should_prefix_the_authority_with_role_when_an_oauth2_role_name_variant_is_given() throws Exception {
             Assertions.assertThat(CustomUserServiceTestSupport.oauth2RoleAuthority(null)).isEqualTo("ROLE_USER");
             Assertions.assertThat(CustomUserServiceTestSupport.oauth2RoleAuthority("   ")).isEqualTo("ROLE_USER");
             Assertions.assertThat(CustomUserServiceTestSupport.oauth2RoleAuthority("USER")).isEqualTo("ROLE_USER");
@@ -58,7 +58,7 @@ class CustomUserServiceNormalizationTest {
         }
 
         @Test
-        void should_normalize_oidc_role_enum_to_role_prefixed_authority() throws Exception {
+        void should_prefix_the_authority_with_role_when_an_oidc_role_enum_is_given() throws Exception {
             Assertions.assertThat(CustomUserServiceTestSupport.oidcRoleAuthority(null)).isEqualTo("ROLE_USER");
             Assertions.assertThat(CustomUserServiceTestSupport.oidcRoleAuthority(Role.USER)).isEqualTo("ROLE_USER");
             Assertions.assertThat(CustomUserServiceTestSupport.oidcRoleAuthority(Role.ADMIN)).isEqualTo("ROLE_ADMIN");

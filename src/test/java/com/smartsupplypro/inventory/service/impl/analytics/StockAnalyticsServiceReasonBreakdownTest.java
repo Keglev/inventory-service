@@ -30,7 +30,7 @@ class StockAnalyticsServiceReasonBreakdownTest {
     @InjectMocks private StockAnalyticsService service;
 
     @Test
-    void mapsProjectionRows_toDTO() {
+    void should_map_the_projection_rows_when_building_the_dto() {
         when(stockHistoryRepository.getReasonBreakdown(any(), any(), any(), any()))
                 .thenReturn(List.<Object[]>of(new Object[] { "SOLD", BigDecimal.ZERO, BigDecimal.valueOf(7) }));
 
@@ -44,7 +44,7 @@ class StockAnalyticsServiceReasonBreakdownTest {
     }
 
     @Test
-    void invertedWindow_throwsInvalidRequest() {
+    void should_throw_invalid_request_when_the_window_is_inverted() {
         assertThrows(InvalidRequestException.class, () ->
                 service.getReasonBreakdown(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 2, 1), null, null));
     }
