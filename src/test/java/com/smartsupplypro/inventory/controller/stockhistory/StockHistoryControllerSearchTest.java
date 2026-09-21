@@ -69,7 +69,7 @@ class StockHistoryControllerSearchTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void search_withFilters_returnsPagedResult(String role) throws Exception {
+    void should_return_a_paged_result_when_filters_are_given(String role) throws Exception {
         stubSearchReturns(new PageImpl<>(List.of(history)));
 
         mockMvc.perform(get("/api/stock-history/search")
@@ -82,7 +82,7 @@ class StockHistoryControllerSearchTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void search_whenNoMatches_returnsEmptyPage(String role) throws Exception {
+    void should_return_an_empty_page_when_nothing_matches(String role) throws Exception {
         stubSearchReturns(Page.empty());
 
         mockMvc.perform(get("/api/stock-history/search")
@@ -95,7 +95,7 @@ class StockHistoryControllerSearchTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void search_withNoParams_returnsPage(String role) throws Exception {
+    void should_return_a_page_when_no_parameters_are_given(String role) throws Exception {
         stubSearchReturns(new PageImpl<>(List.of(history)));
 
         mockMvc.perform(get("/api/stock-history/search")
@@ -106,7 +106,7 @@ class StockHistoryControllerSearchTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void search_withOnlyItemName_returnsPage(String role) throws Exception {
+    void should_return_a_page_when_only_the_item_name_is_given(String role) throws Exception {
         stubSearchReturns(new PageImpl<>(List.of(history)));
 
         mockMvc.perform(get("/api/stock-history/search")
@@ -118,7 +118,7 @@ class StockHistoryControllerSearchTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void search_withInvalidDateRange_returnsBadRequest(String role) throws Exception {
+    void should_return_400_when_the_date_range_is_invalid(String role) throws Exception {
         mockMvc.perform(get("/api/stock-history/search")
                         .param("startDate", "2024-01-31T00:00:00")
                         .param("endDate", "2024-01-01T00:00:00")
@@ -131,7 +131,7 @@ class StockHistoryControllerSearchTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void search_withOnlyStartDate_returnsPage(String role) throws Exception {
+    void should_return_a_page_when_only_the_start_date_is_given(String role) throws Exception {
         stubSearchReturns(new PageImpl<>(List.of(history)));
 
         mockMvc.perform(get("/api/stock-history/search")
@@ -143,7 +143,7 @@ class StockHistoryControllerSearchTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void search_withOnlyEndDate_returnsPage(String role) throws Exception {
+    void should_return_a_page_when_only_the_end_date_is_given(String role) throws Exception {
         stubSearchReturns(new PageImpl<>(List.of(history)));
 
         mockMvc.perform(get("/api/stock-history/search")
@@ -155,7 +155,7 @@ class StockHistoryControllerSearchTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void search_withValidDateRange_returnsPage(String role) throws Exception {
+    void should_return_a_page_when_the_date_range_is_valid(String role) throws Exception {
         stubSearchReturns(new PageImpl<>(List.of(history)));
 
         mockMvc.perform(get("/api/stock-history/search")
@@ -168,7 +168,7 @@ class StockHistoryControllerSearchTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void search_withLargePageSize_capsPageSize(String role) throws Exception {
+    void should_cap_the_page_size_when_it_exceeds_the_limit(String role) throws Exception {
         stubSearchReturns(new PageImpl<>(List.of(history)));
 
         mockMvc.perform(get("/api/stock-history/search")
@@ -185,7 +185,7 @@ class StockHistoryControllerSearchTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
-    void search_withPageSizeWithinCap_doesNotCap(String role) throws Exception {
+    void should_keep_the_page_size_when_it_is_within_the_limit(String role) throws Exception {
         stubSearchReturns(new PageImpl<>(List.of(history)));
 
         mockMvc.perform(get("/api/stock-history/search")
@@ -201,7 +201,7 @@ class StockHistoryControllerSearchTest {
     }
 
     @Test
-    void search_withoutAuthentication_returnsUnauthorized() throws Exception {
+    void should_return_401_when_searching_unauthenticated() throws Exception {
         mockMvc.perform(get("/api/stock-history/search"))
                 .andExpect(status().isUnauthorized());
     }

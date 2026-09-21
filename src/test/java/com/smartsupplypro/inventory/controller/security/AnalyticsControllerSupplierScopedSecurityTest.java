@@ -12,14 +12,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AnalyticsControllerSupplierScopedSecurityTest extends AbstractAnalyticsControllerSecurityTest {
 
     @Test
-    void itemUpdateFrequency_unauthenticated_is401() throws Exception {
+    void should_return_401_when_item_update_frequency_is_requested_unauthenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/item-update-frequency")
                         .param("supplierId","S1"))
                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void itemUpdateFrequency_authenticatedUser_is200() throws Exception {
+    void should_return_200_when_item_update_frequency_is_requested_authenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/item-update-frequency")
                         .param("supplierId","S1")
                         .with(user("u").roles(USER)))
@@ -27,14 +27,14 @@ class AnalyticsControllerSupplierScopedSecurityTest extends AbstractAnalyticsCon
     }
 
     @Test
-    void lowStockItems_unauthenticated_is401() throws Exception {
+    void should_return_401_when_low_stock_items_are_requested_unauthenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/low-stock-items")
                         .param("supplierId","S1"))
                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void lowStockItems_authenticatedUser_is200() throws Exception {
+    void should_return_200_when_low_stock_items_are_requested_authenticated() throws Exception {
         mockMvc.perform(get("/api/analytics/low-stock-items")
                         .param("supplierId","S1")
                         .with(user("u").roles(USER)))

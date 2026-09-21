@@ -59,7 +59,7 @@ class AuthControllerLogoutTest {
     }
 
     @Test
-    void logout_authenticated_returns204_andExpiresCookies() throws Exception {
+    void should_return_204_and_expire_the_cookies_when_logging_out_authenticated() throws Exception {
         var result = mockMvc.perform(post("/api/auth/logout")
                         .with(authentication(authToken("user@example.com", "USER")))
                         .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
@@ -82,7 +82,7 @@ class AuthControllerLogoutTest {
     }
 
     @Test
-    void logout_unauthenticated_returns401Json() throws Exception {
+    void should_return_401_json_when_logging_out_unauthenticated() throws Exception {
         mockMvc.perform(post("/api/auth/logout").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

@@ -56,7 +56,7 @@ class AuthControllerAuthoritiesTest {
     }
 
     @Test
-    void shouldReturnAuthorities_distinctAndSorted() throws Exception {
+    void should_return_distinct_sorted_authorities_when_the_user_has_several() throws Exception {
         OAuth2AuthenticationToken token = buildAuthTokenWithAuthorities(
                 "user@example.com",
                 java.util.List.of("ROLE_USER", "ROLE_ADMIN", "ROLE_ADMIN")
