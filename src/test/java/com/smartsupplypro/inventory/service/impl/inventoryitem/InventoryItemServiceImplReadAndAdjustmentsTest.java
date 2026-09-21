@@ -60,7 +60,7 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
     class ReadOperations {
 
         @Test
-        void should_map_all_entities_to_dtos() {
+        void should_map_every_entity_when_all_items_are_read() {
             InventoryItem e1 = item("i-1", "Widget", 10, new BigDecimal("2.50"), "S1");
             InventoryItem e2 = item("i-2", "Gadget", 0,  new BigDecimal("9.99"), "S2");
             when(repository.findByActiveTrue()).thenReturn(List.of(e1, e2));
@@ -85,7 +85,7 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
         }
 
         @Test
-        void should_delegate_count_to_repository() {
+        void should_delegate_to_the_repository_when_counting() {
             when(repository.countByActiveTrue()).thenReturn(123L);
 
             assertEquals(123L, service.countItems());
@@ -99,7 +99,7 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
     class AdjustQuantity {
 
         @Test
-        void should_update_quantity_and_log_audit_entry() {
+        void should_update_the_quantity_and_log_an_audit_entry_when_adjusting() {
             InventoryItem existing = item("i-1", "Widget", 5, new BigDecimal("2.50"), "S1");
             when(validationHelper.validateExists("i-1")).thenReturn(existing);
             when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
@@ -129,7 +129,7 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
     class UpdatePrice {
 
         @Test
-        void should_save_new_price_and_log_price_change() {
+        void should_save_the_price_and_log_the_change_when_updating_the_price() {
             InventoryItem existing = item("i-1", "Widget", 5, new BigDecimal("2.50"), "S1");
             when(validationHelper.validateExists("i-1")).thenReturn(existing);
             when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));

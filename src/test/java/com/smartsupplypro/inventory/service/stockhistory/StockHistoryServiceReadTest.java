@@ -37,7 +37,7 @@ class StockHistoryServiceReadTest extends StockHistoryServiceTestBase {
     class GetAll {
 
         @Test
-        void should_return_mapped_dto_list_for_all_history_entries() {
+        void should_return_mapped_dtos_when_all_history_is_requested() {
             LocalDateTime t1 = LocalDateTime.of(2024, 1, 1, 12, 0);
             LocalDateTime t2 = LocalDateTime.of(2024, 1, 2, 12, 0);
             var h1 = mkHistory("sh-1", ITEM_1, SUPPLIER_1, 10,  StockChangeReason.SOLD,     ADMIN,  t1, new BigDecimal("12.50"));
@@ -60,7 +60,7 @@ class StockHistoryServiceReadTest extends StockHistoryServiceTestBase {
     class GetByItemId {
 
         @Test
-        void should_delegate_to_ordered_finder_and_map_to_dtos() {
+        void should_delegate_to_the_ordered_finder_when_looking_up_by_item_id() {
             LocalDateTime t = LocalDateTime.of(2024, 2, 1, 10, 30);
             var h = mkHistory("sh-3", ITEM_1, SUPPLIER_1, 1, StockChangeReason.MANUAL_UPDATE, ADMIN, t, null);
             when(repository.findByItemIdOrderByTimestampDesc(ITEM_1)).thenReturn(List.of(h));
@@ -79,7 +79,7 @@ class StockHistoryServiceReadTest extends StockHistoryServiceTestBase {
     class GetByReason {
 
         @Test
-        void should_delegate_to_ordered_finder_and_map_to_dtos() {
+        void should_delegate_to_the_ordered_finder_when_looking_up_by_reason() {
             LocalDateTime t = LocalDateTime.of(2024, 3, 1, 9, 0);
             var h = mkHistory("sh-4", ITEM_1, SUPPLIER_1, -2, StockChangeReason.RETURNED_BY_CUSTOMER, ADMIN, t, null);
             when(repository.findByReasonOrderByTimestampDesc(StockChangeReason.RETURNED_BY_CUSTOMER))
@@ -99,7 +99,7 @@ class StockHistoryServiceReadTest extends StockHistoryServiceTestBase {
     class FindFiltered {
 
         @Test
-        void should_map_repository_page_to_dto_page() {
+        void should_map_the_repository_page_when_finding_filtered_history() {
             LocalDateTime start = LocalDateTime.of(2024, 1, 1, 0, 0);
             LocalDateTime end   = LocalDateTime.of(2024, 12, 31, 23, 59);
             Pageable pageable   = PageRequest.of(0, 10);

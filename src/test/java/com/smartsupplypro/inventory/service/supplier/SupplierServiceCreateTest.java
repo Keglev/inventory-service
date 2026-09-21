@@ -70,7 +70,7 @@ class SupplierServiceCreateTest extends SupplierServiceTestBase {
      * or the insert fails against a NOT NULL column.
      */
     @Test
-    void should_attribute_creation_to_the_authenticated_user() {
+    void should_attribute_creation_to_the_user_when_the_client_sends_no_created_by() {
         authenticateAs("carlos@example.com");
 
         SupplierDTO input = SupplierDTO.builder().name("Acme GmbH").build();
@@ -90,7 +90,7 @@ class SupplierServiceCreateTest extends SupplierServiceTestBase {
      * context, so a forged createdBy in the request body is discarded.
      */
     @Test
-    void should_ignore_client_supplied_created_by() {
+    void should_ignore_it_when_the_client_supplies_created_by() {
         authenticateAs("carlos@example.com");
 
         SupplierDTO input = SupplierDTO.builder()

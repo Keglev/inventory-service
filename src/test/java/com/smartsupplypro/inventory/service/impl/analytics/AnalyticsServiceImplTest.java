@@ -45,7 +45,7 @@ class AnalyticsServiceImplTest {
     class StockAnalyticsDelegation {
 
         @Test
-        void should_delegate_all_stock_analytics_methods_and_return_delegate_results() {
+        void should_return_the_delegate_results_when_every_stock_analytics_method_is_called() {
             LocalDate start = LocalDate.of(2025, 1, 1);
             LocalDate end   = LocalDate.of(2025, 12, 31);
             String supplierId = "sup-1";
@@ -96,7 +96,7 @@ class AnalyticsServiceImplTest {
     class FinancialAnalyticsDelegation {
 
         @Test
-        void should_delegate_financial_summary_and_return_delegate_result() {
+        void should_return_the_delegate_result_when_the_financial_summary_is_requested() {
             LocalDate from = LocalDate.of(2025, 2, 1);
             LocalDate to   = LocalDate.of(2025, 2, 28);
             String supplierId = "sup-99";

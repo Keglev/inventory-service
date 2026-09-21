@@ -75,7 +75,7 @@ class InventoryItemServiceImplSaveTest {
     }
 
     @Test
-    void should_return_saved_item_and_log_initial_stock_via_audit_helper() {
+    void should_return_the_saved_item_and_log_initial_stock_when_saving() {
         InventoryItem toPersist = new InventoryItemMapper().toEntity(baseDto);
         InventoryItem saved = copyOf(toPersist);
         saved.setId("item-1");

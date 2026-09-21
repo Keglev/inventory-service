@@ -77,7 +77,7 @@ class InventoryItemServiceImplDetachedReadTest {
     }
 
     @Test
-    void getById_withoutAnOpenSession_resolvesTheSupplierName() {
+    void should_resolve_the_supplier_name_when_no_session_is_open() {
         Optional<InventoryItemDTO> found = service.getById(ITEM_ID);
 
         assertTrue(found.isPresent(), "seeded item should be returned");

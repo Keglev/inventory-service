@@ -27,7 +27,7 @@ class SupplierServiceReadCountTest extends SupplierServiceTestBase {
     class FindAll {
 
         @Test
-        void should_return_mapped_dto_list_for_all_suppliers() {
+        void should_return_mapped_dtos_when_all_suppliers_are_requested() {
             Supplier s1 = Supplier.builder()
                     .id("sup-1").name("Acme GmbH").contactName("Alice")
                     .phone("111").email("alice@acme.test")
@@ -91,7 +91,7 @@ class SupplierServiceReadCountTest extends SupplierServiceTestBase {
     class FindByName {
 
         @Test
-        void should_return_matching_suppliers_mapped_to_dtos() {
+        void should_return_the_matching_suppliers_when_searching_by_name() {
             Supplier s1 = Supplier.builder()
                     .id("sup-1").name("Acme GmbH")
                     .createdBy("admin").createdAt(LocalDateTime.now().minusDays(1))
@@ -114,7 +114,7 @@ class SupplierServiceReadCountTest extends SupplierServiceTestBase {
     class CountSuppliers {
 
         @Test
-        void should_return_repository_count() {
+        void should_return_the_repository_count_when_counting_suppliers() {
             when(supplierRepository.count()).thenReturn(42L);
 
             assertEquals(42L, supplierService.countSuppliers());

@@ -66,7 +66,7 @@ class CustomOAuth2UserServiceTest {
     class Provisioning {
 
         @Test
-        void should_create_user_with_role_user_and_blank_name_falls_back_to_email() {
+        void should_create_a_user_with_role_user_and_fall_back_to_email_when_the_name_is_blank() {
             AppUserRepository repo = Mockito.mock(AppUserRepository.class);
             OAuth2User upstream = CustomUserServiceTestSupport.oauth2UserWithAttributes(Map.of(
                     "email", USER_EMAIL, "name", "   "));

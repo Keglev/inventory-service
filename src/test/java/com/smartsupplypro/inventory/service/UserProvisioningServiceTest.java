@@ -37,7 +37,7 @@ class UserProvisioningServiceTest {
     @Mock AppUserRepository userRepository;
 
     @Test
-    void should_create_user_with_role_user_and_created_at_on_first_login() {
+    void should_create_the_user_with_role_user_and_created_at_when_logging_in_for_the_first_time() {
         when(userRepository.findByEmail(USER_EMAIL)).thenReturn(Optional.empty());
         when(userRepository.save(any(AppUser.class))).thenAnswer(returnsFirstArg());
 

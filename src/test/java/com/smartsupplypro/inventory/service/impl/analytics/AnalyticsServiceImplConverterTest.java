@@ -49,7 +49,7 @@ class AnalyticsServiceImplConverterTest {
     class NumericTypeCoercion {
 
         @Test
-        void should_map_integer_long_and_big_decimal_change_values_to_long() {
+        void should_map_the_change_value_to_long_when_it_is_integer_long_or_big_decimal() {
             var ts = Timestamp.valueOf(at(2024, 2, 1, 10, 0));
             List<Object[]> rows = List.of(
                     row(ts, "A", "S", 3,                    "SOLD", "u1"),
@@ -86,7 +86,7 @@ class AnalyticsServiceImplConverterTest {
     class DateTypeCoercion {
 
         @Test
-        void should_accept_timestamp_and_local_date_time_for_created_at_field() {
+        void should_accept_the_created_at_field_when_it_is_a_timestamp_or_local_date_time() {
             var ts1 = Timestamp.valueOf(at(2024, 2, 1, 11, 0));
             var ts2 = Timestamp.valueOf(at(2024, 2, 2,  0, 0));
             var ldt = at(2024, 2, 3, 12, 0);
