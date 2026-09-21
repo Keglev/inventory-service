@@ -40,7 +40,7 @@ reaches the 300 hard cap.
 | `StockTrendSqlBuilder::buildOracleDailyValuationSql` | 32 | 30 | 28 of the 32 code lines are one SQL text block. |
 
 Two files sit above their target and below their alarm and are watched rather
-than waived: `StockHistoryRepository.java` at 113 and
+than waived: `StockHistoryRepository.java` at 111 and
 `StockTrendAnalyticsRepositoryImpl.java` at 91, both against a repository target
 of 80. Thirteen methods sit between the target of 20 and the alarm of 30, the
 largest being `EmployeeAnalyticsService::getEmployeeActivity` at 29. The band is

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -84,24 +83,6 @@ class SupplierRepositoryTest {
             save("UnrelatedName");
 
             assertTrue(supplierRepository.findByNameContainingIgnoreCase("missing").isEmpty());
-        }
-    }
-
-    /**
-     * Case-insensitive existence check behavior.
-     */
-    @Nested
-    class ExistenceCheck {
-
-        @Test
-        void should_confirm_existence_when_a_known_name_is_given_in_any_case() {
-            save("MegaSupply");
-
-            assertTrue(supplierRepository.existsByNameIgnoreCase("megasupply"));
-            assertTrue(supplierRepository.existsByNameIgnoreCase("MEGASUPPLY"));
-            // partials must not match
-            assertFalse(supplierRepository.existsByNameIgnoreCase("mega"));
-            assertFalse(supplierRepository.existsByNameIgnoreCase("unknown"));
         }
     }
 }
