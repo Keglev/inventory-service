@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>21/21</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>21/21</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
@@ -172,21 +172,7 @@
 <a name='L107'></a><a href='#L107'>107</a>
 <a name='L108'></a><a href='#L108'>108</a>
 <a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a>
-<a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a>
-<a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a>
-<a name='L120'></a><a href='#L120'>120</a>
-<a name='L121'></a><a href='#L121'>121</a>
-<a name='L122'></a><a href='#L122'>122</a>
-<a name='L123'></a><a href='#L123'>123</a>
-<a name='L124'></a><a href='#L124'>124</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -223,24 +209,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -312,58 +284,44 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @module api/inventory/itemMutations
  *
- * Item lifecycle mutations (create, update, rename, delete) for the inventory API.
- * Uses POST /api/inventory to create, PUT /api/inventory/{id} to update,
- * PATCH /api/inventory/{id}/name to rename, and DELETE /api/inventory/{id} to remove.
+ * Item lifecycle mutations (create, rename, delete) for the inventory API.
+ * Uses POST /api/inventory to create, PATCH /api/inventory/{id}/name to rename,
+ * and DELETE /api/inventory/{id} to remove.
  * All functions return typed response objects rather than throwing.
  */
 &nbsp;
 import http from '../httpClient';
 import { normalizeInventoryRow } from './normalizers';
-import type { UpsertItemRequest, UpsertItemResponse } from './types';
+import type { CreateItemRequest, UpsertItemResponse } from './types';
 import { errorMessage, extractApiError } from '../shared/errorHandling';
 import { INVENTORY_BASE } from '../shared/constants';
 &nbsp;
 export { INVENTORY_BASE };
 &nbsp;
 /**
- * Collapses POST (create) and PUT (update) into one call — presence of `id` selects the verb.
- * Hits POST /api/inventory when `id` is absent, PUT /api/inventory/{id} when present.
+ * Creates an item via POST /api/inventory. Existing items are changed only
+ * through the dedicated rename, price and quantity mutations, so the
+ * client has no full-update call.
  *
- * @param req - Upsert payload; omit `id` for create, include it for update
+ * @param req - Create payload
  * @returns Response object with ok status, normalized item, and optional error
  *
  * @example
  * ```typescript
- * // Create new item
- * const result = await upsertItem({
+ * const result = await createItem({
  *   name: 'Widget A',
+ *   sku: 'WID-A',
  *   supplierId: 'SUP-001',
  *   quantity: 100,
  *   price: 25.50
  * });
- *
- * // Update existing item
- * const updateResult = await upsertItem({
- *   id: 'ITEM-123',
- *   name: 'Widget A v2',
- *   supplierId: 'SUP-001',
- *   quantity: 50,
- *   price: 27.00
- * });
  * ```
  */
-export async function upsertItem(req: UpsertItemRequest): Promise&lt;UpsertItemResponse&gt; {
+export async function createItem(req: CreateItemRequest): Promise&lt;UpsertItemResponse&gt; {
   try {
-    if (req.id) {
-      const res = await http.put(`${INVENTORY_BASE}/${encodeURIComponent(req.id)}`, req);
-      const row = normalizeInventoryRow(res?.data as unknown);
-      return { ok: true, item: row ?? undefined };
-    } else {
-      const res = await http.post(`${INVENTORY_BASE}`, req);
-      const row = normalizeInventoryRow(res?.data as unknown);
-      return { ok: true, item: row ?? undefined };
-    }
+    const res = await http.post(`${INVENTORY_BASE}`, req);
+    const row = normalizeInventoryRow(res?.data as unknown);
+    return { ok: true, item: row ?? undefined };
   } catch (e: unknown) {
     const apiError = extractApiError(e);
     return {
@@ -439,7 +397,7 @@ export async function deleteItem(id: string): Promise&lt;UpsertItemResponse&gt; 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-09-21T16:41:26.255Z
+                at 2026-09-21T17:08:25.566Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
