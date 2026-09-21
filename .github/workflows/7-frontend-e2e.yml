@@ -59,7 +59,7 @@ jobs:
   # Named build-and-test so this workflow satisfies the required status check;
   # see the header of 1-ci-test.yml for why four workflows share the name.
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
 
     steps:
