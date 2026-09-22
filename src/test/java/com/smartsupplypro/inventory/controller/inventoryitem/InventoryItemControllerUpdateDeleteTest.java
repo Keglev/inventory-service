@@ -91,6 +91,21 @@ class InventoryItemControllerUpdateDeleteTest {
                     .content(objectMapper.writeValueAsString(updated)))
                 .andExpect(status().isNotFound());
         }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        void should_return_200_when_an_update_sets_the_quantity_to_zero() throws Exception {
+            InventoryItemDTO emptied = sample("i-1");
+            emptied.setQuantity(0);
+            when(inventoryItemService.update(eq("i-1"), any(InventoryItemDTO.class)))
+                .thenReturn(Optional.of(emptied));
+
+            mockMvc.perform(put("/api/inventory/i-1").with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(emptied)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.quantity").value(0));
+        }
     }
 
     /** DELETE /api/inventory/{id} deletion scenarios. */
