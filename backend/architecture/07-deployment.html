@@ -186,7 +186,7 @@
             classDef external   fill:#4f46e5,color:#fff,stroke:#3730a3;
         </div>
         <h2 id="cicd-pipeline">CI/CD Pipeline</h2>
-        <p>Ten GitHub Actions workflows make up the pipeline:</p>
+        <p>Eleven GitHub Actions workflows make up the pipeline:</p>
         <table>
         <colgroup>
         <col style="width: 50%" />
@@ -262,6 +262,14 @@
         notes generated from the merged pull requests since the previous
         tag</td>
         </tr>
+        <tr class="odd">
+        <td><code>yaml-lint.yml</code></td>
+        <td>Pull request check on YAML changes: parses every tracked
+        YAML file outside <code>docs/backend/api</code> (duplicate keys
+        included) and rejects trailing whitespace and a missing final
+        newline; it reports as <code>yaml-lint</code>, not
+        <code>build-and-test</code>, so it does not gate the merge</td>
+        </tr>
         </tbody>
         </table>
         <p>The backend chain is strictly sequential: the image is built
@@ -269,8 +277,8 @@
         after the image has been scanned. There is no direct push
         trigger on the image build, so nothing is released in parallel
         with the tests meant to gate it.</p>
-        <p>Every action reference across all ten workflows is pinned to
-        a commit SHA rather than a mutable tag;
+        <p>Every action reference across all eleven workflows is pinned
+        to a commit SHA rather than a mutable tag;
         <code>dependabot.yml</code> opens one grouped pull request a
         month to move those pins, which is the only way they get updated
         at all.</p>
