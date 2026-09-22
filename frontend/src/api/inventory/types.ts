@@ -83,8 +83,6 @@ export interface CreateItemRequest {
   quantity: number;
   /** Unit price */
   price: number;
-  /** Minimum-stock threshold. The form layer sets this to a fixed baseline of 5; items below it flag as low-stock. */
-  minQty?: number | null;
   /** Notes/reason for creation */
   notes?: string | null;
 }

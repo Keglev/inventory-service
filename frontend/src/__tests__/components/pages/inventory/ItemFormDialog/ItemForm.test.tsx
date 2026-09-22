@@ -132,6 +132,7 @@ describe('ItemForm', () => {
     expect(screen.getByLabelText('Item')).toBeInTheDocument();
     expect(screen.getByLabelText('Code / SKU')).toBeInTheDocument();
     expect(screen.getByLabelText('Initial Quantity')).toBeInTheDocument();
+    expect(screen.getByLabelText('Initial Quantity')).toHaveAttribute('min', '1');
     expect(screen.getByLabelText('Price')).toBeInTheDocument();
 
     // Reason dropdown

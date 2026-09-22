@@ -108,7 +108,7 @@ export function ItemForm({ state }: { state: UseItemFormReturn }) {
       <TextField
         label={t('inventory:table.quantity')}
         type="number"
-        slotProps={{ htmlInput: { min: 0 } }}
+        slotProps={{ htmlInput: { min: 1 } }}
         {...state.register('quantity', { valueAsNumber: true })}
         error={!!state.formState.errors.quantity}
         helperText={fieldErrorText(state.formState.errors.quantity, t)}

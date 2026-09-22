@@ -33,8 +33,8 @@
 import { z } from 'zod';
 
 /**
- * Schema for creating or updating inventory items.
- * Handles both new item creation and existing item updates.
+ * Schema for the create-item dialog. A new item must enter with an
+ * initial stock of at least 1; the backend enforces the same minimum.
  */
 export const itemFormSchema = z.object({
   name: z.string().min(1, 'errors:validation.required'),
@@ -42,7 +42,7 @@ export const itemFormSchema = z.object({
   supplierId: z
     .union([z.string(), z.number()])
     .refine((val) => val !== '' && val !== 0, 'errors:validation.required'),
-  quantity: z.number().min(0, 'errors:validation.nonNegative'),
+  quantity: z.number().min(1, 'errors:validation.positive'),
   price: z.number().min(0, 'errors:validation.nonNegative'),
   reason: z.enum(['INITIAL_STOCK', 'MANUAL_UPDATE'], {
     message: 'errors:validation.required',

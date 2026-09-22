@@ -101,7 +101,19 @@ describe('inventoryValidation', () => {
           price: 49.99,
           reason: 'INITIAL_STOCK',
         },
-        'errors:validation.nonNegative',
+        'errors:validation.positive',
+      ],
+      [
+        'zero initial stock',
+        {
+          name: 'Test Item',
+          code: 'TEST-INV',
+          supplierId: '123',
+          quantity: 0,
+          price: 49.99,
+          reason: 'INITIAL_STOCK',
+        },
+        'errors:validation.positive',
       ],
       [
         'negative price',
