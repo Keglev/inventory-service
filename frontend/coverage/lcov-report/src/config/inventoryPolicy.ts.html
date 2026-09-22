@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -82,7 +82,27 @@
 <a name='L17'></a><a href='#L17'>17</a>
 <a name='L18'></a><a href='#L18'>18</a>
 <a name='L19'></a><a href='#L19'>19</a>
-<a name='L20'></a><a href='#L20'>20</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -97,29 +117,69 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">38x</span>
+<span class="cline-any cline-yes">33x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file inventoryPolicy.ts
  * @module config/inventoryPolicy
  *
  * @summary
- * Inventory business-rule constants shared across pages.
+ * Low-stock severity, shared by the inventory row styling and the analytics
+ * low-stock table (frontend ADR-0012).
  *
  * @enterprise
- * - Two distinct rules happen to share the value 5 today; they are named
- *   separately so either can change without silently dragging the other.
- * - LOW_STOCK_CRITICAL_THRESHOLD mirrors the severity rule used by the
- *   analytics LowStockTable and the inventory row styling.
+ * - Whether an item is low is the backend's rule (quantity below the item's
+ *   minimum). This module decides only how severe a low item looks.
+ * - Severity is a proportion of the item's own minimum, so the bands mean the
+ *   same for every item: critical at half the minimum or less.
  */
 &nbsp;
-/** Deficit (minQty - onHand) at or above which an item is CRITICAL. */
-export const LOW_STOCK_CRITICAL_THRESHOLD = 5;
+/** Visual severity of an item's stock against its minimum. */
+export type LowStockSeverity = 'critical' | 'warning' | 'none';
 &nbsp;
-/** Default minimum quantity applied when none is provided. */
-export const DEFAULT_MIN_QUANTITY = 5;
+/**
+ * Severity of a quantity against the item's minimum.
+ *
+ * - critical: at or below half the minimum
+ * - warning: above half the minimum and below the minimum
+ * - none: at or above the minimum, or when either value is missing or the
+ *   minimum is not positive (the backend always sends a positive minimum)
+ *
+ * `2 * quantity &lt;= minimum` keeps the test in integers, so an odd minimum
+ * rounds towards warning: minimum 25 is critical at 12 and warning at 13.
+ *
+ * @param quantity - Stock on hand
+ * @param minimum - The item's minimum quantity
+ * @returns The severity band
+ */
+export function lowStockSeverity(quantity: number, minimum: number): LowStockSeverity {
+  if (!Number.isFinite(quantity) || !Number.isFinite(minimum) || minimum &lt;= 0) return 'none';
+  if (2 * quantity &lt;= minimum) return 'critical';
+  if (quantity &lt; minimum) return 'warning';
+  return 'none';
+}
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -127,7 +187,7 @@ export const DEFAULT_MIN_QUANTITY = 5;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-09-22T11:07:47.217Z
+                at 2026-09-22T12:17:57.376Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
