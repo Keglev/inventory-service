@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.oneOf;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
@@ -134,9 +135,26 @@ class InventoryItemControllerCreateReadTest {
                     .content(objectMapper.writeValueAsString(invalid())))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.name").value("Item name is mandatory"))
-                .andExpect(jsonPath("$.fieldErrors.quantity").value("Quantity must be zero or positive"))
+                // -1 breaks both quantity constraints on create; which one is reported first is unspecified
+                .andExpect(jsonPath("$.fieldErrors.quantity")
+                    .value(oneOf("Quantity must be zero or positive", "Initial stock must be at least 1")))
                 .andExpect(jsonPath("$.fieldErrors.price").value("Price must be greater than zero"))
                 .andExpect(jsonPath("$.fieldErrors.supplierId").value("Supplier ID is mandatory"));
+
+            verify(inventoryItemService, never()).save(any());
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        void should_return_400_with_a_quantity_error_when_the_initial_stock_is_zero() throws Exception {
+            InventoryItemDTO request = withoutId();
+            request.setQuantity(0);
+
+            mockMvc.perform(post("/api/inventory").with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.quantity").value("Initial stock must be at least 1"));
 
             verify(inventoryItemService, never()).save(any());
         }

@@ -92,8 +92,8 @@ components:
         quantity:
           type: integer
           format: int32
-          minimum: 0
-          description: Initial stock quantity
+          minimum: 1
+          description: Initial stock quantity; a new item must enter with at least 1
           example: 100
         price:
           type: number
