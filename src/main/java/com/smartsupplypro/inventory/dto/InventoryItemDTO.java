@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.groups.Default;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +26,10 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
+// Private so JSON binds through the no-args constructor and setters. Jackson 3
+// takes a public all-args constructor as its creator, which turns an omitted
+// primitive such as minimumQuantity into null and rejects the request.
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class InventoryItemDTO {
 
     /** Validation group applied on item creation. */

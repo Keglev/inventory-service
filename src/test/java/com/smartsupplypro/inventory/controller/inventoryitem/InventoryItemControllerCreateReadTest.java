@@ -97,6 +97,19 @@ class InventoryItemControllerCreateReadTest {
         }
 
         @Test
+        @WithMockUser(roles = "ADMIN")
+        void should_return_201_when_the_body_omits_the_minimum_quantity() throws Exception {
+            when(inventoryItemService.save(any())).thenReturn(sample("i-2"));
+            String frontendBody = "{\"name\":\"Monitor\",\"sku\":\"SKU-CTL-3\",\"supplierId\":\"sup-1\","
+                    + "\"quantity\":10,\"price\":199.99,\"minQty\":5,\"notes\":\"INITIAL_STOCK\"}";
+
+            mockMvc.perform(post("/api/inventory").with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(frontendBody))
+                .andExpect(status().isCreated());
+        }
+
+        @Test
         void should_return_401_when_creating_unauthenticated() throws Exception {
             mockMvc.perform(post("/api/inventory").with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
