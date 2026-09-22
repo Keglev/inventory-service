@@ -68,7 +68,7 @@ graph TB
 
 ## CI/CD Pipeline
 
-Ten GitHub Actions workflows make up the pipeline:
+Eleven GitHub Actions workflows make up the pipeline:
 
 | Workflow | Purpose |
 |---|---|
@@ -82,13 +82,14 @@ Ten GitHub Actions workflows make up the pipeline:
 | `6-deploy-frontend.yml` | Deploys the scanned image to Koyeb by digest, then verifies the commit's build id reached the served bundle before trusting the platform's status |
 | `7-frontend-e2e.yml` | Playwright suite against a local stack built from the commit (packaged jar on H2, `test,e2e` profile; frontend served via `vite preview`); reports as `build-and-test`, so a red run blocks the merge |
 | `8-release.yml` | On a `v*.*.*` tag push, verifies both tiers report that version, then publishes the GitHub Release with notes generated from the merged pull requests since the previous tag |
+| `yaml-lint.yml` | Pull request check on YAML changes: parses every tracked YAML file outside `docs/backend/api` (duplicate keys included) and rejects trailing whitespace and a missing final newline; it reports as `yaml-lint`, not `build-and-test`, so it does not gate the merge |
 
 The backend chain is strictly sequential: the image is built only after the test
 suite passes, and the release runs only after the image has been scanned. There is
 no direct push trigger on the image build, so nothing is released in parallel with
 the tests meant to gate it.
 
-Every action reference across all ten workflows is pinned to a commit SHA rather
+Every action reference across all eleven workflows is pinned to a commit SHA rather
 than a mutable tag; `dependabot.yml` opens one grouped pull request a month to
 move those pins, which is the only way they get updated at all.
 
