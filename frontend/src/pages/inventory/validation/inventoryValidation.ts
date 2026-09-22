@@ -43,7 +43,7 @@ export const itemFormSchema = z.object({
     .union([z.string(), z.number()])
     .refine((val) => val !== '' && val !== 0, 'errors:validation.required'),
   quantity: z.number().min(1, 'errors:validation.positive'),
-  price: z.number().min(0, 'errors:validation.nonNegative'),
+  price: z.number().positive('errors:validation.positive'),
   reason: z.enum(['INITIAL_STOCK', 'MANUAL_UPDATE'], {
     message: 'errors:validation.required',
   }),
