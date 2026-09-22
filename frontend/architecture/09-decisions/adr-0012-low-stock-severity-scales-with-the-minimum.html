@@ -13,7 +13,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frontend · 05-domains/analytics · Smart Supply Pro Docs</title>
+  <title>Frontend ·
+09-decisions/adr-0012-low-stock-severity-scales-with-the-minimum · Smart Supply Pro Docs</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -109,80 +110,98 @@
 
     <main class="content" id="main">
       <article class="doc-body">
-        <h1 id="analytics-domain">§5.3 Analytics Domain</h1>
-        <p>Purchasing and stock analytics under
-        <code>frontend/src/pages/analytics/</code>: six navigable
-        sections composed from self-contained chart/table blocks.</p>
-        <h2 id="sections-navigation">Sections &amp; Navigation</h2>
-        <p><code>Analytics.tsx</code> orchestrates section routing with
-        the URL as the source of truth: the active section and filters
-        (date window, supplier) are synchronized to query parameters, so
-        views are shareable and survive refresh. The six sections are
-        Overview, Movements, Pricing, Inventory Health, Finance, and
-        Employees — the last visible only for ADMIN or demo
-        sessions.</p>
-        <h2 id="block-pattern">Block Pattern</h2>
-        <p>Each block (card or table) renders one visualization,
-        declares one React Query query with a stable key encoding every
-        filter input, calls one function from
-        <code>frontend/src/api/analytics/*</code>, and handles its own
-        loading/empty/error states. Key conventions: keys are
-        feature-scoped
-        (<code>['analytics','lowStock', supplierId, from, to]</code>-style),
-        and supplier-gated blocks compute
-        <code>enabled = Boolean(supplierId)</code> so the query never
-        fires without its required input — rendering a select-a-supplier
-        helper instead.</p>
-        <h2 id="shared-extracted-building-blocks">Shared &amp; Extracted
-        Building Blocks</h2>
+        <h1
+        id="adr-0012-low-stock-severity-scales-with-each-items-minimum">ADR-0012:
+        Low-stock severity scales with each item’s minimum</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-09-22</p>
+        <h2 id="context">Context</h2>
+        <p>Every item carries a minimum quantity, owned by the backend.
+        Items created through the dialog get the backend’s default of
+        10; the seeded demo items carry 25. The backend decides whether
+        an item is low. Its rule,
+        <code>quantity &lt; minimumQuantity</code>, drives the inventory
+        filter “below minimum”, the dashboard low-stock list and the
+        low-stock count. The frontend decides only how severe a low item
+        looks: the inventory table colours the row, and the analytics
+        low-stock table shows a Critical or Warning chip.</p>
+        <p>Severity was a fixed deficit. A deficit (minimum minus
+        quantity) of 5 or more was critical, any smaller positive
+        deficit a warning. With the default minimum of 10 that reads
+        well: red at 5 or less, orange from 6 to 9. With any other
+        minimum it drifts. An item with minimum 25 turned red at 20,
+        still four fifths of its minimum; an item with minimum 6 turned
+        red only at 1. A fallback minimum of 5 applied when the row
+        carried none, which the backend never sends.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Severity is a proportion of the item’s own minimum, M:</p>
         <ul>
-        <li><strong><code>ItemSearchAutocomplete</code></strong>
-        (<code>components/</code>) — the shared item type-ahead used by
-        the price-trend card and the movements section; callers own
-        option enrichment and helper-text semantics, the component owns
-        the invariant picker behavior (no client re-filtering, selection
-        mirrored into the input).</li>
-        <li><strong><code>useLowStockRows</code></strong>
-        (<code>hooks/</code>) — owns the low-stock business rule:
-        deficit is <code>minimumQuantity - quantity</code> floored at
-        zero, computed client-side; rows filter to at-or-under
-        threshold, order by deficit descending, and cap to a visible
-        slice with a pre-cap total for the “showing n of m” footer.</li>
-        <li><strong><code>LowStockTableRow</code></strong>
-        (<code>blocks/</code>) — severity presentation from
-        <code>lowStockSeverity</code> (config/inventoryPolicy,
-        ADR-0012): Critical at half the minimum or less, Warning below
-        the minimum, OK at or above it.</li>
-        <li><strong><code>EmployeesActivityChart</code></strong>
-        (<code>sections/</code>) — the per-employee activity line chart
-        with a granularity toggle. Series use FUNCTION dataKey accessors
-        because employee identifiers are emails: dots in string keys
-        would be resolved by Recharts as nested paths.</li>
+        <li>critical (red) when quantity &lt;= M / 2;</li>
+        <li>warning (orange) when M / 2 &lt; quantity &lt; M;</li>
+        <li>none when quantity &gt;= M, and when the minimum is missing
+        or not positive.</li>
         </ul>
-        <h2 id="data-notes">Data Notes</h2>
-        <p>The client-side pivot for employee activity (flat
-        period/employee/count rows to one object per period) lives in
-        <code>useEmployeesSectionData</code>, with server-side
-        pagination for the change log. Dashboard KPIs reuse this
-        domain’s API module but under dashboard-scoped query keys, so
-        caches never collide.</p>
+        <p>The inventory row styling and the analytics low-stock chip
+        take the band from one function, <code>lowStockSeverity</code>
+        in <code>config/inventoryPolicy.ts</code>, so the two views
+        cannot disagree. Whether an item is low at all remains the
+        backend’s rule, <code>quantity &lt; M</code>, unchanged: every
+        item under “below minimum” has a colour, and no coloured item is
+        missing from it.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Keep the fixed deficit of 5</strong>: consistent
+        with the backend, but the red band means something different for
+        every minimum.</li>
+        <li><strong>Fixed absolute bands</strong> (red at 5 or less,
+        orange up to 10): right for the default minimum only; for every
+        other minimum, and at quantity 10, the colours would disagree
+        with the filter and the dashboard.</li>
+        <li><strong>Colour a quantity equal to the minimum</strong>:
+        needs the backend’s definition of low stock to become
+        <code>&lt;=</code>, which moves the filter and the dashboard
+        too. A separate decision.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>For the default minimum of 10 nothing visible changes: red 0
+        to 5, orange 6 to 9, no colour from 10. A new item entered with
+        a stock of 1 is red.</li>
+        <li>Items with other minimums change colour. Minimum 25: red at
+        12 or less (previously 20 or less), orange 13 to 24.</li>
+        <li>An odd minimum rounds towards orange: the test is
+        <code>2 * quantity &lt;= M</code>, so minimum 25 is red at 12
+        and orange at 13.</li>
+        <li><code>LOW_STOCK_CRITICAL_THRESHOLD</code> and the fallback
+        minimum <code>DEFAULT_MIN_QUANTITY</code> are removed. A row
+        without a positive minimum gets no colour instead of being
+        measured against an invented one.</li>
+        <li>The analytics low-stock table stays ordered by deficit, the
+        shortfall in units. When minimums differ, that order is no
+        longer the severity order.</li>
+        </ul>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#analytics-domain" id="toc-analytics-domain">§5.3
-      Analytics Domain</a>
+      <li><a
+      href="#adr-0012-low-stock-severity-scales-with-each-items-minimum"
+      id="toc-adr-0012-low-stock-severity-scales-with-each-items-minimum">ADR-0012:
+      Low-stock severity scales with each item’s minimum</a>
       <ul>
-      <li><a href="#sections-navigation"
-      id="toc-sections-navigation">Sections &amp; Navigation</a></li>
-      <li><a href="#block-pattern" id="toc-block-pattern">Block
-      Pattern</a></li>
-      <li><a href="#shared-extracted-building-blocks"
-      id="toc-shared-extracted-building-blocks">Shared &amp; Extracted
-      Building Blocks</a></li>
-      <li><a href="#data-notes" id="toc-data-notes">Data Notes</a></li>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
       </ul></li>
       </ul>
     </nav>
