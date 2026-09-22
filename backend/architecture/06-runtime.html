@@ -244,84 +244,81 @@
             participant SF as Spring Security Filter
             participant IC as InventoryItemController
             participant IS as InventoryItemService
-            participant IV as InventoryItemValidator
-            participant SR as SupplierRepository
+            participant VH as InventoryItemValidationHelper
             participant IR as InventoryItemRepository
+            participant SR as SupplierRepository
+            participant SH as StockHistoryService
             participant DB as Oracle ADB
 
             Client->>SF: POST /api/inventory (session cookie + JSON body)
             SF->>SF: validate session, populate SecurityContext
-            SF->>IC: authenticated request
+            SF->>IC: authenticated request (ADMIN role required)
 
-            IC->>IC: @Valid (deserialise InventoryItemDTO)
-            IC->>IS: create(dto)
-            IS->>IV: validate(dto)
+            IC->>IC: bean validation, groups Default + Create
+            IC->>IS: save(dto)
+            IS->>VH: validateForCreation(dto)
+            VH->>VH: InventoryItemValidator.validateBase(dto)
+            VH->>IR: findByNameIgnoreCase(name)
+            IR-->>VH: no item with this name at this price
+            VH->>IR: findBySkuIgnoreCase(sku)
+            IR-->>VH: empty
+            VH->>SR: existsById(supplierId)
+            SR-->>VH: true
+            VH-->>IS: validation passed
 
-            IV->>SR: findById(dto.supplierId)
-            SR->>DB: SELECT SUPPLIER WHERE id=?
-            DB-->>SR: Supplier row
-            SR-->>IV: Optional[Supplier]
-
-            IV->>IR: existsByName(dto.name)
-            IR->>DB: SELECT COUNT WHERE name=?
-            DB-->>IR: 0
-            IR-->>IV: false
-            IV-->>IS: validation passed
-
-            IS->>IS: build InventoryItem from DTO, set createdBy from SecurityContext
+            IS->>IS: map dto to InventoryItem
+            IS->>VH: populateServerFields: id, createdBy from the session, createdAt, minimumQuantity 10 if unset
             IS->>IR: save(item)
             IR->>DB: INSERT INTO INVENTORY_ITEM
-            DB-->>IR: saved entity
-            IR-->>IS: InventoryItem
+            IS->>SH: INITIAL_STOCK entry, through InventoryItemAuditHelper
+            SH->>DB: INSERT INTO STOCK_HISTORY
+            Note over IS,DB: both inserts share the transaction of save, so a failed history write rolls back the item
             IS-->>IC: InventoryItemDTO
-            IC-->>Client: 201 Created — InventoryItemDTO
+            IC-->>Client: 201 Created, Location header, InventoryItemDTO
         </div>
         <h2 id="scenario-1b-create-inventory-item-error-path">Scenario
         1b — Create Inventory Item: Error Path</h2>
-        <p>Three distinct error branches. Branch B illustrates the key
-        correction: <code>NoSuchElementException</code> → 404, not
-        400.</p>
+        <p>Three error branches, in the order the checks run; each is
+        answered before anything is written. The security filter is as
+        in 1a; a caller without the ADMIN role is refused with 403
+        before the controller method runs.</p>
         <div class="mermaid">
         %%{init: {"sequence": {"useMaxWidth": false}}}%%
         sequenceDiagram
             participant Client
-            participant SF as Spring Security Filter
             participant IC as InventoryItemController
             participant IS as InventoryItemService
-            participant IV as InventoryItemValidator
-            participant SR as SupplierRepository
+            participant VH as InventoryItemValidationHelper
             participant IR as InventoryItemRepository
+            participant SR as SupplierRepository
             participant BEH as BusinessExceptionHandler
             participant GEH as GlobalExceptionHandler
 
-            Note over Client,GEH: Branch A — @Valid constraint fails (400)
-            Client->>SF: POST /api/inventory (blank name)
-            SF->>IC: authenticated
-            IC->>IC: @Valid fails
+            Note over Client,GEH: Branch A: a constraint fails (blank name, initial stock below 1, price not above 0)
+            Client->>IC: POST /api/inventory
+            IC->>IC: bean validation fails
             IC-->>GEH: MethodArgumentNotValidException
-            GEH-->>Client: 400 bad_request — {error, message, timestamp}
+            GEH-->>Client: 400 bad_request, fieldErrors per field
 
-            Note over Client,GEH: Branch B — supplier not found (404, not 400)
-            Client->>SF: POST /api/inventory (unknown supplierId)
-            SF->>IC: authenticated
-            IC->>IS: create(dto)
-            IS->>IV: validate(dto)
-            IV->>SR: findById(dto.supplierId)
-            SR-->>IV: Optional.empty()
-            IV-->>IS: throw NoSuchElementException("Supplier not found")
-            IS-->>GEH: propagates
-            GEH-->>Client: 404 not_found — {error, message, timestamp}
-
-            Note over Client,GEH: Branch C — duplicate item name (409)
-            Client->>SF: POST /api/inventory (duplicate name)
-            SF->>IC: authenticated
-            IC->>IS: create(dto)
-            IS->>IV: validate(dto)
-            IV->>IR: existsByName(dto.name)
-            IR-->>IV: true
-            IV-->>IS: throw DuplicateResourceException
+            Note over Client,GEH: Branch B: same name at the same price, or same SKU (409)
+            Client->>IC: POST /api/inventory
+            IC->>IS: save(dto)
+            IS->>VH: validateForCreation(dto)
+            VH->>IR: findByNameIgnoreCase / findBySkuIgnoreCase
+            IR-->>VH: a match
+            VH-->>IS: throw DuplicateResourceException
             IS-->>BEH: propagates
-            BEH-->>Client: 409 conflict — {error, message, timestamp}
+            BEH-->>Client: 409 conflict
+
+            Note over Client,GEH: Branch C: unknown supplier (404)
+            Client->>IC: POST /api/inventory
+            IC->>IS: save(dto)
+            IS->>VH: validateForCreation(dto)
+            VH->>SR: existsById(supplierId)
+            SR-->>VH: false
+            VH-->>IS: throw IllegalArgumentException("Supplier does not exist")
+            IS-->>GEH: propagates
+            GEH-->>Client: 404 not_found
         </div>
         <h2 id="scenario-2-oauth2-login">Scenario 2 — OAuth2 Login</h2>
         <div class="mermaid">
