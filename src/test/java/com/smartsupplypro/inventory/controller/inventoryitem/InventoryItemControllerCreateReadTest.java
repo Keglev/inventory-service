@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -113,11 +115,17 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void should_return_400_when_the_item_is_invalid() throws Exception {
+        void should_return_400_with_field_errors_when_the_item_is_invalid() throws Exception {
             mockMvc.perform(post("/api/inventory").with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(invalid())))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.name").value("Item name is mandatory"))
+                .andExpect(jsonPath("$.fieldErrors.quantity").value("Quantity must be zero or positive"))
+                .andExpect(jsonPath("$.fieldErrors.price").value("Price must be greater than zero"))
+                .andExpect(jsonPath("$.fieldErrors.supplierId").value("Supplier ID is mandatory"));
+
+            verify(inventoryItemService, never()).save(any());
         }
 
         @Test

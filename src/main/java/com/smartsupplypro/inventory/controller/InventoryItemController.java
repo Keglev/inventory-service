@@ -3,6 +3,8 @@ package com.smartsupplypro.inventory.controller;
 import java.net.URI;
 import java.util.List;
 
+import jakarta.validation.groups.Default;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -102,19 +104,18 @@ public class InventoryItemController {
     /**
      * Creates a new inventory item.
      *
+     * <p>Bean validation runs the Default and Create groups together; a
+     * violation is answered with 400 and a fieldErrors map.</p>
+     *
      * @param body item data (ID must be absent)
      * @return 201 Created with Location header and created item
-     * @throws ResponseStatusException 400 if validation fails
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<InventoryItemDTO> create(
-            @Validated(InventoryItemDTO.Create.class) @RequestBody InventoryItemDTO body) {
+            @Validated({Default.class, InventoryItemDTO.Create.class}) @RequestBody InventoryItemDTO body) {
 
         InventoryItemDTO created = inventoryItemService.save(body);
-        if (created == null) {
-            return ResponseEntity.badRequest().build();
-        }
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
                 .buildAndExpand(created.getId())
