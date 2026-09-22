@@ -197,7 +197,7 @@
         sites.</p>
         <h2 id="size-budget-waivers">Size-Budget Waivers</h2>
         <p>Measured over code lines against the budgets in <a
-        href="02-constraints.html">§2</a>. Three files exceed their
+        href="02-constraints.html">§2</a>. Two files exceed their
         layer’s alarm; each is waived, with the reason, rather than
         split. No function exceeds its layer’s alarm.</p>
         <table>
@@ -225,22 +225,13 @@
         responsibility</td>
         </tr>
         <tr class="even">
-        <td><code>inventory/dialogs/ItemFormDialog/useItemForm.ts</code></td>
-        <td>122</td>
-        <td>120 (hooks)</td>
-        <td>One responsibility — the create dialog’s form controller:
-        state, supplier query, RHF wiring, the reset-on-open effect,
-        submit, close. The separable parts were already extracted
-        (<code>itemFormServerErrors.ts</code>, the default values); what
-        remains is coupled through form state, and lifting the effect
-        out would mean threading form internals into a hook that exists
-        only to reduce a count</td>
-        </tr>
-        <tr class="odd">
         <td><code>inventory/dialogs/EditItemDialog/useEditItemForm.ts</code></td>
         <td>124</td>
         <td>120 (hooks)</td>
-        <td>Same shape and the same reasoning, four lines over</td>
+        <td>One responsibility, the edit dialog’s form controller, with
+        the same shape and reasoning as the create dialog’s
+        (<code>useItemForm.ts</code>, 120, within its alarm): what
+        remains is coupled through form state. Four lines over</td>
         </tr>
         </tbody>
         </table>
@@ -254,7 +245,7 @@
         <p>One spec file sits above the service band and below its alarm
         (<code>unit/api/suppliers/supplierMutations.test.ts</code> 173).
         No spec approaches either spec alarm; the largest in the tree is
-        244 code lines.</p>
+        256 code lines.</p>
       </article>
     </main>
 
