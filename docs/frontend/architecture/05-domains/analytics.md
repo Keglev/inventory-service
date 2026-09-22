@@ -31,9 +31,9 @@ its required input — rendering a select-a-supplier helper instead.
   `minimumQuantity - quantity` floored at zero, computed client-side; rows filter
   to at-or-under threshold, order by deficit descending, and cap to a visible
   slice with a pre-cap total for the "showing n of m" footer.
-- **`LowStockTableRow`** (`blocks/`) — severity presentation: Critical at deficit
-  ≥ LOW_STOCK_CRITICAL_THRESHOLD (config/inventoryPolicy), Warning below it,
-  OK at zero.
+- **`LowStockTableRow`** (`blocks/`) — severity presentation from `lowStockSeverity`
+  (config/inventoryPolicy, ADR-0012): Critical at half the minimum or less,
+  Warning below the minimum, OK at or above it.
 - **`EmployeesActivityChart`** (`sections/`) — the per-employee activity line
   chart with a granularity toggle. Series use FUNCTION dataKey accessors because
   employee identifiers are emails: dots in string keys would be resolved by

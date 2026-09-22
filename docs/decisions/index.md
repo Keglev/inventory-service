@@ -57,3 +57,5 @@ Source: [Frontend architecture, section 9](../frontend/architecture/09-decisions
 | 0008 | [Testing structure and taxonomy under src/__tests__](../frontend/architecture/09-decisions/adr-0008-testing-structure-and-taxonomy.md) |
 | 0009 | [End-to-end testing with Playwright against a local demo stack](../frontend/architecture/09-decisions/adr-0009-end-to-end-testing-with-playwright.md) |
 | 0010 | [Verifying a frontend deploy against the bytes the browser receives](../frontend/architecture/09-decisions/adr-0010-verifying-frontend-deploys.md) |
+| 0011 | [Gating the frontend image on the HTTP contract it serves](../frontend/architecture/09-decisions/adr-0011-gating-the-frontend-image-on-its-http-contract.md) |
+| 0012 | [Low-stock severity scales with each item's minimum](../frontend/architecture/09-decisions/adr-0012-low-stock-severity-scales-with-the-minimum.md) |

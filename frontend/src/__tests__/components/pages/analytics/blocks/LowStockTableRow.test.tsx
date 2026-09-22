@@ -4,9 +4,10 @@
  * @description Contract tests for the low-stock row severity mapping.
  *
  * Contract under test:
- * - deficit >= LOW_STOCK_CRITICAL_THRESHOLD (5) renders the Critical chip.
- * - 0 < deficit < threshold renders the Warning chip.
- * - deficit 0 renders the OK chip.
+ * - quantity at or below half the minimum renders the Critical chip.
+ * - quantity above half the minimum and below it renders the Warning chip.
+ * - quantity at the minimum renders the OK chip.
+ * - The band follows the minimum, not the size of the deficit.
  * - Quantities render through the injected table-level formatter.
  *
  * Out of scope:
@@ -41,14 +42,24 @@ function renderRow(row: LowStockDerivedRow) {
 const base = { itemName: 'Copper Wire', quantity: 0, minimumQuantity: 0 };
 
 describe('LowStockTableRow', () => {
-  it('renders the Critical chip at the threshold deficit', () => {
+  it('renders the Critical chip for an empty stock', () => {
     renderRow({ ...base, quantity: 0, minimumQuantity: 5, deficit: 5 });
     expect(screen.getByText(tEn('analytics:lowStock.status.critical'))).toBeInTheDocument();
   });
 
-  it('renders the Warning chip for a positive deficit below the threshold', () => {
+  it('renders the Warning chip above half the minimum', () => {
     renderRow({ ...base, quantity: 4, minimumQuantity: 5, deficit: 1 });
     expect(screen.getByText(tEn('analytics:lowStock.status.warning'))).toBeInTheDocument();
+  });
+
+  it('follows the minimum rather than the deficit: minimum 25 is Warning at 13', () => {
+    renderRow({ ...base, quantity: 13, minimumQuantity: 25, deficit: 12 });
+    expect(screen.getByText(tEn('analytics:lowStock.status.warning'))).toBeInTheDocument();
+  });
+
+  it('renders the Critical chip at half the minimum: minimum 25 at 12', () => {
+    renderRow({ ...base, quantity: 12, minimumQuantity: 25, deficit: 13 });
+    expect(screen.getByText(tEn('analytics:lowStock.status.critical'))).toBeInTheDocument();
   });
 
   it('renders the OK chip for a zero deficit', () => {

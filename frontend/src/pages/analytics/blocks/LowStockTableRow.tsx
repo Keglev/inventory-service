@@ -3,9 +3,9 @@
  * @module pages/analytics/blocks/LowStockTableRow
  * @summary Single low-stock table row with severity color and status chip.
  * @enterprise
- * Owns the severity presentation for one derived row: Critical when the
- * deficit reaches LOW_STOCK_CRITICAL_THRESHOLD (config/inventoryPolicy),
- * Warning for any positive deficit below it, OK otherwise. Number
+ * Owns the severity presentation for one derived row, with the band from
+ * lowStockSeverity (config/inventoryPolicy): Critical at half the minimum or
+ * less, Warning below the minimum, OK otherwise. Number
  * formatting is injected by the table so the whole table renders with one
  * user-preference-bound formatter instead of one per row.
  */
@@ -14,7 +14,7 @@ import { TableCell, TableRow, Chip } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import type { LowStockDerivedRow } from '../hooks/useLowStockRows';
-import { LOW_STOCK_CRITICAL_THRESHOLD } from '../../../config/inventoryPolicy';
+import { lowStockSeverity } from '../../../config/inventoryPolicy';
 
 /** Props accepted by {@link LowStockTableRow}. @public */
 export type LowStockTableRowProps = {
@@ -34,8 +34,9 @@ export type LowStockTableRowProps = {
 export function LowStockTableRow({ row, formatQty }: LowStockTableRowProps): JSX.Element {
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
-  const critical = row.deficit >= LOW_STOCK_CRITICAL_THRESHOLD;
-  const warning = row.deficit > 0 && row.deficit < LOW_STOCK_CRITICAL_THRESHOLD;
+  const severity = lowStockSeverity(row.quantity, row.minimumQuantity);
+  const critical = severity === 'critical';
+  const warning = severity === 'warning';
 
   return (
     <TableRow>

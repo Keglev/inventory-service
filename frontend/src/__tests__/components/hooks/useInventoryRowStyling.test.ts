@@ -2,161 +2,79 @@
  * @file useInventoryRowStyling.test.ts
  * @module __tests__/components/hooks/useInventoryRowStyling
  * @description
- * Enterprise unit tests for `useInventoryRowStyling`.
+ * Contract tests for `useInventoryRowStyling`, and through it for
+ * `lowStockSeverity` (config/inventoryPolicy, frontend ADR-0012).
  *
- * The hook returns a pure function that maps (onHand, minQty) to a CSS class:
- * - ""            -> stock is sufficient or result cannot be determined
- * - "row-warning" -> small deficit (1-4)
- * - "row-critical"-> large deficit (>= 5)
- *
- * We explicitly cover:
- * - boundary conditions (0/1 and 4/5 deficits)
- * - normalization of invalid minQty (<= 0 or NaN -> defaults to 5)
- * - negative stock values
- * - current NaN-onHand behavior (documents implementation reality)
+ * Contract under test:
+ * - "row-critical" at or below half the item's minimum.
+ * - "row-warning" above half the minimum and below it.
+ * - "" at or above the minimum, and when the minimum is missing or not
+ *   positive, or the quantity is not a number.
+ * - The bands scale with the minimum; an odd minimum rounds towards warning.
  */
 
 import { describe, expect, it } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useInventoryRowStyling } from '@/pages/inventory/hooks/useInventoryRowStyling';
 
-// -----------------------------------------------------------------------------
-// Test helpers
-// -----------------------------------------------------------------------------
-
 function setup() {
   const { result } = renderHook(() => useInventoryRowStyling());
   return result.current;
 }
 
-type Case = {
-  onHand: number;
-  minQty: number;
-  expected: string;
-};
-
 describe('useInventoryRowStyling', () => {
-  it('returns a function', () => {
+  it('colours the default minimum of 10: red to 5, orange 6 to 9, none from 10', () => {
     const getRowClass = setup();
-    expect(typeof getRowClass).toBe('function');
+    const expected = [
+      'row-critical', 'row-critical', 'row-critical', 'row-critical', 'row-critical', 'row-critical',
+      'row-warning', 'row-warning', 'row-warning', 'row-warning',
+      '', '', '',
+    ];
+    expected.forEach((cls, onHand) => {
+      expect(getRowClass(onHand, 10)).toBe(cls);
+    });
   });
 
-  it('returns empty string when stock is sufficient', () => {
+  it('scales the bands with a minimum of 25: red to 12, orange 13 to 24', () => {
     const getRowClass = setup();
+    expect(getRowClass(12, 25)).toBe('row-critical');
+    expect(getRowClass(13, 25)).toBe('row-warning');
+    expect(getRowClass(20, 25)).toBe('row-warning');
+    expect(getRowClass(24, 25)).toBe('row-warning');
+    expect(getRowClass(25, 25)).toBe('');
+  });
 
-    const cases: Case[] = [
-      { onHand: 10, minQty: 5, expected: '' },  // surplus
-      { onHand: 5, minQty: 5, expected: '' },   // exact
-      { onHand: 100, minQty: 50, expected: '' } // large surplus
-    ];
+  it('scales the bands with a minimum of 6: red to 3, orange 4 and 5', () => {
+    const getRowClass = setup();
+    expect(getRowClass(3, 6)).toBe('row-critical');
+    expect(getRowClass(4, 6)).toBe('row-warning');
+    expect(getRowClass(5, 6)).toBe('row-warning');
+    expect(getRowClass(6, 6)).toBe('');
+  });
 
-    for (const c of cases) {
-      expect(getRowClass(c.onHand, c.minQty)).toBe(c.expected);
+  it('shows a stock of 1 as red for every minimum of 2 or more', () => {
+    const getRowClass = setup();
+    for (const minQty of [2, 5, 10, 25]) {
+      expect(getRowClass(1, minQty)).toBe('row-critical');
     }
   });
 
-  it('returns row-warning for a deficit of 1–4', () => {
+  it('shows negative stock as red', () => {
     const getRowClass = setup();
-
-    const cases: Case[] = [
-      { onHand: 4, minQty: 5, expected: 'row-warning' }, // deficit 1
-      { onHand: 3, minQty: 5, expected: 'row-warning' }, // deficit 2
-      { onHand: 2, minQty: 5, expected: 'row-warning' }, // deficit 3
-      { onHand: 1, minQty: 5, expected: 'row-warning' }, // deficit 4
-      { onHand: 0, minQty: 3, expected: 'row-warning' }, // deficit 3 (explicit edge coverage)
-    ];
-
-    for (const c of cases) {
-      expect(getRowClass(c.onHand, c.minQty)).toBe(c.expected);
-    }
+    expect(getRowClass(-2, 10)).toBe('row-critical');
   });
 
-  it('returns row-critical for a deficit of 5 or more', () => {
+  it('applies no class when the minimum is missing or not positive', () => {
     const getRowClass = setup();
-
-    const cases: Case[] = [
-      { onHand: 0, minQty: 5, expected: 'row-critical' },   // deficit 5
-      { onHand: 0, minQty: 10, expected: 'row-critical' },  // deficit 10
-      { onHand: 5, minQty: 15, expected: 'row-critical' },  // deficit 10
-      { onHand: -2, minQty: 5, expected: 'row-critical' },  // deficit 7 (negative stock)
-      { onHand: -5, minQty: 10, expected: 'row-critical' }, // deficit 15 (negative stock)
-    ];
-
-    for (const c of cases) {
-      expect(getRowClass(c.onHand, c.minQty)).toBe(c.expected);
-    }
+    const loose = getRowClass as unknown as (onHand: number, minQty: number | undefined) => string;
+    expect(getRowClass(0, 0)).toBe('');
+    expect(getRowClass(0, -5)).toBe('');
+    expect(getRowClass(0, Number.NaN)).toBe('');
+    expect(loose(0, undefined)).toBe('');
   });
 
-  it('defaults minQty to 5 when minQty is <= 0 or NaN', () => {
+  it('applies no class when the quantity is not a number', () => {
     const getRowClass = setup();
-
-    // This is a data-contract behavior: invalid thresholds fall back to a safe default.
-    const cases: Case[] = [
-      // minQty = 0 -> treated as 5
-      { onHand: 6, minQty: 0, expected: '' },
-      { onHand: 4, minQty: 0, expected: 'row-warning' },   // deficit 1 from default 5
-      { onHand: 0, minQty: 0, expected: 'row-critical' },  // deficit 5 from default 5
-
-      // minQty negative -> treated as 5
-      { onHand: 4, minQty: -10, expected: 'row-warning' },
-      { onHand: 0, minQty: -5, expected: 'row-critical' },
-
-      // minQty NaN -> treated as 5
-      { onHand: 4, minQty: Number.NaN, expected: 'row-warning' },
-      { onHand: 0, minQty: Number.NaN, expected: 'row-critical' },
-    ];
-
-    for (const c of cases) {
-      expect(getRowClass(c.onHand, c.minQty)).toBe(c.expected);
-    }
-  });
-
-  it('documents current behavior when onHand is NaN', () => {
-    const getRowClass = setup();
-
-    /**
-     * Important: This test documents the *current* implementation behavior.
-     * If the hook later normalizes NaN -> 0, this expectation should change.
-     *
-     * In the current logic, NaN propagates into the deficit calculation and
-     * comparison checks fail, so no class is applied.
-     */
-    expect(getRowClass(Number.NaN, 5)).toBe('');
-  });
-
-  it('is stable across repeated calls for the same inputs', () => {
-    const getRowClass = setup();
-
-    expect(getRowClass(3, 5)).toBe('row-warning');
-    expect(getRowClass(3, 5)).toBe('row-warning');
-    expect(getRowClass(0, 10)).toBe('row-critical');
-    expect(getRowClass(0, 10)).toBe('row-critical');
-  });
-
-  it('handles boundary conditions around deficit thresholds', () => {
-    const getRowClass = setup();
-
-    // Boundary: normal vs warning (deficit 0 vs 1)
-    expect(getRowClass(10, 10)).toBe('');
-    expect(getRowClass(9, 10)).toBe('row-warning');
-
-    // Boundary: warning vs critical (deficit 4 vs 5)
-    expect(getRowClass(6, 10)).toBe('row-warning');
-    expect(getRowClass(5, 10)).toBe('row-critical');
-  });
-
-  it('tolerates nullish runtime inputs via the default minimum', () => {
-    const getRowClass = setup();
-    // The signature is numeric, but rows can surface undefined at runtime;
-    // both arguments fall back through ?? 0 (minQty 0 -> DEFAULT_MIN_QUANTITY).
-    const loose = getRowClass as unknown as (
-      onHand: number | undefined,
-      minQty: number | undefined
-    ) => string;
-
-    // onHand undefined -> 0 on hand against the default minimum -> critical.
-    expect(loose(undefined, undefined)).toBe('row-critical');
-    // Healthy stock with an undefined minimum still classifies cleanly.
-    expect(loose(50, undefined)).toBe('');
+    expect(getRowClass(Number.NaN, 10)).toBe('');
   });
 });
