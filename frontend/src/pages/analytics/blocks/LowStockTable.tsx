@@ -8,8 +8,8 @@
  * (OK / Warning / Critical) -- ordered by most severe deficit first.
  *
  * @enterprise
- * - BUSINESS RULE: the Critical chip fires when a row's deficit reaches
- *   LOW_STOCK_CRITICAL_THRESHOLD (config/inventoryPolicy). Deficit
+ * - BUSINESS RULE: the chip follows lowStockSeverity (config/inventoryPolicy):
+ *   Critical at half the minimum or less, Warning below the minimum. Deficit
  *   computation, ordering, and the visible cap live in useLowStockRows;
  *   this file owns only the chip mapping and table markup.
  * - The optional `limit` prop caps the visible rows (default 12; pass

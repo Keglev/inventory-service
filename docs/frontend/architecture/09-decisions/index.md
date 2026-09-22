@@ -29,6 +29,7 @@ ADRs do **not** document:
 - [ADR-0009: End-to-end testing with Playwright against a local demo stack](./adr-0009-end-to-end-testing-with-playwright.md)
 - [ADR-0010: Verifying a frontend deploy against the bytes the browser receives](./adr-0010-verifying-frontend-deploys.md)
 - [ADR-0011: Gating the frontend image on the HTTP contract it serves](./adr-0011-gating-the-frontend-image-on-its-http-contract.md)
+- [ADR-0012: Low-stock severity scales with each item's minimum](./adr-0012-low-stock-severity-scales-with-the-minimum.md)
 
 ---
 
