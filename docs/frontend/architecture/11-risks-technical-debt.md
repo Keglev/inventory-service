@@ -23,15 +23,14 @@ live as BUCKET markers at their source sites.
 
 ## Size-Budget Waivers
 
-Measured over code lines against the budgets in [§2](02-constraints.md). Three files exceed
+Measured over code lines against the budgets in [§2](02-constraints.md). Two files exceed
 their layer's alarm; each is waived, with the reason, rather than split. No function
 exceeds its layer's alarm.
 
 | File | Code lines | Alarm | Why not split |
 |---|---|---|---|
 | `inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` | 164 | 160 (dialogs) | Four lines over. A flat, single-purpose JSX form; any split would be a fragment defined by the threshold rather than by a responsibility |
-| `inventory/dialogs/ItemFormDialog/useItemForm.ts` | 122 | 120 (hooks) | One responsibility — the create dialog's form controller: state, supplier query, RHF wiring, the reset-on-open effect, submit, close. The separable parts were already extracted (`itemFormServerErrors.ts`, the default values); what remains is coupled through form state, and lifting the effect out would mean threading form internals into a hook that exists only to reduce a count |
-| `inventory/dialogs/EditItemDialog/useEditItemForm.ts` | 124 | 120 (hooks) | Same shape and the same reasoning, four lines over |
+| `inventory/dialogs/EditItemDialog/useEditItemForm.ts` | 124 | 120 (hooks) | One responsibility, the edit dialog's form controller, with the same shape and reasoning as the create dialog's (`useItemForm.ts`, 120, within its alarm): what remains is coupled through form state. Four lines over |
 
 Seven functions sit above their band but below their alarm (`PriceChangeForm` 146,
 `EditItemForm` 133, `PriceTrendCard` 122, `MovementsSection` 112, `DateRangeFilter`
@@ -40,4 +39,4 @@ is guidance, the alarm is the gate.
 
 One spec file sits above the service band and below its alarm
 (`unit/api/suppliers/supplierMutations.test.ts` 173). No spec approaches either
-spec alarm; the largest in the tree is 244 code lines.
+spec alarm; the largest in the tree is 256 code lines.

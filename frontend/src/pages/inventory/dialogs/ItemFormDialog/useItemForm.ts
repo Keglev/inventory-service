@@ -19,10 +19,9 @@
  *   clears the controlled supplier selection, which the form reset
  *   does not reach.
  * - Submit pipeline maps form values to CreateItemRequest:
- *   reason -> notes (backend stores the reason as the StockHistory
- *   notes column for this flow), and minQty defaults to DEFAULT_MIN_QUANTITY.
- *   The minQty value is the same low-stock baseline that drives
- *   LowStockTable's critical chip and useInventoryRowStyling.
+ *   reason -> notes (the backend does not read notes today). No low-stock
+ *   threshold is sent: the backend owns it and applies its default on
+ *   create.
  * - createdBy is intentionally not sent. The backend always sets it
  *   from the authenticated session (server-authoritative audit field),
  *   so any client value is ignored; sending a placeholder was
@@ -51,7 +50,6 @@ import { applyItemFormServerError } from './itemFormServerErrors';
 import type { CreateItemRequest } from '../../../../api/inventory/types';
 import type { SupplierOption } from '../../../../api/analytics/types';
 import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
-import { DEFAULT_MIN_QUANTITY } from '../../../../config/inventoryPolicy';
 
 /**
  * Default values for a new item. Single source for both the useForm
@@ -61,7 +59,7 @@ const ITEM_FORM_DEFAULTS: UpsertItemForm = {
   name: '',
   code: '',
   supplierId: '',
-  quantity: 0,
+  quantity: 1,
   price: 0,
   reason: 'INITIAL_STOCK',
 };
@@ -184,7 +182,6 @@ export function useItemForm({
    * @enterprise
    * - Honors readOnly (demo mode) flag
    * - Maps form values to CreateItemRequest (reason -> notes, onHand -> quantity)
-   * - Auto-sets minQty to DEFAULT_MIN_QUANTITY
    * - Maps field-level and generic errors from backend
    * - Triggers onSaved callback and closes on success
    */
@@ -205,7 +202,6 @@ export function useItemForm({
       supplierId: values.supplierId,
       quantity: values.quantity,
       price: values.price,
-      minQty: DEFAULT_MIN_QUANTITY,
       notes: values.reason,
     };
 
