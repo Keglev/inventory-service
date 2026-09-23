@@ -37,3 +37,8 @@ export function lowStockSeverity(quantity: number, minimum: number): LowStockSev
   if (quantity < minimum) return 'warning';
   return 'none';
 }
+
+/** Probe for the required-check experiment. Reverted with the branch. */
+export function probeAny(value: any): string {
+  return String(value);
+}
