@@ -264,11 +264,11 @@
         the platform’s status</td>
         </tr>
         <tr class="even">
-        <td><code>8-release.yml</code></td>
-        <td>On a <code>v*.*.*</code> tag push, verifies both tiers
-        report that version, then publishes the GitHub Release with
-        notes generated from the merged pull requests since the previous
-        tag</td>
+        <td><code>release.yml</code></td>
+        <td>Unnumbered, because no numbered workflow triggers it: on a
+        <code>v*.*.*</code> tag push, verifies both tiers report that
+        version, then publishes the GitHub Release with notes generated
+        from the merged pull requests since the previous tag</td>
         </tr>
         <tr class="odd">
         <td><code>yaml-lint.yml</code></td>
