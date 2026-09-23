@@ -14,10 +14,9 @@
  * - Help opens the in-app drawer via the shared HelpIconButton component,
  *   matching the sibling dialogs. The tooltip key
  *   resolves to the shared common:actions.help leaf.
- * - Submit fires via state.handleSubmit(state.onSubmit)(e) rather than
- *   state.onSubmit directly because onSubmit is already wrapped by
- *   react-hook-form internally; the chained call here is redundant
- *   but harmless. Documented for the refactor decision.
+ * - Submit calls state.onSubmit, which useItemForm already wrapped with
+ *   react-hook-form's handleSubmit, so validation runs once. The four
+ *   sibling dialogs wire their primary action the same way.
  */
 
 import {
@@ -91,7 +90,7 @@ export function ItemFormDialog({
             variant="contained"
             onClick={(e) => {
               e.preventDefault();
-              state.handleSubmit(state.onSubmit)(e);
+              void state.onSubmit();
             }}
             disabled={state.formState.isSubmitting}
           >
