@@ -67,9 +67,7 @@ env:
 # fork, which carries no secrets, still runs the whole gate, because nothing on
 # the pull-request path needs a credential.
 jobs:
-  # Named build-and-test so this workflow satisfies the required status check
-  # for frontend pull requests; see the header of 1-ci-test.yml.
-  build-and-test:
+  frontend:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
 
@@ -118,18 +116,7 @@ jobs:
       # full picture attached rather than an exit code alone.
       - name: Report the full dependency tree
         if: always()
-        working-directory: frontend
-        run: |
-          set -euo pipefail
-          {
-            echo "## Dependency audit"
-            echo ""
-            echo '```'
-            npm audit 2>&1 || true
-            echo '```'
-            echo ""
-            echo "Development-only findings are reported here and do not fail the job."
-          } >> "$GITHUB_STEP_SUMMARY"
+        run: bash .github/scripts/report-dependency-tree.sh
 
       # Lint before the tests: it is the cheapest failure, and at this point
       # frontend/coverage/ does not exist yet, so no generated Istanbul file is
@@ -324,12 +311,27 @@ jobs:
 
       - name: Job summary
         if: always()
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: bash .github/scripts/frontend-ci-summary.sh
+
+  # The suite runs beside the frontend job, not after it: it builds its own bundle
+  # and its own backend. Skipped when the gate inside it finds nothing to see.
+  e2e:
+    uses: ./.github/workflows/e2e-playwright.yml
+
+  # The only job branch protection sees. It fails when either job above failed
+  # or was cancelled, and passes when the suite was skipped, so a red browser
+  # suite fails this run and the deploy chain never starts (ADR-0016).
+  build-and-test:
+    needs: [frontend, e2e]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require the frontend job and the browser suite
         run: |
-          echo "## Frontend CI Results" >> $GITHUB_STEP_SUMMARY
-          echo "- **Coverage artifact:** \`frontend-coverage-html-${{ github.event.pull_request.head.sha || github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "- **Image:** built and scanned, not published" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- **Image:** \`${{ env.IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-            echo "- **Next:** \`6-deploy-frontend.yml\` deploys this image to Koyeb" >> $GITHUB_STEP_SUMMARY
-          fi
+          set -eu
+          echo "frontend=${{ needs.frontend.result }} e2e=${{ needs.e2e.result }}"
+          [ "${{ needs.frontend.result }}" = "success" ] || exit 1
+          case "${{ needs.e2e.result }}" in success|skipped) ;; *) exit 1 ;; esac

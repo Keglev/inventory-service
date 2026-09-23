@@ -7,11 +7,16 @@
 # `vite preview` on 5173, the origin the backend's default CORS list admits.
 # Nothing here touches Hetzner, Oracle, Koyeb or any secret.
 #
-# The job is named `build-and-test`, which is the status check branch protection
-# requires on main, so a red run here now blocks the merge. It reported under its
-# own name and was advisory until the precondition in ADR-0009 was met: that
+# Reusable: 1-ci-test.yml and 5-frontend-ci.yml call it as a job, so the suite
+# runs inside the CI whose paths it covers and a red suite fails that CI run.
+# The deploy chains trigger on a successful CI run, which is what makes this a
+# release gate and not only a merge gate (ADR-0016). It carries no status check
+# name of its own; the caller's aggregator job reports build-and-test.
+#
+# The suite was advisory until the precondition in ADR-0009 was met: that
 # contract asked for ten green pull-request runs in a row, and the count stood at
-# thirty on 2026-09-15. The amendment block on ADR-0009 records the promotion.
+# thirty on 2026-09-15. The amendment block on ADR-0009 records the promotion
+# and this move.
 #
 # H2 is test-scoped and absent from the jar, so the backend is launched with
 # the H2 driver on the parent classpath via Boot's JarLauncher (see the header
@@ -20,32 +25,14 @@
 # Playwright browsers are cached under the resolved Playwright version. A cache
 # hit installs the OS font packages only and downloads no browser.
 # =============================================================================
-name: 7 Frontend E2E - Playwright
+name: E2E - Playwright
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - 'frontend/**'
-      - 'src/**'
-      - 'pom.xml'
-      - '.github/workflows/7-frontend-e2e.yml'
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - 'frontend/**'
-      - 'src/**'
-      - 'pom.xml'
-      - '.github/workflows/7-frontend-e2e.yml'
+  workflow_call:
   workflow_dispatch:
 
 permissions:
   contents: read
-
-# One run per ref; a newer push supersedes the previous one (nothing is deployed here)
-concurrency:
-  group: frontend-e2e-${{ github.ref }}
-  cancel-in-progress: true
 
 env:
   H2_VERSION: 2.3.232
@@ -56,9 +43,28 @@ env:
   NPM_VERSION: '11.10.1'
 
 jobs:
-  # Named build-and-test so this workflow satisfies the required status check;
-  # see the header of 1-ci-test.yml for why four workflows share the name.
-  build-and-test:
+  # The callers trigger on wider path sets than the suite covers, so a commit
+  # that cannot move the browser suite skips it instead of spending six minutes
+  # proving nothing. The decision lives in a script because both the rule and
+  # its reasons outgrew a workflow step.
+  gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - name: Decide whether the suite is relevant
+        id: decide
+        run: bash .github/scripts/e2e-relevant.sh
+
+  e2e:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
 

@@ -120,6 +120,27 @@ Corrected by this block:
 
 Promoted in pull request #129, merged as `ab5aa0b48c`.
 
+## Amendment 2026-09-23: the suite moved inside the CI workflows
+
+The suite is no longer a workflow of its own. `7-frontend-e2e.yml` was renamed
+`e2e-playwright.yml` and reduced to `workflow_call`, and `1-ci-test.yml` and
+`5-frontend-ci.yml` each call it as a job. Backend ADR-0016 records why: a
+standalone workflow gated the merge but not the release, because the deploy
+chains trigger on their own CI run and never looked at it.
+
+Superseded by this block:
+
+- Amendment 2026-09-16: "the job is named `build-and-test`". The job is named
+  `e2e` again. The check is now reported by an aggregator job in each caller,
+  which fails when the suite fails and passes when the suite is skipped.
+- References: the trigger list for `7-frontend-e2e.yml`. The file is
+  `e2e-playwright.yml`, it carries no `push` or `pull_request` trigger, and the
+  path list that decides whether it runs lives in
+  `.github/scripts/e2e-relevant.sh`.
+
+Everything the Decision says about what the suite tests, and about the local
+stack it tests against, is unchanged.
+
 ## References
 - ADR-0008: Testing structure and taxonomy
 - ADR-0007: i18n strategy and language/region settings

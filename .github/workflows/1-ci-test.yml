@@ -4,17 +4,16 @@
 # Compiles, tests, and generates JaCoCo coverage for the backend service.
 # On success, triggers: 2-docker-backend.yml (image build and scan).
 #
-# This is the repository's merge gate. Its job is named build-and-test, the
-# status check branch protection requires on main. Four workflows declare a job
-# by that name: this one, 5-frontend-ci.yml, 7-frontend-e2e.yml and
-# docs-pr-check.yml. The invariant
-# is coverage, not exclusivity. Every path reaches at least one of them, so no
-# pull request is left without the required check. A pull request confined to one
-# family is reported by exactly one workflow; one that spans families is reported
-# by each workflow whose paths it touches, and the check passes only when all of
-# them pass. A path may be ignored below ONLY if another workflow gives that pull
-# request a build-and-test check; a path ignored everywhere leaves its pull
-# requests permanently blocked. README.md and LICENSE deliberately stay here:
+# This is the repository's merge gate. Its aggregator job is named
+# build-and-test, the status check branch protection requires on main. Three
+# workflows declare a job by that name: this one, 5-frontend-ci.yml and
+# docs-pr-check.yml, and no path belongs to two of them (ADR-0016). A pull
+# request confined to one family is reported by exactly one workflow; one that
+# spans families is still reported by each family's claimant, and then passes
+# only when all of them pass. The invariant is coverage: every path reaches one
+# of them, so no pull request is left without the required check. A path may be ignored below ONLY if another workflow gives
+# that pull request a build-and-test check; a path ignored everywhere leaves its
+# pull requests permanently blocked. README.md and LICENSE deliberately stay here:
 # they are outside docs/ and the docs build never reads them. docs-pr-check.yml
 # triggers on itself, and its own file is ignored below, so a pull request
 # editing the docs gate is reported by that workflow alone.
@@ -51,7 +50,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-test:
+  backend:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 
@@ -199,3 +198,24 @@ jobs:
           echo "## Backend Build & Test" >> $GITHUB_STEP_SUMMARY
           echo "- **Coverage artifact:** \`jacoco-html-${{ github.event.pull_request.head.sha || github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Next:** \`2-docker-backend.yml\` builds and scans the Docker image" >> $GITHUB_STEP_SUMMARY
+
+  # The suite runs beside the backend job, not after it: it builds its own jar
+  # and its own bundle. Skipped when the gate inside it finds nothing to see.
+  e2e:
+    uses: ./.github/workflows/e2e-playwright.yml
+
+  # The only job branch protection sees. It fails when either job above failed
+  # or was cancelled, and passes when the suite was skipped, so a red browser
+  # suite fails this run and the deploy chain never starts (ADR-0016).
+  build-and-test:
+    needs: [backend, e2e]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require the backend job and the browser suite
+        run: |
+          set -eu
+          echo "backend=${{ needs.backend.result }} e2e=${{ needs.e2e.result }}"
+          [ "${{ needs.backend.result }}" = "success" ] || exit 1
+          case "${{ needs.e2e.result }}" in success|skipped) ;; *) exit 1 ;; esac
