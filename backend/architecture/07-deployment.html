@@ -202,33 +202,47 @@
         <tr class="odd">
         <td><code>1-ci-test.yml</code></td>
         <td><code>mvn clean verify</code> — compile, unit + integration
-        tests, JaCoCo coverage report</td>
+        tests, JaCoCo coverage report; calls the Playwright suite beside
+        it and reports both through one <code>build-and-test</code>
+        job</td>
         </tr>
         <tr class="even">
+        <td><code>e2e-playwright.yml</code></td>
+        <td>Reusable: called as a job by <code>1-ci-test.yml</code> and
+        <code>5-frontend-ci.yml</code>, and skipped when the commit
+        touches nothing the browser suite can see. Playwright against a
+        local stack built from the commit (packaged jar on H2,
+        <code>test,e2e</code> profile; frontend served via
+        <code>vite preview</code>). A red suite fails the calling CI
+        run, which blocks the merge and stops the deploy chain (<a
+        href="09-decisions/adr-0016-one-claimant-and-the-e2e-inside-ci.html">ADR
+        0016</a>)</td>
+        </tr>
+        <tr class="odd">
         <td><code>2-docker-backend.yml</code></td>
         <td><code>docker build</code> (prod profile), Trivy CVE scan
         (blocks on HIGH/CRITICAL), <code>docker push :SHA :latest</code>
         to GHCR</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>4-deploy-backend.yml</code></td>
         <td>Copies the compose file to the host over SSH, validates it,
         pulls the SHA-tagged image, restarts only the backend service,
         then runs the health and smoke checks against
         <code>api.smartsupplypro.de</code></td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>docs-pipeline.yml</code></td>
         <td>Generates OpenAPI docs (Redocly), converts architecture
         markdown to HTML (Pandoc + Lua filter) and checks internal
         links</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>docs-pr-check.yml</code></td>
         <td>Pull request gate for documentation: builds the site and
         verifies internal links without publishing</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>3-deploy-ghpages.yml</code></td>
         <td>Publishes the docs-site artifact to the
         <code>gh-pages</code> branch, then deploys that branch to GitHub
@@ -236,24 +250,18 @@
         href="09-decisions/adr-0015-pages-deployed-from-the-publisher-job.html">ADR
         0015</a>)</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>5-frontend-ci.yml</code></td>
         <td>Audits the shipped dependency tree (gate), lints, runs
         Vitest, then builds and Trivy-scans the image before it reaches
-        Docker Hub</td>
+        Docker Hub; calls the Playwright suite beside it and reports
+        both through one <code>build-and-test</code> job</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>6-deploy-frontend.yml</code></td>
         <td>Deploys the scanned image to Koyeb by digest, then verifies
         the commit’s build id reached the served bundle before trusting
         the platform’s status</td>
-        </tr>
-        <tr class="odd">
-        <td><code>7-frontend-e2e.yml</code></td>
-        <td>Playwright suite against a local stack built from the commit
-        (packaged jar on H2, <code>test,e2e</code> profile; frontend
-        served via <code>vite preview</code>); reports as
-        <code>build-and-test</code>, so a red run blocks the merge</td>
         </tr>
         <tr class="even">
         <td><code>8-release.yml</code></td>

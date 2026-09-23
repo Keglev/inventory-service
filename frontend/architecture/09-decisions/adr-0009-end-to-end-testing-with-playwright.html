@@ -258,6 +258,33 @@
         </ul>
         <p>Promoted in pull request #129, merged as
         <code>ab5aa0b48c</code>.</p>
+        <h2
+        id="amendment-2026-09-23-the-suite-moved-inside-the-ci-workflows">Amendment
+        2026-09-23: the suite moved inside the CI workflows</h2>
+        <p>The suite is no longer a workflow of its own.
+        <code>7-frontend-e2e.yml</code> was renamed
+        <code>e2e-playwright.yml</code> and reduced to
+        <code>workflow_call</code>, and <code>1-ci-test.yml</code> and
+        <code>5-frontend-ci.yml</code> each call it as a job. Backend
+        ADR-0016 records why: a standalone workflow gated the merge but
+        not the release, because the deploy chains trigger on their own
+        CI run and never looked at it.</p>
+        <p>Superseded by this block:</p>
+        <ul>
+        <li>Amendment 2026-09-16: “the job is named
+        <code>build-and-test</code>”. The job is named <code>e2e</code>
+        again. The check is now reported by an aggregator job in each
+        caller, which fails when the suite fails and passes when the
+        suite is skipped.</li>
+        <li>References: the trigger list for
+        <code>7-frontend-e2e.yml</code>. The file is
+        <code>e2e-playwright.yml</code>, it carries no <code>push</code>
+        or <code>pull_request</code> trigger, and the path list that
+        decides whether it runs lives in
+        <code>.github/scripts/e2e-relevant.sh</code>.</li>
+        </ul>
+        <p>Everything the Decision says about what the suite tests, and
+        about the local stack it tests against, is unchanged.</p>
         <h2 id="references">References</h2>
         <ul>
         <li>ADR-0008: Testing structure and taxonomy</li>
@@ -292,6 +319,10 @@
       <li><a href="#amendment-2026-09-16-the-check-was-promoted"
       id="toc-amendment-2026-09-16-the-check-was-promoted">Amendment
       2026-09-16: the check was promoted</a></li>
+      <li><a
+      href="#amendment-2026-09-23-the-suite-moved-inside-the-ci-workflows"
+      id="toc-amendment-2026-09-23-the-suite-moved-inside-the-ci-workflows">Amendment
+      2026-09-23: the suite moved inside the CI workflows</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

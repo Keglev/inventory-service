@@ -1,0 +1,315 @@
+<!-- ===========================================================================
+     Smart Supply Pro Docs — Architecture page template
+     Pandoc template for the architecture pages; build-architecture-docs.sh
+     renders the Markdown tree through it.
+
+     Pandoc copies this comment into every page the template produces, so it
+     is written for anyone reading a published page source. A dollar sign
+     here would be read as template syntax and substituted, so the comment
+     carries none.
+     ======================================================================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0016-one-claimant-and-the-e2e-inside-ci · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=a061f5ab8d" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+    <li><a href="/inventory-service/decisions/index.html">All decisions</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0016-one-claimant-for-the-required-check-and-the-browser-suite-inside-ci">ADR-0016:
+        One claimant for the required check, and the browser suite
+        inside CI</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-09-23</p>
+        <h2 id="context">Context</h2>
+        <p>Ruleset 19198869 (protect-main) requires one status: the bare
+        context <code>build-and-test</code>. Until this decision four
+        workflows declared a job by that name, and their trigger paths
+        were arranged so that every pull request reached at least one of
+        them: <code>1-ci-test.yml</code> ignored exactly the union of
+        the frontend and docs path sets, and so acted as the
+        catch-all.</p>
+        <p>Two defects followed from that arrangement.</p>
+        <p>The first is a release defect.
+        <code>2-docker-backend.yml</code>,
+        <code>4-deploy-backend.yml</code>,
+        <code>6-deploy-frontend.yml</code> and
+        <code>docs-pipeline.yml</code> all trigger on a
+        <code>workflow_run</code> of their own CI and test
+        <code>conclusion == 'success'</code>. The browser suite was a
+        workflow of its own, in no chain, so a merge whose Playwright
+        run went red still built an image and still deployed both tiers.
+        The suite gated the merge and not the release.</p>
+        <p>The second is an ambiguity. On a frontend pull request two
+        workflows reported <code>build-and-test</code> for the same
+        commit. GitHub’s documentation advises that a required job name
+        be unique across workflows, because the same name in several
+        workflows can give ambiguous results; it does not say which run
+        wins. The question was carried open for two sessions and never
+        decided, because the only honest way to answer it is to let a
+        required check go red on a pull request into
+        <code>main</code>.</p>
+        <p>What was established, on pull request #177 (closed, never
+        merged): a required check that never reports leaves the pull
+        request <code>BLOCKED</code> while GitHub still calls it
+        <code>MERGEABLE</code>. Coverage of every path by some claimant
+        is therefore load-bearing, not a nicety. The same probe showed
+        that a ruleset restricts branch deletion by default.</p>
+        <h2 id="decision">Decision</h2>
+        <p>One workflow claims <code>build-and-test</code> for any given
+        pull request, and the browser suite runs inside the CI it
+        belongs to.</p>
+        <ul>
+        <li><code>e2e-playwright.yml</code> is a reusable workflow
+        (<code>workflow_call</code>), with no <code>push</code> or
+        <code>pull_request</code> trigger and a job named
+        <code>e2e</code>. It keeps the number-free name because it is no
+        longer a step in the numbered build-and-deploy sequence.</li>
+        <li><code>1-ci-test.yml</code> and
+        <code>5-frontend-ci.yml</code> each call it as a job, beside
+        their own work rather than after it, and each ends in an
+        aggregator job named <code>build-and-test</code> that fails when
+        either job failed or was cancelled and passes when the suite was
+        skipped.</li>
+        <li>The suite decides for itself whether it can say anything: a
+        gate job runs <code>.github/scripts/e2e-relevant.sh</code>,
+        which looks for <code>src/</code>, <code>pom.xml</code>,
+        <code>frontend/</code>, the workflow or the script itself in the
+        commit’s own diff.</li>
+        <li>The three claimants are <code>1-ci-test.yml</code> (backend
+        and catch-all), <code>5-frontend-ci.yml</code> (frontend) and
+        <code>docs-pr-check.yml</code> (docs). No path belongs to two of
+        them, so a pull request confined to one family sees exactly one
+        run of the required name.</li>
+        </ul>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Keep the four claimants and document the
+        catch-all.</strong> It leaves the release defect in place and
+        keeps relying on behaviour GitHub calls ambiguous.</li>
+        <li><strong>Gate the deploys on the suite’s result from
+        outside</strong>, by asking the API for the conclusion of the
+        e2e run on the same commit before deploying. Two workflows would
+        gain polling logic, with “not started yet” and “does not apply”
+        to handle, and the ambiguity would remain.</li>
+        <li><strong>Chain <code>6-deploy-frontend.yml</code> behind the
+        browser suite instead of behind frontend CI.</strong> The suite
+        also runs for backend-only changes, when no frontend image was
+        built, so the deploy would fire with nothing new to deploy.</li>
+        <li><strong>Settle the ambiguity by experiment.</strong> A probe
+        against a second protected branch cannot work: every claimant
+        filters <code>pull_request</code> to <code>main</code>. The
+        remaining variants are a red required check on a pull request
+        into <code>main</code>, or a throwaway repository that proves
+        the rule elsewhere. Removing the repetition was cheaper than
+        measuring it.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>A red browser suite now fails the CI run that called it, so
+        no image is built and neither tier deploys. That is the defect
+        this decision exists to close.</li>
+        <li>A backend change waits for the suite before the image is
+        built: roughly one to two minutes later than before. On the
+        frontend side the suite runs beside a longer job and costs no
+        extra wall-clock time.</li>
+        <li>A commit the suite cannot see skips it, and the aggregator
+        still passes.</li>
+        <li>The standalone “7 Frontend E2E” entries no longer appear in
+        the run list; the suite appears as jobs inside the calling
+        run.</li>
+        <li><code>1-ci-test.yml</code> stays the catch-all: a change
+        outside the frontend and docs path sets still runs the backend
+        suite, even when it cannot affect the backend. That cost is
+        accepted here, and it is the reason its
+        <code>paths-ignore</code> must stay the exact complement of the
+        other two claimants. Adding a path to one of them without adding
+        it here runs the backend suite for nothing; removing a path from
+        one of them without removing it here leaves those pull requests
+        with no claimant and permanently blocked.</li>
+        <li>A new workflow declaring a <code>build-and-test</code> job
+        would widen the ambiguity. New checks belong in an existing
+        claimant, as a job behind its aggregator.</li>
+        <li>The ambiguity is reduced, not abolished. A pull request that
+        spans families, backend and docs for instance, still produces
+        one run of the required name per family, and GitHub still does
+        not define which counts. What this decision removes is the case
+        where two workflows claimed the SAME paths: every frontend pull
+        request used to produce two runs, and now produces one. Whether
+        the remaining case matters can be settled, if it ever does, in a
+        throwaway repository rather than by failing a check on
+        <code>main</code>.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>The aggregator reads <code>needs.&lt;job&gt;.result</code>,
+        not <code>success()</code>, so a skipped suite is
+        distinguishable from a failed one.</li>
+        <li>The gate script reads <code>HEAD^..HEAD</code>: on a
+        <code>pull_request</code> run the checked-out commit is the
+        merge commit, so that range is the pull request’s own diff.</li>
+        <li>Two reporting blocks moved out of
+        <code>5-frontend-ci.yml</code>
+        (<code>report-dependency-tree.sh</code>,
+        <code>frontend-ci-summary.sh</code>) to keep the file below its
+        size alarm once the two jobs were added. Neither can fail a
+        run.</li>
+        <li>Verified with <code>actionlint</code> over all eleven
+        workflows, and by running the gate script against the last six
+        commits on <code>main</code>: the docs-only commit yields
+        <code>run=false</code>, the five source commits
+        <code>run=true</code>.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a
+        href="adr-0013-docs-pipeline-rebuilds-by-change.html">ADR-0013:
+        The docs pipeline rebuilds, and publishes, by change</a></li>
+        <li><a
+        href="adr-0015-pages-deployed-from-the-publisher-job.html">ADR-0015:
+        GitHub Pages is deployed by the publisher job</a></li>
+        <li>Frontend ADR-0009 and its amendment of 2026-09-23</li>
+        <li>About protected branches (job names should be unique across
+        workflows):
+        https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches</li>
+        <li>System-wide decisions index
+        (<code>../../../decisions/index.md</code>)</li>
+        </ul>
+        <hr />
+        <p>Frontend decisions: see <a
+        href="../../../frontend/architecture/09-decisions/index.html">docs/frontend/architecture/adr/</a></p>
+        <p><a href="../index.html">Back to Architecture Index</a></p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0016-one-claimant-for-the-required-check-and-the-browser-suite-inside-ci"
+      id="toc-adr-0016-one-claimant-for-the-required-check-and-the-browser-suite-inside-ci">ADR-0016:
+      One claimant for the required check, and the browser suite inside
+      CI</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js?v=3354f25964"></script>
+</body>
+</html>
