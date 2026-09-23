@@ -2,7 +2,7 @@
  * @file ItemForm.test.tsx
  * @module __tests__/components/pages/inventory/ItemFormDialog/ItemForm
  * @description Contract tests for ItemForm:
- * - Renders all expected fields, including Reason
+ * - Renders all expected fields, and no Reason field
  * - Shows generic form error banner when present
  *
  * Out of scope:
@@ -25,12 +25,11 @@ vi.mock('react-i18next', () => ({
 // -------------------------------------
 // Targeted MUI stubs
 // -------------------------------------
-// ItemForm uses MUI Autocomplete/Select which are difficult to drive in unit tests.
-// We stub only these two to capture and invoke handler props, improving branch/function coverage
+// ItemForm uses MUI Autocomplete, which is difficult to drive in unit tests.
+// We stub it to capture and invoke handler props, improving branch/function coverage
 // without testing MUI internals.
 const muiSpies = vi.hoisted(() => ({
   autocompleteProps: vi.fn(),
-  selectProps: vi.fn(),
 }));
 
 vi.mock('@mui/material', async () => {
@@ -54,12 +53,6 @@ vi.mock('@mui/material', async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const renderInput = (props as any).renderInput as (p: any) => unknown;
       return <div data-testid="supplier-autocomplete">{renderInput({}) as never}</div>;
-    },
-    Select: (props: unknown) => {
-      muiSpies.selectProps(props);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const p = props as any;
-      return <div aria-label={p.label ?? 'Reason'} data-testid="mui-select-stub">{p.children}</div>;
     },
   };
 });
@@ -92,13 +85,8 @@ function createMockState(overrides: Partial<UseItemFormReturn> = {}): UseItemFor
     /**
      * RHF watch is an overloaded callable type. A plain vi.fn() does not structurally
      * match all overloads, so we provide a callable stub and cast via unknown.
-     *
-     * ItemForm reads: watch('reason') ?? 'INITIAL_STOCK'
      */
-    watch: (((name?: unknown) => {
-      if (name === 'reason') return 'INITIAL_STOCK';
-      return undefined;
-    }) as unknown) as UseItemFormReturn['watch'],
+    watch: ((() => undefined) as unknown) as UseItemFormReturn['watch'],
 
     handleSubmit: vi.fn(),
     onSubmit: vi.fn(),
@@ -117,7 +105,7 @@ describe('ItemForm', () => {
     vi.clearAllMocks();
   });
 
-  it('renders all base fields including Reason', () => {
+  it('renders the base fields and no Reason field', () => {
     const state = createMockState({
       suppliers: [
         { id: 'sup-1', label: 'Supplier A' },
@@ -136,8 +124,8 @@ describe('ItemForm', () => {
     expect(screen.getByLabelText('Price')).toBeInTheDocument();
     expect(screen.getByLabelText('Price')).toHaveAttribute('min', '0.01');
 
-    // Reason dropdown
-    expect(screen.getByLabelText('Reason')).toBeInTheDocument();
+    // No reason is asked for: a new item always records INITIAL_STOCK
+    expect(screen.queryByLabelText(tEn('inventory:fields.reasonLabel'))).not.toBeInTheDocument();
   });
 
   it('renders a generic error banner when formError is set', () => {
@@ -184,24 +172,6 @@ describe('ItemForm', () => {
     expect(state.setValue).toHaveBeenCalledWith('supplierId', '', { shouldValidate: true });
   });
 
-  it('uses reason fallback when watch(reason) is undefined, and wires reason onChange to setValue', () => {
-    const state = createMockState({
-      watch: (((field?: unknown) => {
-        if (field === 'reason') return undefined;
-        return undefined;
-      }) as unknown) as UseItemFormReturn['watch'],
-    });
-
-    renderItemForm(state);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const selectProps = muiSpies.selectProps.mock.calls[0]?.[0] as any;
-    expect(selectProps.value).toBe('INITIAL_STOCK');
-
-    selectProps.onChange({ target: { value: 'MANUAL_UPDATE' } });
-    expect(state.setValue).toHaveBeenCalledWith('reason', 'MANUAL_UPDATE', { shouldValidate: true });
-  });
-
   it('resolves field-error keys to translated helper text, and survives non-string messages', () => {
     const state = createMockState({
       formState: {
@@ -211,7 +181,6 @@ describe('ItemForm', () => {
           code: { message: 'errors:validation.required' },
           quantity: { message: { not: 'a string' } },
           price: { message: 'errors:validation.nonNegative' },
-          reason: { message: 'errors:validation.required' },
         },
         isSubmitting: false,
       } as unknown as UseItemFormReturn['formState'],

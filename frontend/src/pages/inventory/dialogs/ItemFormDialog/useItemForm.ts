@@ -9,19 +9,16 @@
  * createItem, map errors).
  *
  * @enterprise
- * - itemFormSchema constrains reason to the 2-value subset
- *   INITIAL_STOCK | MANUAL_UPDATE. The backend enforces the same subset
- *   for create/upsert. The locked 11-value StockChangeReason enum covers
- *   removals and other flows that do not belong on creation. CM-3
- *   closure: subset is intentional and backend-authoritative.
+ * - No reason is asked for or sent: creating an item always records
+ *   INITIAL_STOCK, which the backend sets itself. Reasons belong to the
+ *   quantity-adjust flow.
  * - The reset-on-open effect guarantees a clean state on every open, so
  *   a previous session does not leak into the next one. handleClose
  *   clears the controlled supplier selection, which the form reset
  *   does not reach.
- * - Submit pipeline maps form values to CreateItemRequest:
- *   reason -> notes (the backend does not read notes today). No low-stock
- *   threshold is sent: the backend owns it and applies its default on
- *   create.
+ * - Submit pipeline maps form values to CreateItemRequest (code -> sku).
+ *   No low-stock threshold is sent: the backend owns it and applies its
+ *   default on create.
  * - createdBy is intentionally not sent. The backend always sets it
  *   from the authenticated session (server-authoritative audit field),
  *   so any client value is ignored; sending a placeholder was
@@ -61,7 +58,6 @@ const ITEM_FORM_DEFAULTS: UpsertItemForm = {
   supplierId: '',
   quantity: 1,
   price: 0,
-  reason: 'INITIAL_STOCK',
 };
 
 /**
@@ -181,7 +177,7 @@ export function useItemForm({
    * 
    * @enterprise
    * - Honors readOnly (demo mode) flag
-   * - Maps form values to CreateItemRequest (reason -> notes, onHand -> quantity)
+   * - Maps form values to CreateItemRequest (code -> sku)
    * - Maps field-level and generic errors from backend
    * - Triggers onSaved callback and closes on success
    */
@@ -202,7 +198,6 @@ export function useItemForm({
       supplierId: values.supplierId,
       quantity: values.quantity,
       price: values.price,
-      notes: values.reason,
     };
 
     const res = await createItem(requestData);
