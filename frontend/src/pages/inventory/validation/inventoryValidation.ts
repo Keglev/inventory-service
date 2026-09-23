@@ -10,9 +10,8 @@
  * - Five-flow split. Each mutation owns its schema with no cross-schema
  *   reuse. This keeps the boundary mapping to the backend one-to-one and
  *   makes flow-specific tightening (e.g. reason rules) a local change.
- * - Reason field is intentionally asymmetric across flows. itemFormSchema
- *   constrains reason to the 2-value subset INITIAL_STOCK | MANUAL_UPDATE
- *   because creation and bulk edits only ever justify with these two.
+ * - Reason field differs by flow. itemFormSchema carries none: creating an
+ *   item always records INITIAL_STOCK, which the backend sets itself.
  *   quantityAdjustSchema constrains reason to the direction-aware adjust
  *   set: increasing stock allows INITIAL_STOCK, RETURNED_BY_CUSTOMER and
  *   MANUAL_UPDATE; reducing stock allows SOLD, SCRAPPED, DESTROYED,
@@ -44,9 +43,6 @@ export const itemFormSchema = z.object({
     .refine((val) => val !== '' && val !== 0, 'errors:validation.required'),
   quantity: z.number().min(1, 'errors:validation.positive'),
   price: z.number().positive('errors:validation.positive'),
-  reason: z.enum(['INITIAL_STOCK', 'MANUAL_UPDATE'], {
-    message: 'errors:validation.required',
-  }),
 });
 
 export type UpsertItemForm = z.infer<typeof itemFormSchema>;

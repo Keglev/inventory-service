@@ -30,7 +30,7 @@ exceeds its layer's alarm.
 | File | Code lines | Alarm | Why not split |
 |---|---|---|---|
 | `inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` | 164 | 160 (dialogs) | Four lines over. A flat, single-purpose JSX form; any split would be a fragment defined by the threshold rather than by a responsibility |
-| `inventory/dialogs/EditItemDialog/useEditItemForm.ts` | 124 | 120 (hooks) | One responsibility, the edit dialog's form controller, with the same shape and reasoning as the create dialog's (`useItemForm.ts`, 120, within its alarm): what remains is coupled through form state. Four lines over |
+| `inventory/dialogs/EditItemDialog/useEditItemForm.ts` | 124 | 120 (hooks) | One responsibility, the edit dialog's form controller, with the same shape and reasoning as the create dialog's (`useItemForm.ts`, 118, within its alarm): what remains is coupled through form state. Four lines over |
 
 Seven functions sit above their band but below their alarm (`PriceChangeForm` 146,
 `EditItemForm` 133, `PriceTrendCard` 122, `MovementsSection` 112, `DateRangeFilter`
@@ -39,4 +39,4 @@ is guidance, the alarm is the gate.
 
 One spec file sits above the service band and below its alarm
 (`unit/api/suppliers/supplierMutations.test.ts` 173). No spec approaches either
-spec alarm; the largest in the tree is 268 code lines.
+spec alarm; the largest in the tree is 243 code lines.

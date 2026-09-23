@@ -83,8 +83,6 @@ export interface CreateItemRequest {
   quantity: number;
   /** Unit price */
   price: number;
-  /** Notes/reason for creation */
-  notes?: string | null;
 }
 
 /**

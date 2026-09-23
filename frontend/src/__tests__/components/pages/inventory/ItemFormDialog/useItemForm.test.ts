@@ -62,7 +62,7 @@ function renderUseItemForm(overrides: Partial<HookArgs> = {}) {
 }
 
 async function makeFormValid(result: { current: unknown }) {
-  // itemFormSchema requires: name, code, supplierId (!'' and != 0), quantity >= 1, price >= 0, reason enum.
+  // itemFormSchema requires: name, code, supplierId (!'' and != 0), quantity >= 1, price > 0.
   const current = result.current as UseItemFormReturn;
 
   act(() => {
@@ -71,7 +71,6 @@ async function makeFormValid(result: { current: unknown }) {
     current.setValue('supplierId', 'sup-1', { shouldValidate: true });
     current.setValue('quantity', 1, { shouldValidate: true });
     current.setValue('price', 1, { shouldValidate: true });
-    current.setValue('reason', 'INITIAL_STOCK', { shouldValidate: true });
   });
 
   await waitFor(() => {
@@ -167,12 +166,13 @@ describe('useItemForm', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('sends the create request without a low-stock threshold', async () => {
+  it('sends the create request without a low-stock threshold or notes', async () => {
     mockCreateItem.mockResolvedValue({ ok: true });
     const { result } = renderUseItemForm({ onClose: vi.fn() });
     await submitValid(result);
     expect(mockCreateItem).toHaveBeenCalledTimes(1);
     expect(mockCreateItem.mock.calls[0][0]).not.toHaveProperty('minQty');
+    expect(mockCreateItem.mock.calls[0][0]).not.toHaveProperty('notes');
   });
 
   it('succeeds when submitted without an onSaved callback', async () => {

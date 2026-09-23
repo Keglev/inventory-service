@@ -88,10 +88,7 @@ function createState(overrides: Partial<UseItemFormReturn> = {}): UseItemFormRet
     clearErrors: vi.fn(),
 
     // watch() is an overloaded callable type; provide a callable stub.
-    watch: (((field?: unknown) => {
-      if (field === 'reason') return 'INITIAL_STOCK';
-      return undefined;
-    }) as unknown) as UseItemFormReturn['watch'],
+    watch: ((() => undefined) as unknown) as UseItemFormReturn['watch'],
 
     // Dialog calls: handleSubmit(onSubmit)() on primary action
     handleSubmit: vi.fn((fn: unknown) => {

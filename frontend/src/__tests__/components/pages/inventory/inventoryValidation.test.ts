@@ -31,25 +31,17 @@ describe('inventoryValidation', () => {
       supplierId: '123',
       quantity: 100,
       price: 49.99,
-      reason: 'INITIAL_STOCK' as const,
     };
 
     it('accepts valid item form data', () => {
       expectValid(itemFormSchema, validData);
     });
 
+    it('has no reason field: a new item always records INITIAL_STOCK', () => {
+      expect(Object.keys(itemFormSchema.shape)).not.toContain('reason');
+    });
+
     it.each([
-      [
-        'a manual update reason',
-        {
-          name: 'Test Item',
-          code: 'TEST-002',
-          supplierId: '456',
-          quantity: 50,
-          price: 25.0,
-          reason: 'MANUAL_UPDATE' as const,
-        },
-      ],
       [
         'numeric supplierId',
         {
@@ -58,7 +50,6 @@ describe('inventoryValidation', () => {
           supplierId: 789,
           quantity: 10,
           price: 15.5,
-          reason: 'INITIAL_STOCK' as const,
         },
       ],
     ])('accepts data with %s', (_, data) => {
@@ -75,7 +66,6 @@ describe('inventoryValidation', () => {
           supplierId: '123',
           quantity: 100,
           price: 49.99,
-          reason: 'INITIAL_STOCK',
         },
         'errors:validation.required',
       ],
@@ -87,7 +77,6 @@ describe('inventoryValidation', () => {
           supplierId: '',
           quantity: 100,
           price: 49.99,
-          reason: 'INITIAL_STOCK',
         },
         'errors:validation.required',
       ],
@@ -99,7 +88,6 @@ describe('inventoryValidation', () => {
           supplierId: '123',
           quantity: -10,
           price: 49.99,
-          reason: 'INITIAL_STOCK',
         },
         'errors:validation.positive',
       ],
@@ -111,7 +99,6 @@ describe('inventoryValidation', () => {
           supplierId: '123',
           quantity: 0,
           price: 49.99,
-          reason: 'INITIAL_STOCK',
         },
         'errors:validation.positive',
       ],
@@ -123,7 +110,6 @@ describe('inventoryValidation', () => {
           supplierId: '123',
           quantity: 100,
           price: -5.99,
-          reason: 'INITIAL_STOCK',
         },
         'errors:validation.positive',
       ],
@@ -135,21 +121,8 @@ describe('inventoryValidation', () => {
           supplierId: '123',
           quantity: 100,
           price: 0,
-          reason: 'INITIAL_STOCK',
         },
         'errors:validation.positive',
-      ],
-      [
-        'invalid reason',
-        {
-          name: 'Test Item',
-          code: 'TEST-INV',
-          supplierId: '123',
-          quantity: 100,
-          price: 49.99,
-          reason: 'INVALID_REASON',
-        },
-        'errors:validation.required',
       ],
       [
         'empty code',
@@ -159,7 +132,6 @@ describe('inventoryValidation', () => {
           supplierId: '123',
           quantity: 100,
           price: 49.99,
-          reason: 'INITIAL_STOCK',
         },
         'errors:validation.required',
       ],
