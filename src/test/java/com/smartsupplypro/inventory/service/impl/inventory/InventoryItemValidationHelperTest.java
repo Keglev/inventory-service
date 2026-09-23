@@ -100,7 +100,8 @@ class InventoryItemValidationHelperTest {
             assertNotNull(entity.getId());
             assertEquals("system-user", entity.getCreatedBy());
             assertNotNull(entity.getCreatedAt());
-            assertEquals(10, entity.getMinimumQuantity());
+            // the constant, not the literal: both guards must read the same source
+            assertEquals(InventoryItem.DEFAULT_MINIMUM_QUANTITY, entity.getMinimumQuantity());
         }
 
         @Test
