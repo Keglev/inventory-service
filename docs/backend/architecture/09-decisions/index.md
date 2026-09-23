@@ -30,6 +30,7 @@ ADRs do **not** document:
 - [ADR-0013: The docs pipeline rebuilds, and publishes, by change](./adr-0013-docs-pipeline-rebuilds-by-change.md)
 - [ADR-0014: Decision records stay in each tier's arc42 section 9](./adr-0014-decisions-stay-in-arc42-section-9.md)
 - [ADR-0015: GitHub Pages is deployed by the publisher job](./adr-0015-pages-deployed-from-the-publisher-job.md)
+- [ADR-0016: One claimant for the required check, and the browser suite inside CI](./adr-0016-one-claimant-and-the-e2e-inside-ci.md)
 
 ---
 

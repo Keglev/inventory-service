@@ -119,7 +119,7 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # The same cache declaration 5-frontend-ci.yml and 7-frontend-e2e.yml carry,
+      # The same cache declaration 5-frontend-ci.yml and e2e-playwright.yml carry,
       # keyed on the same lockfile, so this job restores the tree those jobs have
       # already built instead of installing cold on every run. The lockfile has
       # changed 18 times in 1439 commits; only on those runs does every job miss
