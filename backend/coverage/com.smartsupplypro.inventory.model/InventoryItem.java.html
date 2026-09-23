@@ -40,6 +40,16 @@ import lombok.ToString;
 @AllArgsConstructor
 public class InventoryItem {
 
+    /**
+     * Minimum quantity applied when an item is stored without one.
+     *
+     * &lt;p&gt;Declared here because both guards that apply it must use the same
+     * number: {@link #onCreate()} below, and
+     * {@code InventoryItemValidationHelper.populateServerFields}, which sets it
+     * before the entity is saved so callers see it without a flush.&lt;/p&gt;
+     */
+    public static final int DEFAULT_MINIMUM_QUANTITY = 10;
+
     @Id
     @Column(name = &quot;ID&quot;, nullable = false, length = 36)
     private String id;
@@ -87,27 +97,27 @@ public class InventoryItem {
 
     @PrePersist
     protected void onCreate() {
-<span class="fc bfc" id="L90" title="All 4 branches covered.">        if (this.id == null || this.id.isBlank()) {</span>
-<span class="fc" id="L91">            this.id = UUID.randomUUID().toString();</span>
+<span class="fc bfc" id="L100" title="All 4 branches covered.">        if (this.id == null || this.id.isBlank()) {</span>
+<span class="fc" id="L101">            this.id = UUID.randomUUID().toString();</span>
         }
-<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (this.createdAt == null) {</span>
-<span class="fc" id="L94">            this.createdAt = LocalDateTime.now();</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (this.createdAt == null) {</span>
+<span class="fc" id="L104">            this.createdAt = LocalDateTime.now();</span>
         }
-<span class="fc bfc" id="L96" title="All 4 branches covered.">        if (this.createdBy == null || this.createdBy.isBlank()) {</span>
-<span class="fc" id="L97">            this.createdBy = &quot;system&quot;;</span>
+<span class="fc bfc" id="L106" title="All 4 branches covered.">        if (this.createdBy == null || this.createdBy.isBlank()) {</span>
+<span class="fc" id="L107">            this.createdBy = &quot;system&quot;;</span>
         }
-<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (this.minimumQuantity &lt;= 0) {</span>
-<span class="fc" id="L100">            this.minimumQuantity = 10;</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (this.minimumQuantity &lt;= 0) {</span>
+<span class="fc" id="L110">            this.minimumQuantity = DEFAULT_MINIMUM_QUANTITY;</span>
         }
         // denormalized supplierId must match the supplier relationship when only the entity is set
-<span class="fc bfc" id="L103" title="All 4 branches covered.">        boolean supplierIdMissing = (this.supplierId == null || this.supplierId.isBlank());</span>
-<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (supplierIdMissing) {</span>
-<span class="fc bfc" id="L105" title="All 2 branches covered.">            if (this.supplier != null) {</span>
-<span class="fc" id="L106">                this.supplierId = this.supplier.getId();</span>
+<span class="fc bfc" id="L113" title="All 4 branches covered.">        boolean supplierIdMissing = (this.supplierId == null || this.supplierId.isBlank());</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (supplierIdMissing) {</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">            if (this.supplier != null) {</span>
+<span class="fc" id="L116">                this.supplierId = this.supplier.getId();</span>
             } else {
-<span class="fc" id="L108">                this.supplierId = &quot;default-supplier&quot;;</span>
+<span class="fc" id="L118">                this.supplierId = &quot;default-supplier&quot;;</span>
             }
         }
-<span class="fc" id="L111">    }</span>
+<span class="fc" id="L121">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

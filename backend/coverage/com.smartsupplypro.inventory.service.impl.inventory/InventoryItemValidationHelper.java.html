@@ -65,7 +65,7 @@ public class InventoryItemValidationHelper {
 <span class="fc" id="L65">            entity.setCreatedAt(LocalDateTime.now());</span>
         }
 <span class="fc bfc" id="L67" title="All 2 branches covered.">        if (entity.getMinimumQuantity() &lt;= 0) {</span>
-<span class="fc" id="L68">            entity.setMinimumQuantity(10);</span>
+<span class="fc" id="L68">            entity.setMinimumQuantity(InventoryItem.DEFAULT_MINIMUM_QUANTITY);</span>
         }
 <span class="fc" id="L70">    }</span>
 
