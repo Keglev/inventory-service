@@ -15,7 +15,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</title>
+api/inventory/types/interfaces/ItemWriteResult · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -118,12 +118,14 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         <hr />
         <p><a href="../../../../README.html">frontend</a> / <a
         href="../README.html">api/inventory/types</a> /
-        UpsertItemResponse</p>
-        <h1 id="interface-upsertitemresponse">Interface:
-        UpsertItemResponse</h1>
+        ItemWriteResult</p>
+        <h1 id="interface-itemwriteresult">Interface:
+        ItemWriteResult</h1>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L91">api/inventory/types.ts:91</a></p>
-        <p>Upsert operation response with item data or error.</p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L93">api/inventory/types.ts:93</a></p>
+        <p>Result of a write to an item: returned by createItem,
+        renameItem, deleteItem, changePrice and adjustQuantity, carrying
+        the saved row or the reason it failed.</p>
         <h2 id="properties">Properties</h2>
         <h3 id="error">error?</h3>
         <blockquote>
@@ -131,7 +133,7 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         <code>string</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L94">api/inventory/types.ts:94</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L96">api/inventory/types.ts:96</a></p>
         <hr />
         <h3 id="errortoken">errorToken?</h3>
         <blockquote>
@@ -139,7 +141,7 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         <code>string</code> | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L101">api/inventory/types.ts:101</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L103">api/inventory/types.ts:103</a></p>
         <p>Normalized backend status token
         (HttpStatus.name().toLowerCase()), e.g. 'not_found', 'conflict',
         'forbidden'. Present on failures that originate from an Axios
@@ -153,7 +155,7 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         <code>string</code>&gt; | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L109">api/inventory/types.ts:109</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L111">api/inventory/types.ts:111</a></p>
         <p>Optional per-field error map from the backend envelope (field
         name to message), e.g. { sku: 'SKU is mandatory' }. Present only
         on validation or duplicate failures that attribute a field.</p>
@@ -164,14 +166,14 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         href="InventoryRow.html"><code>InventoryRow</code></a></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L93">api/inventory/types.ts:93</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L95">api/inventory/types.ts:95</a></p>
         <hr />
         <h3 id="ok">ok</h3>
         <blockquote>
         <p><strong>ok</strong>: <code>boolean</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L92">api/inventory/types.ts:92</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L94">api/inventory/types.ts:94</a></p>
         <hr />
         <h3 id="status">status?</h3>
         <blockquote>
@@ -179,7 +181,7 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         <code>number</code> | <code>null</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L103">api/inventory/types.ts:103</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/types.ts#L105">api/inventory/types.ts:105</a></p>
         <p>Numeric HTTP status on failure, when available.</p>
       </article>
     </main>
@@ -187,9 +189,8 @@ api/inventory/types/interfaces/UpsertItemResponse · Smart Supply Pro · API</ti
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#interface-upsertitemresponse"
-      id="toc-interface-upsertitemresponse">Interface:
-      UpsertItemResponse</a>
+      <li><a href="#interface-itemwriteresult"
+      id="toc-interface-itemwriteresult">Interface: ItemWriteResult</a>
       <ul>
       <li><a href="#properties" id="toc-properties">Properties</a>
       <ul>

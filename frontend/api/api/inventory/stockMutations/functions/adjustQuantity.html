@@ -123,7 +123,7 @@ api/inventory/stockMutations/functions/adjustQuantity · Smart Supply Pro · API
         <blockquote>
         <p><strong>adjustQuantity</strong>(<code>req</code>):
         <code>Promise</code>&lt;<a
-        href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
+        href="../../types/interfaces/ItemWriteResult.html"><code>ItemWriteResult</code></a>&gt;</p>
         </blockquote>
         <p>Defined in: <a
         href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/stockMutations.ts#L40">api/inventory/stockMutations.ts:40</a></p>
@@ -144,9 +144,9 @@ api/inventory/stockMutations/functions/adjustQuantity · Smart Supply Pro · API
         reason</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
-        href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
-        <p>UpsertItemResponse: { ok: true } on success, otherwise
-        ok:false with error details</p>
+        href="../../types/interfaces/ItemWriteResult.html"><code>ItemWriteResult</code></a>&gt;</p>
+        <p>ItemWriteResult: { ok: true } on success, otherwise ok:false
+        with error details</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Mark items as sold (outbound)</span></span>
