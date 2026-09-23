@@ -81,7 +81,7 @@ Eleven GitHub Actions workflows make up the pipeline:
 | `3-deploy-ghpages.yml` | Publishes the docs-site artifact to the `gh-pages` branch, then deploys that branch to GitHub Pages ([ADR 0015](09-decisions/adr-0015-pages-deployed-from-the-publisher-job.md)) |
 | `5-frontend-ci.yml` | Audits the shipped dependency tree (gate), lints, runs Vitest, then builds and Trivy-scans the image before it reaches Docker Hub; calls the Playwright suite beside it and reports both through one `build-and-test` job |
 | `6-deploy-frontend.yml` | Deploys the scanned image to Koyeb by digest, then verifies the commit's build id reached the served bundle before trusting the platform's status |
-| `8-release.yml` | On a `v*.*.*` tag push, verifies both tiers report that version, then publishes the GitHub Release with notes generated from the merged pull requests since the previous tag |
+| `release.yml` | Unnumbered, because no numbered workflow triggers it: on a `v*.*.*` tag push, verifies both tiers report that version, then publishes the GitHub Release with notes generated from the merged pull requests since the previous tag |
 | `yaml-lint.yml` | Pull request check on YAML changes: parses every tracked YAML file outside `docs/backend/api` (duplicate keys included) and rejects trailing whitespace and a missing final newline; it reports as `yaml-lint`, not `build-and-test`, so it does not gate the merge |
 
 The backend chain is strictly sequential: the image is built only after the test

@@ -5,6 +5,10 @@
 # workflow only records it. Nothing here builds, tests or deploys: by the time a
 # tag exists, main has already been built, tested and released to both hosts.
 #
+# Unnumbered: the numbered files are the chain that runs on a push to main, in
+# execution order, and nothing in that chain triggers this one. A tag does
+# (ADR-0016 applied the same rule to the browser suite).
+#
 # The version check is the point of the job. Both tiers declare a version that
 # ships to users - the backend at /actuator/info, the frontend in its bundle -
 # and a tag that disagrees with either of them would publish a release naming a
@@ -16,7 +20,7 @@
 # without labels would produce empty sections. The titles are Conventional
 # Commits and read as a changelog on their own.
 # =============================================================================
-name: 8 Release
+name: Release
 
 on:
   push:
