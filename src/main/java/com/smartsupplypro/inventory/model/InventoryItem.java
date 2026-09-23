@@ -40,6 +40,16 @@ import lombok.ToString;
 @AllArgsConstructor
 public class InventoryItem {
 
+    /**
+     * Minimum quantity applied when an item is stored without one.
+     *
+     * <p>Declared here because both guards that apply it must use the same
+     * number: {@link #onCreate()} below, and
+     * {@code InventoryItemValidationHelper.populateServerFields}, which sets it
+     * before the entity is saved so callers see it without a flush.</p>
+     */
+    public static final int DEFAULT_MINIMUM_QUANTITY = 10;
+
     @Id
     @Column(name = "ID", nullable = false, length = 36)
     private String id;
@@ -97,7 +107,7 @@ public class InventoryItem {
             this.createdBy = "system";
         }
         if (this.minimumQuantity <= 0) {
-            this.minimumQuantity = 10;
+            this.minimumQuantity = DEFAULT_MINIMUM_QUANTITY;
         }
         // denormalized supplierId must match the supplier relationship when only the entity is set
         boolean supplierIdMissing = (this.supplierId == null || this.supplierId.isBlank());

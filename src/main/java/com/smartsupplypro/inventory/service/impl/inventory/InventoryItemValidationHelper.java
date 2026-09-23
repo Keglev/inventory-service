@@ -65,7 +65,7 @@ public class InventoryItemValidationHelper {
             entity.setCreatedAt(LocalDateTime.now());
         }
         if (entity.getMinimumQuantity() <= 0) {
-            entity.setMinimumQuantity(10);
+            entity.setMinimumQuantity(InventoryItem.DEFAULT_MINIMUM_QUANTITY);
         }
     }
 
