@@ -16,7 +16,8 @@
 # updates are reviewed together or not at all.
 #
 # No labels: generated release notes group by pull request label, this
-# repository does not label pull requests, and 8-release depends on that.
+# repository does not label pull requests, and the release workflow depends on
+# that.
 # =============================================================================
 version: 2
 
