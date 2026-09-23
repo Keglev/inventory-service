@@ -88,7 +88,6 @@ function createMockState(overrides: Partial<UseItemFormReturn> = {}): UseItemFor
      */
     watch: ((() => undefined) as unknown) as UseItemFormReturn['watch'],
 
-    handleSubmit: vi.fn(),
     onSubmit: vi.fn(),
     handleClose: vi.fn(),
   };

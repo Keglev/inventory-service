@@ -37,7 +37,7 @@
  */
 
 import * as React from 'react';
-import { useForm, type Control, type UseFormStateReturn, type UseFormSetValue, type UseFormRegister, type UseFormSetError, type UseFormClearErrors, type UseFormWatch, type UseFormHandleSubmit } from 'react-hook-form';
+import { useForm, type Control, type UseFormStateReturn, type UseFormSetValue, type UseFormRegister, type UseFormSetError, type UseFormClearErrors, type UseFormWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast/ToastContext';
@@ -85,7 +85,6 @@ export interface UseItemFormReturn {
   setError: UseFormSetError<UpsertItemForm>;
   clearErrors: UseFormClearErrors<UpsertItemForm>;
   watch: UseFormWatch<UpsertItemForm>;
-  handleSubmit: UseFormHandleSubmit<UpsertItemForm>;
 
   // Handlers
   onSubmit: () => Promise<void>;
@@ -234,7 +233,6 @@ export function useItemForm({
     setError,
     clearErrors,
     watch,
-    handleSubmit: rhfHandleSubmit,
     onSubmit,
     handleClose,
   };

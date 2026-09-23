@@ -4,7 +4,7 @@
  * @description Contract tests for ItemFormDialog:
  * - Renders the create title and action labels.
  * - Wires dialog props into useItemForm and passes state into ItemForm.
- * - Submits via RHF handleSubmit(state.onSubmit) when primary action is clicked.
+ * - Calls state.onSubmit once when the primary action is clicked.
  * - Calls state.handleClose on cancel.
  * - Shows progress and disables actions while submitting.
  * - Opens the create-item help topic via HelpIconButton.
@@ -90,12 +90,6 @@ function createState(overrides: Partial<UseItemFormReturn> = {}): UseItemFormRet
     // watch() is an overloaded callable type; provide a callable stub.
     watch: ((() => undefined) as unknown) as UseItemFormReturn['watch'],
 
-    // Dialog calls: handleSubmit(onSubmit)() on primary action
-    handleSubmit: vi.fn((fn: unknown) => {
-      // Return the actual submit handler that the dialog button should execute.
-      return vi.fn(() => fn);
-    }) as unknown as UseItemFormReturn['handleSubmit'],
-
     onSubmit: vi.fn(),
     handleClose: vi.fn(),
   };
@@ -108,16 +102,10 @@ beforeEach(() => {
 });
 
 describe('ItemFormDialog', () => {
-  it('renders the create title and submits via handleSubmit(state.onSubmit)', async () => {
+  it('renders the create title and calls state.onSubmit once', async () => {
     const user = userEvent.setup();
 
-    const submitHandler = vi.fn();
-    const handleSubmitSpy = vi.fn(() => submitHandler);
-
-    const state = createState({
-      handleSubmit: handleSubmitSpy as unknown as UseItemFormReturn['handleSubmit'],
-      onSubmit: vi.fn(),
-    });
+    const state = createState({ onSubmit: vi.fn() });
 
     useItemFormMock.mockReturnValue(state);
 
@@ -132,9 +120,8 @@ describe('ItemFormDialog', () => {
 
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
-    // Dialog wires submit correctly: handleSubmit(state.onSubmit)()
-    expect(handleSubmitSpy).toHaveBeenCalledWith(state.onSubmit);
-    expect(submitHandler).toHaveBeenCalledTimes(1);
+    // The hook already wraps onSubmit with handleSubmit: the dialog must not wrap it again.
+    expect(state.onSubmit).toHaveBeenCalledTimes(1);
 
     // Dialog passes hook state down to the form
     expect(itemFormPropsSpy).toHaveBeenCalledWith(
