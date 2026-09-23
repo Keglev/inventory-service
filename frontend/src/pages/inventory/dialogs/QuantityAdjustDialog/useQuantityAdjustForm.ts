@@ -12,7 +12,7 @@
  *   DeleteItemDialog. Sub-hooks are independently exported.
  * - Submission pipeline:
  *     newQuantity - actualCurrentQuantity = delta
- *     adjustQuantity({ id, delta, reason }) -> UpsertItemResponse
+ *     adjustQuantity({ id, delta, reason }) -> ItemWriteResult
  *   Failures are mapped by backend errorToken: forbidden -> notAllowed,
  *   not_found -> itemNotFound, unprocessable_entity (stale delta pushed
  *   stock negative) -> stockCannotGoNegative, else generic.

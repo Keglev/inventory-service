@@ -28,14 +28,14 @@
  */
 import type { UseFormSetError } from 'react-hook-form';
 import type { TFunction } from 'i18next';
-import type { UpsertItemForm } from '../../validation/inventoryValidation';
+import type { CreateItemForm } from '../../validation/inventoryValidation';
 import type { FieldErrorKey } from '../../../../utils/fieldErrorText';
 
 /**
  * Backend field name to form field name. The backend calls the item code
  * 'sku'; the form (and grid) call it 'code'.
  */
-const SERVER_TO_FORM_FIELD: Record<string, keyof UpsertItemForm> = {
+const SERVER_TO_FORM_FIELD: Record<string, keyof CreateItemForm> = {
   sku: 'code',
   name: 'name',
   quantity: 'quantity',
@@ -59,7 +59,7 @@ function fieldErrorKey(errorToken: string | null | undefined, serverField: strin
 }
 
 export type ItemFormServerErrorDeps = {
-  setError: UseFormSetError<UpsertItemForm>;
+  setError: UseFormSetError<CreateItemForm>;
   setFormError: (message: string) => void;
   t: TFunction<['common', 'inventory', 'errors']>;
 };

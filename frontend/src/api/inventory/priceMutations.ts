@@ -7,7 +7,7 @@
  */
 
 import http from '../httpClient';
-import type { ChangePriceRequest, UpsertItemResponse } from './types';
+import type { ChangePriceRequest, ItemWriteResult } from './types';
 import { INVENTORY_BASE } from '../shared/constants';
 import { errorMessage, extractApiError } from '../shared/errorHandling';
 
@@ -22,7 +22,7 @@ export { INVENTORY_BASE };
  * does not accept one.
  *
  * @param req - Price change payload with item id and new price
- * @returns UpsertItemResponse: { ok: true } on success, otherwise ok:false with error details
+ * @returns ItemWriteResult: { ok: true } on success, otherwise ok:false with error details
  *
  * @example
  * const result = await changePrice({ id: 'ITEM-123', price: 29.99 });
@@ -30,7 +30,7 @@ export { INVENTORY_BASE };
  *   // branch on result.errorToken
  * }
  */
-export async function changePrice(req: ChangePriceRequest): Promise<UpsertItemResponse> {
+export async function changePrice(req: ChangePriceRequest): Promise<ItemWriteResult> {
   try {
     await http.patch(
       `${INVENTORY_BASE}/${encodeURIComponent(req.id)}/price`,

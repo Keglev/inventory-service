@@ -42,7 +42,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast/ToastContext';
 import { createItem } from '../../../../api/inventory/itemMutations';
-import { itemFormSchema, type UpsertItemForm } from '../../validation/inventoryValidation';
+import { itemFormSchema, type CreateItemForm } from '../../validation/inventoryValidation';
 import { applyItemFormServerError } from './itemFormServerErrors';
 import type { CreateItemRequest } from '../../../../api/inventory/types';
 import type { SupplierOption } from '../../../../api/analytics/types';
@@ -52,7 +52,7 @@ import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQ
  * Default values for a new item. Single source for both the useForm
  * initializer and the reset-on-open effect, so the two cannot drift.
  */
-const ITEM_FORM_DEFAULTS: UpsertItemForm = {
+const ITEM_FORM_DEFAULTS: CreateItemForm = {
   name: '',
   code: '',
   supplierId: '',
@@ -78,13 +78,13 @@ export interface UseItemFormReturn {
   suppliers: SupplierOption[];
 
   // Form methods
-  register: UseFormRegister<UpsertItemForm>;
-  control: Control<UpsertItemForm>;
-  formState: UseFormStateReturn<UpsertItemForm>;
-  setValue: UseFormSetValue<UpsertItemForm>;
-  setError: UseFormSetError<UpsertItemForm>;
-  clearErrors: UseFormClearErrors<UpsertItemForm>;
-  watch: UseFormWatch<UpsertItemForm>;
+  register: UseFormRegister<CreateItemForm>;
+  control: Control<CreateItemForm>;
+  formState: UseFormStateReturn<CreateItemForm>;
+  setValue: UseFormSetValue<CreateItemForm>;
+  setError: UseFormSetError<CreateItemForm>;
+  clearErrors: UseFormClearErrors<CreateItemForm>;
+  watch: UseFormWatch<CreateItemForm>;
 
   // Handlers
   onSubmit: () => Promise<void>;
@@ -147,7 +147,7 @@ export function useItemForm({
     setError,
     clearErrors,
     watch,
-  } = useForm<UpsertItemForm>({
+  } = useForm<CreateItemForm>({
     resolver: zodResolver(itemFormSchema),
     defaultValues: ITEM_FORM_DEFAULTS,
   });
@@ -180,7 +180,7 @@ export function useItemForm({
    * - Maps field-level and generic errors from backend
    * - Triggers onSaved callback and closes on success
    */
-  const onSubmit = rhfHandleSubmit(async (values: UpsertItemForm) => {
+  const onSubmit = rhfHandleSubmit(async (values: CreateItemForm) => {
     setFormError(null);
     clearErrors();
 

@@ -9,7 +9,7 @@
  */
 
 import http from '../httpClient';
-import type { AdjustQuantityRequest, UpsertItemResponse } from './types';
+import type { AdjustQuantityRequest, ItemWriteResult } from './types';
 import { INVENTORY_BASE } from '../shared/constants';
 import { errorMessage, extractApiError } from '../shared/errorHandling';
 
@@ -26,7 +26,7 @@ export { INVENTORY_BASE };
  * DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER, RETURNED_BY_CUSTOMER.
  *
  * @param req - Adjustment payload with item id, delta, and business reason
- * @returns UpsertItemResponse: { ok: true } on success, otherwise ok:false with error details
+ * @returns ItemWriteResult: { ok: true } on success, otherwise ok:false with error details
  *
  * @example
  * ```typescript
@@ -37,7 +37,7 @@ export { INVENTORY_BASE };
  * }
  * ```
  */
-export async function adjustQuantity(req: AdjustQuantityRequest): Promise<UpsertItemResponse> {
+export async function adjustQuantity(req: AdjustQuantityRequest): Promise<ItemWriteResult> {
   try {
     await http.patch(
       `${INVENTORY_BASE}/${encodeURIComponent(req.id)}/quantity`,
