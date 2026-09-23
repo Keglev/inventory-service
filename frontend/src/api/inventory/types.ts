@@ -86,9 +86,11 @@ export interface CreateItemRequest {
 }
 
 /**
- * Upsert operation response with item data or error.
+ * Result of a write to an item: returned by createItem, renameItem,
+ * deleteItem, changePrice and adjustQuantity, carrying the saved row or the
+ * reason it failed.
  */
-export interface UpsertItemResponse {
+export interface ItemWriteResult {
   ok: boolean;
   item?: InventoryRow;
   error?: string;

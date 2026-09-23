@@ -23,8 +23,8 @@
  *   structured error shape, never on substrings of the freeform message.
  * - editItemSchema validates only itemId + newName; rename does not
  *   write a StockHistory row, so no reason field is needed. This is
- *   different from itemFormSchema (create/upsert, strict 2-value reason
- *   enum) and quantityAdjustSchema (loose reason string) -- the CB-E
+ *   different from itemFormSchema (create, which carries no reason at
+ *   all) and quantityAdjustSchema (loose reason string) -- the CB-E
  *   asymmetry does not surface in this file.
  *
  * Size note: over the 120-line hook alarm. WAIVED per the single-hook rationale

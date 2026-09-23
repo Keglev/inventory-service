@@ -45,7 +45,7 @@ export const itemFormSchema = z.object({
   price: z.number().positive('errors:validation.positive'),
 });
 
-export type UpsertItemForm = z.infer<typeof itemFormSchema>;
+export type CreateItemForm = z.infer<typeof itemFormSchema>;
 
 /**
  * Adjust-reason sets, split by the direction of the quantity change.

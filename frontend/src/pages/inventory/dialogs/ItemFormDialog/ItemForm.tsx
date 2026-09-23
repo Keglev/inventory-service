@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next';
 
 import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import type { SupplierOption } from '../../../../api/analytics/types';
-import type { UpsertItemForm } from '../../validation/inventoryValidation';
+import type { CreateItemForm } from '../../validation/inventoryValidation';
 import type { UseItemFormReturn } from './useItemForm';
 
 /**
@@ -58,8 +58,8 @@ export function ItemForm({ state }: { state: UseItemFormReturn }) {
         onChange={(_, opt) => {
           state.setSupplierValue(opt);
           // Update RHF with supplier ID
-          const nextSupplierId: UpsertItemForm['supplierId'] =
-            opt ? (opt.id as UpsertItemForm['supplierId']) : ('' as UpsertItemForm['supplierId']);
+          const nextSupplierId: CreateItemForm['supplierId'] =
+            opt ? (opt.id as CreateItemForm['supplierId']) : ('' as CreateItemForm['supplierId']);
           state.setValue('supplierId', nextSupplierId, { shouldValidate: true });
         }}
         getOptionLabel={(o) => o.label}

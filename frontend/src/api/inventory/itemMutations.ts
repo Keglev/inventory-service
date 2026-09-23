@@ -9,7 +9,7 @@
 
 import http from '../httpClient';
 import { normalizeInventoryRow } from './normalizers';
-import type { CreateItemRequest, UpsertItemResponse } from './types';
+import type { CreateItemRequest, ItemWriteResult } from './types';
 import { errorMessage, extractApiError } from '../shared/errorHandling';
 import { INVENTORY_BASE } from '../shared/constants';
 
@@ -34,7 +34,7 @@ export { INVENTORY_BASE };
  * });
  * ```
  */
-export async function createItem(req: CreateItemRequest): Promise<UpsertItemResponse> {
+export async function createItem(req: CreateItemRequest): Promise<ItemWriteResult> {
   try {
     const res = await http.post(`${INVENTORY_BASE}`, req);
     const row = normalizeInventoryRow(res?.data as unknown);
@@ -67,7 +67,7 @@ export async function createItem(req: CreateItemRequest): Promise<UpsertItemResp
  * });
  * ```
  */
-export async function renameItem(req: { id: string; newName: string }): Promise<UpsertItemResponse> {
+export async function renameItem(req: { id: string; newName: string }): Promise<ItemWriteResult> {
   try {
     const res = await http.patch(
       `${INVENTORY_BASE}/${encodeURIComponent(req.id)}/name`,
@@ -98,7 +98,7 @@ export async function renameItem(req: { id: string; newName: string }): Promise<
  * }
  * ```
  */
-export async function deleteItem(id: string): Promise<UpsertItemResponse> {
+export async function deleteItem(id: string): Promise<ItemWriteResult> {
   try {
     await http.delete(`${INVENTORY_BASE}/${encodeURIComponent(id)}`);
     return { ok: true };
