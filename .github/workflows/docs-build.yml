@@ -27,8 +27,10 @@ on:
       - '.github/workflows/docs-build.yml'
       - 'lychee.toml'
 
+# Read only: this workflow builds and uploads an artifact and pushes nothing;
+# docs-deploy.yml is the one that writes to gh-pages.
 permissions:
-  contents: write
+  contents: read
   actions: read
 
 # Cancel in-progress builds when a newer commit arrives
@@ -44,10 +46,15 @@ concurrency:
 
 jobs:
   build-docs:
+    # Only a push to this repository's main may start this job. The branches
+    # filter above matches the triggering run's branch NAME, and a fork's pull
+    # request can name its branch "main" and make its own CI pass; the event and
+    # the head repository cannot be set from a fork.
     if: >
       (github.event_name == 'workflow_run'
         && github.event.workflow_run.conclusion == 'success'
-        && github.event.workflow_run.head_branch == 'main')
+        && github.event.workflow_run.event == 'push'
+        && github.event.workflow_run.head_repository.full_name == github.repository)
       || github.event_name == 'push'
     # Pinned to the image, not to a moving label. This job installs pandoc from the
     # Ubuntu archive, and 24.04 publishes exactly one pandoc: 3.1.3+ds-2. When
