@@ -2,8 +2,8 @@
 
 **Enterprise Inventory Management — Java 21 / Spring Boot 4.1 backend, React 19 / TypeScript frontend**
 
-![CI Backend](https://github.com/Keglev/inventory-service/actions/workflows/1-ci-test.yml/badge.svg)
-![CI Frontend](https://github.com/Keglev/inventory-service/actions/workflows/5-frontend-ci.yml/badge.svg)
+![CI Backend](https://github.com/Keglev/inventory-service/actions/workflows/backend-ci.yml/badge.svg)
+![CI Frontend](https://github.com/Keglev/inventory-service/actions/workflows/frontend-ci.yml/badge.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
 Manual inventory tracking in small manufacturing companies leads to stock discrepancies, blind spots in purchasing, and slow decisions. SmartSupplyPro replaces that with a full-stack system for inventory, supplier, and stock-history management — built from real purchasing and production-planning experience, to enterprise standards: OAuth2 authentication, versioned database migrations, a documented REST API, bilingual UI (EN/DE), and a CI/CD pipeline with published test coverage.
@@ -85,7 +85,7 @@ Provisioning design and the structured error contract are covered under [Technic
 - Vitest, React Testing Library, TypeDoc
 
 **DevOps & Infrastructure**
-- GitHub Actions (numbered workflow pipeline: CI test, Docker build with Trivy scan, docs, deploy)
+- GitHub Actions (backend, frontend and docs chains: CI test, Docker build with Trivy scan, docs, deploy)
 - Docker multi-stage builds
 - Hetzner Cloud via Docker Compose and Caddy (backend), Koyeb (frontend), GitHub Pages (docs + coverage)
 
@@ -142,7 +142,7 @@ Controls make this verifiable rather than a claim. Every claim in a specificatio
 
 ## CI/CD & Deployment
 
-Each push to `main` runs the numbered GitHub Actions pipeline: build and test both stacks, generate and publish coverage, build the backend Docker image with a Trivy security scan, and deploy.
+Each push to `main` runs the GitHub Actions pipeline: build and test both stacks, generate and publish coverage, build the backend Docker image with a Trivy security scan, and deploy.
 
 - **Frontend:** fully automated — push to `main` builds and deploys to Koyeb with health checks.
 - **Backend:** released automatically after the image build and CVE scan pass on `main`. The workflow copies the compose file to the Hetzner host over SSH, validates it, pulls the SHA-tagged image from GHCR, restarts only the backend service and runs the health and smoke checks against the public hostname. Oracle's Always Free tier whitelists the host's static IPv4, so the release path never touches the database allow-list.

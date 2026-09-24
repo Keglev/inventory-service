@@ -2,10 +2,10 @@
 # =============================================================================
 # Writes the frontend CI job summary: which coverage artifact this run produced
 # and what happened to the image. A pull request builds and scans the image
-# without publishing it; a push publishes it and 6-deploy-frontend.yml takes it
+# without publishing it; a push publishes it and frontend-deploy.yml takes it
 # from there.
 #
-# Extracted from 5-frontend-ci.yml when the file reached its size alarm.
+# Extracted from frontend-ci.yml when the file reached its size alarm.
 # Inputs: HEAD_SHA (set by the caller), GITHUB_EVENT_NAME, IMAGE_NAME.
 # =============================================================================
 set -euo pipefail
@@ -17,6 +17,6 @@ set -euo pipefail
     echo "- **Image:** built and scanned, not published"
   else
     echo "- **Image:** \`${IMAGE_NAME}:${GITHUB_SHA}\`"
-    echo "- **Next:** \`6-deploy-frontend.yml\` deploys this image to Koyeb"
+    echo "- **Next:** \`frontend-deploy.yml\` deploys this image to Koyeb"
   fi
 } >> "$GITHUB_STEP_SUMMARY"

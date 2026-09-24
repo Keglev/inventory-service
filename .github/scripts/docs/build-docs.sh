@@ -28,7 +28,7 @@ SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LUA_FILTER="$SCRIPTS_DIR/md-to-html-links.lua"
 
 # Which generators run. Unset means run, so a caller that knows nothing about
-# these — docs-pr-check.yml — still builds the whole site. docs-pipeline.yml sets
+# these — docs-pr-check.yml — still builds the whole site. docs-build.yml sets
 # them from its change gate. The theme assets and the landing pages are not
 # selectable: they are four files, version_assets hashes the built assets to
 # stamp whichever pages this run did produce, and every page needs that token.

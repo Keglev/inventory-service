@@ -2,7 +2,7 @@
 # =============================================================================
 # decide-rebuild-scope.sh — Docs rebuild scope gate
 # Usage: bash .github/scripts/docs/decide-rebuild-scope.sh
-#        Invoked by .github/workflows/docs-pipeline.yml as the step with
+#        Invoked by .github/workflows/docs-build.yml as the step with
 #        id `gate`, from the repository root.
 #
 # Produces seven booleans on $GITHUB_OUTPUT (full, typedoc, redoc, arch_backend,
@@ -28,7 +28,7 @@ changed="$(git diff --name-only HEAD^ HEAD)"
 echo "$changed"
 
 full=false
-if echo "$changed" | grep -qE '^(docs/_theme/|\.github/scripts/docs/|\.github/workflows/docs-pipeline\.yml$)'; then
+if echo "$changed" | grep -qE '^(docs/_theme/|\.github/scripts/docs/|\.github/workflows/docs-build\.yml$)'; then
   full=true
 fi
 

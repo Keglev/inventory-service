@@ -1,5 +1,5 @@
 # Production compose for the SmartSupplyPro backend on the shared Hetzner host.
-# Source of truth is this file; 4-deploy-backend.yml copies it to
+# Source of truth is this file; backend-deploy.yml copies it to
 # /opt/smartsupplypro on every release. Secrets live in /opt/smartsupplypro/.env.prod
 # on the host only (variable list in docker/README.md).
 #

@@ -226,9 +226,9 @@ The backend is released to the shared **Hetzner** host via a fully automated Git
 
 ```
 Source push
-  → 1-ci-test.yml         Maven build, JUnit tests, JaCoCo coverage
-  → 2-docker-backend.yml  Docker image build, Trivy CVE scan, push to GHCR
-  → 4-deploy-backend.yml  Release the scanned image to the Hetzner host, health check
+  → backend-ci.yml      Maven build, JUnit tests, JaCoCo coverage
+  → backend-docker.yml  Docker image build, Trivy CVE scan, push to GHCR
+  → backend-deploy.yml  Release the scanned image to the Hetzner host, health check
 ```
 
 The Docker image contains only the production JAR and `start.sh`; no test sources

@@ -11,9 +11,9 @@
 # of high severity or above fails the job. Pull requests build and scan too and
 # stop there; only a push to main publishes to Docker Hub, tagged by commit
 # SHA, and only once the scan has passed.
-# On success, triggers: 6-deploy-frontend.yml (Koyeb deployment).
+# On success, triggers: frontend-deploy.yml (Koyeb deployment).
 # =============================================================================
-name: 5 Frontend CI - Build & Test
+name: Frontend CI - Build & Test
 
 on:
   push:
@@ -21,20 +21,20 @@ on:
     paths:
       - 'frontend/**'
       - 'ops/nginx/**'
-      - '.github/workflows/5-frontend-ci.yml'
+      - '.github/workflows/frontend-ci.yml'
       - '.github/scripts/verify-image-contract.sh'
   pull_request:
     branches: [ "main" ]
     paths:
       - 'frontend/**'
       - 'ops/nginx/**'
-      - '.github/workflows/5-frontend-ci.yml'
+      - '.github/workflows/frontend-ci.yml'
       - '.github/scripts/verify-image-contract.sh'
   workflow_dispatch:
 
 # Read scope only. This workflow publishes to Docker Hub, authenticated with
 # DOCKER_PASSWORD, and never to the GitHub container registry, so GITHUB_TOKEN
-# needs no write access to the GitHub package namespace. 2-docker-backend is
+# needs no write access to the GitHub package namespace. backend-docker is
 # the workflow that does publish there, and it asks for that scope at job
 # level rather than for the whole file.
 permissions:
@@ -78,7 +78,7 @@ jobs:
       # First step after checkout so a Dockerfile finding fails in seconds
       # instead of after the install, the audit, the lint and the test suite.
       # Pinned by version tag rather than digest, for the reason given in
-      # 1-ci-test.yml where the backend Dockerfile is linted.
+      # backend-ci.yml where the backend Dockerfile is linted.
       - name: Lint the Dockerfile (hadolint)
         run: docker run --rm -i hadolint/hadolint:v2.15.1-alpine < frontend/Dockerfile
 
@@ -172,7 +172,7 @@ jobs:
       # Until 2026-09-14 this step published all three tags and Trivy ran
       # afterwards, so a rejected image was already on a public registry by the
       # time the gate fired, `latest` among the tags that had moved to it. The
-      # deploy was blocked either way, because 6-deploy-frontend runs only on
+      # deploy was blocked either way, because frontend-deploy runs only on
       # this job's success; the registry was not.
       #
       # provenance is written down rather than left at its default. Attestations
@@ -242,7 +242,7 @@ jobs:
       #   PASSES when the image carries no CVE of high severity or above that
       #     has a published fix.
       #   FAILS the job before the publishing step below runs, so the image
-      #     never leaves the runner, and stops 6-deploy-frontend with it: that
+      #     never leaves the runner, and stops frontend-deploy with it: that
       #     workflow runs only when this one concludes success. On a pull
       #     request there is nothing to publish and nothing to deploy, so the
       #     same failure lands on the required build-and-test check instead. A
@@ -252,7 +252,7 @@ jobs:
       #     the gate actionable; an unfixable finding would block every merge
       #     until upstream moved, which is how a gate gets switched off.
       #
-      # Pinned by commit SHA for the reason recorded in 2-docker-backend.yml:
+      # Pinned by commit SHA for the reason recorded in backend-docker.yml:
       # in March 2026 every version tag of this action was force-pushed to
       # credential-stealing code. The scanner version is set explicitly rather
       # than inherited, because the action's own default trails its releases.
@@ -275,7 +275,7 @@ jobs:
           # database anyway in 3.3 s, and wrote 964 MB back under a new daily
           # key: 25 s spent to avoid 3 s, and a gigabyte a day against a cache
           # budget this repository has already had to defend once (see the note
-          # above the JDK step in 1-ci-test.yml).
+          # above the JDK step in backend-ci.yml).
           #
           # Most of that gigabyte is the Java database, which this scan never
           # opens: the image is Nginx and static assets, and the same run logged
@@ -293,7 +293,7 @@ jobs:
       # that passed the scan above rather than one that was merely built.
       #
       # A daemon push publishes a single-platform manifest where the previous
-      # arrangement published an OCI index. 6-deploy-frontend deploys whatever
+      # arrangement published an OCI index. frontend-deploy deploys whatever
       # digest the tag resolves to and resolve-image-digest.sh asks for both
       # media types, so the handoff is unchanged; the digest itself is a
       # different one from what the same image would have carried before.

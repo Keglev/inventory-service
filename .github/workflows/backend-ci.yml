@@ -2,11 +2,11 @@
 # Smart Supply Pro – Backend Build & Test
 #
 # Compiles, tests, and generates JaCoCo coverage for the backend service.
-# On success, triggers: 2-docker-backend.yml (image build and scan).
+# On success, triggers: backend-docker.yml (image build and scan).
 #
 # This is the repository's merge gate. Its aggregator job is named
 # build-and-test, the status check branch protection requires on main. Three
-# workflows declare a job by that name: this one, 5-frontend-ci.yml and
+# workflows declare a job by that name: this one, frontend-ci.yml and
 # docs-pr-check.yml, and no path belongs to two of them (ADR-0016). A pull
 # request confined to one family is reported by exactly one workflow; one that
 # spans families is still reported by each family's claimant, and then passes
@@ -18,7 +18,7 @@
 # triggers on itself, and its own file is ignored below, so a pull request
 # editing the docs gate is reported by that workflow alone.
 # =============================================================================
-name: 1 Backend CI - Build & Test
+name: Backend CI - Build & Test
 
 on:
   push:
@@ -26,10 +26,10 @@ on:
     paths-ignore:
       - 'frontend/**'
       - 'ops/nginx/**'
-      - '.github/workflows/5-frontend-ci.yml'
+      - '.github/workflows/frontend-ci.yml'
       - 'docs/**'
       - '.github/scripts/docs/**'
-      - '.github/workflows/docs-pipeline.yml'
+      - '.github/workflows/docs-build.yml'
       - 'lychee.toml'
       - '.github/workflows/docs-pr-check.yml'
   pull_request:
@@ -37,10 +37,10 @@ on:
     paths-ignore:
       - 'frontend/**'
       - 'ops/nginx/**'
-      - '.github/workflows/5-frontend-ci.yml'
+      - '.github/workflows/frontend-ci.yml'
       - 'docs/**'
       - '.github/scripts/docs/**'
-      - '.github/workflows/docs-pipeline.yml'
+      - '.github/workflows/docs-build.yml'
       - 'lychee.toml'
       - '.github/workflows/docs-pr-check.yml'
   workflow_dispatch:
@@ -76,7 +76,7 @@ jobs:
 
       # Lints the Dockerfile before the test suite, because a finding here is
       # about the file in this pull request and needs no build to appear. It
-      # runs here rather than in 2-docker-backend, which has no pull_request
+      # runs here rather than in backend-docker, which has no pull_request
       # trigger: a lint that could only fail after the merge would stop a
       # release instead of stopping a merge.
       #
@@ -197,7 +197,7 @@ jobs:
         run: |
           echo "## Backend Build & Test" >> $GITHUB_STEP_SUMMARY
           echo "- **Coverage artifact:** \`jacoco-html-${{ github.event.pull_request.head.sha || github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Next:** \`2-docker-backend.yml\` builds and scans the Docker image" >> $GITHUB_STEP_SUMMARY
+          echo "- **Next:** \`backend-docker.yml\` builds and scans the Docker image" >> $GITHUB_STEP_SUMMARY
 
   # The suite runs beside the backend job, not after it: it builds its own jar
   # and its own bundle. Skipped when the gate inside it finds nothing to see.

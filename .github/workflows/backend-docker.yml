@@ -1,20 +1,20 @@
 # =============================================================================
 # Smart Supply Pro – Backend Docker Build & Security Scan
 #
-# Triggered after 1-ci-test.yml succeeds on main. Builds the production image,
+# Triggered after backend-ci.yml succeeds on main. Builds the production image,
 # scans it for CVEs, and pushes it to GHCR under the repository's own package.
-# On success, triggers: 4-deploy-backend.yml (release to the Hetzner host).
+# On success, triggers: backend-deploy.yml (release to the Hetzner host).
 #
 # No push trigger on purpose: start.sh, the Dockerfile and this file all fall
-# through to 1-ci-test.yml, so the workflow_run chain covers them. A direct
+# through to backend-ci.yml, so the workflow_run chain covers them. A direct
 # push trigger would build and deploy in parallel with the tests it is
 # supposed to wait for.
 # =============================================================================
-name: 2 Backend Docker - Build & Scan
+name: Backend Docker - Build & Scan
 
 on:
   workflow_run:
-    workflows: ["1 Backend CI - Build & Test"]
+    workflows: ["Backend CI - Build & Test"]
     types: [completed]
     branches: [ "main" ]
   workflow_dispatch:
@@ -46,7 +46,7 @@ jobs:
       # A catch-all merge (README, LICENSE, workflow tweaks) still runs backend
       # CI, but rebuilding and restarting a healthy backend for it serves
       # nothing. Compare the released commit against its first parent and stop
-      # here when no path the image depends on has changed. 4-deploy-backend
+      # here when no path the image depends on has changed. backend-deploy
       # chains on this workflow's success, so skipping the build skips the
       # release too; a skipped run is reported as success with no image.
       - name: Checkout for change detection
@@ -63,7 +63,7 @@ jobs:
           fi
           changed=$(git diff --name-only HEAD^ HEAD)
           echo "$changed"
-          if echo "$changed" | grep -qE '^(src/|pom\.xml|Dockerfile|scripts/|docker/docker-compose\.prod\.yml|\.github/workflows/(2-docker-backend|4-deploy-backend)\.yml)'; then
+          if echo "$changed" | grep -qE '^(src/|pom\.xml|Dockerfile|scripts/|docker/docker-compose\.prod\.yml|\.github/workflows/(backend-docker|backend-deploy)\.yml)'; then
             echo "build=true" >> "$GITHUB_OUTPUT"
           else
             echo "build=false" >> "$GITHUB_OUTPUT"
@@ -123,12 +123,12 @@ jobs:
             ls /app/docs    2>&1 || echo "OK: no docs directory"
           '
 
-      # Blocks 4-deploy-backend.yml if HIGH or CRITICAL CVEs are found in the
+      # Blocks backend-deploy.yml if HIGH or CRITICAL CVEs are found in the
       # image, and now does so before that image is published. Until 2026-09-15
       # the push ran here, between the inspection above and this scan, so a
       # rejected image was already on GHCR under both tags, :latest included, by
       # the time the gate fired. The release was blocked either way, because
-      # 4-deploy-backend chains on this workflow's success; the registry was
+      # backend-deploy chains on this workflow's success; the registry was
       # not. The frontend image was reordered for the same reason in #124.
       #
       # Pinned by commit SHA, not by tag. In March 2026 an attacker force-pushed
@@ -169,4 +169,4 @@ jobs:
         run: |
           echo "## Backend Docker Build & Scan" >> $GITHUB_STEP_SUMMARY
           echo "- **Image:** \`$IMAGE_REPO:${IMAGE_TAG_SHA}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Next:** \`4-deploy-backend.yml\` releases this image to the Hetzner host" >> $GITHUB_STEP_SUMMARY
+          echo "- **Next:** \`backend-deploy.yml\` releases this image to the Hetzner host" >> $GITHUB_STEP_SUMMARY

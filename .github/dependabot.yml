@@ -7,7 +7,7 @@
 # trailing version comment, which is the reason the comments are there.
 #
 # Scope is github-actions only, deliberately. The npm and Maven trees have
-# their own gates - the frontend audit in 5-frontend-ci and Trivy on both
+# their own gates - the frontend audit in frontend-ci and Trivy on both
 # images - and adding those ecosystems here would trade a real signal for a
 # stream of pull requests.
 #
