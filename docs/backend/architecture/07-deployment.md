@@ -68,21 +68,23 @@ graph TB
 
 ## CI/CD Pipeline
 
-Eleven GitHub Actions workflows make up the pipeline:
+Eleven GitHub Actions workflows make up the pipeline. They are grouped by the
+chain they belong to and listed in execution order within it; the shared ones
+serve more than one chain or none ([ADR 0017](09-decisions/adr-0017-workflows-named-by-chain.md)).
 
-| Workflow | Purpose |
-|---|---|
-| `backend-ci.yml` | `mvn clean verify` — compile, unit + integration tests, JaCoCo coverage report; calls the Playwright suite beside it and reports both through one `build-and-test` job |
-| `e2e-playwright.yml` | Reusable: called as a job by `backend-ci.yml` and `frontend-ci.yml`, and skipped when the commit touches nothing the browser suite can see. Playwright against a local stack built from the commit (packaged jar on H2, `test,e2e` profile; frontend served via `vite preview`). A red suite fails the calling CI run, which blocks the merge and stops the deploy chain ([ADR 0016](09-decisions/adr-0016-one-claimant-and-the-e2e-inside-ci.md)) |
-| `backend-docker.yml` | `docker build` (prod profile), Trivy CVE scan (blocks on HIGH/CRITICAL), `docker push :SHA :latest` to GHCR |
-| `backend-deploy.yml` | Copies the compose file to the host over SSH, validates it, pulls the SHA-tagged image, restarts only the backend service, then runs the health and smoke checks against `api.smartsupplypro.de` |
-| `docs-build.yml` | Generates OpenAPI docs (Redocly), converts architecture markdown to HTML (Pandoc + Lua filter) and checks internal links |
-| `docs-pr-check.yml` | Pull request gate for documentation: builds the site and verifies internal links without publishing |
-| `docs-deploy.yml` | Publishes the docs-site artifact to the `gh-pages` branch, then deploys that branch to GitHub Pages ([ADR 0015](09-decisions/adr-0015-pages-deployed-from-the-publisher-job.md)) |
-| `frontend-ci.yml` | Audits the shipped dependency tree (gate), lints, runs Vitest, then builds and Trivy-scans the image before it reaches Docker Hub; calls the Playwright suite beside it and reports both through one `build-and-test` job |
-| `frontend-deploy.yml` | Deploys the scanned image to Koyeb by digest, then verifies the commit's build id reached the served bundle before trusting the platform's status |
-| `release.yml` | On a `v*.*.*` tag push, verifies both tiers report that version, then publishes the GitHub Release with notes generated from the merged pull requests since the previous tag |
-| `yaml-lint.yml` | Pull request check on YAML changes: parses every tracked YAML file outside `docs/backend/api` (duplicate keys included) and rejects trailing whitespace and a missing final newline; it reports as `yaml-lint`, not `build-and-test`, so it does not gate the merge |
+| Chain | Workflow | Purpose |
+|---|---|---|
+| Backend | `backend-ci.yml` | `mvn clean verify` — compile, unit + integration tests, JaCoCo coverage report; calls the Playwright suite beside it and reports both through one `build-and-test` job |
+| Backend | `backend-docker.yml` | `docker build` (prod profile), Trivy CVE scan (blocks on HIGH/CRITICAL), `docker push :SHA :latest` to GHCR |
+| Backend | `backend-deploy.yml` | Copies the compose file to the host over SSH, validates it, pulls the SHA-tagged image, restarts only the backend service, then runs the health and smoke checks against `api.smartsupplypro.de` |
+| Frontend | `frontend-ci.yml` | Audits the shipped dependency tree (gate), lints, runs Vitest, then builds and Trivy-scans the image before it reaches Docker Hub; calls the Playwright suite beside it and reports both through one `build-and-test` job |
+| Frontend | `frontend-deploy.yml` | Deploys the scanned image to Koyeb by digest, then verifies the commit's build id reached the served bundle before trusting the platform's status |
+| Docs | `docs-pr-check.yml` | Pull request gate for documentation: builds the site and verifies internal links without publishing |
+| Docs | `docs-build.yml` | Generates OpenAPI docs (Redocly), converts architecture markdown to HTML (Pandoc + Lua filter) and checks internal links |
+| Docs | `docs-deploy.yml` | Publishes the docs-site artifact to the `gh-pages` branch, then deploys that branch to GitHub Pages ([ADR 0015](09-decisions/adr-0015-pages-deployed-from-the-publisher-job.md)) |
+| Shared | `e2e-playwright.yml` | Reusable: called as a job by `backend-ci.yml` and `frontend-ci.yml`, and skipped when the commit touches nothing the browser suite can see. Playwright against a local stack built from the commit (packaged jar on H2, `test,e2e` profile; frontend served via `vite preview`). A red suite fails the calling CI run, which blocks the merge and stops the deploy chain ([ADR 0016](09-decisions/adr-0016-one-claimant-and-the-e2e-inside-ci.md)) |
+| Shared | `release.yml` | On a `v*.*.*` tag push, verifies both tiers report that version, then publishes the GitHub Release with notes generated from the merged pull requests since the previous tag |
+| Shared | `yaml-lint.yml` | Pull request check on YAML changes: parses every tracked YAML file outside `docs/backend/api` (duplicate keys included) and rejects trailing whitespace and a missing final newline; it reports as `yaml-lint`, not `build-and-test`, so it does not gate the merge |
 
 The backend chain is strictly sequential: the image is built only after the test
 suite passes, and the deploy runs only after the image has been scanned. There is
