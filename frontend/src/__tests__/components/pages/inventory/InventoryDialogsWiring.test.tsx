@@ -3,6 +3,7 @@
  * @module __tests__/components/pages/inventory/InventoryDialogsWiring
  * @description Contract tests for InventoryDialogs composition:
  * - Renders the expected dialog when its open-flag is set.
+ * - Passes isDemo to the create dialog as readOnly.
  * - Keeps tests stable by mocking dialog implementations and asserting via testids.
  *
  * Out of scope:
@@ -108,6 +109,14 @@ describe('InventoryDialogs', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (priceChangeDialogMock.mock.calls[0]?.[0] as any).onClose();
     expect(baseProps.setOpenPrice).toHaveBeenCalledWith(false);
+  });
+
+  it('passes isDemo to the create dialog as readOnly', () => {
+    renderDialogs({ openNew: true, isDemo: true });
+
+    expect(vi.mocked(ItemFormDialog).mock.lastCall?.[0]).toEqual(
+      expect.objectContaining({ readOnly: true }),
+    );
   });
 
   it('renders no dialogs when all are closed', () => {

@@ -30,6 +30,7 @@ ADRs do **not** document:
 - [ADR-0010: Verifying a frontend deploy against the bytes the browser receives](./adr-0010-verifying-frontend-deploys.md)
 - [ADR-0011: Gating the frontend image on the HTTP contract it serves](./adr-0011-gating-the-frontend-image-on-its-http-contract.md)
 - [ADR-0012: Low-stock severity scales with each item's minimum](./adr-0012-low-stock-severity-scales-with-the-minimum.md)
+- [ADR-0013: Demo mode walks every inventory dialog and blocks only the write](./adr-0013-demo-mode-blocks-only-the-write.md)
 
 ---
 

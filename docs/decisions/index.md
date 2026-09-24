@@ -60,3 +60,4 @@ Source: [Frontend architecture, section 9](../frontend/architecture/09-decisions
 | 0010 | [Verifying a frontend deploy against the bytes the browser receives](../frontend/architecture/09-decisions/adr-0010-verifying-frontend-deploys.md) |
 | 0011 | [Gating the frontend image on the HTTP contract it serves](../frontend/architecture/09-decisions/adr-0011-gating-the-frontend-image-on-its-http-contract.md) |
 | 0012 | [Low-stock severity scales with each item's minimum](../frontend/architecture/09-decisions/adr-0012-low-stock-severity-scales-with-the-minimum.md) |
+| 0013 | [Demo mode walks every inventory dialog and blocks only the write](../frontend/architecture/09-decisions/adr-0013-demo-mode-blocks-only-the-write.md) |

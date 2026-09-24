@@ -10,4 +10,7 @@ export interface ItemFormDialogProps {
 
   /** Optional callback after successful save */
   onSaved?: () => void;
+
+  /** Demo mode: the form stays usable, but submission sends nothing */
+  readOnly?: boolean;
 }

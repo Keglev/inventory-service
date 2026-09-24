@@ -4,6 +4,7 @@
  * @description Contract tests for ItemFormDialog:
  * - Renders the create title and action labels.
  * - Wires dialog props into useItemForm and passes state into ItemForm.
+ * - Forwards readOnly (demo mode) to useItemForm.
  * - Calls state.onSubmit once when the primary action is clicked.
  * - Calls state.handleClose on cancel.
  * - Shows progress and disables actions while submitting.
@@ -134,6 +135,16 @@ describe('ItemFormDialog', () => {
       onClose,
       onSaved,
     });
+  });
+
+  it('forwards readOnly to useItemForm when readOnly is set', () => {
+    useItemFormMock.mockReturnValue(createState());
+
+    render(<ItemFormDialog isOpen={true} onClose={vi.fn()} onSaved={vi.fn()} readOnly />);
+
+    expect(useItemFormMock).toHaveBeenCalledWith(
+      expect.objectContaining({ readOnly: true }),
+    );
   });
 
   it('calls state.handleClose when Cancel is clicked', async () => {
