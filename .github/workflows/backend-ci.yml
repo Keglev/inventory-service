@@ -153,15 +153,6 @@ jobs:
           cd "$BACKEND_DIR"
           mvn clean verify -Dspring.profiles.active=test -Dtestcontainers.enabled=false
 
-      # Non-blocking — useful for tracking Spring version drift between dependency updates.
-      # Not -q: dependency:list writes at INFO, which -q suppresses, so the grep
-      # matched nothing and this step printed nothing from the day it was added.
-      - name: Show Spring and Security versions
-        run: |
-          cd "$BACKEND_DIR"
-          mvn -ntp dependency:list -DincludeGroupIds=org.springframework,org.springframework.security | \
-            grep -E 'spring-core|spring-security-core' || true
-
       - name: Upload JaCoCo coverage artifact
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
