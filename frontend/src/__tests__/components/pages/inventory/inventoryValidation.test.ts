@@ -135,6 +135,28 @@ describe('inventoryValidation', () => {
         },
         'errors:validation.required',
       ],
+      [
+        'an emptied quantity input (NaN)',
+        {
+          name: 'Test Item',
+          code: 'TEST-INV',
+          supplierId: '123',
+          quantity: NaN,
+          price: 49.99,
+        },
+        'errors:validation.required',
+      ],
+      [
+        'an emptied price input (NaN)',
+        {
+          name: 'Test Item',
+          code: 'TEST-INV',
+          supplierId: '123',
+          quantity: 100,
+          price: NaN,
+        },
+        'errors:validation.required',
+      ],
     ])('rejects %s', (_, data, message) => {
       expectInvalidMessage(itemFormSchema, data, message);
     });

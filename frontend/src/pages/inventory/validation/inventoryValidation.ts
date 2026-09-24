@@ -20,8 +20,11 @@
  *   rejects a no-op change (new quantity equal to current). price-change,
  *   edit-name, and delete carry no reason field at all because the backend
  *   does not record one for those flows.
- * - z.coerce.number() is used so text-input strings from MUI TextField
- *   are accepted without explicit conversion at the caller.
+ * - Number fields reach a schema as numbers: the create form registers
+ *   them with valueAsNumber, and the adjust and price inputs convert in
+ *   their Controller, where an empty input becomes 0. An emptied create
+ *   input arrives as NaN, so the create schema gives its number fields
+ *   the required key; Zod's own message for NaN is English display text.
  * - Every message is an i18n KEY, never display text. A schema is pure data
  *   and must not depend on a translator; the key is resolved at the render
  *   boundary by utils/fieldErrorText, which is also where a server-attributed
@@ -41,8 +44,8 @@ export const itemFormSchema = z.object({
   supplierId: z
     .union([z.string(), z.number()])
     .refine((val) => val !== '' && val !== 0, 'errors:validation.required'),
-  quantity: z.number().min(1, 'errors:validation.positive'),
-  price: z.number().positive('errors:validation.positive'),
+  quantity: z.number({ error: 'errors:validation.required' }).min(1, 'errors:validation.positive'),
+  price: z.number({ error: 'errors:validation.required' }).positive('errors:validation.positive'),
 });
 
 export type CreateItemForm = z.infer<typeof itemFormSchema>;
