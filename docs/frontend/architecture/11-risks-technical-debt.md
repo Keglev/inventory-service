@@ -34,7 +34,7 @@ exceeds its layer's alarm.
 
 Seven functions sit above their band but below their alarm (`PriceChangeForm` 146,
 `EditItemForm` 133, `PriceTrendCard` 122, `MovementsSection` 112, `DateRangeFilter`
-110, `useEditItemForm` 90, `usePriceChangeForm` 87). These are accepted: the band
+110, `useEditItemForm` 90, `usePriceChangeForm` 81). These are accepted: the band
 is guidance, the alarm is the gate.
 
 One spec file sits above the service band and below its alarm
