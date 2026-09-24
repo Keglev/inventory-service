@@ -80,7 +80,7 @@ export default function StockPerSupplierDonut() {
                 </Pie>
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
-                  formatter={(value: number | string) =>
+                  formatter={(value) =>
                     typeof value === 'number'
                       ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
                       : value

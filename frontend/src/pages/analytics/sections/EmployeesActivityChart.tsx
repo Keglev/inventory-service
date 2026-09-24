@@ -76,10 +76,10 @@ export function EmployeesActivityChart({
   );
 
   const formatTooltipCount = React.useCallback(
-    (value: number | string) =>
+    (value: unknown) =>
       typeof value === 'number'
         ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.changes')}`
-        : String(value),
+        : String(value ?? ''),
     [userPreferences.numberFormat, t]
   );
 
