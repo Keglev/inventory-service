@@ -38,6 +38,7 @@ Source: [Backend architecture, section 9](../backend/architecture/09-decisions/i
 | 0014 | [Decision records stay in each tier's arc42 section 9](../backend/architecture/09-decisions/adr-0014-decisions-stay-in-arc42-section-9.md) |
 | 0015 | [GitHub Pages is deployed by the publisher job](../backend/architecture/09-decisions/adr-0015-pages-deployed-from-the-publisher-job.md) |
 | 0016 | [One claimant for the required check, and the browser suite inside CI](../backend/architecture/09-decisions/adr-0016-one-claimant-and-the-e2e-inside-ci.md) |
+| 0017 | [Workflow files are named by chain, not numbered](../backend/architecture/09-decisions/adr-0017-workflows-named-by-chain.md) |
 
 Backend ADR-0009 supersedes the wallet delivery and password model of backend
 ADR-0001; the auto-login mechanism ADR-0001 chose still stands.

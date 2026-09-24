@@ -7,7 +7,7 @@
 # `vite preview` on 5173, the origin the backend's default CORS list admits.
 # Nothing here touches Hetzner, Oracle, Koyeb or any secret.
 #
-# Reusable: 1-ci-test.yml and 5-frontend-ci.yml call it as a job, so the suite
+# Reusable: backend-ci.yml and frontend-ci.yml call it as a job, so the suite
 # runs inside the CI whose paths it covers and a red suite fails that CI run.
 # The deploy chains trigger on a successful CI run, which is what makes this a
 # release gate and not only a merge gate (ADR-0016). It carries no status check
@@ -25,7 +25,7 @@
 # Playwright browsers are cached under the resolved Playwright version. A cache
 # hit installs the OS font packages only and downloads no browser.
 # =============================================================================
-name: E2E - Playwright
+name: E2E - Playwright Browser Suite
 
 on:
   workflow_call:
@@ -37,7 +37,7 @@ permissions:
 env:
   H2_VERSION: 2.3.232
   BACKEND_URL: http://localhost:8081
-  # Same pin as 5-frontend-ci.yml. Without it this job took whatever npm the
+  # Same pin as frontend-ci.yml. Without it this job took whatever npm the
   # Node 24 image happened to ship, which is why the two jobs printed different
   # install warnings for the same lockfile on 2026-09-03.
   NPM_VERSION: '11.10.1'
@@ -62,7 +62,7 @@ jobs:
         id: decide
         run: bash .github/scripts/e2e-relevant.sh
 
-  e2e:
+  e2e-playwright:
     needs: gate
     if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-24.04
@@ -73,7 +73,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # check-latest deliberately left at its default of false: same commit,
-      # same JDK patch, every run. Full reasoning in 1-ci-test.yml. This job
+      # same JDK patch, every run. Full reasoning in backend-ci.yml. This job
       # packages a throwaway jar for the browser suite and ships nothing.
       - name: Set up JDK 21
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -82,7 +82,7 @@ jobs:
           java-version: '21'
           cache: maven
 
-      # Tests are the job of 1-ci-test; this job only needs a runnable jar
+      # Tests are the job of backend-ci; this job only needs a runnable jar
       - name: Package backend (no tests)
         run: mvn -q -B -Dmaven.test.skip=true package
 
@@ -125,7 +125,7 @@ jobs:
       # restores the previous version's directories, which Playwright ignores
       # and re-downloads, and both copies are then saved under the new key
       # against a cache budget this repository already watches (see the note
-      # above the JDK step in 1-ci-test.yml).
+      # above the JDK step in backend-ci.yml).
       - name: Resolve the Playwright version
         id: playwright
         working-directory: frontend

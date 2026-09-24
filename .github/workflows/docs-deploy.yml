@@ -1,18 +1,18 @@
 # =============================================================================
 # Smart Supply Pro - Deploy Docs to GitHub Pages
 #
-# Triggered after docs-pipeline.yml succeeds.
-# Consumes: docs-site artifact (built by docs-pipeline.yml).
+# Triggered after docs-build.yml succeeds.
+# Consumes: docs-site artifact (built by docs-build.yml).
 # Publishes static documentation to the gh-pages branch, then deploys that
 # branch to GitHub Pages from this job (Pages source: GitHub Actions).
 # =============================================================================
-name: 3 Deploy Docs to GitHub Pages
+name: Docs Deploy - GitHub Pages
 
 on:
   workflow_run:
-    workflows: ["Docs Pipeline - OpenAPI & Architecture"]
+    workflows: ["Docs Build - Site & Link Check"]
     types: [completed]
-    # Second guard behind docs-pipeline's own branch filter.
+    # Second guard behind docs-build's own branch filter.
     branches: [ "main" ]
 
 permissions:

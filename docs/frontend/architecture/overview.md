@@ -100,8 +100,8 @@ time and reverse-proxies `/api/*` and the OAuth paths to the backend at `api.sma
 
 ```
 Source push
-  → 5-frontend-ci.yml       type-check, lint, Vitest suite
-  → 6-deploy-frontend.yml   Docker build (Nginx), deploy to Koyeb
+  → frontend-ci.yml       type-check, lint, Vitest suite
+  → frontend-deploy.yml   Docker build (Nginx), deploy to Koyeb
 ```
 
 ## Testing

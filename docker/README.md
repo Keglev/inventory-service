@@ -8,7 +8,7 @@ decision and its alternatives are recorded in
 
 `/opt/smartsupplypro` holds exactly two files:
 
-- `docker-compose.prod.yml` — copied from this repository by `4-deploy-backend.yml`
+- `docker-compose.prod.yml` — copied from this repository by `backend-deploy.yml`
   on every release. Never edit it on the host; edit `docker/docker-compose.prod.yml`
   here and let a release carry it over.
 - `.env.prod` — hand-managed on the host, mode `600`, LF line endings, 12 keys.

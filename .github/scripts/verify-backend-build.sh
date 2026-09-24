@@ -57,7 +57,7 @@ for i in $(seq 1 "$ATTEMPTS"); do
 done
 
 if [ "$REPORTED" = "unknown" ]; then
-  echo "::error::The running jar reports build.commit=unknown, so it was packaged without -Dbuild.commit. Check the BUILD_COMMIT build argument in 2-docker-backend.yml."
+  echo "::error::The running jar reports build.commit=unknown, so it was packaged without -Dbuild.commit. Check the BUILD_COMMIT build argument in backend-docker.yml."
   exit 1
 fi
 

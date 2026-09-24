@@ -2,12 +2,12 @@
 # Smart Supply Pro – Docs PR Check
 #
 # Pull request gate for documentation changes. Builds the docs site exactly as
-# docs-pipeline.yml does (minus coverage and TypeDoc, which come from CI
+# docs-build.yml does (minus coverage and TypeDoc, which come from CI
 # artifacts) and checks that every internal link resolves. Nothing is uploaded
 # or deployed from this workflow. Its job is named build-and-test so it
 # satisfies the required status check for docs-only pull requests; the trigger
 # paths below must stay identical to the docs entries in the paths-ignore list
-# of 1-ci-test.yml, this file included. A pull request editing this file is
+# of backend-ci.yml, this file included. A pull request editing this file is
 # therefore reported by this workflow alone, which is the intent: the docs gate
 # checks itself.
 # =============================================================================
@@ -19,7 +19,7 @@ on:
     paths:
       - 'docs/**'
       - '.github/scripts/docs/**'
-      - '.github/workflows/docs-pipeline.yml'
+      - '.github/workflows/docs-build.yml'
       - 'lychee.toml'
       - '.github/workflows/docs-pr-check.yml'
   workflow_dispatch:

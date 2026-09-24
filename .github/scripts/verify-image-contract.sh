@@ -3,7 +3,7 @@
 # verify-image-contract.sh - frontend image HTTP contract gate
 # Usage: bash .github/scripts/verify-image-contract.sh <base-url>
 #        bash .github/scripts/verify-image-contract.sh --selftest <base-url>
-#        Invoked by .github/workflows/5-frontend-ci.yml against the image that
+#        Invoked by .github/workflows/frontend-ci.yml against the image that
 #        job has just built and started, on http://127.0.0.1:8080.
 #
 # The Playwright suite runs the bundle under `vite preview`, which serves dist/

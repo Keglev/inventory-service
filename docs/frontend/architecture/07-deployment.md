@@ -15,7 +15,7 @@ A multi-stage Docker build (context = repo root, so `ops/nginx/` travels with th
 frontend source): a base stage that installs dependencies with `npm ci`, a build
 stage that runs `vite build`, and an `nginx:1.30-alpine` runtime serving `dist/`
 with both Nginx configs copied in. There is no test stage: Vitest runs in
-`5-frontend-ci` ahead of the image build, where a failure surfaces as a GitHub
+`frontend-ci` ahead of the image build, where a failure surfaces as a GitHub
 annotation. Peer resolution comes from `frontend/.npmrc`, which the build copies
 alongside the package files, rather than from a flag on the command line.
 
@@ -37,12 +37,12 @@ Nginx delivery rules:
 The container runs on **Koyeb**, reachable on the project's own domain
 (`https://www.smartsupplypro.de`; the apex redirects to the canonical `www` host —
 [ADR-0010 (backend)](../../backend/architecture/09-decisions/adr-0010-custom-domain-and-canonical-host.md)).
-Two numbered workflows own the frontend:
+Two workflows own the frontend:
 
-- **5-frontend-ci** — audits the shipped dependency tree (gate), lints, runs
+- **frontend-ci** — audits the shipped dependency tree (gate), lints, runs
   the full Vitest suite, then builds and Trivy-scans the runtime image before
   it can reach Docker Hub.
-- **6-deploy-frontend** — deploys by image digest, then waits for the commit's
+- **frontend-deploy** — deploys by image digest, then waits for the commit's
   build id to appear in the served bundle before trusting the platform's own
   status, which stays `healthy` throughout a rolling update and cannot verify
   a release on its own

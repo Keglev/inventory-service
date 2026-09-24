@@ -15,7 +15,7 @@ WORKDIR /app
 
 # The CI workflows install this exact npm before running npm ci, so that lockfile
 # metadata does not churn between environments. The image build is the artifact
-# users receive, so it installs with the same client. 5-frontend-ci.yml passes its
+# users receive, so it installs with the same client. frontend-ci.yml passes its
 # NPM_VERSION here; the default below only applies to a manual local build. On
 # 2026-09-03 the unpinned image ran npm 11.19.0 while CI ran 11.10.1 against one
 # lockfile, and the two printed different install warnings.
@@ -46,7 +46,7 @@ ENV VITE_APP_ENVIRONMENT=$VITE_APP_ENVIRONMENT
 # There is no test stage here. BuildKit builds only the stages the target
 # depends on, and the chain to the runtime image is base -> build -> runtime,
 # so a stage nothing copies from was never built by any pipeline invocation.
-# Vitest runs in 5-frontend-ci before the image is built, where its failures
+# Vitest runs in frontend-ci before the image is built, where its failures
 # become GitHub Actions annotations.
 FROM base AS build
 RUN npm run build

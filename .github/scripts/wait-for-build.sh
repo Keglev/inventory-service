@@ -8,7 +8,7 @@
 # outgoing image and pass on it. That happened on the 2026-09-02 rollout: the
 # served-bundle check reported success against the previous build.
 #
-# The build id is the commit SHA. 5-frontend-ci.yml passes it as the
+# The build id is the commit SHA. frontend-ci.yml passes it as the
 # VITE_BUILD_ID build argument and src/config/appMeta.ts reads it, so Vite
 # inlines it into the entry chunk. Finding it in the served bytes is direct
 # evidence that the new image is answering, and owes nothing to the platform's

@@ -49,11 +49,11 @@ graph TB
     User["End User"]:::actor
 
     Dev -->|push| GHA
-    GHA -->|2-docker-backend.yml\ndocker build + Trivy + push :SHA| GHCR
-    GHA -->|4-deploy-backend.yml\nscp compose + pull + up over SSH| SSP
+    GHA -->|backend-docker.yml\ndocker build + Trivy + push :SHA| GHCR
+    GHA -->|backend-deploy.yml\nscp compose + pull + up over SSH| SSP
     GHCR -.->|image pull on release| SSP
-    GHA -->|6-deploy-frontend.yml| Koyeb
-    GHA -->|3-deploy-ghpages.yml| GHP
+    GHA -->|frontend-deploy.yml| Koyeb
+    GHA -->|docs-deploy.yml| GHP
     SSP -->|"JDBC over mTLS\nwallet from .env.prod"| OADB
     User -->|HTTPS| Koyeb
     Koyeb -->|/api/* reverse proxy| Caddy
@@ -72,20 +72,20 @@ Eleven GitHub Actions workflows make up the pipeline:
 
 | Workflow | Purpose |
 |---|---|
-| `1-ci-test.yml` | `mvn clean verify` — compile, unit + integration tests, JaCoCo coverage report; calls the Playwright suite beside it and reports both through one `build-and-test` job |
-| `e2e-playwright.yml` | Reusable: called as a job by `1-ci-test.yml` and `5-frontend-ci.yml`, and skipped when the commit touches nothing the browser suite can see. Playwright against a local stack built from the commit (packaged jar on H2, `test,e2e` profile; frontend served via `vite preview`). A red suite fails the calling CI run, which blocks the merge and stops the deploy chain ([ADR 0016](09-decisions/adr-0016-one-claimant-and-the-e2e-inside-ci.md)) |
-| `2-docker-backend.yml` | `docker build` (prod profile), Trivy CVE scan (blocks on HIGH/CRITICAL), `docker push :SHA :latest` to GHCR |
-| `4-deploy-backend.yml` | Copies the compose file to the host over SSH, validates it, pulls the SHA-tagged image, restarts only the backend service, then runs the health and smoke checks against `api.smartsupplypro.de` |
-| `docs-pipeline.yml` | Generates OpenAPI docs (Redocly), converts architecture markdown to HTML (Pandoc + Lua filter) and checks internal links |
+| `backend-ci.yml` | `mvn clean verify` — compile, unit + integration tests, JaCoCo coverage report; calls the Playwright suite beside it and reports both through one `build-and-test` job |
+| `e2e-playwright.yml` | Reusable: called as a job by `backend-ci.yml` and `frontend-ci.yml`, and skipped when the commit touches nothing the browser suite can see. Playwright against a local stack built from the commit (packaged jar on H2, `test,e2e` profile; frontend served via `vite preview`). A red suite fails the calling CI run, which blocks the merge and stops the deploy chain ([ADR 0016](09-decisions/adr-0016-one-claimant-and-the-e2e-inside-ci.md)) |
+| `backend-docker.yml` | `docker build` (prod profile), Trivy CVE scan (blocks on HIGH/CRITICAL), `docker push :SHA :latest` to GHCR |
+| `backend-deploy.yml` | Copies the compose file to the host over SSH, validates it, pulls the SHA-tagged image, restarts only the backend service, then runs the health and smoke checks against `api.smartsupplypro.de` |
+| `docs-build.yml` | Generates OpenAPI docs (Redocly), converts architecture markdown to HTML (Pandoc + Lua filter) and checks internal links |
 | `docs-pr-check.yml` | Pull request gate for documentation: builds the site and verifies internal links without publishing |
-| `3-deploy-ghpages.yml` | Publishes the docs-site artifact to the `gh-pages` branch, then deploys that branch to GitHub Pages ([ADR 0015](09-decisions/adr-0015-pages-deployed-from-the-publisher-job.md)) |
-| `5-frontend-ci.yml` | Audits the shipped dependency tree (gate), lints, runs Vitest, then builds and Trivy-scans the image before it reaches Docker Hub; calls the Playwright suite beside it and reports both through one `build-and-test` job |
-| `6-deploy-frontend.yml` | Deploys the scanned image to Koyeb by digest, then verifies the commit's build id reached the served bundle before trusting the platform's status |
-| `release.yml` | Unnumbered, because no numbered workflow triggers it: on a `v*.*.*` tag push, verifies both tiers report that version, then publishes the GitHub Release with notes generated from the merged pull requests since the previous tag |
+| `docs-deploy.yml` | Publishes the docs-site artifact to the `gh-pages` branch, then deploys that branch to GitHub Pages ([ADR 0015](09-decisions/adr-0015-pages-deployed-from-the-publisher-job.md)) |
+| `frontend-ci.yml` | Audits the shipped dependency tree (gate), lints, runs Vitest, then builds and Trivy-scans the image before it reaches Docker Hub; calls the Playwright suite beside it and reports both through one `build-and-test` job |
+| `frontend-deploy.yml` | Deploys the scanned image to Koyeb by digest, then verifies the commit's build id reached the served bundle before trusting the platform's status |
+| `release.yml` | On a `v*.*.*` tag push, verifies both tiers report that version, then publishes the GitHub Release with notes generated from the merged pull requests since the previous tag |
 | `yaml-lint.yml` | Pull request check on YAML changes: parses every tracked YAML file outside `docs/backend/api` (duplicate keys included) and rejects trailing whitespace and a missing final newline; it reports as `yaml-lint`, not `build-and-test`, so it does not gate the merge |
 
 The backend chain is strictly sequential: the image is built only after the test
-suite passes, and the release runs only after the image has been scanned. There is
+suite passes, and the deploy runs only after the image has been scanned. There is
 no direct push trigger on the image build, so nothing is released in parallel with
 the tests meant to gate it.
 
@@ -100,10 +100,10 @@ move those pins, which is the only way they get updated at all.
 sequenceDiagram
     participant Dev as Developer
     participant GH as GitHub
-    participant CI as 1-ci-test.yml
-    participant Docker as 2-docker-backend.yml
+    participant CI as backend-ci.yml
+    participant Docker as backend-docker.yml
     participant GHCR as GHCR
-    participant Deploy as 4-deploy-backend.yml
+    participant Deploy as backend-deploy.yml
     participant Host as Hetzner host
 
     Dev->>GH: git push origin main
@@ -127,7 +127,7 @@ sequenceDiagram
 ## Immutable SHA Strategy
 
 Every Docker image is tagged with the commit SHA
-(e.g., `ghcr.io/keglev/inventory-service/backend:a1b2c3d`). `4-deploy-backend.yml`
+(e.g., `ghcr.io/keglev/inventory-service/backend:a1b2c3d`). `backend-deploy.yml`
 always releases by SHA, never by `latest`, so the container that runs is the one the
 pipeline scanned. This means:
 

@@ -102,8 +102,8 @@ Backend auf `api.smartsupplypro.de` (kanonische Aufzeichnung: Backend-ADR-0008).
 
 ```
 Source push
-  → 5-frontend-ci.yml       type-check, lint, Vitest suite
-  → 6-deploy-frontend.yml   Docker build (Nginx), deploy to Koyeb
+  → frontend-ci.yml       type-check, lint, Vitest suite
+  → frontend-deploy.yml   Docker build (Nginx), deploy to Koyeb
 ```
 
 ## Tests

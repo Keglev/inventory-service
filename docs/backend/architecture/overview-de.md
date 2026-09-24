@@ -226,9 +226,9 @@ Das Backend wird über eine vollständig automatisierte GitHub-Actions-Pipeline 
 
 ```
 Code-Push
-  → 1-ci-test.yml         Maven-Build, JUnit-Tests, JaCoCo-Abdeckung
-  → 2-docker-backend.yml  Docker-Image-Build, Trivy-CVE-Scan, Push zu GHCR
-  → 4-deploy-backend.yml  Geprüftes Image auf den Hetzner-Host ausliefern, Health-Check
+  → backend-ci.yml      Maven-Build, JUnit-Tests, JaCoCo-Abdeckung
+  → backend-docker.yml  Docker-Image-Build, Trivy-CVE-Scan, Push zu GHCR
+  → backend-deploy.yml  Geprüftes Image auf den Hetzner-Host ausliefern, Health-Check
 ```
 
 Das Docker-Image enthält ausschließlich das Produktions-JAR und `start.sh` —

@@ -13,7 +13,7 @@
 # against what will be published rather than against a fragment of it.
 #
 # It is NOT what gets published. This script also writes MANIFEST, naming what
-# this run actually produced, and 3-deploy-ghpages.yml replaces those paths and
+# this run actually produced, and docs-deploy.yml replaces those paths and
 # leaves the rest of the branch alone. That is what makes two or three pipeline
 # runs for one merge safe in any order: each writes only what it owns, so the
 # branch ends the same however they interleave. Publishing the assembled tree

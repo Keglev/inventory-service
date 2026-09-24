@@ -2,7 +2,7 @@
 # =============================================================================
 # Writes the frontend dependency audit to the job summary. Reporting only: the
 # gate that can fail the job is the separate `npm audit --omit=dev` step in
-# 5-frontend-ci.yml, which is why every finding here is tolerated.
+# frontend-ci.yml, which is why every finding here is tolerated.
 #
 # Extracted from that workflow when the file reached its size alarm.
 # =============================================================================

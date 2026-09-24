@@ -2,7 +2,7 @@
 # =============================================================================
 # Decides whether the Playwright suite can tell this commit anything.
 #
-# The callers (1-ci-test.yml, 5-frontend-ci.yml) trigger on wider path sets
+# The callers (backend-ci.yml, frontend-ci.yml) trigger on wider path sets
 # than the browser suite covers: the backend gate is the repository's catch-all,
 # so without this decision a README or a release-workflow edit would start a
 # browser run that cannot fail for any reason connected to the change.

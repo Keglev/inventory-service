@@ -5,9 +5,8 @@
 # workflow only records it. Nothing here builds, tests or deploys: by the time a
 # tag exists, main has already been built, tested and released to both hosts.
 #
-# Unnumbered: the numbered files are the chain that runs on a push to main, in
-# execution order, and nothing in that chain triggers this one. A tag does
-# (ADR-0016 applied the same rule to the browser suite).
+# No chain prefix: a tag triggers this workflow, not a push to main, so it
+# belongs to none of the backend, frontend or docs chains (ADR-0017).
 #
 # The version check is the point of the job. Both tiers declare a version that
 # ships to users - the backend at /actuator/info, the frontend in its bundle -

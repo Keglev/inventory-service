@@ -1,7 +1,7 @@
 # =============================================================================
 # Smart Supply Pro – Deploy Frontend to Koyeb
 #
-# Triggered automatically after 5-frontend-ci.yml succeeds on main.
+# Triggered automatically after frontend-ci.yml succeeds on main.
 # Manual trigger available for rollbacks or emergency deploys.
 # Deploys by image digest (not tag) for deterministic, rollback-safe releases.
 # After the health gate, asserts the serve-time API-base rewrite ran (ADR-0008,
@@ -11,11 +11,11 @@
 # the deploy first waits for the commit's build id to appear in the served
 # bundle rather than trusting the platform's HEALTHY status.
 # =============================================================================
-name: 6 Deploy Frontend to Koyeb
+name: Frontend Deploy - Koyeb
 
 on:
   workflow_run:
-    workflows: ["5 Frontend CI - Build & Test"]
+    workflows: ["Frontend CI - Build & Test"]
     types: [completed]
     branches: [ "main" ]
   workflow_dispatch: {}
@@ -48,7 +48,7 @@ jobs:
       IMAGE_NAME: ckbuzin/ssp-frontend
       KOYEB_SERVICE_ID: 8d13ab85
       FRONTEND_URL: https://www.smartsupplypro.de
-      # Origin baked into the bundle by 5-frontend-ci.yml; the rewrite check
+      # Origin baked into the bundle by frontend-ci.yml; the rewrite check
       # asserts it is absent from the bytes the browser receives.
       API_ORIGIN: https://api.smartsupplypro.de
 
@@ -178,13 +178,13 @@ jobs:
       # Blocks until the commit being deployed is the one answering requests.
       # Without it the two checks below can pass against the outgoing image,
       # which is what happened on the 2026-09-02 rollout. The build id is the
-      # commit SHA, inlined into the bundle by 5-frontend-ci.yml.
+      # commit SHA, inlined into the bundle by frontend-ci.yml.
       - name: Wait for the new build to reach the edge
         run: bash .github/scripts/wait-for-build.sh "${{ env.FRONTEND_URL }}" "${{ github.event.workflow_run.head_sha || github.sha }}"
 
       - name: Health check and smoke tests
         run: bash .github/scripts/health-check.sh "${{ env.FRONTEND_URL }}"
-      # health-check.sh is shared with 4-deploy-backend.yml, so this
+      # health-check.sh is shared with backend-deploy.yml, so this
       # frontend-only assertion lives in its own script rather than growing
       # that one. It runs after the health gate: a service that is not serving
       # yet would fail here for the wrong reason.
