@@ -423,9 +423,9 @@
         <strong>Hetzner</strong> host via a fully automated GitHub
         Actions pipeline:</p>
         <pre><code>Source push
-  → 1-ci-test.yml         Maven build, JUnit tests, JaCoCo coverage
-  → 2-docker-backend.yml  Docker image build, Trivy CVE scan, push to GHCR
-  → 4-deploy-backend.yml  Release the scanned image to the Hetzner host, health check</code></pre>
+  → backend-ci.yml      Maven build, JUnit tests, JaCoCo coverage
+  → backend-docker.yml  Docker image build, Trivy CVE scan, push to GHCR
+  → backend-deploy.yml  Release the scanned image to the Hetzner host, health check</code></pre>
         <p>The Docker image contains only the production JAR and
         <code>start.sh</code>; no test sources or documentation are
         included.</p>

@@ -126,8 +126,8 @@
         a build stage that runs <code>vite build</code>, and an
         <code>nginx:1.30-alpine</code> runtime serving
         <code>dist/</code> with both Nginx configs copied in. There is
-        no test stage: Vitest runs in <code>5-frontend-ci</code> ahead
-        of the image build, where a failure surfaces as a GitHub
+        no test stage: Vitest runs in <code>frontend-ci</code> ahead of
+        the image build, where a failure surfaces as a GitHub
         annotation. Peer resolution comes from
         <code>frontend/.npmrc</code>, which the build copies alongside
         the package files, rather than from a flag on the command
@@ -156,17 +156,17 @@
         (<code>https://www.smartsupplypro.de</code>; the apex redirects
         to the canonical <code>www</code> host — <a
         href="../../backend/architecture/09-decisions/adr-0010-custom-domain-and-canonical-host.html">ADR-0010
-        (backend)</a>). Two numbered workflows own the frontend:</p>
+        (backend)</a>). Two workflows own the frontend:</p>
         <ul>
-        <li><strong>5-frontend-ci</strong> — audits the shipped
-        dependency tree (gate), lints, runs the full Vitest suite, then
-        builds and Trivy-scans the runtime image before it can reach
-        Docker Hub.</li>
-        <li><strong>6-deploy-frontend</strong> — deploys by image
-        digest, then waits for the commit’s build id to appear in the
-        served bundle before trusting the platform’s own status, which
-        stays <code>healthy</code> throughout a rolling update and
-        cannot verify a release on its own (<a
+        <li><strong>frontend-ci</strong> — audits the shipped dependency
+        tree (gate), lints, runs the full Vitest suite, then builds and
+        Trivy-scans the runtime image before it can reach Docker
+        Hub.</li>
+        <li><strong>frontend-deploy</strong> — deploys by image digest,
+        then waits for the commit’s build id to appear in the served
+        bundle before trusting the platform’s own status, which stays
+        <code>healthy</code> throughout a rolling update and cannot
+        verify a release on its own (<a
         href="09-decisions/adr-0010-verifying-frontend-deploys.html">ADR-0010</a>).</li>
         </ul>
         <p>Architecture and API documentation deploy separately via the

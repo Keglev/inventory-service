@@ -1,0 +1,297 @@
+<!-- ===========================================================================
+     Smart Supply Pro Docs — Architecture page template
+     Pandoc template for the architecture pages; build-architecture-docs.sh
+     renders the Markdown tree through it.
+
+     Pandoc copies this comment into every page the template produces, so it
+     is written for anyone reading a published page source. A dollar sign
+     here would be read as template syntax and substituted, so the comment
+     carries none.
+     ======================================================================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0017-workflows-named-by-chain · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=a061f5ab8d" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+    <li><a href="/inventory-service/decisions/index.html">All decisions</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0017-workflow-files-are-named-by-chain-not-numbered">ADR-0017:
+        Workflow files are named by chain, not numbered</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-09-24</p>
+        <h2 id="context">Context</h2>
+        <p>The six workflows of the push-to-main chains carried a number
+        in the file name and in the display name
+        (<code>1-ci-test.yml</code>, “1 Backend CI - Build &amp; Test”).
+        The rule, in the project standards since 2026-09-21, was that a
+        numbered file is a step in the chain that runs on a push to
+        main, in execution order, and every other workflow is
+        unnumbered. ADR-0016 applied it when the browser suite left the
+        numbers, and the release left them with it.</p>
+        <p>One sequence of numbers described three separate chains.
+        Backend (1, 2, 4) and frontend (5, 6) run independently of each
+        other, and 3 publishes the docs after a workflow that had no
+        number at all. A reader could not tell from the names which
+        workflows belong together, and the five unnumbered files sorted
+        after all of them.</p>
+        <p>GitHub reads workflows only from
+        <code>.github/workflows</code> and supports no subdirectories
+        there, so grouping cannot come from folders. Its Actions sidebar
+        lists workflows alphabetically by display name.</p>
+        <h2 id="decision">Decision</h2>
+        <p>A workflow is named by the chain it belongs to:
+        <code>backend-</code>, <code>frontend-</code> or
+        <code>docs-</code>, followed by what it does. The display name
+        follows the same pattern. A workflow that belongs to no single
+        chain keeps a plain name that says what it does. No workflow
+        carries a number.</p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Previous file</th>
+        <th>File</th>
+        <th>Display name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>1-ci-test.yml</code></td>
+        <td><code>backend-ci.yml</code></td>
+        <td>Backend CI - Build &amp; Test</td>
+        </tr>
+        <tr class="even">
+        <td><code>2-docker-backend.yml</code></td>
+        <td><code>backend-docker.yml</code></td>
+        <td>Backend Docker - Build &amp; Scan</td>
+        </tr>
+        <tr class="odd">
+        <td><code>4-deploy-backend.yml</code></td>
+        <td><code>backend-deploy.yml</code></td>
+        <td>Backend Deploy - Hetzner</td>
+        </tr>
+        <tr class="even">
+        <td><code>5-frontend-ci.yml</code></td>
+        <td><code>frontend-ci.yml</code></td>
+        <td>Frontend CI - Build &amp; Test</td>
+        </tr>
+        <tr class="odd">
+        <td><code>6-deploy-frontend.yml</code></td>
+        <td><code>frontend-deploy.yml</code></td>
+        <td>Frontend Deploy - Koyeb</td>
+        </tr>
+        <tr class="even">
+        <td><code>3-deploy-ghpages.yml</code></td>
+        <td><code>docs-deploy.yml</code></td>
+        <td>Docs Deploy - GitHub Pages</td>
+        </tr>
+        <tr class="odd">
+        <td><code>docs-pipeline.yml</code></td>
+        <td><code>docs-build.yml</code></td>
+        <td>Docs Build - Site &amp; Link Check</td>
+        </tr>
+        <tr class="even">
+        <td><code>e2e-playwright.yml</code></td>
+        <td>unchanged</td>
+        <td>E2E - Playwright Browser Suite</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><code>docs-pr-check.yml</code>, <code>release.yml</code> and
+        <code>yaml-lint.yml</code> keep their names. The browser suite’s
+        inner job is renamed from <code>e2e</code> to
+        <code>e2e-playwright</code>, so its check reads
+        <code>e2e / e2e-playwright</code> instead of
+        <code>e2e / e2e</code>. The calling jobs keep the id
+        <code>e2e</code>, and the three aggregator jobs keep the name
+        <code>build-and-test</code>, which the branch ruleset
+        requires.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Keep the numbers.</strong> One order across three
+        chains that do not depend on each other, and every workflow
+        added to a chain would force a renumbering.</li>
+        <li><strong>Subdirectories per chain.</strong> Not supported by
+        GitHub.</li>
+        <li><strong>A shared prefix for the unassigned
+        workflows</strong> (for example <code>shared-</code>). An
+        invented prefix no reader would recognise; the three files are
+        few and say what they do.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>The execution order is no longer in the names. It is shown
+        by the workflow table and the sequence diagram in section 7
+        (Deployment View).</li>
+        <li>GitHub keys a workflow by its file path, so each renamed
+        workflow starts a new run history in the Actions tab; the old
+        runs stay listed under the old names.</li>
+        <li>Five workflows start on another workflow’s completion by
+        display name, in six references, and one compares the name of
+        the workflow that started it, twice. Renaming a display name
+        means changing every one of those references in the same commit,
+        or the chain stops without failing. All eight were changed with
+        the rename.</li>
+        <li>The status badges in the README point at the new file
+        names.</li>
+        <li>The decision records before this one are immutable and keep
+        the old names. The table above maps each of them.</li>
+        <li>Supersedes the numbering rule applied in ADR-0016 (“It keeps
+        the number-free name because it is no longer a step in the
+        numbered build-and-deploy sequence”) and the job name
+        <code>e2e</code> for the browser suite named in ADR-0016 and in
+        the 2026-09-23 amendment of frontend ADR-0009.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a
+        href="adr-0016-one-claimant-and-the-e2e-inside-ci.html">ADR-0016:
+        One claimant for the required check, and the browser suite
+        inside CI</a></li>
+        <li>Frontend ADR-0009 and its amendment of 2026-09-23</li>
+        <li>GitHub Docs, reusing workflows: reusable workflows live in
+        <code>.github/workflows</code>, and subdirectories of that
+        directory are not supported</li>
+        <li>System-wide decisions index
+        (<code>../../../decisions/index.md</code>)</li>
+        </ul>
+        <hr />
+        <p>Frontend decisions: see <a
+        href="../../../frontend/architecture/09-decisions/index.html">docs/frontend/architecture/adr/</a></p>
+        <p><a href="../index.html">Back to Architecture Index</a></p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0017-workflow-files-are-named-by-chain-not-numbered"
+      id="toc-adr-0017-workflow-files-are-named-by-chain-not-numbered">ADR-0017:
+      Workflow files are named by chain, not numbered</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="/inventory-service/assets/docs.js?v=3354f25964"></script>
+</body>
+</html>

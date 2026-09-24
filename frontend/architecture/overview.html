@@ -314,8 +314,8 @@
         to the backend at <code>api.smartsupplypro.de</code> (canonical
         record: backend ADR-0008).</p>
         <pre><code>Source push
-  → 5-frontend-ci.yml       type-check, lint, Vitest suite
-  → 6-deploy-frontend.yml   Docker build (Nginx), deploy to Koyeb</code></pre>
+  → frontend-ci.yml       type-check, lint, Vitest suite
+  → frontend-deploy.yml   Docker build (Nginx), deploy to Koyeb</code></pre>
         <h2 id="testing">Testing</h2>
         <ul>
         <li><strong>Unit tests</strong> — hooks, utilities, API
