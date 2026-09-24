@@ -111,6 +111,33 @@ suite runs inside the CI it belongs to.
   script against the last six commits on `main`: the docs-only commit yields
   `run=false`, the five source commits `run=true`.
 
+## Amendment 2026-09-24: paths the suite cannot see
+
+The gate script no longer runs the suite for every change under `src/` or
+`frontend/`. It sets aside the paths that never reach what the suite runs, and
+runs the suite only if a watched path is left:
+
+- `src/test/`: the suite's backend jar is packaged with tests skipped
+  (`-Dmaven.test.skip=true`), so no test source or test resource enters it.
+- Under `frontend/`: `src/__tests__/`, `vitest.config.ts`, `eslint.config.js`,
+  `README.md`, `typedoc.json`, `Dockerfile`, `.env.development` and
+  `.env.example`. The suite serves a `vite preview` of a production build, not
+  the image, and a production build reads neither env file.
+
+Any other path in a watched tree, a new file included, still runs the suite. A
+broken spec would also break the suite's own build, since `tsc -b` compiles the
+tests; `5-frontend-ci`'s own job fails on the same error, so no signal is lost.
+
+Replayed over the 437 commits on `main` from 2026-06-01 to `775c9db0cb`: 49 flip
+from run to skip, 28 of them frontend and 21 backend, and no other commit
+changes its result.
+
+Superseded by this block:
+
+- Decision: the gate script "looks for `src/`, `pom.xml`, `frontend/`, the
+  workflow or the script itself in the commit's own diff". It still looks for
+  those, less the paths above.
+
 ## References
 - [ADR-0013: The docs pipeline rebuilds, and publishes, by change](adr-0013-docs-pipeline-rebuilds-by-change.md)
 - [ADR-0015: GitHub Pages is deployed by the publisher job](adr-0015-pages-deployed-from-the-publisher-job.md)
