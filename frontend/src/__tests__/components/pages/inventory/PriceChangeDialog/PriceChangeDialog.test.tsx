@@ -114,7 +114,6 @@ const makeFormState = (overrides: FormStateOverrides = {}): UsePriceChangeFormRe
     effectiveCurrentQty: 0,
 
     // react-hook-form API surface used by the dialog/form components.
-    register: vi.fn() as UsePriceChangeFormReturn['register'],
     control: {} as UsePriceChangeFormReturn['control'],
     formState: {
       errors: {},
@@ -128,9 +127,6 @@ const makeFormState = (overrides: FormStateOverrides = {}): UsePriceChangeFormRe
       submitCount: 0,
     } as UsePriceChangeFormReturn['formState'],
     setValue: vi.fn() as UsePriceChangeFormReturn['setValue'],
-    setError: vi.fn() as UsePriceChangeFormReturn['setError'],
-    clearErrors: vi.fn() as UsePriceChangeFormReturn['clearErrors'],
-    handleSubmit: vi.fn() as UsePriceChangeFormReturn['handleSubmit'],
     onSubmit: vi.fn(async () => {}) as UsePriceChangeFormReturn['onSubmit'],
 
     handleClose: vi.fn(),

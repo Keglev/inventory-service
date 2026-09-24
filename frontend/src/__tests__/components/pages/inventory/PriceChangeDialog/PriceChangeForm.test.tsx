@@ -82,12 +82,8 @@ const makeState = (
 ): UsePriceChangeFormReturn => {
   const base: UsePriceChangeFormReturn = {
     control: methods.control,
-    register: methods.register,
     formState: methods.formState,
     setValue: methods.setValue,
-    setError: methods.setError,
-    clearErrors: methods.clearErrors,
-    handleSubmit: methods.handleSubmit,
     onSubmit: vi.fn(async () => {}),
     handleClose: vi.fn(),
 

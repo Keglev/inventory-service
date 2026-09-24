@@ -23,7 +23,7 @@
  *   the delete/rename/create flows.
  */
 
-import { useForm, type UseFormRegister, type UseFormSetError, type UseFormClearErrors, type UseFormHandleSubmit, type Control, type UseFormStateReturn, type UseFormSetValue } from 'react-hook-form';
+import { useForm, type Control, type UseFormStateReturn, type UseFormSetValue } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast/ToastContext';
@@ -34,13 +34,9 @@ import { usePriceChangeFormQueries, type PriceChangeFormQueries } from './usePri
 import { logError } from '../../../../utils/logger';
 
 export interface UsePriceChangeFormReturn extends PriceChangeFormState, PriceChangeFormStateSetters, PriceChangeFormQueries {
-  register: UseFormRegister<PriceChangeForm>;
   control: Control<PriceChangeForm>;
   formState: UseFormStateReturn<PriceChangeForm>;
   setValue: UseFormSetValue<PriceChangeForm>;
-  setError: UseFormSetError<PriceChangeForm>;
-  clearErrors: UseFormClearErrors<PriceChangeForm>;
-  handleSubmit: UseFormHandleSubmit<PriceChangeForm>;
   onSubmit: () => Promise<void>;
   handleClose: () => void;
 }
@@ -64,13 +60,11 @@ export function usePriceChangeForm({
 
   // Form management
   const {
-    register,
     control,
     handleSubmit: rhfHandleSubmit,
     formState,
     reset,
     setValue,
-    setError,
     clearErrors,
   } = useForm<PriceChangeForm>({
     resolver: zodResolver(priceChangeSchema),
@@ -150,13 +144,9 @@ export function usePriceChangeForm({
     // Queries
     ...queries,
     // Form
-    register,
     control,
     formState,
     setValue,
-    setError,
-    clearErrors,
-    handleSubmit: rhfHandleSubmit,
     // Handlers
     onSubmit,
     handleClose,
