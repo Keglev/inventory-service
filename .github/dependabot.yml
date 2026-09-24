@@ -1,19 +1,28 @@
 # =============================================================================
 # Smart Supply Pro - Dependabot
 #
-# Every action in this repository is pinned to a commit. A pin nobody updates
-# is how the Koyeb CLI fallback ended up four major versions stale, so the pins
-# need something that moves them. Dependabot rewrites both the commit and the
-# trailing version comment, which is the reason the comments are there.
+# Three ecosystems: the pinned actions, the Maven build and the frontend's npm
+# tree. Every action is pinned to a commit, and a pin nobody updates is how the
+# Koyeb CLI fallback ended up four major versions stale; Dependabot rewrites
+# both the commit and the trailing version comment, which is why the comments
+# are there.
 #
-# Scope is github-actions only, deliberately. The npm and Maven trees have
-# their own gates - the frontend audit in frontend-ci and Trivy on both
-# images - and adding those ecosystems here would trade a real signal for a
-# stream of pull requests.
+# Maven and npm were left out until 2026-09-24, on the ground that the
+# frontend audit and Trivy already gate both trees. They detect known
+# vulnerabilities; they never move a version, so bug-fix releases arrived only
+# when someone edited the pom or package.json by hand. Vulnerabilities are
+# covered separately by Dependabot security updates, a repository setting that
+# opens a pull request when an advisory hits a dependency, outside this
+# schedule and outside the limits below.
 #
-# One grouped pull request a month, not one per action. Thirty-three references
-# across eleven actions would otherwise produce a queue nobody reads, and these
-# updates are reviewed together or not at all.
+# Monthly, one grouped pull request per ecosystem, at most one open at a time,
+# so a batch is small enough to diagnose when CI turns red. Maven and npm take
+# minor and patch releases only: a major version is a migration planned by
+# hand (Spring Boot 4, React 19), not a bot update. The restriction sits in
+# `allow`, whose update-types apply to version updates only, so a security
+# update that needs a major version still arrives. A release must be seven
+# days old before it is proposed, time for a compromised version to be caught
+# and pulled; security updates skip that wait.
 #
 # No labels: generated release notes group by pull request label, this
 # repository does not label pull requests, and the release workflow depends on
@@ -35,5 +44,47 @@ updates:
       prefix: ci
     groups:
       actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 1
+    labels: []
+    commit-message:
+      prefix: build
+      include: scope
+    cooldown:
+      default-days: 7
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
+    groups:
+      maven:
+        patterns:
+          - "*"
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 1
+    labels: []
+    commit-message:
+      prefix: build
+      include: scope
+    cooldown:
+      default-days: 7
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
+    groups:
+      npm:
         patterns:
           - "*"
