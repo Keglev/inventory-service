@@ -186,20 +186,28 @@
             classDef external   fill:#4f46e5,color:#fff,stroke:#3730a3;
         </div>
         <h2 id="cicd-pipeline">CI/CD Pipeline</h2>
-        <p>Eleven GitHub Actions workflows make up the pipeline:</p>
+        <p>Eleven GitHub Actions workflows make up the pipeline. They
+        are grouped by the chain they belong to and listed in execution
+        order within it; the shared ones serve more than one chain or
+        none (<a
+        href="09-decisions/adr-0017-workflows-named-by-chain.html">ADR
+        0017</a>).</p>
         <table>
         <colgroup>
-        <col style="width: 50%" />
-        <col style="width: 50%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
         </colgroup>
         <thead>
         <tr class="header">
+        <th>Chain</th>
         <th>Workflow</th>
         <th>Purpose</th>
         </tr>
         </thead>
         <tbody>
         <tr class="odd">
+        <td>Backend</td>
         <td><code>backend-ci.yml</code></td>
         <td><code>mvn clean verify</code> — compile, unit + integration
         tests, JaCoCo coverage report; calls the Playwright suite beside
@@ -207,6 +215,59 @@
         job</td>
         </tr>
         <tr class="even">
+        <td>Backend</td>
+        <td><code>backend-docker.yml</code></td>
+        <td><code>docker build</code> (prod profile), Trivy CVE scan
+        (blocks on HIGH/CRITICAL), <code>docker push :SHA :latest</code>
+        to GHCR</td>
+        </tr>
+        <tr class="odd">
+        <td>Backend</td>
+        <td><code>backend-deploy.yml</code></td>
+        <td>Copies the compose file to the host over SSH, validates it,
+        pulls the SHA-tagged image, restarts only the backend service,
+        then runs the health and smoke checks against
+        <code>api.smartsupplypro.de</code></td>
+        </tr>
+        <tr class="even">
+        <td>Frontend</td>
+        <td><code>frontend-ci.yml</code></td>
+        <td>Audits the shipped dependency tree (gate), lints, runs
+        Vitest, then builds and Trivy-scans the image before it reaches
+        Docker Hub; calls the Playwright suite beside it and reports
+        both through one <code>build-and-test</code> job</td>
+        </tr>
+        <tr class="odd">
+        <td>Frontend</td>
+        <td><code>frontend-deploy.yml</code></td>
+        <td>Deploys the scanned image to Koyeb by digest, then verifies
+        the commit’s build id reached the served bundle before trusting
+        the platform’s status</td>
+        </tr>
+        <tr class="even">
+        <td>Docs</td>
+        <td><code>docs-pr-check.yml</code></td>
+        <td>Pull request gate for documentation: builds the site and
+        verifies internal links without publishing</td>
+        </tr>
+        <tr class="odd">
+        <td>Docs</td>
+        <td><code>docs-build.yml</code></td>
+        <td>Generates OpenAPI docs (Redocly), converts architecture
+        markdown to HTML (Pandoc + Lua filter) and checks internal
+        links</td>
+        </tr>
+        <tr class="even">
+        <td>Docs</td>
+        <td><code>docs-deploy.yml</code></td>
+        <td>Publishes the docs-site artifact to the
+        <code>gh-pages</code> branch, then deploys that branch to GitHub
+        Pages (<a
+        href="09-decisions/adr-0015-pages-deployed-from-the-publisher-job.html">ADR
+        0015</a>)</td>
+        </tr>
+        <tr class="odd">
+        <td>Shared</td>
         <td><code>e2e-playwright.yml</code></td>
         <td>Reusable: called as a job by <code>backend-ci.yml</code> and
         <code>frontend-ci.yml</code>, and skipped when the commit
@@ -218,52 +279,8 @@
         href="09-decisions/adr-0016-one-claimant-and-the-e2e-inside-ci.html">ADR
         0016</a>)</td>
         </tr>
-        <tr class="odd">
-        <td><code>backend-docker.yml</code></td>
-        <td><code>docker build</code> (prod profile), Trivy CVE scan
-        (blocks on HIGH/CRITICAL), <code>docker push :SHA :latest</code>
-        to GHCR</td>
-        </tr>
         <tr class="even">
-        <td><code>backend-deploy.yml</code></td>
-        <td>Copies the compose file to the host over SSH, validates it,
-        pulls the SHA-tagged image, restarts only the backend service,
-        then runs the health and smoke checks against
-        <code>api.smartsupplypro.de</code></td>
-        </tr>
-        <tr class="odd">
-        <td><code>docs-build.yml</code></td>
-        <td>Generates OpenAPI docs (Redocly), converts architecture
-        markdown to HTML (Pandoc + Lua filter) and checks internal
-        links</td>
-        </tr>
-        <tr class="even">
-        <td><code>docs-pr-check.yml</code></td>
-        <td>Pull request gate for documentation: builds the site and
-        verifies internal links without publishing</td>
-        </tr>
-        <tr class="odd">
-        <td><code>docs-deploy.yml</code></td>
-        <td>Publishes the docs-site artifact to the
-        <code>gh-pages</code> branch, then deploys that branch to GitHub
-        Pages (<a
-        href="09-decisions/adr-0015-pages-deployed-from-the-publisher-job.html">ADR
-        0015</a>)</td>
-        </tr>
-        <tr class="even">
-        <td><code>frontend-ci.yml</code></td>
-        <td>Audits the shipped dependency tree (gate), lints, runs
-        Vitest, then builds and Trivy-scans the image before it reaches
-        Docker Hub; calls the Playwright suite beside it and reports
-        both through one <code>build-and-test</code> job</td>
-        </tr>
-        <tr class="odd">
-        <td><code>frontend-deploy.yml</code></td>
-        <td>Deploys the scanned image to Koyeb by digest, then verifies
-        the commit’s build id reached the served bundle before trusting
-        the platform’s status</td>
-        </tr>
-        <tr class="even">
+        <td>Shared</td>
         <td><code>release.yml</code></td>
         <td>On a <code>v*.*.*</code> tag push, verifies both tiers
         report that version, then publishes the GitHub Release with
@@ -271,6 +288,7 @@
         tag</td>
         </tr>
         <tr class="odd">
+        <td>Shared</td>
         <td><code>yaml-lint.yml</code></td>
         <td>Pull request check on YAML changes: parses every tracked
         YAML file outside <code>docs/backend/api</code> (duplicate keys
