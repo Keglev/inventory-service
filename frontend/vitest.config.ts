@@ -75,7 +75,7 @@ export default defineConfig({
     coverage: {
       // V8 is built into Node; faster than istanbul and requires no instrumentation pass.
       provider: 'v8',
-      reporter: ['text', 'html', 'lcov'],
+      reporter: ['text', 'html', 'lcovonly'],
       reportsDirectory: './coverage',
       // v4 removed coverage.all; an explicit include preserves the full-source denominator
       // so untested files remain visible in the published report (not just test-touched files).
