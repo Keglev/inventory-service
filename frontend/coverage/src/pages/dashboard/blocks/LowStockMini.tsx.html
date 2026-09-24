@@ -295,7 +295,7 @@ export default function LowStockMini() {
                 &lt;YAxis type="category" dataKey="itemName" width={110} /&gt;
                 &lt;Tooltip
                   {...chartTooltipProps(muiTheme)}
-                  formatter={<span class="fstat-no" title="function not covered" >(v</span>alue: number | string) =&gt;
+                  formatter={<span class="fstat-no" title="function not covered" >(v</span>alue) =&gt;
 <span class="cstat-no" title="statement not covered" >                    typeof value === 'number'</span>
                       ? formatNumber(value, userPreferences.numberFormat, 0)
                       : value

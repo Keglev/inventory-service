@@ -361,7 +361,7 @@ export default function StockValueCard({ from, to, supplierId }: StockValueCardP
                         /&gt;
                         &lt;Tooltip
                             labelFormatter={(value) =&gt; formatDateLabel(value as string)}
-                            formatter={(value: number | string) =&gt;
+                            formatter={(value) =&gt;
                                 typeof value === 'number'
                                     ? `${formatNumber(value, userPreferences.numberFormat, 2)} €`
                                     : value

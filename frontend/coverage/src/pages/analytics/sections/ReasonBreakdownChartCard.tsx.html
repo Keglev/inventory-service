@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">90% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>9/10</span>
             </div>
         
             
@@ -275,10 +275,10 @@ export default function ReasonBreakdownChartCard({ title, data, color, loading }
   );
 &nbsp;
   const formatTooltipValue = React.useCallback(
-    (value: number | string) =&gt;
+    (value: unknown) =&gt;
       typeof value === 'number'
         ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
-        : String(value),
+        : String(value ?? <span class="branch-1 cbranch-no" title="branch not covered" >'')</span>,
     [userPreferences.numberFormat, t]
   );
 &nbsp;

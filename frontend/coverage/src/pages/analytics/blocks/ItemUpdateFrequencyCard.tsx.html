@@ -347,7 +347,7 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
                 /&gt;
                 &lt;YAxis type="category" dataKey="name" width={140} /&gt;
                 &lt;Tooltip
-                  formatter={(value: number | string) =&gt;
+                  formatter={(value) =&gt;
                     typeof value === 'number'
                       ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.updates')}`
                       : value

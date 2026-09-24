@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">92.85% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>13/14</span>
             </div>
         
             
@@ -421,10 +421,10 @@ export function EmployeesActivityChart({
   );
 &nbsp;
   const formatTooltipCount = React.useCallback(
-    (value: number | string) =&gt;
+    (value: unknown) =&gt;
       typeof value === 'number'
         ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.changes')}`
-        : String(value),
+        : String(value ?? <span class="branch-1 cbranch-no" title="branch not covered" >'')</span>,
     [userPreferences.numberFormat, t]
   );
 &nbsp;
