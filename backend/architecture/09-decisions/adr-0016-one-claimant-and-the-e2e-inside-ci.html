@@ -258,6 +258,41 @@
         <code>run=false</code>, the five source commits
         <code>run=true</code>.</li>
         </ul>
+        <h2
+        id="amendment-2026-09-24-paths-the-suite-cannot-see">Amendment
+        2026-09-24: paths the suite cannot see</h2>
+        <p>The gate script no longer runs the suite for every change
+        under <code>src/</code> or <code>frontend/</code>. It sets aside
+        the paths that never reach what the suite runs, and runs the
+        suite only if a watched path is left:</p>
+        <ul>
+        <li><code>src/test/</code>: the suite’s backend jar is packaged
+        with tests skipped (<code>-Dmaven.test.skip=true</code>), so no
+        test source or test resource enters it.</li>
+        <li>Under <code>frontend/</code>: <code>src/__tests__/</code>,
+        <code>vitest.config.ts</code>, <code>eslint.config.js</code>,
+        <code>README.md</code>, <code>typedoc.json</code>,
+        <code>Dockerfile</code>, <code>.env.development</code> and
+        <code>.env.example</code>. The suite serves a
+        <code>vite preview</code> of a production build, not the image,
+        and a production build reads neither env file.</li>
+        </ul>
+        <p>Any other path in a watched tree, a new file included, still
+        runs the suite. A broken spec would also break the suite’s own
+        build, since <code>tsc -b</code> compiles the tests;
+        <code>5-frontend-ci</code>’s own job fails on the same error, so
+        no signal is lost.</p>
+        <p>Replayed over the 437 commits on <code>main</code> from
+        2026-06-01 to <code>775c9db0cb</code>: 49 flip from run to skip,
+        28 of them frontend and 21 backend, and no other commit changes
+        its result.</p>
+        <p>Superseded by this block:</p>
+        <ul>
+        <li>Decision: the gate script “looks for <code>src/</code>,
+        <code>pom.xml</code>, <code>frontend/</code>, the workflow or
+        the script itself in the commit’s own diff”. It still looks for
+        those, less the paths above.</li>
+        </ul>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -299,6 +334,9 @@
       id="toc-consequences">Consequences</a></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#amendment-2026-09-24-paths-the-suite-cannot-see"
+      id="toc-amendment-2026-09-24-paths-the-suite-cannot-see">Amendment
+      2026-09-24: paths the suite cannot see</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
