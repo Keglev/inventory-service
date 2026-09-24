@@ -19,9 +19,10 @@
  *   inventory query directly via the data hook's reload rather than
  *   resetting paginationModel, so refresh works on page 0 as well as
  *   any other page.
- * - isDemo flows through to readOnly on the three dialogs that support
- *   it (delete, quantity-adjust, price-change). Rename does not
- *   currently honor demo mode -- the dialog props omit readOnly.
+ * - isDemo flows through to readOnly on the four dialogs that support
+ *   it (create, delete, quantity-adjust, price-change; frontend
+ *   ADR-0013). Rename does not currently honor demo mode -- the dialog
+ *   props omit readOnly.
  */
 
 import * as React from 'react';
@@ -66,6 +67,7 @@ export const InventoryDialogs: React.FC<InventoryDialogsProps> = ({
         isOpen={openNew}
         onClose={() => setOpenNew(false)}
         onSaved={onReload}
+        readOnly={isDemo}
       />
 
       <EditItemDialog

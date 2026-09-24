@@ -26,9 +26,9 @@
  * - applyServerError keys on the backend status token (errorToken), not
  *   freeform message text, matching deleteItemErrorHandler
  *   and useEditItemForm.
- * - Demo mode (readOnly) short-circuits before the mutation so a demo
- *   user sees the same disabled-action message regardless of validation
- *   state.
+ * - Demo mode (readOnly) stops a valid submit before the mutation, so a
+ *   demo user can walk the whole form, sees its validation, and gets the
+ *   disabled-action message instead of a request (frontend ADR-0013).
  *
  * Size note: over the 120-line hook alarm. WAIVED — one cohesive form lifecycle
  * (state, suppliers query, the reset-on-open effect, submit, close); the error

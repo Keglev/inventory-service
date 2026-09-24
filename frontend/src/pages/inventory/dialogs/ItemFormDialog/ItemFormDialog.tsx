@@ -17,6 +17,8 @@
  * - Submit calls state.onSubmit, which useItemForm already wrapped with
  *   react-hook-form's handleSubmit, so validation runs once. The four
  *   sibling dialogs wire their primary action the same way.
+ * - readOnly (demo mode) goes straight to useItemForm, whose guard stops
+ *   a valid submit before the request (frontend ADR-0013).
  */
 
 import {
@@ -42,16 +44,18 @@ import type { ItemFormDialogProps } from './ItemFormDialog.types';
  * 
  * @param isOpen - Whether dialog is visible
  * @param onClose - Called on cancel or successful save
+ * @param readOnly - Demo mode: blocks submission, not the form
  */
 export function ItemFormDialog({
   isOpen,
   onClose,
   onSaved,
+  readOnly,
 }: ItemFormDialogProps) {
   const { t } = useTranslation(['common', 'inventory']);
 
   // All form state and handlers delegated to hook
-  const state = useItemForm({ isOpen, onClose, onSaved });
+  const state = useItemForm({ isOpen, onClose, onSaved, readOnly });
 
   return (
     <Dialog

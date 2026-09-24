@@ -24,9 +24,9 @@
  *   supplier is chosen, because the backend item-search endpoint is
  *   supplier-gated for performance and the page would otherwise
  *   request a full unfiltered list on mount.
- * - Demo mode (isDemo from useAuth) flows down to the three dialogs
- *   that support readOnly (delete, quantity-adjust, price-change)
- *   via InventoryDialogs.
+ * - Demo mode (isDemo from useAuth) flows down to the four dialogs
+ *   that support readOnly (create, delete, quantity-adjust,
+ *   price-change) via InventoryDialogs.
  */
 
 import * as React from 'react';
