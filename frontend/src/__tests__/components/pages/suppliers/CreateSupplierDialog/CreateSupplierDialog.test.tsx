@@ -161,6 +161,7 @@ describe('CreateSupplierDialog', () => {
     formState.onSubmit = vi.fn(async () => ({ success: true }));
     formState.handleSubmit = vi.fn((cb) => async () => {
       await cb(submitData);
+      return undefined;
     });
     mocks.useCreateSupplierForm.mockReturnValue(formState);
 
@@ -186,6 +187,7 @@ describe('CreateSupplierDialog', () => {
     formState.onSubmit = vi.fn(async () => ({ success: false }));
     formState.handleSubmit = vi.fn((cb) => async () => {
       await cb({ name: 'Fail Inc.', contactName: '', phone: '', email: '' });
+      return undefined;
     });
     mocks.useCreateSupplierForm.mockReturnValue(formState);
 

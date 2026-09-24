@@ -64,7 +64,7 @@ export default function LowStockMini() {
                 <YAxis type="category" dataKey="itemName" width={110} />
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
-                  formatter={(value: number | string) =>
+                  formatter={(value) =>
                     typeof value === 'number'
                       ? formatNumber(value, userPreferences.numberFormat, 0)
                       : value

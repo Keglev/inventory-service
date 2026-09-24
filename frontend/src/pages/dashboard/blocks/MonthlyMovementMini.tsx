@@ -73,7 +73,7 @@ export default function MonthlyMovementMini() {
                 />
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
-                  formatter={(value: number | string) =>
+                  formatter={(value) =>
                     typeof value === 'number'
                       ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('units.pieces')}`
                       : value

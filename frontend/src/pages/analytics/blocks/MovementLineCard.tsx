@@ -70,7 +70,7 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
                 <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
                 <Tooltip
                   labelFormatter={(value) => formatDateLabel(value as string)}
-                  formatter={(value: number | string) =>
+                  formatter={(value) =>
                     typeof value === 'number'
                       ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
                       : value

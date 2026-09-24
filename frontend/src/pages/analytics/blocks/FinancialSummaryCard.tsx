@@ -112,7 +112,7 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
                   <XAxis dataKey="name" />
                   <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)} />
                   <Tooltip
-                    formatter={(value: number | string) =>
+                    formatter={(value) =>
                       typeof value === 'number'
                         ? `${formatNumber(value, userPreferences.numberFormat, 2)} €`
                         : value
