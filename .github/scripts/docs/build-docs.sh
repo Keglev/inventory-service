@@ -101,24 +101,37 @@ copy_landing_pages() {
 
 # JaCoCo HTML is downloaded by the workflow to target/site/jacoco; absent on
 # docs-only pushes, in which case deploy-ghpages preserves the existing report.
+#
+# Two files change on every run whatever the code does: jacoco.xml carries the
+# run's session id and times, and the sessions page lists every class the tests
+# loaded, including generated proxy and mock classes whose names and ids differ
+# run to run. Both are cut before publishing, so a report whose coverage did not
+# change publishes nothing and deploys nothing.
 copy_backend_coverage() {
   local SRC="$PROJECT_DIR/target/site/jacoco"
   local DEST="$OUTPUT_DIR/backend/coverage"
   if [ -d "$SRC" ] && [ "$(ls -A "$SRC")" ]; then
     mkdir -p "$DEST"
     cp -R "$SRC/." "$DEST/"
+    perl -pi -e 's{<sessioninfo [^>]*/>}{}g' "$DEST/jacoco.xml"
+    perl -0pi -e 's{<p>This coverage report is based.*?(?=<div class="footer">)}{<p>Session details are not published: they change on every run.</p>}s' \
+      "$DEST/jacoco-sessions.html"
     echo "✓ Backend coverage (JaCoCo) copied"
   else
     echo "ℹ️  No backend coverage found — skipping"
   fi
 }
 
+# Istanbul stamps the generation time into the footer of every page, which made
+# each publish rewrite the whole report. The timestamp line is dropped.
 copy_frontend_coverage() {
   local SRC="$PROJECT_DIR/target/frontend/coverage"
   local DEST="$OUTPUT_DIR/frontend/coverage"
   if [ -d "$SRC" ] && [ "$(ls -A "$SRC")" ]; then
     mkdir -p "$DEST"
     cp -R "$SRC/." "$DEST/"
+    find "$DEST" -name '*.html' -exec perl -ni -e \
+      'print unless /^\s*at \d{4}-\d\d-\d\dT[\d:.]+Z\s*$/' {} +
     echo "✓ Frontend coverage copied"
   else
     echo "ℹ️  No frontend coverage found — skipping"
