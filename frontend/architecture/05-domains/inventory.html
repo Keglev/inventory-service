@@ -146,9 +146,11 @@
         read-only enforcement. The flows:</p>
         <ul>
         <li><strong>Create</strong> (<code>ItemFormDialog</code>) —
-        create-only; the dialog has no edit mode. Requires name +
-        supplier; quantity/price non-negative; reason limited to
-        <code>INITIAL_STOCK</code>/<code>MANUAL_UPDATE</code>.</li>
+        create-only; the dialog has no edit mode. Requires name, code
+        and supplier, a stock of at least 1 and a price above zero; asks
+        for no reason (the backend records <code>INITIAL_STOCK</code>);
+        honors <code>readOnly</code> (<a
+        href="../09-decisions/adr-0013-demo-mode-blocks-only-the-write.html">ADR-0013</a>).</li>
         <li><strong>Rename</strong> (<code>EditItemDialog</code>) — the
         ONLY edit operation: guided supplier → item → new-name flow,
         admin-gated, name unique per supplier, produces no stock-history
@@ -173,8 +175,10 @@
         <p>Zod schemas in <code>validation/inventoryValidation.ts</code>
         cover all five flows client-side; the backend remains the source
         of truth for authorization (rename/delete are ADMIN) and
-        business invariants (uniqueness, zero-quantity gate). Demo mode
-        short-circuits mutations before any request is sent.</p>
+        business invariants (uniqueness, zero-quantity gate). In demo
+        mode every dialog except rename stops a valid submit before any
+        request is sent; a demo rename still reaches the backend, which
+        refuses it.</p>
       </article>
     </main>
 

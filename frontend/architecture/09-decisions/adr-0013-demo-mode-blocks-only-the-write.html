@@ -13,7 +13,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frontend · 09-decisions/index · Smart Supply Pro Docs</title>
+  <title>Frontend ·
+09-decisions/adr-0013-demo-mode-blocks-only-the-write · Smart Supply Pro Docs</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -109,90 +110,92 @@
 
     <main class="content" id="main">
       <article class="doc-body">
-        <p><a href="../index.html">⬅️ Back to Frontend Architecture
-        Index</a></p>
-        <ul>
-        <li><a href="../overview.html">Back to Overview
-        (English)</a></li>
-        <li><a href="../overview-de.html">Zurück zum Überblick
-        (Deutsch)</a></li>
-        </ul>
-        <h1 id="architecture-decision-records-adrs">Architecture
-        Decision Records (ADRs)</h1>
-        <p>This directory contains <strong>architecture decisions with
-        justification</strong>.</p>
-        <p>ADRs answer: - <strong>Why</strong> we chose a design (and
-        why not alternatives) - what tradeoffs we accept - where the
-        decision is implemented (high-level pointers)</p>
-        <p>ADRs do <strong>not</strong> document: - how a component
-        works internally - step-by-step implementation details</p>
-        <h2 id="index">Index</h2>
-        <ul>
-        <li><a
-        href="./adr-0001-frontend-folder-structure-strategy.html">ADR-0001:
-        Frontend folder structure strategy (App Shell + Pages + API +
-        Cross-cutting)</a></li>
-        <li><a
-        href="./adr-0002-api-layer-abstraction-httpclient-and-domain-modules.html">ADR-0002:
-        API layer abstraction with shared httpClient and domain
-        modules</a></li>
-        <li><a
-        href="./adr-0003-page-model-and-domain-separation.html">ADR-0003:
-        Page model and domain separation
-        (Inventory/Suppliers/Analytics)</a></li>
-        <li><a
-        href="./adr-0004-dialog-workflow-architecture.html">ADR-0004:
-        Dialog/workflow architecture (Dialog folders + orchestration
-        pattern)</a></li>
-        <li><a
-        href="./adr-0005-shell-split-authenticated-vs-public.html">ADR-0005:
-        Application shell split: authenticated shell vs public
-        shell</a></li>
-        <li><a
-        href="./adr-0006-global-state-with-context-modules.html">ADR-0006:
-        Global state approach using Context modules
-        (Auth/Settings/Toast/Help)</a></li>
-        <li><a
-        href="./adr-0007-i18n-strategy-and-language-region-settings.html">ADR-0007:
-        i18n strategy and language/region settings integration</a></li>
-        <li><a
-        href="./adr-0008-testing-structure-and-taxonomy.html">ADR-0008:
-        Testing structure and taxonomy under
-        src/<strong>tests</strong></a></li>
-        <li><a
-        href="./adr-0009-end-to-end-testing-with-playwright.html">ADR-0009:
-        End-to-end testing with Playwright against a local demo
-        stack</a></li>
-        <li><a
-        href="./adr-0010-verifying-frontend-deploys.html">ADR-0010:
-        Verifying a frontend deploy against the bytes the browser
-        receives</a></li>
-        <li><a
-        href="./adr-0011-gating-the-frontend-image-on-its-http-contract.html">ADR-0011:
-        Gating the frontend image on the HTTP contract it
-        serves</a></li>
-        <li><a
-        href="./adr-0012-low-stock-severity-scales-with-the-minimum.html">ADR-0012:
-        Low-stock severity scales with each item’s minimum</a></li>
-        <li><a
-        href="./adr-0013-demo-mode-blocks-only-the-write.html">ADR-0013:
+        <h1
+        id="adr-0013-demo-mode-walks-every-inventory-dialog-and-blocks-only-the-write">ADR-0013:
         Demo mode walks every inventory dialog and blocks only the
-        write</a></li>
+        write</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-09-23</p>
+        <h2 id="context">Context</h2>
+        <p>Demo mode is a client-side session with no backend account.
+        Its reads reach the backend anonymously and are admitted by
+        <code>app.demo-readonly</code>; every write needs a USER or
+        ADMIN role, so the backend refuses a demo write with 401. The
+        HTTP client does not redirect a demo session to the login page
+        on a 401, and the dialog shows whatever its error mapping makes
+        of the refusal.</p>
+        <p>Three inventory dialogs guarded the write on the client:
+        delete, quantity-adjust and price-change take a
+        <code>readOnly</code> prop, which <code>InventoryDialogs</code>
+        feeds from <code>isDemo</code>. A demo user could open them,
+        pick a supplier and an item, fill the form and see its
+        validation; a valid submit stopped before the request and showed
+        the demo message (<code>common:demoDisabled</code>).</p>
+        <p>The create dialog did not. Its hook carried the same guard,
+        but the dialog never passed <code>readOnly</code> to it, so the
+        guard never ran. A demo user’s create went to the backend, came
+        back 401, and the dialog reported a server error. The rename
+        dialog has no guard at all.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Every inventory mutation dialog honors demo mode the same
+        way:</p>
+        <ul>
+        <li><code>InventoryDialogs</code> passes <code>isDemo</code> to
+        the dialog as <code>readOnly</code>;</li>
+        <li>the dialog stays fully usable: selection, input and
+        client-side validation run exactly as for a signed-in user;</li>
+        <li>a valid submit stops in the dialog’s hook before the
+        request, and the form shows
+        <code>common:demoDisabled</code>.</li>
         </ul>
-        <hr />
-        <p><a href="../index.html">⬅️ Back to Frontend Architecture
-        Index</a></p>
+        <p>The create dialog is wired under this rule now. The backend
+        remains the authority: the client guard only replaces a refusal
+        the backend would give anyway with a message that says why.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Remove the guards and rely on the 401</strong>: less
+        code, but the user reads a server error for an action that was
+        never allowed, and every demo submit costs a request.</li>
+        <li><strong>Hide or disable the entry buttons in demo
+        mode</strong>: the demo could no longer show the dialogs, which
+        are a large part of what a reviewer comes to see.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>A demo user who creates an item sees the demo message
+        instead of a server error, and no request is sent.</li>
+        <li>The message appears only after the form is valid; an invalid
+        form shows its field errors first, as in the three existing
+        dialogs.</li>
+        <li>Rename is the one inventory dialog outside the rule until it
+        is wired; its demo writes still end in the backend’s 401.</li>
+        <li>The supplier dialogs are outside this decision. They take no
+        <code>readOnly</code> prop and rely on backend authorization (<a
+        href="../05-domains/suppliers.html">Suppliers domain</a>).</li>
+        </ul>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#architecture-decision-records-adrs"
-      id="toc-architecture-decision-records-adrs">Architecture Decision
-      Records (ADRs)</a>
+      <li><a
+      href="#adr-0013-demo-mode-walks-every-inventory-dialog-and-blocks-only-the-write"
+      id="toc-adr-0013-demo-mode-walks-every-inventory-dialog-and-blocks-only-the-write">ADR-0013:
+      Demo mode walks every inventory dialog and blocks only the
+      write</a>
       <ul>
-      <li><a href="#index" id="toc-index">Index</a></li>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
       </ul></li>
       </ul>
     </nav>
