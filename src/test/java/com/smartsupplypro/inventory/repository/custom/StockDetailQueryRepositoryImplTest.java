@@ -6,15 +6,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
+import com.smartsupplypro.inventory.repository.custom.util.StockDetailSqlBuilder;
 
 import jakarta.persistence.EntityManager;
 
@@ -94,6 +98,69 @@ class StockDetailQueryRepositoryImplTest {
             // Oracle SQL variant is selected; supplierId predicate narrows to itemA's events
             assertEquals(2, out.size());
             assertEquals("Item A", out.get(0)[0]);
+        }
+    }
+
+    /**
+     * Paging over the same search: page contents, total, and a stable order across pages.
+     */
+    @Nested
+    class StockUpdatePaging {
+
+        @Test
+        void should_split_the_search_into_pages_with_the_total_count_when_the_dialect_is_h2() {
+            seedTestData();
+            StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
+
+            Page<Object[]> first = repo.searchStockUpdatesPage(null, null, null, null, null, null, null, PageRequest.of(0, 2));
+            Page<Object[]> second = repo.searchStockUpdatesPage(null, null, null, null, null, null, null, PageRequest.of(1, 2));
+
+            assertEquals(3, first.getTotalElements());
+            assertEquals(2, first.getTotalPages());
+            assertEquals(2, first.getContent().size());
+            assertEquals("Item B", first.getContent().get(0)[0]);
+            assertEquals(1, second.getContent().size());
+            assertEquals(5, ((Number) second.getContent().get(0)[2]).intValue());
+        }
+
+        @Test
+        void should_count_only_the_filtered_rows_when_the_dialect_is_oracle() {
+            seedTestData();
+            StockDetailQueryRepositoryImpl repo = repoWithDialect(false);
+
+            Page<Object[]> page = repo.searchStockUpdatesPage(null, null, "item", "sup1", null, null, null, PageRequest.of(0, 10));
+
+            assertEquals(2, page.getTotalElements());
+            assertEquals(2, page.getContent().size());
+        }
+
+        @Test
+        void should_not_repeat_or_skip_rows_across_pages_when_timestamps_are_equal() {
+            seedTestData();
+            em.createNativeQuery(
+                "INSERT INTO stock_history (id, item_id, supplier_id, quantity_change, reason, created_by, created_at, price_at_change) VALUES " +
+                "('sh4','itemB','sup2', 1, 'SOLD', 'bob', TIMESTAMP '2024-02-02 10:00:00', 5.00)," +
+                "('sh5','itemB','sup2', 2, 'SOLD', 'bob', TIMESTAMP '2024-02-02 10:00:00', 5.00)"
+            ).executeUpdate();
+            StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
+
+            List<Integer> seen = new java.util.ArrayList<>();
+            for (int p = 0; p < 5; p++) {
+                repo.searchStockUpdatesPage(null, null, null, null, null, null, null, PageRequest.of(p, 1))
+                    .getContent().forEach(r -> seen.add(((Number) r[2]).intValue()));
+            }
+
+            // three rows share one timestamp; the id tie-breaker orders them sh5, sh4, sh3
+            assertEquals(List.of(2, 1, 3, -1, 5), seen);
+        }
+
+        @Test
+        void should_break_timestamp_ties_by_id_in_both_dialects() {
+            // H2 happens to return equal timestamps in a stable order even without a
+            // tie-breaker, so the walk above cannot prove it on its own; Oracle does not.
+            String order = "ORDER BY sh.created_at DESC, sh.id DESC";
+            assertTrue(StockDetailSqlBuilder.buildH2FilteredSearchSql().contains(order));
+            assertTrue(StockDetailSqlBuilder.buildOracleFilteredSearchSql().contains(order));
         }
     }
 

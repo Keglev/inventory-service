@@ -3,6 +3,8 @@ package com.smartsupplypro.inventory.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +39,9 @@ import lombok.RequiredArgsConstructor;
 @Validated
 public class StockUpdateAnalyticsController {
 
+    /** Upper bound for a requested page size, as on the employee-changes endpoint. */
+    private static final int MAX_PAGE_SIZE = 100;
+
     private final StockAnalyticsService stockAnalyticsService;
     private final AnalyticsControllerValidationHelper validationHelper;
 
@@ -69,6 +74,43 @@ public class StockUpdateAnalyticsController {
         StockUpdateFilterDTO filter = validationHelper.buildFilter(
                 dateWindow[0], dateWindow[1], itemName, supplierId, createdBy, minChange, maxChange);
         return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));
+    }
+
+    /**
+     * Gets one page of filtered stock updates: the filters and defaults of
+     * {@code GET /stock-updates}, newest first.
+     *
+     * @param startDate  optional inclusive start date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
+     * @param endDate    optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
+     * @param itemName   optional item name filter
+     * @param supplierId optional supplier filter
+     * @param createdBy  optional creator username filter
+     * @param minChange  optional minimum quantity change filter
+     * @param maxChange  optional maximum quantity change filter
+     * @param page       zero-based page index (default 0)
+     * @param size       page size (default 10, capped at {@value #MAX_PAGE_SIZE})
+     * @return page of stock updates with the total count
+     */
+    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
+    @GetMapping("/stock-updates/page")
+    public ResponseEntity<Page<StockUpdateResultDTO>> getFilteredStockUpdatesPage(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(required = false) String itemName,
+            @RequestParam(required = false) String supplierId,
+            @RequestParam(required = false) String createdBy,
+            @RequestParam(required = false) Integer minChange,
+            @RequestParam(required = false) Integer maxChange,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);
+        validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], "startDate", "endDate");
+        validationHelper.validateNumericRange(minChange, maxChange, "minChange", "maxChange");
+        StockUpdateFilterDTO filter = validationHelper.buildFilter(
+                dateWindow[0], dateWindow[1], itemName, supplierId, createdBy, minChange, maxChange);
+        PageRequest pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));
+        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdatesPage(filter, pageable));
     }
 
     /**

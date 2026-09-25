@@ -3,6 +3,9 @@ package com.smartsupplypro.inventory.repository.custom;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
@@ -60,31 +63,86 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         Integer minChange,
         Integer maxChange
     ) {
-        final String sql = dialectDetector.isH2()
+        final Query query = em.createNativeQuery(filteredSearchSql());
+        bindSearchParameters(query, startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);
+        return query.getResultList();
+    }
+
+    /**
+     * Runs the filtered search for one page, plus a count of all matching rows.
+     *
+     * <p>The count wraps the same SQL, so page and total always agree. The SQL
+     * orders newest first with the id as tie-breaker, a total order, so
+     * consecutive pages neither repeat nor skip a row.
+     *
+     * @param startDate  optional minimum creation timestamp
+     * @param endDate    optional maximum creation timestamp
+     * @param itemName   optional partial item name (case-insensitive)
+     * @param supplierId optional supplier ID
+     * @param createdBy  optional creator username (case-insensitive exact match)
+     * @param minChange  optional minimum quantity change
+     * @param maxChange  optional maximum quantity change
+     * @param pageable   page index and size; its sort is ignored
+     * @return the requested page with the total number of matching rows
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Page<Object[]> searchStockUpdatesPage(
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        String itemName,
+        String supplierId,
+        String createdBy,
+        Integer minChange,
+        Integer maxChange,
+        Pageable pageable
+    ) {
+        final String sql = filteredSearchSql();
+
+        final Query count = em.createNativeQuery("SELECT COUNT(*) FROM (" + sql + ") q");
+        bindSearchParameters(count, startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);
+        final long total = ((Number) count.getSingleResult()).longValue();
+
+        final Query rows = em.createNativeQuery(sql);
+        bindSearchParameters(rows, startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);
+        rows.setFirstResult((int) pageable.getOffset());
+        rows.setMaxResults(pageable.getPageSize());
+
+        return new PageImpl<>(rows.getResultList(), pageable, total);
+    }
+
+    private String filteredSearchSql() {
+        return dialectDetector.isH2()
             ? StockDetailSqlBuilder.buildH2FilteredSearchSql()
             : StockDetailSqlBuilder.buildOracleFilteredSearchSql();
+    }
 
-        // Normalize optional parameters so the SQL's :param IS NULL guards work correctly
+    /**
+     * Binds the seven search filters. Optional values are normalised to {@code null}
+     * so the SQL's {@code :param IS NULL} guards skip the filter.
+     */
+    private void bindSearchParameters(
+        Query query,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        String itemName,
+        String supplierId,
+        String createdBy,
+        Integer minChange,
+        Integer maxChange
+    ) {
         final String itemPattern = (itemName == null || itemName.isBlank())
             ? null : "%" + itemName.toLowerCase() + "%";
-        final String normalizedSupplier = normalizeOptionalParam(supplierId);
         final String normalizedCreator = (createdBy == null || createdBy.isBlank())
             ? null : createdBy.toLowerCase();
-
-        final Query query = em.createNativeQuery(sql);
         // Use java.sql.Timestamp for JDBC/native query compatibility with LocalDateTime parameters
-        final java.sql.Timestamp startTs = (startDate == null) ? null : java.sql.Timestamp.valueOf(startDate);
-        final java.sql.Timestamp endTs = (endDate == null) ? null : java.sql.Timestamp.valueOf(endDate);
-
-        query.setParameter("startDate", startTs);
-        query.setParameter("endDate", endTs);
+        query.setParameter("startDate", (startDate == null) ? null : java.sql.Timestamp.valueOf(startDate));
+        query.setParameter("endDate", (endDate == null) ? null : java.sql.Timestamp.valueOf(endDate));
         query.setParameter("itemPattern", itemPattern);
-        query.setParameter("supplierId", normalizedSupplier);
+        query.setParameter("supplierId", normalizeOptionalParam(supplierId));
         query.setParameter("createdByNorm", normalizedCreator);
         query.setParameter("minChange", minChange);
         query.setParameter("maxChange", maxChange);
-
-        return query.getResultList();
     }
 
     /**
