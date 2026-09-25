@@ -120,6 +120,10 @@ paths:
     post:
       $ref: './analytics/stock-updates-post.yaml#/post'
 
+  /api/analytics/stock-updates/page:
+    get:
+      $ref: './analytics/stock-updates-page.yaml#/get'
+
   /api/analytics/summary:
     get:
       $ref: './analytics/dashboard-summary.yaml#/get'

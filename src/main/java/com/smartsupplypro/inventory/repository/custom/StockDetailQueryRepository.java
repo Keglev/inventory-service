@@ -3,6 +3,9 @@ package com.smartsupplypro.inventory.repository.custom;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 
 /**
@@ -38,6 +41,31 @@ public interface StockDetailQueryRepository {
         String createdBy,
         Integer minChange,
         Integer maxChange
+    );
+
+    /**
+     * Returns one page of the rows {@link #searchStockUpdates} returns, in the
+     * same order, with the total count of matching rows.
+     *
+     * @param startDate  optional minimum creation timestamp
+     * @param endDate    optional maximum creation timestamp
+     * @param itemName   optional partial item name (case-insensitive)
+     * @param supplierId optional supplier ID (exact match)
+     * @param createdBy  optional creator username (case-insensitive exact match)
+     * @param minChange  optional minimum quantity change
+     * @param maxChange  optional maximum quantity change
+     * @param pageable   page index and size; its sort is ignored, the order is fixed
+     * @return the requested page of records
+     */
+    Page<Object[]> searchStockUpdatesPage(
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        String itemName,
+        String supplierId,
+        String createdBy,
+        Integer minChange,
+        Integer maxChange,
+        Pageable pageable
     );
 
     /**

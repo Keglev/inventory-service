@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -246,16 +249,46 @@ public class StockAnalyticsService {
                 min, max
         );
 
-        return rows.stream()
-                .map(r -> new StockUpdateResultDTO(
-                        (String) r[0],
-                        (String) r[1],
-                        asNumber(r[2]).intValue(),
-                        (String) r[3],
-                        (String) r[4],
-                        asLocalDateTime(r[5])
-                ))
-                .toList();
+        return rows.stream().map(StockAnalyticsService::toStockUpdate).toList();
+    }
+
+    /**
+     * One page of {@link #getFilteredStockUpdates}: the same filters, defaults and
+     * order, with the total number of matching rows.
+     *
+     * @param filter   filter object with optional criteria (required, must not be null)
+     * @param pageable page index and size
+     * @return the requested page of stock updates
+     * @throws InvalidRequestException if filter is null or date/quantity ranges are inverted
+     */
+    public Page<StockUpdateResultDTO> getFilteredStockUpdatesPage(StockUpdateFilterDTO filter, Pageable pageable) {
+        LocalDateTime[] window = resolveFilterWindow(filter);
+
+        Integer min = filter.getMinChange();
+        Integer max = filter.getMaxChange();
+        if (min != null && max != null && min > max) {
+            throw new InvalidRequestException("minChange must be <= maxChange");
+        }
+
+        return stockHistoryRepository.searchStockUpdatesPage(
+                window[0], window[1],
+                blankToNull(filter.getItemName()),
+                blankToNull(filter.getSupplierId()),
+                blankToNull(filter.getCreatedBy()),
+                min, max,
+                pageable
+        ).map(StockAnalyticsService::toStockUpdate);
+    }
+
+    /** Maps one search row [item, supplier, change, reason, createdBy, createdAt]. */
+    private static StockUpdateResultDTO toStockUpdate(Object[] r) {
+        return new StockUpdateResultDTO(
+                (String) r[0],
+                (String) r[1],
+                asNumber(r[2]).intValue(),
+                (String) r[3],
+                (String) r[4],
+                asLocalDateTime(r[5]));
     }
 
     /**

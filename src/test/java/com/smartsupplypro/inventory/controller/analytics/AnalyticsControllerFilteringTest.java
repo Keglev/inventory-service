@@ -8,10 +8,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -189,5 +192,37 @@ public class AnalyticsControllerFilteringTest {
                 .content("{}"))
             .andExpect(status().isOk())
             .andExpect(content().json("[]"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"ADMIN", "USER"})
+    void should_return_one_page_with_the_total_when_the_paged_endpoint_is_requested(String role) throws Exception {
+        List<StockUpdateResultDTO> rows = List.of(
+            new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
+        );
+        when(stockAnalyticsService.getFilteredStockUpdatesPage(any(StockUpdateFilterDTO.class), eq(PageRequest.of(2, 10))))
+            .thenReturn(new PageImpl<>(rows, PageRequest.of(2, 10), 21));
+
+        mockMvc.perform(get("/api/analytics/stock-updates/page")
+                .with(user("mockuser").roles(role))
+                .param("itemName", "ItemX")
+                .param("page", "2"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].itemName").value("ItemX"))
+            .andExpect(jsonPath("$.totalElements").value(21));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"ADMIN", "USER"})
+    void should_cap_the_page_size_and_floor_the_page_index_when_they_are_out_of_range(String role) throws Exception {
+        when(stockAnalyticsService.getFilteredStockUpdatesPage(any(StockUpdateFilterDTO.class), eq(PageRequest.of(0, 100))))
+            .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 100), 0));
+
+        mockMvc.perform(get("/api/analytics/stock-updates/page")
+                .with(user("mockuser").roles(role))
+                .param("page", "-3")
+                .param("size", "5000"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.totalElements").value(0));
     }
 }
