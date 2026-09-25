@@ -7,8 +7,12 @@
  * Displays version, build ID, environment, language, and region information.
  *
  * @enterprise
- * - Pure presentational leaf: props-only, no state. Compact single-row status bar
- *   variant of the expanded footer metadata.
+ * - Pure presentational leaf: props-only, no state. Compact status bar variant
+ *   of the expanded footer metadata.
+ * - The meta line wraps instead of truncating, so the full 40-character build
+ *   id stays readable; it is how a deployed build is matched to its commit.
+ *   The group may shrink so that on a narrow screen the line wraps inside the
+ *   footer rather than overflowing it.
  * - All five props originate from useFooterState hardcoded config (see CB-APP1);
  *   currentLanguage is the only live value (derived from i18n.language).
  * - The two JSX structural comments are intentional layout markers.
@@ -68,15 +72,10 @@ export default function FooterMetaInfo({
       direction="row"
       spacing={1}
       alignItems="center"
-      sx={{ flexShrink: 0 }}
+      sx={{ minWidth: 0 }}
     >
       {/* Compact meta string for status bar */}
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        noWrap
-        sx={{ maxWidth: { xs: '100%', sm: '60%' } }}
-      >
+      <Typography variant="caption" color="text.secondary">
         © 2025 Smart Supply Pro • v{appVersion} • {t('footer:meta.build')} {buildId} •{' '}
         {environment} • {t('footer:meta.demoData')}
       </Typography>

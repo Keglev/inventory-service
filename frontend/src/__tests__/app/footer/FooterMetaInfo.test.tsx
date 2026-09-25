@@ -9,6 +9,7 @@
  * - Verify that the component renders the expected "meta" items:
  *   version, build id, environment, language/region indicator, and demo notice.
  * - Verify i18n wiring by asserting translation keys are requested.
+ * - Verify a full 40-character build id is rendered untruncated.
  *
  * Notes:
  * - We keep i18n mocked to prevent test coupling to translation files.
@@ -84,6 +85,14 @@ describe('FooterMetaInfo', () => {
   it('renders the build identifier', () => {
     arrange({ buildId: '4a9c12f' });
     expect(screen.getByText(/Build 4a9c12f/)).toBeInTheDocument();
+  });
+
+  it('renders a full commit hash as build id without truncating the line', () => {
+    const fullId = 'b5fb25c0584db5004356410c5dc05348b7f17ff3';
+    const { container } = arrange({ buildId: fullId });
+
+    expect(screen.getByText(new RegExp(`Build ${fullId}`))).toBeInTheDocument();
+    expect(container.querySelector('.MuiTypography-noWrap')).toBeNull();
   });
 
   it('renders the environment label', () => {
