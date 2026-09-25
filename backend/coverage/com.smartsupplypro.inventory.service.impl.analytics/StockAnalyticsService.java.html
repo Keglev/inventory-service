@@ -220,7 +220,7 @@ public class StockAnalyticsService {
      * @return count of low-stock items
      */
     public long lowStockCount() {
-<span class="nc" id="L223">        return inventoryItemRepository.countItemsBelowMinimumStock();</span>
+<span class="fc" id="L223">        return inventoryItemRepository.countItemsBelowMinimumStock();</span>
     }
 
     /**
@@ -238,7 +238,7 @@ public class StockAnalyticsService {
 
 <span class="fc" id="L239">        Integer min = filter.getMinChange();</span>
 <span class="fc" id="L240">        Integer max = filter.getMaxChange();</span>
-<span class="pc bpc" id="L241" title="1 of 6 branches missed.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
+<span class="fc bfc" id="L241" title="All 6 branches covered.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
 <span class="fc" id="L242">            throw new InvalidRequestException(&quot;minChange must be &lt;= maxChange&quot;);</span>
         }
 
@@ -263,22 +263,22 @@ public class StockAnalyticsService {
      * @throws InvalidRequestException if filter is null or date/quantity ranges are inverted
      */
     public Page&lt;StockUpdateResultDTO&gt; getFilteredStockUpdatesPage(StockUpdateFilterDTO filter, Pageable pageable) {
-<span class="nc" id="L266">        LocalDateTime[] window = resolveFilterWindow(filter);</span>
+<span class="fc" id="L266">        LocalDateTime[] window = resolveFilterWindow(filter);</span>
 
-<span class="nc" id="L268">        Integer min = filter.getMinChange();</span>
-<span class="nc" id="L269">        Integer max = filter.getMaxChange();</span>
-<span class="nc bnc" id="L270" title="All 6 branches missed.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
-<span class="nc" id="L271">            throw new InvalidRequestException(&quot;minChange must be &lt;= maxChange&quot;);</span>
+<span class="fc" id="L268">        Integer min = filter.getMinChange();</span>
+<span class="fc" id="L269">        Integer max = filter.getMaxChange();</span>
+<span class="fc bfc" id="L270" title="All 6 branches covered.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
+<span class="fc" id="L271">            throw new InvalidRequestException(&quot;minChange must be &lt;= maxChange&quot;);</span>
         }
 
-<span class="nc" id="L274">        return stockHistoryRepository.searchStockUpdatesPage(</span>
+<span class="fc" id="L274">        return stockHistoryRepository.searchStockUpdatesPage(</span>
                 window[0], window[1],
-<span class="nc" id="L276">                blankToNull(filter.getItemName()),</span>
-<span class="nc" id="L277">                blankToNull(filter.getSupplierId()),</span>
-<span class="nc" id="L278">                blankToNull(filter.getCreatedBy()),</span>
+<span class="fc" id="L276">                blankToNull(filter.getItemName()),</span>
+<span class="fc" id="L277">                blankToNull(filter.getSupplierId()),</span>
+<span class="fc" id="L278">                blankToNull(filter.getCreatedBy()),</span>
                 min, max,
                 pageable
-<span class="nc" id="L281">        ).map(StockAnalyticsService::toStockUpdate);</span>
+<span class="fc" id="L281">        ).map(StockAnalyticsService::toStockUpdate);</span>
     }
 
     /** Maps one search row [item, supplier, change, reason, createdBy, createdAt]. */
@@ -309,11 +309,11 @@ public class StockAnalyticsService {
         }
 <span class="fc" id="L310">        LocalDateTime start = filter.getStartDate();</span>
 <span class="fc" id="L311">        LocalDateTime end   = filter.getEndDate();</span>
-<span class="pc bpc" id="L312" title="1 of 4 branches missed.">        if (start == null &amp;&amp; end == null) {</span>
+<span class="fc bfc" id="L312" title="All 4 branches covered.">        if (start == null &amp;&amp; end == null) {</span>
 <span class="fc" id="L313">            end   = LocalDateTime.now();</span>
 <span class="fc" id="L314">            start = end.minusDays(30);</span>
         }
-<span class="pc bpc" id="L316" title="2 of 6 branches missed.">        if (start != null &amp;&amp; end != null &amp;&amp; start.isAfter(end)) {</span>
+<span class="fc bfc" id="L316" title="All 6 branches covered.">        if (start != null &amp;&amp; end != null &amp;&amp; start.isAfter(end)) {</span>
 <span class="fc" id="L317">            throw new InvalidRequestException(&quot;startDate must be on or before endDate&quot;);</span>
         }
 <span class="fc" id="L319">        return new LocalDateTime[]{ start, end };</span>
