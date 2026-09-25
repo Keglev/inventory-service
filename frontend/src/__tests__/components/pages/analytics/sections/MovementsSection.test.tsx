@@ -47,9 +47,9 @@ vi.mock('@/api/analytics/reasonBreakdown', () => ({
   getReasonBreakdown: (...args: unknown[]) => mockGetReasonBreakdown(...args),
 }));
 
-const mockGetStockUpdates = vi.fn();
+const mockGetStockUpdatesPage = vi.fn();
 vi.mock('@/api/analytics/updates', () => ({
-  getStockUpdates: (...args: unknown[]) => mockGetStockUpdates(...args),
+  getStockUpdatesPage: (...args: unknown[]) => mockGetStockUpdatesPage(...args),
 }));
 
 const mockSearchItemsGlobal = vi.fn();
@@ -77,9 +77,10 @@ describe('MovementsSection', () => {
       { reason: 'MANUAL_UPDATE', increase: 5, decrease: 3 },
       { reason: 'SOLD', increase: 0, decrease: 7 },
     ]);
-    mockGetStockUpdates.mockResolvedValue([
-      { timestamp: '2026-02-03T09:00:00', itemName: 'Item A', delta: -7, reason: 'SOLD' },
-    ]);
+    mockGetStockUpdatesPage.mockResolvedValue({
+      rows: [{ timestamp: '2026-02-03T09:00:00', itemName: 'Item A', delta: -7, reason: 'SOLD' }],
+      total: 1,
+    });
     mockSearchItemsGlobal.mockResolvedValue([
       { id: 'itemA', name: 'Deep Groove Ball Bearing 6204-2RS' },
     ]);
@@ -146,7 +147,7 @@ describe('MovementsSection', () => {
   });
 
   it('renders the empty state when the drilldown has no rows', async () => {
-    mockGetStockUpdates.mockResolvedValue([]);
+    mockGetStockUpdatesPage.mockResolvedValue({ rows: [], total: 0 });
     setup();
 
     await waitFor(() => {
@@ -155,12 +156,15 @@ describe('MovementsSection', () => {
   });
 
   it('renders positive deltas with a plus, raw unknown reasons, blanks, and bad timestamps', async () => {
-    mockGetStockUpdates.mockResolvedValue([
-      // Unknown reason strings pass through untranslated.
-      { timestamp: 'not-a-date', itemName: 'Item B', delta: 4, reason: 'SOMETHING_ELSE' },
-      // Reason-less rows render an empty reason cell.
-      { timestamp: '2026-02-04T09:00:00', itemName: 'Item C', delta: -2 },
-    ]);
+    mockGetStockUpdatesPage.mockResolvedValue({
+      rows: [
+        // Unknown reason strings pass through untranslated.
+        { timestamp: 'not-a-date', itemName: 'Item B', delta: 4, reason: 'SOMETHING_ELSE' },
+        // Reason-less rows render an empty reason cell.
+        { timestamp: '2026-02-04T09:00:00', itemName: 'Item C', delta: -2 },
+      ],
+      total: 2,
+    });
     setup();
 
     await waitFor(() => expect(screen.getByText('Item B')).toBeInTheDocument());
@@ -181,7 +185,7 @@ describe('MovementsSection', () => {
     );
 
     await waitFor(() => {
-      expect(mockGetStockUpdates).toHaveBeenCalledWith(
+      expect(mockGetStockUpdatesPage).toHaveBeenCalledWith(
         expect.objectContaining({ from: undefined, to: undefined }),
       );
     });
