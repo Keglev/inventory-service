@@ -279,7 +279,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LowStockItemDTO'
-          description: Items requiring attention
+          description: Items below their minimum quantity; every one when no supplier is given, the three lowest for a supplier
         monthlyStockMovement:
           type: array
           items:
