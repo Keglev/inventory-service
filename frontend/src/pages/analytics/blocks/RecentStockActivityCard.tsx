@@ -7,14 +7,14 @@
  * Visual alternative to the table view that uses the same backing API.
  *
  * @enterprise
- * - One of two visual variants over `getStockUpdates` (paired with
- *   `StockUpdatesTable`); pure presentation alternative.
+ * - Reads the full list from `getStockUpdates`; the movement drilldown
+ *   pages the same data through `getStockUpdatesPage`.
  * - Reason codes are normalized via substring matching, resilient to
  *   spelling drift in the backend enum. Final labels are i18n-keyed
  *   so localization happens at the resource layer, not in code.
- * - Fetch limit is intentionally higher than the table variant (200 vs
- *   25) because daily aggregation collapses many rows into few bars,
- *   so a small limit would visibly truncate days.
+ * - It needs every row of the window: daily aggregation collapses many
+ *   rows into few bars, and a truncated list would drop whole days. The
+ *   list endpoint returns them all; it has no row limit.
  * - Day buckets group by UTC date so day boundaries are stable
  *   regardless of the browser timezone.
  */
@@ -60,7 +60,7 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
 
   const q = useQuery<StockUpdateRow[]>({
     queryKey: ['analytics', 'stockUpdates', from, to, supplierId ?? null],
-    queryFn: () => getStockUpdates({ from, to, supplierId: supplierId ?? undefined, limit: 200 }),
+    queryFn: () => getStockUpdates({ from, to, supplierId: supplierId ?? undefined }),
   });
 
   const { rows, reasonKeys } = React.useMemo(() => {

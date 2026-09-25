@@ -35,7 +35,7 @@ describe('api/analytics/updates.getStockUpdates', () => {
   });
 
   describe('request contract', () => {
-    it('builds default params (limit=50) and applies day boundaries to dates', async () => {
+    it('sends no row limit and applies day boundaries to dates', async () => {
       // Arrange
       httpGet.mockResolvedValueOnce({ data: [] });
 
@@ -54,12 +54,11 @@ describe('api/analytics/updates.getStockUpdates', () => {
           endDate: '2025-10-31T23:59:59',
           supplierId: 'SUP-001',
           itemName: 'Widget',
-          limit: 50,
         },
       });
     });
 
-    it('uses provided limit and omits empty optional fields', async () => {
+    it('omits empty optional fields', async () => {
       // Arrange
       httpGet.mockResolvedValueOnce({ data: [] });
 
@@ -69,7 +68,6 @@ describe('api/analytics/updates.getStockUpdates', () => {
         to: '2025-10-02',
         supplierId: '',
         itemName: '',
-        limit: 10,
       });
 
       // Assert
@@ -79,7 +77,6 @@ describe('api/analytics/updates.getStockUpdates', () => {
           endDate: '2025-10-02T23:59:59',
           supplierId: undefined,
           itemName: undefined,
-          limit: 10,
         },
       });
     });
