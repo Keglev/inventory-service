@@ -123,7 +123,7 @@ api/suppliers/hooks/useSupplierByIdQuery/functions/useSupplierByIdQuery · Smart
         useSupplierByIdQuery()</h1>
         <blockquote>
         <p><strong>useSupplierByIdQuery</strong>(<code>supplierId</code>,
-        <code>enabled</code>): <code>UseQueryResult</code>&lt;<a
+        <code>enabled?</code>): <code>UseQueryResult</code>&lt;<a
         href="../../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>
         | <code>null</code>, <code>Error</code>&gt;</p>
         </blockquote>
@@ -132,9 +132,9 @@ api/suppliers/hooks/useSupplierByIdQuery/functions/useSupplierByIdQuery · Smart
         <p>Loads a single supplier by ID, or null if not found.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="supplierid">supplierId</h3>
-        <p>The ID of the supplier to load</p>
         <p><code>string</code> | <code>null</code></p>
-        <h3 id="enabled">enabled</h3>
+        <p>The ID of the supplier to load</p>
+        <h3 id="enabled">enabled?</h3>
         <p><code>boolean</code> = <code>true</code></p>
         <p>Whether to fetch (defaults to true)</p>
         <h2 id="returns">Returns</h2>
@@ -160,7 +160,7 @@ api/suppliers/hooks/useSupplierByIdQuery/functions/useSupplierByIdQuery · Smart
       <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
       <li><a href="#supplierid" id="toc-supplierid">supplierId</a></li>
-      <li><a href="#enabled" id="toc-enabled">enabled</a></li>
+      <li><a href="#enabled" id="toc-enabled">enabled?</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
       <li><a href="#example" id="toc-example">Example</a></li>
