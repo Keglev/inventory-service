@@ -32,7 +32,7 @@ public final class StockDetailSqlBuilder {
               AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
               AND (:minChange IS NULL OR sh.quantity_change &gt;= :minChange)
               AND (:maxChange IS NULL OR sh.quantity_change &lt;= :maxChange)
-            ORDER BY sh.created_at DESC
+            ORDER BY sh.created_at DESC, sh.id DESC
         &quot;&quot;&quot;;
     }
 
@@ -62,7 +62,7 @@ public final class StockDetailSqlBuilder {
               AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
               AND (:minChange IS NULL OR sh.quantity_change &gt;= :minChange)
               AND (:maxChange IS NULL OR sh.quantity_change &lt;= :maxChange)
-            ORDER BY sh.created_at DESC
+            ORDER BY sh.created_at DESC, sh.id DESC
         &quot;&quot;&quot;;
     }
 }
