@@ -5,7 +5,7 @@
  *
  * Contract under test:
  * - Guarantees the request contract (endpoint + parameter mapping) for
- *   date range queries
+ *   date range queries, for the list and for the paged endpoint
  * - Guarantees tolerant parsing/filtering of supported row shapes into a
  *   stable DTO list
  * - Guarantees transport failures or unsupported payload shapes return a
@@ -25,7 +25,7 @@ vi.mock('../../../../api/httpClient', () => ({
 }));
 
 import http from '../../../../api/httpClient';
-import { getStockUpdates } from '../../../../api/analytics/updates';
+import { getStockUpdates, getStockUpdatesPage } from '../../../../api/analytics/updates';
 
 describe('api/analytics/updates.getStockUpdates', () => {
   const httpGet = http.get as unknown as ReturnType<typeof vi.fn>;
@@ -165,5 +165,77 @@ describe('api/analytics/updates.getStockUpdates', () => {
       // Assert
       expect(res).toEqual([]);
     });
+  });
+});
+
+describe('api/analytics/updates.getStockUpdatesPage', () => {
+  const httpGet = http.get as unknown as ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('requests the paged endpoint with the window, filters, page and size', async () => {
+    httpGet.mockResolvedValueOnce({ data: { content: [], totalElements: 0 } });
+
+    await getStockUpdatesPage({
+      from: '2025-10-01',
+      to: '2025-10-31',
+      supplierId: 'SUP-001',
+      itemName: 'Widget',
+      page: 2,
+      size: 25,
+    });
+
+    expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-updates/page', {
+      params: {
+        startDate: '2025-10-01T00:00:00',
+        endDate: '2025-10-31T23:59:59',
+        supplierId: 'SUP-001',
+        itemName: 'Widget',
+        page: 2,
+        size: 25,
+      },
+    });
+  });
+
+  it('defaults to the first page of ten rows', async () => {
+    httpGet.mockResolvedValueOnce({ data: { content: [], totalElements: 0 } });
+
+    await getStockUpdatesPage();
+
+    expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-updates/page', {
+      params: expect.objectContaining({ page: 0, size: 10 }),
+    });
+  });
+
+  it('maps the page content and reads the total', async () => {
+    httpGet.mockResolvedValueOnce({
+      data: {
+        content: [
+          { itemName: 'Item A', change: -2, reason: 'SOLD', createdBy: 'alice', timestamp: '2026-02-01T10:00:00' },
+          { itemName: 'Item B' },
+        ],
+        totalElements: 21,
+      },
+    });
+
+    const page = await getStockUpdatesPage();
+
+    expect(page.total).toBe(21);
+    expect(page.rows).toEqual([
+      { timestamp: '2026-02-01T10:00:00', itemName: 'Item A', delta: -2, reason: 'SOLD', user: 'alice' },
+    ]);
+  });
+
+  it('returns an empty page for a malformed response or a transport failure', async () => {
+    httpGet.mockResolvedValueOnce({ data: [] });
+    expect(await getStockUpdatesPage()).toEqual({ rows: [], total: 0 });
+
+    httpGet.mockResolvedValueOnce({ data: null });
+    expect(await getStockUpdatesPage()).toEqual({ rows: [], total: 0 });
+
+    httpGet.mockRejectedValueOnce(new Error('network'));
+    expect(await getStockUpdatesPage()).toEqual({ rows: [], total: 0 });
   });
 });
