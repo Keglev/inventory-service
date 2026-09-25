@@ -30,23 +30,23 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">79.16% </span>
+                <span class="strong">68.75% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>19/24</span>
+                <span class='fraction'>11/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">92.3% </span>
+                <span class="strong">91.66% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>12/13</span>
+                <span class='fraction'>11/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.42% </span>
+                <span class="strong">96.55% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>27/28</span>
+                <span class='fraction'>28/29</span>
             </div>
         
             
@@ -271,8 +271,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -337,15 +335,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -373,7 +374,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -387,9 +390,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -416,20 +416,18 @@
  *   colour is the severity of frontend ADR-0012 (critical at half the minimum
  *   or less), so the chart speaks the same language as the inventory table.
  *   The "x / y" label beside each bar keeps the absolute numbers.
- * - Five rows by default, so each row keeps its height; "show more" expands
- *   the card in place to every low-stock item. There is no page that lists
- *   them all, so the list opens here rather than behind a link.
+ * - Five rows per page, paged with the same pagination bar as the tables
+ *   (counter and arrows, no rows-per-page choice). The chart keeps the height
+ *   of five rows on every page, so the card does not jump between pages.
  * - Long names are cut to one line; the tooltip shows the full name and both
  *   quantities.
  * - Empty and loading states are handled locally; the fetcher never throws.
  *
  * @i18n common namespace: dashboard.lowStockChart.{title,empty,quantity,minimum,
- * ofMinimum,critical,low,showMore,showLess}.
+ * ofMinimum,critical,low}; the pagination labels come from the theme locale.
  */
 import * as React from 'react';
-import { Card, CardContent, Typography, Skeleton, Box, Button } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import { Card, CardContent, Typography, Skeleton, Box, TablePagination } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -441,8 +439,8 @@ import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 &nbsp;
-/** Rows shown before the card is expanded. */
-const VISIBLE_ROWS = 5;
+/** Rows per page. */
+const ROWS_PER_PAGE = 5;
 /** Height of one bar row in px; the chart grows with the rows it shows. */
 const ROW_HEIGHT = 44;
 /** Longest item name shown on the axis before it is cut with an ellipsis. */
@@ -490,7 +488,7 @@ export default function LowStockMini() {
   const { t } = useTranslation('common');
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
-  const [expanded, setExpanded] = React.useState(false);
+  const [page, setPage] = React.useState(0);
 &nbsp;
   const q = useQuery&lt;LowStockRow[]&gt;({
     queryKey: ['dashboard', 'lowStockMini'],
@@ -506,8 +504,10 @@ export default function LowStockMini() {
       label: t('dashboard.lowStockChart.ofMinimum', { quantity: num(r.quantity), minimum: num(r.minimumQuantity) }),
     }))
     .sort((a, b) =&gt; a.share - b.share);
-  const visible = expanded ? rows : rows.slice(0, VISIBLE_ROWS);
-  const hidden = rows.length - VISIBLE_ROWS;
+  // A refetch can shrink the list below the current page; fall back to the last one.
+  const lastPage = Math.max(0, Math.ceil(rows.length / ROWS_PER_PAGE) - 1);
+  const current = Math.min(page, lastPage);
+  const visible = rows.slice(current * ROWS_PER_PAGE, current * ROWS_PER_PAGE + ROWS_PER_PAGE);
 &nbsp;
   const colorOf = (r: LowStockRow) =&gt;
     lowStockSeverity(r.quantity, r.minimumQuantity) === 'critical'
@@ -529,40 +529,40 @@ export default function LowStockMini() {
           &lt;/Box&gt;
         ) : (
           &lt;&gt;
-            &lt;Box sx={{ height: visible.length * ROW_HEIGHT + 8 }} data-testid="low-stock-chart"&gt;
-              &lt;ResponsiveContainer width="100%" height="100%"&gt;
-                &lt;BarChart data={visible} layout="vertical" margin={{ left: 8, right: 80 }}&gt;
-                  &lt;XAxis type="number" domain={[0, 1]} hide /&gt;
-                  &lt;YAxis type="category" dataKey="itemName" width={170} tickFormatter={shortName} /&gt;
-                  &lt;Tooltip
-                    cursor={{ fillOpacity: 0.08 }}
-                    content={({ active, payload }) =&gt; (
-                      &lt;RowTooltip row={active ? (payload?.[0]?.payload as ChartRow | undefined) : <span class="branch-1 cbranch-no" title="branch not covered" >undefined} n</span>um={num} /&gt;
-                    )}
-                  /&gt;
-                  &lt;Bar dataKey="share" barSize={20} radius={[0, 3, 3, 0]} isAnimationActive={false}&gt;
-                    {visible.map((r, i) =&gt; (
-                      &lt;Cell key={`${r.itemName}-${i}`} fill={colorOf(r)} /&gt;
-                    ))}
-                    &lt;LabelList dataKey="label" position="right" /&gt;
-                  &lt;/Bar&gt;
-                &lt;/BarChart&gt;
-              &lt;/ResponsiveContainer&gt;
+            &lt;Box sx={{ height: ROWS_PER_PAGE * ROW_HEIGHT + 8 }} data-testid="low-stock-chart"&gt;
+              &lt;Box sx={{ height: visible.length * ROW_HEIGHT + 8 }}&gt;
+                &lt;ResponsiveContainer width="100%" height="100%"&gt;
+                  &lt;BarChart data={visible} layout="vertical" margin={{ left: 8, right: 80 }}&gt;
+                    &lt;XAxis type="number" domain={[0, 1]} hide /&gt;
+                    &lt;YAxis type="category" dataKey="itemName" width={170} tickFormatter={shortName} /&gt;
+                    &lt;Tooltip
+                      cursor={{ fillOpacity: 0.08 }}
+                      content={({ active, payload }) =&gt; (
+                        &lt;RowTooltip row={active ? (payload?.[0]?.payload as ChartRow | undefined) : <span class="branch-1 cbranch-no" title="branch not covered" >undefined} n</span>um={num} /&gt;
+                      )}
+                    /&gt;
+                    &lt;Bar dataKey="share" barSize={20} radius={[0, 3, 3, 0]} isAnimationActive={false}&gt;
+                      {visible.map((r, i) =&gt; (
+                        &lt;Cell key={`${r.itemName}-${i}`} fill={colorOf(r)} /&gt;
+                      ))}
+                      &lt;LabelList dataKey="label" position="right" /&gt;
+                    &lt;/Bar&gt;
+                  &lt;/BarChart&gt;
+                &lt;/ResponsiveContainer&gt;
+              &lt;/Box&gt;
             &lt;/Box&gt;
 &nbsp;
             &lt;Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 1, mt: 1 }}&gt;
               &lt;SeverityLegend /&gt;
-              {hidden &gt; 0 &amp;&amp; (
-                &lt;Button
-                  size="small"
-                  onClick={() =&gt; setExpanded((v) =&gt; !v)}
-                  endIcon={expanded ? &lt;ExpandLessIcon /&gt; : &lt;ExpandMoreIcon /&gt;}
-                &gt;
-                  {expanded
-                    ? t('dashboard.lowStockChart.showLess')
-                    : t('dashboard.lowStockChart.showMore', { count: hidden })}
-                &lt;/Button&gt;
-              )}
+              &lt;TablePagination
+                component="div"
+                count={rows.length}
+                page={current}
+                onPageChange={(_e, next) =&gt; setPage(next)}
+                rowsPerPage={ROWS_PER_PAGE}
+                rowsPerPageOptions={[]}
+                sx={{ '&amp; .MuiTablePagination-toolbar': { minHeight: 0, pl: 0 } }}
+              /&gt;
             &lt;/Box&gt;
           &lt;/&gt;
         )}
