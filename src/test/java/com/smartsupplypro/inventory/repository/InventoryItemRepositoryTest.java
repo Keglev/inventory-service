@@ -203,16 +203,22 @@ class InventoryItemRepositoryTest {
         }
 
         @Test
-        void should_count_the_items_when_their_quantity_is_strictly_below_the_threshold() {
+        void should_count_the_items_below_their_own_minimum_as_the_low_stock_list_does() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-cnt-1").name("Pin").sku("SKU-REP-9").quantity(3)
                     .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier1).build());
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-cnt-2").name("Clip").sku("SKU-REP-10").quantity(10)
                     .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier1).build());
+            // Four is below the old fixed threshold of 5, but not below its own minimum of 2.
+            inventoryItemRepository.save(InventoryItem.builder()
+                    .id("item-cnt-3").name("Nut").sku("SKU-REP-11").quantity(4)
+                    .minimumQuantity(2).price(BigDecimal.ONE).supplier(supplier1).build());
 
-            assertEquals(1, inventoryItemRepository.countWithQuantityBelow(5));
-            assertEquals(0, inventoryItemRepository.countWithQuantityBelow(3));
+            long count = inventoryItemRepository.countItemsBelowMinimumStock();
+
+            assertEquals(1, count);
+            assertEquals(inventoryItemRepository.findItemsBelowMinimumStockFiltered(null).size(), count);
         }
     }
 }
