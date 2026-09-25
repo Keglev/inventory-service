@@ -6,7 +6,7 @@
  * - Loading state (skeleton)
  * - Empty state when the summary returns no low-stock rows
  * - One bar per item, most critical first, coloured by severity
- * - Five rows by default; "show more" expands to every item and back
+ * - Five rows per page with the table pagination bar (counter and arrows)
  */
 
 import type { ReactNode } from 'react';
@@ -120,7 +120,9 @@ describe('LowStockMini', () => {
     expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-names', 'Critical A|Low C|Low B');
     expect(screen.getAllByTestId('bar').map((b) => b.getAttribute('data-key'))).toEqual(['share']);
     expect(screen.getAllByTestId('cell').map((c) => c.getAttribute('data-fill'))).toEqual(['#C00000', '#FFC000', '#FFC000']);
-    expect(screen.queryByRole('button')).toBeNull();
+    expect(screen.getByText('1\u20133 of 3')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /previous page/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /next page/i })).toBeDisabled();
   });
 
   it('shows the full name and both quantities in the tooltip and a legend of both severities', async () => {
@@ -137,7 +139,7 @@ describe('LowStockMini', () => {
     expect(screen.getByText('dashboard.lowStockChart.low')).toBeInTheDocument();
   });
 
-  it('shows five items and expands to all of them on demand', async () => {
+  it('pages through the items five at a time with the arrows', async () => {
     const user = userEvent.setup();
     vi.mocked(getDashboardLowStock).mockResolvedValue(
       Array.from({ length: 7 }, (_, i) => row(`Item ${i + 1}`, i + 1, 10)),
@@ -145,10 +147,16 @@ describe('LowStockMini', () => {
     setup(queryClient);
 
     await waitFor(() => expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-length', '5'));
-    await user.click(screen.getByRole('button', { name: 'dashboard.lowStockChart.showMore:2' }));
+    expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-names', 'Item 1|Item 2|Item 3|Item 4|Item 5');
+    expect(screen.getByText('1\u20135 of 7')).toBeInTheDocument();
 
-    expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-length', '7');
-    await user.click(screen.getByRole('button', { name: 'dashboard.lowStockChart.showLess' }));
+    await user.click(screen.getByRole('button', { name: /next page/i }));
+
+    expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-names', 'Item 6|Item 7');
+    expect(screen.getByText('6\u20137 of 7')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /next page/i })).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: /previous page/i }));
     expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-length', '5');
   });
 });
