@@ -311,6 +311,69 @@
         <code>.github/workflows/3-deploy-ghpages.yml</code>.</li>
         <li>Delivered as PRs #77 to #81.</li>
         </ul>
+        <h2
+        id="amendment-2026-09-24-each-run-builds-only-its-own-share">Amendment
+        2026-09-24: each run builds only its own share</h2>
+        <p>One merge can start up to three runs of the docs pipeline:
+        its own push, and one after each CI workflow. The gate
+        classified the merge’s diff and gave every run the same answer,
+        so a merge touching docs, backend and frontend rebuilt the same
+        subtrees three times. The gate now also receives the trigger
+        (<code>DOCS_TRIGGER</code>: <code>push</code>,
+        <code>backend</code> or <code>frontend</code>) and splits the
+        table above between the runs:</p>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>run</th>
+        <th>builds</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>push (<code>docs/**</code>,
+        <code>.github/scripts/docs/**</code>,
+        <code>docs-build.yml</code>, <code>lychee.toml</code>)</td>
+        <td>the <code>docs/**</code> subtrees by change; on a theme or
+        pipeline change all of them, and TypeDoc unless frontend source
+        also changed</td>
+        </tr>
+        <tr class="even">
+        <td>after backend CI</td>
+        <td>no subtree; carries the JaCoCo report</td>
+        </tr>
+        <tr class="odd">
+        <td>after frontend CI</td>
+        <td>TypeDoc when frontend source changed; carries the frontend
+        coverage report</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>A theme or pipeline change always starts a push run, and a
+        frontend source change always starts frontend CI, so every
+        subtree the table above selects is still built by exactly one
+        run. Replayed over the 444 commits on <code>main</code> from
+        2026-06-01 to <code>a6c6ba4796</code>: no generator lost for any
+        commit, repeated generator runs within one merge fell from 154
+        to 0, and generator executions from about 1,000 to 759.</p>
+        <p>The replay also exposed a defect in the gate itself: under
+        <code>pipefail</code>, <code>echo "$changed" | grep -q</code>
+        failed whenever grep exited on its first match before echo had
+        written the whole list, and read as “no match”. On a 121-file
+        merge it skipped <code>frontend/architecture</code> about once
+        in forty runs. The matches now read the list from a
+        here-string.</p>
+        <p>TypeDoc now depends on frontend CI succeeding: if a frontend
+        merge turns CI red, its API reference is rebuilt by the next
+        green frontend merge rather than by the push run.</p>
+        <p>Superseded by this block: “It follows whichever CI workflow
+        chained into the run” remains true for coverage; the subtree
+        table is now applied per run as above rather than to every
+        run.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -341,6 +404,10 @@
       id="toc-consequences">Consequences</a></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a
+      href="#amendment-2026-09-24-each-run-builds-only-its-own-share"
+      id="toc-amendment-2026-09-24-each-run-builds-only-its-own-share">Amendment
+      2026-09-24: each run builds only its own share</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
