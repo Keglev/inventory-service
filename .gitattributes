@@ -4,3 +4,7 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 *.cmd text eol=crlf
+# The Maven wrapper generates mvnw.cmd with CRLF and Dependabot commits it as
+# generated, so the rule above would make every clone report it as modified.
+# It is stored exactly as committed.
+/mvnw.cmd -text
