@@ -113,9 +113,8 @@ class AnalyticsDashboardHelperTest {
         assertEquals(stockPerSupplier, summary.stockPerSupplier());
         assertEquals(monthly, summary.monthlyStockMovement());
 
-        assertEquals(5, summary.lowStockItems().size());
-        assertEquals("Low0", summary.lowStockItems().get(0).itemName());
-        assertEquals("Low4", summary.lowStockItems().get(4).itemName());
+        // The global list is complete: the dashboard chart ranks and folds it itself.
+        assertEquals(globalLowStock, summary.lowStockItems());
         assertTrue(summary.topUpdatedItems().isEmpty());
 
         verify(stockAnalyticsService).getItemsBelowMinimumStock();
