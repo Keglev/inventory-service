@@ -215,11 +215,12 @@ public class StockAnalyticsService {
     }
 
     /**
-     * Total items currently below minimum stock threshold (global KPI, no supplier filter).
+     * Number of active items below their own minimum quantity (global KPI, no
+     * supplier filter). Counts the same items the dashboard's low-stock list shows.
      * @return count of low-stock items
      */
     public long lowStockCount() {
-        return inventoryItemRepository.countWithQuantityBelow(5);
+        return inventoryItemRepository.countItemsBelowMinimumStock();
     }
 
     /**
