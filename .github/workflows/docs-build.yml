@@ -98,8 +98,16 @@ jobs:
       #
       # The rebuild scope is decided in a script. Its header states the three
       # outcomes and the outputs later steps read as steps.gate.outputs.<name>.
+      # DOCS_TRIGGER tells it which of the up to three runs of a merge this is,
+      # so each builds only its own share.
       - name: Decide which parts of the site to rebuild
         id: gate
+        env:
+          DOCS_TRIGGER: >-
+            ${{ github.event_name == 'push' && 'push'
+              || github.event.workflow_run.name == 'Backend CI - Build & Test' && 'backend'
+              || github.event.workflow_run.name == 'Frontend CI - Build & Test' && 'frontend'
+              || 'unknown' }}
         run: bash .github/scripts/docs/decide-rebuild-scope.sh
 
       # JaCoCo is only available when triggered after backend CI — absent on docs-only pushes

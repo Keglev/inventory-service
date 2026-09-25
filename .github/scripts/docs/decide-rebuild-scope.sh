@@ -19,37 +19,69 @@
 # because the coverage report that a backend or frontend CI run carries in is
 # new even when no page is.
 #
-# Failure mode: aborts the step. It needs GITHUB_OUTPUT, GITHUB_STEP_SUMMARY
-# and a checkout with fetch-depth >= 2; under `set -u` a missing one stops the
-# run rather than publishing a wrong scope.
+# One merge can start up to three runs, and each builds only its own share
+# (DOCS_TRIGGER, set by docs-build.yml). The push run builds the pages from
+# docs/**; the run after backend CI builds nothing and carries JaCoCo; the run
+# after frontend CI builds TypeDoc and carries frontend coverage. A full
+# rebuild is the push run's, except TypeDoc when frontend source also changed:
+# frontend CI then runs too, and its run rebuilds TypeDoc from the same commit.
+#
+# Every match reads the list from a here-string, not a pipe. Under pipefail,
+# `echo | grep -q` fails when grep exits on its first match before echo has
+# written everything, which on a long file list read as "no match" and
+# skipped a subtree about once in forty runs.
+#
+# Failure mode: aborts the step. It needs DOCS_TRIGGER (push, backend or
+# frontend), GITHUB_OUTPUT, GITHUB_STEP_SUMMARY and a checkout with
+# fetch-depth >= 2; a missing or unknown one stops the run rather than
+# publishing a wrong scope.
 # =============================================================================
 set -euo pipefail
 changed="$(git diff --name-only HEAD^ HEAD)"
 echo "$changed"
 
 full=false
-if echo "$changed" | grep -qE '^(docs/_theme/|\.github/scripts/docs/|\.github/workflows/docs-build\.yml$)'; then
+if grep -qE '^(docs/_theme/|\.github/scripts/docs/|\.github/workflows/docs-build\.yml$)' <<<"$changed"; then
   full=true
 fi
 
-typedoc="$full"; redoc="$full"
-arch_backend="$full"; arch_frontend="$full"; decisions="$full"
+typedoc=false; redoc=false
+arch_backend=false; arch_frontend=false; decisions=false
 
-if echo "$changed" | grep -qE '^frontend/(src/|typedoc\.json$|package\.json$|package-lock\.json$|tsconfig\.app\.json$)'; then
-  typedoc=true
+frontend_src=false
+if grep -qE '^frontend/(src/|typedoc\.json$|package\.json$|package-lock\.json$|tsconfig\.app\.json$)' <<<"$changed"; then
+  frontend_src=true
 fi
-if echo "$changed" | grep -qE '^docs/backend/api/'; then
-  redoc=true
-fi
-if echo "$changed" | grep -qE '^docs/backend/architecture/'; then
-  arch_backend=true
-fi
-if echo "$changed" | grep -qE '^docs/frontend/architecture/'; then
-  arch_frontend=true
-fi
-if echo "$changed" | grep -qE '^docs/decisions/'; then
-  decisions=true
-fi
+
+case "$DOCS_TRIGGER" in
+  push)
+    redoc="$full"; arch_backend="$full"; arch_frontend="$full"; decisions="$full"
+    if [ "$full" = true ] && [ "$frontend_src" = false ]; then
+      typedoc=true
+    fi
+    if grep -qE '^docs/backend/api/' <<<"$changed"; then
+      redoc=true
+    fi
+    if grep -qE '^docs/backend/architecture/' <<<"$changed"; then
+      arch_backend=true
+    fi
+    if grep -qE '^docs/frontend/architecture/' <<<"$changed"; then
+      arch_frontend=true
+    fi
+    if grep -qE '^docs/decisions/' <<<"$changed"; then
+      decisions=true
+    fi
+    ;;
+  backend)
+    ;;
+  frontend)
+    typedoc="$frontend_src"
+    ;;
+  *)
+    echo "::error::DOCS_TRIGGER must be push, backend or frontend, got '$DOCS_TRIGGER'"
+    exit 1
+    ;;
+esac
 
 # build-typedoc-html.sh and build-architecture-docs.sh both render through
 # pandoc, so the install is needed if any of those four is selected. The
@@ -71,7 +103,7 @@ fi
 } >> "$GITHUB_OUTPUT"
 
 {
-  echo "### Docs rebuild plan"
+  echo "### Docs rebuild plan ($DOCS_TRIGGER run)"
   echo "- full rebuild: $full"
   echo "- frontend/api (TypeDoc): $typedoc"
   echo "- backend/api (ReDoc): $redoc"

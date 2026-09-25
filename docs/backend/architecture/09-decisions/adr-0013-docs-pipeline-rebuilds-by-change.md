@@ -146,6 +146,42 @@ the lost-update window this decision removes.
 - Manifest-driven publish: `.github/workflows/3-deploy-ghpages.yml`.
 - Delivered as PRs #77 to #81.
 
+## Amendment 2026-09-24: each run builds only its own share
+
+One merge can start up to three runs of the docs pipeline: its own push, and
+one after each CI workflow. The gate classified the merge's diff and gave every
+run the same answer, so a merge touching docs, backend and frontend rebuilt the
+same subtrees three times. The gate now also receives the trigger
+(`DOCS_TRIGGER`: `push`, `backend` or `frontend`) and splits the table above
+between the runs:
+
+| run | builds |
+|---|---|
+| push (`docs/**`, `.github/scripts/docs/**`, `docs-build.yml`, `lychee.toml`) | the `docs/**` subtrees by change; on a theme or pipeline change all of them, and TypeDoc unless frontend source also changed |
+| after backend CI | no subtree; carries the JaCoCo report |
+| after frontend CI | TypeDoc when frontend source changed; carries the frontend coverage report |
+
+A theme or pipeline change always starts a push run, and a frontend source
+change always starts frontend CI, so every subtree the table above selects is
+still built by exactly one run. Replayed over the 444 commits on `main` from
+2026-06-01 to `a6c6ba4796`: no generator lost for any commit, repeated
+generator runs within one merge fell from 154 to 0, and generator executions
+from about 1,000 to 759.
+
+The replay also exposed a defect in the gate itself: under `pipefail`,
+`echo "$changed" | grep -q` failed whenever grep exited on its first match
+before echo had written the whole list, and read as "no match". On a 121-file
+merge it skipped `frontend/architecture` about once in forty runs. The matches
+now read the list from a here-string.
+
+TypeDoc now depends on frontend CI succeeding: if a frontend merge turns CI
+red, its API reference is rebuilt by the next green frontend merge rather than
+by the push run.
+
+Superseded by this block: "It follows whichever CI workflow chained into the
+run" remains true for coverage; the subtree table is now applied per run as
+above rather than to every run.
+
 ## References
 - [ADR-0012: Backend hosting on the shared Hetzner host](adr-0012-backend-hosting-on-shared-hetzner-host.md)
 - Section 7 Deployment (`../07-deployment.md`)
