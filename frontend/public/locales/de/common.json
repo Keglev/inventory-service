@@ -40,9 +40,7 @@
       "minimum": "Mindestbestand",
       "ofMinimum": "{{quantity}} / {{minimum}} Stk",
       "critical": "Kritisch (höchstens halbes Minimum)",
-      "low": "Niedrig",
-      "showMore": "{{count}} weitere anzeigen",
-      "showLess": "Weniger anzeigen"
+      "low": "Niedrig"
     },
     "reasons": {
       "title": "Lagerbewegung nach Grund (Stück)",
