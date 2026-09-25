@@ -23,16 +23,15 @@ export type StockUpdatesFilter = {
     to?: string;
     supplierId?: string;
     itemName?: string;
-    limit?: number;
 };
 /**
  * GET /api/analytics/stock-updates?startDate&endDate[&supplierId][&itemName]
  *
- * Fetches recent stock updates with tolerant field mapping so backend renames
- * don't break the UI. `limit` is included in the request but is not a declared
- * backend parameter and will be silently ignored.
+ * Fetches every stock update in the window with tolerant field mapping so
+ * backend renames don't break the UI. The endpoint has no row limit; use
+ * {@link getStockUpdatesPage} where the rows are shown one page at a time.
  * Returns an empty array when the response is missing or malformed.
- * @param filter - Optional date range, supplier, item name, and result-count hint
+ * @param filter - Optional date range, supplier and item name
  * @returns Array of stock update rows, empty on errors
  * @example
  * ```typescript
@@ -41,19 +40,13 @@ export type StockUpdatesFilter = {
  *   to: '2025-10-31',
  *   supplierId: 'SUP-001',
  *   itemName: 'Widget',
- *   limit: 100
  * });
  * return <Table data={updates} />;
  * ```
  */
 export async function getStockUpdates(filter?: StockUpdatesFilter): Promise<StockUpdateRow[]> {
     try {
-        const params: Record<string, string | number | undefined> = {
-            ...windowParams(filter),
-            limit: filter?.limit ?? 50,
-        };
-
-        const { data } = await http.get<unknown>('/api/analytics/stock-updates', { params });
+        const { data } = await http.get<unknown>('/api/analytics/stock-updates', { params: windowParams(filter) });
         if (!isArrayOfRecords(data)) return [];
         return (data as Rec[])
             .map(toStockUpdateRow)
@@ -63,7 +56,7 @@ export async function getStockUpdates(filter?: StockUpdatesFilter): Promise<Stoc
     }
 }
 
-export type StockUpdatesPageFilter = Omit<StockUpdatesFilter, 'limit'> & {
+export type StockUpdatesPageFilter = StockUpdatesFilter & {
     /** Zero-based page index. */
     page?: number;
     /** Rows per page; the backend caps it at 100. */
@@ -109,7 +102,7 @@ export async function getStockUpdatesPage(filter?: StockUpdatesPageFilter): Prom
 }
 
 /** Date window, supplier and item name as the backend's query parameters. */
-function windowParams(filter?: Omit<StockUpdatesFilter, 'limit'>): Record<string, string | undefined> {
+function windowParams(filter?: StockUpdatesFilter): Record<string, string | undefined> {
     const buildDateTime = (date?: string | null, opts?: { endOfDay?: boolean }) => {
         if (!date) return undefined;
         const suffix = opts?.endOfDay ? 'T23:59:59' : 'T00:00:00';

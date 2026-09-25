@@ -5,7 +5,7 @@
  * Enterprise tests for RecentStockActivityCard:
  * - Loading state (skeleton)
  * - Empty state when no updates exist
- * - API query parameters (from/to/supplierId/limit)
+ * - API query parameters (from/to/supplierId)
  * - Chart renders expected stacked series keys when updates exist
  */
 
@@ -154,7 +154,6 @@ describe('RecentStockActivityCard', () => {
         from: '2025-01-01',
         to: '2025-01-31',
         supplierId: 'sup-2',
-        limit: 200,
       });
     });
 
