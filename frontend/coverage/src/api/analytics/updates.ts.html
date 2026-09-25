@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>33/33</span>
+                <span class='fraction'>32/32</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>34/34</span>
+                <span class='fraction'>32/32</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>28/28</span>
+                <span class='fraction'>27/27</span>
             </div>
         
             
@@ -198,16 +198,7 @@
 <a name='L133'></a><a href='#L133'>133</a>
 <a name='L134'></a><a href='#L134'>134</a>
 <a name='L135'></a><a href='#L135'>135</a>
-<a name='L136'></a><a href='#L136'>136</a>
-<a name='L137'></a><a href='#L137'>137</a>
-<a name='L138'></a><a href='#L138'>138</a>
-<a name='L139'></a><a href='#L139'>139</a>
-<a name='L140'></a><a href='#L140'>140</a>
-<a name='L141'></a><a href='#L141'>141</a>
-<a name='L142'></a><a href='#L142'>142</a>
-<a name='L143'></a><a href='#L143'>143</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L136'></a><a href='#L136'>136</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -255,11 +246,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">4x</span>
@@ -372,16 +358,15 @@ export type StockUpdatesFilter = {
     to?: string;
     supplierId?: string;
     itemName?: string;
-    limit?: number;
 };
 /**
  * GET /api/analytics/stock-updates?startDate&amp;endDate[&amp;supplierId][&amp;itemName]
  *
- * Fetches recent stock updates with tolerant field mapping so backend renames
- * don't break the UI. `limit` is included in the request but is not a declared
- * backend parameter and will be silently ignored.
+ * Fetches every stock update in the window with tolerant field mapping so
+ * backend renames don't break the UI. The endpoint has no row limit; use
+ * {@link getStockUpdatesPage} where the rows are shown one page at a time.
  * Returns an empty array when the response is missing or malformed.
- * @param filter - Optional date range, supplier, item name, and result-count hint
+ * @param filter - Optional date range, supplier and item name
  * @returns Array of stock update rows, empty on errors
  * @example
  * ```typescript
@@ -390,19 +375,13 @@ export type StockUpdatesFilter = {
  *   to: '2025-10-31',
  *   supplierId: 'SUP-001',
  *   itemName: 'Widget',
- *   limit: 100
  * });
  * return &lt;Table data={updates} /&gt;;
  * ```
  */
 export async function getStockUpdates(filter?: StockUpdatesFilter): Promise&lt;StockUpdateRow[]&gt; {
     try {
-        const params: Record&lt;string, string | number | undefined&gt; = {
-            ...windowParams(filter),
-            limit: filter?.limit ?? 50,
-        };
-&nbsp;
-        const { data } = await http.get&lt;unknown&gt;('/api/analytics/stock-updates', { params });
+        const { data } = await http.get&lt;unknown&gt;('/api/analytics/stock-updates', { params: windowParams(filter) });
         if (!isArrayOfRecords(data)) return [];
         return (data as Rec[])
             .map(toStockUpdateRow)
@@ -412,7 +391,7 @@ export async function getStockUpdates(filter?: StockUpdatesFilter): Promise&lt;S
     }
 }
 &nbsp;
-export type StockUpdatesPageFilter = Omit&lt;StockUpdatesFilter, 'limit'&gt; &amp; {
+export type StockUpdatesPageFilter = StockUpdatesFilter &amp; {
     /** Zero-based page index. */
     page?: number;
     /** Rows per page; the backend caps it at 100. */
@@ -458,7 +437,7 @@ export async function getStockUpdatesPage(filter?: StockUpdatesPageFilter): Prom
 }
 &nbsp;
 /** Date window, supplier and item name as the backend's query parameters. */
-function windowParams(filter?: Omit&lt;StockUpdatesFilter, 'limit'&gt;): Record&lt;string, string | undefined&gt; {
+function windowParams(filter?: StockUpdatesFilter): Record&lt;string, string | undefined&gt; {
     const buildDateTime = (date?: string | null, opts?: { endOfDay?: boolean }) =&gt; {
         if (!date) return undefined;
         const suffix = opts?.endOfDay ? 'T23:59:59' : 'T00:00:00';
