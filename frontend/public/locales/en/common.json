@@ -37,7 +37,12 @@
       "title": "Low-stock watchlist",
       "empty": "No items below minimum",
       "quantity": "Quantity",
-      "minimum": "Minimum"
+      "minimum": "Minimum",
+      "ofMinimum": "{{quantity}} / {{minimum}} pcs",
+      "critical": "Critical (half the minimum or less)",
+      "low": "Low",
+      "showMore": "Show {{count}} more",
+      "showLess": "Show less"
     },
     "reasons": {
       "title": "Stock movement by reason (pieces)",

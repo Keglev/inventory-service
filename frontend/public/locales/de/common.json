@@ -37,7 +37,12 @@
       "title": "Artikel unter Mindestbestand",
       "empty": "Keine Artikel unter Mindestbestand",
       "quantity": "Bestand",
-      "minimum": "Mindestbestand"
+      "minimum": "Mindestbestand",
+      "ofMinimum": "{{quantity}} / {{minimum}} Stk",
+      "critical": "Kritisch (höchstens halbes Minimum)",
+      "low": "Niedrig",
+      "showMore": "{{count}} weitere anzeigen",
+      "showLess": "Weniger anzeigen"
     },
     "reasons": {
       "title": "Lagerbewegung nach Grund (Stück)",
