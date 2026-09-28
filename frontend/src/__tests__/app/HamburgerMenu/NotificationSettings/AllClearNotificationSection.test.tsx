@@ -46,7 +46,7 @@ describe('AllClearNotificationSection', () => {
 
   it('renders the all-clear message', () => {
     arrange();
-    expect(screen.getByText('All clear – no low stock items')).toBeInTheDocument();
+    expect(screen.getByText('All clear – no items below minimum')).toBeInTheDocument();
   });
 
   it('renders the notifications icon', () => {

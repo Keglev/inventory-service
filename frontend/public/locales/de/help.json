@@ -5,7 +5,7 @@
   "app": {
     "main": {
       "title": "Anwendungsübersicht",
-      "body": "Willkommen beim Bestandsverwaltungssystem. Diese Anwendung hilft Ihnen, Bestandsartikel zu verwalten, Lieferanten zu verfolgen und Bestandsbewegungen zu analysieren.\n\nHauptabschnitte:\n• Bestand: Bestandsartikel anzeigen, erstellen, bearbeiten und löschen. Mengen und Preise anpassen.\n• Lieferanten: Ihre Lieferantenliste und Kontaktinformationen verwalten.\n• Analysen: Kennzahlen anzeigen, Bestandstrends, Finanzzusammenfassungen und Meldungen für niedrige Bestände einsehen.\n\nTipp: Verwenden Sie die Suchleiste in jedem Abschnitt, um schnell Artikel oder Lieferanten zu finden. Klicken Sie auf das Einstellungssymbol in der Seitenleiste, um Ihre Voreinstellungen anzupassen (Datumsformat, Zahlenformat, Tabellendichte).",
+      "body": "Willkommen beim Bestandsverwaltungssystem. Diese Anwendung hilft Ihnen, Bestandsartikel zu verwalten, Lieferanten zu verfolgen und Bestandsbewegungen zu analysieren.\n\nHauptabschnitte:\n• Bestand: Bestandsartikel anzeigen, erstellen, bearbeiten und löschen. Mengen und Preise anpassen.\n• Lieferanten: Ihre Lieferantenliste und Kontaktinformationen verwalten.\n• Analysen: Kennzahlen anzeigen, Bestandstrends, Finanzzusammenfassungen und Meldungen zu Artikeln unter Mindestbestand einsehen.\n\nTipp: Verwenden Sie die Suchleiste in jedem Abschnitt, um schnell Artikel oder Lieferanten zu finden. Klicken Sie auf das Einstellungssymbol in der Seitenleiste, um Ihre Voreinstellungen anzupassen (Datumsformat, Zahlenformat, Tabellendichte).",
       "link": "Vollständige Dokumentation anzeigen"
     }
   },
@@ -44,7 +44,7 @@
   "analytics": {
     "overview": {
       "title": "Analyse-Dashboard",
-      "body": "Der Abschnitt Analysen bietet Einblicke in Ihre Bestände und Geschäftskennzahlen.\n\nBereiche:\n• Übersicht: Schlüsselkennzahlen und Trends der Bestandsbewegungen\n• Warenbewegungen: Bestandszugänge und -abgänge nach Grund, mit Drilldown zu den passenden Änderungen\n• Preisgestaltung: Preistrends pro Artikel\n• Bestandsgesundheit: Artikel mit niedrigem Bestand und Bestand pro Lieferant\n• Finanzen: Finanzzusammenfassung (Einkäufe, COGS, Abschreibungen, Retouren)\n• Mitarbeiter: Änderungen pro Mitarbeiter (nur für Administratoren; auch im Demo-Modus sichtbar)\n\nVerwenden Sie die Filterleiste, um einen Lieferanten und einen Datumsbereich auszuwählen. Alle Diagramme und Tabellen beachten Ihr bevorzugtes Datums- und Zahlenformat aus den Einstellungen."
+      "body": "Der Abschnitt Analysen bietet Einblicke in Ihre Bestände und Geschäftskennzahlen.\n\nBereiche:\n• Übersicht: Schlüsselkennzahlen und Trends der Bestandsbewegungen\n• Warenbewegungen: Bestandszugänge und -abgänge nach Grund, mit Drilldown zu den passenden Änderungen\n• Preisgestaltung: Preistrends pro Artikel\n• Bestandsgesundheit: Artikel unter Mindestbestand und Bestand pro Lieferant\n• Finanzen: Finanzzusammenfassung (Einkäufe, COGS, Abschreibungen, Retouren)\n• Mitarbeiter: Änderungen pro Mitarbeiter (nur für Administratoren; auch im Demo-Modus sichtbar)\n\nVerwenden Sie die Filterleiste, um einen Lieferanten und einen Datumsbereich auszuwählen. Alle Diagramme und Tabellen beachten Ihr bevorzugtes Datums- und Zahlenformat aus den Einstellungen."
     }
   },
   "settings": {

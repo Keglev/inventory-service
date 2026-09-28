@@ -63,27 +63,27 @@ describe('NotificationsMenuSection', () => {
 
   it('renders low stock alert when lowStockCount is greater than zero', () => {
     arrange({ isLoading: false, data: { lowStockCount: 5 } });
-    expect(screen.getByText('Low Stock Alert')).toBeInTheDocument();
+    expect(screen.getByText('Alert: items below minimum')).toBeInTheDocument();
   });
 
   it('renders all-clear message when lowStockCount is zero', () => {
     arrange({ isLoading: false, data: { lowStockCount: 0 } });
-    expect(screen.getByText('All clear – no low stock items')).toBeInTheDocument();
+    expect(screen.getByText('All clear – no items below minimum')).toBeInTheDocument();
   });
 
   it('falls back to all-clear message when metrics data is missing', () => {
     arrange({ isLoading: false, data: null });
-    expect(screen.getByText('All clear – no low stock items')).toBeInTheDocument();
+    expect(screen.getByText('All clear – no items below minimum')).toBeInTheDocument();
   });
 
   it('does not render low-stock alert title when lowStockCount is zero', () => {
     arrange({ isLoading: false, data: { lowStockCount: 0 } });
-    expect(screen.queryByText('Low Stock Alert')).not.toBeInTheDocument();
+    expect(screen.queryByText('Alert: items below minimum')).not.toBeInTheDocument();
   });
 
   it('interpolates the low stock count into the user-facing message', () => {
     arrange({ isLoading: false, data: { lowStockCount: 3 } });
-    expect(screen.getByText('You have 3 merchandise item(s) with low stock')).toBeInTheDocument();
+    expect(screen.getByText('You have 3 item(s) below minimum')).toBeInTheDocument();
   });
 
   it('renders the low stock count in the chip label', () => {
@@ -103,7 +103,7 @@ describe('NotificationsMenuSection', () => {
 
   it('uses translated title for the low stock alert when provided', () => {
     const mockT = vi.fn((key: string, options?: Record<string, unknown>) => {
-      if (key === 'notifications.lowStockAlert') return 'Niedriger Bestand';
+      if (key === 'notifications.lowStockAlert') return 'Warnung: Artikel unter Mindestbestand';
       return tEn(key, options);
     });
 
@@ -114,6 +114,6 @@ describe('NotificationsMenuSection', () => {
 
     arrange({ isLoading: false, data: { lowStockCount: 5 } });
 
-    expect(screen.getByText('Niedriger Bestand')).toBeInTheDocument();
+    expect(screen.getByText('Warnung: Artikel unter Mindestbestand')).toBeInTheDocument();
   });
 });

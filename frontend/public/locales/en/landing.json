@@ -52,7 +52,7 @@
       },
       "three": {
         "title": "Read the numbers",
-        "body": "The dashboard and analytics sections turn that history into stock value, trends, and low-stock warnings."
+        "body": "The dashboard and analytics sections turn that history into stock value, trends, and warnings for items below minimum."
       }
     }
   },

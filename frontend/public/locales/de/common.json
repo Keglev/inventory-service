@@ -23,7 +23,7 @@
     "kpi": {
       "totalItems": "Artikel gesamt",
       "suppliers": "Lieferanten",
-      "lowStock": "Artikel mit niedrigem Bestand",
+      "lowStock": "Artikel unter Mindestbestand",
       "movementTitle": "Bestandsbewegung, letzte 90 Tage (Stück)",
       "stockIn": "Zugang",
       "stockOut": "Abgang"
@@ -102,10 +102,10 @@
     "numberFormat": "Zahlenformat"
   },
   "notifications": {
-    "lowStockAlert": "Warnung: Niedriger Bestand",
-    "lowStockMessage": "Du hast {{count}} Artikel mit niedrigem Bestand",
+    "lowStockAlert": "Warnung: Artikel unter Mindestbestand",
+    "lowStockMessage": "Du hast {{count}} Artikel unter Mindestbestand",
     "itemsLowStock": "{{count}} Artikel unter Mindestbestand",
-    "allGood": "Alles in Ordnung – keine Artikel mit niedrigem Bestand"
+    "allGood": "Alles in Ordnung – keine Artikel unter Mindestbestand"
   },
   "help": {
     "title": "Hilfe & Docs",

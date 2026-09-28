@@ -5,7 +5,7 @@
   "app": {
     "main": {
       "title": "Application Overview",
-      "body": "Welcome to Inventory Management System. This application helps you manage inventory items, track suppliers, and analyze stock movements.\n\nKey sections:\n• Inventory: View, create, edit, and delete inventory items. Adjust quantities and prices.\n• Suppliers: Manage your list of suppliers and their contact information.\n• Analytics: View key performance indicators, stock trends, financial summaries, and low-stock alerts.\n\nTip: Use the search bar in each section to quickly find items or suppliers. Click the settings icon in the sidebar to customize your preferences (date format, number format, table density).",
+      "body": "Welcome to Inventory Management System. This application helps you manage inventory items, track suppliers, and analyze stock movements.\n\nKey sections:\n• Inventory: View, create, edit, and delete inventory items. Adjust quantities and prices.\n• Suppliers: Manage your list of suppliers and their contact information.\n• Analytics: View key performance indicators, stock trends, financial summaries, and alerts for items below minimum.\n\nTip: Use the search bar in each section to quickly find items or suppliers. Click the settings icon in the sidebar to customize your preferences (date format, number format, table density).",
       "link": "View Full Documentation"
     }
   },
@@ -44,7 +44,7 @@
   "analytics": {
     "overview": {
       "title": "Analytics Dashboard",
-      "body": "The Analytics section provides insights into your inventory and business metrics.\n\nSections:\n• Overview: key metrics and stock movement trends\n• Movements: stock increases and decreases by reason, with drill-down into matching changes\n• Pricing: price trends per item\n• Inventory Health: low-stock items and stock per supplier\n• Finance: financial summary (purchases, COGS, write-offs, returns)\n• Employees: changes per employee (administrators only; also visible in the demo)\n\nUse the filter bar to select a supplier and a date range. All charts and tables respect your preferred date format and number format from Settings."
+      "body": "The Analytics section provides insights into your inventory and business metrics.\n\nSections:\n• Overview: key metrics and stock movement trends\n• Movements: stock increases and decreases by reason, with drill-down into matching changes\n• Pricing: price trends per item\n• Inventory Health: items below minimum and stock per supplier\n• Finance: financial summary (purchases, COGS, write-offs, returns)\n• Employees: changes per employee (administrators only; also visible in the demo)\n\nUse the filter bar to select a supplier and a date range. All charts and tables respect your preferred date format and number format from Settings."
     }
   },
   "settings": {
