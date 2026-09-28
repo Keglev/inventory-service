@@ -77,6 +77,17 @@ describe('getInventoryPage', () => {
       });
     });
 
+    it('reads the total nested under page', async () => {
+      httpMock.get.mockResolvedValue({
+        data: { content: [{ id: 'ITEM-1' }], page: { size: 10, number: 0, totalElements: 42, totalPages: 5 } },
+      });
+      toInventoryRowMock.mockReturnValueOnce({ id: 'ITEM-1' });
+
+      const result = await getInventoryPage(params);
+
+      expect(result.total).toBe(42);
+    });
+
     it('maps grid sort fields to backend entity properties', async () => {
       httpMock.get.mockResolvedValue({ data: { content: [], totalElements: 0 } });
 

@@ -9,9 +9,9 @@
  * - GET /api/analytics/employee-changes: paginated newest-first change list.
  *
  * @enterprise
- * - employee-changes returns a Spring Data Page; only `content` and
- *   `totalElements` are consumed (same contract family as the inventory and
- *   stock-history search pages).
+ * - employee-changes returns a Spring Data page; only `content` and the total
+ *   are read, the total through extractPageTotal (same contract family as the
+ *   inventory and stock-history search pages).
  * - Both endpoints accept ISO DATE bounds (yyyy-MM-dd); the backend widens
  *   them to full-day timestamps.
  * - Tolerant parsing per house style; transport errors collapse to empty
@@ -20,6 +20,7 @@
 import http from '../httpClient';
 import { isArrayOfRecords, pickString, pickNumber } from './util';
 import type { Rec } from './util';
+import { extractPageTotal } from '../shared/responseExtraction';
 
 export type EmployeeGranularity = 'daily' | 'weekly' | 'monthly';
 
@@ -152,7 +153,7 @@ export async function getEmployeeChanges(filter?: EmployeeChangesFilter): Promis
             })
             .filter((x): x is EmployeeChangeRow => x !== null);
 
-        return { rows, total: pickNumber(record, ['totalElements']) };
+        return { rows, total: extractPageTotal(record) ?? 0 };
     } catch {
         return { rows: [], total: 0 };
     }

@@ -9,6 +9,7 @@
 import http from '../httpClient';
 import { isArrayOfRecords, pickString, pickNumber } from './util';
 import type { Rec } from './util';
+import { extractPageTotal } from '../shared/responseExtraction';
 
 export type StockUpdateRow = {
     timestamp: string; // ISO or displayable string
@@ -95,7 +96,7 @@ export async function getStockUpdatesPage(filter?: StockUpdatesPageFilter): Prom
         const rows = (record.content as Rec[])
             .map(toStockUpdateRow)
             .filter((x): x is StockUpdateRow => x !== null);
-        return { rows, total: pickNumber(record, ['totalElements']) };
+        return { rows, total: extractPageTotal(record) ?? 0 };
     } catch {
         return { rows: [], total: 0 };
     }

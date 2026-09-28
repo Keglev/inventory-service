@@ -92,6 +92,14 @@ describe('api/analytics/employees', () => {
       expect(page.rows[0]).toMatchObject({ itemName: 'Item A', change: -3, reason: 'SOLD' });
     });
 
+    it('reads the total nested under page', async () => {
+      httpGet.mockResolvedValueOnce({
+        data: { content: [], page: { size: 25, number: 0, totalElements: 41, totalPages: 2 } },
+      });
+
+      expect((await getEmployeeChanges()).total).toBe(41);
+    });
+
     it('returns an empty page on malformed payloads and on errors', async () => {
       httpGet.mockResolvedValueOnce({ data: { content: 'nope' } });
       expect(await getEmployeeChanges()).toEqual({ rows: [], total: 0 });

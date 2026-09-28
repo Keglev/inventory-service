@@ -225,6 +225,14 @@ describe('api/analytics/updates.getStockUpdatesPage', () => {
     ]);
   });
 
+  it('reads the total nested under page', async () => {
+    httpGet.mockResolvedValueOnce({
+      data: { content: [], page: { size: 10, number: 2, totalElements: 21, totalPages: 3 } },
+    });
+
+    expect((await getStockUpdatesPage()).total).toBe(21);
+  });
+
   it('returns an empty page for a malformed response or a transport failure', async () => {
     httpGet.mockResolvedValueOnce({ data: [] });
     expect(await getStockUpdatesPage()).toEqual({ rows: [], total: 0 });
