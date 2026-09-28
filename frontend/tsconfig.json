@@ -22,7 +22,7 @@
     "skipLibCheck": true,
     // Allows importing .json files as typed modules (used for i18n translation files).
     "resolveJsonModule": true,
-    // Enables default imports from CommonJS packages (e.g. import dayjs from 'dayjs').
+    // Enables default imports from CommonJS packages.
     "esModuleInterop": true,
     "types": ["vite/client", "node"]
   },
