@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.smartsupplypro.inventory.dto.EmployeeActivityDTO;
 import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
+import com.smartsupplypro.inventory.security.DemoIdentityMasking;
 import com.smartsupplypro.inventory.service.impl.analytics.EmployeeAnalyticsService;
 
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ public class EmployeeAnalyticsController {
     private static final int MAX_PAGE_SIZE = 100;
 
     private final EmployeeAnalyticsService employeeAnalyticsService;
+    private final DemoIdentityMasking identityMasking;
 
     /**
      * Gets change counts per employee per time bucket.
@@ -65,7 +67,8 @@ public class EmployeeAnalyticsController {
     /**
      * Gets a paginated change list, optionally filtered to one employee.
      *
-     * @param createdBy optional creator (email) filter, case-insensitive
+     * @param createdBy optional creator (email) filter, case-insensitive; for anonymous
+     *                  callers, resolved by {@link DemoIdentityMasking#resolveFilter}
      * @param startDate optional inclusive start date (ISO yyyy-MM-dd)
      * @param endDate   optional inclusive end date (ISO yyyy-MM-dd)
      * @param page      zero-based page index (default 0)
@@ -84,6 +87,7 @@ public class EmployeeAnalyticsController {
 
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));
         return ResponseEntity.ok(
-                employeeAnalyticsService.getEmployeeChanges(createdBy, startDate, endDate, supplierId, pageable));
+                employeeAnalyticsService.getEmployeeChanges(
+                        identityMasking.resolveFilter(createdBy), startDate, endDate, supplierId, pageable));
     }
 }
