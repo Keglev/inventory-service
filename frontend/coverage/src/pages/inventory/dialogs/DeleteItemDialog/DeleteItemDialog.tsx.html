@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>10/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -257,14 +257,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -424,7 +424,7 @@ export const DeleteItemDialog: React.FC&lt;DeleteItemDialogProps&gt; = ({
             disabled={!state.selectedItem || blockedByStock || state.isSubmitting}
           &gt;
             {state.isSubmitting ? (
-<span class="branch-0 cbranch-no" title="branch not covered" >              &lt;&gt;</span>
+              &lt;&gt;
                 &lt;CircularProgress size={16} sx={{ mr: 1 }} /&gt;
                 {t('common:actions.deleting')}
               &lt;/&gt;
@@ -453,7 +453,7 @@ export const DeleteItemDialog: React.FC&lt;DeleteItemDialogProps&gt; = ({
             disabled={state.isSubmitting}
           &gt;
             {state.isSubmitting ? (
-<span class="branch-0 cbranch-no" title="branch not covered" >              &lt;&gt;</span>
+              &lt;&gt;
                 &lt;CircularProgress size={16} sx={{ mr: 1 }} /&gt;
                 {t('common:actions.deleting')}
               &lt;/&gt;
