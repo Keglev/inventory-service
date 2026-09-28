@@ -72,7 +72,7 @@ public class FinancialAnalyticsService {
      * @throws InvalidRequestException if dates are null or {@code from &gt; to}
      */
     public FinancialSummaryDTO getFinancialSummaryWAC(LocalDate from, LocalDate to, String supplierId) {
-<span class="pc bpc" id="L75" title="2 of 4 branches missed.">        if (from == null || to == null) throw new InvalidRequestException(&quot;from/to must be provided&quot;);</span>
+<span class="fc bfc" id="L75" title="All 4 branches covered.">        if (from == null || to == null) throw new InvalidRequestException(&quot;from/to must be provided&quot;);</span>
 <span class="fc bfc" id="L76" title="All 2 branches covered.">        if (from.isAfter(to))          throw new InvalidRequestException(&quot;from must be on or before to&quot;);</span>
 
         // LocalTime.MIN/MAX give full-day inclusive boundaries at TIMESTAMP precision
@@ -109,7 +109,7 @@ public class FinancialAnalyticsService {
 <span class="fc" id="L109">            WacState st = state.get(e.itemId());</span>
 <span class="fc bfc" id="L110" title="All 2 branches covered.">            if (e.quantityChange() &gt; 0) {</span>
 <span class="fc" id="L111">                state.put(e.itemId(), applyInbound(st, e.quantityChange(), resolveUnit(e.priceAtChange(), st)));</span>
-<span class="pc bpc" id="L112" title="1 of 2 branches missed.">            } else if (e.quantityChange() &lt; 0) {</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">            } else if (e.quantityChange() &lt; 0) {</span>
 <span class="fc" id="L113">                state.put(e.itemId(), issueAt(st, Math.abs(e.quantityChange())).state());</span>
             }
 <span class="fc" id="L115">        }</span>
@@ -137,7 +137,7 @@ public class FinancialAnalyticsService {
 <span class="fc" id="L137">            WacState st = state.get(e.itemId());</span>
 <span class="fc bfc" id="L138" title="All 2 branches covered.">            if (e.quantityChange() &gt; 0) {</span>
 <span class="fc" id="L139">                processInboundEvent(e, st, state, b);</span>
-<span class="pc bpc" id="L140" title="1 of 2 branches missed.">            } else if (e.quantityChange() &lt; 0) {</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">            } else if (e.quantityChange() &lt; 0) {</span>
 <span class="fc" id="L141">                processOutboundEvent(e, st, state, b);</span>
             }
 <span class="fc" id="L143">        }</span>
@@ -155,7 +155,7 @@ public class FinancialAnalyticsService {
 <span class="fc bfc" id="L155" title="All 2 branches covered.">        if (RETURNS_IN.contains(e.reason())) {</span>
 <span class="fc" id="L156">            b.returnsInQty  += e.quantityChange();</span>
 <span class="fc" id="L157">            b.returnsInCost  = b.returnsInCost.add(cost);</span>
-<span class="pc bpc" id="L158" title="1 of 4 branches missed.">        } else if (e.priceAtChange() != null || e.reason() == StockChangeReason.INITIAL_STOCK) {</span>
+<span class="fc bfc" id="L158" title="All 4 branches covered.">        } else if (e.priceAtChange() != null || e.reason() == StockChangeReason.INITIAL_STOCK) {</span>
             // Only events with a price snapshot or INITIAL_STOCK reason count as purchases
 <span class="fc" id="L160">            b.purchasesQty  += e.quantityChange();</span>
 <span class="fc" id="L161">            b.purchasesCost  = b.purchasesCost.add(cost);</span>

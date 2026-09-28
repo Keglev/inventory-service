@@ -67,7 +67,7 @@ public class EmployeeAnalyticsService {
                                                          LocalDate startDate,
                                                          LocalDate endDate,
                                                          String supplierId) {
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        final String g = granularity == null ? &quot;monthly&quot; : granularity.toLowerCase(Locale.ROOT);</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        final String g = granularity == null ? &quot;monthly&quot; : granularity.toLowerCase(Locale.ROOT);</span>
 <span class="fc bfc" id="L71" title="All 2 branches covered.">        if (!GRANULARITIES.contains(g)) {</span>
 <span class="fc" id="L72">            throw new InvalidRequestException(&quot;granularity must be one of: daily, weekly, monthly&quot;);</span>
         }
@@ -150,10 +150,10 @@ public class EmployeeAnalyticsService {
 <span class="fc" id="L150">        Map&lt;String, String&gt; names = new HashMap&lt;&gt;();</span>
 <span class="fc bfc" id="L151" title="All 2 branches covered.">        for (AppUser u : appUserRepository.findAll()) {</span>
 <span class="fc" id="L152">            String email = u.getEmail();</span>
-<span class="pc bpc" id="L153" title="2 of 4 branches missed.">            if (email == null || email.isBlank()) {</span>
-<span class="nc" id="L154">                continue;</span>
+<span class="fc bfc" id="L153" title="All 4 branches covered.">            if (email == null || email.isBlank()) {</span>
+<span class="fc" id="L154">                continue;</span>
             }
-<span class="pc bpc" id="L156" title="1 of 4 branches missed.">            String display = (u.getName() == null || u.getName().isBlank()) ? email : u.getName();</span>
+<span class="fc bfc" id="L156" title="All 4 branches covered.">            String display = (u.getName() == null || u.getName().isBlank()) ? email : u.getName();</span>
 <span class="fc" id="L157">            names.putIfAbsent(email.toLowerCase(Locale.ROOT), display);</span>
 <span class="fc" id="L158">        }</span>
 <span class="fc" id="L159">        return names;</span>

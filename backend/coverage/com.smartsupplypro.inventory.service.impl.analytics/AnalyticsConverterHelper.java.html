@@ -36,17 +36,17 @@ final class AnalyticsConverterHelper {
 
 <span class="fc bfc" id="L37" title="All 2 branches covered.">        if (o instanceof CharSequence cs) {</span>
 <span class="fc" id="L38">            String s = cs.toString();</span>
-<span class="pc bpc" id="L39" title="1 of 2 branches missed.">            if (s.length() &gt;= 10) return LocalDate.parse(s.substring(0, 10));</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">            if (s.length() &gt;= 10) return LocalDate.parse(s.substring(0, 10));</span>
         }
 
         // Last resort: toString() on timestamp literals from H2 (e.g. &quot;2025-03-15 00:00:00.0&quot;)
 <span class="fc" id="L43">        String s = String.valueOf(o);</span>
-<span class="pc bpc" id="L44" title="2 of 6 branches missed.">        if (s.length() &gt;= 10 &amp;&amp; s.charAt(4) == '-' &amp;&amp; s.charAt(7) == '-') {</span>
+<span class="fc bfc" id="L44" title="All 6 branches covered.">        if (s.length() &gt;= 10 &amp;&amp; s.charAt(4) == '-' &amp;&amp; s.charAt(7) == '-') {</span>
 <span class="fc" id="L45">            return LocalDate.parse(s.substring(0, 10));</span>
         }
 
 <span class="fc" id="L48">        throw new IllegalStateException(&quot;Expected LocalDate/Date/Timestamp/String but got: &quot; +</span>
-<span class="pc bpc" id="L49" title="1 of 2 branches missed.">                (o == null ? &quot;null&quot; : o.getClass().getName() + &quot; -&gt; &quot; + o));</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">                (o == null ? &quot;null&quot; : o.getClass().getName() + &quot; -&gt; &quot; + o));</span>
     }
 
     /**
@@ -119,7 +119,7 @@ final class AnalyticsConverterHelper {
      * @throws InvalidRequestException if value is blank
      */
     static String requireNonBlank(String v, String name) {
-<span class="pc bpc" id="L122" title="1 of 4 branches missed.">        if (v == null || v.trim().isEmpty()) {</span>
+<span class="fc bfc" id="L122" title="All 4 branches covered.">        if (v == null || v.trim().isEmpty()) {</span>
 <span class="fc" id="L123">            throw new InvalidRequestException(name + &quot; must not be blank&quot;);</span>
         }
 <span class="fc" id="L125">        return v.trim();</span>
