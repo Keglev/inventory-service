@@ -75,7 +75,7 @@ serve more than one chain or none ([ADR 0017](09-decisions/adr-0017-workflows-na
 | Chain | Workflow | Purpose |
 |---|---|---|
 | Backend | `backend-ci.yml` | `mvn clean verify` — compile, unit + integration tests, JaCoCo coverage report; calls the Playwright suite beside it and reports both through one `build-and-test` job |
-| Backend | `backend-docker.yml` | `docker build` (prod profile), Trivy CVE scan (blocks on HIGH/CRITICAL), `docker push :SHA :latest` to GHCR |
+| Backend | `backend-docker.yml` | `docker build` (prod profile), Trivy CVE scan (blocks on HIGH/CRITICAL), `docker push :SHA :latest` to GHCR, each push up to three attempts |
 | Backend | `backend-deploy.yml` | Copies the compose file to the host over SSH, validates it, pulls the SHA-tagged image, restarts only the backend service, then runs the health and smoke checks against `api.smartsupplypro.de` |
 | Frontend | `frontend-ci.yml` | Audits the shipped dependency tree (gate), lints, runs Vitest, then builds and Trivy-scans the image before it reaches Docker Hub; calls the Playwright suite beside it and reports both through one `build-and-test` job |
 | Frontend | `frontend-deploy.yml` | Deploys the scanned image to Koyeb by digest, then verifies the commit's build id reached the served bundle before trusting the platform's status |
