@@ -152,7 +152,9 @@
 <a name='L87'></a><a href='#L87'>87</a>
 <a name='L88'></a><a href='#L88'>88</a>
 <a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -256,8 +258,9 @@
  *   id stays readable; it is how a deployed build is matched to its commit.
  *   The group may shrink so that on a narrow screen the line wraps inside the
  *   footer rather than overflowing it.
- * - All five props originate from useFooterState hardcoded config (see CB-APP1);
- *   currentLanguage is the only live value (derived from i18n.language).
+ * - Props come from useFooterState: appVersion, buildId and environment are
+ *   build-time values from config/appMeta, currentLanguage is derived from
+ *   i18n.language, and region is fixed to DE.
  * - The two JSX structural comments are intentional layout markers.
  */
 &nbsp;
