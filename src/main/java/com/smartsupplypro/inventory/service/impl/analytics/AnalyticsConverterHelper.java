@@ -66,13 +66,12 @@ final class AnalyticsConverterHelper {
      * Safely unboxes any numeric projection value via {@link Number}.
      * Null is treated as zero to avoid NPEs in aggregation results.
      *
-     * @param o numeric value (null, {@link Number}, or {@link java.math.BigDecimal})
+     * @param o numeric value: null or any {@link Number}
      * @return corresponding {@link Number}
      */
     static Number asNumber(Object o) {
         if (o == null) return java.math.BigDecimal.ZERO;
         if (o instanceof Number n) return n;
-        if (o instanceof java.math.BigDecimal bd) return bd;
         throw new IllegalStateException("Expected numeric type but got: " + o);
     }
 
