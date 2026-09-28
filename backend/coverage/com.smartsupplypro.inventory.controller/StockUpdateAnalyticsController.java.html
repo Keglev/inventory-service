@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.smartsupplypro.inventory.controller.analytics.AnalyticsControllerValidationHelper;
 import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
+import com.smartsupplypro.inventory.security.DemoIdentityMasking;
 import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
 import jakarta.validation.Valid;
@@ -44,6 +45,7 @@ public class StockUpdateAnalyticsController {
 
     private final StockAnalyticsService stockAnalyticsService;
     private final AnalyticsControllerValidationHelper validationHelper;
+    private final DemoIdentityMasking identityMasking;
 
     /**
      * Gets filtered stock updates via query parameters (defaults to last 30 days).
@@ -52,7 +54,8 @@ public class StockUpdateAnalyticsController {
      * @param endDate    optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
      * @param itemName   optional item name filter
      * @param supplierId optional supplier filter
-     * @param createdBy  optional creator username filter
+     * @param createdBy  optional creator username filter; for anonymous callers,
+     *                   resolved by {@link DemoIdentityMasking#resolveFilter}
      * @param minChange  optional minimum quantity change filter
      * @param maxChange  optional maximum quantity change filter
      * @return list of filtered stock updates
@@ -68,12 +71,13 @@ public class StockUpdateAnalyticsController {
             @RequestParam(required = false) Integer minChange,
             @RequestParam(required = false) Integer maxChange) {
 
-<span class="fc" id="L71">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
-<span class="fc" id="L72">        validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], &quot;startDate&quot;, &quot;endDate&quot;);</span>
-<span class="fc" id="L73">        validationHelper.validateNumericRange(minChange, maxChange, &quot;minChange&quot;, &quot;maxChange&quot;);</span>
-<span class="fc" id="L74">        StockUpdateFilterDTO filter = validationHelper.buildFilter(</span>
-                dateWindow[0], dateWindow[1], itemName, supplierId, createdBy, minChange, maxChange);
-<span class="fc" id="L76">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
+<span class="fc" id="L74">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
+<span class="fc" id="L75">        validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], &quot;startDate&quot;, &quot;endDate&quot;);</span>
+<span class="fc" id="L76">        validationHelper.validateNumericRange(minChange, maxChange, &quot;minChange&quot;, &quot;maxChange&quot;);</span>
+<span class="fc" id="L77">        StockUpdateFilterDTO filter = validationHelper.buildFilter(</span>
+                dateWindow[0], dateWindow[1], itemName, supplierId,
+<span class="fc" id="L79">                identityMasking.resolveFilter(createdBy), minChange, maxChange);</span>
+<span class="fc" id="L80">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
     }
 
     /**
@@ -84,7 +88,8 @@ public class StockUpdateAnalyticsController {
      * @param endDate    optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
      * @param itemName   optional item name filter
      * @param supplierId optional supplier filter
-     * @param createdBy  optional creator username filter
+     * @param createdBy  optional creator username filter; for anonymous callers,
+     *                   resolved by {@link DemoIdentityMasking#resolveFilter}
      * @param minChange  optional minimum quantity change filter
      * @param maxChange  optional maximum quantity change filter
      * @param page       zero-based page index (default 0)
@@ -104,13 +109,14 @@ public class StockUpdateAnalyticsController {
             @RequestParam(defaultValue = &quot;0&quot;) int page,
             @RequestParam(defaultValue = &quot;10&quot;) int size) {
 
-<span class="fc" id="L107">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
-<span class="fc" id="L108">        validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], &quot;startDate&quot;, &quot;endDate&quot;);</span>
-<span class="fc" id="L109">        validationHelper.validateNumericRange(minChange, maxChange, &quot;minChange&quot;, &quot;maxChange&quot;);</span>
-<span class="fc" id="L110">        StockUpdateFilterDTO filter = validationHelper.buildFilter(</span>
-                dateWindow[0], dateWindow[1], itemName, supplierId, createdBy, minChange, maxChange);
-<span class="fc" id="L112">        PageRequest pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));</span>
-<span class="fc" id="L113">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdatesPage(filter, pageable));</span>
+<span class="fc" id="L112">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
+<span class="fc" id="L113">        validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], &quot;startDate&quot;, &quot;endDate&quot;);</span>
+<span class="fc" id="L114">        validationHelper.validateNumericRange(minChange, maxChange, &quot;minChange&quot;, &quot;maxChange&quot;);</span>
+<span class="fc" id="L115">        StockUpdateFilterDTO filter = validationHelper.buildFilter(</span>
+                dateWindow[0], dateWindow[1], itemName, supplierId,
+<span class="fc" id="L117">                identityMasking.resolveFilter(createdBy), minChange, maxChange);</span>
+<span class="fc" id="L118">        PageRequest pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));</span>
+<span class="fc" id="L119">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdatesPage(filter, pageable));</span>
     }
 
     /**
@@ -124,8 +130,8 @@ public class StockUpdateAnalyticsController {
     public ResponseEntity&lt;List&lt;StockUpdateResultDTO&gt;&gt; getFilteredStockUpdatesPost(
             @RequestBody @Valid StockUpdateFilterDTO filter) {
 
-<span class="fc" id="L127">        validationHelper.validateStockUpdateFilter(filter);</span>
-<span class="fc" id="L128">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
+<span class="fc" id="L133">        validationHelper.validateStockUpdateFilter(filter);</span>
+<span class="fc" id="L134">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

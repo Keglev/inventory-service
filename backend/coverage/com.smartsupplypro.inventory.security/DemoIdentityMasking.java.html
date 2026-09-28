@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DemoIdentityMasking.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.security</a> &gt; <span class="el_source">DemoIdentityMasking.java</span></div><h1>DemoIdentityMasking.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.security;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.core.MethodParameter;
+import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+import com.smartsupplypro.inventory.dto.EmployeeActivityDTO;
+import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
+import com.smartsupplypro.inventory.dto.SupplierDTO;
+import com.smartsupplypro.inventory.model.AppUser;
+import com.smartsupplypro.inventory.repository.AppUserRepository;
+
+/**
+ * Keeps real identities out of what anonymous demo callers receive.
+ *
+ * &lt;p&gt;The read-only demo admits anonymous requests, and audit fields carry the
+ * e-mail of whoever made a change. For an anonymous caller every identity is
+ * replaced by a pseudonym before the body is written; signed-in callers see the
+ * real values. Two kinds of value are not a person and pass unchanged: addresses
+ * at {@code example.com} (reserved for examples by RFC 2606, used by the seeded
+ * demo users) and values without an {@code @}, such as {@code system}.&lt;/p&gt;
+ *
+ * &lt;p&gt;A pseudonym is {@code demo-user-N@example.com}, shown as &quot;Demo-Nutzer N&quot;.
+ * N numbers the non-exempt accounts by creation time, so one person keeps one
+ * pseudonym across endpoints and requests. An identity with no account, or any
+ * identity when the user table is not available, becomes the unnumbered
+ * &quot;Demo-Nutzer&quot;: the masking fails closed.&lt;/p&gt;
+ *
+ * &lt;p&gt;Filters work the other way: an anonymous {@code createdBy} filter may name
+ * an exempt value or a pseudonym, never a real address, so a caller cannot probe
+ * whether an address exists.&lt;/p&gt;
+ */
+@RestControllerAdvice
+public class DemoIdentityMasking implements ResponseBodyAdvice&lt;Object&gt; {
+
+    static final String DOMAIN = &quot;@example.com&quot;;
+    static final String PREFIX = &quot;demo-user-&quot;;
+    static final String FALLBACK_ADDRESS = &quot;demo-user&quot; + DOMAIN;
+    static final String LABEL = &quot;Demo-Nutzer&quot;;
+    /** A filter value no stored identity can equal: {@code .invalid} is reserved by RFC 2606. */
+    static final String NO_MATCH = &quot;no-match@example.invalid&quot;;
+
+<span class="fc" id="L60">    private static final AuthenticationTrustResolver TRUST = new AuthenticationTrustResolverImpl();</span>
+
+    private final ObjectProvider&lt;AppUserRepository&gt; users;
+
+<span class="fc" id="L64">    public DemoIdentityMasking(ObjectProvider&lt;AppUserRepository&gt; users) {</span>
+<span class="fc" id="L65">        this.users = users;</span>
+<span class="fc" id="L66">    }</span>
+
+    /** True when the current request is anonymous, i.e. a demo caller. */
+    public static boolean anonymousCaller() {
+<span class="fc" id="L70">        Authentication auth = SecurityContextHolder.getContext().getAuthentication();</span>
+<span class="pc bpc" id="L71" title="2 of 6 branches missed.">        return auth == null || TRUST.isAnonymous(auth) || !auth.isAuthenticated();</span>
+    }
+
+    /**
+     * Translates a {@code createdBy} filter for the current caller.
+     *
+     * @param createdBy the requested filter; may be null or blank
+     * @return the value to query with: unchanged for signed-in callers and exempt
+     *         values, the real address for a known pseudonym, else {@link #NO_MATCH}
+     */
+    public String resolveFilter(String createdBy) {
+<span class="fc bfc" id="L82" title="All 6 branches covered.">        if (createdBy == null || createdBy.isBlank() || !anonymousCaller()) {</span>
+<span class="fc" id="L83">            return createdBy;</span>
+        }
+<span class="fc" id="L85">        String value = createdBy.trim().toLowerCase(Locale.ROOT);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (!value.startsWith(PREFIX)) {</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">            return exempt(value) ? createdBy : NO_MATCH;</span>
+        }
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        String number = value.endsWith(DOMAIN)</span>
+<span class="fc" id="L90">                ? value.substring(PREFIX.length(), value.length() - DOMAIN.length())</span>
+<span class="fc" id="L91">                : &quot;&quot;;</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (!number.matches(&quot;[1-9][0-9]{0,5}&quot;)) {</span>
+<span class="fc" id="L93">            return NO_MATCH;</span>
+        }
+<span class="fc" id="L95">        int n = Integer.parseInt(number);</span>
+<span class="fc" id="L96">        List&lt;String&gt; accounts = maskedAccounts();</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        return n &lt;= accounts.size() ? accounts.get(n - 1) : NO_MATCH;</span>
+    }
+
+    @Override
+    public boolean supports(MethodParameter returnType, Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt; converterType) {
+<span class="fc" id="L102">        return true;</span>
+    }
+
+    @Override
+    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType contentType,
+                                  Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt; converterType,
+                                  ServerHttpRequest request, ServerHttpResponse response) {
+<span class="fc bfc" id="L109" title="All 4 branches covered.">        if (body == null || !anonymousCaller()) {</span>
+<span class="fc" id="L110">            return body;</span>
+        }
+<span class="fc" id="L112">        Pseudonyms pseudonyms = new Pseudonyms();</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (body instanceof Page&lt;?&gt; page) {</span>
+<span class="fc" id="L114">            return page.map(pseudonyms::apply);</span>
+        }
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if (body instanceof List&lt;?&gt; list) {</span>
+<span class="fc" id="L117">            return list.stream().map(pseudonyms::apply).toList();</span>
+        }
+<span class="fc" id="L119">        return pseudonyms.apply(body);</span>
+    }
+
+    static boolean exempt(String identity) {
+<span class="fc" id="L123">        String value = identity.toLowerCase(Locale.ROOT);</span>
+<span class="fc bfc" id="L124" title="All 4 branches covered.">        return value.indexOf('@') &lt; 0 || value.endsWith(DOMAIN);</span>
+    }
+
+    /** Lower-cased addresses of the non-exempt accounts, oldest first. */
+    private List&lt;String&gt; maskedAccounts() {
+<span class="fc" id="L129">        AppUserRepository repository = users.getIfAvailable();</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (repository == null) {</span>
+<span class="fc" id="L131">            return List.of();</span>
+        }
+<span class="fc" id="L133">        return repository.findAll().stream()</span>
+<span class="pc bpc" id="L134" title="1 of 4 branches missed.">                .filter(u -&gt; u.getEmail() != null &amp;&amp; !exempt(u.getEmail()))</span>
+<span class="fc" id="L135">                .sorted(Comparator.comparing(AppUser::getCreatedAt,</span>
+<span class="fc" id="L136">                                Comparator.nullsLast(Comparator.naturalOrder()))</span>
+<span class="fc" id="L137">                        .thenComparing(AppUser::getEmail))</span>
+<span class="fc" id="L138">                .map(u -&gt; u.getEmail().toLowerCase(Locale.ROOT))</span>
+<span class="fc" id="L139">                .distinct()</span>
+<span class="fc" id="L140">                .toList();</span>
+    }
+
+    /** One response's pseudonym table, loaded on first use. */
+<span class="fc" id="L144">    private final class Pseudonyms {</span>
+
+        private Map&lt;String, Integer&gt; numbers;
+
+        Object apply(Object dto) {
+<span class="fc bfc" id="L149" title="All 5 branches covered.">            return switch (dto) {</span>
+<span class="fc" id="L150">                case StockUpdateResultDTO r -&gt; new StockUpdateResultDTO(r.itemName(), r.supplierName(),</span>
+<span class="fc" id="L151">                        r.change(), r.reason(), address(r.createdBy()), r.timestamp());</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">                case EmployeeActivityDTO e -&gt; exemptOrNull(e.createdBy()) ? e</span>
+<span class="fc" id="L153">                        : new EmployeeActivityDTO(e.period(), address(e.createdBy()), label(e.createdBy()),</span>
+<span class="fc" id="L154">                                e.changeCount());</span>
+<span class="fc" id="L155">                case InventoryItemDTO i -&gt; {</span>
+<span class="fc" id="L156">                    i.setCreatedBy(address(i.getCreatedBy()));</span>
+<span class="fc" id="L157">                    yield i;</span>
+                }
+<span class="fc" id="L159">                case SupplierDTO s -&gt; {</span>
+<span class="fc" id="L160">                    s.setCreatedBy(address(s.getCreatedBy()));</span>
+<span class="fc" id="L161">                    yield s;</span>
+                }
+<span class="fc" id="L163">                default -&gt; dto;</span>
+            };
+        }
+
+        private boolean exemptOrNull(String identity) {
+<span class="pc bpc" id="L168" title="1 of 4 branches missed.">            return identity == null || exempt(identity);</span>
+        }
+
+        private String address(String identity) {
+<span class="fc bfc" id="L172" title="All 2 branches covered.">            if (exemptOrNull(identity)) {</span>
+<span class="fc" id="L173">                return identity;</span>
+            }
+<span class="fc" id="L175">            Integer n = number(identity);</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">            return n == null ? FALLBACK_ADDRESS : PREFIX + n + DOMAIN;</span>
+        }
+
+        private String label(String identity) {
+<span class="fc" id="L180">            Integer n = number(identity);</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            return n == null ? LABEL : LABEL + &quot; &quot; + n;</span>
+        }
+
+        private Integer number(String identity) {
+<span class="fc bfc" id="L185" title="All 2 branches covered.">            if (numbers == null) {</span>
+<span class="fc" id="L186">                numbers = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">                for (String account : maskedAccounts()) {</span>
+<span class="fc" id="L188">                    numbers.putIfAbsent(account, numbers.size() + 1);</span>
+<span class="fc" id="L189">                }</span>
+            }
+<span class="fc" id="L191">            return numbers.get(identity.toLowerCase(Locale.ROOT));</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
