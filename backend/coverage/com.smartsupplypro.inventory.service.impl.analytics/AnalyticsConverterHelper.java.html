@@ -66,14 +66,13 @@ final class AnalyticsConverterHelper {
      * Safely unboxes any numeric projection value via {@link Number}.
      * Null is treated as zero to avoid NPEs in aggregation results.
      *
-     * @param o numeric value (null, {@link Number}, or {@link java.math.BigDecimal})
+     * @param o numeric value: null or any {@link Number}
      * @return corresponding {@link Number}
      */
     static Number asNumber(Object o) {
 <span class="fc bfc" id="L73" title="All 2 branches covered.">        if (o == null) return java.math.BigDecimal.ZERO;</span>
 <span class="fc bfc" id="L74" title="All 2 branches covered.">        if (o instanceof Number n) return n;</span>
-<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (o instanceof java.math.BigDecimal bd) return bd;</span>
-<span class="fc" id="L76">        throw new IllegalStateException(&quot;Expected numeric type but got: &quot; + o);</span>
+<span class="fc" id="L75">        throw new IllegalStateException(&quot;Expected numeric type but got: &quot; + o);</span>
     }
 
     // -- Date window utilities -------------------------------------------------
@@ -87,22 +86,22 @@ final class AnalyticsConverterHelper {
      * @throws InvalidRequestException if effective start is after effective end
      */
     static LocalDate[] defaultAndValidateDateWindow(LocalDate start, LocalDate end) {
-<span class="fc bfc" id="L90" title="All 2 branches covered.">        LocalDate s = (start == null) ? LocalDate.now().minusDays(30) : start;</span>
-<span class="fc bfc" id="L91" title="All 2 branches covered.">        LocalDate e = (end == null) ? LocalDate.now() : end;</span>
-<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (s.isAfter(e)) {</span>
-<span class="fc" id="L93">            throw new InvalidRequestException(&quot;start must be on or before end&quot;);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        LocalDate s = (start == null) ? LocalDate.now().minusDays(30) : start;</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        LocalDate e = (end == null) ? LocalDate.now() : end;</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (s.isAfter(e)) {</span>
+<span class="fc" id="L92">            throw new InvalidRequestException(&quot;start must be on or before end&quot;);</span>
         }
-<span class="fc" id="L95">        return new LocalDate[]{s, e};</span>
+<span class="fc" id="L94">        return new LocalDate[]{s, e};</span>
     }
 
     /** Returns the start-of-day boundary (00:00:00) for the given date (inclusive lower bound). */
     static LocalDateTime startOfDay(LocalDate d) {
-<span class="fc" id="L100">        return LocalDateTime.of(d, LocalTime.MIN);</span>
+<span class="fc" id="L99">        return LocalDateTime.of(d, LocalTime.MIN);</span>
     }
 
     /** Returns the end-of-day boundary (23:59:59.999...) for the given date (inclusive upper bound). */
     static LocalDateTime endOfDay(LocalDate d) {
-<span class="fc" id="L105">        return LocalDateTime.of(d, LocalTime.MAX);</span>
+<span class="fc" id="L104">        return LocalDateTime.of(d, LocalTime.MAX);</span>
     }
 
     // -- String utilities ------------------------------------------------------
@@ -112,7 +111,7 @@ final class AnalyticsConverterHelper {
      * Used to normalize optional filter parameters before passing to repository queries.
      */
     static String blankToNull(String s) {
-<span class="fc bfc" id="L115" title="All 4 branches covered.">        return (s == null || s.trim().isEmpty()) ? null : s.trim();</span>
+<span class="fc bfc" id="L114" title="All 4 branches covered.">        return (s == null || s.trim().isEmpty()) ? null : s.trim();</span>
     }
 
     /**
@@ -120,10 +119,10 @@ final class AnalyticsConverterHelper {
      * @throws InvalidRequestException if value is blank
      */
     static String requireNonBlank(String v, String name) {
-<span class="pc bpc" id="L123" title="1 of 4 branches missed.">        if (v == null || v.trim().isEmpty()) {</span>
-<span class="fc" id="L124">            throw new InvalidRequestException(name + &quot; must not be blank&quot;);</span>
+<span class="pc bpc" id="L122" title="1 of 4 branches missed.">        if (v == null || v.trim().isEmpty()) {</span>
+<span class="fc" id="L123">            throw new InvalidRequestException(name + &quot; must not be blank&quot;);</span>
         }
-<span class="fc" id="L126">        return v.trim();</span>
+<span class="fc" id="L125">        return v.trim();</span>
     }
 
     /**
@@ -131,10 +130,10 @@ final class AnalyticsConverterHelper {
      * @throws InvalidRequestException if value is null
      */
     static &lt;T&gt; T requireNonNull(T v, String name) {
-<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (v == null) {</span>
-<span class="fc" id="L135">            throw new InvalidRequestException(name + &quot; must not be null&quot;);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (v == null) {</span>
+<span class="fc" id="L134">            throw new InvalidRequestException(name + &quot; must not be null&quot;);</span>
         }
-<span class="fc" id="L137">        return v;</span>
+<span class="fc" id="L136">        return v;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
