@@ -35,7 +35,7 @@ describe('itemSearch fetchers', () => {
   describe('searchItemsGlobal', () => {
     it('queries the paginated search endpoint and normalizes the Page content', async () => {
       httpMock.get.mockResolvedValue({
-        data: { content: [{ id: 'I-1', name: 'Bolt', supplierId: 'S-1' }], totalElements: 1 },
+        data: { content: [{ id: 'I-1', name: 'Bolt', supplierId: 'S-1' }], page: { totalElements: 1 } },
       });
 
       const result = await searchItemsGlobal('bolt', 25);
