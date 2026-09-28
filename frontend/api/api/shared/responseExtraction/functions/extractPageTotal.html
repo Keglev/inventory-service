@@ -15,7 +15,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-api/analytics/updates/type-aliases/StockUpdatesFilter · Smart Supply Pro · API</title>
+api/shared/responseExtraction/functions/extractPageTotal · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -117,64 +117,50 @@ api/analytics/updates/type-aliases/StockUpdatesFilter · Smart Supply Pro · API
         href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
         <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/analytics/updates</a> /
-        StockUpdatesFilter</p>
-        <h1 id="type-alias-stockupdatesfilter">Type Alias:
-        StockUpdatesFilter</h1>
+        href="../README.html">api/shared/responseExtraction</a> /
+        extractPageTotal</p>
+        <h1 id="function-extractpagetotal">Function:
+        extractPageTotal()</h1>
         <blockquote>
-        <p><strong>StockUpdatesFilter</strong> = <code>object</code></p>
+        <p><strong>extractPageTotal</strong>(<code>obj</code>):
+        <code>number</code> | <code>undefined</code></p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/analytics/updates.ts#L22">api/analytics/updates.ts:22</a></p>
-        <h2 id="properties">Properties</h2>
-        <h3 id="from">from?</h3>
-        <blockquote>
-        <p><code>optional</code> <strong>from?</strong>:
-        <code>string</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/analytics/updates.ts#L23">api/analytics/updates.ts:23</a></p>
-        <hr />
-        <h3 id="itemname">itemName?</h3>
-        <blockquote>
-        <p><code>optional</code> <strong>itemName?</strong>:
-        <code>string</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/analytics/updates.ts#L26">api/analytics/updates.ts:26</a></p>
-        <hr />
-        <h3 id="supplierid">supplierId?</h3>
-        <blockquote>
-        <p><code>optional</code> <strong>supplierId?</strong>:
-        <code>string</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/analytics/updates.ts#L25">api/analytics/updates.ts:25</a></p>
-        <hr />
-        <h3 id="to">to?</h3>
-        <blockquote>
-        <p><code>optional</code> <strong>to?</strong>:
-        <code>string</code></p>
-        </blockquote>
-        <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/analytics/updates.ts#L24">api/analytics/updates.ts:24</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/shared/responseExtraction.ts#L76">api/shared/responseExtraction.ts:76</a></p>
+        <p>Reads the total element count of a Spring Data page. The
+        backend's paged JSON is moving from the serialised PageImpl,
+        which carries <code>totalElements</code> at the top level, to
+        Spring Data's PagedModel, which nests it under
+        <code>page</code>; both are accepted so neither deploy order
+        breaks a total.</p>
+        <h2 id="parameters">Parameters</h2>
+        <h3 id="obj">obj</h3>
+        <p><code>unknown</code></p>
+        <p>Page response body</p>
+        <h2 id="returns">Returns</h2>
+        <p><code>number</code> | <code>undefined</code></p>
+        <p>The total, or <code>undefined</code> when neither shape
+        carries a number</p>
+        <h2 id="example">Example</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">extractPageTotal</span>({ content<span class="op">:</span> []<span class="op">,</span> page<span class="op">:</span> { totalElements<span class="op">:</span> <span class="dv">21</span> } })<span class="op">;</span> <span class="co">// 21</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">extractPageTotal</span>({ content<span class="op">:</span> []<span class="op">,</span> totalElements<span class="op">:</span> <span class="dv">21</span> })<span class="op">;</span> <span class="co">// 21</span></span></code></pre></div>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#type-alias-stockupdatesfilter"
-      id="toc-type-alias-stockupdatesfilter">Type Alias:
-      StockUpdatesFilter</a>
+      <li><a href="#function-extractpagetotal"
+      id="toc-function-extractpagetotal">Function:
+      extractPageTotal()</a>
       <ul>
-      <li><a href="#properties" id="toc-properties">Properties</a>
+      <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
-      <li><a href="#from" id="toc-from">from?</a></li>
-      <li><a href="#itemname" id="toc-itemname">itemName?</a></li>
-      <li><a href="#supplierid" id="toc-supplierid">supplierId?</a></li>
-      <li><a href="#to" id="toc-to">to?</a></li>
+      <li><a href="#obj" id="toc-obj">obj</a></li>
       </ul></li>
+      <li><a href="#returns" id="toc-returns">Returns</a></li>
+      <li><a href="#example" id="toc-example">Example</a></li>
       </ul></li>
       </ul>
     </nav>

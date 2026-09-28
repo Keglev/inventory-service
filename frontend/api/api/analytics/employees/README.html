@@ -123,10 +123,10 @@ api/analytics/employees/README · Smart Supply Pro · API</title>
         <p>employees.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>employee-changes returns a Spring Data Page; only
-        <code>content</code> and <code>totalElements</code> are consumed
-        (same contract family as the inventory and stock-history search
-        pages).</li>
+        <li>employee-changes returns a Spring Data page; only
+        <code>content</code> and the total are read, the total through
+        extractPageTotal (same contract family as the inventory and
+        stock-history search pages).</li>
         <li>Both endpoints accept ISO DATE bounds (yyyy-MM-dd); the
         backend widens them to full-day timestamps.</li>
         <li>Tolerant parsing per house style; transport errors collapse
