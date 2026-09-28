@@ -5,7 +5,7 @@
  * supplier-dropdown fetcher.
  *
  * Contract under test:
- * - Calls GET /api/suppliers with limit=200.
+ * - Calls GET /api/suppliers with no query parameters.
  * - Maps raw entries to string {id, name} pairs.
  * - Filters entries missing id or name after coercion.
  * - Returns [] on non-array payloads and on transport errors (graceful degrade).
@@ -28,12 +28,12 @@ describe('api/analytics/suppliers getSuppliersLite', () => {
     httpGet.mockReset();
   });
 
-  it('requests GET /api/suppliers with the capped limit', async () => {
+  it('requests GET /api/suppliers without query parameters', async () => {
     httpGet.mockResolvedValue({ data: [] });
 
     await getSuppliersLite();
 
-    expect(httpGet).toHaveBeenCalledWith('/api/suppliers', { params: { limit: 200 } });
+    expect(httpGet).toHaveBeenCalledWith('/api/suppliers');
   });
 
   it('maps entries to string id/name pairs', async () => {

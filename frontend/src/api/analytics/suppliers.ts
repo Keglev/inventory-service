@@ -2,8 +2,8 @@
  * @module api/analytics/suppliers
  *
  * Fetches a minimal supplier list for use in dropdowns and filter controls.
- * Hits `GET /api/suppliers` with a capped result count so the UI can populate
- * supplier selectors without loading full supplier records.
+ * Hits `GET /api/suppliers`, which returns every supplier, and keeps only the
+ * id and name the selectors need.
  */
 import http from '../httpClient';
 import type { SupplierRef } from './types';
@@ -13,7 +13,7 @@ import type { SupplierRef } from './types';
  * Silently returns an empty array on network or parse errors so filter controls
  * degrade gracefully rather than blocking the UI.
  *
- * Calls `GET /api/suppliers?limit=200`.
+ * Calls `GET /api/suppliers`.
  * @example
  * ```typescript
  * const suppliers = await getSuppliersLite();
@@ -22,7 +22,7 @@ import type { SupplierRef } from './types';
  */
 export async function getSuppliersLite(): Promise<SupplierRef[]> {
     try {
-        const { data } = await http.get<unknown>('/api/suppliers', { params: { limit: 200 } });
+        const { data } = await http.get<unknown>('/api/suppliers');
         if (!Array.isArray(data)) return [];
         return (data as Array<{ id?: string | number; name?: string }>)
         .map((s) => ({ id: String(s.id ?? ''), name: String(s.name ?? '') }))
