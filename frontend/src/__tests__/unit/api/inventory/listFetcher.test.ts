@@ -53,7 +53,10 @@ describe('getInventoryPage', () => {
     it('calls the paginated search endpoint and returns normalized rows with the Page total', async () => {
       const row = { id: 'ITEM-1' };
       httpMock.get.mockResolvedValue({
-        data: { content: [{ id: 'ITEM-1' }, { id: 'invalid' }], totalElements: 42 },
+        data: {
+          content: [{ id: 'ITEM-1' }, { id: 'invalid' }],
+          page: { size: 10, number: 0, totalElements: 42, totalPages: 5 },
+        },
       });
       toInventoryRowMock.mockReturnValueOnce(row).mockReturnValueOnce(null);
 
@@ -77,19 +80,8 @@ describe('getInventoryPage', () => {
       });
     });
 
-    it('reads the total nested under page', async () => {
-      httpMock.get.mockResolvedValue({
-        data: { content: [{ id: 'ITEM-1' }], page: { size: 10, number: 0, totalElements: 42, totalPages: 5 } },
-      });
-      toInventoryRowMock.mockReturnValueOnce({ id: 'ITEM-1' });
-
-      const result = await getInventoryPage(params);
-
-      expect(result.total).toBe(42);
-    });
-
     it('maps grid sort fields to backend entity properties', async () => {
-      httpMock.get.mockResolvedValue({ data: { content: [], totalElements: 0 } });
+      httpMock.get.mockResolvedValue({ data: { content: [], page: { totalElements: 0 } } });
 
       await getInventoryPage({ ...params, sort: 'onHand,desc' });
 
@@ -99,7 +91,7 @@ describe('getInventoryPage', () => {
     });
 
     it('falls back to name,asc for unknown sort fields', async () => {
-      httpMock.get.mockResolvedValue({ data: { content: [], totalElements: 0 } });
+      httpMock.get.mockResolvedValue({ data: { content: [], page: { totalElements: 0 } } });
 
       await getInventoryPage({ ...params, sort: 'totalValue,desc' });
 
@@ -109,7 +101,7 @@ describe('getInventoryPage', () => {
     });
 
     it('forwards q as name and the belowMinimumOnly flag', async () => {
-      httpMock.get.mockResolvedValue({ data: { content: [], totalElements: 0 } });
+      httpMock.get.mockResolvedValue({ data: { content: [], page: { totalElements: 0 } } });
 
       await getInventoryPage({ ...params, q: 'bolt', belowMinimumOnly: true });
 

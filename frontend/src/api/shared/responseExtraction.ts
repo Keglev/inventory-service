@@ -59,23 +59,18 @@ export const extractArray = (obj: unknown, keys: string[]): unknown[] => {
 };
 
 /**
- * Reads the total element count of a Spring Data page. The backend's paged
- * JSON is moving from the serialised PageImpl, which carries `totalElements`
- * at the top level, to Spring Data's PagedModel, which nests it under `page`;
- * both are accepted so neither deploy order breaks a total.
+ * Reads the total element count of a Spring Data page. The backend writes
+ * pages as Spring Data's PagedModel, which nests the total under `page`.
  *
  * @param obj - Page response body
- * @returns The total, or `undefined` when neither shape carries a number
+ * @returns The total, or `undefined` when the body carries no page total
  *
  * @example
  * ```typescript
  * extractPageTotal({ content: [], page: { totalElements: 21 } }); // 21
- * extractPageTotal({ content: [], totalElements: 21 }); // 21
  * ```
  */
 export const extractPageTotal = (obj: unknown): number | undefined => {
-  if (!isRecord(obj)) return undefined;
-  const page = obj.page;
-  const nested = isRecord(page) ? pickNumber(page, 'totalElements') : undefined;
-  return nested ?? pickNumber(obj, 'totalElements');
+  if (!isRecord(obj) || !isRecord(obj.page)) return undefined;
+  return pickNumber(obj.page, 'totalElements');
 };

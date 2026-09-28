@@ -173,7 +173,7 @@ describe('api/analytics/updates.getStockUpdatesPage', () => {
   });
 
   it('requests the paged endpoint with the window, filters, page and size', async () => {
-    httpGet.mockResolvedValueOnce({ data: { content: [], totalElements: 0 } });
+    httpGet.mockResolvedValueOnce({ data: { content: [], page: { totalElements: 0 } } });
 
     await getStockUpdatesPage({
       from: '2025-10-01',
@@ -197,7 +197,7 @@ describe('api/analytics/updates.getStockUpdatesPage', () => {
   });
 
   it('defaults to the first page of ten rows', async () => {
-    httpGet.mockResolvedValueOnce({ data: { content: [], totalElements: 0 } });
+    httpGet.mockResolvedValueOnce({ data: { content: [], page: { totalElements: 0 } } });
 
     await getStockUpdatesPage();
 
@@ -213,7 +213,7 @@ describe('api/analytics/updates.getStockUpdatesPage', () => {
           { itemName: 'Item A', change: -2, reason: 'SOLD', createdBy: 'alice', timestamp: '2026-02-01T10:00:00' },
           { itemName: 'Item B' },
         ],
-        totalElements: 21,
+        page: { size: 10, number: 0, totalElements: 21, totalPages: 3 },
       },
     });
 
@@ -223,14 +223,6 @@ describe('api/analytics/updates.getStockUpdatesPage', () => {
     expect(page.rows).toEqual([
       { timestamp: '2026-02-01T10:00:00', itemName: 'Item A', delta: -2, reason: 'SOLD', user: 'alice' },
     ]);
-  });
-
-  it('reads the total nested under page', async () => {
-    httpGet.mockResolvedValueOnce({
-      data: { content: [], page: { size: 10, number: 2, totalElements: 21, totalPages: 3 } },
-    });
-
-    expect((await getStockUpdatesPage()).total).toBe(21);
   });
 
   it('returns an empty page for a malformed response or a transport failure', async () => {

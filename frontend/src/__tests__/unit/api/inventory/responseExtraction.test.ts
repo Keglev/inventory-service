@@ -49,17 +49,13 @@ describe('extractPageTotal', () => {
     expect(extractPageTotal({ content: [], page: { size: 10, number: 2, totalElements: 21, totalPages: 3 } })).toBe(21);
   });
 
-  it('reads the top-level total (serialised PageImpl)', () => {
-    expect(extractPageTotal({ content: [], totalElements: 21, number: 2 })).toBe(21);
+  it('ignores a top-level total (the retired PageImpl shape)', () => {
+    expect(extractPageTotal({ content: [], totalElements: 21, number: 2 })).toBeUndefined();
+    expect(extractPageTotal({ page: { size: 10 }, totalElements: 9 })).toBeUndefined();
+    expect(extractPageTotal({ page: 3, totalElements: 9 })).toBeUndefined();
   });
 
-  it('prefers the nested total and falls back when page carries none', () => {
-    expect(extractPageTotal({ page: { totalElements: 5 }, totalElements: 9 })).toBe(5);
-    expect(extractPageTotal({ page: { size: 10 }, totalElements: 9 })).toBe(9);
-    expect(extractPageTotal({ page: 3, totalElements: 9 })).toBe(9);
-  });
-
-  it('returns undefined when no shape carries a number', () => {
+  it('returns undefined when the page carries no number', () => {
     expect(extractPageTotal({ content: [] })).toBeUndefined();
     expect(extractPageTotal({ page: { totalElements: 'many' } })).toBeUndefined();
     expect(extractPageTotal(null)).toBeUndefined();
