@@ -2,7 +2,8 @@
  * @module api/analytics/frequency
  *
  * Supplier-scoped item update frequency (top N items by change count).
- * Calls GET /api/analytics/item-update-frequency?supplierId=...&limit=N.
+ * Calls GET /api/analytics/item-update-frequency?supplierId=... and keeps the
+ * first N rows on the client; the endpoint takes no limit.
  * Returns [] on error or when supplierId is empty. Normalises several backend
  * field aliases to the canonical {@link ItemUpdateFrequencyPoint} shape.
  */
@@ -15,7 +16,7 @@ export type ItemUpdateFrequencyPoint = { id: string; name: string; updates: numb
 
 /**
  * Fetch the top `limit` items ranked by update count for a supplier.
- * Backend: GET /api/analytics/item-update-frequency?supplierId=...&limit=N
+ * Backend: GET /api/analytics/item-update-frequency?supplierId=...
  *
  * Field aliases accepted from the backend:
  *   - id:      `id` | `itemId` | `sku` | `code`, falls back to `name` when absent
@@ -29,7 +30,7 @@ export async function getItemUpdateFrequency(
   if (!supplierId) return [];
   try {
     const { data } = await http.get<unknown>('/api/analytics/item-update-frequency', {
-      params: { supplierId, limit }
+      params: { supplierId }
     });
     if (!isArrayOfRecords(data)) return [];
 

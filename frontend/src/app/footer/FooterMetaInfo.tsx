@@ -13,8 +13,9 @@
  *   id stays readable; it is how a deployed build is matched to its commit.
  *   The group may shrink so that on a narrow screen the line wraps inside the
  *   footer rather than overflowing it.
- * - All five props originate from useFooterState hardcoded config (see CB-APP1);
- *   currentLanguage is the only live value (derived from i18n.language).
+ * - Props come from useFooterState: appVersion, buildId and environment are
+ *   build-time values from config/appMeta, currentLanguage is derived from
+ *   i18n.language, and region is fixed to DE.
  * - The two JSX structural comments are intentional layout markers.
  */
 

@@ -77,7 +77,7 @@ describe('api/analytics/frequency.getItemUpdateFrequency', () => {
       // Assert
       expect(httpGet).toHaveBeenCalledTimes(1);
       expect(httpGet).toHaveBeenCalledWith('/api/analytics/item-update-frequency', {
-        params: { supplierId: 'SUP-001', limit: 10 },
+        params: { supplierId: 'SUP-001' },
       });
 
       expect(res).toEqual([
