@@ -92,20 +92,16 @@ get:
         application/json:
           schema:
             type: object
+            required:
+              - content
+              - page
             properties:
               content:
                 type: array
                 items:
                   $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/StockUpdateResultDTO'
-              totalElements:
-                type: integer
-              totalPages:
-                type: integer
-              number:
-                type: integer
-                description: Current page (0-indexed)
-              size:
-                type: integer
+              page:
+                $ref: '../../schemas/common/common.yaml#/components/schemas/PageMetadata'
     '400':
       $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
     '401':

@@ -209,7 +209,7 @@ public class AnalyticsControllerFilteringTest {
                 .param("page", "2"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content[0].itemName").value("ItemX"))
-            .andExpect(jsonPath("$.totalElements").value(21));
+            .andExpect(jsonPath("$.page.totalElements").value(21));
     }
 
     @ParameterizedTest
@@ -223,6 +223,6 @@ public class AnalyticsControllerFilteringTest {
                 .param("page", "-3")
                 .param("size", "5000"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.totalElements").value(0));
+            .andExpect(jsonPath("$.page.totalElements").value(0));
     }
 }
