@@ -21,6 +21,7 @@ import http from '../httpClient';
 import type { InventoryListParams, InventoryListResponse, InventoryRow } from './types';
 import { toInventoryRow } from './rowNormalizers';
 import { INVENTORY_BASE } from '../shared/constants';
+import { extractPageTotal } from '../shared/responseExtraction';
 import { logError } from '../../utils/logger';
 
 /** Frontend grid field -> backend entity property for the Pageable sort. */
@@ -54,12 +55,9 @@ const extractRows = (data: unknown): unknown[] => {
   return Array.isArray(content) ? content : [];
 };
 
-/** Extract totalElements from a Spring Page envelope; falls back to the row count. */
-const extractTotal = (data: unknown, fallback: number): number => {
-  if (typeof data !== 'object' || data === null) return fallback;
-  const total = (data as Record<string, unknown>).totalElements;
-  return typeof total === 'number' && Number.isFinite(total) ? total : fallback;
-};
+/** Extract the total of a Spring Data page; falls back to the row count. */
+const extractTotal = (data: unknown, fallback: number): number =>
+  extractPageTotal(data) ?? fallback;
 
 /**
  * Fetch a page of inventory items from GET /api/inventory/search.

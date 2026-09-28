@@ -4,12 +4,13 @@
  * Response parsing utilities that unwrap common backend envelope formats.
  * resDataOrEmpty handles the Axios .data wrapper; extractArray handles Spring
  * Page responses (content key), arbitrary key envelopes (items, results), and
- * any other record shape the caller supplies key names for. Both functions
- * return safe defaults ({} / []) rather than throwing when the expected shape
- * is absent. Consumed by both the
- * inventory and supplier API layers.
+ * any other record shape the caller supplies key names for; extractPageTotal
+ * reads the total of a Spring Data page. They return safe defaults ({} / [] /
+ * undefined) rather than throwing when the expected shape is absent. Consumed
+ * by the inventory, supplier and analytics API layers.
  */
 
+import { pickNumber } from './fieldPickers';
 import { isRecord } from './typeGuards';
 
 /**
@@ -55,4 +56,26 @@ export const extractArray = (obj: unknown, keys: string[]): unknown[] => {
     if (Array.isArray(v)) return v as unknown[];
   }
   return [];
+};
+
+/**
+ * Reads the total element count of a Spring Data page. The backend's paged
+ * JSON is moving from the serialised PageImpl, which carries `totalElements`
+ * at the top level, to Spring Data's PagedModel, which nests it under `page`;
+ * both are accepted so neither deploy order breaks a total.
+ *
+ * @param obj - Page response body
+ * @returns The total, or `undefined` when neither shape carries a number
+ *
+ * @example
+ * ```typescript
+ * extractPageTotal({ content: [], page: { totalElements: 21 } }); // 21
+ * extractPageTotal({ content: [], totalElements: 21 }); // 21
+ * ```
+ */
+export const extractPageTotal = (obj: unknown): number | undefined => {
+  if (!isRecord(obj)) return undefined;
+  const page = obj.page;
+  const nested = isRecord(page) ? pickNumber(page, 'totalElements') : undefined;
+  return nested ?? pickNumber(obj, 'totalElements');
 };
