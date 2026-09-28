@@ -117,6 +117,36 @@ class EmployeeAnalyticsServiceTest {
     }
 
     @Test
+    void should_roll_up_by_month_when_the_granularity_is_null() {
+        when(stockHistoryRepository.getDailyEmployeeActivity(any(), any(), any()))
+                .thenReturn(List.of(
+                        row("jonas.weber@example.com", "2026-03-02", 3),
+                        row("jonas.weber@example.com", "2026-03-15", 2)));
+
+        List<EmployeeActivityDTO> out = service.getEmployeeActivity(
+                null, LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31), null);
+
+        assertEquals(1, out.size());
+        assertEquals("2026-03", out.get(0).period());
+        assertEquals(5L, out.get(0).changeCount());
+    }
+
+    @Test
+    void should_skip_users_without_an_email_and_fall_back_to_the_email_for_a_blank_name() {
+        when(stockHistoryRepository.getDailyEmployeeActivity(any(), any(), any()))
+                .thenReturn(List.<Object[]>of(row("anna.klein@example.com", "2026-02-01", 1)));
+        when(appUserRepository.findAll()).thenReturn(List.of(
+                user(null, "No Email"),
+                user(" ", "Blank Email"),
+                user("anna.klein@example.com", " ")));
+
+        List<EmployeeActivityDTO> out = service.getEmployeeActivity(
+                "daily", LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 28), null);
+
+        assertEquals("anna.klein@example.com", out.get(0).displayName());
+    }
+
+    @Test
     void should_map_the_projection_rows_when_employee_changes_are_requested() {
         Object[] r = new Object[] {
                 "Item A", "Supplier One", -3, "SOLD", "jonas.weber@example.com",

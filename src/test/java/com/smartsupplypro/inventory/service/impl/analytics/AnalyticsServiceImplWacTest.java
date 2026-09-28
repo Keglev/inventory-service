@@ -126,6 +126,50 @@ class AnalyticsServiceImplWacTest {
     }
 
     /**
+     * Events that move no quantity, and INITIAL_STOCK without a price snapshot.
+     */
+    @Nested
+    class WacEdgeEvents {
+
+        @Test
+        void should_leave_every_bucket_unchanged_when_a_price_change_moves_no_quantity() {
+            var events = List.of(
+                    new StockEventRowDTO("item1", "sup1", at(2024, 1, 10, 10, 0), 10, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),
+                    new StockEventRowDTO("item1", "sup1", at(2024, 1, 20, 10, 0),  0, new BigDecimal("9.00"), StockChangeReason.PRICE_CHANGE),
+                    new StockEventRowDTO("item1", "sup1", at(2024, 2,  5, 10, 0),  0, new BigDecimal("9.00"), StockChangeReason.PRICE_CHANGE)
+            );
+            when(stockHistoryRepository.streamEventsForWAC(any(), any())).thenReturn(events);
+
+            FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
+                    LocalDate.parse("2024-02-01"), LocalDate.parse("2024-02-28"), "sup1");
+
+            assertEquals(10, dto.openingQty());
+            assertMoneyEquals("50.00", dto.openingValue());
+            assertEquals(0, dto.purchasesQty());
+            assertEquals(0, dto.cogsQty());
+            assertEquals(10, dto.endingQty());
+            assertMoneyEquals("50.00", dto.endingValue());
+        }
+
+        @Test
+        void should_count_initial_stock_as_a_purchase_at_the_current_wac_when_it_has_no_price() {
+            var events = List.of(
+                    new StockEventRowDTO("item1", "sup1", at(2024, 1, 10, 10, 0), 10, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),
+                    new StockEventRowDTO("item1", "sup1", at(2024, 2,  5, 10, 0),  3, null,                   StockChangeReason.INITIAL_STOCK)
+            );
+            when(stockHistoryRepository.streamEventsForWAC(any(), any())).thenReturn(events);
+
+            FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
+                    LocalDate.parse("2024-02-01"), LocalDate.parse("2024-02-28"), "sup1");
+
+            assertEquals(3, dto.purchasesQty());
+            assertMoneyEquals("15.00", dto.purchasesCost());
+            assertEquals(13, dto.endingQty());
+            assertMoneyEquals("65.00", dto.endingValue());
+        }
+    }
+
+    /**
      * Date range validation for {@code getFinancialSummaryWAC}.
      */
     @Nested
@@ -137,6 +181,14 @@ class AnalyticsServiceImplWacTest {
                     () -> service.getFinancialSummaryWAC(
                             LocalDate.parse("2024-03-01"), LocalDate.parse("2024-02-01"), "sup1"));
             assertNotNull(ex.getMessage());
+        }
+
+        @Test
+        void should_throw_when_a_date_is_missing() {
+            assertThrows(InvalidRequestException.class,
+                    () -> service.getFinancialSummaryWAC(null, LocalDate.parse("2024-02-28"), "sup1"));
+            assertThrows(InvalidRequestException.class,
+                    () -> service.getFinancialSummaryWAC(LocalDate.parse("2024-02-01"), null, "sup1"));
         }
     }
 }
