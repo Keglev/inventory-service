@@ -58,7 +58,7 @@ describe('LowStockAlertSection', () => {
   // ---------------------------------------------------------------------------
   it('renders the low stock alert title', () => {
     arrange(5);
-    expect(screen.getByText('Low Stock Alert')).toBeInTheDocument();
+    expect(screen.getByText('Alert: items below minimum')).toBeInTheDocument();
   });
 
   it('renders a notification icon', () => {
@@ -79,10 +79,10 @@ describe('LowStockAlertSection', () => {
   // Count rendering: message + chip
   // ---------------------------------------------------------------------------
   it.each([
-    [0, 'You have 0 merchandise item(s) with low stock', '0 items below minimum'],
-    [1, 'You have 1 merchandise item(s) with low stock', '1 items below minimum'],
-    [3, 'You have 3 merchandise item(s) with low stock', '3 items below minimum'],
-    [999, 'You have 999 merchandise item(s) with low stock', '999 items below minimum'],
+    [0, 'You have 0 item(s) below minimum', '0 items below minimum'],
+    [1, 'You have 1 item(s) below minimum', '1 items below minimum'],
+    [3, 'You have 3 item(s) below minimum', '3 items below minimum'],
+    [999, 'You have 999 item(s) below minimum', '999 items below minimum'],
   ] as const)(
     'renders count-dependent content for lowStockCount=%i',
     (count, expectedMessage, expectedChip) => {
@@ -97,7 +97,7 @@ describe('LowStockAlertSection', () => {
   // ---------------------------------------------------------------------------
   it('renders translated title when provided by i18n', () => {
     const mockT = vi.fn((key: string, options?: TOptions) => {
-      if (key === 'notifications.lowStockAlert') return 'Niedriger Bestand';
+      if (key === 'notifications.lowStockAlert') return 'Warnung: Artikel unter Mindestbestand';
       return tEn(key, options);
     });
 
@@ -109,7 +109,7 @@ describe('LowStockAlertSection', () => {
     arrange(5);
 
     // User-visible result
-    expect(screen.getByText('Niedriger Bestand')).toBeInTheDocument();
+    expect(screen.getByText('Warnung: Artikel unter Mindestbestand')).toBeInTheDocument();
 
     // Integration: correct key used
     expect(mockT).toHaveBeenCalledWith('notifications.lowStockAlert');

@@ -23,7 +23,7 @@
     "kpi": {
       "totalItems": "Total items",
       "suppliers": "Suppliers",
-      "lowStock": "Low-stock items",
+      "lowStock": "Items below minimum",
       "movementTitle": "Stock movement, last 90 days (pieces)",
       "stockIn": "Stock in",
       "stockOut": "Stock out"
@@ -34,7 +34,7 @@
       "viewAnalytics": "View analytics"
     },
     "lowStockChart": {
-      "title": "Low-stock watchlist",
+      "title": "Items below minimum",
       "empty": "No items below minimum",
       "quantity": "Quantity",
       "minimum": "Minimum",
@@ -102,10 +102,10 @@
     "numberFormat": "Number Format"
   },
   "notifications": {
-    "lowStockAlert": "Low Stock Alert",
-    "lowStockMessage": "You have {{count}} merchandise item(s) with low stock",
+    "lowStockAlert": "Alert: items below minimum",
+    "lowStockMessage": "You have {{count}} item(s) below minimum",
     "itemsLowStock": "{{count}} items below minimum",
-    "allGood": "All clear – no low stock items"
+    "allGood": "All clear – no items below minimum"
   },
   "help": {
     "title": "Help & Docs",

@@ -61,7 +61,7 @@
     "supplier": "Supplier",
     "allSuppliers": "All Suppliers"
   },
-  "selectSupplier": "Select a supplier to see low stock",
+  "selectSupplier": "Select a supplier to see items below minimum",
   "lowStock": {
     "columns": {
       "item": "Item",

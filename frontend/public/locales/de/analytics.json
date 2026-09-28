@@ -61,7 +61,7 @@
     "supplier": "Lieferant",
     "allSuppliers": "Alle Lieferanten"
   },
-  "selectSupplier": "Wähle einen Lieferanten, um niedrige Bestände zu sehen",
+  "selectSupplier": "Wähle einen Lieferanten, um Artikel unter Mindestbestand zu sehen",
   "lowStock": {
     "columns": {
       "item": "Artikel",
