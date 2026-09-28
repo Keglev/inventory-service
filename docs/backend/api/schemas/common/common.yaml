@@ -35,22 +35,21 @@ components:
     PageMetadata:
       type: object
       required:
-        - page
         - size
+        - number
         - totalElements
         - totalPages
       properties:
-        page:
+        size:
+          type: integer
+          minimum: 1
+          description: Number of items per page
+          example: 20
+        number:
           type: integer
           minimum: 0
           description: Current page number (0-indexed)
           example: 0
-        size:
-          type: integer
-          minimum: 1
-          maximum: 100
-          description: Number of items per page
-          example: 20
         totalElements:
           type: integer
           minimum: 0
@@ -61,4 +60,6 @@ components:
           minimum: 0
           description: Total number of pages
           example: 8
-      description: Pagination metadata for list responses
+      description: |
+        The `page` object of every paged response. Pages are serialised as Spring
+        Data's PagedModel: `{"content": [...], "page": {...}}`.

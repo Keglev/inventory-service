@@ -19,6 +19,14 @@ spring:
     password: ${DB_PASS}
     driver-class-name: oracle.jdbc.OracleDriver
 
+  data:
+    web:
+      pageable:
+        # Pages are written as Spring Data's PagedModel,
+        # {"content":[...],"page":{"size","number","totalElements","totalPages"}},
+        # the stable shape Spring Data recommends over serialising PageImpl as-is.
+        serialization-mode: via-dto
+
   flyway:
     enabled: false                              # Migrations run only where explicitly enabled (prod profile)
 
