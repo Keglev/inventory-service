@@ -170,6 +170,17 @@ describe('ItemFormDialog', () => {
     expect(handleCloseSpy).toHaveBeenCalledTimes(1);
   });
 
+  it('calls state.handleClose when the dialog is dismissed with Escape', async () => {
+    const user = userEvent.setup();
+    const state = createState();
+    useItemFormMock.mockReturnValue(state);
+
+    render(<ItemFormDialog isOpen={true} onClose={vi.fn()} onSaved={vi.fn()} />);
+
+    await user.keyboard('{Escape}');
+    expect(state.handleClose).toHaveBeenCalledTimes(1);
+  });
+
   it('shows progress indicator and disables actions while submitting', () => {
     const state = createState({
       formState: { errors: {}, isSubmitting: true } as UseItemFormReturn['formState'],

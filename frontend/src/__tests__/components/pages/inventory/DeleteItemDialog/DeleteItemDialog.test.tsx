@@ -165,6 +165,33 @@ describe('DeleteItemDialog', () => {
     expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled();
   });
 
+  it('shows progress and locks both actions while the delete request runs', () => {
+    mockUseDeleteItemDialog.mockReturnValue(createMockState({
+      isSubmitting: true,
+      selectedItem: { id: 'item-1', name: 'Item 1' } as unknown as UseDeleteItemDialogReturn['selectedItem'],
+    }));
+
+    renderDialog({ open: true });
+
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Deleting...' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+  });
+
+  it('shows progress and locks the confirmation while the delete request runs', () => {
+    mockUseDeleteItemDialog.mockReturnValue(createMockState({
+      isSubmitting: true,
+      showConfirmation: true,
+    }));
+
+    renderDialog({ open: true });
+
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Deleting...' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'No' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Yes' })).not.toBeInTheDocument();
+  });
+
   it('wires onClose into the hook call (delegation boundary)', () => {
     const onClose = vi.fn();
     const onItemDeleted = vi.fn();

@@ -114,4 +114,43 @@ describe('QuantityAdjustItemSelect', () => {
 
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
+
+  it('asks for two characters before searching and reports an empty result after', async () => {
+    const user = userEvent.setup();
+    const props = {
+      selectedItem: null,
+      onItemChange: vi.fn(),
+      onSearchChange: vi.fn(),
+      items: [],
+      loading: false,
+      selectedSupplier: supplier,
+    };
+
+    const { rerender } = render(<QuantityAdjustItemSelect {...props} searchQuery="G" />);
+    await user.click(screen.getByRole('combobox'));
+    expect(screen.getByText('Enter at least 2 characters to search')).toBeInTheDocument();
+
+    rerender(<QuantityAdjustItemSelect {...props} searchQuery="Gl" />);
+    expect(screen.getByText('No items found for this search.')).toBeInTheDocument();
+  });
+
+  it('shows no options while the item list has not loaded', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <QuantityAdjustItemSelect
+        selectedItem={null}
+        onItemChange={vi.fn()}
+        searchQuery=""
+        onSearchChange={vi.fn()}
+        items={undefined}
+        loading={false}
+        selectedSupplier={supplier}
+      />
+    );
+    await user.click(screen.getByRole('combobox'));
+
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+    expect(screen.getByText('Enter at least 2 characters to search')).toBeInTheDocument();
+  });
 });

@@ -25,7 +25,7 @@ type HarnessProps = {
   disabled?: boolean;
   errors?: FieldErrors<QuantityAdjustForm>;
   currentQty?: number;
-  newQuantity?: number;
+  newQuantity?: number | null;
 };
 
 /**
@@ -35,7 +35,7 @@ type HarnessProps = {
 const TestHarness = ({ disabled = false, errors = {}, currentQty = 20, newQuantity = 5 }: HarnessProps) => {
   const form = useForm<QuantityAdjustForm>({
     defaultValues: {
-      newQuantity,
+      newQuantity: newQuantity ?? undefined,
       currentQuantity: currentQty,
       reason: 'MANUAL_UPDATE',
       itemId: '',
@@ -112,5 +112,30 @@ describe('QuantityAdjustQuantityInput', () => {
     expect(screen.getByRole('option', { name: 'Returned to Supplier' })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: 'Initial Stock' })).not.toBeInTheDocument();
     expect(screen.queryByRole('option', { name: 'Returned by Customer' })).not.toBeInTheDocument();
+  });
+
+  it('offers every reason when the new quantity equals the current one', () => {
+    render(<TestHarness currentQty={7} newQuantity={7} />);
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Reason' }));
+
+    expect(screen.getAllByRole('option')).toHaveLength(10);
+    expect(screen.getByRole('option', { name: 'Initial Stock' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Sold' })).toBeInTheDocument();
+  });
+
+  it('treats an emptied quantity field as zero', () => {
+    render(<TestHarness currentQty={10} newQuantity={8} />);
+
+    fireEvent.change(screen.getByLabelText('New Quantity'), { target: { value: '' } });
+
+    expect(screen.getByText('Changing from 10 to 0')).toBeInTheDocument();
+  });
+
+  it('offers reduce reasons while no new quantity has been entered', () => {
+    render(<TestHarness currentQty={5} newQuantity={null} />);
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Reason' }));
+
+    expect(screen.getByRole('option', { name: 'Sold' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Initial Stock' })).not.toBeInTheDocument();
   });
 });
