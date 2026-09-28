@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.smartsupplypro.inventory.controller.analytics.AnalyticsControllerValidationHelper;
 import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
+import com.smartsupplypro.inventory.security.DemoIdentityMasking;
 import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
 import jakarta.validation.Valid;
@@ -44,6 +45,7 @@ public class StockUpdateAnalyticsController {
 
     private final StockAnalyticsService stockAnalyticsService;
     private final AnalyticsControllerValidationHelper validationHelper;
+    private final DemoIdentityMasking identityMasking;
 
     /**
      * Gets filtered stock updates via query parameters (defaults to last 30 days).
@@ -52,7 +54,8 @@ public class StockUpdateAnalyticsController {
      * @param endDate    optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
      * @param itemName   optional item name filter
      * @param supplierId optional supplier filter
-     * @param createdBy  optional creator username filter
+     * @param createdBy  optional creator username filter; for anonymous callers,
+     *                   resolved by {@link DemoIdentityMasking#resolveFilter}
      * @param minChange  optional minimum quantity change filter
      * @param maxChange  optional maximum quantity change filter
      * @return list of filtered stock updates
@@ -72,7 +75,8 @@ public class StockUpdateAnalyticsController {
         validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], "startDate", "endDate");
         validationHelper.validateNumericRange(minChange, maxChange, "minChange", "maxChange");
         StockUpdateFilterDTO filter = validationHelper.buildFilter(
-                dateWindow[0], dateWindow[1], itemName, supplierId, createdBy, minChange, maxChange);
+                dateWindow[0], dateWindow[1], itemName, supplierId,
+                identityMasking.resolveFilter(createdBy), minChange, maxChange);
         return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));
     }
 
@@ -84,7 +88,8 @@ public class StockUpdateAnalyticsController {
      * @param endDate    optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
      * @param itemName   optional item name filter
      * @param supplierId optional supplier filter
-     * @param createdBy  optional creator username filter
+     * @param createdBy  optional creator username filter; for anonymous callers,
+     *                   resolved by {@link DemoIdentityMasking#resolveFilter}
      * @param minChange  optional minimum quantity change filter
      * @param maxChange  optional maximum quantity change filter
      * @param page       zero-based page index (default 0)
@@ -108,7 +113,8 @@ public class StockUpdateAnalyticsController {
         validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], "startDate", "endDate");
         validationHelper.validateNumericRange(minChange, maxChange, "minChange", "maxChange");
         StockUpdateFilterDTO filter = validationHelper.buildFilter(
-                dateWindow[0], dateWindow[1], itemName, supplierId, createdBy, minChange, maxChange);
+                dateWindow[0], dateWindow[1], itemName, supplierId,
+                identityMasking.resolveFilter(createdBy), minChange, maxChange);
         PageRequest pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));
         return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdatesPage(filter, pageable));
     }
