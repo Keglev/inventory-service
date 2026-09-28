@@ -11,8 +11,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "e2e": "playwright test",
-    "docs": "typedoc --options ./typedoc.json",
-    "docs:clean": "rimraf docs && typedoc"
+    "docs": "typedoc --options ./typedoc.json"
   },
   "engines": {
     "node": ">=24"
@@ -26,8 +25,6 @@
     "@mui/x-data-grid": "^8.29.3",
     "@tanstack/react-query": "^5.103.1",
     "axios": "^1.20.0",
-    "dayjs": "^1.11.23",
-    "dotenv": "^17.4.2",
     "i18next": "^25.10.10",
     "i18next-browser-languagedetector": "^8.2.1",
     "i18next-http-backend": "^3.0.2",
