@@ -225,6 +225,21 @@
         <code>@appProperties</code>); does NOT disable the security
         filter chain</td>
         </tr>
+        <tr class="even">
+        <td>Demo identities</td>
+        <td><code>DemoIdentityMasking</code>, a
+        <code>ResponseBodyAdvice</code></td>
+        <td>An anonymous caller never receives a real identity: every
+        <code>createdBy</code> and employee name becomes
+        <code>demo-user-N@example.com</code> / “Demo-Nutzer N”, numbered
+        by account creation so one person keeps one pseudonym.
+        <code>@example.com</code> addresses (the seeded demo users) and
+        values without <code>@</code> (<code>system</code>) pass
+        unchanged. An anonymous <code>createdBy</code> filter resolves
+        only a pseudonym, so a real address cannot be probed. Without
+        the user table the masking fails closed to an unnumbered
+        “Demo-Nutzer”. Signed-in callers see real values</td>
+        </tr>
         </tbody>
         </table>
         <p>See <a href="05-building-blocks.html#cross-cutting">§5
