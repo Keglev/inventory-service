@@ -56,6 +56,31 @@ class AnalyticsConverterHelperTest {
         }
 
         @Test
+        void should_throw_when_a_string_is_too_short_to_hold_a_date() {
+            assertThrows(IllegalStateException.class,
+                    () -> AnalyticsConverterHelper.asLocalDate("2024-02"));
+        }
+
+        @Test
+        void should_throw_when_the_fallback_text_is_not_shaped_like_a_date() {
+            Object noDashes = new Object() {
+                @Override public String toString() { return "20240201T10:00"; }
+            };
+            Object oneDash = new Object() {
+                @Override public String toString() { return "2024-0201T10:00"; }
+            };
+            assertThrows(IllegalStateException.class, () -> AnalyticsConverterHelper.asLocalDate(noDashes));
+            assertThrows(IllegalStateException.class, () -> AnalyticsConverterHelper.asLocalDate(oneDash));
+        }
+
+        @Test
+        void should_name_null_in_the_message_when_the_date_is_null() {
+            IllegalStateException ex = assertThrows(IllegalStateException.class,
+                    () -> AnalyticsConverterHelper.asLocalDate(null));
+            assertEquals("Expected LocalDate/Date/Timestamp/String but got: null", ex.getMessage());
+        }
+
+        @Test
         void should_convert_when_given_a_local_date_time_or_timestamp() {
             LocalDateTime ldt = LocalDateTime.parse("2024-02-01T10:00:00");
             assertEquals(ldt, AnalyticsConverterHelper.asLocalDateTime(ldt));
@@ -147,6 +172,13 @@ class AnalyticsConverterHelperTest {
             InvalidRequestException nullEx = assertThrows(InvalidRequestException.class,
                     () -> AnalyticsConverterHelper.requireNonNull(null, "o"));
             assertEquals("o must not be null", nullEx.getMessage());
+        }
+
+        @Test
+        void should_throw_when_a_required_string_is_null() {
+            InvalidRequestException ex = assertThrows(InvalidRequestException.class,
+                    () -> AnalyticsConverterHelper.requireNonBlank(null, "q"));
+            assertEquals("q must not be blank", ex.getMessage());
         }
     }
 }
