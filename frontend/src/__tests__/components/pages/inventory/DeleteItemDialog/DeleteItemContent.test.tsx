@@ -99,6 +99,15 @@ describe('DeleteItemContent', () => {
     expect(screen.getByText('Test error')).toBeInTheDocument();
   });
 
+  it('renders the error on the confirmation view when the delete fails', () => {
+    const state = createMockState({ formError: 'Delete failed' });
+
+    renderDeleteItemContent({ showConfirmation: true, state });
+
+    expect(screen.getByText('Are you sure you want to proceed?')).toBeInTheDocument();
+    expect(screen.getByText('Delete failed').closest('[role="alert"]')).not.toBeNull();
+  });
+
   it('switches between views based on showConfirmation', () => {
     const state = createMockState({
       selectedItem: { id: 'item1', name: 'Item 1' } as UseDeleteItemDialogReturn['selectedItem'],
