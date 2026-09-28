@@ -170,11 +170,30 @@ jobs:
       # than one that was merely built. The scan reads the local daemon, where
       # the build step left the image; until this step runs there is nothing
       # under that tag on GHCR for it to have read instead.
+      #
+      # GHCR sometimes rejects a push after every layer has uploaded ("unknown
+      # blob" while the manifest is written); on 2026-09-28 a rerun of the same
+      # commit went through. Each push gets up to three attempts, 15 s and
+      # then 30 s apart. A push of the same tag and content is idempotent, so a
+      # retry cannot publish anything the first attempt would not have.
       - name: Push Docker images
         if: steps.gate.outputs.build == 'true'
         run: |
-          docker push $IMAGE_REPO:latest
-          docker push $IMAGE_REPO:${IMAGE_TAG_SHA}
+          set -eu
+          push() {
+            for attempt in 1 2 3; do
+              if docker push "$1"; then
+                return 0
+              fi
+              echo "::warning::docker push $1 failed (attempt $attempt of 3)"
+              if [ "$attempt" -lt 3 ]; then
+                sleep $((attempt * 15))
+              fi
+            done
+            return 1
+          }
+          push "$IMAGE_REPO:latest"
+          push "$IMAGE_REPO:${IMAGE_TAG_SHA}"
 
       - name: Job summary
         if: always() && steps.gate.outputs.build == 'true'
