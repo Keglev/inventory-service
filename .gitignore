@@ -5,12 +5,6 @@ target/
 !/.mvn/wrapper/maven-wrapper.jar
 
 ###############################################################################
-# Maven Subdirectories (optional — remove if not needed)
-###############################################################################
-# !**/src/main/**/target/
-# !**/src/test/**/target/
-
-###############################################################################
 # Log Output and Temporary Files
 ###############################################################################
 logs/
@@ -57,18 +51,8 @@ docker-compose.override.yml
 ###############################################################################
 # Oracle Wallet / Sensitive Credentials
 ###############################################################################
-wallet_*.*      
+wallet_*.*
 oracle_wallet/
-oracle_wallet/**/wallet_*.txt
-oracle_wallet/**/wallet_*.zip
-oracle_wallet/**/tnsnames.ora
-oracle_wallet/**/sqlnet.ora
-oracle_wallet/**/cwallet.sso
-oracle_wallet/**/ewallet.p12
-oracle_wallet/**/*.ora
-oracle_wallet/**/*.p12
-oracle_wallet/**/*.jks
-oracle_wallet/**/*.sso         
 *.ora
 *.p12
 *.sso
@@ -77,21 +61,12 @@ oracle_wallet/**/*.sso
 oracle_wallet.zip
 oracle_wallet_b64.txt
 
-# keep env files private by default
+# keep env files private by default (a pattern without a slash matches at any
+# depth, so these cover frontend/ as well)
 .env
 *.env
 .env.local
 .env.*.local
-.env.development.local
-.env.test.local
-.env.production.local
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
 
 ###############################################################################
 # Node.js Frontend Output
@@ -103,9 +78,8 @@ docs/frontend/coverage/
 docs/frontend/api/
 
 ###############################################################################
-# Java Class Files or Test Tools
+# Java Class Files
 ###############################################################################
-OracleWalletConnectionTest.java
 *.class
 
 ###############################################################################
@@ -113,13 +87,7 @@ OracleWalletConnectionTest.java
 ###############################################################################
 # Generated HTML files (published to gh-pages branch only)
 docs/backend/coverage/
-docs/api/redoc/api.html
-docs/api/openapi/openapi.yaml
 
-# Keep source documentation files in git (*.md, *.yml in docs/)
-# /docs/openapi.yaml
-# docs/api.html
-# /docs/architecture/security-overview.html
 # archive of docs backups
 /docs/_bak/
 

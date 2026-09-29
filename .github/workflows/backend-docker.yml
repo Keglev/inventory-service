@@ -88,20 +88,6 @@ jobs:
         with:
           ref: ${{ env.IMAGE_TAG_SHA }}
 
-      # Supports both monorepo (inventory-service/Dockerfile) and flat (Dockerfile) layouts
-      - name: Resolve backend directory
-        if: steps.gate.outputs.build == 'true'
-        run: |
-          set -euo pipefail
-          if [ -f "inventory-service/Dockerfile" ]; then
-            echo "BACKEND_DIR=inventory-service" >> "$GITHUB_ENV"
-          elif [ -f "Dockerfile" ]; then
-            echo "BACKEND_DIR=." >> "$GITHUB_ENV"
-          else
-            echo "::error::Dockerfile not found at repo root or inventory-service/"
-            exit 1
-          fi
-
       # GITHUB_TOKEN with packages: write is enough for the repository's own GHCR
       # namespace; no registry secret exists for this step.
       - name: Login to GHCR
@@ -117,11 +103,10 @@ jobs:
         run: |
           set -euo pipefail
           docker build --no-cache \
-            --build-arg PROFILE=prod \
             --build-arg BUILD_COMMIT=${IMAGE_TAG_SHA} \
             -t $IMAGE_REPO:latest \
             -t $IMAGE_REPO:${IMAGE_TAG_SHA} \
-            "$BACKEND_DIR"
+            .
 
       # Verify the production image contains only runtime artifacts — no test sources or docs
       - name: Inspect image contents

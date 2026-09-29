@@ -67,19 +67,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # Supports both monorepo (inventory-service/pom.xml) and flat (pom.xml) layouts
-      - name: Resolve backend directory
-        run: |
-          set -euo pipefail
-          if [ -f "inventory-service/pom.xml" ]; then
-            echo "BACKEND_DIR=inventory-service" >> "$GITHUB_ENV"
-          elif [ -f "pom.xml" ]; then
-            echo "BACKEND_DIR=." >> "$GITHUB_ENV"
-          else
-            echo "::error::pom.xml not found at repo root or inventory-service/"
-            exit 1
-          fi
-
       # Lints the Dockerfile before the test suite, because a finding here is
       # about the file in this pull request and needs no build to appear. It
       # runs here rather than in backend-docker, which has no pull_request
@@ -94,7 +81,7 @@ jobs:
       # `hadolint ignore=` pragmas with their reasons, so a clean run means the
       # file matches what was decided, not that nothing was ever found.
       - name: Lint the Dockerfile (hadolint)
-        run: docker run --rm -i hadolint/hadolint:v2.15.1-alpine < "$BACKEND_DIR/Dockerfile"
+        run: docker run --rm -i hadolint/hadolint:v2.15.1-alpine < Dockerfile
 
       # setup-java's own maven cache is the only one. A second actions/cache step
       # on ~/.m2 used to sit below this, described as a fallback for when this
@@ -150,13 +137,12 @@ jobs:
       # here. scripts/start.sh maps them to SPRING_DATASOURCE_URL in the
       # container, which is where they belong.
       #
-      # 7-frontend-e2e already proves this: it launches the same jar with
+      # e2e-playwright.yml already proves this: it launches the same jar with
       # --spring.profiles.active=test,e2e and no secrets at all, and the backend
       # reports healthy in about two seconds.
       - name: Build and test
         run: |
           set -euo pipefail
-          cd "$BACKEND_DIR"
           mvn clean verify -Dspring.profiles.active=test -Dtestcontainers.enabled=false
 
       - name: Upload JaCoCo coverage artifact
@@ -164,7 +150,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: jacoco-html-${{ github.event.pull_request.head.sha || github.sha }}
-          path: ${{ env.BACKEND_DIR }}/target/site/jacoco/
+          path: target/site/jacoco/
           retention-days: 30
 
       # Only on failure, and deliberately so. Surefire writes one XML and one
@@ -185,7 +171,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: surefire-reports-${{ github.event.pull_request.head.sha || github.sha }}
-          path: ${{ env.BACKEND_DIR }}/target/surefire-reports/
+          path: target/surefire-reports/
           retention-days: 30
           if-no-files-found: warn
 
