@@ -72,8 +72,8 @@ export default function EmployeesSection({ from, to, supplierId }: EmployeesSect
               {t('analytics:employees.empty')}
             </Box>
           ) : (
-            <TableContainer sx={{ maxHeight: 420 }}>
-              <Table size="small" stickyHeader>
+            <TableContainer>
+              <Table size="small">
                 <TableHead>
                   <TableRow>
                     <TableCell>{t('analytics:employees.columns.datetime')}</TableCell>
