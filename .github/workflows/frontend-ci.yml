@@ -1,7 +1,8 @@
 # =============================================================================
 # Smart Supply Pro – Frontend CI
 #
-# Triggers on push/PR to main when frontend or Nginx config files change.
+# Triggers on push/PR to main when frontend or Nginx config files change, or
+# one of the three scripts this workflow runs.
 # Audits the installed dependency tree, then runs ESLint, then Vitest unit tests
 # outside Docker to get GitHub annotation support. An advisory of high severity
 # or above in a dependency that ships to the browser fails the job; lint errors
@@ -23,6 +24,8 @@ on:
       - 'ops/nginx/**'
       - '.github/workflows/frontend-ci.yml'
       - '.github/scripts/verify-image-contract.sh'
+      - '.github/scripts/report-dependency-tree.sh'
+      - '.github/scripts/frontend-ci-summary.sh'
   pull_request:
     branches: [ "main" ]
     paths:
@@ -30,6 +33,8 @@ on:
       - 'ops/nginx/**'
       - '.github/workflows/frontend-ci.yml'
       - '.github/scripts/verify-image-contract.sh'
+      - '.github/scripts/report-dependency-tree.sh'
+      - '.github/scripts/frontend-ci-summary.sh'
   workflow_dispatch:
 
 # Read scope only. This workflow publishes to Docker Hub, authenticated with
