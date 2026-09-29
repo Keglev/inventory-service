@@ -2,8 +2,9 @@
  * @file MovementDrilldownTable.test.tsx
  * @module __tests__/components/pages/analytics/sections/MovementDrilldownTable
  * @description Server paging of the movement drilldown: the bar shows for any
- * rows, its arrows follow the total, a page change requests that page, and a
- * filter change returns to the first page.
+ * rows, its arrows follow the total, a page change requests that page, a
+ * filter change returns to the first page, and the rows sit in the page flow
+ * rather than in an inner scroll box.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -115,5 +116,16 @@ describe('MovementDrilldownTable', () => {
 
     await screen.findByText('No stock changes in this period');
     expect(screen.queryByRole('button', { name: /next page/i })).toBeNull();
+  });
+
+  it('renders the page in the page flow without an inner scroll box', async () => {
+    mockGetStockUpdatesPage.mockResolvedValue({ rows: rows(10, 'Item'), total: 40 });
+    setup();
+
+    await screen.findByText('Item 10');
+    const table = screen.getByRole('table');
+    expect(screen.getAllByRole('row')).toHaveLength(11);
+    expect(table).not.toHaveClass('MuiTable-stickyHeader');
+    expect(table.parentElement).not.toHaveStyle({ maxHeight: '360px' });
   });
 });

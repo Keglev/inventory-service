@@ -3,7 +3,7 @@
  * @module __tests__/components/pages/analytics/sections/EmployeesSection
  * @description Orchestration test for the Employees section: granularity toggle
  * refetches the aggregation, the chart pivots per employee, and the change
- * log is server-paginated.
+ * log is server-paginated in the page flow, without an inner scroll box.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -153,6 +153,15 @@ describe('EmployeesSection', () => {
         expect.objectContaining({ page: 1, size: 25 }),
       );
     });
+  });
+
+  it('renders the change log in the page flow without an inner scroll box', async () => {
+    setup();
+
+    await screen.findByText('Item A');
+    const table = screen.getByRole('table');
+    expect(table).not.toHaveClass('MuiTable-stickyHeader');
+    expect(table.parentElement).not.toHaveStyle({ maxHeight: '420px' });
   });
 
   it('shows the empty change log message when no rows exist', async () => {

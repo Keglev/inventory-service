@@ -76,8 +76,8 @@ export default function MovementDrilldownTable({ from, to, supplierId, itemName 
             {t('analytics:movements.empty')}
           </Box>
         ) : (
-          <TableContainer sx={{ maxHeight: 360 }}>
-            <Table size="small" stickyHeader>
+          <TableContainer>
+            <Table size="small">
               <TableHead>
                 <TableRow>
                   <TableCell>{t('analytics:stockUpdates.columns.datetime')}</TableCell>
