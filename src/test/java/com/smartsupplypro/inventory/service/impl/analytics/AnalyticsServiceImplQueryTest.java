@@ -68,18 +68,18 @@ class AnalyticsServiceImplQueryTest {
         }
 
         @Test
-        void should_map_the_supplier_name_and_coerce_to_long_when_numeric_types_are_mixed() {
+        void should_map_name_quantity_and_value_when_numeric_types_are_mixed() {
             when(stockHistoryRepository.getTotalStockBySupplier())
                     .thenReturn(Arrays.asList(
-                            new Object[]{"Acme",   new BigDecimal("42")},
-                            new Object[]{"Globex", 7}
+                            new Object[]{"Acme",   new BigDecimal("42"), new BigDecimal("1050.25")},
+                            new Object[]{"Globex", 7, 17.5}
                     ));
 
             List<StockPerSupplierDTO> out = service.getTotalStockPerSupplier();
 
-            assertEquals(2, out.size());
-            assertEquals("Acme", out.get(0).supplierName());
-            assertEquals(42L, out.get(0).totalQuantity());
+            assertEquals(List.of(
+                    new StockPerSupplierDTO("Acme", 42L, new BigDecimal("1050.25")),
+                    new StockPerSupplierDTO("Globex", 7L, new BigDecimal("17.5"))), out);
         }
     }
 

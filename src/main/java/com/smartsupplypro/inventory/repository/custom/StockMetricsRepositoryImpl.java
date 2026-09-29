@@ -33,7 +33,7 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
     /**
      * Executes dialect-specific native SQL for total stock per supplier.
      *
-     * @return per-supplier totals ordered by quantity descending
+     * @return per-supplier totals ordered by value descending, then supplier name
      */
     @SuppressWarnings("unchecked")
     @Override

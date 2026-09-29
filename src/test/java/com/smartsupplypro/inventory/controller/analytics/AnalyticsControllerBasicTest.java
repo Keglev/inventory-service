@@ -1,5 +1,6 @@
 package com.smartsupplypro.inventory.controller.analytics;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -61,8 +62,8 @@ public class AnalyticsControllerBasicTest {
     @ValueSource(strings = {"ADMIN", "USER"})
     void should_return_stock_per_supplier_when_requested(String role) throws Exception {
         List<StockPerSupplierDTO> sample = List.of(
-            new StockPerSupplierDTO("Supplier A", 100),
-            new StockPerSupplierDTO("Supplier B", 50)
+            new StockPerSupplierDTO("Supplier A", 100, new BigDecimal("2500.50")),
+            new StockPerSupplierDTO("Supplier B", 50, new BigDecimal("900.00"))
         );
         when(stockAnalyticsService.getTotalStockPerSupplier()).thenReturn(sample);
 
@@ -70,7 +71,9 @@ public class AnalyticsControllerBasicTest {
                 .with(user("mockuser").roles(role)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(2))
-            .andExpect(jsonPath("$[0].supplierName").value("Supplier A"));
+            .andExpect(jsonPath("$[0].supplierName").value("Supplier A"))
+            .andExpect(jsonPath("$[0].totalQuantity").value(100))
+            .andExpect(jsonPath("$[0].totalValue").value(2500.50));
     }
 
     @ParameterizedTest

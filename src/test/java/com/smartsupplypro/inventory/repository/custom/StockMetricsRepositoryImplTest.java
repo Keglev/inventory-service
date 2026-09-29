@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
@@ -59,23 +61,33 @@ class StockMetricsRepositoryImplTest {
     }
 
     /**
-     * Total stock per supplier, ordered by quantity descending.
+     * Stock quantity and value per supplier over active items, ordered by value, then name.
      */
     @Nested
     class TotalStockBySupplier {
 
-        @Test
-        void should_return_totals_ordered_by_quantity_when_the_dialect_is_h2() {
+        @ParameterizedTest(name = "h2 dialect = {0}")
+        @ValueSource(booleans = {true, false})
+        void should_order_by_value_then_name_and_skip_inactive_items(boolean isH2) {
             seedTestData();
-            StockMetricsRepositoryImpl repo = repoWithDialect(true);
+            // Supplier One: fewer units than Supplier Two, but the highest value (4 + 200).
+            // Default Supplier ties Supplier Two at 100 and comes first by name.
+            // The inactive item would put Supplier Two on top if it were counted.
+            em.createNativeQuery(
+                "INSERT INTO inventory_item (id, sku, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by, active) VALUES " +
+                "('itemC','SKU-MET-C','Item C', 200.00, 1, 0, 'sup1', CURRENT_TIMESTAMP, 'test', 1)," +
+                "('itemD','SKU-MET-D','Item D', 10.00, 10, 0, 'default-supplier', CURRENT_TIMESTAMP, 'test', 1)," +
+                "('itemE','SKU-MET-E','Item E', 1.00, 1000, 0, 'sup2', CURRENT_TIMESTAMP, 'test', 0)"
+            ).executeUpdate();
 
-            List<Object[]> out = repo.getTotalStockBySupplier();
+            List<Object[]> out = repoWithDialect(isH2).getTotalStockBySupplier();
 
-            assertEquals(2, out.size());
-            assertEquals("Supplier Two", out.get(0)[0]);
-            assertEquals(20L, ((Number) out.get(0)[1]).longValue());
-            assertEquals("Supplier One", out.get(1)[0]);
-            assertEquals(2L, ((Number) out.get(1)[1]).longValue());
+            assertEquals(List.of("Supplier One", "Default Supplier", "Supplier Two"),
+                    out.stream().map(r -> r[0]).toList());
+            assertEquals(List.of(3L, 10L, 20L),
+                    out.stream().map(r -> ((Number) r[1]).longValue()).toList());
+            assertEquals(List.of(204.0, 100.0, 100.0),
+                    out.stream().map(r -> ((Number) r[2]).doubleValue()).toList());
         }
     }
 

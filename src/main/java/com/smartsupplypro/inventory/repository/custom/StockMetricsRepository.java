@@ -13,9 +13,11 @@ import java.util.List;
 public interface StockMetricsRepository {
 
     /**
-     * Returns total stock quantity per supplier, ordered by quantity descending.
+     * Returns stock quantity and value per supplier over active items, ordered by
+     * value descending, then supplier name.
      *
-     * <p>Result format: [supplier_name (String), total_quantity (Number)].
+     * <p>Result format: [supplier_name (String), total_quantity (Number),
+     * total_value (Number)], the value being quantity times current unit price.
      *
      * @return per-supplier totals for dashboard KPI widgets
      */

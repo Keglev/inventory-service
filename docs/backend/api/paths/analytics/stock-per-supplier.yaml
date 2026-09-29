@@ -3,13 +3,15 @@ get:
     - Analytics
   summary: Get stock per supplier
   description: |
-    Gets current total stock quantity per supplier for charts and distribution analysis.
+    Gets the current stock quantity and value per supplier, over active items.
+    The value is each item's quantity times its current unit price. Ordered by
+    value, highest first; equal values by supplier name.
   operationId: getStockPerSupplier
   security:
     - oauth2: [openid]
   responses:
     '200':
-      description: Stock quantities per supplier
+      description: Stock quantity and value per supplier
       content:
         application/json:
           schema:
@@ -17,14 +19,12 @@ get:
             items:
               $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/StockPerSupplierDTO'
           example:
-            - supplierId: "supplier-123"
-              supplierName: "Acme Corp"
-              totalQuantity: 1500
-              totalValue: 45000.00
-            - supplierId: "supplier-456"
-              supplierName: "Global Imports"
+            - supplierName: "Global Imports"
               totalQuantity: 2300
               totalValue: 69000.00
+            - supplierName: "Acme Corp"
+              totalQuantity: 1500
+              totalValue: 45000.00
     '401':
       $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
     '500':

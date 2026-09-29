@@ -18,15 +18,10 @@ components:
     StockPerSupplierDTO:
       type: object
       required:
-        - supplierId
         - supplierName
         - totalQuantity
         - totalValue
       properties:
-        supplierId:
-          type: string
-          description: Supplier identifier
-          example: "supplier-123"
         supplierName:
           type: string
           description: Supplier display name
@@ -34,12 +29,12 @@ components:
         totalQuantity:
           type: integer
           format: int64
-          description: Total units from this supplier
+          description: Units in stock from this supplier's active items
           example: 1500
         totalValue:
           type: number
           format: double
-          description: Total monetary value from this supplier
+          description: Those units at each item's current unit price
           example: 45000.00
       description: Stock distribution metrics per supplier
 

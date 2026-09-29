@@ -35,8 +35,8 @@ public interface AnalyticsService {
     List<StockValueOverTimeDTO> getTotalStockValueOverTime(LocalDate startDate, LocalDate endDate, String supplierId);
 
     /**
-     * Returns current stock quantities grouped by supplier.
-     * @return per-supplier inventory totals
+     * Returns current stock quantity and value grouped by supplier, over active items.
+     * @return per-supplier totals, ordered by value descending, then supplier name
      */
     List<StockPerSupplierDTO> getTotalStockPerSupplier();
 

@@ -1,5 +1,6 @@
 package com.smartsupplypro.inventory.service.impl.analytics;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -76,8 +77,8 @@ public class StockAnalyticsService {
     }
 
     /**
-     * Retrieves current stock quantities grouped by supplier.
-     * @return suppliers with total quantities ordered by quantity descending
+     * Retrieves current stock quantity and value grouped by supplier, over active items.
+     * @return suppliers with totals, ordered by value descending, then supplier name
      */
     public List<StockPerSupplierDTO> getTotalStockPerSupplier() {
         List<Object[]> rows = stockHistoryRepository.getTotalStockBySupplier();
@@ -85,7 +86,8 @@ public class StockAnalyticsService {
         return rows.stream()
                 .map(r -> new StockPerSupplierDTO(
                         (String) r[0],
-                        asNumber(r[1]).longValue()
+                        asNumber(r[1]).longValue(),
+                        new BigDecimal(asNumber(r[2]).toString())
                 ))
                 .toList();
     }
