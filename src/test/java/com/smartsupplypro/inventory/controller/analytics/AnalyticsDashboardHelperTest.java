@@ -1,5 +1,6 @@
 package com.smartsupplypro.inventory.controller.analytics;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -41,8 +42,8 @@ class AnalyticsDashboardHelperTest {
         LocalDateTime endDate = LocalDateTime.of(2025, 1, 31, 0, 0);
 
         List<StockPerSupplierDTO> stockPerSupplier = List.of(
-                new StockPerSupplierDTO("Supplier A", 10),
-                new StockPerSupplierDTO("Supplier B", 20)
+                new StockPerSupplierDTO("Supplier A", 10, BigDecimal.ONE),
+                new StockPerSupplierDTO("Supplier B", 20, BigDecimal.TEN)
         );
 
         List<LowStockItemDTO> lowStock = new ArrayList<>();
@@ -94,7 +95,7 @@ class AnalyticsDashboardHelperTest {
         LocalDateTime startDate = LocalDateTime.of(2025, 1, 1, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2025, 1, 31, 0, 0);
 
-        List<StockPerSupplierDTO> stockPerSupplier = List.of(new StockPerSupplierDTO("Supplier A", 10));
+        List<StockPerSupplierDTO> stockPerSupplier = List.of(new StockPerSupplierDTO("Supplier A", 10, BigDecimal.ONE));
         List<MonthlyStockMovementDTO> monthly = List.of(new MonthlyStockMovementDTO("2025-01", 100, 50));
 
         List<LowStockItemDTO> globalLowStock = new ArrayList<>();

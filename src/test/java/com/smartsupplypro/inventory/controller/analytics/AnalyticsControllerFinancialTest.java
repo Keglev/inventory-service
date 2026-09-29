@@ -115,7 +115,7 @@ public class AnalyticsControllerFinancialTest {
     @ValueSource(strings = {"ADMIN", "USER"})
     void should_return_the_dashboard_summary_when_no_parameters_are_given(String role) throws Exception {
         DashboardSummaryDTO summary = DashboardSummaryDTO.builder()
-                .stockPerSupplier(List.of(new StockPerSupplierDTO("Supplier A", 100)))
+                .stockPerSupplier(List.of(new StockPerSupplierDTO("Supplier A", 100, BigDecimal.TEN)))
                 .lowStockItems(List.of(new LowStockItemDTO("ItemX", 5, 10)))
                 .monthlyStockMovement(List.of(new MonthlyStockMovementDTO("2024-05", 20L, 10L)))
                 .topUpdatedItems(List.of(new ItemUpdateFrequencyDTO("ItemX", 3)))
