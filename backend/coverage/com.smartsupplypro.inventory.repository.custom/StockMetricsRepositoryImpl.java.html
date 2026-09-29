@@ -33,14 +33,14 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
     /**
      * Executes dialect-specific native SQL for total stock per supplier.
      *
-     * @return per-supplier totals ordered by quantity descending
+     * @return per-supplier totals ordered by value descending, then supplier name
      */
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; getTotalStockBySupplier() {
-<span class="pc bpc" id="L41" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
 <span class="fc" id="L42">            ? StockMetricsSqlBuilder.buildH2SupplierTotalsSql()</span>
-<span class="pc" id="L43">            : StockMetricsSqlBuilder.buildOracleSupplierTotalsSql();</span>
+<span class="fc" id="L43">            : StockMetricsSqlBuilder.buildOracleSupplierTotalsSql();</span>
 <span class="fc" id="L44">        return em.createNativeQuery(sql).getResultList();</span>
     }
 

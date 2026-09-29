@@ -1,5 +1,5 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-Inventory Service,com.smartsupplypro.inventory.repository.custom.util,StockMetricsSqlBuilder,2,10,0,0,1,5,1,5,1,5
+Inventory Service,com.smartsupplypro.inventory.repository.custom.util,StockMetricsSqlBuilder,0,12,0,0,0,6,0,6,0,6
 Inventory Service,com.smartsupplypro.inventory.repository.custom.util,DatabaseDialectDetector,0,32,0,6,0,6,0,7,0,4
 Inventory Service,com.smartsupplypro.inventory.repository.custom.util,StockTrendSqlBuilder,2,64,0,8,1,15,1,11,1,7
 Inventory Service,com.smartsupplypro.inventory.repository.custom.util,StockDetailSqlBuilder,0,4,0,0,0,2,0,2,0,2
@@ -36,7 +36,7 @@ Inventory Service,com.smartsupplypro.inventory.config,AppProperties.Cookie,8,15,
 Inventory Service,com.smartsupplypro.inventory.config,AppProperties,0,37,0,0,0,10,0,6,0,6
 Inventory Service,com.smartsupplypro.inventory.config,SecurityConfig,0,179,0,0,0,37,0,12,0,12
 Inventory Service,com.smartsupplypro.inventory.config,SecurityAuthorizationHelper,0,348,0,2,0,24,0,3,0,2
-Inventory Service,com.smartsupplypro.inventory.repository.custom,StockMetricsRepositoryImpl,1,67,1,9,0,20,1,9,0,5
+Inventory Service,com.smartsupplypro.inventory.repository.custom,StockMetricsRepositoryImpl,0,68,0,10,0,20,0,10,0,5
 Inventory Service,com.smartsupplypro.inventory.repository.custom,StockDetailQueryRepositoryImpl,0,196,0,22,0,38,0,18,0,7
 Inventory Service,com.smartsupplypro.inventory.repository.custom,StockTrendAnalyticsRepositoryImpl,1,184,1,13,0,51,1,14,0,8
 Inventory Service,com.smartsupplypro.inventory.enums,StockChangeReason,0,93,0,4,0,17,0,4,0,2
@@ -67,7 +67,7 @@ Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialA
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService.WacIssue,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,EmployeeAnalyticsService,0,294,0,23,0,49,0,19,0,7
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,AnalyticsConverterHelper,0,205,0,42,0,31,0,30,0,9
-Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,StockAnalyticsService,0,462,0,26,0,94,0,33,0,20
+Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,StockAnalyticsService,0,470,0,26,0,95,0,33,0,20
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService.FinancialBuckets,0,21,0,0,0,7,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService.WacState,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,MonthlyStockMovementDTO,0,12,0,0,0,1,0,1,0,1
@@ -77,7 +77,7 @@ Inventory Service,com.smartsupplypro.inventory.dto,DashboardSummaryDTO,0,15,0,0,
 Inventory Service,com.smartsupplypro.inventory.dto,PriceTrendDTO,0,11,0,0,0,4,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,StockHistoryDTO,0,24,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,StockUpdateResultDTO,0,21,0,0,0,1,0,1,0,1
-Inventory Service,com.smartsupplypro.inventory.dto,StockPerSupplierDTO,0,9,0,0,0,1,0,1,0,1
+Inventory Service,com.smartsupplypro.inventory.dto,StockPerSupplierDTO,0,12,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,StockValueOverTimeDTO,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,ItemUpdateFrequencyDTO,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,EmployeeActivityDTO,0,15,0,0,0,1,0,1,0,1

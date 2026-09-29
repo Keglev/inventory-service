@@ -8,34 +8,40 @@ public final class StockMetricsSqlBuilder {
     private StockMetricsSqlBuilder() {}
 
     /**
-     * Returns the H2 SQL for total stock quantity per supplier.
+     * Returns the H2 SQL for stock quantity and value per supplier over active items.
      *
      * &lt;p&gt;Quotes identifiers with double-quotes required by H2's default case-sensitive mode.
      *
-     * @return SQL ordered by total_quantity descending
+     * @return SQL ordered by total_value descending, then supplier name
      */
     public static String buildH2SupplierTotalsSql() {
 <span class="fc" id="L18">        return &quot;&quot;&quot;</span>
-            SELECT s.&quot;NAME&quot; AS supplier_name, SUM(i.&quot;QUANTITY&quot;) AS total_quantity
+            SELECT s.&quot;NAME&quot; AS supplier_name,
+                   SUM(i.&quot;QUANTITY&quot;) AS total_quantity,
+                   SUM(i.&quot;QUANTITY&quot; * COALESCE(i.&quot;PRICE&quot;, 0)) AS total_value
             FROM &quot;SUPPLIER&quot; s
             JOIN &quot;INVENTORY_ITEM&quot; i ON s.&quot;ID&quot; = i.&quot;SUPPLIER_ID&quot;
+            WHERE i.&quot;ACTIVE&quot; = 1
             GROUP BY s.&quot;NAME&quot;
-            ORDER BY total_quantity DESC
+            ORDER BY total_value DESC, supplier_name ASC
         &quot;&quot;&quot;;
     }
 
     /**
-     * Returns the Oracle SQL for total stock quantity per supplier.
+     * Returns the Oracle SQL for stock quantity and value per supplier over active items.
      *
-     * @return SQL ordered by total_quantity descending
+     * @return SQL ordered by total_value descending, then supplier name
      */
     public static String buildOracleSupplierTotalsSql() {
-<span class="nc" id="L33">        return &quot;&quot;&quot;</span>
-            SELECT s.name AS supplier_name, SUM(i.quantity) AS total_quantity
+<span class="fc" id="L36">        return &quot;&quot;&quot;</span>
+            SELECT s.name AS supplier_name,
+                   SUM(i.quantity) AS total_quantity,
+                   SUM(i.quantity * COALESCE(i.price, 0)) AS total_value
             FROM supplier s
             JOIN inventory_item i ON s.id = i.supplier_id
+            WHERE i.active = 1
             GROUP BY s.name
-            ORDER BY total_quantity DESC
+            ORDER BY total_value DESC, supplier_name ASC
         &quot;&quot;&quot;;
     }
 
@@ -45,7 +51,7 @@ public final class StockMetricsSqlBuilder {
      * @return SQL ordered by update_count descending; accepts named parameter {@code :supplierId}
      */
     public static String buildH2UpdateCountSql() {
-<span class="fc" id="L48">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L54">        return &quot;&quot;&quot;</span>
             SELECT i.&quot;NAME&quot; AS item_name, COUNT(sh.&quot;ID&quot;) AS update_count
             FROM &quot;INVENTORY_ITEM&quot; i
             JOIN &quot;STOCK_HISTORY&quot; sh ON sh.&quot;ITEM_ID&quot; = i.&quot;ID&quot;
@@ -61,7 +67,7 @@ public final class StockMetricsSqlBuilder {
      * @return SQL ordered by update_count descending; accepts named parameter {@code :supplierId}
      */
     public static String buildOracleUpdateCountSql() {
-<span class="fc" id="L64">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L70">        return &quot;&quot;&quot;</span>
             SELECT i.name AS item_name, COUNT(sh.id) AS update_count
             FROM stock_history sh
             JOIN inventory_item i ON sh.item_id = i.id
@@ -77,7 +83,7 @@ public final class StockMetricsSqlBuilder {
      * @return SQL ordered by quantity ascending; accepts named parameter {@code :supplierId}
      */
     public static String buildH2BelowMinimumSql() {
-<span class="fc" id="L80">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L86">        return &quot;&quot;&quot;</span>
             SELECT i.&quot;NAME&quot;, i.&quot;QUANTITY&quot;, i.&quot;MINIMUM_QUANTITY&quot;
             FROM &quot;INVENTORY_ITEM&quot; i
             WHERE i.&quot;ACTIVE&quot; = 1
@@ -93,7 +99,7 @@ public final class StockMetricsSqlBuilder {
      * @return SQL ordered by quantity ascending; accepts named parameter {@code :supplierId}
      */
     public static String buildOracleBelowMinimumSql() {
-<span class="fc" id="L96">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L102">        return &quot;&quot;&quot;</span>
             SELECT i.name, i.quantity, i.minimum_quantity
             FROM inventory_item i
             WHERE i.active = 1
