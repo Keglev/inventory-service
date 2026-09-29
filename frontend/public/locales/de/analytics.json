@@ -79,8 +79,9 @@
     "shownNOfM": "Zeige {{n}} von {{m}} Artikeln"
   },
   "stockPerSupplier": {
-    "title": "Bestand je Lieferant (Stück)",
-    "empty": "Keine Lieferantendaten für die aktuellen Filter."
+    "title": "Lagerwert je Lieferant (€)",
+    "empty": "Keine Lieferantendaten für die aktuellen Filter.",
+    "others": "Alle anderen ({{count}} Lieferanten)"
   },
   "stockUpdates": {
     "columns": {

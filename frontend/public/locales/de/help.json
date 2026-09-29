@@ -44,7 +44,7 @@
   "analytics": {
     "overview": {
       "title": "Analyse-Dashboard",
-      "body": "Der Abschnitt Analysen bietet Einblicke in Ihre Bestände und Geschäftskennzahlen.\n\nBereiche:\n• Übersicht: Schlüsselkennzahlen und Trends der Bestandsbewegungen\n• Warenbewegungen: Bestandszugänge und -abgänge nach Grund, mit Drilldown zu den passenden Änderungen\n• Preisgestaltung: Preistrends pro Artikel\n• Bestandsgesundheit: Artikel unter Mindestbestand und Bestand pro Lieferant\n• Finanzen: Finanzzusammenfassung (Einkäufe, COGS, Abschreibungen, Retouren)\n• Mitarbeiter: Änderungen pro Mitarbeiter (nur für Administratoren; auch im Demo-Modus sichtbar)\n\nVerwenden Sie die Filterleiste, um einen Lieferanten und einen Datumsbereich auszuwählen. Alle Diagramme und Tabellen beachten Ihr bevorzugtes Datums- und Zahlenformat aus den Einstellungen."
+      "body": "Der Abschnitt Analysen bietet Einblicke in Ihre Bestände und Geschäftskennzahlen.\n\nBereiche:\n• Übersicht: Schlüsselkennzahlen und Trends der Bestandsbewegungen\n• Warenbewegungen: Bestandszugänge und -abgänge nach Grund, mit Drilldown zu den passenden Änderungen\n• Preisgestaltung: Preistrends pro Artikel\n• Bestandsgesundheit: Artikel unter Mindestbestand und Lagerwert je Lieferant\n• Finanzen: Finanzzusammenfassung (Einkäufe, COGS, Abschreibungen, Retouren)\n• Mitarbeiter: Änderungen pro Mitarbeiter (nur für Administratoren; auch im Demo-Modus sichtbar)\n\nVerwenden Sie die Filterleiste, um einen Lieferanten und einen Datumsbereich auszuwählen. Alle Diagramme und Tabellen beachten Ihr bevorzugtes Datums- und Zahlenformat aus den Einstellungen."
     }
   },
   "settings": {

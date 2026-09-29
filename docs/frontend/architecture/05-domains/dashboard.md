@@ -20,9 +20,11 @@ a self-fetching block that degrades to an empty state on error. Cards stretch to
 a shared height per row, and every chart uses the theme-aware tooltip helper
 (`utils/chartTooltip`) so the tooltip surface follows light/dark mode.
 
-- **Stock per supplier** — reuses `pages/analytics/blocks/StockPerSupplierDonut`
-  (donut over `getStockPerSupplier`), so dashboard and analytics share one
-  component and query.
+- **Stock value per supplier** — reuses
+  `pages/analytics/blocks/StockValuePerSupplierPie` (pie over
+  `getStockPerSupplier`), so dashboard and analytics share one component and
+  query. It shows the four most valuable suppliers and one grey slice for all
+  others (`supplierValueSlices`); with five or fewer suppliers every one is shown.
 - **Movement by reason** — `blocks/ReasonBreakdownMini` groups increase/decrease
   per `StockChangeReason` from `getReasonBreakdown` (global, no filters), reusing
   the analytics reason-label lookup.

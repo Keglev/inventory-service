@@ -79,8 +79,9 @@
     "shownNOfM": "Showing {{n}} of {{m}} items"
   },
   "stockPerSupplier": {
-    "title": "Stock per supplier (pieces)",
-    "empty": "No supplier data for the current filters."
+    "title": "Stock value per supplier (€)",
+    "empty": "No supplier data for the current filters.",
+    "others": "All others ({{count}} suppliers)"
   },
   "stockUpdates": {
     "columns": {

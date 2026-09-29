@@ -151,13 +151,13 @@ describe('api/analytics/stock', () => {
       expect(res).toEqual([]);
     });
 
-    it('maps rows and filters out empty supplierName', async () => {
+    it('maps quantity and value and filters out an empty supplierName', async () => {
       // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
-          { supplierName: 'Supplier A', totalQuantity: '10' },
-          { supplierName: '', totalQuantity: 99 },
-          { totalQuantity: 12 },
+          { supplierName: 'Supplier A', totalQuantity: '10', totalValue: 250.5 },
+          { supplierName: '', totalQuantity: 99, totalValue: 1 },
+          { totalQuantity: 12, totalValue: 1 },
           { supplierName: 'Supplier B', totalQuantity: null },
         ],
       });
@@ -169,8 +169,8 @@ describe('api/analytics/stock', () => {
       expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-per-supplier');
 
       expect(res).toEqual([
-        { supplierName: 'Supplier A', totalQuantity: 10 },
-        { supplierName: 'Supplier B', totalQuantity: 0 },
+        { supplierName: 'Supplier A', totalQuantity: 10, totalValue: 250.5 },
+        { supplierName: 'Supplier B', totalQuantity: 0, totalValue: 0 },
       ]);
     });
 

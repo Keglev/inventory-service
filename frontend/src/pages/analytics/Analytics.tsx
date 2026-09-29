@@ -46,7 +46,7 @@ import { useAuth } from '../../hooks/useAuth';
 import StockValueCard from './blocks/StockValueCard';
 import PriceTrendCard from './blocks/PriceTrendCard';
 import LowStockTable from './blocks/LowStockTable';
-import StockPerSupplierDonut from './blocks/StockPerSupplierDonut';
+import StockValuePerSupplierPie from './blocks/StockValuePerSupplierPie';
 import AnalyticsNav, { type AnalyticsSection } from './components/AnalyticsNav';
 import FinancialSummaryCard from './blocks/FinancialSummaryCard';
 import ItemUpdateFrequencyCard from './blocks/ItemUpdateFrequencyCard';
@@ -139,7 +139,7 @@ export default function Analytics(): JSX.Element {
           gap: 2,
           // the inventory-health section gives the low-stock table
           // ~3/5 of the width (its fixed-layout table needs ~640px to show the
-          // Status chips without horizontal scroll) and the donut ~2/5.
+          // Status chips without horizontal scroll) and the supplier pie ~2/5.
           // Other sections keep the responsive auto-fit grid.
           gridTemplateColumns:
             section === 'inventory'
@@ -178,8 +178,8 @@ export default function Analytics(): JSX.Element {
             {/* A4 — Low stock table (fetch gated by supplier) */}
             <LowStockTable supplierId={filters.supplierId ?? ''} from={filters.from} to={filters.to} limit={12} />
 
-            {/* A4 — Stock per supplier (donut) */}
-            <StockPerSupplierDonut />
+            {/* A4 — Stock value per supplier (pie) */}
+            <StockValuePerSupplierPie />
           </>
         )}
         {section === 'finance' && (

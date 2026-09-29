@@ -63,8 +63,12 @@ export async function getStockPerSupplier(): Promise<StockPerSupplierPoint[]> {
     try {
         const { data } = await http.get<unknown>('/api/analytics/stock-per-supplier');
         if (!Array.isArray(data)) return [];
-        return (data as Array<{ supplierName?: string; totalQuantity?: unknown }>)
-        .map((d) => ({ supplierName: String(d.supplierName ?? ''), totalQuantity: asNumber(d.totalQuantity) }))
+        return (data as Array<{ supplierName?: string; totalQuantity?: unknown; totalValue?: unknown }>)
+        .map((d) => ({
+            supplierName: String(d.supplierName ?? ''),
+            totalQuantity: asNumber(d.totalQuantity),
+            totalValue: asNumber(d.totalValue),
+        }))
         .filter((r) => r.supplierName);
     } catch {
         return [];

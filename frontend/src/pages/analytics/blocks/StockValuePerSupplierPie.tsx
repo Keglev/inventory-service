@@ -1,14 +1,18 @@
 /**
- * @file StockPerSupplierDonut.tsx
- * @module pages/analytics/blocks/StockPerSupplierDonut
+ * @file StockValuePerSupplierPie.tsx
+ * @module pages/analytics/blocks/StockValuePerSupplierPie
  *
  * @summary
- * Donut (pie) view of stock share per supplier (quantity-based).
- * Uses /api/analytics/stock-per-supplier which returns totals by supplier.
+ * Pie of the stock value held per supplier: the top four by name and one grey
+ * slice for all others. Shown on the dashboard and the analytics page.
  *
  * @enterprise
- * - Purely presentational alternative to the bar version.
- * - Gracefully handles empty datasets and long supplier names (legend).
+ * - Value in euros, not pieces: pieces are not comparable across items, the
+ *   capital held per supplier is. Values come from
+ *   /api/analytics/stock-per-supplier (quantity times current unit price).
+ * - At most five slices and five legend lines, so the card keeps its height
+ *   however many suppliers exist; the grouping rule is supplierValueSlices.
+ * - The tooltip carries the value and the share, so the legend stays names only.
  */
 
 import * as React from 'react';
@@ -22,30 +26,36 @@ import type { StockPerSupplierPoint } from '../../../api/analytics/types';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { supplierValueSlices } from './supplierValueSlices';
 
-export default function StockPerSupplierDonut() {
+export default function StockValuePerSupplierPie() {
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
 
   const q = useQuery<StockPerSupplierPoint[]>({
-    queryKey: ['analytics', 'stockPerSupplierDonut'],
+    queryKey: ['analytics', 'stockValuePerSupplier'],
     queryFn: getStockPerSupplier,
     staleTime: 60_000,
   });
 
   const data = React.useMemo(
-    () => (q.data ?? []).map(d => ({ name: d.supplierName, value: d.totalQuantity })),
-    [q.data]
+    () =>
+      supplierValueSlices(q.data ?? []).map((s) => ({
+        name: s.kind === 'others' ? t('analytics:stockPerSupplier.others', { count: s.others }) : s.name,
+        value: s.value,
+        others: s.kind === 'others',
+      })),
+    [q.data, t]
   );
+  const total = data.reduce((sum, d) => sum + d.value, 0);
 
+  // Named slices take fixed colours in rank order; the grouped slice is always grey.
   const colors = [
     muiTheme.palette.primary.main,
     muiTheme.palette.success.main,
     muiTheme.palette.info.main,
     muiTheme.palette.warning.main,
-    muiTheme.palette.error.main,
-    muiTheme.palette.secondary.main,
   ];
 
   return (
@@ -69,20 +79,22 @@ export default function StockPerSupplierDonut() {
                   data={data}
                   dataKey="value"
                   nameKey="name"
-                  innerRadius="55%"
                   outerRadius="80%"
-                  paddingAngle={1}
                   isAnimationActive={false}
                 >
-                  {data.map((_, i) => (
-                    <Cell key={`seg-${i}`} fill={colors[i % colors.length]} />
+                  {data.map((d, i) => (
+                    <Cell key={`slice-${i}`} fill={d.others ? muiTheme.palette.grey[500] : colors[i]} />
                   ))}
                 </Pie>
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
                   formatter={(value) =>
                     typeof value === 'number'
-                      ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
+                      ? `${formatNumber(value, userPreferences.numberFormat, 2)} € · ${formatNumber(
+                          (100 * value) / total,
+                          userPreferences.numberFormat,
+                          1
+                        )} %`
                       : value
                   }
                 />
