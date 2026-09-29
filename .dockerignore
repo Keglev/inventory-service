@@ -34,8 +34,12 @@ Thumbs.db
 # -----------------------------------------------------------------------------
 # Environment files & local secrets (NEVER bake secrets into images)
 # -----------------------------------------------------------------------------
-.env
-.env.*.local
+# A pattern here matches from the context root only, unlike .gitignore, so each
+# one carries **/ to reach frontend/ as well, where Vite would load a local file
+# into a production build. Tracked env files (.env.production) stay in.
+**/.env
+**/.env.local
+**/.env.*.local
 
 # -----------------------------------------------------------------------------
 # Backend: build outputs & logs

@@ -54,7 +54,6 @@ jobs:
       #
       # If this ever stops resolving, the service was recreated and has a new
       # ID. "koyeb service list" prints it.
-      IMAGE_NAME: ckbuzin/ssp-frontend
       KOYEB_SERVICE_ID: 8d13ab85
       FRONTEND_URL: https://www.smartsupplypro.de
       # Origin baked into the bundle by frontend-ci.yml; the rewrite check

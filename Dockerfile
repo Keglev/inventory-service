@@ -4,13 +4,12 @@
 
 # Enterprise build notes:
 # - Multi-stage pattern: build with Maven (JDK) and produce a minimal JRE runtime.
-# - CI should pass build-time args for traceability (PROFILE, but never runtime secrets).
+# - CI passes build-time args for traceability, never runtime secrets.
 # - Do NOT copy frontend assets into this image; frontend is built separately.
 # - Security posture: run as non-root, do not bake secrets, and prefer runtime secret
 #   injection via the host's env file or a secret store; never baked in.
 #
 # Build-time inputs (examples passed by CI):
-#   PROFILE=prod            # build profile (default prod)
 #   BUILD_COMMIT=<sha>      # commit recorded in build-info.properties (default unknown)
 #
 # Runtime is driven by scripts/start.sh which performs wallet decoding and secure startup.
@@ -49,13 +48,6 @@ COPY pom.xml .
 COPY .mvn/ .mvn/
 COPY src/ src/
 
-# Spring profile the container starts under (defaults to prod). This is a
-# runtime setting only; the pom declares no Maven build profiles, so nothing is
-# selected at package time. Override with:
-#   docker build --build-arg PROFILE=prod ...
-ARG PROFILE=prod
-ENV SPRING_PROFILES_ACTIVE=${PROFILE}
-
 # Commit this image is built from, baked into the jar by Maven rather than set as
 # a runtime variable. The deploy asserts what the running jar reports, so the
 # value has to originate in the build that produced it.
@@ -92,7 +84,6 @@ RUN apk add --no-cache unzip coreutils && apk upgrade --no-cache
 # ==========================================================
 
 LABEL maintainer="https://github.com/Keglev"
-LABEL version="1.0.0"
 LABEL description="Smart Supply Pro Inventory Microservice"
 LABEL org.opencontainers.image.source="https://github.com/Keglev/inventory-service"
 
@@ -115,8 +106,7 @@ COPY --from=build --chown=appuser:appgroup /build/target/*.jar /app/
 # sources and a non-directory target and fails, instead of silently moving
 # whichever one sorted first.
 RUN set -eux; \
-    mv /app/*.jar /app/app.jar; \
-    chown appuser:appgroup /app/app.jar
+    mv /app/*.jar /app/app.jar
 
 # Set correct file ownership for the non-root user
 RUN chown -R appuser:appgroup /app

@@ -6,7 +6,7 @@
 # - Temp artifacts removed; env secrets unset after use
 # - Conservative JVM sizing via MaxRAMPercentage (tunable via JAVA_OPTS)
 # --------------------------------------------------------------------
- 
+
 set -eu
 
 # Default profile (you can override via env)
@@ -58,17 +58,15 @@ fi
 [ -n "${DB_USER:-}" ] && export SPRING_DATASOURCE_USERNAME="${DB_USER}"
 [ -n "${DB_PASS:-}" ] && export SPRING_DATASOURCE_PASSWORD="${DB_PASS}"
 
-# JVM opts - avoid fixed -Xmx; the percentage tracks the container memory limit
+# JVM opts - avoid fixed -Xmx; the percentage tracks the container memory limit.
+# server.address and server.forward-headers-strategy come from application.yml.
 JAVA_OPTS="${JAVA_OPTS:-} \
- -Dserver.address=0.0.0.0 \
  -Dserver.port=${SERVER_PORT} \
  -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} \
  -Doracle.net.tns_admin=${TNS_ADMIN} \
  -Doracle.net.wallet_password=${ORACLE_WALLET_PASSWORD} \
- -Dserver.forward-headers-strategy=framework \
  -XX:MaxRAMPercentage=75"
 
-echo "Starting Spring Boot on port ${SERVER_PORT}..."
-echo "[start] Starting Inventory Service App..."
+echo "[start] Starting Inventory Service on port ${SERVER_PORT}..."
 # Launch the Spring Boot app (the jar is part of the Docker image)
 exec java ${JAVA_OPTS} -jar /app/app.jar
