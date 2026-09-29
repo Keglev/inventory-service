@@ -50,8 +50,8 @@ vi.mock('../../../../pages/dashboard/blocks/MonthlyMovementMini', () => ({
   default: vi.fn(() => <div data-testid="monthly-movement">Monthly Movement Chart</div>),
 }));
 
-vi.mock('../../../../pages/analytics/blocks/StockPerSupplierDonut', () => ({
-  default: vi.fn(() => <div data-testid="stock-per-supplier-donut">Donut</div>),
+vi.mock('../../../../pages/analytics/blocks/StockValuePerSupplierPie', () => ({
+  default: vi.fn(() => <div data-testid="stock-value-per-supplier-pie">Pie</div>),
 }));
 
 vi.mock('../../../../pages/dashboard/blocks/ReasonBreakdownMini', () => ({
@@ -131,7 +131,7 @@ describe('Dashboard', () => {
 
       // Other blocks.
       expect(screen.getByTestId('monthly-movement')).toBeInTheDocument();
-      expect(screen.getByTestId('stock-per-supplier-donut')).toBeInTheDocument();
+      expect(screen.getByTestId('stock-value-per-supplier-pie')).toBeInTheDocument();
       expect(screen.getByTestId('reason-breakdown-mini')).toBeInTheDocument();
       expect(screen.getByTestId('low-stock-mini')).toBeInTheDocument();
       expect(screen.getByTestId('help-button')).toBeInTheDocument();

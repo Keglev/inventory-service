@@ -5,7 +5,7 @@
  * @summary
  * Authenticated landing page. Renders three KPI cards (inventory count,
  * suppliers count, low-stock count), a 2x2 analytics overview grid
- * (stock-per-supplier donut, movement-by-reason, 90-day stock movement,
+ * (stock value per supplier pie, movement-by-reason, 90-day stock movement,
  * low-stock watchlist), and primary navigation buttons for the core workflows.
  *
  * @enterprise
@@ -28,7 +28,7 @@ import { Box, Grid, Button, Stack, Typography, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useDashboardMetrics } from '../../api/analytics/hooks/useDashboardMetrics';
 import MonthlyMovementMini from './blocks/MonthlyMovementMini';
-import StockPerSupplierDonut from '../analytics/blocks/StockPerSupplierDonut';
+import StockValuePerSupplierPie from '../analytics/blocks/StockValuePerSupplierPie';
 import ReasonBreakdownMini from './blocks/ReasonBreakdownMini';
 import LowStockMini from './blocks/LowStockMini';
 import StatCard from '../../components/ui/StatCard';
@@ -122,7 +122,7 @@ const Dashboard: React.FC = () => {
           }}
         >
           <Grid size={{ xs: 12, md: 6 }}>
-            <StockPerSupplierDonut />
+            <StockValuePerSupplierPie />
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <ReasonBreakdownMini />

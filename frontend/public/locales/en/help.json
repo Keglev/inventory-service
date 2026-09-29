@@ -44,7 +44,7 @@
   "analytics": {
     "overview": {
       "title": "Analytics Dashboard",
-      "body": "The Analytics section provides insights into your inventory and business metrics.\n\nSections:\n• Overview: key metrics and stock movement trends\n• Movements: stock increases and decreases by reason, with drill-down into matching changes\n• Pricing: price trends per item\n• Inventory Health: items below minimum and stock per supplier\n• Finance: financial summary (purchases, COGS, write-offs, returns)\n• Employees: changes per employee (administrators only; also visible in the demo)\n\nUse the filter bar to select a supplier and a date range. All charts and tables respect your preferred date format and number format from Settings."
+      "body": "The Analytics section provides insights into your inventory and business metrics.\n\nSections:\n• Overview: key metrics and stock movement trends\n• Movements: stock increases and decreases by reason, with drill-down into matching changes\n• Pricing: price trends per item\n• Inventory Health: items below minimum and stock value per supplier\n• Finance: financial summary (purchases, COGS, write-offs, returns)\n• Employees: changes per employee (administrators only; also visible in the demo)\n\nUse the filter bar to select a supplier and a date range. All charts and tables respect your preferred date format and number format from Settings."
     }
   },
   "settings": {

@@ -56,8 +56,8 @@ vi.mock('@/pages/analytics/blocks/LowStockTable', () => ({
   default: () => <div data-testid="low-stock-table">LowStockTable</div>,
 }));
 
-vi.mock('@/pages/analytics/blocks/StockPerSupplierDonut', () => ({
-  default: () => <div data-testid="stock-per-supplier-donut">StockPerSupplierDonut</div>,
+vi.mock('@/pages/analytics/blocks/StockValuePerSupplierPie', () => ({
+  default: () => <div data-testid="stock-value-per-supplier-pie">StockValuePerSupplierPie</div>,
 }));
 
 vi.mock('@/pages/analytics/blocks/FinancialSummaryCard', () => ({
