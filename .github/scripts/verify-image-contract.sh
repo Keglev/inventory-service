@@ -28,8 +28,9 @@
 # and still exit 0.
 #
 # --selftest <base-url> puts each comparison against a value that must fail --
-# a wrong status, an absent header, a present header carrying the wrong value --
-# and exits 1 unless all three are reported. It runs against the same server, on
+# a wrong status, an absent header, a present header carrying the wrong value,
+# a host that is not redirected, a redirect to the wrong place -- and exits 1
+# unless all five are reported. It runs against the same server, on
 # the same runner, immediately before the real pass, so the gate proves it can
 # still fail every time it is trusted.
 #
@@ -54,10 +55,12 @@ fail() {
   FAILURES=$((FAILURES + 1))
 }
 
-# expect_status <label> <url> <expected-code>
+# expect_status <label> <url> <expected-code> [host]
 expect_status() {
-  local label="$1" url="$2" want="$3" got
-  got="$(curl -s -o "$WORK/body" -w '%{http_code}' "$url")"
+  local label="$1" url="$2" want="$3" host="${4:-}" got
+  local -a hdr=()
+  if [ -n "$host" ]; then hdr=(-H "Host: $host"); fi
+  got="$(curl -s -o "$WORK/body" -w '%{http_code}' "${hdr[@]}" "$url")"
   if [ "$got" = "$want" ]; then
     echo "  PASS [$label] HTTP $got"
   else
@@ -77,6 +80,22 @@ expect_header() {
   esac
 }
 
+# expect_redirect <label> <url> <host> <location> - a 301 to exactly <location>
+expect_redirect() {
+  local label="$1" url="$2" host="$3" want="$4" fmt out got loc
+  fmt='%{http_code} %{redirect_url}'
+  out="$(curl -s -o /dev/null -w "$fmt" -H "Host: $host" "$url")"
+  got="${out%% *}"
+  loc="${out#* }"
+  if [ "$got" != "301" ]; then
+    fail "$label" "expected HTTP 301 for Host $host, got $got"
+  elif [ "$loc" != "$want" ]; then
+    fail "$label" "expected Location $want for Host $host, got: $loc"
+  else
+    echo "  PASS [$label] HTTP 301 to $want"
+  fi
+}
+
 # expect_security_headers <label> <url> - the four repeated in three locations
 expect_security_headers() {
   expect_header "$1" "$2" "X-Content-Type-Options" "nosniff"
@@ -88,13 +107,16 @@ expect_security_headers() {
 if [ "${1:-}" = "--selftest" ]; then
   SELF="${2:?Usage: verify-image-contract.sh --selftest <base-url>}"
   SELF="${SELF%/}"
-  echo "==> [verify-image-contract] selftest against $SELF: all three must fail"
+  echo "==> [verify-image-contract] selftest against $SELF: all five must fail"
   QUIET_FAIL=1
   expect_status "selftest status" "$SELF/" "599"
   expect_header "selftest absent header" "$SELF/" "X-Not-A-Real-Header" "anything"
   expect_header "selftest wrong value" "$SELF/" "X-Frame-Options" "SAMEORIGIN"
-  if [ "$FAILURES" -ne 3 ]; then
-    echo "::error::selftest: expected 3 recorded failures, got $FAILURES"
+  BAD="https://example.invalid/"
+  expect_redirect "selftest no redirect" "$SELF/" "127.0.0.1" "$BAD"
+  expect_redirect "selftest wrong location" "$SELF/" "smartsupplypro.de" "$BAD"
+  if [ "$FAILURES" -ne 5 ]; then
+    echo "::error::selftest: expected 5 recorded failures, got $FAILURES"
     exit 1
   fi
   echo "PASS [selftest] each comparison reports a failure and the count survives"
@@ -110,6 +132,12 @@ echo "==> [verify-image-contract] $ROOT"
 expect_status "root" "$ROOT/" "200"
 expect_security_headers "root" "$ROOT/"
 expect_header "root" "$ROOT/" "Cache-Control" "no-cache"
+
+# The bare apex redirects to the canonical host with path and query intact;
+# the canonical host itself is served, not caught by the redirect block.
+APEX_WANT="https://www.smartsupplypro.de/inventory?page=2"
+expect_redirect "apex redirect" "$ROOT/inventory?page=2" "smartsupplypro.de" "$APEX_WANT"
+expect_status "canonical host" "$ROOT/" "200" "www.smartsupplypro.de"
 
 expect_status "index.html" "$ROOT/index.html" "200"
 expect_header "index.html" "$ROOT/index.html" "Cache-Control" "no-cache"
