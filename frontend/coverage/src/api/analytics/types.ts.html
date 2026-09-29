@@ -159,8 +159,8 @@ export type ItemOption = ItemRef;
 /** Low-stock alert row; carries both actual and threshold quantities so the table can render severity without recomputing. */
 export type LowStockRow = { itemName: string; quantity: number; minimumQuantity: number };
 &nbsp;
-/** Per-supplier inventory snapshot for distribution charts (donut, bar). */
-export type StockPerSupplierPoint = { supplierName: string; totalQuantity: number };
+/** Per-supplier inventory snapshot: units and their value at current prices (euros). */
+export type StockPerSupplierPoint = { supplierName: string; totalQuantity: number; totalValue: number };
 &nbsp;
 /** Shared optional analytics filter state; centralised here so all analytics consumers import from one place. */
 export type FiltersState = {
