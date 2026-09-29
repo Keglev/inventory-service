@@ -29,10 +29,10 @@
 #
 # --selftest <base-url> puts each comparison against a value that must fail --
 # a wrong status, an absent header, a present header carrying the wrong value,
-# a host that is not redirected, a redirect to the wrong place -- and exits 1
-# unless all five are reported. It runs against the same server, on
-# the same runner, immediately before the real pass, so the gate proves it can
-# still fail every time it is trusted.
+# a host that is not redirected, a redirect to the wrong place, a response that
+# is not compressed -- and exits 1 unless all six are reported. It runs against
+# the same server, on the same runner, immediately before the real pass, so the
+# gate proves it can still fail every time it is trusted.
 #
 # Failure mode: reports every failing assertion and exits 1.
 # =============================================================================
@@ -96,6 +96,18 @@ expect_redirect() {
   fi
 }
 
+# expect_gzip <label> <url> [accept] - served gzip-encoded to a client sending
+# Accept-Encoding <accept> (default gzip; the selftest sends identity)
+expect_gzip() {
+  local label="$1" url="$2" accept="${3:-gzip}" enc
+  curl -s -o /dev/null -D "$WORK/headers" -H "Accept-Encoding: $accept" "$url"
+  enc="$(LC_ALL=C grep -i '^content-encoding:' "$WORK/headers" || true)"
+  case "$enc" in
+    *gzip*) echo "  PASS [$label] Content-Encoding: gzip" ;;
+    *) fail "$label" "expected Content-Encoding gzip, got: ${enc:-none}" ;;
+  esac
+}
+
 # expect_security_headers <label> <url> - the four repeated in three locations
 expect_security_headers() {
   expect_header "$1" "$2" "X-Content-Type-Options" "nosniff"
@@ -107,7 +119,7 @@ expect_security_headers() {
 if [ "${1:-}" = "--selftest" ]; then
   SELF="${2:?Usage: verify-image-contract.sh --selftest <base-url>}"
   SELF="${SELF%/}"
-  echo "==> [verify-image-contract] selftest against $SELF: all five must fail"
+  echo "==> [verify-image-contract] selftest against $SELF: all six must fail"
   QUIET_FAIL=1
   expect_status "selftest status" "$SELF/" "599"
   expect_header "selftest absent header" "$SELF/" "X-Not-A-Real-Header" "anything"
@@ -115,8 +127,9 @@ if [ "${1:-}" = "--selftest" ]; then
   BAD="https://example.invalid/"
   expect_redirect "selftest no redirect" "$SELF/" "127.0.0.1" "$BAD"
   expect_redirect "selftest wrong location" "$SELF/" "smartsupplypro.de" "$BAD"
-  if [ "$FAILURES" -ne 5 ]; then
-    echo "::error::selftest: expected 5 recorded failures, got $FAILURES"
+  expect_gzip "selftest not compressed" "$SELF/" "identity"
+  if [ "$FAILURES" -ne 6 ]; then
+    echo "::error::selftest: expected 6 recorded failures, got $FAILURES"
     exit 1
   fi
   echo "PASS [selftest] each comparison reports a failure and the count survives"
@@ -146,6 +159,11 @@ expect_status "spa fallback" "$ROOT/inventory" "200"
 expect_header "spa fallback" "$ROOT/inventory" "Content-Type" "text/html"
 expect_security_headers "spa fallback" "$ROOT/inventory"
 
+# Compression comes from one gzip_types list in nginx.conf; a second list in a
+# server block replaces it rather than adding to it. A locale file stands for
+# the JSON and SVG types, the entry bundle for JavaScript.
+expect_gzip "locale json" "$ROOT/locales/de/common.json"
+
 # A missing asset must 404 rather than fall back to the shell, or a stale
 # bundle reference returns HTML that the browser then fails to parse as JS.
 expect_status "missing asset" "$ROOT/assets/does-not-exist-xyz.js" "404"
@@ -162,6 +180,7 @@ else
   expect_status "entry asset" "$ROOT$ENTRY" "200"
   expect_header "entry asset" "$ROOT$ENTRY" "Cache-Control" "max-age=31536000"
   expect_header "entry asset" "$ROOT$ENTRY" "Cache-Control" "immutable"
+  expect_gzip "entry asset" "$ROOT$ENTRY"
   expect_security_headers "entry asset" "$ROOT$ENTRY"
 fi
 
