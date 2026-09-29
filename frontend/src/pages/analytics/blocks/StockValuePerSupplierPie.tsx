@@ -98,7 +98,9 @@ export default function StockValuePerSupplierPie() {
                       : value
                   }
                 />
-                <Legend />
+                {/* Recharts sorts legend items alphabetically by default; keep the
+                    slices' rank order so "all others" stays last. */}
+                <Legend itemSorter={(item) => data.findIndex((d) => d.name === item.value)} />
               </PieChart>
             </ResponsiveContainer>
           </Box>

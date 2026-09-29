@@ -3,9 +3,9 @@
  * @module __tests__/components/pages/analytics/blocks/StockValuePerSupplierPie
  * @description
  * The stock value pie: loading skeleton, empty helper, one named slice per
- * top supplier plus a grey "all others" slice, and a tooltip with the value in
- * euros and the share. The grouping rule itself is covered by its sibling,
- * supplierValueSlices.test.ts.
+ * top supplier plus a grey "all others" slice, a legend in rank order, and a
+ * tooltip with the value in euros and the share. The grouping rule itself is
+ * covered by its sibling, supplierValueSlices.test.ts.
  */
 
 import type { ReactNode } from 'react';
@@ -49,6 +49,7 @@ vi.mock('@mui/material/styles', async () => {
 
 type Slice = { name: string; value: number };
 let lastTooltipFormatter: ((v: number | string) => string) | null = null;
+let lastLegendSorter: ((item: { value: string }) => number | string) | null = null;
 
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
@@ -65,7 +66,10 @@ vi.mock('recharts', () => ({
     lastTooltipFormatter = formatter ?? null;
     return null;
   },
-  Legend: () => <div data-testid="legend" />,
+  Legend: ({ itemSorter }: { itemSorter?: (item: { value: string }) => number | string }) => {
+    lastLegendSorter = itemSorter ?? null;
+    return <div data-testid="legend" />;
+  },
   Cell: ({ fill }: { fill?: string }) => <div data-testid="pie-cell" data-fill={fill} />,
 }));
 
@@ -90,6 +94,7 @@ describe('StockValuePerSupplierPie', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     lastTooltipFormatter = null;
+    lastLegendSorter = null;
   });
 
   it('renders the loading skeleton while the query is in flight', () => {
@@ -132,6 +137,22 @@ describe('StockValuePerSupplierPie', () => {
     expect(screen.getAllByTestId('pie-cell').map((c) => c.getAttribute('data-fill'))).toEqual([
       '#4472C4', '#70AD47', '#5B9BD5', '#FFC000', '#9E9E9E',
     ]);
+  });
+
+  it('orders the legend by rank with the grouped slice last when the labels sort otherwise', async () => {
+    vi.mocked(getStockPerSupplier).mockResolvedValue([
+      point('Zeta', 600), point('Epsilon', 500), point('Delta', 400),
+      point('Beta', 300), point('Alpha', 200), point('Aaron', 100),
+    ]);
+
+    setup();
+
+    await waitFor(() => expect(lastLegendSorter).not.toBeNull());
+    const alphabetical = ['All others (2 suppliers)', 'Beta', 'Delta', 'Epsilon', 'Zeta'];
+    const ranked = [...alphabetical].sort(
+      (a, b) => Number(lastLegendSorter?.({ value: a })) - Number(lastLegendSorter?.({ value: b })),
+    );
+    expect(ranked).toEqual(['Zeta', 'Epsilon', 'Delta', 'Beta', 'All others (2 suppliers)']);
   });
 
   it('formats the tooltip as euros and a share of the total', async () => {
