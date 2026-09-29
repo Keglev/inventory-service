@@ -133,10 +133,13 @@
         (<code>utils/chartTooltip</code>) so the tooltip surface follows
         light/dark mode.</p>
         <ul>
-        <li><strong>Stock per supplier</strong> — reuses
-        <code>pages/analytics/blocks/StockPerSupplierDonut</code> (donut
-        over <code>getStockPerSupplier</code>), so dashboard and
-        analytics share one component and query.</li>
+        <li><strong>Stock value per supplier</strong> — reuses
+        <code>pages/analytics/blocks/StockValuePerSupplierPie</code>
+        (pie over <code>getStockPerSupplier</code>), so dashboard and
+        analytics share one component and query. It shows the four most
+        valuable suppliers and one grey slice for all others
+        (<code>supplierValueSlices</code>); with five or fewer suppliers
+        every one is shown.</li>
         <li><strong>Movement by reason</strong> —
         <code>blocks/ReasonBreakdownMini</code> groups increase/decrease
         per <code>StockChangeReason</code> from
