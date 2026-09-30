@@ -21,6 +21,7 @@ import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import type { MonthlyMovement } from '../../../api/analytics/types';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 
 export type MovementLineCardProps = { from?: string; to?: string; supplierId?: string | null };
 
@@ -69,6 +70,7 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
                 <XAxis dataKey="month" tickFormatter={formatDateLabel} />
                 <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
                 <Tooltip
+                  {...chartTooltipProps(muiTheme)}
                   labelFormatter={(value) => formatDateLabel(value as string)}
                   formatter={(value) =>
                     typeof value === 'number'

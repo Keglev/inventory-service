@@ -27,6 +27,7 @@ import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Le
 import { getStockUpdates, type StockUpdateRow } from '../../../api/analytics/updates';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 
 export type RecentStockActivityCardProps = { from?: string; to?: string; supplierId?: string | null };
 
@@ -140,6 +141,7 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
                 <XAxis dataKey="dateLabel" />
                 <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
                 <Tooltip
+                  {...chartTooltipProps(muiTheme)}
                   formatter={(value) =>
                     `${formatNumber(Number(value), userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
                   }

@@ -18,6 +18,7 @@ import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Ba
 import { getItemUpdateFrequency, type ItemUpdateFrequencyPoint } from '../../../api/analytics/frequency';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 
 export type ItemUpdateFrequencyCardProps = { supplierId?: string | null };
 
@@ -80,6 +81,7 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
                 />
                 <YAxis type="category" dataKey="name" width={140} />
                 <Tooltip
+                  {...chartTooltipProps(muiTheme)}
                   formatter={(value) =>
                     typeof value === 'number'
                       ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.updates')}`

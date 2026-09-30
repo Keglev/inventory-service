@@ -26,6 +26,7 @@ import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Ba
 import { getFinancialSummary, type FinancialSummary } from '../../../api/analytics/finance';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 
 export type FinancialSummaryCardProps = { from?: string; to?: string; supplierId?: string | null };
 
@@ -112,6 +113,7 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
                   <XAxis dataKey="name" />
                   <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)} />
                   <Tooltip
+                    {...chartTooltipProps(muiTheme)}
                     formatter={(value) =>
                       typeof value === 'number'
                         ? `${formatNumber(value, userPreferences.numberFormat, 2)} €`
