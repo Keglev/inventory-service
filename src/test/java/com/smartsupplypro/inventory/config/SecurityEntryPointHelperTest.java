@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -81,12 +83,24 @@ class SecurityEntryPointHelperTest {
         assertEquals("https://frontend.test/custom", res.getRedirectedUrl());
     }
 
-    @Test
-    void should_redirect_to_a_safe_default_when_the_return_param_is_an_external_url() throws Exception {
+    // Each value defeats a weaker check: a foreign host, a prefix match, user info on
+    // either side of the @, another port, another scheme, or text the URI parser rejects.
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "https://evil.example/phish",
+        "https://frontend.test.attacker.example/phish",
+        "https://frontend.test@evil.example/phish",
+        "https://evil@frontend.test/phish",
+        "https://frontend.test:8443/phish",
+        "http://frontend.test/phish",
+        "https://frontend.test/a b"
+    })
+    void should_redirect_to_a_safe_default_when_the_return_param_is_not_the_frontend_origin(String returnUrl)
+            throws Exception {
         LogoutSuccessHandler handler = helper.createLogoutSuccessHandler(propsWithBase("https://frontend.test"));
 
         MockHttpServletRequest req = new MockHttpServletRequest("POST", "/logout");
-        req.setParameter("return", "https://evil.example/phish");
+        req.setParameter("return", returnUrl);
         MockHttpServletResponse res = new MockHttpServletResponse();
 
         handler.onLogoutSuccess(req, res, null);

@@ -1,5 +1,8 @@
 package com.smartsupplypro.inventory.config;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -24,14 +27,15 @@ public class SecurityEntryPointHelper {
         };
     }
 
+    /** Sends unauthenticated browser requests to the frontend login page. */
     public AuthenticationEntryPoint createWebEntryPoint(String frontendBaseUrl) {
         return (req, res, ex) -> res.sendRedirect(frontendBaseUrl + "/login");
     }
 
     /**
      * Returns 204 for API logout or redirects the browser to the logout-success page.
-     * The {@code return} query parameter is accepted only when it shares the configured
-     * base URL to prevent open-redirect attacks.
+     * The {@code return} query parameter is honoured only when its origin (scheme, host
+     * and port) equals the origin of the configured frontend base URL.
      */
     public LogoutSuccessHandler createLogoutSuccessHandler(AppProperties props) {
         return (req, res, auth) -> {
@@ -42,9 +46,27 @@ public class SecurityEntryPointHelper {
             }
             String base = props.getFrontend().getBaseUrl();
             String ret = req.getParameter("return");
-            // Only honour the return param if it stays within our own frontend — prevents open redirects
-            String target = (ret != null && ret.startsWith(base)) ? ret : base + "/logout-success";
+            String target = isSameOrigin(ret, base) ? ret : base + "/logout-success";
             res.sendRedirect(target);
         };
+    }
+
+    // /logout accepts cross-site form posts, so this check is all that stands between
+    // the parameter and an open redirect. A string prefix is not an origin:
+    // https://app.example is a prefix of https://app.example.attacker.test and of
+    // https://app.example@attacker.test. User info is refused as well: the frontend never
+    // sends it, and a return URL has no use for credentials.
+    private static boolean isSameOrigin(String candidate, String base) {
+        if (candidate == null) return false;
+        try {
+            URI target = new URI(candidate);
+            URI origin = new URI(base);
+            return target.getRawUserInfo() == null
+                && origin.getScheme().equalsIgnoreCase(target.getScheme())
+                && origin.getHost().equalsIgnoreCase(target.getHost())
+                && origin.getPort() == target.getPort();
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 }
