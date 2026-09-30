@@ -256,7 +256,7 @@
         </table>
         <h2 id="size-budget-waivers">11.3 Size-Budget Waivers</h2>
         <p>Measured over code lines against the budgets in <a
-        href="02-constraints.html">§2</a>. One file and four methods
+        href="02-constraints.html">§2</a>. One file and two methods
         exceed their alarm; each is waived below, with the same reason
         stated at the site in the code. No method reaches the 50 hard
         cap and no file reaches the 300 hard cap.</p>
@@ -278,9 +278,9 @@
         <tbody>
         <tr class="odd">
         <td><code>repository/custom/util/StockTrendSqlBuilder.java</code></td>
-        <td>168</td>
+        <td>153</td>
         <td>150 (repository)</td>
-        <td>124 of the 168 code lines are SQL inside text blocks.
+        <td>109 of the 153 code lines are SQL inside text blocks.
         Splitting the file moves SQL between files without reducing
         it.</td>
         </tr>
@@ -300,28 +300,19 @@
         that can be extracted already are, into the entry-point, filter
         and authorization helpers.</td>
         </tr>
-        <tr class="even">
-        <td><code>StockTrendSqlBuilder::buildH2DailyValuationSql</code></td>
-        <td>33</td>
-        <td>30</td>
-        <td>29 of the 33 code lines are one SQL text block.</td>
-        </tr>
-        <tr class="odd">
-        <td><code>StockTrendSqlBuilder::buildOracleDailyValuationSql</code></td>
-        <td>32</td>
-        <td>30</td>
-        <td>28 of the 32 code lines are one SQL text block.</td>
-        </tr>
         </tbody>
         </table>
         <p>Two files sit above their target and below their alarm and
         are watched rather than waived:
         <code>StockHistoryRepository.java</code> at 111 and
-        <code>StockTrendAnalyticsRepositoryImpl.java</code> at 91, both
+        <code>StockTrendAnalyticsRepositoryImpl.java</code> at 88, both
         against a repository target of 80. Thirteen methods sit between
         the target of 20 and the alarm of 30, the largest being
         <code>EmployeeAnalyticsService::getEmployeeActivity</code> at
-        29. The band is guidance, the alarm is the gate.</p>
+        29. The two daily-movement builders in
+        <code>StockTrendSqlBuilder</code> (25 each) joined that band
+        when they replaced the daily-valuation builders, which had been
+        waived above. The band is guidance, the alarm is the gate.</p>
       </article>
     </main>
 
