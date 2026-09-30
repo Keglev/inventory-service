@@ -219,6 +219,9 @@ jobs:
       #   The selftest runs first, against the same container: it puts each
       #   comparison against a value that must fail, so a gate that can no
       #   longer fail cannot pass in silence.
+      #   The nginx master is PID 1; its UID must be 101, the unprivileged user
+      #   the Dockerfile selects. PASSES at 101; FAILS on any other UID, so an
+      #   image that falls back to root cannot pass on its HTTP answers alone.
       #   The proxy locations are deliberately not exercised. They proxy_pass to
       #   the production backend, and /api/ is proven after deploy by
       #   health-check.sh instead.
@@ -238,6 +241,11 @@ jobs:
             sleep 1
           done
           docker exec ssp-frontend-contract nginx -t
+          master_uid=$(docker exec ssp-frontend-contract awk '/^Uid:/ {print $2}' /proc/1/status)
+          if [ "$master_uid" != 101 ]; then
+            echo "::error::the nginx master runs as UID $master_uid, not 101"
+            exit 1
+          fi
           bash .github/scripts/verify-image-contract.sh --selftest http://127.0.0.1:8080
           bash .github/scripts/verify-image-contract.sh http://127.0.0.1:8080
 

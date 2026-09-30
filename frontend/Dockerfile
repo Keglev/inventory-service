@@ -78,6 +78,14 @@ COPY ops/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Run as the base image's unprivileged nginx user (UID 101, numeric so a runtime
+# can verify non-root without reading /etc/passwd) instead of root. The master
+# then holds no privileges an nginx flaw could inherit, and port 8080 needs none.
+# It must still create its temp directories under /var/cache/nginx; nginx.conf
+# moves the pid file to /tmp for the same reason.
+RUN chown -R nginx:nginx /var/cache/nginx
+USER 101
+
 # Koyeb routes traffic to $PORT; 8080 is the value configured in the platform settings.
 ENV PORT=8080
 EXPOSE 8080
