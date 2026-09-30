@@ -2,6 +2,8 @@ package com.smartsupplypro.inventory.security;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -137,10 +139,12 @@ class SecurityConfigAuthorizationRulesTest {
                 .andExpect(header().string("Location", "https://frontend.test/custom"));
         }
 
-        @Test
-        void should_redirect_to_a_safe_default_when_the_logout_return_param_is_external() throws Exception {
+        @ParameterizedTest
+        @ValueSource(strings = { "https://evil.example/phish", "https://frontend.test.attacker.example/phish" })
+        void should_redirect_to_a_safe_default_when_the_logout_return_param_is_external(String returnUrl)
+                throws Exception {
             mvc.perform(post("/logout")
-                    .param("return", "https://evil.example/phish")
+                    .param("return", returnUrl)
                     .accept(MediaType.TEXT_HTML))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location", "https://frontend.test/logout-success"));
