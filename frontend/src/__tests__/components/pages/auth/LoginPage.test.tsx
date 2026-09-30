@@ -8,6 +8,7 @@
  * - Google SSO button triggers useAuth().login().
  * - "Continue in Demo Mode" triggers useAuth().loginAsDemo() and redirects to /dashboard (replace navigation).
  * - When `?error=` is present in the URL, an error alert is rendered (severity="error") with a translated title.
+ * - The "Back to home" link routes to the landing page without starting a session.
  *
  * Test strategy:
  * - useAuth is mocked to assert user-intent actions (login / loginAsDemo).
@@ -20,7 +21,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import LoginPage from '../../../../pages/auth/LoginPage';
 import { tEn } from '../../../test/i18nEn';
@@ -147,6 +148,24 @@ describe('LoginPage', () => {
       expect(mockLogin).not.toHaveBeenCalled();
 
       expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
+    });
+
+    it('routes to the landing page without a session when the back link is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <MemoryRouter initialEntries={['/login']}>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<p>landing page</p>} />
+          </Routes>
+        </MemoryRouter>,
+      );
+
+      await user.click(screen.getByRole('link', { name: 'Back to home' }));
+
+      expect(screen.getByText('landing page')).toBeInTheDocument();
+      expect(mockLoginAsDemo).not.toHaveBeenCalled();
+      expect(mockLogin).not.toHaveBeenCalled();
     });
   });
 });
