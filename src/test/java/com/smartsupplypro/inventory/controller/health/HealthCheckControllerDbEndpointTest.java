@@ -4,11 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
@@ -17,18 +17,27 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import com.smartsupplypro.inventory.controller.HealthCheckController;
 
 /**
- * Unit tests for {@link HealthCheckController#checkDatabaseConnection()} covering UP/DOWN
- * response contracts, exception paths, and try-with-resources cleanup branches using mocked JDBC.
+ * Unit tests for {@link HealthCheckController#checkDatabaseConnection(Authentication)} covering
+ * who sees which UP fields, the fixed DOWN body on every failure path, the log line that keeps
+ * the failure detail, and try-with-resources cleanup branches using mocked JDBC.
  */
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({ MockitoExtension.class, OutputCaptureExtension.class })
 class HealthCheckControllerDbEndpointTest {
 
     private static final String IP_SQL = "SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') AS ip FROM DUAL";
+    private static final Authentication ADMIN = new TestingAuthenticationToken("admin", null, "ROLE_ADMIN");
+    private static final Authentication USER = new TestingAuthenticationToken("user", null, "ROLE_USER");
+    private static final Map<String, String> UP = Map.of("status", "UP");
+    private static final Map<String, String> DOWN = Map.of("status", "DOWN");
 
     @Mock
     private DataSource dataSource;
@@ -52,31 +61,55 @@ class HealthCheckControllerDbEndpointTest {
         when(statement.executeQuery()).thenReturn(resultSet);
     }
 
-    private static String requireBody(ResponseEntity<String> response) {
-        String body = response.getBody();
-        assertNotNull(body);
-        return body;
-    }
-
-    private static String assertDown(ResponseEntity<String> response) {
+    private static void assertDown(ResponseEntity<Map<String, String>> response) {
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
-        String body = requireBody(response);
-        assertTrue(body.contains("\"status\": \"DOWN\""));
-        return body;
+        assertEquals(DOWN, response.getBody());
     }
 
     @Test
-    void should_return_up_when_the_database_returns_a_row() throws Exception {
+    void should_return_up_with_the_ip_when_an_admin_asks_and_the_database_returns_a_row() throws Exception {
         stubDbQuery();
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getString("ip")).thenReturn("1.2.3.4");
 
-        ResponseEntity<String> response = newController().checkDatabaseConnection();
+        ResponseEntity<Map<String, String>> response = newController().checkDatabaseConnection(ADMIN);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        String body = requireBody(response);
-        assertTrue(body.contains("\"status\": \"UP\""));
-        assertTrue(body.contains("\"oracleSeesIp\": \"1.2.3.4\""));
+        assertEquals(Map.of("status", "UP", "oracleSeesIp", "1.2.3.4"), response.getBody());
+    }
+
+    @Test
+    void should_return_up_without_the_ip_when_an_anonymous_caller_asks() throws Exception {
+        stubDbQuery();
+        when(resultSet.next()).thenReturn(true);
+
+        ResponseEntity<Map<String, String>> response = newController().checkDatabaseConnection(null);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(UP, response.getBody());
+    }
+
+    @Test
+    void should_return_up_without_the_ip_when_a_user_without_the_admin_role_asks() throws Exception {
+        stubDbQuery();
+        when(resultSet.next()).thenReturn(true);
+
+        ResponseEntity<Map<String, String>> response = newController().checkDatabaseConnection(USER);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(UP, response.getBody());
+    }
+
+    @Test
+    void should_report_the_ip_as_null_text_when_the_database_returns_no_address() throws Exception {
+        stubDbQuery();
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getString("ip")).thenReturn(null);
+
+        ResponseEntity<Map<String, String>> response = newController().checkDatabaseConnection(ADMIN);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(Map.of("status", "UP", "oracleSeesIp", "null"), response.getBody());
     }
 
     @Test
@@ -84,45 +117,33 @@ class HealthCheckControllerDbEndpointTest {
         stubDbQuery();
         when(resultSet.next()).thenReturn(false);
 
-        ResponseEntity<String> response = newController().checkDatabaseConnection();
-
-        String body = assertDown(response);
-        assertTrue(body.contains("\"db\": \"query failed\""));
+        assertDown(newController().checkDatabaseConnection(ADMIN));
     }
 
     @Test
-    void should_return_down_with_an_error_when_the_data_source_throws() throws Exception {
-        when(dataSource.getConnection()).thenThrow(new SQLException("no route"));
+    void should_keep_the_failure_detail_in_the_log_and_out_of_the_body_when_the_data_source_throws(
+            CapturedOutput output) throws Exception {
+        when(dataSource.getConnection()).thenThrow(new SQLException("ORA-12506: listener rejected 10.0.0.9"));
 
-        ResponseEntity<String> response = newController().checkDatabaseConnection();
-
-        String body = assertDown(response);
-        assertTrue(body.contains("\"error\":"));
+        assertDown(newController().checkDatabaseConnection(ADMIN));
+        assertTrue(output.getOut().contains("ORA-12506: listener rejected 10.0.0.9"));
     }
 
     @Test
-    void should_return_down_with_an_error_when_prepare_statement_throws() throws Exception {
+    void should_return_down_when_prepare_statement_throws() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(IP_SQL)).thenThrow(new SQLException("prepare failed"));
 
-        ResponseEntity<String> response = newController().checkDatabaseConnection();
-
-        String body = assertDown(response);
-        assertTrue(body.contains("\"error\":"));
-        assertTrue(body.contains("prepare failed"));
+        assertDown(newController().checkDatabaseConnection(ADMIN));
     }
 
     @Test
-    void should_return_down_with_an_error_when_execute_query_throws() throws Exception {
+    void should_return_down_when_execute_query_throws() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(IP_SQL)).thenReturn(statement);
         when(statement.executeQuery()).thenThrow(new SQLException("execute failed"));
 
-        ResponseEntity<String> response = newController().checkDatabaseConnection();
-
-        String body = assertDown(response);
-        assertTrue(body.contains("\"error\":"));
-        assertTrue(body.contains("execute failed"));
+        assertDown(newController().checkDatabaseConnection(ADMIN));
     }
 
     @Test
@@ -132,10 +153,7 @@ class HealthCheckControllerDbEndpointTest {
         when(resultSet.getString("ip")).thenReturn("1.2.3.4");
         doThrow(new SQLException("close failed")).when(resultSet).close();
 
-        ResponseEntity<String> response = newController().checkDatabaseConnection();
-
-        String body = assertDown(response);
-        assertTrue(body.contains("\"error\":"));
+        assertDown(newController().checkDatabaseConnection(ADMIN));
     }
 
     @Test
@@ -145,36 +163,24 @@ class HealthCheckControllerDbEndpointTest {
         when(statement.executeQuery()).thenThrow(new SQLException("execute failed"));
         doThrow(new SQLException("close failed")).when(statement).close();
 
-        ResponseEntity<String> response = newController().checkDatabaseConnection();
-
-        String body = assertDown(response);
-        assertTrue(body.contains("\"error\":"));
-        assertTrue(body.contains("execute failed"));
+        assertDown(newController().checkDatabaseConnection(ADMIN));
     }
 
     @Test
-    void should_return_down_with_an_error_when_next_throws() throws Exception {
+    void should_return_down_when_next_throws() throws Exception {
         stubDbQuery();
         when(resultSet.next()).thenThrow(new SQLException("next failed"));
 
-        ResponseEntity<String> response = newController().checkDatabaseConnection();
-
-        String body = assertDown(response);
-        assertTrue(body.contains("\"error\":"));
-        assertTrue(body.contains("next failed"));
+        assertDown(newController().checkDatabaseConnection(ADMIN));
     }
 
     @Test
-    void should_return_down_with_an_error_when_next_and_close_both_throw() throws Exception {
+    void should_return_down_when_next_and_close_both_throw() throws Exception {
         stubDbQuery();
         when(resultSet.next()).thenThrow(new SQLException("next failed"));
         doThrow(new SQLException("close failed")).when(resultSet).close();
 
-        ResponseEntity<String> response = newController().checkDatabaseConnection();
-
-        String body = assertDown(response);
-        assertTrue(body.contains("\"error\":"));
-        assertTrue(body.contains("next failed"));
+        assertDown(newController().checkDatabaseConnection(ADMIN));
     }
 
     @Test
@@ -184,20 +190,17 @@ class HealthCheckControllerDbEndpointTest {
         when(resultSet.getString("ip")).thenReturn("1.2.3.4");
         doThrow(new AssertionError("close error")).when(resultSet).close();
 
-        AssertionError thrown = assertThrows(AssertionError.class, () -> newController().checkDatabaseConnection());
+        AssertionError thrown = assertThrows(AssertionError.class,
+                () -> newController().checkDatabaseConnection(ADMIN));
         assertEquals("close error", thrown.getMessage());
     }
 
     @Test
-    void should_return_down_with_an_error_when_get_string_throws() throws Exception {
+    void should_return_down_when_get_string_throws() throws Exception {
         stubDbQuery();
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getString("ip")).thenThrow(new SQLException("getString failed"));
 
-        ResponseEntity<String> response = newController().checkDatabaseConnection();
-
-        String body = assertDown(response);
-        assertTrue(body.contains("\"error\":"));
-        assertTrue(body.contains("getString failed"));
+        assertDown(newController().checkDatabaseConnection(ADMIN));
     }
 }

@@ -12,13 +12,17 @@ HealthDbResponse:
       example: "UP"
     oracleSeesIp:
       type: string
-      description: Client IP address as seen by the Oracle database using SYS_CONTEXT
+      description: >-
+        Client IP address as seen by the Oracle database using SYS_CONTEXT.
+        Present only when the caller is authenticated with the ADMIN role.
       example: "192.168.1.100"
 
 HealthDbError:
   type: object
   title: Database Health Error Response
-  description: Response from failed database health check
+  description: >-
+    Response from failed database health check. The body is fixed; the cause of
+    the failure is written to the server log only.
   required:
     - status
   properties:
@@ -27,11 +31,3 @@ HealthDbError:
       enum: [DOWN]
       description: Health status indicator - "DOWN" when database is unavailable
       example: "DOWN"
-    db:
-      type: string
-      description: Database-specific error message
-      example: "query failed"
-    error:
-      type: string
-      description: Detailed error message explaining why the health check failed
-      example: "Cannot get a connection, pool error Timeout waiting for idle object"

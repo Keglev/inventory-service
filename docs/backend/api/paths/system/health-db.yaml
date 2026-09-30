@@ -3,19 +3,16 @@ get:
     - System
   summary: Deep Database Health Check
   description: |
-    Performs a comprehensive health check including database connectivity verification.
-    
-    Uses Oracle-specific `SYS_CONTEXT` query to:
-    - Verify database is reachable and responsive
-    - Confirm Oracle functionality is available
-    - Return client IP address as seen by the database
-    - Detect temporary database pausing (common in Oracle Free Tier)
-    
-    Useful for monitoring critical dependencies and detecting infrastructure issues.
-    Returns 503 Service Unavailable if database is unreachable or misconfigured.
-    
-    **Security:** This endpoint is **publicly accessible** (no authentication required).
-    Used by monitoring systems to verify database health.
+    Opens a fresh connection and runs an Oracle-specific `SYS_CONTEXT` query.
+    Returns 200 when the query succeeds and 503 when the database is unreachable,
+    paused (common in Oracle Free Tier) or misconfigured.
+
+    **Security:** publicly accessible (no authentication required), because it is
+    the troubleshooting aid for the moments when login is impossible: login stores
+    the user in this same database. Anonymous callers and non-admin users receive
+    `status` only. An authenticated ADMIN also receives `oracleSeesIp`, the address
+    the database sees for this service. A failure never reveals its cause; the
+    exception is written to the server log.
   operationId: checkDatabaseConnection
   security: []
   responses:
@@ -32,4 +29,4 @@ get:
           schema:
             $ref: '../../schemas/system/system.yaml#/HealthDbError'
     '500':
-      $ref: '../../responses/errors.yaml#/InternalServerError'
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'
