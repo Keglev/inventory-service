@@ -170,7 +170,10 @@
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
 <a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -241,6 +244,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
@@ -300,6 +304,7 @@ import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import type { MonthlyMovement } from '../../../api/analytics/types';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 &nbsp;
 export type MovementLineCardProps = { from?: string; to?: string; supplierId?: string | null };
 &nbsp;
@@ -348,6 +353,7 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
                 &lt;XAxis dataKey="month" tickFormatter={formatDateLabel} /&gt;
                 &lt;YAxis tickFormatter={(value) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 0)} /&gt;
                 &lt;Tooltip
+                  {...chartTooltipProps(muiTheme)}
                   labelFormatter={(value) =&gt; formatDateLabel(value as string)}
                   formatter={(value) =&gt;
                     typeof value === 'number'

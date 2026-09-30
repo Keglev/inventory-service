@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -146,7 +146,10 @@
 <a name='L81'></a><a href='#L81'>81</a>
 <a name='L82'></a><a href='#L82'>82</a>
 <a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -182,6 +185,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44x</span>
 <span class="cline-any cline-yes">44x</span>
 <span class="cline-any cline-yes">44x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -241,10 +247,12 @@
  */
 import * as React from 'react';
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
+import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 &nbsp;
 export type ReasonBreakdownDatum = {
   /** Translated reason label (X axis). */
@@ -267,6 +275,7 @@ export type ReasonBreakdownChartCardProps = {
 export default function ReasonBreakdownChartCard({ title, data, color, loading }: ReasonBreakdownChartCardProps) {
   const { t } = useTranslation(['analytics']);
   const { userPreferences } = useSettings();
+  const muiTheme = useMuiTheme();
 &nbsp;
   const formatValue = React.useCallback(
     (value: number | string) =&gt;
@@ -302,7 +311,7 @@ export default function ReasonBreakdownChartCard({ title, data, color, loading }
                 &lt;CartesianGrid strokeDasharray="3 3" /&gt;
                 &lt;XAxis dataKey="label" interval={0} angle={-25} textAnchor="end" height={70} tick={{ fontSize: 12 }} /&gt;
                 &lt;YAxis allowDecimals={false} tickFormatter={formatValue} /&gt;
-                &lt;Tooltip formatter={formatTooltipValue} /&gt;
+                &lt;Tooltip {...chartTooltipProps(muiTheme)} formatter={formatTooltipValue} /&gt;
                 &lt;Bar dataKey="value" fill={color} isAnimationActive={false} /&gt;
               &lt;/BarChart&gt;
             &lt;/ResponsiveContainer&gt;
