@@ -21,7 +21,7 @@ import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 import { deDE as coreDeDE, enUS as coreEnUS } from '@mui/material/locale';
 import { deDE as dataGridDeDE, enUS as dataGridEnUS } from '@mui/x-data-grid/locales';
 import '@mui/x-data-grid/themeAugmentation';
-import { darkPalette, lightPalette } from './tokens';
+import { darkCardSurface, darkPalette, lightPalette } from './tokens';
 
 const locales = {
   en: [coreEnUS, dataGridEnUS],
@@ -87,12 +87,19 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
             root: { 
               borderRadius: 12,
               boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
+              // WHY: in dark mode a card sits one grade above the panel it lies on. MUI's
+              // elevation overlay would shift that grade by each card's elevation, so KPI
+              // and chart cards would differ; the overlay is dropped for one card colour.
+              ...(mode === 'dark' && { backgroundColor: darkCardSurface, backgroundImage: 'none' }),
             } 
           },
         },
         MuiPaper: {
           // WHY: targeting `root` applies to all Paper instances regardless of variant; the `rounded` slot is variant-specific.
           styleOverrides: {
+            // WHY: outlined papers (filter bars, table frames, KPI cards) are cards on a panel,
+            // so in dark mode they take the card grade too.
+            outlined: mode === 'dark' ? { backgroundColor: darkCardSurface } : {},
             root: { 
               borderRadius: 10,
               boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',

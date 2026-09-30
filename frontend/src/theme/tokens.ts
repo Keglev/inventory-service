@@ -36,6 +36,20 @@ export const darkPalette: PaletteOptions = {
   warning: { main: '#FFA726' },
   error: { main: '#EF5350' },
   info: { main: '#29B6F6' },
-  background: { default: '#121212', paper: '#1E1E1E' },
-  divider: 'rgba(255,255,255,0.12)',
+  // Three blue-grey grades about 1.2:1 apart, so page, panels (app bar, sidebar,
+  // content frame) and cards (darkCardSurface) read as separate layers. The
+  // tint sits with the primary blue; the page grade still clears Material's
+  // 15.8:1 minimum for white text on a base darker than #121212.
+  background: { default: '#0B0F14', paper: '#18202A' },
+  divider: 'rgba(148,178,214,0.22)',
+  // The data grid shades hovered rows from hoverOpacity; other components use
+  // hover. Both carry the same strength, or grid rows hover fainter than menus.
+  action: { hover: 'rgba(148,178,214,0.14)', hoverOpacity: 0.14 },
 };
+
+/**
+ * Card grade in dark mode, one step above background.paper. The palette has no
+ * slot for a third surface, so theme/index.ts applies it to cards and outlined
+ * papers in dark mode only; in light mode cards stay on background.paper.
+ */
+export const darkCardSurface = '#243040';
