@@ -116,29 +116,36 @@ class StockTrendAnalyticsRepositoryImplH2Test {
     }
 
     /**
-     * Daily closing stock valuation.
+     * Per-item daily movements over the whole history up to the end bound.
      */
     @Nested
-    class DailyValuation {
+    class DailyItemMovements {
 
         @Test
-        void should_return_the_closing_stock_value_when_grouping_by_day() {
+        void should_return_each_item_day_with_its_net_change_and_last_price_when_listing_the_history() {
             seedTestData();
             StockTrendAnalyticsRepositoryImpl repo = repoH2();
 
-            List<Object[]> out = repo.getDailyStockValuation(
-                    LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 3, 2, 0, 0), "sup1");
+            List<Object[]> out = repo.getDailyItemMovements(LocalDateTime.of(2024, 3, 1, 23, 59, 59), null);
 
-            assertEquals(3, out.size());
-            // 2024-02-05: last price of day is 4.00; qty-after = 5; valuation = 20
-            assertEquals(LocalDate.of(2024, 2, 5), toLocalDate(out.get(0)[0]));
-            assertEquals(20L, ((Number) out.get(0)[1]).longValue());
-            // 2024-02-06: price 2.00; qty-after = 3; valuation = 6
-            assertEquals(LocalDate.of(2024, 2, 6), toLocalDate(out.get(1)[0]));
-            assertEquals(6L, ((Number) out.get(1)[1]).longValue());
-            // 2024-03-01: price 2.50; qty-after = 6; valuation = 15
-            assertEquals(LocalDate.of(2024, 3, 1), toLocalDate(out.get(2)[0]));
-            assertEquals(15L, ((Number) out.get(2)[1]).longValue());
+            assertEquals(4, out.size());
+            // 2024-02-05 holds the initial stock and a price change: net 5, last price 4.00
+            assertMovement(out.get(0), "itemA", LocalDate.of(2024, 2, 5), 5, "4.00");
+            assertMovement(out.get(1), "itemA", LocalDate.of(2024, 2, 6), -2, "2.00");
+            assertMovement(out.get(2), "itemB", LocalDate.of(2024, 2, 10), 1, "5.00");
+            assertMovement(out.get(3), "itemA", LocalDate.of(2024, 3, 1), 3, "2.50");
+        }
+
+        @Test
+        void should_leave_out_later_days_and_other_suppliers_when_bounded_and_filtered() {
+            seedTestData();
+            StockTrendAnalyticsRepositoryImpl repo = repoH2();
+
+            List<Object[]> out = repo.getDailyItemMovements(LocalDateTime.of(2024, 2, 29, 23, 59, 59), "sup1");
+
+            assertEquals(2, out.size());
+            assertMovement(out.get(0), "itemA", LocalDate.of(2024, 2, 5), 5, "4.00");
+            assertMovement(out.get(1), "itemA", LocalDate.of(2024, 2, 6), -2, "2.00");
         }
     }
 
@@ -192,6 +199,13 @@ class StockTrendAnalyticsRepositoryImplH2Test {
      * return either {@link java.sql.Date} or {@link java.time.LocalDate} depending
      * on version, so this avoids a hard cast that breaks across driver upgrades.
      */
+    private static void assertMovement(Object[] row, String itemId, LocalDate day, long netChange, String unitPrice) {
+        assertEquals(itemId, row[0]);
+        assertEquals(day, toLocalDate(row[1]));
+        assertEquals(netChange, ((Number) row[2]).longValue());
+        assertEquals(0, new BigDecimal(unitPrice).compareTo(new BigDecimal(row[3].toString())));
+    }
+
     private static LocalDate toLocalDate(Object cell) {
         if (cell instanceof java.sql.Date d) {
             return d.toLocalDate();

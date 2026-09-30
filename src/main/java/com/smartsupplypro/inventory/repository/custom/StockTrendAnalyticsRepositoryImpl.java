@@ -75,30 +75,24 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
     }
 
     /**
-     * Executes dialect-specific native SQL for daily inventory valuation.
+     * Executes dialect-specific native SQL for daily item movements up to {@code end}.
      *
-     * <p>Passes {@code start}/{@code end} as {@code java.sql.Timestamp} because some JDBC
-     * drivers do not coerce {@code LocalDateTime} for native query parameters automatically.
+     * <p>Passes {@code end} as {@code java.sql.Timestamp} because some JDBC drivers do not
+     * coerce {@code LocalDateTime} for native query parameters automatically.
      *
-     * @param start      inclusive lower bound
      * @param end        inclusive upper bound
      * @param supplierId optional supplier filter
-     * @return daily valuations ordered by day ascending
+     * @return movements ordered by day, then item
      */
     @SuppressWarnings("unchecked")
     @Override
-    public List<Object[]> getDailyStockValuation(LocalDateTime start, LocalDateTime end, String supplierId) {
+    public List<Object[]> getDailyItemMovements(LocalDateTime end, String supplierId) {
         final String sql = dialectDetector.isH2()
-            ? StockTrendSqlBuilder.buildH2DailyValuationSql()
-            : StockTrendSqlBuilder.buildOracleDailyValuationSql();
-
-        // Convert LocalDateTime to java.sql.Timestamp for JDBC compatibility
-        final java.sql.Timestamp startTs = java.sql.Timestamp.valueOf(start);
-        final java.sql.Timestamp endTs = java.sql.Timestamp.valueOf(end);
+            ? StockTrendSqlBuilder.buildH2DailyItemMovementsSql()
+            : StockTrendSqlBuilder.buildOracleDailyItemMovementsSql();
 
         return em.createNativeQuery(sql)
-                .setParameter("start", startTs)
-                .setParameter("end", endTs)
+                .setParameter("end", java.sql.Timestamp.valueOf(end))
                 .setParameter("supplierId", normalizeOptionalParam(supplierId))
                 .getResultList();
     }
@@ -137,7 +131,7 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
      * Executes dialect-specific native SQL for per-employee daily change counts.
      *
      * <p>Passes bounds as {@code java.sql.Timestamp} for JDBC driver compatibility,
-     * mirroring the daily valuation query.
+     * mirroring the daily item-movements query.
      *
      * @param start inclusive lower bound
      * @param end   inclusive upper bound

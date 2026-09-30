@@ -11,7 +11,7 @@ components:
         totalValue:
           type: number
           format: double
-          description: Total inventory value on this date
+          description: Closing inventory value on this date (quantity times last known unit price, summed over items)
           example: 45000.00
       description: Time series data point for stock value tracking
 

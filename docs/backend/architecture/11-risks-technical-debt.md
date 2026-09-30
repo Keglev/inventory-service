@@ -27,21 +27,21 @@ the code or decision it concerns.
 ## 11.3 Size-Budget Waivers
 
 Measured over code lines against the budgets in [§2](02-constraints.md). One file
-and four methods exceed their alarm; each is waived below, with the same reason
+and two methods exceed their alarm; each is waived below, with the same reason
 stated at the site in the code. No method reaches the 50 hard cap and no file
 reaches the 300 hard cap.
 
 | Waived | Measured | Alarm | Reason |
 |------|------|--------|------------|
-| `repository/custom/util/StockTrendSqlBuilder.java` | 168 | 150 (repository) | 124 of the 168 code lines are SQL inside text blocks. Splitting the file moves SQL between files without reducing it. |
+| `repository/custom/util/StockTrendSqlBuilder.java` | 153 | 150 (repository) | 109 of the 153 code lines are SQL inside text blocks. Splitting the file moves SQL between files without reducing it. |
 | `SecurityAuthorizationHelper::configureAuthorization` | 34 | 30 | One ordered matcher chain, evaluated most-specific first. The order is the behaviour, and splitting the chain would hide it. |
 | `SecurityConfig::securityFilterChain` | 31 | 30 | One fluent `HttpSecurity` statement. The parts that can be extracted already are, into the entry-point, filter and authorization helpers. |
-| `StockTrendSqlBuilder::buildH2DailyValuationSql` | 33 | 30 | 29 of the 33 code lines are one SQL text block. |
-| `StockTrendSqlBuilder::buildOracleDailyValuationSql` | 32 | 30 | 28 of the 32 code lines are one SQL text block. |
 
 Two files sit above their target and below their alarm and are watched rather
 than waived: `StockHistoryRepository.java` at 111 and
-`StockTrendAnalyticsRepositoryImpl.java` at 91, both against a repository target
+`StockTrendAnalyticsRepositoryImpl.java` at 88, both against a repository target
 of 80. Thirteen methods sit between the target of 20 and the alarm of 30, the
-largest being `EmployeeAnalyticsService::getEmployeeActivity` at 29. The band is
-guidance, the alarm is the gate.
+largest being `EmployeeAnalyticsService::getEmployeeActivity` at 29. The two
+daily-movement builders in `StockTrendSqlBuilder` (25 each) joined that band
+when they replaced the daily-valuation builders, which had been waived above.
+The band is guidance, the alarm is the gate.

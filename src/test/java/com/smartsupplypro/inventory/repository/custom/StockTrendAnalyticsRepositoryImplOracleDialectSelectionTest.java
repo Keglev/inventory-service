@@ -42,7 +42,7 @@ class StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest {
 
         repo.getMonthlyStockMovement(start, end);
         repo.getMonthlyStockMovementBySupplier(start, end, "   ");
-        repo.getDailyStockValuation(start, end, "   ");
+        repo.getDailyItemMovements(end, "   ");
         repo.getItemPriceTrend("itemA", "   ", start, end);
 
         ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
@@ -53,7 +53,7 @@ class StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest {
         assertTrue(sql.getAllValues().get(0).contains("YYYY-MM"));
         // Oracle supplier-filtered movement is also TO_CHAR-flavored
         assertTrue(sql.getAllValues().get(1).contains("TO_CHAR"));
-        // Oracle daily valuation uses TRUNC
+        // Oracle daily item movements use TRUNC
         assertTrue(sql.getAllValues().get(2).contains("TRUNC"));
         // Oracle price trend uses YYYY-MM-DD format
         assertTrue(sql.getAllValues().get(3).contains("YYYY-MM-DD"));

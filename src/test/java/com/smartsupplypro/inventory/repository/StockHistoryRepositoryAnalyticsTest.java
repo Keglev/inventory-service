@@ -93,11 +93,13 @@ class StockHistoryRepositoryAnalyticsTest {
     class AggregationQueries {
 
         @Test
-        void should_aggregate_the_stock_value_when_grouping_by_day() {
-            List<Object[]> result = stockHistoryRepository.getDailyStockValuation(now.minusDays(3), now, null);
+        void should_return_one_row_per_item_and_day_when_listing_daily_movements() {
+            List<Object[]> result = stockHistoryRepository.getDailyItemMovements(now, null);
 
-            assertEquals(2, result.size());
-            result.forEach(row -> { assertNotNull(row[0]); assertNotNull(row[1]); });
+            // item-1 moved on two days, item-2 and item-3 on one day each
+            assertEquals(4, result.size());
+            assertEquals("item-1", result.get(0)[0]);
+            assertEquals(10L, ((Number) result.get(0)[2]).longValue());
         }
 
         @Test

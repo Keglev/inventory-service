@@ -52,19 +52,23 @@ class AnalyticsServiceImplQueryTest {
     class AggregatedStockQueries {
 
         @Test
-        void should_map_date_and_numeric_columns_when_building_the_dto() {
-            when(stockHistoryRepository.getDailyStockValuation(any(), any(), isNull()))
+        void should_value_every_day_from_the_whole_history_when_building_the_series() {
+            when(stockHistoryRepository.getDailyItemMovements(any(), isNull()))
                     .thenReturn(Arrays.asList(
-                            new Object[]{Date.valueOf("2024-02-01"), new BigDecimal("10.50")},
-                            new Object[]{Date.valueOf("2024-02-02"), new BigDecimal("12.00")}
+                            new Object[]{"a", Date.valueOf("2024-01-15"), 10, new BigDecimal("2.00")},
+                            new Object[]{"a", Date.valueOf("2024-02-02"), -4, new BigDecimal("2.50")}
                     ));
 
             List<StockValueOverTimeDTO> out = service.getTotalStockValueOverTime(
                     LocalDate.parse("2024-02-01"), LocalDate.parse("2024-02-03"), null);
 
-            assertEquals(2, out.size());
-            assertEquals(LocalDate.parse("2024-02-01"), out.get(0).date());
-            assertEquals(10.50, out.get(0).totalValue(), 1e-9);
+            // the January movement opens the window at 10 x 2.00; 2024-02-03 carries 6 x 2.50
+            assertEquals(3, out.size());
+            assertEquals(20.00, out.get(0).totalValue(), 1e-9);
+            assertEquals(15.00, out.get(1).totalValue(), 1e-9);
+            assertEquals(LocalDate.parse("2024-02-03"), out.get(2).date());
+            assertEquals(15.00, out.get(2).totalValue(), 1e-9);
+            verify(stockHistoryRepository).getDailyItemMovements(LocalDateTime.of(2024, 2, 3, 23, 59, 59, 999_999_999), null);
         }
 
         @Test
