@@ -10,10 +10,12 @@
  */
 import * as React from 'react';
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
+import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 
 export type ReasonBreakdownDatum = {
   /** Translated reason label (X axis). */
@@ -36,6 +38,7 @@ export type ReasonBreakdownChartCardProps = {
 export default function ReasonBreakdownChartCard({ title, data, color, loading }: ReasonBreakdownChartCardProps) {
   const { t } = useTranslation(['analytics']);
   const { userPreferences } = useSettings();
+  const muiTheme = useMuiTheme();
 
   const formatValue = React.useCallback(
     (value: number | string) =>
@@ -71,7 +74,7 @@ export default function ReasonBreakdownChartCard({ title, data, color, loading }
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="label" interval={0} angle={-25} textAnchor="end" height={70} tick={{ fontSize: 12 }} />
                 <YAxis allowDecimals={false} tickFormatter={formatValue} />
-                <Tooltip formatter={formatTooltipValue} />
+                <Tooltip {...chartTooltipProps(muiTheme)} formatter={formatTooltipValue} />
                 <Bar dataKey="value" fill={color} isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>

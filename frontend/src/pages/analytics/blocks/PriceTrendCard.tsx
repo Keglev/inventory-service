@@ -37,6 +37,7 @@ import { useSettings } from '../../../hooks/useSettings';
 import { useItemSearchOptions } from '../hooks/useItemSearchOptions';
 import { ItemSearchAutocomplete } from '../components/ItemSearchAutocomplete';
 import { formatDate, formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 
 export type PriceTrendCardProps = { from?: string; to?: string; supplierId?: string | null };
 
@@ -182,6 +183,7 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
                   tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)}
                 />
                 <Tooltip
+                  {...chartTooltipProps(muiTheme)}
                   labelFormatter={(value) => formatDateLabel(value as string)}
                   formatter={(value) =>
                     typeof value === 'number'

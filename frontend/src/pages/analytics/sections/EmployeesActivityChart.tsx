@@ -21,6 +21,7 @@ import type { EmployeeGranularity } from '../../../api/analytics/employees';
 import type { EmployeesChartRow } from './useEmployeesSectionData';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 
 /** One chart series descriptor (an employee). @public */
 export type EmployeeSeries = { createdBy: string; displayName: string };
@@ -115,7 +116,7 @@ export function EmployeesActivityChart({
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="period" tick={{ fontSize: 12 }} />
                 <YAxis allowDecimals={false} tickFormatter={formatCount} />
-                <Tooltip formatter={formatTooltipCount} />
+                <Tooltip {...chartTooltipProps(muiTheme)} formatter={formatTooltipCount} />
                 <Legend />
                 {employees.map((emp, idx) => (
                   <Line
