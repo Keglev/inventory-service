@@ -13,6 +13,8 @@
  *   between analytics sections without flicker.
  * - `retry: 0` because an empty result is a valid state for the cold-start
  *   case (no items yet) — no point spamming retries.
+ * - A step line without point dots: the value holds until the next stock movement,
+ *   and the backend sends one point per calendar day, too many to mark each one.
  */
 import * as React from 'react';
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
@@ -23,6 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 
 
 export type StockValueCardProps = { from?: string; to?: string; supplierId?: string | null };
@@ -78,9 +81,10 @@ export default function StockValueCard({ from, to, supplierId }: StockValueCardP
                         />
                         <YAxis
                             domain={['auto', 'auto']}
-                            tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)}
+                            tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)}
                         />
                         <Tooltip
+                            {...chartTooltipProps(muiTheme)}
                             labelFormatter={(value) => formatDateLabel(value as string)}
                             formatter={(value) =>
                                 typeof value === 'number'
@@ -89,11 +93,12 @@ export default function StockValueCard({ from, to, supplierId }: StockValueCardP
                             }
                         />
             <Line
-            type="monotone"
+            type="stepAfter"
             dataKey="totalValue"
+            name={t('analytics:cards.stockValueSeries')}
             stroke={muiTheme.palette.primary.main}
             strokeWidth={2}
-            dot={{ r: 2 }}
+            dot={false}
             activeDot={{ r: 4 }}
             connectNulls
             isAnimationActive={false}

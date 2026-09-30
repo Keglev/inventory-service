@@ -2,6 +2,7 @@
   "title": "Analysen",
   "cards": {
     "stockValue": "Bestandswert im Zeitverlauf (€)",
+    "stockValueSeries": "Bestandswert",
     "monthlyMovement": "Monatliche Bestandsbewegung (Stück)",
     "stockIn": "Zugang",
     "stockOut": "Abgang",

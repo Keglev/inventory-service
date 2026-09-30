@@ -2,6 +2,7 @@
   "title": "Analytics",
   "cards": {
     "stockValue": "Stock value over time (€)",
+    "stockValueSeries": "Stock value",
     "monthlyMovement": "Monthly stock movement (pieces)",
     "stockIn": "Stock in",
     "stockOut": "Stock out",

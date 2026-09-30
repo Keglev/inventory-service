@@ -7,6 +7,7 @@
  * - Empty state when API returns no data
  * - Renders chart when data exists
  * - Query parameter contract (from/to/supplierId normalization)
+ * - Step line without dots, a named series, and a theme-driven tooltip surface
  * - Refetch behavior when filters change
  */
 
@@ -14,6 +15,7 @@ import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTheme } from '@mui/material/styles';
 
 import type { StockValuePoint } from '@/api/analytics/stock';
 import { getStockValueOverTime } from '@/api/analytics/stock';
@@ -28,6 +30,8 @@ let lastXTickFormatter: ((v: string | number) => string) | null = null;
 let lastYTickFormatter: ((v: string | number) => string) | null = null;
 let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
+let lastTooltipProps: Record<string, unknown> | null = null;
+let lastLineProps: Record<string, unknown> | null = null;
 
 // -----------------------------------------------------------------------------
 // Mocks
@@ -70,18 +74,20 @@ vi.mock('recharts', () => ({
     lastYTickFormatter = tickFormatter ?? null;
     return <div data-testid="y-axis" />;
   },
-  Tooltip: ({
-    formatter,
-    labelFormatter,
-  }: {
+  Tooltip: (props: {
     formatter?: (v: number | string) => string;
     labelFormatter?: (v: string) => string;
   }) => {
+    const { formatter, labelFormatter } = props;
+    lastTooltipProps = props;
     lastTooltipFormatter = formatter ?? null;
     lastTooltipLabelFormatter = labelFormatter ?? null;
     return <div data-testid="tooltip" />;
   },
-  Line: () => <div data-testid="line" />,
+  Line: (props: Record<string, unknown>) => {
+    lastLineProps = props;
+    return <div data-testid="line" />;
+  },
 }));
 
 // -----------------------------------------------------------------------------
@@ -119,6 +125,8 @@ describe('StockValueCard', () => {
     lastYTickFormatter = null;
     lastTooltipFormatter = null;
     lastTooltipLabelFormatter = null;
+    lastTooltipProps = null;
+    lastLineProps = null;
     queryClient = createClient();
   });
 
@@ -138,13 +146,31 @@ describe('StockValueCard', () => {
 
     // Undefined date coerces to '' and sorts ahead of real dates.
     expect(lastLineChartData?.map((p) => p.date)).toEqual([undefined, '2025-01-01', '2025-01-02']);
-    // Y ticks and tooltip money values carry two decimals; strings pass through.
-    expect(lastYTickFormatter?.(1234.5)).toBe('1,234.50');
+    // Y ticks show whole euros so five-digit values fit the axis; the tooltip keeps
+    // two decimals, and strings pass through.
+    expect(lastYTickFormatter?.(1234.5)).toBe('1,235');
     expect(lastTooltipFormatter?.(1234.5)).toBe('1,234.50 €');
     expect(lastTooltipFormatter?.('n/a')).toBe('n/a');
     // Date labels format via preferences and fall back to the raw string.
     expect(lastXTickFormatter?.('2025-01-01')).toBe('01/01/2025');
     expect(lastTooltipLabelFormatter?.('not-a-date')).toBe('not-a-date');
+  });
+
+  it('draws a named step line without point dots and a theme-coloured tooltip', async () => {
+    vi.mocked(getStockValueOverTime).mockResolvedValue([{ date: '2025-01-01', totalValue: 1000 }]);
+
+    setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('line')).toBeInTheDocument();
+    });
+    expect(lastLineProps).toMatchObject({ type: 'stepAfter', dot: false, name: 'analytics:cards.stockValueSeries' });
+    // Rendered without a ThemeProvider, so the card sees MUI's default theme.
+    const theme = createTheme();
+    expect(lastTooltipProps).toMatchObject({
+      contentStyle: { backgroundColor: theme.palette.background.paper },
+      labelStyle: { color: theme.palette.text.primary },
+    });
   });
 
   it('renders loading skeleton while the query is pending', () => {
