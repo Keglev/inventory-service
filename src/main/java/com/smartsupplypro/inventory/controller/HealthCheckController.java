@@ -9,8 +9,12 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +29,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/health")
 public class HealthCheckController {
+
+    private static final Logger log = LoggerFactory.getLogger(HealthCheckController.class);
+    private static final Map<String, String> UP = Map.of("status", "UP");
+    private static final Map<String, String> DOWN = Map.of("status", "DOWN");
 
     private final DataSource dataSource;
 
@@ -60,12 +68,20 @@ public class HealthCheckController {
     }
 
     /**
-     * Deep database health check with Oracle-specific query.
+     * Deep database check with an Oracle-specific query on a fresh connection.
      *
-     * @return 200 OK with client IP if database accessible, 503 if database down
+     * <p>Stays public because it is the troubleshooting aid for the moments when login
+     * is impossible: login provisions the user in this same database. Anonymous callers
+     * therefore learn up or down and nothing else. An authenticated ADMIN also receives
+     * the address the database sees for this service, which is what an Oracle access-list
+     * fix needs. Failure details go to the log, never into the response.</p>
+     *
+     * @param authentication the caller, or {@code null} when anonymous
+     * @return 200 {@code {"status":"UP"}} (plus {@code oracleSeesIp} for an ADMIN),
+     *         503 {@code {"status":"DOWN"}} when the query fails
      */
     @GetMapping("/db")
-    public ResponseEntity<String> checkDatabaseConnection() {
+    public ResponseEntity<Map<String, String>> checkDatabaseConnection(Authentication authentication) {
         try (
             Connection conn = dataSource.getConnection();
             // SYS_CONTEXT verifies actual Oracle functionality and returns client IP for diagnostics
@@ -73,17 +89,16 @@ public class HealthCheckController {
                     "SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') AS ip FROM DUAL");
             ResultSet rs = stmt.executeQuery()
         ) {
-            if (rs.next()) {
-                String ip = rs.getString("ip");
-                return ResponseEntity.ok("{\"status\": \"UP\", \"oracleSeesIp\": \"" + ip + "\"}");
-            } else {
-                // unexpected empty result from a healthy Oracle connection
-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                        .body("{\"status\": \"DOWN\", \"db\": \"query failed\"}");
+            if (!rs.next()) {
+                log.warn("Database health check returned no row");
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(DOWN);
             }
+            return ResponseEntity.ok(isAdmin(authentication)
+                    ? Map.of("status", "UP", "oracleSeesIp", String.valueOf(rs.getString("ip")))
+                    : UP);
         } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                    .body("{\"status\": \"DOWN\", \"error\": \"" + ex.getMessage() + "\"}");
+            log.warn("Database health check failed", ex);
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(DOWN);
         }
     }
 
@@ -116,5 +131,11 @@ public class HealthCheckController {
         } catch (Exception ex) {
             // metadata unavailable; keep null and retry on a later ping
         }
+    }
+
+    private static boolean isAdmin(Authentication authentication) {
+        return authentication != null && authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch("ROLE_ADMIN"::equals);
     }
 }
