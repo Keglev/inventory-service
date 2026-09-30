@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StockValueSeries.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.service.impl.analytics</a> &gt; <span class="el_source">StockValueSeries.java</span></div><h1>StockValueSeries.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.service.impl.analytics;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
+
+import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConverterHelper.asLocalDate;
+import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConverterHelper.asNumber;
+
+/**
+ * Builds the daily stock value series by replaying per-item daily movements.
+ *
+ * &lt;p&gt;An item's quantity on a day is the sum of all its logged changes since its
+ * INITIAL_STOCK entry, and its unit price is the price of its latest event, so replaying
+ * the movements from the beginning of history gives every day's closing position. The
+ * series has one point per calendar day: a day without movements carries every position
+ * forward, and its value is the sum over items of quantity times last known unit price.&lt;/p&gt;
+ */
+final class StockValueSeries {
+
+    private StockValueSeries() {}
+
+    /**
+     * Replays the movements and emits the closing value of each day from start to end.
+     *
+     * @param movements rows of [item_id, day, net_change, unit_price], ordered by day and
+     *                  starting at the beginning of history, not at {@code start}
+     * @param start     first day of the series (inclusive)
+     * @param end       last day of the series (inclusive)
+     * @return one point per day, or an empty list when no item has any history up to end
+     */
+    static List&lt;StockValueOverTimeDTO&gt; build(List&lt;Object[]&gt; movements, LocalDate start, LocalDate end) {
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (movements.isEmpty()) {</span>
+<span class="fc" id="L39">            return List.of();</span>
+        }
+<span class="fc" id="L41">        Map&lt;String, Long&gt; quantities = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L42">        Map&lt;String, BigDecimal&gt; prices = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L43">        BigDecimal total = BigDecimal.ZERO;</span>
+<span class="fc" id="L44">        List&lt;StockValueOverTimeDTO&gt; series = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L45">        int next = 0;</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        for (LocalDate day = start; !day.isAfter(end); day = day.plusDays(1)) {</span>
+<span class="fc bfc" id="L47" title="All 4 branches covered.">            while (next &lt; movements.size() &amp;&amp; !asLocalDate(movements.get(next)[1]).isAfter(day)) {</span>
+<span class="fc" id="L48">                total = total.add(apply(movements.get(next), quantities, prices));</span>
+<span class="fc" id="L49">                next++;</span>
+            }
+<span class="fc" id="L51">            series.add(new StockValueOverTimeDTO(day, total.doubleValue()));</span>
+        }
+<span class="fc" id="L53">        return series;</span>
+    }
+
+    // Moves one item to its new position and returns the change in the total, so a day
+    // costs one update per moved item instead of a sum over every item.
+    private static BigDecimal apply(Object[] row, Map&lt;String, Long&gt; quantities, Map&lt;String, BigDecimal&gt; prices) {
+<span class="fc" id="L59">        String itemId = (String) row[0];</span>
+<span class="fc" id="L60">        long oldQuantity = quantities.getOrDefault(itemId, 0L);</span>
+<span class="fc" id="L61">        BigDecimal oldPrice = prices.getOrDefault(itemId, BigDecimal.ZERO);</span>
+<span class="fc" id="L62">        long newQuantity = oldQuantity + asNumber(row[2]).longValue();</span>
+<span class="fc" id="L63">        BigDecimal newPrice = new BigDecimal(asNumber(row[3]).toString());</span>
+<span class="fc" id="L64">        quantities.put(itemId, newQuantity);</span>
+<span class="fc" id="L65">        prices.put(itemId, newPrice);</span>
+<span class="fc" id="L66">        return newPrice.multiply(BigDecimal.valueOf(newQuantity))</span>
+<span class="fc" id="L67">                .subtract(oldPrice.multiply(BigDecimal.valueOf(oldQuantity)));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
