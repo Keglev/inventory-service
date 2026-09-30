@@ -170,7 +170,12 @@
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
 <a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -201,24 +206,27 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -227,7 +235,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -253,9 +261,11 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -292,6 +302,8 @@
  *   between analytics sections without flicker.
  * - `retry: 0` because an empty result is a valid state for the cold-start
  *   case (no items yet) — no point spamming retries.
+ * - A step line without point dots: the value holds until the next stock movement,
+ *   and the backend sends one point per calendar day, too many to mark each one.
  */
 import * as React from 'react';
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
@@ -302,6 +314,7 @@ import { useTranslation } from 'react-i18next';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
+import { chartTooltipProps } from '../../../utils/chartTooltip';
 &nbsp;
 &nbsp;
 export type StockValueCardProps = { from?: string; to?: string; supplierId?: string | null };
@@ -357,9 +370,10 @@ export default function StockValueCard({ from, to, supplierId }: StockValueCardP
                         /&gt;
                         &lt;YAxis
                             domain={['auto', 'auto']}
-                            tickFormatter={(value) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 2)}
+                            tickFormatter={(value) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 0)}
                         /&gt;
                         &lt;Tooltip
+                            {...chartTooltipProps(muiTheme)}
                             labelFormatter={(value) =&gt; formatDateLabel(value as string)}
                             formatter={(value) =&gt;
                                 typeof value === 'number'
@@ -368,11 +382,12 @@ export default function StockValueCard({ from, to, supplierId }: StockValueCardP
                             }
                         /&gt;
             &lt;Line
-            type="monotone"
+            type="stepAfter"
             dataKey="totalValue"
+            name={t('analytics:cards.stockValueSeries')}
             stroke={muiTheme.palette.primary.main}
             strokeWidth={2}
-            dot={{ r: 2 }}
+            dot={false}
             activeDot={{ r: 4 }}
             connectNulls
             isAnimationActive={false}
