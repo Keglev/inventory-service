@@ -3,9 +3,16 @@
 # build-openapi-docs.sh — Generates ReDoc HTML from the OpenAPI spec
 # Usage: .github/scripts/docs/build-openapi-docs.sh <project-dir>
 #
-# ReDoc output is fully self-contained (its own CSS/JS), so this script does
-# not touch the docs theme. Theme assets, landing pages, and JaCoCo coverage
-# are handled by build-docs.sh.
+# The generated page renders the spec in the browser with redoc.standalone.js,
+# loaded from Redocly's CDN at one version with an integrity hash (the CLI
+# writes that tag). --disableGoogleFont drops the stylesheet link to
+# fonts.googleapis.com: without it every visitor's browser contacts Google, a
+# transfer a German court has ruled unlawful without consent (LG Muenchen I,
+# 3 O 17493/20). ReDoc then uses the browser's sans-serif fonts. Theme assets,
+# landing pages and JaCoCo coverage are handled by build-docs.sh.
+#
+# Failure mode: exits 1 when the spec is missing; set -e stops the run when
+# redocly cannot build the page.
 # Prerequisites: redocly CLI
 # =============================================================================
 set -euo pipefail
@@ -23,7 +30,7 @@ if [ ! -f "$OPENAPI_YAML" ]; then
 fi
 
 mkdir -p "$API_OUT"
-redocly build-docs "$OPENAPI_YAML" -o "$API_OUT/index.html"
+redocly build-docs "$OPENAPI_YAML" --disableGoogleFont -o "$API_OUT/index.html"
 
 # Inject a fixed-position "back to docs" link into the self-contained ReDoc page.
 # Same pattern as the JaCoCo coverage injection in docs-deploy.yml, applied
