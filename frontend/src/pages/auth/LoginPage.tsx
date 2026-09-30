@@ -18,16 +18,17 @@
  *
  * @i18n
  * Uses 'auth' namespace. Keys: signIn, welcome, or, signInGoogle, ssoHint,
- * errorTitle, errorUnauthorized, continueDemo.
+ * errorTitle, errorUnauthorized, continueDemo, backToHome.
  */
 
 import {
   Box, Card, CardContent, CardHeader, Stack,
-  Button, Divider, Typography, Alert
+  Button, Divider, Typography, Alert, Link
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import GoogleIcon from '@mui/icons-material/Google';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function LoginPage() {
@@ -73,10 +74,23 @@ export default function LoginPage() {
               </Typography>
             </Divider>
 
-            {/* Demo entry (client-only, read-only) */}
-            <Button variant="text" onClick={handleDemo}>
-              {t('continueDemo')}
-            </Button>
+            {/* Demo entry (client-only, read-only), with the way back to the landing page
+                kept close under it as a quiet link rather than a third equal action. */}
+            <Stack spacing={0.5} alignItems="center">
+              <Button variant="text" onClick={handleDemo} fullWidth>
+                {t('continueDemo')}
+              </Button>
+              <Link
+                component={RouterLink}
+                to="/"
+                variant="body2"
+                underline="hover"
+                sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}
+              >
+                <ArrowBackIcon fontSize="inherit" />
+                {t('backToHome')}
+              </Link>
+            </Stack>
 
             <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
               {t('ssoHint')}
