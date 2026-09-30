@@ -3,7 +3,7 @@ package com.smartsupplypro.inventory.repository.custom.util;
 /**
  * SQL factory for {@code StockTrendAnalyticsRepositoryImpl} — produces time-series analytics queries for H2 and Oracle.
  */
-// SIZE WAIVER: 168 code lines against a 150 alarm, of which 124 are SQL inside
+// SIZE WAIVER: 153 code lines against a 150 alarm, of which 109 are SQL inside
 // text blocks. Splitting the file moves SQL between files without reducing it.
 // Recorded in docs/backend/architecture/11-risks-technical-debt.md.
 public final class StockTrendSqlBuilder {
@@ -66,86 +66,74 @@ public final class StockTrendSqlBuilder {
     }
 
     /**
-     * Returns the H2 SQL for daily inventory valuation (quantity * price per day).
+     * Returns the H2 SQL for daily item movements: per item and day, the day's net
+     * quantity change and the unit price of the day's last event.
      *
-     * <p>Uses a CTE with {@code SUM() OVER} window function to compute running quantity;
-     * {@code ROW_NUMBER()} selects the closing value per item per day.
+     * <p>Reads the whole history up to {@code :end}, not a window: an item's quantity on
+     * any day is the sum of all its changes since its INITIAL_STOCK entry, so the caller
+     * needs the movements before the first day it values.
      *
-     * @return SQL ordered by day ascending; accepts {@code :start}, {@code :end}, {@code :supplierId}
+     * @return SQL ordered by day, then item; accepts {@code :end}, {@code :supplierId}
      */
-    // SIZE WAIVER: 33 code lines against a 30 alarm; 29 of them are one SQL text block.
-    public static String buildH2DailyValuationSql() {
+    public static String buildH2DailyItemMovementsSql() {
         return """
             WITH events AS (
                 SELECT
-                    CAST(sh.created_at AS DATE) AS day_date,
                     sh.item_id,
-                    sh.created_at,
-                    sh.quantity_change,
-                    sh.price_at_change,
+                    CAST(sh.created_at AS DATE) AS day_date,
                     SUM(sh.quantity_change) OVER (
-                        PARTITION BY sh.item_id
-                        ORDER BY sh.created_at
-                        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-                    ) AS qty_after,
+                        PARTITION BY sh.item_id, CAST(sh.created_at AS DATE)
+                    ) AS net_change,
+                    COALESCE(sh.price_at_change, i.price, 0) AS unit_price,
                     ROW_NUMBER() OVER (
-                        PARTITION BY CAST(sh.created_at AS DATE), sh.item_id
-                        ORDER BY sh.created_at DESC
+                        PARTITION BY sh.item_id, CAST(sh.created_at AS DATE)
+                        ORDER BY sh.created_at DESC, sh.id DESC
                     ) AS rn
                 FROM stock_history sh
                 JOIN inventory_item i ON i.id = sh.item_id
-                WHERE sh.created_at BETWEEN :start AND :end
+                WHERE sh.created_at <= :end
                   AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
             )
-            SELECT
-                e.day_date,
-                SUM(COALESCE(e.qty_after, 0) * COALESCE(e.price_at_change, i.price, 0)) AS total_value
-            FROM events e
-            JOIN inventory_item i ON i.id = e.item_id
-            WHERE e.rn = 1
-            GROUP BY e.day_date
-            ORDER BY e.day_date
+            SELECT item_id, day_date, net_change, unit_price
+            FROM events
+            WHERE rn = 1
+            ORDER BY day_date, item_id
         """;
     }
 
     /**
-     * Returns the Oracle SQL for daily inventory valuation (quantity * price per day).
+     * Returns the Oracle SQL for daily item movements: per item and day, the day's net
+     * quantity change and the unit price of the day's last event.
      *
-     * <p>Uses {@code TRUNC()} instead of {@code CAST(... AS DATE)} for day truncation.
+     * <p>Reads the whole history up to {@code :end}, not a window: an item's quantity on
+     * any day is the sum of all its changes since its INITIAL_STOCK entry, so the caller
+     * needs the movements before the first day it values.
      *
-     * @return SQL ordered by day ascending; accepts {@code :start}, {@code :end}, {@code :supplierId}
+     * @return SQL ordered by day, then item; accepts {@code :end}, {@code :supplierId}
      */
-    // SIZE WAIVER: 32 code lines against a 30 alarm; 28 of them are one SQL text block.
-    public static String buildOracleDailyValuationSql() {
+    public static String buildOracleDailyItemMovementsSql() {
         return """
             WITH events AS (
                 SELECT
-                    CAST(TRUNC(sh.created_at) AS DATE) AS day_date,
                     sh.item_id,
-                    sh.created_at,
-                    sh.quantity_change,
-                    sh.price_at_change,
+                    CAST(TRUNC(sh.created_at) AS DATE) AS day_date,
                     SUM(sh.quantity_change) OVER (
-                        PARTITION BY sh.item_id
-                        ORDER BY sh.created_at
-                    ) AS qty_after,
+                        PARTITION BY sh.item_id, CAST(TRUNC(sh.created_at) AS DATE)
+                    ) AS net_change,
+                    COALESCE(sh.price_at_change, i.price, 0) AS unit_price,
                     ROW_NUMBER() OVER (
-                        PARTITION BY TRUNC(sh.created_at), sh.item_id
-                        ORDER BY sh.created_at DESC
+                        PARTITION BY sh.item_id, CAST(TRUNC(sh.created_at) AS DATE)
+                        ORDER BY sh.created_at DESC, sh.id DESC
                     ) AS rn
                 FROM stock_history sh
                 JOIN inventory_item i ON i.id = sh.item_id
-                WHERE sh.created_at BETWEEN :start AND :end
+                WHERE sh.created_at <= :end
                   AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
             )
-            SELECT
-                e.day_date,
-                SUM(COALESCE(e.qty_after, 0) * COALESCE(e.price_at_change, i.price, 0)) AS total_value
-            FROM events e
-            JOIN inventory_item i ON i.id = e.item_id
-            WHERE e.rn = 1
-            GROUP BY e.day_date
-            ORDER BY e.day_date
+            SELECT item_id, day_date, net_change, unit_price
+            FROM events
+            WHERE rn = 1
+            ORDER BY day_date, item_id
         """;
     }
 

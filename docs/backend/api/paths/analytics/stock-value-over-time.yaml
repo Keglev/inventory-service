@@ -3,8 +3,12 @@ get:
     - Analytics
   summary: Get stock value over time
   description: |
-    Gets time series of total stock value between dates.
-    Shows inventory value trends with optional supplier filtering.
+    Returns one point per calendar day from start to end: the closing inventory
+    value of that day, the sum over items of the quantity held at the end of the
+    day times the item's last known unit price. Days without movements carry the
+    previous positions forward. Quantities come from each item's whole stock
+    history, not only from movements inside the range. An empty array means no
+    item has any history up to end. Optional supplier filter.
   operationId: getStockValueOverTime
   security:
     - oauth2: [openid]
@@ -34,7 +38,7 @@ get:
       example: "supplier-123"
   responses:
     '200':
-      description: Time series of stock value data points
+      description: One closing stock value per calendar day, oldest first
       content:
         application/json:
           schema:

@@ -49,7 +49,8 @@ public class StockAnalyticsService {
     private final InventoryItemRepository inventoryItemRepository;
 
     /**
-     * Retrieves daily inventory value (quantity * price) over a date range.
+     * Retrieves the closing inventory value (quantity * last known unit price) of every
+     * day in a date range, including days without movements.
      * Defaults to last 30 days when bounds are null.
      *
      * @param startDate inclusive start date (nullable)
@@ -62,18 +63,11 @@ public class StockAnalyticsService {
                                                                    LocalDate endDate,
                                                                    String supplierId) {
         LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);
-        // startOfDay/endOfDay used so the inclusive date bounds match TIMESTAMP column precision
-        LocalDateTime from = startOfDay(window[0]);
-        LocalDateTime to   = endOfDay(window[1]);
-
-        List<Object[]> rows = stockHistoryRepository.getDailyStockValuation(from, to, blankToNull(supplierId));
-
-        return rows.stream()
-                .map(r -> new StockValueOverTimeDTO(
-                        asLocalDate(r[0]),
-                        asNumber(r[1]).doubleValue()
-                ))
-                .toList();
+        // History up to the window end, not from its start: the first day's value needs
+        // every earlier movement. endOfDay matches the TIMESTAMP column precision.
+        List<Object[]> movements = stockHistoryRepository.getDailyItemMovements(
+                endOfDay(window[1]), blankToNull(supplierId));
+        return StockValueSeries.build(movements, window[0], window[1]);
     }
 
     /**

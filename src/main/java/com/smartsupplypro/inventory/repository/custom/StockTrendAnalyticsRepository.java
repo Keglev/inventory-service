@@ -40,18 +40,18 @@ public interface StockTrendAnalyticsRepository {
     List<Object[]> getMonthlyStockMovementBySupplier(LocalDateTime start, LocalDateTime end, String supplierId);
 
     /**
-     * Returns daily total inventory value (closing quantity * price) over a time window.
+     * Returns, per item and day, the day's net quantity change and the unit price of the
+     * day's last event, for the whole history up to {@code end}.
      *
-     * <p>Computes the closing quantity per item per day using cumulative window sums,
-     * then multiplies by the price at that point and aggregates across all items.
-     * Result format: [day_date (DATE), total_value (Number)].
+     * <p>Not limited to a window: an item's quantity on any day is the sum of all its changes
+     * since its INITIAL_STOCK entry, so valuing a day needs every earlier movement.
+     * Result format: [item_id (String), day_date (DATE), net_change (Number), unit_price (Number)].
      *
-     * @param start      inclusive lower bound
      * @param end        inclusive upper bound
      * @param supplierId optional supplier filter
-     * @return daily valuations ordered by day ascending
+     * @return movements ordered by day, then item
      */
-    List<Object[]> getDailyStockValuation(LocalDateTime start, LocalDateTime end, String supplierId);
+    List<Object[]> getDailyItemMovements(LocalDateTime end, String supplierId);
 
     /**
      * Returns the daily average price trend for a specific item.
