@@ -157,10 +157,16 @@
         </tbody>
         </table>
         <p>Roles are stored as <code>STRING</code> on
-        <code>AppUser.role</code>. Every mutating endpoint carries
-        <code>@PreAuthorize</code>; the frontend hides UI elements, but
-        the backend enforces each rule independently and does not trust
-        the client’s claimed role.</p>
+        <code>AppUser.role</code>. Roles are decided in one place: every
+        <code>/api</code> endpoint except health, <code>/api/me</code>
+        and the API logout carries <code>@PreAuthorize</code>, and
+        <code>ApiAuthorizationContractTest</code> fails for one that
+        does not. The URL rules in
+        <code>SecurityAuthorizationHelper</code> only decide who must be
+        signed in (public paths, the demo read permits, everything else
+        authenticated), so the two layers cannot disagree. The frontend
+        hides UI elements, but the backend enforces each rule
+        independently and does not trust the client’s claimed role.</p>
         <table>
         <colgroup>
         <col style="width: 33%" />

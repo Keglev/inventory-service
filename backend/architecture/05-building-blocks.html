@@ -195,11 +195,13 @@
         <p>The health endpoint runs the database ping live on every
         request (503 when it fails, designed for Oracle Free Tier
         auto-pausing); only the JDBC product name is cached after the
-        first successful ping. Every mutating endpoint carries
-        <code>@PreAuthorize</code>; inbound DTOs are validated with
-        JSR-380 (<code>@Valid</code>) before reaching the service layer.
-        Controllers perform DTO conversion and response building — no
-        business logic lives here.</p>
+        first successful ping. Every <code>/api</code> endpoint except
+        health, <code>/api/me</code> and the API logout carries
+        <code>@PreAuthorize</code>, which a contract test enforces;
+        inbound DTOs are validated with JSR-380 (<code>@Valid</code>)
+        before reaching the service layer. Controllers perform DTO
+        conversion and response building — no business logic lives
+        here.</p>
         <h2 id="service-layer">Service Layer</h2>
         <p>Business logic and transaction boundaries live in the service
         tier. All service interfaces are constructor-injected; every
