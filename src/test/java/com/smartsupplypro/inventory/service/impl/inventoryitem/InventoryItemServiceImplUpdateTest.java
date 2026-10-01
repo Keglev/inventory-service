@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -182,7 +183,7 @@ class InventoryItemServiceImplUpdateTest {
     }
 
     @Test
-    void should_update_price_and_log_quantity_change_when_price_is_valid() {
+    void should_update_price_and_log_a_price_change_when_price_is_valid() {
         InventoryItem current = copyOf(existing);
         current.setPrice(new BigDecimal("10.00"));
 
@@ -197,7 +198,43 @@ class InventoryItemServiceImplUpdateTest {
 
         assertTrue(result.isPresent());
         assertEquals(new BigDecimal("12.50"), result.get().getPrice());
+        verify(auditHelper).logPriceChange("item-1", new BigDecimal("12.50"));
         verify(auditHelper).logQuantityChange(any(InventoryItem.class), eq(0));
+    }
+
+    @Test
+    void should_log_no_price_change_when_the_price_differs_only_in_scale() {
+        InventoryItem current = copyOf(existing);
+        current.setPrice(new BigDecimal("10.00"));
+
+        when(validationHelper.validateForUpdate(eq("id-1"), any())).thenReturn(current);
+        lenient().doNothing().when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
+        when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
+
+        InventoryItemDTO updateDto = copyOf(baseDto);
+        updateDto.setPrice(new BigDecimal("10.0"));
+
+        var result = service.update("id-1", updateDto);
+
+        assertEquals(new BigDecimal("10.00"), result.get().getPrice());
+        verify(auditHelper, never()).logPriceChange(anyString(), any());
+    }
+
+    @Test
+    void should_log_only_the_quantity_change_when_the_price_is_unchanged() {
+        InventoryItem current = copyOf(existing);
+
+        when(validationHelper.validateForUpdate(eq("id-1"), any())).thenReturn(current);
+        lenient().doNothing().when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
+        when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
+
+        InventoryItemDTO updateDto = copyOf(baseDto);
+        updateDto.setQuantity(90);
+
+        service.update("id-1", updateDto);
+
+        verify(auditHelper, never()).logPriceChange(anyString(), any());
+        verify(auditHelper).logQuantityChange(any(InventoryItem.class), eq(-10));
     }
 
     @Test
@@ -214,6 +251,22 @@ class InventoryItemServiceImplUpdateTest {
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> service.update("id-1", updateDto));
         assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, ex.getStatusCode());
+    }
+
+    @Test
+    void should_throw_422_and_log_nothing_when_the_updated_price_is_missing() {
+        InventoryItem current = copyOf(existing);
+
+        when(validationHelper.validateForUpdate(eq("id-1"), any())).thenReturn(current);
+        lenient().doNothing().when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
+
+        InventoryItemDTO updateDto = copyOf(baseDto);
+        updateDto.setPrice(null);
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> service.update("id-1", updateDto));
+        assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, ex.getStatusCode());
+        verify(auditHelper, never()).logPriceChange(anyString(), any());
     }
 
     private static InventoryItemDTO copyOf(InventoryItemDTO src) {

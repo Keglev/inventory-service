@@ -109,15 +109,28 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             existing.setMinimumQuantity(dto.getMinimumQuantity());
         }
 
-        boolean priceChanged = !existing.getPrice().equals(dto.getPrice());
-        if (priceChanged) {
-            assertPriceValid(dto.getPrice());
-            existing.setPrice(dto.getPrice());
-        }
+        boolean priceChanged = applyPriceChange(existing, dto.getPrice());
 
         InventoryItem updated = repository.save(existing);
+        // The history carries every price an item has had: the stock value series, the
+        // price trend and the average cost read it, as they read updatePrice's entries.
+        if (priceChanged) {
+            auditHelper.logPriceChange(updated.getId(), updated.getPrice());
+        }
         auditHelper.logQuantityChange(updated, quantityDiff);
         return Optional.of(inventoryItemMapper.toDTO(updated));
+    }
+
+    // compareTo, not equals: 2.5 and 2.50 are one price, and equals would log a price
+    // change for a difference in scale alone. A null still reaches assertPriceValid,
+    // which answers 422.
+    private static boolean applyPriceChange(InventoryItem existing, BigDecimal newPrice) {
+        if (newPrice != null && existing.getPrice().compareTo(newPrice) == 0) {
+            return false;
+        }
+        assertPriceValid(newPrice);
+        existing.setPrice(newPrice);
+        return true;
     }
 
     /**

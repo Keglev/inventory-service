@@ -17,6 +17,11 @@ put:
     - All required fields must be provided
     - Price must be positive
     - Quantity must be zero or positive
+
+    **Audit trail:**
+    - A changed quantity is recorded as a MANUAL_UPDATE stock-history entry
+    - A changed price is recorded as a PRICE_CHANGE entry; a difference in
+      scale alone (2.5 vs 2.50) is not a change
   operationId: updateInventoryItem
   security:
     - oauth2: [openid]
