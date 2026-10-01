@@ -7,9 +7,8 @@
  * entry actions (demo session, Google sign-in), and a product preview panel.
  *
  * @enterprise
- * - Stateless apart from one boolean guarding the preview image: the screenshot
- *   is an optional public asset, so a missing or failed load degrades to a styled
- *   placeholder instead of a broken-image icon on a recruiter's first screen.
+ * - Stateless: the product screenshot, its variant choice, loading skeleton and
+ *   failure placeholder live in HeroPreview.
  * - Entry actions are injected by the Home orchestrator; this block owns no auth
  *   or navigation logic, which keeps the landing sections free of router coupling.
  * - Layout is a CSS grid expressed through sx tokens (no Grid component), so the
@@ -23,9 +22,7 @@ import * as React from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import { useTranslation } from 'react-i18next';
-
-/** Optional public asset; absent in a fresh checkout until a screenshot is added. */
-const PREVIEW_SRC = `${import.meta.env.BASE_URL}images/dashboard-preview.png`;
+import HeroPreview from './HeroPreview';
 
 interface HeroSectionProps {
   onDemo: () => void;
@@ -34,7 +31,6 @@ interface HeroSectionProps {
 
 const HeroSection: React.FC<HeroSectionProps> = ({ onDemo, onSignIn }) => {
   const { t } = useTranslation<'landing'>('landing');
-  const [previewFailed, setPreviewFailed] = React.useState(false);
 
   return (
     <Box
@@ -87,19 +83,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onDemo, onSignIn }) => {
           placeItems: 'center',
         }}
       >
-        {previewFailed ? (
-          <Typography variant="body2" color="text.secondary" sx={{ p: 4 }}>
-            {t('hero.previewFallback')}
-          </Typography>
-        ) : (
-          <Box
-            component="img"
-            src={PREVIEW_SRC}
-            alt={t('hero.previewAlt')}
-            onError={() => setPreviewFailed(true)}
-            sx={{ width: '100%', display: 'block' }}
-          />
-        )}
+        <HeroPreview />
       </Box>
     </Box>
   );

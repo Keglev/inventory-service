@@ -26,6 +26,8 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+const PREVIEW_ALT = 'SmartSupplyPro analytics: stock value over time and monthly stock movement';
+
 describe('HeroSection', () => {
   it('renders the value proposition and the demo disclaimer', () => {
     render(<HeroSection onDemo={vi.fn()} onSignIn={vi.fn()} />);
@@ -55,10 +57,10 @@ describe('HeroSection', () => {
   it('falls back to placeholder copy when the preview asset fails to load', () => {
     render(<HeroSection onDemo={vi.fn()} onSignIn={vi.fn()} />);
 
-    const preview = screen.getByAltText('SmartSupplyPro dashboard preview');
+    const preview = screen.getByAltText(PREVIEW_ALT);
     fireEvent.error(preview);
 
-    expect(screen.queryByAltText('SmartSupplyPro dashboard preview')).not.toBeInTheDocument();
-    expect(screen.getByText('Dashboard preview')).toBeInTheDocument();
+    expect(screen.queryByAltText(PREVIEW_ALT)).not.toBeInTheDocument();
+    expect(screen.getByText('Analytics preview')).toBeInTheDocument();
   });
 });

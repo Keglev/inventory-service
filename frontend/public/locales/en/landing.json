@@ -6,8 +6,8 @@
     "ctaDemo": "Explore the live demo",
     "ctaSignIn": "Sign in with Google",
     "note": "The demo opens a read-only session against the live API. No account required.",
-    "previewAlt": "SmartSupplyPro dashboard preview",
-    "previewFallback": "Dashboard preview"
+    "previewAlt": "SmartSupplyPro analytics: stock value over time and monthly stock movement",
+    "previewFallback": "Analytics preview"
   },
   "features": {
     "title": "What it does",

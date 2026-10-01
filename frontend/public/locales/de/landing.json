@@ -6,8 +6,8 @@
     "ctaDemo": "Live-Demo ansehen",
     "ctaSignIn": "Mit Google anmelden",
     "note": "Die Demo öffnet eine schreibgeschützte Sitzung gegen die Live-API. Kein Konto erforderlich.",
-    "previewAlt": "Vorschau des SmartSupplyPro-Dashboards",
-    "previewFallback": "Dashboard-Vorschau"
+    "previewAlt": "SmartSupplyPro-Analysen: Bestandswert im Zeitverlauf und monatliche Bestandsbewegung",
+    "previewFallback": "Vorschau der Analysen"
   },
   "features": {
     "title": "Funktionsumfang",
