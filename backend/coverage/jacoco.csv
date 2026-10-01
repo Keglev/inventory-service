@@ -44,7 +44,7 @@ Inventory Service,com.smartsupplypro.inventory.exception,InvalidRequestException
 Inventory Service,com.smartsupplypro.inventory.exception,BusinessExceptionHandler,0,77,0,10,0,16,0,11,0,6
 Inventory Service,com.smartsupplypro.inventory.exception,DuplicateResourceException,0,25,0,0,0,10,0,4,0,4
 Inventory Service,com.smartsupplypro.inventory.exception,GlobalExceptionHandler,14,234,4,18,1,52,5,26,1,19
-Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemServiceImpl,0,295,1,17,0,56,1,18,0,10
+Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemServiceImpl,0,306,1,19,0,60,1,20,0,11
 Inventory Service,com.smartsupplypro.inventory.service.impl,SupplierServiceImpl,0,154,0,2,0,32,0,10,0,9
 Inventory Service,com.smartsupplypro.inventory.service.impl,StockHistoryServiceImpl,0,177,0,0,0,52,0,10,0,10
 Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl,0,52,0,0,0,9,0,9,0,9

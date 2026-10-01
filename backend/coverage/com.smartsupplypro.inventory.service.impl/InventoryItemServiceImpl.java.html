@@ -109,15 +109,28 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 <span class="fc" id="L109">            existing.setMinimumQuantity(dto.getMinimumQuantity());</span>
         }
 
-<span class="fc bfc" id="L112" title="All 2 branches covered.">        boolean priceChanged = !existing.getPrice().equals(dto.getPrice());</span>
-<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (priceChanged) {</span>
-<span class="fc" id="L114">            assertPriceValid(dto.getPrice());</span>
-<span class="fc" id="L115">            existing.setPrice(dto.getPrice());</span>
-        }
+<span class="fc" id="L112">        boolean priceChanged = applyPriceChange(existing, dto.getPrice());</span>
 
-<span class="fc" id="L118">        InventoryItem updated = repository.save(existing);</span>
-<span class="fc" id="L119">        auditHelper.logQuantityChange(updated, quantityDiff);</span>
-<span class="fc" id="L120">        return Optional.of(inventoryItemMapper.toDTO(updated));</span>
+<span class="fc" id="L114">        InventoryItem updated = repository.save(existing);</span>
+        // The history carries every price an item has had: the stock value series, the
+        // price trend and the average cost read it, as they read updatePrice's entries.
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        if (priceChanged) {</span>
+<span class="fc" id="L118">            auditHelper.logPriceChange(updated.getId(), updated.getPrice());</span>
+        }
+<span class="fc" id="L120">        auditHelper.logQuantityChange(updated, quantityDiff);</span>
+<span class="fc" id="L121">        return Optional.of(inventoryItemMapper.toDTO(updated));</span>
+    }
+
+    // compareTo, not equals: 2.5 and 2.50 are one price, and equals would log a price
+    // change for a difference in scale alone. A null still reaches assertPriceValid,
+    // which answers 422.
+    private static boolean applyPriceChange(InventoryItem existing, BigDecimal newPrice) {
+<span class="fc bfc" id="L128" title="All 4 branches covered.">        if (newPrice != null &amp;&amp; existing.getPrice().compareTo(newPrice) == 0) {</span>
+<span class="fc" id="L129">            return false;</span>
+        }
+<span class="fc" id="L131">        assertPriceValid(newPrice);</span>
+<span class="fc" id="L132">        existing.setPrice(newPrice);</span>
+<span class="fc" id="L133">        return true;</span>
     }
 
     /**
@@ -133,35 +146,35 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Override
     @Transactional
     public void delete(String id) {
-<span class="fc" id="L136">        validationHelper.validateForDeletion(id);</span>
-<span class="fc" id="L137">        InventoryItem item = validationHelper.validateExists(id);</span>
-<span class="fc" id="L138">        item.setActive(false);</span>
-<span class="fc" id="L139">        repository.save(item);</span>
-<span class="fc" id="L140">    }</span>
+<span class="fc" id="L149">        validationHelper.validateForDeletion(id);</span>
+<span class="fc" id="L150">        InventoryItem item = validationHelper.validateExists(id);</span>
+<span class="fc" id="L151">        item.setActive(false);</span>
+<span class="fc" id="L152">        repository.save(item);</span>
+<span class="fc" id="L153">    }</span>
 
     /** {@inheritDoc} */
     @Override
     @Transactional
     public InventoryItemDTO adjustQuantity(String id, int delta, StockChangeReason reason) {
-<span class="fc" id="L146">        InventoryItem item = validationHelper.validateExists(id);</span>
-<span class="fc" id="L147">        int newQty = item.getQuantity() + delta;</span>
-<span class="fc" id="L148">        assertFinalQuantityNonNegative(newQty);</span>
-<span class="fc" id="L149">        item.setQuantity(newQty);</span>
-<span class="fc" id="L150">        InventoryItem saved = repository.save(item);</span>
-<span class="fc" id="L151">        auditHelper.logQuantityAdjustment(saved, delta, reason);</span>
-<span class="fc" id="L152">        return inventoryItemMapper.toDTO(saved);</span>
+<span class="fc" id="L159">        InventoryItem item = validationHelper.validateExists(id);</span>
+<span class="fc" id="L160">        int newQty = item.getQuantity() + delta;</span>
+<span class="fc" id="L161">        assertFinalQuantityNonNegative(newQty);</span>
+<span class="fc" id="L162">        item.setQuantity(newQty);</span>
+<span class="fc" id="L163">        InventoryItem saved = repository.save(item);</span>
+<span class="fc" id="L164">        auditHelper.logQuantityAdjustment(saved, delta, reason);</span>
+<span class="fc" id="L165">        return inventoryItemMapper.toDTO(saved);</span>
     }
 
     /** {@inheritDoc} */
     @Override
     @Transactional
     public InventoryItemDTO updatePrice(String id, BigDecimal newPrice) {
-<span class="fc" id="L159">        assertPriceValid(newPrice);</span>
-<span class="fc" id="L160">        InventoryItem item = validationHelper.validateExists(id);</span>
-<span class="fc" id="L161">        item.setPrice(newPrice);</span>
-<span class="fc" id="L162">        InventoryItem saved = repository.save(item);</span>
-<span class="fc" id="L163">        auditHelper.logPriceChange(id, newPrice);</span>
-<span class="fc" id="L164">        return inventoryItemMapper.toDTO(saved);</span>
+<span class="fc" id="L172">        assertPriceValid(newPrice);</span>
+<span class="fc" id="L173">        InventoryItem item = validationHelper.validateExists(id);</span>
+<span class="fc" id="L174">        item.setPrice(newPrice);</span>
+<span class="fc" id="L175">        InventoryItem saved = repository.save(item);</span>
+<span class="fc" id="L176">        auditHelper.logPriceChange(id, newPrice);</span>
+<span class="fc" id="L177">        return inventoryItemMapper.toDTO(saved);</span>
     }
 
     /**
@@ -173,22 +186,22 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Override
     @Transactional
     public InventoryItemDTO renameItem(String id, String newName) {
-<span class="pc bpc" id="L176" title="1 of 4 branches missed.">        if (newName == null || newName.trim().isEmpty()) {</span>
-<span class="fc" id="L177">            throw new IllegalArgumentException(&quot;Item name cannot be empty&quot;);</span>
+<span class="pc bpc" id="L189" title="1 of 4 branches missed.">        if (newName == null || newName.trim().isEmpty()) {</span>
+<span class="fc" id="L190">            throw new IllegalArgumentException(&quot;Item name cannot be empty&quot;);</span>
         }
 
-<span class="fc" id="L180">        InventoryItem existing = validationHelper.validateExists(id);</span>
+<span class="fc" id="L193">        InventoryItem existing = validationHelper.validateExists(id);</span>
 
-<span class="fc" id="L182">        List&lt;InventoryItem&gt; duplicates = repository.findByNameIgnoreCase(newName.trim());</span>
-<span class="fc bfc" id="L183" title="All 2 branches covered.">        for (InventoryItem dup : duplicates) {</span>
-<span class="fc bfc" id="L184" title="All 4 branches covered.">            if (!dup.getId().equals(id) &amp;&amp; dup.getSupplierId().equals(existing.getSupplierId())) {</span>
-<span class="fc" id="L185">                throw new DuplicateResourceException(&quot;An item with this name already exists for this supplier&quot;);</span>
+<span class="fc" id="L195">        List&lt;InventoryItem&gt; duplicates = repository.findByNameIgnoreCase(newName.trim());</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">        for (InventoryItem dup : duplicates) {</span>
+<span class="fc bfc" id="L197" title="All 4 branches covered.">            if (!dup.getId().equals(id) &amp;&amp; dup.getSupplierId().equals(existing.getSupplierId())) {</span>
+<span class="fc" id="L198">                throw new DuplicateResourceException(&quot;An item with this name already exists for this supplier&quot;);</span>
             }
-<span class="fc" id="L187">        }</span>
+<span class="fc" id="L200">        }</span>
 
-<span class="fc" id="L189">        existing.setName(newName.trim());</span>
-<span class="fc" id="L190">        InventoryItem saved = repository.save(existing);</span>
-<span class="fc" id="L191">        return inventoryItemMapper.toDTO(saved);</span>
+<span class="fc" id="L202">        existing.setName(newName.trim());</span>
+<span class="fc" id="L203">        InventoryItem saved = repository.save(existing);</span>
+<span class="fc" id="L204">        return inventoryItemMapper.toDTO(saved);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
