@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
@@ -205,7 +206,7 @@ class InventoryItemValidationHelperTest {
         @Test
         void should_throw_when_item_not_found_by_id() {
             when(repository.findById("missing")).thenReturn(Optional.empty());
-            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            NoSuchElementException ex = assertThrows(NoSuchElementException.class,
                     () -> helper.validateExists("missing"));
             assertEquals("Item not found", ex.getMessage());
         }

@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.controller.inventoryitem;
 
 import java.math.BigDecimal;
+import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -175,7 +176,7 @@ class InventoryItemControllerRenameTest {
         @Test
         @WithMockUser(roles = "ADMIN")
         void should_return_404_when_the_item_does_not_exist() throws Exception {
-            doThrow(new IllegalArgumentException("Item not found: i-999"))
+            doThrow(new NoSuchElementException("Item not found: i-999"))
                 .when(inventoryItemService).renameItem(eq("i-999"), eq("New Name"));
 
             mockMvc.perform(patch("/api/inventory/i-999/name").with(csrf())

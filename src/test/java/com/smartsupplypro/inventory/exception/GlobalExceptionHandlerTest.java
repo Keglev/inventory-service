@@ -40,7 +40,8 @@ class GlobalExceptionHandlerTest {
     @SuppressWarnings("unused")
     static class ThrowingController {
         @GetMapping("/nse")    void nse()    { throw new NoSuchElementException(); }
-        @GetMapping("/iae-m")  void iaeMsg() { throw new IllegalArgumentException("Item 1 not found"); }
+        @GetMapping("/nse-m")  void nseMsg() { throw new NoSuchElementException("Item 1 not found"); }
+        @GetMapping("/iae-m")  void iaeMsg() { throw new IllegalArgumentException("Supplier does not exist"); }
         @GetMapping("/auth")   void auth()   { throw new BadCredentialsException("bad"); }
         @GetMapping("/denied") void denied() { throw new AccessDeniedException("Denied"); }
         @GetMapping("/data")   void data()   { throw new DataIntegrityViolationException("dup"); }
@@ -58,14 +59,23 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.message").value("Resource not found"));
         }
         @Test void should_pass_the_message_through_when_the_not_found_error_has_one() throws Exception {
-            mockMvc.perform(get("/err/iae-m"))
+            mockMvc.perform(get("/err/nse-m"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Item 1 not found"));
         }
-        @Test void should_fall_back_to_the_default_when_the_not_found_message_is_blank() throws Exception {
+    }
+
+    /** 400 Bad Request for input rejected by validators and domain parsing. */
+    @Nested class WhenInputInvalid {
+        @Test void should_return_400_with_the_message_when_an_argument_is_invalid() throws Exception {
+            mockMvc.perform(get("/err/iae-m"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Supplier does not exist"));
+        }
+        @Test void should_fall_back_to_the_default_when_the_invalid_argument_message_is_blank() throws Exception {
             mockMvc.perform(get("/err/iae-blank"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Resource not found"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid request"));
         }
     }
 

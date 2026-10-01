@@ -80,7 +80,9 @@ public interface InventoryItemService {
      * @param delta  quantity change (positive for additions, negative for reductions)
      * @param reason business reason (e.g. SOLD, DAMAGED, MANUAL_UPDATE)
      * @return updated item with new quantity
-     * @throws IllegalArgumentException if resulting quantity would be negative
+     * @throws java.util.NoSuchElementException if the item does not exist (404)
+     * @throws org.springframework.web.server.ResponseStatusException 422 if the resulting
+     *         quantity would be negative
      */
     InventoryItemDTO adjustQuantity(String id, int delta, StockChangeReason reason);
 
@@ -89,7 +91,8 @@ public interface InventoryItemService {
      * @param id       inventory item ID
      * @param newPrice new unit price (must be &gt; 0)
      * @return updated item with new price
-     * @throws IllegalArgumentException if newPrice &lt;= 0
+     * @throws org.springframework.web.server.ResponseStatusException 422 if newPrice &lt;= 0
+     * @throws java.util.NoSuchElementException if the item does not exist (404)
      */
     InventoryItemDTO updatePrice(String id, BigDecimal newPrice);
 
@@ -99,7 +102,10 @@ public interface InventoryItemService {
      * @param id      inventory item ID
      * @param newName new item name (must not be empty)
      * @return updated item with new name
-     * @throws IllegalArgumentException if name is empty, already exists for this supplier, or item not found
+     * @throws IllegalArgumentException if the name is empty (400)
+     * @throws java.util.NoSuchElementException if the item does not exist (404)
+     * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException if the name
+     *         already exists for this supplier (409)
      */
     InventoryItemDTO renameItem(String id, String newName);
 

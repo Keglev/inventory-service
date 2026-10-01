@@ -2,7 +2,6 @@ package com.smartsupplypro.inventory.controller;
 
 import java.math.BigDecimal;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
@@ -66,26 +64,13 @@ public class InventoryItemPatchController {
      * @param id   item identifier
      * @param name new item name
      * @return updated item with new name
-     * @throws ResponseStatusException     400 if name is blank, 404 if not found
-     * @throws DuplicateResourceException  409 if the name already exists for the same supplier
+     * @throws IllegalArgumentException            400 if the name is blank
+     * @throws java.util.NoSuchElementException     404 if the item does not exist
+     * @throws DuplicateResourceException           409 if the name already exists for the same supplier
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/name")
     public InventoryItemDTO renameItem(@PathVariable String id, @RequestParam String name) {
-        try {
-            return inventoryItemService.renameItem(id, name);
-        } catch (IllegalArgumentException e) {
-            throw toResponseStatusException(e);
-        }
-    }
-
-    // Blank-name is the only IllegalArgumentException still translated here; a duplicate
-    // name is raised by the service as DuplicateResourceException (409) and handled by advice.
-    private ResponseStatusException toResponseStatusException(IllegalArgumentException e) {
-        String message = e.getMessage();
-        if (message != null && message.contains("empty")) {
-            return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
-        }
-        return new ResponseStatusException(HttpStatus.NOT_FOUND, message);
+        return inventoryItemService.renameItem(id, name);
     }
 }
