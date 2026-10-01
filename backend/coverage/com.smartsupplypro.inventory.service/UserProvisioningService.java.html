@@ -45,28 +45,32 @@ public class UserProvisioningService {
      */
     public AppUser provision(String email, String name, boolean isAdmin) {
 <span class="fc" id="L47">        AppUser user = userRepository.findByEmail(email).orElseGet(() -&gt; {</span>
-<span class="fc" id="L48">            log.info(&quot;Creating new user account: {}&quot;, email);</span>
-<span class="fc" id="L49">            AppUser u = new AppUser();</span>
-<span class="fc" id="L50">            u.setEmail(email);</span>
-<span class="fc bfc" id="L51" title="All 4 branches covered.">            u.setName((name == null || name.isBlank()) ? email : name);</span>
-<span class="fc bfc" id="L52" title="All 2 branches covered.">            u.setRole(isAdmin ? Role.ADMIN : Role.USER);</span>
-<span class="fc" id="L53">            u.setCreatedAt(LocalDateTime.now());</span>
+<span class="fc" id="L48">            AppUser u = new AppUser();</span>
+<span class="fc" id="L49">            u.setEmail(email);</span>
+<span class="fc bfc" id="L50" title="All 4 branches covered.">            u.setName((name == null || name.isBlank()) ? email : name);</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">            u.setRole(isAdmin ? Role.ADMIN : Role.USER);</span>
+<span class="fc" id="L52">            u.setCreatedAt(LocalDateTime.now());</span>
+            // Logs name the account by its id, never by its email: the privacy
+            // page lists no personal data in application logs.
             try {
-<span class="fc" id="L55">                return userRepository.save(u);</span>
-<span class="fc" id="L56">            } catch (DataIntegrityViolationException e) {</span>
+<span class="fc" id="L56">                AppUser created = userRepository.save(u);</span>
+<span class="fc" id="L57">                log.info(&quot;Created user account {}&quot;, created.getId());</span>
+<span class="fc" id="L58">                return created;</span>
+<span class="fc" id="L59">            } catch (DataIntegrityViolationException e) {</span>
                 // Concurrent first-login already created the row; re-fetch the winner
-<span class="fc" id="L58">                log.warn(&quot;Concurrent user creation resolved for: {}&quot;, email);</span>
-<span class="fc" id="L59">                return userRepository.findByEmail(email).orElseThrow(() -&gt; e);</span>
+<span class="fc" id="L61">                AppUser winner = userRepository.findByEmail(email).orElseThrow(() -&gt; e);</span>
+<span class="fc" id="L62">                log.warn(&quot;Concurrent user creation resolved to account {}&quot;, winner.getId());</span>
+<span class="fc" id="L63">                return winner;</span>
             }
         });
 
         // Heal the stored role when APP_ADMIN_EMAILS changed between logins
-<span class="fc bfc" id="L64" title="All 2 branches covered.">        Role desired = isAdmin ? Role.ADMIN : Role.USER;</span>
-<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (user.getRole() != desired) {</span>
-<span class="fc" id="L66">            user.setRole(desired);</span>
-<span class="fc" id="L67">            userRepository.save(user);</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        Role desired = isAdmin ? Role.ADMIN : Role.USER;</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (user.getRole() != desired) {</span>
+<span class="fc" id="L70">            user.setRole(desired);</span>
+<span class="fc" id="L71">            userRepository.save(user);</span>
         }
-<span class="fc" id="L69">        return user;</span>
+<span class="fc" id="L73">        return user;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

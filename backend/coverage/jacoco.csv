@@ -64,7 +64,7 @@ Inventory Service,com.smartsupplypro.inventory.security,CookieOAuth2Authorizatio
 Inventory Service,com.smartsupplypro.inventory.security,DemoIdentityMasking,0,198,3,37,0,41,3,27,0,10
 Inventory Service,com.smartsupplypro.inventory.service,CustomOAuth2UserService,26,123,3,15,5,24,7,11,4,5
 Inventory Service,com.smartsupplypro.inventory.service,CustomOidcUserService,26,117,1,15,5,22,5,12,4,5
-Inventory Service,com.smartsupplypro.inventory.service,UserProvisioningService,0,95,0,10,0,20,0,10,0,5
+Inventory Service,com.smartsupplypro.inventory.service,UserProvisioningService,0,101,0,10,0,22,0,10,0,5
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService,2,510,1,49,0,100,1,36,0,12
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialAnalyticsService.WacIssue,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,StockValueSeries,0,126,0,8,0,22,0,6,0,2
