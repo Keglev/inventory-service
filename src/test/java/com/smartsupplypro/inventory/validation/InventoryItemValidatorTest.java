@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
 import com.smartsupplypro.inventory.model.InventoryItem;
 
 /**
@@ -81,7 +82,7 @@ class InventoryItemValidatorTest {
             assertEquals(
                 "You still have merchandise in stock. " +
                 "You need to first remove items from stock by changing quantity.",
-                assertThrows(IllegalStateException.class,
+                assertThrows(BusinessRuleViolationException.class,
                         () -> InventoryItemValidator.assertQuantityIsZeroForDeletion(item)).getMessage());
         }
 

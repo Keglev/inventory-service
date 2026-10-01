@@ -31,6 +31,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
@@ -212,11 +213,11 @@ class InventoryItemValidationHelperTest {
         }
 
         @Test
-        void should_throw_illegal_state_when_item_quantity_is_not_zero_on_deletion() {
+        void should_throw_a_business_rule_violation_when_item_quantity_is_not_zero_on_deletion() {
             InventoryItem item = new InventoryItem();
             item.setId("item-1"); item.setQuantity(1); item.setSku("SKU-HLP-8");
             when(repository.findById("item-1")).thenReturn(Optional.of(item));
-            assertNotNull(assertThrows(IllegalStateException.class,
+            assertNotNull(assertThrows(BusinessRuleViolationException.class,
                     () -> helper.validateForDeletion("item-1")).getMessage());
         }
 

@@ -15,16 +15,16 @@ The `error` token is `HttpStatus.name().toLowerCase()`. There is no `correlation
 | `AuthenticationException` | `GlobalExceptionHandler` | 401 | `unauthorized` |
 | `AccessDeniedException` | `GlobalExceptionHandler` | 403 | `forbidden` |
 | `NoSuchElementException` | `GlobalExceptionHandler` | **404** | `not_found` |
-| `IllegalArgumentException` | `GlobalExceptionHandler` | **404** | `not_found` |
+| `IllegalArgumentException` | `GlobalExceptionHandler` | 400 | `bad_request` |
 | `DuplicateResourceException` | `BusinessExceptionHandler` | 409 | `conflict` |
-| `IllegalStateException` | `BusinessExceptionHandler` | 409 | `conflict` |
+| `BusinessRuleViolationException` | `BusinessExceptionHandler` | 409 | `conflict` |
 | `DataIntegrityViolationException` | `GlobalExceptionHandler` | 409 | `conflict` |
 | `HttpMessageNotReadableException` | `GlobalExceptionHandler` | 400 | `bad_request` |
 | `MissingServletRequestParameterException`, `MethodArgumentTypeMismatchException` | `GlobalExceptionHandler` | 400 | `bad_request` |
 | `NoResourceFoundException` (static assets) | `GlobalExceptionHandler` | 404 | — (no body) |
 | `ObjectOptimisticLockingFailureException` | `GlobalExceptionHandler` | 409 | `conflict` (defensive — unreachable today, no entity declares `@Version`) |
 | `ResponseStatusException` | `GlobalExceptionHandler` | as thrown | token of the preserved status |
-| `Exception` (fallback) | `GlobalExceptionHandler` | 500 | `internal_server_error` |
+| `Exception` (fallback, including `IllegalStateException`) | `GlobalExceptionHandler` | 500 | `internal_server_error` |
 
 ---
 
@@ -104,7 +104,7 @@ sequenceDiagram
     IS-->>BEH: propagates
     BEH-->>Client: 409 conflict
 
-    Note over Client,GEH: Branch C: unknown supplier (404)
+    Note over Client,GEH: Branch C: unknown supplier (400)
     Client->>IC: POST /api/inventory
     IC->>IS: save(dto)
     IS->>VH: validateForCreation(dto)
@@ -112,7 +112,7 @@ sequenceDiagram
     SR-->>VH: false
     VH-->>IS: throw IllegalArgumentException("Supplier does not exist")
     IS-->>GEH: propagates
-    GEH-->>Client: 404 not_found
+    GEH-->>Client: 400 bad_request
 ```
 
 ## Scenario 2 — OAuth2 Login

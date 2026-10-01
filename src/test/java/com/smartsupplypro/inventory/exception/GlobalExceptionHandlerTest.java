@@ -48,6 +48,7 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/lock")   void lock()   { throw new ObjectOptimisticLockingFailureException(Object.class, 1L); }
         @GetMapping("/rse")    void rse()    { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Supplier not found"); }
         @GetMapping("/boom")   void boom()   { throw new RuntimeException("boom"); }
+        @GetMapping("/ise")    void ise()    { throw new IllegalStateException("Expected numeric type but got: oracle.sql.NUMBER@1f"); }
         @GetMapping("/iae-blank") void iaeBlank() { throw new IllegalArgumentException("   "); }
     }
 
@@ -116,6 +117,12 @@ class GlobalExceptionHandlerTest {
         }
         @Test void should_return_500_when_an_exception_is_unhandled() throws Exception {
             mockMvc.perform(get("/err/boom"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("Unexpected server error"));
+        }
+        // An internal fault, not a business conflict: it must not answer 409 with its raw text.
+        @Test void should_return_a_generic_500_when_an_internal_state_error_escapes() throws Exception {
+            mockMvc.perform(get("/err/ise"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message").value("Unexpected server error"));
         }

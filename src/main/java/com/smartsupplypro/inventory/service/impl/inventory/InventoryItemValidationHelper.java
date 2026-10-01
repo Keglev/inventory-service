@@ -124,7 +124,8 @@ public class InventoryItemValidationHelper {
      * Validates that the item exists and that its quantity is zero before deletion.
      * @param id the item ID to validate
      * @throws IllegalArgumentException if item not found
-     * @throws IllegalStateException if quantity is greater than zero
+     * @throws com.smartsupplypro.inventory.exception.BusinessRuleViolationException if quantity is
+     *         greater than zero (409)
      */
     public void validateForDeletion(String id) {
         InventoryItem item = InventoryItemLookupValidator.validateExists(id, repository);

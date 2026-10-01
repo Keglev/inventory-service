@@ -11,6 +11,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
+
 /**
  * Unit tests for {@link com.smartsupplypro.inventory.service.impl.SupplierServiceImpl}
  * supplier deletion including linked-item and not-found guards.
@@ -18,11 +20,11 @@ import static org.mockito.Mockito.when;
 class SupplierServiceDeleteTest extends SupplierServiceTestBase {
 
     @Test
-    void should_throw_illegal_state_when_supplier_has_active_stock() {
+    void should_throw_a_business_rule_violation_when_supplier_has_active_stock() {
         String id = "sup-1";
         when(inventoryItemRepository.existsActiveStockForSupplier(eq(id), eq(0))).thenReturn(true);
 
-        IllegalStateException ex = assertThrows(IllegalStateException.class,
+        BusinessRuleViolationException ex = assertThrows(BusinessRuleViolationException.class,
                 () -> supplierService.delete(id));
         assertTrue(ex.getMessage().toLowerCase().contains("cannot delete"));
         verify(supplierRepository, never()).deleteById(any());
