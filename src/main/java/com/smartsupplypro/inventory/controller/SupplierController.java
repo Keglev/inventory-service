@@ -67,7 +67,7 @@ public class SupplierController {
      * @param id supplier ID
      * @return supplier DTO or 404 if not found
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/{id}")
     public ResponseEntity<SupplierDTO> getById(@PathVariable String id) {
         return supplierService.findById(id)
