@@ -11,7 +11,7 @@ where a term is treated in depth.
 | AnalyticsService | Service computing stock valuation and trends using Weighted Average Cost (WAC) |
 | AppUser | JPA entity for an authenticated user; carries the assigned role |
 | arc42 | The documentation template structuring this architecture (§1–§12) |
-| BusinessExceptionHandler | `@ControllerAdvice` mapping domain exceptions to HTTP status: `InvalidRequest` → 400, `Duplicate` / `IllegalState` → 409 |
+| BusinessExceptionHandler | `@ControllerAdvice` mapping domain exceptions to HTTP status: `InvalidRequest` → 400, `Duplicate` / `BusinessRuleViolation` → 409; applies `sanitize()` |
 | `cwallet.sso` | Oracle auto-login wallet file (part of a downloaded wallet archive). Production opens the wallet in encrypted form with a runtime wallet password instead. See [ADR-0009](./09-decisions/adr-0009-runtime-wallet-delivery.md) |
 | DTO (Data Transfer Object) | The only object types that cross the controller boundary; 16 in the `dto/` package. See [ADR-0003](./09-decisions/adr-0003-dto-boundary-no-entity-exposure.md) |
 | `@EntityGraph` | JPA fetch hint on `InventoryItemRepository` loading `supplier` in a single join to avoid N+1 queries |
@@ -27,7 +27,7 @@ where a term is treated in depth.
 | OAuth2 | Authentication via Google; on success the flow redirects to `/auth`. See [§6](./06-runtime.md) |
 | `@PrePersist` / `@CreationTimestamp` | JPA / Hibernate callbacks that populate `createdAt` (and default `createdBy`) before insert |
 | RBAC | Role-based access control; `ADMIN` and `USER` roles enforced via `@PreAuthorize` |
-| `sanitize()` | `GlobalExceptionHandler` method stripping file paths, class names, SQL, and credentials from error messages. See [ADR-0005](./09-decisions/adr-0005-error-message-sanitization.md) |
+| `sanitize()` | `ErrorResponses` method, applied by both exception handlers, stripping file paths, class names, SQL, and credentials from error messages. See [ADR-0005](./09-decisions/adr-0005-error-message-sanitization.md) |
 | `SameSite=None; Secure` | Session cookie attributes configured on the backend; production browser traffic is same-origin via the Nginx serve-time rewrite — see [§7](./07-deployment.md) |
 | StockChangeReason | Enum classifying each stock movement (`INITIAL_STOCK`, `MANUAL_UPDATE`, `SOLD`, …). See the enums reference |
 | StockHistory | Domain entity recording each stock movement as an audit trail |

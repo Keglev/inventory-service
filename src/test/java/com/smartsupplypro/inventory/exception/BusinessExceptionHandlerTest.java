@@ -36,6 +36,12 @@ class BusinessExceptionHandlerTest {
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
             assertEquals("Invalid request", body(response).message());
         }
+
+        @Test void should_strip_internal_class_names_when_the_message_carries_one() {
+            var response = handler.handleInvalidRequest(
+                new InvalidRequestException("Bad filter for com.smartsupplypro.inventory.dto.StockFilter"));
+            assertEquals("Bad filter for [INTERNAL]", body(response).message());
+        }
     }
 
     /** 409 responses when a resource with the same identifier already exists. */
@@ -72,23 +78,23 @@ class BusinessExceptionHandlerTest {
         }
     }
 
-    /** 409 responses when a business state transition is invalid. */
+    /** 409 responses when a valid request breaks a business rule. */
     @Nested class WhenBusinessConflict {
-        @Test void should_use_the_exception_message_when_the_business_state_conflicts() {
-            var response = handler.handleBusinessStateConflict(
-                new IllegalStateException("Cannot delete supplier with active inventory"));
+        @Test void should_use_the_exception_message_when_a_business_rule_is_violated() {
+            var response = handler.handleBusinessRuleViolation(
+                new BusinessRuleViolationException("Cannot delete supplier with linked items"));
             assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-            assertEquals("Cannot delete supplier with active inventory", body(response).message());
+            assertEquals("Cannot delete supplier with linked items", body(response).message());
         }
 
         @Test void should_fall_back_to_the_default_when_the_conflict_message_is_blank() {
-            var response = handler.handleBusinessStateConflict(new IllegalStateException("   "));
+            var response = handler.handleBusinessRuleViolation(new BusinessRuleViolationException("   "));
             assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
             assertEquals("Business rule conflict", body(response).message());
         }
 
         @Test void should_fall_back_to_the_default_when_the_conflict_message_is_null() {
-            var response = handler.handleBusinessStateConflict(new IllegalStateException((String) null));
+            var response = handler.handleBusinessRuleViolation(new BusinessRuleViolationException(null));
             assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
             assertEquals("Business rule conflict", body(response).message());
         }

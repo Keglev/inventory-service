@@ -65,7 +65,8 @@ public interface SupplierService {
      * Deletes a supplier after verifying no linked inventory items exist.
      * @param id supplier ID to delete
      * @throws java.util.NoSuchElementException if supplier not found
-     * @throws IllegalStateException if inventory items reference this supplier
+     * @throws com.smartsupplypro.inventory.exception.BusinessRuleViolationException if inventory
+     *         items reference this supplier (409)
      */
     void delete(String id);
 }

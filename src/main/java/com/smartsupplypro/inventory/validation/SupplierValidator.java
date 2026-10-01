@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
 import com.smartsupplypro.inventory.dto.SupplierDTO;
+import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
@@ -47,7 +48,7 @@ public final class SupplierValidator {
             throw new InvalidRequestException("Supplier id must be provided for deletion");
         }
         if (hasAnyLinks != null && hasAnyLinks.getAsBoolean()) {
-            throw new IllegalStateException("Cannot delete supplier with linked items");
+            throw new BusinessRuleViolationException("Cannot delete supplier with linked items");
         }
     }
 

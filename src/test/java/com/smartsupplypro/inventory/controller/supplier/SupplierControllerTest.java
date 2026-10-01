@@ -36,6 +36,7 @@ import tools.jackson.databind.ObjectMapper;
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.controller.SupplierController;
 import com.smartsupplypro.inventory.dto.SupplierDTO;
+import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.SupplierService;
@@ -221,7 +222,7 @@ class SupplierControllerTest {
 
         @Test
         void should_return_409_when_the_supplier_has_linked_items() throws Exception {
-            doThrow(new IllegalStateException("Cannot delete supplier with linked items"))
+            doThrow(new BusinessRuleViolationException("Cannot delete supplier with linked items"))
                     .when(supplierService).delete("sup-1");
 
             mockMvc.perform(delete("/api/suppliers/sup-1")

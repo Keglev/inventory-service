@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
 import com.smartsupplypro.inventory.model.InventoryItem;
 
 /**
@@ -79,11 +80,11 @@ public class InventoryItemValidator {
      * Asserts an item holds no stock, a precondition for deletion.
      *
      * @param item the item being deleted
-     * @throws IllegalStateException if the item still has quantity in stock
+     * @throws BusinessRuleViolationException if the item still has quantity in stock (409)
      */
     public static void assertQuantityIsZeroForDeletion(InventoryItem item) {
         if (item.getQuantity() > 0) {
-            throw new IllegalStateException(
+            throw new BusinessRuleViolationException(
                 "You still have merchandise in stock. " +
                 "You need to first remove items from stock by changing quantity."
             );

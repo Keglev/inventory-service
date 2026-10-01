@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.smartsupplypro.inventory.dto.SupplierDTO;
+import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.model.Supplier;
@@ -134,7 +135,7 @@ class SupplierValidatorTest {
 
         @Test
         void should_fail_when_supplier_has_linked_items() {
-            IllegalStateException ex = assertThrows(IllegalStateException.class,
+            BusinessRuleViolationException ex = assertThrows(BusinessRuleViolationException.class,
                     () -> SupplierValidator.assertDeletable("sup-1", () -> true));
             assertEquals("Cannot delete supplier with linked items", ex.getMessage());
         }

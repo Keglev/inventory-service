@@ -68,8 +68,8 @@ Three tiers enforce data integrity in sequence:
 
 3. **Database — constraints**: `NOT NULL`, `UNIQUE`, and foreign-key constraints in
    Oracle act as the final safety net. Violations surface as
-   `DataIntegrityViolationException` → 409. SQL detail is stripped by
-   `GlobalExceptionHandler.sanitize()` before the message reaches the client.
+   `DataIntegrityViolationException` → 409 with a fixed message, so no SQL detail
+   reaches the client.
 
 **SKU** — every inventory item carries a Stock Keeping Unit: required on create and
 update, globally unique, enforced both in the service tier and by database constraints
@@ -91,18 +91,18 @@ Two `@ControllerAdvice` handlers cover all exceptions without overlap:
 |---|---|
 | `InvalidRequestException` | 400 |
 | `DuplicateResourceException` | 409 |
-| `IllegalStateException` | 409 |
+| `BusinessRuleViolationException` | 409 |
 
 **`GlobalExceptionHandler`** (`@Order(HIGHEST_PRECEDENCE + 1)`) handles framework exceptions:
 
 | Exception | Status |
 |---|---|
-| `MethodArgumentNotValidException`, `ConstraintViolationException`, `HttpMessageNotReadableException` | 400 |
+| `MethodArgumentNotValidException`, `ConstraintViolationException`, `HttpMessageNotReadableException`, `IllegalArgumentException` | 400 |
 | `AuthenticationException` | 401 |
 | `AccessDeniedException` | 403 |
-| `NoSuchElementException`, `IllegalArgumentException` | 404 |
+| `NoSuchElementException` | 404 |
 | `DataIntegrityViolationException`, `ObjectOptimisticLockingFailureException` | 409 |
-| `Exception` (fallback) | 500 |
+| `Exception` (fallback, including `IllegalStateException`) | 500 |
 
 **Error contract** — every response body (except static-resource 404s, which return no
 body) is:

@@ -1,6 +1,5 @@
 package com.smartsupplypro.inventory.exception;
 
-import java.time.Instant;
 import java.util.NoSuchElementException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -25,6 +24,9 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.exception.dto.ErrorResponse;
+
+import static com.smartsupplypro.inventory.exception.ErrorResponses.respond;
+import static com.smartsupplypro.inventory.exception.ErrorResponses.sanitize;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -165,27 +167,4 @@ public class GlobalExceptionHandler {
         return respond(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error");
     }
 
-    private ResponseEntity<ErrorResponse> respond(HttpStatus status, String message) {
-        return respond(status, message, null);
-    }
-
-    private ResponseEntity<ErrorResponse> respond(HttpStatus status, String message,
-                                                  Map<String, String> fieldErrors) {
-        return ResponseEntity.status(status)
-            .body(new ErrorResponse(status.name().toLowerCase(), message,
-                Instant.now().toString(), fieldErrors));
-    }
-
-    /** Strips file paths, class names, SQL fragments, and credentials from error messages. */
-    private String sanitize(String message) {
-        if (message == null) return "Unknown error";
-        return message
-            .replaceAll("\\b[A-Za-z]:\\\\[\\w\\\\.-]+", "[PATH]")
-            .replaceAll("/[\\w/.-]+\\.(java|class)", "[INTERNAL]")
-            .replaceAll("\\bcom\\.smartsupplypro\\.[\\w.]+", "[INTERNAL]")
-            .replaceAll("(?i)\\bSQL.*", "Database operation failed")
-            .replaceAll("(?i)\\bPassword.*", "Authentication failed")
-            .replaceAll("(?i)\\bToken.*", "Authentication failed")
-            .trim();
-    }
 }
