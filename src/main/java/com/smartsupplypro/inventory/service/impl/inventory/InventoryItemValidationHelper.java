@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.service.impl.inventory;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -112,11 +113,11 @@ public class InventoryItemValidationHelper {
      * Validates that the item exists and returns it.
      * @param id the item identifier
      * @return the existing item entity
-     * @throws IllegalArgumentException if item not found
+     * @throws NoSuchElementException if item not found (answered as 404)
      */
     public InventoryItem validateExists(String id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+                .orElseThrow(() -> new NoSuchElementException("Item not found"));
     }
 
     /**
