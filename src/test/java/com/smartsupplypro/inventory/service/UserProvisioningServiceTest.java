@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,7 +19,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
@@ -25,7 +33,8 @@ import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 /**
  * Unit tests for {@link UserProvisioningService} find-or-create, role
- * assignment, role healing, and concurrent-insert recovery.
+ * assignment, role healing, concurrent-insert recovery, and the rule that
+ * its log lines name an account by id, never by email.
  */
 @ExtendWith(MockitoExtension.class)
 class UserProvisioningServiceTest {
@@ -35,6 +44,26 @@ class UserProvisioningServiceTest {
 
     @InjectMocks UserProvisioningService service;
     @Mock AppUserRepository userRepository;
+
+    // logback-test.xml keeps the root at WARN, so the INFO line only reaches
+    // a test through an appender on this logger with the level lowered.
+    private final Logger serviceLogger = (Logger) LoggerFactory.getLogger(UserProvisioningService.class);
+    private final ListAppender<ILoggingEvent> logged = new ListAppender<>();
+    private Level previousLevel;
+
+    @BeforeEach
+    void captureLog() {
+        previousLevel = serviceLogger.getLevel();
+        serviceLogger.setLevel(Level.INFO);
+        logged.start();
+        serviceLogger.addAppender(logged);
+    }
+
+    @AfterEach
+    void releaseLog() {
+        serviceLogger.detachAppender(logged);
+        serviceLogger.setLevel(previousLevel);
+    }
 
     @Test
     void should_create_the_user_with_role_user_and_created_at_when_logging_in_for_the_first_time() {
@@ -118,6 +147,35 @@ class UserProvisioningServiceTest {
         assertThrows(DataIntegrityViolationException.class,
                 () -> service.provision(USER_EMAIL, "Race", false));
         verify(userRepository, times(2)).findByEmail(USER_EMAIL);
+    }
+
+    @Test
+    void should_log_the_account_id_and_not_the_email_when_creating_a_user() {
+        when(userRepository.findByEmail(USER_EMAIL)).thenReturn(Optional.empty());
+        when(userRepository.save(any(AppUser.class))).thenAnswer(returnsFirstArg());
+
+        AppUser result = service.provision(USER_EMAIL, "New User", false);
+
+        assertThat(logged.list).singleElement().satisfies(event -> {
+            assertThat(event.getLevel()).isEqualTo(Level.INFO);
+            assertThat(event.getFormattedMessage()).contains(result.getId()).doesNotContain(USER_EMAIL);
+        });
+    }
+
+    @Test
+    void should_log_the_account_id_and_not_the_email_when_a_concurrent_insert_is_resolved() {
+        AppUser existing = appUser(USER_EMAIL, "Race", Role.USER);
+        when(userRepository.findByEmail(USER_EMAIL))
+                .thenReturn(Optional.empty()).thenReturn(Optional.of(existing));
+        when(userRepository.save(any(AppUser.class)))
+                .thenThrow(new DataIntegrityViolationException("dup"));
+
+        service.provision(USER_EMAIL, "Race", false);
+
+        assertThat(logged.list).singleElement().satisfies(event -> {
+            assertThat(event.getLevel()).isEqualTo(Level.WARN);
+            assertThat(event.getFormattedMessage()).contains(existing.getId()).doesNotContain(USER_EMAIL);
+        });
     }
 
     private static AppUser appUser(String email, String name, Role role) {

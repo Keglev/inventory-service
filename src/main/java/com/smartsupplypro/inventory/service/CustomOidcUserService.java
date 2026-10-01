@@ -109,7 +109,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         List<GrantedAuthority> authorities = new ArrayList<>(oidc.getAuthorities());
         authorities.add(new SimpleGrantedAuthority(toRoleAuthority(user.getRole())));
 
-        // Email is used as the principal name so SecurityContext and logs show the user's email
+        // Email is the principal name, so SecurityContext and the audit fields (createdBy) carry it
         return new DefaultOidcUser(authorities, oidc.getIdToken(), oidc.getUserInfo(), "email");
     }
 

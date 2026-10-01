@@ -45,18 +45,22 @@ public class UserProvisioningService {
      */
     public AppUser provision(String email, String name, boolean isAdmin) {
         AppUser user = userRepository.findByEmail(email).orElseGet(() -> {
-            log.info("Creating new user account: {}", email);
             AppUser u = new AppUser();
             u.setEmail(email);
             u.setName((name == null || name.isBlank()) ? email : name);
             u.setRole(isAdmin ? Role.ADMIN : Role.USER);
             u.setCreatedAt(LocalDateTime.now());
+            // Logs name the account by its id, never by its email: the privacy
+            // page lists no personal data in application logs.
             try {
-                return userRepository.save(u);
+                AppUser created = userRepository.save(u);
+                log.info("Created user account {}", created.getId());
+                return created;
             } catch (DataIntegrityViolationException e) {
                 // Concurrent first-login already created the row; re-fetch the winner
-                log.warn("Concurrent user creation resolved for: {}", email);
-                return userRepository.findByEmail(email).orElseThrow(() -> e);
+                AppUser winner = userRepository.findByEmail(email).orElseThrow(() -> e);
+                log.warn("Concurrent user creation resolved to account {}", winner.getId());
+                return winner;
             }
         });
 
