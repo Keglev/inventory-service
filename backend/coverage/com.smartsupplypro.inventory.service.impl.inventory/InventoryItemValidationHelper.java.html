@@ -124,12 +124,13 @@ public class InventoryItemValidationHelper {
      * Validates that the item exists and that its quantity is zero before deletion.
      * @param id the item ID to validate
      * @throws IllegalArgumentException if item not found
-     * @throws IllegalStateException if quantity is greater than zero
+     * @throws com.smartsupplypro.inventory.exception.BusinessRuleViolationException if quantity is
+     *         greater than zero (409)
      */
     public void validateForDeletion(String id) {
-<span class="fc" id="L130">        InventoryItem item = InventoryItemLookupValidator.validateExists(id, repository);</span>
-<span class="nc" id="L131">        InventoryItemValidator.assertQuantityIsZeroForDeletion(item);</span>
-<span class="nc" id="L132">    }</span>
+<span class="fc" id="L131">        InventoryItem item = InventoryItemLookupValidator.validateExists(id, repository);</span>
+<span class="nc" id="L132">        InventoryItemValidator.assertQuantityIsZeroForDeletion(item);</span>
+<span class="nc" id="L133">    }</span>
 
     /**
      * Validates that the specified supplier exists.
@@ -137,9 +138,9 @@ public class InventoryItemValidationHelper {
      * @throws IllegalArgumentException if supplier does not exist
      */
     private void validateSupplierExists(String supplierId) {
-<span class="fc bfc" id="L140" title="All 2 branches covered.">        if (!supplierRepository.existsById(supplierId)) {</span>
-<span class="fc" id="L141">            throw new IllegalArgumentException(&quot;Supplier does not exist&quot;);</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (!supplierRepository.existsById(supplierId)) {</span>
+<span class="fc" id="L142">            throw new IllegalArgumentException(&quot;Supplier does not exist&quot;);</span>
         }
-<span class="fc" id="L143">    }</span>
+<span class="fc" id="L144">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
