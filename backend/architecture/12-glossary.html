@@ -157,7 +157,8 @@
         <td>BusinessExceptionHandler</td>
         <td><code>@ControllerAdvice</code> mapping domain exceptions to
         HTTP status: <code>InvalidRequest</code> → 400,
-        <code>Duplicate</code> / <code>IllegalState</code> → 409</td>
+        <code>Duplicate</code> / <code>BusinessRuleViolation</code> →
+        409; applies <code>sanitize()</code></td>
         </tr>
         <tr class="odd">
         <td><code>cwallet.sso</code></td>
@@ -248,9 +249,9 @@
         </tr>
         <tr class="even">
         <td><code>sanitize()</code></td>
-        <td><code>GlobalExceptionHandler</code> method stripping file
-        paths, class names, SQL, and credentials from error messages.
-        See <a
+        <td><code>ErrorResponses</code> method, applied by both
+        exception handlers, stripping file paths, class names, SQL, and
+        credentials from error messages. See <a
         href="./09-decisions/adr-0005-error-message-sanitization.html">ADR-0005</a></td>
         </tr>
         <tr class="odd">

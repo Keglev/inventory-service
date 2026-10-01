@@ -173,8 +173,8 @@
         <tr class="odd">
         <td><code>IllegalArgumentException</code></td>
         <td><code>GlobalExceptionHandler</code></td>
-        <td><strong>404</strong></td>
-        <td><code>not_found</code></td>
+        <td>400</td>
+        <td><code>bad_request</code></td>
         </tr>
         <tr class="even">
         <td><code>DuplicateResourceException</code></td>
@@ -183,7 +183,7 @@
         <td><code>conflict</code></td>
         </tr>
         <tr class="odd">
-        <td><code>IllegalStateException</code></td>
+        <td><code>BusinessRuleViolationException</code></td>
         <td><code>BusinessExceptionHandler</code></td>
         <td>409</td>
         <td><code>conflict</code></td>
@@ -227,7 +227,8 @@
         <td>token of the preserved status</td>
         </tr>
         <tr class="even">
-        <td><code>Exception</code> (fallback)</td>
+        <td><code>Exception</code> (fallback, including
+        <code>IllegalStateException</code>)</td>
         <td><code>GlobalExceptionHandler</code></td>
         <td>500</td>
         <td><code>internal_server_error</code></td>
@@ -310,7 +311,7 @@
             IS-->>BEH: propagates
             BEH-->>Client: 409 conflict
 
-            Note over Client,GEH: Branch C: unknown supplier (404)
+            Note over Client,GEH: Branch C: unknown supplier (400)
             Client->>IC: POST /api/inventory
             IC->>IS: save(dto)
             IS->>VH: validateForCreation(dto)
@@ -318,7 +319,7 @@
             SR-->>VH: false
             VH-->>IS: throw IllegalArgumentException("Supplier does not exist")
             IS-->>GEH: propagates
-            GEH-->>Client: 404 not_found
+            GEH-->>Client: 400 bad_request
         </div>
         <h2 id="scenario-2-oauth2-login">Scenario 2 — OAuth2 Login</h2>
         <div class="mermaid">
