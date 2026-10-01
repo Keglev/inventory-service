@@ -102,12 +102,22 @@ import jakarta.validation.ConstraintViolationException;
     }
 
     /** Handles resource lookup failures from repositories and the service layer. */
-    @ExceptionHandler({NoSuchElementException.class, IllegalArgumentException.class})
-    public ResponseEntity&lt;ErrorResponse&gt; handleNotFound(RuntimeException ex) {
-<span class="fc bfc" id="L107" title="All 4 branches covered.">        String message = (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank())</span>
-<span class="fc" id="L108">            ? ex.getMessage()</span>
-<span class="fc" id="L109">            : &quot;Resource not found&quot;;</span>
-<span class="fc" id="L110">        return respond(HttpStatus.NOT_FOUND, sanitize(message));</span>
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleNotFound(NoSuchElementException ex) {
+<span class="fc" id="L107">        return respond(HttpStatus.NOT_FOUND, sanitize(messageOr(ex, &quot;Resource not found&quot;)));</span>
+    }
+
+    /**
+     * Handles invalid input rejected by validators and domain parsing (an unknown supplier
+     * reference, an empty name, an unknown stock change reason) as a client error.
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleInvalidArgument(IllegalArgumentException ex) {
+<span class="fc" id="L116">        return respond(HttpStatus.BAD_REQUEST, sanitize(messageOr(ex, &quot;Invalid request&quot;)));</span>
+    }
+
+    private static String messageOr(RuntimeException ex, String fallback) {
+<span class="fc bfc" id="L120" title="All 4 branches covered.">        return (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank()) ? ex.getMessage() : fallback;</span>
     }
 
     /** Handles missing static resources with no response body. */
@@ -115,12 +125,12 @@ import jakarta.validation.ConstraintViolationException;
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void handleStaticResource() {
         // No body — standard 404 for static assets
-<span class="fc" id="L118">    }</span>
+<span class="fc" id="L128">    }</span>
 
     /** Sanitizes SQL details before returning a conflict message. */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleDataIntegrity(DataIntegrityViolationException ex) {
-<span class="fc" id="L123">        return respond(HttpStatus.CONFLICT, &quot;Data conflict - constraint violation&quot;);</span>
+<span class="fc" id="L133">        return respond(HttpStatus.CONFLICT, &quot;Data conflict - constraint violation&quot;);</span>
     }
 
     /**
@@ -132,51 +142,51 @@ import jakarta.validation.ConstraintViolationException;
      */
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
-<span class="fc" id="L135">        return respond(HttpStatus.CONFLICT, &quot;Concurrent update detected - please refresh and retry&quot;);</span>
+<span class="fc" id="L145">        return respond(HttpStatus.CONFLICT, &quot;Concurrent update detected - please refresh and retry&quot;);</span>
     }
 
     /** Handles explicit {@link ResponseStatusException}; preserves the original status. */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleResponseStatus(ResponseStatusException ex,
                                                                HttpServletRequest request) {
-<span class="fc" id="L142">        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());</span>
-<span class="fc" id="L143">        String reason = ex.getReason();</span>
-<span class="fc bfc" id="L144" title="All 4 branches covered.">        String message = (reason != null &amp;&amp; !reason.isBlank())</span>
-<span class="fc" id="L145">            ? reason</span>
-<span class="fc bfc" id="L146" title="All 2 branches covered.">            : (status != null ? status.getReasonPhrase() : &quot;Request failed&quot;);</span>
-<span class="fc bfc" id="L147" title="All 2 branches covered.">        return respond(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR, sanitize(message));</span>
+<span class="fc" id="L152">        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());</span>
+<span class="fc" id="L153">        String reason = ex.getReason();</span>
+<span class="fc bfc" id="L154" title="All 4 branches covered.">        String message = (reason != null &amp;&amp; !reason.isBlank())</span>
+<span class="fc" id="L155">            ? reason</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">            : (status != null ? status.getReasonPhrase() : &quot;Request failed&quot;);</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        return respond(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR, sanitize(message));</span>
     }
 
     /** Prevents stack trace exposure for unhandled exceptions. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleUnexpected(Exception ex) {
         // The client gets a generic envelope; operators get the full stack trace.
-<span class="fc" id="L154">        log.error(&quot;Unhandled exception while processing request&quot;, ex);</span>
-<span class="fc" id="L155">        return respond(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Unexpected server error&quot;);</span>
+<span class="fc" id="L164">        log.error(&quot;Unhandled exception while processing request&quot;, ex);</span>
+<span class="fc" id="L165">        return respond(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Unexpected server error&quot;);</span>
     }
 
     private ResponseEntity&lt;ErrorResponse&gt; respond(HttpStatus status, String message) {
-<span class="fc" id="L159">        return respond(status, message, null);</span>
+<span class="fc" id="L169">        return respond(status, message, null);</span>
     }
 
     private ResponseEntity&lt;ErrorResponse&gt; respond(HttpStatus status, String message,
                                                   Map&lt;String, String&gt; fieldErrors) {
-<span class="fc" id="L164">        return ResponseEntity.status(status)</span>
-<span class="fc" id="L165">            .body(new ErrorResponse(status.name().toLowerCase(), message,</span>
-<span class="fc" id="L166">                Instant.now().toString(), fieldErrors));</span>
+<span class="fc" id="L174">        return ResponseEntity.status(status)</span>
+<span class="fc" id="L175">            .body(new ErrorResponse(status.name().toLowerCase(), message,</span>
+<span class="fc" id="L176">                Instant.now().toString(), fieldErrors));</span>
     }
 
     /** Strips file paths, class names, SQL fragments, and credentials from error messages. */
     private String sanitize(String message) {
-<span class="pc bpc" id="L171" title="1 of 2 branches missed.">        if (message == null) return &quot;Unknown error&quot;;</span>
-<span class="fc" id="L172">        return message</span>
-<span class="fc" id="L173">            .replaceAll(&quot;\\b[A-Za-z]:\\\\[\\w\\\\.-]+&quot;, &quot;[PATH]&quot;)</span>
-<span class="fc" id="L174">            .replaceAll(&quot;/[\\w/.-]+\\.(java|class)&quot;, &quot;[INTERNAL]&quot;)</span>
-<span class="fc" id="L175">            .replaceAll(&quot;\\bcom\\.smartsupplypro\\.[\\w.]+&quot;, &quot;[INTERNAL]&quot;)</span>
-<span class="fc" id="L176">            .replaceAll(&quot;(?i)\\bSQL.*&quot;, &quot;Database operation failed&quot;)</span>
-<span class="fc" id="L177">            .replaceAll(&quot;(?i)\\bPassword.*&quot;, &quot;Authentication failed&quot;)</span>
-<span class="fc" id="L178">            .replaceAll(&quot;(?i)\\bToken.*&quot;, &quot;Authentication failed&quot;)</span>
-<span class="fc" id="L179">            .trim();</span>
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">        if (message == null) return &quot;Unknown error&quot;;</span>
+<span class="fc" id="L182">        return message</span>
+<span class="fc" id="L183">            .replaceAll(&quot;\\b[A-Za-z]:\\\\[\\w\\\\.-]+&quot;, &quot;[PATH]&quot;)</span>
+<span class="fc" id="L184">            .replaceAll(&quot;/[\\w/.-]+\\.(java|class)&quot;, &quot;[INTERNAL]&quot;)</span>
+<span class="fc" id="L185">            .replaceAll(&quot;\\bcom\\.smartsupplypro\\.[\\w.]+&quot;, &quot;[INTERNAL]&quot;)</span>
+<span class="fc" id="L186">            .replaceAll(&quot;(?i)\\bSQL.*&quot;, &quot;Database operation failed&quot;)</span>
+<span class="fc" id="L187">            .replaceAll(&quot;(?i)\\bPassword.*&quot;, &quot;Authentication failed&quot;)</span>
+<span class="fc" id="L188">            .replaceAll(&quot;(?i)\\bToken.*&quot;, &quot;Authentication failed&quot;)</span>
+<span class="fc" id="L189">            .trim();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
