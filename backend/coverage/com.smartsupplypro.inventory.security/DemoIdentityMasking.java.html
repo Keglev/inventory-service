@@ -165,7 +165,7 @@ public class DemoIdentityMasking implements ResponseBodyAdvice&lt;Object&gt; {
         }
 
         private boolean exemptOrNull(String identity) {
-<span class="pc bpc" id="L168" title="1 of 4 branches missed.">            return identity == null || exempt(identity);</span>
+<span class="fc bfc" id="L168" title="All 4 branches covered.">            return identity == null || exempt(identity);</span>
         }
 
         private String address(String identity) {

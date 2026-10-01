@@ -9,27 +9,31 @@ import org.springframework.stereotype.Component;
  * Centralizes HTTP authorization rules so {@link SecurityConfig} stays focused
  * on filter chain wiring.
  *
+ * &lt;p&gt;This layer decides only who must be signed in: public endpoints, the demo
+ * read-only permits, and authentication for everything else. Roles are enforced in
+ * one place, by {@code @PreAuthorize} on each controller method, so the two layers
+ * cannot disagree; ApiAuthorizationContractTest fails for any {@code /api} handler
+ * without one.&lt;/p&gt;
+ *
  * &lt;p&gt;When demo mode is active, read-only inventory, analytics, and supplier endpoints
- * are public so prospective users can explore data without logging in.&lt;/p&gt;
+ * are public so prospective users can explore data without logging in; the method
+ * rules still decide which of those reads an anonymous caller may make.&lt;/p&gt;
  */
 @Component
-<span class="fc" id="L16">public class SecurityAuthorizationHelper {</span>
+<span class="fc" id="L23">public class SecurityAuthorizationHelper {</span>
 
     /**
-     * Applies public-access, optional demo read-only, and role-based authorization rules
-     * in the order Spring Security evaluates them (most-specific first).
+     * Applies public-access, optional demo read-only, and authentication rules in the
+     * order Spring Security evaluates them (most-specific first).
      */
-    // SIZE WAIVER: 34 code lines against a 30 alarm. The matchers are evaluated
-    // most-specific first, so the order is the behaviour and splitting the chain
-    // would hide it. Recorded in docs/backend/architecture/11-risks-technical-debt.md.
     public void configureAuthorization(
             AuthorizeHttpRequestsConfigurer&lt;HttpSecurity&gt;.AuthorizationManagerRequestMatcherRegistry auth,
             boolean isDemoReadonly
     ) {
         // CORS preflight and public endpoints
-<span class="fc" id="L30">        auth.requestMatchers(HttpMethod.OPTIONS, &quot;/**&quot;).permitAll();</span>
-<span class="fc" id="L31">        auth.requestMatchers(&quot;/logout&quot;).permitAll();</span>
-<span class="fc" id="L32">        auth.requestMatchers(</span>
+<span class="fc" id="L34">        auth.requestMatchers(HttpMethod.OPTIONS, &quot;/**&quot;).permitAll();</span>
+<span class="fc" id="L35">        auth.requestMatchers(&quot;/logout&quot;).permitAll();</span>
+<span class="fc" id="L36">        auth.requestMatchers(</span>
                 &quot;/&quot;,
                 // Named rather than /actuator/**: only these two are meant to be
                 // public. The wildcard also published the discovery index, and it
@@ -42,33 +46,15 @@ import org.springframework.stereotype.Component;
                 &quot;/login/oauth2/**&quot;,
                 &quot;/login/**&quot;,
                 &quot;/error&quot;
-<span class="fc" id="L45">        ).permitAll();</span>
+<span class="fc" id="L49">        ).permitAll();</span>
 
-<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (isDemoReadonly) {</span>
-<span class="fc" id="L48">            auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).permitAll();</span>
-<span class="fc" id="L49">            auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).permitAll();</span>
-<span class="fc" id="L50">            auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).permitAll();</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (isDemoReadonly) {</span>
+<span class="fc" id="L52">            auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).permitAll();</span>
+<span class="fc" id="L53">            auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).permitAll();</span>
+<span class="fc" id="L54">            auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).permitAll();</span>
         }
 
-<span class="fc" id="L53">        auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).authenticated();</span>
-<span class="fc" id="L54">        auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).authenticated();</span>
-<span class="fc" id="L55">        auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).authenticated();</span>
-
-<span class="fc" id="L57">        auth.requestMatchers(&quot;/api/admin/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
-
-        // Inventory &amp; supplier mutations require an active USER or ADMIN role
-<span class="fc" id="L60">        auth.requestMatchers(HttpMethod.POST,   &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L61">        auth.requestMatchers(HttpMethod.PUT,    &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L62">        auth.requestMatchers(HttpMethod.PATCH,  &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L63">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-
-<span class="fc" id="L65">        auth.requestMatchers(HttpMethod.POST,   &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L66">        auth.requestMatchers(HttpMethod.PUT,    &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L67">        auth.requestMatchers(HttpMethod.PATCH,  &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L68">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-
-<span class="fc" id="L70">        auth.requestMatchers(&quot;/api/**&quot;).authenticated();</span>
-<span class="fc" id="L71">        auth.anyRequest().authenticated();</span>
-<span class="fc" id="L72">    }</span>
+<span class="fc" id="L57">        auth.anyRequest().authenticated();</span>
+<span class="fc" id="L58">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

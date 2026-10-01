@@ -53,10 +53,11 @@ public class InventoryItemController {
      * @return inventory item details
      * @throws ResponseStatusException 404 if item not found
      */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/{id}&quot;)
     public InventoryItemDTO getById(@PathVariable String id) {
-<span class="fc" id="L58">        return inventoryItemService.getById(id)</span>
-<span class="fc" id="L59">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
+<span class="fc" id="L59">        return inventoryItemService.getById(id)</span>
+<span class="fc" id="L60">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
     }
 
     /**
@@ -67,7 +68,7 @@ public class InventoryItemController {
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping
     public List&lt;InventoryItemDTO&gt; getAll() {
-<span class="fc" id="L70">        return inventoryItemService.getAll();</span>
+<span class="fc" id="L71">        return inventoryItemService.getAll();</span>
     }
 
     /**
@@ -78,7 +79,7 @@ public class InventoryItemController {
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/count&quot;)
     public long countItems() {
-<span class="fc" id="L81">        return inventoryItemService.countItems();</span>
+<span class="fc" id="L82">        return inventoryItemService.countItems();</span>
     }
 
     /**
@@ -98,7 +99,7 @@ public class InventoryItemController {
             @RequestParam(required = false) String supplierId,
             @RequestParam(required = false, defaultValue = &quot;false&quot;) boolean belowMinimumOnly,
             @org.springframework.data.web.PageableDefault(size = 20, sort = &quot;price&quot;) Pageable pageable) {
-<span class="fc" id="L101">        return inventoryItemService.searchItems(name, supplierId, belowMinimumOnly, pageable);</span>
+<span class="fc" id="L102">        return inventoryItemService.searchItems(name, supplierId, belowMinimumOnly, pageable);</span>
     }
 
     /**
@@ -115,12 +116,12 @@ public class InventoryItemController {
     public ResponseEntity&lt;InventoryItemDTO&gt; create(
             @Validated({Default.class, InventoryItemDTO.Create.class}) @RequestBody InventoryItemDTO body) {
 
-<span class="fc" id="L118">        InventoryItemDTO created = inventoryItemService.save(body);</span>
+<span class="fc" id="L119">        InventoryItemDTO created = inventoryItemService.save(body);</span>
         URI location = ServletUriComponentsBuilder
-<span class="fc" id="L120">                .fromCurrentRequest().path(&quot;/{id}&quot;)</span>
-<span class="fc" id="L121">                .buildAndExpand(created.getId())</span>
-<span class="fc" id="L122">                .toUri();</span>
-<span class="fc" id="L123">        return ResponseEntity.created(location).body(created);</span>
+<span class="fc" id="L121">                .fromCurrentRequest().path(&quot;/{id}&quot;)</span>
+<span class="fc" id="L122">                .buildAndExpand(created.getId())</span>
+<span class="fc" id="L123">                .toUri();</span>
+<span class="fc" id="L124">        return ResponseEntity.created(location).body(created);</span>
     }
 
     /**
@@ -137,9 +138,9 @@ public class InventoryItemController {
             @PathVariable String id,
             @Validated @RequestBody InventoryItemDTO body) {
 
-<span class="fc" id="L140">        body.setId(null); // path id takes precedence; avoids conflicts in update logic</span>
-<span class="fc" id="L141">        return inventoryItemService.update(id, body)</span>
-<span class="fc" id="L142">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
+<span class="fc" id="L141">        body.setId(null); // path id takes precedence; avoids conflicts in update logic</span>
+<span class="fc" id="L142">        return inventoryItemService.update(id, body)</span>
+<span class="fc" id="L143">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
     }
 
     /**
@@ -154,7 +155,7 @@ public class InventoryItemController {
     @DeleteMapping(&quot;/{id}&quot;)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String id) {
-<span class="fc" id="L157">        inventoryItemService.delete(id);</span>
-<span class="fc" id="L158">    }</span>
+<span class="fc" id="L158">        inventoryItemService.delete(id);</span>
+<span class="fc" id="L159">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
