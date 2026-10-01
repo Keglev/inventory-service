@@ -35,8 +35,12 @@ frontend login with `?error=unauthorized` (distinct from the generic
 | `ADMIN` | Full CRUD, analytics |
 | `USER` | Read + basic stock ops |
 
-Roles are stored as `STRING` on `AppUser.role`. Every mutating endpoint carries
-`@PreAuthorize`; the frontend hides UI elements, but the backend enforces each rule
+Roles are stored as `STRING` on `AppUser.role`. Roles are decided in one place:
+every `/api` endpoint except health, `/api/me` and the API logout carries
+`@PreAuthorize`, and `ApiAuthorizationContractTest` fails for one that does not. The
+URL rules in `SecurityAuthorizationHelper` only decide who must be signed in (public
+paths, the demo read permits, everything else authenticated), so the two layers cannot
+disagree. The frontend hides UI elements, but the backend enforces each rule
 independently and does not trust the client's claimed role.
 
 | Setting | Value | Why |

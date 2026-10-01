@@ -27,14 +27,13 @@ the code or decision it concerns.
 ## 11.3 Size-Budget Waivers
 
 Measured over code lines against the budgets in [§2](02-constraints.md). One file
-and two methods exceed their alarm; each is waived below, with the same reason
+and one method exceed their alarm; each is waived below, with the same reason
 stated at the site in the code. No method reaches the 50 hard cap and no file
 reaches the 300 hard cap.
 
 | Waived | Measured | Alarm | Reason |
 |------|------|--------|------------|
 | `repository/custom/util/StockTrendSqlBuilder.java` | 153 | 150 (repository) | 109 of the 153 code lines are SQL inside text blocks. Splitting the file moves SQL between files without reducing it. |
-| `SecurityAuthorizationHelper::configureAuthorization` | 34 | 30 | One ordered matcher chain, evaluated most-specific first. The order is the behaviour, and splitting the chain would hide it. |
 | `SecurityConfig::securityFilterChain` | 31 | 30 | One fluent `HttpSecurity` statement. The parts that can be extracted already are, into the entry-point, filter and authorization helpers. |
 
 Two files sit above their target and below their alarm and are watched rather

@@ -23,7 +23,8 @@ site root.
 
 The health endpoint runs the database ping live on every request (503 when it fails,
 designed for Oracle Free Tier auto-pausing); only the JDBC product name is cached
-after the first successful ping. Every mutating endpoint carries `@PreAuthorize`;
+after the first successful ping. Every `/api` endpoint except health, `/api/me` and
+the API logout carries `@PreAuthorize`, which a contract test enforces;
 inbound DTOs are validated with JSR-380 (`@Valid`) before reaching the service layer.
 Controllers perform DTO conversion and response building — no business logic lives
 here.
