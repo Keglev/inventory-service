@@ -16,8 +16,8 @@ import lombok.Setter;
 /**
  * Represents an application user registered via OAuth2.
  *
- * <p>The email address serves as the unique login identifier.
- * Roles default to USER; an admin must manually promote to ADMIN.</p>
+ * <p>The email address serves as the unique login identifier. The role is set at
+ * each sign-in from the admin allow-list ({@code UserProvisioningService}).</p>
  *
  * @see Role
  */
@@ -45,15 +45,13 @@ public class AppUser {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    // id, role and createdAt come from the field initializers in both constructors
     public AppUser(String email, String name) {
-        this.id = UUID.randomUUID().toString();
         this.email = email;
         this.name = name;
-        this.createdAt = LocalDateTime.now();
     }
 
     // required by JPA
     public AppUser() {
-        this.id = UUID.randomUUID().toString();
     }
 }
