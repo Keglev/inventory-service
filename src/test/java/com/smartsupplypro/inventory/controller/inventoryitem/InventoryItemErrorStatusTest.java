@@ -80,6 +80,26 @@ class InventoryItemErrorStatusTest {
     }
 
     @Test
+    void should_update_without_a_client_created_by_when_the_body_omits_it() throws Exception {
+        InventoryItem stored = InventoryItem.builder().id("item-1").name("Widget").sku("W-1")
+            .quantity(7).price(new BigDecimal("2.50")).supplierId("S1").createdBy("admin").build();
+        when(inventoryItemRepository.findById("item-1")).thenReturn(Optional.of(stored));
+        when(supplierRepository.existsById("S1")).thenReturn(true);
+        when(inventoryItemRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        // createdBy is server-owned: the update neither needs nor uses a client value
+        mockMvc.perform(put("/api/inventory/item-1").with(csrf())
+                .with(oauth2Login().authorities(new SimpleGrantedAuthority("ROLE_ADMIN")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"name":"Widget","sku":"W-1","quantity":5,"price":2.50,"supplierId":"S1"}
+                    """))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.quantity").value(5))
+            .andExpect(jsonPath("$.createdBy").value("admin"));
+    }
+
+    @Test
     void should_return_400_and_keep_the_stock_when_a_full_update_omits_the_quantity() throws Exception {
         InventoryItem stored = InventoryItem.builder().id("item-1").name("Widget").sku("W-1")
             .quantity(7).price(new BigDecimal("2.50")).supplierId("S1").createdBy("admin").build();

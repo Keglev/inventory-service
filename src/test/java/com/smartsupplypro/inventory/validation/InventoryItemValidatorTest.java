@@ -40,8 +40,7 @@ class InventoryItemValidatorTest {
             new InvalidBaseCase(d -> d.setQuantity(-1), "Quantity cannot be negative"),
             new InvalidBaseCase(d -> d.setPrice(null), "Price must be positive or greater than zero"),
             new InvalidBaseCase(d -> d.setPrice(new BigDecimal("-5.00")), "Price must be positive or greater than zero"),
-            new InvalidBaseCase(d -> d.setSupplierId(" "), "Supplier ID must be provided"),
-            new InvalidBaseCase(d -> d.setCreatedBy(null), "CreatedBy must be provided")
+            new InvalidBaseCase(d -> d.setSupplierId(" "), "Supplier ID must be provided")
         );
     }
 

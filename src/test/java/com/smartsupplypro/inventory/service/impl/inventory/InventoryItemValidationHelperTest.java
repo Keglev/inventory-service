@@ -9,6 +9,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -60,16 +61,15 @@ class InventoryItemValidationHelperTest {
     class ValidateForCreation {
 
         @Test
-        void should_populate_created_by_from_security_context_when_field_is_blank() {
+        void should_accept_the_dto_when_created_by_is_blank() {
             authenticateAs("admin@example.com");
             InventoryItemDTO dto = dto("SSD", 5, "10.00", "sup-1", "   ");
             dto.setSku("SKU-HLP-1");
             when(supplierRepository.existsById("sup-1")).thenReturn(true);
             when(repository.findByNameIgnoreCase("SSD")).thenReturn(Collections.emptyList());
 
-            helper.validateForCreation(dto);
-
-            assertEquals("admin@example.com", dto.getCreatedBy());
+            // createdBy is server-owned; populateServerFields sets it on the entity
+            assertDoesNotThrow(() -> helper.validateForCreation(dto));
         }
 
         @Test
