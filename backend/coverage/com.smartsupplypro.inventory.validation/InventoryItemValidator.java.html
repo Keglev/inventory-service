@@ -33,19 +33,22 @@ public class InventoryItemValidator {
 <span class="fc bfc" id="L33" title="All 4 branches covered.">        if (dto.getName() == null || dto.getName().trim().isEmpty()) {</span>
 <span class="fc" id="L34">            throw new InvalidRequestException(&quot;Product name cannot be null or empty&quot;);</span>
         }
-<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (dto.getQuantity() &lt; 0) {</span>
-<span class="fc" id="L37">            throw new InvalidRequestException(&quot;Quantity cannot be negative&quot;);</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (dto.getQuantity() == null) {</span>
+<span class="fc" id="L37">            throw new InvalidRequestException(&quot;Quantity is mandatory&quot;);</span>
         }
-<span class="fc bfc" id="L39" title="All 4 branches covered.">        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
-<span class="fc" id="L40">            throw new InvalidRequestException(&quot;Price must be positive or greater than zero&quot;);</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (dto.getQuantity() &lt; 0) {</span>
+<span class="fc" id="L40">            throw new InvalidRequestException(&quot;Quantity cannot be negative&quot;);</span>
         }
-<span class="pc bpc" id="L42" title="1 of 4 branches missed.">        if (dto.getSupplierId() == null || dto.getSupplierId().trim().isEmpty()) {</span>
-<span class="fc" id="L43">            throw new InvalidRequestException(&quot;Supplier ID must be provided&quot;);</span>
+<span class="fc bfc" id="L42" title="All 4 branches covered.">        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L43">            throw new InvalidRequestException(&quot;Price must be positive or greater than zero&quot;);</span>
         }
-<span class="pc bpc" id="L45" title="1 of 4 branches missed.">        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {</span>
-<span class="fc" id="L46">            throw new InvalidRequestException(&quot;CreatedBy must be provided&quot;);</span>
+<span class="pc bpc" id="L45" title="1 of 4 branches missed.">        if (dto.getSupplierId() == null || dto.getSupplierId().trim().isEmpty()) {</span>
+<span class="fc" id="L46">            throw new InvalidRequestException(&quot;Supplier ID must be provided&quot;);</span>
         }
-<span class="fc" id="L48">    }</span>
+<span class="pc bpc" id="L48" title="1 of 4 branches missed.">        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {</span>
+<span class="fc" id="L49">            throw new InvalidRequestException(&quot;CreatedBy must be provided&quot;);</span>
+        }
+<span class="fc" id="L51">    }</span>
 
     /**
      * Asserts the price is greater than zero.
@@ -54,13 +57,13 @@ public class InventoryItemValidator {
      * @throws ResponseStatusException 422 if the price is null or not positive
      */
     public static void assertPriceValid(BigDecimal price) {
-<span class="fc bfc" id="L57" title="All 4 branches covered.">        if (price == null || price.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
-<span class="fc" id="L58">            throw new ResponseStatusException(</span>
+<span class="fc bfc" id="L60" title="All 4 branches covered.">        if (price == null || price.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L61">            throw new ResponseStatusException(</span>
                 HttpStatus.UNPROCESSABLE_CONTENT,
                 &quot;Price must be greater than zero&quot;
             );
         }
-<span class="fc" id="L63">    }</span>
+<span class="fc" id="L66">    }</span>
 
     /**
      * Asserts the resulting stock quantity is not negative.
@@ -69,13 +72,13 @@ public class InventoryItemValidator {
      * @throws ResponseStatusException 422 if the resulting quantity is negative
      */
     public static void assertFinalQuantityNonNegative(int resultingQuantity) {
-<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (resultingQuantity &lt; 0) {</span>
-<span class="fc" id="L73">            throw new ResponseStatusException(</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (resultingQuantity &lt; 0) {</span>
+<span class="fc" id="L76">            throw new ResponseStatusException(</span>
                 HttpStatus.UNPROCESSABLE_CONTENT,
                 &quot;Resulting stock cannot be negative&quot;
             );
         }
-<span class="fc" id="L78">    }</span>
+<span class="fc" id="L81">    }</span>
 
     /**
      * Asserts an item holds no stock, a precondition for deletion.
@@ -84,12 +87,12 @@ public class InventoryItemValidator {
      * @throws BusinessRuleViolationException if the item still has quantity in stock (409)
      */
     public static void assertQuantityIsZeroForDeletion(InventoryItem item) {
-<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (item.getQuantity() &gt; 0) {</span>
-<span class="fc" id="L88">            throw new BusinessRuleViolationException(</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (item.getQuantity() &gt; 0) {</span>
+<span class="fc" id="L91">            throw new BusinessRuleViolationException(</span>
                 &quot;You still have merchandise in stock. &quot; +
                 &quot;You need to first remove items from stock by changing quantity.&quot;
             );
         }
-<span class="fc" id="L93">    }</span>
+<span class="fc" id="L96">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
