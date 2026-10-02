@@ -221,6 +221,15 @@
         <td>token of the preserved status</td>
         </tr>
         <tr class="odd">
+        <td>Spring MVC 4xx rejections
+        (<code>HttpRequestMethodNotSupportedException</code>,
+        <code>HttpMediaTypeNotSupportedException</code>, …)</td>
+        <td><code>GlobalExceptionHandler</code></td>
+        <td>as reported (405, 415, …), with headers such as
+        <code>Allow</code></td>
+        <td>token of that status</td>
+        </tr>
+        <tr class="even">
         <td><code>Exception</code> (fallback, including
         <code>IllegalStateException</code> and
         <code>IllegalArgumentException</code>)</td>
