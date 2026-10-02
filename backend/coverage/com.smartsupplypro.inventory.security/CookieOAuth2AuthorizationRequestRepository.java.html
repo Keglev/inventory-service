@@ -109,7 +109,7 @@ public class CookieOAuth2AuthorizationRequestRepository
 <span class="fc" id="L109">        String ret = request.getParameter(&quot;return&quot;);</span>
 <span class="pc bpc" id="L110" title="1 of 4 branches missed.">        if (ret == null || ret.isBlank()) return;</span>
 <span class="fc bfc" id="L111" title="All 2 branches covered.">        if (!allowedReturnOrigins.contains(ret)) {</span>
-<span class="fc" id="L112">            log.warn(&quot;Rejected non-allowlisted return origin: {}&quot;, ret);</span>
+<span class="fc" id="L112">            log.warn(&quot;Rejected non-allowlisted return origin: {}&quot;, LogSanitizer.sanitize(ret));</span>
 <span class="fc" id="L113">            return;</span>
         }
 <span class="fc" id="L115">        Cookie r = new Cookie(&quot;SSP_RETURN&quot;, ret);</span>
