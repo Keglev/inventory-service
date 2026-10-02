@@ -45,9 +45,9 @@ interfaces are constructor-injected; every state-mutating operation is wrapped i
 | `FinancialAnalyticsService` | Weighted-average-cost (WAC) calculations (sub-service) |
 | `UserProvisioningService` | Single authoritative OAuth2 provisioner |
 
-`UserProvisioningService` is called at token load by `CustomOAuth2UserService` and
-`CustomOidcUserService`; it finds or creates the user and heals the role against the
-admin allow-list on every login.
+`UserProvisioningService` is called at token load by `CustomOidcUserService`; it finds
+or creates the user and heals the role against the admin allow-list on every login. A
+login without the `openid` scope is rejected by `OidcOnlyUserService`.
 
 ## Repository Layer
 

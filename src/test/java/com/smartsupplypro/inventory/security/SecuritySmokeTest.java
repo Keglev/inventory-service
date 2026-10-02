@@ -23,7 +23,6 @@ import com.smartsupplypro.inventory.config.AppProperties;
 import com.smartsupplypro.inventory.config.CorsConfig;
 import com.smartsupplypro.inventory.config.OAuth2Config;
 import com.smartsupplypro.inventory.config.SecurityConfig;
-import com.smartsupplypro.inventory.service.CustomOAuth2UserService;
 
 /**
  * Smoke tests for the production {@link SecurityConfig}: bean wiring, ADMIN/USER access control,
@@ -48,7 +47,6 @@ class SecuritySmokeTest {
 
     @Autowired MockMvc mvc;
     @Autowired OAuth2LoginSuccessHandler successHandler;
-    @Autowired CustomOAuth2UserService customOAuth2UserService;
     @Autowired ClientRegistrationRepository clientRegistrationRepository;
     @Autowired AppProperties appProperties;
 
@@ -61,7 +59,6 @@ class SecuritySmokeTest {
         @Test
         void should_autowire_all_critical_beans_when_the_context_loads() {
             assertThat(successHandler).isNotNull();
-            assertThat(customOAuth2UserService).isNotNull();
             assertThat(clientRegistrationRepository.findByRegistrationId("google")).isNotNull();
             assertThat(appProperties).isNotNull();
         }

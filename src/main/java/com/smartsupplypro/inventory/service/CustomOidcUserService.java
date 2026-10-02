@@ -26,15 +26,13 @@ import com.smartsupplypro.inventory.model.Role;
  * Default implementation of {@link OAuth2UserService} for OpenID Connect providers,
  * with automatic local user provisioning and role assignment.
  *
- * <p>A separate OIDC-specific service is required because the {@code OidcUserRequest}
- * and {@code OidcUser} type parameters differ from the plain OAuth2 variants, so
- * role mapping would not apply to OIDC logins without this class.</p>
+ * <p>It is the only login path: a plain OAuth2 login (no {@code openid} scope) is
+ * rejected by {@link com.smartsupplypro.inventory.security.OidcOnlyUserService}.</p>
  *
  * <p>Role is determined by the {@code APP_ADMIN_EMAILS} environment variable.
  * Role healing keeps the role in sync if the allow-list changes between logins.</p>
  *
  * @see AppUser
- * @see CustomOAuth2UserService
  */
 @Service
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {

@@ -11,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * body, so it cannot be forged and cannot be omitted.</p>
  *
  * <p>The OAuth2 principal is built with {@code email} as its name attribute (see
- * {@code CustomOAuth2UserService}), so {@link Authentication#getName()} yields the
+ * {@code CustomOidcUserService}), so {@link Authentication#getName()} yields the
  * user's email address — the same form the seeded audit rows use.</p>
  */
 public final class SecurityAuditHelper {

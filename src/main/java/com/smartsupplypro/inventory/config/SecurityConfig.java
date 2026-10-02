@@ -19,7 +19,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
-import com.smartsupplypro.inventory.service.CustomOAuth2UserService;
+import com.smartsupplypro.inventory.security.OidcOnlyUserService;
 import com.smartsupplypro.inventory.service.CustomOidcUserService;
 
 /**
@@ -40,7 +40,6 @@ public class SecurityConfig {
     private final SecurityEntryPointHelper entryPointHelper;
     private final SecurityAuthorizationHelper authorizationHelper;
     private final CustomOidcUserService customOidcUserService;
-    private final CustomOAuth2UserService customOAuth2UserService;
     private final AuthenticationFailureHandler oauthFailureHandler;
     private final AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
     private final AppProperties props;
@@ -51,7 +50,6 @@ public class SecurityConfig {
             SecurityEntryPointHelper entryPointHelper,
             SecurityAuthorizationHelper authorizationHelper,
             CustomOidcUserService customOidcUserService,
-            CustomOAuth2UserService customOAuth2UserService,
             AuthenticationFailureHandler oauthFailureHandler,
             AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository,
             AppProperties props) {
@@ -60,7 +58,6 @@ public class SecurityConfig {
         this.entryPointHelper = entryPointHelper;
         this.authorizationHelper = authorizationHelper;
         this.customOidcUserService = customOidcUserService;
-        this.customOAuth2UserService = customOAuth2UserService;
         this.oauthFailureHandler = oauthFailureHandler;
         this.authorizationRequestRepository = authorizationRequestRepository;
         this.props = props;
@@ -88,7 +85,9 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth -> oauth
                 .authorizationEndpoint(ae -> ae.authorizationRequestRepository(authorizationRequestRepository))
-                .userInfoEndpoint(ui -> ui.oidcUserService(customOidcUserService).userService(customOAuth2UserService))
+                .userInfoEndpoint(ui -> ui
+                    .oidcUserService(customOidcUserService)
+                    .userService(new OidcOnlyUserService()))
                 .failureHandler(oauthFailureHandler)
                 .successHandler(successHandler)
             )

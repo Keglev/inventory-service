@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import com.smartsupplypro.inventory.model.Role;
 
 /**
- * Unit tests for {@link CustomOAuth2UserService} and {@link CustomOidcUserService} normalization helpers
+ * Unit tests for {@link CustomOidcUserService} normalization helpers
  * covering admin allow-list parsing and role authority string conversion.
  */
 class CustomUserServiceNormalizationTest {
@@ -22,14 +22,6 @@ class CustomUserServiceNormalizationTest {
 
         @Test
         void should_trim_lowercase_and_deduplicate_when_building_the_admin_allowlist() {
-            Set<String> parsed = CustomOAuth2UserService.parseAdminAllowlist(
-                    "  Admin@corp.com , manager@corp.com,, ADMIN@corp.com ,   ops@corp.com  ");
-            Assertions.assertThat(parsed)
-                    .containsExactly("admin@corp.com", "manager@corp.com", "ops@corp.com");
-        }
-
-        @Test
-        void should_apply_the_same_normalization_when_the_oidc_service_builds_it() {
             Set<String> parsed = CustomOidcUserService.parseAdminAllowlist(
                     "  Admin@corp.com , manager@corp.com,, ADMIN@corp.com ,   ops@corp.com  ");
             Assertions.assertThat(parsed)
@@ -48,14 +40,6 @@ class CustomUserServiceNormalizationTest {
      */
     @Nested
     class RoleAuthorityNormalization {
-
-        @Test
-        void should_prefix_the_authority_with_role_when_an_oauth2_role_name_variant_is_given() throws Exception {
-            Assertions.assertThat(CustomUserServiceTestSupport.oauth2RoleAuthority(null)).isEqualTo("ROLE_USER");
-            Assertions.assertThat(CustomUserServiceTestSupport.oauth2RoleAuthority("   ")).isEqualTo("ROLE_USER");
-            Assertions.assertThat(CustomUserServiceTestSupport.oauth2RoleAuthority("USER")).isEqualTo("ROLE_USER");
-            Assertions.assertThat(CustomUserServiceTestSupport.oauth2RoleAuthority("ROLE_ADMIN")).isEqualTo("ROLE_ADMIN");
-        }
 
         @Test
         void should_prefix_the_authority_with_role_when_an_oidc_role_enum_is_given() throws Exception {
