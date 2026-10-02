@@ -52,7 +52,7 @@ public interface InventoryItemService {
      * Automatically logs an INITIAL_STOCK event to stock history.
      * @param dto inventory item data
      * @return created item with generated ID
-     * @throws IllegalArgumentException if validation fails
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if validation fails (400)
      */
     InventoryItemDTO save(InventoryItemDTO dto);
 
@@ -62,7 +62,7 @@ public interface InventoryItemService {
      * @param id  inventory item ID
      * @param dto updated item data
      * @return updated item if found, empty otherwise
-     * @throws IllegalArgumentException if validation fails
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if validation fails (400)
      */
     Optional<InventoryItemDTO> update(String id, InventoryItemDTO dto);
 
@@ -102,7 +102,7 @@ public interface InventoryItemService {
      * @param id      inventory item ID
      * @param newName new item name (must not be empty)
      * @return updated item with new name
-     * @throws IllegalArgumentException if the name is empty (400)
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if the name is empty (400)
      * @throws java.util.NoSuchElementException if the item does not exist (404)
      * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException if the name
      *         already exists for this supplier (409)

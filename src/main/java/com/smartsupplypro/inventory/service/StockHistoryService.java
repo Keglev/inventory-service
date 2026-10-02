@@ -65,7 +65,9 @@ public interface StockHistoryService {
      * @param change    quantity change (positive or negative)
      * @param reason    business reason for change
      * @param createdBy user who initiated change
-     * @throws IllegalArgumentException if input validation fails
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if the record fails validation
+     * @throws IllegalArgumentException if {@code reason} is null or unsupported; callers pass
+     *         a constant, so this is a programming error (500)
      */
     void logStockChange(String itemId, int change, StockChangeReason reason, String createdBy);
 
@@ -76,7 +78,9 @@ public interface StockHistoryService {
      * @param reason        business reason for change
      * @param createdBy     user who initiated change
      * @param priceAtChange unit price at time of change (nullable)
-     * @throws IllegalArgumentException if input validation fails
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if the record fails validation
+     * @throws IllegalArgumentException if {@code reason} is null or unsupported; callers pass
+     *         a constant, so this is a programming error (500)
      */
     void logStockChange(String itemId,
                         int change,
@@ -89,7 +93,8 @@ public interface StockHistoryService {
      * Applies domain validation and enriches the record with denormalized supplierId.
      *
      * @param dto stock history DTO (validated by this method)
-     * @throws IllegalArgumentException if validation fails or reason is not a valid enum name
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if validation fails or
+     *         reason is not a valid enum name (400)
      */
     void save(StockHistoryDTO dto);
 

@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.model.InventoryItem;
 
 /**
@@ -65,7 +66,7 @@ class InventoryItemValidatorTest {
         void should_fail_when_input_is_invalid(InvalidBaseCase c) {
             InventoryItemDTO dto = validDTO();
             c.apply().accept(dto);
-            assertEquals(c.expected(), assertThrows(IllegalArgumentException.class,
+            assertEquals(c.expected(), assertThrows(InvalidRequestException.class,
                     () -> InventoryItemValidator.validateBase(dto)).getMessage());
         }
     }

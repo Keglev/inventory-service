@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
@@ -187,7 +188,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional
     public InventoryItemDTO renameItem(String id, String newName) {
         if (newName == null || newName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Item name cannot be empty");
+            throw new InvalidRequestException("Item name cannot be empty");
         }
 
         InventoryItem existing = validationHelper.validateExists(id);

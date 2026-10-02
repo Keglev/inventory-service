@@ -15,7 +15,6 @@ The `error` token is `HttpStatus.name().toLowerCase()`. There is no `correlation
 | `AuthenticationException` | `GlobalExceptionHandler` | 401 | `unauthorized` |
 | `AccessDeniedException` | `GlobalExceptionHandler` | 403 | `forbidden` |
 | `NoSuchElementException` | `GlobalExceptionHandler` | **404** | `not_found` |
-| `IllegalArgumentException` | `GlobalExceptionHandler` | 400 | `bad_request` |
 | `DuplicateResourceException` | `BusinessExceptionHandler` | 409 | `conflict` |
 | `BusinessRuleViolationException` | `BusinessExceptionHandler` | 409 | `conflict` |
 | `DataIntegrityViolationException` | `GlobalExceptionHandler` | 409 | `conflict` |
@@ -24,7 +23,7 @@ The `error` token is `HttpStatus.name().toLowerCase()`. There is no `correlation
 | `NoResourceFoundException` (static assets) | `GlobalExceptionHandler` | 404 | — (no body) |
 | `ObjectOptimisticLockingFailureException` | `GlobalExceptionHandler` | 409 | `conflict` (defensive — unreachable today, no entity declares `@Version`) |
 | `ResponseStatusException` | `GlobalExceptionHandler` | as thrown | token of the preserved status |
-| `Exception` (fallback, including `IllegalStateException`) | `GlobalExceptionHandler` | 500 | `internal_server_error` |
+| `Exception` (fallback, including `IllegalStateException` and `IllegalArgumentException`) | `GlobalExceptionHandler` | 500 | `internal_server_error` |
 
 ---
 
@@ -110,9 +109,9 @@ sequenceDiagram
     IS->>VH: validateForCreation(dto)
     VH->>SR: existsById(supplierId)
     SR-->>VH: false
-    VH-->>IS: throw IllegalArgumentException("Supplier does not exist")
-    IS-->>GEH: propagates
-    GEH-->>Client: 400 bad_request
+    VH-->>IS: throw InvalidRequestException("Supplier does not exist")
+    IS-->>BEH: propagates
+    BEH-->>Client: 400 bad_request
 ```
 
 ## Scenario 2 — OAuth2 Login

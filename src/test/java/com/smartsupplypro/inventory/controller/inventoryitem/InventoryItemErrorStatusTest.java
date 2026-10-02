@@ -73,6 +73,14 @@ class InventoryItemErrorStatusTest {
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
+    void should_return_400_when_an_item_is_renamed_to_a_blank_name() throws Exception {
+        mockMvc.perform(patch("/api/inventory/any-id/name").with(csrf()).param("name", "   "))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("Item name cannot be empty"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     void should_return_404_when_the_price_of_a_missing_item_is_changed() throws Exception {
         when(inventoryItemRepository.findById(anyString())).thenReturn(Optional.empty());
 

@@ -33,6 +33,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
@@ -79,7 +80,7 @@ class InventoryItemValidationHelperTest {
             when(supplierRepository.existsById("missing-supplier")).thenReturn(false);
             when(repository.findByNameIgnoreCase(anyString())).thenReturn(Collections.emptyList());
 
-            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                     () -> helper.validateForCreation(dto));
             assertEquals("Supplier does not exist", ex.getMessage());
         }
