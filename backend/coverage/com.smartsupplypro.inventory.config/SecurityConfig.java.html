@@ -19,7 +19,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
-import com.smartsupplypro.inventory.service.CustomOAuth2UserService;
+import com.smartsupplypro.inventory.security.OidcOnlyUserService;
 import com.smartsupplypro.inventory.service.CustomOidcUserService;
 
 /**
@@ -40,7 +40,6 @@ public class SecurityConfig {
     private final SecurityEntryPointHelper entryPointHelper;
     private final SecurityAuthorizationHelper authorizationHelper;
     private final CustomOidcUserService customOidcUserService;
-    private final CustomOAuth2UserService customOAuth2UserService;
     private final AuthenticationFailureHandler oauthFailureHandler;
     private final AuthorizationRequestRepository&lt;OAuth2AuthorizationRequest&gt; authorizationRequestRepository;
     private final AppProperties props;
@@ -51,20 +50,18 @@ public class SecurityConfig {
             SecurityEntryPointHelper entryPointHelper,
             SecurityAuthorizationHelper authorizationHelper,
             CustomOidcUserService customOidcUserService,
-            CustomOAuth2UserService customOAuth2UserService,
             AuthenticationFailureHandler oauthFailureHandler,
             AuthorizationRequestRepository&lt;OAuth2AuthorizationRequest&gt; authorizationRequestRepository,
-<span class="fc" id="L57">            AppProperties props) {</span>
-<span class="fc" id="L58">        this.successHandler = successHandler;</span>
-<span class="fc" id="L59">        this.filterHelper = filterHelper;</span>
-<span class="fc" id="L60">        this.entryPointHelper = entryPointHelper;</span>
-<span class="fc" id="L61">        this.authorizationHelper = authorizationHelper;</span>
-<span class="fc" id="L62">        this.customOidcUserService = customOidcUserService;</span>
-<span class="fc" id="L63">        this.customOAuth2UserService = customOAuth2UserService;</span>
-<span class="fc" id="L64">        this.oauthFailureHandler = oauthFailureHandler;</span>
-<span class="fc" id="L65">        this.authorizationRequestRepository = authorizationRequestRepository;</span>
-<span class="fc" id="L66">        this.props = props;</span>
-<span class="fc" id="L67">    }</span>
+<span class="fc" id="L55">            AppProperties props) {</span>
+<span class="fc" id="L56">        this.successHandler = successHandler;</span>
+<span class="fc" id="L57">        this.filterHelper = filterHelper;</span>
+<span class="fc" id="L58">        this.entryPointHelper = entryPointHelper;</span>
+<span class="fc" id="L59">        this.authorizationHelper = authorizationHelper;</span>
+<span class="fc" id="L60">        this.customOidcUserService = customOidcUserService;</span>
+<span class="fc" id="L61">        this.oauthFailureHandler = oauthFailureHandler;</span>
+<span class="fc" id="L62">        this.authorizationRequestRepository = authorizationRequestRepository;</span>
+<span class="fc" id="L63">        this.props = props;</span>
+<span class="fc" id="L64">    }</span>
 
     // SIZE WAIVER: 31 code lines against a 30 alarm. The body is one fluent
     // HttpSecurity statement; the parts that can be extracted already are, into the
@@ -72,34 +69,36 @@ public class SecurityConfig {
     // docs/backend/architecture/11-risks-technical-debt.md.
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-<span class="fc" id="L75">        OncePerRequestFilter apiFlagFilter = filterHelper.createApiDetectionFilter();</span>
-<span class="fc" id="L76">        RequestMatcher apiMatcher = request -&gt; Boolean.TRUE.equals(request.getAttribute(&quot;IS_API_REQUEST&quot;));</span>
-<span class="fc" id="L77">        AuthenticationEntryPoint apiEntry = entryPointHelper.createApiEntryPoint();</span>
-<span class="fc" id="L78">        AuthenticationEntryPoint webEntry = entryPointHelper.createWebEntryPoint(props.getFrontend().getBaseUrl());</span>
-<span class="fc" id="L79">        LogoutSuccessHandler logoutHandler = entryPointHelper.createLogoutSuccessHandler(props);</span>
+<span class="fc" id="L72">        OncePerRequestFilter apiFlagFilter = filterHelper.createApiDetectionFilter();</span>
+<span class="fc" id="L73">        RequestMatcher apiMatcher = request -&gt; Boolean.TRUE.equals(request.getAttribute(&quot;IS_API_REQUEST&quot;));</span>
+<span class="fc" id="L74">        AuthenticationEntryPoint apiEntry = entryPointHelper.createApiEntryPoint();</span>
+<span class="fc" id="L75">        AuthenticationEntryPoint webEntry = entryPointHelper.createWebEntryPoint(props.getFrontend().getBaseUrl());</span>
+<span class="fc" id="L76">        LogoutSuccessHandler logoutHandler = entryPointHelper.createLogoutSuccessHandler(props);</span>
 
-<span class="fc" id="L81">        http</span>
-<span class="fc" id="L82">            .addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class)</span>
-<span class="fc" id="L83">            .cors(Customizer.withDefaults())</span>
-<span class="fc" id="L84">            .authorizeHttpRequests(auth -&gt; authorizationHelper.configureAuthorization(auth, props.isDemoReadonly()))</span>
-<span class="fc" id="L85">            .exceptionHandling(ex -&gt; ex</span>
-<span class="fc" id="L86">                .defaultAuthenticationEntryPointFor(apiEntry, apiMatcher)</span>
-<span class="fc" id="L87">                .defaultAuthenticationEntryPointFor(webEntry, request -&gt; true)</span>
+<span class="fc" id="L78">        http</span>
+<span class="fc" id="L79">            .addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class)</span>
+<span class="fc" id="L80">            .cors(Customizer.withDefaults())</span>
+<span class="fc" id="L81">            .authorizeHttpRequests(auth -&gt; authorizationHelper.configureAuthorization(auth, props.isDemoReadonly()))</span>
+<span class="fc" id="L82">            .exceptionHandling(ex -&gt; ex</span>
+<span class="fc" id="L83">                .defaultAuthenticationEntryPointFor(apiEntry, apiMatcher)</span>
+<span class="fc" id="L84">                .defaultAuthenticationEntryPointFor(webEntry, request -&gt; true)</span>
             )
-<span class="fc" id="L89">            .oauth2Login(oauth -&gt; oauth</span>
-<span class="fc" id="L90">                .authorizationEndpoint(ae -&gt; ae.authorizationRequestRepository(authorizationRequestRepository))</span>
-<span class="fc" id="L91">                .userInfoEndpoint(ui -&gt; ui.oidcUserService(customOidcUserService).userService(customOAuth2UserService))</span>
-<span class="fc" id="L92">                .failureHandler(oauthFailureHandler)</span>
-<span class="fc" id="L93">                .successHandler(successHandler)</span>
+<span class="fc" id="L86">            .oauth2Login(oauth -&gt; oauth</span>
+<span class="fc" id="L87">                .authorizationEndpoint(ae -&gt; ae.authorizationRequestRepository(authorizationRequestRepository))</span>
+<span class="fc" id="L88">                .userInfoEndpoint(ui -&gt; ui</span>
+<span class="fc" id="L89">                    .oidcUserService(customOidcUserService)</span>
+<span class="fc" id="L90">                    .userService(new OidcOnlyUserService()))</span>
+<span class="fc" id="L91">                .failureHandler(oauthFailureHandler)</span>
+<span class="fc" id="L92">                .successHandler(successHandler)</span>
             )
-<span class="fc" id="L95">            .logout(logout -&gt; logout</span>
-<span class="fc" id="L96">                .logoutUrl(&quot;/logout&quot;)</span>
-<span class="fc" id="L97">                .logoutSuccessHandler(logoutHandler)</span>
-<span class="fc" id="L98">                .invalidateHttpSession(true)</span>
-<span class="fc" id="L99">                .deleteCookies(&quot;JSESSIONID&quot;)</span>
-<span class="fc" id="L100">                .permitAll()</span>
+<span class="fc" id="L94">            .logout(logout -&gt; logout</span>
+<span class="fc" id="L95">                .logoutUrl(&quot;/logout&quot;)</span>
+<span class="fc" id="L96">                .logoutSuccessHandler(logoutHandler)</span>
+<span class="fc" id="L97">                .invalidateHttpSession(true)</span>
+<span class="fc" id="L98">                .deleteCookies(&quot;JSESSIONID&quot;)</span>
+<span class="fc" id="L99">                .permitAll()</span>
             )
-<span class="fc" id="L102">            .sessionManagement(session -&gt; session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))</span>
+<span class="fc" id="L101">            .sessionManagement(session -&gt; session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))</span>
             // CSRF is disabled for the REST surface and for logout. Session integrity
             // rests on Secure, HttpOnly cookies with SameSite=Lax, which a browser
             // withholds from cross-site requests; the frontend reaches this service
@@ -110,9 +109,9 @@ public class SecurityConfig {
             // exposes are GET, and CSRF does not apply to safe methods, so the
             // wildcard that used to sit here exempted nothing while contradicting
             // the named matchers in SecurityAuthorizationHelper.
-<span class="fc" id="L113">            .csrf(csrf -&gt; csrf.ignoringRequestMatchers(&quot;/api/**&quot;, &quot;/logout&quot;));</span>
+<span class="fc" id="L112">            .csrf(csrf -&gt; csrf.ignoringRequestMatchers(&quot;/api/**&quot;, &quot;/logout&quot;));</span>
 
-<span class="fc" id="L115">        return http.build();</span>
+<span class="fc" id="L114">        return http.build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
