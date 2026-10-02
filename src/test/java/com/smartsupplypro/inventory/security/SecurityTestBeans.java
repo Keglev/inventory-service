@@ -9,7 +9,6 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
 import com.smartsupplypro.inventory.repository.AppUserRepository;
-import com.smartsupplypro.inventory.service.CustomOAuth2UserService;
 import com.smartsupplypro.inventory.service.CustomOidcUserService;
 
 /**
@@ -27,11 +26,6 @@ class SecurityTestBeans {
     @Bean
     AppUserRepository appUserRepository() {
         return Mockito.mock(AppUserRepository.class);
-    }
-
-    @Bean
-    CustomOAuth2UserService customOAuth2UserService(AppUserRepository repo) {
-        return Mockito.mock(CustomOAuth2UserService.class);
     }
 
     @Bean

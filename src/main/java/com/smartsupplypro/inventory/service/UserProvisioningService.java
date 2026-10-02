@@ -20,7 +20,6 @@ import com.smartsupplypro.inventory.repository.AppUserRepository;
  * first-logins from the same identity are resolved by catching the
  * unique-constraint violation and re-fetching the committed row.</p>
  *
- * @see CustomOAuth2UserService
  * @see CustomOidcUserService
  */
 @Service
