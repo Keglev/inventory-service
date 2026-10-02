@@ -50,7 +50,7 @@ Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemService
 Inventory Service,com.smartsupplypro.inventory.service.impl,SupplierServiceImpl,0,154,0,2,0,32,0,10,0,9
 Inventory Service,com.smartsupplypro.inventory.service.impl,StockHistoryServiceImpl,0,177,0,0,0,52,0,10,0,10
 Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl,0,52,0,0,0,9,0,9,0,9
-Inventory Service,com.smartsupplypro.inventory.mapper,StockHistoryMapper,0,84,0,8,0,29,0,8,0,4
+Inventory Service,com.smartsupplypro.inventory.mapper,StockHistoryMapper,0,37,0,4,0,12,0,4,0,2
 Inventory Service,com.smartsupplypro.inventory.mapper,SupplierMapper,0,75,0,8,0,22,0,8,0,4
 Inventory Service,com.smartsupplypro.inventory.mapper,InventoryItemMapper,0,104,1,9,0,33,1,9,0,5
 Inventory Service,com.smartsupplypro.inventory.controller.analytics,AnalyticsDashboardHelper,0,57,0,8,0,12,0,6,0,2

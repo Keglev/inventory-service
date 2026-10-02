@@ -3,11 +3,11 @@
 import org.springframework.stereotype.Component;
 
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
-import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.StockHistory;
 
 /**
- * Maps between {@link StockHistory} entities and their DTO representations.
+ * Maps {@link StockHistory} entities to their DTO representation. The write path builds
+ * the entity in {@code StockHistoryServiceImpl}, so there is no reverse mapping.
  *
  * @see StockHistoryDTO
  */
@@ -32,40 +32,6 @@ import com.smartsupplypro.inventory.model.StockHistory;
 <span class="fc" id="L32">                .timestamp(history.getTimestamp())</span>
 <span class="fc" id="L33">                .priceAtChange(history.getPriceAtChange())</span>
 <span class="fc" id="L34">                .build();</span>
-    }
-
-    /**
-     * Converts a stock history DTO to an entity.
-     *
-     * &lt;p&gt;The {@code reason} string is parsed back to a {@link StockChangeReason} enum.
-     * Throws {@link IllegalArgumentException} if the string does not match a valid enum constant.&lt;/p&gt;
-     */
-    public StockHistory toEntity(StockHistoryDTO dto) {
-<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (dto == null) {</span>
-<span class="fc" id="L45">            return null;</span>
-        }
-<span class="fc" id="L47">        return StockHistory.builder()</span>
-<span class="fc" id="L48">                .id(dto.id())</span>
-<span class="fc" id="L49">                .itemId(dto.itemId())</span>
-<span class="fc" id="L50">                .change(dto.change())</span>
-<span class="fc" id="L51">                .reason(parseReason(dto.reason()))</span>
-<span class="fc" id="L52">                .createdBy(dto.createdBy())</span>
-<span class="fc" id="L53">                .timestamp(dto.timestamp())</span>
-<span class="fc" id="L54">                .priceAtChange(dto.priceAtChange())</span>
-<span class="fc" id="L55">                .build();</span>
-    }
-
-    private StockChangeReason parseReason(String reasonString) {
-<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (reasonString == null) {</span>
-<span class="fc" id="L60">            return null;</span>
-        }
-        try {
-<span class="fc" id="L63">            return StockChangeReason.valueOf(reasonString);</span>
-<span class="fc" id="L64">        } catch (IllegalArgumentException e) {</span>
-<span class="fc" id="L65">            throw new IllegalArgumentException(</span>
-                &quot;Invalid stock change reason: &quot; + reasonString +
-<span class="fc" id="L67">                &quot;. Valid values: &quot; + java.util.Arrays.toString(StockChangeReason.values()), e);</span>
-        }
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
