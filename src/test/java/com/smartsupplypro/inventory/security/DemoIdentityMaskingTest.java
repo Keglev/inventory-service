@@ -36,8 +36,9 @@ import com.smartsupplypro.inventory.repository.AppUserRepository;
  */
 class DemoIdentityMaskingTest {
 
-    private static final String FIRST = "first.person@gmail.com";
-    private static final String SECOND = "second.person@gmail.com";
+    // Reserved domains (RFC 2606) other than example.com, which is the pseudonym domain and exempt
+    private static final String FIRST = "first.person@example.org";
+    private static final String SECOND = "second.person@example.net";
 
     private AppUserRepository repository;
     private DemoIdentityMasking masking;
@@ -104,7 +105,7 @@ class DemoIdentityMaskingTest {
 
         @Test
         void should_match_an_identity_regardless_of_case() {
-            StockUpdateResultDTO out = (StockUpdateResultDTO) write(update("First.Person@Gmail.com"));
+            StockUpdateResultDTO out = (StockUpdateResultDTO) write(update("First.Person@Example.ORG"));
 
             assertEquals("demo-user-1@example.com", out.createdBy());
         }
@@ -134,7 +135,7 @@ class DemoIdentityMaskingTest {
 
         @Test
         void should_use_the_unnumbered_pseudonym_for_an_identity_without_an_account() {
-            List<?> out = (List<?>) write(List.of(new EmployeeActivityDTO("2026-09", "gone@gmail.com", "Gone", 1)));
+            List<?> out = (List<?>) write(List.of(new EmployeeActivityDTO("2026-09", "gone@example.org", "Gone", 1)));
 
             assertEquals(new EmployeeActivityDTO("2026-09", "demo-user@example.com", "Demo-Nutzer", 1), out.get(0));
         }
@@ -183,7 +184,7 @@ class DemoIdentityMaskingTest {
             assertEquals(DemoIdentityMasking.NO_MATCH, masking.resolveFilter("demo-user-3@example.com"));
             assertEquals(DemoIdentityMasking.NO_MATCH, masking.resolveFilter("demo-user-0@example.com"));
             assertEquals(DemoIdentityMasking.NO_MATCH, masking.resolveFilter("demo-user-x@example.com"));
-            assertEquals(DemoIdentityMasking.NO_MATCH, masking.resolveFilter("demo-user-1@gmail.com"));
+            assertEquals(DemoIdentityMasking.NO_MATCH, masking.resolveFilter("demo-user-1@example.org"));
             assertEquals(DemoIdentityMasking.NO_MATCH, masking.resolveFilter("demo-user-"));
         }
 
