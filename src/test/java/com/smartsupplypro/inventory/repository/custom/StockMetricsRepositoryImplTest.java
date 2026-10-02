@@ -115,29 +115,6 @@ class StockMetricsRepositoryImplTest {
         }
     }
 
-    /**
-     * Below-minimum-stock query with case-insensitive supplier filter.
-     */
-    @Nested
-    class BelowMinimumStock {
-
-        @Test
-        void should_filter_below_minimum_stock_by_supplier_in_any_case_when_the_dialect_is_oracle() {
-            seedTestData();
-            StockMetricsRepositoryImpl repo = repoWithDialect(false);
-
-            List<Object[]> all = repo.findItemsBelowMinimumStock(null);
-            assertEquals(1, all.size());
-            assertEquals("Item A", all.get(0)[0]);
-            assertEquals(2L, ((Number) all.get(0)[1]).longValue());
-            assertEquals(10L, ((Number) all.get(0)[2]).longValue());
-
-            // case-insensitive: 'SUP1' must match 'sup1'
-            assertEquals(1, repo.findItemsBelowMinimumStock("SUP1").size());
-            assertEquals(0, repo.findItemsBelowMinimumStock("sup2").size());
-        }
-    }
-
     // forces the dialect branch without needing an Oracle database in CI
     private StockMetricsRepositoryImpl repoWithDialect(boolean isH2) {
         DatabaseDialectDetector detector = org.mockito.Mockito.mock(DatabaseDialectDetector.class);

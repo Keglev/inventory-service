@@ -3,7 +3,7 @@ package com.smartsupplypro.inventory.repository.custom;
 import java.util.List;
 
 /**
- * Custom repository for aggregated stock KPI metrics and threshold monitoring.
+ * Custom repository for aggregated stock KPI metrics.
  *
  * <p>Handles dashboard statistics that require GROUP BY aggregations and multi-dialect
  * native SQL — expressions not expressible as Spring Data derived query methods.</p>
@@ -32,14 +32,4 @@ public interface StockMetricsRepository {
      * @return per-item counts ordered by update_count descending
      */
     List<Object[]> getUpdateCountByItem(String supplierId);
-
-    /**
-     * Returns items currently below their minimum stock threshold.
-     *
-     * <p>Result format: [name (String), quantity (Number), minimum_quantity (Number)].
-     *
-     * @param supplierId optional supplier filter (null returns all suppliers)
-     * @return items below minimum ordered by severity (lowest quantity first)
-     */
-    List<Object[]> findItemsBelowMinimumStock(String supplierId);
 }

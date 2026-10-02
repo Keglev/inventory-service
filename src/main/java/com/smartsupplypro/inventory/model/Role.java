@@ -11,16 +11,5 @@ package com.smartsupplypro.inventory.model;
  */
 public enum Role {
     ADMIN,
-    USER;
-
-    /**
-     * Parses string value to Role enum (trims whitespace, removes commas).
-     *
-     * @param value raw role name
-     * @return corresponding Role enum
-     * @throws IllegalArgumentException if invalid
-     */
-    public static Role fromString(String value) {
-        return Role.valueOf(value.trim().replace(",", ""));
-    }
+    USER
 }

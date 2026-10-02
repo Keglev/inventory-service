@@ -154,15 +154,6 @@ class StockHistoryRepositoryAnalyticsTest {
         }
 
         @Test
-        void should_return_items_below_minimum_stock_when_a_supplier_is_given() {
-            item2.setQuantity(3);
-            item2.setMinimumQuantity(5);
-            inventoryItemRepository.save(item2);
-
-            assertEquals(1, stockHistoryRepository.findItemsBelowMinimumStock(supplierB.getId()).size());
-        }
-
-        @Test
         void should_return_the_filtered_updates_when_exporting_a_table() {
             List<Object[]> result = stockHistoryRepository.searchStockUpdates(
                     now.minusDays(3), now, "Wrench", supplierA.getId(), "admin", -10, 20);

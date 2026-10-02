@@ -56,8 +56,4 @@ public class AppUser {
     public AppUser() {
         this.id = UUID.randomUUID().toString();
     }
-
-    public Role getRoleEnum() {
-        return this.role;
-    }
 }

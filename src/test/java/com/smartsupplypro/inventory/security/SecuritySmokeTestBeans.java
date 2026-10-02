@@ -4,7 +4,6 @@ import org.jspecify.annotations.NonNull;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import com.smartsupplypro.inventory.config.AppProperties;
 import com.smartsupplypro.inventory.config.SecurityConfig;
 
 /** Mocks for the three {@link SecurityConfig} helper dependencies not covered by {@link SecurityTestBeans}. */

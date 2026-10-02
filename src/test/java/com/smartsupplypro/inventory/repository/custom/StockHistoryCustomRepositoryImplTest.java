@@ -105,8 +105,6 @@ class StockHistoryCustomRepositoryImplTest {
 
     private static BigDecimal bd(String v) { return new BigDecimal(v); }
 
-    private void persist(StockHistory sh) { em.persist(sh); }
-
     private static StockHistory sh(String itemId, String supplierId,
                                    LocalDateTime createdAt, int quantityChange,
                                    BigDecimal priceAtChange, StockChangeReason reason) {

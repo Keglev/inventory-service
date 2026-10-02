@@ -29,7 +29,6 @@ class DatabaseDialectDetectorTest {
             DatabaseDialectDetector detector = new DatabaseDialectDetector(environment);
 
             assertTrue(detector.isH2());
-            assertFalse(detector.isOracle());
         }
 
         @Test
@@ -38,7 +37,6 @@ class DatabaseDialectDetectorTest {
             DatabaseDialectDetector detector = new DatabaseDialectDetector(environment);
 
             assertTrue(detector.isH2());
-            assertFalse(detector.isOracle());
         }
 
         @Test
@@ -48,7 +46,6 @@ class DatabaseDialectDetectorTest {
             DatabaseDialectDetector detector = new DatabaseDialectDetector(environment);
 
             assertTrue(detector.isH2());
-            assertFalse(detector.isOracle());
         }
     }
 
@@ -64,7 +61,6 @@ class DatabaseDialectDetectorTest {
             DatabaseDialectDetector detector = new DatabaseDialectDetector(environment);
 
             assertFalse(detector.isH2());
-            assertTrue(detector.isOracle());
         }
 
         @Test
@@ -73,7 +69,6 @@ class DatabaseDialectDetectorTest {
             DatabaseDialectDetector detector = new DatabaseDialectDetector(environment);
 
             assertFalse(detector.isH2());
-            assertTrue(detector.isOracle());
         }
     }
 }
