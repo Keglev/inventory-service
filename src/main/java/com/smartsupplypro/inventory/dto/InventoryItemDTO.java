@@ -49,9 +49,10 @@ public class InventoryItemDTO {
 
     @NotNull(message = "Quantity is mandatory")
     @PositiveOrZero(message = "Quantity must be zero or positive")
-    // A new item enters with stock; an existing one may later fall to zero.
+    // A new item enters with stock; an existing one may later fall to zero. A wrapper
+    // type, so an omitted quantity is null and @NotNull rejects it instead of reading 0.
     @Positive(message = "Initial stock must be at least 1", groups = Create.class)
-    private int quantity;
+    private Integer quantity;
 
     @NotNull(message = "Price is mandatory")
     @Positive(message = "Price must be greater than zero")

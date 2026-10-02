@@ -1,20 +1,27 @@
 package com.smartsupplypro.inventory.controller.inventoryitem;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,6 +31,7 @@ import com.smartsupplypro.inventory.controller.InventoryItemPatchController;
 import com.smartsupplypro.inventory.exception.BusinessExceptionHandler;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
+import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.service.StockHistoryService;
@@ -69,6 +77,26 @@ class InventoryItemErrorStatusTest {
                     """))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value("Supplier does not exist"));
+    }
+
+    @Test
+    void should_return_400_and_keep_the_stock_when_a_full_update_omits_the_quantity() throws Exception {
+        InventoryItem stored = InventoryItem.builder().id("item-1").name("Widget").sku("W-1")
+            .quantity(7).price(new BigDecimal("2.50")).supplierId("S1").createdBy("admin").build();
+        when(inventoryItemRepository.findById("item-1")).thenReturn(Optional.of(stored));
+        when(supplierRepository.existsById("S1")).thenReturn(true);
+        when(inventoryItemRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        // The update permission check wants an OAuth2 principal, as a real login provides
+        mockMvc.perform(put("/api/inventory/item-1").with(csrf())
+                .with(oauth2Login().authorities(new SimpleGrantedAuthority("ROLE_ADMIN")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"name":"Widget","sku":"W-1","price":2.50,"supplierId":"S1","createdBy":"admin"}
+                    """))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.fieldErrors.quantity").value("Quantity is mandatory"));
+        verify(inventoryItemRepository, never()).save(any());
     }
 
     @Test
