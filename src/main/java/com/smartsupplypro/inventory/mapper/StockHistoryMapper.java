@@ -3,11 +3,11 @@ package com.smartsupplypro.inventory.mapper;
 import org.springframework.stereotype.Component;
 
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
-import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.StockHistory;
 
 /**
- * Maps between {@link StockHistory} entities and their DTO representations.
+ * Maps {@link StockHistory} entities to their DTO representation. The write path builds
+ * the entity in {@code StockHistoryServiceImpl}, so there is no reverse mapping.
  *
  * @see StockHistoryDTO
  */
@@ -32,39 +32,5 @@ public class StockHistoryMapper {
                 .timestamp(history.getTimestamp())
                 .priceAtChange(history.getPriceAtChange())
                 .build();
-    }
-
-    /**
-     * Converts a stock history DTO to an entity.
-     *
-     * <p>The {@code reason} string is parsed back to a {@link StockChangeReason} enum.
-     * Throws {@link IllegalArgumentException} if the string does not match a valid enum constant.</p>
-     */
-    public StockHistory toEntity(StockHistoryDTO dto) {
-        if (dto == null) {
-            return null;
-        }
-        return StockHistory.builder()
-                .id(dto.id())
-                .itemId(dto.itemId())
-                .change(dto.change())
-                .reason(parseReason(dto.reason()))
-                .createdBy(dto.createdBy())
-                .timestamp(dto.timestamp())
-                .priceAtChange(dto.priceAtChange())
-                .build();
-    }
-
-    private StockChangeReason parseReason(String reasonString) {
-        if (reasonString == null) {
-            return null;
-        }
-        try {
-            return StockChangeReason.valueOf(reasonString);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                "Invalid stock change reason: " + reasonString +
-                ". Valid values: " + java.util.Arrays.toString(StockChangeReason.values()), e);
-        }
     }
 }
