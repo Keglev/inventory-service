@@ -109,7 +109,7 @@ public class CookieOAuth2AuthorizationRequestRepository
         String ret = request.getParameter("return");
         if (ret == null || ret.isBlank()) return;
         if (!allowedReturnOrigins.contains(ret)) {
-            log.warn("Rejected non-allowlisted return origin: {}", ret);
+            log.warn("Rejected non-allowlisted return origin: {}", LogSanitizer.sanitize(ret));
             return;
         }
         Cookie r = new Cookie("SSP_RETURN", ret);

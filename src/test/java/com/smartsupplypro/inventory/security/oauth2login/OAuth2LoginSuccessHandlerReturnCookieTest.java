@@ -13,8 +13,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import ch.qos.logback.classic.Level;
+
 import com.smartsupplypro.inventory.config.AppProperties;
 import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
+import com.smartsupplypro.inventory.testsupport.LogCapture;
 
 /**
  * Unit tests for {@link OAuth2LoginSuccessHandler} SSP_RETURN cookie
@@ -159,6 +162,25 @@ class OAuth2LoginSuccessHandlerReturnCookieTest {
             assertThat(res.getRedirectedUrl()).isEqualTo(baseUrl + "/api/me");
             assertThat(res.getHeaders("Set-Cookie")).anySatisfy(h ->
                 assertThat(h).contains("SSP_RETURN=").contains("SameSite=Lax"));
+        }
+
+        @Test
+        void should_log_the_rejected_url_on_one_line_when_it_carries_line_breaks() throws Exception {
+            String baseUrl = "https://localhost:8081";
+            stubFrontend(baseUrl, "/api/me");
+            stubCors(baseUrl);
+
+            MockHttpServletRequest req = OAuth2LoginSuccessHandlerTestSupport
+                    .requestWithReturnCookie("x" + (char) 13 + (char) 10 + "FORGED");
+
+            try (LogCapture log = LogCapture.of(OAuth2LoginSuccessHandler.class, Level.WARN)) {
+                handler.onAuthenticationSuccess(req,
+                    new OAuth2LoginSuccessHandlerTestSupport.LenientRedirectResponse(),
+                    OAuth2LoginSuccessHandlerTestSupport.token("u7@example.com", "U7"));
+
+                assertThat(log.messages()).singleElement().asString()
+                    .endsWith("x__FORGED").doesNotContain(String.valueOf((char) 13), String.valueOf((char) 10));
+            }
         }
     }
 

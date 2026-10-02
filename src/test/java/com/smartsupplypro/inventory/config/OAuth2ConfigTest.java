@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.AuthenticationException;
 
 import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository;
+import com.smartsupplypro.inventory.testsupport.LogCapture;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -76,6 +77,22 @@ class OAuth2ConfigTest {
         config.oauthFailureHandler().onAuthenticationFailure(req, res, denied);
 
         verify(res).sendRedirect("https://frontend.test/login?error=unauthorized");
+    }
+
+    @Test
+    void should_log_the_failure_on_one_line_when_the_error_carries_line_breaks() throws Exception {
+        HttpServletResponse res = Mockito.mock(HttpServletResponse.class);
+        var error = new org.springframework.security.oauth2.core.OAuth2Error("x" + (char) 13 + (char) 10 + "FORGED");
+        // Built the way Spring's login provider builds it from the callback's error parameter
+        var forged = new org.springframework.security.oauth2.core.OAuth2AuthenticationException(
+                error, error.toString());
+
+        try (LogCapture log = LogCapture.of(OAuth2Config.class, ch.qos.logback.classic.Level.WARN)) {
+            config.oauthFailureHandler().onAuthenticationFailure(Mockito.mock(HttpServletRequest.class), res, forged);
+
+            assertThat(log.messages()).singleElement().asString()
+                    .contains("x__FORGED").doesNotContain(String.valueOf((char) 13), String.valueOf((char) 10));
+        }
     }
 
     @Test
