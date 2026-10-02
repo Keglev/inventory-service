@@ -109,17 +109,8 @@ import jakarta.validation.ConstraintViolationException;
 <span class="fc" id="L109">        return respond(HttpStatus.NOT_FOUND, sanitize(messageOr(ex, &quot;Resource not found&quot;)));</span>
     }
 
-    /**
-     * Handles invalid input rejected by validators and domain parsing (an unknown supplier
-     * reference, an empty name, an unknown stock change reason) as a client error.
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity&lt;ErrorResponse&gt; handleInvalidArgument(IllegalArgumentException ex) {
-<span class="fc" id="L118">        return respond(HttpStatus.BAD_REQUEST, sanitize(messageOr(ex, &quot;Invalid request&quot;)));</span>
-    }
-
     private static String messageOr(RuntimeException ex, String fallback) {
-<span class="fc bfc" id="L122" title="All 4 branches covered.">        return (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank()) ? ex.getMessage() : fallback;</span>
+<span class="pc bpc" id="L113" title="1 of 4 branches missed.">        return (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank()) ? ex.getMessage() : fallback;</span>
     }
 
     /** Handles missing static resources with no response body. */
@@ -127,12 +118,12 @@ import jakarta.validation.ConstraintViolationException;
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void handleStaticResource() {
         // No body — standard 404 for static assets
-<span class="fc" id="L130">    }</span>
+<span class="fc" id="L121">    }</span>
 
     /** Sanitizes SQL details before returning a conflict message. */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleDataIntegrity(DataIntegrityViolationException ex) {
-<span class="fc" id="L135">        return respond(HttpStatus.CONFLICT, &quot;Data conflict - constraint violation&quot;);</span>
+<span class="fc" id="L126">        return respond(HttpStatus.CONFLICT, &quot;Data conflict - constraint violation&quot;);</span>
     }
 
     /**
@@ -144,27 +135,27 @@ import jakarta.validation.ConstraintViolationException;
      */
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
-<span class="fc" id="L147">        return respond(HttpStatus.CONFLICT, &quot;Concurrent update detected - please refresh and retry&quot;);</span>
+<span class="fc" id="L138">        return respond(HttpStatus.CONFLICT, &quot;Concurrent update detected - please refresh and retry&quot;);</span>
     }
 
     /** Handles explicit {@link ResponseStatusException}; preserves the original status. */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleResponseStatus(ResponseStatusException ex,
                                                                HttpServletRequest request) {
-<span class="fc" id="L154">        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());</span>
-<span class="fc" id="L155">        String reason = ex.getReason();</span>
-<span class="fc bfc" id="L156" title="All 4 branches covered.">        String message = (reason != null &amp;&amp; !reason.isBlank())</span>
-<span class="fc" id="L157">            ? reason</span>
-<span class="fc bfc" id="L158" title="All 2 branches covered.">            : (status != null ? status.getReasonPhrase() : &quot;Request failed&quot;);</span>
-<span class="fc bfc" id="L159" title="All 2 branches covered.">        return respond(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR, sanitize(message));</span>
+<span class="fc" id="L145">        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());</span>
+<span class="fc" id="L146">        String reason = ex.getReason();</span>
+<span class="fc bfc" id="L147" title="All 4 branches covered.">        String message = (reason != null &amp;&amp; !reason.isBlank())</span>
+<span class="fc" id="L148">            ? reason</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">            : (status != null ? status.getReasonPhrase() : &quot;Request failed&quot;);</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        return respond(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR, sanitize(message));</span>
     }
 
     /** Prevents stack trace exposure for unhandled exceptions. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleUnexpected(Exception ex) {
         // The client gets a generic envelope; operators get the full stack trace.
-<span class="fc" id="L166">        log.error(&quot;Unhandled exception while processing request&quot;, ex);</span>
-<span class="fc" id="L167">        return respond(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Unexpected server error&quot;);</span>
+<span class="fc" id="L157">        log.error(&quot;Unhandled exception while processing request&quot;, ex);</span>
+<span class="fc" id="L158">        return respond(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Unexpected server error&quot;);</span>
     }
 
 }

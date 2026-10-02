@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
@@ -38,17 +39,17 @@ public class InventoryItemValidationHelper {
      * Order: populate createdBy -&gt; validate base fields -&gt; check uniqueness -&gt; validate supplier.
      *
      * @param dto the inventory item DTO to validate
-     * @throws IllegalArgumentException if validation fails
+     * @throws InvalidRequestException if a field is invalid or the supplier does not exist (400)
      */
     public void validateForCreation(InventoryItemDTO dto) {
-<span class="fc bfc" id="L44" title="All 4 branches covered.">        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {</span>
-<span class="fc" id="L45">            dto.setCreatedBy(SecurityAuditHelper.currentUsername());</span>
+<span class="fc bfc" id="L45" title="All 4 branches covered.">        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {</span>
+<span class="fc" id="L46">            dto.setCreatedBy(SecurityAuditHelper.currentUsername());</span>
         }
-<span class="fc" id="L47">        InventoryItemValidator.validateBase(dto);</span>
-<span class="fc" id="L48">        InventoryItemLookupValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);</span>
-<span class="fc" id="L49">        InventoryItemLookupValidator.validateSkuNotExists(dto.getSku(), repository);</span>
-<span class="fc" id="L50">        validateSupplierExists(dto.getSupplierId());</span>
-<span class="fc" id="L51">    }</span>
+<span class="fc" id="L48">        InventoryItemValidator.validateBase(dto);</span>
+<span class="fc" id="L49">        InventoryItemLookupValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);</span>
+<span class="fc" id="L50">        InventoryItemLookupValidator.validateSkuNotExists(dto.getSku(), repository);</span>
+<span class="fc" id="L51">        validateSupplierExists(dto.getSupplierId());</span>
+<span class="fc" id="L52">    }</span>
 
     /**
      * Populates server-managed fields on a new entity before persistence.
@@ -57,18 +58,18 @@ public class InventoryItemValidationHelper {
      * @param entity the inventory item entity to populate
      */
     public void populateServerFields(InventoryItem entity) {
-<span class="pc bpc" id="L60" title="1 of 4 branches missed.">        if (entity.getId() == null || entity.getId().isBlank()) {</span>
-<span class="fc" id="L61">            entity.setId(UUID.randomUUID().toString());</span>
+<span class="pc bpc" id="L61" title="1 of 4 branches missed.">        if (entity.getId() == null || entity.getId().isBlank()) {</span>
+<span class="fc" id="L62">            entity.setId(UUID.randomUUID().toString());</span>
         }
         // Always override createdBy from SecurityContext — client-supplied value is untrusted
-<span class="fc" id="L64">        entity.setCreatedBy(SecurityAuditHelper.currentUsername());</span>
-<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (entity.getCreatedAt() == null) {</span>
-<span class="fc" id="L66">            entity.setCreatedAt(LocalDateTime.now());</span>
+<span class="fc" id="L65">        entity.setCreatedBy(SecurityAuditHelper.currentUsername());</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (entity.getCreatedAt() == null) {</span>
+<span class="fc" id="L67">            entity.setCreatedAt(LocalDateTime.now());</span>
         }
-<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (entity.getMinimumQuantity() &lt;= 0) {</span>
-<span class="fc" id="L69">            entity.setMinimumQuantity(InventoryItem.DEFAULT_MINIMUM_QUANTITY);</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (entity.getMinimumQuantity() &lt;= 0) {</span>
+<span class="fc" id="L70">            entity.setMinimumQuantity(InventoryItem.DEFAULT_MINIMUM_QUANTITY);</span>
         }
-<span class="fc" id="L71">    }</span>
+<span class="fc" id="L72">    }</span>
 
     /**
      * Validates a DTO for item update and returns the existing entity.
@@ -77,14 +78,14 @@ public class InventoryItemValidationHelper {
      * @param id  the item ID being updated
      * @param dto the updated inventory item data
      * @return the existing item entity
-     * @throws IllegalArgumentException if validation or permission check fails
+     * @throws InvalidRequestException if a field is invalid or the supplier does not exist (400)
      */
     public InventoryItem validateForUpdate(String id, InventoryItemDTO dto) {
-<span class="fc" id="L83">        InventoryItemValidator.validateBase(dto);</span>
-<span class="fc" id="L84">        validateSupplierExists(dto.getSupplierId());</span>
-<span class="fc" id="L85">        InventoryItem existing = InventoryItemLookupValidator.validateExists(id, repository);</span>
-<span class="fc" id="L86">        InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);</span>
-<span class="fc" id="L87">        return existing;</span>
+<span class="fc" id="L84">        InventoryItemValidator.validateBase(dto);</span>
+<span class="fc" id="L85">        validateSupplierExists(dto.getSupplierId());</span>
+<span class="fc" id="L86">        InventoryItem existing = InventoryItemLookupValidator.validateExists(id, repository);</span>
+<span class="fc" id="L87">        InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);</span>
+<span class="fc" id="L88">        return existing;</span>
     }
 
     /**
@@ -96,18 +97,18 @@ public class InventoryItemValidationHelper {
      * @param dto      the updated item data
      */
     public void validateUniquenessOnUpdate(String id, InventoryItem existing, InventoryItemDTO dto) {
-<span class="fc bfc" id="L99" title="All 2 branches covered.">        boolean nameChanged  = !existing.getName().equalsIgnoreCase(dto.getName());</span>
-<span class="fc bfc" id="L100" title="All 2 branches covered.">        boolean priceChanged = !existing.getPrice().equals(dto.getPrice());</span>
-<span class="fc bfc" id="L101" title="All 2 branches covered.">        boolean skuChanged   = existing.getSku() == null</span>
-<span class="pc bpc" id="L102" title="1 of 2 branches missed.">                ? dto.getSku() != null</span>
-<span class="fc bfc" id="L103" title="All 2 branches covered.">                : !existing.getSku().equalsIgnoreCase(dto.getSku());</span>
-<span class="fc bfc" id="L104" title="All 4 branches covered.">        if (nameChanged || priceChanged) {</span>
-<span class="fc" id="L105">            InventoryItemLookupValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        boolean nameChanged  = !existing.getName().equalsIgnoreCase(dto.getName());</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        boolean priceChanged = !existing.getPrice().equals(dto.getPrice());</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        boolean skuChanged   = existing.getSku() == null</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">                ? dto.getSku() != null</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">                : !existing.getSku().equalsIgnoreCase(dto.getSku());</span>
+<span class="fc bfc" id="L105" title="All 4 branches covered.">        if (nameChanged || priceChanged) {</span>
+<span class="fc" id="L106">            InventoryItemLookupValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);</span>
         }
-<span class="fc bfc" id="L107" title="All 2 branches covered.">        if (skuChanged) {</span>
-<span class="fc" id="L108">            InventoryItemLookupValidator.validateSkuNotExists(id, dto.getSku(), repository);</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        if (skuChanged) {</span>
+<span class="fc" id="L109">            InventoryItemLookupValidator.validateSkuNotExists(id, dto.getSku(), repository);</span>
         }
-<span class="fc" id="L110">    }</span>
+<span class="fc" id="L111">    }</span>
 
     /**
      * Validates that the item exists and returns it.
@@ -116,31 +117,31 @@ public class InventoryItemValidationHelper {
      * @throws NoSuchElementException if item not found (answered as 404)
      */
     public InventoryItem validateExists(String id) {
-<span class="pc" id="L119">        return repository.findById(id)</span>
-<span class="pc" id="L120">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Item not found&quot;));</span>
+<span class="pc" id="L120">        return repository.findById(id)</span>
+<span class="pc" id="L121">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Item not found&quot;));</span>
     }
 
     /**
      * Validates that the item exists and that its quantity is zero before deletion.
      * @param id the item ID to validate
-     * @throws IllegalArgumentException if item not found
+     * @throws org.springframework.web.server.ResponseStatusException 404 if the item is not found
      * @throws com.smartsupplypro.inventory.exception.BusinessRuleViolationException if quantity is
      *         greater than zero (409)
      */
     public void validateForDeletion(String id) {
-<span class="fc" id="L131">        InventoryItem item = InventoryItemLookupValidator.validateExists(id, repository);</span>
-<span class="nc" id="L132">        InventoryItemValidator.assertQuantityIsZeroForDeletion(item);</span>
-<span class="nc" id="L133">    }</span>
+<span class="fc" id="L132">        InventoryItem item = InventoryItemLookupValidator.validateExists(id, repository);</span>
+<span class="nc" id="L133">        InventoryItemValidator.assertQuantityIsZeroForDeletion(item);</span>
+<span class="nc" id="L134">    }</span>
 
     /**
      * Validates that the specified supplier exists.
      * @param supplierId the supplier identifier
-     * @throws IllegalArgumentException if supplier does not exist
+     * @throws InvalidRequestException if supplier does not exist (400)
      */
     private void validateSupplierExists(String supplierId) {
-<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (!supplierRepository.existsById(supplierId)) {</span>
-<span class="fc" id="L142">            throw new IllegalArgumentException(&quot;Supplier does not exist&quot;);</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (!supplierRepository.existsById(supplierId)) {</span>
+<span class="fc" id="L143">            throw new InvalidRequestException(&quot;Supplier does not exist&quot;);</span>
         }
-<span class="fc" id="L144">    }</span>
+<span class="fc" id="L145">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
