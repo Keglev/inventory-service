@@ -36,6 +36,8 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(value = "/api/analytics", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Validated
+// One rule for every endpoint: any signed-in user, or anyone in demo mode
+@PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
 public class StockAnalyticsController {
 
     private final StockAnalyticsService stockAnalyticsService;
@@ -49,7 +51,6 @@ public class StockAnalyticsController {
      * @param supplierId optional supplier filter
      * @return list of stock value points over time
      */
-    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/stock-value")
     public ResponseEntity<List<StockValueOverTimeDTO>> getStockValueOverTime(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
@@ -60,13 +61,11 @@ public class StockAnalyticsController {
         return ResponseEntity.ok(stockAnalyticsService.getTotalStockValueOverTime(start, end, supplierId));
     }
 
-    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/stock-per-supplier")
     public ResponseEntity<List<StockPerSupplierDTO>> getStockPerSupplier() {
         return ResponseEntity.ok(stockAnalyticsService.getTotalStockPerSupplier());
     }
 
-    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/low-stock/count")
     public long getLowStockCount() {
         return stockAnalyticsService.lowStockCount();
@@ -78,7 +77,6 @@ public class StockAnalyticsController {
      * @param supplierId required supplier identifier
      * @return list of item update frequencies
      */
-    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/item-update-frequency")
     public ResponseEntity<List<ItemUpdateFrequencyDTO>> getItemUpdateFrequency(
             @RequestParam String supplierId) {
@@ -93,7 +91,6 @@ public class StockAnalyticsController {
      * @param supplierId required supplier identifier
      * @return list of low-stock items with details
      */
-    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/low-stock-items")
     public ResponseEntity<List<LowStockItemDTO>> getLowStockItems(
             @RequestParam String supplierId) {
@@ -110,7 +107,6 @@ public class StockAnalyticsController {
      * @param supplierId optional supplier filter
      * @return list of monthly movement DTOs
      */
-    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/monthly-stock-movement")
     public ResponseEntity<List<MonthlyStockMovementDTO>> getMonthlyStockMovement(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
@@ -130,7 +126,6 @@ public class StockAnalyticsController {
      * @param end        inclusive end date (ISO yyyy-MM-dd)
      * @return list of price trend DTOs
      */
-    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/price-trend")
     public ResponseEntity<List<PriceTrendDTO>> getPriceTrend(
             @RequestParam String itemId,
