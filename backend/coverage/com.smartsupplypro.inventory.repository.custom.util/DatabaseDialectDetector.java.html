@@ -26,14 +26,5 @@ public class DatabaseDialectDetector {
 <span class="fc" id="L26">        return Arrays.stream(environment.getActiveProfiles())</span>
 <span class="fc bfc" id="L27" title="All 4 branches covered.">                .anyMatch(p -&gt; p.equalsIgnoreCase(&quot;test&quot;) || p.equalsIgnoreCase(&quot;h2&quot;));</span>
     }
-
-    /**
-     * Returns {@code true} when Oracle dialect should be used (inverse of {@link #isH2()}).
-     *
-     * @return true if Oracle dialect should be used
-     */
-    public boolean isOracle() {
-<span class="fc bfc" id="L36" title="All 2 branches covered.">        return !isH2();</span>
-    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

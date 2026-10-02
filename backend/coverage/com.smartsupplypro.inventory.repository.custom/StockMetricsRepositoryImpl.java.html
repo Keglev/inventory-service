@@ -61,25 +61,8 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
 <span class="fc" id="L61">                .getResultList();</span>
     }
 
-    /**
-     * Executes dialect-specific native SQL for items below minimum stock threshold.
-     *
-     * @param supplierId optional supplier filter (null returns all suppliers)
-     * @return items below minimum ordered by quantity ascending
-     */
-    @SuppressWarnings(&quot;unchecked&quot;)
-    @Override
-    public List&lt;Object[]&gt; findItemsBelowMinimumStock(String supplierId) {
-<span class="fc bfc" id="L73" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
-<span class="fc" id="L74">            ? StockMetricsSqlBuilder.buildH2BelowMinimumSql()</span>
-<span class="fc" id="L75">            : StockMetricsSqlBuilder.buildOracleBelowMinimumSql();</span>
-<span class="fc" id="L76">        return em.createNativeQuery(sql)</span>
-<span class="fc" id="L77">                .setParameter(&quot;supplierId&quot;, normalizeOptionalParam(supplierId))</span>
-<span class="fc" id="L78">                .getResultList();</span>
-    }
-
     private String normalizeOptionalParam(String param) {
-<span class="fc bfc" id="L82" title="All 4 branches covered.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
+<span class="pc bpc" id="L65" title="1 of 4 branches missed.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

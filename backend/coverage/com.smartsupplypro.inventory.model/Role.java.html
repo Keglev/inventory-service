@@ -11,17 +11,6 @@
  */
 <span class="fc" id="L12">public enum Role {</span>
 <span class="fc" id="L13">    ADMIN,</span>
-<span class="fc" id="L14">    USER;</span>
-
-    /**
-     * Parses string value to Role enum (trims whitespace, removes commas).
-     *
-     * @param value raw role name
-     * @return corresponding Role enum
-     * @throws IllegalArgumentException if invalid
-     */
-    public static Role fromString(String value) {
-<span class="nc" id="L24">        return Role.valueOf(value.trim().replace(&quot;,&quot;, &quot;&quot;));</span>
-    }
+<span class="fc" id="L14">    USER</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -35,13 +35,12 @@ public class CorsConfig {
 <span class="fc" id="L35">        config.setAllowedOrigins(props.getCors().getAllowedOrigins());</span>
 <span class="fc" id="L36">        config.setAllowedMethods(List.of(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;PATCH&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;));</span>
 <span class="fc" id="L37">        config.setAllowedHeaders(List.of(&quot;*&quot;));</span>
-<span class="fc" id="L38">        config.setExposedHeaders(List.of(&quot;Set-Cookie&quot;));</span>
-<span class="fc" id="L39">        config.setAllowCredentials(true);</span>
-<span class="fc" id="L40">        config.setMaxAge(3600L);</span>
+<span class="fc" id="L38">        config.setAllowCredentials(true);</span>
+<span class="fc" id="L39">        config.setMaxAge(3600L);</span>
 
-<span class="fc" id="L42">        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();</span>
-<span class="fc" id="L43">        source.registerCorsConfiguration(&quot;/**&quot;, config);</span>
-<span class="fc" id="L44">        return source;</span>
+<span class="fc" id="L41">        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();</span>
+<span class="fc" id="L42">        source.registerCorsConfiguration(&quot;/**&quot;, config);</span>
+<span class="fc" id="L43">        return source;</span>
     }
 
     /**
@@ -51,11 +50,11 @@ public class CorsConfig {
      */
     @Bean
     public CookieSerializer cookieSerializer() {
-<span class="fc" id="L54">        DefaultCookieSerializer serializer = new DefaultCookieSerializer();</span>
-<span class="fc" id="L55">        serializer.setSameSite(&quot;Lax&quot;);</span>
-<span class="fc" id="L56">        serializer.setUseSecureCookie(true);</span>
-<span class="fc" id="L57">        serializer.setCookiePath(&quot;/&quot;);</span>
-<span class="fc" id="L58">        return serializer;</span>
+<span class="fc" id="L53">        DefaultCookieSerializer serializer = new DefaultCookieSerializer();</span>
+<span class="fc" id="L54">        serializer.setSameSite(&quot;Lax&quot;);</span>
+<span class="fc" id="L55">        serializer.setUseSecureCookie(true);</span>
+<span class="fc" id="L56">        serializer.setCookiePath(&quot;/&quot;);</span>
+<span class="fc" id="L57">        return serializer;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
