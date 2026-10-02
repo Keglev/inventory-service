@@ -4,7 +4,7 @@ Inventory Service,com.smartsupplypro.inventory.repository.custom.util,DatabaseDi
 Inventory Service,com.smartsupplypro.inventory.repository.custom.util,StockTrendSqlBuilder,2,64,0,8,1,15,1,11,1,7
 Inventory Service,com.smartsupplypro.inventory.repository.custom.util,StockDetailSqlBuilder,0,4,0,0,0,2,0,2,0,2
 Inventory Service,com.smartsupplypro.inventory.exception.dto,ErrorResponse,0,22,0,0,0,3,0,2,0,2
-Inventory Service,com.smartsupplypro.inventory.model,AppUser,0,43,0,0,0,13,0,2,0,2
+Inventory Service,com.smartsupplypro.inventory.model,AppUser,0,32,0,0,0,10,0,2,0,2
 Inventory Service,com.smartsupplypro.inventory.model,StockHistory,0,7,0,2,0,3,0,2,0,1
 Inventory Service,com.smartsupplypro.inventory.model,Role,0,15,0,0,0,3,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.model,InventoryItem,0,59,0,20,0,14,0,11,0,1
@@ -15,7 +15,7 @@ Inventory Service,com.smartsupplypro.inventory.controller,InventoryItemPatchCont
 Inventory Service,com.smartsupplypro.inventory.controller,HealthCheckController,0,189,3,23,0,45,3,17,0,7
 Inventory Service,com.smartsupplypro.inventory.controller,StockReasonAnalyticsController,0,9,0,0,0,2,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.controller,EmployeeAnalyticsController,0,32,0,0,0,6,0,2,0,2
-Inventory Service,com.smartsupplypro.inventory.controller,StockAnalyticsController,4,78,0,0,1,12,1,6,1,6
+Inventory Service,com.smartsupplypro.inventory.controller,StockAnalyticsController,0,82,0,0,0,13,0,7,0,7
 Inventory Service,com.smartsupplypro.inventory.controller,StockUpdateAnalyticsController,0,117,0,0,0,15,0,3,0,3
 Inventory Service,com.smartsupplypro.inventory.controller,InventoryItemController,0,82,0,0,0,18,0,10,0,10
 Inventory Service,com.smartsupplypro.inventory.controller,AnalyticsController,0,44,0,0,0,5,0,2,0,2

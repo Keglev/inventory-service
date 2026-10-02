@@ -16,8 +16,8 @@ import lombok.Setter;
 /**
  * Represents an application user registered via OAuth2.
  *
- * &lt;p&gt;The email address serves as the unique login identifier.
- * Roles default to USER; an admin must manually promote to ADMIN.&lt;/p&gt;
+ * &lt;p&gt;The email address serves as the unique login identifier. The role is set at
+ * each sign-in from the admin allow-list ({@code UserProvisioningService}).&lt;/p&gt;
  *
  * @see Role
  */
@@ -45,16 +45,14 @@ public class AppUser {
 
 <span class="fc" id="L46">    private LocalDateTime createdAt = LocalDateTime.now();</span>
 
-<span class="fc" id="L48">    public AppUser(String email, String name) {</span>
-<span class="fc" id="L49">        this.id = UUID.randomUUID().toString();</span>
+    // id, role and createdAt come from the field initializers in both constructors
+<span class="fc" id="L49">    public AppUser(String email, String name) {</span>
 <span class="fc" id="L50">        this.email = email;</span>
 <span class="fc" id="L51">        this.name = name;</span>
-<span class="fc" id="L52">        this.createdAt = LocalDateTime.now();</span>
-<span class="fc" id="L53">    }</span>
+<span class="fc" id="L52">    }</span>
 
     // required by JPA
-<span class="fc" id="L56">    public AppUser() {</span>
-<span class="fc" id="L57">        this.id = UUID.randomUUID().toString();</span>
-<span class="fc" id="L58">    }</span>
+<span class="fc" id="L55">    public AppUser() {</span>
+<span class="fc" id="L56">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
