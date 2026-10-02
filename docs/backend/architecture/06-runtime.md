@@ -23,6 +23,7 @@ The `error` token is `HttpStatus.name().toLowerCase()`. There is no `correlation
 | `NoResourceFoundException` (static assets) | `GlobalExceptionHandler` | 404 | — (no body) |
 | `ObjectOptimisticLockingFailureException` | `GlobalExceptionHandler` | 409 | `conflict` (defensive — unreachable today, no entity declares `@Version`) |
 | `ResponseStatusException` | `GlobalExceptionHandler` | as thrown | token of the preserved status |
+| Spring MVC 4xx rejections (`HttpRequestMethodNotSupportedException`, `HttpMediaTypeNotSupportedException`, ...) | `GlobalExceptionHandler` | as reported (405, 415, ...), with headers such as `Allow` | token of that status |
 | `Exception` (fallback, including `IllegalStateException` and `IllegalArgumentException`) | `GlobalExceptionHandler` | 500 | `internal_server_error` |
 
 ---

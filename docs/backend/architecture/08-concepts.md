@@ -106,6 +106,7 @@ Two `@ControllerAdvice` handlers cover all exceptions without overlap:
 | `AccessDeniedException` | 403 |
 | `NoSuchElementException` | 404 |
 | `DataIntegrityViolationException`, `ObjectOptimisticLockingFailureException` | 409 |
+| Spring MVC 4xx rejections (wrong method, unsupported media type) | as reported (405, 415, ...) |
 | `Exception` (fallback, including `IllegalStateException` and `IllegalArgumentException`) | 500 |
 
 **Error contract** — every response body (except static-resource 404s, which return no
