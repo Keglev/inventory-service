@@ -9,6 +9,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository;
+import com.smartsupplypro.inventory.security.LogSanitizer;
 
 /**
  * OAuth2 infrastructure beans shared by the security filter chain and login flows.
@@ -32,7 +33,9 @@ public class OAuth2Config {
     @Bean
     public AuthenticationFailureHandler oauthFailureHandler() {
         return (request, response, exception) -> {
-            LoggerFactory.getLogger(OAuth2Config.class).warn("OAuth2 failure: {}", exception.toString());
+            // The error code and description can come from the callback's query string
+            LoggerFactory.getLogger(OAuth2Config.class)
+                    .warn("OAuth2 failure: {}", LogSanitizer.sanitize(exception.toString()));
             // Distinguish an allow-list rejection (access_denied) from a generic OAuth failure
             // so the frontend can show a specific "not authorized" message.
             String errorCode = "oauth";

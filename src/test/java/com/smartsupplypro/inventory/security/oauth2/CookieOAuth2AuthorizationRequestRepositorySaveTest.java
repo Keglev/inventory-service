@@ -10,12 +10,16 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import ch.qos.logback.classic.Level;
+
 import com.smartsupplypro.inventory.config.AppProperties;
 import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository;
+import com.smartsupplypro.inventory.testsupport.LogCapture;
 
 /**
  * Unit tests for the save behavior of {@link CookieOAuth2AuthorizationRequestRepository}:
- * cookie attributes, allowlist enforcement for the return-URL cookie, and null-request deletion.
+ * cookie attributes, allowlist enforcement for the return-URL cookie, null-request deletion,
+ * and a rejected return value that stays on one log line.
  */
 class CookieOAuth2AuthorizationRequestRepositorySaveTest {
 
@@ -109,6 +113,22 @@ class CookieOAuth2AuthorizationRequestRepositorySaveTest {
                 CookieOAuth2AuthorizationRequestRepositoryTestSupport.RETURN_COOKIE + "="));
             assertThat(headers).anyMatch(h -> h.startsWith(
                 CookieOAuth2AuthorizationRequestRepositoryTestSupport.AUTH_COOKIE + "="));
+        }
+
+        @Test
+        void should_log_the_rejected_origin_on_one_line_when_it_carries_line_breaks() {
+            MockHttpServletRequest req =
+                    CookieOAuth2AuthorizationRequestRepositoryTestSupport.forwardedHttpsRequest();
+            req.setParameter("return", "x" + (char) 13 + (char) 10 + "FORGED");
+
+            try (LogCapture log = LogCapture.of(CookieOAuth2AuthorizationRequestRepository.class, Level.WARN)) {
+                repo.saveAuthorizationRequest(
+                    CookieOAuth2AuthorizationRequestRepositoryTestSupport.sampleAuthorizationRequest(),
+                    req, new MockHttpServletResponse());
+
+                assertThat(log.messages()).singleElement().asString()
+                    .endsWith("x__FORGED").doesNotContain(String.valueOf((char) 13), String.valueOf((char) 10));
+            }
         }
     }
 

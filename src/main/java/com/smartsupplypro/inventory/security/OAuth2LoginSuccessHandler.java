@@ -86,7 +86,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 if (props.getCors().getAllowedOrigins().contains(candidate)) {
                     target = candidate + "/auth";
                 } else {
-                    log.warn("Rejected non-allowlisted return URL: {}", candidate);
+                    log.warn("Rejected non-allowlisted return URL: {}", LogSanitizer.sanitize(candidate));
                 }
             }
             clearReturnCookie(request, response);
