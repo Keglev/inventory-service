@@ -4,14 +4,12 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.web.http.CookieSerializer;
-import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
- * CORS and session cookie configuration for cross-origin frontend access.
+ * CORS configuration for cross-origin frontend access.
  *
  * <p>Allowed origins are driven by {@code app.cors.allowed-origins} so each environment
  * (dev, prod) can declare its own list without touching this class.</p>
@@ -41,19 +39,5 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
-    }
-
-    /**
-     * The browser only ever sees the frontend origin; the Koyeb Nginx and the Hetzner Caddy
-     * present the cookie as first-party, and Lax still covers the top-level redirect from Google.
-     * SameSite=None was required by the retired direct cross-origin path (ADR-0007).
-     */
-    @Bean
-    public CookieSerializer cookieSerializer() {
-        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setSameSite("Lax");
-        serializer.setUseSecureCookie(true);
-        serializer.setCookiePath("/");
-        return serializer;
     }
 }

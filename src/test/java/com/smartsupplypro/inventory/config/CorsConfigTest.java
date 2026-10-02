@@ -7,13 +7,10 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.session.web.http.CookieSerializer;
-import org.springframework.session.web.http.DefaultCookieSerializer;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-/** Verifies CORS policy and session cookie decisions in {@link CorsConfig}. */
+/** Verifies the CORS policy decisions in {@link CorsConfig}. */
 class CorsConfigTest {
 
     private final AppProperties props = buildProps(
@@ -52,17 +49,6 @@ class CorsConfigTest {
     void should_allow_all_standard_http_methods_when_cors_is_configured() {
         assertThat(getCors().getAllowedMethods())
                 .contains("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
-    }
-
-    @Test
-    void should_use_a_same_site_lax_and_secure_cookie_when_the_serializer_is_created() {
-        CookieSerializer serializer = config.cookieSerializer();
-
-        assertThat(serializer).isInstanceOf(DefaultCookieSerializer.class);
-        DefaultCookieSerializer s = (DefaultCookieSerializer) serializer;
-        // DefaultCookieSerializer lacks public getters across Spring Session versions — reflection required
-        assertThat(ReflectionTestUtils.getField(s, "sameSite")).isEqualTo("Lax");
-        assertThat(ReflectionTestUtils.getField(s, "useSecureCookie")).isEqualTo(Boolean.TRUE);
     }
 
     private CorsConfiguration getCors() {

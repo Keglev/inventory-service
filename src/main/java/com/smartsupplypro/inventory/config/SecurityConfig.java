@@ -96,7 +96,7 @@ public class SecurityConfig {
                 .logoutUrl("/logout")
                 .logoutSuccessHandler(logoutHandler)
                 .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID", "SESSION")
+                .deleteCookies("JSESSIONID")
                 .permitAll()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
