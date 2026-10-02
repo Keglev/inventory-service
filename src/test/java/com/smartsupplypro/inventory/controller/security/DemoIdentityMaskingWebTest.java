@@ -47,7 +47,8 @@ import com.smartsupplypro.inventory.service.impl.analytics.EmployeeAnalyticsServ
 @Import(DemoIdentityMaskingWebTest.Support.class)
 class DemoIdentityMaskingWebTest {
 
-    private static final String REAL = "real.person@gmail.com";
+    // A reserved domain (RFC 2606) other than example.com, the exempt pseudonym domain
+    private static final String REAL = "real.person@example.org";
 
     @Autowired MockMvc mockMvc;
     @Autowired AppProperties appProperties;
