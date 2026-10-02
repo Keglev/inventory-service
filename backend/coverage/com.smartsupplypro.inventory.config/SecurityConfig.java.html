@@ -96,7 +96,7 @@ public class SecurityConfig {
 <span class="fc" id="L96">                .logoutUrl(&quot;/logout&quot;)</span>
 <span class="fc" id="L97">                .logoutSuccessHandler(logoutHandler)</span>
 <span class="fc" id="L98">                .invalidateHttpSession(true)</span>
-<span class="fc" id="L99">                .deleteCookies(&quot;JSESSIONID&quot;, &quot;SESSION&quot;)</span>
+<span class="fc" id="L99">                .deleteCookies(&quot;JSESSIONID&quot;)</span>
 <span class="fc" id="L100">                .permitAll()</span>
             )
 <span class="fc" id="L102">            .sessionManagement(session -&gt; session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))</span>

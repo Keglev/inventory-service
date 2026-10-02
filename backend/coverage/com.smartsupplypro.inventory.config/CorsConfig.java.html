@@ -4,14 +4,12 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.web.http.CookieSerializer;
-import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
- * CORS and session cookie configuration for cross-origin frontend access.
+ * CORS configuration for cross-origin frontend access.
  *
  * &lt;p&gt;Allowed origins are driven by {@code app.cors.allowed-origins} so each environment
  * (dev, prod) can declare its own list without touching this class.&lt;/p&gt;
@@ -21,9 +19,9 @@ public class CorsConfig {
 
     private final AppProperties props;
 
-<span class="fc" id="L24">    public CorsConfig(AppProperties props) {</span>
-<span class="fc" id="L25">        this.props = props;</span>
-<span class="fc" id="L26">    }</span>
+<span class="fc" id="L22">    public CorsConfig(AppProperties props) {</span>
+<span class="fc" id="L23">        this.props = props;</span>
+<span class="fc" id="L24">    }</span>
 
     /**
      * Registers the allowed origins from {@code app.cors.allowed-origins}.
@@ -31,30 +29,16 @@ public class CorsConfig {
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-<span class="fc" id="L34">        CorsConfiguration config = new CorsConfiguration();</span>
-<span class="fc" id="L35">        config.setAllowedOrigins(props.getCors().getAllowedOrigins());</span>
-<span class="fc" id="L36">        config.setAllowedMethods(List.of(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;PATCH&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;));</span>
-<span class="fc" id="L37">        config.setAllowedHeaders(List.of(&quot;*&quot;));</span>
-<span class="fc" id="L38">        config.setAllowCredentials(true);</span>
-<span class="fc" id="L39">        config.setMaxAge(3600L);</span>
+<span class="fc" id="L32">        CorsConfiguration config = new CorsConfiguration();</span>
+<span class="fc" id="L33">        config.setAllowedOrigins(props.getCors().getAllowedOrigins());</span>
+<span class="fc" id="L34">        config.setAllowedMethods(List.of(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;PATCH&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;));</span>
+<span class="fc" id="L35">        config.setAllowedHeaders(List.of(&quot;*&quot;));</span>
+<span class="fc" id="L36">        config.setAllowCredentials(true);</span>
+<span class="fc" id="L37">        config.setMaxAge(3600L);</span>
 
-<span class="fc" id="L41">        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();</span>
-<span class="fc" id="L42">        source.registerCorsConfiguration(&quot;/**&quot;, config);</span>
-<span class="fc" id="L43">        return source;</span>
-    }
-
-    /**
-     * The browser only ever sees the frontend origin; the Koyeb Nginx and the Hetzner Caddy
-     * present the cookie as first-party, and Lax still covers the top-level redirect from Google.
-     * SameSite=None was required by the retired direct cross-origin path (ADR-0007).
-     */
-    @Bean
-    public CookieSerializer cookieSerializer() {
-<span class="fc" id="L53">        DefaultCookieSerializer serializer = new DefaultCookieSerializer();</span>
-<span class="fc" id="L54">        serializer.setSameSite(&quot;Lax&quot;);</span>
-<span class="fc" id="L55">        serializer.setUseSecureCookie(true);</span>
-<span class="fc" id="L56">        serializer.setCookiePath(&quot;/&quot;);</span>
-<span class="fc" id="L57">        return serializer;</span>
+<span class="fc" id="L39">        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();</span>
+<span class="fc" id="L40">        source.registerCorsConfiguration(&quot;/**&quot;, config);</span>
+<span class="fc" id="L41">        return source;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
