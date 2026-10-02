@@ -1,5 +1,6 @@
 package com.smartsupplypro.inventory.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
@@ -18,6 +19,7 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
+import com.smartsupplypro.inventory.config.AppProperties;
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
@@ -178,6 +180,45 @@ class CustomOidcUserServiceTest {
             Assertions.assertThat(result.getAuthorities())
                     .extracting(GrantedAuthority::getAuthority).contains("ROLE_USER");
             verify(repo, times(1)).save(existing);
+        }
+    }
+
+    /**
+     * The allow-list comes from {@link AppProperties}, not from the process environment.
+     */
+    @Nested
+    class AllowlistFromProperties {
+
+        @Test
+        void should_sign_in_as_admin_when_the_email_is_in_the_configured_allowlist() {
+            AppUserRepository repo = mock(AppUserRepository.class);
+            when(repo.findByEmail(ADMIN_EMAIL)).thenReturn(Optional.empty());
+            stubSave(repo);
+
+            OidcUser result = configuredService(repo, ADMIN_EMAIL, "  Admin@Example.com ").loadUser(request());
+
+            Assertions.assertThat(result.getAuthorities())
+                    .extracting(GrantedAuthority::getAuthority).contains("ROLE_ADMIN");
+        }
+
+        @Test
+        void should_deny_sign_in_when_the_email_is_not_in_the_configured_allowlist() {
+            AppUserRepository repo = mock(AppUserRepository.class);
+
+            Assertions.assertThatThrownBy(
+                    () -> configuredService(repo, USER_EMAIL, ADMIN_EMAIL).loadUser(request()))
+                .isInstanceOfSatisfying(OAuth2AuthenticationException.class, ex ->
+                    Assertions.assertThat(ex.getError().getErrorCode()).isEqualTo("access_denied"));
+        }
+
+        private CustomOidcUserService configuredService(AppUserRepository repo, String loginEmail,
+                                                        String allowlisted) {
+            AppProperties props = new AppProperties();
+            props.setAdminEmails(List.of(allowlisted));
+            OidcUser upstream = CustomUserServiceTestSupport.upstreamOidcUser(loginEmail, "Name");
+            return new CustomOidcUserService(new UserProvisioningService(repo), props) {
+                @Override protected OidcUser loadFromProvider(OidcUserRequest request) { return upstream; }
+            };
         }
     }
 

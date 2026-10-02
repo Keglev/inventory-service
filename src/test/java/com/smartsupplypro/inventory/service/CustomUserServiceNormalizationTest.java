@@ -1,5 +1,7 @@
 package com.smartsupplypro.inventory.service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import org.assertj.core.api.Assertions;
@@ -15,23 +17,23 @@ import com.smartsupplypro.inventory.model.Role;
 class CustomUserServiceNormalizationTest {
 
     /**
-     * Tests for {@code parseAdminAllowlist}.
+     * Tests for {@code normalizeAllowlist}.
      */
     @Nested
     class AdminAllowlist {
 
         @Test
         void should_trim_lowercase_and_deduplicate_when_building_the_admin_allowlist() {
-            Set<String> parsed = CustomOidcUserService.parseAdminAllowlist(
-                    "  Admin@corp.com , manager@corp.com,, ADMIN@corp.com ,   ops@corp.com  ");
+            Set<String> parsed = CustomOidcUserService.normalizeAllowlist(Arrays.asList(
+                    "  Admin@corp.com ", "manager@corp.com", "", null, "ADMIN@corp.com ", "   ops@corp.com  "));
             Assertions.assertThat(parsed)
                     .containsExactly("admin@corp.com", "manager@corp.com", "ops@corp.com");
         }
 
         @Test
-        void should_return_empty_set_when_raw_value_is_null_or_blank() {
-            Assertions.assertThat(CustomOidcUserService.parseAdminAllowlist(null)).isEmpty();
-            Assertions.assertThat(CustomOidcUserService.parseAdminAllowlist("   ")).isEmpty();
+        void should_return_empty_set_when_the_list_is_null_or_blank() {
+            Assertions.assertThat(CustomOidcUserService.normalizeAllowlist(null)).isEmpty();
+            Assertions.assertThat(CustomOidcUserService.normalizeAllowlist(List.of("   "))).isEmpty();
         }
     }
 

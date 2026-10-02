@@ -1,10 +1,11 @@
 package com.smartsupplypro.inventory.service;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
+import com.smartsupplypro.inventory.config.AppProperties;
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
 
@@ -29,7 +31,7 @@ import com.smartsupplypro.inventory.model.Role;
  * <p>It is the only login path: a plain OAuth2 login (no {@code openid} scope) is
  * rejected by {@link com.smartsupplypro.inventory.security.OidcOnlyUserService}.</p>
  *
- * <p>Role is determined by the {@code APP_ADMIN_EMAILS} environment variable.
+ * <p>Role is determined by {@link AppProperties#getAdminEmails()} ({@code APP_ADMIN_EMAILS}).
  * Role healing keeps the role in sync if the allow-list changes between logins.</p>
  *
  * @see AppUser
@@ -38,19 +40,18 @@ import com.smartsupplypro.inventory.model.Role;
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
     private final UserProvisioningService userProvisioningService;
+    private final AppProperties appProperties;
 
-    public CustomOidcUserService(UserProvisioningService userProvisioningService) {
+    public CustomOidcUserService(UserProvisioningService userProvisioningService,
+                                 AppProperties appProperties) {
         this.userProvisioningService = userProvisioningService;
+        this.appProperties = appProperties;
     }
 
-    private static Set<String> readAdminAllowlist() {
-        String raw = System.getenv().getOrDefault("APP_ADMIN_EMAILS", "");
-        return parseAdminAllowlist(raw);
-    }
-
-    static Set<String> parseAdminAllowlist(String raw) {
-        if (raw == null || raw.isBlank()) return Collections.emptySet();
-        return Arrays.stream(raw.split(","))
+    static Set<String> normalizeAllowlist(Collection<String> emails) {
+        if (emails == null) return Collections.emptySet();
+        return emails.stream()
+            .filter(Objects::nonNull)
             .map(String::trim)
             .filter(s -> !s.isEmpty())
             .map(String::toLowerCase)
@@ -58,7 +59,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
     }
 
     protected boolean isAdminEmail(String email) {
-        return readAdminAllowlist().contains(email.toLowerCase());
+        return normalizeAllowlist(appProperties.getAdminEmails()).contains(email.toLowerCase());
     }
 
     /**

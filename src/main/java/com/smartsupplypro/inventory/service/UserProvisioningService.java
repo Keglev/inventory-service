@@ -63,7 +63,7 @@ public class UserProvisioningService {
             }
         });
 
-        // Heal the stored role when APP_ADMIN_EMAILS changed between logins
+        // Heal the stored role when the admin allow-list changed between logins
         Role desired = isAdmin ? Role.ADMIN : Role.USER;
         if (user.getRole() != desired) {
             user.setRole(desired);

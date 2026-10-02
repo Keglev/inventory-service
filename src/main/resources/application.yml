@@ -83,14 +83,16 @@ app:
   # Global default: demo OFF. In PROD you can flip with APP_DEMO_READONLY=true
   demo-readonly: ${APP_DEMO_READONLY:true}
 
+  # Sign-in allow-list and admin role (comma-separated, case-insensitive).
+  # Empty means nobody can sign in. Example: APP_ADMIN_EMAILS="me@example.com, ops@example.org"
+  admin-emails: ${APP_ADMIN_EMAILS:}
+
   cors:
     allowed-origins:
       - http://localhost:5173
       - http://127.0.0.1:5173
       - https://localhost:5173
 
-# NOTE: Admin allow-list is read from environment variable APP_ADMIN_EMAILS (comma-separated, case-insensitive).
-# Example (local): export APP_ADMIN_EMAILS="myname@domain.com, other.admin@org.de"
 
   frontend:
     # Defaults make login testable WITHOUT a frontend:
