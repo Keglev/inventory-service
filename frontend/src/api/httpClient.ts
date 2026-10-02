@@ -71,6 +71,8 @@ function isDemoSession(): boolean {
  * redirect loops), when the failing call is the `/me` session probe
  * (a 401 is the expected "not logged in" signal there), or when a
  * demo session is active.
+ *
+ * Every error still rejects, a redirected 401 included.
  */
 httpClient.interceptors.response.use(
   (res) => res,
@@ -94,8 +96,10 @@ httpClient.interceptors.response.use(
 
       if (onPublic || isMeProbe) return Promise.reject(error);
 
+      // The navigation is not immediate: resolving here would let a write
+      // report success for a request the server refused.
       window.location.assign('/login');
-      return;
+      return Promise.reject(error);
     }
     return Promise.reject(error);
   }

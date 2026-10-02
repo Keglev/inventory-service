@@ -11,17 +11,19 @@
  * - Success responses pass through untouched; errors without a response
  *   (network) and non-401 statuses reject unchanged.
  * - 401 handling: demo sessions, public paths, and the /me session probe
- *   reject quietly; any other authenticated-page 401 redirects to /login.
+ *   reject quietly; any other authenticated-page 401 redirects to /login
+ *   and still rejects, so a write never reports success.
  * - Demo detection tolerates missing, malformed, and non-demo payloads.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { AxiosError, AxiosResponse } from 'axios';
+import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 
 import httpClient from '../../../api/httpClient';
+import { adjustQuantity } from '../../../api/inventory/stockMutations';
 
 type Handler = {
   fulfilled: (res: AxiosResponse) => AxiosResponse;
-  rejected: (error: AxiosError) => Promise<never> | undefined;
+  rejected: (error: AxiosError) => Promise<never>;
 };
 
 /** The interceptor registered at module load, exposed by Axios internals. */
@@ -148,36 +150,52 @@ describe('httpClient', () => {
       },
     );
 
-    it('redirects to /login for a 401 on an authenticated page', () => {
+    it('redirects to /login and still rejects for a 401 on an authenticated page', async () => {
       const assign = stubLocation('/dashboard');
       const error = make401('/api/items');
 
-      const result = interceptor().rejected(error);
-
-      expect(result).toBeUndefined();
+      await expect(interceptor().rejected(error)).rejects.toBe(error);
       expect(assign).toHaveBeenCalledWith('/login');
     });
 
-    it('treats a request without a url string as a non-probe', () => {
+    it('reports a write as failed when the session expired', async () => {
+      // Through the real client: a resolved interceptor made this write return ok: true.
+      const assign = stubLocation('/inventory');
+      const adapter = httpClient.defaults.adapter;
+      httpClient.defaults.adapter = (config: InternalAxiosRequestConfig) =>
+        Promise.reject(new AxiosError('Unauthorized', 'ERR_BAD_REQUEST', config, null, {
+          status: 401, statusText: 'Unauthorized', headers: {}, config, data: {},
+        }));
+
+      try {
+        const result = await adjustQuantity({ id: 'item-1', delta: -1, reason: 'SOLD' });
+
+        expect(result).toMatchObject({ ok: false, status: 401 });
+        expect(assign).toHaveBeenCalledWith('/login');
+      } finally {
+        httpClient.defaults.adapter = adapter;
+      }
+    });
+
+    it('treats a request without a url string as a non-probe', async () => {
       const assign = stubLocation('/dashboard');
       const error = { response: { status: 401, config: {} } } as unknown as AxiosError;
 
-      interceptor().rejected(error);
-
+      await expect(interceptor().rejected(error)).rejects.toBe(error);
       expect(assign).toHaveBeenCalledWith('/login');
     });
 
-    it('ignores demo flags that are malformed or not demo sessions', () => {
+    it('ignores demo flags that are malformed or not demo sessions', async () => {
       const assign = stubLocation('/dashboard');
 
       // Malformed JSON: the try/catch degrades to non-demo.
       localStorage.setItem('ssp.demo.session', 'not-json{');
-      interceptor().rejected(make401('/api/items'));
+      await expect(interceptor().rejected(make401('/api/items'))).rejects.toBeDefined();
       expect(assign).toHaveBeenCalledTimes(1);
 
       // Parsable but not a demo session.
       localStorage.setItem('ssp.demo.session', JSON.stringify({ isDemo: false }));
-      interceptor().rejected(make401('/api/items'));
+      await expect(interceptor().rejected(make401('/api/items'))).rejects.toBeDefined();
       expect(assign).toHaveBeenCalledTimes(2);
     });
   });
