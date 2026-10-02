@@ -9,19 +9,29 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
+import com.smartsupplypro.inventory.testsupport.LogCapture;
 
+import ch.qos.logback.classic.Level;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,6 +58,8 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/lock")   void lock()   { throw new ObjectOptimisticLockingFailureException(Object.class, 1L); }
         @GetMapping("/rse")    void rse()    { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Supplier not found"); }
         @GetMapping("/boom")   void boom()   { throw new RuntimeException("boom"); }
+        @PostMapping(value = "/json-only", consumes = MediaType.APPLICATION_JSON_VALUE)
+        void jsonOnly(@RequestBody String body) { }
         @GetMapping("/ise")    void ise()    { throw new IllegalStateException("Expected numeric type but got: oracle.sql.NUMBER@1f"); }
     }
 
@@ -62,6 +74,28 @@ class GlobalExceptionHandlerTest {
             mockMvc.perform(get("/err/nse-m"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Item 1 not found"));
+        }
+    }
+
+    /** Spring MVC's own 4xx rejections keep their status and do not log a stack trace. */
+    @Nested class WhenRequestRejectedByTheFramework {
+        @Test void should_return_405_with_allow_and_no_error_log_when_the_method_is_wrong() throws Exception {
+            try (LogCapture log = LogCapture.of(GlobalExceptionHandler.class, Level.ERROR)) {
+                mockMvc.perform(get("/err/json-only"))
+                    .andExpect(status().isMethodNotAllowed())
+                    .andExpect(header().string("Allow", "POST"))
+                    .andExpect(jsonPath("$.error").value("method_not_allowed"));
+                assertThat(log.messages()).isEmpty();
+            }
+        }
+        @Test void should_return_415_and_no_error_log_when_the_media_type_is_unsupported() throws Exception {
+            try (LogCapture log = LogCapture.of(GlobalExceptionHandler.class, Level.ERROR)) {
+                mockMvc.perform(post("/err/json-only").with(csrf())
+                        .contentType(MediaType.TEXT_PLAIN).content("x"))
+                    .andExpect(status().isUnsupportedMediaType())
+                    .andExpect(jsonPath("$.error").value("unsupported_media_type"));
+                assertThat(log.messages()).isEmpty();
+            }
         }
     }
 

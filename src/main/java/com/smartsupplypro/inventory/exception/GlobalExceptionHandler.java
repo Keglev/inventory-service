@@ -150,12 +150,28 @@ public class GlobalExceptionHandler {
         return respond(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR, sanitize(message));
     }
 
-    /** Prevents stack trace exposure for unhandled exceptions. */
+    /**
+     * Prevents stack trace exposure for unhandled exceptions. Spring MVC's own client
+     * rejections (a wrong method, an unsupported media type) also land here and keep their
+     * status and headers, such as {@code Allow}.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
+        if (ex instanceof org.springframework.web.ErrorResponse rejection
+                && rejection.getStatusCode().is4xxClientError()) {
+            return respondToRejection(rejection);
+        }
         // The client gets a generic envelope; operators get the full stack trace.
         log.error("Unhandled exception while processing request", ex);
         return respond(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error");
+    }
+
+    // A client mistake, not a server fault: no stack trace in the log.
+    private static ResponseEntity<ErrorResponse> respondToRejection(org.springframework.web.ErrorResponse rejection) {
+        HttpStatus status = HttpStatus.valueOf(rejection.getStatusCode().value());
+        return ResponseEntity.status(status)
+            .headers(rejection.getHeaders())
+            .body(respond(status, status.getReasonPhrase()).getBody());
     }
 
 }
