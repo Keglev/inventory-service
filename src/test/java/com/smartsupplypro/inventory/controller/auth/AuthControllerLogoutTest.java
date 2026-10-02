@@ -70,7 +70,6 @@ class AuthControllerLogoutTest {
         List<String> setCookies = result.getResponse().getHeaders("Set-Cookie");
         assertThat("Expected Set-Cookie headers", setCookies, is(not(empty())));
         assertThat(setCookies, hasItem(containsString("JSESSIONID=")));
-        assertThat(setCookies, hasItem(containsString("SESSION=")));
 
         for (String c : setCookies) {
             assertThat(c, containsString("Max-Age=0"));
