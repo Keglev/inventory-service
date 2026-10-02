@@ -14,12 +14,20 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class AppProperties {
 
     private boolean isDemoReadonly = false;
+    private List<String> adminEmails = List.of();
     private final Frontend frontend = new Frontend();
     private final Cors cors = new Cors();
     private final Cookie cookie = new Cookie();
 
     public boolean isDemoReadonly() { return isDemoReadonly; }
     public void setDemoReadonly(boolean demoReadonly) { this.isDemoReadonly = demoReadonly; }
+
+    /**
+     * Sign-in allow-list and admin role assignment, bound from {@code APP_ADMIN_EMAILS}
+     * (comma-separated, case-insensitive). Empty means nobody can sign in.
+     */
+    public List<String> getAdminEmails() { return adminEmails; }
+    public void setAdminEmails(List<String> adminEmails) { this.adminEmails = adminEmails; }
 
     public Frontend getFrontend() { return frontend; }
     public Cors getCors() { return cors; }

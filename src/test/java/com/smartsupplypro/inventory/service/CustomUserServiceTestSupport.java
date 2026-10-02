@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
+import com.smartsupplypro.inventory.config.AppProperties;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 /**
@@ -39,7 +40,7 @@ final class CustomUserServiceTestSupport {
     }
 
     static CustomOidcUserService oidcService(AppUserRepository repo, OidcUser upstream, boolean isAdmin) {
-        return new CustomOidcUserService(new UserProvisioningService(repo)) {
+        return new CustomOidcUserService(new UserProvisioningService(repo), new AppProperties()) {
             @Override protected OidcUser loadFromProvider(OidcUserRequest request) { return upstream; }
             @Override protected boolean isAdminEmail(String email) { return isAdmin; }
             @Override protected boolean isAllowedEmail(String email) { return true; }
@@ -47,7 +48,7 @@ final class CustomUserServiceTestSupport {
     }
 
     static CustomOidcUserService oidcServiceDenied(AppUserRepository repo, OidcUser upstream) {
-        return new CustomOidcUserService(new UserProvisioningService(repo)) {
+        return new CustomOidcUserService(new UserProvisioningService(repo), new AppProperties()) {
             @Override protected OidcUser loadFromProvider(OidcUserRequest request) { return upstream; }
             @Override protected boolean isAdminEmail(String email) { return false; }
             @Override protected boolean isAllowedEmail(String email) { return false; }
