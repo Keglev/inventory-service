@@ -150,12 +150,28 @@ import jakarta.validation.ConstraintViolationException;
 <span class="fc bfc" id="L150" title="All 2 branches covered.">        return respond(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR, sanitize(message));</span>
     }
 
-    /** Prevents stack trace exposure for unhandled exceptions. */
+    /**
+     * Prevents stack trace exposure for unhandled exceptions. Spring MVC's own client
+     * rejections (a wrong method, an unsupported media type) also land here and keep their
+     * status and headers, such as {@code Allow}.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleUnexpected(Exception ex) {
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        if (ex instanceof org.springframework.web.ErrorResponse rejection</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">                &amp;&amp; rejection.getStatusCode().is4xxClientError()) {</span>
+<span class="fc" id="L162">            return respondToRejection(rejection);</span>
+        }
         // The client gets a generic envelope; operators get the full stack trace.
-<span class="fc" id="L157">        log.error(&quot;Unhandled exception while processing request&quot;, ex);</span>
-<span class="fc" id="L158">        return respond(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Unexpected server error&quot;);</span>
+<span class="fc" id="L165">        log.error(&quot;Unhandled exception while processing request&quot;, ex);</span>
+<span class="fc" id="L166">        return respond(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Unexpected server error&quot;);</span>
+    }
+
+    // A client mistake, not a server fault: no stack trace in the log.
+    private static ResponseEntity&lt;ErrorResponse&gt; respondToRejection(org.springframework.web.ErrorResponse rejection) {
+<span class="fc" id="L171">        HttpStatus status = HttpStatus.valueOf(rejection.getStatusCode().value());</span>
+<span class="fc" id="L172">        return ResponseEntity.status(status)</span>
+<span class="fc" id="L173">            .headers(rejection.getHeaders())</span>
+<span class="fc" id="L174">            .body(respond(status, status.getReasonPhrase()).getBody());</span>
     }
 
 }
