@@ -36,6 +36,7 @@ class InventoryItemValidatorTest {
         return Stream.of(
             new InvalidBaseCase(d -> d.setName(null),  "Product name cannot be null or empty"),
             new InvalidBaseCase(d -> d.setName("   "), "Product name cannot be null or empty"),
+            new InvalidBaseCase(d -> d.setQuantity(null), "Quantity is mandatory"),
             new InvalidBaseCase(d -> d.setQuantity(-1), "Quantity cannot be negative"),
             new InvalidBaseCase(d -> d.setPrice(null), "Price must be positive or greater than zero"),
             new InvalidBaseCase(d -> d.setPrice(new BigDecimal("-5.00")), "Price must be positive or greater than zero"),

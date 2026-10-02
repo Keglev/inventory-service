@@ -33,6 +33,9 @@ public class InventoryItemValidator {
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new InvalidRequestException("Product name cannot be null or empty");
         }
+        if (dto.getQuantity() == null) {
+            throw new InvalidRequestException("Quantity is mandatory");
+        }
         if (dto.getQuantity() < 0) {
             throw new InvalidRequestException("Quantity cannot be negative");
         }
