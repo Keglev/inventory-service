@@ -36,15 +36,12 @@ public class InventoryItemValidationHelper {
 
     /**
      * Validates a DTO for item creation.
-     * Order: populate createdBy -> validate base fields -> check uniqueness -> validate supplier.
+     * Order: validate base fields -> check uniqueness -> validate supplier.
      *
      * @param dto the inventory item DTO to validate
      * @throws InvalidRequestException if a field is invalid or the supplier does not exist (400)
      */
     public void validateForCreation(InventoryItemDTO dto) {
-        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {
-            dto.setCreatedBy(SecurityAuditHelper.currentUsername());
-        }
         InventoryItemValidator.validateBase(dto);
         InventoryItemLookupValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);
         InventoryItemLookupValidator.validateSkuNotExists(dto.getSku(), repository);

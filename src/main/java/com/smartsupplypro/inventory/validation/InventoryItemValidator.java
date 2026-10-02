@@ -24,7 +24,8 @@ public class InventoryItemValidator {
     private InventoryItemValidator() {}
 
     /**
-     * Validates required base fields on a DTO (name, quantity, price, supplier, createdBy).
+     * Validates required base fields on a DTO (name, quantity, price, supplier). createdBy is
+     * not one of them: the server sets it from the security context and ignores the client's.
      *
      * @param dto the inventory item DTO to validate
      * @throws InvalidRequestException if any base field is missing or invalid (400)
@@ -44,9 +45,6 @@ public class InventoryItemValidator {
         }
         if (dto.getSupplierId() == null || dto.getSupplierId().trim().isEmpty()) {
             throw new InvalidRequestException("Supplier ID must be provided");
-        }
-        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {
-            throw new InvalidRequestException("CreatedBy must be provided");
         }
     }
 
