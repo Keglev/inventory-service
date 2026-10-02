@@ -26,6 +26,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
@@ -156,7 +157,7 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
 
         @Test
         void should_throw_when_new_name_is_blank() {
-            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                     () -> service.renameItem("i-1", "  "));
             assertTrue(ex.getMessage().toLowerCase().contains("cannot be empty"));
         }

@@ -109,15 +109,6 @@ public class GlobalExceptionHandler {
         return respond(HttpStatus.NOT_FOUND, sanitize(messageOr(ex, "Resource not found")));
     }
 
-    /**
-     * Handles invalid input rejected by validators and domain parsing (an unknown supplier
-     * reference, an empty name, an unknown stock change reason) as a client error.
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidArgument(IllegalArgumentException ex) {
-        return respond(HttpStatus.BAD_REQUEST, sanitize(messageOr(ex, "Invalid request")));
-    }
-
     private static String messageOr(RuntimeException ex, String fallback) {
         return (ex.getMessage() != null && !ex.getMessage().isBlank()) ? ex.getMessage() : fallback;
     }

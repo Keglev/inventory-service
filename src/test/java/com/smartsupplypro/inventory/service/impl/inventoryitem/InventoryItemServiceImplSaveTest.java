@@ -25,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
@@ -110,10 +111,10 @@ class InventoryItemServiceImplSaveTest {
     @Test
     void should_throw_when_validation_rejects_null_name() {
         baseDto.setName(null);
-        doThrow(new IllegalArgumentException("Product name cannot be null or empty"))
+        doThrow(new InvalidRequestException("Product name cannot be null or empty"))
                 .when(validationHelper).validateForCreation(any());
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> service.save(baseDto));
         assertEquals("Product name cannot be null or empty", ex.getMessage());
     }
@@ -121,10 +122,10 @@ class InventoryItemServiceImplSaveTest {
     @Test
     void should_throw_when_validation_rejects_negative_quantity() {
         baseDto.setQuantity(-5);
-        doThrow(new IllegalArgumentException("Quantity cannot be negative"))
+        doThrow(new InvalidRequestException("Quantity cannot be negative"))
                 .when(validationHelper).validateForCreation(any());
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> service.save(baseDto));
         assertEquals("Quantity cannot be negative", ex.getMessage());
     }
@@ -132,10 +133,10 @@ class InventoryItemServiceImplSaveTest {
     @Test
     void should_throw_when_validation_rejects_non_positive_price() {
         baseDto.setPrice(new BigDecimal("-10.00"));
-        doThrow(new IllegalArgumentException("Price must be positive or greater than zero"))
+        doThrow(new InvalidRequestException("Price must be positive or greater than zero"))
                 .when(validationHelper).validateForCreation(any());
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> service.save(baseDto));
         assertEquals("Price must be positive or greater than zero", ex.getMessage());
     }
@@ -143,20 +144,20 @@ class InventoryItemServiceImplSaveTest {
     @Test
     void should_throw_when_validation_rejects_missing_supplier_id() {
         baseDto.setSupplierId(null);
-        doThrow(new IllegalArgumentException("Supplier ID must be provided"))
+        doThrow(new InvalidRequestException("Supplier ID must be provided"))
                 .when(validationHelper).validateForCreation(any());
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> service.save(baseDto));
         assertEquals("Supplier ID must be provided", ex.getMessage());
     }
 
     @Test
     void should_throw_when_supplier_does_not_exist() {
-        doThrow(new IllegalArgumentException("Supplier does not exist"))
+        doThrow(new InvalidRequestException("Supplier does not exist"))
                 .when(validationHelper).validateForCreation(any());
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> service.save(baseDto));
         assertEquals("Supplier does not exist", ex.getMessage());
     }

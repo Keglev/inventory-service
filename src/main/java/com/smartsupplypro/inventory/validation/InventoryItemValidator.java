@@ -7,6 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.model.InventoryItem;
 
 /**
@@ -26,23 +27,23 @@ public class InventoryItemValidator {
      * Validates required base fields on a DTO (name, quantity, price, supplier, createdBy).
      *
      * @param dto the inventory item DTO to validate
-     * @throws IllegalArgumentException if any base field is missing or invalid
+     * @throws InvalidRequestException if any base field is missing or invalid (400)
      */
     public static void validateBase(InventoryItemDTO dto) {
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Product name cannot be null or empty");
+            throw new InvalidRequestException("Product name cannot be null or empty");
         }
         if (dto.getQuantity() < 0) {
-            throw new IllegalArgumentException("Quantity cannot be negative");
+            throw new InvalidRequestException("Quantity cannot be negative");
         }
         if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Price must be positive or greater than zero");
+            throw new InvalidRequestException("Price must be positive or greater than zero");
         }
         if (dto.getSupplierId() == null || dto.getSupplierId().trim().isEmpty()) {
-            throw new IllegalArgumentException("Supplier ID must be provided");
+            throw new InvalidRequestException("Supplier ID must be provided");
         }
         if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {
-            throw new IllegalArgumentException("CreatedBy must be provided");
+            throw new InvalidRequestException("CreatedBy must be provided");
         }
     }
 

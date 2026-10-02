@@ -41,7 +41,7 @@ class GlobalExceptionHandlerTest {
     static class ThrowingController {
         @GetMapping("/nse")    void nse()    { throw new NoSuchElementException(); }
         @GetMapping("/nse-m")  void nseMsg() { throw new NoSuchElementException("Item 1 not found"); }
-        @GetMapping("/iae-m")  void iaeMsg() { throw new IllegalArgumentException("Supplier does not exist"); }
+        @GetMapping("/iae")    void iae()    { throw new IllegalArgumentException("Failed to evaluate expression"); }
         @GetMapping("/auth")   void auth()   { throw new BadCredentialsException("bad"); }
         @GetMapping("/denied") void denied() { throw new AccessDeniedException("Denied"); }
         @GetMapping("/data")   void data()   { throw new DataIntegrityViolationException("dup"); }
@@ -49,7 +49,6 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/rse")    void rse()    { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Supplier not found"); }
         @GetMapping("/boom")   void boom()   { throw new RuntimeException("boom"); }
         @GetMapping("/ise")    void ise()    { throw new IllegalStateException("Expected numeric type but got: oracle.sql.NUMBER@1f"); }
-        @GetMapping("/iae-blank") void iaeBlank() { throw new IllegalArgumentException("   "); }
     }
 
     /** 404 Not Found responses. */
@@ -63,20 +62,6 @@ class GlobalExceptionHandlerTest {
             mockMvc.perform(get("/err/nse-m"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Item 1 not found"));
-        }
-    }
-
-    /** 400 Bad Request for input rejected by validators and domain parsing. */
-    @Nested class WhenInputInvalid {
-        @Test void should_return_400_with_the_message_when_an_argument_is_invalid() throws Exception {
-            mockMvc.perform(get("/err/iae-m"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Supplier does not exist"));
-        }
-        @Test void should_fall_back_to_the_default_when_the_invalid_argument_message_is_blank() throws Exception {
-            mockMvc.perform(get("/err/iae-blank"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Invalid request"));
         }
     }
 
@@ -117,6 +102,13 @@ class GlobalExceptionHandlerTest {
         }
         @Test void should_return_500_when_an_exception_is_unhandled() throws Exception {
             mockMvc.perform(get("/err/boom"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("Unexpected server error"));
+        }
+        // Rejected client input is an InvalidRequestException; an IllegalArgumentException that
+        // escapes comes from the framework or a programming error (a failed security expression).
+        @Test void should_return_a_generic_500_when_an_illegal_argument_escapes() throws Exception {
+            mockMvc.perform(get("/err/iae"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message").value("Unexpected server error"));
         }

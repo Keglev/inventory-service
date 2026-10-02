@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
@@ -38,7 +39,7 @@ public class InventoryItemValidationHelper {
      * Order: populate createdBy -> validate base fields -> check uniqueness -> validate supplier.
      *
      * @param dto the inventory item DTO to validate
-     * @throws IllegalArgumentException if validation fails
+     * @throws InvalidRequestException if a field is invalid or the supplier does not exist (400)
      */
     public void validateForCreation(InventoryItemDTO dto) {
         if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {
@@ -77,7 +78,7 @@ public class InventoryItemValidationHelper {
      * @param id  the item ID being updated
      * @param dto the updated inventory item data
      * @return the existing item entity
-     * @throws IllegalArgumentException if validation or permission check fails
+     * @throws InvalidRequestException if a field is invalid or the supplier does not exist (400)
      */
     public InventoryItem validateForUpdate(String id, InventoryItemDTO dto) {
         InventoryItemValidator.validateBase(dto);
@@ -123,7 +124,7 @@ public class InventoryItemValidationHelper {
     /**
      * Validates that the item exists and that its quantity is zero before deletion.
      * @param id the item ID to validate
-     * @throws IllegalArgumentException if item not found
+     * @throws org.springframework.web.server.ResponseStatusException 404 if the item is not found
      * @throws com.smartsupplypro.inventory.exception.BusinessRuleViolationException if quantity is
      *         greater than zero (409)
      */
@@ -135,11 +136,11 @@ public class InventoryItemValidationHelper {
     /**
      * Validates that the specified supplier exists.
      * @param supplierId the supplier identifier
-     * @throws IllegalArgumentException if supplier does not exist
+     * @throws InvalidRequestException if supplier does not exist (400)
      */
     private void validateSupplierExists(String supplierId) {
         if (!supplierRepository.existsById(supplierId)) {
-            throw new IllegalArgumentException("Supplier does not exist");
+            throw new InvalidRequestException("Supplier does not exist");
         }
     }
 }

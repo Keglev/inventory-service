@@ -101,12 +101,12 @@ Two `@ControllerAdvice` handlers cover all exceptions without overlap:
 
 | Exception | Status |
 |---|---|
-| `MethodArgumentNotValidException`, `ConstraintViolationException`, `HttpMessageNotReadableException`, `IllegalArgumentException` | 400 |
+| `MethodArgumentNotValidException`, `ConstraintViolationException`, `HttpMessageNotReadableException` | 400 |
 | `AuthenticationException` | 401 |
 | `AccessDeniedException` | 403 |
 | `NoSuchElementException` | 404 |
 | `DataIntegrityViolationException`, `ObjectOptimisticLockingFailureException` | 409 |
-| `Exception` (fallback, including `IllegalStateException`) | 500 |
+| `Exception` (fallback, including `IllegalStateException` and `IllegalArgumentException`) | 500 |
 
 **Error contract** — every response body (except static-resource 404s, which return no
 body) is:

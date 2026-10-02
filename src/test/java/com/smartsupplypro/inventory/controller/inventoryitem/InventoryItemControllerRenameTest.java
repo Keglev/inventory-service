@@ -24,6 +24,7 @@ import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.exception.BusinessExceptionHandler;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 
 /**
@@ -112,7 +113,7 @@ class InventoryItemControllerRenameTest {
         @Test
         @WithMockUser(roles = "ADMIN")
         void should_return_400_when_the_name_is_empty() throws Exception {
-            doThrow(new IllegalArgumentException("Item name cannot be empty"))
+            doThrow(new InvalidRequestException("Item name cannot be empty"))
                 .when(inventoryItemService).renameItem(eq("i-1"), eq(""));
 
             mockMvc.perform(patch("/api/inventory/i-1/name").with(csrf())
@@ -123,7 +124,7 @@ class InventoryItemControllerRenameTest {
         @Test
         @WithMockUser(roles = "ADMIN")
         void should_return_400_when_the_name_is_only_whitespace() throws Exception {
-            doThrow(new IllegalArgumentException("Item name cannot be empty"))
+            doThrow(new InvalidRequestException("Item name cannot be empty"))
                 .when(inventoryItemService).renameItem(eq("i-1"), eq("   "));
 
             mockMvc.perform(patch("/api/inventory/i-1/name").with(csrf())
