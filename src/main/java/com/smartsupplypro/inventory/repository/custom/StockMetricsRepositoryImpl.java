@@ -61,23 +61,6 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
                 .getResultList();
     }
 
-    /**
-     * Executes dialect-specific native SQL for items below minimum stock threshold.
-     *
-     * @param supplierId optional supplier filter (null returns all suppliers)
-     * @return items below minimum ordered by quantity ascending
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<Object[]> findItemsBelowMinimumStock(String supplierId) {
-        final String sql = dialectDetector.isH2()
-            ? StockMetricsSqlBuilder.buildH2BelowMinimumSql()
-            : StockMetricsSqlBuilder.buildOracleBelowMinimumSql();
-        return em.createNativeQuery(sql)
-                .setParameter("supplierId", normalizeOptionalParam(supplierId))
-                .getResultList();
-    }
-
     private String normalizeOptionalParam(String param) {
         return (param == null || param.isBlank()) ? null : param.trim();
     }

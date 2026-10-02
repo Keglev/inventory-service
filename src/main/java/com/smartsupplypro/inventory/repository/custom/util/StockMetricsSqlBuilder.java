@@ -1,7 +1,7 @@
 package com.smartsupplypro.inventory.repository.custom.util;
 
 /**
- * SQL factory for {@code StockMetricsRepositoryImpl} — produces KPI and threshold queries for H2 and Oracle.
+ * SQL factory for {@code StockMetricsRepositoryImpl} — produces KPI queries for H2 and Oracle.
  */
 public final class StockMetricsSqlBuilder {
 
@@ -74,38 +74,6 @@ public final class StockMetricsSqlBuilder {
             WHERE (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
             GROUP BY i.name
             ORDER BY update_count DESC
-        """;
-    }
-
-    /**
-     * Returns the H2 SQL for items currently below their minimum stock threshold.
-     *
-     * @return SQL ordered by quantity ascending; accepts named parameter {@code :supplierId}
-     */
-    public static String buildH2BelowMinimumSql() {
-        return """
-            SELECT i."NAME", i."QUANTITY", i."MINIMUM_QUANTITY"
-            FROM "INVENTORY_ITEM" i
-            WHERE i."ACTIVE" = 1
-              AND i."QUANTITY" < i."MINIMUM_QUANTITY"
-              AND (:supplierId IS NULL OR UPPER(i."SUPPLIER_ID") = UPPER(:supplierId))
-            ORDER BY i."QUANTITY" ASC
-        """;
-    }
-
-    /**
-     * Returns the Oracle SQL for items currently below their minimum stock threshold.
-     *
-     * @return SQL ordered by quantity ascending; accepts named parameter {@code :supplierId}
-     */
-    public static String buildOracleBelowMinimumSql() {
-        return """
-            SELECT i.name, i.quantity, i.minimum_quantity
-            FROM inventory_item i
-            WHERE i.active = 1
-              AND i.quantity < i.minimum_quantity
-              AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-            ORDER BY i.quantity ASC
         """;
     }
 }

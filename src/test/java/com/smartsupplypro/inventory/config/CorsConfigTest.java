@@ -43,8 +43,9 @@ class CorsConfigTest {
     }
 
     @Test
-    void should_expose_the_set_cookie_header_when_cors_is_configured() {
-        assertThat(getCors().getExposedHeaders()).contains("Set-Cookie");
+    void should_expose_no_response_headers_when_cors_is_configured() {
+        // Browsers never expose Set-Cookie to scripts, and the frontend reads no other header
+        assertThat(getCors().getExposedHeaders()).isNullOrEmpty();
     }
 
     @Test

@@ -26,13 +26,4 @@ public class DatabaseDialectDetector {
         return Arrays.stream(environment.getActiveProfiles())
                 .anyMatch(p -> p.equalsIgnoreCase("test") || p.equalsIgnoreCase("h2"));
     }
-
-    /**
-     * Returns {@code true} when Oracle dialect should be used (inverse of {@link #isH2()}).
-     *
-     * @return true if Oracle dialect should be used
-     */
-    public boolean isOracle() {
-        return !isH2();
-    }
 }
