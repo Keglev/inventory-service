@@ -251,10 +251,10 @@
         </tbody>
         </table>
         <p><code>UserProvisioningService</code> is called at token load
-        by <code>CustomOAuth2UserService</code> and
-        <code>CustomOidcUserService</code>; it finds or creates the user
-        and heals the role against the admin allow-list on every
-        login.</p>
+        by <code>CustomOidcUserService</code>; it finds or creates the
+        user and heals the role against the admin allow-list on every
+        login. A login without the <code>openid</code> scope is rejected
+        by <code>OidcOnlyUserService</code>.</p>
         <h2 id="repository-layer">Repository Layer</h2>
         <table>
         <colgroup>
