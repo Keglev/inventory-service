@@ -64,32 +64,6 @@ export const searchSuppliersByName = async (name: string): Promise<SupplierRow[]
 };
 
 /**
- * Fetches a single supplier by id via GET /api/suppliers/:id.
- *
- * @param id - Supplier id
- * @returns The normalized SupplierRow, or null when not found / on error
- *
- * @backend GET /api/suppliers/:id (SupplierController.getById) -> single SupplierDTO; 404 when absent.
- *
- * @example
- * ```typescript
- * const supplier = await getSupplierById('SUP-1');
- * ```
- */
-export const getSupplierById = async (id: string): Promise<SupplierRow | null> => {
-  try {
-    const resp = await http.get(`${SUPPLIERS_BASE}/${encodeURIComponent(id)}`);
-    const data: unknown = typeof resp === 'object' && resp !== null && 'data' in resp
-      ? (resp as unknown as Record<string, unknown>).data
-      : null;
-    return toSupplierRow(data);
-  } catch (error) {
-    logError('[getSupplierById] Error fetching supplier by id:', error);
-    return null;
-  }
-};
-
-/**
  * Fetches every supplier from GET /api/suppliers, normalized to SupplierRow.
  *
  * @backend GET /api/suppliers -> plain List<SupplierDTO>, no parameters.

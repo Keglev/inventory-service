@@ -5,8 +5,7 @@
  *
  * Contract under test:
  * - Guarantees defensive field extraction and coercion contracts used by
- *   inventory DTO normalizers, including undefined-on-mismatch behavior
- *   and deterministic "first match wins" list semantics.
+ *   inventory DTO normalizers, including undefined-on-mismatch behavior.
  *
  * Out of scope:
  * - Performance characteristics (these tests validate correctness, not
@@ -15,7 +14,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { pickString, pickNumber, pickNumberFromList, pickStringFromList } from '../../../../api/shared/fieldPickers';
+import { pickString, pickNumber } from '../../../../api/shared/fieldPickers';
 
 describe('fieldPickers', () => {
   describe('pickString()', () => {
@@ -63,40 +62,6 @@ describe('fieldPickers', () => {
 
     it('returns undefined when the field is missing', () => {
       expect(pickNumber({}, 'qty')).toBeUndefined();
-    });
-  });
-
-  describe('pickNumberFromList()', () => {
-    it('returns the first valid number match in key order', () => {
-      const obj = { qty: 10, quantity: 20 };
-      expect(pickNumberFromList(obj, ['qty', 'quantity'])).toBe(10);
-    });
-
-    it('tries subsequent keys until a match is found', () => {
-      const obj = { quantity: 42 };
-      expect(pickNumberFromList(obj, ['qty', 'quantity', 'count'])).toBe(42);
-    });
-
-    it('returns undefined when no listed keys resolve to a number', () => {
-      expect(pickNumberFromList({}, ['qty', 'quantity'])).toBeUndefined();
-      expect(pickNumberFromList({ name: 'test' }, ['qty'])).toBeUndefined();
-    });
-  });
-
-  describe('pickStringFromList()', () => {
-    it('returns the first valid string match in key order', () => {
-      const obj = { name: 'Alice', title: 'Bob' };
-      expect(pickStringFromList(obj, ['name', 'title'])).toBe('Alice');
-    });
-
-    it('tries subsequent keys until a match is found', () => {
-      const obj = { itemName: 'Widget' };
-      expect(pickStringFromList(obj, ['name', 'itemName', 'title'])).toBe('Widget');
-    });
-
-    it('returns undefined when no listed keys resolve to a string', () => {
-      expect(pickStringFromList({}, ['name', 'title'])).toBeUndefined();
-      expect(pickStringFromList({ qty: 10 }, ['name'])).toBeUndefined();
     });
   });
 });

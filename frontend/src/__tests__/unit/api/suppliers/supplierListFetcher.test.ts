@@ -1,7 +1,7 @@
 /**
  * @file supplierListFetcher.test.ts
  * @module tests/unit/api/suppliers/supplierListFetcher
- * @description Contract tests for the supplier list, search and by-id fetchers.
+ * @description Contract tests for the supplier list and search fetchers.
  *
  * Contract under test:
  * - getAllSuppliers requests the list without parameters (the endpoint takes
@@ -27,7 +27,7 @@ vi.mock('@/api/suppliers/supplierNormalizers', () => ({
 
 import http from '@/api/httpClient';
 import { toSupplierRow } from '@/api/suppliers/supplierNormalizers';
-import { getAllSuppliers, searchSuppliersByName, getSupplierById, SUPPLIERS_BASE } from '@/api/suppliers/supplierListFetcher';
+import { getAllSuppliers, searchSuppliersByName, SUPPLIERS_BASE } from '@/api/suppliers/supplierListFetcher';
 
 const httpMock = http as unknown as { get: ReturnType<typeof vi.fn> };
 const toSupplierRowMock = toSupplierRow as ReturnType<typeof vi.fn>;
@@ -109,43 +109,6 @@ describe('getAllSuppliers', () => {
 
       expect(errorSpy).toHaveBeenCalledWith(
         '[searchSuppliersByName] Error searching suppliers by name:',
-        failure,
-      );
-      errorSpy.mockRestore();
-    });
-  });
-
-  describe('getSupplierById', () => {
-    it('requests the id endpoint (encoded) and normalizes the row', async () => {
-      const row = { id: 'SUP 1' };
-      httpMock.get.mockResolvedValue({ data: { id: 'SUP 1' } });
-      toSupplierRowMock.mockReturnValueOnce(row);
-
-      const result = await getSupplierById('SUP 1');
-
-      expect(httpMock.get).toHaveBeenCalledWith(`${SUPPLIERS_BASE}/SUP%201`);
-      expect(result).toEqual(row);
-    });
-
-    it('passes null into the normalizer for a non-object response', async () => {
-      httpMock.get.mockResolvedValue('weird');
-      toSupplierRowMock.mockReturnValueOnce(null);
-
-      const result = await getSupplierById('SUP-1');
-
-      expect(toSupplierRowMock).toHaveBeenCalledWith(null);
-      expect(result).toBeNull();
-    });
-
-    it('returns null and logs on transport failure', async () => {
-      const failure = new Error('offline');
-      httpMock.get.mockRejectedValue(failure);
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-      await expect(getSupplierById('SUP-1')).resolves.toBeNull();
-
-      expect(errorSpy).toHaveBeenCalledWith(
-        '[getSupplierById] Error fetching supplier by id:',
         failure,
       );
       errorSpy.mockRestore();

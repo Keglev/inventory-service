@@ -27,10 +27,6 @@ import { HelpContext, type HelpContextType } from './HelpContext.types';
 /** MUI Drawer exit transition is ~195-225ms by default; 300ms adds a safety margin so the topic content never blanks mid-fade. */
 const DRAWER_EXIT_GUARD_MS = 300;
 
-// Re-export types for backward compatibility
-export type { HelpContextType } from './HelpContext.types';
-export { HelpContext } from './HelpContext.types';
-
 export const HelpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentTopicId, setCurrentTopicId] = React.useState<string | null>(null);
   const [isOpen, setIsOpen] = React.useState(false);

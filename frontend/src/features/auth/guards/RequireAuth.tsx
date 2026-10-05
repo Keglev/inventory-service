@@ -59,4 +59,3 @@ const RequireAuth: React.FC<Props> = ({ children, fallback, allowDemo }) => {
 };
 
 export { RequireAuth };
-export default RequireAuth;
