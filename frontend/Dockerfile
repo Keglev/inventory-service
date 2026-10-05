@@ -86,8 +86,8 @@ COPY --from=build /app/dist /usr/share/nginx/html
 RUN chown -R nginx:nginx /var/cache/nginx
 USER 101
 
-# Koyeb routes traffic to $PORT; 8080 is the value configured in the platform settings.
-ENV PORT=8080
+# Koyeb's port and health check are set to 8080 in the platform settings;
+# nginx listens on a fixed 8080 and nothing in the image reads $PORT.
 EXPOSE 8080
 
 # Shell form is required here: JSON notation has no shell, and the `|| exit 1`

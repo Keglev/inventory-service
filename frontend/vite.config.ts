@@ -67,7 +67,7 @@ export default defineConfig({
           if (/\/node_modules\/(react-hook-form|@hookform|zod)\//.test(id)) return 'vendor-forms';
           if (/\/node_modules\/(i18next|react-i18next|i18next-browser-languagedetector|i18next-http-backend)\//.test(id))
             return 'vendor-i18n';
-          if (/\/node_modules\/(axios|@tanstack|dayjs)\//.test(id)) return 'vendor-utils';
+          if (/\/node_modules\/(axios|@tanstack)\//.test(id)) return 'vendor-utils';
           return undefined;
         },
       },
