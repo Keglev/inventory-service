@@ -8,10 +8,11 @@
  * - Delegates user intent via callbacks: `onCancel` and `onConfirm`.
  * - Reflects submission state by disabling actions and showing a progress indicator.
  * - Surfaces `formError` in an alert and delegates alert close to `onCancel`.
+ * - Tints each change box with the theme's info colour.
  *
  * Out of scope:
  * - API interaction (handled by the orchestration hook).
- * - MUI styling/structure beyond accessible roles and text.
+ * - MUI styling/structure beyond accessible roles, text and the change tint.
  *
  * Test strategy:
  * - Assert observable text and a11y roles.
@@ -21,12 +22,14 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ThemeProvider } from '@mui/material';
 import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 import { EditSupplierConfirmation } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation';
 import { editSupplierChanges, supplierRow } from './fixtures';
 import { tEn } from '../../../../test/i18nEn';
+import { buildTheme } from '../../../../../theme';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
@@ -128,6 +131,29 @@ describe('EditSupplierConfirmation', () => {
     expect(screen.getByText('Old Contact → (empty)')).toBeInTheDocument();
     expect(screen.getByText('555-5000 → (empty)')).toBeInTheDocument();
     expect(screen.getByText('old@acme.com → (empty)')).toBeInTheDocument();
+  });
+
+  it('tints each change box with the info colour of the active theme', () => {
+    // An undefined palette name (info.lighter) once left these boxes without
+    // any background; dark mode proves the app theme, not MUI's default, applies.
+    render(
+      <ThemeProvider theme={buildTheme('en', 'dark')}>
+        <EditSupplierConfirmation
+          open={true}
+          supplier={supplier}
+          changes={changes}
+          formError=""
+          isSubmitting={false}
+          onConfirm={vi.fn()}
+          onCancel={vi.fn()}
+        />
+      </ThemeProvider>
+    );
+
+    for (const label of ['Contact', 'Phone', 'Email']) {
+      const box = screen.getByText(label).parentElement as HTMLElement;
+      expect(getComputedStyle(box).backgroundColor).toBe('rgba(41, 182, 246, 0.15)');
+    }
   });
 
   it('hides change summary boxes when values are unchanged', () => {

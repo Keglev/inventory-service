@@ -26,6 +26,7 @@ import {
   Divider,
   CircularProgress,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import type { EditSupplierForm } from '../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../api/suppliers/types';
@@ -125,7 +126,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
               </Typography>
 
               {changes?.contactName !== (supplier.contactName || '') && (
-                <Box sx={{ mb: 1.5, p: 1, bgcolor: 'info.lighter', borderRadius: 1 }}>
+                <Box sx={{ mb: 1.5, p: 1, bgcolor: (theme) => alpha(theme.palette.info.main, 0.15), borderRadius: 1 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
                     {t('suppliers:table.contactName')}
                   </Typography>
@@ -137,7 +138,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
               )}
 
               {changes?.phone !== (supplier.phone || '') && (
-                <Box sx={{ mb: 1.5, p: 1, bgcolor: 'info.lighter', borderRadius: 1 }}>
+                <Box sx={{ mb: 1.5, p: 1, bgcolor: (theme) => alpha(theme.palette.info.main, 0.15), borderRadius: 1 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
                     {t('suppliers:table.phone')}
                   </Typography>
@@ -148,7 +149,7 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
               )}
 
               {changes?.email !== (supplier.email || '') && (
-                <Box sx={{ mb: 1.5, p: 1, bgcolor: 'info.lighter', borderRadius: 1 }}>
+                <Box sx={{ mb: 1.5, p: 1, bgcolor: (theme) => alpha(theme.palette.info.main, 0.15), borderRadius: 1 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
                     {t('suppliers:table.email')}
                   </Typography>
