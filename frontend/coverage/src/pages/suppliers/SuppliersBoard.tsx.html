@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>20/20</span>
+                <span class='fraction'>19/19</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>18/18</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>17/17</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
@@ -249,11 +249,7 @@
 <a name='L184'></a><a href='#L184'>184</a>
 <a name='L185'></a><a href='#L185'>185</a>
 <a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a>
-<a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a>
-<a name='L190'></a><a href='#L190'>190</a>
-<a name='L191'></a><a href='#L191'>191</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L187'></a><a href='#L187'>187</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -341,9 +337,6 @@
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
@@ -354,7 +347,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -472,7 +464,7 @@ import { useSearchHandlers } from './handlers/useSearchHandlers';
 import { useTableHandlers } from './handlers/useTableHandlers';
 import { useFilterHandlers } from './handlers/useFilterHandlers';
 import { useDialogHandlers } from './handlers/useDialogHandlers';
-import { useDataFetchingLogic } from './handlers/useDataFetchingLogic';
+import { useSuppliersBoardData } from './hooks/useSuppliersBoardData';
 import { SuppliersToolbar } from './components/SuppliersToolbar';
 import { SuppliersSearchPanel } from './components/SuppliersSearchPanel';
 import { SuppliersFilterPanel } from './components/SuppliersFilterPanel';
@@ -520,20 +512,17 @@ const SuppliersBoard: React.FC = () =&gt; {
   // =====================
   // Data Fetching &amp; Processing
   // =====================
-  const data = useDataFetchingLogic(state);
+  const data = useSuppliersBoardData(state.searchQuery);
   const selectedResult = state.selectedSearchResult;
 &nbsp;
   // What the grid shows, in priority order:
   // 1. a supplier picked from the search dropdown -&gt; only that one row
-  // 2. otherwise, if "show all" is on -&gt; the paginated page
+  // 2. otherwise, if "show all" is on -&gt; every supplier (the grid pages and sorts them)
   // 3. otherwise -&gt; nothing
   // A selected result is non-null by construction here, so it needs no further guard.
   const displayRows = selectedResult
     ? [selectedResult]
     : (state.showAllSuppliers ? data.suppliers : []);
-  const displayRowCount = selectedResult
-    ? 1
-    : (state.showAllSuppliers ? data.total : 0);
 &nbsp;
   const { setOpenCreate, setOpenEdit, setOpenDelete } = state;
   const handleCloseCreate = React.useCallback(() =&gt; setOpenCreate(false), [setOpenCreate]);
@@ -604,7 +593,6 @@ const SuppliersBoard: React.FC = () =&gt; {
           &lt;Box sx={{ px: 2, mb: 2, flex: 1, minHeight: 0 }}&gt;
             &lt;SuppliersTable
               rows={displayRows}
-              rowCount={displayRowCount}
               paginationModel={state.paginationModel}
               onPaginationChange={handlePaginationChange}
               sortModel={state.sortModel}

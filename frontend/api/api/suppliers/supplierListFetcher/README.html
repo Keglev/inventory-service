@@ -126,10 +126,10 @@ api/suppliers/supplierListFetcher/README · Smart Supply Pro · API</title>
         <ul>
         <li>Backend returns a plain JSON array (List<SupplierDTO>) — no
         Spring Page envelope, no server-side pagination.</li>
-        <li>page/pageSize/q/sort are forwarded as query params but are
-        ignored server-side.</li>
-        <li>On network failure the fetcher returns an empty page so the
-        UI degrades cleanly rather than throwing.</li>
+        <li>The list endpoint takes no parameters; the suppliers grid
+        pages and sorts the full list in the browser.</li>
+        <li>On network failure the list fetcher returns an empty list so
+        the UI degrades cleanly rather than throwing.</li>
         </ul>
         <h2 id="variables">Variables</h2>
         <ul>
@@ -139,9 +139,9 @@ api/suppliers/supplierListFetcher/README · Smart Supply Pro · API</title>
         <h2 id="functions">Functions</h2>
         <ul>
         <li><a
-        href="functions/getSupplierById.html">getSupplierById</a></li>
+        href="functions/getAllSuppliers.html">getAllSuppliers</a></li>
         <li><a
-        href="functions/getSuppliersPage.html">getSuppliersPage</a></li>
+        href="functions/getSupplierById.html">getSupplierById</a></li>
         <li><a
         href="functions/searchSuppliersByName.html">searchSuppliersByName</a></li>
         </ul>

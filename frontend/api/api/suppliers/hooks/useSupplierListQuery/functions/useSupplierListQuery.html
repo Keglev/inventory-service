@@ -15,7 +15,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-api/suppliers/supplierListFetcher/functions/getSuppliersPage · Smart Supply Pro · API</title>
+api/suppliers/hooks/useSupplierListQuery/functions/useSupplierListQuery · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -114,40 +114,44 @@ api/suppliers/supplierListFetcher/functions/getSuppliersPage · Smart Supply Pro
     <main class="content" id="main">
       <article class="doc-body">
         <p><a
-        href="../../../../README.html"><strong>frontend</strong></a></p>
+        href="../../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/suppliers/supplierListFetcher</a> /
-        getSuppliersPage</p>
-        <h1 id="function-getsupplierspage">Function:
-        getSuppliersPage()</h1>
+        <p><a href="../../../../../README.html">frontend</a> / <a
+        href="../README.html">api/suppliers/hooks/useSupplierListQuery</a>
+        / useSupplierListQuery</p>
+        <h1 id="function-usesupplierlistquery">Function:
+        useSupplierListQuery()</h1>
         <blockquote>
-        <p><strong>getSuppliersPage</strong>(<code>params</code>):
-        <code>Promise</code>&lt;<a
-        href="../../types/interfaces/SupplierListResponse.html"><code>SupplierListResponse</code></a>&gt;</p>
+        <p><strong>useSupplierListQuery</strong>(<code>enabled?</code>):
+        <code>UseQueryResult</code>&lt;<a
+        href="../../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>[],
+        <code>Error</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/suppliers/supplierListFetcher.ts#L105">api/suppliers/supplierListFetcher.ts:105</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/suppliers/hooks/useSupplierListQuery.ts#L25">api/suppliers/hooks/useSupplierListQuery.ts:25</a></p>
+        <p>Fetches and caches the full supplier list.</p>
         <h2 id="parameters">Parameters</h2>
-        <h3 id="params">params</h3>
-        <p><a
-        href="../../types/interfaces/SupplierListParams.html"><code>SupplierListParams</code></a></p>
+        <h3 id="enabled">enabled?</h3>
+        <p><code>boolean</code> = <code>true</code></p>
+        <p>Whether to fetch (defaults to true)</p>
         <h2 id="returns">Returns</h2>
-        <p><code>Promise</code>&lt;<a
-        href="../../types/interfaces/SupplierListResponse.html"><code>SupplierListResponse</code></a>&gt;</p>
+        <p><code>UseQueryResult</code>&lt;<a
+        href="../../../types/interfaces/SupplierRow.html"><code>SupplierRow</code></a>[],
+        <code>Error</code>&gt;</p>
+        <p>React Query result with every supplier as SupplierRow[]</p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-getsupplierspage"
-      id="toc-function-getsupplierspage">Function:
-      getSuppliersPage()</a>
+      <li><a href="#function-usesupplierlistquery"
+      id="toc-function-usesupplierlistquery">Function:
+      useSupplierListQuery()</a>
       <ul>
       <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
-      <li><a href="#params" id="toc-params">params</a></li>
+      <li><a href="#enabled" id="toc-enabled">enabled?</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
       </ul></li>
