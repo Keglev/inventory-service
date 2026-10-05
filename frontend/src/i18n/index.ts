@@ -54,6 +54,13 @@ if (!saved && typeof window !== 'undefined') {
   localStorage.setItem(I18N_LS_KEY, 'de'); // <- guarantees German-first
 }
 
+// WHY: <html lang> tells screen readers, hyphenation and the browser's
+// translate offer which language the page is in. Registered before init so
+// the first load sets it too; resolvedLanguage collapses en-US to en.
+i18n.on('languageChanged', (lng) => {
+  document.documentElement.lang = i18n.resolvedLanguage ?? lng;
+});
+
 i18n
   // Load /locales/{{lng}}/{{ns}}.json at runtime
   .use(Backend)
