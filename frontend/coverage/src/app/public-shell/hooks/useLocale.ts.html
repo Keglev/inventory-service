@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>17/17</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
@@ -121,8 +121,7 @@
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
 <a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a>
-<a name='L60'></a><a href='#L60'>60</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L59'></a><a href='#L59'>59</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -145,7 +144,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -187,8 +185,8 @@
  * @summary Manages locale state (de/en) with localStorage and i18next synchronization.
  *
  * @enterprise
- * - Uses LS key 'i18nextLng' — the same key i18next writes natively — so this hook
- *   and i18next always read from the same source of truth.
+ * - Uses LANGUAGE_KEY, the same key i18next writes natively, so this hook and
+ *   i18next always read from the same source of truth.
  * - Normalizes regional codes (e.g. 'de-DE' -&gt; 'de') because browsers and OS settings
  *   often produce BCP-47 regional variants that the theme's SupportedLocale doesn't
  *   accept.
@@ -203,8 +201,7 @@
 import * as React from 'react';
 import type { i18n } from 'i18next';
 import type { SupportedLocale } from '../../../theme';
-&nbsp;
-const LS_KEY = 'i18nextLng';
+import { LANGUAGE_KEY } from '../../../config/storageKeys';
 &nbsp;
 const normalize = (lng?: string): SupportedLocale =&gt; (lng?.startsWith('en') ? 'en' : 'de');
 &nbsp;
@@ -215,7 +212,7 @@ interface UseLocaleReturn {
 }
 &nbsp;
 export const useLocale = (i18n: i18n): UseLocaleReturn =&gt; {
-  const initial = normalize(localStorage.getItem(LS_KEY) || i18n.resolvedLanguage || 'de');
+  const initial = normalize(localStorage.getItem(LANGUAGE_KEY) || i18n.resolvedLanguage || 'de');
   const [locale, setLocaleState] = React.useState&lt;SupportedLocale&gt;(initial);
 &nbsp;
   React.useEffect(() =&gt; {
@@ -227,7 +224,7 @@ export const useLocale = (i18n: i18n): UseLocaleReturn =&gt; {
   }, [i18n]);
 &nbsp;
   const changeLocale = async (next: SupportedLocale): Promise&lt;void&gt; =&gt; {
-    localStorage.setItem(LS_KEY, next);
+    localStorage.setItem(LANGUAGE_KEY, next);
     setLocaleState(next);
     // Awaited so callers can resolve strings AFTER the switch: i18next fetches
     // /locales/&lt;lng&gt;/&lt;ns&gt;.json on demand, so a synchronous t() right after the

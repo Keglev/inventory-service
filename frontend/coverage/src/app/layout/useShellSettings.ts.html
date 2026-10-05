@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>30/30</span>
+                <span class='fraction'>28/28</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>28/28</span>
+                <span class='fraction'>26/26</span>
             </div>
         
             
@@ -152,10 +152,7 @@
 <a name='L87'></a><a href='#L87'>87</a>
 <a name='L88'></a><a href='#L88'>88</a>
 <a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a>
-<a name='L92'></a><a href='#L92'>92</a>
-<a name='L93'></a><a href='#L93'>93</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L90'></a><a href='#L90'>90</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -177,9 +174,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -268,10 +262,7 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { buildTheme } from '../../theme';
 import type { SupportedLocale } from '../../theme';
-&nbsp;
-/* LocalStorage keys for persistence */
-const LS_THEME_KEY = 'themeMode';
-const LS_LANGUAGE_KEY = 'i18nextLng';
+import { LANGUAGE_KEY, THEME_MODE_KEY } from '../../config/storageKeys';
 &nbsp;
 /** Normalize an i18n language tag ('de-DE', 'en-US') to a SupportedLocale ('de' | 'en'). */
 function normalizeLocale(lng?: string): SupportedLocale {
@@ -292,7 +283,7 @@ export function useShellSettings(notify: Notify): ShellSettings {
   const { t, i18n } = useTranslation(['common', 'auth']);
 &nbsp;
   // Initialize locale from localStorage or i18n default; keep state synced to i18n changes.
-  const initial = normalizeLocale(localStorage.getItem(LS_LANGUAGE_KEY) || i18n.resolvedLanguage || <span class="branch-2 cbranch-no" title="branch not covered" >'de')</span>;
+  const initial = normalizeLocale(localStorage.getItem(LANGUAGE_KEY) || i18n.resolvedLanguage || <span class="branch-2 cbranch-no" title="branch not covered" >'de')</span>;
   const [locale, setLocale] = React.useState&lt;SupportedLocale&gt;(initial);
 &nbsp;
   React.useEffect(() =&gt; {
@@ -305,7 +296,7 @@ export function useShellSettings(notify: Notify): ShellSettings {
 &nbsp;
   // Initialize theme mode from localStorage; default 'light'.
   const [themeMode, setThemeMode] = React.useState&lt;'light' | 'dark'&gt;(() =&gt; {
-    const saved = localStorage.getItem(LS_THEME_KEY) as 'light' | 'dark' | null;
+    const saved = localStorage.getItem(THEME_MODE_KEY) as 'light' | 'dark' | null;
     return saved || 'light';
   });
 &nbsp;
@@ -317,7 +308,7 @@ export function useShellSettings(notify: Notify): ShellSettings {
       if (prev === nextMode) {
         return prev;
       }
-      localStorage.setItem(LS_THEME_KEY, nextMode);
+      localStorage.setItem(THEME_MODE_KEY, nextMode);
       notify(
         nextMode === 'dark'
           ? t('common:shell.darkModeEnabled')
@@ -329,7 +320,7 @@ export function useShellSettings(notify: Notify): ShellSettings {
   };
 &nbsp;
   const handleLocaleChange = async (next: SupportedLocale): Promise&lt;void&gt; =&gt; {
-    localStorage.setItem(LS_LANGUAGE_KEY, next);
+    localStorage.setItem(LANGUAGE_KEY, next);
     setLocale(next);
     // Awaited so the toast resolves after the new bundle is loaded; i18next
     // fetches locale files on demand.

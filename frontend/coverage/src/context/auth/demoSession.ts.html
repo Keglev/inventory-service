@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/app/public-shell/hooks/useThemeMode.ts</title>
+    <title>Code coverage report for src/context/auth/demoSession.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../../prettify.css" />
-    <link rel="stylesheet" href="../../../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../../../sort-arrow-sprite.png);
+            background-image: url(../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,13 +19,13 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/app/public-shell/hooks</a> useThemeMode.ts</h1>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/context/auth</a> demoSession.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>10/10</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>10/10</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -93,22 +93,7 @@
 <a name='L28'></a><a href='#L28'>28</a>
 <a name='L29'></a><a href='#L29'>29</a>
 <a name='L30'></a><a href='#L30'>30</a>
-<a name='L31'></a><a href='#L31'>31</a>
-<a name='L32'></a><a href='#L32'>32</a>
-<a name='L33'></a><a href='#L33'>33</a>
-<a name='L34'></a><a href='#L34'>34</a>
-<a name='L35'></a><a href='#L35'>35</a>
-<a name='L36'></a><a href='#L36'>36</a>
-<a name='L37'></a><a href='#L37'>37</a>
-<a name='L38'></a><a href='#L38'>38</a>
-<a name='L39'></a><a href='#L39'>39</a>
-<a name='L40'></a><a href='#L40'>40</a>
-<a name='L41'></a><a href='#L41'>41</a>
-<a name='L42'></a><a href='#L42'>42</a>
-<a name='L43'></a><a href='#L43'>43</a>
-<a name='L44'></a><a href='#L44'>44</a>
-<a name='L45'></a><a href='#L45'>45</a>
-<a name='L46'></a><a href='#L46'>46</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L31'></a><a href='#L31'>31</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -128,76 +113,46 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-yes">29x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @file useThemeMode.ts
- * @module useThemeMode
- * @summary Manages theme mode state (light/dark) with localStorage persistence.
+ * @file demoSession.ts
+ * @module context/auth/demoSession
+ *
+ * @summary
+ * Reads the stored demo session, if one is active.
  *
  * @enterprise
- * - Uses THEME_MODE_KEY (distinct from LANGUAGE_KEY) so the two toggles are
- *   stored independently and do not interfere with each other.
- * - Defaults to 'light' because the public shell has no user-settings context to
- *   derive a preference from.
- * - Local hook state only — no provider needed since only AppPublicShell consumes
- *   themeMode.
- *
- * @example
- * ```tsx
- * const { themeMode, setThemeMode, toggleThemeMode } = useThemeMode();
- * ```
+ * - One reader for two callers: AuthContext hydrates the demo user from it,
+ *   and httpClient skips the login redirect on a 401 while a demo runs (a
+ *   demo has no server session, so 401s are expected there).
+ * - Plain module without React: httpClient cannot import AuthContext, which
+ *   imports httpClient.
  */
-import * as React from 'react';
 &nbsp;
-import { THEME_MODE_KEY } from '../../../config/storageKeys';
+import type { AppUser } from './authTypes';
+import { DEMO_SESSION_KEY } from '../../config/storageKeys';
 &nbsp;
-interface UseThemeModeReturn {
-  themeMode: 'light' | 'dark';
-  setThemeMode: (mode: 'light' | 'dark') =&gt; void;
-  toggleThemeMode: () =&gt; void;
+/** The stored demo user when a demo session is active, otherwise null. */
+export function readDemoSession(): AppUser | null {
+  try {
+    const raw = localStorage.getItem(DEMO_SESSION_KEY);
+    const demo = raw ? (JSON.parse(raw) as AppUser | null) : null;
+    return demo?.isDemo === true ? demo : null;
+  } catch {
+    // WHY: localStorage can throw (Safari private mode, quota exceeded, disabled
+    // storage) or hold corrupt JSON from an older version; neither is a demo.
+    return null;
+  }
 }
-&nbsp;
-export const useThemeMode = (): UseThemeModeReturn =&gt; {
-  const [themeMode, setThemeModeState] = React.useState&lt;'light' | 'dark'&gt;(() =&gt; {
-    const saved = localStorage.getItem(THEME_MODE_KEY) as 'light' | 'dark' | null;
-    return saved || 'light';
-  });
-&nbsp;
-  const setThemeMode = (mode: 'light' | 'dark') =&gt; {
-    localStorage.setItem(THEME_MODE_KEY, mode);
-    setThemeModeState(mode);
-  };
-&nbsp;
-  const toggleThemeMode = () =&gt; {
-    setThemeMode(themeMode === 'light' ? 'dark' : 'light');
-  };
-&nbsp;
-  return { themeMode, setThemeMode, toggleThemeMode };
-};
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -206,14 +161,14 @@ export const useThemeMode = (): UseThemeModeReturn =&gt; {
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
             </div>
-        <script src="../../../../prettify.js"></script>
+        <script src="../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../../../sorter.js"></script>
-        <script src="../../../../block-navigation.js"></script>
+        <script src="../../../sorter.js"></script>
+        <script src="../../../block-navigation.js"></script>
     </body>
 </html>
     

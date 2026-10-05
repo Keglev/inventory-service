@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
@@ -160,8 +160,7 @@
 <a name='L95'></a><a href='#L95'>95</a>
 <a name='L96'></a><a href='#L96'>96</a>
 <a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a>
-<a name='L99'></a><a href='#L99'>99</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L98'></a><a href='#L98'>98</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -186,7 +185,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -283,8 +281,7 @@
 &nbsp;
 import type { UserPreferences } from './SettingsContext.types';
 import { logWarn } from '../../utils/logger';
-&nbsp;
-const STORAGE_KEY = 'appSettings';
+import { SETTINGS_KEY } from '../../config/storageKeys';
 &nbsp;
 /**
  * Get language-appropriate default preferences
@@ -318,7 +315,7 @@ export const getDefaultPreferences = (language: string): UserPreferences =&gt; {
  */
 export const loadPreferencesFromStorage = (language: string): UserPreferences =&gt; {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(SETTINGS_KEY);
     if (stored) {
       return JSON.parse(stored) as UserPreferences;
     }
@@ -338,7 +335,7 @@ export const loadPreferencesFromStorage = (language: string): UserPreferences =&
  */
 export const savePreferencesToStorage = (prefs: UserPreferences): void =&gt; {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(prefs));
   } catch (error) {
     logWarn('Failed to save settings to localStorage:', error);
   }
@@ -352,7 +349,7 @@ export const savePreferencesToStorage = (prefs: UserPreferences): void =&gt; {
  */
 export const clearPreferencesFromStorage = (): void =&gt; {
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(SETTINGS_KEY);
   } catch (error) {
     logWarn('Failed to clear settings from localStorage:', error);
   }
