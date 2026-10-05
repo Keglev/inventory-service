@@ -27,7 +27,6 @@ import type { UseSuppliersBoardStateReturn } from '../../../../pages/suppliers/h
 
 type SuppliersBoardData = {
   suppliers: SupplierRow[];
-  total: number;
   searchResults: SupplierRow[];
   isLoadingSuppliers: boolean;
   isLoadingSearch: boolean;
@@ -143,8 +142,8 @@ vi.mock('../../../../pages/suppliers/handlers/useDialogHandlers', () => ({
   }),
 }));
 
-vi.mock('../../../../pages/suppliers/handlers/useDataFetchingLogic', () => ({
-  useDataFetchingLogic: () => runtime.data,
+vi.mock('../../../../pages/suppliers/hooks/useSuppliersBoardData', () => ({
+  useSuppliersBoardData: () => runtime.data,
 }));
 
 // Fixture builder: minimal SupplierRow with sensible defaults.
@@ -181,7 +180,6 @@ const createState = (
 
 const createData = (overrides: Partial<SuppliersBoardData> = {}): SuppliersBoardData => ({
   suppliers: [],
-  total: 0,
   searchResults: [],
   isLoadingSuppliers: false,
   isLoadingSearch: false,
@@ -215,29 +213,29 @@ describe('SuppliersBoard', () => {
     expect(spies.SuppliersTable).not.toHaveBeenCalled();
   });
 
-  it('renders the paginated table rows when showAllSuppliers is true and nothing is selected', () => {
+  it('hands every supplier to the table when showAllSuppliers is true and nothing is selected', () => {
     const suppliers = [supplierRow({ id: 's-1', name: 'Acme' }), supplierRow({ id: 's-2', name: 'Beta' })];
     runtime.state = createState({ showAllSuppliers: true, selectedSearchResult: null });
-    runtime.data = createData({ suppliers, total: 123 });
+    runtime.data = createData({ suppliers });
 
     renderBoard();
 
-    // We intentionally only assert the board-owned projection (rows + rowCount).
-    const tableProps = spies.SuppliersTable.mock.calls[0]?.[0] as { rows: SupplierRow[]; rowCount: number };
+    // We intentionally only assert the board-owned projection (rows); the grid
+    // pages and sorts them itself, so the board passes no row count.
+    const tableProps = spies.SuppliersTable.mock.calls[0]?.[0] as { rows: SupplierRow[] };
     expect(tableProps.rows).toEqual(suppliers);
-    expect(tableProps.rowCount).toBe(123);
+    expect(tableProps).not.toHaveProperty('rowCount');
   });
 
   it('renders a single-row table when a supplier is selected from search', () => {
     const selected = supplierRow({ id: 'selected', name: 'Selected Supplier' });
     runtime.state = createState({ showAllSuppliers: false, selectedSearchResult: selected });
-    runtime.data = createData({ suppliers: [supplierRow({ id: 'other', name: 'Other' })], total: 999 });
+    runtime.data = createData({ suppliers: [supplierRow({ id: 'other', name: 'Other' })] });
 
     renderBoard();
 
-    const tableProps = spies.SuppliersTable.mock.calls[0]?.[0] as { rows: SupplierRow[]; rowCount: number };
+    const tableProps = spies.SuppliersTable.mock.calls[0]?.[0] as { rows: SupplierRow[] };
     expect(tableProps.rows).toEqual([selected]);
-    expect(tableProps.rowCount).toBe(1);
   });
 
   it.each([

@@ -4,7 +4,7 @@
  * @description Contract tests for the `useSuppliersBoardData` orchestration hook.
  *
  * Contract under test:
- * - Calls the supplier page query and search query hooks with the expected arguments.
+ * - Calls the supplier list query (no page or sort) and the search query hook.
  * - Projects query results into the simplified view model consumed by the board.
  * - Applies the search-query length rules (min 2 chars) consistently for both list filtering and search.
  * - Surfaces errors as a user-friendly message string.
@@ -23,26 +23,26 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useSuppliersBoardData } from '../../../../../pages/suppliers/hooks/useSuppliersBoardData';
 import { useSupplierSearchQuery } from '../../../../../api/suppliers/hooks/useSupplierSearchQuery';
-import { useSupplierPageQuery as useSuppliersPageQuery } from '../../../../../api/suppliers/hooks/useSupplierPageQuery';
-import type { SupplierListResponse, SupplierRow } from '../../../../../api/suppliers/types';
+import { useSupplierListQuery } from '../../../../../api/suppliers/hooks/useSupplierListQuery';
+import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 const mocks = vi.hoisted(() => ({
-  useSuppliersPageQuery: vi.fn<typeof useSuppliersPageQuery>(),
+  useSupplierListQuery: vi.fn<typeof useSupplierListQuery>(),
   useSupplierSearchQuery: vi.fn<typeof useSupplierSearchQuery>(),
 }));
 
-vi.mock('../../../../../api/suppliers/hooks/useSupplierPageQuery', () => ({
-  useSupplierPageQuery: mocks.useSuppliersPageQuery,
+vi.mock('../../../../../api/suppliers/hooks/useSupplierListQuery', () => ({
+  useSupplierListQuery: mocks.useSupplierListQuery,
 }));
 
 vi.mock('../../../../../api/suppliers/hooks/useSupplierSearchQuery', () => ({
   useSupplierSearchQuery: mocks.useSupplierSearchQuery,
 }));
 
-type SuppliersPageQueryReturn = ReturnType<typeof useSuppliersPageQuery>;
+type SupplierListQueryReturn = ReturnType<typeof useSupplierListQuery>;
 type SupplierSearchQueryReturn = ReturnType<typeof useSupplierSearchQuery>;
-type SuppliersPageQueryOverrides = Omit<Partial<SuppliersPageQueryReturn>, 'data'> & {
-  data?: SupplierListResponse | null;
+type SupplierListQueryOverrides = Omit<Partial<SupplierListQueryReturn>, 'data'> & {
+  data?: SupplierRow[] | null;
 };
 type SupplierSearchQueryOverrides = Omit<Partial<SupplierSearchQueryReturn>, 'data'> & {
   data?: SupplierRow[] | null;
@@ -60,29 +60,20 @@ const supplierRow = (overrides: Partial<SupplierRow> = {}): SupplierRow => ({
   ...overrides,
 });
 
-// Fixture builder: paginated list response with defaults.
-const suppliersPage = (overrides: Partial<SupplierListResponse> = {}): SupplierListResponse => ({
-  items: [],
-  total: 0,
-  page: 1,
-  pageSize: 10,
-  ...overrides,
-});
-
 /**
  * React Query result types are large; the hook under test only reads a small subset.
  * We centralize the (unavoidable) cast here to keep test bodies strict and clean.
  */
-const mockSuppliersPageQuery = (
-  overrides: SuppliersPageQueryOverrides = {}
+const mockSupplierListQuery = (
+  overrides: SupplierListQueryOverrides = {}
 ) => {
-  mocks.useSuppliersPageQuery.mockReturnValue(
+  mocks.useSupplierListQuery.mockReturnValue(
     ({
       data: null,
       isLoading: false,
       error: null,
       ...overrides,
-    } as unknown) as SuppliersPageQueryReturn
+    } as unknown) as SupplierListQueryReturn
   );
 };
 
@@ -113,21 +104,16 @@ describe('useSuppliersBoardData', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockSuppliersPageQuery();
+    mockSupplierListQuery();
     mockSupplierSearchQuery();
   });
 
-  it('projects supplier list + totals from the paginated query', () => {
-    mockSuppliersPageQuery({
-      data: suppliersPage({ items: mockSuppliers, total: mockSuppliers.length }),
-    });
+  it('projects the full supplier list from the list query', () => {
+    mockSupplierListQuery({ data: mockSuppliers });
 
-    const { result } = renderHook(() =>
-      useSuppliersBoardData(1, 10, 'name,asc', '')
-    );
+    const { result } = renderHook(() => useSuppliersBoardData(''));
 
     expect(result.current.suppliers).toEqual(mockSuppliers);
-    expect(result.current.total).toBe(mockSuppliers.length);
     expect(result.current.isLoadingSuppliers).toBe(false);
     expect(result.current.error).toBeNull();
   });
@@ -136,9 +122,7 @@ describe('useSuppliersBoardData', () => {
     const searchResults = [mockSuppliers[0]];
     mockSupplierSearchQuery({ data: searchResults });
 
-    const { result } = renderHook(() =>
-      useSuppliersBoardData(1, 10, 'name,asc', 'acme')
-    );
+    const { result } = renderHook(() => useSuppliersBoardData('acme'));
 
     expect(result.current.searchResults).toEqual(searchResults);
     expect(result.current.isLoadingSearch).toBe(false);
@@ -147,7 +131,7 @@ describe('useSuppliersBoardData', () => {
   it.each([
     {
       name: 'suppliers loading',
-      arrange: () => mockSuppliersPageQuery({ isLoading: true }),
+      arrange: () => mockSupplierListQuery({ isLoading: true }),
       assert: (value: ReturnType<typeof useSuppliersBoardData>) => {
         expect(value.isLoadingSuppliers).toBe(true);
         expect(value.suppliers).toEqual([]);
@@ -163,7 +147,7 @@ describe('useSuppliersBoardData', () => {
     },
     {
       name: 'error is exposed as message string',
-      arrange: () => mockSuppliersPageQuery({ error: new Error('Failed to fetch suppliers') }),
+      arrange: () => mockSupplierListQuery({ error: new Error('Failed to fetch suppliers') }),
       assert: (value: ReturnType<typeof useSuppliersBoardData>) => {
         expect(value.error).toBe('Failed to fetch suppliers');
         expect(value.suppliers).toEqual([]);
@@ -172,34 +156,26 @@ describe('useSuppliersBoardData', () => {
     {
       name: 'null query data falls back to empty projections',
       arrange: () => {
-        mockSuppliersPageQuery({ data: null });
+        mockSupplierListQuery({ data: null });
         mockSupplierSearchQuery({ data: null });
       },
       assert: (value: ReturnType<typeof useSuppliersBoardData>) => {
         expect(value.suppliers).toEqual([]);
-        expect(value.total).toBe(0);
         expect(value.searchResults).toEqual([]);
       },
     },
   ])('$name', ({ arrange, assert }) => {
     arrange();
 
-    const { result } = renderHook(() =>
-      useSuppliersBoardData(1, 10, 'name,asc', 'test')
-    );
+    const { result } = renderHook(() => useSuppliersBoardData('test'));
 
     assert(result.current);
   });
 
-  it('wires pagination params to the page query without a search q', () => {
-    renderHook(() =>
-      useSuppliersBoardData(2, 25, 'lastContact,desc', 'test')
-    );
+  it('requests the full list without page, sort or search arguments', () => {
+    renderHook(() => useSuppliersBoardData('test'));
 
-    expect(mocks.useSuppliersPageQuery).toHaveBeenCalledWith(
-      { page: 2, pageSize: 25, sort: 'lastContact,desc' },
-      true
-    );
+    expect(mocks.useSupplierListQuery).toHaveBeenCalledWith();
   });
 
   it.each([
@@ -207,9 +183,7 @@ describe('useSuppliersBoardData', () => {
     { name: 'passes empty string when length < 2', searchQuery: 'a', expectedQueryArg: '' },
     { name: 'passes empty string when empty', searchQuery: '', expectedQueryArg: '' },
   ])('wires search query arg ($name)', ({ searchQuery, expectedQueryArg }) => {
-    renderHook(() =>
-      useSuppliersBoardData(1, 10, 'name,asc', searchQuery)
-    );
+    renderHook(() => useSuppliersBoardData(searchQuery));
 
     expect(mocks.useSupplierSearchQuery).toHaveBeenCalledWith(expectedQueryArg, true);
   });

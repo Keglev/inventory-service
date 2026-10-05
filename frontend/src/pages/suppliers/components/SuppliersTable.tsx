@@ -7,8 +7,10 @@
  * Displays suppliers list with pagination, sorting, and row selection.
  *
  * @enterprise
- * - MUI DataGrid with server-side pagination and sorting; the component is a
- *   shell that owns layout, the loading indicator and the empty-state overlay.
+ * - MUI DataGrid with client-side pagination and sorting: GET /api/suppliers
+ *   returns every supplier and takes no parameters, so the grid pages and sorts
+ *   the full list itself. The component is a shell that owns layout, the loading
+ *   indicator and the empty-state overlay.
  * - Column definitions and cell-value logic live in useSupplierColumns, not here.
  *   The DataGrid test double never invokes a column callback, so a valueGetter
  *   written inline in this file is unreachable to the test suite; in the hook it
@@ -42,8 +44,6 @@ import type { SupplierRow } from '../../../api/suppliers/types';
 export interface SuppliersTableProps {
   /** Suppliers data to display */
   rows: SupplierRow[];
-  /** Total row count (for server-side pagination) */
-  rowCount: number;
   /** Current pagination model */
   paginationModel: GridPaginationModel;
   /** Handler for pagination changes */
@@ -62,7 +62,7 @@ export interface SuppliersTableProps {
  * Suppliers table component.
  *
  * Features:
- * - Server-side pagination and sorting
+ * - Client-side pagination and sorting over the full list
  * - Row click selection
  * - Loading indicator
  * - Empty state message
@@ -74,7 +74,6 @@ export interface SuppliersTableProps {
  * ```tsx
  * <SuppliersTable
  *   rows={suppliers}
- *   rowCount={total}
  *   paginationModel={pagination}
  *   onPaginationChange={handlePagination}
  *   sortModel={sort}
@@ -86,7 +85,6 @@ export interface SuppliersTableProps {
  */
 export const SuppliersTable: React.FC<SuppliersTableProps> = ({
   rows,
-  rowCount,
   paginationModel,
   onPaginationChange,
   sortModel,
@@ -117,9 +115,8 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
       <DataGrid
         rows={rows}
         columns={columns}
-        rowCount={rowCount}
-        paginationMode="server"
-        sortingMode="server"
+        paginationMode="client"
+        sortingMode="client"
         paginationModel={paginationModel}
         onPaginationModelChange={onPaginationChange}
         pageSizeOptions={[6]}

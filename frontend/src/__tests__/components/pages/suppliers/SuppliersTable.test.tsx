@@ -54,7 +54,6 @@ type DataGridTestProps = {
   columns: ColumnDef[];
   slots?: DataGridSlots;
   onRowClick?: (params: { id: string | number }) => void;
-  rowCount?: number;
   paginationMode?: string;
   sortingMode?: string;
   paginationModel?: unknown;
@@ -116,7 +115,6 @@ const supplierRow = (overrides: Partial<SupplierRow> = {}): SupplierRow => ({
 
 const createProps = (overrides: Partial<SuppliersTableProps> = {}): SuppliersTableProps => ({
   rows: [supplierRow(), supplierRow({ id: '2', name: 'Supplier B', contactName: null, phone: null, email: null })],
-  rowCount: 2,
   paginationModel: { page: 0, pageSize: 6 },
   onPaginationChange: vi.fn(),
   sortModel: [],
@@ -155,7 +153,7 @@ describe('SuppliersTable', () => {
   });
 
   it('renders an empty state via DataGrid slots when there are no rows', () => {
-    renderTable(createProps({ rows: [], rowCount: 0 }));
+    renderTable(createProps({ rows: [] }));
 
     expect(screen.getByText('No suppliers found')).toBeInTheDocument();
   });
@@ -189,9 +187,10 @@ describe('SuppliersTable', () => {
     );
   });
 
-  it('wires server-side pagination/sorting and forwards models/handlers to DataGrid', () => {
+  it('pages and sorts in the grid and forwards models/handlers to DataGrid', () => {
+    // GET /api/suppliers returns every supplier and takes no parameters: in
+    // server mode the grid showed all rows on every page and never sorted.
     const props = createProps({
-      rowCount: 100,
       paginationModel: { page: 2, pageSize: 6 },
       sortModel: [{ field: 'name', sort: 'asc' }],
     });
@@ -200,14 +199,14 @@ describe('SuppliersTable', () => {
 
     expect(dataGridMock.DataGrid).toHaveBeenCalledWith(
       expect.objectContaining({
-        rowCount: 100,
-        paginationMode: 'server',
-        sortingMode: 'server',
+        paginationMode: 'client',
+        sortingMode: 'client',
         paginationModel: props.paginationModel,
         sortModel: props.sortModel,
         onPaginationModelChange: props.onPaginationChange,
         onSortModelChange: props.onSortChange,
       })
     );
+    expect(dataGridMock.DataGrid.mock.calls[0][0]).not.toHaveProperty('rowCount');
   });
 });

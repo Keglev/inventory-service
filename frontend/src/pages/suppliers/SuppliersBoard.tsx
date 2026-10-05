@@ -27,7 +27,7 @@ import { useSearchHandlers } from './handlers/useSearchHandlers';
 import { useTableHandlers } from './handlers/useTableHandlers';
 import { useFilterHandlers } from './handlers/useFilterHandlers';
 import { useDialogHandlers } from './handlers/useDialogHandlers';
-import { useDataFetchingLogic } from './handlers/useDataFetchingLogic';
+import { useSuppliersBoardData } from './hooks/useSuppliersBoardData';
 import { SuppliersToolbar } from './components/SuppliersToolbar';
 import { SuppliersSearchPanel } from './components/SuppliersSearchPanel';
 import { SuppliersFilterPanel } from './components/SuppliersFilterPanel';
@@ -75,20 +75,17 @@ const SuppliersBoard: React.FC = () => {
   // =====================
   // Data Fetching & Processing
   // =====================
-  const data = useDataFetchingLogic(state);
+  const data = useSuppliersBoardData(state.searchQuery);
   const selectedResult = state.selectedSearchResult;
 
   // What the grid shows, in priority order:
   // 1. a supplier picked from the search dropdown -> only that one row
-  // 2. otherwise, if "show all" is on -> the paginated page
+  // 2. otherwise, if "show all" is on -> every supplier (the grid pages and sorts them)
   // 3. otherwise -> nothing
   // A selected result is non-null by construction here, so it needs no further guard.
   const displayRows = selectedResult
     ? [selectedResult]
     : (state.showAllSuppliers ? data.suppliers : []);
-  const displayRowCount = selectedResult
-    ? 1
-    : (state.showAllSuppliers ? data.total : 0);
 
   const { setOpenCreate, setOpenEdit, setOpenDelete } = state;
   const handleCloseCreate = React.useCallback(() => setOpenCreate(false), [setOpenCreate]);
@@ -159,7 +156,6 @@ const SuppliersBoard: React.FC = () => {
           <Box sx={{ px: 2, mb: 2, flex: 1, minHeight: 0 }}>
             <SuppliersTable
               rows={displayRows}
-              rowCount={displayRowCount}
               paginationModel={state.paginationModel}
               onPaginationChange={handlePaginationChange}
               sortModel={state.sortModel}
