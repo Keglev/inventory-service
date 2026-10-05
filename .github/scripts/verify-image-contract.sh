@@ -159,6 +159,13 @@ expect_status "spa fallback" "$ROOT/inventory" "200"
 expect_header "spa fallback" "$ROOT/inventory" "Content-Type" "text/html"
 expect_security_headers "spa fallback" "$ROOT/inventory"
 
+# A GET of /logout (a reload or a typed URL) serves the shell from this image;
+# only the logout form's POST is proxied. The security headers tell the two
+# apart: proxied responses carry none of the four.
+expect_status "logout get" "$ROOT/logout" "200"
+expect_header "logout get" "$ROOT/logout" "Cache-Control" "no-cache"
+expect_security_headers "logout get" "$ROOT/logout"
+
 # Compression comes from one gzip_types list in nginx.conf; a second list in a
 # server block replaces it rather than adding to it. A locale file stands for
 # the JSON and SVG types, the entry bundle for JavaScript.
