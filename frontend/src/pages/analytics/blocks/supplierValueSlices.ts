@@ -18,7 +18,7 @@
 import type { StockPerSupplierPoint } from '../../../api/analytics/types';
 
 /** Suppliers shown by name before the rest are grouped. */
-export const TOP_SUPPLIERS = 4;
+const TOP_SUPPLIERS = 4;
 
 /** One pie slice; `others` counts the suppliers grouped into the last slice. */
 export type SupplierValueSlice =

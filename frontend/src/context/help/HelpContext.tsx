@@ -57,5 +57,3 @@ export const HelpProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return <HelpContext.Provider value={value}>{children}</HelpContext.Provider>;
 };
-
-export default HelpProvider;

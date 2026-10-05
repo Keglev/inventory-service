@@ -13,8 +13,6 @@ import type { CreateItemRequest, ItemWriteResult } from './types';
 import { errorMessage, extractApiError } from '../shared/errorHandling';
 import { INVENTORY_BASE } from '../shared/constants';
 
-export { INVENTORY_BASE };
-
 /**
  * Creates an item via POST /api/inventory. Existing items are changed only
  * through the dedicated rename, price and quantity mutations, so the

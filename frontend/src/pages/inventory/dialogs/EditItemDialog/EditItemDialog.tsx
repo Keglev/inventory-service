@@ -97,5 +97,3 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
     </Dialog>
   );
 };
-
-export default EditItemDialog;

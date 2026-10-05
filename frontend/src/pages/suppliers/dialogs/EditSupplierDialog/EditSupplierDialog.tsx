@@ -171,5 +171,3 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
     </>
   );
 };
-
-export default EditSupplierDialog;

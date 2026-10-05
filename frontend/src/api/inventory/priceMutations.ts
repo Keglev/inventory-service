@@ -11,8 +11,6 @@ import type { ChangePriceRequest, ItemWriteResult } from './types';
 import { INVENTORY_BASE } from '../shared/constants';
 import { errorMessage, extractApiError } from '../shared/errorHandling';
 
-export { INVENTORY_BASE };
-
 /**
  * Sends the new unit price to PATCH /api/inventory/{id}/price via query param.
  * The endpoint returns no payload; on failure the response carries the backend

@@ -112,8 +112,6 @@ i18n
     (window as any).i18next = i18n;
   }
 
-export default i18n;
-
 /**
  * @remarks
  * - To change the language manually, call `i18n.changeLanguage('de' | 'en')`.

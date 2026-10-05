@@ -131,5 +131,3 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
     </>
   );
 };
-
-export default DeleteItemDialog;

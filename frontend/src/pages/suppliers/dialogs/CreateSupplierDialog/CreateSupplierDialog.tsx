@@ -118,5 +118,3 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
     </Dialog>
   );
 };
-
-export default CreateSupplierDialog;
