@@ -1,12 +1,12 @@
 /**
  * @file supplierListFetcher.test.ts
  * @module tests/unit/api/suppliers/supplierListFetcher
- * @description Contract tests for getSuppliersPage.
+ * @description Contract tests for the supplier list, search and by-id fetchers.
  *
  * Contract under test:
- * - Guarantees supplier list page fetching contracts: query param
- *   wiring, tolerant envelope handling, row normalization filtering,
- *   total derivation rules, and safe empty-page fallbacks on failures.
+ * - getAllSuppliers requests the list without parameters (the endpoint takes
+ *   none), keeps only normalizable rows, and falls back to [] on failures or
+ *   an unexpected payload.
  *
  * Out of scope:
  * - Supplier row normalization rules (validated by supplier normalizer
@@ -27,77 +27,56 @@ vi.mock('@/api/suppliers/supplierNormalizers', () => ({
 
 import http from '@/api/httpClient';
 import { toSupplierRow } from '@/api/suppliers/supplierNormalizers';
-import { getSuppliersPage, searchSuppliersByName, getSupplierById, SUPPLIERS_BASE } from '@/api/suppliers/supplierListFetcher';
+import { getAllSuppliers, searchSuppliersByName, getSupplierById, SUPPLIERS_BASE } from '@/api/suppliers/supplierListFetcher';
 
 const httpMock = http as unknown as { get: ReturnType<typeof vi.fn> };
 const toSupplierRowMock = toSupplierRow as ReturnType<typeof vi.fn>;
 
-describe('getSuppliersPage', () => {
-  const params = { page: 1, pageSize: 25, q: 'acme', sort: 'name,asc' } as const;
-
+describe('getAllSuppliers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('success paths', () => {
-    it('normalizes rows from array payload and reports length total', async () => {
+    it('requests the list without parameters and keeps only normalizable rows', async () => {
       const row = { id: 'SUP-1' };
       httpMock.get.mockResolvedValue({ data: [{ id: 'SUP-1' }, { id: 'invalid' }] });
       toSupplierRowMock.mockReturnValueOnce(row).mockReturnValueOnce(null);
 
-      const result = await getSuppliersPage(params);
+      const result = await getAllSuppliers();
 
-      expect(httpMock.get).toHaveBeenCalledWith(SUPPLIERS_BASE, {
-        params: {
-          page: 1,
-          pageSize: 25,
-          q: 'acme',
-          sort: 'name,asc',
-        },
-      });
-      expect(result).toEqual({
-        items: [row],
-        total: 2,
-        page: 1,
-        pageSize: 25,
-      });
+      // The endpoint ignores every parameter; sending page or sort only made
+      // the grid believe the server paged and sorted (it does not).
+      expect(httpMock.get).toHaveBeenCalledWith(SUPPLIERS_BASE);
+      expect(result).toEqual([row]);
     });
 
   });
 
   describe('failure paths', () => {
-    it('returns empty page and logs when request fails', async () => {
+    it('returns an empty list and logs when the request fails', async () => {
       const failure = new Error('offline');
       httpMock.get.mockRejectedValue(failure);
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await getSuppliersPage({ page: 3, pageSize: 50 });
+      const result = await getAllSuppliers();
 
-      expect(errorSpy).toHaveBeenCalledWith('[getSuppliersPage] Error fetching suppliers:', failure);
-      expect(result).toEqual({
-        items: [],
-        total: 0,
-        page: 3,
-        pageSize: 50,
-      });
+      expect(errorSpy).toHaveBeenCalledWith('[getAllSuppliers] Error fetching suppliers:', failure);
+      expect(result).toEqual([]);
 
       errorSpy.mockRestore();
     });
 
-    it('degrades a non-array payload to an empty page', async () => {
+    it('degrades a non-array payload to an empty list', async () => {
       httpMock.get.mockResolvedValue({ data: { unexpected: true } });
 
-      const result = await getSuppliersPage({ page: 0, pageSize: 10 });
-
-      expect(result).toEqual({ items: [], total: 0, page: 0, pageSize: 10 });
+      expect(await getAllSuppliers()).toEqual([]);
     });
 
-    it('degrades a non-object response to an empty page', async () => {
+    it('degrades a non-object response to an empty list', async () => {
       httpMock.get.mockResolvedValue('weird');
 
-      const result = await getSuppliersPage({ page: 0, pageSize: 10 });
-
-      expect(result).toEqual({ items: [], total: 0, page: 0, pageSize: 10 });
+      expect(await getAllSuppliers()).toEqual([]);
     });
   });
 

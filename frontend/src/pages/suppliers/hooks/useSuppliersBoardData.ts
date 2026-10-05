@@ -7,15 +7,16 @@
  * Wires React Query for the suppliers list and the name search.
  *
  * @enterprise
- * - The list query (useSuppliersPageQuery -> GET /api/suppliers) returns the full
- *   array; the backend does not paginate/sort/filter server-side, so no search q
- *   is sent here. Name search is a separate concern handled by useSupplierSearchQuery
- *   (GET /api/suppliers/search), whose own hook owns debouncing/gating.
+ * - The list query (useSupplierListQuery -> GET /api/suppliers) returns every
+ *   supplier; the backend does not paginate, sort or filter, so the grid does that
+ *   in the browser. Name search is a separate concern handled by
+ *   useSupplierSearchQuery (GET /api/suppliers/search), whose own hook owns
+ *   debouncing/gating.
  * - Loading and error states; type-safe data transformations.
  */
 
 import * as React from 'react';
-import { useSupplierPageQuery as useSuppliersPageQuery } from '../../../api/suppliers/hooks/useSupplierPageQuery';
+import { useSupplierListQuery } from '../../../api/suppliers/hooks/useSupplierListQuery';
 import { useSupplierSearchQuery } from '../../../api/suppliers/hooks/useSupplierSearchQuery';
 import type { SupplierRow } from '../../../api/suppliers/types';
 
@@ -25,9 +26,8 @@ import type { SupplierRow } from '../../../api/suppliers/types';
  * @interface SuppliersBoardData
  */
 export interface SuppliersBoardData {
-  // Server data
+  // Server data: every supplier
   suppliers: SupplierRow[];
-  total: number;
 
   // Search results
   searchResults: SupplierRow[];
@@ -42,34 +42,23 @@ export interface SuppliersBoardData {
  * Hook for suppliers board data fetching and processing.
  *
  * Manages:
- * - Paginated suppliers list from server
+ * - The full suppliers list from the server
  * - Search results from useSupplierSearchQuery (debouncing handled inside that query hook, not here)
  * - Loading and error states
  * - Data synchronization
  *
- * @param page - Current page (1-based)
- * @param pageSize - Items per page
- * @param sort - Sort string (e.g., "name,asc")
  * @param searchQuery - Search query string (requires 2+ chars)
  * @returns Data and loading states
  *
  * @example
  * ```ts
- * const data = useSuppliersBoardData(1, 10, "name,asc", "search");
+ * const data = useSuppliersBoardData("search");
  * ```
  */
-export const useSuppliersBoardData = (
-  page: number,
-  pageSize: number,
-  sort: string,
-  searchQuery: string
-): SuppliersBoardData => {
-  // The list endpoint returns the full array and ignores query params, so no
-  // search q is sent here. Name search is handled by useSupplierSearchQuery.
-  const suppliersQuery = useSuppliersPageQuery(
-    { page, pageSize, sort },
-    true
-  );
+export const useSuppliersBoardData = (searchQuery: string): SuppliersBoardData => {
+  // One fetch serves every page and sort order: the endpoint returns the full
+  // list. Name search is handled by useSupplierSearchQuery.
+  const suppliersQuery = useSupplierListQuery();
 
   const searchQueryResult = useSupplierSearchQuery(
     searchQuery.length >= 2 ? searchQuery : '',
@@ -81,8 +70,7 @@ export const useSuppliersBoardData = (
   return React.useMemo(
     () => {
       return {
-        suppliers: suppliersQuery.data?.items ?? [],
-        total: suppliersQuery.data?.total ?? 0,
+        suppliers: suppliersQuery.data ?? [],
         searchResults: searchQueryResult.data ?? [],
         isLoadingSuppliers: suppliersQuery.isLoading,
         isLoadingSearch: searchQueryResult.isLoading,
@@ -90,8 +78,7 @@ export const useSuppliersBoardData = (
       };
     },
     [
-      suppliersQuery.data?.items,
-      suppliersQuery.data?.total,
+      suppliersQuery.data,
       searchQueryResult.data,
       suppliersQuery.isLoading,
       searchQueryResult.isLoading,

@@ -3,11 +3,10 @@
  * @module api/suppliers/types
  *
  * @summary
- * TypeScript types for the supplier API: DTOs, list params, and response shapes.
+ * TypeScript types for the supplier API: the grid row and the create/update DTO.
  *
  * @enterprise
  * - Matches the backend SupplierDTO field names exactly — no MapStruct, manual mapping only.
- * - SupplierListParams forwards client-managed page/pageSize/sort/q; backend has no server-side pagination.
  * - All optional fields are `string | null` to match the nullable columns in the backend entity.
  */
 
@@ -21,25 +20,6 @@ export interface SupplierRow {
   createdBy?: string | null;     // backend audit field; not user-editable
   createdAt?: string | null;     // ISO-8601 string; formatted for display only
 }
-
-/** Paginated response from /api/suppliers list endpoint. */
-export interface SupplierListResponse {
-  items: SupplierRow[];
-  total: number;                 // equals items.length when backend returns a plain array
-  page: number;                  // 1-based; mirrors the param sent in SupplierListParams
-  pageSize: number;
-}
-
-/** Filter & pagination params for supplier list endpoint. */
-export interface SupplierListParams {
-  page: number;                  // 1-based
-  pageSize: number;
-  q?: string;                    // Search query (name/email)
-  sort?: ServerSort;             // Sort expression, e.g., "name,asc"
-}
-
-/** Server-side sort expression. */
-export type ServerSort = string;
 
 /** Supplier DTO for create/update operations. */
 export interface SupplierDTO {
