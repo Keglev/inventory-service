@@ -10,7 +10,7 @@
  * rows are dropped and transport errors collapse to an empty list.
  */
 import http from '../httpClient';
-import { isArrayOfRecords, pickString, pickNumber, type Rec } from './util';
+import { isArrayOfRecords, firstStringOrEmpty, firstNumberOrZero, type Rec } from './util';
 import type { LowStockRow } from './types';
 
 type SummaryShape = { lowStockItems?: unknown };
@@ -26,12 +26,12 @@ export async function getDashboardLowStock(): Promise<LowStockRow[]> {
     if (!isArrayOfRecords(rows)) return [];
     return (rows as Rec[])
       .map<LowStockRow | null>((rec) => {
-        const itemName = pickString(rec, ['itemName']);
+        const itemName = firstStringOrEmpty(rec, ['itemName']);
         if (!itemName) return null;
         return {
           itemName,
-          quantity: pickNumber(rec, ['quantity']),
-          minimumQuantity: pickNumber(rec, ['minimumQuantity']),
+          quantity: firstNumberOrZero(rec, ['quantity']),
+          minimumQuantity: firstNumberOrZero(rec, ['minimumQuantity']),
         };
       })
       .filter((x): x is LowStockRow => x !== null);

@@ -1,7 +1,7 @@
 /**
  * @file util.number.test.ts
  * @module tests/unit/api/analytics/util.number
- * @description Contract tests for asNumber and pickNumber (api/analytics/util).
+ * @description Contract tests for asNumber and firstNumberOrZero (api/analytics/util).
  *
  * Contract under test:
  * - Guarantees numeric normalization is tolerant (invalid inputs become
@@ -16,7 +16,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { asNumber, pickNumber } from '@/api/analytics/util';
+import { asNumber, firstNumberOrZero } from '@/api/analytics/util';
 
 describe('asNumber', () => {
   it('returns finite numbers as-is', () => {
@@ -53,28 +53,28 @@ describe('asNumber', () => {
   });
 });
 
-describe('pickNumber', () => {
+describe('firstNumberOrZero', () => {
   it('returns the first matching number by key order', () => {
     const obj = { count: 42, total: 100 };
 
-    expect(pickNumber(obj, ['count', 'total'])).toBe(42);
+    expect(firstNumberOrZero(obj, ['count', 'total'])).toBe(42);
   });
 
   it('coerces numeric strings to numbers', () => {
     const obj = { value: '3.14' };
 
-    expect(pickNumber(obj, ['value'])).toBe(3.14);
+    expect(firstNumberOrZero(obj, ['value'])).toBe(3.14);
   });
 
   it('returns 0 when no matching keys exist', () => {
     const obj = { foo: 'bar' };
 
-    expect(pickNumber(obj, ['missing'])).toBe(0);
+    expect(firstNumberOrZero(obj, ['missing'])).toBe(0);
   });
 
   it('returns 0 for non-numeric values', () => {
     const obj = { value: 'not-a-number' };
 
-    expect(pickNumber(obj, ['value'])).toBe(0);
+    expect(firstNumberOrZero(obj, ['value'])).toBe(0);
   });
 });

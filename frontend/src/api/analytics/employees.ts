@@ -18,7 +18,7 @@
  *   results so the section renders its own empty state.
  */
 import http from '../httpClient';
-import { isArrayOfRecords, pickString, pickNumber } from './util';
+import { isArrayOfRecords, firstStringOrEmpty, firstNumberOrZero } from './util';
 import type { Rec } from './util';
 import { extractPageTotal } from '../shared/responseExtraction';
 
@@ -66,14 +66,14 @@ export async function getEmployeeActivity(filter?: EmployeeActivityFilter): Prom
 
         return (data as Rec[])
             .map<EmployeeActivityRow | null>((rec) => {
-                const period = pickString(rec, ['period']);
-                const createdBy = pickString(rec, ['createdBy']);
+                const period = firstStringOrEmpty(rec, ['period']);
+                const createdBy = firstStringOrEmpty(rec, ['createdBy']);
                 if (!period || !createdBy) return null;
                 return {
                     period,
                     createdBy,
-                    displayName: pickString(rec, ['displayName']) || createdBy,
-                    changeCount: pickNumber(rec, ['changeCount']),
+                    displayName: firstStringOrEmpty(rec, ['displayName']) || createdBy,
+                    changeCount: firstNumberOrZero(rec, ['changeCount']),
                 };
             })
             .filter((x): x is EmployeeActivityRow => x !== null);
@@ -139,16 +139,16 @@ export async function getEmployeeChanges(filter?: EmployeeChangesFilter): Promis
 
         const rows = (content as Rec[])
             .map<EmployeeChangeRow | null>((rec) => {
-                const timestamp = pickString(rec, ['timestamp']);
-                const itemName = pickString(rec, ['itemName']);
+                const timestamp = firstStringOrEmpty(rec, ['timestamp']);
+                const itemName = firstStringOrEmpty(rec, ['itemName']);
                 if (!timestamp || !itemName) return null;
                 return {
                     timestamp,
                     itemName,
-                    supplierName: pickString(rec, ['supplierName']),
-                    change: pickNumber(rec, ['change']),
-                    reason: pickString(rec, ['reason']),
-                    createdBy: pickString(rec, ['createdBy']),
+                    supplierName: firstStringOrEmpty(rec, ['supplierName']),
+                    change: firstNumberOrZero(rec, ['change']),
+                    reason: firstStringOrEmpty(rec, ['reason']),
+                    createdBy: firstStringOrEmpty(rec, ['createdBy']),
                 };
             })
             .filter((x): x is EmployeeChangeRow => x !== null);

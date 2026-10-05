@@ -7,7 +7,7 @@
  */
 
 import http from '../httpClient';
-import { isArrayOfRecords, pickNumber, pickString, paramClean } from './util';
+import { isArrayOfRecords, firstNumberOrZero, firstStringOrEmpty, paramClean } from './util';
 import { isRecord } from '../shared/typeGuards';
 import type { AnalyticsParams } from './validation';
 import type { LowStockRow } from './types';
@@ -31,9 +31,9 @@ export async function getLowStockItems(supplierId: string, p?: AnalyticsParams):
 
         const rows: LowStockRow[] = rawList
         .map((rec) => {
-            const itemName = pickString(rec, ['itemName', 'name']);
-            const quantity = pickNumber(rec, ['quantity', 'qty', 'currentQty']);
-            const minimumQuantity = pickNumber(rec, ['minimumQuantity', 'minQuantity', 'minQty', 'minimum']);
+            const itemName = firstStringOrEmpty(rec, ['itemName', 'name']);
+            const quantity = firstNumberOrZero(rec, ['quantity', 'qty', 'currentQty']);
+            const minimumQuantity = firstNumberOrZero(rec, ['minimumQuantity', 'minQuantity', 'minQty', 'minimum']);
             return itemName ? { itemName, quantity, minimumQuantity } : null;
         })
         .filter((x): x is LowStockRow => x !== null);

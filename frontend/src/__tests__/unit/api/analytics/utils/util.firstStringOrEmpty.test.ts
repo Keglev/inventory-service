@@ -1,7 +1,7 @@
 /**
- * @file util.pickString.test.ts
- * @module tests/unit/api/analytics/util.pickString
- * @description Contract tests for pickString (api/analytics/util).
+ * @file util.firstStringOrEmpty.test.ts
+ * @module tests/unit/api/analytics/util.firstStringOrEmpty
+ * @description Contract tests for firstStringOrEmpty (api/analytics/util).
  *
  * Contract under test:
  * - Guarantees string field selection respects key order and returns the
@@ -15,30 +15,30 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { pickString } from '@/api/analytics/util';
+import { firstStringOrEmpty } from '@/api/analytics/util';
 
-describe('pickString', () => {
+describe('firstStringOrEmpty', () => {
   it('returns the first matching string', () => {
     const obj = { name: 'test', title: 'other' };
 
-    expect(pickString(obj, ['name', 'title'])).toBe('test');
+    expect(firstStringOrEmpty(obj, ['name', 'title'])).toBe('test');
   });
 
   it('coerces numbers to strings', () => {
     const obj = { id: 123 };
 
-    expect(pickString(obj, ['id'])).toBe('123');
+    expect(firstStringOrEmpty(obj, ['id'])).toBe('123');
   });
 
   it('returns empty string when no matching keys exist', () => {
     const obj = { foo: 'bar' };
 
-    expect(pickString(obj, ['missing', 'nothere'])).toBe('');
+    expect(firstStringOrEmpty(obj, ['missing', 'nothere'])).toBe('');
   });
 
   it('tries keys in order', () => {
     const obj = { alt: 'second' };
 
-    expect(pickString(obj, ['primary', 'alt'])).toBe('second');
+    expect(firstStringOrEmpty(obj, ['primary', 'alt'])).toBe('second');
   });
 });
