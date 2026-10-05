@@ -1,52 +1,45 @@
 // Vitest configuration for the React frontend test suite.
-// Kept separate from vite.config.ts so test-only concerns (jsdom environment, MUI stubs,
-// coverage settings) do not bleed into the production build config or slow down CI caching.
+// Extends vite.config.ts through mergeConfig, so the React plugin and the '@' alias
+// are declared once. Test-only concerns (jsdom environment, MUI stubs, coverage
+// settings) stay here and do not bleed into the production build config.
 
 import path from 'path';
 
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
+import { defineConfig, mergeConfig } from 'vitest/config';
+
+import viteConfig from './vite.config';
 
 // MUI icon and DataGrid imports are heavyweight at test time; these aliases redirect them
 // to lightweight stubs so individual tests load in milliseconds rather than seconds.
-const isTest = process.env.VITEST === 'true' || process.env.NODE_ENV === 'test';
-
-const testAliases = isTest
-  ? [
-      {
-        find: /^@mui\/icons-material\/.+$/,
-        replacement: path.resolve(__dirname, './src/__tests__/stubs/MuiIconStub.tsx'),
-      },
-      {
-        find: '@mui/x-data-grid/esm/index.css',
-        replacement: path.resolve(__dirname, './src/__tests__/stubs/empty.css'),
-      },
-      {
-        find: /^@mui\/x-data-grid\/locales$/,
-        replacement: path.resolve(__dirname, './src/__tests__/stubs/DataGridLocalesStub.ts'),
-      },
-      {
-        find: '@mui/x-data-grid/themeAugmentation',
-        replacement: path.resolve(
-          __dirname,
-          './src/__tests__/stubs/DataGridThemeAugmentationStub.ts'
-        ),
-      },
-      {
-        find: '@mui/x-data-grid',
-        replacement: path.resolve(__dirname, './src/__tests__/stubs/DataGridStub.tsx'),
-      },
-    ]
-  : [];
-
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: [
-      { find: '@', replacement: path.resolve(__dirname, './src') },
-      ...testAliases,
-    ],
+// Order matters: the DataGrid sub-paths must match before the bare package name.
+const testAliases = [
+  {
+    find: /^@mui\/icons-material\/.+$/,
+    replacement: path.resolve(__dirname, './src/__tests__/stubs/MuiIconStub.tsx'),
   },
+  {
+    find: '@mui/x-data-grid/esm/index.css',
+    replacement: path.resolve(__dirname, './src/__tests__/stubs/empty.css'),
+  },
+  {
+    find: /^@mui\/x-data-grid\/locales$/,
+    replacement: path.resolve(__dirname, './src/__tests__/stubs/DataGridLocalesStub.ts'),
+  },
+  {
+    find: '@mui/x-data-grid/themeAugmentation',
+    replacement: path.resolve(
+      __dirname,
+      './src/__tests__/stubs/DataGridThemeAugmentationStub.ts'
+    ),
+  },
+  {
+    find: '@mui/x-data-grid',
+    replacement: path.resolve(__dirname, './src/__tests__/stubs/DataGridStub.tsx'),
+  },
+];
+
+export default mergeConfig(viteConfig, defineConfig({
+  resolve: { alias: testAliases },
   test: {
     // React components require a browser-like DOM; jsdom provides it without a real browser.
     environment: 'jsdom',
@@ -108,4 +101,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
