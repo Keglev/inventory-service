@@ -35,9 +35,9 @@
 import React, { createContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { AuthContextType, AppUser } from './authTypes';
 import httpClient, { API_BASE } from '../../api/httpClient';
-import { FORCE_LOGOUT_FLAG } from './storageKeys';
+import { DEMO_SESSION_KEY, FORCE_LOGOUT_FLAG } from '../../config/storageKeys';
+import { readDemoSession } from './demoSession';
 
-const DEMO_KEY = 'ssp.demo.session';
 /** Ceiling for the logout-in-progress guard: long enough for any POST-form redirect to land, short enough that a stalled redirect cannot lock the auth guards. */
 const LOGOUT_GUARD_MS = 4000;
 
@@ -55,18 +55,11 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
   /** One-time session hydration: tries DEMO first, then /api/me. */
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(DEMO_KEY);
-      if (raw) {
-        const demo = JSON.parse(raw) as AppUser | null;
-        if (demo && demo.isDemo) {
-          setUser(demo);
-          setLoading(false);
-          return; // short-circuit: demo sessions don't call /api/me
-        }
-      }
-    } catch {
-      // WHY: localStorage can throw (Safari private mode, quota exceeded, disabled storage) or hold corrupt JSON from prior versions; either failure must not block server hydration.
+    const demo = readDemoSession();
+    if (demo) {
+      setUser(demo);
+      setLoading(false);
+      return; // short-circuit: demo sessions don't call /api/me
     }
 
     const ac = new AbortController();
@@ -97,7 +90,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       isDemo: true,
     };
     try {
-      localStorage.setItem(DEMO_KEY, JSON.stringify(demoUser));
+      localStorage.setItem(DEMO_SESSION_KEY, JSON.stringify(demoUser));
     } catch {
       // WHY: storage failures (private mode, quota) are tolerable — in-memory user state still works; deep-link persistence is best-effort.
     }
@@ -113,7 +106,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     try {
       localStorage.setItem(FORCE_LOGOUT_FLAG, '1');
       localStorage.removeItem(FORCE_LOGOUT_FLAG);
-      localStorage.removeItem(DEMO_KEY);
+      localStorage.removeItem(DEMO_SESSION_KEY);
     } catch {
       // ignore storage failures
     }

@@ -8,8 +8,8 @@
  *
  * @enterprise
  * - Side-effect import contract: imported once from main.tsx (`import './i18n'`).
- *   No production code imports from this module's named exports; I18N_LS_KEY and
- *   I18N_NAMESPACES exist as test-pinning surface only (consumed by
+ *   No production code imports from this module's named exports; I18N_NAMESPACES
+ *   exists as test-pinning surface only (consumed by
  *   __tests__/unit/i18n/i18n.test.ts).
  * - Translation JSON lives in frontend/public/locales/{en,de}/<ns>.json. Eleven
  *   namespaces match I18N_NAMESPACES exactly. EN files double as the typing source
@@ -29,8 +29,7 @@ import Backend from 'i18next-http-backend';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-/** LocalStorage key used by i18next to persist the selected language. */
-export const I18N_LS_KEY = 'i18nextLng';
+import { LANGUAGE_KEY } from '../config/storageKeys';
 
 /** Namespaces we maintain as separate JSON files. */
 export const I18N_NAMESPACES = ['common', 'auth', 'system', 'analytics', 'inventory', 'errors', 'suppliers', 'footer', 'help', 'legal', 'landing'] as const;
@@ -48,10 +47,10 @@ void _namespacesMatchResources; // WHY: satisfies noUnusedLocals — this bindin
  * Force initial language to DE unless the user already chose one.
  * This guarantees a German-first impression on first visit.
  */
-const saved = typeof window !== 'undefined' ? localStorage.getItem(I18N_LS_KEY) : null;
+const saved = typeof window !== 'undefined' ? localStorage.getItem(LANGUAGE_KEY) : null;
 const initialLng = saved || 'de';
 if (!saved && typeof window !== 'undefined') {
-  localStorage.setItem(I18N_LS_KEY, 'de'); // <- guarantees German-first
+  localStorage.setItem(LANGUAGE_KEY, 'de'); // <- guarantees German-first
 }
 
 // WHY: <html lang> tells screen readers, hyphenation and the browser's
@@ -91,7 +90,7 @@ i18n
     detection: {
       order: ['localStorage', 'querystring', 'navigator'],
       caches: ['localStorage'],
-      lookupLocalStorage: I18N_LS_KEY,
+      lookupLocalStorage: LANGUAGE_KEY,
     },
 
     // React already escapes values

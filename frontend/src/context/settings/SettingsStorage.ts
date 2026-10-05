@@ -22,8 +22,7 @@
 
 import type { UserPreferences } from './SettingsContext.types';
 import { logWarn } from '../../utils/logger';
-
-const STORAGE_KEY = 'appSettings';
+import { SETTINGS_KEY } from '../../config/storageKeys';
 
 /**
  * Get language-appropriate default preferences
@@ -57,7 +56,7 @@ export const getDefaultPreferences = (language: string): UserPreferences => {
  */
 export const loadPreferencesFromStorage = (language: string): UserPreferences => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(SETTINGS_KEY);
     if (stored) {
       return JSON.parse(stored) as UserPreferences;
     }
@@ -77,7 +76,7 @@ export const loadPreferencesFromStorage = (language: string): UserPreferences =>
  */
 export const savePreferencesToStorage = (prefs: UserPreferences): void => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(prefs));
   } catch (error) {
     logWarn('Failed to save settings to localStorage:', error);
   }
@@ -91,7 +90,7 @@ export const savePreferencesToStorage = (prefs: UserPreferences): void => {
  */
 export const clearPreferencesFromStorage = (): void => {
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(SETTINGS_KEY);
   } catch (error) {
     logWarn('Failed to clear settings from localStorage:', error);
   }

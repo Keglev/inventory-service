@@ -4,7 +4,7 @@
  * @summary Manages theme mode state (light/dark) with localStorage persistence.
  *
  * @enterprise
- * - Uses LS key 'themeMode' (distinct from 'i18nextLng') so the two toggles are
+ * - Uses THEME_MODE_KEY (distinct from LANGUAGE_KEY) so the two toggles are
  *   stored independently and do not interfere with each other.
  * - Defaults to 'light' because the public shell has no user-settings context to
  *   derive a preference from.
@@ -18,7 +18,7 @@
  */
 import * as React from 'react';
 
-const LS_THEME_KEY = 'themeMode';
+import { THEME_MODE_KEY } from '../../../config/storageKeys';
 
 interface UseThemeModeReturn {
   themeMode: 'light' | 'dark';
@@ -28,12 +28,12 @@ interface UseThemeModeReturn {
 
 export const useThemeMode = (): UseThemeModeReturn => {
   const [themeMode, setThemeModeState] = React.useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem(LS_THEME_KEY) as 'light' | 'dark' | null;
+    const saved = localStorage.getItem(THEME_MODE_KEY) as 'light' | 'dark' | null;
     return saved || 'light';
   });
 
   const setThemeMode = (mode: 'light' | 'dark') => {
-    localStorage.setItem(LS_THEME_KEY, mode);
+    localStorage.setItem(THEME_MODE_KEY, mode);
     setThemeModeState(mode);
   };
 

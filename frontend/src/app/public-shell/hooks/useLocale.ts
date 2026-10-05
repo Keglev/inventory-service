@@ -4,8 +4,8 @@
  * @summary Manages locale state (de/en) with localStorage and i18next synchronization.
  *
  * @enterprise
- * - Uses LS key 'i18nextLng' — the same key i18next writes natively — so this hook
- *   and i18next always read from the same source of truth.
+ * - Uses LANGUAGE_KEY, the same key i18next writes natively, so this hook and
+ *   i18next always read from the same source of truth.
  * - Normalizes regional codes (e.g. 'de-DE' -> 'de') because browsers and OS settings
  *   often produce BCP-47 regional variants that the theme's SupportedLocale doesn't
  *   accept.
@@ -20,8 +20,7 @@
 import * as React from 'react';
 import type { i18n } from 'i18next';
 import type { SupportedLocale } from '../../../theme';
-
-const LS_KEY = 'i18nextLng';
+import { LANGUAGE_KEY } from '../../../config/storageKeys';
 
 const normalize = (lng?: string): SupportedLocale => (lng?.startsWith('en') ? 'en' : 'de');
 
@@ -32,7 +31,7 @@ interface UseLocaleReturn {
 }
 
 export const useLocale = (i18n: i18n): UseLocaleReturn => {
-  const initial = normalize(localStorage.getItem(LS_KEY) || i18n.resolvedLanguage || 'de');
+  const initial = normalize(localStorage.getItem(LANGUAGE_KEY) || i18n.resolvedLanguage || 'de');
   const [locale, setLocaleState] = React.useState<SupportedLocale>(initial);
 
   React.useEffect(() => {
@@ -44,7 +43,7 @@ export const useLocale = (i18n: i18n): UseLocaleReturn => {
   }, [i18n]);
 
   const changeLocale = async (next: SupportedLocale): Promise<void> => {
-    localStorage.setItem(LS_KEY, next);
+    localStorage.setItem(LANGUAGE_KEY, next);
     setLocaleState(next);
     // Awaited so callers can resolve strings AFTER the switch: i18next fetches
     // /locales/<lng>/<ns>.json on demand, so a synchronous t() right after the

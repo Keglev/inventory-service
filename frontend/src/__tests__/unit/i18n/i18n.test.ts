@@ -4,9 +4,9 @@
  * @description Contract tests for i18n constants and the document language.
  *
  * Contract under test:
- * - Guarantees the exported i18n constants used by the UI: stable
- *   localStorage key and a deterministic, validated namespace list
- *   (non-empty, unique, and consistently cased).
+ * - Guarantees a deterministic, validated namespace list (non-empty,
+ *   unique, and consistently cased). The language storage key is pinned
+ *   with the other storage keys (config/storageKeys.test.ts).
  * - Keeps <html lang> on the active language, from the first load on.
  *
  * Out of scope:
@@ -16,7 +16,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import i18next from 'i18next';
-import { I18N_LS_KEY, I18N_NAMESPACES } from '@/i18n';
+import { I18N_NAMESPACES } from '@/i18n';
 
 // jsdom cannot serve /locales/*.json and the backend retries a failed load for
 // about 11 s before init completes. A one-key bundle lets init finish at once
@@ -26,10 +26,6 @@ vi.hoisted(() => {
 });
 
 describe('i18n constants', () => {
-  it('exports a stable localStorage key', () => {
-    expect(I18N_LS_KEY).toBe('i18nextLng');
-  });
-
   it('exports the expected namespaces in a deterministic order', () => {
     expect(I18N_NAMESPACES).toEqual([
       'common',
