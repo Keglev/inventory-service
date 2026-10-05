@@ -31,6 +31,13 @@ import { useTranslation } from 'react-i18next';
 import type { EditSupplierForm } from '../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../api/suppliers/types';
 
+/** The editable fields the summary compares, in display order, with their label key. */
+const CHANGE_FIELDS = [
+  { key: 'contactName', label: 'suppliers:table.contactName' },
+  { key: 'phone', label: 'suppliers:table.phone' },
+  { key: 'email', label: 'suppliers:table.email' },
+] as const;
+
 /**
  * Props for EditSupplierConfirmation component.
  *
@@ -125,38 +132,17 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
                 {t('suppliers:confirmations.changes')}
               </Typography>
 
-              {changes?.contactName !== (supplier.contactName || '') && (
-                <Box sx={{ mb: 1.5, p: 1, bgcolor: (theme) => alpha(theme.palette.info.main, 0.15), borderRadius: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {t('suppliers:table.contactName')}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {supplier.contactName || t('suppliers:confirmations.emptyValue')} →{' '}
-                    {changes?.contactName || t('suppliers:confirmations.emptyValue')}
-                  </Typography>
-                </Box>
-              )}
-
-              {changes?.phone !== (supplier.phone || '') && (
-                <Box sx={{ mb: 1.5, p: 1, bgcolor: (theme) => alpha(theme.palette.info.main, 0.15), borderRadius: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {t('suppliers:table.phone')}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {supplier.phone || t('suppliers:confirmations.emptyValue')} → {changes?.phone || t('suppliers:confirmations.emptyValue')}
-                  </Typography>
-                </Box>
-              )}
-
-              {changes?.email !== (supplier.email || '') && (
-                <Box sx={{ mb: 1.5, p: 1, bgcolor: (theme) => alpha(theme.palette.info.main, 0.15), borderRadius: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {t('suppliers:table.email')}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {supplier.email || t('suppliers:confirmations.emptyValue')} → {changes?.email || t('suppliers:confirmations.emptyValue')}
-                  </Typography>
-                </Box>
+              {CHANGE_FIELDS.map(({ key, label }) =>
+                changes?.[key] !== (supplier[key] || '') && (
+                  <Box key={key} sx={{ mb: 1.5, p: 1, bgcolor: (theme) => alpha(theme.palette.info.main, 0.15), borderRadius: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {t(label)}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {supplier[key] || t('suppliers:confirmations.emptyValue')} → {changes?.[key] || t('suppliers:confirmations.emptyValue')}
+                    </Typography>
+                  </Box>
+                )
               )}
             </Box>
           )}
