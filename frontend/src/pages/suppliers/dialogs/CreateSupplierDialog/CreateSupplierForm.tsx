@@ -119,5 +119,3 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
     </Box>
   );
 };
-
-export { SupplierFormFields as CreateSupplierForm };

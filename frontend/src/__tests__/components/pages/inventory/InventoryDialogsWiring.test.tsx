@@ -29,7 +29,7 @@ vi.mock('../../../../pages/inventory/dialogs/EditItemDialog/EditItemDialog', () 
 }));
 
 vi.mock('../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog', () => ({
-  default: vi.fn(({ open }: { open: boolean }) =>
+  DeleteItemDialog: vi.fn(({ open }: { open: boolean }) =>
     open ? <div data-testid="delete-item-dialog">DeleteItemDialog</div> : null
   ),
 }));
@@ -50,7 +50,7 @@ vi.mock('../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog
 import { InventoryDialogs } from '../../../../pages/inventory/components/InventoryDialogs';
 import { ItemFormDialog } from '../../../../pages/inventory/dialogs/ItemFormDialog/ItemFormDialog';
 import { EditItemDialog } from '../../../../pages/inventory/dialogs/EditItemDialog/EditItemDialog';
-import DeleteItemDialog from '../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog';
+import { DeleteItemDialog } from '../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog';
 import { QuantityAdjustDialog } from '../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustDialog';
 import { PriceChangeDialog } from '../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog';
 

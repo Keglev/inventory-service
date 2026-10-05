@@ -13,8 +13,6 @@ import type { AdjustQuantityRequest, ItemWriteResult } from './types';
 import { INVENTORY_BASE } from '../shared/constants';
 import { errorMessage, extractApiError } from '../shared/errorHandling';
 
-export { INVENTORY_BASE };
-
 /**
  * Records a stock quantity change via PATCH /api/inventory/{id}/quantity.
  * Centralises all stock mutations so callers get uniform error handling

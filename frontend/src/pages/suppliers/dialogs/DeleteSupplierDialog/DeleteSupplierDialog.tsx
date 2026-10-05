@@ -123,5 +123,3 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
     </Dialog>
   );
 };
-
-export default DeleteSupplierDialog;

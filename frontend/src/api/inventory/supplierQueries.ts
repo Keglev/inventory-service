@@ -12,9 +12,7 @@ import http from '../httpClient';
 import { isRecord } from '../shared/typeGuards';
 import { pickString, pickNumber } from '../shared/fieldPickers';
 import { resDataOrEmpty } from '../shared/responseExtraction';
-import { INVENTORY_BASE } from '../shared/constants';
 
-export { INVENTORY_BASE };
 /** Suppliers domain API base path. */
 export const SUPPLIERS_BASE = '/api/suppliers';
 

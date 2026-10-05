@@ -32,7 +32,7 @@ vi.mock('../../../../hooks/useHelp', () => ({
   useHelp: vi.fn(),
 }));
 
-import HelpIconButton from '../../../../features/help/components/HelpIconButton';
+import { HelpIconButton } from '../../../../features/help/components/HelpIconButton';
 import * as helpHooks from '../../../../hooks/useHelp';
 
 describe('HelpIconButton', () => {

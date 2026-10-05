@@ -48,5 +48,3 @@ export const HelpIconButton: React.FC<HelpIconButtonProps> = ({ topicId, tooltip
     </Tooltip>
   );
 };
-
-export default HelpIconButton;

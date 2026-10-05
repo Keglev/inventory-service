@@ -28,7 +28,7 @@ export const STOCK_CHANGE_REASONS = [
 export type StockChangeReasonKey = (typeof STOCK_CHANGE_REASONS)[number];
 
 /** Type guard narrowing an arbitrary backend string to a known reason. */
-export function isStockChangeReason(value: string): value is StockChangeReasonKey {
+function isStockChangeReason(value: string): value is StockChangeReasonKey {
   return (STOCK_CHANGE_REASONS as readonly string[]).includes(value);
 }
 
