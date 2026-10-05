@@ -1,11 +1,11 @@
 // Vite configuration for the React frontend.
 // Covers local HTTPS (optional cert detection), vendor chunk splitting to improve
-// cache efficiency in production, and dev-server proxying to the backend API.
+// cache efficiency in production, and dev-server proxying to a local backend.
 
 import fs from 'fs';
 import path from 'path';
 
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 const keyPath = path.resolve(__dirname, 'cert/key.pem');
@@ -19,6 +19,12 @@ const httpsConfig = useHttps
       cert: fs.readFileSync(certPath),
     }
   : undefined;
+
+// The dev server and `vite preview` proxy to a local backend (port 8081, as in
+// application.yml), so local work never sends traffic to production.
+// DEV_PROXY_TARGET overrides it from the shell, .env, .env.local or
+// .env.development; without a VITE_ prefix it never reaches the bundle.
+const proxyTarget = loadEnv('development', __dirname, '').DEV_PROXY_TARGET || 'http://localhost:8081';
 
 // App version is injected at build time from package.json so the UI can never drift from the manifest.
 const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8')) as { version: string };
@@ -71,13 +77,13 @@ export default defineConfig({
     https: httpsConfig,
     proxy: {
       '/api': {
-        target: 'https://api.smartsupplypro.de',
+        target: proxyTarget,
         // Required when proxying to a different host; prevents the backend from
         // rejecting requests with a mismatched Host header.
         changeOrigin: true,
       },
-      '/oauth2': 'https://api.smartsupplypro.de',
-      '/logout': 'https://api.smartsupplypro.de',
+      '/oauth2': proxyTarget,
+      '/logout': proxyTarget,
     },
     port: 5173,
   },
