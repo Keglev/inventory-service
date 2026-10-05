@@ -6,7 +6,7 @@
  * Data normalization for inventory API responses. Composes the field-level
  * extractors (see rowFieldExtractors) into a typed InventoryRow using defensive
  * field picking: never throws, returns null for invalid data, guards types before
- * unsafe operations, and tolerates multiple backend field-name variants per field.
+ * unsafe operations, and reads InventoryItemDTO's own field names.
  */
 
 import type { InventoryRow } from './types';

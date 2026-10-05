@@ -3,7 +3,7 @@
  *
  * Fetches and normalises low-stock alert rows from `GET /api/analytics/low-stock-items`.
  * Handles two backend response shapes (bare array or `{ items: [] }` envelope),
- * multiple field-name variants per column, and sorts results by deficit severity.
+ * reads LowStockItemDTO's field names, and sorts results by deficit severity.
  */
 
 import http from '../httpClient';
@@ -14,7 +14,7 @@ import type { LowStockRow } from './types';
 
 /**
  * Tolerant fetch of `GET /api/analytics/low-stock-items` for one supplier.
- * Handles field-name variants and two backend response shapes; returns `[]`
+ * Reads LowStockItemDTO's field names and two response shapes; returns `[]`
  * on any error so the table renders empty rather than crashing.
  */
 export async function getLowStockItems(supplierId: string, p?: AnalyticsParams): Promise<LowStockRow[]> {
@@ -31,9 +31,10 @@ export async function getLowStockItems(supplierId: string, p?: AnalyticsParams):
 
         const rows: LowStockRow[] = rawList
         .map((rec) => {
-            const itemName = firstStringOrEmpty(rec, ['itemName', 'name']);
-            const quantity = firstNumberOrZero(rec, ['quantity', 'qty', 'currentQty']);
-            const minimumQuantity = firstNumberOrZero(rec, ['minimumQuantity', 'minQuantity', 'minQty', 'minimum']);
+            // LowStockItemDTO field names.
+            const itemName = firstStringOrEmpty(rec, ['itemName']);
+            const quantity = firstNumberOrZero(rec, ['quantity']);
+            const minimumQuantity = firstNumberOrZero(rec, ['minimumQuantity']);
             return itemName ? { itemName, quantity, minimumQuantity } : null;
         })
         .filter((x): x is LowStockRow => x !== null);

@@ -1,52 +1,29 @@
-import { pickString, pickNumber, pickStringFromList } from '../shared/fieldPickers';
+import { pickString, pickNumber } from '../shared/fieldPickers';
 
-/** Required identity. Tries id / itemId / item_id; undefined when none present. */
+/** Required identity: InventoryItemDTO's `id`; undefined when absent. */
 export function extractId(raw: Record<string, unknown>): string | undefined {
-  return (
-    pickString(raw, 'id') ??
-    pickString(raw, 'itemId') ??
-    pickString(raw, 'item_id')
-  );
+  return pickString(raw, 'id');
 }
 
-/** Display name; em-dash placeholder when absent. */
+/** Display name: InventoryItemDTO's `name`; em-dash placeholder when absent. */
 export function extractName(raw: Record<string, unknown>): string {
-  return (
-    pickString(raw, 'name') ??
-    pickString(raw, 'itemName') ??
-    pickString(raw, 'title') ??
-    '—'
-  );
+  return pickString(raw, 'name') ?? '—';
 }
 
-/** Item code / SKU; null when absent. */
+/** Item code: InventoryItemDTO's `sku`; null when absent. */
 export function extractCode(raw: Record<string, unknown>): string | null {
-  return (
-    pickString(raw, 'code') ??
-    pickString(raw, 'sku') ??
-    pickString(raw, 'itemCode') ??
-    null
-  );
+  return pickString(raw, 'sku') ?? null;
 }
 
-/** Supplier id (string or numeric) and name. */
+/** Supplier id and name: InventoryItemDTO's `supplierId` (a UUID string) and `supplierName`. */
 export function extractSupplier(raw: Record<string, unknown>): {
   supplierId: string | number | null;
   supplierName: string | null;
 } {
-  const supplierIdRaw =
-    pickString(raw, 'supplierId') ??
-    pickString(raw, 'supplier_id');
-  const supplierIdNum = pickNumber(raw, 'supplierId');
-  const supplierId: string | number | null =
-    supplierIdRaw ?? (typeof supplierIdNum === 'number' ? supplierIdNum : null);
-
-  const supplierName =
-    pickString(raw, 'supplierName') ??
-    pickString(raw, 'supplier') ??
-    null;
-
-  return { supplierId, supplierName };
+  return {
+    supplierId: pickString(raw, 'supplierId') ?? null,
+    supplierName: pickString(raw, 'supplierName') ?? null,
+  };
 }
 
 /** On-hand stock from backend `quantity` (defaults 0) and `minimumQuantity` (nullable). */
@@ -61,13 +38,7 @@ export function extractQuantities(raw: Record<string, unknown>): {
   return { onHand, minQty };
 }
 
-/** Creation timestamp for the grid's "Created" column. The backend (InventoryItemDTO) sends `createdAt`; the alias list tolerates alternate creation-key spellings from non-canonical producers. The backend model has no update timestamp. */
+/** Creation timestamp: InventoryItemDTO's `createdAt`. The backend model has no update timestamp. */
 export function extractCreatedAt(raw: Record<string, unknown>): string | null {
-  return pickStringFromList(raw, [
-    'createdAt',
-    'created_at',
-    'createdDate',
-    'created_date',
-    'created',
-  ]) ?? null;
+  return pickString(raw, 'createdAt') ?? null;
 }

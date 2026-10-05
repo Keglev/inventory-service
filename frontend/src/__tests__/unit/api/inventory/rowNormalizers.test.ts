@@ -28,11 +28,11 @@ describe('toInventoryRow', () => {
   });
 
   describe('field mapping', () => {
-    it('maps canonical field names into InventoryRow', () => {
+    it('maps InventoryItemDTO field names into InventoryRow', () => {
       const result = toInventoryRow({
         id: 'ITEM-1',
         name: 'Widget',
-        code: 'SKU-1',
+        sku: 'SKU-1',
         supplierId: 'SUP-1',
         supplierName: 'Acme',
         quantity: 15,

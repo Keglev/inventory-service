@@ -45,7 +45,7 @@ export const toInventoryRow = (raw: unknown): InventoryRow | null => {
   if (!id) return null;
 
   const name = pickString(r, 'name') ?? '—';
-  // Single source of truth for the code/SKU key chain (code, sku, itemCode)
+  // The item code is InventoryItemDTO's `sku`, read in one place (extractCode)
   const code = extractCode(r);
 
   const supplierIdStr = pickString(r, 'supplierId');

@@ -80,10 +80,10 @@ describe('api/analytics/finance.getFinancialSummary', () => {
       vi.mocked(http.get).mockResolvedValueOnce({
         data: {
           data: {
-            purchases: 200,
-            cogs: 80,
-            writeOffs: 5,
-            returns: 7,
+            purchasesCost: 200,
+            cogsCost: 80,
+            writeOffCost: 5,
+            returnsInCost: 7,
             openingValue: 11,
             endingValue: 22,
           },
@@ -137,14 +137,14 @@ describe('api/analytics/finance.getFinancialSummary', () => {
   });
 
   describe('response parsing contract', () => {
-    it('parses a direct summary object', async () => {
-      // Arrange
+    it('parses a direct FinancialSummaryDTO', async () => {
+      // Arrange: the record components of FinancialSummaryDTO.
       vi.mocked(http.get).mockResolvedValueOnce({
         data: {
-          purchases: 100,
-          cogs: 40,
-          writeOffs: 2,
-          returns: 3,
+          purchasesCost: 100,
+          cogsCost: 40,
+          writeOffCost: 2,
+          returnsInCost: 3,
           openingValue: 10,
           endingValue: 20,
         },
@@ -168,17 +168,17 @@ describe('api/analytics/finance.getFinancialSummary', () => {
       });
     });
 
-    it('accepts a { summary } envelope and maps supported alias fields', async () => {
+    it('accepts a { summary } envelope and coerces numeric strings', async () => {
       // Arrange
       vi.mocked(http.get).mockResolvedValueOnce({
         data: {
           summary: {
-            totalPurchases: '200',
-            costOfGoodsSold: '80',
-            write_offs: '5',
-            salesReturns: '7',
-            startValue: '11',
-            endValue: '22',
+            purchasesCost: '200',
+            cogsCost: '80',
+            writeOffCost: '5',
+            returnsInCost: '7',
+            openingValue: '11',
+            endingValue: '22',
           },
         },
       });

@@ -3,8 +3,9 @@
  *
  * Stock updates from GET /api/analytics/stock-updates (the full list) and
  * GET /api/analytics/stock-updates/page (one page with the total).
- * Each record is mapped tolerantly (multiple fallback field names) so minor
- * backend renames do not break the UI. Returns an empty array on any error.
+ * Each record is read by StockUpdateResultDTO's field names (timestamp,
+ * itemName, change, reason, createdBy); a record without timestamp or item
+ * name is dropped. Returns an empty array on any error.
  */
 import http from '../httpClient';
 import { isArrayOfRecords, firstStringOrEmpty, firstNumberOrZero } from './util';
@@ -120,16 +121,17 @@ function windowParams(filter?: StockUpdatesFilter): Record<string, string | unde
 
 /** Maps one backend record tolerantly; a record without timestamp or item name is dropped. */
 function toStockUpdateRow(rec: Rec): StockUpdateRow | null {
-    const timestamp = firstStringOrEmpty(rec, ['timestamp', 'createdAt', 'date', 'time']);
-    const itemName = firstStringOrEmpty(rec, ['itemName', 'name']);
+    // StockUpdateResultDTO field names.
+    const timestamp = firstStringOrEmpty(rec, ['timestamp']);
+    const itemName = firstStringOrEmpty(rec, ['itemName']);
     if (!timestamp || !itemName) return null;
 
-    const reason = firstStringOrEmpty(rec, ['reason', 'note', 'type']);
-    const user = firstStringOrEmpty(rec, ['user', 'username', 'performedBy', 'createdBy']);
+    const reason = firstStringOrEmpty(rec, ['reason']);
+    const user = firstStringOrEmpty(rec, ['createdBy']);
     return {
         timestamp,
         itemName,
-        delta: firstNumberOrZero(rec, ['delta', 'quantityChange', 'change']),
+        delta: firstNumberOrZero(rec, ['change']),
         reason: reason || undefined,
         user: user || undefined,
     };

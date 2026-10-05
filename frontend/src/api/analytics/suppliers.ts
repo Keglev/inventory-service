@@ -6,6 +6,7 @@
  * id and name the selectors need.
  */
 import http from '../httpClient';
+import { SUPPLIERS_BASE } from '../suppliers/supplierListFetcher';
 import type { SupplierRef } from './types';
 
 /**
@@ -22,7 +23,7 @@ import type { SupplierRef } from './types';
  */
 export async function getSuppliersLite(): Promise<SupplierRef[]> {
     try {
-        const { data } = await http.get<unknown>('/api/suppliers');
+        const { data } = await http.get<unknown>(SUPPLIERS_BASE);
         if (!Array.isArray(data)) return [];
         return (data as Array<{ id?: string | number; name?: string }>)
         .map((s) => ({ id: String(s.id ?? ''), name: String(s.name ?? '') }))
