@@ -2,7 +2,8 @@
  * @file rowFieldExtractors.test.ts
  * @module tests/unit/api/inventory/rowFieldExtractors
  * @description Contract tests for extractId, extractName, extractCode, extractSupplier,
- * extractQuantities, extractCreatedAt.
+ * extractQuantities, extractCreatedAt. Each reads InventoryItemDTO's own field
+ * name only; spellings the backend never sends are not read.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -16,10 +17,9 @@ import {
 } from '../../../../api/inventory/rowFieldExtractors';
 
 describe('extractId', () => {
-  it('reads id / itemId / item_id in order', () => {
+  it('reads id only', () => {
     expect(extractId({ id: 'a' })).toBe('a');
-    expect(extractId({ itemId: 'b' })).toBe('b');
-    expect(extractId({ item_id: 'c' })).toBe('c');
+    expect(extractId({ itemId: 'b' })).toBeUndefined();
   });
   it('returns undefined when no identity key is present', () => {
     expect(extractId({})).toBeUndefined();
@@ -27,29 +27,30 @@ describe('extractId', () => {
 });
 
 describe('extractName', () => {
-  it('falls back through variants to an em-dash placeholder', () => {
+  it('reads name, else an em-dash placeholder', () => {
     expect(extractName({ name: 'Widget' })).toBe('Widget');
-    expect(extractName({ title: 'T' })).toBe('T');
+    expect(extractName({ title: 'T' })).toBe('—');
     expect(extractName({})).toBe('—');
   });
 });
 
 describe('extractCode', () => {
-  it('reads code / sku / itemCode, else null', () => {
+  it('reads sku, else null', () => {
     expect(extractCode({ sku: 'SKU1' })).toBe('SKU1');
+    expect(extractCode({ code: 'C1' })).toBeNull();
     expect(extractCode({})).toBeNull();
   });
 });
 
 describe('extractSupplier', () => {
-  it('prefers a string supplierId, falls back to numeric, else null', () => {
+  it('reads a string supplierId (a UUID in the DTO), else null', () => {
     expect(extractSupplier({ supplierId: '7' }).supplierId).toBe('7');
-    expect(extractSupplier({ supplierId: 7 }).supplierId).toBe(7);
+    expect(extractSupplier({ supplierId: 7 }).supplierId).toBeNull();
     expect(extractSupplier({}).supplierId).toBeNull();
   });
-  it('reads supplierName / supplier, else null', () => {
+  it('reads supplierName, else null', () => {
     expect(extractSupplier({ supplierName: 'Acme' }).supplierName).toBe('Acme');
-    expect(extractSupplier({}).supplierName).toBeNull();
+    expect(extractSupplier({ supplier: 'Bravo' }).supplierName).toBeNull();
   });
 });
 
@@ -66,6 +67,7 @@ describe('extractQuantities', () => {
 describe('extractCreatedAt', () => {
   it('reads the createdAt creation timestamp, else null', () => {
     expect(extractCreatedAt({ createdAt: '2024-01-01' })).toBe('2024-01-01');
+    expect(extractCreatedAt({ createdDate: '2024-01-01' })).toBeNull();
     expect(extractCreatedAt({})).toBeNull();
   });
 });

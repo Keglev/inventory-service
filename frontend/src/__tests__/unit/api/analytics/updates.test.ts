@@ -94,14 +94,14 @@ describe('api/analytics/updates.getStockUpdates', () => {
       expect(res).toEqual([]);
     });
 
-    it('maps tolerant fields and filters rows missing required identifiers', async () => {
+    it('maps StockUpdateResultDTO fields and drops rows without timestamp or item name', async () => {
       // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
-          { createdAt: '2025-10-01T12:00:00', name: 'Item A', change: '5', note: 'restock', performedBy: 'carlos' },
-          { timestamp: '2025-10-02T12:00:00', itemName: 'Item B', delta: -2, reason: 'sale', user: 'system' },
-          { itemName: 'No time', delta: 1 },
-          { timestamp: '2025-10-03T12:00:00', delta: 1 },
+          { timestamp: '2025-10-01T12:00:00', itemName: 'Item A', change: '5', reason: 'restock', createdBy: 'carlos' },
+          { timestamp: '2025-10-02T12:00:00', itemName: 'Item B', change: -2, reason: 'sale', createdBy: 'system' },
+          { itemName: 'No time', change: 1 },
+          { timestamp: '2025-10-03T12:00:00', change: 1 },
         ],
       });
 
@@ -131,7 +131,7 @@ describe('api/analytics/updates.getStockUpdates', () => {
       // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
-          { timestamp: '2025-10-01T12:00:00', itemName: 'Item A', delta: 1, reason: '', user: '' },
+          { timestamp: '2025-10-01T12:00:00', itemName: 'Item A', change: 1, reason: '', createdBy: '' },
         ],
       });
 

@@ -57,11 +57,11 @@ describe('api/analytics/lowStock.getLowStockItems', () => {
   });
 
   describe('response parsing contract', () => {
-    it('accepts a direct array and tolerantly parses fields', async () => {
+    it('accepts a direct array of LowStockItemDTO and coerces numeric strings', async () => {
       httpGet.mockResolvedValueOnce({
         data: [
           { itemName: 'A', quantity: 1, minimumQuantity: 5 },
-          { name: 'B', qty: '2', minQty: '10' },
+          { itemName: 'B', quantity: '2', minimumQuantity: '10' },
         ],
       });
 

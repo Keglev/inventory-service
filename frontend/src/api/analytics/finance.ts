@@ -72,12 +72,13 @@ export async function getFinancialSummary(
     if (!body) return ZERO_FINANCE;
 
     return {
-        purchases:    firstNumberOrZero(body, ['purchases', 'purchasesCost', 'totalPurchases', 'purchaseTotal']),
-        cogs:         firstNumberOrZero(body, ['cogs', 'cogsCost', 'costOfGoodsSold']),
-        writeOffs:    firstNumberOrZero(body, ['writeOffs', 'writeOffCost', 'writeoffs', 'write_offs']),
-        returns:      firstNumberOrZero(body, ['returns', 'returnsInCost', 'returnsCost', 'salesReturns', 'returnsTotal']),
-        openingValue: firstNumberOrZero(body, ['openingValue', 'opening', 'startValue']),
-        endingValue:  firstNumberOrZero(body, ['endingValue', 'ending', 'endValue']),
+        // FinancialSummaryDTO field names; the backend sends no other spelling.
+        purchases:    firstNumberOrZero(body, ['purchasesCost']),
+        cogs:         firstNumberOrZero(body, ['cogsCost']),
+        writeOffs:    firstNumberOrZero(body, ['writeOffCost']),
+        returns:      firstNumberOrZero(body, ['returnsInCost']),
+        openingValue: firstNumberOrZero(body, ['openingValue']),
+        endingValue:  firstNumberOrZero(body, ['endingValue']),
     };
 
   } catch {

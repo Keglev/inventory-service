@@ -4,8 +4,8 @@
  * Supplier-scoped item update frequency (top N items by change count).
  * Calls GET /api/analytics/item-update-frequency?supplierId=... and keeps the
  * first N rows on the client; the endpoint takes no limit.
- * Returns [] on error or when supplierId is empty. Normalises several backend
- * field aliases to the canonical {@link ItemUpdateFrequencyPoint} shape.
+ * Returns [] on error or when supplierId is empty. Maps ItemUpdateFrequencyDTO
+ * (itemName, updateCount) to the canonical {@link ItemUpdateFrequencyPoint} shape.
  */
 
 import http from '../httpClient';
@@ -18,10 +18,8 @@ export type ItemUpdateFrequencyPoint = { id: string; name: string; updates: numb
  * Fetch the top `limit` items ranked by update count for a supplier.
  * Backend: GET /api/analytics/item-update-frequency?supplierId=...
  *
- * Field aliases accepted from the backend:
- *   - id:      `id` | `itemId` | `sku` | `code`, falls back to `name` when absent
- *   - name:    `name` | `itemName`
- *   - updates: `updates` | `updateCount` | `updatesCount` | `count` | `changes`
+ * Fields read from ItemUpdateFrequencyDTO: `itemName` (also the row id, as the
+ * DTO has none) and `updateCount`.
  */
 export async function getItemUpdateFrequency(
   supplierId: string,
@@ -36,11 +34,11 @@ export async function getItemUpdateFrequency(
 
     return (data as Array<Record<string, unknown>>)
       .map((r) => {
-        const name = firstStringOrEmpty(r, ['name', 'itemName']);
+        // ItemUpdateFrequencyDTO(itemName, updateCount) has no id: the name keys the row.
+        const name = firstStringOrEmpty(r, ['itemName']);
         if (!name) return null;
-        const id = firstStringOrEmpty(r, ['id', 'itemId', 'sku', 'code']) || name;
-        const updates = firstNumberOrZero(r, ['updates', 'updateCount', 'updatesCount', 'count', 'changes']);
-        return { id, name, updates } as ItemUpdateFrequencyPoint;
+        const updates = firstNumberOrZero(r, ['updateCount']);
+        return { id: name, name, updates } as ItemUpdateFrequencyPoint;
       })
       .filter((x): x is ItemUpdateFrequencyPoint => x !== null)
       .slice(0, limit);

@@ -61,13 +61,13 @@ describe('api/analytics/frequency.getItemUpdateFrequency', () => {
       expect(res).toEqual([]);
     });
 
-    it('normalizes records and uses name as id when id is missing', async () => {
-      // Arrange
+    it('maps ItemUpdateFrequencyDTO and keys each row by its item name', async () => {
+      // Arrange: the DTO is (itemName, updateCount) and has no id.
       httpGet.mockResolvedValueOnce({
         data: [
           { itemName: 'Item A', updateCount: 3 },
-          { id: 'I-2', name: 'Item B', updates: 5 },
-          { sku: 'SKU-3', itemName: 'Item C', changes: '7' },
+          { itemName: 'Item B', updateCount: 5 },
+          { itemName: 'Item C', updateCount: '7' },
         ],
       });
 
@@ -82,8 +82,8 @@ describe('api/analytics/frequency.getItemUpdateFrequency', () => {
 
       expect(res).toEqual([
         { id: 'Item A', name: 'Item A', updates: 3 },
-        { id: 'I-2', name: 'Item B', updates: 5 },
-        { id: 'SKU-3', name: 'Item C', updates: 7 },
+        { id: 'Item B', name: 'Item B', updates: 5 },
+        { id: 'Item C', name: 'Item C', updates: 7 },
       ]);
     });
 
@@ -91,8 +91,8 @@ describe('api/analytics/frequency.getItemUpdateFrequency', () => {
       // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
-          { id: 'X', updates: 1 },
-          { name: 'Good', count: 2 },
+          { updateCount: 1 },
+          { itemName: 'Good', updateCount: 2 },
         ],
       });
 
@@ -107,9 +107,9 @@ describe('api/analytics/frequency.getItemUpdateFrequency', () => {
       // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
-          { name: 'A', updates: 1 },
-          { name: 'B', updates: 2 },
-          { name: 'C', updates: 3 },
+          { itemName: 'A', updateCount: 1 },
+          { itemName: 'B', updateCount: 2 },
+          { itemName: 'C', updateCount: 3 },
         ],
       });
 
