@@ -137,7 +137,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">436x</span>
+<span class="cline-any cline-yes">450x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -147,7 +147,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">436x</span>
+<span class="cline-any cline-yes">450x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file reasonLabels.ts
@@ -179,7 +179,7 @@ export const STOCK_CHANGE_REASONS = [
 export type StockChangeReasonKey = (typeof STOCK_CHANGE_REASONS)[number];
 &nbsp;
 /** Type guard narrowing an arbitrary backend string to a known reason. */
-export function isStockChangeReason(value: string): value is StockChangeReasonKey {
+function isStockChangeReason(value: string): value is StockChangeReasonKey {
   return (STOCK_CHANGE_REASONS as readonly string[]).includes(value);
 }
 &nbsp;
