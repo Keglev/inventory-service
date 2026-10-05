@@ -16,7 +16,7 @@
  *   own empty state).
  */
 import http from '../httpClient';
-import { isArrayOfRecords, pickString, pickNumber } from './util';
+import { isArrayOfRecords, firstStringOrEmpty, firstNumberOrZero } from './util';
 import type { Rec } from './util';
 
 /** One aggregated row per stock-change reason. */
@@ -60,12 +60,12 @@ export async function getReasonBreakdown(filter?: ReasonBreakdownFilter): Promis
 
         return (data as Rec[])
             .map<ReasonBreakdownRow | null>((rec) => {
-                const reason = pickString(rec, ['reason']);
+                const reason = firstStringOrEmpty(rec, ['reason']);
                 if (!reason) return null;
                 return {
                     reason,
-                    increase: pickNumber(rec, ['increase']),
-                    decrease: pickNumber(rec, ['decrease']),
+                    increase: firstNumberOrZero(rec, ['increase']),
+                    decrease: firstNumberOrZero(rec, ['decrease']),
                 };
             })
             .filter((x): x is ReasonBreakdownRow => x !== null);

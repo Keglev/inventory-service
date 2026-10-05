@@ -9,7 +9,7 @@
  */
 
 import http from '../httpClient';
-import { isArrayOfRecords, pickNumber, pickString } from './util';
+import { isArrayOfRecords, firstNumberOrZero, firstStringOrEmpty } from './util';
 
 /** A single data point: how many times a given item was updated in the window. */
 export type ItemUpdateFrequencyPoint = { id: string; name: string; updates: number };
@@ -36,10 +36,10 @@ export async function getItemUpdateFrequency(
 
     return (data as Array<Record<string, unknown>>)
       .map((r) => {
-        const name = pickString(r, ['name', 'itemName']);
+        const name = firstStringOrEmpty(r, ['name', 'itemName']);
         if (!name) return null;
-        const id = pickString(r, ['id', 'itemId', 'sku', 'code']) || name;
-        const updates = pickNumber(r, ['updates', 'updateCount', 'updatesCount', 'count', 'changes']);
+        const id = firstStringOrEmpty(r, ['id', 'itemId', 'sku', 'code']) || name;
+        const updates = firstNumberOrZero(r, ['updates', 'updateCount', 'updatesCount', 'count', 'changes']);
         return { id, name, updates } as ItemUpdateFrequencyPoint;
       })
       .filter((x): x is ItemUpdateFrequencyPoint => x !== null)

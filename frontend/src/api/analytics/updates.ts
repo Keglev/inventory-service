@@ -7,7 +7,7 @@
  * backend renames do not break the UI. Returns an empty array on any error.
  */
 import http from '../httpClient';
-import { isArrayOfRecords, pickString, pickNumber } from './util';
+import { isArrayOfRecords, firstStringOrEmpty, firstNumberOrZero } from './util';
 import type { Rec } from './util';
 import { extractPageTotal } from '../shared/responseExtraction';
 
@@ -120,16 +120,16 @@ function windowParams(filter?: StockUpdatesFilter): Record<string, string | unde
 
 /** Maps one backend record tolerantly; a record without timestamp or item name is dropped. */
 function toStockUpdateRow(rec: Rec): StockUpdateRow | null {
-    const timestamp = pickString(rec, ['timestamp', 'createdAt', 'date', 'time']);
-    const itemName = pickString(rec, ['itemName', 'name']);
+    const timestamp = firstStringOrEmpty(rec, ['timestamp', 'createdAt', 'date', 'time']);
+    const itemName = firstStringOrEmpty(rec, ['itemName', 'name']);
     if (!timestamp || !itemName) return null;
 
-    const reason = pickString(rec, ['reason', 'note', 'type']);
-    const user = pickString(rec, ['user', 'username', 'performedBy', 'createdBy']);
+    const reason = firstStringOrEmpty(rec, ['reason', 'note', 'type']);
+    const user = firstStringOrEmpty(rec, ['user', 'username', 'performedBy', 'createdBy']);
     return {
         timestamp,
         itemName,
-        delta: pickNumber(rec, ['delta', 'quantityChange', 'change']),
+        delta: firstNumberOrZero(rec, ['delta', 'quantityChange', 'change']),
         reason: reason || undefined,
         user: user || undefined,
     };
