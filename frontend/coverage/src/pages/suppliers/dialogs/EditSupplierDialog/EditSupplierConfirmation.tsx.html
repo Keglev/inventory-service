@@ -32,14 +32,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>30/30</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
@@ -237,21 +237,7 @@
 <a name='L172'></a><a href='#L172'>172</a>
 <a name='L173'></a><a href='#L173'>173</a>
 <a name='L174'></a><a href='#L174'>174</a>
-<a name='L175'></a><a href='#L175'>175</a>
-<a name='L176'></a><a href='#L176'>176</a>
-<a name='L177'></a><a href='#L177'>177</a>
-<a name='L178'></a><a href='#L178'>178</a>
-<a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a>
-<a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a>
-<a name='L184'></a><a href='#L184'>184</a>
-<a name='L185'></a><a href='#L185'>185</a>
-<a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a>
-<a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L175'></a><a href='#L175'>175</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -279,6 +265,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -379,30 +372,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-yes">21x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -471,6 +443,13 @@ import { alpha } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import type { EditSupplierForm } from '../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../api/suppliers/types';
+&nbsp;
+/** The editable fields the summary compares, in display order, with their label key. */
+const CHANGE_FIELDS = [
+  { key: 'contactName', label: 'suppliers:table.contactName' },
+  { key: 'phone', label: 'suppliers:table.phone' },
+  { key: 'email', label: 'suppliers:table.email' },
+] as const;
 &nbsp;
 /**
  * Props for EditSupplierConfirmation component.
@@ -566,38 +545,17 @@ export const EditSupplierConfirmation: React.FC&lt;EditSupplierConfirmationProps
                 {t('suppliers:confirmations.changes')}
               &lt;/Typography&gt;
 &nbsp;
-              {changes?.contactName !== (supplier.contactName || '') &amp;&amp; (
-                &lt;Box sx={{ mb: 1.5, p: 1, bgcolor: (theme) =&gt; alpha(theme.palette.info.main, 0.15), borderRadius: 1 }}&gt;
-                  &lt;Typography variant="body2" sx={{ fontWeight: 600 }}&gt;
-                    {t('suppliers:table.contactName')}
-                  &lt;/Typography&gt;
-                  &lt;Typography variant="caption" color="text.secondary"&gt;
-                    {supplier.contactName || t('suppliers:confirmations.emptyValue')} →{' '}
-                    {changes?.contactName || t('suppliers:confirmations.emptyValue')}
-                  &lt;/Typography&gt;
-                &lt;/Box&gt;
-              )}
-&nbsp;
-              {changes?.phone !== (supplier.phone || '') &amp;&amp; (
-                &lt;Box sx={{ mb: 1.5, p: 1, bgcolor: (theme) =&gt; alpha(theme.palette.info.main, 0.15), borderRadius: 1 }}&gt;
-                  &lt;Typography variant="body2" sx={{ fontWeight: 600 }}&gt;
-                    {t('suppliers:table.phone')}
-                  &lt;/Typography&gt;
-                  &lt;Typography variant="caption" color="text.secondary"&gt;
-                    {supplier.phone || t('suppliers:confirmations.emptyValue')} → {changes?.phone || t('suppliers:confirmations.emptyValue')}
-                  &lt;/Typography&gt;
-                &lt;/Box&gt;
-              )}
-&nbsp;
-              {changes?.email !== (supplier.email || '') &amp;&amp; (
-                &lt;Box sx={{ mb: 1.5, p: 1, bgcolor: (theme) =&gt; alpha(theme.palette.info.main, 0.15), borderRadius: 1 }}&gt;
-                  &lt;Typography variant="body2" sx={{ fontWeight: 600 }}&gt;
-                    {t('suppliers:table.email')}
-                  &lt;/Typography&gt;
-                  &lt;Typography variant="caption" color="text.secondary"&gt;
-                    {supplier.email || t('suppliers:confirmations.emptyValue')} → {changes?.email || t('suppliers:confirmations.emptyValue')}
-                  &lt;/Typography&gt;
-                &lt;/Box&gt;
+              {CHANGE_FIELDS.map(({ key, label }) =&gt;
+                changes?.[key] !== (supplier[key] || '') &amp;&amp; (
+                  &lt;Box key={key} sx={{ mb: 1.5, p: 1, bgcolor: (theme) =&gt; alpha(theme.palette.info.main, 0.15), borderRadius: 1 }}&gt;
+                    &lt;Typography variant="body2" sx={{ fontWeight: 600 }}&gt;
+                      {t(label)}
+                    &lt;/Typography&gt;
+                    &lt;Typography variant="caption" color="text.secondary"&gt;
+                      {supplier[key] || t('suppliers:confirmations.emptyValue')} → {changes?.[key] || t('suppliers:confirmations.emptyValue')}
+                    &lt;/Typography&gt;
+                  &lt;/Box&gt;
+                )
               )}
             &lt;/Box&gt;
           )}
