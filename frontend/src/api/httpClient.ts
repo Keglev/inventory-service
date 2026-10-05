@@ -20,6 +20,8 @@
  */
 import axios, { AxiosError } from 'axios';
 
+import { readDemoSession } from '../context/auth/demoSession';
+
 /** Narrows `import.meta.env` to the env vars this module reads. */
 interface ViteEnv {
   VITE_API_BASE?: string;
@@ -49,22 +51,6 @@ httpClient.defaults.headers.common['Accept'] = 'application/json';
 httpClient.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 /**
- * Returns true when a demo session is active.  Demo sessions intentionally
- * have no server-side session, so 401 responses are expected and must not
- * trigger a login redirect.
- *
- * @internal
- */
-function isDemoSession(): boolean {
-  try {
-    const raw = localStorage.getItem('ssp.demo.session');
-    return !!raw && JSON.parse(raw)?.isDemo === true;
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Redirects unauthenticated requests to `/login`.
  *
  * Suppressed when the user is already on a public page (to prevent
@@ -81,7 +67,8 @@ httpClient.interceptors.response.use(
     if (!resp) return Promise.reject(error);
 
     if (resp.status === 401) {
-      if (isDemoSession()) return Promise.reject(error);
+      // A demo has no server session: its 401s are expected, not a logout.
+      if (readDemoSession()) return Promise.reject(error);
 
       const path = window.location.pathname;
       const onPublic =

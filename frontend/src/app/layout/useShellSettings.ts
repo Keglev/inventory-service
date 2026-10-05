@@ -19,10 +19,7 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { buildTheme } from '../../theme';
 import type { SupportedLocale } from '../../theme';
-
-/* LocalStorage keys for persistence */
-const LS_THEME_KEY = 'themeMode';
-const LS_LANGUAGE_KEY = 'i18nextLng';
+import { LANGUAGE_KEY, THEME_MODE_KEY } from '../../config/storageKeys';
 
 /** Normalize an i18n language tag ('de-DE', 'en-US') to a SupportedLocale ('de' | 'en'). */
 function normalizeLocale(lng?: string): SupportedLocale {
@@ -43,7 +40,7 @@ export function useShellSettings(notify: Notify): ShellSettings {
   const { t, i18n } = useTranslation(['common', 'auth']);
 
   // Initialize locale from localStorage or i18n default; keep state synced to i18n changes.
-  const initial = normalizeLocale(localStorage.getItem(LS_LANGUAGE_KEY) || i18n.resolvedLanguage || 'de');
+  const initial = normalizeLocale(localStorage.getItem(LANGUAGE_KEY) || i18n.resolvedLanguage || 'de');
   const [locale, setLocale] = React.useState<SupportedLocale>(initial);
 
   React.useEffect(() => {
@@ -56,7 +53,7 @@ export function useShellSettings(notify: Notify): ShellSettings {
 
   // Initialize theme mode from localStorage; default 'light'.
   const [themeMode, setThemeMode] = React.useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem(LS_THEME_KEY) as 'light' | 'dark' | null;
+    const saved = localStorage.getItem(THEME_MODE_KEY) as 'light' | 'dark' | null;
     return saved || 'light';
   });
 
@@ -68,7 +65,7 @@ export function useShellSettings(notify: Notify): ShellSettings {
       if (prev === nextMode) {
         return prev;
       }
-      localStorage.setItem(LS_THEME_KEY, nextMode);
+      localStorage.setItem(THEME_MODE_KEY, nextMode);
       notify(
         nextMode === 'dark'
           ? t('common:shell.darkModeEnabled')
@@ -80,7 +77,7 @@ export function useShellSettings(notify: Notify): ShellSettings {
   };
 
   const handleLocaleChange = async (next: SupportedLocale): Promise<void> => {
-    localStorage.setItem(LS_LANGUAGE_KEY, next);
+    localStorage.setItem(LANGUAGE_KEY, next);
     setLocale(next);
     // Awaited so the toast resolves after the new bundle is loaded; i18next
     // fetches locale files on demand.

@@ -23,14 +23,14 @@
  * - Does NOT clear AuthContext state directly — navigates to /logout and lets
  *   LogoutPage own cleanup (HTTP logout + cookie revocation). Single source of
  *   truth for logout side effects.
- * - FORCE_LOGOUT_FLAG is shared with AuthContext.ts via context/auth/storageKeys.
+ * - FORCE_LOGOUT_FLAG is shared with AuthContext.ts via config/storageKeys.
  */
 
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import httpClient from '../../../api/httpClient';
 import { useAuth } from '../../../hooks/useAuth';
-import { FORCE_LOGOUT_FLAG } from '../../../context/auth/storageKeys';
+import { FORCE_LOGOUT_FLAG } from '../../../config/storageKeys';
 
 
 type UseSessionTimeoutOptions = {
