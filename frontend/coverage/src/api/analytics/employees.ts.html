@@ -403,7 +403,7 @@
  *   results so the section renders its own empty state.
  */
 import http from '../httpClient';
-import { isArrayOfRecords, pickString, pickNumber } from './util';
+import { isArrayOfRecords, firstStringOrEmpty, firstNumberOrZero } from './util';
 import type { Rec } from './util';
 import { extractPageTotal } from '../shared/responseExtraction';
 &nbsp;
@@ -451,14 +451,14 @@ export async function getEmployeeActivity(filter?: EmployeeActivityFilter): Prom
 &nbsp;
         return (data as Rec[])
             .map&lt;EmployeeActivityRow | null&gt;((rec) =&gt; {
-                const period = pickString(rec, ['period']);
-                const createdBy = pickString(rec, ['createdBy']);
+                const period = firstStringOrEmpty(rec, ['period']);
+                const createdBy = firstStringOrEmpty(rec, ['createdBy']);
                 <span class="missing-if-branch" title="if path not taken" >I</span>if (!period || !createdBy) <span class="cstat-no" title="statement not covered" >return null;</span>
                 return {
                     period,
                     createdBy,
-                    displayName: pickString(rec, ['displayName']) || createdBy,
-                    changeCount: pickNumber(rec, ['changeCount']),
+                    displayName: firstStringOrEmpty(rec, ['displayName']) || createdBy,
+                    changeCount: firstNumberOrZero(rec, ['changeCount']),
                 };
             })
             .filter((x): x is EmployeeActivityRow =&gt; x !== null);
@@ -524,16 +524,16 @@ export async function getEmployeeChanges(filter?: EmployeeChangesFilter): Promis
 &nbsp;
         const rows = (content as Rec[])
             .map&lt;EmployeeChangeRow | null&gt;((rec) =&gt; {
-                const timestamp = pickString(rec, ['timestamp']);
-                const itemName = pickString(rec, ['itemName']);
+                const timestamp = firstStringOrEmpty(rec, ['timestamp']);
+                const itemName = firstStringOrEmpty(rec, ['itemName']);
                 <span class="missing-if-branch" title="if path not taken" >I</span>if (!timestamp || !itemName) <span class="cstat-no" title="statement not covered" >return null;</span>
                 return {
                     timestamp,
                     itemName,
-                    supplierName: pickString(rec, ['supplierName']),
-                    change: pickNumber(rec, ['change']),
-                    reason: pickString(rec, ['reason']),
-                    createdBy: pickString(rec, ['createdBy']),
+                    supplierName: firstStringOrEmpty(rec, ['supplierName']),
+                    change: firstNumberOrZero(rec, ['change']),
+                    reason: firstStringOrEmpty(rec, ['reason']),
+                    createdBy: firstStringOrEmpty(rec, ['createdBy']),
                 };
             })
             .filter((x): x is EmployeeChangeRow =&gt; x !== null);

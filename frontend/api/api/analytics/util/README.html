@@ -121,14 +121,13 @@ api/analytics/util/README · Smart Supply Pro · API</title>
         <h1 id="apianalyticsutil">api/analytics/util</h1>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>pickString/pickNumber here are a multi-key,
+        <li>firstStringOrEmpty / firstNumberOrZero are a multi-key,
         default-returning family (try a list of keys, return ''/0 on
         miss), distinct by design from the single-key,
-        undefined-returning pickString/pickNumber in @/api/shared. The
-        two families are partitioned by directory and never imported
-        into the same module, so the shared name carries no collision
-        risk. Kept separate intentionally -- do not consolidate; the
-        contracts differ.</li>
+        undefined-returning pickString / pickNumber in
+        api/shared/fieldPickers. Kept separate intentionally -- do not
+        consolidate; the contracts differ. The names differ so that a
+        reader never mistakes one contract for the other.</li>
         </ul>
         <h2 id="type-aliases">Type Aliases</h2>
         <ul>
@@ -138,10 +137,12 @@ api/analytics/util/README · Smart Supply Pro · API</title>
         <ul>
         <li><a href="functions/asNumber.html">asNumber</a></li>
         <li><a
+        href="functions/firstNumberOrZero.html">firstNumberOrZero</a></li>
+        <li><a
+        href="functions/firstStringOrEmpty.html">firstStringOrEmpty</a></li>
+        <li><a
         href="functions/isArrayOfRecords.html">isArrayOfRecords</a></li>
         <li><a href="functions/paramClean.html">paramClean</a></li>
-        <li><a href="functions/pickNumber.html">pickNumber</a></li>
-        <li><a href="functions/pickString.html">pickString</a></li>
         </ul>
       </article>
     </main>

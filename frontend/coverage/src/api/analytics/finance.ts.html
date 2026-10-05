@@ -246,7 +246,7 @@
  */
 &nbsp;
 import http from '../httpClient';
-import { pickNumber } from './util';
+import { firstNumberOrZero } from './util';
 import { isRecord } from '../shared/typeGuards';
 import type { Rec } from './util';
 &nbsp;
@@ -309,12 +309,12 @@ export async function getFinancialSummary(
     if (!body) return ZERO_FINANCE;
 &nbsp;
     return {
-        purchases:    pickNumber(body, ['purchases', 'purchasesCost', 'totalPurchases', 'purchaseTotal']),
-        cogs:         pickNumber(body, ['cogs', 'cogsCost', 'costOfGoodsSold']),
-        writeOffs:    pickNumber(body, ['writeOffs', 'writeOffCost', 'writeoffs', 'write_offs']),
-        returns:      pickNumber(body, ['returns', 'returnsInCost', 'returnsCost', 'salesReturns', 'returnsTotal']),
-        openingValue: pickNumber(body, ['openingValue', 'opening', 'startValue']),
-        endingValue:  pickNumber(body, ['endingValue', 'ending', 'endValue']),
+        purchases:    firstNumberOrZero(body, ['purchases', 'purchasesCost', 'totalPurchases', 'purchaseTotal']),
+        cogs:         firstNumberOrZero(body, ['cogs', 'cogsCost', 'costOfGoodsSold']),
+        writeOffs:    firstNumberOrZero(body, ['writeOffs', 'writeOffCost', 'writeoffs', 'write_offs']),
+        returns:      firstNumberOrZero(body, ['returns', 'returnsInCost', 'returnsCost', 'salesReturns', 'returnsTotal']),
+        openingValue: firstNumberOrZero(body, ['openingValue', 'opening', 'startValue']),
+        endingValue:  firstNumberOrZero(body, ['endingValue', 'ending', 'endValue']),
     };
 &nbsp;
   } catch {

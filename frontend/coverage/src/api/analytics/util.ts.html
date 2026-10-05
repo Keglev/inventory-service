@@ -206,15 +206,15 @@
  *
  * Low-level helpers for the analytics API layer: defensive numeric coercion,
  * tolerant backend-response parsing, and filter-parameter normalisation for
- * /api/analytics endpoints. Re-exported from the analytics barrel (index.ts).
+ * /api/analytics endpoints.
  *
  * @enterprise
- * - pickString/pickNumber here are a multi-key, default-returning family (try a
- *   list of keys, return ''/0 on miss), distinct by design from the single-key,
- *   undefined-returning pickString/pickNumber in @/api/shared. The two families
- *   are partitioned by directory and never imported into the same module, so the
- *   shared name carries no collision risk. Kept separate intentionally
- * -- do not consolidate; the contracts differ.
+ * - firstStringOrEmpty / firstNumberOrZero are a multi-key, default-returning
+ *   family (try a list of keys, return ''/0 on miss), distinct by design from
+ *   the single-key, undefined-returning pickString / pickNumber in
+ *   api/shared/fieldPickers. Kept separate intentionally -- do not
+ *   consolidate; the contracts differ. The names differ so that a reader
+ *   never mistakes one contract for the other.
  */
 import type { AnalyticsParams } from './validation';
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
@@ -239,7 +239,7 @@ export function isArrayOfRecords(x: unknown): x is Rec[] {
 }
 &nbsp;
 /** Tries a fallback key list so callers tolerate backend field renames without branching; returns `''` when no key resolves. */
-export function pickString(r: Rec, keys: string[]): string {
+export function firstStringOrEmpty(r: Rec, keys: string[]): string {
     for (const k of keys) {
         const v = r[k];
         if (typeof v === 'string') return v;
@@ -248,8 +248,8 @@ export function pickString(r: Rec, keys: string[]): string {
     return '';
 }
 &nbsp;
-/** Same contract as pickString but returns a coerced number; prevents NaN from reaching callers when a numeric key is missing. */
-export function pickNumber(r: Rec, keys: string[]): number {
+/** Same contract as firstStringOrEmpty but returns a coerced number; prevents NaN from reaching callers when a numeric key is missing. */
+export function firstNumberOrZero(r: Rec, keys: string[]): number {
     for (const k of keys) {
         if (k in r) return asNumber(r[k]);
     }
