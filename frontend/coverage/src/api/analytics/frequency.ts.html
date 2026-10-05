@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>15/15</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>9/9</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -111,11 +111,7 @@
 <a name='L46'></a><a href='#L46'>46</a>
 <a name='L47'></a><a href='#L47'>47</a>
 <a name='L48'></a><a href='#L48'>48</a>
-<a name='L49'></a><a href='#L49'>49</a>
-<a name='L50'></a><a href='#L50'>50</a>
-<a name='L51'></a><a href='#L51'>51</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L49'></a><a href='#L49'>49</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -151,11 +147,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -169,8 +165,8 @@
  * Supplier-scoped item update frequency (top N items by change count).
  * Calls GET /api/analytics/item-update-frequency?supplierId=... and keeps the
  * first N rows on the client; the endpoint takes no limit.
- * Returns [] on error or when supplierId is empty. Normalises several backend
- * field aliases to the canonical {@link ItemUpdateFrequencyPoint} shape.
+ * Returns [] on error or when supplierId is empty. Maps ItemUpdateFrequencyDTO
+ * (itemName, updateCount) to the canonical {@link ItemUpdateFrequencyPoint} shape.
  */
 &nbsp;
 import http from '../httpClient';
@@ -183,10 +179,8 @@ export type ItemUpdateFrequencyPoint = { id: string; name: string; updates: numb
  * Fetch the top `limit` items ranked by update count for a supplier.
  * Backend: GET /api/analytics/item-update-frequency?supplierId=...
  *
- * Field aliases accepted from the backend:
- *   - id:      `id` | `itemId` | `sku` | `code`, falls back to `name` when absent
- *   - name:    `name` | `itemName`
- *   - updates: `updates` | `updateCount` | `updatesCount` | `count` | `changes`
+ * Fields read from ItemUpdateFrequencyDTO: `itemName` (also the row id, as the
+ * DTO has none) and `updateCount`.
  */
 export async function getItemUpdateFrequency(
   supplierId: string,
@@ -201,11 +195,11 @@ export async function getItemUpdateFrequency(
 &nbsp;
     return (data as Array&lt;Record&lt;string, unknown&gt;&gt;)
       .map((r) =&gt; {
-        const name = firstStringOrEmpty(r, ['name', 'itemName']);
+        // ItemUpdateFrequencyDTO(itemName, updateCount) has no id: the name keys the row.
+        const name = firstStringOrEmpty(r, ['itemName']);
         if (!name) return null;
-        const id = firstStringOrEmpty(r, ['id', 'itemId', 'sku', 'code']) || name;
-        const updates = firstNumberOrZero(r, ['updates', 'updateCount', 'updatesCount', 'count', 'changes']);
-        return { id, name, updates } as ItemUpdateFrequencyPoint;
+        const updates = firstNumberOrZero(r, ['updateCount']);
+        return { id: name, name, updates } as ItemUpdateFrequencyPoint;
       })
       .filter((x): x is ItemUpdateFrequencyPoint =&gt; x !== null)
       .slice(0, limit);

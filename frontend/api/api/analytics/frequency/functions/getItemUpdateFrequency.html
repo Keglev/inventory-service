@@ -127,20 +127,13 @@ api/analytics/frequency/functions/getItemUpdateFrequency · Smart Supply Pro · 
         href="../type-aliases/ItemUpdateFrequencyPoint.html"><code>ItemUpdateFrequencyPoint</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/analytics/frequency.ts#L26">api/analytics/frequency.ts:26</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/analytics/frequency.ts#L24">api/analytics/frequency.ts:24</a></p>
         <p>Fetch the top <code>limit</code> items ranked by update count
         for a supplier. Backend: GET
         /api/analytics/item-update-frequency?supplierId=...</p>
-        <p>Field aliases accepted from the backend:</p>
-        <ul>
-        <li>id: <code>id</code> | <code>itemId</code> | <code>sku</code>
-        | <code>code</code>, falls back to <code>name</code> when
-        absent</li>
-        <li>name: <code>name</code> | <code>itemName</code></li>
-        <li>updates: <code>updates</code> | <code>updateCount</code> |
-        <code>updatesCount</code> | <code>count</code> |
-        <code>changes</code></li>
-        </ul>
+        <p>Fields read from ItemUpdateFrequencyDTO:
+        <code>itemName</code> (also the row id, as the DTO has none) and
+        <code>updateCount</code>.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="supplierid">supplierId</h3>
         <p><code>string</code></p>
