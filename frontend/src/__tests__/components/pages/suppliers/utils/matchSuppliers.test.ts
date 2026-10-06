@@ -9,7 +9,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { matchSuppliers, SUPPLIER_SEARCH_MIN_CHARS } from '../../../../../pages/suppliers/utils/matchSuppliers';
+import { matchSuppliers } from '../../../../../pages/suppliers/utils/matchSuppliers';
+import { SEARCH_MIN_CHARS } from '../../../../../utils/searchFragment';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 const row = (id: string, name: string): SupplierRow => ({ id, name, contactName: null, email: null, phone: null });
@@ -17,7 +18,7 @@ const list = [row('1', 'Nordbay Industriebedarf GmbH'), row('2', 'TechSeal Dicht
 
 describe('matchSuppliers', () => {
   it('requires two characters', () => {
-    expect(SUPPLIER_SEARCH_MIN_CHARS).toBe(2);
+    expect(SEARCH_MIN_CHARS).toBe(2);
     expect(matchSuppliers(list, 'n')).toEqual([]);
     expect(matchSuppliers(list, '  n  ')).toEqual([]);
   });

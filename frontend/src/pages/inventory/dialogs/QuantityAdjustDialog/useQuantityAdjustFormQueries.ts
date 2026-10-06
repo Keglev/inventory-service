@@ -60,8 +60,8 @@ export const useQuantityAdjustFormQueries = (
   const suppliersQuery = useSuppliersQuery(isDialogOpen);
 
   /**
-   * Load items based on selected supplier and search query.
-   * Uses shared hook with client-side supplier filtering.
+   * Items of the selected supplier matching the query (name or SKU).
+   * The supplier's list loads once; typing is matched in the browser.
    */
   const itemsQuery = useItemSearchQuery(state.selectedSupplier, state.itemQuery);
 

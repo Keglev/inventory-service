@@ -7,7 +7,8 @@ and CRUD dialogs with an active-stock delete guard.
 
 The board avoids rendering a large table by default. `SuppliersSearchPanel` offers
 a type-ahead (2-character minimum) through `SupplierSearchField`, the search field
-the edit and delete dialogs use too. It matches the name anywhere, ignoring case,
+the edit and delete dialogs use too; it is a setting of the shared
+`ListSearchField`, which the inventory item pickers use as well. It matches the name anywhere, ignoring case,
 against the supplier list already loaded in the browser, and shows at most six
 results with a count of the rest ([ADR-0014](../09-decisions/adr-0014-searching-bounded-lists-in-the-browser.md)).
 Selecting a result pins the table to a single-row display,

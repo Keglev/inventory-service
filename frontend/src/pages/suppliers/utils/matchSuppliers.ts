@@ -10,21 +10,19 @@
  *   (GET /api/suppliers, cached by React Query), not as one request per
  *   keystroke (frontend ADR-0014).
  * - The rule matches the backend's search: case-insensitive, the fragment
- *   anywhere in the name, at least SUPPLIER_SEARCH_MIN_CHARS characters
- *   after trimming.
+ *   anywhere in the name, at least SEARCH_MIN_CHARS characters after
+ *   trimming (searchFragment).
  */
 
 import type { SupplierRow } from '../../../api/suppliers/types';
-
-/** Characters a fragment needs before any supplier matches. */
-export const SUPPLIER_SEARCH_MIN_CHARS = 2;
+import { searchFragment } from '../../../utils/searchFragment';
 
 /**
  * Suppliers whose name contains the fragment, case-insensitively, in list
- * order; [] while the fragment is shorter than SUPPLIER_SEARCH_MIN_CHARS.
+ * order; [] while the fragment is shorter than SEARCH_MIN_CHARS.
  */
 export function matchSuppliers(suppliers: readonly SupplierRow[], query: string): SupplierRow[] {
-  const fragment = query.trim().toLowerCase();
-  if (fragment.length < SUPPLIER_SEARCH_MIN_CHARS) return [];
+  const fragment = searchFragment(query);
+  if (!fragment) return [];
   return suppliers.filter((s) => s.name.toLowerCase().includes(fragment));
 }

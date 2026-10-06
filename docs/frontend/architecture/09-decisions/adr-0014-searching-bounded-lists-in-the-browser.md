@@ -28,15 +28,19 @@ in the same way.
 A list that is bounded and already, or cheaply, in the browser is searched in
 the browser.
 
+- **One field.** `ListSearchField` (MUI Autocomplete) shows at most six results
+  with a count of the rest, from two characters on (`searchFragment`, the
+  backend's own rule). `SupplierSearchField` and `ItemSearchField` are settings
+  of it.
 - **Suppliers.** `matchSuppliers` filters the cached supplier list: the fragment
-  anywhere in the name, ignoring case, from two characters on, the backend's own
-  rule. One shared `SupplierSearchField` (MUI Autocomplete) serves the board and
-  both dialogs; it shows at most six results with a count of the rest.
-- **Items of one supplier (to follow).** After a supplier is chosen, its items
-  load once (`/api/inventory/search?supplierId=X&size=2000`) and are filtered by
-  name or SKU in the browser. Choosing another supplier drops the previous list.
-  When the page reports more items than it returned, the picker falls back to
-  the server search.
+  anywhere in the name, ignoring case. The board and both supplier dialogs use
+  `SupplierSearchField`.
+- **Items of one supplier.** In the four inventory dialogs, once a supplier is
+  chosen its items load once (`/api/inventory/search?supplierId=X&size=2000`) and
+  `matchItems` filters them by name or SKU (`useItemSearchQuery`). Choosing
+  another supplier, or closing the dialog, drops the list at once (`gcTime: 0`).
+  When the page reports more items than it returned, or the list fails to load,
+  the picker falls back to the server search.
 - **Unbounded searches stay on the server.** The analytics item pickers search
   across all suppliers and keep the debounced server search; the inventory grid
   keeps its paged server query.
@@ -55,7 +59,10 @@ The backend caps a page at 2,000 rows, which is also the item-list limit above.
 ## Consequences
 - Typing in a supplier search sends no request; results appear without
   latency once the list is loaded (one request per minute at most, the list
-  query's stale time).
+  query's stale time). Typing in an item picker sends no request either: one
+  request per chosen supplier.
+- The item pickers now match the SKU in the browser too; before, the server
+  matched it but the Autocomplete's own name filter hid those results.
 - The full supplier list reaches the browser, as it already did for the grid.
   Access control stays on the server, which decides who may read the list; the
   cache is in memory only and is never written to browser storage.

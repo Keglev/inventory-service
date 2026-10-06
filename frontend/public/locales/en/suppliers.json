@@ -18,7 +18,6 @@
     "placeholder": "Enter supplier name (min 2 chars)...",
     "typeToSearch": "Type at least 2 characters to search",
     "noResults": "No suppliers found",
-    "moreResults": "{{count}} more matches – keep typing to narrow down",
     "selectSupplierFirst": "Search and select a supplier to enable editing."
   },
   "filters": {

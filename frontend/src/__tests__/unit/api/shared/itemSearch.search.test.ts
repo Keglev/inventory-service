@@ -1,13 +1,16 @@
 /**
  * @file itemSearch.search.test.ts
  * @module tests/unit/api/shared/itemSearch.search
- * @description Contract tests for searchItemsGlobal / searchItemsForSupplier.
+ * @description Contract tests for searchItemsGlobal / searchItemsForSupplier /
+ * listItemsForSupplier.
  *
  * Contract under test:
  * - Guarantees the shared item-search fetchers query GET
  *   /api/inventory/search with the correct parameters (name, size,
  *   optional supplierId), parse the Spring Page envelope, short-circuit
  *   on blank input, and collapse every failure to an empty list.
+ * - listItemsForSupplier loads one page of up to 2,000 items with no name
+ *   filter and reports whether that page held every item.
  *
  * Out of scope:
  * - HTTP transport details (headers, auth, interceptors, retries, and
@@ -23,7 +26,7 @@ vi.mock('@/api/httpClient', () => ({
 }));
 
 import http from '@/api/httpClient';
-import { searchItemsGlobal, searchItemsForSupplier } from '@/api/shared/itemSearch';
+import { searchItemsGlobal, searchItemsForSupplier, listItemsForSupplier } from '@/api/shared/itemSearch';
 
 const httpMock = http as unknown as { get: ReturnType<typeof vi.fn> };
 
@@ -89,6 +92,58 @@ describe('itemSearch fetchers', () => {
 
       expect(httpMock.get).not.toHaveBeenCalled();
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('listItemsForSupplier', () => {
+    it('loads the whole supplier list in one page, without a name filter', async () => {
+      httpMock.get.mockResolvedValue({
+        data: {
+          content: [{ id: 'I-3', name: 'Pallet', sku: 'LOG-PAL-EUR1', supplierId: 'S-4' }],
+          page: { size: 2000, number: 0, totalElements: 1, totalPages: 1 },
+        },
+      });
+
+      const result = await listItemsForSupplier('S-4');
+
+      expect(httpMock.get).toHaveBeenCalledWith('/api/inventory/search', {
+        params: { supplierId: 'S-4', size: 2000 },
+      });
+      expect(result).toEqual({
+        items: [{ id: 'I-3', name: 'Pallet', sku: 'LOG-PAL-EUR1', supplierId: 'S-4' }],
+        complete: true,
+      });
+    });
+
+    it('reports an incomplete list when the page holds fewer items than the total', async () => {
+      httpMock.get.mockResolvedValue({
+        data: { content: [{ id: 'I-1', name: 'Bolt' }], page: { totalElements: 2001 } },
+      });
+
+      expect((await listItemsForSupplier('S-1')).complete).toBe(false);
+    });
+
+    it('reads a flat totalElements as well', async () => {
+      httpMock.get.mockResolvedValue({
+        data: { content: [{ id: 'I-1', name: 'Bolt' }], totalElements: 1 },
+      });
+
+      expect((await listItemsForSupplier('S-1')).complete).toBe(true);
+    });
+
+    it('without a total, a full page counts as incomplete', async () => {
+      const full = Array.from({ length: 2000 }, (_, i) => ({ id: `I-${i}`, name: `Item ${i}` }));
+      httpMock.get.mockResolvedValueOnce({ data: { content: full } });
+      httpMock.get.mockResolvedValueOnce({ data: { content: full.slice(1) } });
+
+      expect((await listItemsForSupplier('S-1')).complete).toBe(false);
+      expect((await listItemsForSupplier('S-1')).complete).toBe(true);
+    });
+
+    it('reports an empty, incomplete list on failure so callers fall back', async () => {
+      httpMock.get.mockRejectedValue(new Error('offline'));
+
+      expect(await listItemsForSupplier('S-1')).toEqual({ items: [], complete: false });
     });
   });
 });

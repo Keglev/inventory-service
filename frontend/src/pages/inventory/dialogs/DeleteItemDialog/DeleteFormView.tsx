@@ -55,8 +55,8 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
       {/*
         STEP 2: Item Search
         - Only visible after supplier selected
-        - Autocomplete with 2+ character minimum search requirement
-        - Filters items to selected supplier using search API
+        - Shared item picker: name or SKU, from 2 characters
+        - Matches the selected supplier's items in the browser
       */}
       {state.selectedSupplier && (
         <StepSection

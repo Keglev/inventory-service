@@ -56,10 +56,9 @@
   "search": {
     "selectSupplierPrompt": "Please select a supplier to view their items.",
     "selectSupplierFirst": "Please select a supplier first to enable searching.",
-    "typeToSearchItems": "Type to search for items...",
+    "typeToSearchItems": "Enter item name or SKU (min 2 chars)...",
     "noItemsFound": "No items found for this search.",
-    "typeToSearch": "Enter at least 2 characters to search",
-    "searchSelectItem": "Search and select item..."
+    "typeToSearch": "Enter at least 2 characters to search"
   },
   "quantity": {
     "currentItemInfo": "Current Item Information",

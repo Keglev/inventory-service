@@ -79,7 +79,7 @@ export interface UseEditItemFormReturn {
  * 
  * @enterprise
  * - Smart dependency-driven queries: suppliers only fetched when dialog opens
- * - Item search only fires when supplier selected AND 2+ characters typed
+ * - The supplier's item list loads once when a supplier is selected; typing is matched in the browser
  * - Item details fetched only when item is selected (populated from search)
  * - Form state reset on supplier change to prevent cross-supplier contamination
  * - Complete error handling with user-friendly messages and duplicate detection
@@ -108,7 +108,7 @@ export function useEditItemForm(
   // Suppliers loaded once when dialog opens
   const suppliersQuery = useSuppliersQuery(isOpen);
 
-  // Item search fires when supplier selected AND has query text
+  // Supplier's items load once; the query is matched in the browser
   const itemsQuery = useItemSearchQuery(selectedSupplier, itemQuery);
 
   // Item details fetched when specific item selected

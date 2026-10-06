@@ -74,6 +74,9 @@
     "closeNotification": "Close notification"
   },
   "loading": "Loading...",
+  "search": {
+    "moreResults": "{{count}} more matches – keep typing to narrow down"
+  },
   "demoDisabled": "You are in demo mode and cannot perform this operation.",
   "name": "Name",
   "email": "Email",
