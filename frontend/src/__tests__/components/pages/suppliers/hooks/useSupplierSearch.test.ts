@@ -1,15 +1,16 @@
 /**
  * @file useSupplierSearch.test.ts
  * @module __tests__/components/pages/suppliers/hooks/useSupplierSearch
- * @description Orchestration tests for the `useSupplierSearch` adapter.
+ * @description Contract tests for the dialogs' `useSupplierSearch` hook.
  *
  * Contract under test:
- * - Holds the search query string and exposes setter/reset.
- * - Forwards the current query to `useSupplierSearchQuery` (the single search
- *   implementation) and maps its `data`/`isFetching` to `searchResults`/`searchLoading`.
+ * - Holds the search text and exposes change/reset.
+ * - Matches the text against the cached supplier list in the browser
+ *   (useSupplierListQuery); typing sends no request.
+ * - searchLoading follows the list's first load.
  *
- * Out of scope (covered by useSupplierSearchQuery.test.ts):
- * - The >= 2-char gating, the /search endpoint call, caching, and error handling.
+ * Out of scope (covered by matchSuppliers.test.ts):
+ * - The matching rule itself.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -17,19 +18,24 @@ import { act, renderHook } from '@testing-library/react';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 const mocks = vi.hoisted(() => ({
-  useSupplierSearchQuery: vi.fn(),
+  useSupplierListQuery: vi.fn(),
 }));
 
-vi.mock('../../../../../api/suppliers/hooks/useSupplierSearchQuery', () => ({
-  useSupplierSearchQuery: (...args: unknown[]) => mocks.useSupplierSearchQuery(...args),
+vi.mock('../../../../../api/suppliers/hooks/useSupplierListQuery', () => ({
+  useSupplierListQuery: (...args: unknown[]) => mocks.useSupplierListQuery(...args),
 }));
 
 import { useSupplierSearch } from '../../../../../pages/suppliers/hooks/useSupplierSearch';
 
+const list: SupplierRow[] = [
+  { id: '1', name: 'Nordbay Industriebedarf GmbH', contactName: null, email: null, phone: null },
+  { id: '2', name: 'TechSeal Dichtungen GmbH', contactName: null, email: null, phone: null },
+];
+
 describe('useSupplierSearch', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.useSupplierSearchQuery.mockReturnValue({ data: [], isFetching: false });
+    mocks.useSupplierListQuery.mockReturnValue({ data: list, isLoading: false });
   });
 
   it('initializes with empty state', () => {
@@ -39,35 +45,22 @@ describe('useSupplierSearch', () => {
     expect(result.current.searchLoading).toBe(false);
   });
 
-  it('forwards the query to useSupplierSearchQuery', () => {
+  it('matches the typed text against the cached list', () => {
     const { result } = renderHook(() => useSupplierSearch());
 
-    act(() => {
-      void result.current.handleSearchQueryChange('ac');
-    });
+    act(() => result.current.handleSearchQueryChange('dicht'));
 
-    expect(result.current.searchQuery).toBe('ac');
-    expect(mocks.useSupplierSearchQuery).toHaveBeenLastCalledWith('ac');
+    expect(result.current.searchQuery).toBe('dicht');
+    expect(result.current.searchResults).toEqual([list[1]]);
+    // The full list is the only request; the query takes no search text.
+    expect(mocks.useSupplierListQuery).toHaveBeenLastCalledWith();
   });
 
-  it('surfaces results and loading from useSupplierSearchQuery', () => {
-    const items: SupplierRow[] = [
-      { id: '1', name: 'Acme', contactName: null, email: null, phone: null },
-    ];
-    mocks.useSupplierSearchQuery.mockReturnValue({ data: items, isFetching: true });
+  it('reports loading while the list loads, with no results yet', () => {
+    mocks.useSupplierListQuery.mockReturnValue({ data: undefined, isLoading: true });
 
     const { result } = renderHook(() => useSupplierSearch());
-
-    expect(result.current.searchResults).toEqual(items);
-    expect(result.current.searchLoading).toBe(true);
-  });
-
-  it('yields an empty result list before the query has resolved', () => {
-    // useSupplierSearchQuery returns undefined data until the first fetch settles;
-    // the adapter must present that as an empty array, never undefined.
-    mocks.useSupplierSearchQuery.mockReturnValue({ data: undefined, isFetching: true });
-
-    const { result } = renderHook(() => useSupplierSearch());
+    act(() => result.current.handleSearchQueryChange('nord'));
 
     expect(result.current.searchResults).toEqual([]);
     expect(result.current.searchLoading).toBe(true);
@@ -76,14 +69,10 @@ describe('useSupplierSearch', () => {
   it('resets the query', () => {
     const { result } = renderHook(() => useSupplierSearch());
 
-    act(() => {
-      void result.current.handleSearchQueryChange('ac');
-    });
+    act(() => result.current.handleSearchQueryChange('ac'));
     expect(result.current.searchQuery).toBe('ac');
 
-    act(() => {
-      result.current.resetSearch();
-    });
+    act(() => result.current.resetSearch());
     expect(result.current.searchQuery).toBe('');
   });
 });

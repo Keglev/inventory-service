@@ -31,6 +31,7 @@ ADRs do **not** document:
 - [ADR-0011: Gating the frontend image on the HTTP contract it serves](./adr-0011-gating-the-frontend-image-on-its-http-contract.md)
 - [ADR-0012: Low-stock severity scales with each item's minimum](./adr-0012-low-stock-severity-scales-with-the-minimum.md)
 - [ADR-0013: Demo mode walks every inventory dialog and blocks only the write](./adr-0013-demo-mode-blocks-only-the-write.md)
+- [ADR-0014: Searching bounded lists in the browser](./adr-0014-searching-bounded-lists-in-the-browser.md)
 
 ---
 

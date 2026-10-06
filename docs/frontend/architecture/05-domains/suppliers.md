@@ -6,8 +6,11 @@ and CRUD dialogs with an active-stock delete guard.
 ## Search & Display Modes
 
 The board avoids rendering a large table by default. `SuppliersSearchPanel` offers
-a type-ahead (2-character minimum) whose dropdown renders only while results exist
-and nothing is selected; selecting a result pins the table to a single-row display,
+a type-ahead (2-character minimum) through `SupplierSearchField`, the search field
+the edit and delete dialogs use too. It matches the name anywhere, ignoring case,
+against the supplier list already loaded in the browser, and shows at most six
+results with a count of the rest ([ADR-0014](../09-decisions/adr-0014-searching-bounded-lists-in-the-browser.md)).
+Selecting a result pins the table to a single-row display,
 sets the selection (enabling edit/delete), and resets paging. An explicit
 "show all suppliers" toggle switches to the paginated list. Search selection takes
 precedence over the toggle; with neither active, the table stays hidden behind a
@@ -15,10 +18,11 @@ placeholder.
 
 ## Data Access
 
-The list fetcher is deliberately tolerant: it accepts multiple response envelope
-shapes and returns an empty page on network errors, so the board keeps rendering
-under partial backend failure. `GET /api/suppliers` returns a bare JSON array (no
-Spring Page); `/api/suppliers/search?name=` backs the type-ahead.
+The list fetcher returns an empty list on network errors, so the board keeps
+rendering under partial backend failure. `GET /api/suppliers` returns a bare JSON
+array (no Spring Page), loaded once and cached; the grid, the board search and the
+dialog searches all read that one list. `/api/suppliers/search?name=` stays in the
+backend but the frontend no longer calls it.
 
 ## Dialog Workflows
 

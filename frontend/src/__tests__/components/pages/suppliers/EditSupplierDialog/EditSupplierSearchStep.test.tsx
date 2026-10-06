@@ -4,27 +4,16 @@
  * @description Contract tests for the `EditSupplierSearchStep` presentation component.
  *
  * Contract under test:
- * - Renders heading + a controlled search input.
- * - Delegates query changes via `onSearchQueryChange(query)`.
- * - Keeps the input editable and shows a progress indicator while loading.
- * - Renders result buttons and delegates selection via `onSelectSupplier(supplier)`.
- * - Shows helper text when query length is sufficient but no results are returned.
- * - Shows guidance alert when query is non-empty but too short (< 2).
+ * - Renders the step heading.
+ * - Hands query, results, loading and both callbacks to the shared
+ *   SupplierSearchField unchanged.
  *
  * Out of scope:
- * - API integration and debouncing mechanics (handled by the orchestration hook).
- * - MUI layout/styling beyond roles/labels/text.
- *
- * Test strategy:
- * - Use a small state harness to model a controlled input without duplicating business logic.
+ * - The field's own behavior (SupplierSearchField.test.tsx).
  */
 
-import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
-
 import { EditSupplierSearchStep } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierSearchStep';
 import { supplierRow } from './fixtures';
 import { tEn } from '../../../../test/i18nEn';
@@ -33,123 +22,37 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
-const defaultSupplier = (overrides: Partial<SupplierRow> = {}): SupplierRow =>
-  supplierRow({
-    contactName: 'Jane Smith',
-    phone: '555-3000',
-    email: 'jane@acme.com',
-    ...overrides,
-  });
+const fieldSpy = vi.hoisted(() => vi.fn());
+vi.mock('../../../../../pages/suppliers/components/SupplierSearchField', () => ({
+  SupplierSearchField: (props: unknown) => {
+    fieldSpy(props);
+    return <div data-testid="supplier-search-field" />;
+  },
+}));
 
 describe('EditSupplierSearchStep', () => {
-  it('renders heading and placeholder text', () => {
-    render(
-      <EditSupplierSearchStep
-        searchQuery=""
-        onSearchQueryChange={vi.fn()}
-        searchResults={[]}
-        searchLoading={false}
-        onSelectSupplier={vi.fn()}
-      />
-    );
-
-    expect(screen.getByText('Step 1: Search and Select Supplier')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Enter supplier name (min 2 chars)...')).toBeInTheDocument();
-  });
-
-  it('calls onSearchQueryChange when typing in the search field', async () => {
-    const onSearchQueryChange = vi.fn().mockResolvedValue(undefined);
-    const user = userEvent.setup();
-
-    function Harness() {
-      const [query, setQuery] = React.useState('');
-      return (
-        <EditSupplierSearchStep
-          searchQuery={query}
-          onSearchQueryChange={async (value) => {
-            setQuery(value);
-            await onSearchQueryChange(value);
-          }}
-          searchResults={[]}
-          searchLoading={false}
-          onSelectSupplier={vi.fn()}
-        />
-      );
-    }
-
-    render(<Harness />);
-
-    const input = screen.getByPlaceholderText('Enter supplier name (min 2 chars)...');
-    await user.type(input, 'Ac');
-
-    expect(onSearchQueryChange).toHaveBeenCalled();
-    expect(onSearchQueryChange).toHaveBeenLastCalledWith('Ac');
-  });
-
-  it('keeps the search field editable and shows a loader while searching', () => {
-    render(
-      <EditSupplierSearchStep
-        searchQuery="Ac"
-        onSearchQueryChange={vi.fn()}
-        searchResults={[]}
-        searchLoading={true}
-        onSelectSupplier={vi.fn()}
-      />
-    );
-
-    // A disabled field drops focus mid-typing, losing the rest of the query.
-    expect(screen.getByPlaceholderText('Enter supplier name (min 2 chars)...')).toBeEnabled();
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
-  });
-
-  it('renders search results and triggers selection callback', async () => {
-    const user = userEvent.setup();
+  it('renders the heading and wires the shared search field', () => {
+    const results = [supplierRow({ name: 'Acme Corp' })];
+    const onSearchQueryChange = vi.fn();
     const onSelectSupplier = vi.fn();
-    const results = [
-      defaultSupplier(),
-      defaultSupplier({ id: 'supplier-2', name: 'Bravo Supplies', email: 'hello@bravo.com' }),
-    ];
 
     render(
       <EditSupplierSearchStep
         searchQuery="Ac"
-        onSearchQueryChange={vi.fn()}
+        onSearchQueryChange={onSearchQueryChange}
         searchResults={results}
-        searchLoading={false}
+        searchLoading
         onSelectSupplier={onSelectSupplier}
       />
     );
 
-    const firstResult = screen.getByRole('button', { name: /Acme Corp/ });
-    await user.click(firstResult);
-    expect(onSelectSupplier).toHaveBeenCalledWith(results[0]);
-  });
-
-  it('shows no results helper when search returns nothing', () => {
-    render(
-      <EditSupplierSearchStep
-        searchQuery="Ac"
-        onSearchQueryChange={vi.fn()}
-        searchResults={[]}
-        searchLoading={false}
-        onSelectSupplier={vi.fn()}
-      />
-    );
-
-    expect(screen.getByText('No suppliers found')).toBeInTheDocument();
-  });
-
-  it('displays guidance alert when query is too short', () => {
-    render(
-      <EditSupplierSearchStep
-        searchQuery="A"
-        onSearchQueryChange={vi.fn()}
-        searchResults={[]}
-        searchLoading={false}
-        onSelectSupplier={vi.fn()}
-      />
-    );
-
-    expect(screen.getByRole('alert')).toHaveTextContent('Type at least 2 characters to search');
+    expect(screen.getByText('Step 1: Search and Select Supplier')).toBeInTheDocument();
+    expect(fieldSpy).toHaveBeenCalledWith({
+      query: 'Ac',
+      onQueryChange: onSearchQueryChange,
+      results,
+      loading: true,
+      onSelect: onSelectSupplier,
+    });
   });
 });

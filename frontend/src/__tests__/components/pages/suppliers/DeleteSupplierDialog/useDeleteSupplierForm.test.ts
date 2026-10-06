@@ -68,10 +68,9 @@ const supplier: SupplierRow = {
 
 const defaultSearchState = (): UseSupplierSearchReturn => ({
   searchQuery: '',
-  setSearchQuery: vi.fn(),
   searchResults: [],
   searchLoading: false,
-  handleSearchQueryChange: vi.fn(async () => undefined),
+  handleSearchQueryChange: vi.fn(),
   resetSearch: mocks.resetSearch,
 });
 

@@ -37,7 +37,7 @@ export interface UseEditSupplierFormReturn {
   searchQuery: string;
   searchResults: SupplierRow[];
   searchLoading: boolean;
-  handleSearchQueryChange: (query: string) => Promise<void>;
+  handleSearchQueryChange: (query: string) => void;
 
   // Selection state
   selectedSupplier: SupplierRow | null;

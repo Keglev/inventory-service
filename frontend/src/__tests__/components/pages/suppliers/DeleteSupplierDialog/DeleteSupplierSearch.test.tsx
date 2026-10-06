@@ -5,47 +5,22 @@
  *
  * Contract under test:
  * - Renders the dialog title and opens the delete help topic.
- * - Delegates props to subcomponents:
- *   - input receives value + loading state and forwards change events.
- *   - results receives supplier list + selection handler.
- *   - empty state receives hasSearched, loading state and whether results exist.
- * - Disables cancel while loading.
+ * - Hands query, results, loading and both callbacks to the shared
+ *   SupplierSearchField unchanged.
+ * - Cancel stays enabled while the supplier list loads.
  *
  * Out of scope:
- * - Search orchestration (handled by workflow hook tests).
- * - MUI layout details (we assert accessible roles/text and prop wiring only).
+ * - The field's own behavior (SupplierSearchField.test.tsx).
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { ComponentProps } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { ComponentProps } from 'react';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
-type DeleteSupplierSearchInputProps = {
-  value: string;
-  onChange: (value: string) => Promise<void>;
-  isLoading: boolean;
-};
-
-type DeleteSupplierSearchResultsProps = {
-  suppliers: SupplierRow[];
-  onSelectSupplier: (supplier: SupplierRow) => void;
-};
-
-type DeleteSupplierSearchEmptyProps = {
-  hasSearched: boolean;
-  isLoading: boolean;
-  hasResults: boolean;
-};
-
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const mocks = vi.hoisted(() => ({
-  inputSpy: vi.fn(),
-  resultsSpy: vi.fn(),
-  emptySpy: vi.fn(),
+  fieldSpy: vi.fn(),
   openHelp: vi.fn(),
 }));
 
@@ -55,37 +30,14 @@ vi.mock('../../../../../hooks/useHelp', () => ({
   useHelp: () => ({ openHelp: mocks.openHelp }),
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearchInput', () => ({
-  DeleteSupplierSearchInput: (props: DeleteSupplierSearchInputProps) => {
-    mocks.inputSpy(props);
-    return (
-      <input
-        aria-label="search-input"
-        value={props.value}
-        onChange={(event) => {
-          void props.onChange(event.target.value);
-        }}
-      />
-    );
-  },
-}));
-
-vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearchResults', () => ({
-  DeleteSupplierSearchResults: (props: DeleteSupplierSearchResultsProps) => {
-    mocks.resultsSpy(props);
-    return <div data-testid="search-results" />;
-  },
-}));
-
-vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearchEmpty', () => ({
-  DeleteSupplierSearchEmpty: (props: DeleteSupplierSearchEmptyProps) => {
-    mocks.emptySpy(props);
-    return <div data-testid="empty-state" />;
+vi.mock('../../../../../pages/suppliers/components/SupplierSearchField', () => ({
+  SupplierSearchField: (props: unknown) => {
+    mocks.fieldSpy(props);
+    return <div data-testid="supplier-search-field" />;
   },
 }));
 
 vi.mock('react-i18next', () => ({
-  // Prefer fallback/defaultValue to keep assertions stable across locales.
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
@@ -103,7 +55,7 @@ beforeEach(() => {
 const renderSearch = (overrides?: Partial<ComponentProps<typeof DeleteSupplierSearch>>) => {
   const props: ComponentProps<typeof DeleteSupplierSearch> = {
     searchQuery: '',
-    onSearchQueryChange: vi.fn(async () => undefined),
+    onSearchQueryChange: vi.fn(),
     searchResults: [],
     searchLoading: false,
     onSelectSupplier: vi.fn(),
@@ -116,60 +68,30 @@ const renderSearch = (overrides?: Partial<ComponentProps<typeof DeleteSupplierSe
 };
 
 describe('DeleteSupplierSearch', () => {
-  it('renders title, help button, and delegates input props', async () => {
+  it('renders title and help, and wires the shared search field', async () => {
     const user = userEvent.setup();
-    const onSearchQueryChange = vi.fn();
-
-    renderSearch({
-      searchQuery: 'su',
-      onSearchQueryChange,
-      searchResults: suppliers,
-    });
+    const props = renderSearch({ searchQuery: 'su', searchResults: suppliers });
 
     expect(screen.getByRole('heading', { name: 'Delete Supplier' })).toBeInTheDocument();
-    expect(mocks.inputSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ value: 'su', isLoading: false })
-    );
-
-    await user.type(screen.getByLabelText('search-input'), 'x');
-    expect(onSearchQueryChange).toHaveBeenCalledWith('sux');
+    expect(mocks.fieldSpy).toHaveBeenCalledWith({
+      query: 'su',
+      onQueryChange: props.onSearchQueryChange,
+      results: suppliers,
+      loading: false,
+      onSelect: props.onSelectSupplier,
+    });
 
     await user.click(screen.getByRole('button', { name: 'Help' }));
     expect(mocks.openHelp).toHaveBeenCalledWith('suppliers.delete');
   });
 
-  it('passes results and selection handler to results component', () => {
-    const onSelectSupplier = vi.fn();
+  it('keeps Cancel enabled while the list loads and delegates it', async () => {
+    const user = userEvent.setup();
+    const props = renderSearch({ searchLoading: true });
 
-    renderSearch({
-      searchQuery: 'supplier',
-      searchResults: suppliers,
-      onSelectSupplier,
-    });
-
-    expect(mocks.resultsSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ suppliers, onSelectSupplier })
-    );
-  });
-
-  it('disables cancel button while loading and informs empty state props', () => {
-    renderSearch({
-      searchQuery: 's',
-      searchResults: [],
-      searchLoading: true,
-    });
-
-    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
-    expect(mocks.emptySpy).toHaveBeenCalledWith(
-      expect.objectContaining({ hasSearched: false, isLoading: true, hasResults: false })
-    );
-  });
-
-  it('tells the empty state that results exist', () => {
-    renderSearch({ searchQuery: 'supplier', searchResults: suppliers });
-
-    expect(mocks.emptySpy).toHaveBeenCalledWith(
-      expect.objectContaining({ hasSearched: true, isLoading: false, hasResults: true })
-    );
+    const cancel = screen.getByRole('button', { name: 'Cancel' });
+    expect(cancel).toBeEnabled();
+    await user.click(cancel);
+    expect(props.onCancel).toHaveBeenCalledTimes(1);
   });
 });
