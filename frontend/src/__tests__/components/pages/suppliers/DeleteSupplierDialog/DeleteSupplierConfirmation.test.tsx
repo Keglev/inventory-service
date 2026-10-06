@@ -39,7 +39,7 @@ const supplier: SupplierRow = {
   name: 'Acme Corp',
   contactName: 'Alice',
   phone: '555-3210',
-  email: 'alice@acme.com',
+  email: 'alice@acme.example',
 };
 
 // -------------------------------------
@@ -71,7 +71,7 @@ describe('DeleteSupplierConfirmation', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Acme Corp')).toBeInTheDocument();
     expect(screen.getByText('Alice')).toBeInTheDocument();
-    expect(screen.getByText('alice@acme.com')).toBeInTheDocument();
+    expect(screen.getByText('alice@acme.example')).toBeInTheDocument();
     expect(screen.getByText('555-3210')).toBeInTheDocument();
   });
 

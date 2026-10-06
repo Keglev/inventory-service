@@ -60,7 +60,7 @@ const supplier = (overrides: Partial<SupplierRow> = {}): SupplierRow => ({
   name: 'Acme GmbH',
   contactName: 'Jane Doe',
   phone: '+49 911 000000',
-  email: 'jane@acme.de',
+  email: 'jane@acme.example',
   createdAt: '2026-05-01T00:00:00Z',
   ...overrides,
 });
@@ -97,7 +97,7 @@ describe('useSupplierColumns', () => {
   it.each([
     ['contactName', 'Jane Doe'],
     ['phone', '+49 911 000000'],
-    ['email', 'jane@acme.de'],
+    ['email', 'jane@acme.example'],
   ])('reads the %s cell from the row', (field, expected) => {
     const { result } = setup();
 

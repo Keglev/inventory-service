@@ -108,7 +108,7 @@ const supplierRow = (overrides: Partial<SupplierRow> = {}): SupplierRow => ({
   name: 'Supplier A',
   contactName: 'John Doe',
   phone: '123-456-7890',
-  email: 'john@suppliera.com',
+  email: 'john@supplier-a.example',
   createdAt: '2024-01-15T10:00:00Z',
   ...overrides,
 });

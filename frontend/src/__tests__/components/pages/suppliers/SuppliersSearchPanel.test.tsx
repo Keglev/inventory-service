@@ -47,7 +47,7 @@ const supplierRow = (overrides: Partial<SupplierRow> = {}): SupplierRow => ({
   name: 'Supplier A',
   contactName: 'John Doe',
   phone: '123-456-7890',
-  email: 'john@suppliera.com',
+  email: 'john@supplier-a.example',
   createdAt: '2024-01-15T10:00:00Z',
   ...overrides,
 });
@@ -119,7 +119,7 @@ describe('SuppliersSearchPanel', () => {
     expect(screen.getByText('Supplier A')).toBeInTheDocument();
     expect(screen.queryByText(/Contact:\s*John Doe/)).not.toBeInTheDocument();
     expect(screen.queryByText('123-456-7890')).not.toBeInTheDocument();
-    expect(screen.queryByText('john@suppliera.com')).not.toBeInTheDocument();
+    expect(screen.queryByText('john@supplier-a.example')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument();
   });
 

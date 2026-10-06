@@ -24,7 +24,7 @@ describe('toSupplierRow', () => {
         name: 'Acme Corp',
         contactName: 'John Doe',
         phone: '+1234567890',
-        email: 'john@acme.com',
+        email: 'john@acme.example',
         createdBy: 'admin',
         createdAt: '2023-01-15T10:30:00Z',
       };
@@ -34,7 +34,7 @@ describe('toSupplierRow', () => {
         name: 'Acme Corp',
         contactName: 'John Doe',
         phone: '+1234567890',
-        email: 'john@acme.com',
+        email: 'john@acme.example',
         createdBy: 'admin',
         createdAt: '2023-01-15T10:30:00Z',
       });

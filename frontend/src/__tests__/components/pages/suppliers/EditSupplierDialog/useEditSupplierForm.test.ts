@@ -86,7 +86,7 @@ vi.mock('../../../../../api/suppliers/supplierMutations', () => ({
 import { useEditSupplierForm } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
 import { tEn } from '../../../../test/i18nEn';
 
-const supplier: SupplierRow = supplierRow({ phone: '555-9000', email: 'old@acme.com' });
+const supplier: SupplierRow = supplierRow({ phone: '555-9000', email: 'old@acme.example' });
 const pendingChanges: EditSupplierForm = editSupplierChanges({ supplierId: supplier.id, phone: '555-9100' });
 
 type Deps = ReturnType<typeof setupUseEditSupplierFormDeps>;

@@ -107,8 +107,8 @@ describe('RequireAuth', () => {
   });
 
   it.each([
-    { name: 'regular authenticated user', user: { email: 'u@test.com', fullName: 'U', role: 'USER', isDemo: false } as const, allowDemo: undefined, expected: 'Protected' },
-    { name: 'demo user allowed', user: { email: 'd@test.com', fullName: 'D', role: 'DEMO', isDemo: true } as const, allowDemo: true, expected: 'Protected' },
+    { name: 'regular authenticated user', user: { email: 'u@example.com', fullName: 'U', role: 'USER', isDemo: false } as const, allowDemo: undefined, expected: 'Protected' },
+    { name: 'demo user allowed', user: { email: 'd@example.com', fullName: 'D', role: 'DEMO', isDemo: true } as const, allowDemo: true, expected: 'Protected' },
   ])('renders children for $name', ({ user, allowDemo, expected }) => {
     setAuth({ user, loading: false });
     renderRoute(
@@ -120,7 +120,7 @@ describe('RequireAuth', () => {
   });
 
   it('redirects demo users to /dashboard when allowDemo is false', () => {
-    setAuth({ user: { email: 'd@test.com', fullName: 'D', role: 'DEMO', isDemo: true } });
+    setAuth({ user: { email: 'd@example.com', fullName: 'D', role: 'DEMO', isDemo: true } });
     renderRoute(
       <RequireAuth allowDemo={false}>
         <div>Protected</div>

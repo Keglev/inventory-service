@@ -58,12 +58,12 @@ vi.mock('@/hooks/useSettings', () => ({
 const { EmployeesActivityChart } = await import('@/pages/analytics/sections/EmployeesActivityChart');
 
 const EMPLOYEES = [
-  { createdBy: 'anna@acme.com', displayName: 'Anna' },
-  { createdBy: 'ben@acme.com', displayName: 'Ben' },
+  { createdBy: 'anna@acme.example', displayName: 'Anna' },
+  { createdBy: 'ben@acme.example', displayName: 'Ben' },
 ];
 const CHART_DATA = [
-  { period: '2026-01', 'anna@acme.com': 3, 'ben@acme.com': 1 },
-  { period: '2026-02', 'anna@acme.com': 2, 'ben@acme.com': 4 },
+  { period: '2026-01', 'anna@acme.example': 3, 'ben@acme.example': 1 },
+  { period: '2026-02', 'anna@acme.example': 2, 'ben@acme.example': 4 },
 ];
 
 function renderChart(overrides: Partial<Parameters<typeof EmployeesActivityChart>[0]> = {}) {
