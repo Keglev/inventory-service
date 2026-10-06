@@ -24,7 +24,6 @@ import type { SupplierRow } from '../../api/suppliers/types';
 import { useSuppliersBoardState } from './hooks/useSuppliersBoardState';
 import { useToolbarHandlers } from './handlers/useToolbarHandlers';
 import { useSearchHandlers } from './handlers/useSearchHandlers';
-import { useTableHandlers } from './handlers/useTableHandlers';
 import { useFilterHandlers } from './handlers/useFilterHandlers';
 import { useDialogHandlers } from './handlers/useDialogHandlers';
 import { useSuppliersBoardData } from './hooks/useSuppliersBoardData';
@@ -67,7 +66,6 @@ const SuppliersBoard: React.FC = () => {
   const { handleAddNew, handleEdit, handleDelete } = useToolbarHandlers(state);
   const { handleSearchChange, handleSearchResultSelect, handleClearSearchSelection } =
     useSearchHandlers(state);
-  const { handleRowClick, handlePaginationChange, handleSortChange } = useTableHandlers(state);
   const { handleToggleShowAll } = useFilterHandlers(state);
   const { handleSupplierCreated, handleSupplierUpdated, handleSupplierDeleted } =
     useDialogHandlers(state);
@@ -157,11 +155,11 @@ const SuppliersBoard: React.FC = () => {
             <SuppliersTable
               rows={displayRows}
               paginationModel={state.paginationModel}
-              onPaginationChange={handlePaginationChange}
+              onPaginationChange={state.setPaginationModel}
               sortModel={state.sortModel}
-              onSortChange={handleSortChange}
+              onSortChange={state.setSortModel}
               isLoading={data.isLoadingSuppliers}
-              onRowClick={handleRowClick}
+              onRowClick={state.setSelectedId}
             />
           </Box>
         )}

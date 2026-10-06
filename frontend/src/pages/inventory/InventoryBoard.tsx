@@ -43,7 +43,6 @@ import { InventoryTable } from './components/InventoryTable';
 import { InventoryDialogs } from './components/InventoryDialogs';
 import { useToolbarHandlers } from './handlers/useToolbarHandlers';
 import { useFilterHandlers } from './handlers/useFilterHandlers';
-import { useTableHandlers } from './handlers/useTableHandlers';
 import { useRefreshHandler } from './handlers/useRefreshHandler';
 import { useDataFetchingLogic } from './handlers/useDataFetchingLogic';
 
@@ -64,7 +63,6 @@ const InventoryBoard: React.FC = () => {
     useToolbarHandlers(state);
   const { handleSearchChange, handleSupplierChange, handleBelowMinChange } =
     useFilterHandlers(state);
-  const { handleRowClick, handlePaginationChange, handleSortChange } = useTableHandlers(state);
 
   // =====================
   // Data Fetching & Processing
@@ -156,11 +154,11 @@ const InventoryBoard: React.FC = () => {
               rows={data.items}
               columns={data.columns}
               paginationModel={state.paginationModel}
-              onPaginationChange={handlePaginationChange}
+              onPaginationChange={state.setPaginationModel}
               sortModel={state.sortModel}
-              onSortChange={handleSortChange}
+              onSortChange={state.setSortModel}
               selectedId={state.selectedId}
-              onRowClick={handleRowClick}
+              onRowClick={state.setSelectedId}
               getRowClassName={data.getRowClassName}
               loading={data.loading}
               rowCount={data.server.total}

@@ -29,8 +29,16 @@ vi.mock('@/features/help/components/HelpIconButton', () => ({
   ),
 }));
 
+const setters = vi.hoisted(() => ({
+  setPaginationModel: vi.fn(),
+  setSortModel: vi.fn(),
+  setSelectedId: vi.fn(),
+}));
+const tableProps = vi.hoisted(() => ({ last: null as Record<string, unknown> | null }));
+
 vi.mock('@/pages/inventory/hooks/useInventoryState', () => ({
   useInventoryState: vi.fn(() => ({
+    ...setters,
     q: '',
     supplierId: '1',
     belowMinOnly: false,
@@ -60,7 +68,10 @@ vi.mock('@/pages/inventory/components/InventoryFilterPanel', () => ({
 
 // Mock inventory table component
 vi.mock('@/pages/inventory/components/InventoryTable', () => ({
-  InventoryTable: () => <div data-testid="inventory-table">Table</div>,
+  InventoryTable: (props: Record<string, unknown>) => {
+    tableProps.last = props;
+    return <div data-testid="inventory-table">Table</div>;
+  },
 }));
 
 // Mock inventory dialogs component
@@ -84,14 +95,6 @@ vi.mock('@/pages/inventory/handlers/useFilterHandlers', () => ({
     handleSearchChange: () => undefined,
     handleSupplierChange: () => undefined,
     handleBelowMinChange: () => undefined,
-  }),
-}));
-
-vi.mock('@/pages/inventory/handlers/useTableHandlers', () => ({
-  useTableHandlers: () => ({
-    handleRowClick: () => undefined,
-    handlePaginationChange: () => undefined,
-    handleSortChange: () => undefined,
   }),
 }));
 
@@ -136,6 +139,17 @@ describe('InventoryBoard', () => {
     expect(screen.getByTestId('filter-search')).toBeInTheDocument();
     expect(screen.getByTestId('inventory-table')).toBeInTheDocument();
     expect(screen.getByTestId('inventory-dialogs')).toBeInTheDocument();
+  });
+
+  it('wires the grid straight to the board state setters', () => {
+    render(<InventoryBoard />);
+
+    // The setters are stable useState dispatchers, so no wrapper callbacks.
+    expect(tableProps.last).toMatchObject({
+      onPaginationChange: setters.setPaginationModel,
+      onSortChange: setters.setSortModel,
+      onRowClick: setters.setSelectedId,
+    });
   });
 
   it('shows the select-supplier prompt instead of the table without a supplier', async () => {
