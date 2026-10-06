@@ -66,10 +66,8 @@ export const QuantityAdjustQuantityInput: React.FC<QuantityAdjustQuantityInputPr
           <TextField
             {...field}
             value={value}
-            onChange={(e) => {
-              const val = e.target.value;
-              onChange(val === '' ? 0 : Number(val));
-            }}
+            // Number('') is 0: an emptied field reads as zero.
+            onChange={(e) => onChange(Number(e.target.value))}
             label={t('inventory:quantity.newQuantity')}
             type="number"
             fullWidth
