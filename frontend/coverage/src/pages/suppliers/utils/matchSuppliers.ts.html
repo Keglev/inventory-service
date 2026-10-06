@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
@@ -91,9 +91,7 @@
 <a name='L26'></a><a href='#L26'>26</a>
 <a name='L27'></a><a href='#L27'>27</a>
 <a name='L28'></a><a href='#L28'>28</a>
-<a name='L29'></a><a href='#L29'>29</a>
-<a name='L30'></a><a href='#L30'>30</a>
-<a name='L31'></a><a href='#L31'>31</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L29'></a><a href='#L29'>29</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -111,8 +109,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -135,22 +131,20 @@
  *   (GET /api/suppliers, cached by React Query), not as one request per
  *   keystroke (frontend ADR-0014).
  * - The rule matches the backend's search: case-insensitive, the fragment
- *   anywhere in the name, at least SUPPLIER_SEARCH_MIN_CHARS characters
- *   after trimming.
+ *   anywhere in the name, at least SEARCH_MIN_CHARS characters after
+ *   trimming (searchFragment).
  */
 &nbsp;
 import type { SupplierRow } from '../../../api/suppliers/types';
-&nbsp;
-/** Characters a fragment needs before any supplier matches. */
-export const SUPPLIER_SEARCH_MIN_CHARS = 2;
+import { searchFragment } from '../../../utils/searchFragment';
 &nbsp;
 /**
  * Suppliers whose name contains the fragment, case-insensitively, in list
- * order; [] while the fragment is shorter than SUPPLIER_SEARCH_MIN_CHARS.
+ * order; [] while the fragment is shorter than SEARCH_MIN_CHARS.
  */
 export function matchSuppliers(suppliers: readonly SupplierRow[], query: string): SupplierRow[] {
-  const fragment = query.trim().toLowerCase();
-  if (fragment.length &lt; SUPPLIER_SEARCH_MIN_CHARS) return [];
+  const fragment = searchFragment(query);
+  if (!fragment) return [];
   return suppliers.filter((s) =&gt; s.name.toLowerCase().includes(fragment));
 }
 &nbsp;</pre></td></tr></table></pre>

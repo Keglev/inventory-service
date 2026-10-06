@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">90% </span>
+                <span class="strong">92.85% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>18/20</span>
+                <span class='fraction'>13/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>10/10</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -242,35 +242,7 @@
 <a name='L177'></a><a href='#L177'>177</a>
 <a name='L178'></a><a href='#L178'>178</a>
 <a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a>
-<a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a>
-<a name='L184'></a><a href='#L184'>184</a>
-<a name='L185'></a><a href='#L185'>185</a>
-<a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a>
-<a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a>
-<a name='L190'></a><a href='#L190'>190</a>
-<a name='L191'></a><a href='#L191'>191</a>
-<a name='L192'></a><a href='#L192'>192</a>
-<a name='L193'></a><a href='#L193'>193</a>
-<a name='L194'></a><a href='#L194'>194</a>
-<a name='L195'></a><a href='#L195'>195</a>
-<a name='L196'></a><a href='#L196'>196</a>
-<a name='L197'></a><a href='#L197'>197</a>
-<a name='L198'></a><a href='#L198'>198</a>
-<a name='L199'></a><a href='#L199'>199</a>
-<a name='L200'></a><a href='#L200'>200</a>
-<a name='L201'></a><a href='#L201'>201</a>
-<a name='L202'></a><a href='#L202'>202</a>
-<a name='L203'></a><a href='#L203'>203</a>
-<a name='L204'></a><a href='#L204'>204</a>
-<a name='L205'></a><a href='#L205'>205</a>
-<a name='L206'></a><a href='#L206'>206</a>
-<a name='L207'></a><a href='#L207'>207</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L180'></a><a href='#L180'>180</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -409,32 +381,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">31x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -492,9 +438,8 @@
  *   itemDetailsQuery.data?.name ?? selectedItem.name
  *   so the fresh backend name wins as soon as the details query lands,
  *   and the search-result name carries the UI until then.
- * - Autocomplete is re-keyed with key={selectedSupplier?.id} so its
- *   internal state resets cleanly when the user switches suppliers --
- *   same pattern as DeleteFormFields ItemSelectField.
+ * - The item picker is the shared ItemSearchField (matching in the
+ *   browser); it stays mounted while items load, so typing keeps focus.
  * - Errors render at the top with a dismiss control; the rest of the
  *   form stays interactive while the user reads the message.
  */
@@ -509,13 +454,13 @@ import {
   CircularProgress,
   Alert,
   Divider,
-  Autocomplete,
   TextField,
 } from '@mui/material';
 import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 &nbsp;
 import { fieldErrorText } from '../../../../utils/fieldErrorText';
+import { ItemSearchField } from '../../components/ItemSearchField';
 import type { UseEditItemFormReturn } from './useEditItemForm';
 &nbsp;
 /**
@@ -602,40 +547,14 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
           &lt;Alert severity="info"&gt;
             {t('inventory:search.selectSupplierFirst')}
           &lt;/Alert&gt;
-        ) : /* Show loading spinner while items fetch */ state.itemsQuery.isLoading ? (
-          &lt;Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}&gt;
-            &lt;CircularProgress size={20} /&gt;
-            &lt;Typography variant="body2" color="text.secondary"&gt;
-              {t('common:loading')}
-            &lt;/Typography&gt;
-          &lt;/Box&gt;
         ) : (
-          &lt;Autocomplete
-            /* Re-key when supplier changes to reset autocomplete internal state */
-            key={state.selectedSupplier?.id}
-            disabled={!state.selectedSupplier}
-            options={state.itemsQuery.data ?? <span class="branch-1 cbranch-no" title="branch not covered" >[]}</span>
-            getOptionLabel={(option) =&gt; option.name}
+          &lt;ItemSearchField
+            query={state.itemQuery}
+            onQueryChange={state.setItemQuery}
+            results={state.itemsQuery.data}
+            loading={state.itemsQuery.isLoading}
             value={state.selectedItem}
-            onChange={(_e, value) =&gt; {
-              state.setSelectedItem(value);
-              // Clear search query for clean slate after selection
-              state.setItemQuery('');
-            }}
-            inputValue={state.itemQuery}
-            onInputChange={(_e, value) =&gt; state.setItemQuery(value)}
-            noOptionsText={
-              state.itemQuery.length &lt; 2
-                ? t('inventory:search.typeToSearch')
-                : t('inventory:search.noItemsFound')
-            }
-            renderInput={(params) =&gt; (
-              &lt;TextField
-                {...params}
-                label={t('inventory:table.name')}
-                placeholder={t('inventory:search.typeToSearchItems')}
-              /&gt;
-            )}
+            onSelect={state.setSelectedItem}
           /&gt;
         )}
       &lt;/Box&gt;

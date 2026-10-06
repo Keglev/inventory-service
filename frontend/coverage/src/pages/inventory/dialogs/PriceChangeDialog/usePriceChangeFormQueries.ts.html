@@ -270,9 +270,9 @@
  *
  * @enterprise
  * - Same lazy-firing pattern as DeleteItemDialog and EditItemDialog:
- *   suppliers fires when the dialog opens; item search fires when a
- *   supplier is selected and the query is long enough; item details
- *   fires only when an item is picked.
+ *   suppliers fires when the dialog opens; the supplier's item list
+ *   loads once when a supplier is selected (typing is matched in the
+ *   browser); item details fires only when an item is picked.
  * - Two effects: supplier-change resets itemId, newPrice, and clears
  *   form errors so a clean flow restarts; item-pick mirrors the
  *   itemId into the form and pre-fills newPrice with the freshest

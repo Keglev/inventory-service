@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/pages/suppliers/components/SupplierSearchField.tsx</title>
+    <title>Code coverage report for src/pages/inventory/components/ItemSearchField.tsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../../prettify.css" />
     <link rel="stylesheet" href="../../../../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/pages/suppliers/components</a> SupplierSearchField.tsx</h1>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/pages/inventory/components</a> ItemSearchField.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>9/9</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>3/4</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
-                <span class="quiet">Functions</span>
+                <span class="quiet">Branches</span>
                 <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>4/4</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
@@ -153,21 +153,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">64x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">46x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">142x</span>
-<span class="cline-any cline-yes">64x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">82x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">82x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">94x</span>
+<span class="cline-any cline-yes">41x</span>
+<span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -176,58 +176,58 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @file SupplierSearchField.tsx
- * @module pages/suppliers/components/SupplierSearchField
+ * @file ItemSearchField.tsx
+ * @module pages/inventory/components/ItemSearchField
  *
  * @summary
- * The supplier search: the suppliers board and the edit and delete dialogs
- * all use it. A thin setting of the shared ListSearchField.
+ * The item picker of the four inventory dialogs (quantity, price, edit,
+ * delete). A thin setting of the shared ListSearchField.
  *
  * @enterprise
- * - Search mode: the field keeps no value; the caller shows the pick.
- * - The second line of a result names the contact and an email or phone,
- *   when the supplier has them; nothing is shown otherwise.
+ * - Picker mode: the picked item stays in the field; clearing the text
+ *   clears the pick.
+ * - Results come from useItemSearchQuery: the chosen supplier's items,
+ *   matched by name or SKU in the browser (frontend ADR-0014). The SKU is
+ *   the second line of a result.
+ * - Disabled only while no supplier is chosen, never while items load.
  */
 &nbsp;
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { SupplierRow } from '../../../api/suppliers/types';
+import type { ItemOption } from '../../../api/analytics/types';
 import { ListSearchField } from '../../../components/search/ListSearchField';
 &nbsp;
-export interface SupplierSearchFieldProps {
+export interface ItemSearchFieldProps {
   /** Text typed in the field. */
   query: string;
   /** Called with the new text on every edit. */
   onQueryChange: (query: string) =&gt; void;
-  /** Suppliers matching the query (matchSuppliers). */
-  results: SupplierRow[];
-  /** Whether the supplier list is still loading. */
+  /** Items matching the query (useItemSearchQuery). */
+  results: ItemOption[];
+  /** Whether the supplier's items are still loading. */
   loading: boolean;
-  /** Called with the supplier the user picks. */
-  onSelect: (supplier: SupplierRow) =&gt; void;
-  /** Hides the result list, e.g. while a picked supplier is shown. */
-  suppressResults?: boolean;
+  /** The picked item, or null. */
+  value: ItemOption | null;
+  /** Called with the picked item, or null when the field is cleared. */
+  onSelect: (item: ItemOption | null) =&gt; void;
+  /** True while no supplier is chosen. */
+  disabled?: boolean;
 }
 &nbsp;
-const supplierDetail = (supplier: SupplierRow) =&gt;
-  [supplier.contactName, supplier.email || supplier.phone].filter(Boolean).join(' · ');
-&nbsp;
-export const SupplierSearchField: React.FC&lt;SupplierSearchFieldProps&gt; = ({ onSelect, ...props }) =&gt; {
-  const { t } = useTranslation(['suppliers']);
+export const ItemSearchField: React.FC&lt;ItemSearchFieldProps&gt; = ({ disabled = false, ...props }) =&gt; {
+  const { t } = useTranslation(['inventory']);
 &nbsp;
   return (
-    &lt;ListSearchField&lt;SupplierRow&gt;
+    &lt;ListSearchField&lt;ItemOption&gt;
       {...props}
-      // A search field keeps no value, so a pick is never null.
-      onSelect={(supplier) =&gt; {
-        <span class="missing-if-branch" title="else path not taken" >E</span>if (supplier) onSelect(supplier);
-      }}
-      getLabel={(supplier) =&gt; supplier.name}
-      getKey={(supplier) =&gt; supplier.id}
-      getDetail={supplierDetail}
-      placeholder={t('suppliers:search.placeholder')}
-      noResultsText={t('suppliers:search.noResults')}
-      hintText={t('suppliers:search.typeToSearch')}
+      disabled={disabled}
+      getLabel={(item) =&gt; item.name}
+      getKey={(item) =&gt; item.id}
+      getDetail={(item) =&gt; item.sku ?? ''}
+      label={t('inventory:item')}
+      placeholder={t(disabled ? 'inventory:search.selectSupplierFirst' : 'inventory:search.typeToSearchItems')}
+      noResultsText={t('inventory:search.noItemsFound')}
+      hintText={t('inventory:search.typeToSearch')}
     /&gt;
   );
 };

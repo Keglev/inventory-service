@@ -128,18 +128,27 @@ api/shared/itemSearch/README · Smart Supply Pro · API</title>
         previously had an inventory hook reaching into the analytics
         module.</li>
         <li>Backed by the paginated backend search: name, supplierId,
-        and size are real server parameters, so no parameter probing and
-        no client-side re-filtering are needed. The former full-catalog
-        fetch + client filter workaround was deleted with that
-        wave.</li>
+        and size are real server parameters, so no parameter probing is
+        needed.</li>
+        <li>listItemsForSupplier loads one supplier's whole item list in
+        a single page, for the inventory dialogs that filter it in the
+        browser (ADR-0014); it reports whether the page held every
+        item.</li>
         <li>Supplier scoping is enforced by the backend query; an empty
         result for a supplier is returned as empty, never refilled with
         cross-supplier rows.</li>
         <li>Every function returns [] on any error to keep type-ahead
         UIs functional rather than throwing into a render path.</li>
         </ul>
+        <h2 id="interfaces">Interfaces</h2>
+        <ul>
+        <li><a
+        href="interfaces/SupplierItemList.html">SupplierItemList</a></li>
+        </ul>
         <h2 id="functions">Functions</h2>
         <ul>
+        <li><a
+        href="functions/listItemsForSupplier.html">listItemsForSupplier</a></li>
         <li><a
         href="functions/normalizeItemsList.html">normalizeItemsList</a></li>
         <li><a
@@ -157,6 +166,7 @@ api/shared/itemSearch/README · Smart Supply Pro · API</title>
       id="toc-apishareditemsearch">api/shared/itemSearch</a>
       <ul>
       <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
+      <li><a href="#interfaces" id="toc-interfaces">Interfaces</a></li>
       <li><a href="#functions" id="toc-functions">Functions</a></li>
       </ul></li>
       </ul>

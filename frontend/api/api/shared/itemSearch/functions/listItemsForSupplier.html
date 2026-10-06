@@ -15,7 +15,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-api/inventory/hooks/useItemSearchQuery/functions/useItemSearchQuery · Smart Supply Pro · API</title>
+api/shared/itemSearch/functions/listItemsForSupplier · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -114,63 +114,43 @@ api/inventory/hooks/useItemSearchQuery/functions/useItemSearchQuery · Smart Sup
     <main class="content" id="main">
       <article class="doc-body">
         <p><a
-        href="../../../../../README.html"><strong>frontend</strong></a></p>
+        href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../../README.html">frontend</a> / <a
-        href="../README.html">api/inventory/hooks/useItemSearchQuery</a>
-        / useItemSearchQuery</p>
-        <h1 id="function-useitemsearchquery">Function:
-        useItemSearchQuery()</h1>
+        <p><a href="../../../../README.html">frontend</a> / <a
+        href="../README.html">api/shared/itemSearch</a> /
+        listItemsForSupplier</p>
+        <h1 id="function-listitemsforsupplier">Function:
+        listItemsForSupplier()</h1>
         <blockquote>
-        <p><strong>useItemSearchQuery</strong>(<code>selectedSupplier</code>,
-        <code>searchQuery</code>): <a
-        href="../interfaces/ItemSearchResult.html"><code>ItemSearchResult</code></a></p>
+        <p><strong>listItemsForSupplier</strong>(<code>supplierId</code>):
+        <code>Promise</code>&lt;<a
+        href="../interfaces/SupplierItemList.html"><code>SupplierItemList</code></a>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/hooks/useItemSearchQuery.ts#L37">api/inventory/hooks/useItemSearchQuery.ts:37</a></p>
-        <p>Items of the selected supplier whose name or SKU contains the
-        query.</p>
-        <ul>
-        <li>The supplier's list loads once
-        (<code>GET /api/inventory/search?supplierId=</code>, one page of
-        up to 2,000 items); typing sends no request.</li>
-        <li>The list is kept only while that supplier is chosen:
-        choosing another supplier, or closing the dialog, drops it at
-        once (gcTime 0).</li>
-        <li>When the page did not hold every item, or the list failed to
-        load, the picker falls back to the server search, one request
-        per query.</li>
-        </ul>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/shared/itemSearch.ts#L104">api/shared/itemSearch.ts:104</a></p>
+        <p>Loads every item of one supplier in a single page (no name
+        filter). complete is false when the page reports more items than
+        it returned, and on any error, so callers fall back to the
+        server search.</p>
         <h2 id="parameters">Parameters</h2>
-        <h3 id="selectedsupplier">selectedSupplier</h3>
-        <p><a
-        href="../../../../analytics/types/type-aliases/SupplierOption.html"><code>SupplierOption</code></a>
-        | <code>null</code></p>
-        <p>Supplier whose items are searched; nothing loads until one is
-        chosen, so items never mix across suppliers.</p>
-        <h3 id="searchquery">searchQuery</h3>
+        <h3 id="supplierid">supplierId</h3>
         <p><code>string</code></p>
-        <p>Text typed in the picker; matching starts at SEARCH_MIN_CHARS
-        characters.</p>
         <h2 id="returns">Returns</h2>
-        <p><a
-        href="../interfaces/ItemSearchResult.html"><code>ItemSearchResult</code></a></p>
+        <p><code>Promise</code>&lt;<a
+        href="../interfaces/SupplierItemList.html"><code>SupplierItemList</code></a>&gt;</p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#function-useitemsearchquery"
-      id="toc-function-useitemsearchquery">Function:
-      useItemSearchQuery()</a>
+      <li><a href="#function-listitemsforsupplier"
+      id="toc-function-listitemsforsupplier">Function:
+      listItemsForSupplier()</a>
       <ul>
       <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
-      <li><a href="#selectedsupplier"
-      id="toc-selectedsupplier">selectedSupplier</a></li>
-      <li><a href="#searchquery"
-      id="toc-searchquery">searchQuery</a></li>
+      <li><a href="#supplierid" id="toc-supplierid">supplierId</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
       </ul></li>
