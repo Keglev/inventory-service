@@ -30,10 +30,9 @@ import { logError } from '../../../../utils/logger';
 export interface UseDeleteSupplierFormReturn {
   // Search state (delegated to useSupplierSearch)
   searchQuery: string;
-  setSearchQuery: (query: string) => void;
   searchResults: SupplierRow[];
   searchLoading: boolean;
-  handleSearchQueryChange: (query: string) => Promise<void>;
+  handleSearchQueryChange: (query: string) => void;
 
   // Selection state
   selectedSupplier: SupplierRow | null;
@@ -145,7 +144,6 @@ export const useDeleteSupplierForm = (
   return {
     // Search state (delegated)
     searchQuery: search.searchQuery,
-    setSearchQuery: search.setSearchQuery,
     searchResults: search.searchResults,
     searchLoading: search.searchLoading,
     handleSearchQueryChange: search.handleSearchQueryChange,

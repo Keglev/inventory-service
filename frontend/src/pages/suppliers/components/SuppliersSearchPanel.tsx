@@ -7,28 +7,18 @@
  * Handles search input, results dropdown, and selected supplier display.
  *
  * @enterprise
- * - Debounced search input with loading indicator
- * - Interactive dropdown for search results
+ * - The shared SupplierSearchField (matching in the browser, at most six
+ *   results plus a count of the rest)
  * - Selected supplier info display with clear button
  * - Pure presentation component
  * - i18n support
  */
 
 import * as React from 'react';
-import {
-  Paper,
-  Box,
-  Typography,
-  TextField,
-  CircularProgress,
-  List,
-  ListItemButton,
-  ListItemText,
-  Stack,
-  Button,
-} from '@mui/material';
+import { Paper, Box, Typography, Stack, Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { SupplierRow } from '../../../api/suppliers/types';
+import { SupplierSearchField } from './SupplierSearchField';
 
 /**
  * Suppliers Search Panel component props.
@@ -56,8 +46,7 @@ export interface SuppliersSearchPanelProps {
  * Search panel for suppliers board.
  *
  * Features:
- * - Search input with loading indicator
- * - Results dropdown (max 300px height)
+ * - Shared supplier search field
  * - Selected supplier info with clear button
  * - Responsive layout
  *
@@ -92,54 +81,15 @@ export const SuppliersSearchPanel: React.FC<SuppliersSearchPanelProps> = ({
         {t('suppliers:search.title')}
       </Typography>
 
-      {/* Search Input */}
-      <Box sx={{ position: 'relative', mb: 2 }}>
-        <TextField
-          fullWidth
-          size="small"
-          placeholder={t(
-            'suppliers:search.placeholder'
-          )}
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          disabled={false}
-          InputProps={{
-            endAdornment: isLoading ? <CircularProgress size={20} /> : null,
-          }}
+      <Box sx={{ mb: 2 }}>
+        <SupplierSearchField
+          query={searchQuery}
+          onQueryChange={onSearchChange}
+          results={searchResults}
+          loading={isLoading}
+          onSelect={onResultSelect}
+          suppressResults={selectedSupplier !== null}
         />
-
-        {/* Search Results Dropdown */}
-        {searchResults.length > 0 && !selectedSupplier && (
-          <Paper
-            elevation={2}
-            sx={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              zIndex: 10,
-              mt: 0.5,
-              maxHeight: 300,
-              overflow: 'auto',
-            }}
-          >
-            <List>
-              {searchResults.map((supplier) => (
-                <ListItemButton
-                  key={supplier.id}
-                  onClick={() => onResultSelect(supplier)}
-                >
-                  <ListItemText
-                    primary={supplier.name}
-                    secondary={
-                      supplier.email || supplier.phone || 'No contact info'
-                    }
-                  />
-                </ListItemButton>
-              ))}
-            </List>
-          </Paper>
-        )}
       </Box>
 
       {/* Selected supplier: compact one-line indicator with clear action.

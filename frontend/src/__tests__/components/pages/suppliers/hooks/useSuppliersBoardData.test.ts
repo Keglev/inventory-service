@@ -4,9 +4,10 @@
  * @description Contract tests for the `useSuppliersBoardData` orchestration hook.
  *
  * Contract under test:
- * - Calls the supplier list query (no page or sort) and the search query hook.
+ * - Calls the supplier list query (no page or sort); no search request exists.
  * - Projects query results into the simplified view model consumed by the board.
- * - Applies the search-query length rules (min 2 chars) consistently for both list filtering and search.
+ * - Matches the search text against the loaded list (anywhere in the name,
+ *   case-insensitive, at least 2 characters).
  * - Surfaces errors as a user-friendly message string.
  *
  * Out of scope:
@@ -22,29 +23,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useSuppliersBoardData } from '../../../../../pages/suppliers/hooks/useSuppliersBoardData';
-import { useSupplierSearchQuery } from '../../../../../api/suppliers/hooks/useSupplierSearchQuery';
 import { useSupplierListQuery } from '../../../../../api/suppliers/hooks/useSupplierListQuery';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 const mocks = vi.hoisted(() => ({
   useSupplierListQuery: vi.fn<typeof useSupplierListQuery>(),
-  useSupplierSearchQuery: vi.fn<typeof useSupplierSearchQuery>(),
 }));
 
 vi.mock('../../../../../api/suppliers/hooks/useSupplierListQuery', () => ({
   useSupplierListQuery: mocks.useSupplierListQuery,
 }));
 
-vi.mock('../../../../../api/suppliers/hooks/useSupplierSearchQuery', () => ({
-  useSupplierSearchQuery: mocks.useSupplierSearchQuery,
-}));
-
 type SupplierListQueryReturn = ReturnType<typeof useSupplierListQuery>;
-type SupplierSearchQueryReturn = ReturnType<typeof useSupplierSearchQuery>;
 type SupplierListQueryOverrides = Omit<Partial<SupplierListQueryReturn>, 'data'> & {
-  data?: SupplierRow[] | null;
-};
-type SupplierSearchQueryOverrides = Omit<Partial<SupplierSearchQueryReturn>, 'data'> & {
   data?: SupplierRow[] | null;
 };
 
@@ -77,18 +68,6 @@ const mockSupplierListQuery = (
   );
 };
 
-const mockSupplierSearchQuery = (
-  overrides: SupplierSearchQueryOverrides = {}
-) => {
-  mocks.useSupplierSearchQuery.mockReturnValue(
-    ({
-      data: [],
-      isLoading: false,
-      ...overrides,
-    } as unknown) as SupplierSearchQueryReturn
-  );
-};
-
 describe('useSuppliersBoardData', () => {
   const mockSuppliers: SupplierRow[] = [
     supplierRow(),
@@ -105,7 +84,6 @@ describe('useSuppliersBoardData', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSupplierListQuery();
-    mockSupplierSearchQuery();
   });
 
   it('projects the full supplier list from the list query', () => {
@@ -118,14 +96,22 @@ describe('useSuppliersBoardData', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('projects search results from the search query', () => {
-    const searchResults = [mockSuppliers[0]];
-    mockSupplierSearchQuery({ data: searchResults });
+  it('matches the search text against the loaded list', () => {
+    mockSupplierListQuery({ data: mockSuppliers });
 
-    const { result } = renderHook(() => useSuppliersBoardData('acme'));
+    // "supp" sits inside "Tech Supplies Inc", in another case.
+    const { result } = renderHook(() => useSuppliersBoardData('SUPP'));
 
-    expect(result.current.searchResults).toEqual(searchResults);
+    expect(result.current.searchResults).toEqual([mockSuppliers[1]]);
     expect(result.current.isLoadingSearch).toBe(false);
+  });
+
+  it('matches nothing below two characters', () => {
+    mockSupplierListQuery({ data: mockSuppliers });
+
+    const { result } = renderHook(() => useSuppliersBoardData(' a '));
+
+    expect(result.current.searchResults).toEqual([]);
   });
 
   it.each([
@@ -138,8 +124,8 @@ describe('useSuppliersBoardData', () => {
       },
     },
     {
-      name: 'search loading',
-      arrange: () => mockSupplierSearchQuery({ isLoading: true }),
+      name: 'search waits for the list',
+      arrange: () => mockSupplierListQuery({ isLoading: true }),
       assert: (value: ReturnType<typeof useSuppliersBoardData>) => {
         expect(value.isLoadingSearch).toBe(true);
         expect(value.searchResults).toEqual([]);
@@ -155,10 +141,7 @@ describe('useSuppliersBoardData', () => {
     },
     {
       name: 'null query data falls back to empty projections',
-      arrange: () => {
-        mockSupplierListQuery({ data: null });
-        mockSupplierSearchQuery({ data: null });
-      },
+      arrange: () => mockSupplierListQuery({ data: null }),
       assert: (value: ReturnType<typeof useSuppliersBoardData>) => {
         expect(value.suppliers).toEqual([]);
         expect(value.searchResults).toEqual([]);
@@ -176,15 +159,5 @@ describe('useSuppliersBoardData', () => {
     renderHook(() => useSuppliersBoardData('test'));
 
     expect(mocks.useSupplierListQuery).toHaveBeenCalledWith();
-  });
-
-  it.each([
-    { name: 'passes query through when length >= 2', searchQuery: 'ac', expectedQueryArg: 'ac' },
-    { name: 'passes empty string when length < 2', searchQuery: 'a', expectedQueryArg: '' },
-    { name: 'passes empty string when empty', searchQuery: '', expectedQueryArg: '' },
-  ])('wires search query arg ($name)', ({ searchQuery, expectedQueryArg }) => {
-    renderHook(() => useSuppliersBoardData(searchQuery));
-
-    expect(mocks.useSupplierSearchQuery).toHaveBeenCalledWith(expectedQueryArg, true);
   });
 });

@@ -3,22 +3,20 @@
  * @module pages/suppliers/hooks/useSupplierSearch
  *
  * @summary
- * Hook for supplier search functionality.
- * Handles search query, results, and loading state.
+ * Search state for the edit and delete supplier dialogs.
  *
  * @enterprise
- * - Thin stateful adapter over useSupplierSearchQuery — the single supplier-search
- *   implementation (GET /api/suppliers/search). This hook owns only the query
- *   string; results, loading, the >= 2-char gating, caching, and error handling
- *   all live in useSupplierSearchQuery.
- * - Preserves the imperative { searchQuery, setSearchQuery, searchResults,
- *   searchLoading, handleSearchQueryChange, resetSearch } shape the Edit/Delete
- *   supplier dialogs consume.
+ * - Owns only the typed text. Results are matched in the browser against the
+ *   full supplier list (useSupplierListQuery, one cached request), so typing
+ *   sends no request (frontend ADR-0014). The board uses the same list and
+ *   the same matchSuppliers rule.
+ * - searchLoading is true only while that list loads for the first time.
  */
 
 import * as React from 'react';
-import { useSupplierSearchQuery } from '../../../api/suppliers/hooks/useSupplierSearchQuery';
+import { useSupplierListQuery } from '../../../api/suppliers/hooks/useSupplierListQuery';
 import type { SupplierRow } from '../../../api/suppliers/types';
+import { matchSuppliers } from '../utils/matchSuppliers';
 
 /**
  * Hook return type for supplier search.
@@ -26,30 +24,22 @@ import type { SupplierRow } from '../../../api/suppliers/types';
  * @interface UseSupplierSearchReturn
  */
 export interface UseSupplierSearchReturn {
-  /** Current search query */
+  /** Current search text */
   searchQuery: string;
-  /** Set search query */
-  setSearchQuery: (query: string) => void;
-  /** Search results */
+  /** Suppliers matching the search text */
   searchResults: SupplierRow[];
-  /** Whether search is currently loading */
+  /** Whether the supplier list is still loading */
   searchLoading: boolean;
-  /** Handle search query change with debouncing */
-  handleSearchQueryChange: (query: string) => Promise<void>;
-  /** Reset search to initial state */
+  /** Sets the search text */
+  handleSearchQueryChange: (query: string) => void;
+  /** Clears the search text */
   resetSearch: () => void;
 }
 
 /**
- * Hook for supplier search functionality.
+ * Hook for supplier search in the dialogs.
  *
- * Manages:
- * - Search query state
- * - Search results from API
- * - Loading state during API calls
- * - Minimum character validation (2 chars)
- *
- * @returns Search state and handlers
+ * @returns Search text, matching suppliers and handlers
  *
  * @example
  * ```ts
@@ -58,28 +48,20 @@ export interface UseSupplierSearchReturn {
  */
 export const useSupplierSearch = (): UseSupplierSearchReturn => {
   const [searchQuery, setSearchQuery] = React.useState('');
+  const listQuery = useSupplierListQuery();
 
-  // Delegate fetching, the >= 2-char gating, caching, and error handling to the
-  // single supplier-search implementation (GET /api/suppliers/search). This hook
-  // owns only the query string; results are derived reactively.
-  const { data, isFetching } = useSupplierSearchQuery(searchQuery);
-  const searchResults: SupplierRow[] = data ?? [];
+  const searchResults = React.useMemo(
+    () => matchSuppliers(listQuery.data ?? [], searchQuery),
+    [listQuery.data, searchQuery]
+  );
 
-  // Kept async (Promise<void>) so the dialogs' consuming signature is unchanged.
-  const handleSearchQueryChange = React.useCallback(async (query: string) => {
-    setSearchQuery(query);
-  }, []);
-
-  const resetSearch = React.useCallback(() => {
-    setSearchQuery('');
-  }, []);
+  const resetSearch = React.useCallback(() => setSearchQuery(''), []);
 
   return {
     searchQuery,
-    setSearchQuery,
     searchResults,
-    searchLoading: isFetching,
-    handleSearchQueryChange,
+    searchLoading: listQuery.isLoading,
+    handleSearchQueryChange: setSearchQuery,
     resetSearch,
   };
 };

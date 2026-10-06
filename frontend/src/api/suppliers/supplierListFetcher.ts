@@ -34,36 +34,6 @@ export const SUPPLIERS_BASE = '/api/suppliers';
 const extractSupplierRows = (data: unknown): unknown[] => (Array.isArray(data) ? data : []);
 
 /**
- * @summary Searches suppliers by name via the dedicated backend search endpoint.
- * @backend GET /api/suppliers/search?name= -> plain List<SupplierDTO>; case-insensitive substring match on name (findByNameContainingIgnoreCase)
- * @param name - Name fragment to match (case-insensitive substring).
- * @returns Matching SupplierRow[], or [] on error.
- *
- * @example
- * ```typescript
- * const results = await searchSuppliersByName('acme');
- * ```
- */
-export const searchSuppliersByName = async (name: string): Promise<SupplierRow[]> => {
-  try {
-    const resp = await http.get(`${SUPPLIERS_BASE}/search`, { params: { name } });
-
-    const data: unknown = typeof resp === 'object' && resp !== null && 'data' in resp
-      ? (resp as unknown as Record<string, unknown>).data
-      : [];
-
-    const rowsRaw = extractSupplierRows(data);
-
-    return rowsRaw
-      .map(toSupplierRow)
-      .filter((r): r is Exclude<ReturnType<typeof toSupplierRow>, null> => r !== null);
-  } catch (error) {
-    logError('[searchSuppliersByName] Error searching suppliers by name:', error);
-    return [];
-  }
-};
-
-/**
  * Fetches every supplier from GET /api/suppliers, normalized to SupplierRow.
  *
  * @backend GET /api/suppliers -> plain List<SupplierDTO>, no parameters.

@@ -1,7 +1,7 @@
 /**
  * @file supplierListFetcher.test.ts
  * @module tests/unit/api/suppliers/supplierListFetcher
- * @description Contract tests for the supplier list and search fetchers.
+ * @description Contract tests for the supplier list fetcher.
  *
  * Contract under test:
  * - getAllSuppliers requests the list without parameters (the endpoint takes
@@ -27,7 +27,7 @@ vi.mock('@/api/suppliers/supplierNormalizers', () => ({
 
 import http from '@/api/httpClient';
 import { toSupplierRow } from '@/api/suppliers/supplierNormalizers';
-import { getAllSuppliers, searchSuppliersByName, SUPPLIERS_BASE } from '@/api/suppliers/supplierListFetcher';
+import { getAllSuppliers, SUPPLIERS_BASE } from '@/api/suppliers/supplierListFetcher';
 
 const httpMock = http as unknown as { get: ReturnType<typeof vi.fn> };
 const toSupplierRowMock = toSupplierRow as ReturnType<typeof vi.fn>;
@@ -77,41 +77,6 @@ describe('getAllSuppliers', () => {
       httpMock.get.mockResolvedValue('weird');
 
       expect(await getAllSuppliers()).toEqual([]);
-    });
-  });
-
-  describe('searchSuppliersByName', () => {
-    it('requests the search endpoint and keeps only normalizable rows', async () => {
-      const row = { id: 'SUP-1' };
-      httpMock.get.mockResolvedValue({ data: [{ id: 'SUP-1' }, { id: 'bad' }] });
-      toSupplierRowMock.mockReturnValueOnce(row).mockReturnValueOnce(null);
-
-      const result = await searchSuppliersByName('acme');
-
-      expect(httpMock.get).toHaveBeenCalledWith(`${SUPPLIERS_BASE}/search`, {
-        params: { name: 'acme' },
-      });
-      expect(result).toEqual([row]);
-    });
-
-    it('degrades a non-object response to an empty list', async () => {
-      httpMock.get.mockResolvedValue('weird');
-
-      await expect(searchSuppliersByName('acme')).resolves.toEqual([]);
-    });
-
-    it('returns an empty list and logs on transport failure', async () => {
-      const failure = new Error('offline');
-      httpMock.get.mockRejectedValue(failure);
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-      await expect(searchSuppliersByName('acme')).resolves.toEqual([]);
-
-      expect(errorSpy).toHaveBeenCalledWith(
-        '[searchSuppliersByName] Error searching suppliers by name:',
-        failure,
-      );
-      errorSpy.mockRestore();
     });
   });
 });

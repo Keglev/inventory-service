@@ -114,10 +114,9 @@ const supplier: SupplierRow = {
 // Minimal hook contract surface required by the dialog.
 const baseFormState = (): UseDeleteSupplierFormReturn => ({
   searchQuery: '',
-  setSearchQuery: vi.fn(),
   searchResults: [],
   searchLoading: false,
-  handleSearchQueryChange: vi.fn(async () => undefined),
+  handleSearchQueryChange: vi.fn(),
   selectedSupplier: null,
   setSelectedSupplier: vi.fn(),
   handleSelectSupplier: vi.fn(),

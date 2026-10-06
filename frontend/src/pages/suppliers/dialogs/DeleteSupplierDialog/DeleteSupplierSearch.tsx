@@ -4,11 +4,12 @@
  *
  * @summary
  * Search step for supplier deletion dialog.
- * Orchestrates search input, results, and empty state components.
+ * Hint, the shared supplier search field, and Cancel.
  *
  * @enterprise
- * - Composes specialized search components
- * - Clean separation of concerns
+ * - Uses SupplierSearchField, the search the board and the edit dialog use.
+ * - Cancel stays enabled: matching runs in the browser, and leaving the
+ *   dialog never needs to wait for the supplier list.
  * - Pure presentation, no business logic
  */
 
@@ -24,10 +25,8 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { HelpIconButton } from '../../../../features/help/components/HelpIconButton';
-import { DeleteSupplierSearchInput } from './DeleteSupplierSearchInput';
-import { DeleteSupplierSearchResults } from './DeleteSupplierSearchResults';
-import { DeleteSupplierSearchEmpty } from './DeleteSupplierSearchEmpty';
 import type { SupplierRow } from '../../../../api/suppliers/types';
+import { SupplierSearchField } from '../../components/SupplierSearchField';
 
 /**
  * Props for DeleteSupplierSearch component.
@@ -38,7 +37,7 @@ interface DeleteSupplierSearchProps {
   /** Search query value */
   searchQuery: string;
   /** Called when search query changes */
-  onSearchQueryChange: (query: string) => Promise<void>;
+  onSearchQueryChange: (query: string) => void;
   /** Search results to display */
   searchResults: SupplierRow[];
   /** Whether search is loading */
@@ -81,8 +80,6 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
 }) => {
   const { t } = useTranslation(['common', 'suppliers']);
 
-  const hasSearched = searchQuery.trim().length >= 2;
-
   return (
     <>
       <DialogTitle sx={{ pt: 3.5 }}>
@@ -97,26 +94,17 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
           {t('suppliers:dialogs.delete.search.hint')}
         </Typography>
 
-        <DeleteSupplierSearchInput
-          value={searchQuery}
-          onChange={onSearchQueryChange}
-          isLoading={searchLoading}
-        />
-
-        <DeleteSupplierSearchResults
-          suppliers={searchResults}
-          onSelectSupplier={onSelectSupplier}
-        />
-
-        <DeleteSupplierSearchEmpty
-          hasSearched={hasSearched}
-          isLoading={searchLoading}
-          hasResults={searchResults.length > 0}
+        <SupplierSearchField
+          query={searchQuery}
+          onQueryChange={onSearchQueryChange}
+          results={searchResults}
+          loading={searchLoading}
+          onSelect={onSelectSupplier}
         />
       </DialogContent>
 
       <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onCancel} disabled={searchLoading}>
+        <Button onClick={onCancel}>
           {t('common:actions.cancel')}
         </Button>
       </DialogActions>

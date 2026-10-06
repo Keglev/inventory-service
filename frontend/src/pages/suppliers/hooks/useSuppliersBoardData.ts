@@ -4,21 +4,20 @@
  *
  * @summary
  * Data fetching and processing for the suppliers board page.
- * Wires React Query for the suppliers list and the name search.
+ * Wires React Query for the suppliers list; the name search matches in it.
  *
  * @enterprise
  * - The list query (useSupplierListQuery -> GET /api/suppliers) returns every
  *   supplier; the backend does not paginate, sort or filter, so the grid does that
- *   in the browser. Name search is a separate concern handled by
- *   useSupplierSearchQuery (GET /api/suppliers/search), whose own hook owns
- *   debouncing/gating.
+ *   in the browser. The name search matches against the same list
+ *   (matchSuppliers), so typing sends no request (frontend ADR-0014).
  * - Loading and error states; type-safe data transformations.
  */
 
 import * as React from 'react';
 import { useSupplierListQuery } from '../../../api/suppliers/hooks/useSupplierListQuery';
-import { useSupplierSearchQuery } from '../../../api/suppliers/hooks/useSupplierSearchQuery';
 import type { SupplierRow } from '../../../api/suppliers/types';
+import { matchSuppliers } from '../utils/matchSuppliers';
 
 /**
  * Data and processing state for suppliers board.
@@ -43,7 +42,7 @@ export interface SuppliersBoardData {
  *
  * Manages:
  * - The full suppliers list from the server
- * - Search results from useSupplierSearchQuery (debouncing handled inside that query hook, not here)
+ * - Suppliers matching the search text, matched in the browser
  * - Loading and error states
  * - Data synchronization
  *
@@ -56,14 +55,9 @@ export interface SuppliersBoardData {
  * ```
  */
 export const useSuppliersBoardData = (searchQuery: string): SuppliersBoardData => {
-  // One fetch serves every page and sort order: the endpoint returns the full
-  // list. Name search is handled by useSupplierSearchQuery.
+  // One fetch serves every page, sort order and search: the endpoint returns
+  // the full list.
   const suppliersQuery = useSupplierListQuery();
-
-  const searchQueryResult = useSupplierSearchQuery(
-    searchQuery.length >= 2 ? searchQuery : '',
-    true
-  );
 
   // Memoize the return object to keep a stable reference across renders and avoid
   // re-render loops that would otherwise churn router updates.
@@ -71,17 +65,16 @@ export const useSuppliersBoardData = (searchQuery: string): SuppliersBoardData =
     () => {
       return {
         suppliers: suppliersQuery.data ?? [],
-        searchResults: searchQueryResult.data ?? [],
+        searchResults: matchSuppliers(suppliersQuery.data ?? [], searchQuery),
         isLoadingSuppliers: suppliersQuery.isLoading,
-        isLoadingSearch: searchQueryResult.isLoading,
+        isLoadingSearch: suppliersQuery.isLoading,
         error: suppliersQuery.error?.message || null,
       };
     },
     [
       suppliersQuery.data,
-      searchQueryResult.data,
+      searchQuery,
       suppliersQuery.isLoading,
-      searchQueryResult.isLoading,
       suppliersQuery.error?.message,
     ]
   );

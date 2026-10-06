@@ -4,14 +4,14 @@
  * @description Contract tests for the `SuppliersSearchPanel` presentation component.
  *
  * Contract under test:
- * - Renders the title + placeholder and reflects the controlled `searchQuery` value.
- * - Shows a loading indicator when `isLoading` is true.
- * - Renders a results dropdown when `searchResults` exist and `selectedSupplier` is null.
- * - Delegates user intent via callbacks: `onSearchChange`, `onResultSelect`, `onClearSelection`.
- * - Hides the dropdown and shows a selected supplier summary when `selectedSupplier` is provided.
+ * - Renders the title and hands query, results, loading and callbacks to the
+ *   shared SupplierSearchField.
+ * - Hides the field's results while a supplier is selected, and shows that
+ *   supplier's name with a Clear action that calls `onClearSelection`.
  *
  * Out of scope:
- * - Debouncing and search orchestration (owned by the board/orchestration hooks).
+ * - The field's own behavior (SupplierSearchField.test.tsx); matching
+ *   (matchSuppliers.test.ts).
  * - MUI layout/styling details (we assert visible text and a11y roles only).
  *
  * Test strategy:
@@ -19,7 +19,6 @@
  * - Use a controlled harness for typing tests to mirror React's controlled input loop.
  */
 
-import * as React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -32,6 +31,14 @@ import { tEn } from '../../../test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
+}));
+
+const fieldSpy = vi.hoisted(() => vi.fn());
+vi.mock('../../../../pages/suppliers/components/SupplierSearchField', () => ({
+  SupplierSearchField: (props: unknown) => {
+    fieldSpy(props);
+    return <div data-testid="supplier-search-field" />;
+  },
 }));
 
 // Fixture builder: minimal SupplierRow with sensible defaults.
@@ -62,30 +69,6 @@ const createProps = (
 const renderPanel = (props: SuppliersSearchPanelProps) =>
   render(<SuppliersSearchPanel {...props} />);
 
-/**
- * The real component is controlled (`value={searchQuery}`), so tests that type should
- * mirror that by updating the prop. This avoids the classic controlled-input pitfall
- * where the DOM value never updates and you only observe the last character.
- */
-const ControlledHarness: React.FC<
-  Omit<SuppliersSearchPanelProps, 'searchQuery' | 'onSearchChange'> & {
-    onSearchChange: (query: string) => void;
-  }
-> = ({ onSearchChange, ...rest }) => {
-  const [query, setQuery] = React.useState('');
-
-  return (
-    <SuppliersSearchPanel
-      {...rest}
-      searchQuery={query}
-      onSearchChange={(next) => {
-        setQuery(next);
-        onSearchChange(next);
-      }}
-    />
-  );
-};
-
 describe('SuppliersSearchPanel', () => {
   const results: SupplierRow[] = [
     supplierRow(),
@@ -110,82 +93,26 @@ describe('SuppliersSearchPanel', () => {
     vi.clearAllMocks();
   });
 
-  it('renders title + input placeholder', () => {
-    renderPanel(createProps());
-
-    expect(screen.getByText('Search Supplier')).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('Enter supplier name (min 2 chars)...')
-    ).toBeInTheDocument();
-  });
-
-  it('shows the provided searchQuery value', () => {
-    renderPanel(createProps({ searchQuery: 'test' }));
-    expect(screen.getByDisplayValue('test')).toBeInTheDocument();
-  });
-
-  it('emits incremental values while typing (controlled harness)', async () => {
-    const user = userEvent.setup();
-    const onSearchChange = vi.fn();
-
-    render(
-      <ControlledHarness
-        {...createProps({ onSearchChange })}
-        isLoading={false}
-        searchResults={[]}
-        selectedSupplier={null}
-      />
-    );
-
-    await user.type(
-      screen.getByPlaceholderText('Enter supplier name (min 2 chars)...'),
-      'sup'
-    );
-
-    expect(onSearchChange).toHaveBeenCalled();
-    expect(onSearchChange).toHaveBeenLastCalledWith('sup');
-  });
-
-  it.each([
-    { isLoading: true, expected: true },
-    { isLoading: false, expected: false },
-  ])('shows a loading indicator (isLoading=$isLoading)', ({ isLoading, expected }) => {
-    renderPanel(createProps({ isLoading }));
-
-    const progress = screen.queryByRole('progressbar');
-    if (expected) {
-      expect(progress).toBeInTheDocument();
-    } else {
-      expect(progress).not.toBeInTheDocument();
-    }
-  });
-
-  it('renders a dropdown when results exist and no supplier is selected', () => {
-    renderPanel(createProps({ searchResults: results }));
-
-    expect(screen.getByText('Supplier A')).toBeInTheDocument();
-    expect(screen.getByText('Supplier B')).toBeInTheDocument();
-    expect(screen.getByText('Supplier C')).toBeInTheDocument();
-    expect(screen.getByText('john@suppliera.com')).toBeInTheDocument();
-    expect(screen.getByText('987-654-3210')).toBeInTheDocument();
-    expect(screen.getByText('No contact info')).toBeInTheDocument();
-  });
-
-  it('calls onResultSelect when a result is clicked', async () => {
-    const user = userEvent.setup();
-    const props = createProps({ searchResults: results });
+  it('renders the title and wires the shared search field', () => {
+    const props = createProps({ searchQuery: 'sup', searchResults: results, isLoading: true });
     renderPanel(props);
 
-    await user.click(screen.getByText('Supplier A'));
-    expect(props.onResultSelect).toHaveBeenCalledTimes(1);
-    expect(props.onResultSelect).toHaveBeenCalledWith(results[0]);
+    expect(screen.getByText('Search Supplier')).toBeInTheDocument();
+    expect(fieldSpy).toHaveBeenCalledWith({
+      query: 'sup',
+      onQueryChange: props.onSearchChange,
+      results,
+      loading: true,
+      onSelect: props.onResultSelect,
+      suppressResults: false,
+    });
   });
 
   it('hides dropdown and shows a compact selected indicator when selectedSupplier is set', () => {
     renderPanel(createProps({ searchResults: results, selectedSupplier: results[0] }));
 
-    // Dropdown is hidden when a supplier is selected.
-    expect(screen.queryByText('Supplier B')).not.toBeInTheDocument();
+    // The field's results are hidden while a supplier is selected.
+    expect(fieldSpy).toHaveBeenLastCalledWith(expect.objectContaining({ suppressResults: true }));
 
     // Compact indicator: name + clear action only; the detail card was
     // removed as redundant with the table row.
