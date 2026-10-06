@@ -44,17 +44,3 @@ export function arrangeUseQueryConfigCapture<TData>(
     },
   };
 }
-
-export function arrangeUseQueryConfigCollector<TData>(
-  useQueryMock: UseQueryMock,
-  queryResult: unknown = { data: undefined },
-) {
-  const configs: CapturedQueryConfig<TData>[] = [];
-
-  useQueryMock.mockImplementation((config: unknown) => {
-    configs.push(config as CapturedQueryConfig<TData>);
-    return queryResult;
-  });
-
-  return { configs, queryResult };
-}

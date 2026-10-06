@@ -61,7 +61,7 @@ export const createEditSupplierDialogForm = (
   return form;
 };
 
-export const createSupplierSearchState = () => ({
+const createSupplierSearchState = () => ({
   searchQuery: '',
   setSearchQuery: vi.fn(),
   searchResults: [] as SupplierRow[],
@@ -70,7 +70,7 @@ export const createSupplierSearchState = () => ({
   resetSearch: vi.fn(),
 });
 
-export const createEditSupplierFormState = () => ({
+const createEditSupplierFormState = () => ({
   register: vi.fn(),
   control: {} as UseEditSupplierFormReturn['control'],
   formState: { errors: {}, isSubmitting: false } as UseEditSupplierFormReturn['formState'],
@@ -80,7 +80,7 @@ export const createEditSupplierFormState = () => ({
   populateWithSupplier: vi.fn(),
 });
 
-export const createEditSupplierConfirmationState = () => ({
+const createEditSupplierConfirmationState = () => ({
   showConfirmation: false,
   setShowConfirmation: vi.fn(),
   pendingChanges: null as EditSupplierForm | null,
