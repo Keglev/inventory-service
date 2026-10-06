@@ -66,7 +66,7 @@ describe('EditSupplierConfirmation', () => {
     expect(screen.getByText('Phone')).toBeInTheDocument();
     expect(screen.getByText('555-5000 → 555-6000')).toBeInTheDocument();
     expect(screen.getByText('Email')).toBeInTheDocument();
-    expect(screen.getByText('old@acme.com → new@acme.com')).toBeInTheDocument();
+    expect(screen.getByText('old@acme.example → new@acme.example')).toBeInTheDocument();
   });
 
   it('invokes callbacks when cancel or confirm buttons are pressed', async () => {
@@ -113,14 +113,14 @@ describe('EditSupplierConfirmation', () => {
     const toValues: EditSupplierForm = editSupplierChanges({
       contactName: 'New Contact',
       phone: '555-6000',
-      email: 'new@acme.com',
+      email: 'new@acme.example',
     });
 
     renderConfirmation({ supplier: fromEmpty, changes: toValues });
 
     expect(screen.getByText('(empty) → New Contact')).toBeInTheDocument();
     expect(screen.getByText('(empty) → 555-6000')).toBeInTheDocument();
-    expect(screen.getByText('(empty) → new@acme.com')).toBeInTheDocument();
+    expect(screen.getByText('(empty) → new@acme.example')).toBeInTheDocument();
   });
 
   it('shows the placeholder on the after-side when a field is cleared', () => {
@@ -130,7 +130,7 @@ describe('EditSupplierConfirmation', () => {
 
     expect(screen.getByText('Old Contact → (empty)')).toBeInTheDocument();
     expect(screen.getByText('555-5000 → (empty)')).toBeInTheDocument();
-    expect(screen.getByText('old@acme.com → (empty)')).toBeInTheDocument();
+    expect(screen.getByText('old@acme.example → (empty)')).toBeInTheDocument();
   });
 
   it('tints each change box with the info colour of the active theme', () => {
@@ -168,6 +168,6 @@ describe('EditSupplierConfirmation', () => {
 
     expect(screen.queryByText('Old Contact →')).not.toBeInTheDocument();
     expect(screen.queryByText('555-5000 →')).not.toBeInTheDocument();
-    expect(screen.queryByText('old@acme.com →')).not.toBeInTheDocument();
+    expect(screen.queryByText('old@acme.example →')).not.toBeInTheDocument();
   });
 });

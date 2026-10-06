@@ -116,7 +116,7 @@ import { tEn } from '../../../../test/i18nEn';
 const baseSupplier: SupplierRow = supplierRow({
   contactName: 'John Smith',
   phone: '555-1000',
-  email: 'john@acme.com',
+  email: 'john@acme.example',
 });
 
 type RenderOverrides = Partial<{
@@ -205,7 +205,7 @@ describe('EditSupplierDialog', () => {
       supplierId: baseSupplier.id,
       contactName: 'Jane Doe',
       phone: '555-2000',
-      email: 'jane@acme.com',
+      email: 'jane@acme.example',
     });
 
     const form = createEditSupplierDialogForm({

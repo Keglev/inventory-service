@@ -35,7 +35,7 @@ vi.mock('react-i18next', () => ({
 const supplierFixture: SupplierRow = supplierRow({
   contactName: 'Janet Jones',
   phone: '555-4000',
-  email: 'janet@acme.com',
+  email: 'janet@acme.example',
 });
 
 type RenderOverrides = {

@@ -79,7 +79,7 @@ describe('useSessionTimeout', () => {
     }
 
     // Default: authenticated non-demo user so heartbeat runs.
-    setAuth({ user: { email: 'user@test.com', fullName: 'Test User', role: 'USER', isDemo: false } });
+    setAuth({ user: { email: 'user@example.com', fullName: 'Test User', role: 'USER', isDemo: false } });
     httpClientMock.get.mockResolvedValue({ status: 200 });
 
     // Deterministic localStorage for the cross-tab broadcast.

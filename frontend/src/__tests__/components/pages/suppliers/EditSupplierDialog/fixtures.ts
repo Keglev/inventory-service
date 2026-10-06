@@ -13,7 +13,7 @@ export const supplierRow = (overrides: Partial<SupplierRow> = {}): SupplierRow =
   name: 'Acme Corp',
   contactName: 'Old Contact',
   phone: '555-5000',
-  email: 'old@acme.com',
+  email: 'old@acme.example',
   createdBy: 'owner@example.com',
   createdAt: '2023-01-01',
   ...overrides,
@@ -30,6 +30,6 @@ export const editSupplierChanges = (overrides: Partial<EditSupplierForm> = {}): 
   supplierId: 'supplier-1',
   contactName: 'New Contact',
   phone: '555-6000',
-  email: 'new@acme.com',
+  email: 'new@acme.example',
   ...overrides,
 });

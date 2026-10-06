@@ -26,7 +26,7 @@ import { supplierRow } from './fixtures';
 const supplier = supplierRow({
   contactName: 'Janet Jones',
   phone: '555-8000',
-  email: 'janet@acme.com',
+  email: 'janet@acme.example',
 });
 
 describe('useEditSupplierFormState', () => {

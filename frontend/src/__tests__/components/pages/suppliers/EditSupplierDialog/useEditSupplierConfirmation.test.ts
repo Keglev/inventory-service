@@ -45,7 +45,7 @@ describe('useEditSupplierConfirmation', () => {
       supplierId: 'supplier-1',
       contactName: 'New Contact',
       phone: '555-7000',
-      email: 'new@acme.com',
+      email: 'new@acme.example',
     };
 
     const { result } = renderHook(() => useEditSupplierConfirmation());

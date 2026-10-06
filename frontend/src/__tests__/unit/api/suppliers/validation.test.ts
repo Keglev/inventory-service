@@ -54,7 +54,7 @@ describe('createSupplierSchema', () => {
         name: 'Beta Inc',
         contactName: 'John Doe',
         phone: '+1234567890',
-        email: 'john@beta.com',
+        email: 'john@beta.example',
       };
 
       expect(expectParseSuccess(createSupplierSchema, input)).toEqual(input);
@@ -147,7 +147,7 @@ describe('editSupplierSchema', () => {
       expectParseFailure(editSupplierSchema, {
         contactName: 'No ID',
         phone: '123',
-        email: 'test@test.com',
+        email: 'test@example.com',
       });
     });
 
