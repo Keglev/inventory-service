@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>15/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">90% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>9/10</span>
+                <span class='fraction'>5/6</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>15/15</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -107,12 +107,7 @@
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
 <a name='L44'></a><a href='#L44'>44</a>
-<a name='L45'></a><a href='#L45'>45</a>
-<a name='L46'></a><a href='#L46'>46</a>
-<a name='L47'></a><a href='#L47'>47</a>
-<a name='L48'></a><a href='#L48'>48</a>
-<a name='L49'></a><a href='#L49'>49</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L45'></a><a href='#L45'>45</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -137,24 +132,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -163,19 +155,18 @@
  * @module api/analytics/lowStock
  *
  * Fetches and normalises low-stock alert rows from `GET /api/analytics/low-stock-items`.
- * Handles two backend response shapes (bare array or `{ items: [] }` envelope),
- * reads LowStockItemDTO's field names, and sorts results by deficit severity.
+ * Reads the bare List&lt;LowStockItemDTO&gt; the backend returns (no envelope) by
+ * the DTO's field names, and sorts results by deficit severity.
  */
 &nbsp;
 import http from '../httpClient';
 import { isArrayOfRecords, firstNumberOrZero, firstStringOrEmpty, paramClean } from './util';
-import { isRecord } from '../shared/typeGuards';
 import type { AnalyticsParams } from './validation';
 import type { LowStockRow } from './types';
 &nbsp;
 /**
  * Tolerant fetch of `GET /api/analytics/low-stock-items` for one supplier.
- * Reads LowStockItemDTO's field names and two response shapes; returns `[]`
+ * Reads LowStockItemDTO's field names from a bare array; returns `[]`
  * on any error so the table renders empty rather than crashing.
  */
 export async function getLowStockItems(supplierId: string, p?: AnalyticsParams): Promise&lt;LowStockRow[]&gt; {
@@ -185,10 +176,7 @@ export async function getLowStockItems(supplierId: string, p?: AnalyticsParams):
             params: { supplierId, ...paramClean(p) },
         });
 &nbsp;
-        // Accept either a direct array or an envelope with `.items` array.
-        let rawList: Array&lt;Record&lt;string, unknown&gt;&gt; = [];
-        if (isArrayOfRecords(data)) rawList = data;
-        else if (isRecord(data) &amp;&amp; isArrayOfRecords((data as Record&lt;string, unknown&gt;).items as unknown)) rawList = (data as Record&lt;string, unknown&gt;).items as Array&lt;Record&lt;string, unknown&gt;&gt;;
+        const rawList: Array&lt;Record&lt;string, unknown&gt;&gt; = isArrayOfRecords(data) ? data : [];
 &nbsp;
         const rows: LowStockRow[] = rawList
         .map((rec) =&gt; {
