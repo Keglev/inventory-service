@@ -128,8 +128,10 @@ api/inventory/hooks/useSuppliersQuery/functions/useSuppliersQuery · Smart Suppl
         <code>Error</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/hooks/useSuppliersQuery.ts#L31">api/inventory/hooks/useSuppliersQuery.ts:31</a></p>
-        <p>Loads a lightweight supplier list for selector controls.</p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/hooks/useSuppliersQuery.ts#L37">api/inventory/hooks/useSuppliersQuery.ts:37</a></p>
+        <p>Supplier options for selector controls, read from the shared
+        supplier list cache (the board's entry), so a supplier write
+        refreshes them too.</p>
         <p>The <code>enabled</code> parameter lets callers defer the
         fetch until the control that needs suppliers is actually visible
         (e.g. when a dialog opens), avoiding an unnecessary network

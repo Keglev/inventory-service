@@ -131,6 +131,15 @@ api/suppliers/hooks/useSupplierListQuery/README · Smart Supply Pro · API</titl
         backend load.</li>
         <li>enabled param lets callers suppress the fetch without
         unmounting.</li>
+        <li>One cache entry for every reader of GET /api/suppliers: a
+        supplier write invalidates ['suppliers'] and so refreshes all of
+        them. Readers that need another shape derive it with
+        <code>select</code> (useSuppliersQuery).</li>
+        </ul>
+        <h2 id="variables">Variables</h2>
+        <ul>
+        <li><a
+        href="variables/supplierListQuery.html">supplierListQuery</a></li>
         </ul>
         <h2 id="functions">Functions</h2>
         <ul>
@@ -148,6 +157,7 @@ api/suppliers/hooks/useSupplierListQuery/README · Smart Supply Pro · API</titl
       <ul>
       <li><a href="#file" id="toc-file">File</a></li>
       <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
+      <li><a href="#variables" id="toc-variables">Variables</a></li>
       <li><a href="#functions" id="toc-functions">Functions</a></li>
       </ul></li>
       </ul>
