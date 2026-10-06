@@ -25,6 +25,8 @@ interface DeleteSupplierSearchEmptyProps {
   hasSearched: boolean;
   /** Whether search is currently loading */
   isLoading: boolean;
+  /** Whether the search returned any supplier */
+  hasResults: boolean;
 }
 
 /**
@@ -42,16 +44,18 @@ interface DeleteSupplierSearchEmptyProps {
  * <DeleteSupplierSearchEmpty
  *   hasSearched={query.length >= 2}
  *   isLoading={loading}
+ *   hasResults={results.length > 0}
  * />
  * ```
  */
 export const DeleteSupplierSearchEmpty: React.FC<DeleteSupplierSearchEmptyProps> = ({
   hasSearched,
   isLoading,
+  hasResults,
 }) => {
   const { t } = useTranslation(['suppliers']);
 
-  if (!hasSearched || isLoading) {
+  if (!hasSearched || isLoading || hasResults) {
     return null;
   }
 

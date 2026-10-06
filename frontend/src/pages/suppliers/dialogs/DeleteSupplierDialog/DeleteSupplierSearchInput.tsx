@@ -8,8 +8,7 @@
  *
  * @enterprise
  * - Reusable search input component
- * - Shows loading indicator during search
- * - Disabled state during loading
+ * - Shows loading indicator during search; the field stays editable
  */
 
 import * as React from 'react';
@@ -34,7 +33,6 @@ interface DeleteSupplierSearchInputProps {
  * Search input field for supplier deletion.
  *
  * Displays text input with loading indicator.
- * Disabled during loading state.
  *
  * @component
  * @param props - Component props
@@ -64,7 +62,8 @@ export const DeleteSupplierSearchInput: React.FC<DeleteSupplierSearchInputProps>
         placeholder={t('suppliers:search.placeholder')}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        disabled={isLoading}
+        // Never disabled while searching: a disabled field drops focus,
+        // and the rest of what the user types is lost.
         InputProps={{
           endAdornment: isLoading ? <CircularProgress size={20} /> : null,
         }}

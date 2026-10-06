@@ -8,7 +8,7 @@
  * - Delegates props to subcomponents:
  *   - input receives value + loading state and forwards change events.
  *   - results receives supplier list + selection handler.
- *   - empty state receives hasSearched + loading state.
+ *   - empty state receives hasSearched, loading state and whether results exist.
  * - Disables cancel while loading.
  *
  * Out of scope:
@@ -36,6 +36,7 @@ type DeleteSupplierSearchResultsProps = {
 type DeleteSupplierSearchEmptyProps = {
   hasSearched: boolean;
   isLoading: boolean;
+  hasResults: boolean;
 };
 
 // -------------------------------------
@@ -160,7 +161,15 @@ describe('DeleteSupplierSearch', () => {
 
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
     expect(mocks.emptySpy).toHaveBeenCalledWith(
-      expect.objectContaining({ hasSearched: false, isLoading: true })
+      expect.objectContaining({ hasSearched: false, isLoading: true, hasResults: false })
+    );
+  });
+
+  it('tells the empty state that results exist', () => {
+    renderSearch({ searchQuery: 'supplier', searchResults: suppliers });
+
+    expect(mocks.emptySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ hasSearched: true, isLoading: false, hasResults: true })
     );
   });
 });

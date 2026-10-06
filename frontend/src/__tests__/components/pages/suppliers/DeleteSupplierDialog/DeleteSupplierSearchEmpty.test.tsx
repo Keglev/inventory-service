@@ -4,7 +4,8 @@
  * @description Contract tests for the DeleteSupplierSearchEmpty presentation component.
  *
  * Contract under test:
- * - Returns null unless a search has been performed (`hasSearched=true`) and results are not loading.
+ * - Returns null unless a search has been performed (`hasSearched=true`), is not loading
+ *   and found no supplier (`hasResults=false`).
  * - When applicable, shows a stable empty message (defaultValue "No suppliers found").
  *
  * Out of scope:
@@ -34,6 +35,7 @@ const renderEmpty = (overrides?: Partial<ComponentProps<typeof DeleteSupplierSea
   const props: ComponentProps<typeof DeleteSupplierSearchEmpty> = {
     hasSearched: false,
     isLoading: false,
+    hasResults: false,
     ...overrides,
   };
 
@@ -54,6 +56,12 @@ describe('DeleteSupplierSearchEmpty', () => {
 
   it('renders nothing while loading results', () => {
     const { container } = renderEmpty({ hasSearched: true, isLoading: true });
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders nothing when the search found suppliers', () => {
+    // The message once showed under a visible result.
+    const { container } = renderEmpty({ hasSearched: true, isLoading: false, hasResults: true });
     expect(container).toBeEmptyDOMElement();
   });
 });

@@ -111,6 +111,7 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
         <DeleteSupplierSearchEmpty
           hasSearched={hasSearched}
           isLoading={searchLoading}
+          hasResults={searchResults.length > 0}
         />
       </DialogContent>
 
