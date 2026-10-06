@@ -53,9 +53,6 @@ const runtime = vi.hoisted(() => ({
     handleSearchChange: vi.fn(),
     handleSearchResultSelect: vi.fn(),
     handleClearSearchSelection: vi.fn(),
-    handleRowClick: vi.fn(),
-    handlePaginationChange: vi.fn(),
-    handleSortChange: vi.fn(),
     handleToggleShowAll: vi.fn(),
     handleSupplierCreated: vi.fn(),
     handleSupplierUpdated: vi.fn(),
@@ -119,14 +116,6 @@ vi.mock('../../../../pages/suppliers/handlers/useSearchHandlers', () => ({
     handleSearchChange: runtime.handlers.handleSearchChange,
     handleSearchResultSelect: runtime.handlers.handleSearchResultSelect,
     handleClearSearchSelection: runtime.handlers.handleClearSearchSelection,
-  }),
-}));
-
-vi.mock('../../../../pages/suppliers/handlers/useTableHandlers', () => ({
-  useTableHandlers: () => ({
-    handleRowClick: runtime.handlers.handleRowClick,
-    handlePaginationChange: runtime.handlers.handlePaginationChange,
-    handleSortChange: runtime.handlers.handleSortChange,
   }),
 }));
 
@@ -225,6 +214,21 @@ describe('SuppliersBoard', () => {
     const tableProps = spies.SuppliersTable.mock.calls[0]?.[0] as { rows: SupplierRow[] };
     expect(tableProps.rows).toEqual(suppliers);
     expect(tableProps).not.toHaveProperty('rowCount');
+  });
+
+  it('wires the grid straight to the board state setters', () => {
+    runtime.state = createState({ showAllSuppliers: true, selectedSearchResult: null });
+    runtime.data = createData({ suppliers: [supplierRow()] });
+
+    renderBoard();
+
+    // The setters are stable useState dispatchers, so no wrapper callbacks.
+    const tableProps = spies.SuppliersTable.mock.calls[0]?.[0];
+    expect(tableProps).toMatchObject({
+      onPaginationChange: runtime.state.setPaginationModel,
+      onSortChange: runtime.state.setSortModel,
+      onRowClick: runtime.state.setSelectedId,
+    });
   });
 
   it('renders a single-row table when a supplier is selected from search', () => {

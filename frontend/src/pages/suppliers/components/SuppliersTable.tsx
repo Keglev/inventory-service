@@ -54,8 +54,8 @@ export interface SuppliersTableProps {
   onSortChange: (model: GridSortModel) => void;
   /** Whether data is loading */
   isLoading: boolean;
-  /** Handler for row click (selection) */
-  onRowClick: (params: { id: string | number }) => void;
+  /** Called with the clicked row's id (selection), as InventoryTable does */
+  onRowClick: (id: string) => void;
 }
 
 /**
@@ -79,7 +79,7 @@ export interface SuppliersTableProps {
  *   sortModel={sort}
  *   onSortChange={handleSort}
  *   isLoading={loading}
- *   onRowClick={handleRowClick}
+ *   onRowClick={setSelectedId}
  * />
  * ```
  */
@@ -128,7 +128,7 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
         }
         rowHeight={44}
         columnHeaderHeight={48}
-        onRowClick={onRowClick}
+        onRowClick={(params) => onRowClick(String(params.id))}
         slots={{
           noRowsOverlay: () => (
             <Box

@@ -5,7 +5,7 @@
  *
  * Contract under test:
  * - Renders column headers using i18n fallback strings.
- * - Delegates row click selection via `onRowClick`.
+ * - Delegates row click selection via `onRowClick` with the row id.
  * - Shows an empty-state message when there are no rows.
  * - Shows a loading indicator when `isLoading` is true.
  * - Wires server-side pagination/sorting props through to the DataGrid.
@@ -149,7 +149,8 @@ describe('SuppliersTable', () => {
     await user.click(screen.getByRole('button', { name: 'Supplier A' }));
 
     expect(props.onRowClick).toHaveBeenCalledTimes(1);
-    expect(props.onRowClick).toHaveBeenCalledWith({ id: '1' });
+    // The table hands the board the row id itself, as InventoryTable does.
+    expect(props.onRowClick).toHaveBeenCalledWith('1');
   });
 
   it('renders an empty state via DataGrid slots when there are no rows', () => {
