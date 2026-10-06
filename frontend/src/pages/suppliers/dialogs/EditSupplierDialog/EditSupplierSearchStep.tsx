@@ -88,7 +88,8 @@ export const EditSupplierSearchStep: React.FC<EditSupplierSearchStepProps> = ({
           placeholder={t('suppliers:search.placeholder')}
           value={searchQuery}
           onChange={(e) => onSearchQueryChange(e.target.value)}
-          disabled={searchLoading}
+          // Never disabled while searching: a disabled field drops focus,
+          // and the rest of what the user types is lost.
           InputProps={{
             endAdornment: searchLoading ? <CircularProgress size={20} /> : null,
           }}

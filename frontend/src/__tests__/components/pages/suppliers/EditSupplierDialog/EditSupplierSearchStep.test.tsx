@@ -6,7 +6,7 @@
  * Contract under test:
  * - Renders heading + a controlled search input.
  * - Delegates query changes via `onSearchQueryChange(query)`.
- * - Disables input and shows a progress indicator while loading.
+ * - Keeps the input editable and shows a progress indicator while loading.
  * - Renders result buttons and delegates selection via `onSelectSupplier(supplier)`.
  * - Shows helper text when query length is sufficient but no results are returned.
  * - Shows guidance alert when query is non-empty but too short (< 2).
@@ -86,7 +86,7 @@ describe('EditSupplierSearchStep', () => {
     expect(onSearchQueryChange).toHaveBeenLastCalledWith('Ac');
   });
 
-  it('disables the search field and shows a loader while searching', () => {
+  it('keeps the search field editable and shows a loader while searching', () => {
     render(
       <EditSupplierSearchStep
         searchQuery="Ac"
@@ -97,7 +97,8 @@ describe('EditSupplierSearchStep', () => {
       />
     );
 
-    expect(screen.getByPlaceholderText('Enter supplier name (min 2 chars)...')).toBeDisabled();
+    // A disabled field drops focus mid-typing, losing the rest of the query.
+    expect(screen.getByPlaceholderText('Enter supplier name (min 2 chars)...')).toBeEnabled();
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 

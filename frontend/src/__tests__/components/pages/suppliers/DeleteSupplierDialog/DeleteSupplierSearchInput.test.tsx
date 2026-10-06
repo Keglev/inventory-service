@@ -6,7 +6,7 @@
  * Contract under test:
  * - Renders an input with the expected placeholder and value.
  * - Delegates user input via `onChange(query)`.
- * - While loading, disables the input and shows a progress indicator.
+ * - While loading, keeps the input editable and shows a progress indicator.
  *
  * Out of scope:
  * - Debounce/search orchestration and API integration (handled by workflow hook tests).
@@ -89,11 +89,12 @@ describe('DeleteSupplierSearchInput', () => {
     expect(onChange).toHaveBeenNthCalledWith(2, 'su');
   });
 
-  it('disables input and shows progress indicator while loading', () => {
+  it('keeps the input editable and shows progress indicator while loading', () => {
     renderInput({ value: 'test', isLoading: true });
 
     const input = screen.getByPlaceholderText('Enter supplier name (min 2 chars)...');
-    expect(input).toBeDisabled();
+    // A disabled field drops focus mid-typing, losing the rest of the query.
+    expect(input).toBeEnabled();
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 });
