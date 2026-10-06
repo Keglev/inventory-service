@@ -235,7 +235,7 @@
  * - Most extracted form layout in the codebase. Where other dialogs
  *   inline their step controls, this one delegates every visible
  *   block to a dedicated sub-component (QuantityAdjustSupplierSelect,
- *   QuantityAdjustItemSelect, QuantityAdjustItemDetails,
+ *   QuantityAdjustItemSelect, SelectedItemDetails,
  *   QuantityAdjustQuantityInput). The split makes each step swappable.
  * - The form component is pure presentation: every prop is plumbed
  *   from the orchestrator hook; no useState, no useEffect.
@@ -245,7 +245,7 @@ import * as React from 'react';
 import { Alert, Box, Divider } from '@mui/material';
 import { QuantityAdjustSupplierSelect } from './QuantityAdjustSupplierSelect';
 import { QuantityAdjustItemSelect } from './QuantityAdjustItemSelect';
-import { QuantityAdjustItemDetails } from './QuantityAdjustItemDetails';
+import { SelectedItemDetails } from '../SelectedItemDetails';
 import { QuantityAdjustQuantityInput } from './QuantityAdjustQuantityInput';
 import type { UseQuantityAdjustFormReturn } from './useQuantityAdjustForm';
 &nbsp;
@@ -284,7 +284,7 @@ export const QuantityAdjustForm: React.FC&lt;QuantityAdjustFormProps&gt; = ({ fo
       /&gt;
 &nbsp;
       {/* Selected Item Details - Only show AFTER item is selected */}
-      &lt;QuantityAdjustItemDetails
+      &lt;SelectedItemDetails
         item={form.selectedItem}
         currentQty={form.effectiveCurrentQty}
         currentPrice={form.effectiveCurrentPrice}
