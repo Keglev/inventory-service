@@ -13,7 +13,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frontend · 09-decisions/index · Smart Supply Pro Docs</title>
+  <title>Frontend ·
+09-decisions/adr-0014-searching-bounded-lists-in-the-browser · Smart Supply Pro Docs</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -109,93 +110,100 @@
 
     <main class="content" id="main">
       <article class="doc-body">
-        <p><a href="../index.html">⬅️ Back to Frontend Architecture
-        Index</a></p>
+        <h1
+        id="adr-0014-searching-bounded-lists-in-the-browser">ADR-0014:
+        Searching bounded lists in the browser</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-10-06</p>
+        <h2 id="context">Context</h2>
+        <p>The supplier board and the edit and delete supplier dialogs
+        each had their own search field, and each sent
+        <code>GET /api/suppliers/search?name=</code> on every keystroke
+        from the second character: typing “Nordbay” cost six requests.
+        The backend returns every match with no limit, so a short
+        fragment against many suppliers opened a long dropdown.</p>
+        <p>At the same time the app already loads the full supplier list
+        (<code>GET /api/suppliers</code>, a plain array) for the
+        suppliers grid and keeps it in the React Query cache. A supplier
+        is about 205 bytes of JSON: 50 suppliers are about 10 KB, 500
+        about 100 KB, against a 185 KB main bundle.</p>
+        <p>The inventory dialogs (quantity, price, edit, delete) pick an
+        item after a supplier and search
+        <code>GET /api/inventory/search?supplierId=&amp;name=</code> per
+        keystroke in the same way.</p>
+        <h2 id="decision">Decision</h2>
+        <p>A list that is bounded and already, or cheaply, in the
+        browser is searched in the browser.</p>
         <ul>
-        <li><a href="../overview.html">Back to Overview
-        (English)</a></li>
-        <li><a href="../overview-de.html">Zurück zum Überblick
-        (Deutsch)</a></li>
+        <li><strong>Suppliers.</strong> <code>matchSuppliers</code>
+        filters the cached supplier list: the fragment anywhere in the
+        name, ignoring case, from two characters on, the backend’s own
+        rule. One shared <code>SupplierSearchField</code> (MUI
+        Autocomplete) serves the board and both dialogs; it shows at
+        most six results with a count of the rest.</li>
+        <li><strong>Items of one supplier (to follow).</strong> After a
+        supplier is chosen, its items load once
+        (<code>/api/inventory/search?supplierId=X&amp;size=2000</code>)
+        and are filtered by name or SKU in the browser. Choosing another
+        supplier drops the previous list. When the page reports more
+        items than it returned, the picker falls back to the server
+        search.</li>
+        <li><strong>Unbounded searches stay on the server.</strong> The
+        analytics item pickers search across all suppliers and keep the
+        debounced server search; the inventory grid keeps its paged
+        server query.</li>
         </ul>
-        <h1 id="architecture-decision-records-adrs">Architecture
-        Decision Records (ADRs)</h1>
-        <p>This directory contains <strong>architecture decisions with
-        justification</strong>.</p>
-        <p>ADRs answer: - <strong>Why</strong> we chose a design (and
-        why not alternatives) - what tradeoffs we accept - where the
-        decision is implemented (high-level pointers)</p>
-        <p>ADRs do <strong>not</strong> document: - how a component
-        works internally - step-by-step implementation details</p>
-        <h2 id="index">Index</h2>
+        <p>Thresholds: browser filtering is meant for lists up to
+        roughly 1,000-2,000 rows. The backend caps a page at 2,000 rows,
+        which is also the item-list limit above.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
         <ul>
-        <li><a
-        href="./adr-0001-frontend-folder-structure-strategy.html">ADR-0001:
-        Frontend folder structure strategy (App Shell + Pages + API +
-        Cross-cutting)</a></li>
-        <li><a
-        href="./adr-0002-api-layer-abstraction-httpclient-and-domain-modules.html">ADR-0002:
-        API layer abstraction with shared httpClient and domain
-        modules</a></li>
-        <li><a
-        href="./adr-0003-page-model-and-domain-separation.html">ADR-0003:
-        Page model and domain separation
-        (Inventory/Suppliers/Analytics)</a></li>
-        <li><a
-        href="./adr-0004-dialog-workflow-architecture.html">ADR-0004:
-        Dialog/workflow architecture (Dialog folders + orchestration
-        pattern)</a></li>
-        <li><a
-        href="./adr-0005-shell-split-authenticated-vs-public.html">ADR-0005:
-        Application shell split: authenticated shell vs public
-        shell</a></li>
-        <li><a
-        href="./adr-0006-global-state-with-context-modules.html">ADR-0006:
-        Global state approach using Context modules
-        (Auth/Settings/Toast/Help)</a></li>
-        <li><a
-        href="./adr-0007-i18n-strategy-and-language-region-settings.html">ADR-0007:
-        i18n strategy and language/region settings integration</a></li>
-        <li><a
-        href="./adr-0008-testing-structure-and-taxonomy.html">ADR-0008:
-        Testing structure and taxonomy under
-        src/<strong>tests</strong></a></li>
-        <li><a
-        href="./adr-0009-end-to-end-testing-with-playwright.html">ADR-0009:
-        End-to-end testing with Playwright against a local demo
-        stack</a></li>
-        <li><a
-        href="./adr-0010-verifying-frontend-deploys.html">ADR-0010:
-        Verifying a frontend deploy against the bytes the browser
-        receives</a></li>
-        <li><a
-        href="./adr-0011-gating-the-frontend-image-on-its-http-contract.html">ADR-0011:
-        Gating the frontend image on the HTTP contract it
-        serves</a></li>
-        <li><a
-        href="./adr-0012-low-stock-severity-scales-with-the-minimum.html">ADR-0012:
-        Low-stock severity scales with each item’s minimum</a></li>
-        <li><a
-        href="./adr-0013-demo-mode-blocks-only-the-write.html">ADR-0013:
-        Demo mode walks every inventory dialog and blocks only the
-        write</a></li>
-        <li><a
-        href="./adr-0014-searching-bounded-lists-in-the-browser.html">ADR-0014:
-        Searching bounded lists in the browser</a></li>
+        <li><strong>Server search with a debounce, a three-character
+        minimum and a result cap</strong>: about one request per word
+        instead of one per character, but still a database round trip
+        for data the browser already holds.</li>
+        <li><strong>Keep three separate search fields</strong>: they had
+        drifted apart (a disabled input that lost keystrokes, an empty
+        message under a result, rows not reachable by keyboard,
+        hard-coded English).</li>
         </ul>
-        <hr />
-        <p><a href="../index.html">⬅️ Back to Frontend Architecture
-        Index</a></p>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>Typing in a supplier search sends no request; results appear
+        without latency once the list is loaded (one request per minute
+        at most, the list query’s stale time).</li>
+        <li>The full supplier list reaches the browser, as it already
+        did for the grid. Access control stays on the server, which
+        decides who may read the list; the cache is in memory only and
+        is never written to browser storage.</li>
+        <li><code>GET /api/suppliers/search</code> is no longer called
+        by the frontend. It stays in the backend under the removal rule
+        (troubleshooting use).</li>
+        <li>When a list outgrows the thresholds, this decision is
+        revisited: the server search with a debounce and a cap is the
+        documented fallback.</li>
+        </ul>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#architecture-decision-records-adrs"
-      id="toc-architecture-decision-records-adrs">Architecture Decision
-      Records (ADRs)</a>
+      <li><a href="#adr-0014-searching-bounded-lists-in-the-browser"
+      id="toc-adr-0014-searching-bounded-lists-in-the-browser">ADR-0014:
+      Searching bounded lists in the browser</a>
       <ul>
-      <li><a href="#index" id="toc-index">Index</a></li>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
       </ul></li>
       </ul>
     </nav>
