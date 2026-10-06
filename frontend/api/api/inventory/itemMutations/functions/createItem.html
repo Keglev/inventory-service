@@ -126,7 +126,7 @@ api/inventory/itemMutations/functions/createItem · Smart Supply Pro · API</tit
         href="../../types/interfaces/ItemWriteResult.html"><code>ItemWriteResult</code></a>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/itemMutations.ts#L35">api/inventory/itemMutations.ts:35</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/inventory/itemMutations.ts#L34">api/inventory/itemMutations.ts:34</a></p>
         <p>Creates an item via POST /api/inventory. Existing items are
         changed only through the dedicated rename, price and quantity
         mutations, so the client has no full-update call.</p>
@@ -138,8 +138,7 @@ api/inventory/itemMutations/functions/createItem · Smart Supply Pro · API</tit
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
         href="../../types/interfaces/ItemWriteResult.html"><code>ItemWriteResult</code></a>&gt;</p>
-        <p>Response object with ok status, normalized item, and optional
-        error</p>
+        <p>Response object with ok status and optional error</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="cf">await</span> <span class="fu">createItem</span>({</span>
