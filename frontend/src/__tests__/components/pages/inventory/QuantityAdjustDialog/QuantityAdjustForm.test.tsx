@@ -44,8 +44,8 @@ vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdj
   },
 }));
 
-vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemDetails', () => ({
-  QuantityAdjustItemDetails: (props: unknown) => {
+vi.mock('../../../../../pages/inventory/dialogs/SelectedItemDetails', () => ({
+  SelectedItemDetails: (props: unknown) => {
     // Stub leaf component to keep this test focused on orchestration/prop wiring.
     itemDetailsSpy(props);
     return <div data-testid="item-details">Item Details</div>;
@@ -135,11 +135,14 @@ describe('QuantityAdjustForm', () => {
       currentQty: number;
       currentPrice: number | null;
       loading: boolean;
+      showTotal?: boolean;
     };
     expect(props.item).toBe(itemOption);
     expect(props.currentQty).toBe(12);
     expect(props.currentPrice).toBe(14.5);
     expect(props.loading).toBe(false);
+    // Owner's choice: the total belongs to the price change, not here.
+    expect(props.showTotal).toBeFalsy();
   });
 
   it('disables quantity input until item selected', () => {

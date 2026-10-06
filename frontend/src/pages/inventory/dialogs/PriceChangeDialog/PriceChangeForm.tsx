@@ -18,9 +18,10 @@
  *   a selected item is impossible. The button disabled state on the
  *   parent dialog is the redundant final gate.
  *
- * Size note: 163 code lines, three over the dialog alarm threshold (160).
+ * Size note: 166 code lines, six over the dialog alarm threshold (160);
+ * the helper text's number formatting added two.
  * WAIVED: a single pure render function with all state injected; the item
- * details panel is already extracted (PriceChangeItemDetails), and any
+ * details panel is already extracted (SelectedItemDetails), and any
  * further cut would slice contiguous form markup to hit a number, which
  * the house standard forbids. Re-measure if a fourth field group is added.
  */
@@ -42,11 +43,15 @@ import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import { fieldErrorText } from '../../../../utils/fieldErrorText';
-import { PriceChangeItemDetails } from './PriceChangeItemDetails';
+import { useSettings } from '../../../../hooks/useSettings';
+import { formatNumber } from '../../../../utils/formatters';
+import { SelectedItemDetails } from '../SelectedItemDetails';
 import type { UsePriceChangeFormReturn } from './usePriceChangeForm';
 
 export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
+  const { userPreferences } = useSettings();
+  const euro = (n: number) => `${formatNumber(n, userPreferences.numberFormat, 2)} €`;
 
   return (
     <Box sx={{ display: 'grid', gap: 2.5, mt: 1 }}>
@@ -141,11 +146,12 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
       </Box>
 
       {/* Selected Item Details */}
-      <PriceChangeItemDetails
+      <SelectedItemDetails
         item={state.selectedItem}
         currentPrice={state.effectiveCurrentPrice}
         currentQty={state.effectiveCurrentQty}
         loading={state.itemDetailsLoading}
+        showTotal
       />
 
       <Divider />
@@ -162,10 +168,8 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
             <TextField
               {...field}
               value={value}
-              onChange={(e) => {
-                const val = e.target.value;
-                onChange(val === '' ? 0 : Number(val));
-              }}
+              // Number('') is 0: an emptied field reads as zero.
+              onChange={(e) => onChange(Number(e.target.value))}
               label={t('inventory:price.newPrice')}
               type="number"
               fullWidth
@@ -181,12 +185,12 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
                 fieldErrorText(state.formState.errors.newPrice, t) ||
                 (state.selectedItem
                     ? t('inventory:price.priceChange', {
-                        from: state.effectiveCurrentPrice.toFixed(2),
-                        to: Number(value).toFixed(2),
+                        from: euro(state.effectiveCurrentPrice),
+                        to: euro(Number(value)),
                       }) +
                       ' · ' +
                       t('inventory:price.newTotalValue', {
-                        total: (Number(value) * state.effectiveCurrentQty).toFixed(2),
+                        total: euro(Number(value) * state.effectiveCurrentQty),
                       })
                     : '')
               }

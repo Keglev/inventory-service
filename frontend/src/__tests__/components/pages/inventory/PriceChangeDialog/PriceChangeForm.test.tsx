@@ -30,33 +30,34 @@ import type { PriceChangeForm as PriceChangeFormValues } from '../../../../../pa
  */
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, _fallback?: string, options?: Record<string, unknown>) => {
-      if (key === 'inventory:price.priceChange' && options) {
-        const from = String(options.from ?? '');
-        const to = String(options.to ?? '');
-        return `inventory:price.priceChange ${from} ${to}`;
-      }
-      return key;
-    },
+    // i18next's signature is t(key, options); the interpolated values are
+    // appended so the helper text's formatting can be asserted.
+    t: (key: string, options?: Record<string, unknown>) =>
+      options ? `${key} ${Object.values(options).join(' ')}` : key,
   }),
 }));
 
 /**
  * Mock item details to keep focus on form contract (not detail rendering).
  */
-vi.mock('../../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeItemDetails', () => ({
-  PriceChangeItemDetails: ({
-    item,
-    currentPrice,
-  }: {
-    item: { name: string } | null;
-    currentPrice: number;
-  }) => (
-    <div data-testid="item-details">
-      {item ? `Item: ${item.name}` : 'No item selected'}
-      {currentPrice > 0 ? ` Current Price: ${currentPrice}` : null}
-    </div>
-  ),
+const detailsSpy = vi.hoisted(() => vi.fn());
+vi.mock('../../../../../pages/inventory/dialogs/SelectedItemDetails', () => ({
+  SelectedItemDetails: (props: { item: { name: string } | null; currentPrice: number }) => {
+    detailsSpy(props);
+    return (
+      <div data-testid="item-details">
+        {props.item ? `Item: ${props.item.name}` : 'No item selected'}
+        {props.currentPrice > 0 ? ` Current Price: ${props.currentPrice}` : null}
+      </div>
+    );
+  },
+}));
+
+// German number format, so the helper text shows what a German user sees.
+vi.mock('../../../../../hooks/useSettings', () => ({
+  useSettings: () => ({
+    userPreferences: { numberFormat: 'DE', dateFormat: 'DD.MM.YYYY', tableDensity: 'standard' },
+  }),
 }));
 
 type StateOverrides = Partial<
@@ -254,13 +255,25 @@ describe('PriceChangeForm', () => {
     renderForm({
       selectedItem: { id: 'item1', name: 'Test Item', onHand: 100 },
       effectiveCurrentPrice: 50,
+      effectiveCurrentQty: 100,
     });
 
     const newPriceInput = screen.getByLabelText('inventory:price.newPrice');
     await user.clear(newPriceInput);
     await user.type(newPriceInput, '75');
 
-    expect(screen.getByText(/inventory:price\.priceChange/)).toBeInTheDocument();
+    // Prices in the user's number format with a Euro suffix, as in the panel.
+    expect(
+      screen.getByText(
+        'inventory:price.priceChange 50,00 € 75,00 € · inventory:price.newTotalValue 7.500,00 €'
+      )
+    ).toBeInTheDocument();
+  });
+
+  it('shows the total value in the item panel', () => {
+    renderForm({ selectedItem: { id: 'item1', name: 'Test Item', onHand: 100 }, effectiveCurrentPrice: 50 });
+
+    expect(detailsSpy).toHaveBeenCalledWith(expect.objectContaining({ showTotal: true }));
   });
 
   it('handles multiple suppliers in dropdown', async () => {
