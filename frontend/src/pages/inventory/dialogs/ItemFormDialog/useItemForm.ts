@@ -101,7 +101,7 @@ export interface UseItemFormReturn {
  * @returns Complete form state and handlers
  * 
  * @enterprise
- * - Smart supplier loading with 5-minute cache via useSuppliersQuery
+ * - Supplier options from the shared supplier list cache via useSuppliersQuery
  * - Controlled Autocomplete to prevent UI/RHF desync
  * - Intelligent error mapping: detects duplicate name/code and fields supplier issues
  * - Form state resets on dialog open to ensure clean state

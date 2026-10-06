@@ -1,16 +1,22 @@
 /**
  * @module api/inventory/hooks/useSuppliersQuery
  *
- * Provides a React Query hook that loads a minimal supplier list from
- * `GET /api/suppliers` for dropdown and autocomplete controls.
+ * Provides a React Query hook that serves the supplier list from
+ * `GET /api/suppliers` as `{ id, label }` options for dropdown and
+ * autocomplete controls.
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { getSuppliersLite } from '../../analytics/suppliers';
+import { supplierListQuery } from '../../suppliers/hooks/useSupplierListQuery';
+import type { SupplierRow } from '../../suppliers/types';
 import type { SupplierOption } from '../../analytics/types';
 
+const toSupplierOptions = (rows: SupplierRow[]): SupplierOption[] =>
+  rows.map((supplier) => ({ id: supplier.id, label: supplier.name }));
+
 /**
- * Loads a lightweight supplier list for selector controls.
+ * Supplier options for selector controls, read from the shared supplier list
+ * cache (the board's entry), so a supplier write refreshes them too.
  *
  * The `enabled` parameter lets callers defer the fetch until the control that
  * needs suppliers is actually visible (e.g. when a dialog opens), avoiding an
@@ -29,21 +35,5 @@ import type { SupplierOption } from '../../analytics/types';
  * ```
  */
 export function useSuppliersQuery(enabled: boolean) {
-  return useQuery({
-    // Single shared cache entry; all dialogs/controls in the session reuse
-    // the same supplier list rather than issuing duplicate requests.
-    queryKey: ['suppliers', 'lite'],
-    queryFn: async () => {
-      const suppliers = await getSuppliersLite();
-      return suppliers.map((supplier): SupplierOption => ({
-        id: supplier.id,
-        label: supplier.name,
-      }));
-    },
-    enabled,
-    // Supplier lists change rarely; 5 min avoids repeated fetches as the user
-    // opens and closes dialogs within a session without holding stale data
-    // indefinitely.
-    staleTime: 5 * 60 * 1000,
-  });
+  return useQuery({ ...supplierListQuery, enabled, select: toSupplierOptions });
 }

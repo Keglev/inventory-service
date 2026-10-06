@@ -35,10 +35,9 @@ import * as React from 'react';
 import type { JSX } from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { Box, Typography, Stack, Button, Paper } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { readParams } from '../../utils/urlState';
-import { getSuppliersLite, type SupplierRef } from '../../api/analytics/suppliers';
+import { useSupplierListQuery } from '../../api/suppliers/hooks/useSupplierListQuery';
 import { HelpIconButton } from '../../features/help/components/HelpIconButton';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -99,13 +98,8 @@ export default function Analytics(): JSX.Element {
   }, [filters.from, filters.to, filters.supplierId]);
   
   
-  // Suppliers list
-  const suppliersQ = useQuery<SupplierRef[]>({
-    queryKey: ['analytics', 'suppliers'],
-    queryFn: getSuppliersLite,
-    retry: 0,
-    staleTime: 5 * 60_000,
-  });
+  // Suppliers list: the shared entry, so supplier writes refresh the filter
+  const suppliersQ = useSupplierListQuery();
   return (
     <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.paper', m: 0 }}>
       <Stack 

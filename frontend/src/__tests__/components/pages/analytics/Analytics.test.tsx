@@ -14,7 +14,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -92,8 +92,8 @@ vi.mock('@/pages/analytics/components/filters/Filters', () => ({
   Filters: vi.fn(() => <div data-testid="filters">Filters</div>),
 }));
 
-vi.mock('@/api/analytics/suppliers', () => ({
-  getSuppliersLite: vi.fn(() => Promise.resolve([])),
+vi.mock('@/api/suppliers/supplierListFetcher', () => ({
+  getAllSuppliers: vi.fn(() => Promise.resolve([])),
 }));
 
 vi.mock('@/features/help/components/HelpIconButton', () => ({
@@ -150,6 +150,12 @@ describe('Analytics', () => {
   it('renders filters shell (always visible)', () => {
     setup(queryClient, '/analytics');
     expect(screen.getByTestId('filters')).toBeInTheDocument();
+  });
+
+  it('reads the supplier filter from the shared supplier list cache', async () => {
+    // Supplier writes invalidate ['suppliers']; a private key here went stale (NF-33).
+    setup(queryClient, '/analytics');
+    await waitFor(() => expect(queryClient.getQueryState(['suppliers', 'list'])?.status).toBe('success'));
   });
 
   it('renders "pricing" section when route is /analytics/pricing', () => {

@@ -4,13 +4,13 @@
  * @description Contract tests for useSuppliersQuery.
  *
  * Contract under test:
- * - Guarantees the hook's public contract: stable cache key, enabled
- *   gating, and normalization of supplier DTOs into dropdown-ready
- *   `SupplierOption` values.
+ * - Guarantees the hook reads the shared supplier list entry (same key,
+ *   loader and cache window as useSupplierListQuery), gates on `enabled`,
+ *   and selects dropdown-ready `SupplierOption` values from the rows.
  *
  * Out of scope:
- * - React Query runtime behavior (cache invalidation, retry/backoff,
- *   observer lifecycles).
+ * - React Query runtime behavior (cache sharing and invalidation are proven
+ *   with a real QueryClient in supplierListSharing.test.tsx).
  */
 
 import { describe, expect, it, vi } from 'vitest';
@@ -19,48 +19,41 @@ vi.mock('@tanstack/react-query', () => ({
   useQuery: vi.fn(),
 }));
 
-vi.mock('@/api/analytics/suppliers', () => ({
-  getSuppliersLite: vi.fn(),
+vi.mock('@/api/suppliers/supplierListFetcher', () => ({
+  getAllSuppliers: vi.fn(),
 }));
 
 import { useQuery } from '@tanstack/react-query';
-import { getSuppliersLite } from '@/api/analytics/suppliers';
+import { getAllSuppliers } from '@/api/suppliers/supplierListFetcher';
 import { useSuppliersQuery } from '@/api/inventory/hooks/useSuppliersQuery';
 
 const useQueryMock = useQuery as unknown as ReturnType<typeof vi.fn>;
-const getSuppliersLiteMock = getSuppliersLite as ReturnType<typeof vi.fn>;
-
-function arrangeUseQueryConfigCapture() {
-  useQueryMock.mockImplementation(() => ({ data: undefined }));
-}
 
 describe('useSuppliersQuery', () => {
-  it('configures query with normalized mapper and cache window', async () => {
-    arrangeUseQueryConfigCapture();
-    getSuppliersLiteMock.mockResolvedValue([
-      { id: 'SUP-1', name: 'Acme' },
-    ]);
+  it('reads the shared supplier list entry and selects options', () => {
+    useQueryMock.mockReturnValue({ data: undefined });
 
     const result = useSuppliersQuery(true);
 
     expect(useQueryMock).toHaveBeenCalledWith(expect.objectContaining({
-      queryKey: ['suppliers', 'lite'],
+      queryKey: ['suppliers', 'list'],
+      queryFn: getAllSuppliers,
       enabled: true,
-      staleTime: 5 * 60 * 1000,
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
     }));
-
     const cfg = useQueryMock.mock.calls[0][0];
-    expect(await cfg.queryFn()).toEqual([{ id: 'SUP-1', label: 'Acme' }]);
-    expect(getSuppliersLiteMock).toHaveBeenCalledTimes(1);
+    expect(cfg.select([{ id: 'SUP-1', name: 'Acme', email: 'a@acme.example' }]))
+      .toEqual([{ id: 'SUP-1', label: 'Acme' }]);
     expect(result).toEqual({ data: undefined });
   });
 
   it('respects disabled flag to short-circuit fetch', () => {
-    arrangeUseQueryConfigCapture();
+    useQueryMock.mockReturnValue({ data: undefined });
 
     useSuppliersQuery(false);
 
     expect(useQueryMock).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }));
-    expect(getSuppliersLiteMock).not.toHaveBeenCalled();
+    expect(getAllSuppliers).not.toHaveBeenCalled();
   });
 });
