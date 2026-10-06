@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -126,7 +126,14 @@
 <a name='L61'></a><a href='#L61'>61</a>
 <a name='L62'></a><a href='#L62'>62</a>
 <a name='L63'></a><a href='#L63'>63</a>
-<a name='L64'></a><a href='#L64'>64</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -177,10 +184,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -216,6 +224,8 @@ interface DeleteSupplierSearchEmptyProps {
   hasSearched: boolean;
   /** Whether search is currently loading */
   isLoading: boolean;
+  /** Whether the search returned any supplier */
+  hasResults: boolean;
 }
 &nbsp;
 /**
@@ -233,16 +243,18 @@ interface DeleteSupplierSearchEmptyProps {
  * &lt;DeleteSupplierSearchEmpty
  *   hasSearched={query.length &gt;= 2}
  *   isLoading={loading}
+ *   hasResults={results.length &gt; 0}
  * /&gt;
  * ```
  */
 export const DeleteSupplierSearchEmpty: React.FC&lt;DeleteSupplierSearchEmptyProps&gt; = ({
   hasSearched,
   isLoading,
+  hasResults,
 }) =&gt; {
   const { t } = useTranslation(['suppliers']);
 &nbsp;
-  if (!hasSearched || isLoading) {
+  if (!hasSearched || isLoading || hasResults) {
     return null;
   }
 &nbsp;

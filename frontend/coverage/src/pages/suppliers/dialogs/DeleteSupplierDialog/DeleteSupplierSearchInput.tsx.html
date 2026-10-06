@@ -141,10 +141,7 @@
 <a name='L76'></a><a href='#L76'>76</a>
 <a name='L77'></a><a href='#L77'>77</a>
 <a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L79'></a><a href='#L79'>79</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -221,6 +218,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file DeleteSupplierSearchInput.tsx
  * @module dialogs/DeleteSupplierDialog/DeleteSupplierSearchInput
@@ -231,8 +229,7 @@
  *
  * @enterprise
  * - Reusable search input component
- * - Shows loading indicator during search
- * - Disabled state during loading
+ * - Shows loading indicator during search; the field stays editable
  */
 &nbsp;
 import * as React from 'react';
@@ -257,7 +254,6 @@ interface DeleteSupplierSearchInputProps {
  * Search input field for supplier deletion.
  *
  * Displays text input with loading indicator.
- * Disabled during loading state.
  *
  * @component
  * @param props - Component props
@@ -287,7 +283,8 @@ export const DeleteSupplierSearchInput: React.FC&lt;DeleteSupplierSearchInputPro
         placeholder={t('suppliers:search.placeholder')}
         value={value}
         onChange={(e) =&gt; onChange(e.target.value)}
-        disabled={isLoading}
+        // Never disabled while searching: a disabled field drops focus,
+        // and the rest of what the user types is lost.
         InputProps={{
           endAdornment: isLoading ? &lt;CircularProgress size={20} /&gt; : null,
         }}
