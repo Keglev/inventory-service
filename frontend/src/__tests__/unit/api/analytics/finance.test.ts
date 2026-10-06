@@ -6,8 +6,8 @@
  * Contract under test:
  * - Guarantees the function builds the request contract (endpoint +
  *   query params)
- * - Guarantees tolerant parsing of supported response envelopes and
- *   field aliases
+ * - Guarantees parsing of the bare FinancialSummaryDTO by its field names
+ *   (the backend sends no envelope and no other spelling)
  * - Guarantees a stable zero-value object on transport or payload-shape
  *   failures
  *
@@ -58,7 +58,7 @@ describe('api/analytics/finance.getFinancialSummary', () => {
 
     it('returns a zero-value summary when payload is not a record', async () => {
       // Arrange
-      vi.mocked(http.get).mockResolvedValueOnce({ data: { data: null } });
+      vi.mocked(http.get).mockResolvedValueOnce({ data: null });
 
       // Act
       const res = await getFinancialSummary();
@@ -76,30 +76,15 @@ describe('api/analytics/finance.getFinancialSummary', () => {
       expect(res).toEqual(ZERO_SUMMARY);
     });
 
-    it('accepts a { data } envelope around the summary fields', async () => {
+    it.each(['data', 'summary'])('reads no fields inside a { %s } envelope', async (key) => {
+      // The backend returns the DTO bare; an envelope is not a shape it sends.
       vi.mocked(http.get).mockResolvedValueOnce({
-        data: {
-          data: {
-            purchasesCost: 200,
-            cogsCost: 80,
-            writeOffCost: 5,
-            returnsInCost: 7,
-            openingValue: 11,
-            endingValue: 22,
-          },
-        },
+        data: { [key]: { purchasesCost: 200, cogsCost: 80, endingValue: 22 } },
       });
 
       const res = await getFinancialSummary();
 
-      expect(res).toEqual({
-        purchases: 200,
-        cogs: 80,
-        writeOffs: 5,
-        returns: 7,
-        openingValue: 11,
-        endingValue: 22,
-      });
+      expect(res).toEqual(ZERO_SUMMARY);
     });
   });
 
@@ -168,18 +153,16 @@ describe('api/analytics/finance.getFinancialSummary', () => {
       });
     });
 
-    it('accepts a { summary } envelope and coerces numeric strings', async () => {
+    it('coerces numeric strings in the DTO fields', async () => {
       // Arrange
       vi.mocked(http.get).mockResolvedValueOnce({
         data: {
-          summary: {
-            purchasesCost: '200',
-            cogsCost: '80',
-            writeOffCost: '5',
-            returnsInCost: '7',
-            openingValue: '11',
-            endingValue: '22',
-          },
+          purchasesCost: '200',
+          cogsCost: '80',
+          writeOffCost: '5',
+          returnsInCost: '7',
+          openingValue: '11',
+          endingValue: '22',
         },
       });
 
