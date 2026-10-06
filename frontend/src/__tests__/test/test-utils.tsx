@@ -26,15 +26,15 @@ import { AllProviders } from './all-providers';
  *
  * @example
  * ```tsx
- * import { renderWithProviders } from '@/__tests__/test/test-utils';
+ * import { render } from '@/__tests__/test/test-utils';
  *
- * test('renders component', () => {
- *   const { getByText } = renderWithProviders(<MyComponent />);
+ * it('renders component', () => {
+ *   const { getByText } = render(<MyComponent />);
  *   expect(getByText('Hello')).toBeInTheDocument();
  * });
  * ```
  */
-export function renderWithProviders(
+function renderWithProviders(
   ui: ReactElement,
   options?: Omit<RenderOptions, 'wrapper'>,
 ) {

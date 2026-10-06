@@ -98,11 +98,6 @@ vi.mock('../../../app/public-shell/PublicShellToastContainer', () => ({
   },
 }));
 
-// Theme builder is not under test here; it just needs to return a valid object.
-vi.mock('../../theme', () => ({
-  buildTheme: () => ({}),
-}));
-
 vi.mock('../../../app/footer/AppFooter', () => ({
   default: () => <footer data-testid="app-footer" />,
 }));

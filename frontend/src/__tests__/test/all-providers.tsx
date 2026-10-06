@@ -14,8 +14,6 @@
  * - Domain fixtures and per-suite helpers (belongs next to the tests).
  */
 
-/* eslint-disable react-refresh/only-export-components */
-
 import type { PropsWithChildren } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -25,7 +23,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
  * - No retries (fail fast)
  * - No cache persistence across tests
  */
-export function createTestQueryClient() {
+function createTestQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {

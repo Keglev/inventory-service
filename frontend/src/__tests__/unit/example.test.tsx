@@ -25,8 +25,4 @@ describe('test harness', () => {
     render(<TestComponent />);
     expect(screen.getByText('Hello Test')).toBeInTheDocument();
   });
-
-  it('exposes vitest matchers', () => {
-    expect(true).toBe(true);
-  });
 });
