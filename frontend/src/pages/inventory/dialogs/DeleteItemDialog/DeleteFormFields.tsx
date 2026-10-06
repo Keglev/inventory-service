@@ -51,7 +51,7 @@ import { ItemSearchField } from '../../components/ItemSearchField';
  * - Enables Step 2 (item selection) when completed
  * 
  * @performance
- * - Suppliers loaded once via useSuppliersQuery (5-minute cache)
+ * - Suppliers come from the shared supplier list cache via useSuppliersQuery
  */
 export function SupplierSelectField({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['common', 'inventory']);
