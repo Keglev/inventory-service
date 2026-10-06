@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>9/9</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>9/9</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
@@ -130,35 +130,7 @@
 <a name='L65'></a><a href='#L65'>65</a>
 <a name='L66'></a><a href='#L66'>66</a>
 <a name='L67'></a><a href='#L67'>67</a>
-<a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L68'></a><a href='#L68'>68</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -208,24 +180,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -238,22 +202,20 @@
  * @module pages/suppliers/hooks/useSupplierSearch
  *
  * @summary
- * Hook for supplier search functionality.
- * Handles search query, results, and loading state.
+ * Search state for the edit and delete supplier dialogs.
  *
  * @enterprise
- * - Thin stateful adapter over useSupplierSearchQuery — the single supplier-search
- *   implementation (GET /api/suppliers/search). This hook owns only the query
- *   string; results, loading, the &gt;= 2-char gating, caching, and error handling
- *   all live in useSupplierSearchQuery.
- * - Preserves the imperative { searchQuery, setSearchQuery, searchResults,
- *   searchLoading, handleSearchQueryChange, resetSearch } shape the Edit/Delete
- *   supplier dialogs consume.
+ * - Owns only the typed text. Results are matched in the browser against the
+ *   full supplier list (useSupplierListQuery, one cached request), so typing
+ *   sends no request (frontend ADR-0014). The board uses the same list and
+ *   the same matchSuppliers rule.
+ * - searchLoading is true only while that list loads for the first time.
  */
 &nbsp;
 import * as React from 'react';
-import { useSupplierSearchQuery } from '../../../api/suppliers/hooks/useSupplierSearchQuery';
+import { useSupplierListQuery } from '../../../api/suppliers/hooks/useSupplierListQuery';
 import type { SupplierRow } from '../../../api/suppliers/types';
+import { matchSuppliers } from '../utils/matchSuppliers';
 &nbsp;
 /**
  * Hook return type for supplier search.
@@ -261,30 +223,22 @@ import type { SupplierRow } from '../../../api/suppliers/types';
  * @interface UseSupplierSearchReturn
  */
 export interface UseSupplierSearchReturn {
-  /** Current search query */
+  /** Current search text */
   searchQuery: string;
-  /** Set search query */
-  setSearchQuery: (query: string) =&gt; void;
-  /** Search results */
+  /** Suppliers matching the search text */
   searchResults: SupplierRow[];
-  /** Whether search is currently loading */
+  /** Whether the supplier list is still loading */
   searchLoading: boolean;
-  /** Handle search query change with debouncing */
-  handleSearchQueryChange: (query: string) =&gt; Promise&lt;void&gt;;
-  /** Reset search to initial state */
+  /** Sets the search text */
+  handleSearchQueryChange: (query: string) =&gt; void;
+  /** Clears the search text */
   resetSearch: () =&gt; void;
 }
 &nbsp;
 /**
- * Hook for supplier search functionality.
+ * Hook for supplier search in the dialogs.
  *
- * Manages:
- * - Search query state
- * - Search results from API
- * - Loading state during API calls
- * - Minimum character validation (2 chars)
- *
- * @returns Search state and handlers
+ * @returns Search text, matching suppliers and handlers
  *
  * @example
  * ```ts
@@ -293,28 +247,20 @@ export interface UseSupplierSearchReturn {
  */
 export const useSupplierSearch = (): UseSupplierSearchReturn =&gt; {
   const [searchQuery, setSearchQuery] = React.useState('');
+  const listQuery = useSupplierListQuery();
 &nbsp;
-  // Delegate fetching, the &gt;= 2-char gating, caching, and error handling to the
-  // single supplier-search implementation (GET /api/suppliers/search). This hook
-  // owns only the query string; results are derived reactively.
-  const { data, isFetching } = useSupplierSearchQuery(searchQuery);
-  const searchResults: SupplierRow[] = data ?? [];
+  const searchResults = React.useMemo(
+    () =&gt; matchSuppliers(listQuery.data ?? [], searchQuery),
+    [listQuery.data, searchQuery]
+  );
 &nbsp;
-  // Kept async (Promise&lt;void&gt;) so the dialogs' consuming signature is unchanged.
-  const handleSearchQueryChange = React.useCallback(async (query: string) =&gt; {
-    setSearchQuery(query);
-  }, []);
-&nbsp;
-  const resetSearch = React.useCallback(() =&gt; {
-    setSearchQuery('');
-  }, []);
+  const resetSearch = React.useCallback(() =&gt; setSearchQuery(''), []);
 &nbsp;
   return {
     searchQuery,
-    setSearchQuery,
     searchResults,
-    searchLoading: isFetching,
-    handleSearchQueryChange,
+    searchLoading: listQuery.isLoading,
+    handleSearchQueryChange: setSearchQuery,
     resetSearch,
   };
 };
