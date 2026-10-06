@@ -87,12 +87,11 @@ export interface CreateItemRequest {
 
 /**
  * Result of a write to an item: returned by createItem, renameItem,
- * deleteItem, changePrice and adjustQuantity, carrying the saved row or the
- * reason it failed.
+ * deleteItem, changePrice and adjustQuantity: success, or the reason it
+ * failed. No caller reads the saved row; the grids refetch after a write.
  */
 export interface ItemWriteResult {
   ok: boolean;
-  item?: InventoryRow;
   error?: string;
   /**
    * Normalized backend status token (HttpStatus.name().toLowerCase()), e.g.

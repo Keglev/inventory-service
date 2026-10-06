@@ -5,8 +5,8 @@
  *
  * Contract under test:
  * - Guarantees the inventory mutation contracts: correct HTTP verb +
- *   route encoding, normalization of successful responses, and stable
- *   error surfaces (via `errorMessage`) on failures.
+ *   route encoding, a bare `{ ok: true }` on success, and stable error
+ *   surfaces (via `errorMessage`) on failures.
  *
  * Out of scope:
  * - HTTP client behavior (interceptors, headers, auth, retries, and
@@ -24,10 +24,6 @@ vi.mock('../../../../api/httpClient', () => ({
   },
 }));
 
-vi.mock('../../../../api/inventory/normalizers', () => ({
-  normalizeInventoryRow: vi.fn(),
-}));
-
 vi.mock('@/api/shared/errorHandling', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/api/shared/errorHandling')>();
   return {
@@ -37,11 +33,9 @@ vi.mock('@/api/shared/errorHandling', async (importOriginal) => {
 });
 
 import http from '../../../../api/httpClient';
-import { normalizeInventoryRow } from '../../../../api/inventory/normalizers';
 import { errorMessage } from '../../../../api/shared/errorHandling';
 import { createItem, deleteItem, renameItem } from '../../../../api/inventory/itemMutations';
 import { INVENTORY_BASE } from '../../../../api/shared/constants';
-import type { InventoryRow } from '../../../../api/inventory/types';
 
 type HttpMock = {
   post: ReturnType<typeof vi.fn>;
@@ -51,20 +45,7 @@ type HttpMock = {
 };
 
 const httpMock = http as unknown as HttpMock;
-const normalizeMock = normalizeInventoryRow as ReturnType<typeof vi.fn>;
 const errorMessageMock = errorMessage as ReturnType<typeof vi.fn>;
-
-const buildRow = (overrides: Partial<InventoryRow> = {}): InventoryRow => ({
-  id: 'ITEM-1',
-  name: 'Widget',
-  onHand: 0,
-  code: null,
-  supplierId: null,
-  supplierName: null,
-  minQty: null,
-  createdAt: null,
-  ...overrides,
-});
 
 const baseRequest = {
   name: 'Widget',
@@ -81,24 +62,12 @@ describe('itemMutations', () => {
 
   describe('createItem', () => {
     it('creates an item via POST', async () => {
-      const dto = { id: 'ITEM-1' };
-      const row = buildRow();
-      httpMock.post.mockResolvedValue({ data: dto });
-      normalizeMock.mockReturnValue(row);
+      httpMock.post.mockResolvedValue({ data: { id: 'ITEM-1' } });
 
       const result = await createItem({ ...baseRequest });
 
       expect(httpMock.post).toHaveBeenCalledWith(`${INVENTORY_BASE}`, baseRequest);
-      expect(result).toEqual({ ok: true, item: row });
-    });
-
-    it('degrades a malformed create response to ok without an item', async () => {
-      httpMock.post.mockResolvedValue({ data: 'not-a-row' });
-      normalizeMock.mockReturnValue(null);
-
-      const result = await createItem({ ...baseRequest });
-
-      expect(result).toEqual({ ok: true, item: undefined });
+      expect(result).toEqual({ ok: true });
     });
 
     it('returns error details when create fails', async () => {
@@ -139,10 +108,7 @@ describe('itemMutations', () => {
 
   describe('renameItem', () => {
     it('renames item via PATCH', async () => {
-      const dto = { id: 'ITEM-1' };
-      const row = buildRow({ name: 'Renamed' });
-      httpMock.patch.mockResolvedValue({ data: dto });
-      normalizeMock.mockReturnValue(row);
+      httpMock.patch.mockResolvedValue({ data: { id: 'ITEM-1' } });
 
       const result = await renameItem({ id: 'ITEM 1', newName: 'Renamed' });
 
@@ -151,16 +117,7 @@ describe('itemMutations', () => {
         null,
         { params: { name: 'Renamed' } }
       );
-      expect(result).toEqual({ ok: true, item: row });
-    });
-
-    it('degrades a malformed rename response to ok without an item', async () => {
-      httpMock.patch.mockResolvedValue({ data: 'not-a-row' });
-      normalizeMock.mockReturnValue(null);
-
-      const result = await renameItem({ id: 'ITEM-1', newName: 'Renamed' });
-
-      expect(result).toEqual({ ok: true, item: undefined });
+      expect(result).toEqual({ ok: true });
     });
 
     it('returns error details when rename fails', async () => {
