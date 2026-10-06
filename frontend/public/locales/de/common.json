@@ -74,6 +74,9 @@
     "closeNotification": "Benachrichtigung schließen"
   },
   "loading": "Wird geladen...",
+  "search": {
+    "moreResults": "{{count}} weitere Treffer – weiter tippen, um einzugrenzen"
+  },
   "demoDisabled": "Sie befinden sich im Demo-Modus und können diese Aktion nicht ausführen.",
   "name": "Name",
   "email": "E-Mail",

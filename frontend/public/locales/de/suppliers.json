@@ -18,7 +18,6 @@
     "placeholder": "Lieferantennamen eingeben (mind. 2 Zeichen)...",
     "typeToSearch": "Geben Sie mindestens 2 Zeichen ein, um zu suchen",
     "noResults": "Keine Lieferanten gefunden",
-    "moreResults": "{{count}} weitere Treffer – weiter tippen, um einzugrenzen",
     "selectSupplierFirst": "Suchen und wählen Sie einen Lieferanten, um die Bearbeitung zu aktivieren."
   },
   "filters": {

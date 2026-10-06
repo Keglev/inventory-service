@@ -10,15 +10,14 @@
  * - Each field consumes the shared UseDeleteItemDialogReturn state object
  *   instead of threading individual props. Trade-off: state coupling at
  *   compile time, easier mounting at test time.
- * - ItemSelectField uses key={state.selectedSupplier?.id} to force an
- *   Autocomplete remount on supplier change, so the input clears cleanly.
+ * - ItemSelectField is the shared ItemSearchField: it stays mounted while
+ *   items load, so typing keeps focus.
  * - Deletion takes no reason: it is a pure catalog removal, only accepted
  *   by the backend once the quantity is already zero, so the stock
  *   movement that emptied the item was audited by the preceding quantity
  *   adjustment.
- * - The 2-character minimum, debounce, and supplier scoping for item
- *   search live in upstream useItemSearchQuery; this file only exposes
- *   the visible state.
+ * - The 2-character minimum, the name-or-SKU match and the supplier
+ *   scoping live upstream in useItemSearchQuery; this file only shows them.
  */
 
 import {
@@ -30,11 +29,10 @@ import {
   Typography,
   CircularProgress,
   Alert,
-  Autocomplete,
-  TextField,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { UseDeleteItemDialogReturn } from './DeleteItemDialog.types';
+import { ItemSearchField } from '../../components/ItemSearchField';
 
 /**
  * SupplierSelectField - Step 1: Select supplier from dropdown
@@ -100,16 +98,15 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
 }
 
 /**
- * ItemSelectField - Step 2: Search and select item via autocomplete
+ * ItemSelectField - Step 2: Search and select item (shared ItemSearchField)
  * 
  * @param state - Complete dialog state from useDeleteItemDialog hook
  * 
  * @behavior
- * - Disabled until supplier is selected (shows info alert)
- * - Shows loading spinner while searching items
- * - Autocomplete with debounced search (2+ characters required)
- * - On selection: updates state.selectedItem, clears search query
- * - On input change: updates state.itemQuery (triggers search via API)
+ * - Shows an info alert until a supplier is selected
+ * - Matches the supplier's items by name or SKU from 2 characters on
+ * - On selection: updates state.selectedItem; the field shows its name
+ * - On input change: updates state.itemQuery (matched in the browser)
  * 
  * @visibility
  * - Visible only after Step 1 (supplier) is completed
@@ -117,9 +114,7 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
  * - Enables Step 3 (item information) when item is selected
  * 
  * @performance
- * - Debounced search (350ms) via useDebounced hook
- * - Minimal API calls: only when 2+ chars and supplier selected
- * - Uses Autocomplete internal value management for efficiency
+ * - The supplier's items load once; typing sends no request (ADR-0014)
  */
 export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['common', 'inventory']);
@@ -133,44 +128,14 @@ export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn })
     );
   }
   
-  // Show loading state while API searches items matching query
-  if (state.itemsQuery.isLoading) {
-    return (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <CircularProgress size={20} />
-        <Typography variant="body2" color="text.secondary">
-          {t('common:loading')}
-        </Typography>
-      </Box>
-    );
-  }
-
   return (
-    <Autocomplete
-      key={state.selectedSupplier?.id}
-      disabled={!state.selectedSupplier}
-      options={state.itemsQuery.data ?? []}
-      getOptionLabel={(option) => option.name}
+    <ItemSearchField
+      query={state.itemQuery}
+      onQueryChange={state.setItemQuery}
+      results={state.itemsQuery.data}
+      loading={state.itemsQuery.isLoading}
       value={state.selectedItem}
-      onChange={(_e, value) => {
-        state.setSelectedItem(value);
-        // Clear search query after selection for clean slate
-        state.setItemQuery('');
-      }}
-      inputValue={state.itemQuery}
-      onInputChange={(_e, value) => state.setItemQuery(value)}
-      noOptionsText={
-        state.itemQuery.length < 2
-          ? t('inventory:search.typeToSearch')
-          : t('inventory:search.noItemsFound')
-      }
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label={t('inventory:item')}
-          placeholder={t('inventory:search.typeToSearchItems')}
-        />
-      )}
+      onSelect={state.setSelectedItem}
     />
   );
 }

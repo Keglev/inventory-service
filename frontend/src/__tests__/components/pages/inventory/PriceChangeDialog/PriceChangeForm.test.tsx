@@ -185,7 +185,7 @@ describe('PriceChangeForm', () => {
   it('enables Item autocomplete when supplier is selected', () => {
     renderForm({ selectedSupplier: { id: '1', label: 'Supplier 1' } });
 
-    const itemInput = screen.getByLabelText('inventory:search.searchSelectItem');
+    const itemInput = screen.getByLabelText('inventory:item');
     expect(itemInput).toBeInTheDocument();
     expect(itemInput).toBeEnabled();
   });

@@ -8,9 +8,9 @@
  * - Error alert renders when formError is set and dismisses via setFormError('').
  * - Step 1: supplier loading spinner vs populated select; selecting an option
  *   resolves the supplier object and forwards it to setSelectedSupplier.
- * - Step 2: info guard without a supplier, loading spinner, and the item
- *   autocomplete (selection clears the query; typing forwards the query;
- *   noOptionsText prompts to type under 2 chars and reports no matches after).
+ * - Step 2: info guard without a supplier, and the shared item picker
+ *   (editable while items load; selection and typing are forwarded; a hint
+ *   under 2 chars and a no-match message after).
  * - Step 3: hidden until an item is selected; fresh backend name wins over
  *   the search-result name; validation errors surface on the name input.
  *
@@ -114,37 +114,39 @@ describe('EditItemForm', () => {
     expect(screen.getByText('inventory:search.selectSupplierFirst')).toBeInTheDocument();
   });
 
-  it('shows a loading indicator while items fetch', () => {
+  it('keeps the item field editable while items load', () => {
     setup({
       selectedSupplier: suppliers[0] as never,
-      itemsQuery: { data: undefined, isLoading: true } as never,
+      itemsQuery: { data: [], isLoading: true } as never,
+      itemQuery: 'bl',
     });
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    const input = screen.getByLabelText('inventory:item');
+    expect(input).toBeEnabled();
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    expect(screen.getByText('common:loading')).toBeInTheDocument();
   });
 
-  it('selecting an item forwards it and clears the search query', () => {
+  it('selecting an item forwards it', () => {
     const setSelectedItem = vi.fn();
-    const setItemQuery = vi.fn();
     setup({
       selectedSupplier: suppliers[0] as never,
       setSelectedItem,
-      setItemQuery,
+      itemQuery: 'widget',
     });
 
-    const input = screen.getByLabelText('inventory:table.name');
+    const input = screen.getByLabelText('inventory:item');
     fireEvent.keyDown(input, { key: 'ArrowDown' });
     fireEvent.click(screen.getByText('Blue Widget'));
 
     expect(setSelectedItem).toHaveBeenCalledWith(items[0]);
-    expect(setItemQuery).toHaveBeenCalledWith('');
   });
 
   it('typing in the item search forwards the query', () => {
     const setItemQuery = vi.fn();
     setup({ selectedSupplier: suppliers[0] as never, setItemQuery });
 
-    fireEvent.change(screen.getByLabelText('inventory:table.name'), {
+    fireEvent.change(screen.getByLabelText('inventory:item'), {
       target: { value: 'blu' },
     });
 
@@ -158,7 +160,7 @@ describe('EditItemForm', () => {
       itemQuery: 'b',
     });
 
-    fireEvent.keyDown(screen.getByLabelText('inventory:table.name'), { key: 'ArrowDown' });
+    fireEvent.keyDown(screen.getByLabelText('inventory:item'), { key: 'ArrowDown' });
 
     expect(screen.getByText('inventory:search.typeToSearch')).toBeInTheDocument();
   });
@@ -170,7 +172,7 @@ describe('EditItemForm', () => {
       itemQuery: 'zz',
     });
 
-    fireEvent.keyDown(screen.getByLabelText('inventory:table.name'), { key: 'ArrowDown' });
+    fireEvent.keyDown(screen.getByLabelText('inventory:item'), { key: 'ArrowDown' });
 
     expect(screen.getByText('inventory:search.noItemsFound')).toBeInTheDocument();
   });

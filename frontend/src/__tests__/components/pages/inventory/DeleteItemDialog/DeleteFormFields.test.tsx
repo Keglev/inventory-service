@@ -7,9 +7,9 @@
  * Contract under test:
  * - SupplierSelectField: loading spinner vs populated select; selecting an
  *   option resolves the id back to the supplier object.
- * - ItemSelectField: info guard without a supplier, loading spinner, item
- *   selection (forwards item + clears query), query typing, and the
- *   two-character noOptionsText threshold.
+ * - ItemSelectField: info guard without a supplier; the shared item picker
+ *   stays editable while items load, forwards a picked item and typed text,
+ *   hints under two characters and reports no matches after.
  * - ItemInfoDisplay: hidden without a selection or before details load;
  *   renders the fetched name and on-hand quantity.
  *
@@ -84,28 +84,31 @@ describe('ItemSelectField', () => {
     expect(screen.getByText('inventory:search.selectSupplierFirst')).toBeInTheDocument();
   });
 
-  it('shows a loading indicator while the item search runs', () => {
+  it('keeps the item field editable while the items load', () => {
     render(
       <ItemSelectField
         state={makeState({
           selectedSupplier: suppliers[0] as never,
-          itemsQuery: { data: undefined, isLoading: true } as never,
+          itemsQuery: { data: [], isLoading: true } as never,
+          itemQuery: 'bl',
         })}
       />
     );
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    const input = screen.getByLabelText('inventory:item');
+    expect(input).toBeEnabled();
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    expect(screen.getByText('common:loading')).toBeInTheDocument();
   });
 
-  it('selecting an item forwards it and clears the search query', () => {
+  it('selecting an item forwards it', () => {
     const setSelectedItem = vi.fn();
-    const setItemQuery = vi.fn();
     render(
       <ItemSelectField
         state={makeState({
           selectedSupplier: suppliers[0] as never,
           setSelectedItem,
-          setItemQuery,
+          itemQuery: 'widget',
         })}
       />
     );
@@ -115,7 +118,6 @@ describe('ItemSelectField', () => {
     fireEvent.click(screen.getByText('Blue Widget'));
 
     expect(setSelectedItem).toHaveBeenCalledWith(items[0]);
-    expect(setItemQuery).toHaveBeenCalledWith('');
   });
 
   it('typing in the search forwards the query', () => {

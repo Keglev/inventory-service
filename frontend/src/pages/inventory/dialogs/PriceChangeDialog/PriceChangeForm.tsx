@@ -34,10 +34,8 @@ import {
   Select,
   MenuItem,
   Typography,
-  CircularProgress,
   Alert,
   Divider,
-  Autocomplete,
 } from '@mui/material';
 import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -46,6 +44,7 @@ import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import { useSettings } from '../../../../hooks/useSettings';
 import { formatNumber } from '../../../../utils/formatters';
 import { SelectedItemDetails } from '../SelectedItemDetails';
+import { ItemSearchField } from '../../components/ItemSearchField';
 import type { UsePriceChangeFormReturn } from './usePriceChangeForm';
 
 export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) {
@@ -103,45 +102,14 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
         <Typography variant="subtitle2" gutterBottom color="primary">
           {t('inventory:steps.selectItem')}
         </Typography>
-        <Autocomplete
-          fullWidth
-          size="small"
-          options={state.items}
-          getOptionLabel={(option) => option.name}
-          value={state.selectedItem}
-          onChange={(_, newValue) => state.setSelectedItem(newValue)}
-          inputValue={state.itemQuery}
-          onInputChange={(_, newInputValue) => state.setItemQuery(newInputValue)}
-          disabled={!state.selectedSupplier}
+        <ItemSearchField
+          query={state.itemQuery}
+          onQueryChange={state.setItemQuery}
+          results={state.items}
           loading={state.itemsLoading}
-          noOptionsText={
-            state.itemQuery.length < 2
-              ? t('inventory:search.typeToSearch')
-              : t('inventory:search.noItemsFound')
-          }
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label={t('inventory:search.searchSelectItem')}
-              placeholder={
-                !state.selectedSupplier
-                  ? t('inventory:search.selectSupplierFirst')
-                  : undefined
-              }
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <>
-                    {state.itemsLoading ? (
-                      <CircularProgress color="inherit" size={20} />
-                    ) : null}
-                    {params.InputProps.endAdornment}
-                  </>
-                ),
-              }}
-            />
-          )}
-          sx={{ mb: 2 }}
+          value={state.selectedItem}
+          onSelect={state.setSelectedItem}
+          disabled={!state.selectedSupplier}
         />
       </Box>
 

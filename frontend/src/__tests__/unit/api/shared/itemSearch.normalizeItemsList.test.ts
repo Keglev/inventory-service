@@ -51,6 +51,18 @@ describe('normalizeItemsList', () => {
     expect(result).toEqual([{ id: '5', name: 'With Supplier', supplierId: 'S100' }]);
   });
 
+  it('keeps a non-empty SKU and drops an empty or missing one', () => {
+    const data = [
+      { id: '7', name: 'Pallet', sku: 'LOG-PAL-EUR1' },
+      { id: '8', name: 'Glue', sku: '' },
+      { id: '9', name: 'Band', sku: null },
+    ];
+
+    const result = normalizeItemsList(data);
+
+    expect(result.map((item) => item.sku)).toEqual(['LOG-PAL-EUR1', undefined, undefined]);
+  });
+
   it('filters out entries without id or name', () => {
     const data = [
       { id: '1', name: 'Valid' },

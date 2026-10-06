@@ -7,5 +7,5 @@
  * both layers depend on one canonical definition.
  */
 
-/** Minimal item identity for type-ahead and dropdown controls; optional fields are included when callers need richer context (on-hand stock, price). */
-export type ItemRef = { id: string; name: string; supplierId?: string | null; onHand?: number; price?: number };
+/** Minimal item identity for type-ahead and dropdown controls; optional fields are included when callers need richer context (SKU, on-hand stock, price). */
+export type ItemRef = { id: string; name: string; sku?: string; supplierId?: string | null; onHand?: number; price?: number };

@@ -3,24 +3,23 @@
  * @module pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemSelect
  *
  * @summary
- * Step 2 of the quantity-adjust form: Autocomplete for selecting an
- * item, gated by a selected supplier.
+ * Step 2 of the quantity-adjust form: the shared item picker
+ * (ItemSearchField), gated by a selected supplier.
  *
  * @enterprise
- * - Mirrors the pattern in DeleteFormFields.ItemSelectField but extracted
- *   to a standalone component instead of bundled in a multi-field file.
- *   The trade-off is more files; the benefit is independent unit tests
- *   for each step.
+ * - Extracted to a standalone component instead of bundled in a
+ *   multi-field file. The trade-off is more files; the benefit is
+ *   independent unit tests for each step.
  * - Disabled when no supplier is selected, with a placeholder hint that
- *   tells the user why. The 2-character search minimum lives in the
- *   upstream useItemSearchQuery hook; this component only exposes the
- *   visible state.
+ *   tells the user why. Matching (name or SKU, two characters) happens
+ *   upstream in useItemSearchQuery; this component only shows it.
  */
 
 import * as React from 'react';
-import { Autocomplete, TextField, CircularProgress, Box, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { ItemOption, SupplierOption } from '../../../../api/analytics/types';
+import { ItemSearchField } from '../../components/ItemSearchField';
 
 interface QuantityAdjustItemSelectProps {
   selectedItem: ItemOption | null;
@@ -49,41 +48,14 @@ export const QuantityAdjustItemSelect: React.FC<QuantityAdjustItemSelectProps> =
         {t('inventory:steps.selectItem')}
       </Typography>
 
-      <Autocomplete
-        fullWidth
-        size="small"
-        options={items || []}
-        getOptionLabel={(option) => option.name}
-        value={selectedItem}
-        onChange={(_, newValue) => onItemChange(newValue)}
-        inputValue={searchQuery}
-        onInputChange={(_, newInputValue) => onSearchChange(newInputValue)}
-        disabled={!selectedSupplier}
+      <ItemSearchField
+        query={searchQuery}
+        onQueryChange={onSearchChange}
+        results={items ?? []}
         loading={loading}
-        noOptionsText={
-          searchQuery.length < 2
-            ? t('inventory:search.typeToSearch')
-            : t('inventory:search.noItemsFound')
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label={t('inventory:search.searchSelectItem')}
-            placeholder={
-              !selectedSupplier ? t('inventory:search.selectSupplierFirst') : undefined
-            }
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            }}
-          />
-        )}
-        sx={{ mb: 2 }}
+        value={selectedItem}
+        onSelect={onItemChange}
+        disabled={!selectedSupplier}
       />
     </Box>
   );

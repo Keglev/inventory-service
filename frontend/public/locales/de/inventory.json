@@ -56,10 +56,9 @@
   "search": {
     "selectSupplierPrompt": "Bitte wählen Sie einen Lieferanten, um dessen Artikel zu sehen.",
     "selectSupplierFirst": "Bitte wählen Sie zuerst einen Lieferanten, um die Suche zu aktivieren.",
-    "typeToSearchItems": "Tippen Sie, um Artikel zu suchen...",
+    "typeToSearchItems": "Artikelname oder SKU eingeben (mind. 2 Zeichen)...",
     "noItemsFound": "Keine Artikel für diese Suche gefunden.",
-    "typeToSearch": "Geben Sie mindestens 2 Zeichen ein, um zu suchen",
-    "searchSelectItem": "Artikel suchen und auswählen..."
+    "typeToSearch": "Geben Sie mindestens 2 Zeichen ein, um zu suchen"
   },
   "quantity": {
     "currentItemInfo": "Aktuelle Artikelinformationen",

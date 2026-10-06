@@ -15,9 +15,8 @@
  *   itemDetailsQuery.data?.name ?? selectedItem.name
  *   so the fresh backend name wins as soon as the details query lands,
  *   and the search-result name carries the UI until then.
- * - Autocomplete is re-keyed with key={selectedSupplier?.id} so its
- *   internal state resets cleanly when the user switches suppliers --
- *   same pattern as DeleteFormFields ItemSelectField.
+ * - The item picker is the shared ItemSearchField (matching in the
+ *   browser); it stays mounted while items load, so typing keeps focus.
  * - Errors render at the top with a dismiss control; the rest of the
  *   form stays interactive while the user reads the message.
  */
@@ -32,13 +31,13 @@ import {
   CircularProgress,
   Alert,
   Divider,
-  Autocomplete,
   TextField,
 } from '@mui/material';
 import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import { fieldErrorText } from '../../../../utils/fieldErrorText';
+import { ItemSearchField } from '../../components/ItemSearchField';
 import type { UseEditItemFormReturn } from './useEditItemForm';
 
 /**
@@ -125,40 +124,14 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
           <Alert severity="info">
             {t('inventory:search.selectSupplierFirst')}
           </Alert>
-        ) : /* Show loading spinner while items fetch */ state.itemsQuery.isLoading ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CircularProgress size={20} />
-            <Typography variant="body2" color="text.secondary">
-              {t('common:loading')}
-            </Typography>
-          </Box>
         ) : (
-          <Autocomplete
-            /* Re-key when supplier changes to reset autocomplete internal state */
-            key={state.selectedSupplier?.id}
-            disabled={!state.selectedSupplier}
-            options={state.itemsQuery.data ?? []}
-            getOptionLabel={(option) => option.name}
+          <ItemSearchField
+            query={state.itemQuery}
+            onQueryChange={state.setItemQuery}
+            results={state.itemsQuery.data}
+            loading={state.itemsQuery.isLoading}
             value={state.selectedItem}
-            onChange={(_e, value) => {
-              state.setSelectedItem(value);
-              // Clear search query for clean slate after selection
-              state.setItemQuery('');
-            }}
-            inputValue={state.itemQuery}
-            onInputChange={(_e, value) => state.setItemQuery(value)}
-            noOptionsText={
-              state.itemQuery.length < 2
-                ? t('inventory:search.typeToSearch')
-                : t('inventory:search.noItemsFound')
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={t('inventory:table.name')}
-                placeholder={t('inventory:search.typeToSearchItems')}
-              />
-            )}
+            onSelect={state.setSelectedItem}
           />
         )}
       </Box>

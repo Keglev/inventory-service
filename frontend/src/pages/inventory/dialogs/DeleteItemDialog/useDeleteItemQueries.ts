@@ -8,9 +8,9 @@
  *
  * @enterprise
  * - Lazy firing by design. Each underlying hook owns its own enable
- *   predicate: suppliers fires when the dialog opens; item search fires
- *   when a supplier is selected and the query is long enough; item
- *   details fires only when an item is picked.
+ *   predicate: suppliers fires when the dialog opens; the supplier's
+ *   item list loads once when a supplier is selected (typing is matched
+ *   in the browser); item details fires only when an item is picked.
  * - This file does not transport data itself; it only coordinates which
  *   queries are active. Keeps the orchestrator hook thin and the query
  *   layer testable in isolation.
@@ -36,10 +36,10 @@ export function useDeleteItemQueries(
   const suppliersQuery = useSuppliersQuery(dialogOpen);
 
   /**
-   * Items search query
-   * Fires: only when supplier is selected AND query has 2+ characters
+   * Item picker data
+   * Fires: once when a supplier is selected; typing is matched in the browser
    * Dependency: selectedSupplier ensures we filter by supplier context
-   * Returns: filtered items matching search, loading state during fetch
+   * Returns: items matching the query by name or SKU, and a loading flag
    */
   const itemsQuery = useItemSearchQuery(selectedSupplier, itemQuery);
 

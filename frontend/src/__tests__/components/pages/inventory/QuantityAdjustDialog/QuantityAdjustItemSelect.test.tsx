@@ -5,11 +5,11 @@
  * - Disabled until a supplier is selected.
  * - Calls onSearchChange as the user types.
  * - Calls onItemChange when an item option is chosen.
- * - Shows a loading indicator when loading.
+ * - Says the list is loading while it loads.
  *
  * Out of scope:
  * - Item search query orchestration.
- * - MUI Autocomplete popup behavior (we assert on user-visible contract only).
+ * - The shared field's own contract (ListSearchField.test, ItemSearchField.test).
  */
 
 // Shared deterministic mocks (i18n + toast) for this folder.
@@ -82,7 +82,7 @@ describe('QuantityAdjustItemSelect', () => {
       <QuantityAdjustItemSelect
         selectedItem={null}
         onItemChange={onItemChange}
-        searchQuery=""
+        searchQuery="gl"
         onSearchChange={vi.fn()}
         items={items}
         loading={false}
@@ -99,20 +99,23 @@ describe('QuantityAdjustItemSelect', () => {
     expect(onItemChange).toHaveBeenCalledWith(items[0]);
   });
 
-  it('shows loading indicator while fetching items', () => {
+  it('says the list is loading while the items load', async () => {
+    const user = userEvent.setup();
     render(
       <QuantityAdjustItemSelect
         selectedItem={null}
         onItemChange={vi.fn()}
-        searchQuery=""
+        searchQuery="gl"
         onSearchChange={vi.fn()}
         items={[]}
         loading={true}
         selectedSupplier={supplier}
       />
     );
+    await user.click(screen.getByRole('combobox'));
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByRole('combobox')).toBeEnabled();
   });
 
   it('asks for two characters before searching and reports an empty result after', async () => {
@@ -141,7 +144,7 @@ describe('QuantityAdjustItemSelect', () => {
       <QuantityAdjustItemSelect
         selectedItem={null}
         onItemChange={vi.fn()}
-        searchQuery=""
+        searchQuery="gl"
         onSearchChange={vi.fn()}
         items={undefined}
         loading={false}
@@ -151,6 +154,6 @@ describe('QuantityAdjustItemSelect', () => {
     await user.click(screen.getByRole('combobox'));
 
     expect(screen.queryAllByRole('option')).toHaveLength(0);
-    expect(screen.getByText('Enter at least 2 characters to search')).toBeInTheDocument();
+    expect(screen.getByText('No items found for this search.')).toBeInTheDocument();
   });
 });
