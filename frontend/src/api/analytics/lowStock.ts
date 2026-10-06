@@ -2,19 +2,18 @@
  * @module api/analytics/lowStock
  *
  * Fetches and normalises low-stock alert rows from `GET /api/analytics/low-stock-items`.
- * Handles two backend response shapes (bare array or `{ items: [] }` envelope),
- * reads LowStockItemDTO's field names, and sorts results by deficit severity.
+ * Reads the bare List<LowStockItemDTO> the backend returns (no envelope) by
+ * the DTO's field names, and sorts results by deficit severity.
  */
 
 import http from '../httpClient';
 import { isArrayOfRecords, firstNumberOrZero, firstStringOrEmpty, paramClean } from './util';
-import { isRecord } from '../shared/typeGuards';
 import type { AnalyticsParams } from './validation';
 import type { LowStockRow } from './types';
 
 /**
  * Tolerant fetch of `GET /api/analytics/low-stock-items` for one supplier.
- * Reads LowStockItemDTO's field names and two response shapes; returns `[]`
+ * Reads LowStockItemDTO's field names from a bare array; returns `[]`
  * on any error so the table renders empty rather than crashing.
  */
 export async function getLowStockItems(supplierId: string, p?: AnalyticsParams): Promise<LowStockRow[]> {
@@ -24,10 +23,7 @@ export async function getLowStockItems(supplierId: string, p?: AnalyticsParams):
             params: { supplierId, ...paramClean(p) },
         });
 
-        // Accept either a direct array or an envelope with `.items` array.
-        let rawList: Array<Record<string, unknown>> = [];
-        if (isArrayOfRecords(data)) rawList = data;
-        else if (isRecord(data) && isArrayOfRecords((data as Record<string, unknown>).items as unknown)) rawList = (data as Record<string, unknown>).items as Array<Record<string, unknown>>;
+        const rawList: Array<Record<string, unknown>> = isArrayOfRecords(data) ? data : [];
 
         const rows: LowStockRow[] = rawList
         .map((rec) => {

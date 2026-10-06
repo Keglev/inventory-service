@@ -8,8 +8,8 @@
  *   short-circuits)
  * - Guarantees the request contract (endpoint + cleaned date params)
  *   when inputs are provided
- * - Guarantees tolerant parsing of supported response envelopes into a
- *   stable item list
+ * - Guarantees parsing of the bare LowStockItemDTO array into a stable,
+ *   severity-sorted item list (the backend sends no envelope)
  *
  * Out of scope:
  * - Business policy for threshold selection and replenishment workflows
@@ -75,15 +75,13 @@ describe('api/analytics/lowStock.getLowStockItems', () => {
       ]);
     });
 
-    it('accepts an { items: [...] } envelope and sorts by deficit descending', async () => {
+    it('sorts by deficit descending', async () => {
       httpGet.mockResolvedValueOnce({
-        data: {
-          items: [
-            { itemName: 'Less Severe', quantity: 4, minimumQuantity: 5 },
-            { itemName: 'More Severe', quantity: 1, minimumQuantity: 10 },
-            { itemName: 'Middle', quantity: 2, minimumQuantity: 6 },
-          ],
-        },
+        data: [
+          { itemName: 'Less Severe', quantity: 4, minimumQuantity: 5 },
+          { itemName: 'More Severe', quantity: 1, minimumQuantity: 10 },
+          { itemName: 'Middle', quantity: 2, minimumQuantity: 6 },
+        ],
       });
 
       const res = await getLowStockItems('SUP-001');
@@ -95,8 +93,10 @@ describe('api/analytics/lowStock.getLowStockItems', () => {
       ]);
     });
 
-    it('returns [] when response is neither an array nor { items: array }', async () => {
-      httpGet.mockResolvedValueOnce({ data: { items: null } });
+    it('returns [] for an { items } envelope (the backend sends a bare array)', async () => {
+      httpGet.mockResolvedValueOnce({
+        data: { items: [{ itemName: 'A', quantity: 1, minimumQuantity: 5 }] },
+      });
 
       const res = await getLowStockItems('SUP-001');
 

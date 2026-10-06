@@ -3,8 +3,8 @@
  *
  * Fetches WAC-based (weighted-average-cost) financial figures for a given date window and optional supplier.
  * Calls GET /api/analytics/financial/summary with `from`/`to` params (not
- * the `start`/`end` used by other analytics endpoints). Accepts response
- * bodies as a direct object or as `{ summary }` / `{ data }` envelopes.
+ * the `start`/`end` used by other analytics endpoints). The body is the bare
+ * FinancialSummaryDTO; the backend wraps it in no envelope.
  * All fields default to 0 on missing or invalid data; the function never throws.
  */
 
@@ -61,15 +61,8 @@ export async function getFinancialSummary(
 
     const { data } = await http.get<unknown>('/api/analytics/financial/summary', { params });
 
-    const pickPayload = (x: unknown): Rec | null => {
-      if (!isRecord(x)) return null;
-      if (isRecord(x.summary)) return x.summary as Rec;
-      if (isRecord(x.data)) return x.data as Rec;
-      return x as Rec;
-    };
-
-    const body = pickPayload(data);
-    if (!body) return ZERO_FINANCE;
+    if (!isRecord(data)) return ZERO_FINANCE;
+    const body = data as Rec;
 
     return {
         // FinancialSummaryDTO field names; the backend sends no other spelling.
