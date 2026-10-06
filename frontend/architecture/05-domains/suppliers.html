@@ -117,10 +117,12 @@
         <p>The board avoids rendering a large table by default.
         <code>SuppliersSearchPanel</code> offers a type-ahead
         (2-character minimum) through <code>SupplierSearchField</code>,
-        the search field the edit and delete dialogs use too. It matches
-        the name anywhere, ignoring case, against the supplier list
-        already loaded in the browser, and shows at most six results
-        with a count of the rest (<a
+        the search field the edit and delete dialogs use too; it is a
+        setting of the shared <code>ListSearchField</code>, which the
+        inventory item pickers use as well. It matches the name
+        anywhere, ignoring case, against the supplier list already
+        loaded in the browser, and shows at most six results with a
+        count of the rest (<a
         href="../09-decisions/adr-0014-searching-bounded-lists-in-the-browser.html">ADR-0014</a>).
         Selecting a result pins the table to a single-row display, sets
         the selection (enabling edit/delete), and resets paging. An

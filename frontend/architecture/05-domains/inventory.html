@@ -170,6 +170,18 @@
         <p>Every dialog reports success through a callback the board
         wires to one reload handler, so the table refreshes after any
         mutation.</p>
+        <p>The four supplier → item dialogs (rename, quantity, price,
+        delete) pick the item with one shared field,
+        <code>ItemSearchField</code>. Once a supplier is chosen, its
+        items load once
+        (<code>GET /api/inventory/search?supplierId=</code>, one page of
+        up to 2,000) and every keystroke is matched in the browser: name
+        or SKU, anywhere, ignoring case, from two characters, at most
+        six results with a count of the rest, the SKU as a second line.
+        Choosing another supplier, or closing the dialog, drops the list
+        at once; a page that does not hold every item falls back to the
+        server search (<a
+        href="../09-decisions/adr-0014-searching-bounded-lists-in-the-browser.html">ADR-0014</a>).</p>
         <h2 id="validation-authorization">Validation &amp;
         Authorization</h2>
         <p>Zod schemas in <code>validation/inventoryValidation.ts</code>
