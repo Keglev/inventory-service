@@ -90,5 +90,24 @@ describe('toInventoryRow', () => {
         createdAt: null,
       });
     });
+
+    it('coerces numeric strings and reads no other field spelling', () => {
+      const result = toInventoryRow({
+        id: 'ITEM-4',
+        name: 'Second Widget',
+        // Spellings the backend never sends are not read.
+        itemCode: 'ALT-001',
+        supplier: 'Bravo',
+        createdDate: '2024-02-02T10:00:00Z',
+        quantity: '30',
+        minimumQuantity: '7',
+      });
+
+      expect(result).toMatchObject({ code: null, supplierName: null, createdAt: null, onHand: 30, minQty: 7 });
+    });
+
+    it('ignores a non-string supplier id (the DTO sends a UUID string)', () => {
+      expect(toInventoryRow({ id: 'ITEM-5', supplierId: 123 })?.supplierId).toBeNull();
+    });
   });
 });

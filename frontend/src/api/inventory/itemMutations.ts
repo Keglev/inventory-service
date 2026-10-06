@@ -8,7 +8,6 @@
  */
 
 import http from '../httpClient';
-import { normalizeInventoryRow } from './normalizers';
 import type { CreateItemRequest, ItemWriteResult } from './types';
 import { errorMessage, extractApiError } from '../shared/errorHandling';
 import { INVENTORY_BASE } from '../shared/constants';
@@ -19,7 +18,7 @@ import { INVENTORY_BASE } from '../shared/constants';
  * client has no full-update call.
  *
  * @param req - Create payload
- * @returns Response object with ok status, normalized item, and optional error
+ * @returns Response object with ok status and optional error
  *
  * @example
  * ```typescript
@@ -34,9 +33,8 @@ import { INVENTORY_BASE } from '../shared/constants';
  */
 export async function createItem(req: CreateItemRequest): Promise<ItemWriteResult> {
   try {
-    const res = await http.post(`${INVENTORY_BASE}`, req);
-    const row = normalizeInventoryRow(res?.data as unknown);
-    return { ok: true, item: row ?? undefined };
+    await http.post(`${INVENTORY_BASE}`, req);
+    return { ok: true };
   } catch (e: unknown) {
     const apiError = extractApiError(e);
     return {
@@ -55,7 +53,7 @@ export async function createItem(req: CreateItemRequest): Promise<ItemWriteResul
  * Sends the new name as a query param (not a body), matching the backend endpoint contract.
  *
  * @param req - Rename payload with item id and new name
- * @returns Response object with ok status, normalized item, and optional error
+ * @returns Response object with ok status and optional error
  *
  * @example
  * ```typescript
@@ -67,13 +65,12 @@ export async function createItem(req: CreateItemRequest): Promise<ItemWriteResul
  */
 export async function renameItem(req: { id: string; newName: string }): Promise<ItemWriteResult> {
   try {
-    const res = await http.patch(
+    await http.patch(
       `${INVENTORY_BASE}/${encodeURIComponent(req.id)}/name`,
       null,
       { params: { name: req.newName } }
     );
-    const row = normalizeInventoryRow(res?.data as unknown);
-    return { ok: true, item: row ?? undefined };
+    return { ok: true };
   } catch (e: unknown) {
     const apiError = extractApiError(e);
     return { ok: false, error: errorMessage(e), errorToken: apiError.token, status: apiError.status };

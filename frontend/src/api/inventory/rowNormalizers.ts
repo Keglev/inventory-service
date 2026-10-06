@@ -4,7 +4,7 @@
  * @summary
  * DTO normalization for inventory list rows.
  * Converts raw API responses to strongly-typed InventoryRow shapes.
- * Maps backend fields (id, quantity, minimumQuantity) -> frontend fields (itemId, onHand, minQty).
+ * Maps backend fields (quantity, minimumQuantity, sku) -> frontend fields (onHand, minQty, code).
  *
  * @enterprise
  * - Single responsibility: DTO -> InventoryRow transformation
@@ -15,7 +15,6 @@
 
 import type { InventoryRow } from './types';
 import { pickString, pickNumber } from '../shared/fieldPickers';
-import { extractCode } from './rowFieldExtractors';
 
 /**
  * Normalize a raw API response object into a strongly-typed InventoryRow.
@@ -45,8 +44,8 @@ export const toInventoryRow = (raw: unknown): InventoryRow | null => {
   if (!id) return null;
 
   const name = pickString(r, 'name') ?? '—';
-  // The item code is InventoryItemDTO's `sku`, read in one place (extractCode)
-  const code = extractCode(r);
+  // The item code is InventoryItemDTO's `sku`
+  const code = pickString(r, 'sku') ?? null;
 
   const supplierIdStr = pickString(r, 'supplierId');
   const supplierId: string | number | null = supplierIdStr ?? null;
