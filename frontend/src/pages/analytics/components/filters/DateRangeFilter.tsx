@@ -13,12 +13,16 @@
  *   so the highlighted preset cannot misrepresent the active range.
  * - `onReset` is rendered inline with the preset row when provided, so
  *   the panel does not need a separate reset surface on mobile.
+ * - A custom range with `from` after `to` is never sent: the backend
+ *   answers 400 and the charts would go empty without saying why. The
+ *   inverted pair stays in the fields only, marked as an error, while the
+ *   charts keep the last valid range; min/max grey out impossible days.
  */
 
 import { useState } from 'react';
 import { Button, Stack, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { formatToIsoDate, getQuickDateRange, parseIsoDate } from './useFiltersLogic';
+import { formatToIsoDate, getQuickDateRange, parseIsoDate, validateDateRange } from './useFiltersLogic';
 import type { AnalyticsFilters } from './Filters.types';
 
 interface DateRangeFilterProps {
@@ -42,9 +46,21 @@ export function DateRangeFilter({
 }: DateRangeFilterProps) {
   const { t } = useTranslation(['analytics']);
   const [showCustom, setShowCustom] = useState(value.quick === 'custom');
+  // An inverted range stays in the fields only; the charts keep the last valid one.
+  const [pending, setPending] = useState<{ from?: string; to?: string } | null>(null);
 
-  const fromDate = parseIsoDate(value.from);
-  const toDate = parseIsoDate(value.to);
+  const fromIso = formatToIsoDate(parseIsoDate(pending ? pending.from : value.from));
+  const toIso = formatToIsoDate(parseIsoDate(pending ? pending.to : value.to));
+  const rangeInvalid = !validateDateRange(parseIsoDate(fromIso), parseIsoDate(toIso));
+
+  const applyRange = (from?: string, to?: string) => {
+    if (!validateDateRange(parseIsoDate(from), parseIsoDate(to))) {
+      setPending({ from, to });
+      return;
+    }
+    setPending(null);
+    onChange({ ...value, from, to, quick: 'custom' });
+  };
 
   const handleQuickRange = (days: number) => {
     const { from, to } = getQuickDateRange(days);
@@ -54,6 +70,7 @@ export function DateRangeFilter({
       from: formatToIsoDate(from),
       to: formatToIsoDate(to),
     });
+    setPending(null);
     setShowCustom(false);
   };
 
@@ -62,21 +79,11 @@ export function DateRangeFilter({
     onChange({ ...value, quick: 'custom' });
   };
 
-  const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({
-      ...value,
-      from: e.target.value || undefined,
-      quick: 'custom',
-    });
-  };
+  const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    applyRange(e.target.value || undefined, toIso);
 
-  const handleToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({
-      ...value,
-      to: e.target.value || undefined,
-      quick: 'custom',
-    });
-  };
+  const handleToChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    applyRange(fromIso, e.target.value || undefined);
 
   return (
     <Stack spacing={1} alignItems="flex-start">
@@ -117,7 +124,10 @@ export function DateRangeFilter({
           <Button
             variant="outlined"
             size="small"
-            onClick={onReset}
+            onClick={() => {
+              setPending(null);
+              onReset();
+            }}
             disabled={disabled}
             sx={{ ml: { xs: 0, sm: 0.5 } }}
           >
@@ -127,30 +137,40 @@ export function DateRangeFilter({
       </Stack>
 
       {showCustom && (
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          <TextField
-            label={t('analytics:filters.from')}
-            type="date"
-            value={fromDate?.toISOString().split('T')[0] || ''}
-            onChange={handleFromChange}
-            disabled={disabled}
-            size="small"
-            slotProps={{ inputLabel: { shrink: true } }}
-            sx={{ minWidth: 160 }}
-          />
-          <Typography variant="body2" color="text.secondary">
-            {t('analytics:filters.to')}
-          </Typography>
-          <TextField
-            label={t('analytics:filters.to')}
-            type="date"
-            value={toDate?.toISOString().split('T')[0] || ''}
-            onChange={handleToChange}
-            disabled={disabled}
-            size="small"
-            slotProps={{ inputLabel: { shrink: true } }}
-            sx={{ minWidth: 160 }}
-          />
+        <Stack spacing={0.5}>
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <TextField
+              label={t('analytics:filters.from')}
+              type="date"
+              value={fromIso ?? ''}
+              onChange={handleFromChange}
+              disabled={disabled}
+              error={rangeInvalid}
+              size="small"
+              slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: toIso } }}
+              sx={{ minWidth: 160 }}
+            />
+            {/* An en dash, not "Bis": the second field already carries that label. */}
+            <Typography variant="body2" color="text.secondary">
+              {'\u2013'}
+            </Typography>
+            <TextField
+              label={t('analytics:filters.to')}
+              type="date"
+              value={toIso ?? ''}
+              onChange={handleToChange}
+              disabled={disabled}
+              error={rangeInvalid}
+              size="small"
+              slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: fromIso } }}
+              sx={{ minWidth: 160 }}
+            />
+          </Stack>
+          {rangeInvalid && (
+            <Typography variant="caption" color="error" role="alert">
+              {t('analytics:filters.rangeInvalid')}
+            </Typography>
+          )}
         </Stack>
       )}
     </Stack>

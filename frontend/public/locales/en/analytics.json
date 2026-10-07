@@ -59,6 +59,7 @@
     "reset": "Reset",
     "from": "From",
     "to": "To",
+    "rangeInvalid": "The From date cannot be after the To date.",
     "supplier": "Supplier",
     "allSuppliers": "All Suppliers"
   },

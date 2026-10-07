@@ -59,6 +59,7 @@
     "reset": "Zurücksetzen",
     "from": "Von",
     "to": "Bis",
+    "rangeInvalid": "Das Von-Datum darf nicht nach dem Bis-Datum liegen.",
     "supplier": "Lieferant",
     "allSuppliers": "Alle Lieferanten"
   },
