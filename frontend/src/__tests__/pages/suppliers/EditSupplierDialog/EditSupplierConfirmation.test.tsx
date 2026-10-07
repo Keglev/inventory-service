@@ -1,0 +1,173 @@
+/**
+ * @file EditSupplierConfirmation.test.tsx
+ * @module __tests__/pages/suppliers/EditSupplierDialog/EditSupplierConfirmation
+ * @description Contract tests for the `EditSupplierConfirmation` presentation component.
+ *
+ * Contract under test:
+ * - Renders a confirmation dialog with supplier identity (name) and a summary of changed fields.
+ * - Delegates user intent via callbacks: `onCancel` and `onConfirm`.
+ * - Reflects submission state by disabling actions and showing a progress indicator.
+ * - Surfaces `formError` in an alert and delegates alert close to `onCancel`.
+ * - Tints each change box with the theme's info colour.
+ *
+ * Out of scope:
+ * - API interaction (handled by the orchestration hook).
+ * - MUI styling/structure beyond accessible roles, text and the change tint.
+ *
+ * Test strategy:
+ * - Assert observable text and a11y roles.
+ * - Verify callbacks, not internal layout.
+ */
+
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ThemeProvider } from '@mui/material';
+import type { EditSupplierForm } from '@/api/suppliers/validation';
+import type { SupplierRow } from '@/api/suppliers/types';
+
+import { EditSupplierConfirmation } from '@/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation';
+import { editSupplierChanges, supplierRow } from '@/__tests__/pages/suppliers/EditSupplierDialog/fixtures';
+import { tEn } from '@/__tests__/test/i18nEn';
+import { buildTheme } from '@/theme';
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
+}));
+
+const supplier: SupplierRow = supplierRow();
+const changes: EditSupplierForm = editSupplierChanges();
+
+type RenderOverrides = Partial<React.ComponentProps<typeof EditSupplierConfirmation>>;
+
+const renderConfirmation = (overrides: RenderOverrides = {}) =>
+  render(
+    <EditSupplierConfirmation
+      open={true}
+      supplier={supplier}
+      changes={changes}
+      formError=""
+      isSubmitting={false}
+      onConfirm={vi.fn()}
+      onCancel={vi.fn()}
+      {...overrides}
+    />
+  );
+
+describe('EditSupplierConfirmation', () => {
+  it('renders supplier details and change summary when open', () => {
+    renderConfirmation();
+
+    expect(screen.getByRole('heading', { name: 'Confirm Changes' })).toBeInTheDocument();
+    expect(screen.getByText('Supplier Name')).toBeInTheDocument();
+    expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+    expect(screen.getByText('Contact')).toBeInTheDocument();
+    expect(screen.getByText('Old Contact → New Contact')).toBeInTheDocument();
+    expect(screen.getByText('Phone')).toBeInTheDocument();
+    expect(screen.getByText('555-5000 → 555-6000')).toBeInTheDocument();
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.getByText('old@acme.example → new@acme.example')).toBeInTheDocument();
+  });
+
+  it('invokes callbacks when cancel or confirm buttons are pressed', async () => {
+    const user = userEvent.setup();
+    const onCancel = vi.fn();
+    const onConfirm = vi.fn().mockResolvedValue(undefined);
+
+    renderConfirmation({ onConfirm, onCancel });
+
+    await user.click(screen.getByRole('button', { name: 'No' }));
+    expect(onCancel).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole('button', { name: 'Yes' }));
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders error alert and delegates close action to onCancel', async () => {
+    const user = userEvent.setup();
+    const onCancel = vi.fn();
+
+    renderConfirmation({ formError: 'Failed to update supplier', onCancel });
+
+    const message = screen.getByText('Failed to update supplier');
+    const errorAlert = message.closest('[role="alert"]');
+    expect(errorAlert).not.toBeNull();
+
+    const closeButton = within(errorAlert as HTMLElement).getByLabelText('Close');
+    await user.click(closeButton);
+    expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it('disables confirm action and shows saving indicator while submitting', () => {
+    renderConfirmation({ isSubmitting: true });
+
+    const confirmButton = screen.getByRole('button', { name: 'Saving...' });
+    expect(confirmButton).toBeDisabled();
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+  });
+
+  it('shows a translated placeholder when a field goes from empty to filled, and back', () => {
+    // These are the branches a German user actually hits when a supplier had no
+    // contact details: the placeholder must be a translated key, never a literal.
+    const fromEmpty: SupplierRow = supplierRow({ contactName: null, phone: null, email: null });
+    const toValues: EditSupplierForm = editSupplierChanges({
+      contactName: 'New Contact',
+      phone: '555-6000',
+      email: 'new@acme.example',
+    });
+
+    renderConfirmation({ supplier: fromEmpty, changes: toValues });
+
+    expect(screen.getByText('(empty) → New Contact')).toBeInTheDocument();
+    expect(screen.getByText('(empty) → 555-6000')).toBeInTheDocument();
+    expect(screen.getByText('(empty) → new@acme.example')).toBeInTheDocument();
+  });
+
+  it('shows the placeholder on the after-side when a field is cleared', () => {
+    const cleared: EditSupplierForm = editSupplierChanges({ contactName: '', phone: '', email: '' });
+
+    renderConfirmation({ changes: cleared });
+
+    expect(screen.getByText('Old Contact → (empty)')).toBeInTheDocument();
+    expect(screen.getByText('555-5000 → (empty)')).toBeInTheDocument();
+    expect(screen.getByText('old@acme.example → (empty)')).toBeInTheDocument();
+  });
+
+  it('tints each change box with the info colour of the active theme', () => {
+    // An undefined palette name (info.lighter) once left these boxes without
+    // any background; dark mode proves the app theme, not MUI's default, applies.
+    render(
+      <ThemeProvider theme={buildTheme('en', 'dark')}>
+        <EditSupplierConfirmation
+          open={true}
+          supplier={supplier}
+          changes={changes}
+          formError=""
+          isSubmitting={false}
+          onConfirm={vi.fn()}
+          onCancel={vi.fn()}
+        />
+      </ThemeProvider>
+    );
+
+    for (const label of ['Contact', 'Phone', 'Email']) {
+      const box = screen.getByText(label).parentElement as HTMLElement;
+      expect(getComputedStyle(box).backgroundColor).toBe('rgba(41, 182, 246, 0.15)');
+    }
+  });
+
+  it('hides change summary boxes when values are unchanged', () => {
+    const unchanged: EditSupplierForm = {
+      supplierId: 'supplier-1',
+      contactName: supplier.contactName ?? '',
+      phone: supplier.phone ?? '',
+      email: supplier.email ?? '',
+    };
+
+    renderConfirmation({ changes: unchanged });
+
+    expect(screen.queryByText('Old Contact →')).not.toBeInTheDocument();
+    expect(screen.queryByText('555-5000 →')).not.toBeInTheDocument();
+    expect(screen.queryByText('old@acme.example →')).not.toBeInTheDocument();
+  });
+});

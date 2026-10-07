@@ -1,0 +1,292 @@
+/**
+ * @file inventoryValidation.test.ts
+ * @module __tests__/pages/inventory/inventoryValidation
+ * @description Contract tests for inventory validation schemas (Zod):
+ * - itemFormSchema
+ * - quantityAdjustSchema
+ * - priceChangeSchema
+ * - editItemSchema
+ * - deleteItemSchema
+ *
+ * Out of scope:
+ * - UI component behavior (covered in component tests).
+ * - Deep Zod internals (we validate our schema constraints/messages only).
+ */
+
+import { describe, it } from 'vitest';
+import {
+  itemFormSchema,
+  quantityAdjustSchema,
+  priceChangeSchema,
+  editItemSchema,
+  deleteItemSchema,
+} from '@/pages/inventory/validation/inventoryValidation';
+import { expectInvalidMessage, expectValid } from '@/__tests__/pages/inventory/validationTestUtils';
+
+describe('inventoryValidation', () => {
+  describe('itemFormSchema', () => {
+    const validData = {
+      name: 'Test Item',
+      code: 'TEST-001',
+      supplierId: '123',
+      quantity: 100,
+      price: 49.99,
+    };
+
+    it('accepts valid item form data', () => {
+      expectValid(itemFormSchema, validData);
+    });
+
+    it('has no reason field: a new item always records INITIAL_STOCK', () => {
+      expect(Object.keys(itemFormSchema.shape)).not.toContain('reason');
+    });
+
+    it.each([
+      [
+        'numeric supplierId',
+        {
+          name: 'Test Item',
+          code: 'TEST-003',
+          supplierId: 789,
+          quantity: 10,
+          price: 15.5,
+        },
+      ],
+    ])('accepts data with %s', (_, data) => {
+      const result = itemFormSchema.safeParse(data);
+      expectValid(itemFormSchema, data, result.success ? result.data : undefined);
+    });
+
+    it.each([
+      [
+        'empty item name',
+        {
+          name: '',
+          code: 'TEST-INV',
+          supplierId: '123',
+          quantity: 100,
+          price: 49.99,
+        },
+        'errors:validation.required',
+      ],
+      [
+        'empty supplierId',
+        {
+          name: 'Test Item',
+          code: 'TEST-INV',
+          supplierId: '',
+          quantity: 100,
+          price: 49.99,
+        },
+        'errors:validation.required',
+      ],
+      [
+        'negative quantity',
+        {
+          name: 'Test Item',
+          code: 'TEST-INV',
+          supplierId: '123',
+          quantity: -10,
+          price: 49.99,
+        },
+        'errors:validation.positive',
+      ],
+      [
+        'zero initial stock',
+        {
+          name: 'Test Item',
+          code: 'TEST-INV',
+          supplierId: '123',
+          quantity: 0,
+          price: 49.99,
+        },
+        'errors:validation.positive',
+      ],
+      [
+        'negative price',
+        {
+          name: 'Test Item',
+          code: 'TEST-INV',
+          supplierId: '123',
+          quantity: 100,
+          price: -5.99,
+        },
+        'errors:validation.positive',
+      ],
+      [
+        'zero price',
+        {
+          name: 'Test Item',
+          code: 'TEST-INV',
+          supplierId: '123',
+          quantity: 100,
+          price: 0,
+        },
+        'errors:validation.positive',
+      ],
+      [
+        'empty code',
+        {
+          name: 'Test Item',
+          code: '',
+          supplierId: '123',
+          quantity: 100,
+          price: 49.99,
+        },
+        'errors:validation.required',
+      ],
+      [
+        'an emptied quantity input (NaN)',
+        {
+          name: 'Test Item',
+          code: 'TEST-INV',
+          supplierId: '123',
+          quantity: NaN,
+          price: 49.99,
+        },
+        'errors:validation.required',
+      ],
+      [
+        'an emptied price input (NaN)',
+        {
+          name: 'Test Item',
+          code: 'TEST-INV',
+          supplierId: '123',
+          quantity: 100,
+          price: NaN,
+        },
+        'errors:validation.required',
+      ],
+    ])('rejects %s', (_, data, message) => {
+      expectInvalidMessage(itemFormSchema, data, message);
+    });
+  });
+
+  describe('quantityAdjustSchema', () => {
+    it('accepts an increase with an increase-valid reason', () => {
+      expectValid(quantityAdjustSchema, {
+        itemId: 'item-123',
+        currentQuantity: 10,
+        newQuantity: 15,
+        reason: 'INITIAL_STOCK',
+      });
+    });
+
+    it('accepts a reduction with a disposal reason', () => {
+      expectValid(quantityAdjustSchema, {
+        itemId: 'item-123',
+        currentQuantity: 20,
+        newQuantity: 5,
+        reason: 'DESTROYED',
+      });
+    });
+
+    it('accepts MANUAL_UPDATE in either direction', () => {
+      expectValid(quantityAdjustSchema, {
+        itemId: 'item-123',
+        currentQuantity: 5,
+        newQuantity: 12,
+        reason: 'MANUAL_UPDATE',
+      });
+      expectValid(quantityAdjustSchema, {
+        itemId: 'item-123',
+        currentQuantity: 12,
+        newQuantity: 5,
+        reason: 'MANUAL_UPDATE',
+      });
+    });
+
+    it.each([
+      [
+        'empty itemId',
+        { itemId: '', currentQuantity: 10, newQuantity: 15, reason: 'INITIAL_STOCK' },
+        'errors:validation.required',
+      ],
+      [
+        'negative quantity',
+        { itemId: 'item-123', currentQuantity: 10, newQuantity: -10, reason: 'SOLD' },
+        'errors:validation.nonNegative',
+      ],
+      [
+        'unknown reason',
+        { itemId: 'item-123', currentQuantity: 10, newQuantity: 15, reason: 'DONATED' },
+        'errors:validation.required',
+      ],
+      [
+        'zero-delta change',
+        { itemId: 'item-123', currentQuantity: 10, newQuantity: 10, reason: 'MANUAL_UPDATE' },
+        'errors:validation.quantityUnchanged',
+      ],
+      [
+        'increase with a reduce-only reason',
+        { itemId: 'item-123', currentQuantity: 5, newQuantity: 12, reason: 'SOLD' },
+        'errors:validation.reasonInvalidForIncrease',
+      ],
+      [
+        'reduction with an increase-only reason',
+        { itemId: 'item-123', currentQuantity: 12, newQuantity: 5, reason: 'RETURNED_BY_CUSTOMER' },
+        'errors:validation.reasonInvalidForDecrease',
+      ],
+    ])('rejects %s', (_, data, message) => {
+      expectInvalidMessage(quantityAdjustSchema, data, message);
+    });
+  });
+
+  describe('priceChangeSchema', () => {
+    it('accepts valid price change data', () => {
+      const validData = {
+        itemId: 'item-789',
+        newPrice: 99.99,
+      };
+
+      expectValid(priceChangeSchema, validData);
+    });
+
+    it.each([
+      [
+        'empty itemId',
+        { itemId: '', newPrice: 99.99 },
+        'errors:validation.required',
+      ],
+      [
+        'zero price',
+        { itemId: 'item-789', newPrice: 0 },
+        'errors:validation.positive',
+      ],
+      [
+        'negative price',
+        { itemId: 'item-789', newPrice: -15.5 },
+        'errors:validation.positive',
+      ],
+    ])('rejects %s', (_, data, message) => {
+      expectInvalidMessage(priceChangeSchema, data, message);
+    });
+  });
+
+  describe('editItemSchema', () => {
+    it('accepts valid edit item data', () => {
+      expectValid(editItemSchema, { itemId: 'item-111', newName: 'Updated Item Name' });
+    });
+
+    it.each([
+      [
+        'empty itemId',
+        { itemId: '', newName: 'Updated Name' },
+        'errors:validation.required',
+      ],
+      ['empty newName', { itemId: 'item-111', newName: '' }, 'errors:validation.required'],
+    ])('rejects %s', (_, data, message) => {
+      expectInvalidMessage(editItemSchema, data, message);
+    });
+  });
+
+  describe('deleteItemSchema', () => {
+    it('accepts valid delete item data', () => {
+      expectValid(deleteItemSchema, { itemId: 'item-222' });
+    });
+
+    it('rejects an empty itemId', () => {
+      expectInvalidMessage(deleteItemSchema, { itemId: '' }, 'errors:validation.required');
+    });
+  });
+});

@@ -1,0 +1,193 @@
+/**
+ * @file MovementsSection.test.tsx
+ * @module __tests__/pages/analytics/sections/MovementsSection
+ * @description Orchestration test for the Movements section: one breakdown query feeds
+ * both direction cards; the reason chips filter client-side without a
+ * refetch; the drilldown table renders row-level data.
+ */
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import * as React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { tEn } from '@/__tests__/test/i18nEn';
+
+vi.mock('recharts', () => ({
+  ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="chart-container">{children}</div>
+  ),
+  BarChart: ({ children }: { children?: React.ReactNode }) => <div data-testid="bar-chart">{children}</div>,
+  LineChart: ({ children }: { children?: React.ReactNode }) => <div data-testid="line-chart">{children}</div>,
+  Bar: () => <div data-testid="bar" />,
+  Line: () => <div data-testid="line" />,
+  CartesianGrid: () => <div data-testid="cartesian-grid" />,
+  XAxis: () => <div data-testid="x-axis" />,
+  YAxis: () => <div data-testid="y-axis" />,
+  Tooltip: () => <div data-testid="tooltip" />,
+  Legend: () => <div data-testid="legend" />,
+}));
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
+  }),
+}));
+
+vi.mock('@/hooks/useSettings', () => ({
+  useSettings: () => ({
+    userPreferences: {
+      numberFormat: 'DE',
+      dateFormat: 'DD.MM.YYYY',
+    },
+  }),
+}));
+
+const mockGetReasonBreakdown = vi.fn();
+vi.mock('@/api/analytics/reasonBreakdown', () => ({
+  getReasonBreakdown: (...args: unknown[]) => mockGetReasonBreakdown(...args),
+}));
+
+const mockGetStockUpdatesPage = vi.fn();
+vi.mock('@/api/analytics/updates', () => ({
+  getStockUpdatesPage: (...args: unknown[]) => mockGetStockUpdatesPage(...args),
+}));
+
+const mockSearchItemsGlobal = vi.fn();
+const mockSearchItemsForSupplier = vi.fn();
+vi.mock('@/api/shared/itemSearch', () => ({
+  searchItemsGlobal: (...args: unknown[]) => mockSearchItemsGlobal(...args),
+  searchItemsForSupplier: (...args: unknown[]) => mockSearchItemsForSupplier(...args),
+}));
+
+const MovementsSection = (await import('@/pages/analytics/sections/MovementsSection')).default;
+
+function setup() {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
+    <QueryClientProvider client={client}>
+      <MovementsSection from="2026-01-01" to="2026-06-30" supplierId={undefined} />
+    </QueryClientProvider>,
+  );
+}
+
+describe('MovementsSection', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetReasonBreakdown.mockResolvedValue([
+      { reason: 'MANUAL_UPDATE', increase: 5, decrease: 3 },
+      { reason: 'SOLD', increase: 0, decrease: 7 },
+    ]);
+    mockGetStockUpdatesPage.mockResolvedValue({
+      rows: [{ timestamp: '2026-02-03T09:00:00', itemName: 'Item A', delta: -7, reason: 'SOLD' }],
+      total: 1,
+    });
+    mockSearchItemsGlobal.mockResolvedValue([
+      { id: 'itemA', name: 'Deep Groove Ball Bearing 6204-2RS' },
+    ]);
+    mockSearchItemsForSupplier.mockResolvedValue([]);
+  });
+
+  it('renders both direction cards and the drilldown from one breakdown query', async () => {
+    setup();
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId('reason-breakdown-card')).toHaveLength(2);
+    });
+    expect(screen.getByText('Stock increases by reason (pieces)')).toBeInTheDocument();
+    expect(screen.getByText('Stock decreases by reason (pieces)')).toBeInTheDocument();
+    expect(mockGetReasonBreakdown).toHaveBeenCalledTimes(1);
+
+    expect(screen.getByTestId('movement-drilldown')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Item A')).toBeInTheDocument();
+    });
+  });
+
+  it('filters via reason chips client-side without refetching', async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId('reason-breakdown-card')).toHaveLength(2);
+    });
+    expect(mockGetReasonBreakdown).toHaveBeenCalledTimes(1);
+
+    // Select only SOLD: MANUAL_UPDATE disappears from the increase side.
+    await user.click(screen.getByRole('button', { name: 'Sold' }));
+
+    expect(mockGetReasonBreakdown).toHaveBeenCalledTimes(1);
+    // Increases card has no visible rows anymore -> shared no-data state.
+    await waitFor(() => {
+      expect(screen.getByText('No data for the selected filters.')).toBeInTheDocument();
+    });
+  });
+
+  it('applies the SELECTED item name to the breakdown query (selection-based filter)', async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId('reason-breakdown-card')).toHaveLength(2);
+    });
+
+    const input = screen.getByLabelText('Filter by item name');
+    await user.type(input, 'bear');
+
+    await waitFor(() => {
+      expect(mockSearchItemsGlobal).toHaveBeenCalledWith('bear', 50);
+    });
+
+    await user.click(await screen.findByText('Deep Groove Ball Bearing 6204-2RS'));
+
+    await waitFor(() => {
+      expect(mockGetReasonBreakdown).toHaveBeenCalledWith(
+        expect.objectContaining({ itemName: 'Deep Groove Ball Bearing 6204-2RS' }),
+      );
+    });
+  });
+
+  it('renders the empty state when the drilldown has no rows', async () => {
+    mockGetStockUpdatesPage.mockResolvedValue({ rows: [], total: 0 });
+    setup();
+
+    await waitFor(() => {
+      expect(screen.getByText('No stock changes in this period')).toBeInTheDocument();
+    });
+  });
+
+  it('renders positive deltas with a plus, raw unknown reasons, blanks, and bad timestamps', async () => {
+    mockGetStockUpdatesPage.mockResolvedValue({
+      rows: [
+        // Unknown reason strings pass through untranslated.
+        { timestamp: 'not-a-date', itemName: 'Item B', delta: 4, reason: 'SOMETHING_ELSE' },
+        // Reason-less rows render an empty reason cell.
+        { timestamp: '2026-02-04T09:00:00', itemName: 'Item C', delta: -2 },
+      ],
+      total: 2,
+    });
+    setup();
+
+    await waitFor(() => expect(screen.getByText('Item B')).toBeInTheDocument());
+
+    expect(screen.getByText('+4')).toBeInTheDocument();
+    expect(screen.getByText('SOMETHING_ELSE')).toBeInTheDocument();
+    // The unparseable timestamp falls back to the raw string.
+    expect(screen.getByText('not-a-date')).toBeInTheDocument();
+    expect(screen.getByText('Item C')).toBeInTheDocument();
+  });
+
+  it('tolerates an unbounded window without supplier or item filters', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <MovementsSection />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(mockGetStockUpdatesPage).toHaveBeenCalledWith(
+        expect.objectContaining({ from: undefined, to: undefined }),
+      );
+    });
+  });
+});
