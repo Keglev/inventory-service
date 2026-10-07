@@ -3,8 +3,8 @@
  * @module pages/analytics/components/filters/useFiltersLogic
  *
  * @summary
- * Pure helpers and a small hook for the analytics filter panel: ISO date
- * parsing/formatting, quick-range computation, and date-order validation.
+ * Pure helpers for the analytics filter panel: ISO date parsing/formatting,
+ * quick-range computation, and date-order validation.
  *
  * @enterprise
  * - All dates are normalized to UTC so that "last 30 days" yields the
@@ -14,8 +14,6 @@
  * - Quick presets are computed against the current UTC day, not local
  *   midnight, so day-boundary edge cases are deterministic.
  */
-
-import { useMemo } from 'react';
 
 export interface DateRange {
   from: Date;
@@ -66,11 +64,4 @@ export function getQuickDateRange(quickDays: number): DateRange {
 export function validateDateRange(from?: Date, to?: Date): boolean {
   if (!from || !to) return true;
   return from <= to;
-}
-
-/**
- * Hook: Memoized date validation
- */
-export function useDateValidation(fromDate?: Date, toDate?: Date) {
-  return useMemo(() => validateDateRange(fromDate, toDate), [fromDate, toDate]);
 }

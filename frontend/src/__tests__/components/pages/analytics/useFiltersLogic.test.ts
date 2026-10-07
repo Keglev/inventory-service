@@ -1,8 +1,7 @@
 /**
  * @file useFiltersLogic.test.ts
  * @module __tests__/components/pages/analytics/useFiltersLogic
- * @description Pure date helpers and the memoized validation hook behind
- * the analytics filter panel.
+ * @description Pure date helpers behind the analytics filter panel.
  *
  * Contract under test:
  * - parseIsoDate: undefined and unparseable input degrade to undefined;
@@ -11,17 +10,14 @@
  *   in UTC with zero padding.
  * - getQuickDateRange: inclusive window ending at the current UTC day.
  * - validateDateRange: open-ended ranges are valid; from <= to inclusive.
- * - useDateValidation: memoized wrapper mirrors validateDateRange.
  */
 import { describe, it, expect } from 'vitest';
-import { renderHook } from '@testing-library/react';
 
 import {
   parseIsoDate,
   formatToIsoDate,
   getQuickDateRange,
   validateDateRange,
-  useDateValidation,
 } from '../../../../pages/analytics/components/filters/useFiltersLogic';
 
 describe('parseIsoDate', () => {
@@ -78,23 +74,5 @@ describe('validateDateRange', () => {
     expect(
       validateDateRange(new Date(Date.UTC(2026, 4, 2)), new Date(Date.UTC(2026, 4, 1)))
     ).toBe(false);
-  });
-});
-
-describe('useDateValidation', () => {
-  it('mirrors validateDateRange and reacts to input changes', () => {
-    const early = new Date(Date.UTC(2026, 4, 1));
-    const late = new Date(Date.UTC(2026, 4, 2));
-
-    const { result, rerender } = renderHook(
-      ({ from, to }: { from?: Date; to?: Date }) => useDateValidation(from, to),
-      { initialProps: { from: early, to: late } }
-    );
-
-    expect(result.current).toBe(true);
-
-    rerender({ from: late, to: early });
-
-    expect(result.current).toBe(false);
   });
 });

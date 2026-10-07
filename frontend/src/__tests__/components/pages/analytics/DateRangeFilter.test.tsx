@@ -8,10 +8,14 @@
  * - Custom mode shows date inputs and emits changes via onChange
  * - Disabled state prevents interaction
  * - Optional reset action triggers onReset
+ * - An inverted custom range (from after to) is held in the fields, never
+ *   sent; the alert and the error state show until a valid range, a quick
+ *   range or a reset replaces it
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { useState } from 'react';
 import userEvent from '@testing-library/user-event';
 
 import type { AnalyticsFilters } from '@/pages/analytics/components/filters/Filters.types';
@@ -116,5 +120,102 @@ describe('DateRangeFilter', () => {
 
     await user.click(screen.getByRole('button', { name: /reset/i }));
     expect(onReset).toHaveBeenCalledTimes(1);
+  });
+});
+
+// -----------------------------------------------------------------------------
+// Inverted custom range
+// -----------------------------------------------------------------------------
+
+const customValue: AnalyticsFilters = { ...baseValue, quick: 'custom' };
+const resetValue: AnalyticsFilters = { ...baseValue, quick: '180' };
+
+/** Holds the filter state like the analytics page does, so valid changes re-render. */
+function Harness({ onChange }: { onChange: (f: AnalyticsFilters) => void }) {
+  const [value, setValue] = useState<AnalyticsFilters>(customValue);
+  return (
+    <DateRangeFilter
+      value={value}
+      onChange={(f) => {
+        onChange(f);
+        setValue(f);
+      }}
+      onReset={() => setValue(resetValue)}
+    />
+  );
+}
+
+const fromInput = () => screen.getByLabelText(/from/i) as HTMLInputElement;
+const toInput = () => screen.getByLabelText(/^to$/i) as HTMLInputElement;
+const invertRange = () => fireEvent.change(fromInput(), { target: { value: '2026-01-15' } });
+
+describe('DateRangeFilter inverted range', () => {
+  const onChange = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('holds an inverted range in the fields without calling onChange', () => {
+    render(<Harness onChange={onChange} />);
+
+    invertRange();
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(fromInput().value).toBe('2026-01-15');
+    expect(toInput().value).toBe('2025-12-31');
+    expect(fromInput()).toHaveAttribute('aria-invalid', 'true');
+    expect(toInput()).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('alert')).toHaveTextContent('The From date cannot be after the To date.');
+  });
+
+  it('emits the full range when an inverted range is corrected', () => {
+    render(<Harness onChange={onChange} />);
+
+    invertRange();
+    fireEvent.change(toInput(), { target: { value: '2026-02-01' } });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith({ ...customValue, from: '2026-01-15', to: '2026-02-01' });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('emits a valid custom change with both dates', () => {
+    render(<Harness onChange={onChange} />);
+
+    fireEvent.change(fromInput(), { target: { value: '2025-06-01' } });
+
+    expect(onChange).toHaveBeenCalledWith({ ...customValue, from: '2025-06-01', to: '2025-12-31' });
+    expect(fromInput()).toHaveAttribute('aria-invalid', 'false');
+  });
+
+  it('limits each input by the other date', () => {
+    render(<Harness onChange={onChange} />);
+
+    expect(fromInput()).toHaveAttribute('max', '2025-12-31');
+    expect(toInput()).toHaveAttribute('min', '2025-01-01');
+  });
+
+  it('drops the held range when a quick range is chosen', async () => {
+    const user = userEvent.setup();
+    render(<Harness onChange={onChange} />);
+
+    invertRange();
+    await user.click(screen.getByRole('button', { name: /30 days/i }));
+    await user.click(screen.getByRole('button', { name: /custom/i }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(fromInput()).toHaveAttribute('aria-invalid', 'false');
+  });
+
+  it('drops the held range on reset', async () => {
+    const user = userEvent.setup();
+    render(<Harness onChange={onChange} />);
+
+    invertRange();
+    await user.click(screen.getByRole('button', { name: /reset/i }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(fromInput().value).toBe('2025-01-01');
   });
 });
