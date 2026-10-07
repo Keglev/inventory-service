@@ -12,7 +12,7 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { apiOrigin, apiUrl } from '../../../api/apiBase';
+import { apiOrigin, apiUrl } from '@/api/apiBase';
 
 describe('apiBase', () => {
   afterEach(() => {

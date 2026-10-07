@@ -15,7 +15,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { toInventoryRow } from '../../../../api/inventory/rowNormalizers';
+import { toInventoryRow } from '@/api/inventory/rowNormalizers';
 
 describe('toInventoryRow', () => {
   describe('input validation', () => {

@@ -18,8 +18,8 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ProfileMenuSection from '../../../app/HamburgerMenu/ProfileMenuSection';
-import { tEn } from '../../test/i18nEn';
+import ProfileMenuSection from '@/app/HamburgerMenu/ProfileMenuSection';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Minimal types used for prop-wiring assertions
@@ -53,7 +53,7 @@ const mockProfileRoleDisplay = vi.hoisted(() =>
   vi.fn<(props: ProfileRoleDisplayProps) => React.ReactElement>(() => <div>Role Display</div>),
 );
 
-vi.mock('../../../hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   useAuth: mockUseAuth,
 }));
 
@@ -61,15 +61,15 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
-vi.mock('../../../app/HamburgerMenu/ProfileSettings/ProfileNameDisplay', () => ({
+vi.mock('@/app/HamburgerMenu/ProfileSettings/ProfileNameDisplay', () => ({
   default: mockProfileNameDisplay,
 }));
 
-vi.mock('../../../app/HamburgerMenu/ProfileSettings/ProfileEmailDisplay', () => ({
+vi.mock('@/app/HamburgerMenu/ProfileSettings/ProfileEmailDisplay', () => ({
   default: mockProfileEmailDisplay,
 }));
 
-vi.mock('../../../app/HamburgerMenu/ProfileSettings/ProfileRoleDisplay', () => ({
+vi.mock('@/app/HamburgerMenu/ProfileSettings/ProfileRoleDisplay', () => ({
   default: mockProfileRoleDisplay,
 }));
 

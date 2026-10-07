@@ -23,8 +23,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
-import LoginPage from '../../../../pages/auth/LoginPage';
-import { tEn } from '../../../test/i18nEn';
+import LoginPage from '@/pages/auth/LoginPage';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -53,7 +53,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('../../../../hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   useAuth: mockUseAuth,
 }));
 

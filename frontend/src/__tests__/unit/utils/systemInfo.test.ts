@@ -14,13 +14,13 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { getSystemInfo } from '../../../utils/systemInfo';
+import { getSystemInfo } from '@/utils/systemInfo';
 
 vi.mock('@/config/appMeta', () => ({
   APP_ENVIRONMENT: 'Production (Koyeb)',
 }));
 
-vi.mock('../../../utils/logger', () => ({
+vi.mock('@/utils/logger', () => ({
   logError: vi.fn(),
   logWarn: vi.fn(),
 }));

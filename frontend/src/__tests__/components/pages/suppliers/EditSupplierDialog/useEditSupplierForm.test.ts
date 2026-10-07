@@ -33,14 +33,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import type { TFunction } from 'i18next';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
-import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
+import type { SupplierRow } from '@/api/suppliers/types';
+import type { EditSupplierForm } from '@/api/suppliers/validation';
 
-import { editSupplierChanges, supplierRow } from './fixtures';
+import { editSupplierChanges, supplierRow } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures';
 import {
   setupUseEditSupplierFormDeps,
   type UseEditSupplierFormMockContainer,
-} from './testHelpers';
+} from '@/__tests__/components/pages/suppliers/EditSupplierDialog/testHelpers';
 
 const mocks = vi.hoisted(() => ({
   useAuth: vi.fn(),
@@ -58,33 +58,33 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
-vi.mock('../../../../../hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => mocks.useAuth(),
 }));
 
-vi.mock('../../../../../pages/suppliers/hooks/useSupplierSearch', () => ({
+vi.mock('@/pages/suppliers/hooks/useSupplierSearch', () => ({
   useSupplierSearch: () => mocks.useSupplierSearch(),
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierFormState', () => ({
+vi.mock('@/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierFormState', () => ({
   useEditSupplierFormState: () => mocks.useEditSupplierFormState(),
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierConfirmation', () => ({
+vi.mock('@/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierConfirmation', () => ({
   useEditSupplierConfirmation: () => mocks.useEditSupplierConfirmation(),
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/mapSupplierErrors', () => ({
+vi.mock('@/pages/suppliers/dialogs/EditSupplierDialog/mapSupplierErrors', () => ({
   mapSupplierError: (errorMsg: string | null | undefined, t: TFunction) =>
     mocks.mapSupplierError(errorMsg, t),
 }));
 
-vi.mock('../../../../../api/suppliers/supplierMutations', () => ({
+vi.mock('@/api/suppliers/supplierMutations', () => ({
   updateSupplier: (...args: unknown[]) => mocks.updateSupplier(...args),
 }));
 
-import { useEditSupplierForm } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
-import { tEn } from '../../../../test/i18nEn';
+import { useEditSupplierForm } from '@/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 const supplier: SupplierRow = supplierRow({ phone: '555-9000', email: 'old@acme.example' });
 const pendingChanges: EditSupplierForm = editSupplierChanges({ supplierId: supplier.id, phone: '555-9100' });

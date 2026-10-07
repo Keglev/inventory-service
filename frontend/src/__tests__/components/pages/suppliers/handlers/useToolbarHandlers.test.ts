@@ -22,8 +22,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useToolbarHandlers } from '../../../../../pages/suppliers/handlers/useToolbarHandlers';
-import type { UseSuppliersBoardStateReturn } from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
+import { useToolbarHandlers } from '@/pages/suppliers/handlers/useToolbarHandlers';
+import type { UseSuppliersBoardStateReturn } from '@/pages/suppliers/hooks/useSuppliersBoardState';
 
 describe('useToolbarHandlers', () => {
   const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {}): UseSuppliersBoardStateReturn => ({

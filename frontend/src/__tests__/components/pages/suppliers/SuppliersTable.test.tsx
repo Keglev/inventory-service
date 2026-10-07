@@ -27,9 +27,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SuppliersTable, type SuppliersTableProps } from '../../../../pages/suppliers/components/SuppliersTable';
-import type { SupplierRow } from '../../../../api/suppliers/types';
-import { tEn } from '../../../test/i18nEn';
+import { SuppliersTable, type SuppliersTableProps } from '@/pages/suppliers/components/SuppliersTable';
+import type { SupplierRow } from '@/api/suppliers/types';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
@@ -45,7 +45,7 @@ const settings = vi.hoisted(() => ({
   })),
 }));
 
-vi.mock('../../../../hooks/useSettings', () => settings);
+vi.mock('@/hooks/useSettings', () => settings);
 
 type ColumnDef = { field: string; headerName: string };
 type DataGridSlots = { noRowsOverlay?: () => React.ReactNode };

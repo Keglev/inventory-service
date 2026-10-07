@@ -18,9 +18,9 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import SystemPreferencesSection from '../../../../app/settings/sections/SystemPreferencesSection';
+import SystemPreferencesSection from '@/app/settings/sections/SystemPreferencesSection';
 import type { SystemInfo } from '@/context/settings/SettingsContext.types';
-import { tEn } from '../../../test/i18nEn';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

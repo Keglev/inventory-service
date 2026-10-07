@@ -17,8 +17,8 @@
  */
 import { describe, expect, it, vi } from 'vitest';
 
-import { applyItemFormServerError } from '../../../../../pages/inventory/dialogs/ItemFormDialog/itemFormServerErrors';
-import type { ItemFormServerErrorDeps } from '../../../../../pages/inventory/dialogs/ItemFormDialog/itemFormServerErrors';
+import { applyItemFormServerError } from '@/pages/inventory/dialogs/ItemFormDialog/itemFormServerErrors';
+import type { ItemFormServerErrorDeps } from '@/pages/inventory/dialogs/ItemFormDialog/itemFormServerErrors';
 
 const deps = () => {
   const setError = vi.fn();

@@ -30,7 +30,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import type { CreateSupplierForm } from '../../../../../api/suppliers/validation';
+import type { CreateSupplierForm } from '@/api/suppliers/validation';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -42,12 +42,12 @@ const mocks = vi.hoisted(() => ({
   setError: vi.fn(),
 }));
 
-vi.mock('../../../../../api/suppliers/supplierMutations', () => ({
+vi.mock('@/api/suppliers/supplierMutations', () => ({
   // The hook is the orchestration unit; the API layer is mocked deterministically.
   createSupplier: (...args: [unknown]) => mocks.createSupplier(...args),
 }));
 
-vi.mock('../../../../../api/suppliers/validation', () => ({
+vi.mock('@/api/suppliers/validation', () => ({
   createSupplierSchema: {},
 }));
 
@@ -76,8 +76,8 @@ vi.mock('react-hook-form', () => {
   };
 });
 
-import { useCreateSupplierForm } from '../../../../../pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm';
-import { tEn } from '../../../../test/i18nEn';
+import { useCreateSupplierForm } from '@/pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 describe('useCreateSupplierForm', () => {
   beforeEach(() => {

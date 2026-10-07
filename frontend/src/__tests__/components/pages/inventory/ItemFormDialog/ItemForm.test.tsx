@@ -13,7 +13,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
-import type { UseItemFormReturn } from '../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm';
+import type { UseItemFormReturn } from '@/pages/inventory/dialogs/ItemFormDialog/useItemForm';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -57,8 +57,8 @@ vi.mock('@mui/material', async () => {
   };
 });
 
-import { ItemForm } from '../../../../../pages/inventory/dialogs/ItemFormDialog/ItemForm';
-import { tEn } from '../../../../test/i18nEn';
+import { ItemForm } from '@/pages/inventory/dialogs/ItemFormDialog/ItemForm';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 function createMockState(overrides: Partial<UseItemFormReturn> = {}): UseItemFormReturn {
   const baseState: UseItemFormReturn = {

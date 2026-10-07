@@ -31,7 +31,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-import { useShellSettings } from '../../../app/layout/useShellSettings';
+import { useShellSettings } from '@/app/layout/useShellSettings';
 
 describe('useShellSettings', () => {
   const notify = vi.fn();

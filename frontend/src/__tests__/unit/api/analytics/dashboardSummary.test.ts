@@ -11,12 +11,12 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   default: { get: vi.fn() },
 }));
 
-import http from '../../../../api/httpClient';
-import { getDashboardLowStock } from '../../../../api/analytics/dashboardSummary';
+import http from '@/api/httpClient';
+import { getDashboardLowStock } from '@/api/analytics/dashboardSummary';
 
 describe('api/analytics/dashboardSummary.getDashboardLowStock', () => {
   const httpGet = http.get as unknown as ReturnType<typeof vi.fn>;

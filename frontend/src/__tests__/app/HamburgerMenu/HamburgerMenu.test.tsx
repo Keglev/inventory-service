@@ -21,8 +21,8 @@ import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import HamburgerMenu from '../../../app/HamburgerMenu/HamburgerMenu';
-import { tEn } from '../../test/i18nEn';
+import HamburgerMenu from '@/app/HamburgerMenu/HamburgerMenu';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Minimal child-prop types for safe call extraction
@@ -71,11 +71,11 @@ vi.mock('react-i18next', () => ({
 }));
 
 // Mock menu content components
-vi.mock('../../../app/HamburgerMenu/MenuContent/MenuSectionsRenderer', () => ({
+vi.mock('@/app/HamburgerMenu/MenuContent/MenuSectionsRenderer', () => ({
   default: mockMenuSectionsRenderer,
 }));
 
-vi.mock('../../../app/HamburgerMenu/MenuContent/LogoutMenuAction', () => ({
+vi.mock('@/app/HamburgerMenu/MenuContent/LogoutMenuAction', () => ({
   default: mockLogoutMenuAction,
 }));
 

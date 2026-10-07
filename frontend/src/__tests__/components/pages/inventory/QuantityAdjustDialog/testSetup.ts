@@ -11,7 +11,7 @@
 
 import { vi } from 'vitest';
 
-import { makeTEn } from '../../../../test/i18nEn';
+import { makeTEn } from '@/__tests__/test/i18nEn';
 
 const tEn = makeTEn(['inventory', 'common']);
 
@@ -21,7 +21,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../../context/toast/ToastContext', () => ({
+vi.mock('@/context/toast/ToastContext', () => ({
   // ToastContext exposes a function; this provides a stable no-op callback.
   useToast: () => vi.fn(),
 }));

@@ -18,23 +18,23 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 
 const toastSpy = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../../../api/inventory/priceMutations', () => ({
+vi.mock('@/api/inventory/priceMutations', () => ({
   changePrice: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
+vi.mock('@/api/inventory/hooks/useSuppliersQuery', () => ({
   useSuppliersQuery: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useItemSearchQuery', () => ({
+vi.mock('@/api/inventory/hooks/useItemSearchQuery', () => ({
   useItemSearchQuery: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
+vi.mock('@/api/inventory/hooks/useItemDetailsQuery', () => ({
   useItemDetailsQuery: vi.fn(),
 }));
 
-vi.mock('../../../../../context/toast/ToastContext', () => ({
+vi.mock('@/context/toast/ToastContext', () => ({
   useToast: () => toastSpy,
 }));
 
@@ -42,17 +42,17 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('../../../../../utils/logger', () => ({
+vi.mock('@/utils/logger', () => ({
   logError: vi.fn(),
 }));
 
-import { usePriceChangeForm } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
-import { changePrice } from '../../../../../api/inventory/priceMutations';
-import { useSuppliersQuery } from '../../../../../api/inventory/hooks/useSuppliersQuery';
-import { useItemSearchQuery } from '../../../../../api/inventory/hooks/useItemSearchQuery';
-import { useItemDetailsQuery } from '../../../../../api/inventory/hooks/useItemDetailsQuery';
-import { logError } from '../../../../../utils/logger';
-import type { ItemOption } from '../../../../../api/analytics/types';
+import { usePriceChangeForm } from '@/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
+import { changePrice } from '@/api/inventory/priceMutations';
+import { useSuppliersQuery } from '@/api/inventory/hooks/useSuppliersQuery';
+import { useItemSearchQuery } from '@/api/inventory/hooks/useItemSearchQuery';
+import { useItemDetailsQuery } from '@/api/inventory/hooks/useItemDetailsQuery';
+import { logError } from '@/utils/logger';
+import type { ItemOption } from '@/api/analytics/types';
 
 const changePriceMock = vi.mocked(changePrice);
 const useSuppliersQueryMock = vi.mocked(useSuppliersQuery);

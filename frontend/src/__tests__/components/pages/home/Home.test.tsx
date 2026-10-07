@@ -22,8 +22,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
-import Home from '../../../../pages/home/Home';
-import { tEn } from '../../../test/i18nEn';
+import Home from '@/pages/home/Home';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 const mockNavigate = vi.hoisted(() => vi.fn());
 const mockUseAuth = vi.hoisted(() => vi.fn());
@@ -39,7 +39,7 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockNavigate };
 });
 
-vi.mock('../../../../hooks/useAuth', () => ({ useAuth: mockUseAuth }));
+vi.mock('@/hooks/useAuth', () => ({ useAuth: mockUseAuth }));
 
 function givenAuth(state: { user: unknown; loading: boolean; loginAsDemo?: () => void }) {
   mockUseAuth.mockReturnValue({

@@ -15,9 +15,9 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import type { SupplierOption } from '../../../../../api/analytics/types';
+import type { SupplierOption } from '@/api/analytics/types';
 
-import { useDeleteItemQueries } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries';
+import { useDeleteItemQueries } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -26,15 +26,15 @@ const useSuppliersQueryMock = vi.hoisted(() => vi.fn());
 const useItemSearchQueryMock = vi.hoisted(() => vi.fn());
 const useItemDetailsQueryMock = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
+vi.mock('@/api/inventory/hooks/useSuppliersQuery', () => ({
   useSuppliersQuery: (...args: unknown[]) => useSuppliersQueryMock(...args),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useItemSearchQuery', () => ({
+vi.mock('@/api/inventory/hooks/useItemSearchQuery', () => ({
   useItemSearchQuery: (...args: unknown[]) => useItemSearchQueryMock(...args),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
+vi.mock('@/api/inventory/hooks/useItemDetailsQuery', () => ({
   useItemDetailsQuery: (...args: unknown[]) => useItemDetailsQueryMock(...args),
 }));
 

@@ -21,9 +21,9 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { tEn } from '../../../test/i18nEn';
+import { tEn } from '@/__tests__/test/i18nEn';
 import { render, screen } from '@testing-library/react';
-import LowStockAlertSection from '../../../../app/HamburgerMenu/NotificationSettings/LowStockAlertSection';
+import LowStockAlertSection from '@/app/HamburgerMenu/NotificationSettings/LowStockAlertSection';
 
 // -----------------------------------------------------------------------------
 // i18n mock

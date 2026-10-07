@@ -15,7 +15,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { extractPageTotal } from '../../../../api/shared/responseExtraction';
+import { extractPageTotal } from '@/api/shared/responseExtraction';
 
 describe('extractPageTotal', () => {
   it('reads the total nested under page (Spring Data PagedModel)', () => {

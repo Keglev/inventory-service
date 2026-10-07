@@ -17,7 +17,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import NavItem from '../../../app/layout/sidebar/NavItem';
+import NavItem from '@/app/layout/sidebar/NavItem';
 
 type Props = React.ComponentProps<typeof NavItem>;
 

@@ -20,9 +20,9 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useForm } from 'react-hook-form';
 
-import type { UsePriceChangeFormReturn } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
-import { PriceChangeForm } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm';
-import type { PriceChangeForm as PriceChangeFormValues } from '../../../../../pages/inventory/validation/inventoryValidation';
+import type { UsePriceChangeFormReturn } from '@/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
+import { PriceChangeForm } from '@/pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm';
+import type { PriceChangeForm as PriceChangeFormValues } from '@/pages/inventory/validation/inventoryValidation';
 
 /**
  * Translation is infrastructure. For deterministic unit tests, return keys.
@@ -41,7 +41,7 @@ vi.mock('react-i18next', () => ({
  * Mock item details to keep focus on form contract (not detail rendering).
  */
 const detailsSpy = vi.hoisted(() => vi.fn());
-vi.mock('../../../../../pages/inventory/dialogs/SelectedItemDetails', () => ({
+vi.mock('@/pages/inventory/dialogs/SelectedItemDetails', () => ({
   SelectedItemDetails: (props: { item: { name: string } | null; currentPrice: number }) => {
     detailsSpy(props);
     return (
@@ -54,7 +54,7 @@ vi.mock('../../../../../pages/inventory/dialogs/SelectedItemDetails', () => ({
 }));
 
 // German number format, so the helper text shows what a German user sees.
-vi.mock('../../../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: { numberFormat: 'DE', dateFormat: 'DD.MM.YYYY', tableDensity: 'standard' },
   }),

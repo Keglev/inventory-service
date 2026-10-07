@@ -16,10 +16,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
-import { HelpProvider } from '../../../../../context/help/HelpContext';
-import { DeleteItemDialog } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog';
-import type { UseDeleteItemDialogReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types';
-import { tEn } from '../../../../test/i18nEn';
+import { HelpProvider } from '@/context/help/HelpContext';
+import { DeleteItemDialog } from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog';
+import type { UseDeleteItemDialogReturn } from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
@@ -33,14 +33,14 @@ const mockUseDeleteItemDialog = vi.hoisted(() => vi.fn());
 // Capture the props passed into DeleteItemContent for assertions.
 const mockDeleteItemContent = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemContent', () => ({
+vi.mock('@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemContent', () => ({
   DeleteItemContent: (props: unknown) => {
     mockDeleteItemContent(props);
     return <div data-testid="delete-item-content">Content</div>;
   },
 }));
 
-vi.mock('../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemDialog', () => ({
+vi.mock('@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemDialog', () => ({
   useDeleteItemDialog: (...args: unknown[]) => mockUseDeleteItemDialog(...args),
 }));
 

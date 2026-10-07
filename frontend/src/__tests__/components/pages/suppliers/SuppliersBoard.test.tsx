@@ -21,9 +21,9 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import SuppliersBoard from '../../../../pages/suppliers/SuppliersBoard';
-import type { SupplierRow } from '../../../../api/suppliers/types';
-import type { UseSuppliersBoardStateReturn } from '../../../../pages/suppliers/hooks/useSuppliersBoardState';
+import SuppliersBoard from '@/pages/suppliers/SuppliersBoard';
+import type { SupplierRow } from '@/api/suppliers/types';
+import type { UseSuppliersBoardStateReturn } from '@/pages/suppliers/hooks/useSuppliersBoardState';
 
 type SuppliersBoardData = {
   suppliers: SupplierRow[];
@@ -60,50 +60,50 @@ const runtime = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('../../../../pages/suppliers/components/SuppliersToolbar', () => ({
+vi.mock('@/pages/suppliers/components/SuppliersToolbar', () => ({
   SuppliersToolbar: (props: unknown) => {
     spies.SuppliersToolbar(props);
     return null;
   },
 }));
 
-vi.mock('../../../../pages/suppliers/components/SuppliersSearchPanel', () => ({
+vi.mock('@/pages/suppliers/components/SuppliersSearchPanel', () => ({
   SuppliersSearchPanel: (props: unknown) => {
     spies.SuppliersSearchPanel(props);
     return null;
   },
 }));
 
-vi.mock('../../../../pages/suppliers/components/SuppliersFilterPanel', () => ({
+vi.mock('@/pages/suppliers/components/SuppliersFilterPanel', () => ({
   SuppliersFilterPanel: (props: unknown) => {
     spies.SuppliersFilterPanel(props);
     return null;
   },
 }));
 
-vi.mock('../../../../pages/suppliers/components/SuppliersTable', () => ({
+vi.mock('@/pages/suppliers/components/SuppliersTable', () => ({
   SuppliersTable: (props: unknown) => {
     spies.SuppliersTable(props);
     return null;
   },
 }));
 
-vi.mock('../../../../pages/suppliers/components/SuppliersDialogs', () => ({
+vi.mock('@/pages/suppliers/components/SuppliersDialogs', () => ({
   SuppliersDialogs: (props: unknown) => {
     spies.SuppliersDialogs(props);
     return null;
   },
 }));
 
-vi.mock('../../../../hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: runtime.user }),
 }));
 
-vi.mock('../../../../pages/suppliers/hooks/useSuppliersBoardState', () => ({
+vi.mock('@/pages/suppliers/hooks/useSuppliersBoardState', () => ({
   useSuppliersBoardState: () => runtime.state,
 }));
 
-vi.mock('../../../../pages/suppliers/handlers/useToolbarHandlers', () => ({
+vi.mock('@/pages/suppliers/handlers/useToolbarHandlers', () => ({
   useToolbarHandlers: () => ({
     handleAddNew: runtime.handlers.handleAddNew,
     handleEdit: runtime.handlers.handleEdit,
@@ -111,7 +111,7 @@ vi.mock('../../../../pages/suppliers/handlers/useToolbarHandlers', () => ({
   }),
 }));
 
-vi.mock('../../../../pages/suppliers/handlers/useSearchHandlers', () => ({
+vi.mock('@/pages/suppliers/handlers/useSearchHandlers', () => ({
   useSearchHandlers: () => ({
     handleSearchChange: runtime.handlers.handleSearchChange,
     handleSearchResultSelect: runtime.handlers.handleSearchResultSelect,
@@ -119,11 +119,11 @@ vi.mock('../../../../pages/suppliers/handlers/useSearchHandlers', () => ({
   }),
 }));
 
-vi.mock('../../../../pages/suppliers/handlers/useFilterHandlers', () => ({
+vi.mock('@/pages/suppliers/handlers/useFilterHandlers', () => ({
   useFilterHandlers: () => ({ handleToggleShowAll: runtime.handlers.handleToggleShowAll }),
 }));
 
-vi.mock('../../../../pages/suppliers/handlers/useDialogHandlers', () => ({
+vi.mock('@/pages/suppliers/handlers/useDialogHandlers', () => ({
   useDialogHandlers: () => ({
     handleSupplierCreated: runtime.handlers.handleSupplierCreated,
     handleSupplierUpdated: runtime.handlers.handleSupplierUpdated,
@@ -131,7 +131,7 @@ vi.mock('../../../../pages/suppliers/handlers/useDialogHandlers', () => ({
   }),
 }));
 
-vi.mock('../../../../pages/suppliers/hooks/useSuppliersBoardData', () => ({
+vi.mock('@/pages/suppliers/hooks/useSuppliersBoardData', () => ({
   useSuppliersBoardData: () => runtime.data,
 }));
 

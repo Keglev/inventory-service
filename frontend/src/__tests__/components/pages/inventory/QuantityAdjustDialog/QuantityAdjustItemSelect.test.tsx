@@ -18,8 +18,8 @@ import './testSetup';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QuantityAdjustItemSelect } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemSelect';
-import type { ItemOption, SupplierOption } from '../../../../../api/analytics/types';
+import { QuantityAdjustItemSelect } from '@/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemSelect';
+import type { ItemOption, SupplierOption } from '@/api/analytics/types';
 
 const supplier: SupplierOption = { id: 'sup-1', label: 'Supplier One' };
 

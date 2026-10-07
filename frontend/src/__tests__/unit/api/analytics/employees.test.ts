@@ -6,14 +6,14 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   default: {
     get: vi.fn(),
   },
 }));
 
-import http from '../../../../api/httpClient';
-import { getEmployeeActivity, getEmployeeChanges } from '../../../../api/analytics/employees';
+import http from '@/api/httpClient';
+import { getEmployeeActivity, getEmployeeChanges } from '@/api/analytics/employees';
 
 describe('api/analytics/employees', () => {
   const httpGet = http.get as unknown as ReturnType<typeof vi.fn>;

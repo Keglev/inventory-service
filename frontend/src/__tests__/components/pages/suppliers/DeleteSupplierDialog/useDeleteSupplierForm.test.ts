@@ -27,8 +27,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
-import type { UseSupplierSearchReturn } from '../../../../../pages/suppliers/hooks/useSupplierSearch';
+import type { SupplierRow } from '@/api/suppliers/types';
+import type { UseSupplierSearchReturn } from '@/pages/suppliers/hooks/useSupplierSearch';
 
 const mocks = vi.hoisted(() => ({
   deleteSupplier: vi.fn(),
@@ -37,11 +37,11 @@ const mocks = vi.hoisted(() => ({
   resetSearch: vi.fn(),
 }));
 
-vi.mock('../../../../../api/suppliers/supplierMutations', () => ({
+vi.mock('@/api/suppliers/supplierMutations', () => ({
   deleteSupplier: (...args: [string]) => mocks.deleteSupplier(...args),
 }));
 
-vi.mock('../../../../../hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => mocks.useAuth(),
 }));
 
@@ -51,12 +51,12 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../../pages/suppliers/hooks/useSupplierSearch', () => ({
+vi.mock('@/pages/suppliers/hooks/useSupplierSearch', () => ({
   useSupplierSearch: () => mocks.useSupplierSearch(),
 }));
 
-import { useDeleteSupplierForm } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm';
-import { tEn } from '../../../../test/i18nEn';
+import { useDeleteSupplierForm } from '@/pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 const supplier: SupplierRow = {
   id: 'sup-1',

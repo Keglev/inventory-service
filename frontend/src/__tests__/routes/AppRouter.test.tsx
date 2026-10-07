@@ -23,32 +23,32 @@ import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Outlet } from 'react-router-dom';
-import type { AuthContextType } from '../../context/auth/authTypes';
-import AppRouter from '../../routes/AppRouter';
+import type { AuthContextType } from '@/context/auth/authTypes';
+import AppRouter from '@/routes/AppRouter';
 
 const useAuthMock = vi.hoisted(() => vi.fn());
-vi.mock('../../hooks/useAuth', () => ({ useAuth: useAuthMock }));
+vi.mock('@/hooks/useAuth', () => ({ useAuth: useAuthMock }));
 
 // Vitest hoists `vi.mock()` calls, so any helper referenced by mock factories must
 // also be hoisted to avoid TDZ ("Cannot access before initialization") errors.
 const page = vi.hoisted(() => (label: string) => () => <div>{label}</div>);
 
 // Pages are mocked as static labels; routing behavior is what we care about here.
-vi.mock('../../pages/home/Home', () => ({ default: page('Home Page') }));
-vi.mock('../../pages/auth/LoginPage', () => ({ default: page('Login Page') }));
-vi.mock('../../pages/auth/AuthCallback', () => ({ default: page('Auth Callback') }));
-vi.mock('../../pages/auth/LogoutSuccess', () => ({ default: page('Logout Success') }));
-vi.mock('../../pages/auth/LogoutPage', () => ({ default: page('Logout Page') }));
-vi.mock('../../pages/system/NotFoundPage', () => ({ default: page('404 Not Found') }));
-vi.mock('../../pages/legal/ImpressumPage', () => ({ default: page('Impressum Page') }));
-vi.mock('../../pages/legal/DatenschutzPage', () => ({ default: page('Datenschutz Page') }));
+vi.mock('@/pages/home/Home', () => ({ default: page('Home Page') }));
+vi.mock('@/pages/auth/LoginPage', () => ({ default: page('Login Page') }));
+vi.mock('@/pages/auth/AuthCallback', () => ({ default: page('Auth Callback') }));
+vi.mock('@/pages/auth/LogoutSuccess', () => ({ default: page('Logout Success') }));
+vi.mock('@/pages/auth/LogoutPage', () => ({ default: page('Logout Page') }));
+vi.mock('@/pages/system/NotFoundPage', () => ({ default: page('404 Not Found') }));
+vi.mock('@/pages/legal/ImpressumPage', () => ({ default: page('Impressum Page') }));
+vi.mock('@/pages/legal/DatenschutzPage', () => ({ default: page('Datenschutz Page') }));
 
-vi.mock('../../pages/dashboard/Dashboard', () => ({ default: page('Dashboard') }));
-vi.mock('../../pages/inventory/InventoryBoard', () => ({ default: page('Inventory Board') }));
-vi.mock('../../pages/suppliers/SuppliersBoard', () => ({ default: page('Suppliers Board') }));
-vi.mock('../../pages/analytics/Analytics', () => ({ default: page('Analytics') }));
+vi.mock('@/pages/dashboard/Dashboard', () => ({ default: page('Dashboard') }));
+vi.mock('@/pages/inventory/InventoryBoard', () => ({ default: page('Inventory Board') }));
+vi.mock('@/pages/suppliers/SuppliersBoard', () => ({ default: page('Suppliers Board') }));
+vi.mock('@/pages/analytics/Analytics', () => ({ default: page('Analytics') }));
 
-vi.mock('../../app/layout/AppShell', () => ({
+vi.mock('@/app/layout/AppShell', () => ({
   default: () => (
     <div data-testid="app-shell">
       <Outlet />
@@ -56,7 +56,7 @@ vi.mock('../../app/layout/AppShell', () => ({
   ),
 }));
 
-vi.mock('../../app/public-shell/AppPublicShell', () => ({
+vi.mock('@/app/public-shell/AppPublicShell', () => ({
   default: () => (
     <div data-testid="public-shell">
       <Outlet />
@@ -64,7 +64,7 @@ vi.mock('../../app/public-shell/AppPublicShell', () => ({
   ),
 }));
 
-vi.mock('../../features/auth/guards/RequireAuth', () => ({
+vi.mock('@/features/auth/guards/RequireAuth', () => ({
   RequireAuth: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="require-auth">{children}</div>
   ),

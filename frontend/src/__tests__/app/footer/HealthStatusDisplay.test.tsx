@@ -17,8 +17,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import HealthStatusDisplay from '../../../app/footer/HealthStatusDisplay';
-import { tEn } from '../../test/i18nEn';
+import HealthStatusDisplay from '@/app/footer/HealthStatusDisplay';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock

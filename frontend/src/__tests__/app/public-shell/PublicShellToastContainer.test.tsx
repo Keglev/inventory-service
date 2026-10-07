@@ -17,8 +17,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import PublicShellToastContainer from '../../../app/public-shell/PublicShellToastContainer';
-import { tEn } from '../../test/i18nEn';
+import PublicShellToastContainer from '@/app/public-shell/PublicShellToastContainer';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock

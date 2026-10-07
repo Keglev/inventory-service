@@ -14,7 +14,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { pickString, pickNumber } from '../../../../api/shared/fieldPickers';
+import { pickString, pickNumber } from '@/api/shared/fieldPickers';
 
 describe('fieldPickers', () => {
   describe('pickString()', () => {

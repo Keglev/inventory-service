@@ -16,7 +16,7 @@
 
 import type { ReactElement } from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
-import { AllProviders } from './all-providers';
+import { AllProviders } from '@/__tests__/test/all-providers';
 
 /**
  * Render helper that wraps the UI under test with the project test providers.

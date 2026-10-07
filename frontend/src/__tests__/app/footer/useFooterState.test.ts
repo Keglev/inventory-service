@@ -15,8 +15,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useFooterState } from '../../../app/footer/useFooterState';
-import { tEn } from '../../test/i18nEn';
+import { useFooterState } from '@/app/footer/useFooterState';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Hoisted mocks (must exist before vi.mock factory runs)
@@ -28,7 +28,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
-vi.mock('../../../features/health/hooks/useHealthCheck', () => ({
+vi.mock('@/features/health/hooks/useHealthCheck', () => ({
   useHealthCheck: mockUseHealthCheck,
 }));
 

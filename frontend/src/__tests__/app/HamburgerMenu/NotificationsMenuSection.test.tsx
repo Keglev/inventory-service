@@ -16,8 +16,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import NotificationsMenuSection from '../../../app/HamburgerMenu/NotificationsMenuSection';
-import { tEn } from '../../test/i18nEn';
+import NotificationsMenuSection from '@/app/HamburgerMenu/NotificationsMenuSection';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Mocks
@@ -25,7 +25,7 @@ import { tEn } from '../../test/i18nEn';
 const mockUseDashboardMetrics = vi.hoisted(() => vi.fn());
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../api/analytics/hooks/useDashboardMetrics', () => ({
+vi.mock('@/api/analytics/hooks/useDashboardMetrics', () => ({
   useDashboardMetrics: mockUseDashboardMetrics,
 }));
 

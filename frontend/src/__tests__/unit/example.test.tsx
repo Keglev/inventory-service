@@ -14,7 +14,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { render, screen } from '../test/test-utils';
+import { render, screen } from '@/__tests__/test/test-utils';
 
 function TestComponent() {
   return <div>Hello Test</div>;

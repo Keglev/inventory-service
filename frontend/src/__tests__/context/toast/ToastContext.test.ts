@@ -19,7 +19,7 @@
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { ToastContext, useToast, type ToastFn } from '../../../context/toast/ToastContext';
+import { ToastContext, useToast, type ToastFn } from '@/context/toast/ToastContext';
 
 describe('ToastContext', () => {
   it('returns a callable no-op function when no provider is present', () => {

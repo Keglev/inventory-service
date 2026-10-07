@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
-import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
-import type { UseEditSupplierFormReturn } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
+import type { EditSupplierForm } from '@/api/suppliers/validation';
+import type { SupplierRow } from '@/api/suppliers/types';
+import type { UseEditSupplierFormReturn } from '@/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
 
 /**
  * Small, local test helpers for the EditSupplierDialog test directory.

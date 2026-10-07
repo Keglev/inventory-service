@@ -16,19 +16,19 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   default: {
     get: vi.fn(),
   },
 }));
 
-import http from '../../../../api/httpClient';
+import http from '@/api/httpClient';
 
 import {
   getItemCount,
   getSupplierCount,
   getLowStockCount,
-} from '../../../../api/analytics/metrics';
+} from '@/api/analytics/metrics';
 
 describe('api/analytics/metrics', () => {
   const httpGet = http.get as unknown as ReturnType<typeof vi.fn>;

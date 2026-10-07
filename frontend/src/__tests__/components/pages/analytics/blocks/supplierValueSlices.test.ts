@@ -10,7 +10,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import type { StockPerSupplierPoint } from '../../../../../api/analytics/types';
+import type { StockPerSupplierPoint } from '@/api/analytics/types';
 import { supplierValueSlices } from '@/pages/analytics/blocks/supplierValueSlices';
 
 function point(supplierName: string, totalValue: number): StockPerSupplierPoint {

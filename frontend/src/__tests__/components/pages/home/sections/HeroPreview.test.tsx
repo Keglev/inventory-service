@@ -15,9 +15,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-import HeroPreview from '../../../../../pages/home/sections/HeroPreview';
-import { previewSrc } from '../../../../../pages/home/sections/heroPreviewSrc';
-import { tEn } from '../../../../test/i18nEn';
+import HeroPreview from '@/pages/home/sections/HeroPreview';
+import { previewSrc } from '@/pages/home/sections/heroPreviewSrc';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 const i18nState = vi.hoisted(() => ({ language: 'de' }));
 

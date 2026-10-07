@@ -21,14 +21,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock the http client used by finance.ts
-vi.mock('../../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   default: {
     get: vi.fn(),
   },
 }));
 
-import http from '../../../../api/httpClient';
-import { getFinancialSummary } from '../../../../api/analytics/finance';
+import http from '@/api/httpClient';
+import { getFinancialSummary } from '@/api/analytics/finance';
 
 describe('api/analytics/finance.getFinancialSummary', () => {
   const ZERO_SUMMARY = {

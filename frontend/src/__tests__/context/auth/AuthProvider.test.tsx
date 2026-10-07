@@ -24,9 +24,9 @@ import React from 'react';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { AppUser } from '../../../context/auth/authTypes';
-import { AuthContext } from '../../../context/auth/AuthContext';
-import AuthProvider from '../../../context/auth/AuthProvider';
+import type { AppUser } from '@/context/auth/authTypes';
+import { AuthContext } from '@/context/auth/AuthContext';
+import AuthProvider from '@/context/auth/AuthProvider';
 
 const DEMO_KEY = 'ssp.demo.session';
 const STORAGE_FLAG = 'ssp:forceLogout';
@@ -35,7 +35,7 @@ const httpClientMock = vi.hoisted(() => ({
   get: vi.fn(),
 }));
 
-vi.mock('../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   default: httpClientMock,
   API_BASE: 'http://api.example.com',
 }));

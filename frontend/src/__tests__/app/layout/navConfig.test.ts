@@ -15,7 +15,7 @@ import {
   HelpTopics,
   NAV_ITEMS,
   getHelpTopicForRoute,
-} from '../../../app/layout/navConfig';
+} from '@/app/layout/navConfig';
 
 describe('app/layout/navConfig', () => {
   it('defines the four sidebar items in display order with route/label/help wiring', () => {

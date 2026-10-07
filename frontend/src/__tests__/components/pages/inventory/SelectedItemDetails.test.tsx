@@ -15,9 +15,9 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { SelectedItemDetails } from '../../../../pages/inventory/dialogs/SelectedItemDetails';
-import type { ItemOption } from '../../../../api/analytics/types';
-import { makeTEn } from '../../../test/i18nEn';
+import { SelectedItemDetails } from '@/pages/inventory/dialogs/SelectedItemDetails';
+import type { ItemOption } from '@/api/analytics/types';
+import { makeTEn } from '@/__tests__/test/i18nEn';
 
 const tEn = makeTEn(['inventory', 'common']);
 vi.mock('react-i18next', () => ({
@@ -25,7 +25,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 // German number format: the price-change panel once printed "4.85" in the German UI.
-vi.mock('../../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: { numberFormat: 'DE', dateFormat: 'DD.MM.YYYY', tableDensity: 'standard' },
   }),

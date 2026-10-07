@@ -10,8 +10,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useToolbarHandlers } from '../../../../pages/inventory/handlers/useToolbarHandlers';
-import { makeInventoryState } from './fixtures';
+import { useToolbarHandlers } from '@/pages/inventory/handlers/useToolbarHandlers';
+import { makeInventoryState } from '@/__tests__/components/pages/inventory/fixtures';
 
 describe('useToolbarHandlers', () => {
   it('returns the expected handlers', () => {

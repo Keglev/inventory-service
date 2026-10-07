@@ -17,15 +17,15 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   default: {
     get: vi.fn(),
   },
 }));
 
-import http from '../../../../api/httpClient';
-import { getLowStockItems } from '../../../../api/analytics/lowStock';
-import type { AnalyticsParams } from '../../../../api/analytics/validation';
+import http from '@/api/httpClient';
+import { getLowStockItems } from '@/api/analytics/lowStock';
+import type { AnalyticsParams } from '@/api/analytics/validation';
 
 describe('api/analytics/lowStock.getLowStockItems', () => {
   const httpGet = http.get as unknown as ReturnType<typeof vi.fn>;

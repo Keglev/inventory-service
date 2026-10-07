@@ -18,8 +18,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ProfileEmailDisplay from '../../../../app/HamburgerMenu/ProfileSettings/ProfileEmailDisplay';
-import { tEn } from '../../../test/i18nEn';
+import ProfileEmailDisplay from '@/app/HamburgerMenu/ProfileSettings/ProfileEmailDisplay';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock

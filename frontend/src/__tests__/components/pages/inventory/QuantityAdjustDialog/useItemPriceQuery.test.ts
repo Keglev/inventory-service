@@ -19,15 +19,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement, type ReactNode } from 'react';
-import type { ItemOption } from '../../../../../api/analytics/types';
-import { useItemPriceQuery } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/useItemPriceQuery';
+import type { ItemOption } from '@/api/analytics/types';
+import { useItemPriceQuery } from '@/pages/inventory/dialogs/QuantityAdjustDialog/useItemPriceQuery';
 
 // Deterministic API mock; each test controls resolved/rejected values.
-vi.mock('../../../../../api/analytics/priceTrend', () => ({
+vi.mock('@/api/analytics/priceTrend', () => ({
   getPriceTrend: vi.fn(),
 }));
 
-import { getPriceTrend } from '../../../../../api/analytics/priceTrend';
+import { getPriceTrend } from '@/api/analytics/priceTrend';
 
 const getPriceTrendMock = vi.mocked(getPriceTrend);
 

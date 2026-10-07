@@ -16,10 +16,10 @@ import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ItemSearchField } from '../../../../pages/inventory/components/ItemSearchField';
-import { matchItems } from '../../../../api/inventory/matchItems';
-import type { ItemOption } from '../../../../api/analytics/types';
-import { tEn } from '../../../test/i18nEn';
+import { ItemSearchField } from '@/pages/inventory/components/ItemSearchField';
+import { matchItems } from '@/api/inventory/matchItems';
+import type { ItemOption } from '@/api/analytics/types';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),

@@ -18,7 +18,7 @@ import {
   formatToIsoDate,
   getQuickDateRange,
   validateDateRange,
-} from '../../../../pages/analytics/components/filters/useFiltersLogic';
+} from '@/pages/analytics/components/filters/useFiltersLogic';
 
 describe('parseIsoDate', () => {
   it('returns undefined for missing input', () => {

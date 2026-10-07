@@ -16,9 +16,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
-import type { LowStockDerivedRow } from '../../../../../pages/analytics/hooks/useLowStockRows';
-import { useLowStockRows } from '../../../../../pages/analytics/hooks/useLowStockRows';
-import LowStockTable from '../../../../../pages/analytics/blocks/LowStockTable';
+import type { LowStockDerivedRow } from '@/pages/analytics/hooks/useLowStockRows';
+import { useLowStockRows } from '@/pages/analytics/hooks/useLowStockRows';
+import LowStockTable from '@/pages/analytics/blocks/LowStockTable';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -27,18 +27,18 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: { dateFormat: 'DD/MM/YYYY', numberFormat: 'DE' },
   }),
 }));
 
-vi.mock('../../../../../pages/analytics/hooks/useLowStockRows', () => ({
+vi.mock('@/pages/analytics/hooks/useLowStockRows', () => ({
   useLowStockRows: vi.fn(),
 }));
 
 // Renders the formatted quantity so formatQty's branches execute per row.
-vi.mock('../../../../../pages/analytics/blocks/LowStockTableRow', () => ({
+vi.mock('@/pages/analytics/blocks/LowStockTableRow', () => ({
   LowStockTableRow: ({
     row,
     formatQty,

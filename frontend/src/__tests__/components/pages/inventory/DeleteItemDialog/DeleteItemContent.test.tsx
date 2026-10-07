@@ -16,9 +16,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
-import { DeleteItemContent } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemContent';
-import type { UseDeleteItemDialogReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types';
-import { tEn } from '../../../../test/i18nEn';
+import { DeleteItemContent } from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemContent';
+import type { UseDeleteItemDialogReturn } from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // B2: provide a react-i18next mock so useTranslation resolves without an
 // i18n instance in this suite, silencing the NO_I18NEXT_INSTANCE warning. The stub

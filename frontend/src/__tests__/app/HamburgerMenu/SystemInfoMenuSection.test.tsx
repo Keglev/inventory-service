@@ -14,8 +14,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import SystemInfoMenuSection from '../../../app/HamburgerMenu/SystemInfoMenuSection';
-import { tEn } from '../../test/i18nEn';
+import SystemInfoMenuSection from '@/app/HamburgerMenu/SystemInfoMenuSection';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Mocks
@@ -23,7 +23,7 @@ import { tEn } from '../../test/i18nEn';
 const mockUseHealthCheck = vi.hoisted(() => vi.fn());
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../features/health/hooks/useHealthCheck', () => ({
+vi.mock('@/features/health/hooks/useHealthCheck', () => ({
   useHealthCheck: mockUseHealthCheck,
 }));
 

@@ -22,8 +22,8 @@ import { render, screen, fireEvent, within } from '@testing-library/react';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 
-import { EditItemForm } from '../../../../../pages/inventory/dialogs/EditItemDialog/EditItemForm';
-import type { UseEditItemFormReturn } from '../../../../../pages/inventory/dialogs/EditItemDialog/useEditItemForm';
+import { EditItemForm } from '@/pages/inventory/dialogs/EditItemDialog/EditItemForm';
+import type { UseEditItemFormReturn } from '@/pages/inventory/dialogs/EditItemDialog/useEditItemForm';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),

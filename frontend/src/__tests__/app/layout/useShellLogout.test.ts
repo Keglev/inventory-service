@@ -11,7 +11,7 @@
  */
 import { describe, it, expect, vi } from 'vitest';
 
-import { useShellLogout } from '../../../app/layout/useShellLogout';
+import { useShellLogout } from '@/app/layout/useShellLogout';
 
 function makeDeps(isDemo: boolean) {
   return {

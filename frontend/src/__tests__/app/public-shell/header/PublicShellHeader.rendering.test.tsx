@@ -15,7 +15,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import PublicShellHeader from '../../../../app/public-shell/header/PublicShellHeader';
+import PublicShellHeader from '@/app/public-shell/header/PublicShellHeader';
 
 type ThemeMode = 'light' | 'dark';
 type Locale = 'de' | 'en';
@@ -39,14 +39,14 @@ let lastLanguageProps: Partial<LanguageToggleProps> | undefined;
  * Child component stubs:
  * We capture props to validate orchestrated wiring from PublicShellHeader.
  */
-vi.mock('../../../../app/public-shell/header/ThemeToggle', () => ({
+vi.mock('@/app/public-shell/header/ThemeToggle', () => ({
   default: (props: Partial<ThemeToggleProps>) => {
     lastThemeProps = props;
     return <button data-testid="theme-toggle" type="button" />;
   },
 }));
 
-vi.mock('../../../../app/public-shell/header/LanguageToggle', () => ({
+vi.mock('@/app/public-shell/header/LanguageToggle', () => ({
   default: (props: Partial<LanguageToggleProps>) => {
     lastLanguageProps = props;
     return <button data-testid="language-toggle" type="button" />;

@@ -20,30 +20,30 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 
 const toastSpy = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../../../api/inventory/stockMutations', () => ({
+vi.mock('@/api/inventory/stockMutations', () => ({
   adjustQuantity: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
+vi.mock('@/api/inventory/hooks/useSuppliersQuery', () => ({
   useSuppliersQuery: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useItemSearchQuery', () => ({
+vi.mock('@/api/inventory/hooks/useItemSearchQuery', () => ({
   useItemSearchQuery: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
+vi.mock('@/api/inventory/hooks/useItemDetailsQuery', () => ({
   useItemDetailsQuery: vi.fn(),
 }));
 
 vi.mock(
-  '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/useItemPriceQuery',
+  '@/pages/inventory/dialogs/QuantityAdjustDialog/useItemPriceQuery',
   () => ({
     useItemPriceQuery: vi.fn(),
   })
 );
 
-vi.mock('../../../../../context/toast/ToastContext', () => ({
+vi.mock('@/context/toast/ToastContext', () => ({
   useToast: () => toastSpy,
 }));
 
@@ -51,18 +51,18 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('../../../../../utils/logger', () => ({
+vi.mock('@/utils/logger', () => ({
   logError: vi.fn(),
 }));
 
-import { useQuantityAdjustForm } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm';
-import { adjustQuantity } from '../../../../../api/inventory/stockMutations';
-import { useSuppliersQuery } from '../../../../../api/inventory/hooks/useSuppliersQuery';
-import { useItemSearchQuery } from '../../../../../api/inventory/hooks/useItemSearchQuery';
-import { useItemDetailsQuery } from '../../../../../api/inventory/hooks/useItemDetailsQuery';
-import { useItemPriceQuery } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/useItemPriceQuery';
-import { logError } from '../../../../../utils/logger';
-import type { ItemOption } from '../../../../../api/analytics/types';
+import { useQuantityAdjustForm } from '@/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm';
+import { adjustQuantity } from '@/api/inventory/stockMutations';
+import { useSuppliersQuery } from '@/api/inventory/hooks/useSuppliersQuery';
+import { useItemSearchQuery } from '@/api/inventory/hooks/useItemSearchQuery';
+import { useItemDetailsQuery } from '@/api/inventory/hooks/useItemDetailsQuery';
+import { useItemPriceQuery } from '@/pages/inventory/dialogs/QuantityAdjustDialog/useItemPriceQuery';
+import { logError } from '@/utils/logger';
+import type { ItemOption } from '@/api/analytics/types';
 
 const adjustQuantityMock = vi.mocked(adjustQuantity);
 const useSuppliersQueryMock = vi.mocked(useSuppliersQuery);

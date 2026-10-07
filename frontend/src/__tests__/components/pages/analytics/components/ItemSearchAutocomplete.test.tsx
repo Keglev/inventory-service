@@ -19,8 +19,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ItemSearchAutocomplete } from '../../../../../pages/analytics/components/ItemSearchAutocomplete';
-import type { ItemRef } from '../../../../../api/shared/types';
+import { ItemSearchAutocomplete } from '@/pages/analytics/components/ItemSearchAutocomplete';
+import type { ItemRef } from '@/api/shared/types';
 
 const ITEMS: ItemRef[] = [
   { id: 'i1', name: 'Copper Wire' },

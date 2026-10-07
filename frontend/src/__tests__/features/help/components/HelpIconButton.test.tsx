@@ -21,19 +21,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { tEn } from '../../../test/i18nEn';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 // Mock the useHelp hook
-vi.mock('../../../../hooks/useHelp', () => ({
+vi.mock('@/hooks/useHelp', () => ({
   useHelp: vi.fn(),
 }));
 
-import { HelpIconButton } from '../../../../features/help/components/HelpIconButton';
-import * as helpHooks from '../../../../hooks/useHelp';
+import { HelpIconButton } from '@/features/help/components/HelpIconButton';
+import * as helpHooks from '@/hooks/useHelp';
 
 describe('HelpIconButton', () => {
   function mockUseHelp(overrides?: Partial<ReturnType<typeof helpHooks.useHelp>>) {

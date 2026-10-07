@@ -22,8 +22,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import MonthlyMovementMini from '../../../../pages/dashboard/blocks/MonthlyMovementMini';
-import { tEn } from '../../../test/i18nEn';
+import MonthlyMovementMini from '@/pages/dashboard/blocks/MonthlyMovementMini';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -------------------------------------
 // Deterministic mocks
@@ -61,7 +61,7 @@ const mockGetMonthlyStockMovement = vi.hoisted(() =>
   ),
 );
 
-vi.mock('../../../../api/analytics/stock', () => ({
+vi.mock('@/api/analytics/stock', () => ({
   getMonthlyStockMovement: mockGetMonthlyStockMovement,
 }));
 
@@ -69,7 +69,7 @@ vi.mock('../../../../api/analytics/stock', () => ({
  * Date utilities must be deterministic for query keys / request params.
  * Avoid using real Date() in tests.
  */
-vi.mock('../../../../utils/formatters', () => ({
+vi.mock('@/utils/formatters', () => ({
   getTodayIso: () => '2024-12-22',
   getDaysAgoIso: (days: number) => (days === 90 ? '2024-09-23' : '2024-01-01'),
   formatNumber: (num: number) => String(num),
@@ -79,7 +79,7 @@ vi.mock('../../../../utils/formatters', () => ({
  * Settings context is mocked: the component reads numberFormat for the
  * axis/tooltip formatters.
  */
-vi.mock('../../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: { numberFormat: 'EN_US', dateFormat: 'YYYY-MM-DD', tableDensity: 'standard' },
   }),

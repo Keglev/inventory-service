@@ -17,7 +17,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ItemUpdateFrequencyPoint } from '@/api/analytics/frequency';
 import { getItemUpdateFrequency } from '@/api/analytics/frequency';
 import ItemUpdateFrequencyCard from '@/pages/analytics/blocks/ItemUpdateFrequencyCard';
-import { tEn } from '../../../../test/i18nEn';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Mocks

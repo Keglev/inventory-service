@@ -18,8 +18,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 
-import httpClient from '../../../api/httpClient';
-import { adjustQuantity } from '../../../api/inventory/stockMutations';
+import httpClient from '@/api/httpClient';
+import { adjustQuantity } from '@/api/inventory/stockMutations';
 
 type Handler = {
   fulfilled: (res: AxiosResponse) => AxiosResponse;
@@ -70,7 +70,7 @@ describe('httpClient', () => {
       vi.resetModules();
       vi.stubEnv('VITE_API_BASE', '   ');
 
-      const fresh = await import('../../../api/httpClient');
+      const fresh = await import('@/api/httpClient');
 
       expect(fresh.API_BASE).toBe('/api');
       expect(fresh.default.defaults.baseURL).toBe('/api');
@@ -83,7 +83,7 @@ describe('httpClient', () => {
       vi.resetModules();
       vi.stubEnv('VITE_API_BASE', 'https://backend.example.com/');
 
-      const fresh = await import('../../../api/httpClient');
+      const fresh = await import('@/api/httpClient');
 
       expect(fresh.API_BASE).toBe('https://backend.example.com/');
       expect(fresh.default.defaults.baseURL).toBe('https://backend.example.com');

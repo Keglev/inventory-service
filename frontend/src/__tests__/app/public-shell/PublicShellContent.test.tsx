@@ -18,8 +18,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import PublicShellContent from '../../../app/public-shell/PublicShellContent';
-import { tEn } from '../../test/i18nEn';
+import PublicShellContent from '@/app/public-shell/PublicShellContent';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock

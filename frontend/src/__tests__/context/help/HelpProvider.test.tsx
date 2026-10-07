@@ -22,8 +22,8 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { HelpContext } from '../../../context/help/HelpContext.types';
-import { HelpProvider } from '../../../context/help/HelpContext';
+import { HelpContext } from '@/context/help/HelpContext.types';
+import { HelpProvider } from '@/context/help/HelpContext';
 
 function HelpProbe() {
   const ctx = React.useContext(HelpContext);

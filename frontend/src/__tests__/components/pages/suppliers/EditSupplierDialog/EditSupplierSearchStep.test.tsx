@@ -14,16 +14,16 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { EditSupplierSearchStep } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierSearchStep';
-import { supplierRow } from './fixtures';
-import { tEn } from '../../../../test/i18nEn';
+import { EditSupplierSearchStep } from '@/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierSearchStep';
+import { supplierRow } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 const fieldSpy = vi.hoisted(() => vi.fn());
-vi.mock('../../../../../pages/suppliers/components/SupplierSearchField', () => ({
+vi.mock('@/pages/suppliers/components/SupplierSearchField', () => ({
   SupplierSearchField: (props: unknown) => {
     fieldSpy(props);
     return <div data-testid="supplier-search-field" />;

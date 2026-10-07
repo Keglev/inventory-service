@@ -24,8 +24,8 @@ import type { TFunction } from 'i18next';
 import {
   isSupplierNameConflict,
   supplierErrorMessage,
-} from '../../../../pages/suppliers/dialogs/supplierServerErrors';
-import { tEn } from '../../../test/i18nEn';
+} from '@/pages/suppliers/dialogs/supplierServerErrors';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 const t = vi.fn((key: string, options?: Record<string, unknown>) =>
   tEn(key, options)

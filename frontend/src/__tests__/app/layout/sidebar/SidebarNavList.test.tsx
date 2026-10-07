@@ -19,13 +19,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import SidebarNavList from '../../../../app/layout/sidebar/SidebarNavList';
+import SidebarNavList from '@/app/layout/sidebar/SidebarNavList';
 
 /**
  * NavItem stub:
  * Keeps tests focused on list composition and wiring, not NavItem internals.
  */
-vi.mock('../../../../app/layout/sidebar/NavItem', () => ({
+vi.mock('@/app/layout/sidebar/NavItem', () => ({
   default: ({ label, to }: { label?: string; to: string }) => (
     <a href={to} data-testid="nav-item">
       {label ?? ''}
@@ -37,7 +37,7 @@ vi.mock('../../../../app/layout/sidebar/NavItem', () => ({
  * navConfig stub:
  * Deterministic nav items for assertions.
  */
-vi.mock('../../../../app/layout/navConfig', () => ({
+vi.mock('@/app/layout/navConfig', () => ({
   NAV_ITEMS: [
     { route: '/dashboard', label: 'nav.dashboard', icon: 'DashboardIcon' },
     { route: '/inventory', label: 'nav.inventory', icon: 'InventoryIcon' },

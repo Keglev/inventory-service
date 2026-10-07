@@ -9,7 +9,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Card, Paper, ThemeProvider } from '@mui/material';
-import { buildTheme } from '../../../theme';
+import { buildTheme } from '@/theme';
 
 const renderSurfaces = (mode: 'light' | 'dark') =>
   render(

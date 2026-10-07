@@ -21,7 +21,7 @@
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
-import { SettingsProvider } from '../../../context/settings/SettingsContext';
+import { SettingsProvider } from '@/context/settings/SettingsContext';
 import { useSettings } from '@/hooks/useSettings';
 
 const i18nMock = vi.hoisted(() => ({ language: 'en' }));
@@ -32,7 +32,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 // Match the provider's runtime module resolution.
-vi.mock('../../../utils/systemInfo.js', () => ({
+vi.mock('@/utils/systemInfo.js', () => ({
   getSystemInfo: getSystemInfoMock,
 }));
 

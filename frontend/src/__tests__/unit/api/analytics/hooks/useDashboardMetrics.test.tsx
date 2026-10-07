@@ -17,18 +17,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 
-import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
+import { createReactQueryWrapper } from '@/__tests__/unit/utils/reactQueryTestUtils';
 
 // Mock what the hook imports: ../index from hooks => api/analytics/index.ts
-vi.mock('../../../../../api/analytics/metrics', () => ({
+vi.mock('@/api/analytics/metrics', () => ({
   getItemCount: vi.fn(),
   getSupplierCount: vi.fn(),
   getLowStockCount: vi.fn(),
 }));
 
-import { getItemCount, getSupplierCount, getLowStockCount } from '../../../../../api/analytics/metrics';
+import { getItemCount, getSupplierCount, getLowStockCount } from '@/api/analytics/metrics';
 
-import { useDashboardMetrics } from '../../../../../api/analytics/hooks/useDashboardMetrics';
+import { useDashboardMetrics } from '@/api/analytics/hooks/useDashboardMetrics';
 
 describe('useDashboardMetrics', () => {
   beforeEach(() => {

@@ -16,8 +16,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import FinalCta from '../../../../../pages/home/sections/FinalCta';
-import { tEn } from '../../../../test/i18nEn';
+import FinalCta from '@/pages/home/sections/FinalCta';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

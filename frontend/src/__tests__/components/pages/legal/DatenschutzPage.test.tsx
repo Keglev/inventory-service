@@ -15,7 +15,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import DatenschutzPage from '../../../../pages/legal/DatenschutzPage';
+import DatenschutzPage from '@/pages/legal/DatenschutzPage';
 
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 vi.mock('react-i18next', () => ({ useTranslation: mockUseTranslation }));

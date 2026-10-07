@@ -10,7 +10,7 @@
  */
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
-import { logError, logWarn } from '../../../utils/logger';
+import { logError, logWarn } from '@/utils/logger';
 
 // Vitest exposes import.meta.env as a mutable runtime object, so the DEV
 // flag can be flipped per test and restored afterwards.

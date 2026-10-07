@@ -22,7 +22,7 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 
-import Dashboard from '../../../../pages/dashboard/Dashboard';
+import Dashboard from '@/pages/dashboard/Dashboard';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -42,27 +42,27 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('../../../../api/analytics/hooks/useDashboardMetrics', () => ({
+vi.mock('@/api/analytics/hooks/useDashboardMetrics', () => ({
   useDashboardMetrics: mockUseDashboardMetrics,
 }));
 
-vi.mock('../../../../pages/dashboard/blocks/MonthlyMovementMini', () => ({
+vi.mock('@/pages/dashboard/blocks/MonthlyMovementMini', () => ({
   default: vi.fn(() => <div data-testid="monthly-movement">Monthly Movement Chart</div>),
 }));
 
-vi.mock('../../../../pages/analytics/blocks/StockValuePerSupplierPie', () => ({
+vi.mock('@/pages/analytics/blocks/StockValuePerSupplierPie', () => ({
   default: vi.fn(() => <div data-testid="stock-value-per-supplier-pie">Pie</div>),
 }));
 
-vi.mock('../../../../pages/dashboard/blocks/ReasonBreakdownMini', () => ({
+vi.mock('@/pages/dashboard/blocks/ReasonBreakdownMini', () => ({
   default: vi.fn(() => <div data-testid="reason-breakdown-mini">Reason</div>),
 }));
 
-vi.mock('../../../../pages/dashboard/blocks/LowStockMini', () => ({
+vi.mock('@/pages/dashboard/blocks/LowStockMini', () => ({
   default: vi.fn(() => <div data-testid="low-stock-mini">Low Stock</div>),
 }));
 
-vi.mock('../../../../features/help/components/HelpIconButton', () => ({
+vi.mock('@/features/help/components/HelpIconButton', () => ({
   HelpIconButton: vi.fn(() => <button data-testid="help-button">Help</button>),
 }));
 
@@ -71,7 +71,7 @@ vi.mock('../../../../features/help/components/HelpIconButton', () => ({
  * - assert that Dashboard passes the right titles (translation keys)
  * - surface the value/loading contracts in a deterministic DOM
  */
-vi.mock('../../../../components/ui/StatCard', () => ({
+vi.mock('@/components/ui/StatCard', () => ({
   default: vi.fn(
     ({ title, value, loading }: { title: string; value?: number | null; loading?: boolean }) => (
       <div data-testid={`stat-card-${title}`}>

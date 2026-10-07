@@ -28,7 +28,7 @@ import { screen, within } from '@testing-library/react';
 import { render } from '@/__tests__/test/test-utils';
 import { InventoryFilterPanel } from '@/pages/inventory/components/InventoryFilterPanel';
 import type { SupplierOption } from '@/api/analytics/types';
-import { tEn } from '../../test/i18nEn';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Hoisted mocks

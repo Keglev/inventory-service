@@ -19,8 +19,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import AppearanceSettingsSection from '../../../../app/settings/sections/AppearanceSettingsSection';
-import { tEn } from '../../../test/i18nEn';
+import AppearanceSettingsSection from '@/app/settings/sections/AppearanceSettingsSection';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

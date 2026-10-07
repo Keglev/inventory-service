@@ -21,8 +21,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ProfileRoleDisplay from '../../../../app/HamburgerMenu/ProfileSettings/ProfileRoleDisplay';
-import { tEn } from '../../../test/i18nEn';
+import ProfileRoleDisplay from '@/app/HamburgerMenu/ProfileSettings/ProfileRoleDisplay';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock

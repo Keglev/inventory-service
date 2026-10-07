@@ -16,8 +16,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import HealthBadge from '../../../app/layout/header/HealthBadge';
-import { tEn } from '../../test/i18nEn';
+import HealthBadge from '@/app/layout/header/HealthBadge';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 type BackendStatus = 'online' | 'offline';
 type DbStatus = 'online' | 'offline';
@@ -41,7 +41,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
-vi.mock('../../../features/health/hooks/useHealthCheck', () => ({
+vi.mock('@/features/health/hooks/useHealthCheck', () => ({
   useHealthCheck: () => mockUseHealthCheck(),
 }));
 

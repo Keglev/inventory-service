@@ -16,10 +16,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import AppSidebar from '../../../../app/layout/AppSidebar';
-import { tEn } from '../../../test/i18nEn';
+import AppSidebar from '@/app/layout/AppSidebar';
+import { tEn } from '@/__tests__/test/i18nEn';
 
-vi.mock('../../../../app/layout/sidebar/SidebarNavList', () => ({
+vi.mock('@/app/layout/sidebar/SidebarNavList', () => ({
   default: ({ onLogout }: { onLogout: () => void }) => (
     <div data-testid="nav-list">
       <button type="button" onClick={onLogout}>
@@ -29,15 +29,15 @@ vi.mock('../../../../app/layout/sidebar/SidebarNavList', () => ({
   ),
 }));
 
-vi.mock('../../../../app/layout/sidebar/SidebarUserProfile', () => ({
+vi.mock('@/app/layout/sidebar/SidebarUserProfile', () => ({
   default: () => <div data-testid="user-profile" />,
 }));
 
-vi.mock('../../../../app/layout/sidebar/SidebarEnvironment', () => ({
+vi.mock('@/app/layout/sidebar/SidebarEnvironment', () => ({
   default: () => <div data-testid="environment" />,
 }));
 
-vi.mock('../../../../app/layout/sidebar/SidebarActions', () => ({
+vi.mock('@/app/layout/sidebar/SidebarActions', () => ({
   default: ({
     onThemeModeChange,
     onLocaleChange,
@@ -70,7 +70,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
-vi.mock('../../../../app/layout/navConfig', () => ({
+vi.mock('@/app/layout/navConfig', () => ({
   getHelpTopicForRoute: vi.fn(() => 'Dashboard'),
 }));
 

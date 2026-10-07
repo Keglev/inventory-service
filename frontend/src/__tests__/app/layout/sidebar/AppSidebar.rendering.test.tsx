@@ -17,24 +17,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import AppSidebar from '../../../../app/layout/AppSidebar';
-import { tEn } from '../../../test/i18nEn';
+import AppSidebar from '@/app/layout/AppSidebar';
+import { tEn } from '@/__tests__/test/i18nEn';
 
-vi.mock('../../../../app/layout/sidebar/SidebarNavList', () => ({
+vi.mock('@/app/layout/sidebar/SidebarNavList', () => ({
   default: () => <div data-testid="nav-list" />,
 }));
 
-vi.mock('../../../../app/layout/sidebar/SidebarUserProfile', () => ({
+vi.mock('@/app/layout/sidebar/SidebarUserProfile', () => ({
   default: ({ user }: { user?: { fullName?: string } }) => (
     <div data-testid="user-profile">{user?.fullName || 'No User'}</div>
   ),
 }));
 
-vi.mock('../../../../app/layout/sidebar/SidebarEnvironment', () => ({
+vi.mock('@/app/layout/sidebar/SidebarEnvironment', () => ({
   default: () => <div data-testid="environment">Environment Info</div>,
 }));
 
-vi.mock('../../../../app/layout/sidebar/SidebarActions', () => ({
+vi.mock('@/app/layout/sidebar/SidebarActions', () => ({
   default: () => <div data-testid="sidebar-actions" />,
 }));
 
@@ -51,7 +51,7 @@ vi.mock('react-i18next', () => ({
  * navConfig mock:
  * Deterministic help topic lookup (not asserted here, but avoids side effects).
  */
-vi.mock('../../../../app/layout/navConfig', () => ({
+vi.mock('@/app/layout/navConfig', () => ({
   getHelpTopicForRoute: vi.fn(() => 'Dashboard'),
 }));
 

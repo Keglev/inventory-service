@@ -21,12 +21,12 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { useForm } from 'react-hook-form';
 import type { FieldErrors } from 'react-hook-form';
-import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
+import type { EditSupplierForm } from '@/api/suppliers/validation';
+import type { SupplierRow } from '@/api/suppliers/types';
 
-import { EditSupplierInfoStep } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep';
-import { supplierRow } from './fixtures';
-import { tEn } from '../../../../test/i18nEn';
+import { EditSupplierInfoStep } from '@/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep';
+import { supplierRow } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),

@@ -20,10 +20,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import type { TFunction } from 'i18next';
 
-import type { UseDeleteItemStateReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState';
-import type { UseDeleteItemQueriesReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries';
-import { useDeleteItemHandlers } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers';
-import { tEn } from '../../../../test/i18nEn';
+import type { UseDeleteItemStateReturn } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState';
+import type { UseDeleteItemQueriesReturn } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries';
+import { useDeleteItemHandlers } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -37,15 +37,15 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: tSpy }),
 }));
 
-vi.mock('../../../../../context/toast/ToastContext', () => ({
+vi.mock('@/context/toast/ToastContext', () => ({
   useToast: () => toastSpy,
 }));
 
-vi.mock('../../../../../api/inventory/itemMutations', () => ({
+vi.mock('@/api/inventory/itemMutations', () => ({
   deleteItem: (...args: unknown[]) => deleteItemSpy(...args),
 }));
 
-vi.mock('../../../../../pages/inventory/dialogs/DeleteItemDialog/deleteItemErrorHandler', () => ({
+vi.mock('@/pages/inventory/dialogs/DeleteItemDialog/deleteItemErrorHandler', () => ({
   handleDeleteError: (...args: unknown[]) => handleDeleteErrorSpy(...args),
 }));
 

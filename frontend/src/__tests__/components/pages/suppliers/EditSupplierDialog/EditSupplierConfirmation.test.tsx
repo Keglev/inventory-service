@@ -23,13 +23,13 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material';
-import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
+import type { EditSupplierForm } from '@/api/suppliers/validation';
+import type { SupplierRow } from '@/api/suppliers/types';
 
-import { EditSupplierConfirmation } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation';
-import { editSupplierChanges, supplierRow } from './fixtures';
-import { tEn } from '../../../../test/i18nEn';
-import { buildTheme } from '../../../../../theme';
+import { EditSupplierConfirmation } from '@/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation';
+import { editSupplierChanges, supplierRow } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures';
+import { tEn } from '@/__tests__/test/i18nEn';
+import { buildTheme } from '@/theme';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),

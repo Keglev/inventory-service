@@ -18,10 +18,10 @@ import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SupplierSearchField, type SupplierSearchFieldProps } from '../../../../pages/suppliers/components/SupplierSearchField';
-import { matchSuppliers } from '../../../../pages/suppliers/utils/matchSuppliers';
-import type { SupplierRow } from '../../../../api/suppliers/types';
-import { tEn } from '../../../test/i18nEn';
+import { SupplierSearchField, type SupplierSearchFieldProps } from '@/pages/suppliers/components/SupplierSearchField';
+import { matchSuppliers } from '@/pages/suppliers/utils/matchSuppliers';
+import type { SupplierRow } from '@/api/suppliers/types';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),

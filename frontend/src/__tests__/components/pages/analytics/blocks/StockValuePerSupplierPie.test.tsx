@@ -13,10 +13,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import type { StockPerSupplierPoint } from '../../../../../api/analytics/types';
-import { getStockPerSupplier } from '../../../../../api/analytics/stock';
+import type { StockPerSupplierPoint } from '@/api/analytics/types';
+import { getStockPerSupplier } from '@/api/analytics/stock';
 import StockValuePerSupplierPie from '@/pages/analytics/blocks/StockValuePerSupplierPie';
-import { tEn } from '../../../../test/i18nEn';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

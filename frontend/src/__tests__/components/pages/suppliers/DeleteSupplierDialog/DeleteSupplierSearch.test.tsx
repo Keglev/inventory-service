@@ -17,7 +17,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { ComponentProps } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
+import type { SupplierRow } from '@/api/suppliers/types';
 
 const mocks = vi.hoisted(() => ({
   fieldSpy: vi.fn(),
@@ -26,11 +26,11 @@ const mocks = vi.hoisted(() => ({
 
 // The help affordance is the shared HelpIconButton, which resolves openHelp
 // from the help hook; stubbed here so the component renders without a provider.
-vi.mock('../../../../../hooks/useHelp', () => ({
+vi.mock('@/hooks/useHelp', () => ({
   useHelp: () => ({ openHelp: mocks.openHelp }),
 }));
 
-vi.mock('../../../../../pages/suppliers/components/SupplierSearchField', () => ({
+vi.mock('@/pages/suppliers/components/SupplierSearchField', () => ({
   SupplierSearchField: (props: unknown) => {
     mocks.fieldSpy(props);
     return <div data-testid="supplier-search-field" />;
@@ -41,8 +41,8 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
-import { DeleteSupplierSearch } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearch';
-import { tEn } from '../../../../test/i18nEn';
+import { DeleteSupplierSearch } from '@/pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearch';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 const suppliers: SupplierRow[] = [
   { id: '1', name: 'Supplier One', contactName: 'Jane Doe', email: null, phone: null },

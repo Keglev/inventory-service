@@ -24,15 +24,15 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ComponentProps } from 'react';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
+import type { SupplierRow } from '@/api/suppliers/types';
 
 vi.mock('react-i18next', () => ({
   // Prefer fallback/defaultValue so assertions don't depend on translation files.
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
-import { DeleteSupplierConfirmation } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierConfirmation';
-import { tEn } from '../../../../test/i18nEn';
+import { DeleteSupplierConfirmation } from '@/pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierConfirmation';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 const supplier: SupplierRow = {
   id: '1',

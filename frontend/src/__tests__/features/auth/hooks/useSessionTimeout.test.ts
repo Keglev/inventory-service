@@ -21,9 +21,9 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import { useSessionTimeout } from '../../../../features/auth/hooks/useSessionTimeout';
-import { useAuth } from '../../../../hooks/useAuth';
-import type { AuthContextType } from '../../../../context/auth/authTypes';
+import { useSessionTimeout } from '@/features/auth/hooks/useSessionTimeout';
+import { useAuth } from '@/hooks/useAuth';
+import type { AuthContextType } from '@/context/auth/authTypes';
 
 const navigateMock = vi.hoisted(() => vi.fn());
 const httpClientMock = vi.hoisted(() => ({ get: vi.fn() }));
@@ -36,11 +36,11 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('../../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   default: httpClientMock,
 }));
 
-vi.mock('../../../../hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(),
 }));
 

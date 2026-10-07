@@ -12,7 +12,7 @@ import { vi } from 'vitest';
 import type {
   InventoryState,
   InventoryStateSetters,
-} from '../../../../pages/inventory/hooks/useInventoryState';
+} from '@/pages/inventory/hooks/useInventoryState';
 
 type InventoryTestState = InventoryState & InventoryStateSetters;
 

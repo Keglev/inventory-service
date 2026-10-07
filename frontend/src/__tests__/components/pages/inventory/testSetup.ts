@@ -15,7 +15,7 @@
  */
 
 import { vi } from 'vitest';
-import { tEn } from '../../../test/i18nEn';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

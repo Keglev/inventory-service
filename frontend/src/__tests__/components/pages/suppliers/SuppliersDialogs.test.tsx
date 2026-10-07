@@ -20,7 +20,7 @@ import { render } from '@testing-library/react';
 import {
   SuppliersDialogs,
   type SuppliersDialogsProps,
-} from '../../../../pages/suppliers/components/SuppliersDialogs';
+} from '@/pages/suppliers/components/SuppliersDialogs';
 
 const mocks = vi.hoisted(() => ({
   CreateSupplierDialog: vi.fn<(props: unknown) => void>(),
@@ -28,7 +28,7 @@ const mocks = vi.hoisted(() => ({
   DeleteSupplierDialog: vi.fn<(props: unknown) => void>(),
 }));
 
-vi.mock('../../../../pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierDialog', () => ({
+vi.mock('@/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierDialog', () => ({
   CreateSupplierDialog: (props: unknown) => {
     // We don't render dialog UI here; we only capture the props the composition layer passes down.
     mocks.CreateSupplierDialog(props);
@@ -36,14 +36,14 @@ vi.mock('../../../../pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplier
   },
 }));
 
-vi.mock('../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierDialog', () => ({
+vi.mock('@/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierDialog', () => ({
   EditSupplierDialog: (props: unknown) => {
     mocks.EditSupplierDialog(props);
     return null;
   },
 }));
 
-vi.mock('../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierDialog', () => ({
+vi.mock('@/pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierDialog', () => ({
   DeleteSupplierDialog: (props: unknown) => {
     mocks.DeleteSupplierDialog(props);
     return null;

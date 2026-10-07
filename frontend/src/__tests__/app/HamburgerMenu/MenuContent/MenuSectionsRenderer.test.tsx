@@ -20,7 +20,7 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import MenuSectionsRenderer from '../../../../app/HamburgerMenu/MenuContent/MenuSectionsRenderer';
+import MenuSectionsRenderer from '@/app/HamburgerMenu/MenuContent/MenuSectionsRenderer';
 
 // -----------------------------------------------------------------------------
 // Section component mocks
@@ -33,27 +33,27 @@ const mockNotificationsMenuSection = vi.hoisted(() => vi.fn(() => <div>Notificat
 const mockHelpDocsMenuSection = vi.hoisted(() => vi.fn(() => <div>Help Section</div>));
 const mockSystemInfoMenuSection = vi.hoisted(() => vi.fn(() => <div>System Info Section</div>));
 
-vi.mock('../../../../app/HamburgerMenu/ProfileMenuSection', () => ({
+vi.mock('@/app/HamburgerMenu/ProfileMenuSection', () => ({
   default: mockProfileMenuSection,
 }));
 
-vi.mock('../../../../app/HamburgerMenu/AppearanceMenuSection', () => ({
+vi.mock('@/app/HamburgerMenu/AppearanceMenuSection', () => ({
   default: mockAppearanceMenuSection,
 }));
 
-vi.mock('../../../../app/HamburgerMenu/LanguageRegionMenuSection', () => ({
+vi.mock('@/app/HamburgerMenu/LanguageRegionMenuSection', () => ({
   default: mockLanguageRegionMenuSection,
 }));
 
-vi.mock('../../../../app/HamburgerMenu/NotificationsMenuSection', () => ({
+vi.mock('@/app/HamburgerMenu/NotificationsMenuSection', () => ({
   default: mockNotificationsMenuSection,
 }));
 
-vi.mock('../../../../app/HamburgerMenu/HelpDocsMenuSection', () => ({
+vi.mock('@/app/HamburgerMenu/HelpDocsMenuSection', () => ({
   default: mockHelpDocsMenuSection,
 }));
 
-vi.mock('../../../../app/HamburgerMenu/SystemInfoMenuSection', () => ({
+vi.mock('@/app/HamburgerMenu/SystemInfoMenuSection', () => ({
   default: mockSystemInfoMenuSection,
 }));
 
