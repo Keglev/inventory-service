@@ -17,8 +17,8 @@ import './testSetup';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QuantityAdjustSupplierSelect } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustSupplierSelect';
-import type { SupplierOption } from '../../../../../api/analytics/types';
+import { QuantityAdjustSupplierSelect } from '@/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustSupplierSelect';
+import type { SupplierOption } from '@/api/analytics/types';
 
 // Stable options for deterministic UI assertions.
 const suppliers: SupplierOption[] = [

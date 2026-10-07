@@ -18,7 +18,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
-import { useDeleteItemState } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState';
+import { useDeleteItemState } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState';
 
 // -------------------------------------
 // Deterministic mocks

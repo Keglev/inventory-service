@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { StepSection } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/StepSection';
+import { StepSection } from '@/pages/inventory/dialogs/DeleteItemDialog/StepSection';
 
 describe('StepSection', () => {
   it('renders the step number, title, and children', () => {

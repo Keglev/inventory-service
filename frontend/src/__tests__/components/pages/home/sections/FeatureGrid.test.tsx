@@ -15,8 +15,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
-import FeatureGrid from '../../../../../pages/home/sections/FeatureGrid';
-import { tEn } from '../../../../test/i18nEn';
+import FeatureGrid from '@/pages/home/sections/FeatureGrid';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

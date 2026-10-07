@@ -25,16 +25,16 @@ import userEvent from '@testing-library/user-event';
 import {
   SuppliersSearchPanel,
   type SuppliersSearchPanelProps,
-} from '../../../../pages/suppliers/components/SuppliersSearchPanel';
-import type { SupplierRow } from '../../../../api/suppliers/types';
-import { tEn } from '../../../test/i18nEn';
+} from '@/pages/suppliers/components/SuppliersSearchPanel';
+import type { SupplierRow } from '@/api/suppliers/types';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 const fieldSpy = vi.hoisted(() => vi.fn());
-vi.mock('../../../../pages/suppliers/components/SupplierSearchField', () => ({
+vi.mock('@/pages/suppliers/components/SupplierSearchField', () => ({
   SupplierSearchField: (props: unknown) => {
     fieldSpy(props);
     return <div data-testid="supplier-search-field" />;

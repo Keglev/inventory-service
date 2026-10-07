@@ -17,7 +17,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { StockUpdateRow } from '@/api/analytics/updates';
 import { getStockUpdates } from '@/api/analytics/updates';
 import RecentStockActivityCard from '@/pages/analytics/blocks/RecentStockActivityCard';
-import { tEn } from '../../../../test/i18nEn';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Mocks

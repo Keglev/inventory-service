@@ -21,9 +21,9 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useDialogHandlers } from '../../../../../pages/suppliers/handlers/useDialogHandlers';
-import type { UseSuppliersBoardStateReturn } from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
-import { tEn } from '../../../../test/i18nEn';
+import { useDialogHandlers } from '@/pages/suppliers/handlers/useDialogHandlers';
+import type { UseSuppliersBoardStateReturn } from '@/pages/suppliers/hooks/useSuppliersBoardState';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 const mocks = vi.hoisted(() => ({
   toast: vi.fn(),
@@ -35,7 +35,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
-vi.mock('../../../../../context/toast/ToastContext', () => ({
+vi.mock('@/context/toast/ToastContext', () => ({
   useToast: () => mocks.toast,
 }));
 

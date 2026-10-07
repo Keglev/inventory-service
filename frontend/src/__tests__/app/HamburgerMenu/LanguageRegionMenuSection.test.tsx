@@ -18,8 +18,8 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import LanguageRegionMenuSection from '../../../app/HamburgerMenu/LanguageRegionMenuSection';
-import { tEn } from '../../test/i18nEn';
+import LanguageRegionMenuSection from '@/app/HamburgerMenu/LanguageRegionMenuSection';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Minimal types needed for test wiring (keep aligned with component contracts)
@@ -63,7 +63,7 @@ const mockNumberFormatSetting = vi.hoisted(() =>
   vi.fn<(props: NumberFormatSettingProps) => React.ReactElement>(() => <div>Number Format</div>),
 );
 
-vi.mock('../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: mockUseSettings,
 }));
 
@@ -71,15 +71,15 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
-vi.mock('../../../app/HamburgerMenu/LanguageRegionSettings/LanguageToggle', () => ({
+vi.mock('@/app/HamburgerMenu/LanguageRegionSettings/LanguageToggle', () => ({
   default: mockLanguageToggle,
 }));
 
-vi.mock('../../../app/HamburgerMenu/LanguageRegionSettings/DateFormatSetting', () => ({
+vi.mock('@/app/HamburgerMenu/LanguageRegionSettings/DateFormatSetting', () => ({
   default: mockDateFormatSetting,
 }));
 
-vi.mock('../../../app/HamburgerMenu/LanguageRegionSettings/NumberFormatSetting', () => ({
+vi.mock('@/app/HamburgerMenu/LanguageRegionSettings/NumberFormatSetting', () => ({
   default: mockNumberFormatSetting,
 }));
 

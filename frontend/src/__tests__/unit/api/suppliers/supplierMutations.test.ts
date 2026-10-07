@@ -51,7 +51,7 @@ const conflictError = {
 
 import http from '@/api/httpClient';
 import { toSupplierRow } from '@/api/suppliers/supplierNormalizers';
-import { errorMessage } from '../../../../api/shared/errorHandling';
+import { errorMessage } from '@/api/shared/errorHandling';
 import { SUPPLIERS_BASE } from '@/api/suppliers/supplierListFetcher';
 import {
   createSupplier,

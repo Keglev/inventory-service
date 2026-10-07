@@ -16,43 +16,43 @@ import { render } from '@testing-library/react';
 import type { ComponentProps } from 'react';
 
 // Mock dialog implementations: keep this suite focused on wiring/flags.
-vi.mock('../../../../pages/inventory/dialogs/ItemFormDialog/ItemFormDialog', () => ({
+vi.mock('@/pages/inventory/dialogs/ItemFormDialog/ItemFormDialog', () => ({
   ItemFormDialog: vi.fn(({ isOpen }: { isOpen: boolean }) =>
     isOpen ? <div data-testid="item-form-dialog">ItemFormDialog</div> : null
   ),
 }));
 
-vi.mock('../../../../pages/inventory/dialogs/EditItemDialog/EditItemDialog', () => ({
+vi.mock('@/pages/inventory/dialogs/EditItemDialog/EditItemDialog', () => ({
   EditItemDialog: vi.fn(({ open }: { open: boolean }) =>
     open ? <div data-testid="edit-item-dialog">EditItemDialog</div> : null
   ),
 }));
 
-vi.mock('../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog', () => ({
+vi.mock('@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog', () => ({
   DeleteItemDialog: vi.fn(({ open }: { open: boolean }) =>
     open ? <div data-testid="delete-item-dialog">DeleteItemDialog</div> : null
   ),
 }));
 
-vi.mock('../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustDialog', () => ({
+vi.mock('@/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustDialog', () => ({
   QuantityAdjustDialog: vi.fn(({ open }: { open: boolean }) =>
     open ? <div data-testid="quantity-adjust-dialog">QuantityAdjustDialog</div> : null
   ),
 }));
 
-vi.mock('../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog', () => ({
+vi.mock('@/pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog', () => ({
   PriceChangeDialog: vi.fn(({ open }: { open: boolean }) =>
     open ? <div data-testid="price-change-dialog">PriceChangeDialog</div> : null
   ),
 }));
 
 // Import after mocks (ESM): the component should observe the mocked modules.
-import { InventoryDialogs } from '../../../../pages/inventory/components/InventoryDialogs';
-import { ItemFormDialog } from '../../../../pages/inventory/dialogs/ItemFormDialog/ItemFormDialog';
-import { EditItemDialog } from '../../../../pages/inventory/dialogs/EditItemDialog/EditItemDialog';
-import { DeleteItemDialog } from '../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog';
-import { QuantityAdjustDialog } from '../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustDialog';
-import { PriceChangeDialog } from '../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog';
+import { InventoryDialogs } from '@/pages/inventory/components/InventoryDialogs';
+import { ItemFormDialog } from '@/pages/inventory/dialogs/ItemFormDialog/ItemFormDialog';
+import { EditItemDialog } from '@/pages/inventory/dialogs/EditItemDialog/EditItemDialog';
+import { DeleteItemDialog } from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog';
+import { QuantityAdjustDialog } from '@/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustDialog';
+import { PriceChangeDialog } from '@/pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog';
 
 type Props = ComponentProps<typeof InventoryDialogs>;
 

@@ -12,13 +12,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 
-vi.mock('../../../../pages/inventory/hooks/useInventoryPageData', () => ({
+vi.mock('@/pages/inventory/hooks/useInventoryPageData', () => ({
   useInventoryPageData: vi.fn(() => ({ items: [], loading: false })),
 }));
 
-import { useDataFetchingLogic } from '../../../../pages/inventory/handlers/useDataFetchingLogic';
-import { useInventoryPageData } from '../../../../pages/inventory/hooks/useInventoryPageData';
-import type { InventoryState, InventoryStateSetters } from '../../../../pages/inventory/hooks/useInventoryState';
+import { useDataFetchingLogic } from '@/pages/inventory/handlers/useDataFetchingLogic';
+import { useInventoryPageData } from '@/pages/inventory/hooks/useInventoryPageData';
+import type { InventoryState, InventoryStateSetters } from '@/pages/inventory/hooks/useInventoryState';
 
 const useInventoryPageDataMock = vi.mocked(useInventoryPageData);
 

@@ -20,8 +20,8 @@ import {
   priceChangeSchema,
   editItemSchema,
   deleteItemSchema,
-} from '../../../../pages/inventory/validation/inventoryValidation';
-import { expectInvalidMessage, expectValid } from './validationTestUtils';
+} from '@/pages/inventory/validation/inventoryValidation';
+import { expectInvalidMessage, expectValid } from '@/__tests__/components/pages/inventory/validationTestUtils';
 
 describe('inventoryValidation', () => {
   describe('itemFormSchema', () => {

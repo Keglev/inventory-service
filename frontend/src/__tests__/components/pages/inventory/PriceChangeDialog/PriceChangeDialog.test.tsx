@@ -17,11 +17,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { PriceChangeDialog } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog';
-import type { PriceChangeDialogProps } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog.types';
-import type { UsePriceChangeFormReturn } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
-import type { ItemOption } from '../../../../../api/analytics/types';
-import { usePriceChangeForm } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
+import { PriceChangeDialog } from '@/pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog';
+import type { PriceChangeDialogProps } from '@/pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog.types';
+import type { UsePriceChangeFormReturn } from '@/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
+import type { ItemOption } from '@/api/analytics/types';
+import { usePriceChangeForm } from '@/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
 
 /**
  * Translation is treated as infrastructure.
@@ -36,21 +36,21 @@ vi.mock('react-i18next', () => ({
 /**
  * Toast is an integration concern; not part of this wrapper contract.
  */
-vi.mock('../../../../../context/toast/ToastContext', () => ({
+vi.mock('@/context/toast/ToastContext', () => ({
   useToast: () => vi.fn(),
 }));
 
 /**
  * The dialog delegates orchestration to this hook; we control its return value.
  */
-vi.mock('../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm', () => ({
+vi.mock('@/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm', () => ({
   usePriceChangeForm: vi.fn(),
 }));
 
 const helpButtonPropsSpy = vi.hoisted(() => vi.fn());
 const openHelpMock = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../../../features/help/components/HelpIconButton', () => ({
+vi.mock('@/features/help/components/HelpIconButton', () => ({
   HelpIconButton: (props: { topicId: string; tooltip?: string }) => {
     helpButtonPropsSpy(props);
     return (
@@ -68,7 +68,7 @@ vi.mock('../../../../../features/help/components/HelpIconButton', () => ({
 /**
  * Form rendering is tested separately; here we only assert it is mounted.
  */
-vi.mock('../../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm', () => ({
+vi.mock('@/pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm', () => ({
   PriceChangeForm: () => <div data-testid="price-change-form" />,
 }));
 

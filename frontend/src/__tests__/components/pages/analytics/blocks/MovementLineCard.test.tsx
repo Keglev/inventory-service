@@ -14,9 +14,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import type { MonthlyMovement } from '../../../../../api/analytics/types';
-import { getMonthlyStockMovement } from '../../../../../api/analytics/stock';
-import MovementLineCard from '../../../../../pages/analytics/blocks/MovementLineCard';
+import type { MonthlyMovement } from '@/api/analytics/types';
+import { getMonthlyStockMovement } from '@/api/analytics/stock';
+import MovementLineCard from '@/pages/analytics/blocks/MovementLineCard';
 
 // -----------------------------------------------------------------------------
 // Captures: chart data plus the formatter props, so the card's own callbacks
@@ -33,13 +33,13 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('../../../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: { dateFormat: 'DD/MM/YYYY', numberFormat: 'DE' },
   }),
 }));
 
-vi.mock('../../../../../api/analytics/stock', () => ({
+vi.mock('@/api/analytics/stock', () => ({
   getMonthlyStockMovement: vi.fn(),
 }));
 

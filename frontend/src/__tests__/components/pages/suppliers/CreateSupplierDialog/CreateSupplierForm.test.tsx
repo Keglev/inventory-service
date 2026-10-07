@@ -23,15 +23,15 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import type { ComponentProps } from 'react';
 import type { FieldError, FieldErrors, UseFormRegister } from 'react-hook-form';
-import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../../api/suppliers/validation';
+import type { CreateSupplierForm as CreateSupplierFormData } from '@/api/suppliers/validation';
 
 vi.mock('react-i18next', () => ({
   // Prefer fallback/defaultValue to keep assertions stable across locales.
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
-import { SupplierFormFields } from '../../../../../pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm';
-import { tEn } from '../../../../test/i18nEn';
+import { SupplierFormFields } from '@/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -------------------------------------
 // Test helpers

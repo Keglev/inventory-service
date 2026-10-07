@@ -16,8 +16,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import SidebarUserProfile from '../../../../app/layout/sidebar/SidebarUserProfile';
-import { tEn } from '../../../test/i18nEn';
+import SidebarUserProfile from '@/app/layout/sidebar/SidebarUserProfile';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 /**
  * i18n mock:

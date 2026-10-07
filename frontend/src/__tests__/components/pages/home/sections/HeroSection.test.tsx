@@ -17,8 +17,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import HeroSection from '../../../../../pages/home/sections/HeroSection';
-import { tEn } from '../../../../test/i18nEn';
+import HeroSection from '@/pages/home/sections/HeroSection';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

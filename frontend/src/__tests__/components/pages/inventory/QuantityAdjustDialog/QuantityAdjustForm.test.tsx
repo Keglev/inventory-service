@@ -18,9 +18,9 @@ import './testSetup';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { UseQuantityAdjustFormReturn } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm';
-import type { SupplierOption, ItemOption } from '../../../../../api/analytics/types';
-import { itemOption, makeQuantityAdjustForm, supplierOption } from './fixtures';
+import type { UseQuantityAdjustFormReturn } from '@/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm';
+import type { SupplierOption, ItemOption } from '@/api/analytics/types';
+import { itemOption, makeQuantityAdjustForm, supplierOption } from '@/__tests__/components/pages/inventory/QuantityAdjustDialog/fixtures';
 
 // Spies capture the props passed to each step component.
 const supplierSelectSpy = vi.fn();
@@ -28,7 +28,7 @@ const itemSelectSpy = vi.fn();
 const itemDetailsSpy = vi.fn();
 const quantityInputSpy = vi.fn();
 
-vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustSupplierSelect', () => ({
+vi.mock('@/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustSupplierSelect', () => ({
   QuantityAdjustSupplierSelect: (props: unknown) => {
     // Stub leaf component to keep this test focused on orchestration/prop wiring.
     supplierSelectSpy(props);
@@ -36,7 +36,7 @@ vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdj
   },
 }));
 
-vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemSelect', () => ({
+vi.mock('@/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemSelect', () => ({
   QuantityAdjustItemSelect: (props: unknown) => {
     // Stub leaf component to keep this test focused on orchestration/prop wiring.
     itemSelectSpy(props);
@@ -44,7 +44,7 @@ vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdj
   },
 }));
 
-vi.mock('../../../../../pages/inventory/dialogs/SelectedItemDetails', () => ({
+vi.mock('@/pages/inventory/dialogs/SelectedItemDetails', () => ({
   SelectedItemDetails: (props: unknown) => {
     // Stub leaf component to keep this test focused on orchestration/prop wiring.
     itemDetailsSpy(props);
@@ -52,7 +52,7 @@ vi.mock('../../../../../pages/inventory/dialogs/SelectedItemDetails', () => ({
   },
 }));
 
-vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput', () => ({
+vi.mock('@/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput', () => ({
   QuantityAdjustQuantityInput: (props: unknown) => {
     // Stub leaf component to keep this test focused on orchestration/prop wiring.
     quantityInputSpy(props);
@@ -60,7 +60,7 @@ vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdj
   },
 }));
 
-import { QuantityAdjustForm } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustForm';
+import { QuantityAdjustForm } from '@/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustForm';
 
 beforeEach(() => {
   vi.clearAllMocks();

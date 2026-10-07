@@ -18,8 +18,8 @@ import './testSetup';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { useForm, type FieldErrors } from 'react-hook-form';
-import { QuantityAdjustQuantityInput } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput';
-import type { QuantityAdjustForm } from '../../../../../pages/inventory/validation/inventoryValidation';
+import { QuantityAdjustQuantityInput } from '@/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput';
+import type { QuantityAdjustForm } from '@/pages/inventory/validation/inventoryValidation';
 
 type HarnessProps = {
   disabled?: boolean;

@@ -20,7 +20,7 @@ import { act, renderHook } from '@testing-library/react';
 import {
   useSuppliersBoardState,
   type UseSuppliersBoardStateReturn,
-} from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
+} from '@/pages/suppliers/hooks/useSuppliersBoardState';
 import type { GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 
 // Rendering helper: keeps the tests focused on state transitions, not hook setup ceremony.

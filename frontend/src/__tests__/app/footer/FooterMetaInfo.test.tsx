@@ -18,8 +18,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import FooterMetaInfo from '../../../app/footer/FooterMetaInfo';
-import { tEn } from '../../test/i18nEn';
+import FooterMetaInfo from '@/app/footer/FooterMetaInfo';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock

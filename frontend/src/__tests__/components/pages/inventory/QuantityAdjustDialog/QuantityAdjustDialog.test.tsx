@@ -19,8 +19,8 @@ import './testSetup';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { UseQuantityAdjustFormReturn } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm';
-import { makeQuantityAdjustForm } from './fixtures';
+import type { UseQuantityAdjustFormReturn } from '@/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm';
+import { makeQuantityAdjustForm } from '@/__tests__/components/pages/inventory/QuantityAdjustDialog/fixtures';
 
 // Spies for contract assertions (prop wiring + help topic routing).
 const useQuantityAdjustFormMock = vi.fn();
@@ -28,11 +28,11 @@ const quantityFormPropsSpy = vi.fn();
 const helpButtonPropsSpy = vi.fn();
 const openHelpMock = vi.fn();
 
-vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm', () => ({
+vi.mock('@/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm', () => ({
   useQuantityAdjustForm: (...args: unknown[]) => useQuantityAdjustFormMock(...args),
 }));
 
-vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustForm', () => ({
+vi.mock('@/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustForm', () => ({
   QuantityAdjustForm: (props: { form: UseQuantityAdjustFormReturn }) => {
     // Keep this test focused on the dialog contract (not form internals).
     quantityFormPropsSpy(props);
@@ -40,7 +40,7 @@ vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdj
   },
 }));
 
-vi.mock('../../../../../features/help/components/HelpIconButton', () => ({
+vi.mock('@/features/help/components/HelpIconButton', () => ({
   HelpIconButton: (props: { topicId: string; tooltip?: string }) => {
     // Replace implementation with a stable button we can click.
     helpButtonPropsSpy(props);
@@ -56,7 +56,7 @@ vi.mock('../../../../../features/help/components/HelpIconButton', () => ({
   },
 }));
 
-import { QuantityAdjustDialog } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustDialog';
+import { QuantityAdjustDialog } from '@/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustDialog';
 
 beforeEach(() => {
   vi.clearAllMocks();

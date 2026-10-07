@@ -18,25 +18,25 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { EditItemDialog } from '../../../../../pages/inventory/dialogs/EditItemDialog/EditItemDialog';
-import * as useEditItemFormModule from '../../../../../pages/inventory/dialogs/EditItemDialog/useEditItemForm';
-import { tEn } from '../../../../test/i18nEn';
+import { EditItemDialog } from '@/pages/inventory/dialogs/EditItemDialog/EditItemDialog';
+import * as useEditItemFormModule from '@/pages/inventory/dialogs/EditItemDialog/useEditItemForm';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -------------------------------------
 // Deterministic mocks
 // -------------------------------------
 
-vi.mock('../../../../../pages/inventory/dialogs/EditItemDialog/useEditItemForm');
+vi.mock('@/pages/inventory/dialogs/EditItemDialog/useEditItemForm');
 
 const mockEditItemForm = vi.hoisted(() => vi.fn());
-vi.mock('../../../../../pages/inventory/dialogs/EditItemDialog/EditItemForm', () => ({
+vi.mock('@/pages/inventory/dialogs/EditItemDialog/EditItemForm', () => ({
   EditItemForm: () => {
     mockEditItemForm();
     return <div data-testid="edit-item-form">Form Component</div>;
   },
 }));
 
-vi.mock('../../../../../hooks/useHelp', () => ({
+vi.mock('@/hooks/useHelp', () => ({
   useHelp: () => ({ openHelp: vi.fn() }),
 }));
 

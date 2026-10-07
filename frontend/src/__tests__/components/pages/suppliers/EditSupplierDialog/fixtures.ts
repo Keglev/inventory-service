@@ -1,5 +1,5 @@
-import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
+import type { EditSupplierForm } from '@/api/suppliers/validation';
+import type { SupplierRow } from '@/api/suppliers/types';
 
 /**
  * Creates a stable `SupplierRow` for list/search scenarios.

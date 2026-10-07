@@ -18,8 +18,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useFilterHandlers } from '../../../../../pages/suppliers/handlers/useFilterHandlers';
-import type { UseSuppliersBoardStateReturn } from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
+import { useFilterHandlers } from '@/pages/suppliers/handlers/useFilterHandlers';
+import type { UseSuppliersBoardStateReturn } from '@/pages/suppliers/hooks/useSuppliersBoardState';
 
 describe('useFilterHandlers', () => {
   const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {}): UseSuppliersBoardStateReturn => ({

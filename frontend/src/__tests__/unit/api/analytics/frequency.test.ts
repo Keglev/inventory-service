@@ -19,14 +19,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock the http client used by frequency.ts
-vi.mock('../../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   default: {
     get: vi.fn(),
   },
 }));
 
-import http from '../../../../api/httpClient';
-import { getItemUpdateFrequency } from '../../../../api/analytics/frequency';
+import http from '@/api/httpClient';
+import { getItemUpdateFrequency } from '@/api/analytics/frequency';
 
 describe('api/analytics/frequency.getItemUpdateFrequency', () => {
   const httpGet = http.get as unknown as ReturnType<typeof vi.fn>;

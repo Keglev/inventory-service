@@ -9,8 +9,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import HelpDocsMenuSection from '../../../app/HamburgerMenu/HelpDocsMenuSection';
-import { tEn } from '../../test/i18nEn';
+import HelpDocsMenuSection from '@/app/HamburgerMenu/HelpDocsMenuSection';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Mocks

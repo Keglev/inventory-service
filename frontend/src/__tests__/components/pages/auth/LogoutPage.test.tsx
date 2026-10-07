@@ -25,7 +25,7 @@ import { render, waitFor, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 
-import LogoutPage from '../../../../pages/auth/LogoutPage';
+import LogoutPage from '@/pages/auth/LogoutPage';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -40,11 +40,11 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   API_BASE: 'http://localhost:8080',
 }));
 

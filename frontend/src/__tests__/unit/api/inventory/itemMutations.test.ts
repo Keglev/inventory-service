@@ -15,7 +15,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   default: {
     post: vi.fn(),
     put: vi.fn(),
@@ -32,10 +32,10 @@ vi.mock('@/api/shared/errorHandling', async (importOriginal) => {
   };
 });
 
-import http from '../../../../api/httpClient';
-import { errorMessage } from '../../../../api/shared/errorHandling';
-import { createItem, deleteItem, renameItem } from '../../../../api/inventory/itemMutations';
-import { INVENTORY_BASE } from '../../../../api/shared/constants';
+import http from '@/api/httpClient';
+import { errorMessage } from '@/api/shared/errorHandling';
+import { createItem, deleteItem, renameItem } from '@/api/inventory/itemMutations';
+import { INVENTORY_BASE } from '@/api/shared/constants';
 
 type HttpMock = {
   post: ReturnType<typeof vi.fn>;

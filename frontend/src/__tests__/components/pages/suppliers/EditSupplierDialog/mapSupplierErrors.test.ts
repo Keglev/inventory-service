@@ -22,8 +22,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { TFunction } from 'i18next';
 
-import { mapSupplierError } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/mapSupplierErrors';
-import { tEn } from '../../../../test/i18nEn';
+import { mapSupplierError } from '@/pages/suppliers/dialogs/EditSupplierDialog/mapSupplierErrors';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 const tMock = vi.fn((key: string, options?: Record<string, unknown>) => tEn(key, options));
 const translate = tMock as unknown as TFunction<['common', 'suppliers', 'errors']>;

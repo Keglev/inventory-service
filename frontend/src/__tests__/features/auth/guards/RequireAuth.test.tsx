@@ -23,12 +23,12 @@ import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { RequireAuth } from '../../../../features/auth/guards/RequireAuth';
-import { useAuth } from '../../../../hooks/useAuth';
-import type { AuthContextType } from '../../../../context/auth/authTypes';
+import { RequireAuth } from '@/features/auth/guards/RequireAuth';
+import { useAuth } from '@/hooks/useAuth';
+import type { AuthContextType } from '@/context/auth/authTypes';
 
 // Mock the useAuth hook
-vi.mock('../../../../hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(),
 }));
 

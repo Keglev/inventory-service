@@ -19,7 +19,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import * as React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useLowStockRows } from '../../../../../pages/analytics/hooks/useLowStockRows';
+import { useLowStockRows } from '@/pages/analytics/hooks/useLowStockRows';
 
 const mockGetLowStockItems = vi.fn();
 vi.mock('@/api/analytics/lowStock', () => ({

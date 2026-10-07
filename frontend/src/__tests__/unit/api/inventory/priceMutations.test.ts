@@ -15,15 +15,15 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   default: {
     patch: vi.fn(),
   },
 }));
 
-import http from '../../../../api/httpClient';
-import { changePrice } from '../../../../api/inventory/priceMutations';
-import { INVENTORY_BASE } from '../../../../api/shared/constants';
+import http from '@/api/httpClient';
+import { changePrice } from '@/api/inventory/priceMutations';
+import { INVENTORY_BASE } from '@/api/shared/constants';
 
 type HttpMock = {
   patch: ReturnType<typeof vi.fn>;

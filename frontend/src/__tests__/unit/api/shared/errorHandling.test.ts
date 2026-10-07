@@ -15,7 +15,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { errorMessage, extractApiError } from '../../../../api/shared/errorHandling';
+import { errorMessage, extractApiError } from '@/api/shared/errorHandling';
 
 const makeAxiosError = (payload: unknown): unknown => ({
   response: payload,

@@ -17,9 +17,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Table, TableBody } from '@mui/material';
-import { LowStockTableRow } from '../../../../../pages/analytics/blocks/LowStockTableRow';
-import type { LowStockDerivedRow } from '../../../../../pages/analytics/hooks/useLowStockRows';
-import { tEn } from '../../../../test/i18nEn';
+import { LowStockTableRow } from '@/pages/analytics/blocks/LowStockTableRow';
+import type { LowStockDerivedRow } from '@/pages/analytics/hooks/useLowStockRows';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

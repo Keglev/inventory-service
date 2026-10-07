@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { SettingsSectionCard } from '../../../app/settings/SettingsSectionCard';
+import { SettingsSectionCard } from '@/app/settings/SettingsSectionCard';
 
 describe('SettingsSectionCard', () => {
   it('renders the title and children', () => {

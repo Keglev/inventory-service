@@ -18,10 +18,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import SidebarActions from '../../../../app/layout/sidebar/SidebarActions';
-import { tEn } from '../../../test/i18nEn';
+import SidebarActions from '@/app/layout/sidebar/SidebarActions';
+import { tEn } from '@/__tests__/test/i18nEn';
 
-vi.mock('../../../../features/help/components/HelpIconButton', () => ({
+vi.mock('@/features/help/components/HelpIconButton', () => ({
   HelpIconButton: ({ tooltip, topicId }: { tooltip: string; topicId: string }) => (
     <button type="button" data-testid="help-button" aria-label={tooltip} data-topic={topicId}>
       Help

@@ -18,7 +18,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import ThemeToggle from '../../../../app/public-shell/header/ThemeToggle';
+import ThemeToggle from '@/app/public-shell/header/ThemeToggle';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

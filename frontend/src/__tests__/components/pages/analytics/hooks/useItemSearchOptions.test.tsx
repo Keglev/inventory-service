@@ -15,22 +15,22 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 
-vi.mock('../../../../../api/shared/itemSearch', () => ({
+vi.mock('@/api/shared/itemSearch', () => ({
   searchItemsForSupplier: vi.fn(),
   searchItemsGlobal: vi.fn(),
 }));
 
 // Pass-through debounce keeps the tests synchronous; the debounce timing
 // itself is covered by the useDebounced unit test.
-vi.mock('../../../../../hooks/useDebounced', () => ({
+vi.mock('@/hooks/useDebounced', () => ({
   useDebounced: (value: string) => value,
 }));
 
-import { useItemSearchOptions } from '../../../../../pages/analytics/hooks/useItemSearchOptions';
+import { useItemSearchOptions } from '@/pages/analytics/hooks/useItemSearchOptions';
 import {
   searchItemsForSupplier,
   searchItemsGlobal,
-} from '../../../../../api/shared/itemSearch';
+} from '@/api/shared/itemSearch';
 
 const searchForSupplierMock = vi.mocked(searchItemsForSupplier);
 const searchGlobalMock = vi.mocked(searchItemsGlobal);

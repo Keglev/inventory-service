@@ -42,11 +42,11 @@ const storageMocks = vi.hoisted(() => ({
 vi.mock('react-i18next', () => ({ useTranslation: useTranslationMock }));
 
 // Mock by a resolved path that matches the provider's runtime resolution.
-vi.mock('../../../utils/systemInfo.js', () => ({ getSystemInfo: getSystemInfoMock }));
-vi.mock('../../../context/settings/SettingsStorage', () => storageMocks);
+vi.mock('@/utils/systemInfo.js', () => ({ getSystemInfo: getSystemInfoMock }));
+vi.mock('@/context/settings/SettingsStorage', () => storageMocks);
 
-import { SettingsContext } from '../../../context/settings/SettingsContext.types';
-import { SettingsProvider } from '../../../context/settings/SettingsContext';
+import { SettingsContext } from '@/context/settings/SettingsContext.types';
+import { SettingsProvider } from '@/context/settings/SettingsContext';
 
 function SettingsProbe() {
   const ctx = React.useContext(SettingsContext);

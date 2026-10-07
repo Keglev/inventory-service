@@ -24,8 +24,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
-import type { UseDeleteSupplierFormReturn } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm';
+import type { SupplierRow } from '@/api/suppliers/types';
+import type { UseDeleteSupplierFormReturn } from '@/pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm';
 
 type DeleteSupplierSearchProps = {
   searchQuery: string;
@@ -54,11 +54,11 @@ const mocks = vi.hoisted(() => ({
   toast: vi.fn(),
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm', () => ({
+vi.mock('@/pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm', () => ({
   useDeleteSupplierForm: (...args: [onDeleted: () => void]) => mocks.useDeleteSupplierForm(...args),
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearch', () => ({
+vi.mock('@/pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearch', () => ({
   DeleteSupplierSearch: (props: DeleteSupplierSearchProps) => {
     mocks.searchSpy(props);
     const { onCancel, onSelectSupplier } = props;
@@ -75,7 +75,7 @@ vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSuppl
   },
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierConfirmation', () => ({
+vi.mock('@/pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierConfirmation', () => ({
   DeleteSupplierConfirmation: (props: DeleteSupplierConfirmationProps) => {
     mocks.confirmationSpy(props);
     const { onCancel, onConfirm } = props;
@@ -92,7 +92,7 @@ vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSuppl
   },
 }));
 
-vi.mock('../../../../../context/toast/ToastContext', () => ({
+vi.mock('@/context/toast/ToastContext', () => ({
   useToast: () => mocks.toast,
 }));
 
@@ -100,8 +100,8 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
-import { DeleteSupplierDialog } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierDialog';
-import { tEn } from '../../../../test/i18nEn';
+import { DeleteSupplierDialog } from '@/pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierDialog';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 const supplier: SupplierRow = {
   id: 'sup-1',

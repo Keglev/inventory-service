@@ -18,10 +18,10 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
+import type { EditSupplierForm } from '@/api/suppliers/validation';
 
-import { useEditSupplierFormState } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierFormState';
-import { supplierRow } from './fixtures';
+import { useEditSupplierFormState } from '@/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierFormState';
+import { supplierRow } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures';
 
 const supplier = supplierRow({
   contactName: 'Janet Jones',

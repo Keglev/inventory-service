@@ -17,19 +17,19 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   default: {
     get: vi.fn(),
   },
 }));
 
-vi.mock('../../../../api/inventory/rowNormalizers', () => ({
+vi.mock('@/api/inventory/rowNormalizers', () => ({
   toInventoryRow: vi.fn(),
 }));
 
-import http from '../../../../api/httpClient';
-import { toInventoryRow } from '../../../../api/inventory/rowNormalizers';
-import { getInventoryPage } from '../../../../api/inventory/listFetcher';
+import http from '@/api/httpClient';
+import { toInventoryRow } from '@/api/inventory/rowNormalizers';
+import { getInventoryPage } from '@/api/inventory/listFetcher';
 
 type HttpGetMock = ReturnType<typeof vi.fn>;
 

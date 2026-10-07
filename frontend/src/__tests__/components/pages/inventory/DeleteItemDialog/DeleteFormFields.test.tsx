@@ -23,8 +23,8 @@ import {
   SupplierSelectField,
   ItemSelectField,
   ItemInfoDisplay,
-} from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteFormFields';
-import type { UseDeleteItemDialogReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types';
+} from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteFormFields';
+import type { UseDeleteItemDialogReturn } from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),

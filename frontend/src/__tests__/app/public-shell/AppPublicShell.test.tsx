@@ -20,8 +20,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
-import AppPublicShell from '../../../app/public-shell/AppPublicShell';
-import { ToastContext } from '../../../context/toast/ToastContext';
+import AppPublicShell from '@/app/public-shell/AppPublicShell';
+import { ToastContext } from '@/context/toast/ToastContext';
 
 /* ----------------------------- i18n stub ----------------------------- */
 // Keep translation deterministic; component only needs i18n object presence.
@@ -53,15 +53,15 @@ const mockUseThemeMode = vi.hoisted(() => vi.fn());
 const mockUseLocale = vi.hoisted(() => vi.fn());
 const mockUsePublicShellToast = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../app/public-shell/hooks/useThemeMode', () => ({
+vi.mock('@/app/public-shell/hooks/useThemeMode', () => ({
   useThemeMode: () => mockUseThemeMode(),
 }));
 
-vi.mock('../../../app/public-shell/hooks/useLocale', () => ({
+vi.mock('@/app/public-shell/hooks/useLocale', () => ({
   useLocale: () => mockUseLocale(),
 }));
 
-vi.mock('../../../app/public-shell/hooks/usePublicShellToast', () => ({
+vi.mock('@/app/public-shell/hooks/usePublicShellToast', () => ({
   usePublicShellToast: () => mockUsePublicShellToast(),
 }));
 
@@ -70,14 +70,14 @@ vi.mock('../../../app/public-shell/hooks/usePublicShellToast', () => ({
 let lastHeaderProps: Record<string, unknown> | undefined;
 let lastToastProps: Record<string, unknown> | undefined;
 
-vi.mock('../../../app/public-shell/header/PublicShellHeader', () => ({
+vi.mock('@/app/public-shell/header/PublicShellHeader', () => ({
   default: (props: Record<string, unknown>) => {
     lastHeaderProps = props;
     return <header data-testid="public-shell-header">Header</header>;
   },
 }));
 
-vi.mock('../../../app/public-shell/PublicShellContent', () => ({
+vi.mock('@/app/public-shell/PublicShellContent', () => ({
   default: function PublicShellContentMock() {
     const toast = React.useContext(ToastContext);
 
@@ -91,14 +91,14 @@ vi.mock('../../../app/public-shell/PublicShellContent', () => ({
   },
 }));
 
-vi.mock('../../../app/public-shell/PublicShellToastContainer', () => ({
+vi.mock('@/app/public-shell/PublicShellToastContainer', () => ({
   default: (props: Record<string, unknown>) => {
     lastToastProps = props;
     return <div data-testid="toast-container" />;
   },
 }));
 
-vi.mock('../../../app/footer/AppFooter', () => ({
+vi.mock('@/app/footer/AppFooter', () => ({
   default: () => <footer data-testid="app-footer" />,
 }));
 
@@ -107,7 +107,7 @@ vi.mock('../../../app/footer/AppFooter', () => ({
  * Stubbed because the real component calls useHelp, which throws outside
  * HelpProvider (mounted in App.tsx, not in this test tree).
  */
-vi.mock('../../../components/help/HelpPanel', () => ({
+vi.mock('@/components/help/HelpPanel', () => ({
   default: () => <div data-testid="help-panel" />,
 }));
 

@@ -21,9 +21,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
-import AuthCallback from '../../../../pages/auth/AuthCallback';
-import httpClient from '../../../../api/httpClient';
-import { tEn } from '../../../test/i18nEn';
+import AuthCallback from '@/pages/auth/AuthCallback';
+import httpClient from '@/api/httpClient';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -47,11 +47,11 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('../../../../hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../../../../api/httpClient', () => ({
+vi.mock('@/api/httpClient', () => ({
   default: {
     get: vi.fn(),
   },

@@ -17,11 +17,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import type { UseQueryResult } from '@tanstack/react-query';
 
-import type { UseDeleteItemStateReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState';
-import type { UseDeleteItemQueriesReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries';
-import type { UseDeleteItemHandlersReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers';
+import type { UseDeleteItemStateReturn } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState';
+import type { UseDeleteItemQueriesReturn } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries';
+import type { UseDeleteItemHandlersReturn } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers';
 
-import { useDeleteItemDialog } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemDialog';
+import { useDeleteItemDialog } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemDialog';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -30,15 +30,15 @@ const mockUseDeleteItemState = vi.hoisted(() => vi.fn());
 const mockUseDeleteItemQueries = vi.hoisted(() => vi.fn());
 const mockUseDeleteItemHandlers = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState', () => ({
+vi.mock('@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState', () => ({
   useDeleteItemState: (...args: unknown[]) => mockUseDeleteItemState(...args),
 }));
 
-vi.mock('../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries', () => ({
+vi.mock('@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries', () => ({
   useDeleteItemQueries: (...args: unknown[]) => mockUseDeleteItemQueries(...args),
 }));
 
-vi.mock('../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers', () => ({
+vi.mock('@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers', () => ({
   useDeleteItemHandlers: (...args: unknown[]) => mockUseDeleteItemHandlers(...args),
 }));
 

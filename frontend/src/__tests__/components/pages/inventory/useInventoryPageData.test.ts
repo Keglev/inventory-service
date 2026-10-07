@@ -18,38 +18,38 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 
 const getRowClassNameFn = vi.fn(() => 'row-ok');
 
-vi.mock('../../../../api/inventory/hooks/useSuppliersQuery', () => ({
+vi.mock('@/api/inventory/hooks/useSuppliersQuery', () => ({
   useSuppliersQuery: vi.fn(() => ({
     data: [{ id: 'sup-1', label: 'Alpha' }],
     isLoading: false,
   })),
 }));
 
-vi.mock('../../../../api/inventory/listFetcher', () => ({
+vi.mock('@/api/inventory/listFetcher', () => ({
   getInventoryPage: vi.fn(),
 }));
 
-vi.mock('../../../../pages/inventory/hooks/useInventoryColumns', () => ({
+vi.mock('@/pages/inventory/hooks/useInventoryColumns', () => ({
   useInventoryColumns: vi.fn(() => [{ field: 'name' }]),
 }));
 
-vi.mock('../../../../pages/inventory/hooks/useInventoryRowStyling', () => ({
+vi.mock('@/pages/inventory/hooks/useInventoryRowStyling', () => ({
   useInventoryRowStyling: vi.fn(() => getRowClassNameFn),
 }));
 
 // Pass-through debounce keeps the test synchronous; the debounce interval
 // itself is covered by the useDebounced unit test.
-vi.mock('../../../../hooks/useDebounced', () => ({
+vi.mock('@/hooks/useDebounced', () => ({
   useDebounced: (value: unknown) => value,
 }));
 
-vi.mock('../../../../utils/logger', () => ({
+vi.mock('@/utils/logger', () => ({
   logError: vi.fn(),
 }));
 
-import { useInventoryPageData } from '../../../../pages/inventory/hooks/useInventoryPageData';
-import { getInventoryPage } from '../../../../api/inventory/listFetcher';
-import { logError } from '../../../../utils/logger';
+import { useInventoryPageData } from '@/pages/inventory/hooks/useInventoryPageData';
+import { getInventoryPage } from '@/api/inventory/listFetcher';
+import { logError } from '@/utils/logger';
 
 const getInventoryPageMock = vi.mocked(getInventoryPage);
 const logErrorMock = vi.mocked(logError);

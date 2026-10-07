@@ -16,8 +16,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import FooterLinks from '../../../app/footer/FooterLinks';
-import { tEn } from '../../test/i18nEn';
+import FooterLinks from '@/app/footer/FooterLinks';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock

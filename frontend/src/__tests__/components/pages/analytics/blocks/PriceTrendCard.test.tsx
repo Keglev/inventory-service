@@ -21,11 +21,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import type { PricePoint } from '../../../../../api/analytics/types';
-import type { ItemRef } from '../../../../../api/shared/types';
-import { getPriceTrend } from '../../../../../api/analytics/priceTrend';
-import { useItemSearchOptions } from '../../../../../pages/analytics/hooks/useItemSearchOptions';
-import PriceTrendCard from '../../../../../pages/analytics/blocks/PriceTrendCard';
+import type { PricePoint } from '@/api/analytics/types';
+import type { ItemRef } from '@/api/shared/types';
+import { getPriceTrend } from '@/api/analytics/priceTrend';
+import { useItemSearchOptions } from '@/pages/analytics/hooks/useItemSearchOptions';
+import PriceTrendCard from '@/pages/analytics/blocks/PriceTrendCard';
 
 // -----------------------------------------------------------------------------
 // Captures
@@ -42,21 +42,21 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('../../../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: { dateFormat: 'DD.MM.YYYY', numberFormat: 'DE' },
   }),
 }));
 
-vi.mock('../../../../../api/analytics/priceTrend', () => ({
+vi.mock('@/api/analytics/priceTrend', () => ({
   getPriceTrend: vi.fn(),
 }));
 
-vi.mock('../../../../../pages/analytics/hooks/useItemSearchOptions', () => ({
+vi.mock('@/pages/analytics/hooks/useItemSearchOptions', () => ({
   useItemSearchOptions: vi.fn(),
 }));
 
-vi.mock('../../../../../pages/analytics/components/ItemSearchAutocomplete', () => ({
+vi.mock('@/pages/analytics/components/ItemSearchAutocomplete', () => ({
   ItemSearchAutocomplete: (props: Record<string, unknown>) => {
     lastPickerProps = props;
     return <div data-testid="picker" data-helper={String(props.helperText)} />;

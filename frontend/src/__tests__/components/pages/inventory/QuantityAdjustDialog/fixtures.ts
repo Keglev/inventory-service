@@ -10,8 +10,8 @@
 
 import { vi } from 'vitest';
 
-import type { SupplierOption, ItemOption } from '../../../../../api/analytics/types';
-import type { UseQuantityAdjustFormReturn } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm';
+import type { SupplierOption, ItemOption } from '@/api/analytics/types';
+import type { UseQuantityAdjustFormReturn } from '@/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm';
 
 export const supplierOption: SupplierOption = { id: 'sup-1', label: 'Supplier One' };
 

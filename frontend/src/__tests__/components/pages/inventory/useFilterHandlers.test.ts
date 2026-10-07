@@ -11,8 +11,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useFilterHandlers } from '../../../../pages/inventory/handlers/useFilterHandlers';
-import { makeInventoryState } from './fixtures';
+import { useFilterHandlers } from '@/pages/inventory/handlers/useFilterHandlers';
+import { makeInventoryState } from '@/__tests__/components/pages/inventory/fixtures';
 
 describe('useFilterHandlers', () => {
   it('returns the expected handlers', () => {

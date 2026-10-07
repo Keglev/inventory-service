@@ -22,8 +22,8 @@ import userEvent from '@testing-library/user-event';
 import {
   SuppliersToolbar,
   type SuppliersToolbarProps,
-} from '../../../../pages/suppliers/components/SuppliersToolbar';
-import { tEn } from '../../../test/i18nEn';
+} from '@/pages/suppliers/components/SuppliersToolbar';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),

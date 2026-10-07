@@ -23,8 +23,8 @@ import {
   resolveTotalValue,
   formatCount,
   formatMoney,
-} from '../../../pages/inventory/hooks/inventoryColumnValues';
-import type { InventoryRow } from '../../../api/inventory/types';
+} from '@/pages/inventory/hooks/inventoryColumnValues';
+import type { InventoryRow } from '@/api/inventory/types';
 
 const EM_DASH = '\u2014';
 

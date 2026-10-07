@@ -22,7 +22,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MockInstance } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { useHealthCheck } from '../../../../features/health/hooks/useHealthCheck';
+import { useHealthCheck } from '@/features/health/hooks/useHealthCheck';
 
 function makeResponse(options: {
   contentType: string;

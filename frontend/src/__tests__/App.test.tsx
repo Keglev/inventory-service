@@ -23,19 +23,19 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 // Mock providers
-vi.mock('../context/settings/SettingsContext', () => ({
+vi.mock('@/context/settings/SettingsContext', () => ({
   SettingsProvider: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock('../context/help/HelpContext', () => ({
+vi.mock('@/context/help/HelpContext', () => ({
   HelpProvider: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock('../routes/AppRouter', () => ({
+vi.mock('@/routes/AppRouter', () => ({
   default: () => <div data-testid="app-router">Router</div>,
 }));
 
-import App from '../App';
+import App from '@/App';
 
 function renderSubject() {
   return render(

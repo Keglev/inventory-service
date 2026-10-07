@@ -10,36 +10,36 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import AppSettingsForm from '../../../app/settings/AppSettingsForm';
-import { tEn } from '../../test/i18nEn';
+import AppSettingsForm from '@/app/settings/AppSettingsForm';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // --- Captured props to validate orchestration ---
 let appearanceProps: unknown;
 let languageProps: unknown;
 let systemProps: unknown;
 
-vi.mock('../../../app/settings/sections/AppearanceSettingsSection', () => ({
+vi.mock('@/app/settings/sections/AppearanceSettingsSection', () => ({
   default: (props: unknown) => {
     appearanceProps = props;
     return <div data-testid="appearance-section">Appearance</div>;
   },
 }));
 
-vi.mock('../../../app/settings/sections/LanguageRegionSettingsSection', () => ({
+vi.mock('@/app/settings/sections/LanguageRegionSettingsSection', () => ({
   default: (props: unknown) => {
     languageProps = props;
     return <div data-testid="language-section">Language</div>;
   },
 }));
 
-vi.mock('../../../app/settings/sections/SystemPreferencesSection', () => ({
+vi.mock('@/app/settings/sections/SystemPreferencesSection', () => ({
   default: (props: unknown) => {
     systemProps = props;
     return <div data-testid="system-section">System</div>;
   },
 }));
 
-vi.mock('../../../utils/formatters', () => ({
+vi.mock('@/utils/formatters', () => ({
   formatDate: vi.fn((date: unknown) => date),
   formatNumber: vi.fn((num: unknown) => num),
 }));

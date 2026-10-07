@@ -19,8 +19,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import LogoutMenuAction from '../../../../app/HamburgerMenu/MenuContent/LogoutMenuAction';
-import { tEn } from '../../../test/i18nEn';
+import LogoutMenuAction from '@/app/HamburgerMenu/MenuContent/LogoutMenuAction';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock

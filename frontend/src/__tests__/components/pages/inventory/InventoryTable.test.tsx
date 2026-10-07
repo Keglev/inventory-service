@@ -20,7 +20,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import type { InventoryRow } from '../../../../api/inventory/types';
+import type { InventoryRow } from '@/api/inventory/types';
 
 type GridMockProps = {
   rows?: Array<Record<string, unknown>>;
@@ -75,7 +75,7 @@ vi.mock('@mui/x-data-grid', () => ({
   },
 }));
 
-import { InventoryTable } from '../../../../pages/inventory/components/InventoryTable';
+import { InventoryTable } from '@/pages/inventory/components/InventoryTable';
 
 const rows = [
   { id: 'a', name: 'Alpha', onHand: 10, minQty: 2 },

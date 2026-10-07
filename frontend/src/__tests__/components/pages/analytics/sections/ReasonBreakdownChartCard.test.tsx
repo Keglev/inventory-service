@@ -20,7 +20,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('../../../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: { dateFormat: 'DD.MM.YYYY', numberFormat: 'DE' },
   }),
@@ -48,7 +48,7 @@ vi.mock('recharts', () => ({
   Bar: () => <div data-testid="bar" />,
 }));
 
-import ReasonBreakdownChartCard from '../../../../../pages/analytics/sections/ReasonBreakdownChartCard';
+import ReasonBreakdownChartCard from '@/pages/analytics/sections/ReasonBreakdownChartCard';
 
 const data = [
   { label: 'Sold', value: 1234 },

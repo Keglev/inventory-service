@@ -26,12 +26,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { EditSupplierForm } from '../../../../../api/suppliers/validation';
-import type { UseEditSupplierFormReturn } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
+import type { EditSupplierForm } from '@/api/suppliers/validation';
+import type { UseEditSupplierFormReturn } from '@/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
+import type { SupplierRow } from '@/api/suppliers/types';
 
-import { editSupplierChanges, supplierRow } from './fixtures';
-import { createEditSupplierDialogForm } from './testHelpers';
+import { editSupplierChanges, supplierRow } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures';
+import { createEditSupplierDialogForm } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/testHelpers';
 
 const mocks = vi.hoisted(() => ({
   // Hoisted to guarantee deterministic instance identity across tests and module mocks.
@@ -48,15 +48,15 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
-vi.mock('../../../../../context/toast/ToastContext', () => ({
+vi.mock('@/context/toast/ToastContext', () => ({
   useToast: () => mocks.toast,
 }));
 
-vi.mock('../../../../../hooks/useHelp', () => ({
+vi.mock('@/hooks/useHelp', () => ({
   useHelp: () => ({ openHelp: mocks.openHelp }),
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm', () => ({
+vi.mock('@/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm', () => ({
   // The real hook is tested separately; the dialog container is tested here as a wiring unit.
   useEditSupplierForm: (onUpdated: () => void) => mocks.useEditSupplierForm(onUpdated),
 }));
@@ -86,7 +86,7 @@ type ConfirmationProps = {
   onCancel: () => void;
 };
 
-vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierSearchStep', () => ({
+vi.mock('@/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierSearchStep', () => ({
   EditSupplierSearchStep: (props: SearchStepProps) => {
     // Treat step components as black boxes; assert only the contract-level props.
     mocks.searchStep(props);
@@ -94,7 +94,7 @@ vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierS
   },
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep', () => ({
+vi.mock('@/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep', () => ({
   EditSupplierInfoStep: (props: InfoStepProps) => {
     // Contract spy: capture the props the container wires into the step.
     mocks.infoStep(props);
@@ -102,7 +102,7 @@ vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierI
   },
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation', () => ({
+vi.mock('@/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation', () => ({
   EditSupplierConfirmation: (props: ConfirmationProps) => {
     // Contract spy: confirmation is rendered from container state, not tested for UI internals here.
     mocks.confirmation(props);
@@ -110,8 +110,8 @@ vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierC
   },
 }));
 
-import { EditSupplierDialog } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierDialog';
-import { tEn } from '../../../../test/i18nEn';
+import { EditSupplierDialog } from '@/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierDialog';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 const baseSupplier: SupplierRow = supplierRow({
   contactName: 'John Smith',

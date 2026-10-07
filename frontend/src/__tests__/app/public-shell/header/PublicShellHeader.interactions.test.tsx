@@ -12,7 +12,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import PublicShellHeader from '../../../../app/public-shell/header/PublicShellHeader';
+import PublicShellHeader from '@/app/public-shell/header/PublicShellHeader';
 
 type ThemeMode = 'light' | 'dark';
 type Locale = 'de' | 'en';
@@ -33,7 +33,7 @@ type LanguageToggleProps = {
  * Interactive stubs:
  * Buttons call through to the callbacks passed by PublicShellHeader.
  */
-vi.mock('../../../../app/public-shell/header/ThemeToggle', () => ({
+vi.mock('@/app/public-shell/header/ThemeToggle', () => ({
   default: ({ onToggle }: Partial<ThemeToggleProps>) => (
     <button type="button" data-testid="theme-toggle" onClick={onToggle}>
       Theme
@@ -41,7 +41,7 @@ vi.mock('../../../../app/public-shell/header/ThemeToggle', () => ({
   ),
 }));
 
-vi.mock('../../../../app/public-shell/header/LanguageToggle', () => ({
+vi.mock('@/app/public-shell/header/LanguageToggle', () => ({
   default: ({ onToggle }: Partial<LanguageToggleProps>) => (
     <button type="button" data-testid="language-toggle" onClick={onToggle}>
       Lang

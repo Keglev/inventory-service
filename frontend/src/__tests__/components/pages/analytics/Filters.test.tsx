@@ -15,7 +15,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 
 import type { SupplierRef } from '@/api/analytics/types';
 import { Filters } from '@/pages/analytics/components/filters/Filters';
-import { tEn } from '../../../test/i18nEn';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // B2: provide a react-i18next mock so useTranslation resolves without an
 // i18n instance in this suite, silencing the NO_I18NEXT_INSTANCE warning. The stub

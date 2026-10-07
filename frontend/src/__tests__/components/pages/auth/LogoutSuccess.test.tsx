@@ -21,7 +21,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
-import LogoutSuccess from '../../../../pages/auth/LogoutSuccess';
+import LogoutSuccess from '@/pages/auth/LogoutSuccess';
 
 // -------------------------------------
 // Deterministic / hoisted mocks

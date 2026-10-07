@@ -25,8 +25,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../../api/suppliers/validation';
-import type { UseCreateSupplierFormReturn } from '../../../../../pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm';
+import type { CreateSupplierForm as CreateSupplierFormData } from '@/api/suppliers/validation';
+import type { UseCreateSupplierFormReturn } from '@/pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm';
 
 type SupplierFormFieldsProps = {
   register: UseCreateSupplierFormReturn['register'];
@@ -44,12 +44,12 @@ const mocks = vi.hoisted(() => ({
   openHelp: vi.fn(),
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm', () => ({
+vi.mock('@/pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm', () => ({
   // Keep mock signature explicit: the dialog passes `onCreated` only.
   useCreateSupplierForm: (...args: [onCreated: () => void]) => mocks.useCreateSupplierForm(...args),
 }));
 
-vi.mock('../../../../../pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm', () => ({
+vi.mock('@/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm', () => ({
   SupplierFormFields: (props: SupplierFormFieldsProps) => {
     // Spy on the presentation boundary instead of asserting MUI field internals.
     mocks.supplierFormFieldsSpy(props);
@@ -57,7 +57,7 @@ vi.mock('../../../../../pages/suppliers/dialogs/CreateSupplierDialog/CreateSuppl
   },
 }));
 
-vi.mock('../../../../../hooks/useHelp', () => ({
+vi.mock('@/hooks/useHelp', () => ({
   useHelp: () => ({ openHelp: mocks.openHelp }),
 }));
 
@@ -66,8 +66,8 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
-import { CreateSupplierDialog } from '../../../../../pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierDialog';
-import { tEn } from '../../../../test/i18nEn';
+import { CreateSupplierDialog } from '@/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierDialog';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // Minimal hook contract surface required by `CreateSupplierDialog`.
 const defaultFormState = (): UseCreateSupplierFormReturn => ({

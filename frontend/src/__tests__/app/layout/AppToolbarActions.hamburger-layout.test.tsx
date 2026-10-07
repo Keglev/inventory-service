@@ -11,10 +11,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import AppToolbarActions from '../../../app/layout/AppToolbarActions';
-import { tEn } from '../../test/i18nEn';
+import AppToolbarActions from '@/app/layout/AppToolbarActions';
+import { tEn } from '@/__tests__/test/i18nEn';
 
-vi.mock('../../../features/help/components/HelpIconButton', () => ({
+vi.mock('@/features/help/components/HelpIconButton', () => ({
   HelpIconButton: ({ tooltip }: { tooltip: string }) => (
     <button type="button" aria-label={tooltip}>
       Help
@@ -22,7 +22,7 @@ vi.mock('../../../features/help/components/HelpIconButton', () => ({
   ),
 }));
 
-vi.mock('../../../app/HamburgerMenu/HamburgerMenu', () => ({
+vi.mock('@/app/HamburgerMenu/HamburgerMenu', () => ({
   default: ({
     onLogout,
     onThemeModeChange,

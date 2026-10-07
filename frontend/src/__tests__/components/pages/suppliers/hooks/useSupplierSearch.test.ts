@@ -15,17 +15,17 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
+import type { SupplierRow } from '@/api/suppliers/types';
 
 const mocks = vi.hoisted(() => ({
   useSupplierListQuery: vi.fn(),
 }));
 
-vi.mock('../../../../../api/suppliers/hooks/useSupplierListQuery', () => ({
+vi.mock('@/api/suppliers/hooks/useSupplierListQuery', () => ({
   useSupplierListQuery: (...args: unknown[]) => mocks.useSupplierListQuery(...args),
 }));
 
-import { useSupplierSearch } from '../../../../../pages/suppliers/hooks/useSupplierSearch';
+import { useSupplierSearch } from '@/pages/suppliers/hooks/useSupplierSearch';
 
 const list: SupplierRow[] = [
   { id: '1', name: 'Nordbay Industriebedarf GmbH', contactName: null, email: null, phone: null },

@@ -15,7 +15,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import LanguageToggle from '../../../../app/public-shell/header/LanguageToggle';
+import LanguageToggle from '@/app/public-shell/header/LanguageToggle';
 
 // Static asset stubs (Vite import paths)
 vi.mock('/flags/de.svg', () => ({ default: 'de-flag.svg' }));

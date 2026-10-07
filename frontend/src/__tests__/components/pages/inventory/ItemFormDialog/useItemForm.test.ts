@@ -7,10 +7,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import { useItemForm } from '../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm';
-import type { UseItemFormReturn } from '../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm';
-import type { SupplierOption } from '../../../../../api/analytics/types';
-import { tEn } from '../../../../test/i18nEn';
+import { useItemForm } from '@/pages/inventory/dialogs/ItemFormDialog/useItemForm';
+import type { UseItemFormReturn } from '@/pages/inventory/dialogs/ItemFormDialog/useItemForm';
+import type { SupplierOption } from '@/api/analytics/types';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -34,15 +34,15 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
+vi.mock('@/api/inventory/hooks/useSuppliersQuery', () => ({
   useSuppliersQuery: mockUseSuppliersQuery,
 }));
 
-vi.mock('../../../../../api/inventory/itemMutations', () => ({
+vi.mock('@/api/inventory/itemMutations', () => ({
   createItem: mockCreateItem,
 }));
 
-vi.mock('../../../../../context/toast/ToastContext', () => ({
+vi.mock('@/context/toast/ToastContext', () => ({
   useToast: () => mockToast,
 }));
 

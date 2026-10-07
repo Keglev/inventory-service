@@ -23,8 +23,8 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import AppearanceMenuSection from '../../../app/HamburgerMenu/AppearanceMenuSection';
-import { tEn } from '../../test/i18nEn';
+import AppearanceMenuSection from '@/app/HamburgerMenu/AppearanceMenuSection';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // Minimal types needed for wiring assertions
@@ -60,7 +60,7 @@ const mockTableDensitySetting = vi.hoisted(() =>
   vi.fn<(props: TableDensitySettingProps) => React.ReactElement>(() => <div>Density Setting</div>),
 );
 
-vi.mock('../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: mockUseSettings,
 }));
 
@@ -68,11 +68,11 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
-vi.mock('../../../app/HamburgerMenu/AppearanceSettings/ThemeToggle', () => ({
+vi.mock('@/app/HamburgerMenu/AppearanceSettings/ThemeToggle', () => ({
   default: mockThemeToggle,
 }));
 
-vi.mock('../../../app/HamburgerMenu/AppearanceSettings/TableDensitySetting', () => ({
+vi.mock('@/app/HamburgerMenu/AppearanceSettings/TableDensitySetting', () => ({
   default: mockTableDensitySetting,
 }));
 

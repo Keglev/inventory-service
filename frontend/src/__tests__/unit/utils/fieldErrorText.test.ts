@@ -18,8 +18,8 @@
 import { describe, expect, it } from 'vitest';
 import type { FieldError } from 'react-hook-form';
 
-import { tEn } from '../../test/i18nEn';
-import { fieldErrorText } from '../../../utils/fieldErrorText';
+import { tEn } from '@/__tests__/test/i18nEn';
+import { fieldErrorText } from '@/utils/fieldErrorText';
 
 const t = tEn as unknown as Parameters<typeof fieldErrorText>[1];
 

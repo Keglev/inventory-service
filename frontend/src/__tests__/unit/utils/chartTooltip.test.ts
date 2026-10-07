@@ -4,7 +4,7 @@
  * @description Unit test for chartTooltipProps: maps MUI theme tokens onto Recharts tooltip styles.
  */
 import { describe, it, expect } from 'vitest';
-import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartTooltipProps } from '@/utils/chartTooltip';
 
 describe('utils/chartTooltip.chartTooltipProps', () => {
   it('binds the tooltip surface and label to theme tokens', () => {

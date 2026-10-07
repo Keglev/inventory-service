@@ -18,11 +18,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import AppSettingsDialog from '../../../app/settings/AppSettingsDialog';
-import { tEn } from '../../test/i18nEn';
+import AppSettingsDialog from '@/app/settings/AppSettingsDialog';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // Hook is mocked because this file only validates the dialog container behavior.
-vi.mock('../../../app/settings/hooks/useAppSettingsForm', () => ({
+vi.mock('@/app/settings/hooks/useAppSettingsForm', () => ({
   useAppSettingsForm: () => ({
     formState: {
       dateFormat: 'DD.MM.YYYY',
@@ -42,13 +42,13 @@ vi.mock('../../../app/settings/hooks/useAppSettingsForm', () => ({
   }),
 }));
 
-vi.mock('../../../app/settings/AppSettingsForm', () => ({
+vi.mock('@/app/settings/AppSettingsForm', () => ({
   default: () => <div data-testid="settings-form">Form Content</div>,
 }));
 
 // Stubbed because HelpIconButton requires HelpProvider; the real component
 // is covered by its own suite (features/help/components/HelpIconButton.test.tsx).
-vi.mock('../../../features/help/components/HelpIconButton', () => ({
+vi.mock('@/features/help/components/HelpIconButton', () => ({
   HelpIconButton: ({ topicId }: { topicId: string }) => (
     <button data-testid="help-icon-button" data-topic-id={topicId} />
   ),

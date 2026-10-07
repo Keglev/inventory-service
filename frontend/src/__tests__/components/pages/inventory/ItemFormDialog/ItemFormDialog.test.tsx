@@ -19,9 +19,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { UseItemFormReturn } from '../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm';
-import { ItemFormDialog } from '../../../../../pages/inventory/dialogs/ItemFormDialog/ItemFormDialog';
-import { tEn } from '../../../../test/i18nEn';
+import type { UseItemFormReturn } from '@/pages/inventory/dialogs/ItemFormDialog/useItemForm';
+import { ItemFormDialog } from '@/pages/inventory/dialogs/ItemFormDialog/ItemFormDialog';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -------------------------------------
 // Deterministic / hoisted mocks
@@ -31,18 +31,18 @@ const useItemFormMock = vi.hoisted(() => vi.fn());
 const helpButtonPropsSpy = vi.hoisted(() => vi.fn());
 const openHelpMock = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../../../pages/inventory/dialogs/ItemFormDialog/ItemForm', () => ({
+vi.mock('@/pages/inventory/dialogs/ItemFormDialog/ItemForm', () => ({
   ItemForm: (props: unknown) => {
     itemFormPropsSpy(props);
     return <div data-testid="item-form">Mocked ItemForm</div>;
   },
 }));
 
-vi.mock('../../../../../pages/inventory/dialogs/ItemFormDialog/useItemForm', () => ({
+vi.mock('@/pages/inventory/dialogs/ItemFormDialog/useItemForm', () => ({
   useItemForm: (...args: unknown[]) => useItemFormMock(...args),
 }));
 
-vi.mock('../../../../../features/help/components/HelpIconButton', () => ({
+vi.mock('@/features/help/components/HelpIconButton', () => ({
   HelpIconButton: (props: { topicId: string; tooltip?: string }) => {
     helpButtonPropsSpy(props);
     return (

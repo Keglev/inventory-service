@@ -22,8 +22,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import LanguageToggle from '../../../../app/HamburgerMenu/LanguageRegionSettings/LanguageToggle';
-import { tEn } from '../../../test/i18nEn';
+import LanguageToggle from '@/app/HamburgerMenu/LanguageRegionSettings/LanguageToggle';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mocks

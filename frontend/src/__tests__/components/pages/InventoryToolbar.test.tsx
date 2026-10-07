@@ -24,7 +24,7 @@ import type { ComponentProps } from 'react';
 
 import { render } from '@/__tests__/test/test-utils';
 import { InventoryToolbar } from '@/pages/inventory/components/InventoryToolbar';
-import { tEn } from '../../test/i18nEn';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),

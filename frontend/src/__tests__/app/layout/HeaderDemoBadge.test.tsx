@@ -15,8 +15,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import HeaderDemoBadge from '../../../app/layout/header/HeaderDemoBadge';
-import { tEn } from '../../test/i18nEn';
+import HeaderDemoBadge from '@/app/layout/header/HeaderDemoBadge';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 /**
  * i18n mock:

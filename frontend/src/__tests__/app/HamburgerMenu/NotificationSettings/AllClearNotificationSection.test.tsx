@@ -19,8 +19,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import AllClearNotificationSection from '../../../../app/HamburgerMenu/NotificationSettings/AllClearNotificationSection';
-import { tEn } from '../../../test/i18nEn';
+import AllClearNotificationSection from '@/app/HamburgerMenu/NotificationSettings/AllClearNotificationSection';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
 // i18n mock

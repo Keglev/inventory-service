@@ -10,7 +10,7 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useRefreshHandler } from '../../../../pages/inventory/handlers/useRefreshHandler';
+import { useRefreshHandler } from '@/pages/inventory/handlers/useRefreshHandler';
 
 describe('useRefreshHandler', () => {
   it('returns handleReload', () => {

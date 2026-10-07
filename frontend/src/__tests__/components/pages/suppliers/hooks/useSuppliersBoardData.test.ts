@@ -22,15 +22,15 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useSuppliersBoardData } from '../../../../../pages/suppliers/hooks/useSuppliersBoardData';
-import { useSupplierListQuery } from '../../../../../api/suppliers/hooks/useSupplierListQuery';
-import type { SupplierRow } from '../../../../../api/suppliers/types';
+import { useSuppliersBoardData } from '@/pages/suppliers/hooks/useSuppliersBoardData';
+import { useSupplierListQuery } from '@/api/suppliers/hooks/useSupplierListQuery';
+import type { SupplierRow } from '@/api/suppliers/types';
 
 const mocks = vi.hoisted(() => ({
   useSupplierListQuery: vi.fn<typeof useSupplierListQuery>(),
 }));
 
-vi.mock('../../../../../api/suppliers/hooks/useSupplierListQuery', () => ({
+vi.mock('@/api/suppliers/hooks/useSupplierListQuery', () => ({
   useSupplierListQuery: mocks.useSupplierListQuery,
 }));
 

@@ -14,34 +14,34 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import type { UseQueryResult } from '@tanstack/react-query';
 
-import { useEditItemForm } from '../../../../../pages/inventory/dialogs/EditItemDialog/useEditItemForm';
-import { useSuppliersQuery } from '../../../../../api/inventory/hooks/useSuppliersQuery';
-import { useItemSearchQuery } from '../../../../../api/inventory/hooks/useItemSearchQuery';
-import { useItemDetailsQuery } from '../../../../../api/inventory/hooks/useItemDetailsQuery';
-import { renameItem } from '../../../../../api/inventory/itemMutations';
-import { tEn } from '../../../../test/i18nEn';
+import { useEditItemForm } from '@/pages/inventory/dialogs/EditItemDialog/useEditItemForm';
+import { useSuppliersQuery } from '@/api/inventory/hooks/useSuppliersQuery';
+import { useItemSearchQuery } from '@/api/inventory/hooks/useItemSearchQuery';
+import { useItemDetailsQuery } from '@/api/inventory/hooks/useItemDetailsQuery';
+import { renameItem } from '@/api/inventory/itemMutations';
+import { tEn } from '@/__tests__/test/i18nEn';
 
 // Mock dependencies
-vi.mock('../../../../../api/inventory/itemMutations', () => ({
+vi.mock('@/api/inventory/itemMutations', () => ({
   renameItem: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useSuppliersQuery', () => ({
+vi.mock('@/api/inventory/hooks/useSuppliersQuery', () => ({
   useSuppliersQuery: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useItemSearchQuery', () => ({
+vi.mock('@/api/inventory/hooks/useItemSearchQuery', () => ({
   useItemSearchQuery: vi.fn(),
 }));
 
-vi.mock('../../../../../api/inventory/hooks/useItemDetailsQuery', () => ({
+vi.mock('@/api/inventory/hooks/useItemDetailsQuery', () => ({
   useItemDetailsQuery: vi.fn(),
 }));
 
 const toastSpy = vi.hoisted(() => vi.fn());
 const tSpy = vi.hoisted(() => vi.fn((key: string, options?: Record<string, unknown>) => tEn(key, options)));
 
-vi.mock('../../../../../context/toast/ToastContext', () => ({
+vi.mock('@/context/toast/ToastContext', () => ({
   useToast: () => toastSpy,
 }));
 
