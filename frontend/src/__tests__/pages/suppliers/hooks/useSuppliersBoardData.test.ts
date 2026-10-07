@@ -1,6 +1,6 @@
 /**
  * @file useSuppliersBoardData.test.ts
- * @module __tests__/components/pages/suppliers/hooks/useSuppliersBoardData
+ * @module __tests__/pages/suppliers/hooks/useSuppliersBoardData
  * @description Contract tests for the `useSuppliersBoardData` orchestration hook.
  *
  * Contract under test:

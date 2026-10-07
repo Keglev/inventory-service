@@ -1,6 +1,6 @@
 /**
  * @file FinalCta.test.tsx
- * @module __tests__/components/pages/home/sections/FinalCta
+ * @module __tests__/pages/home/sections/FinalCta
  * @testing Vitest + Testing Library, mocked i18n resolving the English landing JSON.
  * @description Tests for the closing call to action on the landing page.
  *

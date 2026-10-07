@@ -1,6 +1,6 @@
 /**
  * @file DeleteSupplierConfirmation.test.tsx
- * @module __tests__/components/pages/suppliers/DeleteSupplierDialog/DeleteSupplierConfirmation
+ * @module __tests__/pages/suppliers/DeleteSupplierDialog/DeleteSupplierConfirmation
  * @description Contract tests for the DeleteSupplierConfirmation step component.
  *
  * Contract under test:

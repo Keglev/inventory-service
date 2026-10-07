@@ -1,6 +1,6 @@
 /**
  * @file LoginPage.test.tsx
- * @module __tests__/components/pages/auth/LoginPage
+ * @module __tests__/pages/auth/LoginPage
  * @description Enterprise tests for the public LoginPage (SSO-only authentication entry).
  *
  * Contract under test:

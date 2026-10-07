@@ -1,6 +1,6 @@
 /**
  * @file SuppliersBoard.test.tsx
- * @module __tests__/components/pages/suppliers/SuppliersBoard
+ * @module __tests__/pages/suppliers/SuppliersBoard
  * @description Contract tests for the `SuppliersBoard` orchestrator.
  *
  * Contract under test:

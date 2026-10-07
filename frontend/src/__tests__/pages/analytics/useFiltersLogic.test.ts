@@ -1,6 +1,6 @@
 /**
  * @file useFiltersLogic.test.ts
- * @module __tests__/components/pages/analytics/useFiltersLogic
+ * @module __tests__/pages/analytics/useFiltersLogic
  * @description Pure date helpers behind the analytics filter panel.
  *
  * Contract under test:

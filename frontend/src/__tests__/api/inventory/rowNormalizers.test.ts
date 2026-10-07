@@ -1,6 +1,6 @@
 /**
  * @file rowNormalizers.test.ts
- * @module tests/unit/api/inventory/rowNormalizers
+ * @module tests/api/inventory/rowNormalizers
  * @description Contract tests for toInventoryRow.
  *
  * Contract under test:

@@ -1,6 +1,6 @@
 /**
  * @file chartTooltip.test.ts
- * @module tests/unit/utils/chartTooltip
+ * @module tests/utils/chartTooltip
  * @description Unit test for chartTooltipProps: maps MUI theme tokens onto Recharts tooltip styles.
  */
 import { describe, it, expect } from 'vitest';

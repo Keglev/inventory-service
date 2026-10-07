@@ -1,6 +1,6 @@
 /**
  * @file useInventoryPageData.test.ts
- * @module __tests__/components/pages/inventory/useInventoryPageData
+ * @module __tests__/pages/inventory/useInventoryPageData
  * @description Inventory data orchestration hook (server page + suppliers +
  * columns + row styling composition).
  *

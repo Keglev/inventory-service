@@ -1,6 +1,6 @@
 /**
  * @file useDeleteItemDialog.test.ts
- * @module __tests__/components/pages/inventory/DeleteItemDialog/useDeleteItemDialog
+ * @module __tests__/pages/inventory/DeleteItemDialog/useDeleteItemDialog
  * @description Composition tests for useDeleteItemDialog.
  *
  * Contract:

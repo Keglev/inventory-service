@@ -1,6 +1,6 @@
 /**
  * @file useItemForm.test.ts
- * @module __tests__/components/pages/inventory/ItemFormDialog/useItemForm
+ * @module __tests__/pages/inventory/ItemFormDialog/useItemForm
  * @description Contract tests for useItemForm (dialog hook)
  */
 

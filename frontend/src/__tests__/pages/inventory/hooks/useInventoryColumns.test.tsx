@@ -1,6 +1,6 @@
 /**
  * @file useInventoryColumns.test.tsx
- * @module __tests__/components/hooks/useInventoryColumns
+ * @module __tests__/pages/inventory/hooks/useInventoryColumns
  * @description
  * Enterprise unit tests for the `useInventoryColumns` hook.
  *

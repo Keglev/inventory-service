@@ -1,6 +1,6 @@
 /**
  * @file useLowStockRows.test.tsx
- * @module __tests__/components/pages/analytics/hooks/useLowStockRows
+ * @module __tests__/pages/analytics/hooks/useLowStockRows
  * @description Contract tests for the low-stock derivation hook.
  *
  * Contract under test:

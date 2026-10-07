@@ -1,6 +1,6 @@
 /**
  * @file SuppliersFilterPanel.test.tsx
- * @module __tests__/components/pages/suppliers/SuppliersFilterPanel
+ * @module __tests__/pages/suppliers/SuppliersFilterPanel
  * @description Contract tests for the `SuppliersFilterPanel` presentation component.
  *
  * Contract under test:

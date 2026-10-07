@@ -1,6 +1,6 @@
 /**
  * @file useSupplierListQuery.test.ts
- * @module tests/unit/api/suppliers/hooks/useSupplierListQuery
+ * @module tests/api/suppliers/hooks/useSupplierListQuery
  * @description Contract tests for useSupplierListQuery.
  *
  * Contract under test:
@@ -27,7 +27,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllSuppliers } from '@/api/suppliers/supplierListFetcher';
 import { useSupplierListQuery } from '@/api/suppliers/hooks/useSupplierListQuery';
 import type { SupplierRow } from '@/api/suppliers/types';
-import { arrangeUseQueryConfigCapture } from '@/__tests__/unit/utils/reactQueryCapture';
+import { arrangeUseQueryConfigCapture } from '@/__tests__/utils/reactQueryCapture';
 
 const useQueryMock = useQuery as unknown as ReturnType<typeof vi.fn>;
 const getAllSuppliersMock = getAllSuppliers as ReturnType<typeof vi.fn>;

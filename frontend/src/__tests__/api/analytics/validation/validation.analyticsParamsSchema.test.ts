@@ -1,6 +1,6 @@
 /**
  * @file validation.analyticsParamsSchema.test.ts
- * @module tests/unit/api/analytics/validation.analyticsParamsSchema
+ * @module tests/api/analytics/validation.analyticsParamsSchema
  * @description Contract tests for analyticsParamsSchema (api/analytics/validation).
  *
  * Contract under test:

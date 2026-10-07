@@ -1,6 +1,6 @@
 /**
  * @file useFilterHandlers.test.ts
- * @module __tests__/components/pages/suppliers/handlers/useFilterHandlers
+ * @module __tests__/pages/suppliers/handlers/useFilterHandlers
  * @description Contract tests for `useFilterHandlers`.
  *
  * Contract under test:

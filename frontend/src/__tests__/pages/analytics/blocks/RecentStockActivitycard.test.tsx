@@ -1,6 +1,6 @@
 /**
  * @file RecentStockActivityCard.test.tsx
- * @module __tests__/components/pages/analytics/blocks/RecentStockActivityCard
+ * @module __tests__/pages/analytics/blocks/RecentStockActivityCard
  * @description
  * Enterprise tests for RecentStockActivityCard:
  * - Loading state (skeleton)

@@ -1,6 +1,6 @@
 /**
  * @file QuantityAdjustForm.test.tsx
- * @module __tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustForm
+ * @module __tests__/pages/inventory/QuantityAdjustDialog/QuantityAdjustForm
  * @description Contract tests for QuantityAdjustForm:
  * - Forwards orchestrator state to step subcomponents.
  * - Surfaces disabled/enabled behavior required by the dialog workflow.
@@ -20,7 +20,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { UseQuantityAdjustFormReturn } from '@/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm';
 import type { SupplierOption, ItemOption } from '@/api/analytics/types';
-import { itemOption, makeQuantityAdjustForm, supplierOption } from '@/__tests__/components/pages/inventory/QuantityAdjustDialog/fixtures';
+import { itemOption, makeQuantityAdjustForm, supplierOption } from '@/__tests__/pages/inventory/QuantityAdjustDialog/fixtures';
 
 // Spies capture the props passed to each step component.
 const supplierSelectSpy = vi.fn();

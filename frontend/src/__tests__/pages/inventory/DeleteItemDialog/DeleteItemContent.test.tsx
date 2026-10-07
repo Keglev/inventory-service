@@ -1,6 +1,6 @@
 /**
  * @file DeleteItemContent.test.tsx
- * @module __tests__/components/pages/inventory/DeleteItemDialog/DeleteItemContent
+ * @module __tests__/pages/inventory/DeleteItemDialog/DeleteItemContent
  * @description Unit tests for DeleteItemContent rendering logic.
  *
  * Contract under test:

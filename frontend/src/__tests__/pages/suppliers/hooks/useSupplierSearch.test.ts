@@ -1,6 +1,6 @@
 /**
  * @file useSupplierSearch.test.ts
- * @module __tests__/components/pages/suppliers/hooks/useSupplierSearch
+ * @module __tests__/pages/suppliers/hooks/useSupplierSearch
  * @description Contract tests for the dialogs' `useSupplierSearch` hook.
  *
  * Contract under test:

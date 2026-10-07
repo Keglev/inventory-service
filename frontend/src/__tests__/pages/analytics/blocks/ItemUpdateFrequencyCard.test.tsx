@@ -1,6 +1,6 @@
 /**
  * @file ItemUpdateFrequencyCard.test.tsx
- * @module __tests__/components/pages/analytics/blocks/ItemUpdateFrequencyCard
+ * @module __tests__/pages/analytics/blocks/ItemUpdateFrequencyCard
  * @description
  * Enterprise tests for ItemUpdateFrequencyCard:
  * - Supplier requirement gate (no fetch without supplier)

@@ -1,6 +1,6 @@
 /**
  * @file useCreateSupplierForm.test.ts
- * @module __tests__/components/pages/suppliers/CreateSupplierDialog/useCreateSupplierForm
+ * @module __tests__/pages/suppliers/CreateSupplierDialog/useCreateSupplierForm
  * @description Orchestration tests for the `useCreateSupplierForm` hook.
  *
  * Contract under test:

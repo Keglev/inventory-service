@@ -1,6 +1,6 @@
 /**
  * @file supplierNormalizers.test.ts
- * @module tests/unit/api/suppliers/supplierNormalizers
+ * @module tests/api/suppliers/supplierNormalizers
  * @description Contract tests for toSupplierRow.
  *
  * Contract under test:

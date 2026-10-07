@@ -1,6 +1,6 @@
 /**
  * @file priceTrend.test.ts
- * @module tests/unit/api/analytics/priceTrend
+ * @module tests/api/analytics/priceTrend
  * @description Contract tests for getPriceTrend (api/analytics/priceTrend).
  *
  * Contract under test:

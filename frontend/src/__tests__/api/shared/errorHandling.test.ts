@@ -1,6 +1,6 @@
 /**
  * @file errorHandling.test.ts
- * @module tests/unit/api/shared/errorHandling
+ * @module tests/api/shared/errorHandling
  * @description Contract tests for errorMessage.
  *
  * Contract under test:

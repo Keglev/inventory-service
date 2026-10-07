@@ -1,6 +1,6 @@
 /**
  * @file Filters.test.tsx
- * @module __tests__/components/pages/analytics/components/filters/Filters
+ * @module __tests__/pages/analytics/components/filters/Filters
  * @description
  * Enterprise tests for the Filters composition component:
  * - Renders the Filters header/title

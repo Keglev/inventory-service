@@ -1,6 +1,6 @@
 /**
  * @file ReasonBreakdownChartCard.test.tsx
- * @module __tests__/components/pages/analytics/sections/ReasonBreakdownChartCard
+ * @module __tests__/pages/analytics/sections/ReasonBreakdownChartCard
  * @description Presentational bar-chart card for stock-in / stock-out
  * reason breakdowns.
  *

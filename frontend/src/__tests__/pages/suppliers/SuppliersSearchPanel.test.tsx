@@ -1,6 +1,6 @@
 /**
  * @file SuppliersSearchPanel.test.tsx
- * @module __tests__/components/pages/suppliers/SuppliersSearchPanel
+ * @module __tests__/pages/suppliers/SuppliersSearchPanel
  * @description Contract tests for the `SuppliersSearchPanel` presentation component.
  *
  * Contract under test:

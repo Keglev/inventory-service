@@ -1,6 +1,6 @@
 /**
  * @file useSearchHandlers.test.ts
- * @module __tests__/components/pages/suppliers/handlers/useSearchHandlers
+ * @module __tests__/pages/suppliers/handlers/useSearchHandlers
  * @description Contract tests for `useSearchHandlers`.
  *
  * Contract under test:

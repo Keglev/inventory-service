@@ -1,6 +1,6 @@
 /**
  * @file util.number.test.ts
- * @module tests/unit/api/analytics/util.number
+ * @module tests/api/analytics/util.number
  * @description Contract tests for asNumber and firstNumberOrZero (api/analytics/util).
  *
  * Contract under test:

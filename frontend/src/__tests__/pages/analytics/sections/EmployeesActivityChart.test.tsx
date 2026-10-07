@@ -1,6 +1,6 @@
 /**
  * @file EmployeesActivityChart.test.tsx
- * @module __tests__/components/pages/analytics/sections/EmployeesActivityChart
+ * @module __tests__/pages/analytics/sections/EmployeesActivityChart
  * @description Contract tests for the employee activity chart card.
  *
  * Contract under test:

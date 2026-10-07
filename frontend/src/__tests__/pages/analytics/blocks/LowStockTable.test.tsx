@@ -1,6 +1,6 @@
 /**
  * @file LowStockTable.test.tsx
- * @module __tests__/components/pages/analytics/blocks/LowStockTable
+ * @module __tests__/pages/analytics/blocks/LowStockTable
  * @description Low-stock table for a selected supplier.
  *
  * Contract under test:

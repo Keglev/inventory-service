@@ -1,6 +1,6 @@
 /**
  * @file LogoutPage.test.tsx
- * @module __tests__/components/pages/auth/LogoutPage
+ * @module __tests__/pages/auth/LogoutPage
  * @description Enterprise integration tests for the LogoutPage (non-XHR logout flow).
  *
  * Contract under test (see LogoutPage.tsx):

@@ -1,6 +1,6 @@
 /**
  * @file responseExtraction.test.ts
- * @module tests/unit/api/inventory/responseExtraction
+ * @module tests/api/inventory/responseExtraction
  * @description Contract tests for extractPageTotal.
  *
  * Contract under test:

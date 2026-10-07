@@ -1,6 +1,6 @@
 /**
  * @file useToolbarHandlers.test.ts
- * @module __tests__/components/pages/suppliers/handlers/useToolbarHandlers
+ * @module __tests__/pages/suppliers/handlers/useToolbarHandlers
  * @description Contract tests for `useToolbarHandlers`.
  *
  * Contract under test:

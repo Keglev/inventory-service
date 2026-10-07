@@ -1,6 +1,6 @@
 /**
  * @file stock.test.ts
- * @module tests/unit/api/analytics/stock
+ * @module tests/api/analytics/stock
  * @description Contract tests for getStockValueOverTime, getMonthlyStockMovement,
  * getStockPerSupplier (api/analytics/stock).
  *

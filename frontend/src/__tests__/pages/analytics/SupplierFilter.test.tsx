@@ -1,6 +1,6 @@
 /**
  * @file SupplierFilter.test.tsx
- * @module __tests__/components/pages/analytics/components/filters/SupplierFilter
+ * @module __tests__/pages/analytics/components/filters/SupplierFilter
  * @description
  * Enterprise tests for SupplierFilter (MUI Select):
  * - Renders the dropdown and options (including "All suppliers")

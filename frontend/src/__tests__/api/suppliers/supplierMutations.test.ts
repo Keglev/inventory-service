@@ -1,6 +1,6 @@
 /**
  * @file supplierMutations.test.ts
- * @module tests/unit/api/suppliers/supplierMutations
+ * @module tests/api/suppliers/supplierMutations
  * @description Contract tests for createSupplier / updateSupplier / deleteSupplier.
  *
  * Contract under test:

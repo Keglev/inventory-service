@@ -1,6 +1,6 @@
 /**
  * @file StockValuePerSupplierPie.test.tsx
- * @module __tests__/components/pages/analytics/blocks/StockValuePerSupplierPie
+ * @module __tests__/pages/analytics/blocks/StockValuePerSupplierPie
  * @description
  * The stock value pie: loading skeleton, empty helper, one named slice per
  * top supplier plus a grey "all others" slice, a legend in rank order, and a

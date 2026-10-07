@@ -1,6 +1,6 @@
 /**
  * @file useEditSupplierFormState.test.ts
- * @module __tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierFormState
+ * @module __tests__/pages/suppliers/EditSupplierDialog/useEditSupplierFormState
  * @description Orchestration tests for `useEditSupplierFormState`.
  *
  * Contract under test:
@@ -21,7 +21,7 @@ import { act, renderHook } from '@testing-library/react';
 import type { EditSupplierForm } from '@/api/suppliers/validation';
 
 import { useEditSupplierFormState } from '@/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierFormState';
-import { supplierRow } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures';
+import { supplierRow } from '@/__tests__/pages/suppliers/EditSupplierDialog/fixtures';
 
 const supplier = supplierRow({
   contactName: 'Janet Jones',

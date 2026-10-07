@@ -1,6 +1,6 @@
 /**
  * @file CreateSupplierForm.test.tsx
- * @module __tests__/components/pages/suppliers/CreateSupplierDialog/CreateSupplierForm
+ * @module __tests__/pages/suppliers/CreateSupplierDialog/CreateSupplierForm
  * @description Contract tests for the `SupplierFormFields` presentation component.
  *
  * Contract under test:

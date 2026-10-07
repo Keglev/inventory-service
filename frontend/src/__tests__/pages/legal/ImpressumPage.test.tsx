@@ -1,6 +1,6 @@
 /**
  * @file ImpressumPage.test.tsx
- * @module tests/components/pages/legal/ImpressumPage
+ * @module tests/pages/legal/ImpressumPage
  * @description Contract tests for ImpressumPage (incl. shared LegalPageLayout back
  * behavior).
  *

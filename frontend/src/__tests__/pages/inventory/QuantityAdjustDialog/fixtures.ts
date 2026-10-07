@@ -1,6 +1,6 @@
 /**
  * @file fixtures.ts
- * @module __tests__/components/pages/inventory/QuantityAdjustDialog/fixtures
+ * @module __tests__/pages/inventory/QuantityAdjustDialog/fixtures
  * @description Shared test fixtures for QuantityAdjustDialog tests.
  * Centralizes stable options and state factories to reduce duplication.
  *

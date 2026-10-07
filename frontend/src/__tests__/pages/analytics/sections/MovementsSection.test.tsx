@@ -1,6 +1,6 @@
 /**
  * @file MovementsSection.test.tsx
- * @module __tests__/components/pages/analytics/sections/MovementsSection
+ * @module __tests__/pages/analytics/sections/MovementsSection
  * @description Orchestration test for the Movements section: one breakdown query feeds
  * both direction cards; the reason chips filter client-side without a
  * refetch; the drilldown table renders row-level data.

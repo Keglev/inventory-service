@@ -1,6 +1,6 @@
 /**
  * @file employees.test.ts
- * @module __tests__/unit/api/analytics/employees
+ * @module __tests__/api/analytics/employees
  * @description Request contract + Spring Page parsing for the per-employee analytics
  * fetchers.
  */

@@ -1,6 +1,6 @@
 /**
  * @file useDialogHandlers.test.ts
- * @module __tests__/components/pages/suppliers/handlers/useDialogHandlers
+ * @module __tests__/pages/suppliers/handlers/useDialogHandlers
  * @description Contract tests for `useDialogHandlers`.
  *
  * Contract under test:

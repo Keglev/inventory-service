@@ -1,6 +1,6 @@
 /**
  * @file FeatureGrid.test.tsx
- * @module __tests__/components/pages/home/sections/FeatureGrid
+ * @module __tests__/pages/home/sections/FeatureGrid
  * @testing Vitest + Testing Library, mocked i18n resolving the English landing JSON.
  * @description Tests for the six-card capability grid on the landing page.
  *

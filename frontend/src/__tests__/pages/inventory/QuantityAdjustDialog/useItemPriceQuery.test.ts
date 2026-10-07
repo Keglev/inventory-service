@@ -1,6 +1,6 @@
 /**
  * @file useItemPriceQuery.test.ts
- * @module __tests__/components/pages/inventory/QuantityAdjustDialog/useItemPriceQuery
+ * @module __tests__/pages/inventory/QuantityAdjustDialog/useItemPriceQuery
  * @description Contract tests for useItemPriceQuery:
  * - Returns the latest price from trend data when available.
  * - Falls back to the item's current price when trend is empty.

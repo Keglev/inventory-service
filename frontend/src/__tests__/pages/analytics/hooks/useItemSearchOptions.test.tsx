@@ -1,6 +1,6 @@
 /**
  * @file useItemSearchOptions.test.tsx
- * @module __tests__/components/pages/analytics/hooks/useItemSearchOptions
+ * @module __tests__/pages/analytics/hooks/useItemSearchOptions
  * @description Shared item typeahead state hook (query text, debounce,
  * selection, supplier-scoped vs global search).
  *

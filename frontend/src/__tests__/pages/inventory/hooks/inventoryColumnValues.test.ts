@@ -1,6 +1,6 @@
 /**
  * @file inventoryColumnValues.test.ts
- * @module __tests__/components/hooks/inventoryColumnValues
+ * @module __tests__/pages/inventory/hooks/inventoryColumnValues
  * @description Pure value resolvers and formatters behind the inventory
  * grid columns.
  *

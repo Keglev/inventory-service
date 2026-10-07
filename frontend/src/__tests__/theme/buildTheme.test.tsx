@@ -1,6 +1,6 @@
 /**
  * @file buildTheme.test.tsx
- * @module tests/unit/theme/buildTheme
+ * @module tests/theme/buildTheme
  * @testing Vitest + React Testing Library (jsdom)
  * @description Unit tests for buildTheme's surface grades: the dark page, panel and card
  *   grades with their hover strength, the card grade winning over the Paper background in

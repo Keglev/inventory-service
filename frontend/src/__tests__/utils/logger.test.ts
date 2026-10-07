@@ -1,6 +1,6 @@
 /**
  * @file logger.test.ts
- * @module __tests__/unit/utils/logger
+ * @module __tests__/utils/logger
  * @description Console logging helpers gated on the Vite DEV flag.
  *
  * Contract under test:

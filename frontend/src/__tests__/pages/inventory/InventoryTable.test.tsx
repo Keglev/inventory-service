@@ -1,6 +1,6 @@
 /**
  * @file InventoryTable.test.tsx
- * @module __tests__/components/pages/inventory/InventoryTable
+ * @module __tests__/pages/inventory/InventoryTable
  * @description DataGrid wrapper with server pagination/sorting, row-click
  * selection, stock-level row classing, and the loading overlay.
  *

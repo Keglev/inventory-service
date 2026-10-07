@@ -1,6 +1,6 @@
 /**
  * @file useToolbarHandlers.test.ts
- * @module __tests__/components/pages/inventory/useToolbarHandlers
+ * @module __tests__/pages/inventory/useToolbarHandlers
  * @description Contract tests for `useToolbarHandlers`:
  * - Toolbar actions open the expected dialogs via InventoryState setters.
  *
@@ -11,7 +11,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useToolbarHandlers } from '@/pages/inventory/handlers/useToolbarHandlers';
-import { makeInventoryState } from '@/__tests__/components/pages/inventory/fixtures';
+import { makeInventoryState } from '@/__tests__/pages/inventory/fixtures';
 
 describe('useToolbarHandlers', () => {
   it('returns the expected handlers', () => {

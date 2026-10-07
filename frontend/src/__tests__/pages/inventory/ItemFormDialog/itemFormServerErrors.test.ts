@@ -1,6 +1,6 @@
 /**
  * @file itemFormServerErrors.test.ts
- * @module __tests__/components/pages/inventory/ItemFormDialog/itemFormServerErrors
+ * @module __tests__/pages/inventory/ItemFormDialog/itemFormServerErrors
  *
  * @testing pages/inventory/dialogs/ItemFormDialog/itemFormServerErrors
  *

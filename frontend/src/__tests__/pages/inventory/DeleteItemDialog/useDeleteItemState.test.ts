@@ -1,6 +1,6 @@
 /**
  * @file useDeleteItemState.test.ts
- * @module __tests__/components/pages/inventory/DeleteItemDialog/useDeleteItemState
+ * @module __tests__/pages/inventory/DeleteItemDialog/useDeleteItemState
  * @description Unit tests for useDeleteItemState (delete dialog local state + form sync).
  *
  * Contract under test:

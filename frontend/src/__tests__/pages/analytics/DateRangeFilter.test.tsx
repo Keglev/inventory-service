@@ -1,6 +1,6 @@
 /**
  * @file DateRangeFilter.test.tsx
- * @module __tests__/components/pages/analytics/components/filters/DateRangeFilter
+ * @module __tests__/pages/analytics/components/filters/DateRangeFilter
  * @description
  * Tests for DateRangeFilter:
  * - Quick range buttons render and reflect active state

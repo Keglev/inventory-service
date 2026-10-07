@@ -1,6 +1,6 @@
 /**
  * @file useFilterHandlers.test.ts
- * @module __tests__/components/pages/inventory/useFilterHandlers
+ * @module __tests__/pages/inventory/useFilterHandlers
  * @description Contract tests for `useFilterHandlers`:
  * - Delegates UI events into InventoryState setters.
  * - Resets related state when supplier changes.
@@ -12,7 +12,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useFilterHandlers } from '@/pages/inventory/handlers/useFilterHandlers';
-import { makeInventoryState } from '@/__tests__/components/pages/inventory/fixtures';
+import { makeInventoryState } from '@/__tests__/pages/inventory/fixtures';
 
 describe('useFilterHandlers', () => {
   it('returns the expected handlers', () => {

@@ -1,6 +1,6 @@
 /**
  * @file reasonBreakdown.test.ts
- * @module __tests__/unit/api/analytics/reasonBreakdown
+ * @module __tests__/api/analytics/reasonBreakdown
  * @description Request contract + tolerant parsing for the per-reason movement
  * breakdown fetcher.
  */

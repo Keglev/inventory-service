@@ -1,6 +1,6 @@
 /**
  * @file SelectedItemDetails.test.tsx
- * @module __tests__/components/pages/inventory/SelectedItemDetails
+ * @module __tests__/pages/inventory/SelectedItemDetails
  * @description Contract tests for SelectedItemDetails, the item panel shared by
  * the price-change and quantity-adjust dialogs:
  * - Renders nothing when no item is selected.

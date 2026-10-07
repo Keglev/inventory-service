@@ -1,6 +1,6 @@
 /**
  * @file reactQueryTestUtils.tsx
- * @module __tests__/unit/utils/reactQueryTestUtils
+ * @module __tests__/utils/reactQueryTestUtils
  * @what_is_under_test createReactQueryWrapper test utility
  * @responsibility
  * - Provides a deterministic React Query provider wrapper for hook/unit tests

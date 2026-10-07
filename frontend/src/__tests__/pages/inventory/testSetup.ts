@@ -1,6 +1,6 @@
 /**
  * @file testSetup.ts
- * @module __tests__/components/pages/inventory/testSetup
+ * @module __tests__/pages/inventory/testSetup
  * @description Shared deterministic mocks for inventory page tests.
  *
  * Why this exists:

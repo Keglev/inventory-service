@@ -1,6 +1,6 @@
 /**
  * @file HowItWorks.test.tsx
- * @module __tests__/components/pages/home/sections/HowItWorks
+ * @module __tests__/pages/home/sections/HowItWorks
  * @testing Vitest + Testing Library, mocked i18n resolving the English landing JSON.
  * @description Tests for the three-step orientation block on the landing page.
  *

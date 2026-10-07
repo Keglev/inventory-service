@@ -1,6 +1,6 @@
 /**
  * @file InventoryDialogsWiring.test.tsx
- * @module __tests__/components/pages/inventory/InventoryDialogsWiring
+ * @module __tests__/pages/inventory/InventoryDialogsWiring
  * @description Contract tests for InventoryDialogs composition:
  * - Renders the expected dialog when its open-flag is set.
  * - Passes isDemo to the create dialog as readOnly.

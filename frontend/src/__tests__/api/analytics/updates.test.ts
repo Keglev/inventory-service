@@ -1,6 +1,6 @@
 /**
  * @file updates.test.ts
- * @module tests/unit/api/analytics/updates
+ * @module tests/api/analytics/updates
  * @description Contract tests for getStockUpdates (api/analytics/updates).
  *
  * Contract under test:

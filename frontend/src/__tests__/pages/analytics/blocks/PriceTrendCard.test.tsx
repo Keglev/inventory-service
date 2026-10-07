@@ -1,6 +1,6 @@
 /**
  * @file PriceTrendCard.test.tsx
- * @module __tests__/components/pages/analytics/blocks/PriceTrendCard
+ * @module __tests__/pages/analytics/blocks/PriceTrendCard
  * @description Supplier-aware item typeahead + price trend chart (A3).
  *
  * Contract under test:

@@ -1,6 +1,6 @@
 /**
  * @file EditSupplierDialog.test.tsx
- * @module __tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierDialog
+ * @module __tests__/pages/suppliers/EditSupplierDialog/EditSupplierDialog
  * @description Contract tests for the `EditSupplierDialog` container.
  *
  * Contract under test:
@@ -30,8 +30,8 @@ import type { EditSupplierForm } from '@/api/suppliers/validation';
 import type { UseEditSupplierFormReturn } from '@/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
 import type { SupplierRow } from '@/api/suppliers/types';
 
-import { editSupplierChanges, supplierRow } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures';
-import { createEditSupplierDialogForm } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/testHelpers';
+import { editSupplierChanges, supplierRow } from '@/__tests__/pages/suppliers/EditSupplierDialog/fixtures';
+import { createEditSupplierDialogForm } from '@/__tests__/pages/suppliers/EditSupplierDialog/testHelpers';
 
 const mocks = vi.hoisted(() => ({
   // Hoisted to guarantee deterministic instance identity across tests and module mocks.

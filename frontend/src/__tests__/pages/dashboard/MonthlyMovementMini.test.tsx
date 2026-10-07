@@ -1,6 +1,6 @@
 /**
  * @file MonthlyMovementMini.test.tsx
- * @module __tests__/components/pages/dashboard/blocks/MonthlyMovementMini
+ * @module __tests__/pages/dashboard/blocks/MonthlyMovementMini
  * @description Enterprise tests for the MonthlyMovementMini dashboard block.
  *
  * Contract under test:

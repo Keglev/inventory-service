@@ -1,6 +1,6 @@
 /**
  * @file InventoryBoard.test.tsx
- * @module __tests__/components/pages/inventory/InventoryBoard
+ * @module __tests__/pages/inventory/InventoryBoard
  * @description Contract tests for InventoryBoard orchestration:
  * - Composes toolbar, filters, table, and dialogs.
  * - Wires inventory state + handlers into child components.

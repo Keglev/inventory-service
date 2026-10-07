@@ -1,6 +1,6 @@
 /**
  * @file HeroSection.test.tsx
- * @module __tests__/components/pages/home/sections/HeroSection
+ * @module __tests__/pages/home/sections/HeroSection
  * @testing Vitest + Testing Library, mocked i18n resolving the English landing JSON.
  * @description Tests for the landing hero block.
  *

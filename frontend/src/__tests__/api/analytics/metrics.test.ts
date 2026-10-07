@@ -1,6 +1,6 @@
 /**
  * @file metrics.test.ts
- * @module tests/unit/api/analytics/metrics
+ * @module tests/api/analytics/metrics
  * @description Contract tests for api/analytics/metrics module.
  *
  * Contract under test:

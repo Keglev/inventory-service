@@ -1,6 +1,6 @@
 /**
  * @file util.firstStringOrEmpty.test.ts
- * @module tests/unit/api/analytics/util.firstStringOrEmpty
+ * @module tests/api/analytics/util.firstStringOrEmpty
  * @description Contract tests for firstStringOrEmpty (api/analytics/util).
  *
  * Contract under test:

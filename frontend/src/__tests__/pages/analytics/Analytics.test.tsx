@@ -1,6 +1,6 @@
 /**
  * @file Analytics.test.tsx
- * @module __tests__/components/pages/analytics/Analytics
+ * @module __tests__/pages/analytics/Analytics
  * @description
  * Enterprise tests for the Analytics page orchestration:
  * - Route-to-section mapping (overview/pricing/inventory/finance)

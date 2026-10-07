@@ -1,6 +1,6 @@
 /**
  * @file DeleteSupplierSearch.test.tsx
- * @module __tests__/components/pages/suppliers/DeleteSupplierDialog/DeleteSupplierSearch
+ * @module __tests__/pages/suppliers/DeleteSupplierDialog/DeleteSupplierSearch
  * @description Contract tests for the DeleteSupplierSearch step component.
  *
  * Contract under test:

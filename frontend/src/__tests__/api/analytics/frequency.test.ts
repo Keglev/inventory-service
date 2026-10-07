@@ -1,6 +1,6 @@
 /**
  * @file frequency.test.ts
- * @module tests/unit/api/analytics/frequency
+ * @module tests/api/analytics/frequency
  * @description Contract tests for getItemUpdateFrequency (api/analytics/frequency).
  *
  * Contract under test:

@@ -1,6 +1,6 @@
 /**
  * @file formatters.test.ts
- * @module tests/unit/utils/formatters
+ * @module tests/utils/formatters
  * @description Contract tests for formatDate / formatNumber / formatDateCell /
  * getTodayIso / getDaysAgoIso.
  *

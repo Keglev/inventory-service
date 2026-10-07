@@ -1,6 +1,6 @@
 /**
  * @file fixtures.ts
- * @module __tests__/components/pages/inventory/fixtures
+ * @module __tests__/pages/inventory/fixtures
  * @description Shared typed fixtures for inventory page tests.
  *
  * Principles:

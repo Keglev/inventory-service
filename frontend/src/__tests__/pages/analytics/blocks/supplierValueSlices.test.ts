@@ -1,6 +1,6 @@
 /**
  * @file supplierValueSlices.test.ts
- * @module __tests__/components/pages/analytics/blocks/supplierValueSlices
+ * @module __tests__/pages/analytics/blocks/supplierValueSlices
  * @description
  * The grouping rule behind the stock value pie: every supplier up to five, the
  * top four plus "all others" beyond that, no suppliers without value, and name

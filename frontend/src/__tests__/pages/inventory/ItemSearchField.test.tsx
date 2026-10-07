@@ -1,6 +1,6 @@
 /**
  * @file ItemSearchField.test.tsx
- * @module __tests__/components/pages/inventory/ItemSearchField
+ * @module __tests__/pages/inventory/ItemSearchField
  * @description Contract tests for the item picker of the inventory dialogs.
  *
  * Contract under test:

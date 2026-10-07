@@ -1,6 +1,6 @@
 /**
  * @file FinancialSummaryCard.test.tsx
- * @module __tests__/components/pages/analytics/blocks/FinancialSummaryCard
+ * @module __tests__/pages/analytics/blocks/FinancialSummaryCard
  * @description
  * Enterprise tests for FinancialSummaryCard:
  * - Supplier requirement gate (no fetch without supplier)

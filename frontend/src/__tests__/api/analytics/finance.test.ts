@@ -1,6 +1,6 @@
 /**
  * @file finance.test.ts
- * @module tests/unit/api/analytics/finance
+ * @module tests/api/analytics/finance
  * @description Contract tests for getFinancialSummary (api/analytics/finance).
  *
  * Contract under test:

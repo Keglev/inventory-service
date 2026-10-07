@@ -1,6 +1,6 @@
 /**
  * @file ItemSearchAutocomplete.test.tsx
- * @module __tests__/components/pages/analytics/components/ItemSearchAutocomplete
+ * @module __tests__/pages/analytics/components/ItemSearchAutocomplete
  * @description Contract tests for the shared analytics item picker.
  *
  * Contract under test:

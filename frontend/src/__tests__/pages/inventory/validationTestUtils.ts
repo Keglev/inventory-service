@@ -1,6 +1,6 @@
 /**
  * @file validationTestUtils.ts
- * @module __tests__/components/pages/inventory/validationTestUtils
+ * @module __tests__/pages/inventory/validationTestUtils
  * @description Small assertion helpers for Zod-style `safeParse` tests.
  *
  * Goals:

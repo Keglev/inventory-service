@@ -1,6 +1,6 @@
 /**
  * @file matchSuppliers.test.ts
- * @module __tests__/components/pages/suppliers/utils/matchSuppliers
+ * @module __tests__/pages/suppliers/utils/matchSuppliers
  * @description Contract tests for the browser-side supplier match.
  *
  * Contract under test:

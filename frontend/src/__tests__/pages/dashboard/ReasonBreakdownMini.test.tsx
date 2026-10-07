@@ -1,6 +1,6 @@
 /**
  * @file ReasonBreakdownMini.test.tsx
- * @module __tests__/components/pages/dashboard/ReasonBreakdownMini
+ * @module __tests__/pages/dashboard/ReasonBreakdownMini
  * @description
  * Enterprise tests for ReasonBreakdownMini:
  * - Loading state (skeleton)

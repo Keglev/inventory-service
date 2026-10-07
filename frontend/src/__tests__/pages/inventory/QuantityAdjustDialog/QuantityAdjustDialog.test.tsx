@@ -1,6 +1,6 @@
 /**
  * @file QuantityAdjustDialog.test.tsx
- * @module __tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustDialog
+ * @module __tests__/pages/inventory/QuantityAdjustDialog/QuantityAdjustDialog
  * @description Contract tests for QuantityAdjustDialog:
  * - Wires dialog props into useQuantityAdjustForm.
  * - Passes orchestrator state into QuantityAdjustForm.
@@ -20,7 +20,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { UseQuantityAdjustFormReturn } from '@/pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm';
-import { makeQuantityAdjustForm } from '@/__tests__/components/pages/inventory/QuantityAdjustDialog/fixtures';
+import { makeQuantityAdjustForm } from '@/__tests__/pages/inventory/QuantityAdjustDialog/fixtures';
 
 // Spies for contract assertions (prop wiring + help topic routing).
 const useQuantityAdjustFormMock = vi.fn();

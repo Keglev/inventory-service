@@ -1,6 +1,6 @@
 /**
  * @file LowStockTableRow.test.tsx
- * @module __tests__/components/pages/analytics/blocks/LowStockTableRow
+ * @module __tests__/pages/analytics/blocks/LowStockTableRow
  * @description Contract tests for the low-stock row severity mapping.
  *
  * Contract under test:

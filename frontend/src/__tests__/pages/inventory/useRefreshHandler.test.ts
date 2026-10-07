@@ -1,6 +1,6 @@
 /**
  * @file useRefreshHandler.test.ts
- * @module __tests__/components/pages/inventory/useRefreshHandler
+ * @module __tests__/pages/inventory/useRefreshHandler
  * @description Contract tests for `useRefreshHandler`:
  * - `handleReload` invokes the injected reload function.
  *

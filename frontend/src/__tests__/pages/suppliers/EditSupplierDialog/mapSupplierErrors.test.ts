@@ -1,6 +1,6 @@
 /**
  * @file mapSupplierErrors.test.ts
- * @module __tests__/components/pages/suppliers/EditSupplierDialog/mapSupplierErrors
+ * @module __tests__/pages/suppliers/EditSupplierDialog/mapSupplierErrors
  * @description Contract tests for the `mapSupplierError` adapter.
  *
  * Contract under test:

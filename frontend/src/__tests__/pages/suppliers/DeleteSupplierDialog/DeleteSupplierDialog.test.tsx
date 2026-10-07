@@ -1,6 +1,6 @@
 /**
  * @file DeleteSupplierDialog.test.tsx
- * @module __tests__/components/pages/suppliers/DeleteSupplierDialog/DeleteSupplierDialog
+ * @module __tests__/pages/suppliers/DeleteSupplierDialog/DeleteSupplierDialog
  * @description Wrapper-level contract tests for the DeleteSupplierDialog container.
  *
  * Contract under test:

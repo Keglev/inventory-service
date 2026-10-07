@@ -1,6 +1,6 @@
 /**
  * @file fieldPickers.test.ts
- * @module tests/unit/api/shared/fieldPickers
+ * @module tests/api/shared/fieldPickers
  * @description Contract tests for fieldPickers.
  *
  * Contract under test:

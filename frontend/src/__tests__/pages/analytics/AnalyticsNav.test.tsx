@@ -1,6 +1,6 @@
 /**
  * @file AnalyticsNav.test.tsx
- * @module __tests__/components/pages/analytics/components/AnalyticsNav
+ * @module __tests__/pages/analytics/components/AnalyticsNav
  * @description
  * Enterprise tests for AnalyticsNav:
  * - Renders the full tab set

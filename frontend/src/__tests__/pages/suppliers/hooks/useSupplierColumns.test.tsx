@@ -1,6 +1,6 @@
 /**
  * @file useSupplierColumns.test.tsx
- * @module __tests__/components/hooks/useSupplierColumns
+ * @module __tests__/pages/suppliers/hooks/useSupplierColumns
  * @testing Unit tests for the `useSupplierColumns` hook.
  * @description
  * Contract under test:

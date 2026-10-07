@@ -1,6 +1,6 @@
 /**
  * @file stockMutations.test.ts
- * @module tests/unit/api/inventory/stockMutations
+ * @module tests/api/inventory/stockMutations
  * @description Contract tests for adjustQuantity.
  *
  * Contract under test:

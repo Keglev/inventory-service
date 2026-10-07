@@ -1,6 +1,6 @@
 /**
  * @file AuthCallback.test.tsx
- * @module __tests__/components/pages/auth/AuthCallback
+ * @module __tests__/pages/auth/AuthCallback
  * @description Enterprise integration tests for the AuthCallback page (OAuth redirect target).
  *
  * Contract under test:

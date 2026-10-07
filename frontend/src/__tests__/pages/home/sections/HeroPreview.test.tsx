@@ -1,6 +1,6 @@
 /**
  * @file HeroPreview.test.tsx
- * @module __tests__/components/pages/home/sections/HeroPreview
+ * @module __tests__/pages/home/sections/HeroPreview
  * @testing Vitest + Testing Library, mocked i18n resolving the English landing JSON.
  * @description Tests for the landing hero's product screenshot.
  *

@@ -1,6 +1,6 @@
 /**
  * @file StockValueCard.test.tsx
- * @module __tests__/components/pages/analytics/blocks/StockValueCard
+ * @module __tests__/pages/analytics/blocks/StockValueCard
  * @description
  * Enterprise tests for StockValueCard:
  * - Loading state (skeleton)

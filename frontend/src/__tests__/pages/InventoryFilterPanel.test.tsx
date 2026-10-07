@@ -1,6 +1,6 @@
 /**
  * @file InventoryFilterPanel.test.tsx
- * @module __tests__/components/pages/InventoryFilterPanel
+ * @module __tests__/pages/InventoryFilterPanel
  * @description Contract tests for the `InventoryFilterPanel` presentation component.
  *
  * Contract under test:

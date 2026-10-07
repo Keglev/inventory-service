@@ -1,6 +1,6 @@
 /**
  * @file lowStock.test.ts
- * @module tests/unit/api/analytics/lowStock
+ * @module tests/api/analytics/lowStock
  * @description Contract tests for getLowStockItems (api/analytics/lowStock).
  *
  * Contract under test:

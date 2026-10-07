@@ -1,6 +1,6 @@
 /**
  * @file ItemFormDialog.test.tsx
- * @module __tests__/components/pages/inventory/ItemFormDialog/ItemFormDialog
+ * @module __tests__/pages/inventory/ItemFormDialog/ItemFormDialog
  * @description Contract tests for ItemFormDialog:
  * - Renders the create title and action labels.
  * - Wires dialog props into useItemForm and passes state into ItemForm.

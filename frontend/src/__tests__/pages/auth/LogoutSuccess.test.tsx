@@ -1,6 +1,6 @@
 /**
  * @file LogoutSuccess.test.tsx
- * @module __tests__/components/pages/auth/LogoutSuccess
+ * @module __tests__/pages/auth/LogoutSuccess
  * @description Enterprise tests for the LogoutSuccess page.
  *
  * Contract under test:

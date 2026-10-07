@@ -1,6 +1,6 @@
 /**
  * @file itemMutations.test.ts
- * @module tests/unit/api/inventory/itemMutations
+ * @module tests/api/inventory/itemMutations
  * @description Contract tests for createItem / renameItem / deleteItem.
  *
  * Contract under test:

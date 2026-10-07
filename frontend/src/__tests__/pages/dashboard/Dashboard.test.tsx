@@ -1,6 +1,6 @@
 /**
  * @file Dashboard.test.tsx
- * @module __tests__/components/pages/dashboard/Dashboard
+ * @module __tests__/pages/dashboard/Dashboard
  * @description Enterprise integration tests for the Dashboard page.
  *
  * Contract under test:

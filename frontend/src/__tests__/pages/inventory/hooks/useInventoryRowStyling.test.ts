@@ -1,6 +1,6 @@
 /**
  * @file useInventoryRowStyling.test.ts
- * @module __tests__/components/hooks/useInventoryRowStyling
+ * @module __tests__/pages/inventory/hooks/useInventoryRowStyling
  * @description
  * Contract tests for `useInventoryRowStyling`, and through it for
  * `lowStockSeverity` (config/inventoryPolicy, frontend ADR-0012).

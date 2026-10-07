@@ -1,6 +1,6 @@
 /**
  * @file QuantityAdjustQuantityInput.test.tsx
- * @module __tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustQuantityInput
+ * @module __tests__/pages/inventory/QuantityAdjustDialog/QuantityAdjustQuantityInput
  * @description Contract tests for QuantityAdjustQuantityInput:
  * - Renders quantity + reason fields.
  * - Shows a user-facing hint describing the change.

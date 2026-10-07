@@ -1,6 +1,6 @@
 /**
  * @file SuppliersDialogs.test.tsx
- * @module __tests__/components/pages/suppliers/SuppliersDialogs
+ * @module __tests__/pages/suppliers/SuppliersDialogs
  * @description Contract tests for the `SuppliersDialogs` composition component.
  *
  * Contract under test:

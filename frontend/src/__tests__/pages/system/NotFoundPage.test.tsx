@@ -1,6 +1,6 @@
 /**
  * @file NotFoundPage.test.tsx
- * @module __tests__/components/pages/system/NotFoundPage
+ * @module __tests__/pages/system/NotFoundPage
  * @description Contract tests for the `NotFoundPage` route component.
  *
  * Contract under test:

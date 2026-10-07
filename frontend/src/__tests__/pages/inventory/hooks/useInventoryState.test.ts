@@ -1,6 +1,6 @@
 /**
  * @file useInventoryState.test.ts
- * @module __tests__/components/hooks/useInventoryState
+ * @module __tests__/pages/inventory/hooks/useInventoryState
  * @description
  * Enterprise unit tests for `useInventoryState`.
  *

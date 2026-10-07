@@ -1,6 +1,6 @@
 /**
  * @file httpClient.test.ts
- * @module __tests__/unit/api/httpClient
+ * @module __tests__/api/httpClient
  * @description Singleton Axios client: base-URL resolution, shared
  * defaults, and the cross-cutting 401 response interceptor.
  *

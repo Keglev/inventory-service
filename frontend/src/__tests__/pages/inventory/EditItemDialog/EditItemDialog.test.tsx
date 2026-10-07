@@ -1,6 +1,6 @@
 /**
  * @file EditItemDialog.test.tsx
- * @module __tests__/components/pages/inventory/EditItemDialog/EditItemDialog
+ * @module __tests__/pages/inventory/EditItemDialog/EditItemDialog
  * @description Wrapper-level tests for the EditItemDialog container.
  *
  * Contract under test:

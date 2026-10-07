@@ -1,6 +1,6 @@
 /**
  * @file DeleteItemDialog.test.tsx
- * @module __tests__/components/pages/inventory/DeleteItemDialog/DeleteItemDialog
+ * @module __tests__/pages/inventory/DeleteItemDialog/DeleteItemDialog
  * @description Wrapper-level tests for DeleteItemDialog.
  *
  * Contract under test:

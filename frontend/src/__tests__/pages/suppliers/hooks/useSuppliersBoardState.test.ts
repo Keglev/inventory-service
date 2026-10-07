@@ -1,6 +1,6 @@
 /**
  * @file useSuppliersBoardState.test.ts
- * @module __tests__/components/pages/suppliers/hooks/useSuppliersBoardState
+ * @module __tests__/pages/suppliers/hooks/useSuppliersBoardState
  * @description Contract tests for the `useSuppliersBoardState` orchestration hook.
  *
  * Contract under test:

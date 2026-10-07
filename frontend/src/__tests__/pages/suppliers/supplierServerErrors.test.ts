@@ -1,6 +1,6 @@
 /**
  * @file supplierServerErrors.test.ts
- * @module __tests__/components/pages/suppliers/supplierServerErrors
+ * @module __tests__/pages/suppliers/supplierServerErrors
  * @description Contract tests for the shared supplier error classifier.
  *
  * Contract under test:

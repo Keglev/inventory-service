@@ -1,6 +1,6 @@
 /**
  * @file EditSupplierConfirmation.test.tsx
- * @module __tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierConfirmation
+ * @module __tests__/pages/suppliers/EditSupplierDialog/EditSupplierConfirmation
  * @description Contract tests for the `EditSupplierConfirmation` presentation component.
  *
  * Contract under test:
@@ -27,7 +27,7 @@ import type { EditSupplierForm } from '@/api/suppliers/validation';
 import type { SupplierRow } from '@/api/suppliers/types';
 
 import { EditSupplierConfirmation } from '@/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation';
-import { editSupplierChanges, supplierRow } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures';
+import { editSupplierChanges, supplierRow } from '@/__tests__/pages/suppliers/EditSupplierDialog/fixtures';
 import { tEn } from '@/__tests__/test/i18nEn';
 import { buildTheme } from '@/theme';
 

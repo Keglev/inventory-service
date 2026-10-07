@@ -1,6 +1,6 @@
 /**
  * @file deleteItemErrorHandler.test.ts
- * @module __tests__/components/pages/inventory/DeleteItemDialog/deleteItemErrorHandler
+ * @module __tests__/pages/inventory/DeleteItemDialog/deleteItemErrorHandler
  * @description Unit tests for handleDeleteError utility.
  *
  * Contract under test:

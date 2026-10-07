@@ -1,6 +1,6 @@
 /**
  * @file usePriceChangeForm.test.ts
- * @module __tests__/components/pages/inventory/PriceChangeDialog/usePriceChangeForm
+ * @module __tests__/pages/inventory/PriceChangeDialog/usePriceChangeForm
  * @description Orchestrator hook for the price-change flow, exercised with
  * the real react-hook-form instance, real state hook, and the real
  * usePriceChangeFormQueries composition (api hooks mocked at the boundary).

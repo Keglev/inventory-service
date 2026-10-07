@@ -1,6 +1,6 @@
 /**
  * @file useEditSupplierForm.test.ts
- * @module __tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierForm
+ * @module __tests__/pages/suppliers/EditSupplierDialog/useEditSupplierForm
  * @description Orchestration tests for the `useEditSupplierForm` workflow hook.
  *
  * Contract under test:
@@ -36,11 +36,11 @@ import type { TFunction } from 'i18next';
 import type { SupplierRow } from '@/api/suppliers/types';
 import type { EditSupplierForm } from '@/api/suppliers/validation';
 
-import { editSupplierChanges, supplierRow } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures';
+import { editSupplierChanges, supplierRow } from '@/__tests__/pages/suppliers/EditSupplierDialog/fixtures';
 import {
   setupUseEditSupplierFormDeps,
   type UseEditSupplierFormMockContainer,
-} from '@/__tests__/components/pages/suppliers/EditSupplierDialog/testHelpers';
+} from '@/__tests__/pages/suppliers/EditSupplierDialog/testHelpers';
 
 const mocks = vi.hoisted(() => ({
   useAuth: vi.fn(),

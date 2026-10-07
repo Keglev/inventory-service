@@ -1,6 +1,6 @@
 /**
  * @file useDashboardMetrics.test.tsx
- * @module __tests__/unit/api/analytics/hooks/useDashboardMetrics
+ * @module __tests__/api/analytics/hooks/useDashboardMetrics
  * @description Contract tests for useDashboardMetrics hook.
  *
  * Contract under test:
@@ -17,7 +17,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 
-import { createReactQueryWrapper } from '@/__tests__/unit/utils/reactQueryTestUtils';
+import { createReactQueryWrapper } from '@/__tests__/utils/reactQueryTestUtils';
 
 // Mock what the hook imports: ../index from hooks => api/analytics/index.ts
 vi.mock('@/api/analytics/metrics', () => ({

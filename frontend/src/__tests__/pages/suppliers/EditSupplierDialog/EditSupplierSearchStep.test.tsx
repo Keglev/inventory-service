@@ -1,6 +1,6 @@
 /**
  * @file EditSupplierSearchStep.test.tsx
- * @module __tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierSearchStep
+ * @module __tests__/pages/suppliers/EditSupplierDialog/EditSupplierSearchStep
  * @description Contract tests for the `EditSupplierSearchStep` presentation component.
  *
  * Contract under test:
@@ -15,7 +15,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { EditSupplierSearchStep } from '@/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierSearchStep';
-import { supplierRow } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures';
+import { supplierRow } from '@/__tests__/pages/suppliers/EditSupplierDialog/fixtures';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({

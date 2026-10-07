@@ -1,6 +1,6 @@
 /**
  * @file systemInfo.test.ts
- * @module tests/unit/utils/systemInfo
+ * @module tests/utils/systemInfo
  * @description Contract tests for getSystemInfo.
  *
  * Contract under test:

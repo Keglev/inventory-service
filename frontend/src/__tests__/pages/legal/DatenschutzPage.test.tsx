@@ -1,6 +1,6 @@
 /**
  * @file DatenschutzPage.test.tsx
- * @module tests/components/pages/legal/DatenschutzPage
+ * @module tests/pages/legal/DatenschutzPage
  * @description Contract tests for DatenschutzPage.
  *
  * Contract under test:

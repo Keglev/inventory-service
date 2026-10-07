@@ -1,6 +1,6 @@
 /**
  * @file MovementDrilldownTable.test.tsx
- * @module __tests__/components/pages/analytics/sections/MovementDrilldownTable
+ * @module __tests__/pages/analytics/sections/MovementDrilldownTable
  * @description Server paging of the movement drilldown: the bar shows for any
  * rows, its arrows follow the total, a page change requests that page, a
  * filter change returns to the first page, and the rows sit in the page flow

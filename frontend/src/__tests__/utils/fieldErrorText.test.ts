@@ -1,6 +1,6 @@
 /**
  * @file fieldErrorText.test.ts
- * @module __tests__/unit/utils/fieldErrorText
+ * @module __tests__/utils/fieldErrorText
  *
  * @testing utils/fieldErrorText
  *

@@ -1,6 +1,6 @@
 /**
  * @file testSetup.ts
- * @module __tests__/components/pages/inventory/QuantityAdjustDialog/testSetup
+ * @module __tests__/pages/inventory/QuantityAdjustDialog/testSetup
  * @description Shared deterministic mocks for QuantityAdjustDialog tests.
  *
  * Notes:

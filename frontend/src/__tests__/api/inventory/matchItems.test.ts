@@ -1,6 +1,6 @@
 /**
  * @file matchItems.test.ts
- * @module tests/unit/api/inventory/matchItems
+ * @module tests/api/inventory/matchItems
  * @description Contract tests for the browser-side item match.
  *
  * Contract under test:

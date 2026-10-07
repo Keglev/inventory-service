@@ -1,6 +1,6 @@
 /**
  * @file QuantityAdjustSupplierSelect.test.tsx
- * @module __tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustSupplierSelect
+ * @module __tests__/pages/inventory/QuantityAdjustDialog/QuantityAdjustSupplierSelect
  * @description Contract tests for QuantityAdjustSupplierSelect:
  * - Renders the supplier step UI.
  * - Emits the selected supplier via callback.

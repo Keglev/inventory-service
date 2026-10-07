@@ -1,6 +1,6 @@
 /**
  * @file SupplierSearchField.test.tsx
- * @module __tests__/components/pages/suppliers/SupplierSearchField
+ * @module __tests__/pages/suppliers/SupplierSearchField
  * @description Contract tests for the shared supplier search field (board,
  * edit dialog, delete dialog).
  *

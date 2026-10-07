@@ -1,6 +1,6 @@
 /**
  * @file typeGuards.test.ts
- * @module tests/unit/api/shared/typeGuards
+ * @module tests/api/shared/typeGuards
  * @description Contract tests for isRecord.
  *
  * Contract under test:

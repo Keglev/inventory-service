@@ -1,6 +1,6 @@
 /**
  * @file EngineeringCallout.test.tsx
- * @module __tests__/components/pages/home/sections/EngineeringCallout
+ * @module __tests__/pages/home/sections/EngineeringCallout
  * @testing Vitest + Testing Library, mocked i18n resolving the English landing JSON.
  * @description Tests for the landing block that links out to the documentation site
  *   and the public source repository.

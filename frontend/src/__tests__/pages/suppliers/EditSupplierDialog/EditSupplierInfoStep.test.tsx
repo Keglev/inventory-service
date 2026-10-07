@@ -1,6 +1,6 @@
 /**
  * @file EditSupplierInfoStep.test.tsx
- * @module __tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierInfoStep
+ * @module __tests__/pages/suppliers/EditSupplierDialog/EditSupplierInfoStep
  * @description Contract tests for the `EditSupplierInfoStep` presentation component.
  *
  * Contract under test:
@@ -25,7 +25,7 @@ import type { EditSupplierForm } from '@/api/suppliers/validation';
 import type { SupplierRow } from '@/api/suppliers/types';
 
 import { EditSupplierInfoStep } from '@/pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep';
-import { supplierRow } from '@/__tests__/components/pages/suppliers/EditSupplierDialog/fixtures';
+import { supplierRow } from '@/__tests__/pages/suppliers/EditSupplierDialog/fixtures';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({

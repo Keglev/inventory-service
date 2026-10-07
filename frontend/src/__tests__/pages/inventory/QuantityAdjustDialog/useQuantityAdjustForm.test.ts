@@ -1,6 +1,6 @@
 /**
  * @file useQuantityAdjustForm.test.ts
- * @module __tests__/components/pages/inventory/QuantityAdjustDialog/useQuantityAdjustForm
+ * @module __tests__/pages/inventory/QuantityAdjustDialog/useQuantityAdjustForm
  * @description Orchestrator hook for the quantity-adjust flow, exercised
  * with the real react-hook-form instance, real state hook, and the real
  * useQuantityAdjustFormQueries composition (api hooks mocked at the boundary).

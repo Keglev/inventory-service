@@ -1,6 +1,6 @@
 /**
  * @file MovementLineCard.test.tsx
- * @module __tests__/components/pages/analytics/blocks/MovementLineCard
+ * @module __tests__/pages/analytics/blocks/MovementLineCard
  * @description Monthly stock-movement line chart (Stock In vs Stock Out).
  *
  * Contract under test:

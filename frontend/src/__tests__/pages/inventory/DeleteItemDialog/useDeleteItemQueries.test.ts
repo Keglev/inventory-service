@@ -1,6 +1,6 @@
 /**
  * @file useDeleteItemQueries.test.ts
- * @module __tests__/components/pages/inventory/DeleteItemDialog/useDeleteItemQueries
+ * @module __tests__/pages/inventory/DeleteItemDialog/useDeleteItemQueries
  * @description Composition tests for useDeleteItemQueries.
  *
  * Contract under test:

@@ -1,6 +1,6 @@
 /**
  * @file Home.test.tsx
- * @module __tests__/components/pages/home/Home
+ * @module __tests__/pages/home/Home
  * @testing Vitest + Testing Library, MemoryRouter with route targets, mocked useAuth and i18n.
  * @description Enterprise tests for the Home (public landing) page orchestrator.
  *

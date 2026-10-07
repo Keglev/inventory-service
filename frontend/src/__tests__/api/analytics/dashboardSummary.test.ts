@@ -1,6 +1,6 @@
 /**
  * @file dashboardSummary.test.ts
- * @module tests/unit/api/analytics/dashboardSummary
+ * @module tests/api/analytics/dashboardSummary
  * @description Contract tests for getDashboardLowStock (api/analytics/dashboardSummary).
  *
  * Contract under test:
