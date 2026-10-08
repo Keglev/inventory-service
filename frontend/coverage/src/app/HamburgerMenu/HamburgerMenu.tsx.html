@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -170,16 +170,7 @@
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
 <a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a>
-<a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a>
-<a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -228,30 +219,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -305,13 +287,13 @@
  * Single consumer: AppToolbarActions.
  *
  * @enterprise
- * Theme, locale, and settings state are owned by AppShell and flow down via
- * AppToolbarActions; HamburgerMenu neither persists nor mutates them.
+ * The user menu (SAP Fiori pattern, FW5 fork 1): it holds no preferences; its
+ * Settings entry opens the settings dialog through onSettingsOpen.
+ * The trigger is the three-line icon on desktop; below the md breakpoint, where
+ * the header already shows a three-line drawer toggle on the left, it is a
+ * person outline so the two buttons stay distinguishable.
  * The onClose callback threaded through MenuSectionsRenderer (one per section
  * wrapper) is what dismisses the popover on any section interaction.
- * Distinct from the public-shell settings surface — this is the authenticated
- * shell's in-toolbar settings entry point (tracked under ST-APP4; do not merge
- * the two UIs here).
  */
 &nbsp;
 import * as React from 'react';
@@ -320,23 +302,16 @@ import {
   Menu,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { default as MenuSectionsRenderer } from './MenuContent/MenuSectionsRenderer';
 import { default as LogoutMenuAction } from './MenuContent/LogoutMenuAction';
-import type { SupportedLocale } from '../../theme';
 &nbsp;
 interface HamburgerMenuProps {
-  /** Current theme mode (light or dark) */
-  themeMode: 'light' | 'dark';
-&nbsp;
-  /** Callback when theme mode changes */
-  onThemeModeChange: (mode: 'light' | 'dark') =&gt; void;
-&nbsp;
-  /** Current locale setting */
-  locale: SupportedLocale;
-&nbsp;
-  /** Callback when locale changes */
-  onLocaleChange: (locale: SupportedLocale) =&gt; void;
+  /** Opens the settings dialog */
+  onSettingsOpen: () =&gt; void;
 &nbsp;
   /** Callback for logout action */
   onLogout: () =&gt; void;
@@ -348,15 +323,14 @@ interface HamburgerMenuProps {
  * dismisses the popover.
  */
 export default function HamburgerMenu({
-  themeMode,
-  onThemeModeChange,
-  locale,
-  onLocaleChange,
+  onSettingsOpen,
   onLogout,
 }: HamburgerMenuProps) {
   const { t } = useTranslation(['common']);
   const [anchorEl, setAnchorEl] = React.useState&lt;null | HTMLElement&gt;(null);
   const open = Boolean(anchorEl);
+  const theme = useTheme();
+  const isNarrow = useMediaQuery(theme.breakpoints.down('md'));
 &nbsp;
   const handleOpen = (event: React.MouseEvent&lt;HTMLButtonElement&gt;) =&gt; {
     setAnchorEl(event.currentTarget);
@@ -371,6 +345,7 @@ export default function HamburgerMenu({
       &lt;IconButton
         onClick={handleOpen}
         title={t('actions.menu')}
+        aria-label={t('actions.menu')}
         sx={{
           color: 'inherit',
           '&amp;:hover': {
@@ -378,7 +353,8 @@ export default function HamburgerMenu({
           },
         }}
       &gt;
-        &lt;MenuIcon /&gt;
+        {/* WHY: explicit ids equal MUI's own defaults; specs replace all icons with one stub. */}
+        {isNarrow ? &lt;PersonOutlineIcon data-testid="PersonOutlineIcon" /&gt; : &lt;MenuIcon data-testid="MenuIcon" /&gt;}
       &lt;/IconButton&gt;
 &nbsp;
       &lt;Menu
@@ -399,10 +375,7 @@ export default function HamburgerMenu({
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       &gt;
         &lt;MenuSectionsRenderer
-          themeMode={themeMode}
-          onThemeModeChange={onThemeModeChange}
-          locale={locale}
-          onLocaleChange={onLocaleChange}
+          onSettingsOpen={onSettingsOpen}
           onClose={handleClose}
         /&gt;
 &nbsp;

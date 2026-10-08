@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
@@ -109,8 +109,15 @@
 <a name='L44'></a><a href='#L44'>44</a>
 <a name='L45'></a><a href='#L45'>45</a>
 <a name='L46'></a><a href='#L46'>46</a>
-<a name='L47'></a><a href='#L47'>47</a>
-<a name='L48'></a><a href='#L48'>48</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L47'></a><a href='#L47'>47</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -135,17 +142,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -160,13 +158,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file LanguageToggle.tsx
  * @module LanguageToggle
- * @summary Public-shell language toggle button (DE/EN); a stateless IconButton
- * that delegates locale state entirely to its parent via onToggle.
+ * @summary Public-shell language toggle: a text button naming the language it
+ * switches to; stateless, delegates the switch to its parent via onToggle.
  *
  * @enterprise
- * - Distinct from the HamburgerMenu LanguageToggle twin: this component makes no
- *   i18n calls and owns no side-effects — the authenticated-shell twin calls
- *   i18next directly and manages its own toast. Do not merge until ST-APP4.
+ * - The only quick language switch left (FW5 fork 2): public websites keep it in
+ *   the header, while the app shell sets language in the settings dialog.
+ * - Text, not a flag: flags stand for countries, not languages (W3C i18n).
  *
  * @example
  * ```tsx
@@ -178,11 +176,8 @@
  * ```
  */
 import * as React from 'react';
-import { IconButton, Tooltip } from '@mui/material';
+import { Button, Tooltip } from '@mui/material';
 import type { SupportedLocale } from '../../../theme';
-&nbsp;
-const DE_FLAG = '/flags/de.svg';
-const US_FLAG = '/flags/us.svg';
 &nbsp;
 interface LanguageToggleProps {
   locale: SupportedLocale;
@@ -190,18 +185,20 @@ interface LanguageToggleProps {
   tooltip: string;
 }
 &nbsp;
-const LanguageToggle: React.FC&lt;LanguageToggleProps&gt; = ({ locale, onToggle, tooltip }) =&gt; (
-  &lt;Tooltip title={tooltip}&gt;
-    &lt;IconButton onClick={onToggle}&gt;
-      &lt;img
-        src={locale === 'de' ? DE_FLAG : US_FLAG}
-        alt={locale === 'de' ? 'Deutsch' : 'English'}
-        width={20}
-        height={20}
-      /&gt;
-    &lt;/IconButton&gt;
-  &lt;/Tooltip&gt;
-);
+// WHY: the button names the language it switches TO, in that language, and uses
+// no flag (W3C i18n: flags stand for countries, not languages).
+const LanguageToggle: React.FC&lt;LanguageToggleProps&gt; = ({ locale, onToggle, tooltip }) =&gt; {
+  const target = locale === 'de' ? { code: 'en', label: 'English' } : { code: 'de', label: 'Deutsch' };
+  return (
+    // WHY: describeChild keeps the visible language name as the accessible name
+    // (WCAG 2.5.3 label in name); the tooltip becomes the description.
+    &lt;Tooltip title={tooltip} describeChild&gt;
+      &lt;Button color="inherit" onClick={onToggle} lang={target.code} sx={{ textTransform: 'none', fontWeight: 600, minWidth: 0 }}&gt;
+        {target.label}
+      &lt;/Button&gt;
+    &lt;/Tooltip&gt;
+  );
+};
 &nbsp;
 export default LanguageToggle;
 &nbsp;</pre></td></tr></table></pre>

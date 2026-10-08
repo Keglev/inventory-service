@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/11</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>11/11</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -127,10 +127,7 @@
 <a name='L62'></a><a href='#L62'>62</a>
 <a name='L63'></a><a href='#L63'>63</a>
 <a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a>
-<a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a>
-<a name='L68'></a><a href='#L68'>68</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -170,64 +167,58 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">29x</span>
-<span class="cline-any cline-yes">29x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">29x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">29x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file useShellSettings.ts
  * @module app/layout/useShellSettings
  *
  * @summary
- * App-shell adapter over ShellPreferencesProvider: exposes locale, theme mode
- * and the MUI theme, and wraps the setters with the shell's toasts.
+ * Adapter over ShellPreferencesProvider for the settings dialog: exposes locale
+ * and theme mode, and wraps the setters with the app shell's toasts.
  *
  * @enterprise
  * - State lives in ShellPreferencesProvider (FW5 fork 4); this hook adds only
  *   what the authenticated shell does on top: a toast per change, and the rule
  *   that re-selecting the current theme mode stays silent.
- * - Toast emission is delegated via the injected `notify` callback so AppShell
- *   keeps the single Snackbar instance.
+ * - Toasts go through useToast (AppShell's ToastContext), so the hook works
+ *   anywhere inside the shell without a callback being passed down.
  */
 &nbsp;
 import { useTranslation } from 'react-i18next';
 import type { SupportedLocale } from '../../theme';
 import { useShellPreferences } from '../../hooks/useShellPreferences';
-import type { ShellPreferences, ThemeMode } from '../../context/shellPreferences/ShellPreferencesContext.types';
+import type { ThemeMode } from '../../context/shellPreferences/ShellPreferencesContext.types';
+import { useToast } from '../../context/toast/ToastContext';
 &nbsp;
-type Notify = (msg: string, severity: 'success' | 'info' | 'warning' | 'error') =&gt; void;
-&nbsp;
-/** State and change handlers returned to AppShell. */
+/** State and change handlers for the settings dialog. */
 export interface ShellSettings {
   /** Current UI language. */
   locale: SupportedLocale;
   /** Current colour scheme. */
   themeMode: ThemeMode;
-  /** MUI theme for the shell's ThemeProvider. */
-  theme: ShellPreferences['theme'];
   /** Switches the colour scheme and toasts; silent when the mode is already active. */
   handleThemeModeChange: (nextMode: ThemeMode) =&gt; void;
   /** Switches the language and toasts once i18next has switched. */
@@ -237,12 +228,12 @@ export interface ShellSettings {
 /**
  * Binds the shared preferences to the app shell's toasts.
  *
- * @param notify - AppShell's toast callback
- * @returns locale, theme mode, theme and the two change handlers
+ * @returns locale, theme mode and the two change handlers
  */
-export function useShellSettings(notify: Notify): ShellSettings {
-  const { t } = useTranslation(['common', 'auth']);
-  const { locale, themeMode, theme, setLocale, setThemeMode } = useShellPreferences();
+export function useShellSettings(): ShellSettings {
+  const { t } = useTranslation(['common']);
+  const notify = useToast();
+  const { locale, themeMode, setLocale, setThemeMode } = useShellPreferences();
 &nbsp;
   const handleThemeModeChange = (nextMode: ThemeMode) =&gt; {
     if (nextMode === themeMode) {
@@ -262,7 +253,7 @@ export function useShellSettings(notify: Notify): ShellSettings {
     notify(t('common:shell.languageChanged'), 'info');
   };
 &nbsp;
-  return { locale, themeMode, theme, handleThemeModeChange, handleLocaleChange };
+  return { locale, themeMode, handleThemeModeChange, handleLocaleChange };
 }
 &nbsp;</pre></td></tr></table></pre>
 

@@ -166,36 +166,7 @@
 <a name='L101'></a><a href='#L101'>101</a>
 <a name='L102'></a><a href='#L102'>102</a>
 <a name='L103'></a><a href='#L103'>103</a>
-<a name='L104'></a><a href='#L104'>104</a>
-<a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a>
-<a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a>
-<a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a>
-<a name='L120'></a><a href='#L120'>120</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L104'></a><a href='#L104'>104</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -263,9 +234,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -328,20 +296,10 @@ import { useTranslation } from 'react-i18next';
 import AppToolbarActions from './AppToolbarActions';
 import { default as HealthBadge } from './header/HealthBadge';
 import { default as HeaderDemoBadge } from './header/HeaderDemoBadge';
-import type { SupportedLocale } from '../../theme';
 &nbsp;
 interface AppHeaderProps {
-  /** Current theme mode (light or dark) */
-  themeMode: 'light' | 'dark';
-&nbsp;
-  /** Callback when theme mode changes */
-  onThemeModeChange: (mode: 'light' | 'dark') =&gt; void;
-&nbsp;
-  /** Current locale setting (de or en) */
-  locale: SupportedLocale;
-&nbsp;
-  /** Callback when locale changes */
-  onLocaleChange: (locale: SupportedLocale) =&gt; void;
+  /** Opens the settings dialog */
+  onSettingsOpen: () =&gt; void;
 &nbsp;
   /** Callback for logout action */
   onLogout: () =&gt; void;
@@ -366,10 +324,7 @@ interface AppHeaderProps {
  * @returns JSX element rendering the application header
  */
 export default function AppHeader({
-  themeMode,
-  onThemeModeChange,
-  locale,
-  onLocaleChange,
+  onSettingsOpen,
   onLogout,
   helpTopic,
   isDemo,
@@ -409,10 +364,7 @@ export default function AppHeader({
 &nbsp;
         {/* Toolbar Actions (language, help, hamburger) */}
         &lt;AppToolbarActions
-          themeMode={themeMode}
-          onThemeModeChange={onThemeModeChange}
-          locale={locale}
-          onLocaleChange={onLocaleChange}
+          onSettingsOpen={onSettingsOpen}
           onLogout={onLogout}
           helpTopic={helpTopic}
         /&gt;

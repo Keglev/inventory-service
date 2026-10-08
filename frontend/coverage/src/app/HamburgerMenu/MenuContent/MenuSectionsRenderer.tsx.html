@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -134,24 +134,7 @@
 <a name='L69'></a><a href='#L69'>69</a>
 <a name='L70'></a><a href='#L70'>70</a>
 <a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L72'></a><a href='#L72'>72</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -184,31 +167,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -244,49 +210,41 @@
  * @module app/HamburgerMenu/MenuContent/MenuSectionsRenderer
  *
  * @summary
- * Composes the six section coordinators with Dividers between them; this is
- * the only place section ordering is defined.
+ * User menu body: profile, Settings entry, help links and system info; this is
+ * the only place the order is defined.
  *
  * @enterprise
- * Each section is wrapped in &lt;Box onClick={onClose}&gt; so any click inside a
- * section dismisses the popover Menu — onClose is threaded here as a sibling
- * concern rather than owned by individual sections. Mounted exclusively by
- * the root HamburgerMenu.tsx via the MenuContent barrel.
+ * - Mirrors the SAP Fiori user menu (FW5 fork 1): identity first, then entry
+ *   points. Preferences are edited only in the settings dialog, so the menu
+ *   holds none of them.
+ * - Each block is wrapped in &lt;Box onClick={onClose}&gt; (or calls onClose) so any
+ *   click dismisses the popover; onClose is threaded here rather than owned by
+ *   the sections. Mounted only by HamburgerMenu.tsx.
  */
 &nbsp;
-import { Box, Divider } from '@mui/material';
+import { Box, Divider, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { useTranslation } from 'react-i18next';
 import ProfileMenuSection from '../ProfileMenuSection';
-import AppearanceMenuSection from '../AppearanceMenuSection';
-import LanguageRegionMenuSection from '../LanguageRegionMenuSection';
-import NotificationsMenuSection from '../NotificationsMenuSection';
 import HelpDocsMenuSection from '../HelpDocsMenuSection';
 import SystemInfoMenuSection from '../SystemInfoMenuSection';
-import type { SupportedLocale } from '../../../theme';
 &nbsp;
 interface MenuSectionsRendererProps {
-  /** Current theme mode (light or dark) */
-  themeMode: 'light' | 'dark';
-&nbsp;
-  /** Callback when theme mode changes */
-  onThemeModeChange: (mode: 'light' | 'dark') =&gt; void;
-&nbsp;
-  /** Current locale setting */
-  locale: SupportedLocale;
-&nbsp;
-  /** Callback when locale changes */
-  onLocaleChange: (locale: SupportedLocale) =&gt; void;
+  /** Opens the settings dialog */
+  onSettingsOpen: () =&gt; void;
 &nbsp;
   /** Closes the popover Menu; shared across all section wrappers */
   onClose: () =&gt; void;
 }
 &nbsp;
-export default function MenuSectionsRenderer({
-  themeMode,
-  onThemeModeChange,
-  locale,
-  onLocaleChange,
-  onClose,
-}: MenuSectionsRendererProps) {
+export default function MenuSectionsRenderer({ onSettingsOpen, onClose }: MenuSectionsRendererProps) {
+  const { t } = useTranslation(['common']);
+&nbsp;
+  const handleSettings = () =&gt; {
+    onClose();
+    onSettingsOpen();
+  };
+&nbsp;
   return (
     &lt;&gt;
       &lt;Box onClick={onClose}&gt;
@@ -295,21 +253,12 @@ export default function MenuSectionsRenderer({
 &nbsp;
       &lt;Divider /&gt;
 &nbsp;
-      &lt;Box onClick={onClose}&gt;
-        &lt;AppearanceMenuSection themeMode={themeMode} onThemeModeChange={onThemeModeChange} /&gt;
-      &lt;/Box&gt;
-&nbsp;
-      &lt;Divider /&gt;
-&nbsp;
-      &lt;Box onClick={onClose}&gt;
-        &lt;LanguageRegionMenuSection locale={locale} onLocaleChange={onLocaleChange} /&gt;
-      &lt;/Box&gt;
-&nbsp;
-      &lt;Divider /&gt;
-&nbsp;
-      &lt;Box onClick={onClose}&gt;
-        &lt;NotificationsMenuSection /&gt;
-      &lt;/Box&gt;
+      &lt;MenuItem onClick={handleSettings}&gt;
+        &lt;ListItemIcon&gt;
+          &lt;SettingsIcon fontSize="small" /&gt;
+        &lt;/ListItemIcon&gt;
+        &lt;ListItemText primary={t('menu.settings')} /&gt;
+      &lt;/MenuItem&gt;
 &nbsp;
       &lt;Divider /&gt;
 &nbsp;
