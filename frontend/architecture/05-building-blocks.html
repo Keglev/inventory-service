@@ -256,10 +256,13 @@
         uniform trigger. Help content is fully localized like all other
         UI text.</li>
         <li><strong>Health polling</strong>
-        (<code>features/health/</code>) — a lightweight hook polls the
-        backend <code>/api/health</code> endpoint (flat
-        <code>{status, database, databaseProduct, timestamp}</code>
-        contract, 200/503) for status surfaces.</li>
+        (<code>features/health/</code>) — one shared React Query
+        (<code>useHealthCheck</code>, key <code>['health']</code>,
+        refreshed every 15 minutes) probes the backend
+        <code>/api/health</code> endpoint (flat
+        <code>{status, database, databaseProduct,   timestamp}</code>
+        contract, 200/503) for the header badge, the footer and the
+        About dialog; consumers mounted together send one request.</li>
         </ul>
         <h2 id="level-2-domain-modules">Level 2 — Domain Modules</h2>
         <p>Each business area is a self-contained module under

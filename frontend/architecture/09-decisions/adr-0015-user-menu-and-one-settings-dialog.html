@@ -233,6 +233,33 @@
         <code>frontend/src/context/shellPreferences/</code>,
         <code>frontend/src/app/layout/useShellSettings.ts</code>.</li>
         </ul>
+        <h2 id="amendment-2026-10-08-system-information">Amendment
+        2026-10-08: system information</h2>
+        <ul>
+        <li><strong>About dialog.</strong> Version, build (first 10
+        characters, full hash in the title), environment, backend status
+        and the database product live in one <em>About Smart Supply
+        Pro</em> dialog, opened from the user menu as in SAP Fiori and
+        Oracle. The menu’s system-info block and the settings dialog’s
+        <em>System Info</em> card are gone.</li>
+        <li><strong>Footer.</strong> One compact line: current year,
+        version, short build id and the demo-data note; the health chips
+        stay, and the database chip shows the product the backend
+        reports instead of the fixed text “Oracle ADB”. Environment and
+        the language tag left the footer. This keeps a deviation from
+        SAP, which shows no footer: the deployed build stays visible
+        without a click. The deploy check
+        (<code>wait-for-build.sh</code>) reads the full build id from
+        the bundle, not the footer.</li>
+        <li><strong>One health source.</strong>
+        <code>useHealthCheck</code> is one shared React Query; the
+        settings context no longer fetches
+        <code>/api/health</code>.</li>
+        <li>Implementation:
+        <code>frontend/src/app/about/AboutDialog.tsx</code>,
+        <code>frontend/src/app/footer/</code>,
+        <code>frontend/src/features/health/hooks/useHealthCheck.ts</code>.</li>
+        </ul>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -285,6 +312,9 @@
       id="toc-consequences">Consequences</a></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#amendment-2026-10-08-system-information"
+      id="toc-amendment-2026-10-08-system-information">Amendment
+      2026-10-08: system information</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
