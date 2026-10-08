@@ -146,10 +146,7 @@
 <a name='L81'></a><a href='#L81'>81</a>
 <a name='L82'></a><a href='#L82'>82</a>
 <a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L84'></a><a href='#L84'>84</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -186,7 +183,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -226,8 +222,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -241,7 +235,7 @@
  *
  * @summary
  * Custom hook for managing application settings form state and submission.
- * Encapsulates user preferences and system info state management.
+ * Encapsulates user preferences state management.
  *
  * @enterprise
  * - Separates form logic from UI, keeping form components stateless
@@ -260,19 +254,18 @@ interface FormState {
 /**
  * Hook for managing application settings form state and submission.
  *
- * Provides form state, callbacks for updating preferences, and system info loading.
+ * Provides form state and callbacks for updating preferences.
  * Handles persistence through useSettings hook integration.
  *
  * @returns Object containing form state, callbacks, and loading state
  *
  * @example
  * ```tsx
- * const { formState, handleDateFormatChange, isLoading } = useAppSettingsForm();
+ * const { formState, handleDateFormatChange } = useAppSettingsForm();
  * ```
  */
 export function useAppSettingsForm() {
-  const { userPreferences, systemInfo, setUserPreferences, resetToDefaults, isLoading } =
-    useSettings();
+  const { userPreferences, setUserPreferences, resetToDefaults } = useSettings();
 &nbsp;
   const formState: FormState = {
     dateFormat: userPreferences.dateFormat,
@@ -313,8 +306,6 @@ export function useAppSettingsForm() {
 &nbsp;
   return {
     formState,
-    systemInfo,
-    isLoading,
     handleDateFormatChange,
     handleNumberFormatChange,
     handleTableDensityChange,

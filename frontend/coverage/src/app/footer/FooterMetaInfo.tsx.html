@@ -131,29 +131,7 @@
 <a name='L66'></a><a href='#L66'>66</a>
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L69'></a><a href='#L69'>69</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -204,31 +182,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -249,19 +205,18 @@
  *
  * @summary
  * Footer metadata information component.
- * Displays version, build ID, environment, language, and region information.
+ * One compact line: year, version, short build id, demo-data note.
  *
  * @enterprise
  * - Pure presentational leaf: props-only, no state. Compact status bar variant
  *   of the expanded footer metadata.
- * - The meta line wraps instead of truncating, so the full 40-character build
- *   id stays readable; it is how a deployed build is matched to its commit.
- *   The group may shrink so that on a narrow screen the line wraps inside the
+ * - FW5 fork 3: the footer keeps a compact line; environment, backend status and
+ *   the full build hash live in the About dialog. The first 10 characters of
+ *   the build id still match a deploy to its commit; the full hash is in the
+ *   title attribute, and the deploy check reads it from the bundle, not here.
+ * - The group may shrink so that on a narrow screen the line wraps inside the
  *   footer rather than overflowing it.
- * - Props come from useFooterState: appVersion, buildId and environment are
- *   build-time values from config/appMeta, currentLanguage is derived from
- *   i18n.language, and region is fixed to DE.
- * - The two JSX structural comments are intentional layout markers.
+ * - Props come from useFooterState (build-time values from config/appMeta).
  */
 &nbsp;
 import { Typography, Stack } from '@mui/material';
@@ -273,22 +228,12 @@ interface FooterMetaInfoProps {
 &nbsp;
   /** Build ID or commit hash */
   buildId: string;
-&nbsp;
-  /** Environment name (e.g., "Production (Koyeb)") */
-  environment: string;
-&nbsp;
-  /** Current language code (e.g., "EN", "DE") */
-  currentLanguage: string;
-&nbsp;
-  /** Current region code (e.g., "DE") */
-  region: string;
 }
 &nbsp;
 /**
  * Footer metadata information component.
  *
- * Displays version, build, environment, language, and region.
- * Compact display suitable for footer status bar.
+ * Displays year, version, short build id and the demo-data note.
  *
  * @param props - Component props
  * @returns JSX element rendering metadata information
@@ -297,19 +242,13 @@ interface FooterMetaInfoProps {
  * ```tsx
  * &lt;FooterMetaInfo
  *   appVersion="1.0.0"
- *   buildId="4a9c12f"
- *   environment="Production (Koyeb)"
- *   currentLanguage="EN"
- *   region="DE"
+ *   buildId="31833c2f6d51eb2aebbfef1e3e212632bf6fd6b6"
  * /&gt;
  * ```
  */
 export default function FooterMetaInfo({
   appVersion,
   buildId,
-  environment,
-  currentLanguage,
-  region,
 }: FooterMetaInfoProps) {
   const { t } = useTranslation(['footer']);
 &nbsp;
@@ -322,13 +261,8 @@ export default function FooterMetaInfo({
     &gt;
       {/* Compact meta string for status bar */}
       &lt;Typography variant="caption" color="text.secondary"&gt;
-        © 2025 Smart Supply Pro • v{appVersion} • {t('footer:meta.build')} {buildId} •{' '}
-        {environment} • {t('footer:meta.demoData')}
-      &lt;/Typography&gt;
-&nbsp;
-      {/* Language and Region */}
-      &lt;Typography variant="caption" color="text.secondary"&gt;
-        {currentLanguage}-{region}
+        © {new Date().getFullYear()} Smart Supply Pro • v{appVersion} • {t('footer:meta.build')}{' '}
+        &lt;span title={buildId}&gt;{buildId.slice(0, 10)}&lt;/span&gt; • {t('footer:meta.demoData')}
       &lt;/Typography&gt;
     &lt;/Stack&gt;
   );

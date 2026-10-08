@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
@@ -39,7 +39,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
@@ -134,7 +134,16 @@
 <a name='L69'></a><a href='#L69'>69</a>
 <a name='L70'></a><a href='#L70'>70</a>
 <a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -169,12 +178,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -210,8 +222,8 @@
  * @module app/HamburgerMenu/MenuContent/MenuSectionsRenderer
  *
  * @summary
- * User menu body: profile, Settings entry, help links and system info; this is
- * the only place the order is defined.
+ * User menu body: profile, Settings and About entries, help links; this is the
+ * only place the order is defined.
  *
  * @enterprise
  * - Mirrors the SAP Fiori user menu (FW5 fork 1): identity first, then entry
@@ -224,25 +236,29 @@
 &nbsp;
 import { Box, Divider, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useTranslation } from 'react-i18next';
 import ProfileMenuSection from '../ProfileMenuSection';
 import HelpDocsMenuSection from '../HelpDocsMenuSection';
-import SystemInfoMenuSection from '../SystemInfoMenuSection';
 &nbsp;
 interface MenuSectionsRendererProps {
   /** Opens the settings dialog */
   onSettingsOpen: () =&gt; void;
 &nbsp;
+  /** Opens the About dialog (version, build, environment, backend) */
+  onAboutOpen: () =&gt; void;
+&nbsp;
   /** Closes the popover Menu; shared across all section wrappers */
   onClose: () =&gt; void;
 }
 &nbsp;
-export default function MenuSectionsRenderer({ onSettingsOpen, onClose }: MenuSectionsRendererProps) {
+export default function MenuSectionsRenderer({ onSettingsOpen, onAboutOpen, onClose }: MenuSectionsRendererProps) {
   const { t } = useTranslation(['common']);
 &nbsp;
-  const handleSettings = () =&gt; {
+  // WHY: close the menu first so focus returns to the trigger before the dialog takes it.
+  const openAfterClose = (open: () =&gt; void) =&gt; () =&gt; {
     onClose();
-    onSettingsOpen();
+    open();
   };
 &nbsp;
   return (
@@ -253,11 +269,18 @@ export default function MenuSectionsRenderer({ onSettingsOpen, onClose }: MenuSe
 &nbsp;
       &lt;Divider /&gt;
 &nbsp;
-      &lt;MenuItem onClick={handleSettings}&gt;
+      &lt;MenuItem onClick={openAfterClose(onSettingsOpen)}&gt;
         &lt;ListItemIcon&gt;
           &lt;SettingsIcon fontSize="small" /&gt;
         &lt;/ListItemIcon&gt;
         &lt;ListItemText primary={t('menu.settings')} /&gt;
+      &lt;/MenuItem&gt;
+&nbsp;
+      &lt;MenuItem onClick={openAfterClose(onAboutOpen)}&gt;
+        &lt;ListItemIcon&gt;
+          &lt;InfoOutlinedIcon fontSize="small" /&gt;
+        &lt;/ListItemIcon&gt;
+        &lt;ListItemText primary={t('menu.about')} /&gt;
       &lt;/MenuItem&gt;
 &nbsp;
       &lt;Divider /&gt;
@@ -266,11 +289,6 @@ export default function MenuSectionsRenderer({ onSettingsOpen, onClose }: MenuSe
         &lt;HelpDocsMenuSection /&gt;
       &lt;/Box&gt;
 &nbsp;
-      &lt;Divider /&gt;
-&nbsp;
-      &lt;Box onClick={onClose}&gt;
-        &lt;SystemInfoMenuSection /&gt;
-      &lt;/Box&gt;
 &nbsp;
       &lt;Divider /&gt;
     &lt;/&gt;

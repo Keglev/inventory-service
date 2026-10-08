@@ -170,7 +170,16 @@
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
 <a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -277,6 +286,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file HamburgerMenu.tsx
  * @module app/HamburgerMenu
@@ -313,6 +323,9 @@ interface HamburgerMenuProps {
   /** Opens the settings dialog */
   onSettingsOpen: () =&gt; void;
 &nbsp;
+  /** Opens the About dialog */
+  onAboutOpen: () =&gt; void;
+&nbsp;
   /** Callback for logout action */
   onLogout: () =&gt; void;
 }
@@ -324,6 +337,7 @@ interface HamburgerMenuProps {
  */
 export default function HamburgerMenu({
   onSettingsOpen,
+  onAboutOpen,
   onLogout,
 }: HamburgerMenuProps) {
   const { t } = useTranslation(['common']);
@@ -376,6 +390,7 @@ export default function HamburgerMenu({
       &gt;
         &lt;MenuSectionsRenderer
           onSettingsOpen={onSettingsOpen}
+          onAboutOpen={onAboutOpen}
           onClose={handleClose}
         /&gt;
 &nbsp;

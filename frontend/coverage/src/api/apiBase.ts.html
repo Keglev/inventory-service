@@ -136,8 +136,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">23x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -147,7 +147,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file apiBase.ts
@@ -156,10 +156,10 @@
  *   callers that deliberately bypass httpClient.
  *
  * @enterprise
- * - Two consumers, both raw-fetch health probes that stay outside httpClient
- *   on purpose (features/health/hooks/useHealthCheck.ts, utils/systemInfo.ts).
- *   A relative path in those probes follows the SERVING origin, not the API
- *   origin: under `vite preview` the static server answers them, and behind
+ * - One consumer, the raw-fetch health probe that stays outside httpClient on
+ *   purpose (features/health/hooks/useHealthCheck.ts).
+ *   A relative path in that probe follows the SERVING origin, not the API
+ *   origin: under `vite preview` the static server answers it, and behind
  *   the dev proxy the production backend did.
  * - httpClient's exported API_BASE is deliberately not reused. Its fallback
  *   for a blank env value is '/api', an axios baseURL rather than an origin,

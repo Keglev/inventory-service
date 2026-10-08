@@ -128,10 +128,9 @@ context/settings/SettingsContext.types/README · Smart Supply Pro · API</title>
         SettingsContext object) so SettingsContext.tsx exports component
         values only and preserves fast- refresh HMR. Same pattern as
         HelpContext.types.ts.</li>
-        <li>The SystemInfo interface mirrors exactly what
-        utils/systemInfo.ts derives from /api/health: database flavor,
-        derived environment label, and status. Build-time app metadata
-        (version, build id) lives in config/appMeta.</li>
+        <li>Preferences only: runtime system facts come from the shared
+        health query (features/health/useHealthCheck) and build metadata
+        from config/appMeta.</li>
         <li>DateFormat / NumberFormat values are APP-INTERNAL codes, NOT
         BCP-47 locale tags. 'DE' and 'EN_US' map to actual locales in
         the formatter layer (utils/formatters.ts).</li>
@@ -144,7 +143,6 @@ context/settings/SettingsContext.types/README · Smart Supply Pro · API</title>
         <ul>
         <li><a
         href="interfaces/SettingsContextType.html">SettingsContextType</a></li>
-        <li><a href="interfaces/SystemInfo.html">SystemInfo</a></li>
         <li><a
         href="interfaces/UserPreferences.html">UserPreferences</a></li>
         </ul>

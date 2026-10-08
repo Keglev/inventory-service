@@ -124,23 +124,16 @@ context/settings/SettingsContext/README · Smart Supply Pro · API</title>
         <p>SettingsContext.tsx</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Two concerns bridged in one context: USER PREFERENCES
-        (locale-sensitive, persisted to localStorage under
-        'appSettings') and RUNTIME SYSTEM INFO (database flavor + health
-        status from /api/health). See CB-APP1 for the open question of
-        splitting these into separate sources of truth.</li>
-        <li>SINGLE production consumer of getSystemInfo()
-        (utils/systemInfo), which returns only
-        database/environment/status — nothing fabricated. This file
-        applies a SECOND layer of 'unknown' fallbacks on top.</li>
+        <li>User preferences only (locale-sensitive, persisted to
+        localStorage under 'appSettings'). Runtime system facts (backend
+        status, database product) come from the shared health query
+        (features/health/useHealthCheck); this context no longer fetches
+        /api/health (FW5 fork 3).</li>
         <li>Format preferences are language-independent: the i18n
         language sets the initial default (first load) and the reset
         baseline only. Once chosen, a date/number format is sticky and a
         language change never rewrites it — a German UI with a US date
         format is a valid, persisted combination.</li>
-        <li>On /api/health fetch failure, systemInfo falls back to
-        'unknown' values rather than asserting a guessed
-        environment.</li>
         <li>Consumed via hooks/useSettings.ts — the factory-built
         consumer hook with 16 production call sites. The former sibling
         duplicate context/settings/useSettings.ts has been removed.</li>
