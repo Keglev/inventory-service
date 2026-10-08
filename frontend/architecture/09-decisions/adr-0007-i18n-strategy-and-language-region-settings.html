@@ -231,6 +231,19 @@
         <code>frontend/src/__tests__/unit/i18n/*</code>.</li>
         </ul></li>
         </ul>
+        <h2 id="amendment-2026-10-08">Amendment 2026-10-08</h2>
+        <p>The language/region menu
+        (<code>frontend/src/app/HamburgerMenu/LanguageRegionSettings/*</code>)
+        no longer exists. In the authenticated shell, language, date
+        format and number format are set in the settings dialog
+        (<em>Language &amp; Region</em>,
+        <code>frontend/src/app/settings/sections/LanguageRegionSettingsSection.tsx</code>);
+        the public header keeps a text button. Language and theme state
+        are owned by <code>ShellPreferencesProvider</code>
+        (<code>frontend/src/context/shellPreferences/</code>).
+        Detection, persistence key and the German-first default are
+        unchanged. See <a
+        href="adr-0015-user-menu-and-one-settings-dialog.html">ADR-0015</a>.</p>
         <h2 id="references">References</h2>
         <ul>
         <li>Architecture docs: <a
@@ -266,6 +279,8 @@
       </ul></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#amendment-2026-10-08"
+      id="toc-amendment-2026-10-08">Amendment 2026-10-08</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

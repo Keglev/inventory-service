@@ -1,0 +1,306 @@
+<!-- ===========================================================================
+     Smart Supply Pro Docs — Architecture page template
+     Pandoc template for the architecture pages; build-architecture-docs.sh
+     renders the Markdown tree through it.
+
+     Pandoc copies this comment into every page the template produces, so it
+     is written for anyone reading a published page source. A dollar sign
+     here would be read as template syntax and substituted, so the comment
+     carries none.
+     ======================================================================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend ·
+09-decisions/adr-0015-user-menu-and-one-settings-dialog · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=a061f5ab8d" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <!-- Client-side search input is added in the dedicated search pass. -->
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+    <li><a href="/inventory-service/decisions/index.html">All decisions</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/frontend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/frontend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/frontend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/frontend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/frontend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/frontend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/frontend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/frontend/architecture/08b-concepts-i18n-theming.html">Concepts: i18n &amp; Theming</a></li>
+    <li><a href="/inventory-service/frontend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/frontend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/frontend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0015-the-user-menu-and-one-settings-dialog-follow-sap-fiori">ADR-0015:
+        The user menu and one settings dialog follow SAP Fiori</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-10-08</p>
+        <h2 id="context">Context</h2>
+        <p>The authenticated shell was modelled on SAP, but over time
+        each preference had gained several editors. A survey of the live
+        site (FW5, 2026-10-08) counted:</p>
+        <ul>
+        <li>language: four switches (public header, toolbar flag,
+        sidebar flag, menu);</li>
+        <li>theme: three (public header, sidebar, menu);</li>
+        <li>date format, number format and table density: two editors
+        each (menu and settings dialog), with different labels and
+        option sets;</li>
+        <li>version, environment and backend health: four places
+        each.</li>
+        </ul>
+        <p>The duplication had produced real bugs: for English users the
+        menu showed DD.MM.YYYY as active while MM/DD/YYYY was in force,
+        because the menu offered only two of the three date formats; the
+        dialog’s number-format labels were hard-coded English in the
+        German UI; the low-stock count appeared twice in the menu.</p>
+        <p>A look at current enterprise suites and design guidance found
+        one pattern:</p>
+        <ul>
+        <li>SAP Fiori: help is a mandatory shell-bar icon; the user menu
+        (profile) holds Settings, About and Sign Out; theme sits in
+        Settings &gt; Appearance and language in Settings &gt; Language
+        and Region. In January 2026 SAP added a theme picker to its
+        standard UserSettingsDialog (UI5 Web Components 2.18.0).</li>
+        <li>Oracle (Settings and Actions menu: Preferences, Help, About,
+        Sign Out), ServiceNow (preferences in the avatar menu’s panel)
+        and Microsoft Power Apps (one Personalization dialog with
+        Formats and Languages) agree.</li>
+        <li>No enterprise suite surveyed offers a language quick toggle
+        in the app header; public websites put it in the header or
+        footer.</li>
+        <li>W3C i18n: do not use flags for languages; name each language
+        in itself.</li>
+        <li>Nielsen Norman Group: an unlabeled hidden menu icon in the
+        top-right utility area had the lowest navigation use in its 2016
+        study.</li>
+        </ul>
+        <h2 id="decision">Decision</h2>
+        <ul>
+        <li><strong>One editor per preference.</strong> The settings
+        dialog is the only place to change them: <em>Appearance</em>
+        (theme, table density) and <em>Language &amp; Region</em>
+        (language, date format, number format). Language names stay
+        “Deutsch” and “English”.</li>
+        <li><strong>User menu.</strong> The toolbar’s menu holds the
+        profile, a Settings entry that opens the dialog, help and
+        documentation links, system information and Sign Out; no
+        preference editors. Its trigger is the three-line icon on
+        desktop and a person outline below the md breakpoint, where the
+        header already shows a three-line drawer toggle.</li>
+        <li><strong>No quick toggles in the app shell.</strong> The
+        toolbar shows the health badge, a notification bell, help and
+        the user menu. The public header keeps its theme icon and a text
+        button that names the target language in that language.</li>
+        <li><strong>Sidebar: navigation only.</strong> Identity,
+        settings, help and sign-out moved to the header and the user
+        menu.</li>
+        <li><strong>Notifications behind a bell.</strong> The low-stock
+        warning moved from the menu to a bell with the count as its
+        badge, shown once.</li>
+        <li><strong>Help.</strong> The route-aware toolbar icon and the
+        in-page help icons stay; the sidebar copy is gone.</li>
+        <li>Language and theme state live in
+        <code>ShellPreferencesProvider</code> (one owner for both
+        shells); the dialog edits them through
+        <code>useShellSettings</code>, which keeps the shell’s
+        confirmation toasts.</li>
+        </ul>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Keep both the menu and the dialog, with shared
+        components</strong>: removes the label and option drift but
+        keeps two places for every setting.</li>
+        <li><strong>Menu only, no dialog</strong>: the menu is the
+        cramped surface; the dialog already had the full option sets
+        with previews.</li>
+        <li><strong>A theme toggle in the toolbar</strong> (MUI
+        dashboard layout, Jira’s shortcut): quicker, but it reintroduces
+        a second editor for the theme.</li>
+        <li><strong>An avatar or initials as the menu trigger</strong>
+        (SAP, ServiceNow): the three-line icon was kept on desktop by
+        product decision; phones get the person outline to tell the two
+        header buttons apart.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>Each preference has one editor, so the menu and dialog
+        cannot disagree again.</li>
+        <li>The flag assets (<code>public/flags/</code>) and ten menu
+        and sidebar components were removed with their specs; sixteen
+        translation keys that only they used were removed from both
+        languages.</li>
+        <li>Changing the language now takes two clicks more in the app
+        shell; the public pages keep the one-click switch.</li>
+        <li>On phones the drawer holds navigation only; everything else
+        is in the header.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Settings dialog: <code>frontend/src/app/settings/</code>
+        (<code>AppSettingsForm</code>,
+        <code>sections/AppearanceSettingsSection</code>,
+        <code>sections/LanguageRegionSettingsSection</code>).</li>
+        <li>User menu: <code>frontend/src/app/HamburgerMenu/</code>
+        (<code>HamburgerMenu</code>,
+        <code>MenuContent/MenuSectionsRenderer</code>).</li>
+        <li>Bell:
+        <code>frontend/src/app/layout/header/NotificationBell.tsx</code>.</li>
+        <li>Preferences:
+        <code>frontend/src/context/shellPreferences/</code>,
+        <code>frontend/src/app/layout/useShellSettings.ts</code>.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a
+        href="https://www.sap.com/design-system/fiori-design-web/v1-148/ui-elements/shell-bar/usage">SAP
+        Fiori: Shell Bar</a>, <a
+        href="https://www.sap.com/design-system/fiori-design-web/v1-148/ui-elements/user-menu/usage">User
+        Menu</a></li>
+        <li><a
+        href="https://github.com/UI5/webcomponents/issues/12739">UI5 Web
+        Components PR #12739: appearance view in
+        UserSettingsDialog</a></li>
+        <li><a
+        href="https://docs.oracle.com/en/cloud/saas/enterprise-performance-reporting-cloud/guepr/user_menu_161149.html">Oracle:
+        Settings and Actions menu</a></li>
+        <li><a
+        href="https://horizon.servicenow.com/guidelines/unified-navigation">ServiceNow
+        Horizon: Unified navigation</a></li>
+        <li><a
+        href="https://learn.microsoft.com/en-us/power-apps/user/set-personal-options">Microsoft
+        Learn: Set personal options</a></li>
+        <li><a
+        href="https://www.w3.org/International/questions/qa-site-conneg">W3C
+        Internationalization: language negotiation</a></li>
+        <li><a
+        href="https://www.nngroup.com/articles/find-navigation-desktop-not-hamburger/">NN/g:
+        Find navigation on desktop, not hamburger</a></li>
+        <li>Related ADRs: <a
+        href="adr-0005-shell-split-authenticated-vs-public.html">ADR-0005</a>,
+        <a
+        href="adr-0007-i18n-strategy-and-language-region-settings.html">ADR-0007</a></li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0015-the-user-menu-and-one-settings-dialog-follow-sap-fiori"
+      id="toc-adr-0015-the-user-menu-and-one-settings-dialog-follow-sap-fiori">ADR-0015:
+      The user menu and one settings dialog follow SAP Fiori</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Exact version plus integrity hash: the browser refuses any other file, so a
+       changed CDN copy cannot run here. Update the version and hash together;
+       a mismatch shows as diagrams left as plain text. -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.8/dist/mermaid.min.js"
+          integrity="sha384-N3QqR/7q+xm3BGX+CBbNI8AUmRRqcsDzToy+0z1NLDI0QmTKW8zvwLvqulJgk3dP"
+          crossorigin="anonymous"></script>
+  <script src="/inventory-service/assets/docs.js?v=3354f25964"></script>
+</body>
+</html>
