@@ -212,13 +212,15 @@
         <code>&lt;Outlet /&gt;</code>. Both are thin orchestrators: they
         coordinate state and delegate rendering to focused
         sub-components.</p>
-        <p>Cross-cutting concerns owned at shell level:</p>
+        <p>Cross-cutting concerns at shell level:</p>
         <ul>
         <li><strong>Preferences</strong> — theme mode (light/dark) and
-        locale (DE/EN) are shell-owned, persisted in browser storage,
-        and synchronized with the i18n runtime, so chrome, pages, and
-        dialogs stay consistent without per-feature
-        reimplementation.</li>
+        locale (DE/EN) are owned once, by
+        <code>ShellPreferencesProvider</code> above the router,
+        persisted in browser storage and synchronized with the i18n
+        runtime; each shell applies the resulting MUI theme in its own
+        <code>ThemeProvider</code>, so chrome, pages, and dialogs stay
+        consistent.</li>
         <li><strong>Toasts</strong> — a shared context exposes
         <code>toast(message, severity?)</code>
         (success/info/warning/error); both shells provide it, so leaf

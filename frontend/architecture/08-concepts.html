@@ -147,9 +147,10 @@
         <h2 id="provider-composition">Provider Composition</h2>
         <p>Bootstrap wiring as it exists in <code>main.tsx</code> and
         <code>App.tsx</code>. Router and Query provider sit outermost;
-        auth wraps the app; help and settings live inside
-        <code>App</code> (help state is global, only the themed panel
-        renders inside the shells); the toast provider is intentionally
+        auth wraps the app; help, shell preferences (language and theme)
+        and settings live inside <code>App</code> (help state is global,
+        only the themed panel renders inside the shells; each shell
+        applies the shared theme); the toast provider is intentionally
         shell-scoped — each shell supplies its own implementation via
         <code>ToastContext.Provider</code>.</p>
         <div class="mermaid">
@@ -159,7 +160,8 @@
           QC --> Auth["AuthProvider"]
           Auth --> App["App"]
           App --> Help["HelpProvider"]
-          Help --> Settings["SettingsProvider"]
+          Help --> Prefs["ShellPreferencesProvider"]
+          Prefs --> Settings["SettingsProvider"]
           Settings --> Router["AppRouter"]
           Router --> Shells["AppPublicShell / AppShell"]
           Shells --> Toast["ToastContext.Provider (shell-scoped)"]
