@@ -3,85 +3,63 @@
  * @module app/layout/useShellSettings
  *
  * @summary
- * Owns the app shell's theme-mode and locale state, their localStorage
- * persistence, the MUI theme object, and the i18n language sync. Extracted
- * from AppShell to keep that file a thin orchestrator.
+ * App-shell adapter over ShellPreferencesProvider: exposes locale, theme mode
+ * and the MUI theme, and wraps the setters with the shell's toasts.
  *
  * @enterprise
- * - Single source of truth for themeMode and locale; AppShell consumes the
- *   returned state and callbacks and wires them to sub-components.
- * - localStorage persistence lives here so no child needs storage access.
- * - Toast emission is delegated via the injected `notify` callback so this hook
- *   does not own UI surface; AppShell keeps the single Snackbar instance.
+ * - State lives in ShellPreferencesProvider (FW5 fork 4); this hook adds only
+ *   what the authenticated shell does on top: a toast per change, and the rule
+ *   that re-selecting the current theme mode stays silent.
+ * - Toast emission is delegated via the injected `notify` callback so AppShell
+ *   keeps the single Snackbar instance.
  */
 
-import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { buildTheme } from '../../theme';
 import type { SupportedLocale } from '../../theme';
-import { LANGUAGE_KEY, THEME_MODE_KEY } from '../../config/storageKeys';
-
-/** Normalize an i18n language tag ('de-DE', 'en-US') to a SupportedLocale ('de' | 'en'). */
-function normalizeLocale(lng?: string): SupportedLocale {
-  return lng?.startsWith('en') ? 'en' : 'de';
-}
+import { useShellPreferences } from '../../hooks/useShellPreferences';
+import type { ShellPreferences, ThemeMode } from '../../context/shellPreferences/ShellPreferencesContext.types';
 
 type Notify = (msg: string, severity: 'success' | 'info' | 'warning' | 'error') => void;
 
+/** State and change handlers returned to AppShell. */
 export interface ShellSettings {
+  /** Current UI language. */
   locale: SupportedLocale;
-  themeMode: 'light' | 'dark';
-  theme: ReturnType<typeof buildTheme>;
-  handleThemeModeChange: (nextMode: 'light' | 'dark') => void;
+  /** Current colour scheme. */
+  themeMode: ThemeMode;
+  /** MUI theme for the shell's ThemeProvider. */
+  theme: ShellPreferences['theme'];
+  /** Switches the colour scheme and toasts; silent when the mode is already active. */
+  handleThemeModeChange: (nextMode: ThemeMode) => void;
+  /** Switches the language and toasts once i18next has switched. */
   handleLocaleChange: (next: SupportedLocale) => Promise<void>;
 }
 
+/**
+ * Binds the shared preferences to the app shell's toasts.
+ *
+ * @param notify - AppShell's toast callback
+ * @returns locale, theme mode, theme and the two change handlers
+ */
 export function useShellSettings(notify: Notify): ShellSettings {
-  const { t, i18n } = useTranslation(['common', 'auth']);
+  const { t } = useTranslation(['common', 'auth']);
+  const { locale, themeMode, theme, setLocale, setThemeMode } = useShellPreferences();
 
-  // Initialize locale from localStorage or i18n default; keep state synced to i18n changes.
-  const initial = normalizeLocale(localStorage.getItem(LANGUAGE_KEY) || i18n.resolvedLanguage || 'de');
-  const [locale, setLocale] = React.useState<SupportedLocale>(initial);
-
-  React.useEffect(() => {
-    const handler = (lng: string) => setLocale(normalizeLocale(lng));
-    i18n.on('languageChanged', handler);
-    return () => {
-      i18n.off('languageChanged', handler);
-    };
-  }, [i18n]);
-
-  // Initialize theme mode from localStorage; default 'light'.
-  const [themeMode, setThemeMode] = React.useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem(THEME_MODE_KEY) as 'light' | 'dark' | null;
-    return saved || 'light';
-  });
-
-  // Rebuild the MUI theme when locale or themeMode changes.
-  const theme = React.useMemo(() => buildTheme(locale, themeMode), [locale, themeMode]);
-
-  const handleThemeModeChange = (nextMode: 'light' | 'dark') => {
-    setThemeMode((prev) => {
-      if (prev === nextMode) {
-        return prev;
-      }
-      localStorage.setItem(THEME_MODE_KEY, nextMode);
-      notify(
-        nextMode === 'dark'
-          ? t('common:shell.darkModeEnabled')
-          : t('common:shell.lightModeEnabled'),
-        'info'
-      );
-      return nextMode;
-    });
+  const handleThemeModeChange = (nextMode: ThemeMode) => {
+    if (nextMode === themeMode) {
+      return;
+    }
+    setThemeMode(nextMode);
+    notify(
+      nextMode === 'dark'
+        ? t('common:shell.darkModeEnabled')
+        : t('common:shell.lightModeEnabled'),
+      'info'
+    );
   };
 
   const handleLocaleChange = async (next: SupportedLocale): Promise<void> => {
-    localStorage.setItem(LANGUAGE_KEY, next);
-    setLocale(next);
-    // Awaited so the toast resolves after the new bundle is loaded; i18next
-    // fetches locale files on demand.
-    await i18n.changeLanguage(next);
+    await setLocale(next);
     notify(t('common:shell.languageChanged'), 'info');
   };
 

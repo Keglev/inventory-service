@@ -11,21 +11,26 @@
  * - AppRouter (routes): fills available space
  * - HelpProvider stays here: help state is global; only the themed panel
  *   rendering lives in the shells.
+ * - ShellPreferencesProvider sits above the router so both shells share one
+ *   language and theme state; each shell still applies the theme itself.
  */
 
 import { Box } from '@mui/material';
 import AppRouter from './routes/AppRouter';
 import { SettingsProvider } from './context/settings/SettingsContext';
 import { HelpProvider } from './context/help/HelpContext';
+import { ShellPreferencesProvider } from './context/shellPreferences/ShellPreferencesContext';
 
 export default function App() {
   return (
     <HelpProvider>
-      <SettingsProvider>
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
-          <AppRouter />
-        </Box>
-      </SettingsProvider>
+      <ShellPreferencesProvider>
+        <SettingsProvider>
+          <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
+            <AppRouter />
+          </Box>
+        </SettingsProvider>
+      </ShellPreferencesProvider>
     </HelpProvider>
   );
 }

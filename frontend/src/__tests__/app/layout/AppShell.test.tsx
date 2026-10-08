@@ -19,6 +19,7 @@ import { render, act, screen, waitFor, fireEvent } from '@testing-library/react'
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createTheme } from '@mui/material/styles';
 import AppShell from '@/app/layout/AppShell';
+import { ShellPreferencesProvider } from '@/context/shellPreferences/ShellPreferencesContext';
 
 /**
  * Child props capture:
@@ -148,7 +149,12 @@ vi.mock('@/api/httpClient', () => ({ API_BASE: '/api' }));
 
 /** Test helpers */
 function renderAppShell() {
-  return render(<AppShell />);
+  // Locale and theme state live in the provider (FW5 fork 4); it reads the same fake i18n.
+  return render(
+    <ShellPreferencesProvider>
+      <AppShell />
+    </ShellPreferencesProvider>,
+  );
 }
 
 function getHeader(): HeaderProps {
