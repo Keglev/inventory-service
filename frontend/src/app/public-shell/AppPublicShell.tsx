@@ -1,16 +1,16 @@
 /**
  * @file AppPublicShell.tsx
  * @module AppPublicShell
- * @summary Thin orchestrator for unauthenticated routes; owns theme, locale, and
- * toast state; builds the MUI theme from (locale, themeMode); delegates render to
- * header, content, and toast sub-components.
+ * @summary Thin orchestrator for unauthenticated routes; applies the shared theme,
+ * owns the toast state, and delegates render to header, content, and toast
+ * sub-components.
  *
  * @enterprise
  * - Mounted by AppRouter as the route element for unauthenticated paths (/home,
  *   /login, /logout-success); no sidebar or nav by design — public pages need none.
- * - Owns themeMode (useThemeMode), locale (useLocale), and toast
- *   (usePublicShellToast) state; derives and passes values down so children remain
- *   stateless.
+ * - Reads locale, themeMode and the MUI theme from ShellPreferencesProvider
+ *   (shared with AppShell, FW5 fork 4) and owns only the toast state
+ *   (usePublicShellToast); children remain stateless.
  * - Re-uses the shared ToastContext so page-level code triggers toasts without
  *   knowing which shell is currently active.
  *
@@ -23,9 +23,7 @@ import * as React from 'react';
 import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { ToastContext } from '../../context/toast/ToastContext';
-import { buildTheme } from '../../theme';
-import { useThemeMode } from './hooks/useThemeMode';
-import { useLocale } from './hooks/useLocale';
+import { useShellPreferences } from '../../hooks/useShellPreferences';
 import { usePublicShellToast } from './hooks/usePublicShellToast';
 import PublicShellHeader from './header/PublicShellHeader';
 import PublicShellContent from './PublicShellContent';
@@ -34,23 +32,19 @@ import { default as AppFooter } from '../footer/AppFooter';
 import HelpPanel from '../../components/help/HelpPanel';
 
 const AppPublicShell: React.FC = () => {
-  const { i18n, t } = useTranslation('common');
-
-  const { themeMode, toggleThemeMode } = useThemeMode();
-  const { locale, toggleLocale } = useLocale(i18n);
+  const { t } = useTranslation('common');
+  const { locale, themeMode, theme, setLocale, setThemeMode } = useShellPreferences();
   const { toast, showToast, hideToast, setToast } = usePublicShellToast();
 
-  const theme = React.useMemo(() => buildTheme(locale, themeMode), [locale, themeMode]);
-
   const handleToggleLocale = async () => {
-    await toggleLocale();
+    await setLocale(locale === 'de' ? 'en' : 'de');
     // Resolved after the switch: `t` is bound to no fixed language, so it
     // answers in the one now active, with its bundle guaranteed loaded.
     showToast(t('shell.languageChanged'), 'info');
   };
 
   const handleToggleThemeMode = () => {
-    toggleThemeMode();
+    setThemeMode(themeMode === 'light' ? 'dark' : 'light');
     showToast(
       themeMode === 'light'
         ? t('shell.darkModeEnabled')

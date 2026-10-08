@@ -6,7 +6,7 @@
  *
  * Scope:
  * - Renders the public shell structure (header, content, toast container)
- * - Orchestrates theme, locale, and toast state via custom hooks
+ * - Reads theme and locale from useShellPreferences (mocked) and owns toast state
  * - Wires handler callbacks into the header and toast container props
  *
  * Out of scope:
@@ -22,6 +22,7 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import AppPublicShell from '@/app/public-shell/AppPublicShell';
 import { ToastContext } from '@/context/toast/ToastContext';
+import { buildTheme } from '@/theme';
 
 /* ----------------------------- i18n stub ----------------------------- */
 // Keep translation deterministic; component only needs i18n object presence.
@@ -43,23 +44,29 @@ vi.mock('react-i18next', () => ({
 }));
 
 /* ------------------------- Hook orchestration ------------------------- */
-const mockToggleThemeMode = vi.hoisted(() => vi.fn());
-const mockToggleLocale = vi.hoisted(() => vi.fn());
+const mockSetThemeMode = vi.hoisted(() => vi.fn());
+const mockSetLocale = vi.hoisted(() => vi.fn());
 const mockShowToast = vi.hoisted(() => vi.fn());
 const mockHideToast = vi.hoisted(() => vi.fn());
 const mockSetToast = vi.hoisted(() => vi.fn());
 
-const mockUseThemeMode = vi.hoisted(() => vi.fn());
-const mockUseLocale = vi.hoisted(() => vi.fn());
+const mockUseShellPreferences = vi.hoisted(() => vi.fn());
 const mockUsePublicShellToast = vi.hoisted(() => vi.fn());
 
-vi.mock('@/app/public-shell/hooks/useThemeMode', () => ({
-  useThemeMode: () => mockUseThemeMode(),
+vi.mock('@/hooks/useShellPreferences', () => ({
+  useShellPreferences: () => mockUseShellPreferences(),
 }));
 
-vi.mock('@/app/public-shell/hooks/useLocale', () => ({
-  useLocale: () => mockUseLocale(),
-}));
+/** Provider value as the shell sees it; the real theme keeps ThemeProvider happy. */
+function prefs(themeMode: 'light' | 'dark', locale: 'de' | 'en') {
+  return {
+    themeMode,
+    locale,
+    theme: buildTheme(locale, themeMode),
+    setThemeMode: mockSetThemeMode,
+    setLocale: mockSetLocale,
+  };
+}
 
 vi.mock('@/app/public-shell/hooks/usePublicShellToast', () => ({
   usePublicShellToast: () => mockUsePublicShellToast(),
@@ -118,14 +125,7 @@ describe('AppPublicShell', () => {
     lastToastProps = undefined;
 
     // Default hook return values for most tests.
-    mockUseThemeMode.mockReturnValue({
-      themeMode: 'light',
-      toggleThemeMode: mockToggleThemeMode,
-    });
-    mockUseLocale.mockReturnValue({
-      locale: 'en',
-      toggleLocale: mockToggleLocale,
-    });
+    mockUseShellPreferences.mockReturnValue(prefs('light', 'en'));
     mockUsePublicShellToast.mockReturnValue({
       toast: null,
       showToast: mockShowToast,
@@ -153,14 +153,7 @@ describe('AppPublicShell', () => {
 
   it('wires theme and locale state into the header', () => {
     // Orchestration contract: header receives the current theme + locale values.
-    mockUseThemeMode.mockReturnValue({
-      themeMode: 'dark',
-      toggleThemeMode: mockToggleThemeMode,
-    });
-    mockUseLocale.mockReturnValue({
-      locale: 'de',
-      toggleLocale: mockToggleLocale,
-    });
+    mockUseShellPreferences.mockReturnValue(prefs('dark', 'de'));
 
     renderShell();
 
@@ -181,16 +174,13 @@ describe('AppPublicShell', () => {
     mockLanguage.current = locale;
     // The toggle resolves only once the language has actually flipped, exactly
     // as the real hook awaits i18n.changeLanguage.
-    mockToggleLocale.mockImplementation(async () => {
+    mockSetLocale.mockImplementation(async () => {
       // Flip only after a microtask: i18next loads the locale bundle before it
       // resolves, so a caller that does not await still sees the old language.
       await Promise.resolve();
       mockLanguage.current = locale === 'de' ? 'en' : 'de';
     });
-    mockUseLocale.mockReturnValue({
-      locale,
-      toggleLocale: mockToggleLocale,
-    });
+    mockUseShellPreferences.mockReturnValue(prefs('light', locale as 'de' | 'en'));
 
     renderShell();
 
@@ -201,7 +191,8 @@ describe('AppPublicShell', () => {
 
     await onLocaleToggle?.();
 
-    expect(mockToggleLocale).toHaveBeenCalledTimes(1);
+    expect(mockSetLocale).toHaveBeenCalledTimes(1);
+    expect(mockSetLocale).toHaveBeenCalledWith(locale === 'de' ? 'en' : 'de');
     // The toast names the language the user switched TO, not the one left.
     expect(mockShowToast).toHaveBeenCalledWith(expectedMsg, 'info');
   });
@@ -210,10 +201,7 @@ describe('AppPublicShell', () => {
     { themeMode: 'light', expectedMsg: 'shell.darkModeEnabled' },
     { themeMode: 'dark', expectedMsg: 'shell.lightModeEnabled' },
   ])('invokes the theme toggle handler (themeMode=$themeMode)', ({ themeMode, expectedMsg }) => {
-    mockUseThemeMode.mockReturnValue({
-      themeMode,
-      toggleThemeMode: mockToggleThemeMode,
-    });
+    mockUseShellPreferences.mockReturnValue(prefs(themeMode as 'light' | 'dark', 'en'));
 
     renderShell();
 
@@ -222,7 +210,8 @@ describe('AppPublicShell', () => {
 
     onThemeToggle?.();
 
-    expect(mockToggleThemeMode).toHaveBeenCalledTimes(1);
+    expect(mockSetThemeMode).toHaveBeenCalledTimes(1);
+    expect(mockSetThemeMode).toHaveBeenCalledWith(themeMode === 'light' ? 'dark' : 'light');
     expect(mockShowToast).toHaveBeenCalledWith(expectedMsg, 'info');
   });
 

@@ -31,6 +31,10 @@ vi.mock('@/context/help/HelpContext', () => ({
   HelpProvider: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
+vi.mock('@/context/shellPreferences/ShellPreferencesContext', () => ({
+  ShellPreferencesProvider: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+}));
+
 vi.mock('@/routes/AppRouter', () => ({
   default: () => <div data-testid="app-router">Router</div>,
 }));

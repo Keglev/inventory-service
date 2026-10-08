@@ -6,11 +6,10 @@
  *   spacing, and component overrides.
  *
  * @enterprise
- * - Consumed by AppShell.tsx (authenticated shell) and AppPublicShell.tsx (unauthenticated
- *   shell) via React.useMemo; each shell owns its own themeMode state and calls
- *   buildTheme(locale, themeMode) — there is no shared theme context.
- * - Color-mode state: AppShell holds themeMode in useState (persisted to localStorage
- *   key 'themeMode'); AppPublicShell delegates to the useThemeMode hook.
+ * - Consumed by ShellPreferencesProvider (context/shellPreferences), which owns locale
+ *   and themeMode for both shells and memoises buildTheme(locale, themeMode); each
+ *   shell applies the result in its own ThemeProvider.
+ * - Color-mode state is persisted to localStorage key 'themeMode' by that provider.
  * - Import direction: leaf — depends only on @mui/material and @mui/x-data-grid; no
  *   imports from /utils, /context, /components, or feature code.
  * - CSS variables (cssVariables: true) are a MUI v7 feature; they let consuming
