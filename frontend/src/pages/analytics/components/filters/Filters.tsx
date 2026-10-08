@@ -19,7 +19,7 @@ import { Stack, Paper, Typography, Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { DateRangeFilter } from './DateRangeFilter';
 import { SupplierFilter } from './SupplierFilter';
-import type { FiltersProps, AnalyticsFilters } from './Filters.types';
+import type { FiltersProps } from './Filters.types';
 import { getQuickDateRange, formatToIsoDate } from './useFiltersLogic';
 
 /**
@@ -97,5 +97,3 @@ export function Filters({
     </Paper>
   );
 }
-
-export type { AnalyticsFilters, FiltersProps };

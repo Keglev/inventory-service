@@ -23,7 +23,7 @@ import { apiUrl } from '../api/apiBase';
 import { logError, logWarn } from './logger';
 import { APP_ENVIRONMENT } from '../config/appMeta';
 
-export interface SystemInfoResponse {
+interface SystemInfoResponse {
   status?: string;
   database?: string;
   databaseProduct?: string;

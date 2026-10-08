@@ -11,7 +11,7 @@
  * Hook integration behavior (provider wiring and end-to-end data fetching).
  */
 
-export type CapturedQueryConfig<TData = unknown> = {
+type CapturedQueryConfig<TData = unknown> = {
   queryKey: unknown;
   queryFn: () => Promise<TData> | TData;
   enabled?: boolean;

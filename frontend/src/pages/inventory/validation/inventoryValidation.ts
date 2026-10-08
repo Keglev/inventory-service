@@ -87,8 +87,6 @@ export const ADJUST_REASONS = [
   'RETURNED_TO_SUPPLIER',
 ] as const;
 
-export type AdjustReason = (typeof ADJUST_REASONS)[number];
-
 /**
  * Schema for adjusting item quantities, used in the quantity-adjust dialog.
  *

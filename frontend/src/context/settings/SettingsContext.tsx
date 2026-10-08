@@ -41,7 +41,7 @@ import {
 } from './SettingsStorage';
 import { logWarn } from '../../utils/logger';
 
-export type { DateFormat, NumberFormat, TableDensity, UserPreferences, SystemInfo, SettingsContextType } from './SettingsContext.types';
+export type { DateFormat, NumberFormat, SettingsContextType } from './SettingsContext.types';
 export { SettingsContext };
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

@@ -26,10 +26,3 @@ export type LowStockRow = { itemName: string; quantity: number; minimumQuantity:
 
 /** Per-supplier inventory snapshot: units and their value at current prices (euros). */
 export type StockPerSupplierPoint = { supplierName: string; totalQuantity: number; totalValue: number };
-
-/** Shared optional analytics filter state; centralised here so all analytics consumers import from one place. */
-export type FiltersState = {
-    from?: string;
-    to?: string;
-    supplierId?: string | null;
-};
