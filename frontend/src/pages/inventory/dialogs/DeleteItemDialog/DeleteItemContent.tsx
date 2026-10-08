@@ -18,8 +18,6 @@ import { DeleteFormView } from './DeleteFormView';
 import { DeleteConfirmationView } from './DeleteConfirmationView';
 import type { DeleteItemContentProps } from './DeleteItemDialog.types';
 
-export type { DeleteItemContentProps };
-
 export function DeleteItemContent({
   state,
   showConfirmation,

@@ -75,4 +75,4 @@ export async function getStockPerSupplier(): Promise<StockPerSupplierPoint[]> {
     }
 }
 
-export type { StockValuePoint, MonthlyMovement } from './types';
+export type { StockValuePoint } from './types';
