@@ -30,11 +30,8 @@ vi.mock('react-i18next', () => ({
  * This avoids asserting on implementation details of AppToolbarActions itself.
  */
 type ToolbarActionsProps = {
-  themeMode: 'light' | 'dark';
-  locale: 'de' | 'en';
   helpTopic: string;
-  onThemeModeChange: (mode: 'light' | 'dark') => void;
-  onLocaleChange: (locale: 'de' | 'en') => void;
+  onSettingsOpen: () => void;
   onLogout: () => void;
 };
 
@@ -64,10 +61,7 @@ vi.mock('@/app/layout/header/HeaderDemoBadge', () => ({
 
 describe('AppHeader', () => {
   const baseProps = {
-    themeMode: 'light' as const,
-    onThemeModeChange: vi.fn(),
-    locale: 'de' as const,
-    onLocaleChange: vi.fn(),
+    onSettingsOpen: vi.fn(),
     onLogout: vi.fn(),
     helpTopic: 'dashboard',
     isDemo: true,
@@ -98,9 +92,9 @@ describe('AppHeader', () => {
     render(<AppHeader {...baseProps} />);
 
     expect(lastToolbarProps).toMatchObject({
-      themeMode: 'light',
-      locale: 'de',
       helpTopic: 'dashboard',
+      onSettingsOpen: baseProps.onSettingsOpen,
+      onLogout: baseProps.onLogout,
     });
   });
 

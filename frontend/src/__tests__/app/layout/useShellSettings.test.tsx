@@ -1,8 +1,8 @@
 /**
  * @file useShellSettings.test.tsx
  * @module __tests__/app/layout/useShellSettings
- * @description Locale + theme-mode handlers for the authenticated shell, run inside
- * ShellPreferencesProvider (which owns the state).
+ * @description Locale + theme-mode handlers for the settings dialog, run inside
+ * ShellPreferencesProvider (which owns the state) and ToastContext (toasts).
  *
  * Contract under test:
  * - Theme mode initializes from localStorage and defaults to light.
@@ -35,15 +35,19 @@ vi.mock('react-i18next', () => ({
 import * as React from 'react';
 import { useShellSettings } from '@/app/layout/useShellSettings';
 import { ShellPreferencesProvider } from '@/context/shellPreferences/ShellPreferencesContext';
+import { ToastContext } from '@/context/toast/ToastContext';
 
-// The hook reads its state from the provider (FW5 fork 4); the provider uses the
-// same mocked i18n instance.
+const notify = vi.fn();
+
+// The hook reads its state from the provider (FW5 fork 4; the provider uses the
+// same mocked i18n instance) and toasts through ToastContext.
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <ShellPreferencesProvider>{children}</ShellPreferencesProvider>
+  <ShellPreferencesProvider>
+    <ToastContext.Provider value={notify}>{children}</ToastContext.Provider>
+  </ShellPreferencesProvider>
 );
 
 describe('useShellSettings', () => {
-  const notify = vi.fn();
 
   beforeEach(() => {
     localStorage.clear();
@@ -55,21 +59,20 @@ describe('useShellSettings', () => {
   it('initializes theme mode from localStorage', () => {
     localStorage.setItem('themeMode', 'dark');
 
-    const { result } = renderHook(() => useShellSettings(notify), { wrapper });
+    const { result } = renderHook(() => useShellSettings(), { wrapper });
 
     expect(result.current.themeMode).toBe('dark');
   });
 
   it('defaults to light mode and the i18n locale without stored values', () => {
-    const { result } = renderHook(() => useShellSettings(notify), { wrapper });
+    const { result } = renderHook(() => useShellSettings(), { wrapper });
 
     expect(result.current.themeMode).toBe('light');
     expect(result.current.locale).toBe('de');
-    expect(result.current.theme).toBeTruthy();
   });
 
   it('persists and notifies on a dark-mode switch', () => {
-    const { result } = renderHook(() => useShellSettings(notify), { wrapper });
+    const { result } = renderHook(() => useShellSettings(), { wrapper });
 
     act(() => {
       result.current.handleThemeModeChange('dark');
@@ -82,7 +85,7 @@ describe('useShellSettings', () => {
 
   it('notifies with the light variant when switching back', () => {
     localStorage.setItem('themeMode', 'dark');
-    const { result } = renderHook(() => useShellSettings(notify), { wrapper });
+    const { result } = renderHook(() => useShellSettings(), { wrapper });
 
     act(() => {
       result.current.handleThemeModeChange('light');
@@ -92,7 +95,7 @@ describe('useShellSettings', () => {
   });
 
   it('treats re-selecting the current mode as a silent no-op', () => {
-    const { result } = renderHook(() => useShellSettings(notify), { wrapper });
+    const { result } = renderHook(() => useShellSettings(), { wrapper });
 
     act(() => {
       result.current.handleThemeModeChange('light');
@@ -103,7 +106,7 @@ describe('useShellSettings', () => {
   });
 
   it('persists, propagates, and notifies on locale change', async () => {
-    const { result } = renderHook(() => useShellSettings(notify), { wrapper });
+    const { result } = renderHook(() => useShellSettings(), { wrapper });
 
     await act(async () => {
       await result.current.handleLocaleChange('en');
@@ -116,7 +119,7 @@ describe('useShellSettings', () => {
   });
 
   it('follows external i18n language changes', () => {
-    const { result } = renderHook(() => useShellSettings(notify), { wrapper });
+    const { result } = renderHook(() => useShellSettings(), { wrapper });
 
     act(() => {
       for (const handler of i18nHandlers) handler('en-US');

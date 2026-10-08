@@ -81,6 +81,16 @@ We centralize i18n configuration and keep language/region controls in the settin
 - Testing implications (what should be tested and where)
   - i18n initialization and typing expectations: `frontend/src/__tests__/unit/i18n/*`.
 
+## Amendment 2026-10-08
+The language/region menu (`frontend/src/app/HamburgerMenu/LanguageRegionSettings/*`)
+no longer exists. In the authenticated shell, language, date format and number
+format are set in the settings dialog (*Language & Region*,
+`frontend/src/app/settings/sections/LanguageRegionSettingsSection.tsx`); the public
+header keeps a text button. Language and theme state are owned by
+`ShellPreferencesProvider` (`frontend/src/context/shellPreferences/`). Detection,
+persistence key and the German-first default are unchanged. See
+[ADR-0015](adr-0015-user-menu-and-one-settings-dialog.md).
+
 ## References
 - Architecture docs: [i18n & Theming Concepts (§8b)](../08b-concepts-i18n-theming.md)
 - Diagram: [i18n boot flow](../08b-concepts-i18n-theming.md#i18n-boot-flow)

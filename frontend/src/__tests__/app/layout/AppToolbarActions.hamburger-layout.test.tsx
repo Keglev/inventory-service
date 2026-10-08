@@ -3,8 +3,8 @@
  * @module __tests__/app/layout/AppToolbarActions.hamburger-layout
  * @description
  * Tests for AppToolbarActions focused on:
- * - hamburger menu presence and callback delegation
- * - overall composition (language toggle + help + hamburger)
+ * - user menu presence and callback delegation
+ * - overall composition (bell + help + user menu)
  * - basic layout contract (flex row)
  */
 
@@ -22,13 +22,17 @@ vi.mock('@/features/help/components/HelpIconButton', () => ({
   ),
 }));
 
+vi.mock('@/app/layout/header/NotificationBell', () => ({
+  default: () => <div data-testid="notification-bell" />,
+}));
+
 vi.mock('@/app/HamburgerMenu/HamburgerMenu', () => ({
   default: ({
     onLogout,
-    onThemeModeChange,
+    onSettingsOpen,
   }: {
     onLogout: () => void;
-    onThemeModeChange: (mode: 'light' | 'dark') => void;
+    onSettingsOpen: () => void;
   }) => (
     <button
       type="button"
@@ -36,7 +40,7 @@ vi.mock('@/app/HamburgerMenu/HamburgerMenu', () => ({
       onClick={() => {
         // Simulate a user selecting options inside the hamburger menu.
         onLogout();
-        onThemeModeChange('dark');
+        onSettingsOpen();
       }}
     >
       Menu
@@ -56,15 +60,11 @@ vi.mock('react-i18next', () => ({
 type Props = React.ComponentProps<typeof AppToolbarActions>;
 
 describe('AppToolbarActions (hamburger + layout)', () => {
-  const mockOnThemeModeChange = vi.fn();
-  const mockOnLocaleChange = vi.fn();
+  const mockOnSettingsOpen = vi.fn();
   const mockOnLogout = vi.fn();
 
   const baseProps: Props = {
-    themeMode: 'light',
-    onThemeModeChange: mockOnThemeModeChange,
-    locale: 'en',
-    onLocaleChange: mockOnLocaleChange,
+    onSettingsOpen: mockOnSettingsOpen,
     onLogout: mockOnLogout,
     helpTopic: 'Dashboard',
   };
@@ -87,7 +87,7 @@ describe('AppToolbarActions (hamburger + layout)', () => {
     expect(screen.getByTestId('hamburger-menu')).toBeInTheDocument();
   });
 
-  it('delegates onLogout and onThemeModeChange via the hamburger menu', async () => {
+  it('delegates onLogout and onSettingsOpen via the user menu', async () => {
     // Verifies callback wiring from AppToolbarActions down to HamburgerMenu.
     const user = userEvent.setup();
     renderActions();
@@ -95,14 +95,14 @@ describe('AppToolbarActions (hamburger + layout)', () => {
     await user.click(screen.getByTestId('hamburger-menu'));
 
     expect(mockOnLogout).toHaveBeenCalledTimes(1);
-    expect(mockOnThemeModeChange).toHaveBeenCalledWith('dark');
+    expect(mockOnSettingsOpen).toHaveBeenCalledTimes(1);
   });
 
-  it('renders the full toolbar set (language toggle, help, hamburger)', () => {
+  it('renders the full toolbar set (bell, help, user menu)', () => {
     // Smoke test to ensure all actions remain present in the toolbar.
     renderActions();
 
-    expect(screen.getByLabelText(/switch language/i)).toBeInTheDocument();
+    expect(screen.getByTestId('notification-bell')).toBeInTheDocument();
     expect(screen.getByLabelText(/help/i)).toBeInTheDocument();
     expect(screen.getByTestId('hamburger-menu')).toBeInTheDocument();
   });

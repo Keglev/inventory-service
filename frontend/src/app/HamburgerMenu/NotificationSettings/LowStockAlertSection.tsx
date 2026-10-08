@@ -14,7 +14,7 @@
  * ```
  */
 
-import { Stack, Typography, Chip } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { useTranslation } from 'react-i18next';
@@ -41,21 +41,6 @@ export default function LowStockAlertSection({ lowStockCount }: LowStockAlertSec
             { count: lowStockCount }
           )}
         </Typography>
-      </Stack>
-
-      <Stack sx={{ mt: 1 }}>
-        <Chip
-          size="small"
-          label={
-            <Typography variant="caption">
-              {t('notifications.itemsLowStock', {
-                count: lowStockCount,
-              })}
-            </Typography>
-          }
-          color="warning"
-          variant="outlined"
-        />
       </Stack>
     </>
   );

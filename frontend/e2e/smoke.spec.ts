@@ -55,14 +55,14 @@ test('the header switcher changes locale and the choice survives a reload', asyn
   await page.goto('/login');
   await expect(page.getByRole('button', { name: /Continue in Demo Mode/i })).toBeVisible();
 
-  // The toggle's accessible name is the tooltip text (MUI sets aria-label from
-  // it, overriding the flag img's alt), so the name is itself localised and
-  // doubles as the assertion that the switch took effect.
-  await page.getByRole('button', { name: 'Switch language' }).click();
+  // The toggle names the language it switches TO, in that language (ADR-0015):
+  // "Deutsch" while English is active. Its label flipping to "English" doubles
+  // as the assertion that the switch took effect.
+  await page.getByRole('button', { name: 'Deutsch' }).click();
   await expect(page.getByRole('button', { name: /Im Demo-Modus fortfahren/i })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Sprache wechseln' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'English' })).toBeVisible();
 
-  // useLocale writes the same key the i18next detector reads first.
+  // ShellPreferencesProvider writes the same key the i18next detector reads first.
   await expect
     .poll(() => page.evaluate(() => window.localStorage.getItem('i18nextLng')))
     .toBe('de');
@@ -70,7 +70,7 @@ test('the header switcher changes locale and the choice survives a reload', asyn
   await page.reload();
   await expect(page.getByRole('button', { name: /Im Demo-Modus fortfahren/i })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Sprache wechseln' }).click();
+  await page.getByRole('button', { name: 'English' }).click();
   await expect(page.getByRole('button', { name: /Continue in Demo Mode/i })).toBeVisible();
 });
 

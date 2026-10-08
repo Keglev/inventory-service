@@ -8,13 +8,13 @@
  * Single consumer: AppToolbarActions.
  *
  * @enterprise
- * Theme, locale, and settings state are owned by AppShell and flow down via
- * AppToolbarActions; HamburgerMenu neither persists nor mutates them.
+ * The user menu (SAP Fiori pattern, FW5 fork 1): it holds no preferences; its
+ * Settings entry opens the settings dialog through onSettingsOpen.
+ * The trigger is the three-line icon on desktop; below the md breakpoint, where
+ * the header already shows a three-line drawer toggle on the left, it is a
+ * person outline so the two buttons stay distinguishable.
  * The onClose callback threaded through MenuSectionsRenderer (one per section
  * wrapper) is what dismisses the popover on any section interaction.
- * Distinct from the public-shell settings surface — this is the authenticated
- * shell's in-toolbar settings entry point (tracked under ST-APP4; do not merge
- * the two UIs here).
  */
 
 import * as React from 'react';
@@ -23,23 +23,16 @@ import {
   Menu,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { default as MenuSectionsRenderer } from './MenuContent/MenuSectionsRenderer';
 import { default as LogoutMenuAction } from './MenuContent/LogoutMenuAction';
-import type { SupportedLocale } from '../../theme';
 
 interface HamburgerMenuProps {
-  /** Current theme mode (light or dark) */
-  themeMode: 'light' | 'dark';
-
-  /** Callback when theme mode changes */
-  onThemeModeChange: (mode: 'light' | 'dark') => void;
-
-  /** Current locale setting */
-  locale: SupportedLocale;
-
-  /** Callback when locale changes */
-  onLocaleChange: (locale: SupportedLocale) => void;
+  /** Opens the settings dialog */
+  onSettingsOpen: () => void;
 
   /** Callback for logout action */
   onLogout: () => void;
@@ -51,15 +44,14 @@ interface HamburgerMenuProps {
  * dismisses the popover.
  */
 export default function HamburgerMenu({
-  themeMode,
-  onThemeModeChange,
-  locale,
-  onLocaleChange,
+  onSettingsOpen,
   onLogout,
 }: HamburgerMenuProps) {
   const { t } = useTranslation(['common']);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const theme = useTheme();
+  const isNarrow = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -74,6 +66,7 @@ export default function HamburgerMenu({
       <IconButton
         onClick={handleOpen}
         title={t('actions.menu')}
+        aria-label={t('actions.menu')}
         sx={{
           color: 'inherit',
           '&:hover': {
@@ -81,7 +74,8 @@ export default function HamburgerMenu({
           },
         }}
       >
-        <MenuIcon />
+        {/* WHY: explicit ids equal MUI's own defaults; specs replace all icons with one stub. */}
+        {isNarrow ? <PersonOutlineIcon data-testid="PersonOutlineIcon" /> : <MenuIcon data-testid="MenuIcon" />}
       </IconButton>
 
       <Menu
@@ -102,10 +96,7 @@ export default function HamburgerMenu({
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <MenuSectionsRenderer
-          themeMode={themeMode}
-          onThemeModeChange={onThemeModeChange}
-          locale={locale}
-          onLocaleChange={onLocaleChange}
+          onSettingsOpen={onSettingsOpen}
           onClose={handleClose}
         />
 

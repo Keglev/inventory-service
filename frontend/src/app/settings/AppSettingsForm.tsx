@@ -8,13 +8,14 @@
  *
  * @enterprise
  * - Orchestrator only: receives all state as props, no local state or side effects
+ * - The one editor for every preference (FW5 fork 1), laid out like the SAP
+ *   Fiori settings dialog: Appearance, then Language and Region
  * - Sections are independently tested; this component owns only layout and section composition
  */
 
 import {
   Box,
   Divider,
-  Stack,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { default as AppearanceSettingsSection } from './sections/AppearanceSettingsSection';
@@ -22,6 +23,8 @@ import { default as LanguageRegionSettingsSection } from './sections/LanguageReg
 import { default as SystemPreferencesSection } from './sections/SystemPreferencesSection';
 import { SettingsSectionCard } from './SettingsSectionCard';
 import type { DateFormat, NumberFormat, TableDensity, SystemInfo } from '../../context/settings/SettingsContext.types';
+import type { SupportedLocale } from '../../theme';
+import type { ThemeMode } from '../../context/shellPreferences/ShellPreferencesContext.types';
 
 interface AppSettingsFormProps {
   /** Current date format value */
@@ -41,6 +44,18 @@ interface AppSettingsFormProps {
 
   /** Callback when table density changes */
   onTableDensityChange: (density: TableDensity) => void;
+
+  /** Current colour scheme */
+  themeMode: ThemeMode;
+
+  /** Callback when the colour scheme changes */
+  onThemeModeChange: (mode: ThemeMode) => void;
+
+  /** Current UI language */
+  locale: SupportedLocale;
+
+  /** Callback when the UI language changes */
+  onLocaleChange: (locale: SupportedLocale) => void;
 
   /** System information data */
   systemInfo: SystemInfo | null;
@@ -67,6 +82,10 @@ interface AppSettingsFormProps {
  *   onNumberFormatChange={handleNumberChange}
  *   tableDensity="comfortable"
  *   onTableDensityChange={handleDensityChange}
+ *   themeMode="light"
+ *   onThemeModeChange={handleThemeChange}
+ *   locale="de"
+ *   onLocaleChange={handleLocaleChange}
  *   systemInfo={systemInfo}
  *   isLoading={false}
  * />
@@ -79,6 +98,10 @@ export default function AppSettingsForm({
   onNumberFormatChange,
   tableDensity,
   onTableDensityChange,
+  themeMode,
+  onThemeModeChange,
+  locale,
+  onLocaleChange,
   systemInfo,
   isLoading,
 }: AppSettingsFormProps) {
@@ -87,20 +110,24 @@ export default function AppSettingsForm({
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       
-      <SettingsSectionCard title={t('settings.userPreferences')}>
-        <Stack spacing={2}>
-          <LanguageRegionSettingsSection
-            dateFormat={dateFormat}
-            onDateFormatChange={onDateFormatChange}
-            numberFormat={numberFormat}
-            onNumberFormatChange={onNumberFormatChange}
-          />
+      <SettingsSectionCard title={t('settings.appearance')}>
+        <AppearanceSettingsSection
+          themeMode={themeMode}
+          onThemeModeChange={onThemeModeChange}
+          tableDensity={tableDensity}
+          onTableDensityChange={onTableDensityChange}
+        />
+      </SettingsSectionCard>
 
-          <AppearanceSettingsSection
-            tableDensity={tableDensity}
-            onTableDensityChange={onTableDensityChange}
-          />
-        </Stack>
+      <SettingsSectionCard title={t('settings.languageRegion')}>
+        <LanguageRegionSettingsSection
+          locale={locale}
+          onLocaleChange={onLocaleChange}
+          dateFormat={dateFormat}
+          onDateFormatChange={onDateFormatChange}
+          numberFormat={numberFormat}
+          onNumberFormatChange={onNumberFormatChange}
+        />
       </SettingsSectionCard>
 
       <Divider />

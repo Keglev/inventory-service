@@ -5,13 +5,14 @@
  * Tests for LanguageRegionSettingsSection.
  *
  * Scope:
- * - Renders selectable date and number format options
+ * - Renders the UI language choice (endonyms, FW5) and the date and number format options
+ * - Number-format labels come from i18n (no hard-coded English)
  * - Shows preview examples (via formatter utilities)
  * - Delegates changes to the provided callbacks
  *
  * Out of scope:
  * - Applying these formats globally to the application
- * - i18n locale switching / persistence
+ * - Persisting the language (ShellPreferencesProvider spec)
  * - Real formatter correctness (covered by formatter unit tests)
  */
 
@@ -40,6 +41,8 @@ describe('LanguageRegionSettingsSection', () => {
   });
 
   function renderSection(params?: {
+    locale?: 'de' | 'en';
+    onLocaleChange?: (v: 'de' | 'en') => void;
     dateFormat?: DateFormat;
     numberFormat?: NumberFormat;
     onDateChange?: (v: DateFormat) => void;
@@ -49,10 +52,14 @@ describe('LanguageRegionSettingsSection', () => {
     const numberFormat = params?.numberFormat ?? ('DE' as NumberFormat);
     const onDateFormatChange = params?.onDateChange ?? vi.fn();
     const onNumberFormatChange = params?.onNumberChange ?? vi.fn();
+    const locale = params?.locale ?? 'de';
+    const onLocaleChange = params?.onLocaleChange ?? vi.fn();
 
     return {
       ...render(
         <LanguageRegionSettingsSection
+          locale={locale}
+          onLocaleChange={onLocaleChange}
           dateFormat={dateFormat}
           onDateFormatChange={onDateFormatChange}
           numberFormat={numberFormat}
@@ -70,6 +77,31 @@ describe('LanguageRegionSettingsSection', () => {
 
     const radios = screen.getAllByRole('radio');
     expect(radios.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('renders the languages in their own names and reflects the locale prop', () => {
+    renderSection({ locale: 'en' });
+
+    expect(screen.getByRole('radio', { name: 'Deutsch' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'English' })).toBeChecked();
+  });
+
+  it('calls onLocaleChange when the user selects the other language', async () => {
+    const user = userEvent.setup();
+    const onLocaleChange = vi.fn();
+    renderSection({ locale: 'de', onLocaleChange });
+
+    await user.click(screen.getByRole('radio', { name: 'English' }));
+
+    expect(onLocaleChange).toHaveBeenCalledWith('en');
+  });
+
+  it('labels the number formats from translations', () => {
+    renderSection();
+
+    expect(screen.getByText(tEn('settings.numberFormatDe'))).toBeInTheDocument();
+    expect(screen.getByText(tEn('settings.numberFormatEnUs'))).toBeInTheDocument();
+    expect(screen.queryByText('German (DE)')).not.toBeInTheDocument();
   });
 
   it('renders preview examples using formatter utilities', () => {
@@ -121,6 +153,8 @@ describe('LanguageRegionSettingsSection', () => {
 
     rerender(
       <LanguageRegionSettingsSection
+        locale="de"
+        onLocaleChange={vi.fn()}
         dateFormat={'MM/DD/YYYY' as DateFormat}
         onDateFormatChange={vi.fn()}
         numberFormat={'DE' as NumberFormat}
@@ -138,6 +172,8 @@ describe('LanguageRegionSettingsSection', () => {
 
     rerender(
       <LanguageRegionSettingsSection
+        locale="de"
+        onLocaleChange={vi.fn()}
         dateFormat={'DD.MM.YYYY' as DateFormat}
         onDateFormatChange={vi.fn()}
         numberFormat={'EN_US' as NumberFormat}

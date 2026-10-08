@@ -17,9 +17,10 @@
 
 import { render, act, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createTheme } from '@mui/material/styles';
+import { createTheme, useTheme } from '@mui/material/styles';
 import AppShell from '@/app/layout/AppShell';
 import { ShellPreferencesProvider } from '@/context/shellPreferences/ShellPreferencesContext';
+import { useToast } from '@/context/toast/ToastContext';
 
 /**
  * Child props capture:
@@ -30,14 +31,12 @@ type HeaderProps = {
   helpTopic: string;
   onDrawerToggle: () => void;
   onLogout: () => void;
-  onLocaleChange: (locale: 'de' | 'en') => void;
-  onThemeModeChange: (mode: 'light' | 'dark') => void;
+  onSettingsOpen: () => void;
 };
 
 type SidebarProps = {
   mobileOpen: boolean;
   onMobileClose?: () => void;
-  onSettingsOpen?: () => void;
 };
 
 let lastHeaderProps: Partial<HeaderProps> | undefined;
@@ -58,14 +57,27 @@ vi.mock('@/app/layout/AppSidebar', () => ({
   },
 }));
 
+// Reads the theme it is rendered under, so a test can see which theme AppShell applied.
 vi.mock('@/app/layout/AppMain', () => ({
-  default: () => <div data-testid="app-main">main</div>,
+  default: function AppMainStub() {
+    const theme = useTheme();
+    return <div data-testid="app-main" data-mode={theme.palette.mode}>main</div>;
+  },
 }));
 
+// The real dialog toasts through ToastContext (useShellSettings); the stub does the
+// same so the Snackbar wiring can be exercised.
 vi.mock('@/app/settings/AppSettingsDialog', () => ({
-  default: (props: { open: boolean; onClose?: () => void }) => {
+  default: function SettingsDialogStub(props: { open: boolean; onClose?: () => void }) {
     lastSettingsDialogProps = props;
-    return <div data-testid="settings-dialog" data-open={props.open} />;
+    const toast = useToast();
+    return (
+      <div data-testid="settings-dialog" data-open={props.open}>
+        <button type="button" onClick={() => toast('common:shell.darkModeEnabled', 'info')}>
+          toast
+        </button>
+      </div>
+    );
   },
 }));
 
@@ -86,8 +98,12 @@ vi.mock('@/components/help/HelpPanel', () => ({
  * Theme:
  * AppShell depends on a theme builder. We return a valid MUI theme instance.
  */
+const mockBuildTheme = vi.hoisted(() => vi.fn());
 vi.mock('@/theme', () => ({
-  buildTheme: () => createTheme(),
+  buildTheme: (...args: unknown[]) => {
+    mockBuildTheme(...args);
+    return createTheme({ palette: { mode: args[1] as 'light' | 'dark' } });
+  },
 }));
 
 /**
@@ -220,29 +236,23 @@ describe('AppShell', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/logout-success', { replace: true });
   });
 
-  it('changes locale, persists selection, and shows a confirmation toast', async () => {
-    // Locale changes should persist in localStorage and display a user-facing confirmation.
+  it('applies the theme built from the shared preferences', () => {
+    // Theme state lives in ShellPreferencesProvider; AppShell only applies it.
+    localStorage.setItem('themeMode', 'dark');
     renderAppShell();
 
-    await act(async () => {
-      await getHeader().onLocaleChange('en');
-    });
-
-    expect(fakeI18n.changeLanguage).toHaveBeenCalledWith('en');
-    expect(localStorage.getItem('i18nextLng')).toBe('en');
-    expect(screen.getByText('common:shell.languageChanged')).toBeInTheDocument();
+    expect(mockBuildTheme).toHaveBeenLastCalledWith('de', 'dark');
+    expect(screen.getByTestId('app-main')).toHaveAttribute('data-mode', 'dark');
   });
 
-  it('toggles theme mode and persists the preference', () => {
-    // Theme changes should persist and provide immediate feedback.
+  it('passes no language or theme handlers to the header', () => {
+    // Preferences are edited in the settings dialog only (FW5 forks 1 and 2).
     renderAppShell();
 
-    act(() => {
-      getHeader().onThemeModeChange('dark');
-    });
-
-    expect(localStorage.getItem('themeMode')).toBe('dark');
-    expect(screen.getByText('common:shell.darkModeEnabled')).toBeInTheDocument();
+    expect(Object.keys(lastHeaderProps ?? {})).toEqual(
+      expect.not.arrayContaining(['onLocaleChange', 'onThemeModeChange', 'locale', 'themeMode']),
+    );
+    expect(typeof getHeader().onSettingsOpen).toBe('function');
   });
 
   it('closes the mobile drawer through the sidebar callback', () => {
@@ -266,7 +276,7 @@ describe('AppShell', () => {
     expect(screen.getByTestId('settings-dialog')).toHaveAttribute('data-open', 'false');
 
     act(() => {
-      getSidebar().onSettingsOpen?.();
+      getHeader().onSettingsOpen();
     });
     expect(screen.getByTestId('settings-dialog')).toHaveAttribute('data-open', 'true');
 
@@ -279,9 +289,8 @@ describe('AppShell', () => {
   it('auto-dismisses the confirmation toast via the snackbar close handler', async () => {
     renderAppShell();
 
-    act(() => {
-      getHeader().onThemeModeChange('dark');
-    });
+    // A child (the settings dialog) raises a toast through ToastContext.
+    fireEvent.click(screen.getByRole('button', { name: 'toast' }));
     expect(screen.getByText('common:shell.darkModeEnabled')).toBeInTheDocument();
 
     // MUI Snackbar close: fire the document clickaway path via its onClose.

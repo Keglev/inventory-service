@@ -1,9 +1,10 @@
 /**
- * @file AppToolbarActions.language-help.test.tsx
- * @module __tests__/app/layout/AppToolbarActions.language-help
+ * @file AppToolbarActions.bell-help.test.tsx
+ * @module __tests__/app/layout/AppToolbarActions.bell-help
+ * @testing Vitest + React Testing Library; bell, help button and menu mocked
  * @description
  * Tests for AppToolbarActions focused on:
- * - language toggle behavior (flag rendering + locale switching)
+ * - the notification bell, and the absence of a language toggle (FW5 forks 2 and 7)
  * - help button wiring (topic + tooltip/aria-label)
  *
  * Out of scope:
@@ -12,7 +13,6 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import AppToolbarActions from '@/app/layout/AppToolbarActions';
 import { tEn } from '@/__tests__/test/i18nEn';
 
@@ -22,6 +22,10 @@ vi.mock('@/features/help/components/HelpIconButton', () => ({
       Help
     </button>
   ),
+}));
+
+vi.mock('@/app/layout/header/NotificationBell', () => ({
+  default: () => <div data-testid="notification-bell" />,
 }));
 
 vi.mock('@/app/HamburgerMenu/HamburgerMenu', () => ({
@@ -39,16 +43,12 @@ vi.mock('react-i18next', () => ({
 
 type Props = React.ComponentProps<typeof AppToolbarActions>;
 
-describe('AppToolbarActions (language + help)', () => {
-  const mockOnThemeModeChange = vi.fn();
-  const mockOnLocaleChange = vi.fn();
+describe('AppToolbarActions (bell + help)', () => {
+  const mockOnSettingsOpen = vi.fn();
   const mockOnLogout = vi.fn();
 
   const baseProps: Props = {
-    themeMode: 'light',
-    onThemeModeChange: mockOnThemeModeChange,
-    locale: 'en',
-    onLocaleChange: mockOnLocaleChange,
+    onSettingsOpen: mockOnSettingsOpen,
     onLogout: mockOnLogout,
     helpTopic: 'Dashboard',
   };
@@ -64,39 +64,17 @@ describe('AppToolbarActions (language + help)', () => {
     return render(<AppToolbarActions {...baseProps} {...props} />);
   }
 
-  describe('Language toggle', () => {
-    it('renders the English flag when locale=en', () => {
-      // Ensures locale state is reflected visually.
-      const { container } = renderActions({ locale: 'en' });
-
-      expect(container.querySelector('img[alt="English"]')).toBeInTheDocument();
+  describe('Notifications and language', () => {
+    it('renders the notification bell', () => {
+      renderActions();
+      expect(screen.getByTestId('notification-bell')).toBeInTheDocument();
     });
 
-    it('renders the German flag when locale=de', () => {
-      // Ensures locale state is reflected visually.
-      const { container } = renderActions({ locale: 'de' });
-
-      expect(container.querySelector('img[alt="Deutsch"]')).toBeInTheDocument();
-    });
-
-    it('switches from en -> de when the language toggle is clicked', async () => {
-      // Verifies the locale toggle delegates the new locale correctly.
-      const user = userEvent.setup();
-      renderActions({ locale: 'en' });
-
-      await user.click(screen.getByLabelText(/switch language/i));
-
-      expect(mockOnLocaleChange).toHaveBeenCalledWith('de');
-    });
-
-    it('switches from de -> en when the language toggle is clicked', async () => {
-      // Verifies the locale toggle delegates the new locale correctly.
-      const user = userEvent.setup();
-      renderActions({ locale: 'de' });
-
-      await user.click(screen.getByLabelText(/switch language/i));
-
-      expect(mockOnLocaleChange).toHaveBeenCalledWith('en');
+    it('renders no language toggle', () => {
+      // Language is set in the settings dialog only; the flag button is gone.
+      const { container } = renderActions();
+      expect(screen.queryByLabelText(tEn('actions.toggleLanguage'))).not.toBeInTheDocument();
+      expect(container.querySelector('img')).toBeNull();
     });
   });
 

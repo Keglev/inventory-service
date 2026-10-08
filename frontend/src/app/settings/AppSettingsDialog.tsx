@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 import AppSettingsForm from './AppSettingsForm';
 import { HelpIconButton } from '../../features/help/components/HelpIconButton';
 import { useAppSettingsForm } from './hooks/useAppSettingsForm';
+import { useShellSettings } from '../layout/useShellSettings';
 
 interface AppSettingsDialogProps {
   /** Whether dialog is open */
@@ -63,6 +64,9 @@ export default function AppSettingsDialog({
     handleTableDensityChange,
     handleResetDefaults,
   } = useAppSettingsForm();
+  // WHY: language and theme are shell-wide; the dialog edits them through the
+  // shared preferences (with the shell's toasts) instead of props from AppShell.
+  const { locale, themeMode, handleThemeModeChange, handleLocaleChange } = useShellSettings();
 
   return (
     <Dialog
@@ -101,6 +105,10 @@ export default function AppSettingsDialog({
           onNumberFormatChange={handleNumberFormatChange}
           tableDensity={formState.tableDensity}
           onTableDensityChange={handleTableDensityChange}
+          themeMode={themeMode}
+          onThemeModeChange={handleThemeModeChange}
+          locale={locale}
+          onLocaleChange={handleLocaleChange}
           systemInfo={systemInfo}
           isLoading={isLoading}
         />

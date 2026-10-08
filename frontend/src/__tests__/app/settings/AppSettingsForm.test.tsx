@@ -3,8 +3,8 @@
  * @module __tests__/app/settings/AppSettingsForm
  * @description
  * Tests for AppSettingsForm orchestration:
- * - Composition: all settings sections render
- * - Wiring: props are forwarded to the correct sections
+ * - Composition: Appearance, Language & Region and System Info cards render, in that order
+ * - Wiring: props are forwarded to the correct sections (theme to Appearance, language to Language & Region)
  */
 
 import React from 'react';
@@ -66,6 +66,10 @@ describe('AppSettingsForm', () => {
     onNumberFormatChange: vi.fn(),
     tableDensity: 'comfortable',
     onTableDensityChange: vi.fn(),
+    themeMode: 'light',
+    onThemeModeChange: vi.fn(),
+    locale: 'de',
+    onLocaleChange: vi.fn(),
     systemInfo,
     isLoading: false,
   };
@@ -96,6 +100,8 @@ describe('AppSettingsForm', () => {
     const onDateFormatChange: NonNullable<AppSettingsFormProps['onDateFormatChange']> = vi.fn();
     const onNumberFormatChange: NonNullable<AppSettingsFormProps['onNumberFormatChange']> = vi.fn();
     const onTableDensityChange: NonNullable<AppSettingsFormProps['onTableDensityChange']> = vi.fn();
+    const onThemeModeChange: NonNullable<AppSettingsFormProps['onThemeModeChange']> = vi.fn();
+    const onLocaleChange: NonNullable<AppSettingsFormProps['onLocaleChange']> = vi.fn();
 
     renderForm({
       dateFormat: 'MM/DD/YYYY',
@@ -104,14 +110,22 @@ describe('AppSettingsForm', () => {
       onNumberFormatChange,
       tableDensity: 'compact',
       onTableDensityChange,
+      themeMode: 'dark',
+      onThemeModeChange,
+      locale: 'en',
+      onLocaleChange,
     });
 
     expect(appearanceProps).toMatchObject({
+      themeMode: 'dark',
+      onThemeModeChange,
       tableDensity: 'compact',
       onTableDensityChange,
     });
 
     expect(languageProps).toMatchObject({
+      locale: 'en',
+      onLocaleChange,
       dateFormat: 'MM/DD/YYYY',
       onDateFormatChange,
       numberFormat: 'EN_US',
@@ -123,6 +137,14 @@ describe('AppSettingsForm', () => {
       isLoading: false,
     });
 
+  });
+
+  it('renders the section titles Appearance, Language & Region and System Info in order', () => {
+    const { container } = renderForm();
+    const text = container.textContent ?? '';
+    const positions = ['Appearance', 'Language & Region', 'System Info'].map((title) => text.indexOf(title));
+    expect(positions.every((p) => p >= 0)).toBe(true);
+    expect(positions).toEqual([...positions].sort((a, b) => a - b));
   });
 
   it('forwards loading state to the system preferences section', () => {

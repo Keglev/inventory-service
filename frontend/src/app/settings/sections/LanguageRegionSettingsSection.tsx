@@ -4,10 +4,11 @@
  *
  * @summary
  * Language and region settings section component.
- * Manages date format and number format preferences with preview examples.
+ * UI language, date format and number format, with preview examples.
  *
  * @enterprise
- * - Scoped to date/number FORMAT only; locale/language switching is handled by toolbar/sidebar/hamburger toggles
+ * - The only editor for the UI language in the app shell (FW5 forks 1 and 2);
+ *   language names stay in their own language (W3C i18n), not translated
  * - Live preview examples surface formatter output directly, making format choices self-documenting in the UI
  */
 
@@ -22,10 +23,17 @@ import {
   Stack,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import type { SupportedLocale } from '../../../theme';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import type { DateFormat, NumberFormat } from '../../../context/settings/SettingsContext.types';
 
 interface LanguageRegionSettingsSectionProps {
+  /** Current UI language */
+  locale: SupportedLocale;
+
+  /** Callback when the UI language changes */
+  onLocaleChange: (locale: SupportedLocale) => void;
+
   /** Current date format value */
   dateFormat: DateFormat;
 
@@ -59,6 +67,8 @@ interface LanguageRegionSettingsSectionProps {
  * ```
  */
 export default function LanguageRegionSettingsSection({
+  locale,
+  onLocaleChange,
   dateFormat,
   onDateFormatChange,
   numberFormat,
@@ -68,6 +78,20 @@ export default function LanguageRegionSettingsSection({
 
   return (
     <Stack spacing={2}>
+      <FormControl>
+        <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
+          {t('settings.language')}
+        </FormLabel>
+        {/* WHY: language names stay in their own language (W3C i18n) so a user who
+            cannot read the current UI still finds theirs. */}
+        <RadioGroup
+          value={locale}
+          onChange={(e) => void onLocaleChange(e.target.value as SupportedLocale)}
+        >
+          <FormControlLabel value="de" control={<Radio size="small" />} label="Deutsch" lang="de" />
+          <FormControlLabel value="en" control={<Radio size="small" />} label="English" lang="en" />
+        </RadioGroup>
+      </FormControl>
       <FormControl>
         <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
           {t('settings.dateFormat')}
@@ -128,7 +152,7 @@ export default function LanguageRegionSettingsSection({
             control={<Radio size="small" />}
             label={
               <Box>
-                <Typography variant="body2">German (DE)</Typography>
+                <Typography variant="body2">{t('settings.numberFormatDe')}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   {formatNumber(1234.56, 'DE')}
                 </Typography>
@@ -140,7 +164,7 @@ export default function LanguageRegionSettingsSection({
             control={<Radio size="small" />}
             label={
               <Box>
-                <Typography variant="body2">English (US)</Typography>
+                <Typography variant="body2">{t('settings.numberFormatEnUs')}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   {formatNumber(1234.56, 'EN_US')}
                 </Typography>

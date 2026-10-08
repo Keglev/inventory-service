@@ -4,11 +4,11 @@
  *
  * @summary
  * Appearance settings section component.
- * Manages table density preferences with radio button group.
+ * Theme (light/dark) and table density, each as a radio group.
  *
  * @enterprise
- * - Owns table density selection for the settings dialog surface only
- * - Density is also settable from HamburgerMenu/AppearanceSettings (duplicate surface, see ST-APP4) — changes here must stay in sync with that path
+ * - The only editor for theme and density (FW5 fork 1); theme state belongs to
+ *   ShellPreferencesProvider and arrives through props like density does
  */
 
 import {
@@ -17,11 +17,18 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Stack,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { TableDensity } from '../../../context/settings/SettingsContext.types';
 
 interface AppearanceSettingsSectionProps {
+  /** Current colour scheme */
+  themeMode: 'light' | 'dark';
+
+  /** Callback when the colour scheme changes */
+  onThemeModeChange: (mode: 'light' | 'dark') => void;
+
   /** Current table density value */
   tableDensity: TableDensity;
 
@@ -47,12 +54,27 @@ interface AppearanceSettingsSectionProps {
  * ```
  */
 export default function AppearanceSettingsSection({
+  themeMode,
+  onThemeModeChange,
   tableDensity,
   onTableDensityChange,
 }: AppearanceSettingsSectionProps) {
   const { t } = useTranslation(['common']);
 
   return (
+    <Stack spacing={2}>
+    <FormControl>
+      <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
+        {t('appearance.theme')}
+      </FormLabel>
+      <RadioGroup
+        value={themeMode}
+        onChange={(e) => onThemeModeChange(e.target.value as 'light' | 'dark')}
+      >
+        <FormControlLabel value="light" control={<Radio size="small" />} label={t('appearance.light')} />
+        <FormControlLabel value="dark" control={<Radio size="small" />} label={t('appearance.dark')} />
+      </RadioGroup>
+    </FormControl>
     <FormControl>
       <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
         {t('settings.tableDensity.label')}
@@ -73,5 +95,6 @@ export default function AppearanceSettingsSection({
         />
       </RadioGroup>
     </FormControl>
+    </Stack>
   );
 }

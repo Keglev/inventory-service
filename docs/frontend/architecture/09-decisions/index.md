@@ -32,6 +32,7 @@ ADRs do **not** document:
 - [ADR-0012: Low-stock severity scales with each item's minimum](./adr-0012-low-stock-severity-scales-with-the-minimum.md)
 - [ADR-0013: Demo mode walks every inventory dialog and blocks only the write](./adr-0013-demo-mode-blocks-only-the-write.md)
 - [ADR-0014: Searching bounded lists in the browser](./adr-0014-searching-bounded-lists-in-the-browser.md)
+- [ADR-0015: The user menu and one settings dialog follow SAP Fiori](./adr-0015-user-menu-and-one-settings-dialog.md)
 
 ---
 

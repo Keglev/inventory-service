@@ -5,7 +5,8 @@
  * Tests for AppearanceSettingsSection.
  *
  * Scope:
- * - Renders the table density setting using an accessible radio group
+ * - Renders the theme setting (light/dark) and the table density setting as radio groups
+ * - Reflects the themeMode prop and delegates theme changes to onThemeModeChange
  * - Reflects current selection based on the tableDensity prop
  * - Delegates user changes to onTableDensityChange
  * - Supports keyboard interaction (accessibility baseline)
@@ -36,18 +37,30 @@ describe('AppearanceSettingsSection', () => {
     vi.clearAllMocks();
   });
 
-  function renderSection(params?: { tableDensity?: Density; onChange?: (d: Density) => void }) {
+  const themeProps = { themeMode: 'light' as const, onThemeModeChange: vi.fn() };
+
+  function renderSection(params?: {
+    tableDensity?: Density;
+    onChange?: (d: Density) => void;
+    themeMode?: 'light' | 'dark';
+    onThemeModeChange?: (m: 'light' | 'dark') => void;
+  }) {
     const tableDensity = params?.tableDensity ?? 'comfortable';
     const onTableDensityChange = params?.onChange ?? vi.fn();
+    const themeMode = params?.themeMode ?? 'light';
+    const onThemeModeChange = params?.onThemeModeChange ?? vi.fn();
 
     return {
       ...render(
         <AppearanceSettingsSection
+          themeMode={themeMode}
+          onThemeModeChange={onThemeModeChange}
           tableDensity={tableDensity}
           onTableDensityChange={onTableDensityChange}
         />,
       ),
       onTableDensityChange,
+      onThemeModeChange,
     };
   }
 
@@ -59,6 +72,23 @@ describe('AppearanceSettingsSection', () => {
   function getCompactRadio() {
     return screen.getByRole('radio', { name: /compact/i });
   }
+
+  it('renders the theme options and reflects the themeMode prop', () => {
+    renderSection({ themeMode: 'dark' });
+
+    expect(screen.getByRole('radio', { name: 'Light' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Dark' })).toBeChecked();
+  });
+
+  it('calls onThemeModeChange when the user selects the other theme', async () => {
+    const user = userEvent.setup();
+    const onThemeModeChange = vi.fn();
+    renderSection({ themeMode: 'light', onThemeModeChange });
+
+    await user.click(screen.getByRole('radio', { name: 'Dark' }));
+
+    expect(onThemeModeChange).toHaveBeenCalledWith('dark');
+  });
 
   it('renders an accessible radio group with at least two options', () => {
     // Accessibility contract: densities are selectable via radio buttons.
@@ -78,6 +108,7 @@ describe('AppearanceSettingsSection', () => {
 
     rerender(
       <AppearanceSettingsSection
+        {...themeProps}
         tableDensity="compact"
         onTableDensityChange={onTableDensityChange}
       />,
@@ -105,6 +136,7 @@ describe('AppearanceSettingsSection', () => {
 
     rerender(
       <AppearanceSettingsSection
+        {...themeProps}
         tableDensity="compact"
         onTableDensityChange={vi.fn()}
       />,
@@ -120,7 +152,9 @@ describe('AppearanceSettingsSection', () => {
 
     renderSection({ tableDensity: 'comfortable', onChange });
 
-    // Tab focuses the currently selected radio; arrow key moves selection within the group.
+    // Tab focuses the checked radio of each group in turn: theme first, then density;
+    // the arrow key moves selection within the density group.
+    await user.tab();
     await user.tab();
     await user.keyboard('{ArrowDown}');
 

@@ -9,7 +9,8 @@
  * Test strategy:
  * - Smoke: renders the menu button and starts closed.
  * - Interaction: opens popover on click; closes on Escape.
- * - Integration (orchestrator): passes theme/locale props and onClose callbacks to children.
+ * - Integration (orchestrator): passes onSettingsOpen, onLogout and onClose to children.
+ * - Trigger icon: three lines from md up, a person outline below md (FW5).
  * - i18n: uses translated label for the menu button.
  *
  * Notes:
@@ -27,22 +28,13 @@ import { tEn } from '@/__tests__/test/i18nEn';
 // -----------------------------------------------------------------------------
 // Minimal child-prop types for safe call extraction
 // ----------------------------------------------------
-type ThemeMode = 'light' | 'dark';
-type Locale = 'en' | 'de';
-
 type HamburgerMenuProps = {
-  themeMode: ThemeMode;
-  onThemeModeChange: () => void;
-  locale: Locale;
-  onLocaleChange: () => void;
+  onSettingsOpen: () => void;
   onLogout: () => void;
 };
 
 type MenuSectionsRendererProps = {
-  themeMode: ThemeMode;
-  onThemeModeChange: () => void;
-  locale: Locale;
-  onLocaleChange: () => void;
+  onSettingsOpen: () => void;
   onClose: () => void;
 };
 
@@ -55,6 +47,7 @@ type LogoutMenuActionProps = {
 // Hoisted mocks
 // -----------------------------------------------------------------------------
 const mockUseTranslation = vi.hoisted(() => vi.fn());
+const mockUseMediaQuery = vi.hoisted(() => vi.fn(() => false));
 
 // Vitest generic is <ArgsTuple, ReturnType>
 const mockMenuSectionsRenderer = vi.hoisted(() =>
@@ -70,6 +63,9 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
+// Below-md switch for the trigger icon; jsdom has no real media queries.
+vi.mock('@mui/material/useMediaQuery', () => ({ default: mockUseMediaQuery }));
+
 // Mock menu content components
 vi.mock('@/app/HamburgerMenu/MenuContent/MenuSectionsRenderer', () => ({
   default: mockMenuSectionsRenderer,
@@ -80,16 +76,11 @@ vi.mock('@/app/HamburgerMenu/MenuContent/LogoutMenuAction', () => ({
 }));
 
 describe('HamburgerMenu', () => {
-  const mockOnThemeModeChange = vi.fn();
-  const mockOnLocaleChange = vi.fn();
+  const mockOnSettingsOpen = vi.fn();
   const mockOnLogout = vi.fn();
 
-  // IMPORTANT: explicitly type to avoid literal narrowing ("light" only / "en" only).
   const defaultProps: HamburgerMenuProps = {
-    themeMode: 'light',
-    onThemeModeChange: mockOnThemeModeChange,
-    locale: 'en',
-    onLocaleChange: mockOnLocaleChange,
+    onSettingsOpen: mockOnSettingsOpen,
     onLogout: mockOnLogout,
   };
 
@@ -159,14 +150,7 @@ describe('HamburgerMenu', () => {
     await openMenu(user);
 
     const lastProps = mockMenuSectionsRenderer.mock.calls.at(-1)?.[0];
-    expect(lastProps).toEqual(
-      expect.objectContaining({
-        themeMode: 'light',
-        onThemeModeChange: mockOnThemeModeChange,
-        locale: 'en',
-        onLocaleChange: mockOnLocaleChange,
-      }),
-    );
+    expect(lastProps).toEqual(expect.objectContaining({ onSettingsOpen: mockOnSettingsOpen }));
   });
 
   it('renders LogoutMenuAction with correct props when open', async () => {
@@ -192,24 +176,18 @@ describe('HamburgerMenu', () => {
     expect(logoutProps).toEqual(expect.objectContaining({ onClose: expect.any(Function) }));
   });
 
-  it('passes dark theme mode correctly', async () => {
-    const user = userEvent.setup();
-    arrange({ themeMode: 'dark' });
-
-    await openMenu(user);
-
-    const lastProps = mockMenuSectionsRenderer.mock.calls.at(-1)?.[0];
-    expect(lastProps).toEqual(expect.objectContaining({ themeMode: 'dark' }));
+  it('shows the three-line icon from the md breakpoint up', () => {
+    arrange();
+    expect(screen.getByTestId('MenuIcon')).toBeInTheDocument();
+    expect(screen.queryByTestId('PersonOutlineIcon')).not.toBeInTheDocument();
   });
 
-  it('passes German locale correctly', async () => {
-    const user = userEvent.setup();
-    arrange({ locale: 'de' });
-
-    await openMenu(user);
-
-    const lastProps = mockMenuSectionsRenderer.mock.calls.at(-1)?.[0];
-    expect(lastProps).toEqual(expect.objectContaining({ locale: 'de' }));
+  it('shows a person outline below the md breakpoint', () => {
+    // The header shows a three-line drawer toggle there; two identical icons would be ambiguous.
+    mockUseMediaQuery.mockReturnValue(true);
+    arrange();
+    expect(screen.getByTestId('PersonOutlineIcon')).toBeInTheDocument();
+    expect(screen.queryByTestId('MenuIcon')).not.toBeInTheDocument();
   });
 
   // ---------------------------------------------------------------------------

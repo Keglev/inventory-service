@@ -3,37 +3,24 @@
  * @module app/layout/AppToolbarActions
  *
  * @summary
- * Toolbar action buttons for the AppBar: language toggle, theme toggle, help, hamburger menu.
+ * Toolbar action buttons for the AppBar: notification bell, help, user menu.
  * Extracted from AppShell to isolate toolbar icon/button logic and styling.
  *
  * @enterprise
  * - Extracted from AppShell so AppBar chrome can evolve independently of layout orchestration.
- * - This is the mount point for HamburgerMenu (see ST-APP4); it passes theme/locale callbacks down but does not own the menu's state.
- * - Callbacks are passed in rather than called directly so toast side-effects remain in AppShell where the Snackbar lives.
- * - Language flag toggle mirrors SidebarActions by design — toolbar and sidebar must stay in sync without coupling.
+ * - This is the mount point for HamburgerMenu (the user menu); it passes the settings and logout callbacks down but does not own the menu's state.
+ * - No language or theme toggle here: preferences have one editor, the settings dialog (FW5 forks 1 and 2, SAP Fiori pattern).
  */
 
-import { Box, IconButton, Tooltip } from '@mui/material';
+import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { HelpIconButton } from '../../features/help/components/HelpIconButton';
 import { default as HamburgerMenu } from '../HamburgerMenu/HamburgerMenu';
-import type { SupportedLocale } from '../../theme';
-
-const DE_FLAG = '/flags/de.svg';
-const US_FLAG = '/flags/us.svg';
+import NotificationBell from './header/NotificationBell';
 
 interface AppToolbarActionsProps {
-  /** Current theme mode (light or dark) */
-  themeMode: 'light' | 'dark';
-
-  /** Callback when theme mode changes */
-  onThemeModeChange: (mode: 'light' | 'dark') => void;
-
-  /** Current locale setting (de or en) */
-  locale: SupportedLocale;
-
-  /** Callback when locale changes */
-  onLocaleChange: (locale: SupportedLocale) => void;
+  /** Opens the settings dialog */
+  onSettingsOpen: () => void;
 
   /** Callback for logout action */
   onLogout: () => void;
@@ -45,17 +32,13 @@ interface AppToolbarActionsProps {
 /**
  * Toolbar actions component.
  *
- * Renders language toggle, help button, and hamburger menu in the AppBar.
- * Handles user preferences and navigation callbacks.
+ * Renders the notification bell, the help button and the user menu in the AppBar.
  *
  * @param props - Component props
  * @returns JSX element rendering toolbar action buttons
  */
 export default function AppToolbarActions({
-  themeMode,
-  onThemeModeChange,
-  locale,
-  onLocaleChange,
+  onSettingsOpen,
   onLogout,
   helpTopic,
 }: AppToolbarActionsProps) {
@@ -63,17 +46,8 @@ export default function AppToolbarActions({
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-      {/* Language Flag Toggle (always visible) */}
-      <Tooltip title={t('actions.toggleLanguage')}>
-        <IconButton size="small" onClick={() => onLocaleChange(locale === 'de' ? 'en' : 'de')} sx={{ mr: 1 }}>
-          <img
-            src={locale === 'de' ? DE_FLAG : US_FLAG}
-            alt={locale === 'de' ? 'Deutsch' : 'English'}
-            width={16}
-            height={16}
-          />
-        </IconButton>
-      </Tooltip>
+      {/* Low-stock notifications (FW5 fork 7) */}
+      <NotificationBell />
 
       {/* Help Icon Button */}
       <HelpIconButton
@@ -81,12 +55,9 @@ export default function AppToolbarActions({
         tooltip={t('actions.help')}
       />
 
-      {/* Hamburger Menu (Profile, Appearance, Language, Notifications, Help, System Info, Logout) */}
+      {/* User menu (profile, settings, help, system info, logout) */}
       <HamburgerMenu
-        themeMode={themeMode}
-        onThemeModeChange={onThemeModeChange}
-        locale={locale}
-        onLocaleChange={onLocaleChange}
+        onSettingsOpen={onSettingsOpen}
         onLogout={onLogout}
       />
     </Box>

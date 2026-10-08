@@ -5,7 +5,7 @@
   "app": {
     "main": {
       "title": "Application Overview",
-      "body": "Welcome to Inventory Management System. This application helps you manage inventory items, track suppliers, and analyze stock movements.\n\nKey sections:\n• Inventory: View, create, edit, and delete inventory items. Adjust quantities and prices.\n• Suppliers: Manage your list of suppliers and their contact information.\n• Analytics: View key performance indicators, stock trends, financial summaries, and alerts for items below minimum.\n\nTip: Use the search bar in each section to quickly find items or suppliers. Click the settings icon in the sidebar to customize your preferences (date format, number format, table density).",
+      "body": "Welcome to Inventory Management System. This application helps you manage inventory items, track suppliers, and analyze stock movements.\n\nKey sections:\n• Inventory: View, create, edit, and delete inventory items. Adjust quantities and prices.\n• Suppliers: Manage your list of suppliers and their contact information.\n• Analytics: View key performance indicators, stock trends, financial summaries, and alerts for items below minimum.\n\nTip: Use the search bar in each section to quickly find items or suppliers. Open the menu at the top right (the person icon on a phone) and choose Settings to change language, theme, date format, number format and table density.",
       "link": "View Full Documentation"
     }
   },
@@ -50,7 +50,7 @@
   "settings": {
     "preferences": {
       "title": "Settings",
-      "body": "Customize your application experience with these preferences:\n\n• Date Format: Choose how dates are displayed (DD.MM.YYYY, YYYY-MM-DD, or MM/DD/YYYY). Used throughout the app in tables, reports, and forms.\n• Number Format: Choose number formatting (German: 1.234,56 or US: 1,234.56). Affects all numeric displays including prices and quantities.\n• Table Density: Choose comfortable spacing (standard) or compact display for data grids.\n\nSystem Info:\nView information about your application and database setup, including version, environment, and database type."
+      "body": "Customize your application experience with these preferences:\n\n• Theme: Light or dark.\n• Table Density: Choose comfortable spacing (standard) or compact display for data grids.\n• Language: Deutsch or English.\n• Date Format: Choose how dates are displayed (DD.MM.YYYY, YYYY-MM-DD, or MM/DD/YYYY). Used throughout the app in tables, reports, and forms.\n• Number Format: Choose number formatting (German: 1.234,56 or US: 1,234.56). Affects all numeric displays including prices and quantities.\n\nSystem Info:\nView information about your application and database setup, including version, environment, and database type."
     }
   }
 }

@@ -7,7 +7,7 @@
  * Delegates rendering to focused sub-components (header, sidebar, main).
  *
  * @enterprise
- * - Theme mode, locale, localStorage persistence, and theme building are owned by useShellSettings; AppShell wires the resulting state and callbacks to sub-components, enforcing top-down data flow.
+ * - Theme mode and locale are owned by ShellPreferencesProvider (App.tsx); AppShell only applies the theme. The header, the user menu and the settings dialog read what they need themselves, so no preference props pass through the shell (FW5).
  * - Session keep-alive ping fires at shell level so it runs regardless of which page route is active.
  * - Viewport-fit layout: an inner flex column bounds the shell to exactly one viewport (100dvh, overflow hidden); AppMain is the single internal scroll region, so the footer is always visible. AppPublicShell keeps its own document-scroll layout and is unaffected.
  * - Single Snackbar instance prevents duplicate toasts from concurrent state changes across sub-components.
@@ -33,7 +33,7 @@ import AppHeader from './AppHeader';
 import AppSidebar from './AppSidebar';
 import AppMain from './AppMain';
 import { getHelpTopicForRoute } from './navConfig';
-import { useShellSettings } from './useShellSettings';
+import { useShellPreferences } from '../../hooks/useShellPreferences';
 import { default as AppFooter } from '../footer/AppFooter';
 import HelpPanel from '../../components/help/HelpPanel';
 
@@ -75,9 +75,8 @@ export default function AppShell() {
   const notify = (msg: string, severity: 'success' | 'info' | 'warning' | 'error' = 'success') =>
     setToast({ open: true, msg, severity });
 
-  // Theme mode, locale, localStorage persistence, and the MUI theme.
-  const { locale, themeMode, theme, handleThemeModeChange, handleLocaleChange } =
-    useShellSettings(notify);
+  // MUI theme from the shared preferences; the settings dialog changes them.
+  const { theme } = useShellPreferences();
 
   // Logout flow (demo redirect vs real POST-form logout) lives in useShellLogout.
   const handleLogout = useShellLogout({ isDemo, logout, queryClient, navigate });
@@ -104,10 +103,7 @@ export default function AppShell() {
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}>
           {/* Application Header (fixed) */}
           <AppHeader
-            themeMode={themeMode}
-            onThemeModeChange={handleThemeModeChange}
-            locale={locale}
-            onLocaleChange={handleLocaleChange}
+            onSettingsOpen={() => setSettingsOpen(true)}
             onLogout={handleLogout}
             helpTopic={helpTopic}
             isDemo={isDemo}
@@ -127,13 +123,6 @@ export default function AppShell() {
             <AppSidebar
               mobileOpen={mobileOpen}
               onMobileClose={() => setMobileOpen(false)}
-              themeMode={themeMode}
-              onThemeModeChange={handleThemeModeChange}
-              locale={locale}
-              onLocaleChange={handleLocaleChange}
-              onLogout={handleLogout}
-              onSettingsOpen={() => setSettingsOpen(true)}
-              user={user || undefined}
             />
 
             {/* Main Content Area */}
