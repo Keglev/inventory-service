@@ -9,42 +9,31 @@
  * @enterprise
  * - Iterates NAV_ITEMS from navConfig rather than inlining route definitions — nav structure is owned by navConfig, rendering is owned here.
  * - NAV_ITEMS labels are typed i18n keys, so t(item.label) is key-checked at compile time; a renamed or removed key fails the build instead of silently returning the raw key at runtime.
- * - Logout button lives in this list rather than in the sidebar footer actions, keeping all navigation-style actions (go somewhere / leave) visually grouped.
+ * - No sign-out entry: signing out lives in the user menu only (FW5 fork 1, SAP Fiori pattern).
  */
 
 import {
   List,
   Box,
-  Divider,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
 } from '@mui/material';
-import LogoutIcon from '@mui/icons-material/Logout';
 import { useTranslation } from 'react-i18next';
 import { NAV_ITEMS } from '../navConfig';
 import NavItem from './NavItem';
 
-interface SidebarNavListProps {
-  /** Callback for logout action */
-  onLogout: () => void;
-}
-
 /**
  * Sidebar navigation list component.
  *
- * Renders all navigation items from navConfig and logout button.
+ * Renders all navigation items from navConfig.
  * Navigation items support disabled state with tooltips.
  *
- * @param props - Component props
- * @returns JSX element rendering navigation list with logout button
+ * @returns JSX element rendering the navigation list
  *
  * @example
  * ```tsx
- * <SidebarNavList onLogout={handleLogout} />
+ * <SidebarNavList />
  * ```
  */
-export default function SidebarNavList({ onLogout }: SidebarNavListProps) {
+export default function SidebarNavList() {
   const { t } = useTranslation(['common']);
 
   return (
@@ -66,18 +55,6 @@ export default function SidebarNavList({ onLogout }: SidebarNavListProps) {
             );
           })}
         </List>
-      </Box>
-
-      <Divider />
-
-      {/* Logout Button */}
-      <Box sx={{ p: 1 }}>
-        <ListItemButton onClick={onLogout} sx={{ borderRadius: 1 }}>
-          <ListItemIcon sx={{ minWidth: 36 }}>
-            <LogoutIcon />
-          </ListItemIcon>
-          <ListItemText primary={t('nav.logout')} />
-        </ListItemButton>
       </Box>
     </>
   );

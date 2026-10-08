@@ -25,20 +25,10 @@ import { useTranslation } from 'react-i18next';
 import AppToolbarActions from './AppToolbarActions';
 import { default as HealthBadge } from './header/HealthBadge';
 import { default as HeaderDemoBadge } from './header/HeaderDemoBadge';
-import type { SupportedLocale } from '../../theme';
 
 interface AppHeaderProps {
-  /** Current theme mode (light or dark) */
-  themeMode: 'light' | 'dark';
-
-  /** Callback when theme mode changes */
-  onThemeModeChange: (mode: 'light' | 'dark') => void;
-
-  /** Current locale setting (de or en) */
-  locale: SupportedLocale;
-
-  /** Callback when locale changes */
-  onLocaleChange: (locale: SupportedLocale) => void;
+  /** Opens the settings dialog */
+  onSettingsOpen: () => void;
 
   /** Callback for logout action */
   onLogout: () => void;
@@ -63,10 +53,7 @@ interface AppHeaderProps {
  * @returns JSX element rendering the application header
  */
 export default function AppHeader({
-  themeMode,
-  onThemeModeChange,
-  locale,
-  onLocaleChange,
+  onSettingsOpen,
   onLogout,
   helpTopic,
   isDemo,
@@ -106,10 +93,7 @@ export default function AppHeader({
 
         {/* Toolbar Actions (language, help, hamburger) */}
         <AppToolbarActions
-          themeMode={themeMode}
-          onThemeModeChange={onThemeModeChange}
-          locale={locale}
-          onLocaleChange={onLocaleChange}
+          onSettingsOpen={onSettingsOpen}
           onLogout={onLogout}
           helpTopic={helpTopic}
         />

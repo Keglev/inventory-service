@@ -6,12 +6,10 @@
  *
  * Scope:
  * - Drawer and title render
- * - Presence of sidebar sections (nav list, profile, env, actions)
- * - User profile fallbacks (user present vs undefined)
+ * - Navigation only: the nav list and nothing else (FW5 fork 1)
  *
  * Out of scope:
- * - Routing behavior and navigation item logic
- * - Callback wiring (covered in AppSidebar.actions.test.tsx)
+ * - Routing behavior and navigation item logic (SidebarNavList.test.tsx)
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -22,20 +20,6 @@ import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('@/app/layout/sidebar/SidebarNavList', () => ({
   default: () => <div data-testid="nav-list" />,
-}));
-
-vi.mock('@/app/layout/sidebar/SidebarUserProfile', () => ({
-  default: ({ user }: { user?: { fullName?: string } }) => (
-    <div data-testid="user-profile">{user?.fullName || 'No User'}</div>
-  ),
-}));
-
-vi.mock('@/app/layout/sidebar/SidebarEnvironment', () => ({
-  default: () => <div data-testid="environment">Environment Info</div>,
-}));
-
-vi.mock('@/app/layout/sidebar/SidebarActions', () => ({
-  default: () => <div data-testid="sidebar-actions" />,
 }));
 
 /**
@@ -61,13 +45,6 @@ describe('AppSidebar (rendering)', () => {
   const baseProps: SidebarProps = {
     mobileOpen: false,
     onMobileClose: vi.fn(),
-    themeMode: 'light',
-    onThemeModeChange: vi.fn(),
-    locale: 'en',
-    onLocaleChange: vi.fn(),
-    onLogout: vi.fn(),
-    onSettingsOpen: vi.fn(),
-    user: { fullName: 'John Doe', role: 'Admin' },
   };
 
   beforeEach(() => {
@@ -100,28 +77,16 @@ describe('AppSidebar (rendering)', () => {
     expect(screen.getAllByText('Smart Supply Pro').length).toBeGreaterThan(0);
   });
 
-  it('renders the sidebar composition sections', () => {
-    // Composition check: these sections must always be present for navigation and context.
+  it('renders the navigation list and nothing else besides the title', () => {
+    // Navigation only: no profile, environment, version, toggles, settings, help or sign-out.
     renderSidebar();
-
-    expect(screen.getAllByTestId('nav-list').length).toBeGreaterThan(0);
-    expect(screen.getAllByTestId('user-profile').length).toBeGreaterThan(0);
-    expect(screen.getAllByTestId('environment').length).toBeGreaterThan(0);
-    expect(screen.getAllByTestId('sidebar-actions').length).toBeGreaterThan(0);
-  });
-
-  it('displays the provided user name when user is present', () => {
-    // Verifies correct user projection into the profile section.
-    renderSidebar({ user: { fullName: 'Jane Smith', role: 'Manager' } });
-
-    expect(screen.getAllByText('Jane Smith').length).toBeGreaterThan(0);
-  });
-
-  it('handles an undefined user gracefully', () => {
-    // Guards against null/undefined states (e.g., before auth is fully resolved).
-    renderSidebar({ user: undefined });
-
-    expect(screen.getAllByText('No User').length).toBeGreaterThan(0);
+    const lists = screen.getAllByTestId('nav-list');
+    expect(lists.length).toBeGreaterThan(0);
+    for (const list of lists) {
+      const paper = list.closest('.MuiDrawer-paper');
+      expect(paper?.textContent).toBe('Smart Supply Pro');
+    }
+    expect(screen.queryAllByRole('button')).toHaveLength(0);
   });
 
   it('renders regardless of mobileOpen state (true/false)', () => {

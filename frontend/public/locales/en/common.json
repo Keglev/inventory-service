@@ -59,7 +59,6 @@
     "save": "Save",
     "yes": "Yes",
     "no": "No",
-    "settings": "Settings",
     "help": "Help",
     "saving": "Saving...",
     "deleting": "Deleting...",
@@ -86,29 +85,16 @@
     "user": "User",
     "demo": "Demo"
   },
-  "loggedInAs": "Logged in as",
   "appearance": {
-    "title": "Appearance",
     "theme": "Theme",
-    "lightMode": "Light Mode",
-    "darkMode": "Dark Mode",
     "light": "Light",
-    "dark": "Dark",
-    "density": "Table Density",
-    "standard": "Standard",
-    "compact": "Compact"
-  },
-  "language": {
-    "title": "Language & Region",
-    "language": "Language",
-    "dateFormat": "Date Format",
-    "numberFormat": "Number Format"
+    "dark": "Dark"
   },
   "notifications": {
     "lowStockAlert": "Alert: items below minimum",
     "lowStockMessage": "You have {{count}} item(s) below minimum",
-    "itemsLowStock": "{{count}} items below minimum",
-    "allGood": "All clear – no items below minimum"
+    "allGood": "All clear – no items below minimum",
+    "title": "Notifications"
   },
   "help": {
     "title": "Help & Docs",
@@ -135,7 +121,6 @@
   "settings": {
     "title": "Settings",
     "resetToDefaults": "Reset to Defaults",
-    "userPreferences": "User Preferences",
     "systemInfo": "System Info",
     "tableDensity": {
       "label": "Table Density",
@@ -149,6 +134,14 @@
     "environment": "Environment",
     "version": "Version",
     "status": "Status",
-    "build": "Build"
+    "build": "Build",
+    "appearance": "Appearance",
+    "languageRegion": "Language & Region",
+    "language": "Language",
+    "numberFormatDe": "German",
+    "numberFormatEnUs": "English (US)"
+  },
+  "menu": {
+    "settings": "Settings…"
   }
 }

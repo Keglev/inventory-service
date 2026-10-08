@@ -86,9 +86,10 @@ describe('NotificationsMenuSection', () => {
     expect(screen.getByText('You have 3 item(s) below minimum')).toBeInTheDocument();
   });
 
-  it('renders the low stock count in the chip label', () => {
+  it('renders the low stock count once, in the message', () => {
     arrange({ isLoading: false, data: { lowStockCount: 7 } });
-    expect(screen.getByText('7 items below minimum')).toBeInTheDocument();
+    expect(screen.getByText('You have 7 item(s) below minimum')).toBeInTheDocument();
+    expect(screen.queryByText('7 items below minimum')).not.toBeInTheDocument();
   });
 
   it('renders an icon for the low-stock alert variant', () => {

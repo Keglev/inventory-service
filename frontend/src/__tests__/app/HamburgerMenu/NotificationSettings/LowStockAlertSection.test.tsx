@@ -8,11 +8,11 @@
  * Responsibilities:
  * - Render an alert title.
  * - Render a message containing the dynamic low-stock count.
- * - Render a chip summarizing the count ("X items below minimum").
+ * - Show the count once: the former chip repeated it ("X items below minimum") and is gone (FW5).
  *
  * Test strategy:
- * - Verify baseline rendering (title, icon, chip).
- * - Verify count interpolation in message and chip for multiple scenarios (0, 1, many).
+ * - Verify baseline rendering (title, icon, no chip).
+ * - Verify count interpolation in the message for multiple scenarios (0, 1, many).
  * - Verify i18n integration by mocking translations for the title.
  *
  * Notes:
@@ -68,15 +68,17 @@ describe('LowStockAlertSection', () => {
     expect(container.querySelector('svg')).toBeInTheDocument();
   });
 
-  it('renders a chip summary', () => {
+  it('renders no chip that repeats the count', () => {
     const { container } = arrange(5);
 
-    // MUI Chip root class is a reasonable stable hook.
-    expect(container.querySelector('.MuiChip-root')).toBeInTheDocument();
+    // Paired presence: the message with the count rendered.
+    expect(screen.getByText('You have 5 item(s) below minimum')).toBeInTheDocument();
+    expect(container.querySelector('.MuiChip-root')).toBeNull();
+    expect(screen.queryByText('5 items below minimum')).not.toBeInTheDocument();
   });
 
   // ---------------------------------------------------------------------------
-  // Count rendering: message + chip
+  // Count rendering: message
   // ---------------------------------------------------------------------------
   it.each([
     [0, 'You have 0 item(s) below minimum', '0 items below minimum'],
@@ -88,7 +90,7 @@ describe('LowStockAlertSection', () => {
     (count, expectedMessage, expectedChip) => {
       arrange(count);
       expect(screen.getByText(expectedMessage)).toBeInTheDocument();
-      expect(screen.getByText(expectedChip)).toBeInTheDocument();
+      expect(screen.queryByText(expectedChip)).not.toBeInTheDocument();
     },
   );
 

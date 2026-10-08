@@ -5,7 +5,7 @@
   "app": {
     "main": {
       "title": "Anwendungsübersicht",
-      "body": "Willkommen beim Bestandsverwaltungssystem. Diese Anwendung hilft Ihnen, Bestandsartikel zu verwalten, Lieferanten zu verfolgen und Bestandsbewegungen zu analysieren.\n\nHauptabschnitte:\n• Bestand: Bestandsartikel anzeigen, erstellen, bearbeiten und löschen. Mengen und Preise anpassen.\n• Lieferanten: Ihre Lieferantenliste und Kontaktinformationen verwalten.\n• Analysen: Kennzahlen anzeigen, Bestandstrends, Finanzzusammenfassungen und Meldungen zu Artikeln unter Mindestbestand einsehen.\n\nTipp: Verwenden Sie die Suchleiste in jedem Abschnitt, um schnell Artikel oder Lieferanten zu finden. Klicken Sie auf das Einstellungssymbol in der Seitenleiste, um Ihre Voreinstellungen anzupassen (Datumsformat, Zahlenformat, Tabellendichte).",
+      "body": "Willkommen beim Bestandsverwaltungssystem. Diese Anwendung hilft Ihnen, Bestandsartikel zu verwalten, Lieferanten zu verfolgen und Bestandsbewegungen zu analysieren.\n\nHauptabschnitte:\n• Bestand: Bestandsartikel anzeigen, erstellen, bearbeiten und löschen. Mengen und Preise anpassen.\n• Lieferanten: Ihre Lieferantenliste und Kontaktinformationen verwalten.\n• Analysen: Kennzahlen anzeigen, Bestandstrends, Finanzzusammenfassungen und Meldungen zu Artikeln unter Mindestbestand einsehen.\n\nTipp: Verwenden Sie die Suchleiste in jedem Abschnitt, um schnell Artikel oder Lieferanten zu finden. Öffnen Sie das Menü oben rechts (auf dem Smartphone das Personensymbol) und wählen Sie Einstellungen, um Sprache, Design, Datumsformat, Zahlenformat und Tabellendichte zu ändern.",
       "link": "Vollständige Dokumentation anzeigen"
     }
   },
@@ -50,7 +50,7 @@
   "settings": {
     "preferences": {
       "title": "Einstellungen",
-      "body": "Passen Sie Ihr Anwendungserlebnis mit diesen Voreinstellungen an:\n\n• Datumsformat: Wählen Sie, wie Daten angezeigt werden (DD.MM.YYYY, YYYY-MM-DD oder MM/DD/YYYY). Wird in der gesamten App in Tabellen, Berichten und Formularen verwendet.\n• Zahlenformat: Wählen Sie Zahlenformatierung (Deutsch: 1.234,56 oder US: 1,234.56). Beeinflusst alle numerischen Anzeigen, einschließlich Preise und Mengen.\n• Tabellendichte: Wählen Sie komfortable Abstände (Standard) oder kompakte Anzeige für Datenraster.\n\nSysteminformationen:\nSehen Sie sich Informationen zu Ihrem Anwendungs- und Datenbanksetup an, einschließlich Version, Umgebung und Datenbanktyp."
+      "body": "Passen Sie Ihr Anwendungserlebnis mit diesen Voreinstellungen an:\n\n• Design: Hell oder Dunkel.\n• Tabellendichte: Wählen Sie komfortable Abstände (Standard) oder kompakte Anzeige für Datenraster.\n• Sprache: Deutsch oder English.\n• Datumsformat: Wählen Sie, wie Daten angezeigt werden (DD.MM.YYYY, YYYY-MM-DD oder MM/DD/YYYY). Wird in der gesamten App in Tabellen, Berichten und Formularen verwendet.\n• Zahlenformat: Wählen Sie Zahlenformatierung (Deutsch: 1.234,56 oder US: 1,234.56). Beeinflusst alle numerischen Anzeigen, einschließlich Preise und Mengen.\n\nSysteminformationen:\nSehen Sie sich Informationen zu Ihrem Anwendungs- und Datenbanksetup an, einschließlich Version, Umgebung und Datenbanktyp."
     }
   }
 }

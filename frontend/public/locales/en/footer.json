@@ -4,9 +4,7 @@
     "privacy": "Privacy Policy"
   },
   "meta": {
-    "version": "Version",
     "build": "Build",
-    "environment": "Environment",
     "demoData": "Demo data only"
   },
   "support": {

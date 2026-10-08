@@ -7,7 +7,7 @@
  * Scope:
  * - Renders a settings dialog container when open
  * - Wires close interactions (close button / backdrop) to onClose callback
- * - Hosts the AppSettingsForm
+ * - Hosts the AppSettingsForm and feeds it language and theme from useShellSettings
  *
  * Out of scope:
  * - Form validation and persistence
@@ -42,8 +42,25 @@ vi.mock('@/app/settings/hooks/useAppSettingsForm', () => ({
   }),
 }));
 
+const shellSettings = vi.hoisted(() => ({
+  locale: 'en' as const,
+  themeMode: 'dark' as const,
+  handleThemeModeChange: vi.fn(),
+  handleLocaleChange: vi.fn(),
+}));
+
+// Language and theme are shell-wide; the dialog reads them from useShellSettings.
+vi.mock('@/app/layout/useShellSettings', () => ({
+  useShellSettings: () => shellSettings,
+}));
+
+let lastFormProps: Record<string, unknown> | undefined;
+
 vi.mock('@/app/settings/AppSettingsForm', () => ({
-  default: () => <div data-testid="settings-form">Form Content</div>,
+  default: (props: Record<string, unknown>) => {
+    lastFormProps = props;
+    return <div data-testid="settings-form">Form Content</div>;
+  },
 }));
 
 // Stubbed because HelpIconButton requires HelpProvider; the real component
@@ -89,6 +106,17 @@ describe('AppSettingsDialog', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText(/settings/i)).toBeInTheDocument();
     expect(screen.getByTestId('settings-form')).toBeInTheDocument();
+  });
+
+  it('passes language and theme from useShellSettings to the form', () => {
+    renderDialog(true);
+
+    expect(lastFormProps).toMatchObject({
+      locale: 'en',
+      onLocaleChange: shellSettings.handleLocaleChange,
+      themeMode: 'dark',
+      onThemeModeChange: shellSettings.handleThemeModeChange,
+    });
   });
 
   it('renders the help button wired to the settings help topic', () => {

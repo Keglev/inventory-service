@@ -3,18 +3,15 @@
  * @module app/layout/AppSidebar
  *
  * @summary
- * Left sidebar navigation drawer with profile info, settings, and logout.
- * Thin orchestrator delegating to focused sub-components for navigation, profile, and actions.
+ * Left sidebar navigation drawer.
+ * Thin orchestrator: drawer chrome only; the content comes from SidebarDrawerContent.
  *
  * @enterprise
  * - Two Drawer variants (temporary on mobile, permanent on desktop) share one content tree via SidebarDrawerContent, avoiding JSX duplication for each breakpoint.
- * - Delegates all content areas to sub-components (SidebarNavList, SidebarUserProfile, SidebarEnvironment, SidebarActions) through SidebarDrawerContent so this file only controls drawer chrome.
- * - Receives state via props from AppShell, which is the single state owner; sidebar never reads localStorage directly.
- * - helpTopic is re-derived from location inside SidebarDrawerContent (not forwarded from AppShell) because the sidebar needs it independently for its own help button.
+ * - Navigation only (FW5 fork 1, SAP Fiori side navigation): identity, settings, help and sign-out live in the header and its user menu.
  */
 
 import { Box, Drawer } from '@mui/material';
-import type { SupportedLocale } from '../../theme';
 import { SidebarDrawerContent } from './SidebarDrawerContent';
 
 const drawerWidth = 248;
@@ -25,30 +22,6 @@ interface AppSidebarProps {
 
   /** Callback to close drawer on mobile */
   onMobileClose: () => void;
-
-  /** Current theme mode */
-  themeMode: 'light' | 'dark';
-
-  /** Callback when theme mode changes */
-  onThemeModeChange: (mode: 'light' | 'dark') => void;
-
-  /** Current locale */
-  locale: SupportedLocale;
-
-  /** Callback when locale changes */
-  onLocaleChange: (locale: SupportedLocale) => void;
-
-  /** Callback for logout */
-  onLogout: () => void;
-
-  /** Callback to open settings dialog */
-  onSettingsOpen: () => void;
-
-  /** Current user information */
-  user?: {
-    fullName?: string;
-    role?: string;
-  };
 }
 
 /**
@@ -61,27 +34,9 @@ interface AppSidebarProps {
  * @param props - Component props
  * @returns JSX element rendering sidebar navigation
  */
-export default function AppSidebar({
-  mobileOpen,
-  onMobileClose,
-  themeMode,
-  onThemeModeChange,
-  locale,
-  onLocaleChange,
-  onLogout,
-  onSettingsOpen,
-  user,
-}: AppSidebarProps) {
+export default function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
   const drawerContent = (
-    <SidebarDrawerContent
-      themeMode={themeMode}
-      onThemeModeChange={onThemeModeChange}
-      locale={locale}
-      onLocaleChange={onLocaleChange}
-      onLogout={onLogout}
-      onSettingsOpen={onSettingsOpen}
-      user={user}
-    />
+    <SidebarDrawerContent />
   );
 
   return (

@@ -6,18 +6,16 @@
  *
  * Scope:
  * - Renders navigation items from NAV_ITEMS (navConfig)
- * - Renders a logout action and delegates clicks to onLogout
- * - Basic list structure (MUI List + divider)
+ * - Renders no sign-out entry (sign-out lives in the user menu, FW5 fork 1)
+ * - Basic list structure (MUI List)
  *
  * Out of scope:
  * - Individual NavItem behavior (covered by NavItem tests)
  * - navConfig authoring and routing configuration
- * - logout backend behavior
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import SidebarNavList from '@/app/layout/sidebar/SidebarNavList';
 
@@ -74,10 +72,10 @@ describe('SidebarNavList', () => {
     });
   });
 
-  function renderNavList(onLogout = vi.fn()) {
+  function renderNavList() {
     return render(
       <MemoryRouter>
-        <SidebarNavList onLogout={onLogout} />
+        <SidebarNavList />
       </MemoryRouter>,
     );
   }
@@ -94,31 +92,18 @@ describe('SidebarNavList', () => {
     expect(screen.getAllByTestId('nav-item')).toHaveLength(4);
   });
 
-  it('renders list structure with a divider separating navigation and logout', () => {
-    // Layout contract: items are presented as a list with a clear separation before logout.
+  it('renders the items as an MUI list', () => {
     const { container } = renderNavList();
 
     expect(container.querySelector('.MuiList-root')).toBeInTheDocument();
-    expect(container.querySelector('.MuiDivider-root')).toBeInTheDocument();
   });
 
-  it('renders a logout button with an icon', () => {
-    // Ensures the logout affordance is present and visually identifiable.
+  it('renders no sign-out entry', () => {
+    // Paired with the presence check: the nav items rendered, the logout button did not.
     renderNavList();
 
-    const logoutButton = screen.getByRole('button', { name: /logout/i });
-    expect(logoutButton).toBeInTheDocument();
-    expect(logoutButton.querySelector('svg')).not.toBeNull();
-  });
-
-  it('calls onLogout when the logout button is clicked', async () => {
-    // Verifies callback delegation for the logout action.
-    const user = userEvent.setup();
-    const onLogout = vi.fn();
-    renderNavList(onLogout);
-
-    await user.click(screen.getByRole('button', { name: /logout/i }));
-
-    expect(onLogout).toHaveBeenCalledTimes(1);
+    expect(screen.getAllByTestId('nav-item')).toHaveLength(4);
+    expect(screen.queryByRole('button', { name: /logout/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('Logout')).not.toBeInTheDocument();
   });
 });

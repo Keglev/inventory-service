@@ -3,49 +3,41 @@
  * @module app/HamburgerMenu/MenuContent/MenuSectionsRenderer
  *
  * @summary
- * Composes the six section coordinators with Dividers between them; this is
- * the only place section ordering is defined.
+ * User menu body: profile, Settings entry, help links and system info; this is
+ * the only place the order is defined.
  *
  * @enterprise
- * Each section is wrapped in <Box onClick={onClose}> so any click inside a
- * section dismisses the popover Menu — onClose is threaded here as a sibling
- * concern rather than owned by individual sections. Mounted exclusively by
- * the root HamburgerMenu.tsx via the MenuContent barrel.
+ * - Mirrors the SAP Fiori user menu (FW5 fork 1): identity first, then entry
+ *   points. Preferences are edited only in the settings dialog, so the menu
+ *   holds none of them.
+ * - Each block is wrapped in <Box onClick={onClose}> (or calls onClose) so any
+ *   click dismisses the popover; onClose is threaded here rather than owned by
+ *   the sections. Mounted only by HamburgerMenu.tsx.
  */
 
-import { Box, Divider } from '@mui/material';
+import { Box, Divider, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { useTranslation } from 'react-i18next';
 import ProfileMenuSection from '../ProfileMenuSection';
-import AppearanceMenuSection from '../AppearanceMenuSection';
-import LanguageRegionMenuSection from '../LanguageRegionMenuSection';
-import NotificationsMenuSection from '../NotificationsMenuSection';
 import HelpDocsMenuSection from '../HelpDocsMenuSection';
 import SystemInfoMenuSection from '../SystemInfoMenuSection';
-import type { SupportedLocale } from '../../../theme';
 
 interface MenuSectionsRendererProps {
-  /** Current theme mode (light or dark) */
-  themeMode: 'light' | 'dark';
-
-  /** Callback when theme mode changes */
-  onThemeModeChange: (mode: 'light' | 'dark') => void;
-
-  /** Current locale setting */
-  locale: SupportedLocale;
-
-  /** Callback when locale changes */
-  onLocaleChange: (locale: SupportedLocale) => void;
+  /** Opens the settings dialog */
+  onSettingsOpen: () => void;
 
   /** Closes the popover Menu; shared across all section wrappers */
   onClose: () => void;
 }
 
-export default function MenuSectionsRenderer({
-  themeMode,
-  onThemeModeChange,
-  locale,
-  onLocaleChange,
-  onClose,
-}: MenuSectionsRendererProps) {
+export default function MenuSectionsRenderer({ onSettingsOpen, onClose }: MenuSectionsRendererProps) {
+  const { t } = useTranslation(['common']);
+
+  const handleSettings = () => {
+    onClose();
+    onSettingsOpen();
+  };
+
   return (
     <>
       <Box onClick={onClose}>
@@ -54,21 +46,12 @@ export default function MenuSectionsRenderer({
 
       <Divider />
 
-      <Box onClick={onClose}>
-        <AppearanceMenuSection themeMode={themeMode} onThemeModeChange={onThemeModeChange} />
-      </Box>
-
-      <Divider />
-
-      <Box onClick={onClose}>
-        <LanguageRegionMenuSection locale={locale} onLocaleChange={onLocaleChange} />
-      </Box>
-
-      <Divider />
-
-      <Box onClick={onClose}>
-        <NotificationsMenuSection />
-      </Box>
+      <MenuItem onClick={handleSettings}>
+        <ListItemIcon>
+          <SettingsIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary={t('menu.settings')} />
+      </MenuItem>
 
       <Divider />
 

@@ -17,9 +17,6 @@ import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LanguageToggle from '@/app/public-shell/header/LanguageToggle';
 
-// Static asset stubs (Vite import paths)
-vi.mock('/flags/de.svg', () => ({ default: 'de-flag.svg' }));
-vi.mock('/flags/us.svg', () => ({ default: 'us-flag.svg' }));
 
 type Props = React.ComponentProps<typeof LanguageToggle>;
 

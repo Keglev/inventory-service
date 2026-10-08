@@ -5,9 +5,9 @@
  * Rendering and accessibility tests for LanguageToggle.
  *
  * Scope:
- * - Renders the correct flag for the current locale
- * - Ensures baseline accessibility (button role + alt text)
- * - Verifies basic visual contracts (IconButton root class, image size)
+ * - Names the target language in that language, as text, with lang set (FW5 fork 2)
+ * - Renders no flag image (W3C i18n: flags stand for countries, not languages)
+ * - Ensures baseline accessibility (button role)
  *
  * Out of scope:
  * - Tooltip behavior and user interactions (covered in LanguageToggle.interactions.test.tsx)
@@ -16,10 +16,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import LanguageToggle from '@/app/public-shell/header/LanguageToggle';
-
-// Static asset stubs (Vite import paths)
-vi.mock('/flags/de.svg', () => ({ default: 'de-flag.svg' }));
-vi.mock('/flags/us.svg', () => ({ default: 'us-flag.svg' }));
 
 type Props = React.ComponentProps<typeof LanguageToggle>;
 
@@ -45,45 +41,33 @@ describe('LanguageToggle (rendering)', () => {
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
-  it('renders the German flag when locale=de', () => {
-    // Visual contract: active locale is reflected by the flag icon.
+  it('offers English, in English, when locale=de', () => {
     renderToggle({ locale: 'de' });
-
-    expect(screen.getByAltText('Deutsch')).toBeInTheDocument();
+    const button = screen.getByRole('button', { name: 'English' });
+    expect(button).toHaveAttribute('lang', 'en');
   });
 
-  it('renders the English flag when locale=en', () => {
-    // Visual contract: active locale is reflected by the flag icon.
+  it('offers Deutsch, in German, when locale=en', () => {
     renderToggle({ locale: 'en' });
-
-    expect(screen.getByAltText('English')).toBeInTheDocument();
+    const button = screen.getByRole('button', { name: 'Deutsch' });
+    expect(button).toHaveAttribute('lang', 'de');
   });
 
-  it('updates the flag when locale prop changes', () => {
+  it('updates the label when the locale prop changes', () => {
     // Guards against stale props in memoized components.
     const { rerender } = renderToggle({ locale: 'de' });
-    expect(screen.getByAltText('Deutsch')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'English' })).toBeInTheDocument();
 
     rerender(
       <LanguageToggle locale="en" onToggle={vi.fn()} tooltip="Switch language" />,
     );
-
-    expect(screen.getByAltText('English')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Deutsch' })).toBeInTheDocument();
   });
 
-  it('renders the flag image at 20x20 pixels', () => {
-    // Regression check: design spec expects a small, consistent icon size.
-    renderToggle({ locale: 'de' });
-
-    const img = screen.getByAltText('Deutsch') as HTMLImageElement;
-    expect(img.width).toBe(20);
-    expect(img.height).toBe(20);
-  });
-
-  it('renders using the MUI IconButton root styling', () => {
-    // Layout contract: component uses IconButton for consistent header styling.
-    const { container } = renderToggle();
-
-    expect(container.querySelector('.MuiIconButton-root')).toBeInTheDocument();
+  it('renders no flag image', () => {
+    // Paired presence: the text button rendered.
+    const { container } = renderToggle({ locale: 'de' });
+    expect(screen.getByRole('button', { name: 'English' })).toBeInTheDocument();
+    expect(container.querySelector('img')).toBeNull();
   });
 });

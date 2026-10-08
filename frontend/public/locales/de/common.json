@@ -59,7 +59,6 @@
     "save": "Speichern",
     "yes": "Ja",
     "no": "Nein",
-    "settings": "Einstellungen",
     "help": "Hilfe",
     "saving": "Wird gespeichert...",
     "deleting": "Wird gelöscht...",
@@ -86,29 +85,16 @@
     "user": "Benutzer",
     "demo": "Demo"
   },
-  "loggedInAs": "Angemeldet als",
   "appearance": {
-    "title": "Erscheinungsbild",
     "theme": "Design",
-    "lightMode": "Hellmodus",
-    "darkMode": "Dunkelmodus",
     "light": "Hell",
-    "dark": "Dunkel",
-    "density": "Tabellendichte",
-    "standard": "Standard",
-    "compact": "Kompakt"
-  },
-  "language": {
-    "title": "Sprache & Region",
-    "language": "Sprache",
-    "dateFormat": "Datumsformat",
-    "numberFormat": "Zahlenformat"
+    "dark": "Dunkel"
   },
   "notifications": {
     "lowStockAlert": "Warnung: Artikel unter Mindestbestand",
     "lowStockMessage": "Du hast {{count}} Artikel unter Mindestbestand",
-    "itemsLowStock": "{{count}} Artikel unter Mindestbestand",
-    "allGood": "Alles in Ordnung – keine Artikel unter Mindestbestand"
+    "allGood": "Alles in Ordnung – keine Artikel unter Mindestbestand",
+    "title": "Benachrichtigungen"
   },
   "help": {
     "title": "Hilfe & Docs",
@@ -135,7 +121,6 @@
   "settings": {
     "title": "Einstellungen",
     "resetToDefaults": "Auf Standard zurücksetzen",
-    "userPreferences": "Benutzereinstellungen",
     "systemInfo": "Systeminfo",
     "tableDensity": {
       "label": "Tabellendichte",
@@ -149,6 +134,14 @@
     "environment": "Umgebung",
     "version": "Version",
     "status": "Status",
-    "build": "Build"
+    "build": "Build",
+    "appearance": "Darstellung",
+    "languageRegion": "Sprache & Region",
+    "language": "Sprache",
+    "numberFormatDe": "Deutsch",
+    "numberFormatEnUs": "Englisch (USA)"
+  },
+  "menu": {
+    "settings": "Einstellungen…"
   }
 }
