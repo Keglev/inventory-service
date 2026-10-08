@@ -65,6 +65,7 @@ describe('AppToolbarActions (hamburger + layout)', () => {
 
   const baseProps: Props = {
     onSettingsOpen: mockOnSettingsOpen,
+    onAboutOpen: vi.fn(),
     onLogout: mockOnLogout,
     helpTopic: 'Dashboard',
   };

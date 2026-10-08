@@ -5,10 +5,10 @@
  *   callers that deliberately bypass httpClient.
  *
  * @enterprise
- * - Two consumers, both raw-fetch health probes that stay outside httpClient
- *   on purpose (features/health/hooks/useHealthCheck.ts, utils/systemInfo.ts).
- *   A relative path in those probes follows the SERVING origin, not the API
- *   origin: under `vite preview` the static server answers them, and behind
+ * - One consumer, the raw-fetch health probe that stays outside httpClient on
+ *   purpose (features/health/hooks/useHealthCheck.ts).
+ *   A relative path in that probe follows the SERVING origin, not the API
+ *   origin: under `vite preview` the static server answers it, and behind
  *   the dev proxy the production backend did.
  * - httpClient's exported API_BASE is deliberately not reused. Its fallback
  *   for a blank env value is '/api', an axios baseURL rather than an origin,

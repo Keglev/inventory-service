@@ -15,36 +15,29 @@
  * Test strategy:
  * - Use a probe component that consumes the context via `useSettings` (real consumer path).
  * - Stub `localStorage` explicitly for determinism.
- * - Mock `getSystemInfo` to avoid network.
+ * - No network: the provider no longer fetches system info (FW5 fork 3).
  */
 
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { SettingsProvider } from '@/context/settings/SettingsContext';
 import { useSettings } from '@/hooks/useSettings';
 
 const i18nMock = vi.hoisted(() => ({ language: 'en' }));
-const getSystemInfoMock = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ i18n: i18nMock }),
 }));
 
-// Match the provider's runtime module resolution.
-vi.mock('@/utils/systemInfo.js', () => ({
-  getSystemInfo: getSystemInfoMock,
-}));
 
 function SettingsProbe() {
-  const { userPreferences, systemInfo, isLoading } = useSettings();
+  const { userPreferences } = useSettings();
   return (
     <div data-testid="probe">
-      <div data-testid="loading">{String(isLoading)}</div>
       <div data-testid="date">{userPreferences.dateFormat}</div>
       <div data-testid="number">{userPreferences.numberFormat}</div>
       <div data-testid="density">{userPreferences.tableDensity}</div>
-      <div data-testid="db">{systemInfo?.database ?? ''}</div>
     </div>
   );
 }
@@ -84,17 +77,12 @@ describe('SettingsProvider', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders children', async () => {
-    getSystemInfoMock.mockResolvedValue({});
+  it('renders children', () => {
     renderProvider(<div data-testid="child">child</div>);
     expect(screen.getByTestId('child')).toBeInTheDocument();
-
-    // Flush the mount-time getSystemInfo() resolution so its state update is wrapped in act.
-    await act(async () => {});
   });
 
-  it('hydrates preferences from localStorage when present', async () => {
-    getSystemInfoMock.mockResolvedValue({});
+  it('hydrates preferences from localStorage when present', () => {
     getItem.mockReturnValue(
       JSON.stringify({ dateFormat: 'YYYY-MM-DD', numberFormat: 'EN_US', tableDensity: 'compact' })
     );
@@ -102,13 +90,9 @@ describe('SettingsProvider', () => {
     renderProvider();
     expect(screen.getByTestId('date')).toHaveTextContent('YYYY-MM-DD');
     expect(screen.getByTestId('density')).toHaveTextContent('compact');
-
-    // Settle the async system-info fetch triggered on mount.
-    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
   });
 
-  it('falls back to defaults when stored preferences are corrupted', async () => {
-    getSystemInfoMock.mockResolvedValue({});
+  it('falls back to defaults when stored preferences are corrupted', () => {
     getItem.mockReturnValue('not-json');
     vi.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -117,30 +101,16 @@ describe('SettingsProvider', () => {
     // Defaults for English locale.
     expect(screen.getByTestId('date')).toHaveTextContent('MM/DD/YYYY');
     expect(screen.getByTestId('number')).toHaveTextContent('EN_US');
-
-    // Settle the async system-info fetch triggered on mount.
-    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
   });
 
-  it('fetches system info on mount (success)', async () => {
-    getSystemInfoMock.mockResolvedValue({ database: 'Oracle ADB', status: 'ONLINE' });
+
+  it('sends no request on mount', () => {
+    // System info comes from the shared health query; the provider stays offline.
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
     getItem.mockReturnValue(null);
 
     renderProvider();
 
-    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
-    expect(screen.getByTestId('db')).toHaveTextContent('Oracle ADB');
-  });
-
-  it('uses fallback system info and logs a warning on fetch failure', async () => {
-    getSystemInfoMock.mockRejectedValue(new Error('offline'));
-    getItem.mockReturnValue(null);
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-    renderProvider();
-
-    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
-    expect(warnSpy).toHaveBeenCalledWith('Failed to fetch system info:', expect.any(Error));
-    expect(screen.getByTestId('db')).toHaveTextContent('Unknown');
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });

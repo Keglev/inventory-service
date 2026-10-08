@@ -4,19 +4,18 @@
  *
  * @summary
  * Footer metadata information component.
- * Displays version, build ID, environment, language, and region information.
+ * One compact line: year, version, short build id, demo-data note.
  *
  * @enterprise
  * - Pure presentational leaf: props-only, no state. Compact status bar variant
  *   of the expanded footer metadata.
- * - The meta line wraps instead of truncating, so the full 40-character build
- *   id stays readable; it is how a deployed build is matched to its commit.
- *   The group may shrink so that on a narrow screen the line wraps inside the
+ * - FW5 fork 3: the footer keeps a compact line; environment, backend status and
+ *   the full build hash live in the About dialog. The first 10 characters of
+ *   the build id still match a deploy to its commit; the full hash is in the
+ *   title attribute, and the deploy check reads it from the bundle, not here.
+ * - The group may shrink so that on a narrow screen the line wraps inside the
  *   footer rather than overflowing it.
- * - Props come from useFooterState: appVersion, buildId and environment are
- *   build-time values from config/appMeta, currentLanguage is derived from
- *   i18n.language, and region is fixed to DE.
- * - The two JSX structural comments are intentional layout markers.
+ * - Props come from useFooterState (build-time values from config/appMeta).
  */
 
 import { Typography, Stack } from '@mui/material';
@@ -28,22 +27,12 @@ interface FooterMetaInfoProps {
 
   /** Build ID or commit hash */
   buildId: string;
-
-  /** Environment name (e.g., "Production (Koyeb)") */
-  environment: string;
-
-  /** Current language code (e.g., "EN", "DE") */
-  currentLanguage: string;
-
-  /** Current region code (e.g., "DE") */
-  region: string;
 }
 
 /**
  * Footer metadata information component.
  *
- * Displays version, build, environment, language, and region.
- * Compact display suitable for footer status bar.
+ * Displays year, version, short build id and the demo-data note.
  *
  * @param props - Component props
  * @returns JSX element rendering metadata information
@@ -52,19 +41,13 @@ interface FooterMetaInfoProps {
  * ```tsx
  * <FooterMetaInfo
  *   appVersion="1.0.0"
- *   buildId="4a9c12f"
- *   environment="Production (Koyeb)"
- *   currentLanguage="EN"
- *   region="DE"
+ *   buildId="31833c2f6d51eb2aebbfef1e3e212632bf6fd6b6"
  * />
  * ```
  */
 export default function FooterMetaInfo({
   appVersion,
   buildId,
-  environment,
-  currentLanguage,
-  region,
 }: FooterMetaInfoProps) {
   const { t } = useTranslation(['footer']);
 
@@ -77,13 +60,8 @@ export default function FooterMetaInfo({
     >
       {/* Compact meta string for status bar */}
       <Typography variant="caption" color="text.secondary">
-        © 2025 Smart Supply Pro • v{appVersion} • {t('footer:meta.build')} {buildId} •{' '}
-        {environment} • {t('footer:meta.demoData')}
-      </Typography>
-
-      {/* Language and Region */}
-      <Typography variant="caption" color="text.secondary">
-        {currentLanguage}-{region}
+        © {new Date().getFullYear()} Smart Supply Pro • v{appVersion} • {t('footer:meta.build')}{' '}
+        <span title={buildId}>{buildId.slice(0, 10)}</span> • {t('footer:meta.demoData')}
       </Typography>
     </Stack>
   );

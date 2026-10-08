@@ -50,7 +50,7 @@
   "settings": {
     "preferences": {
       "title": "Einstellungen",
-      "body": "Passen Sie Ihr Anwendungserlebnis mit diesen Voreinstellungen an:\n\n• Design: Hell oder Dunkel.\n• Tabellendichte: Wählen Sie komfortable Abstände (Standard) oder kompakte Anzeige für Datenraster.\n• Sprache: Deutsch oder English.\n• Datumsformat: Wählen Sie, wie Daten angezeigt werden (DD.MM.YYYY, YYYY-MM-DD oder MM/DD/YYYY). Wird in der gesamten App in Tabellen, Berichten und Formularen verwendet.\n• Zahlenformat: Wählen Sie Zahlenformatierung (Deutsch: 1.234,56 oder US: 1,234.56). Beeinflusst alle numerischen Anzeigen, einschließlich Preise und Mengen.\n\nSysteminformationen:\nSehen Sie sich Informationen zu Ihrem Anwendungs- und Datenbanksetup an, einschließlich Version, Umgebung und Datenbanktyp."
+      "body": "Passen Sie Ihr Anwendungserlebnis mit diesen Voreinstellungen an:\n\n• Design: Hell oder Dunkel.\n• Tabellendichte: Wählen Sie komfortable Abstände (Standard) oder kompakte Anzeige für Datenraster.\n• Sprache: Deutsch oder English.\n• Datumsformat: Wählen Sie, wie Daten angezeigt werden (DD.MM.YYYY, YYYY-MM-DD oder MM/DD/YYYY). Wird in der gesamten App in Tabellen, Berichten und Formularen verwendet.\n• Zahlenformat: Wählen Sie Zahlenformatierung (Deutsch: 1.234,56 oder US: 1,234.56). Beeinflusst alle numerischen Anzeigen, einschließlich Preise und Mengen.\n\nSysteminformationen (Version, Build, Umgebung, Backend-Status, Datenbank) finden Sie im Menü oben rechts unter Über Smart Supply Pro."
     }
   }
 }

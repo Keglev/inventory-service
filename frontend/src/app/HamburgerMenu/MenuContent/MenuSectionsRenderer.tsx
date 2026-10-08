@@ -3,8 +3,8 @@
  * @module app/HamburgerMenu/MenuContent/MenuSectionsRenderer
  *
  * @summary
- * User menu body: profile, Settings entry, help links and system info; this is
- * the only place the order is defined.
+ * User menu body: profile, Settings and About entries, help links; this is the
+ * only place the order is defined.
  *
  * @enterprise
  * - Mirrors the SAP Fiori user menu (FW5 fork 1): identity first, then entry
@@ -17,25 +17,29 @@
 
 import { Box, Divider, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useTranslation } from 'react-i18next';
 import ProfileMenuSection from '../ProfileMenuSection';
 import HelpDocsMenuSection from '../HelpDocsMenuSection';
-import SystemInfoMenuSection from '../SystemInfoMenuSection';
 
 interface MenuSectionsRendererProps {
   /** Opens the settings dialog */
   onSettingsOpen: () => void;
 
+  /** Opens the About dialog (version, build, environment, backend) */
+  onAboutOpen: () => void;
+
   /** Closes the popover Menu; shared across all section wrappers */
   onClose: () => void;
 }
 
-export default function MenuSectionsRenderer({ onSettingsOpen, onClose }: MenuSectionsRendererProps) {
+export default function MenuSectionsRenderer({ onSettingsOpen, onAboutOpen, onClose }: MenuSectionsRendererProps) {
   const { t } = useTranslation(['common']);
 
-  const handleSettings = () => {
+  // WHY: close the menu first so focus returns to the trigger before the dialog takes it.
+  const openAfterClose = (open: () => void) => () => {
     onClose();
-    onSettingsOpen();
+    open();
   };
 
   return (
@@ -46,11 +50,18 @@ export default function MenuSectionsRenderer({ onSettingsOpen, onClose }: MenuSe
 
       <Divider />
 
-      <MenuItem onClick={handleSettings}>
+      <MenuItem onClick={openAfterClose(onSettingsOpen)}>
         <ListItemIcon>
           <SettingsIcon fontSize="small" />
         </ListItemIcon>
         <ListItemText primary={t('menu.settings')} />
+      </MenuItem>
+
+      <MenuItem onClick={openAfterClose(onAboutOpen)}>
+        <ListItemIcon>
+          <InfoOutlinedIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary={t('menu.about')} />
       </MenuItem>
 
       <Divider />
@@ -59,11 +70,6 @@ export default function MenuSectionsRenderer({ onSettingsOpen, onClose }: MenuSe
         <HelpDocsMenuSection />
       </Box>
 
-      <Divider />
-
-      <Box onClick={onClose}>
-        <SystemInfoMenuSection />
-      </Box>
 
       <Divider />
     </>

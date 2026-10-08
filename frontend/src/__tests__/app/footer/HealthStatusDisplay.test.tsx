@@ -33,6 +33,7 @@ type Health = {
   status: 'online' | 'offline';
   responseTime: number;
   database: 'online' | 'offline';
+  databaseProduct: string | null;
   timestamp: number;
 };
 
@@ -41,6 +42,7 @@ describe('HealthStatusDisplay', () => {
     status: 'online',
     responseTime: 125,
     database: 'online',
+    databaseProduct: 'Oracle',
     timestamp: 0,
   };
 
@@ -123,12 +125,18 @@ describe('HealthStatusDisplay', () => {
   });
 
   // ---------------------------------------------------------------------------
-  // Database status (Oracle ADB label + online/offline)
+  // Database status (backend-reported product + online/offline)
   // ---------------------------------------------------------------------------
-  it('renders database online indicator', () => {
-    // In your UI this appears as the "Oracle ADB" label when database is reachable.
-    arrange({ database: 'online' });
-    expect(screen.getByText('Oracle ADB')).toBeInTheDocument();
+  it('labels the online database with the product the backend reports', () => {
+    // The same value the About dialog shows; no fixed "Oracle ADB" text (FW5 fork 3).
+    arrange({ database: 'online', databaseProduct: 'H2' });
+    expect(screen.getByText('H2')).toBeInTheDocument();
+    expect(screen.queryByText('Oracle ADB')).not.toBeInTheDocument();
+  });
+
+  it('labels the online database Online when the backend reports no product', () => {
+    arrange({ database: 'online', databaseProduct: null, status: 'offline' });
+    expect(screen.getByText('Online')).toBeInTheDocument();
   });
 
   it('renders database offline indicator', () => {

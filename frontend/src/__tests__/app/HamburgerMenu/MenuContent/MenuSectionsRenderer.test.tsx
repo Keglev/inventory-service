@@ -6,9 +6,9 @@
  * Unit tests for <MenuSectionsRenderer /> — the user menu body (FW5 fork 1).
  *
  * Contract:
- * - Renders profile, the Settings entry, help links and system info, in that order.
- * - Holds no preference editors (appearance, language) and no notifications.
- * - The Settings entry closes the menu, then opens the settings dialog.
+ * - Renders profile, the Settings and About entries, and help links, in that order.
+ * - Holds no preference editors, no notifications and no inline system info.
+ * - Settings and About each close the menu, then open their dialog.
  * - Clicking inside a section closes the menu; sections receive no props.
  */
 
@@ -20,38 +20,48 @@ import MenuSectionsRenderer from '@/app/HamburgerMenu/MenuContent/MenuSectionsRe
 
 const mockProfileMenuSection = vi.hoisted(() => vi.fn(() => <div>Profile Section</div>));
 const mockHelpDocsMenuSection = vi.hoisted(() => vi.fn(() => <div>Help Section</div>));
-const mockSystemInfoMenuSection = vi.hoisted(() => vi.fn(() => <div>System Info Section</div>));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 vi.mock('@/app/HamburgerMenu/ProfileMenuSection', () => ({ default: mockProfileMenuSection }));
 vi.mock('@/app/HamburgerMenu/HelpDocsMenuSection', () => ({ default: mockHelpDocsMenuSection }));
-vi.mock('@/app/HamburgerMenu/SystemInfoMenuSection', () => ({ default: mockSystemInfoMenuSection }));
 
 describe('MenuSectionsRenderer', () => {
   const onSettingsOpen = vi.fn();
+  const onAboutOpen = vi.fn();
   const onClose = vi.fn();
 
-  const arrange = () => render(<MenuSectionsRenderer onSettingsOpen={onSettingsOpen} onClose={onClose} />);
+  const arrange = () =>
+    render(<MenuSectionsRenderer onSettingsOpen={onSettingsOpen} onAboutOpen={onAboutOpen} onClose={onClose} />);
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('renders profile, settings entry, help and system info', () => {
+  it('renders profile, the settings and about entries, and help', () => {
     arrange();
     expect(screen.getByText('Profile Section')).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Settings…' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'About Smart Supply Pro' })).toBeInTheDocument();
     expect(screen.getByText('Help Section')).toBeInTheDocument();
-    expect(screen.getByText('System Info Section')).toBeInTheDocument();
   });
 
-  it('renders no preference editors and no notifications', () => {
+  it('renders no preference editors, notifications or inline system info', () => {
     arrange();
-    // Section markers of the removed blocks, and their translated headings.
-    expect(screen.queryByText(/Appearance|Language|Notifications/)).not.toBeInTheDocument();
-    expect(screen.getAllByRole('menuitem')).toHaveLength(1);
+    // Translated headings of the removed blocks.
+    expect(screen.queryByText(/Appearance|Language|Notifications|System Info|Version/)).not.toBeInTheDocument();
+    expect(screen.getAllByRole('menuitem')).toHaveLength(2);
+  });
+
+  it('closes the menu and then opens the About dialog when About is clicked', async () => {
+    const user = userEvent.setup();
+    arrange();
+    await user.click(screen.getByRole('menuitem', { name: 'About Smart Supply Pro' }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onAboutOpen).toHaveBeenCalledTimes(1);
+    expect(onSettingsOpen).not.toHaveBeenCalled();
+    expect(onClose.mock.invocationCallOrder[0]).toBeLessThan(onAboutOpen.mock.invocationCallOrder[0]);
   });
 
   it('closes the menu and then opens the settings dialog when Settings is clicked', async () => {
@@ -60,10 +70,11 @@ describe('MenuSectionsRenderer', () => {
     await user.click(screen.getByRole('menuitem', { name: 'Settings…' }));
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onSettingsOpen).toHaveBeenCalledTimes(1);
+    expect(onAboutOpen).not.toHaveBeenCalled();
     expect(onClose.mock.invocationCallOrder[0]).toBeLessThan(onSettingsOpen.mock.invocationCallOrder[0]);
   });
 
-  it.each(['Profile Section', 'Help Section', 'System Info Section'])(
+  it.each(['Profile Section', 'Help Section'])(
     'closes the menu when %s is clicked',
     async (marker) => {
       const user = userEvent.setup();
@@ -78,13 +89,12 @@ describe('MenuSectionsRenderer', () => {
     arrange();
     expect(mockProfileMenuSection).toHaveBeenCalledWith({}, undefined);
     expect(mockHelpDocsMenuSection).toHaveBeenCalledWith({}, undefined);
-    expect(mockSystemInfoMenuSection).toHaveBeenCalledWith({}, undefined);
   });
 
-  it('renders the blocks in the order profile, settings, help, system info', () => {
+  it('renders the blocks in the order profile, settings, about, help', () => {
     arrange();
     const text = document.body.textContent ?? '';
-    const positions = ['Profile Section', 'Settings…', 'Help Section', 'System Info Section'].map((m) => text.indexOf(m));
+    const positions = ['Profile Section', 'Settings…', 'About Smart Supply Pro', 'Help Section'].map((m) => text.indexOf(m));
     expect(positions.every((p) => p >= 0)).toBe(true);
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
   });

@@ -13,16 +13,12 @@
  * - Sections are independently tested; this component owns only layout and section composition
  */
 
-import {
-  Box,
-  Divider,
-} from '@mui/material';
+import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { default as AppearanceSettingsSection } from './sections/AppearanceSettingsSection';
 import { default as LanguageRegionSettingsSection } from './sections/LanguageRegionSettingsSection';
-import { default as SystemPreferencesSection } from './sections/SystemPreferencesSection';
 import { SettingsSectionCard } from './SettingsSectionCard';
-import type { DateFormat, NumberFormat, TableDensity, SystemInfo } from '../../context/settings/SettingsContext.types';
+import type { DateFormat, NumberFormat, TableDensity } from '../../context/settings/SettingsContext.types';
 import type { SupportedLocale } from '../../theme';
 import type { ThemeMode } from '../../context/shellPreferences/ShellPreferencesContext.types';
 
@@ -56,12 +52,6 @@ interface AppSettingsFormProps {
 
   /** Callback when the UI language changes */
   onLocaleChange: (locale: SupportedLocale) => void;
-
-  /** System information data */
-  systemInfo: SystemInfo | null;
-
-  /** Whether system info is currently loading */
-  isLoading: boolean;
 }
 
 /**
@@ -86,8 +76,6 @@ interface AppSettingsFormProps {
  *   onThemeModeChange={handleThemeChange}
  *   locale="de"
  *   onLocaleChange={handleLocaleChange}
- *   systemInfo={systemInfo}
- *   isLoading={false}
  * />
  * ```
  */
@@ -102,8 +90,6 @@ export default function AppSettingsForm({
   onThemeModeChange,
   locale,
   onLocaleChange,
-  systemInfo,
-  isLoading,
 }: AppSettingsFormProps) {
   const { t } = useTranslation(['common']);
 
@@ -128,12 +114,6 @@ export default function AppSettingsForm({
           numberFormat={numberFormat}
           onNumberFormatChange={onNumberFormatChange}
         />
-      </SettingsSectionCard>
-
-      <Divider />
-
-      <SettingsSectionCard title={t('settings.systemInfo')}>
-        <SystemPreferencesSection systemInfo={systemInfo} isLoading={isLoading} />
       </SettingsSectionCard>
 
     </Box>

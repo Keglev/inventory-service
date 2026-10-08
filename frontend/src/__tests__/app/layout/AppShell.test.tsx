@@ -32,6 +32,7 @@ type HeaderProps = {
   onDrawerToggle: () => void;
   onLogout: () => void;
   onSettingsOpen: () => void;
+  onAboutOpen: () => void;
 };
 
 type SidebarProps = {
@@ -78,6 +79,16 @@ vi.mock('@/app/settings/AppSettingsDialog', () => ({
         </button>
       </div>
     );
+  },
+}));
+
+let lastAboutDialogProps: { open: boolean; onClose?: () => void } | undefined;
+
+// Stubbed: the real dialog reads the shared health query (needs a QueryClient).
+vi.mock('@/app/about/AboutDialog', () => ({
+  default: (props: { open: boolean; onClose?: () => void }) => {
+    lastAboutDialogProps = props;
+    return <div data-testid="about-dialog" data-open={props.open} />;
   },
 }));
 
@@ -284,6 +295,23 @@ describe('AppShell', () => {
       lastSettingsDialogProps?.onClose?.();
     });
     expect(screen.getByTestId('settings-dialog')).toHaveAttribute('data-open', 'false');
+  });
+
+  it('opens and closes the About dialog through the wired callbacks', () => {
+    renderAppShell();
+
+    expect(screen.getByTestId('about-dialog')).toHaveAttribute('data-open', 'false');
+
+    act(() => {
+      getHeader().onAboutOpen();
+    });
+    expect(screen.getByTestId('about-dialog')).toHaveAttribute('data-open', 'true');
+    expect(screen.getByTestId('settings-dialog')).toHaveAttribute('data-open', 'false');
+
+    act(() => {
+      lastAboutDialogProps?.onClose?.();
+    });
+    expect(screen.getByTestId('about-dialog')).toHaveAttribute('data-open', 'false');
   });
 
   it('auto-dismisses the confirmation toast via the snackbar close handler', async () => {

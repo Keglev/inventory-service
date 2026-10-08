@@ -9,7 +9,7 @@
  * Test strategy:
  * - Smoke: renders the menu button and starts closed.
  * - Interaction: opens popover on click; closes on Escape.
- * - Integration (orchestrator): passes onSettingsOpen, onLogout and onClose to children.
+ * - Integration (orchestrator): passes onSettingsOpen, onAboutOpen, onLogout and onClose to children.
  * - Trigger icon: three lines from md up, a person outline below md (FW5).
  * - i18n: uses translated label for the menu button.
  *
@@ -30,11 +30,13 @@ import { tEn } from '@/__tests__/test/i18nEn';
 // ----------------------------------------------------
 type HamburgerMenuProps = {
   onSettingsOpen: () => void;
+  onAboutOpen: () => void;
   onLogout: () => void;
 };
 
 type MenuSectionsRendererProps = {
   onSettingsOpen: () => void;
+  onAboutOpen: () => void;
   onClose: () => void;
 };
 
@@ -77,10 +79,12 @@ vi.mock('@/app/HamburgerMenu/MenuContent/LogoutMenuAction', () => ({
 
 describe('HamburgerMenu', () => {
   const mockOnSettingsOpen = vi.fn();
+  const mockOnAboutOpen = vi.fn();
   const mockOnLogout = vi.fn();
 
   const defaultProps: HamburgerMenuProps = {
     onSettingsOpen: mockOnSettingsOpen,
+    onAboutOpen: mockOnAboutOpen,
     onLogout: mockOnLogout,
   };
 
@@ -150,7 +154,9 @@ describe('HamburgerMenu', () => {
     await openMenu(user);
 
     const lastProps = mockMenuSectionsRenderer.mock.calls.at(-1)?.[0];
-    expect(lastProps).toEqual(expect.objectContaining({ onSettingsOpen: mockOnSettingsOpen }));
+    expect(lastProps).toEqual(
+      expect.objectContaining({ onSettingsOpen: mockOnSettingsOpen, onAboutOpen: mockOnAboutOpen }),
+    );
   });
 
   it('renders LogoutMenuAction with correct props when open', async () => {
