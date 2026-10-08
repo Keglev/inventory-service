@@ -94,7 +94,15 @@
 <a name='L29'></a><a href='#L29'>29</a>
 <a name='L30'></a><a href='#L30'>30</a>
 <a name='L31'></a><a href='#L31'>31</a>
-<a name='L32'></a><a href='#L32'>32</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -125,6 +133,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file App.tsx
  * @description
@@ -138,21 +148,26 @@
  * - AppRouter (routes): fills available space
  * - HelpProvider stays here: help state is global; only the themed panel
  *   rendering lives in the shells.
+ * - ShellPreferencesProvider sits above the router so both shells share one
+ *   language and theme state; each shell still applies the theme itself.
  */
 &nbsp;
 import { Box } from '@mui/material';
 import AppRouter from './routes/AppRouter';
 import { SettingsProvider } from './context/settings/SettingsContext';
 import { HelpProvider } from './context/help/HelpContext';
+import { ShellPreferencesProvider } from './context/shellPreferences/ShellPreferencesContext';
 &nbsp;
 export default function App() {
   return (
     &lt;HelpProvider&gt;
-      &lt;SettingsProvider&gt;
-        &lt;Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}&gt;
-          &lt;AppRouter /&gt;
-        &lt;/Box&gt;
-      &lt;/SettingsProvider&gt;
+      &lt;ShellPreferencesProvider&gt;
+        &lt;SettingsProvider&gt;
+          &lt;Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}&gt;
+            &lt;AppRouter /&gt;
+          &lt;/Box&gt;
+        &lt;/SettingsProvider&gt;
+      &lt;/ShellPreferencesProvider&gt;
     &lt;/HelpProvider&gt;
   );
 }

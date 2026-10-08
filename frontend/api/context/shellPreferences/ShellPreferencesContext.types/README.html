@@ -14,7 +14,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frontend API · Smart Supply Pro · API</title>
+  <title>Frontend API ·
+context/shellPreferences/ShellPreferencesContext.types/README · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -112,108 +113,37 @@
     </aside>
     <main class="content" id="main">
       <article class="doc-body">
-        <p><strong>frontend</strong></p>
+        <p><a
+        href="../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <h1 id="frontend">frontend</h1>
-        <h2 id="modules">Modules</h2>
+        <p><a href="../../../README.html">frontend</a> /
+        context/shellPreferences/ShellPreferencesContext.types</p>
+        <h1
+        id="contextshellpreferencesshellpreferencescontexttypes">context/shellPreferences/ShellPreferencesContext.types</h1>
+        <h2 id="file">File</h2>
+        <p>ShellPreferencesContext.types.ts</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>The context object lives apart from the provider component
+        so the provider file exports only a component (React Fast
+        Refresh), the same split as context/settings.</li>
+        <li>ShellPreferences is named in useShellPreferences' signature,
+        so it stays exported (TypeDoc runs with --treatWarningsAsErrors
+        over src/context).</li>
+        </ul>
+        <h2 id="interfaces">Interfaces</h2>
         <ul>
         <li><a
-        href="api/analytics/dashboardSummary/README.html">api/analytics/dashboardSummary</a></li>
+        href="interfaces/ShellPreferences.html">ShellPreferences</a></li>
+        </ul>
+        <h2 id="type-aliases">Type Aliases</h2>
+        <ul>
+        <li><a href="type-aliases/ThemeMode.html">ThemeMode</a></li>
+        </ul>
+        <h2 id="variables">Variables</h2>
+        <ul>
         <li><a
-        href="api/analytics/employees/README.html">api/analytics/employees</a></li>
-        <li><a
-        href="api/analytics/finance/README.html">api/analytics/finance</a></li>
-        <li><a
-        href="api/analytics/frequency/README.html">api/analytics/frequency</a></li>
-        <li><a
-        href="api/analytics/hooks/README.html">api/analytics/hooks</a></li>
-        <li><a
-        href="api/analytics/lowStock/README.html">api/analytics/lowStock</a></li>
-        <li><a
-        href="api/analytics/metrics/README.html">api/analytics/metrics</a></li>
-        <li><a
-        href="api/analytics/priceTrend/README.html">api/analytics/priceTrend</a></li>
-        <li><a
-        href="api/analytics/reasonBreakdown/README.html">api/analytics/reasonBreakdown</a></li>
-        <li><a
-        href="api/analytics/stock/README.html">api/analytics/stock</a></li>
-        <li><a
-        href="api/analytics/types/README.html">api/analytics/types</a></li>
-        <li><a
-        href="api/analytics/updates/README.html">api/analytics/updates</a></li>
-        <li><a
-        href="api/analytics/util/README.html">api/analytics/util</a></li>
-        <li><a
-        href="api/analytics/validation/README.html">api/analytics/validation</a></li>
-        <li><a href="api/apiBase/README.html">api/apiBase</a></li>
-        <li><a href="api/httpClient/README.html">api/httpClient</a></li>
-        <li><a
-        href="api/inventory/hooks/useItemDetailsQuery/README.html">api/inventory/hooks/useItemDetailsQuery</a></li>
-        <li><a
-        href="api/inventory/hooks/useItemSearchQuery/README.html">api/inventory/hooks/useItemSearchQuery</a></li>
-        <li><a
-        href="api/inventory/hooks/useSuppliersQuery/README.html">api/inventory/hooks/useSuppliersQuery</a></li>
-        <li><a
-        href="api/inventory/itemMutations/README.html">api/inventory/itemMutations</a></li>
-        <li><a
-        href="api/inventory/listFetcher/README.html">api/inventory/listFetcher</a></li>
-        <li><a
-        href="api/inventory/matchItems/README.html">api/inventory/matchItems</a></li>
-        <li><a
-        href="api/inventory/priceMutations/README.html">api/inventory/priceMutations</a></li>
-        <li><a
-        href="api/inventory/rowNormalizers/README.html">api/inventory/rowNormalizers</a></li>
-        <li><a
-        href="api/inventory/stockMutations/README.html">api/inventory/stockMutations</a></li>
-        <li><a
-        href="api/inventory/types/README.html">api/inventory/types</a></li>
-        <li><a
-        href="api/shared/constants/README.html">api/shared/constants</a></li>
-        <li><a
-        href="api/shared/errorHandling/README.html">api/shared/errorHandling</a></li>
-        <li><a
-        href="api/shared/fieldPickers/README.html">api/shared/fieldPickers</a></li>
-        <li><a
-        href="api/shared/itemSearch/README.html">api/shared/itemSearch</a></li>
-        <li><a
-        href="api/shared/responseExtraction/README.html">api/shared/responseExtraction</a></li>
-        <li><a
-        href="api/shared/typeGuards/README.html">api/shared/typeGuards</a></li>
-        <li><a
-        href="api/shared/types/README.html">api/shared/types</a></li>
-        <li><a
-        href="api/suppliers/hooks/useSupplierListQuery/README.html">api/suppliers/hooks/useSupplierListQuery</a></li>
-        <li><a
-        href="api/suppliers/supplierListFetcher/README.html">api/suppliers/supplierListFetcher</a></li>
-        <li><a
-        href="api/suppliers/supplierMutations/README.html">api/suppliers/supplierMutations</a></li>
-        <li><a
-        href="api/suppliers/supplierNormalizers/README.html">api/suppliers/supplierNormalizers</a></li>
-        <li><a
-        href="api/suppliers/types/README.html">api/suppliers/types</a></li>
-        <li><a
-        href="api/suppliers/validation/README.html">api/suppliers/validation</a></li>
-        <li><a href="context/auth/README.html">context/auth</a></li>
-        <li><a href="context/auth/README-1.html">context/auth</a></li>
-        <li><a href="context/auth/README-2.html">context/auth</a></li>
-        <li><a
-        href="context/auth/demoSession/README.html">context/auth/demoSession</a></li>
-        <li><a
-        href="context/help/HelpContext/README.html">context/help/HelpContext</a></li>
-        <li><a
-        href="context/help/HelpContext.types/README.html">context/help/HelpContext.types</a></li>
-        <li><a
-        href="context/settings/SettingsContext/README.html">context/settings/SettingsContext</a></li>
-        <li><a
-        href="context/settings/SettingsContext.types/README.html">context/settings/SettingsContext.types</a></li>
-        <li><a
-        href="context/settings/SettingsStorage/README.html">context/settings/SettingsStorage</a></li>
-        <li><a
-        href="context/shellPreferences/ShellPreferencesContext/README.html">context/shellPreferences/ShellPreferencesContext</a></li>
-        <li><a
-        href="context/shellPreferences/ShellPreferencesContext.types/README.html">context/shellPreferences/ShellPreferencesContext.types</a></li>
-        <li><a
-        href="context/toast/ToastContext/README.html">context/toast/ToastContext</a></li>
+        href="variables/ShellPreferencesContext.html">ShellPreferencesContext</a></li>
         </ul>
       </article>
     </main>
@@ -221,9 +151,15 @@
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#frontend" id="toc-frontend">frontend</a>
+      <li><a href="#contextshellpreferencesshellpreferencescontexttypes"
+      id="toc-contextshellpreferencesshellpreferencescontexttypes">context/shellPreferences/ShellPreferencesContext.types</a>
       <ul>
-      <li><a href="#modules" id="toc-modules">Modules</a></li>
+      <li><a href="#file" id="toc-file">File</a></li>
+      <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
+      <li><a href="#interfaces" id="toc-interfaces">Interfaces</a></li>
+      <li><a href="#type-aliases" id="toc-type-aliases">Type
+      Aliases</a></li>
+      <li><a href="#variables" id="toc-variables">Variables</a></li>
       </ul></li>
       </ul>
     </nav>

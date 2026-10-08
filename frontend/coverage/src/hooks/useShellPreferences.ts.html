@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/hooks/createContextHook.ts</title>
+    <title>Code coverage report for src/hooks/useShellPreferences.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../prettify.css" />
     <link rel="stylesheet" href="../../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/hooks</a> createContextHook.ts</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/hooks</a> useShellPreferences.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
@@ -86,19 +86,7 @@
 <a name='L21'></a><a href='#L21'>21</a>
 <a name='L22'></a><a href='#L22'>22</a>
 <a name='L23'></a><a href='#L23'>23</a>
-<a name='L24'></a><a href='#L24'>24</a>
-<a name='L25'></a><a href='#L25'>25</a>
-<a name='L26'></a><a href='#L26'>26</a>
-<a name='L27'></a><a href='#L27'>27</a>
-<a name='L28'></a><a href='#L28'>28</a>
-<a name='L29'></a><a href='#L29'>29</a>
-<a name='L30'></a><a href='#L30'>30</a>
-<a name='L31'></a><a href='#L31'>31</a>
-<a name='L32'></a><a href='#L32'>32</a>
-<a name='L33'></a><a href='#L33'>33</a>
-<a name='L34'></a><a href='#L34'>34</a>
-<a name='L35'></a><a href='#L35'>35</a>
-<a name='L36'></a><a href='#L36'>36</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L24'></a><a href='#L24'>24</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -117,57 +105,33 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">63x</span>
-<span class="cline-any cline-yes">63x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">57x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @file createContextHook.ts
- * @module hooks/createContextHook
- * @summary Factory that builds a type-safe context-access hook with a guarded
- *   null-check and consistent error messaging.
+ * @file useShellPreferences.ts
+ * @module hooks/useShellPreferences
+ *
+ * @summary
+ * Reads the shell-wide language and theme state from ShellPreferencesProvider.
+ *
  * @enterprise
- * - Used ONLY by 3 sibling hooks (useAuth, useHelp, useSettings) to eliminate
- *   the useContext + null-check + throw triplet repeated per context.
- * - Returns a closure capturing hookName so each derived hook throws with its
- *   own identity ("useAuth must be used within...").
- * - Generic factory: callers parameterize T and pass a Context&lt;T|undefined&gt;.
- *   Provider is responsible for never passing undefined as value.
+ * - Throws outside the provider (createContextHook), so a missing provider fails
+ *   loudly in tests instead of rendering with silent defaults.
  */
 &nbsp;
-import { useContext, type Context } from 'react';
+import {
+  ShellPreferencesContext,
+  type ShellPreferences,
+} from '../context/shellPreferences/ShellPreferencesContext.types';
+import { createContextHook } from './createContextHook';
 &nbsp;
-/**
- * Create a type-safe hook for accessing a React context.
- * @param context - The React context to access (initialized with undefined)
- * @param hookName - Name of the hook (used in error message)
- * @returns A hook function that provides the context value or throws an error
- * @throws Error if used outside the context provider
- */
-export function createContextHook&lt;T&gt;(
-  context: Context&lt;T | undefined&gt;,
-  hookName: string,
-): () =&gt; T {
-  return (): T =&gt; {
-    const value = useContext(context) as T | undefined;
-    if (value === undefined) {
-      throw new Error(`${hookName} must be used within the corresponding provider`);
-    }
-    return value;
-  };
-}
+/** Language, theme mode, MUI theme and their setters. */
+export const useShellPreferences = createContextHook&lt;ShellPreferences&gt;(
+  ShellPreferencesContext,
+  'useShellPreferences',
+);
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
