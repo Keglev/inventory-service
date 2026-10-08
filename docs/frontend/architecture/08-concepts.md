@@ -29,8 +29,9 @@ that throw outside their provider.
 ## Provider Composition
 
 Bootstrap wiring as it exists in `main.tsx` and `App.tsx`. Router and Query
-provider sit outermost; auth wraps the app; help and settings live inside `App`
-(help state is global, only the themed panel renders inside the shells); the
+provider sit outermost; auth wraps the app; help, shell preferences (language
+and theme) and settings live inside `App` (help state is global, only the themed
+panel renders inside the shells; each shell applies the shared theme); the
 toast provider is intentionally shell-scoped — each shell supplies its own
 implementation via `ToastContext.Provider`.
 
@@ -41,7 +42,8 @@ graph TB
   QC --> Auth["AuthProvider"]
   Auth --> App["App"]
   App --> Help["HelpProvider"]
-  Help --> Settings["SettingsProvider"]
+  Help --> Prefs["ShellPreferencesProvider"]
+  Prefs --> Settings["SettingsProvider"]
   Settings --> Router["AppRouter"]
   Router --> Shells["AppPublicShell / AppShell"]
   Shells --> Toast["ToastContext.Provider (shell-scoped)"]

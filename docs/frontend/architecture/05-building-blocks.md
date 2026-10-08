@@ -63,11 +63,12 @@ Two shell variants keep public and authenticated experiences separate
 sidebar/drawer, and a main content `<Outlet />`. Both are thin orchestrators: they
 coordinate state and delegate rendering to focused sub-components.
 
-Cross-cutting concerns owned at shell level:
+Cross-cutting concerns at shell level:
 
-- **Preferences** — theme mode (light/dark) and locale (DE/EN) are shell-owned,
-  persisted in browser storage, and synchronized with the i18n runtime, so chrome,
-  pages, and dialogs stay consistent without per-feature reimplementation.
+- **Preferences** — theme mode (light/dark) and locale (DE/EN) are owned once, by
+  `ShellPreferencesProvider` above the router, persisted in browser storage and
+  synchronized with the i18n runtime; each shell applies the resulting MUI theme
+  in its own `ThemeProvider`, so chrome, pages, and dialogs stay consistent.
 - **Toasts** — a shared context exposes `toast(message, severity?)`
   (success/info/warning/error); both shells provide it, so leaf components trigger
   feedback without knowing which shell is active.
