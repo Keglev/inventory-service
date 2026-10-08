@@ -22,6 +22,9 @@ interface AppToolbarActionsProps {
   /** Opens the settings dialog */
   onSettingsOpen: () => void;
 
+  /** Opens the About dialog */
+  onAboutOpen: () => void;
+
   /** Callback for logout action */
   onLogout: () => void;
 
@@ -39,6 +42,7 @@ interface AppToolbarActionsProps {
  */
 export default function AppToolbarActions({
   onSettingsOpen,
+  onAboutOpen,
   onLogout,
   helpTopic,
 }: AppToolbarActionsProps) {
@@ -55,9 +59,10 @@ export default function AppToolbarActions({
         tooltip={t('actions.help')}
       />
 
-      {/* User menu (profile, settings, help, system info, logout) */}
+      {/* User menu (profile, settings, about, help, logout) */}
       <HamburgerMenu
         onSettingsOpen={onSettingsOpen}
+        onAboutOpen={onAboutOpen}
         onLogout={onLogout}
       />
     </Box>

@@ -102,16 +102,6 @@
     "apiDocs": "Open API Docs",
     "frontendDocs": "Frontend Docs"
   },
-  "systemInfo": {
-    "title": "System Info",
-    "environment": "Environment",
-    "backend": "Backend",
-    "frontend": "Frontend",
-    "version": "Version",
-    "build": "Build",
-    "backendOnline": "Status: Online",
-    "backendOffline": "Status: Offline"
-  },
   "error": "Error",
   "selectOption": "Select an option",
   "units": {
@@ -121,7 +111,6 @@
   "settings": {
     "title": "Settings",
     "resetToDefaults": "Reset to Defaults",
-    "systemInfo": "System Info",
     "tableDensity": {
       "label": "Table Density",
       "comfortable": "Comfortable",
@@ -129,12 +118,6 @@
     },
     "dateFormat": "Date Format",
     "numberFormat": "Number Format",
-    "systemInfoUnavailable": "System information unavailable",
-    "database": "Database",
-    "environment": "Environment",
-    "version": "Version",
-    "status": "Status",
-    "build": "Build",
     "appearance": "Appearance",
     "languageRegion": "Language & Region",
     "language": "Language",
@@ -142,6 +125,18 @@
     "numberFormatEnUs": "English (US)"
   },
   "menu": {
-    "settings": "Settings…"
+    "settings": "Settings…",
+    "about": "About Smart Supply Pro"
+  },
+  "about": {
+    "title": "About Smart Supply Pro",
+    "version": "Version",
+    "build": "Build",
+    "environment": "Environment",
+    "backend": "Backend",
+    "database": "Database",
+    "online": "Online",
+    "offline": "Offline",
+    "unknown": "Unknown"
   }
 }

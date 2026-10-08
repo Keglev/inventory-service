@@ -6,10 +6,10 @@
  * Unit tests for <FooterMetaInfo /> — compact footer metadata strip.
  *
  * Test strategy:
- * - Verify that the component renders the expected "meta" items:
- *   version, build id, environment, language/region indicator, and demo notice.
+ * - Verify the compact line (FW5 fork 3): current year, version, the first 10
+ *   characters of the build id (full id in the title), demo notice; no
+ *   environment and no language-region tag.
  * - Verify i18n wiring by asserting translation keys are requested.
- * - Verify a full 40-character build id is rendered untruncated.
  *
  * Notes:
  * - We keep i18n mocked to prevent test coupling to translation files.
@@ -35,18 +35,12 @@ vi.mock('react-i18next', () => ({
 type FooterMetaInfoProps = {
   appVersion: string;
   buildId: string;
-  environment: string;
-  currentLanguage: string;
-  region: string;
 };
 
 describe('FooterMetaInfo', () => {
   const defaultProps: FooterMetaInfoProps = {
     appVersion: '1.0.0',
     buildId: '4a9c12f',
-    environment: 'Production (Koyeb)',
-    currentLanguage: 'EN',
-    region: 'DE',
   };
 
   /**
@@ -70,10 +64,13 @@ describe('FooterMetaInfo', () => {
   // ---------------------------------------------------------------------------
   // Rendering: baseline content
   // ---------------------------------------------------------------------------
-  it('renders the copyright notice', () => {
-    // Ensures the component consistently communicates legal ownership in the compact strip.
+  it('renders the copyright notice with the current year', () => {
+    // The year follows the clock instead of a literal (it read 2025 in 2026).
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2031-03-01T12:00:00Z'));
     arrange();
-    expect(screen.getByText(/© 2025 Smart Supply Pro/)).toBeInTheDocument();
+    expect(screen.getByText(/© 2031 Smart Supply Pro/)).toBeInTheDocument();
+    vi.useRealTimers();
   });
 
   it('renders the application version', () => {
@@ -83,45 +80,30 @@ describe('FooterMetaInfo', () => {
   });
 
   it('renders the build identifier', () => {
-    arrange({ buildId: '4a9c12f' });
-    expect(screen.getByText(/Build 4a9c12f/)).toBeInTheDocument();
+    const { container } = arrange({ buildId: '4a9c12f' });
+    expect(container.textContent).toContain('Build 4a9c12f');
   });
 
-  it('renders a full commit hash as build id without truncating the line', () => {
+  it('shows the first 10 characters of a full commit hash and keeps the full hash in the title', () => {
     const fullId = 'b5fb25c0584db5004356410c5dc05348b7f17ff3';
-    const { container } = arrange({ buildId: fullId });
+    arrange({ buildId: fullId });
 
-    expect(screen.getByText(new RegExp(`Build ${fullId}`))).toBeInTheDocument();
-    expect(container.querySelector('.MuiTypography-noWrap')).toBeNull();
+    const shortId = screen.getByText('b5fb25c058');
+    expect(shortId).toHaveAttribute('title', fullId);
+    expect(screen.queryByText(new RegExp(fullId))).not.toBeInTheDocument();
   });
 
-  it('renders the environment label', () => {
-    arrange({ environment: 'Production (Koyeb)' });
-    expect(screen.getByText(/Production \(Koyeb\)/)).toBeInTheDocument();
+  it('renders no environment and no language-region tag', () => {
+    // Both moved out of the footer line (About dialog, settings dialog).
+    const { container } = arrange();
+    expect(screen.getByText(/Demo data only/)).toBeInTheDocument();
+    expect(container.textContent).not.toMatch(/Production|Koyeb|EN-DE|DE-DE/);
   });
 
   it('renders the demo-data notice', () => {
     // Portfolio apps frequently use demo/test data—this makes it explicit to recruiters/users.
     arrange();
     expect(screen.getByText(/Demo data only/)).toBeInTheDocument();
-  });
-
-  // ---------------------------------------------------------------------------
-  // Rendering: language/region indicator
-  // ---------------------------------------------------------------------------
-  it('renders the language-region tag (default)', () => {
-    arrange({ currentLanguage: 'EN', region: 'DE' });
-    expect(screen.getByText('EN-DE')).toBeInTheDocument();
-  });
-
-  it('renders the language-region tag with a different language', () => {
-    arrange({ currentLanguage: 'DE', region: 'DE' });
-    expect(screen.getByText('DE-DE')).toBeInTheDocument();
-  });
-
-  it('renders the language-region tag with a different region', () => {
-    arrange({ currentLanguage: 'EN', region: 'US' });
-    expect(screen.getByText('EN-US')).toBeInTheDocument();
   });
 
   // ---------------------------------------------------------------------------

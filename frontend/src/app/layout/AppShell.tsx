@@ -30,6 +30,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useShellLogout } from './useShellLogout';
 import { default as AppSettingsDialog } from '../settings/AppSettingsDialog';
 import AppHeader from './AppHeader';
+import AboutDialog from '../about/AboutDialog';
 import AppSidebar from './AppSidebar';
 import AppMain from './AppMain';
 import { getHelpTopicForRoute } from './navConfig';
@@ -93,6 +94,7 @@ export default function AppShell() {
   // Drawer and dialog state
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [aboutOpen, setAboutOpen] = React.useState(false);
 
   return (
     <ThemeProvider theme={theme}>
@@ -104,6 +106,7 @@ export default function AppShell() {
           {/* Application Header (fixed) */}
           <AppHeader
             onSettingsOpen={() => setSettingsOpen(true)}
+            onAboutOpen={() => setAboutOpen(true)}
             onLogout={handleLogout}
             helpTopic={helpTopic}
             isDemo={isDemo}
@@ -150,6 +153,7 @@ export default function AppShell() {
 
         {/* Settings Dialog */}
         <AppSettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+        <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
       </ToastContext.Provider>
     </ThemeProvider>
   );

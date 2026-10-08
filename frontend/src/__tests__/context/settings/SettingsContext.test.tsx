@@ -12,11 +12,11 @@
  *
  * Out of scope:
  * - Storage serialization/parsing correctness (covered by `SettingsStorage.test.ts`).
- * - Health endpoint parsing / database auto-detection (covered by utils tests).
+ * - System info: the provider no longer fetches it (shared health query, FW5 fork 3).
  *
  * Test strategy:
  * - Use a probe consumer component to assert observable state via test ids.
- * - Mock external edges deterministically (`react-i18next`, `getSystemInfo`, storage helpers).
+ * - Mock external edges deterministically (`react-i18next`, storage helpers).
  */
 
 import React from 'react';
@@ -30,7 +30,6 @@ const i18nMock = vi.hoisted(() => ({
 }));
 
 const useTranslationMock = vi.hoisted(() => vi.fn(() => ({ i18n: i18nMock })));
-const getSystemInfoMock = vi.hoisted(() => vi.fn());
 
 const storageMocks = vi.hoisted(() => ({
   getDefaultPreferences: vi.fn(),
@@ -41,8 +40,6 @@ const storageMocks = vi.hoisted(() => ({
 
 vi.mock('react-i18next', () => ({ useTranslation: useTranslationMock }));
 
-// Mock by a resolved path that matches the provider's runtime resolution.
-vi.mock('@/utils/systemInfo.js', () => ({ getSystemInfo: getSystemInfoMock }));
 vi.mock('@/context/settings/SettingsStorage', () => storageMocks);
 
 import { SettingsContext } from '@/context/settings/SettingsContext.types';
@@ -54,8 +51,6 @@ function SettingsProbe() {
 
   return (
     <div data-testid="probe">
-      <div data-testid="loading">{String(ctx.isLoading)}</div>
-      <div data-testid="db">{ctx.systemInfo?.database ?? ''}</div>
       <div data-testid="date">{ctx.userPreferences.dateFormat}</div>
       <div data-testid="number">{ctx.userPreferences.numberFormat}</div>
       <div data-testid="density">{ctx.userPreferences.tableDensity}</div>
@@ -101,8 +96,6 @@ describe('SettingsProvider', () => {
   });
 
   it('loads initial preferences using the active i18n language', () => {
-    // This test is about storage hydration; keep system-info fetch pending to avoid act warnings.
-    getSystemInfoMock.mockImplementation(() => new Promise<never>(() => {}));
 
     renderProvider();
 
@@ -111,37 +104,23 @@ describe('SettingsProvider', () => {
     expect(screen.getByTestId('density')).toHaveTextContent('comfortable');
   });
 
-  it('fetches system info on mount (success path)', async () => {
-    const systemInfo = {
-      database: 'ADB',
-      environment: 'stage',
-      status: 'ONLINE',
-    };
-    getSystemInfoMock.mockResolvedValue(systemInfo);
 
-    renderProvider();
-
-    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
-    expect(screen.getByTestId('db')).toHaveTextContent('ADB');
-  });
-
-  it('falls back when system info fetch fails', async () => {
-    getSystemInfoMock.mockRejectedValue(new Error('offline'));
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-    renderProvider();
-
-    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
-
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch system info:', expect.any(Error));
-
-    // Fallback asserts nothing about the environment — 'Unknown' rather than a guessed value.
-    expect(screen.getByTestId('db')).toHaveTextContent('Unknown');
-    consoleSpy.mockRestore();
+  it('exposes preferences and their controls only', () => {
+    // System info moved to the shared health query; the context carries no fetch state.
+    let keys: string[] = [];
+    function KeysProbe() {
+      keys = Object.keys(React.useContext(SettingsContext) ?? {}).sort();
+      return null;
+    }
+    render(
+      <SettingsProvider>
+        <KeysProbe />
+      </SettingsProvider>,
+    );
+    expect(keys).toEqual(['resetToDefaults', 'setUserPreferences', 'userPreferences']);
   });
 
   it('persists preference updates and leaves formats unchanged on a language switch', async () => {
-    getSystemInfoMock.mockResolvedValue({});
     const user = userEvent.setup();
 
     const { rerender } = renderProvider();
@@ -173,7 +152,6 @@ describe('SettingsProvider', () => {
   });
 
   it('keeps US formats when the language switches to de', async () => {
-    getSystemInfoMock.mockResolvedValue({});
     // Stored prefs carry the US defaults (from beforeEach): MM/DD/YYYY + EN_US.
     const { rerender } = renderProvider();
 
@@ -192,7 +170,6 @@ describe('SettingsProvider', () => {
   });
 
   it('keeps German formats when the language switches to en', async () => {
-    getSystemInfoMock.mockResolvedValue({});
     i18nMock.language = 'de';
     storageMocks.loadPreferencesFromStorage.mockReturnValue({
       dateFormat: 'DD.MM.YYYY',

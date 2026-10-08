@@ -8,7 +8,7 @@
  * - Derives initial form state from SettingsContext.userPreferences
  * - Delegates user changes to SettingsContext.setUserPreferences with partial updates
  * - Delegates reset action to SettingsContext.resetToDefaults
- * - Passes through systemInfo and isLoading from SettingsContext
+ * - Exposes preferences only; system info left the settings (FW5 fork 3)
  *
  * Out of scope:
  * - Validation rules and UI rendering of settings sections
@@ -22,7 +22,6 @@ import type {
   DateFormat,
   NumberFormat,
   TableDensity,
-  SystemInfo,
   UserPreferences,
 } from '@/context/settings/SettingsContext.types';
 import { useSettings } from '@/hooks/useSettings';
@@ -42,29 +41,21 @@ const basePreferences: UserPreferences = {
   tableDensity: 'comfortable',
 };
 
-const baseSystemInfo: SystemInfo = {
-  database: 'Oracle ADB',
-  environment: 'production',
-  status: 'ONLINE',
-};
 
 /**
  * Helper: configures SettingsContext values returned from useSettings().
  * Returning spies allows each test to assert correct delegation.
  */
-function setupMock(params?: { overrides?: Partial<UserPreferences>; isLoading?: boolean }) {
+function setupMock(params?: { overrides?: Partial<UserPreferences> }) {
   const setUserPreferences = vi.fn();
   const resetToDefaults = vi.fn();
 
   const overrides = params?.overrides ?? {};
-  const isLoading = params?.isLoading ?? false;
 
   mockUseSettings.mockReturnValue({
     userPreferences: { ...basePreferences, ...overrides },
-    systemInfo: baseSystemInfo,
     setUserPreferences,
     resetToDefaults,
-    isLoading,
   });
 
   return { setUserPreferences, resetToDefaults };
@@ -140,13 +131,17 @@ describe('useAppSettingsForm', () => {
     expect(resetToDefaults).toHaveBeenCalledTimes(1);
   });
 
-  it('passes through systemInfo and loading state', () => {
-    // Contract: UI can show read-only system info and loading spinners based on context values.
-    setupMock({ isLoading: true });
+  it('returns preferences and handlers only', () => {
+    setupMock();
 
     const { result } = renderHook(() => useAppSettingsForm());
 
-    expect(result.current.systemInfo).toBe(baseSystemInfo);
-    expect(result.current.isLoading).toBe(true);
+    expect(Object.keys(result.current).sort()).toEqual([
+      'formState',
+      'handleDateFormatChange',
+      'handleNumberFormatChange',
+      'handleResetDefaults',
+      'handleTableDensityChange',
+    ]);
   });
 });

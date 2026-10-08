@@ -30,6 +30,9 @@ interface AppHeaderProps {
   /** Opens the settings dialog */
   onSettingsOpen: () => void;
 
+  /** Opens the About dialog */
+  onAboutOpen: () => void;
+
   /** Callback for logout action */
   onLogout: () => void;
 
@@ -54,6 +57,7 @@ interface AppHeaderProps {
  */
 export default function AppHeader({
   onSettingsOpen,
+  onAboutOpen,
   onLogout,
   helpTopic,
   isDemo,
@@ -94,6 +98,7 @@ export default function AppHeader({
         {/* Toolbar Actions (language, help, hamburger) */}
         <AppToolbarActions
           onSettingsOpen={onSettingsOpen}
+          onAboutOpen={onAboutOpen}
           onLogout={onLogout}
           helpTopic={helpTopic}
         />

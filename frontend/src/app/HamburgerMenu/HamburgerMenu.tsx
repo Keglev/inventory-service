@@ -34,6 +34,9 @@ interface HamburgerMenuProps {
   /** Opens the settings dialog */
   onSettingsOpen: () => void;
 
+  /** Opens the About dialog */
+  onAboutOpen: () => void;
+
   /** Callback for logout action */
   onLogout: () => void;
 }
@@ -45,6 +48,7 @@ interface HamburgerMenuProps {
  */
 export default function HamburgerMenu({
   onSettingsOpen,
+  onAboutOpen,
   onLogout,
 }: HamburgerMenuProps) {
   const { t } = useTranslation(['common']);
@@ -97,6 +101,7 @@ export default function HamburgerMenu({
       >
         <MenuSectionsRenderer
           onSettingsOpen={onSettingsOpen}
+          onAboutOpen={onAboutOpen}
           onClose={handleClose}
         />
 

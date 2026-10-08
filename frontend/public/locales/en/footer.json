@@ -16,8 +16,7 @@
   },
   "health": {
     "backend": "Backend",
-    "database": "Database",
-    "oracleAdb": "Oracle ADB"
+    "database": "Database"
   },
   "status": {
     "online": "Online",

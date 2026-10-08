@@ -32,6 +32,7 @@ vi.mock('react-i18next', () => ({
 type ToolbarActionsProps = {
   helpTopic: string;
   onSettingsOpen: () => void;
+  onAboutOpen: () => void;
   onLogout: () => void;
 };
 
@@ -62,6 +63,7 @@ vi.mock('@/app/layout/header/HeaderDemoBadge', () => ({
 describe('AppHeader', () => {
   const baseProps = {
     onSettingsOpen: vi.fn(),
+    onAboutOpen: vi.fn(),
     onLogout: vi.fn(),
     helpTopic: 'dashboard',
     isDemo: true,
@@ -94,6 +96,7 @@ describe('AppHeader', () => {
     expect(lastToolbarProps).toMatchObject({
       helpTopic: 'dashboard',
       onSettingsOpen: baseProps.onSettingsOpen,
+      onAboutOpen: baseProps.onAboutOpen,
       onLogout: baseProps.onLogout,
     });
   });

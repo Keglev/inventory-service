@@ -4,7 +4,7 @@
  *
  * @summary
  * Custom hook for managing application settings form state and submission.
- * Encapsulates user preferences and system info state management.
+ * Encapsulates user preferences state management.
  *
  * @enterprise
  * - Separates form logic from UI, keeping form components stateless
@@ -23,19 +23,18 @@ interface FormState {
 /**
  * Hook for managing application settings form state and submission.
  *
- * Provides form state, callbacks for updating preferences, and system info loading.
+ * Provides form state and callbacks for updating preferences.
  * Handles persistence through useSettings hook integration.
  *
  * @returns Object containing form state, callbacks, and loading state
  *
  * @example
  * ```tsx
- * const { formState, handleDateFormatChange, isLoading } = useAppSettingsForm();
+ * const { formState, handleDateFormatChange } = useAppSettingsForm();
  * ```
  */
 export function useAppSettingsForm() {
-  const { userPreferences, systemInfo, setUserPreferences, resetToDefaults, isLoading } =
-    useSettings();
+  const { userPreferences, setUserPreferences, resetToDefaults } = useSettings();
 
   const formState: FormState = {
     dateFormat: userPreferences.dateFormat,
@@ -76,8 +75,6 @@ export function useAppSettingsForm() {
 
   return {
     formState,
-    systemInfo,
-    isLoading,
     handleDateFormatChange,
     handleNumberFormatChange,
     handleTableDensityChange,

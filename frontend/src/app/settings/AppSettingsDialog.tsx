@@ -57,8 +57,6 @@ export default function AppSettingsDialog({
   const { t } = useTranslation(['common']);
   const {
     formState,
-    systemInfo,
-    isLoading,
     handleDateFormatChange,
     handleNumberFormatChange,
     handleTableDensityChange,
@@ -109,8 +107,6 @@ export default function AppSettingsDialog({
           onThemeModeChange={handleThemeModeChange}
           locale={locale}
           onLocaleChange={handleLocaleChange}
-          systemInfo={systemInfo}
-          isLoading={isLoading}
         />
       </DialogContent>
 

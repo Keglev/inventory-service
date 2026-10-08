@@ -50,7 +50,7 @@
   "settings": {
     "preferences": {
       "title": "Settings",
-      "body": "Customize your application experience with these preferences:\n\n• Theme: Light or dark.\n• Table Density: Choose comfortable spacing (standard) or compact display for data grids.\n• Language: Deutsch or English.\n• Date Format: Choose how dates are displayed (DD.MM.YYYY, YYYY-MM-DD, or MM/DD/YYYY). Used throughout the app in tables, reports, and forms.\n• Number Format: Choose number formatting (German: 1.234,56 or US: 1,234.56). Affects all numeric displays including prices and quantities.\n\nSystem Info:\nView information about your application and database setup, including version, environment, and database type."
+      "body": "Customize your application experience with these preferences:\n\n• Theme: Light or dark.\n• Table Density: Choose comfortable spacing (standard) or compact display for data grids.\n• Language: Deutsch or English.\n• Date Format: Choose how dates are displayed (DD.MM.YYYY, YYYY-MM-DD, or MM/DD/YYYY). Used throughout the app in tables, reports, and forms.\n• Number Format: Choose number formatting (German: 1.234,56 or US: 1,234.56). Affects all numeric displays including prices and quantities.\n\nSystem information (version, build, environment, backend status, database) is in the menu at the top right under About Smart Supply Pro."
     }
   }
 }

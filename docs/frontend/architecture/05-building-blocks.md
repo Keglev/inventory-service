@@ -91,9 +91,11 @@ Cross-cutting concerns at shell level:
   i18n keys; `HelpProvider` (context) holds open-state and current topic;
   `HelpIconButton` (features) is the uniform trigger. Help content is fully
   localized like all other UI text.
-- **Health polling** (`features/health/`) — a lightweight hook polls the backend
-  `/api/health` endpoint (flat `{status, database, databaseProduct, timestamp}`
-  contract, 200/503) for status surfaces.
+- **Health polling** (`features/health/`) — one shared React Query
+  (`useHealthCheck`, key `['health']`, refreshed every 15 minutes) probes the
+  backend `/api/health` endpoint (flat `{status, database, databaseProduct,
+  timestamp}` contract, 200/503) for the header badge, the footer and the About
+  dialog; consumers mounted together send one request.
 
 ## Level 2 — Domain Modules
 

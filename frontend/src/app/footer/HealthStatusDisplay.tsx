@@ -11,8 +11,10 @@
  * - Pure presentational leaf: props-only, no state. Receives a HealthStatus prop
  *   sourced from useFooterState (which reads it from useHealthCheck).
  * - HealthStatus is imported from the features/health barrel (single source
- *   of truth in useHealthCheck). The component reads only status/responseTime/
- *   database; the canonical timestamp field is unused here.
+ *   of truth in useHealthCheck). The component reads status, responseTime,
+ *   database and databaseProduct; the timestamp field is unused here.
+ * - The database chip shows the product name the backend reports (the same value
+ *   as the About dialog), not a fixed label (FW5 fork 3).
  * - All labels resolve via the footer i18n namespace; the "Backend"/"Database"
  *   captions are chip tooltips (title) rather than visible text to keep the row
  *   compact. Status dots and Chip borders use semantic theme tokens (success/error).
@@ -83,7 +85,7 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
       <Chip
         title={t('footer:health.database')}
         icon={statusDot(databaseOnline)}
-        label={databaseOnline ? t('footer:health.oracleAdb') : t('footer:status.offline')}
+        label={databaseOnline ? (health.databaseProduct ?? t('footer:status.online')) : t('footer:status.offline')}
         size="small"
         variant="outlined"
         sx={{ borderColor: dbColor, color: dbColor }}

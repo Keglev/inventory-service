@@ -29,14 +29,8 @@ import { useSettings } from '@/hooks/useSettings';
 // Maintenance note: keep this object in sync with `SettingsContextType`.
 const providerValue: SettingsContextType = {
   userPreferences: { dateFormat: 'MM/DD/YYYY', numberFormat: 'EN_US', tableDensity: 'comfortable' },
-  systemInfo: {
-    database: 'Oracle',
-    environment: 'prod',
-    status: 'ONLINE',
-  },
   setUserPreferences: vi.fn(),
   resetToDefaults: vi.fn(),
-  isLoading: false,
 };
 
 describe('useSettings (src/hooks/useSettings)', () => {

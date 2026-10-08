@@ -90,6 +90,23 @@ A look at current enterprise suites and design guidance found one pattern:
 - Preferences: `frontend/src/context/shellPreferences/`,
   `frontend/src/app/layout/useShellSettings.ts`.
 
+## Amendment 2026-10-08: system information
+- **About dialog.** Version, build (first 10 characters, full hash in the
+  title), environment, backend status and the database product live in one
+  *About Smart Supply Pro* dialog, opened from the user menu as in SAP Fiori and
+  Oracle. The menu's system-info block and the settings dialog's *System Info*
+  card are gone.
+- **Footer.** One compact line: current year, version, short build id and the
+  demo-data note; the health chips stay, and the database chip shows the product
+  the backend reports instead of the fixed text "Oracle ADB". Environment and the
+  language tag left the footer. This keeps a deviation from SAP, which shows no
+  footer: the deployed build stays visible without a click. The deploy check
+  (`wait-for-build.sh`) reads the full build id from the bundle, not the footer.
+- **One health source.** `useHealthCheck` is one shared React Query; the
+  settings context no longer fetches `/api/health`.
+- Implementation: `frontend/src/app/about/AboutDialog.tsx`,
+  `frontend/src/app/footer/`, `frontend/src/features/health/hooks/useHealthCheck.ts`.
+
 ## References
 - [SAP Fiori: Shell Bar](https://www.sap.com/design-system/fiori-design-web/v1-148/ui-elements/shell-bar/usage),
   [User Menu](https://www.sap.com/design-system/fiori-design-web/v1-148/ui-elements/user-menu/usage)

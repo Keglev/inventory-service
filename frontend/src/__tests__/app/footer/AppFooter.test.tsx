@@ -40,14 +40,12 @@ type FooterHealth = {
   status: 'online' | 'offline';
   responseTime: number;
   database: 'online' | 'offline';
+  databaseProduct: string | null;
 };
 
 type FooterConfig = {
   appVersion: string;
   buildId: string;
-  environment: string;
-  currentLanguage: string;
-  region: string;
 };
 
 type FooterState = {
@@ -63,13 +61,10 @@ type FooterStateOverrides = {
 describe('AppFooter', () => {
   const makeState = (overrides: FooterStateOverrides = {}): FooterState => {
     const base: FooterState = {
-      health: { status: 'online', responseTime: 125, database: 'online' },
+      health: { status: 'online', responseTime: 125, database: 'online', databaseProduct: 'Oracle' },
       config: {
         appVersion: '1.0.0',
         buildId: '4a9c12f',
-        environment: 'Production (Koyeb)',
-        currentLanguage: 'EN',
-        region: 'DE',
       },
     };
 
@@ -110,10 +105,9 @@ describe('AppFooter', () => {
   });
 
   it('renders the compact metadata string', () => {
-    arrange();
-    expect(screen.getByText(/© 2025 Smart Supply Pro/)).toBeInTheDocument();
-    expect(screen.getByText(/v1\.0\.0/)).toBeInTheDocument();
-    expect(screen.getByText(/Build 4a9c12f/)).toBeInTheDocument();
+    const { container } = arrange();
+    const year = new Date().getFullYear();
+    expect(container.textContent).toContain(`© ${year} Smart Supply Pro • v1.0.0 • Build 4a9c12f`);
   });
 
   it('renders the documentation link row', () => {
@@ -122,9 +116,10 @@ describe('AppFooter', () => {
     expect(screen.getByRole('link', { name: 'API Reference' })).toBeInTheDocument();
   });
 
-  it('renders the health status', () => {
+  it('renders the health status with the reported database product', () => {
     arrange();
     expect(screen.getByText('Online')).toBeInTheDocument();
+    expect(screen.getByText('Oracle')).toBeInTheDocument();
   });
 
   // -----------------------------

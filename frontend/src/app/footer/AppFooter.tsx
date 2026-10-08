@@ -54,9 +54,6 @@ export default function AppFooter() {
           <FooterMetaInfo
             appVersion={config.appVersion}
             buildId={config.buildId}
-            environment={config.environment}
-            currentLanguage={config.currentLanguage}
-            region={config.region}
           />
 
           {/* Documentation Links */}

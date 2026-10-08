@@ -1,26 +1,27 @@
 /**
  * @file useHealthCheck.ts
  * @module features/health/hooks
- * @summary Polls /api/health every 15 minutes; tracks backend + database online/offline + response time. Feeds 4 chrome surfaces.
+ * @summary One shared /api/health probe (React Query, refreshed every 15 minutes): backend and
+ * database online/offline, response time and the database product name.
  * @enterprise
- * - 4 production consumers — all chrome/layout surfaces: HealthStatusDisplay.tsx (footer), useFooterState.ts (footer state),
- *   SystemInfoMenuSection.tsx (hamburger), HealthBadge.tsx (header). Health status feeds the UI in 4 places.
+ * - One source for every chrome surface (header badge, footer, About dialog; FW5 fork 3).
+ *   The query key dedupes them: before, each consumer ran its own fetch and timer, so entering
+ *   the demo sent two simultaneous requests and the settings context a third.
  * - Uses raw `fetch` (not the project-standard httpClient) by INTENT: health probe must be interceptor-less to avoid
  *   feedback loops (httpClient has auth/error interceptors that would redirect, retry, or toast on health failures).
  *   Raw fetch isolates the probe from app-level error handling.
  * - The URL still comes from VITE_API_BASE via api/apiBase, so the probe targets the same backend as every other
  *   request. A relative path followed the serving origin instead: the static server under `vite preview`, and the
  *   production backend behind the dev proxy.
- * - 15-min poll interval is a balance between freshness and load. Manual refetch is exposed for UI-triggered refreshes
- *   (refresh button in HealthBadge etc.).
+ * - Refresh: every 15 minutes while a consumer is mounted, on mount when the cached result is older than the app's
+ *   default stale time (60 s, main.tsx), and on demand through refetch(). No window-focus refetch.
  * - Backend contract (verified against source): /api/health returns a flat JSON body
- *   ({status, database, databaseProduct, timestamp}), 200/503. Sibling consumer
- *   utils/systemInfo.ts relies on the same flat shape.
- * - Catch-branch sets status: 'offline' on any exception (network, non-JSON, shape mismatch). UI must tolerate offline
- *   state as the normal failure mode.
+ *   ({status, database, databaseProduct, timestamp}), 200/503.
+ * - The probe never throws: any failure (network, non-JSON, shape mismatch) resolves to an offline status, so
+ *   React Query's retry never fires and the UI treats offline as the normal failure mode.
  */
 
-import * as React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { apiUrl } from '../../../api/apiBase';
 import { logError, logWarn } from '../../../utils/logger';
 
@@ -29,6 +30,8 @@ export interface HealthStatus {
   status: 'online' | 'offline';
   responseTime: number;
   database: 'online' | 'offline';
+  /** Database product as the backend reports it (JDBC metadata), or null when unknown. */
+  databaseProduct: string | null;
   timestamp: number;
 }
 
@@ -36,88 +39,84 @@ export interface HealthStatus {
 interface BackendHealthResponse {
   status: string;     // expect "ok" or "down"
   database: string;   // expect "ok" or "down"
+  databaseProduct?: unknown;
   timestamp: number;
 }
 
-/** Default offline health status. */
+/** Default offline health status (also the value before the first probe resolves). */
 const DEFAULT_HEALTH: HealthStatus = {
   status: 'offline',
   responseTime: 0,
   database: 'offline',
+  databaseProduct: null,
   timestamp: 0,
 };
 
-/** Hook to monitor backend health; polls every 15 minutes, exposes manual refetch. */
-export const useHealthCheck = () => {
-  const [health, setHealth] = React.useState<HealthStatus>(DEFAULT_HEALTH);
-  const [loading, setLoading] = React.useState(false);
+const FIFTEEN_MINUTES = 15 * 60 * 1000;
 
-  const checkHealth = React.useCallback(async () => {
-    setLoading(true);
+/** React Query key of the shared probe; every consumer uses it, so they share one request. */
+const HEALTH_QUERY_KEY = ['health'] as const;
 
-    try {
-      const start = performance.now();
+// WHY: response.json() is typed as `unknown`; without a runtime guard, a backend contract drift would
+// propagate as undefined-field bugs downstream. The guard catches drift at the parse boundary.
+const isBackendHealthResponse = (obj: unknown): obj is BackendHealthResponse => {
+  if (typeof obj !== 'object' || obj === null) return false;
+  const o = obj as Record<string, unknown>;
+  return typeof o.status === 'string' && typeof o.database === 'string' && typeof o.timestamp === 'number';
+};
 
-      const response = await fetch(apiUrl('/api/health'), {
-        credentials: 'include',
-      });
-      const elapsed = Math.round(performance.now() - start);
-      const contentType = response.headers.get('content-type') ?? '';
-      if (!contentType.includes('application/json')) {
-        const text = await response.text();
-        logWarn('Health endpoint returned non-JSON:', text);
-        throw new Error('Backend health endpoint did not return JSON');
-      }
-      const parsed: unknown = await response.json();
+/** Runs one probe; resolves to an offline status instead of rejecting. */
+async function probeHealth(): Promise<HealthStatus> {
+  try {
+    const start = performance.now();
+    const response = await fetch(apiUrl('/api/health'), {
+      credentials: 'include',
+    });
+    const elapsed = Math.round(performance.now() - start);
 
-      // WHY: response.json() is typed as `unknown`; without a runtime guard, a backend contract drift would propagate as undefined-field bugs downstream. Type guard catches drift at the parse boundary.
-      const isBackendHealthResponse = (
-        obj: unknown
-      ): obj is BackendHealthResponse => {
-        if (typeof obj !== 'object' || obj === null) return false;
-        const o = obj as Record<string, unknown>;
-        return (
-          typeof o.status === 'string' &&
-          typeof o.database === 'string' &&
-          typeof o.timestamp === 'number'
-        );
-      };
-      if (!isBackendHealthResponse(parsed)) {
-        logError('Unexpected health response structure:', parsed);
-        // WHY: a malformed body degrades to 'offline' rather than throwing into the UI.
-        throw new Error('Health response does not match expected shape');
-      }
-
-      const backendVal = parsed.status.toLowerCase();
-      const dbVal = parsed.database.toLowerCase();
-      setHealth({
-        status: backendVal === 'ok' ? 'online' : 'offline',
-        database: dbVal === 'ok' ? 'online' : 'offline',
-        responseTime: elapsed,
-        timestamp: parsed.timestamp,
-      });
-    } catch (err) {
-      logError('Health check failed:', err);
-      setHealth({
-        status: 'offline',
-        responseTime: 0,
-        database: 'offline',
-        timestamp: Date.now(),
-      });
-    } finally {
-      setLoading(false);
+    const contentType = response.headers.get('content-type') ?? '';
+    if (!contentType.includes('application/json')) {
+      const text = await response.text();
+      logWarn('Health endpoint returned non-JSON:', text);
+      throw new Error('Backend health endpoint did not return JSON');
     }
-  }, []);
 
-  React.useEffect(() => void checkHealth(), [checkHealth]);
+    const parsed: unknown = await response.json();
+    if (!isBackendHealthResponse(parsed)) {
+      logError('Unexpected health response structure:', parsed);
+      throw new Error('Health response does not match expected shape');
+    }
 
-  // WHY: 15-min cadence balances freshness for chrome indicators against polling load on the backend health endpoint.
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      void checkHealth();
-    }, 15 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [checkHealth]);
+    const product =
+      typeof parsed.databaseProduct === 'string' && parsed.databaseProduct.trim() !== ''
+        ? parsed.databaseProduct
+        : null;
 
-  return { health, loading, refetch: checkHealth };
+    return {
+      status: parsed.status.toLowerCase() === 'ok' ? 'online' : 'offline',
+      database: parsed.database.toLowerCase() === 'ok' ? 'online' : 'offline',
+      databaseProduct: product,
+      responseTime: elapsed,
+      timestamp: parsed.timestamp,
+    };
+  } catch (err) {
+    logError('Health check failed:', err);
+    return { ...DEFAULT_HEALTH, timestamp: Date.now() };
+  }
+}
+
+/** Shared backend health; polls every 15 minutes while mounted, exposes manual refetch. */
+export const useHealthCheck = () => {
+  const query = useQuery({
+    queryKey: HEALTH_QUERY_KEY,
+    queryFn: probeHealth,
+    refetchInterval: FIFTEEN_MINUTES,
+    refetchOnWindowFocus: false,
+  });
+
+  const refetch = async (): Promise<void> => {
+    await query.refetch();
+  };
+
+  return { health: query.data ?? DEFAULT_HEALTH, loading: query.isFetching, refetch };
 };

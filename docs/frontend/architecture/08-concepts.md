@@ -15,7 +15,7 @@ retries, and background refresh stay uniform
   bootstrap hydration order is demo-session restore, then `GET /api/me`;
   cross-tab logout converges via storage events (details: [§5.5](05-domains/auth.md)).
 - **Settings** — user preferences (date/number formatting, density) persisted to
-  browser storage, plus backend system info with graceful fallbacks. Known
+  browser storage; system facts come from the shared health query. Known
   tracked limitations: language changes can overwrite explicitly chosen formats,
   and parts of the preference set lack persistence (open items CB-APP33/34).
 - **Toast** — `toast(message, severity?)`, hosted by the shells so leaf

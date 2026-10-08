@@ -1,12 +1,13 @@
 /**
  * @file useFooterState.test.ts
  * @module tests/app/footer/useFooterState
+ * @testing Vitest + React Testing Library (renderHook); useHealthCheck and appMeta mocked
  * @description Contract tests for useFooterState.
  *
  * Contract under test:
- * - Guarantees the footer data composition: health passthrough from
- *   useHealthCheck and config assembly from appMeta + live i18n
- *   language.
+ * - Health passes through from useHealthCheck.
+ * - Config holds the version and build id from appMeta and nothing else:
+ *   environment and language left the footer line (FW5 fork 3).
  *
  * Out of scope:
  * - Health polling internals (features/health); appMeta build-time
@@ -16,17 +17,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useFooterState } from '@/app/footer/useFooterState';
-import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// Hoisted mocks (must exist before vi.mock factory runs)
-// -----------------------------------------------------------------------------
-const mockUseTranslation = vi.hoisted(() => vi.fn());
 const mockUseHealthCheck = vi.hoisted(() => vi.fn());
-
-vi.mock('react-i18next', () => ({
-  useTranslation: mockUseTranslation,
-}));
 
 vi.mock('@/features/health/hooks/useHealthCheck', () => ({
   useHealthCheck: mockUseHealthCheck,
@@ -38,37 +30,25 @@ vi.mock('@/config/appMeta', () => ({
   APP_ENVIRONMENT: 'Production (Koyeb)',
 }));
 
-type I18nLike = { language: string; changeLanguage: () => void };
-
 type Health = {
   status: 'online' | 'offline';
   responseTime: number;
   database: 'online' | 'offline';
+  databaseProduct: string | null;
 };
 
 describe('useFooterState', () => {
-  const setI18nLanguage = (language: string) => {
-    const i18n: I18nLike = { language, changeLanguage: vi.fn() };
-    mockUseTranslation.mockReturnValue({
-      t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
-      i18n,
-    });
-  };
-
   const setHealth = (health: Health) => {
-    mockUseHealthCheck.mockReturnValue({ health });
+    mockUseHealthCheck.mockReturnValue({ health, loading: false, refetch: vi.fn() });
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Default scenario: production-like metadata + healthy services.
-    setI18nLanguage('en-US');
-    setHealth({ status: 'online', responseTime: 125, database: 'online' });
+    setHealth({ status: 'online', responseTime: 125, database: 'online', databaseProduct: 'Oracle' });
   });
 
   it('passes health state through from useHealthCheck', () => {
-    const health: Health = { status: 'offline', responseTime: 0, database: 'offline' };
+    const health: Health = { status: 'offline', responseTime: 0, database: 'offline', databaseProduct: null };
     setHealth(health);
 
     const { result } = renderHook(() => useFooterState());
@@ -76,28 +56,9 @@ describe('useFooterState', () => {
     expect(result.current.health).toEqual(health);
   });
 
-  it('assembles config from appMeta constants', () => {
+  it('assembles config from the appMeta version and build id only', () => {
     const { result } = renderHook(() => useFooterState());
 
-    expect(result.current.config.appVersion).toBe('1.0.0');
-    expect(result.current.config.buildId).toBe('4a9c12f');
-    expect(result.current.config.environment).toBe('Production (Koyeb)');
-    expect(result.current.config.region).toBe('DE');
-  });
-
-  it('derives currentLanguage from the live i18n language', () => {
-    setI18nLanguage('de-DE');
-
-    const { result } = renderHook(() => useFooterState());
-
-    expect(result.current.config.currentLanguage).toBe('DE');
-  });
-
-  it('normalizes region-less language codes', () => {
-    setI18nLanguage('en');
-
-    const { result } = renderHook(() => useFooterState());
-
-    expect(result.current.config.currentLanguage).toBe('EN');
+    expect(result.current.config).toEqual({ appVersion: '1.0.0', buildId: '4a9c12f' });
   });
 });
