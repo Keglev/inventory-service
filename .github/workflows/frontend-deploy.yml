@@ -213,11 +213,13 @@ jobs:
       - name: Job summary
         if: always()
         run: |
-          echo "## Frontend Deployment – Koyeb" >> $GITHUB_STEP_SUMMARY
+          echo "## Frontend Deployment – Koyeb" >> "$GITHUB_STEP_SUMMARY"
           if [ "${{ steps.gate.outputs.deploy }}" != "true" ]; then
             echo "- **Skipped:** test, lint or CI-only merge; the live site keeps the previous build" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          echo "- **Service:** \`${{ env.KOYEB_SERVICE_ID }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image:** \`${{ steps.img.outputs.image_ref }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL:** ${{ env.FRONTEND_URL }}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "- **Service:** \`${{ env.KOYEB_SERVICE_ID }}\`"
+            echo "- **Image:** \`${{ steps.img.outputs.image_ref }}\`"
+            echo "- **URL:** ${{ env.FRONTEND_URL }}"
+          } >> "$GITHUB_STEP_SUMMARY"

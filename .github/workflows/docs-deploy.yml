@@ -138,6 +138,8 @@ jobs:
       - name: Job summary
         if: always()
         run: |
-          echo "## GitHub Pages Deployment" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch:** \`gh-pages\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Site:** https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## GitHub Pages Deployment"
+            echo "- **Branch:** \`gh-pages\`"
+            echo "- **Site:** https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          } >> "$GITHUB_STEP_SUMMARY"

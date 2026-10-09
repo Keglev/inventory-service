@@ -81,5 +81,7 @@ jobs:
       - name: Job summary
         if: always()
         run: |
-          echo "## Release ${GITHUB_REF_NAME}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Notes:** generated from merged pull requests since the previous tag" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Release ${GITHUB_REF_NAME}"
+            echo "- **Notes:** generated from merged pull requests since the previous tag"
+          } >> "$GITHUB_STEP_SUMMARY"

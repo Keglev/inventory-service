@@ -4,7 +4,8 @@
 # Pull request check for YAML hygiene. Every tracked .yml and .yaml file must
 # parse, end with a newline, and carry no trailing whitespace. The rules and the
 # scope both live in .github/scripts/check-yaml.sh, so there is one place to
-# change either.
+# change either. The workflows are also linted by actionlint, which runs
+# shellcheck on every run: block.
 #
 # No chain prefix on purpose: a lint belongs to none of the backend, frontend or
 # docs chains (ADR-0017).
@@ -68,9 +69,24 @@ jobs:
       - name: Check YAML
         run: bash .github/scripts/check-yaml.sh
 
+      # Expression syntax, action inputs, workflow_run names and, through the
+      # shellcheck bundled in the image, the shell inside every run: block. A
+      # pinned image like hadolint, so no new dependency enters the repository.
+      # The 37 findings it reported on 2026-10-09 are fixed; from here on a
+      # finding fails this job. actionlint 1.7.12 does not yet know
+      # concurrency.queue (GitHub changelog 2026-05-07), so that one message
+      # is ignored until a release does; drop the -ignore then.
+      - name: Lint workflows (actionlint)
+        run: >-
+          docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12
+          -color -ignore 'unexpected key "queue" for "concurrency" section'
+
       - name: Job summary
         if: always()
         run: |
-          echo "## YAML Lint" >> $GITHUB_STEP_SUMMARY
-          echo "- Checks: parse (including duplicate keys), trailing whitespace, final newline." >> $GITHUB_STEP_SUMMARY
-          echo "- Advisory: this check does not gate merges yet." >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## YAML Lint"
+            echo "- Checks: parse (including duplicate keys), trailing whitespace, final newline."
+            echo "- Workflows: actionlint 1.7.12 with shellcheck."
+            echo "- Advisory: this check does not gate merges yet."
+          } >> "$GITHUB_STEP_SUMMARY"
