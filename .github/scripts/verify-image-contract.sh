@@ -10,7 +10,7 @@
 # directly and executes none of ops/nginx. Everything this image adds at serve
 # time was therefore unproven before this gate: the SPA fallback, the asset 404,
 # the caching headers, the five security headers that ops/nginx/default.conf
-# repeats in three locations because add_header does not accumulate across
+# repeats in six locations because add_header does not accumulate across
 # levels, and the plain-http redirect. That repetition is the failure this gate
 # exists for: a location added without its copy of the five serves them
 # silently missing.
@@ -113,7 +113,7 @@ expect_gzip() {
   esac
 }
 
-# expect_security_headers <label> <url> - the five repeated in three locations
+# expect_security_headers <label> <url> - the five repeated in six locations
 expect_security_headers() {
   expect_header "$1" "$2" "X-Content-Type-Options" "nosniff"
   expect_header "$1" "$2" "X-Frame-Options" "DENY"
@@ -185,6 +185,19 @@ expect_security_headers "logout get" "$ROOT/logout"
 # server block replaces it rather than adding to it. A locale file stands for
 # the JSON and SVG types, the entry bundle for JavaScript.
 expect_gzip "locale json" "$ROOT/locales/de/common.json"
+
+# Locale files revalidate on every load (their URL carries no version) and a
+# missing one is a 404, not the app shell. Images and the favicon keep stable
+# names, so they get one day.
+expect_header "locale json" "$ROOT/locales/de/common.json" "Cache-Control" "no-cache"
+expect_security_headers "locale json" "$ROOT/locales/de/common.json"
+expect_status "missing locale" "$ROOT/locales/de/does-not-exist-xyz.json" "404"
+expect_status "image" "$ROOT/images/hero-en-light.webp" "200"
+expect_header "image" "$ROOT/images/hero-en-light.webp" "Cache-Control" "max-age=86400"
+expect_security_headers "image" "$ROOT/images/hero-en-light.webp"
+expect_status "missing image" "$ROOT/images/does-not-exist-xyz.webp" "404"
+expect_header "favicon" "$ROOT/favicon.svg" "Cache-Control" "max-age=86400"
+expect_security_headers "favicon" "$ROOT/favicon.svg"
 
 # A missing asset must 404 rather than fall back to the shell, or a stale
 # bundle reference returns HTML that the browser then fails to parse as JS.
