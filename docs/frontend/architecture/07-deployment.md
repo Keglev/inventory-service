@@ -42,11 +42,12 @@ Two workflows own the frontend:
 - **frontend-ci** — audits the shipped dependency tree (gate), lints, runs
   the full Vitest suite, then builds and Trivy-scans the runtime image before
   it can reach Docker Hub.
-- **frontend-deploy** — deploys by image digest, then waits for the commit's
-  build id to appear in the served bundle before trusting the platform's own
+- **frontend-deploy** — skips merges that changed only test, lint or CI
+  files; otherwise deploys by image digest, then waits for the commit's build
+  id to appear in the served bundle instead of trusting the platform's own
   status, which stays `healthy` throughout a rolling update and cannot verify
-  a release on its own
-  ([ADR-0010](09-decisions/adr-0010-verifying-frontend-deploys.md)).
+  a release on its own. A failed rollout prints Koyeb's own view of the
+  service ([ADR-0010](09-decisions/adr-0010-verifying-frontend-deploys.md)).
 
 Architecture and API documentation deploy separately via the docs pipeline to
 GitHub Pages.

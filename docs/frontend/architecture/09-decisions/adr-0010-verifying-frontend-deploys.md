@@ -65,3 +65,21 @@ genuinely down, with a comment recording what it does not establish.
   an edit to `6-deploy-frontend.yml`, not to the scripts.
 - The backend deploy shares the same readiness pattern and is not covered here. It
   has no equivalent build identifier in its responses and needs its own mechanism.
+
+## Amendment 2026-10-09: the platform poll goes, diagnostics and a deploy gate come
+
+The Decision kept the `koyeb service describe` poll ahead of the build wait "as a
+fast failure when the service is genuinely down". Measured over the ten deploys
+before 2026-10-09, it passed on its first poll every time; the one failed deploy
+since 2026-09-24 (2026-10-05) passed it too and then timed out in the build wait
+after 30 attempts, with nothing in the log to say why. A service that is down
+fails the build wait as well, so the poll added a step without adding a signal.
+
+- The poll is removed. The build wait is the only readiness gate, now with 45
+  attempts 10 s apart (successful deploys needed 3 to 5).
+- When any step after the update fails, a diagnostics step prints what Koyeb
+  reports: `service describe`, the last five deployments and the instances.
+- `frontend-deploy-gate.sh` skips the deploy when the merge changed only test,
+  lint or CI files; any other path deploys. Replayed over the 62 deploys since
+  2026-09-24 it skips 5, all test-only. After a skipped merge the live bundle
+  carries the build id of the last deployed commit, not of `main`.
