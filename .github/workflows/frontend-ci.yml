@@ -45,10 +45,14 @@ on:
 permissions:
   contents: read
 
-# Only one frontend build at a time — do not cancel in progress to avoid broken image state
+# Only one frontend build at a time — do not cancel in progress to avoid broken image state.
+# The group is shared by every branch, so without queue: max GitHub kept one
+# pending run and cancelled it when the next PR pushed: on 2026-10-09 a PR's
+# required check was cancelled that way and had to be re-run.
 concurrency:
   group: frontend-ci
   cancel-in-progress: false
+  queue: max
 
 env:
   # The Docker Hub account name is configuration, not a credential: it is

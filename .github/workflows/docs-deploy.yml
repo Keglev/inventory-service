@@ -23,9 +23,13 @@ permissions:
 
 # Prevent concurrent gh-pages pushes — parallel runs cause branch merge conflicts.
 # The same queue orders the deployments: one per push, never two at once.
+# queue: max makes it a real queue: without it GitHub keeps one pending run and
+# cancels it for a newer one, and each run publishes a different docs-build
+# artifact, so a dropped run would drop that share of the site.
 concurrency:
   group: ghpages-deploy
   cancel-in-progress: false
+  queue: max
 
 jobs:
   deploy-ghpages:
