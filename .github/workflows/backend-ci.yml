@@ -178,9 +178,11 @@ jobs:
       - name: Job summary
         if: always()
         run: |
-          echo "## Backend Build & Test" >> $GITHUB_STEP_SUMMARY
-          echo "- **Coverage artifact:** \`jacoco-html-${{ github.event.pull_request.head.sha || github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Next:** \`backend-docker.yml\` builds and scans the Docker image" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Backend Build & Test"
+            echo "- **Coverage artifact:** \`jacoco-html-${{ github.event.pull_request.head.sha || github.sha }}\`"
+            echo "- **Next:** \`backend-docker.yml\` builds and scans the Docker image"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # The suite runs beside the backend job, not after it: it builds its own jar
   # and its own bundle. Skipped when the gate inside it finds nothing to see.

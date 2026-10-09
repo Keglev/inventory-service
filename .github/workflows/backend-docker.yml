@@ -103,16 +103,16 @@ jobs:
         run: |
           set -euo pipefail
           docker build --no-cache \
-            --build-arg BUILD_COMMIT=${IMAGE_TAG_SHA} \
-            -t $IMAGE_REPO:latest \
-            -t $IMAGE_REPO:${IMAGE_TAG_SHA} \
+            --build-arg BUILD_COMMIT="${IMAGE_TAG_SHA}" \
+            -t "$IMAGE_REPO:latest" \
+            -t "$IMAGE_REPO:${IMAGE_TAG_SHA}" \
             .
 
       # Verify the production image contains only runtime artifacts — no test sources or docs
       - name: Inspect image contents
         if: steps.gate.outputs.build == 'true'
         run: |
-          docker run --rm $IMAGE_REPO:${IMAGE_TAG_SHA} sh -c '
+          docker run --rm "$IMAGE_REPO:${IMAGE_TAG_SHA}" sh -c '
             echo "=== Runtime artifacts ==="
             ls -lh /app/app.jar /app/start.sh
             echo "=== Confirming no test or docs directories ==="
@@ -183,6 +183,8 @@ jobs:
       - name: Job summary
         if: always() && steps.gate.outputs.build == 'true'
         run: |
-          echo "## Backend Docker Build & Scan" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image:** \`$IMAGE_REPO:${IMAGE_TAG_SHA}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Next:** \`backend-deploy.yml\` releases this image to the Hetzner host" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Backend Docker Build & Scan"
+            echo "- **Image:** \`$IMAGE_REPO:${IMAGE_TAG_SHA}\`"
+            echo "- **Next:** \`backend-deploy.yml\` releases this image to the Hetzner host"
+          } >> "$GITHUB_STEP_SUMMARY"

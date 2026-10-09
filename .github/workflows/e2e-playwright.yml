@@ -87,11 +87,16 @@ jobs:
         run: mvn -q -B -Dmaven.test.skip=true package
 
       - name: Resolve H2 driver into the local repository
-        run: mvn -q -B dependency:get -Dartifact=com.h2database:h2:${H2_VERSION}
+        run: mvn -q -B dependency:get "-Dartifact=com.h2database:h2:${H2_VERSION}"
 
       - name: Start backend (test,e2e profile)
         run: |
-          JAR=$(ls target/inventory-service-*.jar | grep -v original | head -n 1)
+          # A glob, not ls | grep: the first jar that is not Spring's *.original.
+          JAR=""
+          for f in target/inventory-service-*.jar; do
+            case "$f" in *original*) ;; *) JAR="$f"; break ;; esac
+          done
+          test -n "$JAR" || { echo "Backend jar missing under target/"; exit 1; }
           H2=$HOME/.m2/repository/com/h2database/h2/${H2_VERSION}/h2-${H2_VERSION}.jar
           test -f "$H2" || { echo "H2 driver missing at $H2"; exit 1; }
           nohup java -cp "$JAR:$H2" org.springframework.boot.loader.launch.JarLauncher \

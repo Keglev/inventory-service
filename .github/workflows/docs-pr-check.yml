@@ -105,5 +105,7 @@ jobs:
       - name: Job summary
         if: always()
         run: |
-          echo "## Docs PR Check" >> $GITHUB_STEP_SUMMARY
-          echo "- Site built and internal links checked; nothing published." >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Docs PR Check"
+            echo "- Site built and internal links checked; nothing published."
+          } >> "$GITHUB_STEP_SUMMARY"

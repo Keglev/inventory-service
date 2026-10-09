@@ -150,6 +150,8 @@ jobs:
       - name: Job summary
         if: always() && steps.gate.outputs.build == 'true'
         run: |
-          echo "## Backend Release" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image:** \`ghcr.io/keglev/inventory-service/backend:${{ env.IMAGE_TAG_SHA }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Host:** api.smartsupplypro.de" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Backend Release"
+            echo "- **Image:** \`ghcr.io/keglev/inventory-service/backend:${{ env.IMAGE_TAG_SHA }}\`"
+            echo "- **Host:** api.smartsupplypro.de"
+          } >> "$GITHUB_STEP_SUMMARY"
