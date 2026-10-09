@@ -24,12 +24,12 @@
 # days old before it is proposed, time for a compromised version to be caught
 # and pulled; security updates skip that wait.
 #
-# Docker was added on 2026-10-09 (FW6 C1). The base images are pulled fresh
-# on every build, but only the fully versioned tag (maven:3.9.x) ever moved by
-# hand; the floating ones (21-jre-alpine, 24-bookworm-slim, 1.30-alpine) move
-# only to a new major or minor, which the allow rule below keeps for a person
-# to plan. nginx minors are ignored outright: odd minors are nginx's mainline
-# branch, and the next stable line is a deliberate change.
+# Docker was added on 2026-10-09 (FW6 C1). Every base tag floats
+# (3-eclipse-temurin-21, 21-jre-alpine, 24-bookworm-slim, 1.30-alpine) and is
+# pulled fresh on every build; Dependabot could only move them to a new major
+# or minor, which the allow rule keeps for a person to plan. nginx minors are
+# ignored because odd minors are nginx's mainline branch; the maven image is
+# ignored because Dependabot changed its JDK suffix (#305).
 #
 # No labels: generated release notes group by pull request label, this
 # repository does not label pull requests, and the release workflow depends on
@@ -119,6 +119,12 @@ updates:
       - dependency-name: nginx
         update-types:
           - version-update:semver-minor
+      # The maven tag carries the JDK as a suffix (3-eclipse-temurin-21), and
+      # Dependabot swapped that suffix to Temurin 26 in #305 although the
+      # allow rule takes minor and patch only. The tag floats and is pulled
+      # fresh on every build, so nothing is lost by ignoring it; a JDK change
+      # is made by hand with the runtime image and <java.version>.
+      - dependency-name: maven
     groups:
       docker:
         patterns:
