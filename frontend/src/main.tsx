@@ -11,6 +11,9 @@
  *   calls in AppShell or pages can rely on an initialized i18next instance.
  */
 
+// Side-effect import, first on purpose: zod reads this setting when a schema is
+// built, and the modules imported below build schemas (see config/zodConfig.ts).
+import './config/zodConfig';
 // Side-effect import: initializes i18n (language detection + resources + persistence).
 
 import './i18n';

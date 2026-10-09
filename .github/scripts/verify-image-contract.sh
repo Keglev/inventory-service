@@ -170,6 +170,13 @@ expect_status "https visitor" "$ROOT/" "200" "www.smartsupplypro.de" "https"
 expect_status "index.html" "$ROOT/index.html" "200"
 expect_header "index.html" "$ROOT/index.html" "Cache-Control" "no-cache"
 
+# The CSP rides on the app shell only, so every route that serves it must
+# carry it: the root, a deep link and the GET of /logout.
+CSP_CORE="default-src 'self'; script-src 'self';"
+expect_header "csp root" "$ROOT/" "Content-Security-Policy-Report-Only" "$CSP_CORE"
+expect_header "csp deep link" "$ROOT/inventory" "Content-Security-Policy-Report-Only" "$CSP_CORE"
+expect_header "csp logout get" "$ROOT/logout" "Content-Security-Policy-Report-Only" "$CSP_CORE"
+
 expect_status "spa fallback" "$ROOT/inventory" "200"
 expect_header "spa fallback" "$ROOT/inventory" "Content-Type" "text/html"
 expect_security_headers "spa fallback" "$ROOT/inventory"
