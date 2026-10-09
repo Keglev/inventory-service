@@ -33,16 +33,21 @@ permissions:
   contents: read
   actions: read
 
-# Cancel in-progress builds when a newer commit arrives
 # Runs queue, they do not cancel each other. A merge touching docs, backend and
 # frontend triggers this pipeline up to three times — once on its own push and
 # once behind each CI workflow — and each of those runs carries a different
 # artifact. Cancelling an overtaken run silently drops the coverage report it was
 # about to publish. Queuing is safe because the publisher replaces only the paths
 # a run's MANIFEST claims, so order does not change the result.
+# cancel-in-progress: false alone does not queue: GitHub keeps one pending run
+# per group and cancels it when a newer one arrives, so the second of three runs
+# could be dropped. queue: max keeps up to 100 pending runs in order (GitHub
+# docs, "Control workflow concurrency"); it cannot be combined with
+# cancel-in-progress: true.
 concurrency:
   group: docs-build-${{ github.ref }}
   cancel-in-progress: false
+  queue: max
 
 jobs:
   build-docs:

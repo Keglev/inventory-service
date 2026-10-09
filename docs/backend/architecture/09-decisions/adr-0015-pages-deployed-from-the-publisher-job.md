@@ -80,6 +80,21 @@ pinned by commit.
 - Verified after the switch against the published site and the absence of a
   `pages-build-deployment` run for the push, not against a green tick.
 
+## Amendment 2026-10-09: the queue keeps every pending run
+
+The Decision said the `ghpages-deploy` queue "never cancels". That held for a
+running deployment (`cancel-in-progress: false`) but not for waiting ones:
+GitHub keeps one pending run per concurrency group and cancels it when a newer
+run arrives. Each run publishes a different docs-build artifact, so a cancelled
+pending run would have dropped its share of the site. No such cancellation
+appears in the last 100 runs, but the docs-build trigger pattern (up to three
+runs per merge) can produce one.
+
+`queue: max` (GitHub changelog, 2026-05-07) now keeps up to 100 pending runs in
+order, in `docs-deploy.yml`, `docs-build.yml` and `frontend-ci.yml`. The last
+group is shared by every branch, and on 2026-10-09 it cancelled a pull
+request's required check this way.
+
 ## References
 - [ADR-0013: The docs pipeline rebuilds, and publishes, by change](adr-0013-docs-pipeline-rebuilds-by-change.md)
 - Configuring a publishing source for GitHub Pages: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
