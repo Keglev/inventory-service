@@ -18,7 +18,11 @@
 # 1) Dependency Warmup (optional but good for speed)
 #    Copies only pom + .mvn to leverage Docker layer cache for dependencies.
 # -----------------------------------------------------------------------------
-FROM maven:3.9-eclipse-temurin-26 AS deps
+# Build JDK = runtime JDK (21, see the runtime stage and <java.version>). The
+# tag floats on Maven 3 and Temurin 21 and is pulled fresh on every build.
+# Dependabot ignores this image (.github/dependabot.yml): on 2026-10-09 it
+# read the JDK in the tag as a suffix and moved the build to Temurin 26 (#305).
+FROM maven:3-eclipse-temurin-21 AS deps
 
 # Set working directory in the deps container
 WORKDIR /app
@@ -37,7 +41,7 @@ RUN mvn -q -B -DskipTests dependency:go-offline
 # These stages are discarded after packaging — only the JRE runtime stage is deployed.
 # Runtime image: eclipse-temurin:21-jre-alpine (no build tools, minimal attack surface).
 # -----------------------------------------------------------------------------
-FROM maven:3.9-eclipse-temurin-26 AS build
+FROM maven:3-eclipse-temurin-21 AS build
 WORKDIR /build
 
 # Reuse warmed dependencies from the previous stage
