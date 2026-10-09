@@ -1,8 +1,8 @@
 # =============================================================================
 # Smart Supply Pro - Dependabot
 #
-# Three ecosystems: the pinned actions, the Maven build and the frontend's npm
-# tree. Every action is pinned to a commit, and a pin nobody updates is how the
+# Four ecosystems: the pinned actions, the Maven build, the frontend's npm
+# tree and the base images in the two Dockerfiles. Every action is pinned to a commit, and a pin nobody updates is how the
 # Koyeb CLI fallback ended up four major versions stale; Dependabot rewrites
 # both the commit and the trailing version comment, which is why the comments
 # are there.
@@ -23,6 +23,13 @@
 # update that needs a major version still arrives. A release must be seven
 # days old before it is proposed, time for a compromised version to be caught
 # and pulled; security updates skip that wait.
+#
+# Docker was added on 2026-10-09 (FW6 C1). The base images are pulled fresh
+# on every build, but only the fully versioned tag (maven:3.9.x) ever moved by
+# hand; the floating ones (21-jre-alpine, 24-bookworm-slim, 1.30-alpine) move
+# only to a new major or minor, which the allow rule below keeps for a person
+# to plan. nginx minors are ignored outright: odd minors are nginx's mainline
+# branch, and the next stable line is a deliberate change.
 #
 # No labels: generated release notes group by pull request label, this
 # repository does not label pull requests, and the release workflow depends on
@@ -86,5 +93,33 @@ updates:
           - version-update:semver-patch
     groups:
       npm:
+        patterns:
+          - "*"
+
+  # Both Dockerfiles: the backend image at the root, the nginx image in frontend/.
+  - package-ecosystem: docker
+    directories:
+      - /
+      - /frontend
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 1
+    labels: []
+    commit-message:
+      prefix: build
+      include: scope
+    cooldown:
+      default-days: 7
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
+    ignore:
+      - dependency-name: nginx
+        update-types:
+          - version-update:semver-minor
+    groups:
+      docker:
         patterns:
           - "*"
