@@ -214,6 +214,24 @@
         absence of a <code>pages-build-deployment</code> run for the
         push, not against a green tick.</li>
         </ul>
+        <h2
+        id="amendment-2026-10-09-the-queue-keeps-every-pending-run">Amendment
+        2026-10-09: the queue keeps every pending run</h2>
+        <p>The Decision said the <code>ghpages-deploy</code> queue
+        “never cancels”. That held for a running deployment
+        (<code>cancel-in-progress: false</code>) but not for waiting
+        ones: GitHub keeps one pending run per concurrency group and
+        cancels it when a newer run arrives. Each run publishes a
+        different docs-build artifact, so a cancelled pending run would
+        have dropped its share of the site. No such cancellation appears
+        in the last 100 runs, but the docs-build trigger pattern (up to
+        three runs per merge) can produce one.</p>
+        <p><code>queue: max</code> (GitHub changelog, 2026-05-07) now
+        keeps up to 100 pending runs in order, in
+        <code>docs-deploy.yml</code>, <code>docs-build.yml</code> and
+        <code>frontend-ci.yml</code>. The last group is shared by every
+        branch, and on 2026-10-09 it cancelled a pull request’s required
+        check this way.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -246,6 +264,10 @@
       id="toc-consequences">Consequences</a></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a
+      href="#amendment-2026-10-09-the-queue-keeps-every-pending-run"
+      id="toc-amendment-2026-10-09-the-queue-keeps-every-pending-run">Amendment
+      2026-10-09: the queue keeps every pending run</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
