@@ -9,10 +9,11 @@
 # The Playwright suite runs the bundle under `vite preview`, which serves dist/
 # directly and executes none of ops/nginx. Everything this image adds at serve
 # time was therefore unproven before this gate: the SPA fallback, the asset 404,
-# the caching headers, and the four security headers that ops/nginx/default.conf
+# the caching headers, the five security headers that ops/nginx/default.conf
 # repeats in three locations because add_header does not accumulate across
-# levels. That repetition is the failure this gate exists for: a location added
-# without its copy of the four serves them silently missing.
+# levels, and the plain-http redirect. That repetition is the failure this gate
+# exists for: a location added without its copy of the five serves them
+# silently missing.
 #
 # Not covered, deliberately. The proxy locations reach the production backend,
 # so exercising them from CI would send traffic there; /api/ is proven after
@@ -55,11 +56,12 @@ fail() {
   FAILURES=$((FAILURES + 1))
 }
 
-# expect_status <label> <url> <expected-code> [host]
+# expect_status <label> <url> <expected-code> [host] [forwarded-proto]
 expect_status() {
-  local label="$1" url="$2" want="$3" host="${4:-}" got
+  local label="$1" url="$2" want="$3" host="${4:-}" proto="${5:-}" got
   local -a hdr=()
-  if [ -n "$host" ]; then hdr=(-H "Host: $host"); fi
+  if [ -n "$host" ]; then hdr+=(-H "Host: $host"); fi
+  if [ -n "$proto" ]; then hdr+=(-H "X-Forwarded-Proto: $proto"); fi
   got="$(curl -s -o "$WORK/body" -w '%{http_code}' "${hdr[@]}" "$url")"
   if [ "$got" = "$want" ]; then
     echo "  PASS [$label] HTTP $got"
@@ -80,11 +82,14 @@ expect_header() {
   esac
 }
 
-# expect_redirect <label> <url> <host> <location> - a 301 to exactly <location>
+# expect_redirect <label> <url> <host> <location> [forwarded-proto] - a 301 to
+# exactly <location>
 expect_redirect() {
-  local label="$1" url="$2" host="$3" want="$4" fmt out got loc
+  local label="$1" url="$2" host="$3" want="$4" proto="${5:-}" fmt out got loc
+  local -a hdr=(-H "Host: $host")
+  if [ -n "$proto" ]; then hdr+=(-H "X-Forwarded-Proto: $proto"); fi
   fmt='%{http_code} %{redirect_url}'
-  out="$(curl -s -o /dev/null -w "$fmt" -H "Host: $host" "$url")"
+  out="$(curl -s -o /dev/null -w "$fmt" "${hdr[@]}" "$url")"
   got="${out%% *}"
   loc="${out#* }"
   if [ "$got" != "301" ]; then
@@ -108,12 +113,13 @@ expect_gzip() {
   esac
 }
 
-# expect_security_headers <label> <url> - the four repeated in three locations
+# expect_security_headers <label> <url> - the five repeated in three locations
 expect_security_headers() {
   expect_header "$1" "$2" "X-Content-Type-Options" "nosniff"
   expect_header "$1" "$2" "X-Frame-Options" "DENY"
   expect_header "$1" "$2" "Referrer-Policy" "strict-origin-when-cross-origin"
   expect_header "$1" "$2" "Permissions-Policy" "camera=()"
+  expect_header "$1" "$2" "Strict-Transport-Security" "max-age=31536000"
 }
 
 if [ "${1:-}" = "--selftest" ]; then
@@ -152,6 +158,15 @@ APEX_WANT="https://www.smartsupplypro.de/inventory?page=2"
 expect_redirect "apex redirect" "$ROOT/inventory?page=2" "smartsupplypro.de" "$APEX_WANT"
 expect_status "canonical host" "$ROOT/" "200" "www.smartsupplypro.de"
 
+# TLS ends at the Koyeb edge, which reports the visitor's scheme in
+# X-Forwarded-Proto. A plain-http visitor is sent to https with path and query
+# intact; an https visitor is served; a request without the header (the
+# HEALTHCHECK, every other check here) is served too, so the redirect cannot
+# loop if the platform stops sending it.
+HTTP_WANT="https://www.smartsupplypro.de/inventory?page=2"
+expect_redirect "http visitor" "$ROOT/inventory?page=2" "www.smartsupplypro.de" "$HTTP_WANT" "http"
+expect_status "https visitor" "$ROOT/" "200" "www.smartsupplypro.de" "https"
+
 expect_status "index.html" "$ROOT/index.html" "200"
 expect_header "index.html" "$ROOT/index.html" "Cache-Control" "no-cache"
 
@@ -161,7 +176,7 @@ expect_security_headers "spa fallback" "$ROOT/inventory"
 
 # A GET of /logout (a reload or a typed URL) serves the shell from this image;
 # only the logout form's POST is proxied. The security headers tell the two
-# apart: proxied responses carry none of the four.
+# apart: proxied responses carry none of the four nginx-only ones.
 expect_status "logout get" "$ROOT/logout" "200"
 expect_header "logout get" "$ROOT/logout" "Cache-Control" "no-cache"
 expect_security_headers "logout get" "$ROOT/logout"
