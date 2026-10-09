@@ -243,6 +243,39 @@
         <li><code>fly.toml [env]</code> — carries only non-secret
         configuration; all credentials are Fly secrets.</li>
         </ul>
+        <h2
+        id="amendment-2026-10-09-the-wallet-password-leaves-the-command-line">Amendment
+        2026-10-09: the wallet password leaves the command line</h2>
+        <p>Decision point 4 passed the password as
+        <code>-Doracle.net.wallet_password=...</code> on the
+        <code>java</code> command line. Since <a
+        href="adr-0012-backend-hosting-on-shared-hetzner-host.html">ADR-0012</a>
+        the container runs on a shared host, where a process’s arguments
+        are readable by every host user through <code>ps</code>, while
+        its environment is readable only by root and the process’s own
+        user (FW6 survey, S1).</p>
+        <ul>
+        <li><code>scripts/start.sh</code> no longer puts the password on
+        the command line. It still refuses to start without
+        <code>ORACLE_WALLET_PASSWORD</code>, now with an explicit check,
+        because the JVM no longer references the variable.</li>
+        <li><code>application-prod.yml</code> passes it to the driver as
+        a Hikari data-source property,
+        <code>spring.datasource.hikari.data-source-properties[oracle.net.wallet_password]</code>,
+        read from the environment.
+        <code>oracle.net.wallet_password</code> is a connection property
+        of the driver
+        (<code>OracleConnection.CONNECTION_PROPERTY_WALLET_PASSWORD</code>,
+        read from ojdbc11 23.26.3.0.0, the Boot 4.1.1 managed
+        version).</li>
+        <li>The encrypted wallet and its password stay: the free-tier
+        database requires them, so the auto-login wallet (ADR-0001) is
+        still not an option.</li>
+        <li><code>WalletPasswordBindingTest</code> pins the binding. The
+        secrets themselves now come from the host env file (ADR-0012),
+        not Fly secrets; the mechanism above is unchanged by that
+        move.</li>
+        </ul>
         <h2 id="references">References</h2>
         <ul>
         <li><a href="adr-0001-oracle-wallet-autologin.html">ADR-0001</a>
@@ -279,6 +312,10 @@
       </ul></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a
+      href="#amendment-2026-10-09-the-wallet-password-leaves-the-command-line"
+      id="toc-amendment-2026-10-09-the-wallet-password-leaves-the-command-line">Amendment
+      2026-10-09: the wallet password leaves the command line</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

@@ -412,10 +412,13 @@
         the base64 <code>ORACLE_WALLET_B64</code> value from the host
         env file, extracts it to
         <code>/app/wallet/Wallet_sspdb_fixed</code>, verifies
-        <code>tnsnames.ora</code> and <code>ewallet.p12</code>, sets
-        <code>TNS_ADMIN</code> itself, and passes the runtime wallet
-        password (<code>ORACLE_WALLET_PASSWORD</code>) to the JDBC
-        driver. The schema account authenticates separately via
+        <code>tnsnames.ora</code> and <code>ewallet.p12</code>, and sets
+        <code>TNS_ADMIN</code> itself. <code>application-prod.yml</code>
+        hands the runtime wallet password
+        (<code>ORACLE_WALLET_PASSWORD</code>) from the environment to
+        the JDBC driver as a connection property, never as a
+        command-line argument, which other users of the shared host
+        could read. The schema account authenticates separately via
         <code>DB_USER</code>/<code>DB_PASS</code>. Full record: <a
         href="09-decisions/adr-0009-runtime-wallet-delivery.html">ADR
         0009</a>.</p>
@@ -468,8 +471,9 @@
         <tr class="even">
         <td><code>ORACLE_WALLET_PASSWORD</code></td>
         <td><code>.env.prod</code></td>
-        <td>Opens the encrypted wallet
-        (<code>oracle.net.wallet_password</code>)</td>
+        <td>Opens the encrypted wallet (driver property
+        <code>oracle.net.wallet_password</code>, set in
+        <code>application-prod.yml</code>)</td>
         </tr>
         <tr class="odd">
         <td><code>DB_URL</code>, <code>DB_USER</code>,
