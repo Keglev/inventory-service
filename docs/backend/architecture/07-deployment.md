@@ -164,8 +164,10 @@ project's containers.
 The wallet is **not** part of the image or the repository. At startup,
 `scripts/start.sh` decodes the base64 `ORACLE_WALLET_B64` value from the host env
 file, extracts it to `/app/wallet/Wallet_sspdb_fixed`, verifies `tnsnames.ora` and
-`ewallet.p12`, sets `TNS_ADMIN` itself, and passes the runtime wallet password
-(`ORACLE_WALLET_PASSWORD`) to the JDBC driver. The schema account authenticates
+`ewallet.p12`, and sets `TNS_ADMIN` itself. `application-prod.yml` hands the
+runtime wallet password (`ORACLE_WALLET_PASSWORD`) from the environment to the JDBC
+driver as a connection property, never as a command-line argument, which other users
+of the shared host could read. The schema account authenticates
 separately via `DB_USER`/`DB_PASS`. Full record:
 [ADR 0009](09-decisions/adr-0009-runtime-wallet-delivery.md).
 
@@ -181,7 +183,7 @@ key list and the host operating rules are kept in `docker/README.md`.
 | `APP_FRONTEND_BASE_URL` | `.env.prod` | CORS allowed origin for the Koyeb frontend |
 | `APP_FRONTEND_LANDING_PATH` | `.env.prod` | Post-login redirect path in the SPA |
 | `ORACLE_WALLET_B64` | `.env.prod` | Base64 wallet archive, extracted by `start.sh` at startup |
-| `ORACLE_WALLET_PASSWORD` | `.env.prod` | Opens the encrypted wallet (`oracle.net.wallet_password`) |
+| `ORACLE_WALLET_PASSWORD` | `.env.prod` | Opens the encrypted wallet (driver property `oracle.net.wallet_password`, set in `application-prod.yml`) |
 | `DB_URL`, `DB_USER`, `DB_PASS` | `.env.prod` | Datasource URL (TNS alias) and schema credentials |
 | `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID` | `.env.prod` | Google OAuth2 client ID |
 | `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET` | `.env.prod` | Google OAuth2 client secret |
