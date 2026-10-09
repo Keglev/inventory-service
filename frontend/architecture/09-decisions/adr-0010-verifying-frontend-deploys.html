@@ -192,6 +192,33 @@
         not covered here. It has no equivalent build identifier in its
         responses and needs its own mechanism.</li>
         </ul>
+        <h2
+        id="amendment-2026-10-09-the-platform-poll-goes-diagnostics-and-a-deploy-gate-come">Amendment
+        2026-10-09: the platform poll goes, diagnostics and a deploy
+        gate come</h2>
+        <p>The Decision kept the <code>koyeb service describe</code>
+        poll ahead of the build wait “as a fast failure when the service
+        is genuinely down”. Measured over the ten deploys before
+        2026-10-09, it passed on its first poll every time; the one
+        failed deploy since 2026-09-24 (2026-10-05) passed it too and
+        then timed out in the build wait after 30 attempts, with nothing
+        in the log to say why. A service that is down fails the build
+        wait as well, so the poll added a step without adding a
+        signal.</p>
+        <ul>
+        <li>The poll is removed. The build wait is the only readiness
+        gate, now with 45 attempts 10 s apart (successful deploys needed
+        3 to 5).</li>
+        <li>When any step after the update fails, a diagnostics step
+        prints what Koyeb reports: <code>service describe</code>, the
+        last five deployments and the instances.</li>
+        <li><code>frontend-deploy-gate.sh</code> skips the deploy when
+        the merge changed only test, lint or CI files; any other path
+        deploys. Replayed over the 62 deploys since 2026-09-24 it skips
+        5, all test-only. After a skipped merge the live bundle carries
+        the build id of the last deployed commit, not of
+        <code>main</code>.</li>
+        </ul>
       </article>
     </main>
 
@@ -212,6 +239,11 @@
       id="toc-alternatives-considered">Alternatives Considered</a></li>
       <li><a href="#consequences"
       id="toc-consequences">Consequences</a></li>
+      <li><a
+      href="#amendment-2026-10-09-the-platform-poll-goes-diagnostics-and-a-deploy-gate-come"
+      id="toc-amendment-2026-10-09-the-platform-poll-goes-diagnostics-and-a-deploy-gate-come">Amendment
+      2026-10-09: the platform poll goes, diagnostics and a deploy gate
+      come</a></li>
       </ul></li>
       </ul>
     </nav>

@@ -162,11 +162,13 @@
         tree (gate), lints, runs the full Vitest suite, then builds and
         Trivy-scans the runtime image before it can reach Docker
         Hub.</li>
-        <li><strong>frontend-deploy</strong> — deploys by image digest,
+        <li><strong>frontend-deploy</strong> — skips merges that changed
+        only test, lint or CI files; otherwise deploys by image digest,
         then waits for the commit’s build id to appear in the served
-        bundle before trusting the platform’s own status, which stays
-        <code>healthy</code> throughout a rolling update and cannot
-        verify a release on its own (<a
+        bundle instead of trusting the platform’s own status, which
+        stays <code>healthy</code> throughout a rolling update and
+        cannot verify a release on its own. A failed rollout prints
+        Koyeb’s own view of the service (<a
         href="09-decisions/adr-0010-verifying-frontend-deploys.html">ADR-0010</a>).</li>
         </ul>
         <p>Architecture and API documentation deploy separately via the
