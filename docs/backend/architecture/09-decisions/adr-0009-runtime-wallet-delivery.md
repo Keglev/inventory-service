@@ -94,6 +94,28 @@ in production.
 - `fly.toml [env]` — carries only non-secret configuration; all credentials are
   Fly secrets.
 
+## Amendment 2026-10-09: the wallet password leaves the command line
+
+Decision point 4 passed the password as `-Doracle.net.wallet_password=...` on the
+`java` command line. Since [ADR-0012](adr-0012-backend-hosting-on-shared-hetzner-host.md)
+the container runs on a shared host, where a process's arguments are readable by
+every host user through `ps`, while its environment is readable only by root and
+the process's own user (FW6 survey, S1).
+
+- `scripts/start.sh` no longer puts the password on the command line. It still
+  refuses to start without `ORACLE_WALLET_PASSWORD`, now with an explicit check,
+  because the JVM no longer references the variable.
+- `application-prod.yml` passes it to the driver as a Hikari data-source property,
+  `spring.datasource.hikari.data-source-properties[oracle.net.wallet_password]`,
+  read from the environment. `oracle.net.wallet_password` is a connection
+  property of the driver (`OracleConnection.CONNECTION_PROPERTY_WALLET_PASSWORD`,
+  read from ojdbc11 23.26.3.0.0, the Boot 4.1.1 managed version).
+- The encrypted wallet and its password stay: the free-tier database requires
+  them, so the auto-login wallet (ADR-0001) is still not an option.
+- `WalletPasswordBindingTest` pins the binding. The secrets themselves now come
+  from the host env file (ADR-0012), not Fly secrets; the mechanism above is
+  unchanged by that move.
+
 ## References
 - [ADR-0001](adr-0001-oracle-wallet-autologin.md) — the superseded delivery model;
   mTLS-via-wallet and the account-credential layer (`DB_USER`/`DB_PASS`) remain as

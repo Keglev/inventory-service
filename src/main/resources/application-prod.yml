@@ -24,6 +24,12 @@ spring:
       connection-test-query: SELECT 1 FROM DUAL # Oracle-specific health check
       leak-detection-threshold: 60000          # 60 seconds - detect connection leaks
       keepalive-time: 120000                   # 2 minutes - keepalive ping
+      # The wallet password goes to the Oracle driver as a connection property
+      # read from the environment, never as a -D argument, which any user on
+      # the shared host could read with ps (FW6 S1, ADR-0009 amendment). The
+      # brackets keep the dots in the key.
+      data-source-properties:
+        "[oracle.net.wallet_password]": ${ORACLE_WALLET_PASSWORD}
 
   flyway:
     enabled: true

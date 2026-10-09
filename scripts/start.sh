@@ -20,6 +20,12 @@ umask 077
 if [ -z "${ORACLE_WALLET_B64:-}" ]; then
   echo "ERROR: ORACLE_WALLET_B64 is not set (runtime secret required)"; exit 1
 fi
+# The encrypted wallet needs its password (ADR-0009). Checked here because the
+# JVM no longer receives it as an argument: application-prod.yml reads it from
+# the environment, and a missing value would surface only as a pool error.
+if [ -z "${ORACLE_WALLET_PASSWORD:-}" ]; then
+  echo "ERROR: ORACLE_WALLET_PASSWORD is not set (runtime secret required)"; exit 1
+fi
 
 # Decode the base64 wallet (delivered as an environment variable) and extract it
 mkdir -p /app/wallet
@@ -60,11 +66,14 @@ fi
 
 # JVM opts - avoid fixed -Xmx; the percentage tracks the container memory limit.
 # server.address and server.forward-headers-strategy come from application.yml.
+# No secret goes on this line: a process's arguments are readable by every user
+# of the host through ps, its environment only by root and its own user. The
+# wallet password reaches the driver from the environment through
+# spring.datasource.hikari.data-source-properties in application-prod.yml.
 JAVA_OPTS="${JAVA_OPTS:-} \
  -Dserver.port=${SERVER_PORT} \
  -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} \
  -Doracle.net.tns_admin=${TNS_ADMIN} \
- -Doracle.net.wallet_password=${ORACLE_WALLET_PASSWORD} \
  -XX:MaxRAMPercentage=75"
 
 echo "[start] Starting Inventory Service on port ${SERVER_PORT}..."
