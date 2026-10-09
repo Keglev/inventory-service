@@ -6,7 +6,7 @@
 # Copies the Lua filter into place, builds the theme assets, then delegates to
 # sibling scripts for each doc type. Output tree mirrors the deployed site under
 # <project-dir>/target/docs.
-# Prerequisites: pandoc, redocly CLI, npx
+# Prerequisites: pandoc, redocly CLI, npx, npm, openssl
 # =============================================================================
 set -euo pipefail
 
@@ -56,7 +56,8 @@ build_theme_assets() {
     "$THEME_DIR/css/mermaid.css" \
     > "$ASSETS_DIR/docs.css"
   cp "$THEME_DIR/js/docs.js" "$ASSETS_DIR/docs.js"
-  echo "✓ Theme assets built (docs.css, docs.js)"
+  bash "$SCRIPTS_DIR/vendor-mermaid.sh" "$THEME_DIR" "$ASSETS_DIR"
+  echo "✓ Theme assets built (docs.css, docs.js, mermaid.min.js)"
 }
 
 # Rewrites every unversioned theme-asset reference in the built output. Applied
