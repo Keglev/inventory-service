@@ -8,7 +8,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Card, Paper, ThemeProvider } from '@mui/material';
+import { Card, Drawer, Paper, ThemeProvider } from '@mui/material';
 import { buildTheme } from '@/theme';
 
 const renderSurfaces = (mode: 'light' | 'dark') =>
@@ -60,4 +60,16 @@ describe('buildTheme', () => {
     expect(getComputedStyle(screen.getByTestId('card')).backgroundColor).not.toBe('rgb(36, 48, 64)');
     expect(getComputedStyle(screen.getByTestId('outlined')).backgroundColor).not.toBe('rgb(36, 48, 64)');
   });
+
+  it('draws the drawer paper square and flat, so the rail meets the page panel', () => {
+    render(
+      <ThemeProvider theme={buildTheme('de', 'light')}>
+        <Drawer variant="permanent" open PaperProps={{ 'data-testid': 'rail' } as object}>
+          rail
+        </Drawer>
+      </ThemeProvider>,
+    );
+    expect(screen.getByTestId('rail')).toHaveStyle({ borderRadius: '0', boxShadow: 'none' });
+  });
+
 });

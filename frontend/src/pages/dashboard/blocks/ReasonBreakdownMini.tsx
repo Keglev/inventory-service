@@ -61,11 +61,11 @@ export default function ReasonBreakdownMini() {
         {q.isLoading ? (
           <Skeleton variant="rounded" height={220} />
         ) : data.length === 0 ? (
-          <Box sx={{ height: 240, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
+          <Box sx={{ height: 200, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
             {t('dashboard.reasons.empty')}
           </Box>
         ) : (
-          <Box sx={{ height: 240 }}>
+          <Box sx={{ height: 200 }}>
             <ResponsiveContainer width="100%" height="90%">
               <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" />

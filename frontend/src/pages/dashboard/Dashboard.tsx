@@ -35,6 +35,10 @@ import LowStockMini from './blocks/LowStockMini';
 import StatCard from '../../components/ui/StatCard';
 import { HelpIconButton } from '../../features/help/components/HelpIconButton';
 import DashboardQuickActions from './DashboardQuickActions';
+import { pagePanelSx, railGutter } from '../../theme/pagePanel';
+
+/** Pie area on the dashboard, smaller than on Analytik so the page fits a 1920x950 viewport (Carlos, 2026-10-12). */
+const DASHBOARD_PIE_HEIGHT = 220;
 
 /**
  * Dashboard page component.
@@ -52,6 +56,7 @@ const Dashboard: React.FC = () => {
     <Paper
       elevation={0}
       sx={{
+        ...pagePanelSx,
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
@@ -65,6 +70,7 @@ const Dashboard: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           px: { xs: 2, md: 3 },
+          pl: railGutter,
           pt: { xs: 1.5, md: 2 },
           pb: { xs: 2, md: 3 },
         }}
@@ -128,7 +134,7 @@ const Dashboard: React.FC = () => {
           }}
         >
           <Grid size={{ xs: 12, md: 6 }}>
-            <StockValuePerSupplierPie />
+            <StockValuePerSupplierPie chartHeight={DASHBOARD_PIE_HEIGHT} />
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <ReasonBreakdownMini />
