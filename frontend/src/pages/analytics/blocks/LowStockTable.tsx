@@ -22,6 +22,8 @@
 import { useCallback, type JSX } from 'react';
 import {
   Box,
+  Card,
+  CardContent,
   Typography,
   Skeleton,
   Table,
@@ -30,13 +32,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useLowStockRows } from '../hooks/useLowStockRows';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { LowStockTableRow } from './LowStockTableRow';
+import DateScopeNote from '../components/DateScopeNote';
 
 /**
  * Props accepted by {@link LowStockTable}.
@@ -45,10 +47,6 @@ import { LowStockTableRow } from './LowStockTableRow';
 export type LowStockTableProps = {
   /** Required supplier id whose items should be evaluated for low stock. */
   supplierId: string;
-  /** Optional ISO date (YYYY-MM-DD) for lower bound. */
-  from?: string;
-  /** Optional ISO date (YYYY-MM-DD) for upper bound. */
-  to?: string;
   /** Show at most N most severe rows (by deficit). `0` = show all. @defaultValue 12 */
   limit?: number;
 };
@@ -62,11 +60,26 @@ export type LowStockTableProps = {
  *
  * @example
  * ```tsx
- * <LowStockTable supplierId="sup-123" from="2025-06-01" to="2025-09-15" limit={12} />
+ * <LowStockTable supplierId="sup-123" limit={12} />
  * ```
  */
 export default function LowStockTable(props: LowStockTableProps): JSX.Element {
-  const { supplierId, from, to, limit = 12 } = props;
+  const { t } = useTranslation(['analytics']);
+  return (
+    <Card>
+      <CardContent>
+        <Typography variant="subtitle1" sx={{ mb: 1 }}>
+          {t('analytics:lowStock.title')}
+        </Typography>
+        {/* A current snapshot: the list does not depend on the date filter above it. */}
+        <DateScopeNote kind="current" />
+        <LowStockTableContent {...props} />
+      </CardContent>
+    </Card>
+  );
+}
+
+function LowStockTableContent({ supplierId, limit = 12 }: LowStockTableProps): JSX.Element {
   const { t } = useTranslation(['analytics', 'common']);
   const { userPreferences } = useSettings();
   const formatQty = useCallback(
@@ -77,7 +90,7 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
     [userPreferences.numberFormat]
   );
 
-  const { enabled, isLoading, isError, visible, total } = useLowStockRows(supplierId, from, to, limit);
+  const { enabled, isLoading, isError, visible, total } = useLowStockRows(supplierId, limit);
 
   // Conditional UI states
 
@@ -110,9 +123,7 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   }
 
   return (
-    <TableContainer 
-      component={Paper} 
-      variant="outlined" 
+    <TableContainer
       sx={{ 
           maxHeight: 360,
           overflowX: 'auto', // Allow Horizontal scroll instead of clipping

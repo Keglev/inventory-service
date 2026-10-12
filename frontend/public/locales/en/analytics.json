@@ -67,6 +67,7 @@
   },
   "selectSupplier": "Select a supplier to see items below minimum",
   "lowStock": {
+    "title": "Items below minimum",
     "columns": {
       "item": "Item",
       "quantity": "Quantity",
@@ -81,6 +82,10 @@
     },
     "noneForSupplier": "No items below minimum for this supplier",
     "shownNOfM": "Showing {{n}} of {{m}} items"
+  },
+  "scope": {
+    "current": "Current stock – not limited by the date range",
+    "allTime": "All time – not limited by the date range"
   },
   "stockPerSupplier": {
     "title": "Stock value per supplier (€)",

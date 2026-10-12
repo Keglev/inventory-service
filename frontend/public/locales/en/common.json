@@ -43,7 +43,7 @@
       "low": "Low"
     },
     "reasons": {
-      "title": "Stock movement by reason (pieces)",
+      "title": "Stock movement by reason, last 90 days (pieces)",
       "empty": "No movement in this period",
       "increase": "Stock in",
       "decrease": "Stock out"

@@ -27,13 +27,16 @@ import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { supplierValueSlices } from './supplierValueSlices';
+import DateScopeNote from '../components/DateScopeNote';
 
 export type StockValuePerSupplierPieProps = {
   /** Pie area height in px; the dashboard passes a smaller one so it fits one screen. */
   chartHeight?: number;
+  /** Show the "current stock" note; Analytik sets it because the pie sits under its date filter. */
+  dateScopeNote?: boolean;
 };
 
-export default function StockValuePerSupplierPie({ chartHeight = 260 }: StockValuePerSupplierPieProps = {}) {
+export default function StockValuePerSupplierPie({ chartHeight = 260, dateScopeNote = false }: StockValuePerSupplierPieProps = {}) {
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
@@ -69,6 +72,7 @@ export default function StockValuePerSupplierPie({ chartHeight = 260 }: StockVal
         <Typography variant="subtitle1" sx={{ mb: 1 }}>
           {t('analytics:stockPerSupplier.title')}
         </Typography>
+        {dateScopeNote && <DateScopeNote kind="current" />}
 
         {q.isLoading ? (
           <Skeleton variant="rounded" height={220} />

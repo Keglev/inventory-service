@@ -156,4 +156,14 @@ describe('ItemUpdateFrequencyCard', () => {
     expect(lastTooltipFormatter?.(1234)).toBe('1,234 updates');
     expect(lastTooltipFormatter?.('n/a')).toBe('n/a');
   });
+
+  it('notes the all-time count before and after a supplier is chosen', async () => {
+    const { unmount } = setup(queryClient, null);
+    expect(screen.getByTestId('date-scope-note')).toHaveTextContent('All time – not limited by the date range');
+    unmount();
+    vi.mocked(getItemUpdateFrequency).mockResolvedValue([{ id: 'a', name: 'Item A', updates: 12 }]);
+    setup(queryClient, 'sup-123');
+    expect(await screen.findByTestId('date-scope-note')).toHaveTextContent('All time – not limited by the date range');
+  });
+
 });

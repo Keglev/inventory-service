@@ -17,7 +17,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getLowStockItems } from '../../../api/analytics/lowStock';
 import type { LowStockRow } from '../../../api/analytics/types';
-import type { AnalyticsParams } from '../../../api/analytics/validation';
 
 /** A low-stock row enriched with the client-computed deficit. @public */
 export type LowStockDerivedRow = LowStockRow & { deficit: number };
@@ -36,35 +35,25 @@ export type UseLowStockRowsResult = {
   total: number;
 };
 
-/** Narrow filter params to only allowed keys for the low-stock endpoint. @internal */
-function narrowParams(p: Pick<AnalyticsParams, 'from' | 'to'>): AnalyticsParams {
-  const out: AnalyticsParams = {};
-  if (p.from) out.from = p.from;
-  if (p.to) out.to = p.to;
-  return out;
-}
-
 /**
  * Loads low-stock items for a supplier and derives the ordered deficit rows.
  *
  * @param supplierId - Supplier whose items are evaluated; empty disables the query.
- * @param from - Optional ISO date (YYYY-MM-DD) lower bound.
- * @param to - Optional ISO date (YYYY-MM-DD) upper bound.
  * @param limit - Max visible rows; `0` shows all.
  * @returns Query state plus the derived visible slice and total count.
  * @public
  */
 export function useLowStockRows(
   supplierId: string,
-  from: string | undefined,
-  to: string | undefined,
   limit: number,
 ): UseLowStockRowsResult {
   const enabled = Boolean(supplierId);
 
   const q = useQuery<LowStockRow[], Error>({
-    queryKey: ['analytics', 'lowStock', supplierId, from ?? null, to ?? null],
-    queryFn: () => getLowStockItems(supplierId, narrowParams({ from, to })),
+    // A current snapshot: the endpoint takes no dates, so none are sent and a
+    // date change does not refetch the same list (GRAPHS NF-52).
+    queryKey: ['analytics', 'lowStock', supplierId],
+    queryFn: () => getLowStockItems(supplierId),
     enabled,
     staleTime: 60_000,
   });

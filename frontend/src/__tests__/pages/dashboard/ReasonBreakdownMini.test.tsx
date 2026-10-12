@@ -16,6 +16,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReasonBreakdownRow } from '@/api/analytics/reasonBreakdown';
 import { getReasonBreakdown } from '@/api/analytics/reasonBreakdown';
 import ReasonBreakdownMini from '@/pages/dashboard/blocks/ReasonBreakdownMini';
+import { getDaysAgoIso, getTodayIso } from '@/utils/formatters';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -113,4 +114,12 @@ describe('ReasonBreakdownMini', () => {
     await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
     expect(legendOrderOf(['decrease', 'increase'])).toEqual(['increase', 'decrease']);
   });
+
+  it('requests the last 90 days, the window its title names', async () => {
+    vi.mocked(getReasonBreakdown).mockResolvedValue([]);
+    setup(queryClient);
+    await waitFor(() => expect(getReasonBreakdown).toHaveBeenCalled());
+    expect(getReasonBreakdown).toHaveBeenCalledWith({ from: getDaysAgoIso(90), to: getTodayIso() });
+  });
+
 });

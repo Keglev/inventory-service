@@ -67,6 +67,7 @@
   },
   "selectSupplier": "Wähle einen Lieferanten, um Artikel unter Mindestbestand zu sehen",
   "lowStock": {
+    "title": "Artikel unter Mindestbestand",
     "columns": {
       "item": "Artikel",
       "quantity": "Menge",
@@ -81,6 +82,10 @@
     },
     "noneForSupplier": "Keine Artikel unter Mindestbestand für diesen Lieferanten",
     "shownNOfM": "Zeige {{n}} von {{m}} Artikeln"
+  },
+  "scope": {
+    "current": "Aktueller Stand – unabhängig vom Zeitraum",
+    "allTime": "Alle Zeiträume – unabhängig vom Zeitraum"
   },
   "stockPerSupplier": {
     "title": "Lagerwert je Lieferant (€)",

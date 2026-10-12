@@ -81,11 +81,11 @@ function point(supplierName: string, totalValue: number): StockPerSupplierPoint 
   return { supplierName, totalQuantity: 1, totalValue };
 }
 
-function setup() {
+function setup(props: React.ComponentProps<typeof StockValuePerSupplierPie> = {}) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>
-      <StockValuePerSupplierPie />
+      <StockValuePerSupplierPie {...props} />
     </QueryClientProvider>,
   );
 }
@@ -164,4 +164,13 @@ describe('StockValuePerSupplierPie', () => {
     expect(lastTooltipFormatter?.(750)).toBe('750.00 € · 75.0 %');
     expect(lastTooltipFormatter?.('n/a')).toBe('n/a');
   });
+
+  it('notes the current snapshot only when asked, as on Analytik under the date filter', () => {
+    const { unmount } = setup();
+    expect(screen.queryByTestId('date-scope-note')).not.toBeInTheDocument();
+    unmount();
+    setup({ dateScopeNote: true });
+    expect(screen.getByTestId('date-scope-note')).toHaveTextContent('Current stock – not limited by the date range');
+  });
+
 });
