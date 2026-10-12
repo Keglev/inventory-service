@@ -24,13 +24,14 @@ import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
 public interface AnalyticsService {
 
     /**
-     * Retrieves daily stock value over a date range with optional supplier filter.
-     * Date bounds default to the last 30 days when null.
+     * Retrieves the stock value over a date range with optional supplier filter, as
+     * change points: the first day with history, each day the closing value changes,
+     * and the range end. Date bounds default to the last 30 days when null.
      *
      * @param startDate  start date (nullable)
      * @param endDate    end date (nullable)
      * @param supplierId optional supplier filter
-     * @return daily stock valuations ordered by date ascending
+     * @return change points of the closing stock value, ordered by date ascending
      */
     List<StockValueOverTimeDTO> getTotalStockValueOverTime(LocalDate startDate, LocalDate endDate, String supplierId);
 
