@@ -32,7 +32,12 @@
     "returns": "Rückgaben",
     "opening": "Anfangsbestand",
     "ending": "Endbestand",
-    "empty": "Keine finanzielle Aktivität in diesem Zeitraum."
+    "empty": "Keine finanzielle Aktivität in diesem Zeitraum.",
+    "valuation": {
+      "wac": "Bewertung: gleitender Durchschnittspreis (WAC)",
+      "other": "Bewertung: {{method}}"
+    },
+    "amount": "Betrag"
   },
   "frequency": {
     "title": "Am häufigsten aktualisierte Artikel",
