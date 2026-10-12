@@ -38,6 +38,7 @@ describe('api/analytics/finance.getFinancialSummary', () => {
     returns: 0,
     openingValue: 0,
     endingValue: 0,
+    method: '',
   };
 
   beforeEach(() => {
@@ -132,6 +133,7 @@ describe('api/analytics/finance.getFinancialSummary', () => {
           returnsInCost: 3,
           openingValue: 10,
           endingValue: 20,
+          method: 'WAC',
         },
       });
 
@@ -150,6 +152,7 @@ describe('api/analytics/finance.getFinancialSummary', () => {
         returns: 3,
         openingValue: 10,
         endingValue: 20,
+        method: 'WAC',
       });
     });
 
@@ -177,6 +180,7 @@ describe('api/analytics/finance.getFinancialSummary', () => {
         returns: 7,
         openingValue: 11,
         endingValue: 22,
+        method: '',
       });
     });
   });

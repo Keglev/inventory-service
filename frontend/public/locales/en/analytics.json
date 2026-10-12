@@ -32,7 +32,12 @@
     "returns": "Returns",
     "opening": "Opening",
     "ending": "Ending",
-    "empty": "No financial activity in this period."
+    "empty": "No financial activity in this period.",
+    "valuation": {
+      "wac": "Valuation: weighted average cost (WAC)",
+      "other": "Valuation: {{method}}"
+    },
+    "amount": "Amount"
   },
   "frequency": {
     "title": "Top updated items",
