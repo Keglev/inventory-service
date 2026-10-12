@@ -60,7 +60,7 @@ import type { AnalyticsFilters } from './components/filters/Filters.types';
 
 // Import date helpers from the standard utils location
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
-import { pagePanelSx } from '../../theme/pagePanel';
+import { pagePanelSx, railGutter } from '../../theme/pagePanel';
 
 export default function Analytics(): JSX.Element {
   const { t } = useTranslation(['analytics', 'common']);
@@ -102,7 +102,7 @@ export default function Analytics(): JSX.Element {
   // Suppliers list: the shared entry, so supplier writes refresh the filter
   const suppliersQ = useSupplierListQuery();
   return (
-    <Paper elevation={0} sx={{ ...pagePanelSx, p: { xs: 2, md: 3 }, bgcolor: 'background.paper', m: 0 }}>
+    <Paper elevation={0} sx={{ ...pagePanelSx, p: { xs: 2, md: 3 }, pl: railGutter, bgcolor: 'background.paper', m: 0 }}>
       <Stack 
         direction="row" 
         alignItems="center" 
