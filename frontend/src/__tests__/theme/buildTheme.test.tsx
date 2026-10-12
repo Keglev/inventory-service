@@ -4,7 +4,7 @@
  * @testing Vitest + React Testing Library (jsdom)
  * @description Unit tests for buildTheme's surface grades: the dark page, panel and card
  *   grades with their hover strength, the card grade winning over the Paper background in
- *   the rendered styles, and the light theme left as it was.
+ *   the rendered styles, and the light theme's card outline (cards and panels share one colour).
  */
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -39,6 +39,16 @@ describe('buildTheme', () => {
     expect(card.backgroundImage).toBe('none');
     expect(getComputedStyle(screen.getByTestId('outlined')).backgroundColor).toBe('rgb(36, 48, 64)');
     expect(getComputedStyle(screen.getByTestId('panel')).backgroundColor).not.toBe('rgb(36, 48, 64)');
+    expect(card.borderStyle).not.toBe('solid');
+  });
+
+  it('outlines cards and outlined papers but not panels when mode is light', () => {
+    renderSurfaces('light');
+
+    const card = getComputedStyle(screen.getByTestId('card'));
+    expect(card.border).toBe('1px solid rgba(0, 0, 0, 0.12)');
+    expect(getComputedStyle(screen.getByTestId('outlined')).borderColor).toBe('rgba(0, 0, 0, 0.12)');
+    expect(getComputedStyle(screen.getByTestId('panel')).borderStyle).not.toBe('solid');
   });
 
   it('keeps the light surfaces and cards on background.paper when mode is light', () => {
