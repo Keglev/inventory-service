@@ -6,7 +6,7 @@ components:
         date:
           type: string
           format: date
-          description: Date of the measurement
+          description: Day of the change point (the value holds until the next point)
           example: "2025-11-15"
         totalValue:
           type: number

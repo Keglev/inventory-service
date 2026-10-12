@@ -44,12 +44,13 @@ public class StockAnalyticsController {
     private final AnalyticsControllerValidationHelper validationHelper;
 
     /**
-     * Gets time series of total stock value between dates.
+     * Gets the total stock value between dates as change points: the first day with
+     * history, each day the closing value changes, and the range end.
      *
      * @param start      inclusive start date (ISO yyyy-MM-dd)
      * @param end        inclusive end date (ISO yyyy-MM-dd)
      * @param supplierId optional supplier filter
-     * @return list of stock value points over time
+     * @return stock value change points, oldest first
      */
     @GetMapping("/stock-value")
     public ResponseEntity<List<StockValueOverTimeDTO>> getStockValueOverTime(
