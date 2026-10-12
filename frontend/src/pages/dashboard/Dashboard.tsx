@@ -6,7 +6,8 @@
  * Authenticated landing page. Renders three KPI cards (inventory count,
  * suppliers count, low-stock count), a 2x2 analytics overview grid
  * (stock value per supplier pie, movement-by-reason, 90-day stock movement,
- * low-stock watchlist), and primary navigation buttons for the core workflows.
+ * low-stock watchlist), and shortcut buttons for the core workflows in the
+ * title row (DashboardQuickActions).
  *
  * @enterprise
  * - Resilience: KPI cards degrade to em-dash placeholders when their data
@@ -24,7 +25,7 @@
  * actions.help.
  */
 import * as React from 'react';
-import { Box, Grid, Button, Stack, Typography, Paper } from '@mui/material';
+import { Box, Grid, Typography, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useDashboardMetrics } from '../../api/analytics/hooks/useDashboardMetrics';
 import MonthlyMovementMini from './blocks/MonthlyMovementMini';
@@ -32,8 +33,8 @@ import StockValuePerSupplierPie from '../analytics/blocks/StockValuePerSupplierP
 import ReasonBreakdownMini from './blocks/ReasonBreakdownMini';
 import LowStockMini from './blocks/LowStockMini';
 import StatCard from '../../components/ui/StatCard';
-import { useNavigate } from 'react-router-dom';
 import { HelpIconButton } from '../../features/help/components/HelpIconButton';
+import DashboardQuickActions from './DashboardQuickActions';
 
 /**
  * Dashboard page component.
@@ -43,7 +44,6 @@ import { HelpIconButton } from '../../features/help/components/HelpIconButton';
  */
 const Dashboard: React.FC = () => {
   const { t } = useTranslation('common');
-  const navigate = useNavigate();
 
   // Fetch all KPI metrics in a single query with cache durability
   const metricsQuery = useDashboardMetrics(true);
@@ -69,18 +69,25 @@ const Dashboard: React.FC = () => {
           pb: { xs: 2, md: 3 },
         }}
       >
-        {/* Header with title and help button */}
+        {/* Title row: title, shortcuts and help on one line from sm; on phones the
+            shortcuts wrap to a full-width row under the title and help icon. */}
         <Box
           sx={{
             mb: 1.5,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            columnGap: 1,
+            rowGap: 1,
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: 600 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, flex: 1 }}>
             {t('dashboard.title')}
           </Typography>
+
+          <Box sx={{ order: { xs: 3, sm: 0 }, width: { xs: '100%', sm: 'auto' } }}>
+            <DashboardQuickActions />
+          </Box>
 
           <HelpIconButton topicId="app.main" tooltip={t('actions.help')} />
         </Box>
@@ -115,7 +122,6 @@ const Dashboard: React.FC = () => {
           container
           spacing={2}
           sx={{
-            mb: 2,
             alignItems: 'stretch',
             '& > .MuiGrid-root': { display: 'flex' },
             '& .MuiCard-root': { flexGrow: 1, width: '100%' },
@@ -134,23 +140,6 @@ const Dashboard: React.FC = () => {
             <LowStockMini />
           </Grid>
         </Grid>
-
-        {/* Action buttons for main workflows (responsive layout) */}
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={1}
-          sx={{ pt: 1 }}
-        >
-          <Button variant="contained" onClick={() => navigate('/inventory')}>
-            {t('dashboard.actions.manageInventory')}
-          </Button>
-          <Button variant="outlined" onClick={() => navigate('/suppliers')}>
-            {t('dashboard.actions.manageSuppliers')}
-          </Button>
-          <Button variant="outlined" onClick={() => navigate('/analytics/overview')}>
-            {t('dashboard.actions.viewAnalytics')}
-          </Button>
-        </Stack>
       </Box>
     </Paper>
   );
