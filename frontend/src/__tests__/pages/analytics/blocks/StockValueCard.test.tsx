@@ -7,7 +7,9 @@
  * - Empty state when API returns no data
  * - Renders chart when data exists
  * - Query parameter contract (from/to/supplierId normalization)
- * - Step line without dots, a named series, and a theme-driven tooltip surface
+ * - Step line without dots on a time axis, the last value carried to the range end
+ *   (one point per day and one point per change read the same), a named series,
+ *   and a theme-driven tooltip surface
  * - Refetch behavior when filters change
  */
 
@@ -25,11 +27,14 @@ import StockValueCard from '@/pages/analytics/blocks/StockValueCard';
 // Recharts capture (lets us assert sort behavior without relying on DOM text).
 // -----------------------------------------------------------------------------
 
-let lastLineChartData: StockValuePoint[] | null = null;
+type PlottedPoint = StockValuePoint & { t: number; carried?: boolean };
+let lastLineChartData: PlottedPoint[] | null = null;
+let lastXAxisProps: { type?: string; scale?: string; domain?: number[]; ticks?: number[] } | null = null;
 let lastXTickFormatter: ((v: string | number) => string) | null = null;
 let lastYTickFormatter: ((v: string | number) => string) | null = null;
+let lastYDomain: unknown = null;
 let lastTooltipFormatter: ((v: number | string) => string) | null = null;
-let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
+let lastTooltipLabelFormatter: ((v: number) => string) | null = null;
 let lastTooltipProps: Record<string, unknown> | null = null;
 let lastLineProps: Record<string, unknown> | null = null;
 
@@ -61,22 +66,24 @@ vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children?: ReactNode }) => (
     <div data-testid="chart-container">{children}</div>
   ),
-  LineChart: ({ children, data }: { children?: ReactNode; data: StockValuePoint[] }) => {
+  LineChart: ({ children, data }: { children?: ReactNode; data: PlottedPoint[] }) => {
     lastLineChartData = Array.isArray(data) ? [...data] : [];
     return <div data-testid="line-chart">{children}</div>;
   },
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
-  XAxis: ({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
-    lastXTickFormatter = tickFormatter ?? null;
+  XAxis: (props: { type?: string; scale?: string; domain?: number[]; ticks?: number[]; tickFormatter?: (v: string | number) => string }) => {
+    lastXAxisProps = props;
+    lastXTickFormatter = props.tickFormatter ?? null;
     return <div data-testid="x-axis" />;
   },
-  YAxis: ({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
+  YAxis: ({ tickFormatter, domain }: { tickFormatter?: (v: string | number) => string; domain?: unknown }) => {
     lastYTickFormatter = tickFormatter ?? null;
+    lastYDomain = domain;
     return <div data-testid="y-axis" />;
   },
   Tooltip: (props: {
     formatter?: (v: number | string) => string;
-    labelFormatter?: (v: string) => string;
+    labelFormatter?: (v: number) => string;
   }) => {
     const { formatter, labelFormatter } = props;
     lastTooltipProps = props;
@@ -121,6 +128,7 @@ describe('StockValueCard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     lastLineChartData = null;
+    lastXAxisProps = null;
     lastXTickFormatter = null;
     lastYTickFormatter = null;
     lastTooltipFormatter = null;
@@ -130,7 +138,7 @@ describe('StockValueCard', () => {
     queryClient = createClient();
   });
 
-  it('sorts rows with missing dates first and formats axis/tooltip values', async () => {
+  it('drops rows without a valid date and formats axis and tooltip values', async () => {
     const mockData = [
       { date: '2025-01-02', totalValue: 1100 },
       { totalValue: 900 },
@@ -138,22 +146,71 @@ describe('StockValueCard', () => {
     ] as StockValuePoint[];
     vi.mocked(getStockValueOverTime).mockResolvedValue(mockData);
 
-    setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
+    setup(queryClient, { from: '2025-01-01', to: '2025-01-02' });
 
     await waitFor(() => {
       expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     });
 
-    // Undefined date coerces to '' and sorts ahead of real dates.
-    expect(lastLineChartData?.map((p) => p.date)).toEqual([undefined, '2025-01-01', '2025-01-02']);
+    // A time axis cannot place a row without a date.
+    expect(lastLineChartData?.map((p) => p.date)).toEqual(['2025-01-01', '2025-01-02']);
     // Y ticks show whole euros so five-digit values fit the axis; the tooltip keeps
     // two decimals, and strings pass through.
     expect(lastYTickFormatter?.(1234.5)).toBe('1,235');
     expect(lastTooltipFormatter?.(1234.5)).toBe('1,234.50 €');
     expect(lastTooltipFormatter?.('n/a')).toBe('n/a');
-    // Date labels format via preferences and fall back to the raw string.
-    expect(lastXTickFormatter?.('2025-01-01')).toBe('01/01/2025');
-    expect(lastTooltipLabelFormatter?.('not-a-date')).toBe('not-a-date');
+    // Time-axis values arrive as epoch ms and format via preferences.
+    expect(lastXTickFormatter?.(Date.parse('2025-01-01'))).toBe('01/01/2025');
+    expect(lastTooltipLabelFormatter?.(Date.parse('2025-01-02'))).toBe('01/02/2025');
+  });
+
+  it('places the series on a time axis over the selected range', async () => {
+    // The series starts after the range start: the days before stay empty, no 0 € point.
+    vi.mocked(getStockValueOverTime).mockResolvedValue([{ date: '2025-01-10', totalValue: 1000 }]);
+
+    setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
+
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(lastXAxisProps).toMatchObject({ type: 'number', scale: 'time' });
+    expect(lastXAxisProps?.domain).toEqual([Date.parse('2025-01-01'), Date.parse('2025-01-31')]);
+    expect(lastXAxisProps?.ticks?.[0]).toBe(Date.parse('2025-01-01'));
+    expect(lastLineChartData?.[0]).toMatchObject({ date: '2025-01-10', totalValue: 1000 });
+  });
+
+  it('carries the last value of a change-point series to the range end', async () => {
+    vi.mocked(getStockValueOverTime).mockResolvedValue([
+      { date: '2025-01-01', totalValue: 1000 },
+      { date: '2025-01-10', totalValue: 1200 },
+    ]);
+
+    setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
+
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(lastLineChartData?.at(-1)).toEqual({ date: '2025-01-31', totalValue: 1200, t: Date.parse('2025-01-31'), carried: true });
+  });
+
+  it('anchors the value axis at zero for a flat series and fits it to a changing one', async () => {
+    vi.mocked(getStockValueOverTime).mockResolvedValue([{ date: '2025-01-10', totalValue: 250 }]);
+    const view = setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(lastYDomain).toEqual([0, 'auto']);
+
+    view.unmount();
+    vi.mocked(getStockValueOverTime).mockResolvedValue([{ date: '2025-01-10', totalValue: 250 }, { date: '2025-01-20', totalValue: 260 }]);
+    setup(createClient(), { from: '2025-01-01', to: '2025-01-31' });
+    await waitFor(() => expect(lastYDomain).toEqual(['auto', 'auto']));
+  });
+
+  it('adds nothing to a daily series that already ends on the range end', async () => {
+    vi.mocked(getStockValueOverTime).mockResolvedValue([
+      { date: '2025-01-30', totalValue: 1000 },
+      { date: '2025-01-31', totalValue: 1000 },
+    ]);
+
+    setup(queryClient, { from: '2025-01-30', to: '2025-01-31' });
+
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(lastLineChartData?.map((p) => p.date)).toEqual(['2025-01-30', '2025-01-31']);
   });
 
   it('draws a named step line without point dots and a theme-coloured tooltip', async () => {
@@ -258,7 +315,7 @@ describe('StockValueCard', () => {
     ];
     vi.mocked(getStockValueOverTime).mockResolvedValue(unsorted);
 
-    setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
+    setup(queryClient, { from: '2025-01-01', to: '2025-01-03' });
 
     await waitFor(() => {
       expect(screen.getByTestId('line-chart')).toBeInTheDocument();
