@@ -101,6 +101,8 @@ export default function Analytics(): JSX.Element {
   
   // Suppliers list: the shared entry, so supplier writes refresh the filter
   const suppliersQ = useSupplierListQuery();
+  // The window and supplier every date-aware card receives.
+  const scope = { from: filters.from, to: filters.to, supplierId: filters.supplierId };
   return (
     <Paper elevation={0} sx={{ ...pagePanelSx, p: { xs: 2, md: 3 }, pl: railGutter, bgcolor: 'background.paper', m: 0 }}>
       <Stack 
@@ -146,25 +148,25 @@ export default function Analytics(): JSX.Element {
         {section === 'overview' && (
           <>
             {/* A1 */}
-            <StockValueCard from={filters.from} to={filters.to} supplierId={filters.supplierId} />
+            <StockValueCard {...scope} />
 
             {/* A2 (Line) */}
-            <MovementLineCard from={filters.from} to={filters.to} supplierId={filters.supplierId} />
+            <MovementLineCard {...scope} />
           </>
         )}
 
         {section === 'movements' && (
-          <MovementsSection from={filters.from} to={filters.to} supplierId={filters.supplierId} />
+          <MovementsSection {...scope} />
         )}
 
         {section === 'employees' && (
-          <EmployeesSection from={filters.from} to={filters.to} supplierId={filters.supplierId} />
+          <EmployeesSection {...scope} />
         )}
 
         {section === 'pricing' && (
           <>
             {/* A3 */}
-            <PriceTrendCard from={filters.from} to={filters.to} supplierId={filters.supplierId} />
+            <PriceTrendCard {...scope} />
           </>
         )}
 
@@ -180,13 +182,13 @@ export default function Analytics(): JSX.Element {
         {section === 'finance' && (
           <>
             {/* Finance — WAC summary (period + supplier) */}
-            <FinancialSummaryCard from={filters.from} to={filters.to} supplierId={filters.supplierId} />
+            <FinancialSummaryCard {...scope} />
 
             {/* Operations — top updated items (requires supplier) */}
             <ItemUpdateFrequencyCard supplierId={filters.supplierId} />
 
             {/* Operations — recent stock activity (stacked by reason) */}
-            <RecentStockActivityCard from={filters.from} to={filters.to} supplierId={filters.supplierId} />
+            <RecentStockActivityCard {...scope} />
           </>
         )}
       </Box>

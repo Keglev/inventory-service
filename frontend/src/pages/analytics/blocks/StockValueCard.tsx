@@ -20,17 +20,18 @@
  *   case (no items yet); there is no point repeating the request.
  */
 import * as React from 'react';
-import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
+import { LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
+import ChartCard from '../components/ChartCard';
 import { getStockValueOverTime, type StockValuePoint } from '../../../api/analytics/stock';
 import { useSettings } from '../../../hooks/useSettings';
-import { formatDate, formatNumber } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { toStepSeries } from '../../../utils/stepSeries';
-import { dayTimeAxis } from '../../../utils/timeAxis';
+import { dayTimeAxis, timeXAxisProps } from '../../../utils/timeAxis';
+import { useDayFormatter } from '../../../hooks/useDayFormatter';
 
 export type StockValueCardProps = { from?: string; to?: string; supplierId?: string | null };
 
@@ -54,64 +55,43 @@ export default function StockValueCard({ from, to, supplierId }: StockValueCardP
   // A flat series on an 'auto' axis zooms to a sliver around its value (248–252 for
   // 250 €); anchoring the axis at zero shows it as the level it is.
   const flat = series.length > 0 && series.every((p) => p.totalValue === series[0].totalValue);
-  const formatDay = React.useCallback(
-    (value: unknown) => formatDate(new Date(Number(value)), userPreferences.dateFormat),
-    [userPreferences.dateFormat]
-  );
+  const formatDay = useDayFormatter();
 
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="subtitle1" sx={{ mb: 1 }}>
-          {t('analytics:cards.stockValue')}
-        </Typography>
-        {q.isLoading ? (
-          <Skeleton variant="rounded" height={220} />
-        ) : !timeAxis ? (
-          <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-            {t('analytics:cards.noData')}
-          </Box>
-        ) : (
-          <Box sx={{ height: 260 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={series} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="t"
-                  type="number"
-                  scale="time"
-                  domain={timeAxis.domain}
-                  ticks={timeAxis.ticks}
-                  tickFormatter={formatDay}
-                />
-                <YAxis
-                  width="auto"
-                  domain={flat ? [0, 'auto'] : ['auto', 'auto']}
-                  tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)}
-                />
-                <Tooltip
-                  {...chartTooltipProps(muiTheme)}
-                  labelFormatter={formatDay}
-                  formatter={(value) =>
-                    typeof value === 'number' ? `${formatNumber(value, userPreferences.numberFormat, 2)} €` : value
-                  }
-                />
-                <Line
-                  type="stepAfter"
-                  dataKey="totalValue"
-                  name={t('analytics:cards.stockValueSeries')}
-                  stroke={muiTheme.palette.primary.main}
-                  strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 4 }}
-                  connectNulls
-                  isAnimationActive={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </Box>
-        )}
-      </CardContent>
-    </Card>
+    <ChartCard
+      title={t('analytics:cards.stockValue')}
+      loading={q.isLoading}
+      empty={!timeAxis}
+      emptyText={t('analytics:cards.noData')}
+      emptyHeight={260}
+    >
+      <LineChart data={series} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis {...timeXAxisProps(timeAxis, formatDay)} />
+        <YAxis
+          width="auto"
+          domain={flat ? [0, 'auto'] : ['auto', 'auto']}
+          tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)}
+        />
+        <Tooltip
+          {...chartTooltipProps(muiTheme)}
+          labelFormatter={formatDay}
+          formatter={(value) =>
+            typeof value === 'number' ? `${formatNumber(value, userPreferences.numberFormat, 2)} €` : value
+          }
+        />
+        <Line
+          type="stepAfter"
+          dataKey="totalValue"
+          name={t('analytics:cards.stockValueSeries')}
+          stroke={muiTheme.palette.primary.main}
+          strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
+          connectNulls
+          isAnimationActive={false}
+        />
+      </LineChart>
+    </ChartCard>
   );
 }

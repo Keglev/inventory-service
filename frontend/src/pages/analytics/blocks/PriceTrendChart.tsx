@@ -18,9 +18,10 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
 import { useSettings } from '../../../hooks/useSettings';
-import { formatDate, formatNumber } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
-import { dayTimeAxis } from '../../../utils/timeAxis';
+import { dayTimeAxis, timeXAxisProps } from '../../../utils/timeAxis';
+import { useDayFormatter } from '../../../hooks/useDayFormatter';
 import { priceValueAxis, type ChartPricePoint } from './priceSeries';
 
 export type PriceTrendChartProps = {
@@ -35,14 +36,7 @@ export default function PriceTrendChart({ series, from, to }: PriceTrendChartPro
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
-  const formatDateLabel = React.useCallback(
-    (value: string | number) => {
-      // Numbers are epoch ms from the time axis; strings are ISO dates.
-      const formatted = formatDate(typeof value === 'number' ? new Date(value) : String(value), userPreferences.dateFormat);
-      return formatted || String(value);
-    },
-    [userPreferences.dateFormat]
-  );
+  const formatDateLabel = useDayFormatter();
   const timeAxis = React.useMemo(() => dayTimeAxis(series.map((p) => p.t), from, to), [series, from, to]);
   const valueAxis = React.useMemo(() => priceValueAxis(series), [series]);
   const color = muiTheme.palette.primary.main;
@@ -52,14 +46,7 @@ export default function PriceTrendChart({ series, from, to }: PriceTrendChartPro
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={series} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="t"
-            type="number"
-            scale="time"
-            domain={timeAxis.domain}
-            ticks={timeAxis.ticks}
-            tickFormatter={formatDateLabel}
-          />
+          <XAxis {...timeXAxisProps(timeAxis, formatDateLabel)} />
           <YAxis
             domain={valueAxis.domain}
             ticks={valueAxis.ticks}
@@ -67,7 +54,7 @@ export default function PriceTrendChart({ series, from, to }: PriceTrendChartPro
           />
           <Tooltip
             {...chartTooltipProps(muiTheme)}
-            labelFormatter={(value) => formatDateLabel(value as string | number)}
+            labelFormatter={formatDateLabel}
             formatter={(value) =>
               typeof value === 'number' ? `${formatNumber(value, userPreferences.numberFormat, 2)} €` : value
             }

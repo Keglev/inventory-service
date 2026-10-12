@@ -6,7 +6,7 @@
  *   day-aligned, evenly spread and never repeated.
  */
 import { describe, it, expect } from 'vitest';
-import { dayTimeAxis } from '@/utils/timeAxis';
+import { dayTimeAxis, timeXAxisProps } from '@/utils/timeAxis';
 
 const DAY = 86_400_000;
 const at = (iso: string) => Date.parse(iso);
@@ -29,5 +29,15 @@ describe('dayTimeAxis', () => {
     const { domain, ticks } = dayTimeAxis([at('2026-06-01'), at('2026-06-03')], undefined, 'not-a-date', 4);
     expect(domain).toEqual([at('2026-06-01'), at('2026-06-03')]);
     expect(ticks).toEqual([at('2026-06-01'), at('2026-06-02'), at('2026-06-03')]);
+  });
+});
+
+describe('timeXAxisProps', () => {
+  it('keys points by t on a time scale with the axis domain and ticks', () => {
+    const format = (v: unknown) => String(v);
+    expect(timeXAxisProps({ domain: [1, 2], ticks: [1, 2] }, format)).toEqual({
+      dataKey: 't', type: 'number', scale: 'time', domain: [1, 2], ticks: [1, 2], tickFormatter: format,
+    });
+    expect(timeXAxisProps(null, format)).toMatchObject({ domain: undefined, ticks: undefined });
   });
 });
