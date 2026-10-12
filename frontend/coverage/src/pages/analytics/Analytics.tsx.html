@@ -256,7 +256,9 @@
 <a name='L191'></a><a href='#L191'>191</a>
 <a name='L192'></a><a href='#L192'>192</a>
 <a name='L193'></a><a href='#L193'>193</a>
-<a name='L194'></a><a href='#L194'>194</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -511,6 +513,7 @@ import type { AnalyticsFilters } from './components/filters/Filters.types';
 &nbsp;
 // Import date helpers from the standard utils location
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
+import { pagePanelSx, railGutter } from '../../theme/pagePanel';
 &nbsp;
 export default function Analytics(): JSX.Element {
   const { t } = useTranslation(['analytics', 'common']);
@@ -552,7 +555,7 @@ export default function Analytics(): JSX.Element {
   // Suppliers list: the shared entry, so supplier writes refresh the filter
   const suppliersQ = useSupplierListQuery();
   return (
-    &lt;Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.paper', m: 0 }}&gt;
+    &lt;Paper elevation={0} sx={{ ...pagePanelSx, p: { xs: 2, md: 3 }, pl: railGutter, bgcolor: 'background.paper', m: 0 }}&gt;
       &lt;Stack 
         direction="row" 
         alignItems="center" 

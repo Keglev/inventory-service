@@ -247,7 +247,11 @@
 <a name='L182'></a><a href='#L182'>182</a>
 <a name='L183'></a><a href='#L183'>183</a>
 <a name='L184'></a><a href='#L184'>184</a>
-<a name='L185'></a><a href='#L185'>185</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -431,6 +435,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file SuppliersBoard.tsx
  * @module pages/suppliers/SuppliersBoard
@@ -465,6 +471,7 @@ import { SuppliersSearchPanel } from './components/SuppliersSearchPanel';
 import { SuppliersFilterPanel } from './components/SuppliersFilterPanel';
 import { SuppliersTable } from './components/SuppliersTable';
 import { SuppliersDialogs } from './components/SuppliersDialogs';
+import { pagePanelSx, railGutter } from '../../theme/pagePanel';
 &nbsp;
 /**
  * Suppliers Management Board - main page orchestrator.
@@ -531,6 +538,7 @@ const SuppliersBoard: React.FC = () =&gt; {
       &lt;Paper
         elevation={0}
         sx={{
+          ...pagePanelSx,
           p: 0,
           bgcolor: 'background.paper',
           flex: 1,
@@ -548,7 +556,7 @@ const SuppliersBoard: React.FC = () =&gt; {
         /&gt;
 &nbsp;
         {/* Search Panel */}
-        &lt;Box sx={{ px: 2 }}&gt;
+        &lt;Box sx={{ px: 2, pl: railGutter }}&gt;
           &lt;SuppliersSearchPanel
             searchQuery={state.searchQuery}
             onSearchChange={handleSearchChange}
@@ -561,7 +569,7 @@ const SuppliersBoard: React.FC = () =&gt; {
         &lt;/Box&gt;
 &nbsp;
         {/* Filter Panel */}
-        &lt;Box sx={{ px: 2 }}&gt;
+        &lt;Box sx={{ px: 2, pl: railGutter }}&gt;
           &lt;SuppliersFilterPanel
             showAllSuppliers={state.showAllSuppliers}
             onToggleChange={handleToggleShowAll}
@@ -578,13 +586,14 @@ const SuppliersBoard: React.FC = () =&gt; {
               display: 'grid',
               placeItems: 'center',
               mx: 2,
+              ml: railGutter,
               mb: 2,
             }}
           &gt;
             {/* Empty state */}
           &lt;/Paper&gt;
         ) : (
-          &lt;Box sx={{ px: 2, mb: 2, flex: 1, minHeight: 0 }}&gt;
+          &lt;Box sx={{ px: 2, pl: railGutter, mb: 2, flex: 1, minHeight: 0 }}&gt;
             &lt;SuppliersTable
               rows={displayRows}
               paginationModel={state.paginationModel}

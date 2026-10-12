@@ -106,7 +106,13 @@
 <a name='L41'></a><a href='#L41'>41</a>
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
-<a name='L44'></a><a href='#L44'>44</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -130,7 +136,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -156,12 +162,15 @@
  * and skeleton loading state.
  *
  * @enterprise
- * - Single production consumer: pages/dashboard/Dashboard.tsx (three KPI cards on
- *   lines 87/94/101). Doc cross-reference in api/analytics/hooks/useDashboardMetrics.ts.
+ * - Single production consumer: pages/dashboard/Dashboard.tsx (the three KPI cards).
+ *   Doc cross-reference in api/analytics/hooks/useDashboardMetrics.ts.
  * - Caller-side i18n: title is a plain string; caller pre-translates
  *   (e.g. t('common:dashboard.kpi.totalItems')). The component itself is i18n-agnostic.
  * - Value fallback uses em-dash (U+2014, not hyphen) — visually distinguishes "no data"
- *   from a real zero. Loading state shows a skeleton sized to the h4 Typography slot.
+ *   from a real zero. Loading state shows a skeleton sized to the value line.
+ * - Compact by design (Carlos, 2026-10-12): the cards take one short row so the
+ *   dashboard fits a desktop viewport without scrolling. The value is a paragraph,
+ *   not a heading: a number is not a section title, and an h4 outranked the page h5.
  */
 import * as React from 'react';
 import { Card, CardContent, Typography, Skeleton } from '@mui/material';
@@ -175,14 +184,14 @@ export interface StatCardProps {
 const StatCard: React.FC&lt;StatCardProps&gt; = ({ title, value, loading }) =&gt; {
   return (
     &lt;Card variant="outlined" sx={{ height: '100%' }}&gt;
-      &lt;CardContent&gt;
-        &lt;Typography variant="body2" color="text.secondary" gutterBottom&gt;
+      &lt;CardContent sx={{ py: 1.25, '&amp;:last-child': { pb: 1.25 } }}&gt;
+        &lt;Typography variant="body2" color="text.secondary"&gt;
           {title}
         &lt;/Typography&gt;
         {loading ? (
-          &lt;Skeleton variant="text" width={80} height={40} /&gt;
+          &lt;Skeleton variant="text" width={64} height={32} /&gt;
         ) : (
-          &lt;Typography variant="h4" data-testid="stat-value"&gt;
+          &lt;Typography variant="h5" component="p" sx={{ fontWeight: 600 }} data-testid="stat-value"&gt;
             {value ?? '—'}
           &lt;/Typography&gt;
         )}
