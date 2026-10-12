@@ -38,7 +38,7 @@ export default function AppMain() {
         minWidth: 0,
         px: 0,
         pt: 0,
-        pb: 0.5,
+        pb: 0,
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
