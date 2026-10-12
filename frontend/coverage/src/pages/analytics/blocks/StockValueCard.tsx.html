@@ -307,11 +307,11 @@
  * @enterprise
  * - The value holds until the next stock movement, so the line is a step
  *   (stepAfter) without point dots.
- * - The X axis is a time scale over the selected range, and the last value is
- *   carried to the range end (utils/stepSeries). The chart therefore reads the
- *   same whether the backend sends one point per day or one point per change:
- *   it can move to change points without a coordinated release (R23, reader
- *   tolerant first). A series that starts after the range start leaves the
+ * - The backend sends change points: the first day with history, each day the
+ *   value changes, and the range end. The X axis is a time scale over the
+ *   selected range, so the gaps between points keep their real width, and the
+ *   last value is carried to the range end (utils/stepSeries) should a response
+ *   stop short of it. A series that starts after the range start leaves the
  *   days before it empty instead of drawing 0 €.
  * - `staleTime: 60_000` keeps the chart stable during quick navigation
  *   between analytics sections without flicker.
