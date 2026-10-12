@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/app/HamburgerMenu/ProfileSettings/ProfileEmailDisplay.tsx</title>
+    <title>Code coverage report for src/app/AccountMenu/ProfileSettings/ProfileNameDisplay.tsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../../prettify.css" />
     <link rel="stylesheet" href="../../../../base.css" />
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/app/HamburgerMenu/ProfileSettings</a> ProfileEmailDisplay.tsx</h1>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/app/AccountMenu/ProfileSettings</a> ProfileNameDisplay.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
@@ -101,14 +101,7 @@
 <a name='L36'></a><a href='#L36'>36</a>
 <a name='L37'></a><a href='#L37'>37</a>
 <a name='L38'></a><a href='#L38'>38</a>
-<a name='L39'></a><a href='#L39'>39</a>
-<a name='L40'></a><a href='#L40'>40</a>
-<a name='L41'></a><a href='#L41'>41</a>
-<a name='L42'></a><a href='#L42'>42</a>
-<a name='L43'></a><a href='#L43'>43</a>
-<a name='L44'></a><a href='#L44'>44</a>
-<a name='L45'></a><a href='#L45'>45</a>
-<a name='L46'></a><a href='#L46'>46</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L39'></a><a href='#L39'>39</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -133,16 +126,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -154,46 +140,39 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @file ProfileEmailDisplay.tsx
- * @module app/HamburgerMenu/ProfileSettings/ProfileEmailDisplay
+ * @file ProfileNameDisplay.tsx
+ * @module app/AccountMenu/ProfileSettings/ProfileNameDisplay
  *
  * @summary
- * Read-only email row; branches on `isDemo` to show a demo-mode placeholder
- * instead of the real email address.
+ * Read-only name row driven entirely by props; no hooks beyond useTranslation.
  *
  * @enterprise
- * - The `isDemo` branch is the only non-trivial logic: demo accounts have no
- *   real email, so the branch prevents a blank field and shows a user-friendly
- *   message instead.
  * - Props-only leaf: data flows from ProfileMenuSection (which reads useAuth);
  *   no state or data-fetching hooks in this component.
  *
  * @example
  * ```tsx
- * &lt;ProfileEmailDisplay email="user@example.com" isDemo={false} /&gt;
+ * &lt;ProfileNameDisplay fullName="John Doe" /&gt;
  * ```
  */
 &nbsp;
 import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 &nbsp;
-interface ProfileEmailDisplayProps {
-  email?: string;
-  isDemo: boolean;
+interface ProfileNameDisplayProps {
+  fullName?: string;
 }
 &nbsp;
-export default function ProfileEmailDisplay({ email, isDemo }: ProfileEmailDisplayProps) {
-  const { t } = useTranslation(['common', 'auth']);
+export default function ProfileNameDisplay({ fullName }: ProfileNameDisplayProps) {
+  const { t } = useTranslation(['common']);
 &nbsp;
   return (
     &lt;Box&gt;
       &lt;Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}&gt;
-        {t('common:email')}
+        {t('common:name')}
       &lt;/Typography&gt;
       &lt;Typography variant="body2"&gt;
-        {isDemo
-          ? t('auth:demo.noEmailProvided')
-          : email || '—'}
+        {fullName || '—'}
       &lt;/Typography&gt;
     &lt;/Box&gt;
   );

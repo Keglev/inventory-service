@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/app/HamburgerMenu/NotificationSettings/LowStockAlertSection.tsx</title>
+    <title>Code coverage report for src/app/AccountMenu/ProfileSettings/ProfileEmailDisplay.tsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../../prettify.css" />
     <link rel="stylesheet" href="../../../../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/app/HamburgerMenu/NotificationSettings</a> LowStockAlertSection.tsx</h1>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/app/AccountMenu/ProfileSettings</a> ProfileEmailDisplay.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/3</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
-                <span class="quiet">Functions</span>
                 <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>4/4</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>1/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
@@ -108,9 +108,7 @@
 <a name='L43'></a><a href='#L43'>43</a>
 <a name='L44'></a><a href='#L44'>44</a>
 <a name='L45'></a><a href='#L45'>45</a>
-<a name='L46'></a><a href='#L46'>46</a>
-<a name='L47'></a><a href='#L47'>47</a>
-<a name='L48'></a><a href='#L48'>48</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L46'></a><a href='#L46'>46</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -136,15 +134,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -158,50 +154,48 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @file LowStockAlertSection.tsx
- * @module app/HamburgerMenu/NotificationSettings/LowStockAlertSection
+ * @file ProfileEmailDisplay.tsx
+ * @module app/AccountMenu/ProfileSettings/ProfileEmailDisplay
  *
  * @summary
- * Renders the warning Stack + chip with the low-stock item count.
+ * Read-only email row; branches on `isDemo` to show a demo-mode placeholder
+ * instead of the real email address.
  *
  * @enterprise
- * - Mounted by NotificationsMenuSection when lowStockCount &gt; 0.
+ * - The `isDemo` branch is the only non-trivial logic: demo accounts have no
+ *   real email, so the branch prevents a blank field and shows a user-friendly
+ *   message instead.
+ * - Props-only leaf: data flows from ProfileMenuSection (which reads useAuth);
+ *   no state or data-fetching hooks in this component.
  *
  * @example
  * ```tsx
- * &lt;LowStockAlertSection lowStockCount={5} /&gt;
+ * &lt;ProfileEmailDisplay email="user@example.com" isDemo={false} /&gt;
  * ```
  */
 &nbsp;
-import { Stack, Typography } from '@mui/material';
-import { alpha } from '@mui/material/styles';
-import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 &nbsp;
-interface LowStockAlertSectionProps {
-  lowStockCount: number;
+interface ProfileEmailDisplayProps {
+  email?: string;
+  isDemo: boolean;
 }
 &nbsp;
-export default function LowStockAlertSection({ lowStockCount }: LowStockAlertSectionProps) {
-  const { t } = useTranslation('common');
+export default function ProfileEmailDisplay({ email, isDemo }: ProfileEmailDisplayProps) {
+  const { t } = useTranslation(['common', 'auth']);
 &nbsp;
   return (
-    &lt;&gt;
-      &lt;Stack spacing={0.5} sx={{ p: 1, bgcolor: (theme) =&gt; alpha(theme.palette.warning.main, 0.15), borderRadius: 1 }}&gt;
-        &lt;Stack direction="row" spacing={1} alignItems="center"&gt;
-          &lt;NotificationsActiveIcon sx={{ fontSize: 20, color: 'warning.main' }} /&gt;
-          &lt;Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.main' }}&gt;
-            {t('notifications.lowStockAlert')}
-          &lt;/Typography&gt;
-        &lt;/Stack&gt;
-        &lt;Typography variant="caption" color="text.secondary"&gt;
-          {t(
-            'notifications.lowStockMessage',
-            { count: lowStockCount }
-          )}
-        &lt;/Typography&gt;
-      &lt;/Stack&gt;
-    &lt;/&gt;
+    &lt;Box&gt;
+      &lt;Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}&gt;
+        {t('common:email')}
+      &lt;/Typography&gt;
+      &lt;Typography variant="body2"&gt;
+        {isDemo
+          ? t('auth:demo.noEmailProvided')
+          : email || '—'}
+      &lt;/Typography&gt;
+    &lt;/Box&gt;
   );
 }
 &nbsp;</pre></td></tr></table></pre>

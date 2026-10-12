@@ -167,15 +167,7 @@
 <a name='L102'></a><a href='#L102'>102</a>
 <a name='L103'></a><a href='#L103'>103</a>
 <a name='L104'></a><a href='#L104'>104</a>
-<a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L105'></a><a href='#L105'>105</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -308,9 +300,6 @@ import { default as HealthBadge } from './header/HealthBadge';
 import { default as HeaderDemoBadge } from './header/HeaderDemoBadge';
 &nbsp;
 interface AppHeaderProps {
-  /** Opens the settings dialog */
-  onSettingsOpen: () =&gt; void;
-&nbsp;
   /** Opens the About dialog */
   onAboutOpen: () =&gt; void;
 &nbsp;
@@ -337,7 +326,6 @@ interface AppHeaderProps {
  * @returns JSX element rendering the application header
  */
 export default function AppHeader({
-  onSettingsOpen,
   onAboutOpen,
   onLogout,
   helpTopic,
@@ -353,10 +341,11 @@ export default function AppHeader({
       sx={{ width: '100%', zIndex: (theme) =&gt; theme.zIndex.drawer + 1 }}
     &gt;
       &lt;Toolbar&gt;
-        {/* Mobile Menu Toggle (hidden on md+) */}
+        {/* Navigation drawer toggle, phones only (desktop shows the rail) */}
         &lt;IconButton
           edge="start"
           onClick={onDrawerToggle}
+          aria-label={t('actions.openNavigation')}
           sx={{ mr: 1, display: { md: 'none' } }}
         &gt;
           &lt;MenuIcon /&gt;
@@ -376,9 +365,8 @@ export default function AppHeader({
         {/* System Health Badge (hidden on xs, shown on sm+) */}
         &lt;HealthBadge /&gt;
 &nbsp;
-        {/* Toolbar Actions (language, help, hamburger) */}
+        {/* Toolbar actions: bell, help, avatar menu */}
         &lt;AppToolbarActions
-          onSettingsOpen={onSettingsOpen}
           onAboutOpen={onAboutOpen}
           onLogout={onLogout}
           helpTopic={helpTopic}

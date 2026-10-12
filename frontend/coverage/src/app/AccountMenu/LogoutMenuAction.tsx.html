@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/app/HamburgerMenu/ProfileSettings/ProfileRoleDisplay.tsx</title>
+    <title>Code coverage report for src/app/AccountMenu/LogoutMenuAction.tsx</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../../prettify.css" />
-    <link rel="stylesheet" href="../../../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../../../sort-arrow-sprite.png);
+            background-image: url(../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/app/HamburgerMenu/ProfileSettings</a> ProfileRoleDisplay.tsx</h1>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/app/AccountMenu</a> LogoutMenuAction.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -147,16 +147,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -176,59 +176,59 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @file ProfileRoleDisplay.tsx
- * @module app/HamburgerMenu/ProfileSettings/ProfileRoleDisplay
+ * @file LogoutMenuAction.tsx
+ * @module app/AccountMenu/LogoutMenuAction
  *
  * @summary
- * Read-only role row; renders the role string and a demo Chip when `isDemo` is true.
+ * MenuItem that dismisses the popover before triggering logout.
  *
  * @enterprise
- * - Props-only leaf: data flows from ProfileMenuSection (which reads useAuth);
- *   no state or data-fetching hooks in this component.
- * - Maps the backend's uppercase role token (Role.name(): "ADMIN"/"USER"/"DEMO")
- *   to a localized label via common:roles.*, falling back to the raw token.
- *
- * @example
- * ```tsx
- * &lt;ProfileRoleDisplay role="ADMIN" isDemo={true} /&gt;
- * ```
+ * onClose() is called before onLogout() so the popover is gone before
+ * logout-driven navigation starts; reversing the order causes a brief visual
+ * flash where the menu reopens during the transition. Mounted by AccountMenu,
+ * the avatar menu in the toolbar.
  */
 &nbsp;
-import { Box, Stack, Typography, Chip } from '@mui/material';
+import { MenuItem, Typography } from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useTranslation } from 'react-i18next';
 &nbsp;
-interface ProfileRoleDisplayProps {
-  role?: string;
-  isDemo: boolean;
+interface LogoutMenuActionProps {
+  /** Callback when logout is clicked */
+  onLogout: () =&gt; void;
+&nbsp;
+  /** Must fire before onLogout to prevent the menu flashing during navigation */
+  onClose: () =&gt; void;
 }
 &nbsp;
-export default function ProfileRoleDisplay({ role, isDemo }: ProfileRoleDisplayProps) {
-  const { t } = useTranslation(['common', 'auth']);
+export default function LogoutMenuAction({
+  onLogout,
+  onClose,
+}: LogoutMenuActionProps) {
+  const { t } = useTranslation(['common']);
 &nbsp;
-  // WHY: backend sends Role.name() uppercase tokens (ADMIN/USER/DEMO); map to localized labels, falling back to the raw token for unknown roles.
-  const roleKey = (role || 'USER').toLowerCase();
-  const displayRole = t(`common:roles.${roleKey}`, role || 'User');
+  const handleLogoutClick = () =&gt; {
+    onClose();
+    onLogout();
+  };
 &nbsp;
   return (
-    &lt;Box&gt;
-      &lt;Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}&gt;
-        {t('common:role')}
-      &lt;/Typography&gt;
-      &lt;Stack direction="row" spacing={0.5} alignItems="center"&gt;
-        &lt;Typography variant="body2"&gt;
-          {displayRole}
-        &lt;/Typography&gt;
-        {isDemo &amp;&amp; (
-          &lt;Chip
-            size="small"
-            label={t('auth:demoBadge')}
-            color="warning"
-            variant="outlined"
-            sx={{ height: 20 }}
-          /&gt;
-        )}
-      &lt;/Stack&gt;
-    &lt;/Box&gt;
+    &lt;MenuItem
+      onClick={handleLogoutClick}
+      sx={{
+        py: 1,
+        px: 2,
+        display: 'flex',
+        gap: 1,
+        alignItems: 'center',
+        '&amp;:hover': {
+          bgcolor: 'action.hover',
+        },
+      }}
+    &gt;
+      &lt;LogoutIcon fontSize="small" /&gt;
+      &lt;Typography variant="body2"&gt;{t('nav.logout')}&lt;/Typography&gt;
+    &lt;/MenuItem&gt;
   );
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -239,14 +239,14 @@ export default function ProfileRoleDisplay({ role, isDemo }: ProfileRoleDisplayP
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
             </div>
-        <script src="../../../../prettify.js"></script>
+        <script src="../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../../../sorter.js"></script>
-        <script src="../../../../block-navigation.js"></script>
+        <script src="../../../sorter.js"></script>
+        <script src="../../../block-navigation.js"></script>
     </body>
 </html>
     

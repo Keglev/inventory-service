@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
@@ -153,7 +153,16 @@
 <a name='L88'></a><a href='#L88'>88</a>
 <a name='L89'></a><a href='#L89'>89</a>
 <a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -167,6 +176,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -191,7 +205,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
@@ -253,13 +271,18 @@
  *
  * @enterprise
  * - Two Drawer variants (temporary on mobile, permanent on desktop) share one content tree via SidebarDrawerContent, avoiding JSX duplication for each breakpoint.
- * - Navigation only (FW5 fork 1, SAP Fiori side navigation): identity, settings, help and sign-out live in the header and its user menu.
+ * - Desktop shows an 88 px rail, icon above label (FW6 UX-1, option A): with four destinations the former 248 px drawer was mostly empty. The phone drawer keeps full rows at 248 px.
+ * - Navigation plus one settings entry (FW6): identity, About and sign-out live in the avatar menu, help in the toolbar.
  */
 &nbsp;
 import { Box, Drawer } from '@mui/material';
 import { SidebarDrawerContent } from './SidebarDrawerContent';
 &nbsp;
+/** Phone drawer width: full rows with icon and label side by side. */
 const drawerWidth = 248;
+&nbsp;
+/** Desktop rail width: room for the longest German label ("Einstellungen") under its icon. */
+const railWidth = 88;
 &nbsp;
 interface AppSidebarProps {
   /** Whether drawer is open on mobile */
@@ -267,22 +290,26 @@ interface AppSidebarProps {
 &nbsp;
   /** Callback to close drawer on mobile */
   onMobileClose: () =&gt; void;
+&nbsp;
+  /** Opens the settings dialog */
+  onSettingsOpen: () =&gt; void;
 }
 &nbsp;
 /**
  * Application sidebar component.
  *
- * Thin orchestrator that delegates rendering to focused sub-components.
- * Renders responsive drawer with navigation, user profile, environment info,
- * and action buttons in the footer.
+ * Thin orchestrator that delegates rendering to SidebarDrawerContent: a
+ * temporary drawer of full rows on phones, a permanent rail on desktop.
  *
  * @param props - Component props
  * @returns JSX element rendering sidebar navigation
  */
-export default function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
-  const drawerContent = (
-    &lt;SidebarDrawerContent /&gt;
-  );
+export default function AppSidebar({ mobileOpen, onMobileClose, onSettingsOpen }: AppSidebarProps) {
+  // WHY: on phones the drawer covers the page; close it so the dialog opens over the app.
+  const openSettingsFromDrawer = () =&gt; {
+    onMobileClose();
+    onSettingsOpen();
+  };
 &nbsp;
   return (
     &lt;Box
@@ -290,7 +317,7 @@ export default function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProp
       sx={{
         // Height is bounded by the viewport-fit shell row:
         // the sidebar must end above the footer, never overflow beneath it.
-        width: { md: drawerWidth },
+        width: { md: railWidth },
         flexShrink: { md: 0 },
         minHeight: 0,
         display: 'flex',
@@ -308,7 +335,7 @@ export default function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProp
           '&amp; .MuiDrawer-paper': { width: drawerWidth },
         }}
       &gt;
-        {drawerContent}
+        &lt;SidebarDrawerContent variant="list" onSettingsOpen={openSettingsFromDrawer} /&gt;
       &lt;/Drawer&gt;
 &nbsp;
       {/* Desktop Drawer (permanent, hidden on xs) */}
@@ -319,7 +346,7 @@ export default function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProp
           display: { xs: 'none', md: 'block' },
           flex: 1,
           '&amp; .MuiDrawer-paper': {
-            width: drawerWidth,
+            width: railWidth,
             boxSizing: 'border-box',
             height: '100%',
             position: 'relative',
@@ -328,7 +355,7 @@ export default function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProp
           },
         }}
       &gt;
-        {drawerContent}
+        &lt;SidebarDrawerContent variant="rail" onSettingsOpen={onSettingsOpen} /&gt;
       &lt;/Drawer&gt;
     &lt;/Box&gt;
   );

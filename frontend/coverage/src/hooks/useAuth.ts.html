@@ -86,7 +86,9 @@
 <a name='L21'></a><a href='#L21'>21</a>
 <a name='L22'></a><a href='#L22'>22</a>
 <a name='L23'></a><a href='#L23'>23</a>
-<a name='L24'></a><a href='#L24'>24</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -116,9 +118,10 @@
  * @enterprise
  * - Built via createContextHook to share the null-check + throw pattern with
  *   useHelp and useSettings.
- * - Heaviest consumer of the factory: ~14 production call sites across routes,
- *   guards, layout shell, auth pages, dashboard, inventory, suppliers, and the
- *   HamburgerMenu profile section.
+ * - Heaviest consumer of the factory: 15 production call sites (measured
+ *   2026-10-12) across routes, guards, the layout shell, the auth, home,
+ *   analytics, inventory, suppliers and system pages, and the avatar menu
+ *   (AccountMenu).
  * - Throws "useAuth must be used within the corresponding provider" when called
  *   outside &lt;AuthProvider&gt;; tested.
  */

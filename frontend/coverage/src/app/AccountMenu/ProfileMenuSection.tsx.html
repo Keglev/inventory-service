@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/app/HamburgerMenu/ProfileSettings/ProfileNameDisplay.tsx</title>
+    <title>Code coverage report for src/app/AccountMenu/ProfileMenuSection.tsx</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../../prettify.css" />
-    <link rel="stylesheet" href="../../../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../../../sort-arrow-sprite.png);
+            background-image: url(../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,20 +19,20 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/app/HamburgerMenu/ProfileSettings</a> ProfileNameDisplay.tsx</h1>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/app/AccountMenu</a> ProfileMenuSection.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -101,7 +101,8 @@
 <a name='L36'></a><a href='#L36'>36</a>
 <a name='L37'></a><a href='#L37'>37</a>
 <a name='L38'></a><a href='#L38'>38</a>
-<a name='L39'></a><a href='#L39'>39</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -122,13 +123,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -140,40 +142,41 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @file ProfileNameDisplay.tsx
- * @module app/HamburgerMenu/ProfileSettings/ProfileNameDisplay
+ * @file ProfileMenuSection.tsx
+ * @module app/AccountMenu/ProfileMenuSection
  *
  * @summary
- * Read-only name row driven entirely by props; no hooks beyond useTranslation.
+ * Section coordinator that composes the three ProfileSettings leaf components
+ * (name, email, role) into the profile block of the avatar menu.
  *
  * @enterprise
- * - Props-only leaf: data flows from ProfileMenuSection (which reads useAuth);
- *   no state or data-fetching hooks in this component.
- *
- * @example
- * ```tsx
- * &lt;ProfileNameDisplay fullName="John Doe" /&gt;
- * ```
+ * Sole consumer of useAuth for profile display; leaves are props-only so they
+ * can be unit-tested without an auth context. Mounted only by AccountMenu.
  */
 &nbsp;
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../hooks/useAuth';
+import { default as ProfileNameDisplay } from './ProfileSettings/ProfileNameDisplay';
+import { default as ProfileEmailDisplay } from './ProfileSettings/ProfileEmailDisplay';
+import { default as ProfileRoleDisplay } from './ProfileSettings/ProfileRoleDisplay';
 &nbsp;
-interface ProfileNameDisplayProps {
-  fullName?: string;
-}
-&nbsp;
-export default function ProfileNameDisplay({ fullName }: ProfileNameDisplayProps) {
-  const { t } = useTranslation(['common']);
+export default function ProfileMenuSection() {
+  const { t } = useTranslation(['auth']);
+  const { user } = useAuth();
+  const isDemo = Boolean(user?.isDemo);
 &nbsp;
   return (
-    &lt;Box&gt;
-      &lt;Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}&gt;
-        {t('common:name')}
+    &lt;Box sx={{ px: 2, py: 1.5 }}&gt;
+      &lt;Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}&gt;
+        {t('profile.title')}
       &lt;/Typography&gt;
-      &lt;Typography variant="body2"&gt;
-        {fullName || '—'}
-      &lt;/Typography&gt;
+&nbsp;
+      &lt;Stack spacing={0.75}&gt;
+        &lt;ProfileNameDisplay fullName={user?.fullName} /&gt;
+        &lt;ProfileEmailDisplay email={user?.email} isDemo={isDemo} /&gt;
+        &lt;ProfileRoleDisplay role={user?.role} isDemo={isDemo} /&gt;
+      &lt;/Stack&gt;
     &lt;/Box&gt;
   );
 }
@@ -185,14 +188,14 @@ export default function ProfileNameDisplay({ fullName }: ProfileNameDisplayProps
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
             </div>
-        <script src="../../../../prettify.js"></script>
+        <script src="../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../../../sorter.js"></script>
-        <script src="../../../../block-navigation.js"></script>
+        <script src="../../../sorter.js"></script>
+        <script src="../../../block-navigation.js"></script>
     </body>
 </html>
     

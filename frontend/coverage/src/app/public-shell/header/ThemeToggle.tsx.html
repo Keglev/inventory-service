@@ -172,9 +172,9 @@
  * driven by parent callbacks.
  *
  * @enterprise
- * - Distinct from the HamburgerMenu ThemeToggle twin: this component accepts a
- *   plain callback and uses hardcoded EN labels; the authenticated-shell twin owns
- *   i18n side-effects and calls t() for its label. Do not merge until ST-APP4.
+ * - Public shell only. The authenticated shell has no theme toggle: the theme is
+ *   edited in the settings dialog, opened from the sidebar (ADR-0015, FW6 UX-1).
+ *   The label names the mode a click switches to.
  *
  * @example
  * ```tsx

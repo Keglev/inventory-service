@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
@@ -124,7 +124,10 @@
 <a name='L59'></a><a href='#L59'>59</a>
 <a name='L60'></a><a href='#L60'>60</a>
 <a name='L61'></a><a href='#L61'>61</a>
-<a name='L62'></a><a href='#L62'>62</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -160,16 +163,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -196,7 +202,7 @@
  * @enterprise
  * - Iterates NAV_ITEMS from navConfig rather than inlining route definitions — nav structure is owned by navConfig, rendering is owned here.
  * - NAV_ITEMS labels are typed i18n keys, so t(item.label) is key-checked at compile time; a renamed or removed key fails the build instead of silently returning the raw key at runtime.
- * - No sign-out entry: signing out lives in the user menu only (FW5 fork 1, SAP Fiori pattern).
+ * - No sign-out entry: signing out lives in the avatar menu only (FW5 fork 1, SAP Fiori pattern).
  */
 &nbsp;
 import {
@@ -206,6 +212,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { NAV_ITEMS } from '../navConfig';
 import NavItem from './NavItem';
+import type { SidebarVariant } from './sidebarVariant';
 &nbsp;
 /**
  * Sidebar navigation list component.
@@ -213,14 +220,15 @@ import NavItem from './NavItem';
  * Renders all navigation items from navConfig.
  * Navigation items support disabled state with tooltips.
  *
+ * @param props.variant - list rows (phone drawer) or rail tiles (desktop)
  * @returns JSX element rendering the navigation list
  *
  * @example
  * ```tsx
- * &lt;SidebarNavList /&gt;
+ * &lt;SidebarNavList variant="rail" /&gt;
  * ```
  */
-export default function SidebarNavList() {
+export default function SidebarNavList({ variant = 'list' }: { variant?: SidebarVariant }) {
   const { t } = useTranslation(['common']);
 &nbsp;
   return (
@@ -238,6 +246,7 @@ export default function SidebarNavList() {
                 label={translatedLabel}
                 disabled={item.disabled}
                 tooltip={item.tooltip}
+                variant={variant}
               /&gt;
             );
           })}

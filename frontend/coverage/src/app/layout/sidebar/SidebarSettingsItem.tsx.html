@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/app/HamburgerMenu/MenuContent/LogoutMenuAction.tsx</title>
+    <title>Code coverage report for src/app/layout/sidebar/SidebarSettingsItem.tsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../../prettify.css" />
     <link rel="stylesheet" href="../../../../base.css" />
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/app/HamburgerMenu/MenuContent</a> LogoutMenuAction.tsx</h1>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/app/layout/sidebar</a> SidebarSettingsItem.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -32,14 +32,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
@@ -119,7 +119,10 @@
 <a name='L54'></a><a href='#L54'>54</a>
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
-<a name='L57'></a><a href='#L57'>57</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -149,24 +152,27 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -176,59 +182,62 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @file LogoutMenuAction.tsx
- * @module app/HamburgerMenu/MenuContent/LogoutMenuAction
+ * @file SidebarSettingsItem.tsx
+ * @module app/layout/sidebar/SidebarSettingsItem
  *
  * @summary
- * MenuItem that dismisses the popover before triggering logout.
+ * The sidebar's settings entry, under the navigation: opens the settings dialog.
  *
  * @enterprise
- * onClose() is called before onLogout() so the popover is gone before
- * logout-driven navigation starts; reversing the order causes a brief visual
- * flash where the menu reopens during the transition. Mounted exclusively by
- * the root HamburgerMenu.tsx via the MenuContent barrel.
+ * - Settings moved here from the removed hamburger menu (FW6 UX-1, Carlos
+ *   2026-10-09), where the avatar menu would otherwise have held both identity
+ *   and preferences. It stays the only way into the settings dialog (ADR-0015:
+ *   one editor per preference).
+ * - A button, not a link: settings is a dialog over the current page, so no
+ *   route changes and the entry never shows as selected.
  */
-&nbsp;
-import { MenuItem, Typography } from '@mui/material';
-import LogoutIcon from '@mui/icons-material/Logout';
+import { ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import { useTranslation } from 'react-i18next';
+import type { SidebarVariant } from './sidebarVariant';
+import { railItemSx } from './sidebarVariant';
 &nbsp;
-interface LogoutMenuActionProps {
-  /** Callback when logout is clicked */
-  onLogout: () =&gt; void;
+interface SidebarSettingsItemProps {
+  /** Opens the settings dialog */
+  onOpen: () =&gt; void;
 &nbsp;
-  /** Must fire before onLogout to prevent the menu flashing during navigation */
-  onClose: () =&gt; void;
+  /** List row (default) or rail tile */
+  variant?: SidebarVariant;
 }
 &nbsp;
-export default function LogoutMenuAction({
-  onLogout,
-  onClose,
-}: LogoutMenuActionProps) {
+/**
+ * Settings entry for the sidebar.
+ *
+ * @param props - open callback and variant
+ * @returns a list button in the shape of the surrounding navigation entries
+ */
+export default function SidebarSettingsItem({ onOpen, variant = 'list' }: SidebarSettingsItemProps) {
   const { t } = useTranslation(['common']);
+  const label = t('nav.settings');
 &nbsp;
-  const handleLogoutClick = () =&gt; {
-    onClose();
-    onLogout();
-  };
+  if (variant === 'rail') {
+    return (
+      &lt;ListItemButton onClick={onOpen} sx={railItemSx}&gt;
+        &lt;SettingsOutlinedIcon data-testid="SettingsOutlinedIcon" /&gt;
+        &lt;Typography variant="caption" sx={{ lineHeight: 1.2, textAlign: 'center' }}&gt;
+          {label}
+        &lt;/Typography&gt;
+      &lt;/ListItemButton&gt;
+    );
+  }
 &nbsp;
   return (
-    &lt;MenuItem
-      onClick={handleLogoutClick}
-      sx={{
-        py: 1,
-        px: 2,
-        display: 'flex',
-        gap: 1,
-        alignItems: 'center',
-        '&amp;:hover': {
-          bgcolor: 'action.hover',
-        },
-      }}
-    &gt;
-      &lt;LogoutIcon fontSize="small" /&gt;
-      &lt;Typography variant="body2"&gt;{t('nav.logout')}&lt;/Typography&gt;
-    &lt;/MenuItem&gt;
+    &lt;ListItemButton onClick={onOpen} sx={{ flexGrow: 0, borderRadius: 1, mx: 1 }}&gt;
+      &lt;ListItemIcon sx={{ minWidth: 36 }}&gt;
+        &lt;SettingsOutlinedIcon data-testid="SettingsOutlinedIcon" /&gt;
+      &lt;/ListItemIcon&gt;
+      &lt;ListItemText primary={label} /&gt;
+    &lt;/ListItemButton&gt;
   );
 }
 &nbsp;</pre></td></tr></table></pre>

@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/app/HamburgerMenu/NotificationSettings/AllClearNotificationSection.tsx</title>
+    <title>Code coverage report for src/app/layout/header/notifications/NotificationsMenuSection.tsx</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../../prettify.css" />
-    <link rel="stylesheet" href="../../../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
+    <link rel="stylesheet" href="../../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../../../sort-arrow-sprite.png);
+            background-image: url(../../../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,20 +19,20 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/app/HamburgerMenu/NotificationSettings</a> AllClearNotificationSection.tsx</h1>
+        <h1><a href="../../../../../index.html">All files</a> / <a href="index.html">src/app/layout/header/notifications</a> NotificationsMenuSection.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
@@ -95,7 +95,10 @@
 <a name='L30'></a><a href='#L30'>30</a>
 <a name='L31'></a><a href='#L31'>31</a>
 <a name='L32'></a><a href='#L32'>32</a>
-<a name='L33'></a><a href='#L33'>33</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -115,48 +118,54 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @file AllClearNotificationSection.tsx
- * @module app/HamburgerMenu/NotificationSettings/AllClearNotificationSection
+ * @file NotificationsMenuSection.tsx
+ * @module app/layout/header/notifications/NotificationsMenuSection
  *
  * @summary
- * Renders the success "all clear" row when no low-stock items exist.
+ * Content of the notification bell's popover: a loading state, the low-stock
+ * alert with its count, or the all-clear message.
  *
  * @enterprise
- * - Mounted by NotificationsMenuSection when lowStockCount is 0.
- *
- * @example
- * ```tsx
- * &lt;AllClearNotificationSection /&gt;
- * ```
+ * - Reads the count from useDashboardMetrics, the query the dashboard KPI card
+ *   uses, so the bell and the card cannot disagree and share one request.
+ * - Moved here from app/HamburgerMenu when that menu was removed (FW6 UX-1);
+ *   the bell has been its only consumer since FW5 fork 7.
  */
+import { useDashboardMetrics } from '../../../../api/analytics/hooks/useDashboardMetrics';
+import AllClearNotificationSection from './AllClearNotificationSection';
+import LowStockAlertSection from './LowStockAlertSection';
+import NotificationLoadingState from './NotificationLoadingState';
 &nbsp;
-import { Stack, Typography } from '@mui/material';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import { useTranslation } from 'react-i18next';
+export default function NotificationsMenuSection() {
+  const q = useDashboardMetrics();
 &nbsp;
-export default function AllClearNotificationSection() {
-  const { t } = useTranslation('common');
+  const lowStockCount = q.data?.lowStockCount ?? 0;
+  const hasLowStock = !q.isLoading &amp;&amp; lowStockCount &gt; 0;
 &nbsp;
-  return (
-    &lt;Stack direction="row" spacing={1} alignItems="center" sx={{ p: 1 }}&gt;
-      &lt;NotificationsIcon sx={{ fontSize: 20, color: 'success.main' }} /&gt;
-      &lt;Typography variant="caption" color="success.main"&gt;
-        {t('notifications.allGood')}
-      &lt;/Typography&gt;
-    &lt;/Stack&gt;
+  if (q.isLoading) {
+    return &lt;NotificationLoadingState /&gt;;
+  }
+&nbsp;
+  return hasLowStock ? (
+    &lt;LowStockAlertSection lowStockCount={lowStockCount} /&gt;
+  ) : (
+    &lt;AllClearNotificationSection /&gt;
   );
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -167,14 +176,14 @@ export default function AllClearNotificationSection() {
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
             </div>
-        <script src="../../../../prettify.js"></script>
+        <script src="../../../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../../../sorter.js"></script>
-        <script src="../../../../block-navigation.js"></script>
+        <script src="../../../../../sorter.js"></script>
+        <script src="../../../../../block-navigation.js"></script>
     </body>
 </html>
     
