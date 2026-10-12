@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
@@ -39,7 +39,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
@@ -159,7 +159,9 @@
 <a name='L94'></a><a href='#L94'>94</a>
 <a name='L95'></a><a href='#L95'>95</a>
 <a name='L96'></a><a href='#L96'>96</a>
-<a name='L97'></a><a href='#L97'>97</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -203,7 +205,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -277,7 +279,8 @@ import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, L
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
-import { priceTimeAxis, priceValueAxis, type ChartPricePoint } from './priceSeries';
+import { dayTimeAxis } from '../../../utils/timeAxis';
+import { priceValueAxis, type ChartPricePoint } from './priceSeries';
 &nbsp;
 export type PriceTrendChartProps = {
   /** Non-empty series from buildPriceSeries. */
@@ -299,7 +302,7 @@ export default function PriceTrendChart({ series, from, to }: PriceTrendChartPro
     },
     [userPreferences.dateFormat]
   );
-  const timeAxis = React.useMemo(() =&gt; priceTimeAxis(series, from, to), [series, from, to]);
+  const timeAxis = React.useMemo(() =&gt; dayTimeAxis(series.map((p) =&gt; p.t), from, to), [series, from, to]);
   const valueAxis = React.useMemo(() =&gt; priceValueAxis(series), [series]);
   const color = muiTheme.palette.primary.main;
 &nbsp;
