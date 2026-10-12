@@ -49,14 +49,15 @@ public class StockAnalyticsService {
     private final InventoryItemRepository inventoryItemRepository;
 
     /**
-     * Retrieves the closing inventory value (quantity * last known unit price) of every
-     * day in a date range, including days without movements.
+     * Retrieves the closing inventory value (quantity * last known unit price) over a
+     * date range as change points: the first day with history, each day the value
+     * changes, and the range end (see {@link StockValueSeries}).
      * Defaults to last 30 days when bounds are null.
      *
      * @param startDate inclusive start date (nullable)
      * @param endDate   inclusive end date (nullable)
      * @param supplierId optional supplier filter (null/blank = all suppliers)
-     * @return daily stock values ordered by date ascending
+     * @return change points of the stock value ordered by date ascending
      * @throws InvalidRequestException if {@code startDate > endDate}
      */
     public List<StockValueOverTimeDTO> getTotalStockValueOverTime(LocalDate startDate,

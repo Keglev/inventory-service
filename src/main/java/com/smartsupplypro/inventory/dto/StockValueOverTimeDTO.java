@@ -3,7 +3,8 @@ package com.smartsupplypro.inventory.dto;
 import java.time.LocalDate;
 
 /**
- * Response payload for a daily inventory valuation data point.
+ * Response payload for one point of the stock value series: the closing inventory
+ * value of a day on which it changed (or the first or last day of the range).
  *
  * <p>Returned by {@link com.smartsupplypro.inventory.controller.AnalyticsController#getStockValueOverTime()}.</p>
  *

@@ -3,12 +3,15 @@ get:
     - Analytics
   summary: Get stock value over time
   description: |
-    Returns one point per calendar day from start to end: the closing inventory
-    value of that day, the sum over items of the quantity held at the end of the
-    day times the item's last known unit price. Days without movements carry the
-    previous positions forward. Quantities come from each item's whole stock
-    history, not only from movements inside the range. An empty array means no
-    item has any history up to end. Optional supplier filter.
+    Returns the closing inventory value as change points: the first day in the
+    range with stock history, every day whose closing value differs from the
+    previous point, and the end date. The value of a day is the sum over items of
+    the quantity held at the end of the day times the item's last known unit
+    price, and it holds until the next point, so a step line through the points
+    shows every day. Days before the first stock movement are left out rather
+    than sent as 0. Quantities come from each item's whole stock history, not
+    only from movements inside the range. An empty array means no item has any
+    history up to end. Optional supplier filter.
   operationId: getStockValueOverTime
   security:
     - oauth2: [openid]
@@ -38,7 +41,7 @@ get:
       example: "supplier-123"
   responses:
     '200':
-      description: One closing stock value per calendar day, oldest first
+      description: Change points of the closing stock value, oldest first; the last point is the end date
       content:
         application/json:
           schema:
