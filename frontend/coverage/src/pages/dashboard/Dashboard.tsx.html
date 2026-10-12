@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -211,18 +211,8 @@
 <a name='L146'></a><a href='#L146'>146</a>
 <a name='L147'></a><a href='#L147'>147</a>
 <a name='L148'></a><a href='#L148'>148</a>
-<a name='L149'></a><a href='#L149'>149</a>
-<a name='L150'></a><a href='#L150'>150</a>
-<a name='L151'></a><a href='#L151'>151</a>
-<a name='L152'></a><a href='#L152'>152</a>
-<a name='L153'></a><a href='#L153'>153</a>
-<a name='L154'></a><a href='#L154'>154</a>
-<a name='L155'></a><a href='#L155'>155</a>
-<a name='L156'></a><a href='#L156'>156</a>
-<a name='L157'></a><a href='#L157'>157</a>
-<a name='L158'></a><a href='#L158'>158</a>
-<a name='L159'></a><a href='#L159'>159</a>
-<a name='L160'></a><a href='#L160'>160</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L149'></a><a href='#L149'>149</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -266,7 +256,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -361,17 +350,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -389,7 +367,8 @@
  * Authenticated landing page. Renders three KPI cards (inventory count,
  * suppliers count, low-stock count), a 2x2 analytics overview grid
  * (stock value per supplier pie, movement-by-reason, 90-day stock movement,
- * low-stock watchlist), and primary navigation buttons for the core workflows.
+ * low-stock watchlist), and shortcut buttons for the core workflows in the
+ * title row (DashboardQuickActions).
  *
  * @enterprise
  * - Resilience: KPI cards degrade to em-dash placeholders when their data
@@ -407,7 +386,7 @@
  * actions.help.
  */
 import * as React from 'react';
-import { Box, Grid, Button, Stack, Typography, Paper } from '@mui/material';
+import { Box, Grid, Typography, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useDashboardMetrics } from '../../api/analytics/hooks/useDashboardMetrics';
 import MonthlyMovementMini from './blocks/MonthlyMovementMini';
@@ -415,8 +394,8 @@ import StockValuePerSupplierPie from '../analytics/blocks/StockValuePerSupplierP
 import ReasonBreakdownMini from './blocks/ReasonBreakdownMini';
 import LowStockMini from './blocks/LowStockMini';
 import StatCard from '../../components/ui/StatCard';
-import { useNavigate } from 'react-router-dom';
 import { HelpIconButton } from '../../features/help/components/HelpIconButton';
+import DashboardQuickActions from './DashboardQuickActions';
 &nbsp;
 /**
  * Dashboard page component.
@@ -426,7 +405,6 @@ import { HelpIconButton } from '../../features/help/components/HelpIconButton';
  */
 const Dashboard: React.FC = () =&gt; {
   const { t } = useTranslation('common');
-  const navigate = useNavigate();
 &nbsp;
   // Fetch all KPI metrics in a single query with cache durability
   const metricsQuery = useDashboardMetrics(true);
@@ -452,18 +430,25 @@ const Dashboard: React.FC = () =&gt; {
           pb: { xs: 2, md: 3 },
         }}
       &gt;
-        {/* Header with title and help button */}
+        {/* Title row: title, shortcuts and help on one line from sm; on phones the
+            shortcuts wrap to a full-width row under the title and help icon. */}
         &lt;Box
           sx={{
             mb: 1.5,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            columnGap: 1,
+            rowGap: 1,
           }}
         &gt;
-          &lt;Typography variant="h5" sx={{ fontWeight: 600 }}&gt;
+          &lt;Typography variant="h5" sx={{ fontWeight: 600, flex: 1 }}&gt;
             {t('dashboard.title')}
           &lt;/Typography&gt;
+&nbsp;
+          &lt;Box sx={{ order: { xs: 3, sm: 0 }, width: { xs: '100%', sm: 'auto' } }}&gt;
+            &lt;DashboardQuickActions /&gt;
+          &lt;/Box&gt;
 &nbsp;
           &lt;HelpIconButton topicId="app.main" tooltip={t('actions.help')} /&gt;
         &lt;/Box&gt;
@@ -498,7 +483,6 @@ const Dashboard: React.FC = () =&gt; {
           container
           spacing={2}
           sx={{
-            mb: 2,
             alignItems: 'stretch',
             '&amp; &gt; .MuiGrid-root': { display: 'flex' },
             '&amp; .MuiCard-root': { flexGrow: 1, width: '100%' },
@@ -517,23 +501,6 @@ const Dashboard: React.FC = () =&gt; {
             &lt;LowStockMini /&gt;
           &lt;/Grid&gt;
         &lt;/Grid&gt;
-&nbsp;
-        {/* Action buttons for main workflows (responsive layout) */}
-        &lt;Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={1}
-          sx={{ pt: 1 }}
-        &gt;
-          &lt;Button variant="contained" onClick={() =&gt; navigate('/inventory')}&gt;
-            {t('dashboard.actions.manageInventory')}
-          &lt;/Button&gt;
-          &lt;Button variant="outlined" onClick={() =&gt; navigate('/suppliers')}&gt;
-            {t('dashboard.actions.manageSuppliers')}
-          &lt;/Button&gt;
-          &lt;Button variant="outlined" onClick={() =&gt; navigate('/analytics/overview')}&gt;
-            {t('dashboard.actions.viewAnalytics')}
-          &lt;/Button&gt;
-        &lt;/Stack&gt;
       &lt;/Box&gt;
     &lt;/Paper&gt;
   );
