@@ -7,8 +7,8 @@
  * - Empty state when API returns no data
  * - Renders chart when data exists
  * - Query parameter contract (from/to/supplierId normalization)
- * - Step line without dots on a time axis, the last value carried to the range end
- *   (one point per day and one point per change read the same), a named series,
+ * - Step line without dots on a time axis over change points, the last value
+ *   carried to the range end when a response stops short of it, a named series,
  *   and a theme-driven tooltip surface
  * - Refetch behavior when filters change
  */
@@ -177,7 +177,7 @@ describe('StockValueCard', () => {
     expect(lastLineChartData?.[0]).toMatchObject({ date: '2025-01-10', totalValue: 1000 });
   });
 
-  it('carries the last value of a change-point series to the range end', async () => {
+  it('carries the last value to the range end when the response stops short of it', async () => {
     vi.mocked(getStockValueOverTime).mockResolvedValue([
       { date: '2025-01-01', totalValue: 1000 },
       { date: '2025-01-10', totalValue: 1200 },
@@ -201,16 +201,22 @@ describe('StockValueCard', () => {
     await waitFor(() => expect(lastYDomain).toEqual(['auto', 'auto']));
   });
 
-  it('adds nothing to a daily series that already ends on the range end', async () => {
+  it('adds nothing when the backend already sends the range end', async () => {
+    // Change points as the backend sends them: first day, a change, the range end.
     vi.mocked(getStockValueOverTime).mockResolvedValue([
-      { date: '2025-01-30', totalValue: 1000 },
-      { date: '2025-01-31', totalValue: 1000 },
+      { date: '2025-01-01', totalValue: 1000 },
+      { date: '2025-01-12', totalValue: 900 },
+      { date: '2025-01-31', totalValue: 900 },
     ]);
 
-    setup(queryClient, { from: '2025-01-30', to: '2025-01-31' });
+    setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
 
     await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
-    expect(lastLineChartData?.map((p) => p.date)).toEqual(['2025-01-30', '2025-01-31']);
+    expect(lastLineChartData?.map((p) => [p.date, p.carried])).toEqual([
+      ['2025-01-01', undefined],
+      ['2025-01-12', undefined],
+      ['2025-01-31', undefined],
+    ]);
   });
 
   it('draws a named step line without point dots and a theme-coloured tooltip', async () => {
