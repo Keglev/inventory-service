@@ -19,7 +19,7 @@ const mockUseDashboardMetrics = vi.hoisted(() => vi.fn());
 vi.mock('@/api/analytics/hooks/useDashboardMetrics', () => ({
   useDashboardMetrics: () => mockUseDashboardMetrics(),
 }));
-vi.mock('@/app/HamburgerMenu/NotificationsMenuSection', () => ({
+vi.mock('@/app/layout/header/notifications/NotificationsMenuSection', () => ({
   default: () => <div data-testid="notifications-section">Notifications body</div>,
 }));
 vi.mock('react-i18next', () => ({

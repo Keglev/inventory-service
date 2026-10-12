@@ -1,6 +1,6 @@
 /**
  * @file ProfileMenuSection.test.tsx
- * @module __tests__/app/HamburgerMenu
+ * @module __tests__/app/AccountMenu/ProfileMenuSection
  *
  * @description
  * Unit tests for <ProfileMenuSection /> — reads the authenticated user from useAuth()
@@ -18,7 +18,7 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ProfileMenuSection from '@/app/HamburgerMenu/ProfileMenuSection';
+import ProfileMenuSection from '@/app/AccountMenu/ProfileMenuSection';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
@@ -61,15 +61,15 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
-vi.mock('@/app/HamburgerMenu/ProfileSettings/ProfileNameDisplay', () => ({
+vi.mock('@/app/AccountMenu/ProfileSettings/ProfileNameDisplay', () => ({
   default: mockProfileNameDisplay,
 }));
 
-vi.mock('@/app/HamburgerMenu/ProfileSettings/ProfileEmailDisplay', () => ({
+vi.mock('@/app/AccountMenu/ProfileSettings/ProfileEmailDisplay', () => ({
   default: mockProfileEmailDisplay,
 }));
 
-vi.mock('@/app/HamburgerMenu/ProfileSettings/ProfileRoleDisplay', () => ({
+vi.mock('@/app/AccountMenu/ProfileSettings/ProfileRoleDisplay', () => ({
   default: mockProfileRoleDisplay,
 }));
 

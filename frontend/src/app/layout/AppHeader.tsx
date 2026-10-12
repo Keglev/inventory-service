@@ -27,9 +27,6 @@ import { default as HealthBadge } from './header/HealthBadge';
 import { default as HeaderDemoBadge } from './header/HeaderDemoBadge';
 
 interface AppHeaderProps {
-  /** Opens the settings dialog */
-  onSettingsOpen: () => void;
-
   /** Opens the About dialog */
   onAboutOpen: () => void;
 
@@ -56,7 +53,6 @@ interface AppHeaderProps {
  * @returns JSX element rendering the application header
  */
 export default function AppHeader({
-  onSettingsOpen,
   onAboutOpen,
   onLogout,
   helpTopic,
@@ -72,10 +68,11 @@ export default function AppHeader({
       sx={{ width: '100%', zIndex: (theme) => theme.zIndex.drawer + 1 }}
     >
       <Toolbar>
-        {/* Mobile Menu Toggle (hidden on md+) */}
+        {/* Navigation drawer toggle, phones only (desktop shows the rail) */}
         <IconButton
           edge="start"
           onClick={onDrawerToggle}
+          aria-label={t('actions.openNavigation')}
           sx={{ mr: 1, display: { md: 'none' } }}
         >
           <MenuIcon />
@@ -95,9 +92,8 @@ export default function AppHeader({
         {/* System Health Badge (hidden on xs, shown on sm+) */}
         <HealthBadge />
 
-        {/* Toolbar Actions (language, help, hamburger) */}
+        {/* Toolbar actions: bell, help, avatar menu */}
         <AppToolbarActions
-          onSettingsOpen={onSettingsOpen}
           onAboutOpen={onAboutOpen}
           onLogout={onLogout}
           helpTopic={helpTopic}

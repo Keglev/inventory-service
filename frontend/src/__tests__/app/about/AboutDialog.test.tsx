@@ -7,6 +7,7 @@
  * - Shows version, the first 10 characters of the build id (full id in the title),
  *   environment, backend status and the database product from the shared health query.
  * - Offline backend and an unknown database product are stated, not guessed.
+ * - Links the source repository in a new tab (moved from the hamburger menu, FW6 UX-1).
  * - Renders nothing while closed; the close button calls onClose.
  */
 
@@ -64,6 +65,16 @@ describe('AboutDialog', () => {
 
     expect(screen.getByText('Offline')).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toHaveTextContent('DatabaseUnknown');
+  });
+
+  it('links the source repository in a new tab', () => {
+    render(<AboutDialog open onClose={vi.fn()} />);
+
+    const link = screen.getByRole('link', { name: 'Keglev/inventory-service' });
+    expect(link).toHaveAttribute('href', 'https://github.com/Keglev/inventory-service');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    expect(screen.getByRole('dialog')).toHaveTextContent('Source code');
   });
 
   it('calls onClose when the close button is clicked', async () => {

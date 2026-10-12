@@ -1,6 +1,6 @@
 /**
  * @file LogoutMenuAction.tsx
- * @module app/HamburgerMenu/MenuContent/LogoutMenuAction
+ * @module app/AccountMenu/LogoutMenuAction
  *
  * @summary
  * MenuItem that dismisses the popover before triggering logout.
@@ -8,8 +8,8 @@
  * @enterprise
  * onClose() is called before onLogout() so the popover is gone before
  * logout-driven navigation starts; reversing the order causes a brief visual
- * flash where the menu reopens during the transition. Mounted exclusively by
- * the root HamburgerMenu.tsx via the MenuContent barrel.
+ * flash where the menu reopens during the transition. Mounted by AccountMenu,
+ * the avatar menu in the toolbar.
  */
 
 import { MenuItem, Typography } from '@mui/material';

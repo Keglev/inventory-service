@@ -1,6 +1,6 @@
 /**
  * @file ProfileEmailDisplay.test.tsx
- * @module __tests__/app/HamburgerMenu/ProfileSettings
+ * @module __tests__/app/AccountMenu/ProfileSettings
  *
  * @description
  * Unit tests for <ProfileEmailDisplay /> — renders an email field in the profile section.
@@ -18,7 +18,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ProfileEmailDisplay from '@/app/HamburgerMenu/ProfileSettings/ProfileEmailDisplay';
+import ProfileEmailDisplay from '@/app/AccountMenu/ProfileSettings/ProfileEmailDisplay';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------

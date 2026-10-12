@@ -1,6 +1,6 @@
 /**
  * @file ProfileNameDisplay.test.tsx
- * @module __tests__/app/HamburgerMenu/ProfileSettings
+ * @module __tests__/app/AccountMenu/ProfileSettings
  *
  * @description
  * Unit tests for <ProfileNameDisplay /> — renders a user's full name in the profile section.
@@ -17,7 +17,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ProfileNameDisplay from '@/app/HamburgerMenu/ProfileSettings/ProfileNameDisplay';
+import ProfileNameDisplay from '@/app/AccountMenu/ProfileSettings/ProfileNameDisplay';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------

@@ -31,13 +31,13 @@ type HeaderProps = {
   helpTopic: string;
   onDrawerToggle: () => void;
   onLogout: () => void;
-  onSettingsOpen: () => void;
   onAboutOpen: () => void;
 };
 
 type SidebarProps = {
   mobileOpen: boolean;
   onMobileClose?: () => void;
+  onSettingsOpen: () => void;
 };
 
 let lastHeaderProps: Partial<HeaderProps> | undefined;
@@ -224,7 +224,7 @@ describe('AppShell', () => {
   });
 
   it('toggles the mobile drawer when the header menu toggle is invoked', () => {
-    // Simulates the header "hamburger" action and ensures state flows to the sidebar.
+    // Simulates the header's phone navigation toggle and ensures state flows to the sidebar.
     renderAppShell();
 
     act(() => {
@@ -256,14 +256,16 @@ describe('AppShell', () => {
     expect(screen.getByTestId('app-main')).toHaveAttribute('data-mode', 'dark');
   });
 
-  it('passes no language or theme handlers to the header', () => {
-    // Preferences are edited in the settings dialog only (FW5 forks 1 and 2).
+  it('passes no language, theme or settings handlers to the header', () => {
+    // Preferences are edited in the settings dialog only (FW5 forks 1 and 2), and the
+    // dialog opens from the sidebar since the hamburger menu was removed (FW6 UX-1).
     renderAppShell();
 
     expect(Object.keys(lastHeaderProps ?? {})).toEqual(
-      expect.not.arrayContaining(['onLocaleChange', 'onThemeModeChange', 'locale', 'themeMode']),
+      expect.not.arrayContaining(['onLocaleChange', 'onThemeModeChange', 'locale', 'themeMode', 'onSettingsOpen']),
     );
-    expect(typeof getHeader().onSettingsOpen).toBe('function');
+    expect(typeof getHeader().onAboutOpen).toBe('function');
+    expect(typeof getSidebar().onSettingsOpen).toBe('function');
   });
 
   it('closes the mobile drawer through the sidebar callback', () => {
@@ -287,7 +289,7 @@ describe('AppShell', () => {
     expect(screen.getByTestId('settings-dialog')).toHaveAttribute('data-open', 'false');
 
     act(() => {
-      getHeader().onSettingsOpen();
+      getSidebar().onSettingsOpen();
     });
     expect(screen.getByTestId('settings-dialog')).toHaveAttribute('data-open', 'true');
 

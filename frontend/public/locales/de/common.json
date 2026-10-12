@@ -1,7 +1,6 @@
 {
   "app": {
     "title": "Smart Supply Pro",
-    "branding": "Smart Supply Pro",
     "health": {
       "okLabel": "System OK",
       "degradedLabel": "Eingeschränkt",
@@ -16,6 +15,7 @@
     "inventory": "Inventar",
     "suppliers": "Lieferanten",
     "analytics": "Analytik",
+    "settings": "Einstellungen",
     "logout": "Abmelden"
   },
   "dashboard": {
@@ -50,7 +50,6 @@
     }
   },
   "actions": {
-    "menu": "Menü",
     "toggleLanguage": "Sprache wechseln",
     "backToDashboard": "Zurück zur Übersicht",
     "cancel": "Abbrechen",
@@ -60,6 +59,7 @@
     "yes": "Ja",
     "no": "Nein",
     "help": "Hilfe",
+    "openNavigation": "Navigation öffnen",
     "saving": "Wird gespeichert...",
     "deleting": "Wird gelöscht...",
     "close": "Schließen"
@@ -96,12 +96,6 @@
     "allGood": "Alles in Ordnung – keine Artikel unter Mindestbestand",
     "title": "Benachrichtigungen"
   },
-  "help": {
-    "title": "Hilfe & Docs",
-    "github": "GitHub-Repository",
-    "apiDocs": "API-Dokumentation anzeigen",
-    "frontendDocs": "Frontend-Docs"
-  },
   "error": "Fehler",
   "selectOption": "Option auswählen",
   "units": {
@@ -125,7 +119,7 @@
     "numberFormatEnUs": "Englisch (USA)"
   },
   "menu": {
-    "settings": "Einstellungen…",
+    "account": "Konto",
     "about": "Über Smart Supply Pro"
   },
   "about": {
@@ -135,6 +129,7 @@
     "environment": "Umgebung",
     "backend": "Backend",
     "database": "Datenbank",
+    "repository": "Quellcode",
     "online": "Online",
     "offline": "Offline",
     "unknown": "Unbekannt"

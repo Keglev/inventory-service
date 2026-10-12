@@ -1,6 +1,6 @@
 /**
  * @file AllClearNotificationSection.test.tsx
- * @module __tests__/app/HamburgerMenu/NotificationSettings
+ * @module __tests__/app/layout/header/notifications
  *
  * @description
  * Unit tests for <AllClearNotificationSection /> — the "no issues" state shown when
@@ -19,7 +19,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import AllClearNotificationSection from '@/app/HamburgerMenu/NotificationSettings/AllClearNotificationSection';
+import AllClearNotificationSection from '@/app/layout/header/notifications/AllClearNotificationSection';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------

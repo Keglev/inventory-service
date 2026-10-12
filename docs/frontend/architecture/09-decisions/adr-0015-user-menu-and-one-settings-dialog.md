@@ -107,6 +107,38 @@ A look at current enterprise suites and design guidance found one pattern:
 - Implementation: `frontend/src/app/about/AboutDialog.tsx`,
   `frontend/src/app/footer/`, `frontend/src/features/health/hooks/useHealthCheck.ts`.
 
+## Amendment 2026-10-12: avatar menu, settings in a rail, no hamburger
+Ruled by Carlos after the FW6 survey (UX-1) and two rounds of mockups on the
+real bundle with live demo data.
+
+- **Avatar instead of the three-line icon.** The right end of the toolbar shows
+  the user's initials in a round avatar ("DU" for the demo user), as SAP Fiori,
+  Microsoft 365 and Jira place the profile. Its menu holds the profile (name,
+  e-mail, role), *About Smart Supply Pro* and *Sign out*. The person-outline
+  icon on phones is gone with it.
+- **Settings in the sidebar.** One *Settings* entry under the navigation opens
+  the settings dialog, still the only editor of every preference. On phones it
+  sits in the drawer and closes the drawer before the dialog opens.
+- **No hamburger menu.** With settings in the sidebar and About in the avatar
+  menu, it would have held only the documentation links, which the footer of
+  every page already carries, and the GitHub link, which moved into the About
+  dialog. Its code and tests were deleted; the profile, sign-out and
+  notification parts moved to `frontend/src/app/AccountMenu/` and
+  `frontend/src/app/layout/header/notifications/`.
+- **An 88 px rail on desktop.** The 248 px drawer held four entries and was
+  mostly empty. The desktop sidebar is now a rail with the label under each icon
+  (Material 3 navigation rail, SAP Fiori's collapsed side navigation); phones
+  keep the 248 px drawer of full rows. The "Smart Supply Pro" title that sat
+  hidden under the AppBar at the top of the drawer is gone; screen readers no
+  longer read the product name twice.
+- Language and theme stay out of the toolbar: none of the suites surveyed puts
+  a language or theme button in the header bar (SAP's shell bar lists none;
+  Microsoft 365 and Jira keep theme in settings or the avatar menu).
+- Implementation: `frontend/src/app/AccountMenu/AccountMenu.tsx`,
+  `frontend/src/app/layout/sidebar/SidebarSettingsItem.tsx`,
+  `frontend/src/app/layout/sidebar/sidebarVariant.ts`,
+  `frontend/src/app/layout/AppSidebar.tsx`.
+
 ## References
 - [SAP Fiori: Shell Bar](https://www.sap.com/design-system/fiori-design-web/v1-148/ui-elements/shell-bar/usage),
   [User Menu](https://www.sap.com/design-system/fiori-design-web/v1-148/ui-elements/user-menu/usage)
@@ -116,5 +148,9 @@ A look at current enterprise suites and design guidance found one pattern:
 - [Microsoft Learn: Set personal options](https://learn.microsoft.com/en-us/power-apps/user/set-personal-options)
 - [W3C Internationalization: language negotiation](https://www.w3.org/International/questions/qa-site-conneg)
 - [NN/g: Find navigation on desktop, not hamburger](https://www.nngroup.com/articles/find-navigation-desktop-not-hamburger/)
+- [Microsoft 365: Change account settings](https://support.microsoft.com/en-us/topic/dbd1df27-7b78-4c32-8d48-129e5da5737a),
+  [Atlassian: Theme in Jira](https://community.atlassian.com/t5/Jira-Software-articles/How-to-turn-on-dark-mode-in-Jira/ba-p/2371322)
+- [SAP Fiori for Android: Navigation rail (Material 3)](https://www.sap.com/design-system/fiori-design-android/v26-4/components/m3-standard-components/navigation-rail/usage),
+  [SAP Fiori: Side Navigation](https://www.sap.com/design-system/fiori-design-web/v1-148/ui-elements/side-navigation/usage)
 - Related ADRs: [ADR-0005](adr-0005-shell-split-authenticated-vs-public.md),
   [ADR-0007](adr-0007-i18n-strategy-and-language-region-settings.md)

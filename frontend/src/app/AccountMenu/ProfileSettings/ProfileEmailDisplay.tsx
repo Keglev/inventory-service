@@ -1,6 +1,6 @@
 /**
  * @file ProfileEmailDisplay.tsx
- * @module app/HamburgerMenu/ProfileSettings/ProfileEmailDisplay
+ * @module app/AccountMenu/ProfileSettings/ProfileEmailDisplay
  *
  * @summary
  * Read-only email row; branches on `isDemo` to show a demo-mode placeholder

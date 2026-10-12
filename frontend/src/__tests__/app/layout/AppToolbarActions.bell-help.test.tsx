@@ -8,7 +8,7 @@
  * - help button wiring (topic + tooltip/aria-label)
  *
  * Out of scope:
- * - Hamburger menu behavior (covered in AppToolbarActions.hamburger-layout.test.tsx)
+ * - Avatar menu wiring and layout (covered in AppToolbarActions.account-layout.test.tsx)
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -28,8 +28,8 @@ vi.mock('@/app/layout/header/NotificationBell', () => ({
   default: () => <div data-testid="notification-bell" />,
 }));
 
-vi.mock('@/app/HamburgerMenu/HamburgerMenu', () => ({
-  default: () => <div data-testid="hamburger-menu" />,
+vi.mock('@/app/AccountMenu/AccountMenu', () => ({
+  default: () => <div data-testid="account-menu" />,
 }));
 
 /**
@@ -44,11 +44,9 @@ vi.mock('react-i18next', () => ({
 type Props = React.ComponentProps<typeof AppToolbarActions>;
 
 describe('AppToolbarActions (bell + help)', () => {
-  const mockOnSettingsOpen = vi.fn();
   const mockOnLogout = vi.fn();
 
   const baseProps: Props = {
-    onSettingsOpen: mockOnSettingsOpen,
     onAboutOpen: vi.fn(),
     onLogout: mockOnLogout,
     helpTopic: 'Dashboard',

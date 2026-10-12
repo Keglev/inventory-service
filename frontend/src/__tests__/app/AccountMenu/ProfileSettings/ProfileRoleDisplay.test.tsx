@@ -1,6 +1,6 @@
 /**
  * @file ProfileRoleDisplay.test.tsx
- * @module __tests__/app/HamburgerMenu/ProfileSettings
+ * @module __tests__/app/AccountMenu/ProfileSettings
  *
  * @description
  * Unit tests for <ProfileRoleDisplay /> — renders the user's role and (optionally) a DEMO badge.
@@ -21,7 +21,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ProfileRoleDisplay from '@/app/HamburgerMenu/ProfileSettings/ProfileRoleDisplay';
+import ProfileRoleDisplay from '@/app/AccountMenu/ProfileSettings/ProfileRoleDisplay';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------

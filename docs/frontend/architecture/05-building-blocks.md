@@ -59,8 +59,9 @@ graph TD
 Two shell variants keep public and authenticated experiences separate
 ([ADR-0005](09-decisions/adr-0005-shell-split-authenticated-vs-public.md)): the
 **public shell** wraps login/home/legal pages with a minimal header, and the
-**authenticated shell** provides the full chrome — fixed header, responsive
-sidebar/drawer, and a main content `<Outlet />`. Both are thin orchestrators: they
+**authenticated shell** provides the full chrome — fixed header with an avatar
+menu (profile, About, sign-out), a sidebar that is an 88 px rail on desktop and a
+drawer on phones, and a main content `<Outlet />`. Both are thin orchestrators: they
 coordinate state and delegate rendering to focused sub-components.
 
 Cross-cutting concerns at shell level:
@@ -73,7 +74,8 @@ Cross-cutting concerns at shell level:
   (success/info/warning/error); both shells provide it, so leaf components trigger
   feedback without knowing which shell is active.
 - **Settings** — the authenticated shell owns the settings-dialog open/close
-  lifecycle; entry points live in the shell chrome.
+  lifecycle; its one entry point is the *Settings* item in the sidebar
+  ([ADR-0015](09-decisions/adr-0015-user-menu-and-one-settings-dialog.md)).
 - **Context help** — the current route maps to a help `topicId`, so the help panel
   always opens on content relevant to the visible screen.
 

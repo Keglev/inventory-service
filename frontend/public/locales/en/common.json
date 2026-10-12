@@ -1,7 +1,6 @@
 {
   "app": {
     "title": "Smart Supply Pro",
-    "branding": "Smart Supply Pro",
     "health": {
       "okLabel": "System OK",
       "degradedLabel": "Degraded",
@@ -16,6 +15,7 @@
     "inventory": "Inventory",
     "suppliers": "Suppliers",
     "analytics": "Analytics",
+    "settings": "Settings",
     "logout": "Logout"
   },
   "dashboard": {
@@ -50,7 +50,6 @@
     }
   },
   "actions": {
-    "menu": "Menu",
     "toggleLanguage": "Switch language",
     "backToDashboard": "Back to dashboard",
     "cancel": "Cancel",
@@ -60,6 +59,7 @@
     "yes": "Yes",
     "no": "No",
     "help": "Help",
+    "openNavigation": "Open navigation",
     "saving": "Saving...",
     "deleting": "Deleting...",
     "close": "Close"
@@ -96,12 +96,6 @@
     "allGood": "All clear – no items below minimum",
     "title": "Notifications"
   },
-  "help": {
-    "title": "Help & Docs",
-    "github": "GitHub Repository",
-    "apiDocs": "Open API Docs",
-    "frontendDocs": "Frontend Docs"
-  },
   "error": "Error",
   "selectOption": "Select an option",
   "units": {
@@ -125,7 +119,7 @@
     "numberFormatEnUs": "English (US)"
   },
   "menu": {
-    "settings": "Settings…",
+    "account": "Account",
     "about": "About Smart Supply Pro"
   },
   "about": {
@@ -135,6 +129,7 @@
     "environment": "Environment",
     "backend": "Backend",
     "database": "Database",
+    "repository": "Source code",
     "online": "Online",
     "offline": "Offline",
     "unknown": "Unknown"

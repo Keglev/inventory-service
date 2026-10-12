@@ -1,6 +1,6 @@
 /**
  * @file ProfileRoleDisplay.tsx
- * @module app/HamburgerMenu/ProfileSettings/ProfileRoleDisplay
+ * @module app/AccountMenu/ProfileSettings/ProfileRoleDisplay
  *
  * @summary
  * Read-only role row; renders the role string and a demo Chip when `isDemo` is true.

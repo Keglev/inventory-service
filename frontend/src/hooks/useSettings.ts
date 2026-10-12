@@ -5,10 +5,10 @@
  *   runtime system info) to the component tree.
  * @enterprise
  * - Built via createContextHook (shared factory with useAuth, useHelp).
- * - Heaviest consumer of SettingsContext: 17 production call sites spanning
- *   HamburgerMenu (Appearance, LanguageRegion), app/settings form, all
- *   analytics blocks, inventory columns hook, and the suppliers table — most
- *   read format preferences (date/number) for display rendering.
+ * - Heaviest consumer of SettingsContext: 21 production call sites (measured
+ *   2026-10-12) spanning the app/settings form, the analytics blocks and
+ *   sections, the dashboard blocks, inventory dialogs and hooks, and the
+ *   suppliers table — most read format preferences (date/number) for display.
  * - Bridges TWO concerns that the SettingsContext combines: user preferences
  *   (locale, formats) and runtime system info (DB flavor via getSystemInfo()).
  *   See CB-APP1 (re-scoped) for the open question of splitting build-time vs

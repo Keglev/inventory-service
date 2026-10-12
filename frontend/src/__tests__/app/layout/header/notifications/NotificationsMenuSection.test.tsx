@@ -1,10 +1,10 @@
 /**
  * @file NotificationsMenuSection.test.tsx
- * @module __tests__/app/HamburgerMenu
+ * @module __tests__/app/layout/header/notifications/NotificationsMenuSection
  *
  * @description
- * Unit tests for <NotificationsMenuSection /> — verifies the notification area in the
- * hamburger menu reacts to dashboard metrics:
+ * Unit tests for <NotificationsMenuSection /> — verifies the notification bell's popover
+ * reacts to dashboard metrics:
  * - Loading -> skeleton state
  * - lowStockCount > 0 -> low-stock alert content
  * - lowStockCount === 0 or missing -> all-clear content
@@ -16,7 +16,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import NotificationsMenuSection from '@/app/HamburgerMenu/NotificationsMenuSection';
+import NotificationsMenuSection from '@/app/layout/header/notifications/NotificationsMenuSection';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 // -----------------------------------------------------------------------------
