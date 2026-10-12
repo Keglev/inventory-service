@@ -15,9 +15,9 @@ const item = (dataKey: LegendPayload['dataKey'], value: string): LegendPayload =
 describe('legendOrder', () => {
   it('orders items by the key list, not by label', () => {
     const sorter = legendOrder(['stockIn', 'stockOut']);
-    // German labels sort "Abgang" before "Zugang"; the key list must win.
-    const items = [item('stockOut', 'Abgang'), item('stockIn', 'Zugang')];
-    expect([...items].sort((a, b) => sorter(a) - sorter(b)).map((i) => i.value)).toEqual(['Zugang', 'Abgang']);
+    // German labels sort "Lagerabgang" before "Lagerzugang"; the key list must win.
+    const items = [item('stockOut', 'Lagerabgang'), item('stockIn', 'Lagerzugang')];
+    expect([...items].sort((a, b) => sorter(a) - sorter(b)).map((i) => i.value)).toEqual(['Lagerzugang', 'Lagerabgang']);
   });
 
   it('puts unknown and non-string dataKeys after the listed ones', () => {

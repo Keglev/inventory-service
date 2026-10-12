@@ -61,7 +61,7 @@ function setup(props: Partial<React.ComponentProps<typeof ReasonBreakdownChartCa
   return render(
     <ReasonBreakdownChartCard
       title="Stock out"
-      seriesName="Abgang"
+      seriesName="Lagerabgang"
       data={data}
       color="#123456"
       loading={false}
@@ -99,7 +99,7 @@ describe('ReasonBreakdownChartCard', () => {
 
   it('names the bar series for the tooltip', () => {
     setup();
-    expect(screen.getByTestId('bar')).toHaveAttribute('data-name', 'Abgang');
+    expect(screen.getByTestId('bar')).toHaveAttribute('data-name', 'Lagerabgang');
   });
 
   it('formats axis and tooltip counts, passing strings through', () => {
