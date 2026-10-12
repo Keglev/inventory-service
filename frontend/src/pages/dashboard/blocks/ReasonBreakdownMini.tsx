@@ -73,6 +73,7 @@ export default function ReasonBreakdownMini() {
                 <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
+                  itemSorter={LEGEND_ORDER}
                   formatter={(value) =>
                     typeof value === 'number'
                       ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${tAnalytics('analytics:units.pieces')}`

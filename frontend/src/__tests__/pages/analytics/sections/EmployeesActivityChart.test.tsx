@@ -26,15 +26,29 @@ vi.mock('recharts', () => ({
     <div data-testid="chart-container">{children}</div>
   ),
   LineChart: ({ children }: { children?: React.ReactNode }) => <div data-testid="line-chart">{children}</div>,
-  Line: ({ name }: { name?: string }) => <div data-testid="line">{name}</div>,
+  Line: ({ name, type }: { name?: string; type?: string }) => (
+    <div data-testid="line" data-type={type}>
+      {name}
+    </div>
+  ),
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
-  XAxis: () => <div data-testid="x-axis" />,
+  XAxis: ({ tickFormatter }: { tickFormatter?: (v: string) => string }) => {
+    lastXTickFormatter = tickFormatter ?? null;
+    return <div data-testid="x-axis" />;
+  },
   YAxis: ({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
     lastYTickFormatter = tickFormatter ?? null;
     return <div data-testid="y-axis" />;
   },
-  Tooltip: ({ formatter }: { formatter?: (v: number | string) => string }) => {
+  Tooltip: ({
+    formatter,
+    labelFormatter,
+  }: {
+    formatter?: (v: number | string) => string;
+    labelFormatter?: (v: string) => string;
+  }) => {
     lastTooltipFormatter = formatter ?? null;
+    lastTooltipLabelFormatter = labelFormatter ?? null;
     return <div data-testid="tooltip" />;
   },
   Legend: () => <div data-testid="legend" />,
@@ -42,10 +56,13 @@ vi.mock('recharts', () => ({
 
 let lastYTickFormatter: ((v: string | number) => string) | null = null;
 let lastTooltipFormatter: ((v: number | string) => string) | null = null;
+let lastXTickFormatter: ((v: string) => string) | null = null;
+let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
+    i18n: { language: 'en' },
   }),
 }));
 
@@ -119,5 +136,23 @@ describe('EmployeesActivityChart', () => {
     expect(lastYTickFormatter?.('raw')).toBe('raw');
     expect(lastTooltipFormatter?.(1234)).toBe(`1.234 ${tEn('analytics:units.changes')}`);
     expect(lastTooltipFormatter?.('raw')).toBe('raw');
+  });
+
+  it('draws straight segments between the periods', () => {
+    renderChart();
+    expect(screen.getAllByTestId('line').map((l) => l.getAttribute('data-type'))).toEqual(['linear', 'linear']);
+  });
+
+  it('labels monthly buckets by month and names the covered dates of a partial month', () => {
+    renderChart({ granularity: 'monthly', from: '2026-01-15', to: '2026-02-28' });
+    expect(lastXTickFormatter?.('2026-01')).toBe('Jan 2026');
+    expect(lastTooltipLabelFormatter?.('2026-01')).toBe('January 2026 (15.01.2026 – 31.01.2026)');
+    expect(lastTooltipLabelFormatter?.('2026-02')).toBe('February 2026');
+  });
+
+  it('passes daily and weekly period keys through unchanged', () => {
+    renderChart({ granularity: 'weekly' });
+    expect(lastXTickFormatter?.('2026-W37')).toBe('2026-W37');
+    expect(lastTooltipLabelFormatter?.('2026-W37')).toBe('2026-W37');
   });
 });

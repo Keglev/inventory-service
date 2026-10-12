@@ -1,7 +1,8 @@
 /**
  * @file chartLegendStandard.test.ts
  * @module tests/utils/chartLegendStandard
- * @description Contract test: every Recharts Legend declares its item order. Recharts 3
+ * @description Contract test: every Recharts Legend declares its item order, and so does
+ *   the tooltip of every line or bar chart with a legend. Recharts 3
  *   sorts legend items alphabetically by label by default, so an undeclared order
  *   follows the language ("Abgang, Zugang" in German, "Stock in, Stock out" in
  *   English). Sibling: chartLegend.test.ts (the legendOrder helper).
@@ -21,6 +22,19 @@ describe('chart legend standard', () => {
 
   it('declares an itemSorter on every Recharts legend', () => {
     const unordered = legends.filter(([, tag]) => !/\bitemSorter=/.test(tag)).map(([path]) => path);
+    expect(unordered).toEqual([]);
+  });
+
+  it('declares an itemSorter on the tooltip of every line or bar chart with a legend', () => {
+    // Recharts sorts tooltip items by name by default; the tooltip must list series in legend order.
+    const charts = Object.entries(sources).filter(
+      ([path, code]) =>
+        !path.includes('/__tests__/') && code.includes("from 'recharts'") && /<Legend\b/.test(code) && /<(LineChart|BarChart)\b/.test(code),
+    );
+    expect(charts.length).toBeGreaterThanOrEqual(5);
+    const unordered = charts
+      .filter(([, code]) => (code.match(/<Tooltip\b[\s\S]*?\/>/g) ?? []).some((tag) => !/\bitemSorter=/.test(tag)))
+      .map(([path]) => path);
     expect(unordered).toEqual([]);
   });
 });
