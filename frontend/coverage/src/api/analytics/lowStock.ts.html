@@ -106,9 +106,7 @@
 <a name='L41'></a><a href='#L41'>41</a>
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
-<a name='L44'></a><a href='#L44'>44</a>
-<a name='L45'></a><a href='#L45'>45</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L44'></a><a href='#L44'>44</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -160,8 +158,7 @@
  */
 &nbsp;
 import http from '../httpClient';
-import { isArrayOfRecords, firstNumberOrZero, firstStringOrEmpty, paramClean } from './util';
-import type { AnalyticsParams } from './validation';
+import { isArrayOfRecords, firstNumberOrZero, firstStringOrEmpty } from './util';
 import type { LowStockRow } from './types';
 &nbsp;
 /**
@@ -169,11 +166,11 @@ import type { LowStockRow } from './types';
  * Reads LowStockItemDTO's field names from a bare array; returns `[]`
  * on any error so the table renders empty rather than crashing.
  */
-export async function getLowStockItems(supplierId: string, p?: AnalyticsParams): Promise&lt;LowStockRow[]&gt; {
+export async function getLowStockItems(supplierId: string): Promise&lt;LowStockRow[]&gt; {
     if (!supplierId) return [];
     try {
         const { data } = await http.get&lt;unknown&gt;('/api/analytics/low-stock-items', {
-            params: { supplierId, ...paramClean(p) },
+            params: { supplierId },
         });
 &nbsp;
         const rawList: Array&lt;Record&lt;string, unknown&gt;&gt; = isArrayOfRecords(data) ? data : [];

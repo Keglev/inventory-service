@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>18/18</span>
+                <span class='fraction'>19/19</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>17/17</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
@@ -230,7 +230,18 @@
 <a name='L165'></a><a href='#L165'>165</a>
 <a name='L166'></a><a href='#L166'>166</a>
 <a name='L167'></a><a href='#L167'>167</a>
-<a name='L168'></a><a href='#L168'>168</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a>
+<a name='L173'></a><a href='#L173'>173</a>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -296,12 +307,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">3x</span>
@@ -309,12 +333,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -342,8 +366,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -421,6 +443,8 @@
 import { useCallback, type JSX } from 'react';
 import {
   Box,
+  Card,
+  CardContent,
   Typography,
   Skeleton,
   Table,
@@ -429,13 +453,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useLowStockRows } from '../hooks/useLowStockRows';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { LowStockTableRow } from './LowStockTableRow';
+import DateScopeNote from '../components/DateScopeNote';
 &nbsp;
 /**
  * Props accepted by {@link LowStockTable}.
@@ -444,10 +468,6 @@ import { LowStockTableRow } from './LowStockTableRow';
 export type LowStockTableProps = {
   /** Required supplier id whose items should be evaluated for low stock. */
   supplierId: string;
-  /** Optional ISO date (YYYY-MM-DD) for lower bound. */
-  from?: string;
-  /** Optional ISO date (YYYY-MM-DD) for upper bound. */
-  to?: string;
   /** Show at most N most severe rows (by deficit). `0` = show all. @defaultValue 12 */
   limit?: number;
 };
@@ -461,11 +481,26 @@ export type LowStockTableProps = {
  *
  * @example
  * ```tsx
- * &lt;LowStockTable supplierId="sup-123" from="2025-06-01" to="2025-09-15" limit={12} /&gt;
+ * &lt;LowStockTable supplierId="sup-123" limit={12} /&gt;
  * ```
  */
 export default function LowStockTable(props: LowStockTableProps): JSX.Element {
-  const { supplierId, from, to, limit = 12 } = props;
+  const { t } = useTranslation(['analytics']);
+  return (
+    &lt;Card&gt;
+      &lt;CardContent&gt;
+        &lt;Typography variant="subtitle1" sx={{ mb: 1 }}&gt;
+          {t('analytics:lowStock.title')}
+        &lt;/Typography&gt;
+        {/* A current snapshot: the list does not depend on the date filter above it. */}
+        &lt;DateScopeNote kind="current" /&gt;
+        &lt;LowStockTableContent {...props} /&gt;
+      &lt;/CardContent&gt;
+    &lt;/Card&gt;
+  );
+}
+&nbsp;
+function LowStockTableContent({ supplierId, limit = 12 }: LowStockTableProps): JSX.Element {
   const { t } = useTranslation(['analytics', 'common']);
   const { userPreferences } = useSettings();
   const formatQty = useCallback(
@@ -476,7 +511,7 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
     [userPreferences.numberFormat]
   );
 &nbsp;
-  const { enabled, isLoading, isError, visible, total } = useLowStockRows(supplierId, from, to, limit);
+  const { enabled, isLoading, isError, visible, total } = useLowStockRows(supplierId, limit);
 &nbsp;
   // Conditional UI states
 &nbsp;
@@ -509,9 +544,7 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   }
 &nbsp;
   return (
-    &lt;TableContainer 
-      component={Paper} 
-      variant="outlined" 
+    &lt;TableContainer
       sx={{ 
           maxHeight: 360,
           overflowX: 'auto', // Allow Horizontal scroll instead of clipping

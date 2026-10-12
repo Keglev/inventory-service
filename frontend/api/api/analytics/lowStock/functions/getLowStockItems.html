@@ -122,12 +122,12 @@ api/analytics/lowStock/functions/getLowStockItems · Smart Supply Pro · API</ti
         <h1 id="function-getlowstockitems">Function:
         getLowStockItems()</h1>
         <blockquote>
-        <p><strong>getLowStockItems</strong>(<code>supplierId</code>,
-        <code>p?</code>): <code>Promise</code>&lt;<a
+        <p><strong>getLowStockItems</strong>(<code>supplierId</code>):
+        <code>Promise</code>&lt;<a
         href="../../types/type-aliases/LowStockRow.html"><code>LowStockRow</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/analytics/lowStock.ts#L19">api/analytics/lowStock.ts:19</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/analytics/lowStock.ts#L18">api/analytics/lowStock.ts:18</a></p>
         <p>Tolerant fetch of
         <code>GET /api/analytics/low-stock-items</code> for one
         supplier. Reads LowStockItemDTO's field names from a bare array;
@@ -136,13 +136,6 @@ api/analytics/lowStock/functions/getLowStockItems · Smart Supply Pro · API</ti
         <h2 id="parameters">Parameters</h2>
         <h3 id="supplierid">supplierId</h3>
         <p><code>string</code></p>
-        <h3 id="p">p?</h3>
-        <h4 id="from">from?</h4>
-        <p><code>string</code> = <code>...</code></p>
-        <h4 id="supplierid-1">supplierId?</h4>
-        <p><code>string</code> = <code>...</code></p>
-        <h4 id="to">to?</h4>
-        <p><code>string</code> = <code>...</code></p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
         href="../../types/type-aliases/LowStockRow.html"><code>LowStockRow</code></a>[]&gt;</p>
@@ -159,7 +152,6 @@ api/analytics/lowStock/functions/getLowStockItems · Smart Supply Pro · API</ti
       <li><a href="#parameters" id="toc-parameters">Parameters</a>
       <ul>
       <li><a href="#supplierid" id="toc-supplierid">supplierId</a></li>
-      <li><a href="#p" id="toc-p">p?</a></li>
       </ul></li>
       <li><a href="#returns" id="toc-returns">Returns</a></li>
       </ul></li>
