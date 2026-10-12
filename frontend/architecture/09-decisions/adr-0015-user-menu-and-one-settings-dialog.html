@@ -260,6 +260,49 @@
         <code>frontend/src/app/footer/</code>,
         <code>frontend/src/features/health/hooks/useHealthCheck.ts</code>.</li>
         </ul>
+        <h2
+        id="amendment-2026-10-12-avatar-menu-settings-in-a-rail-no-hamburger">Amendment
+        2026-10-12: avatar menu, settings in a rail, no hamburger</h2>
+        <p>Ruled by Carlos after the FW6 survey (UX-1) and two rounds of
+        mockups on the real bundle with live demo data.</p>
+        <ul>
+        <li><strong>Avatar instead of the three-line icon.</strong> The
+        right end of the toolbar shows the user’s initials in a round
+        avatar (“DU” for the demo user), as SAP Fiori, Microsoft 365 and
+        Jira place the profile. Its menu holds the profile (name,
+        e-mail, role), <em>About Smart Supply Pro</em> and <em>Sign
+        out</em>. The person-outline icon on phones is gone with
+        it.</li>
+        <li><strong>Settings in the sidebar.</strong> One
+        <em>Settings</em> entry under the navigation opens the settings
+        dialog, still the only editor of every preference. On phones it
+        sits in the drawer and closes the drawer before the dialog
+        opens.</li>
+        <li><strong>No hamburger menu.</strong> With settings in the
+        sidebar and About in the avatar menu, it would have held only
+        the documentation links, which the footer of every page already
+        carries, and the GitHub link, which moved into the About dialog.
+        Its code and tests were deleted; the profile, sign-out and
+        notification parts moved to
+        <code>frontend/src/app/AccountMenu/</code> and
+        <code>frontend/src/app/layout/header/notifications/</code>.</li>
+        <li><strong>An 88 px rail on desktop.</strong> The 248 px drawer
+        held four entries and was mostly empty. The desktop sidebar is
+        now a rail with the label under each icon (Material 3 navigation
+        rail, SAP Fiori’s collapsed side navigation); phones keep the
+        248 px drawer of full rows. The “Smart Supply Pro” title that
+        sat hidden under the AppBar at the top of the drawer is gone;
+        screen readers no longer read the product name twice.</li>
+        <li>Language and theme stay out of the toolbar: none of the
+        suites surveyed puts a language or theme button in the header
+        bar (SAP’s shell bar lists none; Microsoft 365 and Jira keep
+        theme in settings or the avatar menu).</li>
+        <li>Implementation:
+        <code>frontend/src/app/AccountMenu/AccountMenu.tsx</code>,
+        <code>frontend/src/app/layout/sidebar/SidebarSettingsItem.tsx</code>,
+        <code>frontend/src/app/layout/sidebar/sidebarVariant.ts</code>,
+        <code>frontend/src/app/layout/AppSidebar.tsx</code>.</li>
+        </ul>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -286,6 +329,16 @@
         <li><a
         href="https://www.nngroup.com/articles/find-navigation-desktop-not-hamburger/">NN/g:
         Find navigation on desktop, not hamburger</a></li>
+        <li><a
+        href="https://support.microsoft.com/en-us/topic/dbd1df27-7b78-4c32-8d48-129e5da5737a">Microsoft
+        365: Change account settings</a>, <a
+        href="https://community.atlassian.com/t5/Jira-Software-articles/How-to-turn-on-dark-mode-in-Jira/ba-p/2371322">Atlassian:
+        Theme in Jira</a></li>
+        <li><a
+        href="https://www.sap.com/design-system/fiori-design-android/v26-4/components/m3-standard-components/navigation-rail/usage">SAP
+        Fiori for Android: Navigation rail (Material 3)</a>, <a
+        href="https://www.sap.com/design-system/fiori-design-web/v1-148/ui-elements/side-navigation/usage">SAP
+        Fiori: Side Navigation</a></li>
         <li>Related ADRs: <a
         href="adr-0005-shell-split-authenticated-vs-public.html">ADR-0005</a>,
         <a
@@ -315,6 +368,10 @@
       <li><a href="#amendment-2026-10-08-system-information"
       id="toc-amendment-2026-10-08-system-information">Amendment
       2026-10-08: system information</a></li>
+      <li><a
+      href="#amendment-2026-10-12-avatar-menu-settings-in-a-rail-no-hamburger"
+      id="toc-amendment-2026-10-12-avatar-menu-settings-in-a-rail-no-hamburger">Amendment
+      2026-10-12: avatar menu, settings in a rail, no hamburger</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

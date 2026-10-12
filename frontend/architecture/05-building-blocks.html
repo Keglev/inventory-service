@@ -207,8 +207,9 @@
         href="09-decisions/adr-0005-shell-split-authenticated-vs-public.html">ADR-0005</a>):
         the <strong>public shell</strong> wraps login/home/legal pages
         with a minimal header, and the <strong>authenticated
-        shell</strong> provides the full chrome — fixed header,
-        responsive sidebar/drawer, and a main content
+        shell</strong> provides the full chrome — fixed header with an
+        avatar menu (profile, About, sign-out), a sidebar that is an 88
+        px rail on desktop and a drawer on phones, and a main content
         <code>&lt;Outlet /&gt;</code>. Both are thin orchestrators: they
         coordinate state and delegate rendering to focused
         sub-components.</p>
@@ -227,8 +228,9 @@
         components trigger feedback without knowing which shell is
         active.</li>
         <li><strong>Settings</strong> — the authenticated shell owns the
-        settings-dialog open/close lifecycle; entry points live in the
-        shell chrome.</li>
+        settings-dialog open/close lifecycle; its one entry point is the
+        <em>Settings</em> item in the sidebar (<a
+        href="09-decisions/adr-0015-user-menu-and-one-settings-dialog.html">ADR-0015</a>).</li>
         <li><strong>Context help</strong> — the current route maps to a
         help <code>topicId</code>, so the help panel always opens on
         content relevant to the visible screen.</li>
