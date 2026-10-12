@@ -32,6 +32,7 @@ import { SuppliersSearchPanel } from './components/SuppliersSearchPanel';
 import { SuppliersFilterPanel } from './components/SuppliersFilterPanel';
 import { SuppliersTable } from './components/SuppliersTable';
 import { SuppliersDialogs } from './components/SuppliersDialogs';
+import { pagePanelSx } from '../../theme/pagePanel';
 
 /**
  * Suppliers Management Board - main page orchestrator.
@@ -98,6 +99,7 @@ const SuppliersBoard: React.FC = () => {
       <Paper
         elevation={0}
         sx={{
+          ...pagePanelSx,
           p: 0,
           bgcolor: 'background.paper',
           flex: 1,

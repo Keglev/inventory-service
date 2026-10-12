@@ -45,6 +45,7 @@ import { useToolbarHandlers } from './handlers/useToolbarHandlers';
 import { useFilterHandlers } from './handlers/useFilterHandlers';
 import { useRefreshHandler } from './handlers/useRefreshHandler';
 import { useDataFetchingLogic } from './handlers/useDataFetchingLogic';
+import { pagePanelSx } from '../../theme/pagePanel';
 
 const InventoryBoard: React.FC = () => {
   const { t } = useTranslation(['common', 'auth', 'analytics', 'inventory']);
@@ -81,6 +82,7 @@ const InventoryBoard: React.FC = () => {
       <Paper
         elevation={0}
         sx={{
+          ...pagePanelSx,
           p: 0,
           bgcolor: 'background.paper',
           flex: 1,

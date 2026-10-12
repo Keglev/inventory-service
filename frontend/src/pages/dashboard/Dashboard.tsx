@@ -35,6 +35,7 @@ import LowStockMini from './blocks/LowStockMini';
 import StatCard from '../../components/ui/StatCard';
 import { HelpIconButton } from '../../features/help/components/HelpIconButton';
 import DashboardQuickActions from './DashboardQuickActions';
+import { pagePanelSx } from '../../theme/pagePanel';
 
 /**
  * Dashboard page component.
@@ -52,6 +53,7 @@ const Dashboard: React.FC = () => {
     <Paper
       elevation={0}
       sx={{
+        ...pagePanelSx,
         flex: 1,
         display: 'flex',
         flexDirection: 'column',

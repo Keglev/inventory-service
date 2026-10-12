@@ -15,6 +15,7 @@
  */
 
 import { Box, Container, Stack } from '@mui/material';
+import { lightFooterSurface } from '../../theme/tokens';
 import { useFooterState } from './useFooterState';
 import FooterLinks from './FooterLinks';
 import HealthStatusDisplay from './HealthStatusDisplay';
@@ -37,7 +38,7 @@ export default function AppFooter() {
       sx={{
         borderTop: '1px solid',
         borderTopColor: 'divider',
-        bgcolor: 'background.default',
+        bgcolor: (theme) => (theme.palette.mode === 'light' ? lightFooterSurface : theme.palette.background.default),
       }}
     >
       <Container maxWidth="xl" sx={{ py: 0.75 }}>

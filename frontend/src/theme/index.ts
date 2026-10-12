@@ -78,7 +78,9 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
         },
         MuiDrawer: {
           styleOverrides: {
-            paper: { borderRight: '1px solid rgba(0,0,0,0.08)' },
+            // WHY: the rail joins the page panel as one surface (theme/pagePanel); a rounded,
+            // shadowed drawer paper left a grey seam beside the panel.
+            paper: { borderRight: '1px solid rgba(0,0,0,0.08)', borderRadius: 0, boxShadow: 'none' },
           },
         },
         MuiCard: {
