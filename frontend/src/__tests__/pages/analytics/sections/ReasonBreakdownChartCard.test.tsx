@@ -8,6 +8,8 @@
  * - Loading skeleton, empty state, and populated chart states.
  * - Axis and tooltip formatters format counts per user preference and
  *   pass non-numeric values through as strings.
+ * - The bar carries the translated series name, so the tooltip never shows
+ *   the dataKey "value".
  */
 import type { ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -45,7 +47,7 @@ vi.mock('recharts', () => ({
     lastTooltipFormatter = formatter ?? null;
     return <div data-testid="tooltip" />;
   },
-  Bar: () => <div data-testid="bar" />,
+  Bar: ({ name }: { name?: string }) => <div data-testid="bar" data-name={name} />,
 }));
 
 import ReasonBreakdownChartCard from '@/pages/analytics/sections/ReasonBreakdownChartCard';
@@ -59,6 +61,7 @@ function setup(props: Partial<React.ComponentProps<typeof ReasonBreakdownChartCa
   return render(
     <ReasonBreakdownChartCard
       title="Stock out"
+      seriesName="Lagerabgang"
       data={data}
       color="#123456"
       loading={false}
@@ -92,6 +95,11 @@ describe('ReasonBreakdownChartCard', () => {
 
     expect(screen.getByText('Stock out')).toBeInTheDocument();
     expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-length', '2');
+  });
+
+  it('names the bar series for the tooltip', () => {
+    setup();
+    expect(screen.getByTestId('bar')).toHaveAttribute('data-name', 'Lagerabgang');
   });
 
   it('formats axis and tooltip counts, passing strings through', () => {

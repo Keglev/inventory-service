@@ -157,12 +157,14 @@ export default function MovementsSection({ from, to, supplierId }: MovementsSect
       >
         <ReasonBreakdownChartCard
           title={t('analytics:movements.increasesTitle')}
+          seriesName={t('analytics:cards.stockIn')}
           data={increases}
           color={muiTheme.palette.success.main}
           loading={q.isLoading}
         />
         <ReasonBreakdownChartCard
           title={t('analytics:movements.decreasesTitle')}
+          seriesName={t('analytics:cards.stockOut')}
           data={decreases}
           color={muiTheme.palette.error.main}
           loading={q.isLoading}

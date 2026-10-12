@@ -22,6 +22,10 @@ import type { MonthlyMovement } from '../../../api/analytics/types';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { legendOrder } from '../../../utils/chartLegend';
+
+/** Stock in before stock out in every language (see utils/chartLegend). */
+const LEGEND_ORDER = legendOrder(['stockIn', 'stockOut']);
 
 export type MovementLineCardProps = { from?: string; to?: string; supplierId?: string | null };
 
@@ -78,7 +82,7 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
                       : value
                   }
                 />
-                <Legend />
+                <Legend itemSorter={LEGEND_ORDER} />
                 <Line
                   type="monotone"
                   dataKey="stockIn"

@@ -3,8 +3,8 @@
  * @module pages/analytics/blocks/PriceTrendCard
  *
  * @summary
- * Supplier-aware item typeahead + price trend line chart (A3). User
- * picks an item from the typeahead; the chart fetches and renders
+ * Supplier-aware item typeahead + price trend card (A3). User picks an
+ * item from the typeahead; the chart (PriceTrendChart) fetches and renders
  * only after an explicit selection.
  *
  * @enterprise
@@ -26,43 +26,26 @@
 
 import * as React from 'react';
 import { Card, CardContent, Typography, Skeleton, Box, Stack } from '@mui/material';
-import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getPriceTrend } from '../../../api/analytics/priceTrend';
 import type { PricePoint } from '../../../api/analytics/types';
 import type { ItemRef } from '../../../api/shared/types';
-import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
-import { useSettings } from '../../../hooks/useSettings';
 import { useItemSearchOptions } from '../hooks/useItemSearchOptions';
 import { ItemSearchAutocomplete } from '../components/ItemSearchAutocomplete';
-import { formatDate, formatNumber } from '../../../utils/formatters';
-import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { buildPriceSeries } from './priceSeries';
+import PriceTrendChart from './PriceTrendChart';
 
 export type PriceTrendCardProps = { from?: string; to?: string; supplierId?: string | null };
 
 /**
  * Local narrow type (ItemRef already includes optional supplierId).
  * Kept to document intent: UI enforces supplier scoping even if BE ignores it.
- *
- * Size note: after extracting the shared item-search hook, the remainder is
- * the chart and picker render body; accepted above the typical range, under
- * the alarm threshold.
  */
 type ItemWithSupplier = ItemRef & { supplierId?: string | null };
 
 export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardProps) {
   const { t } = useTranslation(['analytics']);
-  const muiTheme = useMuiTheme();
-  const { userPreferences } = useSettings();
-  const formatDateLabel = React.useCallback(
-    (value: string | number) => {
-      const str = String(value);
-      const formatted = formatDate(str, userPreferences.dateFormat);
-      return formatted || str;
-    },
-    [userPreferences.dateFormat]
-  );
 
   // ---------------------------------------------------------------------------
   // Type-ahead state (stable selection + debounced query)
@@ -116,10 +99,7 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
     enabled: !!selectedItemId,
   });
 
-  const priceData = React.useMemo(
-    () => [...(priceQ.data ?? [])].sort((a, b) => (a?.date ?? '').localeCompare(b?.date ?? '')),
-    [priceQ.data]
-  );
+  const priceData = React.useMemo(() => buildPriceSeries(priceQ.data, to), [priceQ.data, to]);
 
   // ---------------------------------------------------------------------------
   // Render
@@ -166,44 +146,18 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
           />
         </Stack>
 
-        {!selectedItemId || priceQ.isLoading ? (
+        {!selectedItemId ? (
+          <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
+            {t('analytics:priceTrend.selectItem')}
+          </Box>
+        ) : priceQ.isLoading ? (
           <Skeleton variant="rounded" height={220} />
         ) : priceData.length === 0 ? (
           <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
             {t('analytics:cards.noData')}
           </Box>
         ) : (
-          <Box sx={{ height: 260 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={priceData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickFormatter={formatDateLabel} />
-                <YAxis
-                  domain={['auto', 'auto']}
-                  tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)}
-                />
-                <Tooltip
-                  {...chartTooltipProps(muiTheme)}
-                  labelFormatter={(value) => formatDateLabel(value as string)}
-                  formatter={(value) =>
-                    typeof value === 'number'
-                      ? `${formatNumber(value, userPreferences.numberFormat, 2)} €`
-                      : value
-                  }
-                />
-                <Line
-                  type="monotone"
-                  dataKey="price"
-                  stroke={muiTheme.palette.primary.main}
-                  strokeWidth={2}
-                  dot={{ r: 2 }}
-                  activeDot={{ r: 4 }}
-                  connectNulls
-                  isAnimationActive={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </Box>
+          <PriceTrendChart series={priceData} from={from} to={to} />
         )}
       </CardContent>
     </Card>

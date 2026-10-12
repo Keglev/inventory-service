@@ -27,6 +27,8 @@ export type ReasonBreakdownDatum = {
 export type ReasonBreakdownChartCardProps = {
   /** Card heading (already translated). */
   title: string;
+  /** Tooltip name of the series (already translated); without it Recharts shows the dataKey "value". */
+  seriesName: string;
   /** Chart rows; empty renders the shared no-data state. */
   data: ReasonBreakdownDatum[];
   /** Bar fill color (theme palette value from the parent). */
@@ -35,7 +37,7 @@ export type ReasonBreakdownChartCardProps = {
   loading: boolean;
 };
 
-export default function ReasonBreakdownChartCard({ title, data, color, loading }: ReasonBreakdownChartCardProps) {
+export default function ReasonBreakdownChartCard({ title, seriesName, data, color, loading }: ReasonBreakdownChartCardProps) {
   const { t } = useTranslation(['analytics']);
   const { userPreferences } = useSettings();
   const muiTheme = useMuiTheme();
@@ -75,7 +77,7 @@ export default function ReasonBreakdownChartCard({ title, data, color, loading }
                 <XAxis dataKey="label" interval={0} angle={-25} textAnchor="end" height={70} tick={{ fontSize: 12 }} />
                 <YAxis allowDecimals={false} tickFormatter={formatValue} />
                 <Tooltip {...chartTooltipProps(muiTheme)} formatter={formatTooltipValue} />
-                <Bar dataKey="value" fill={color} isAnimationActive={false} />
+                <Bar dataKey="value" name={seriesName} fill={color} isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>
           </Box>
