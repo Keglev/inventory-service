@@ -6,7 +6,9 @@
  * - Loading state (skeleton)
  * - Empty state when no updates exist
  * - API query parameters (from/to/supplierId)
- * - Chart renders expected stacked series keys when updates exist
+ * - Signed bars stacked by sign on a time axis, daily or weekly
+ * - Fixed colour per kind, legend and tooltip order, formatters
+ * Grouping rules: stockActivitySeries.test.ts.
  */
 
 import type { ReactNode } from 'react';
@@ -55,24 +57,28 @@ vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children?: ReactNode }) => (
     <div data-testid="responsive-container">{children}</div>
   ),
-  BarChart: ({ children, data }: { children?: ReactNode; data: unknown[] }) => (
-    <div data-testid="bar-chart" data-length={Array.isArray(data) ? data.length : 0}>
+  BarChart: ({ children, data, stackOffset }: { children?: ReactNode; data: unknown[]; stackOffset?: string }) => (
+    <div data-testid="bar-chart" data-length={Array.isArray(data) ? data.length : 0} data-stack-offset={stackOffset}>
       {children}
     </div>
   ),
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
-  XAxis: () => <div data-testid="x-axis" />,
+  XAxis: (props: XAxisProps) => {
+    lastXAxis = props;
+    return <div data-testid="x-axis" />;
+  },
   YAxis: ({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
     lastYTickFormatter = tickFormatter ?? null;
     return <div data-testid="y-axis" />;
   },
+  ReferenceLine: ({ y }: { y?: number }) => <div data-testid="reference-line" data-y={y} />,
   Tooltip: ({
     formatter,
     labelFormatter,
     itemSorter,
   }: {
     formatter?: (v: number | string) => string;
-    labelFormatter?: (v: string) => string;
+    labelFormatter?: (v: number) => string;
     itemSorter?: (item: { dataKey?: unknown }) => number;
   }) => {
     lastTooltipFormatter = formatter ?? null;
@@ -84,11 +90,13 @@ vi.mock('recharts', () => ({
     lastLegendSorter = itemSorter ?? null;
     return <div data-testid="legend" />;
   },
-  Bar: ({ dataKey, name }: { dataKey: string; name?: string }) => (
-    <div data-testid="bar-series" data-key={dataKey} data-name={name} />
+  Bar: ({ dataKey, name, fill, stackId }: { dataKey: string; name?: string; fill?: string; stackId?: string }) => (
+    <div data-testid="bar-series" data-key={dataKey} data-name={name} data-fill={fill} data-stack={stackId} />
   ),
 }));
 
+type XAxisProps = { type?: string; scale?: string; domain?: number[]; ticks?: number[]; tickFormatter?: (v: number) => string };
+let lastXAxis: XAxisProps | null = null;
 let lastLegendSorter: ((item: { dataKey?: unknown }) => number) | null = null;
 let lastTooltipSorter: ((item: { dataKey?: unknown }) => number) | null = null;
 const tooltipOrderOf = (keys: string[]) =>
@@ -97,7 +105,7 @@ const legendOrderOf = (keys: string[]) =>
   [...keys].sort((a, b) => (lastLegendSorter?.({ dataKey: a }) ?? 0) - (lastLegendSorter?.({ dataKey: b }) ?? 0));
 let lastYTickFormatter: ((v: string | number) => string) | null = null;
 let lastTooltipFormatter: ((v: number | string) => string) | null = null;
-let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
+let lastTooltipLabelFormatter: ((v: number) => string) | null = null;
 
 // -----------------------------------------------------------------------------
 // Helpers
@@ -150,92 +158,96 @@ describe('RecentStockActivityCard', () => {
     });
   });
 
-  it('requests updates and renders stacked series when data exists', async () => {
-    const updates: StockUpdateRow[] = [
-      { timestamp: '2025-01-01T12:00:00Z', itemName: 'Widget A', reason: 'Sale order', delta: -5 },
-      { timestamp: '2025-01-01T13:00:00Z', itemName: 'Widget A', reason: 'Return', delta: 3 },
-      { timestamp: '2025-01-02T09:00:00Z', itemName: 'Widget B', reason: 'Write off damage', delta: -2 },
-    ];
-
-    vi.mocked(getStockUpdates).mockResolvedValue(updates);
-
+  it('requests the window and draws one signed series per kind, stacked by sign', async () => {
+    vi.mocked(getStockUpdates).mockResolvedValue([
+      { timestamp: '2025-01-01T12:00:00Z', itemName: 'Widget A', reason: 'SOLD', delta: -5 },
+      { timestamp: '2025-01-01T13:00:00Z', itemName: 'Widget A', reason: 'RETURNED_BY_CUSTOMER', delta: 3 },
+      { timestamp: '2025-01-02T09:00:00Z', itemName: 'Widget B', reason: 'RETURNED_TO_SUPPLIER', delta: -2 },
+    ]);
     setup(queryClient, { supplierId: 'sup-2', from: '2025-01-01', to: '2025-01-31' });
 
     await waitFor(() => {
-      expect(getStockUpdates).toHaveBeenCalledWith({
-        from: '2025-01-01',
-        to: '2025-01-31',
-        supplierId: 'sup-2',
-      });
+      expect(getStockUpdates).toHaveBeenCalledWith({ from: '2025-01-01', to: '2025-01-31', supplierId: 'sup-2' });
     });
-
-    await waitFor(() => {
-      // The component aggregates to 2 daily buckets in this dataset.
-      expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-length', '2');
-    });
-
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-length', '2'));
+    expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-stack-offset', 'sign');
+    expect(screen.getByTestId('reference-line')).toHaveAttribute('data-y', '0');
     const bars = screen.getAllByTestId('bar-series');
-    const seriesKeys = bars.map((el) => el.getAttribute('data-key'));
-
-    // We validate the contract: expected series exist (stacked by reason category).
-    expect(seriesKeys).toEqual(expect.arrayContaining(['sale', 'return', 'writeOff']));
+    expect(bars.map((el) => [el.getAttribute('data-key'), el.getAttribute('data-name'), el.getAttribute('data-stack')])).toEqual([
+      ['returnIn', 'Returned by customer', 'activity'],
+      ['sale', 'Sold', 'activity'],
+      ['returnOut', 'Returned to supplier', 'activity'],
+    ]);
   });
 
-  it('orders the legend by series order, not by label', async () => {
+  it('keeps each kind in its colour whatever else is present', async () => {
     vi.mocked(getStockUpdates).mockResolvedValue([
-      { timestamp: '2025-01-01T12:00:00Z', itemName: 'Widget A', reason: 'Sale order', delta: -5 },
+      { timestamp: '2025-01-01T12:00:00Z', itemName: 'A', reason: 'SOLD', delta: -5 },
+    ]);
+    setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
+    await waitFor(() => expect(screen.getByTestId('bar-series')).toBeInTheDocument());
+    const soldAlone = screen.getByTestId('bar-series').getAttribute('data-fill');
+
+    queryClient = createClient();
+    vi.mocked(getStockUpdates).mockResolvedValue([
+      { timestamp: '2025-01-01T12:00:00Z', itemName: 'A', reason: 'INITIAL_STOCK', delta: 5 },
+      { timestamp: '2025-01-01T12:00:00Z', itemName: 'A', reason: 'MANUAL_UPDATE', delta: 1 },
+      { timestamp: '2025-01-01T12:00:00Z', itemName: 'A', reason: 'RETURNED_BY_CUSTOMER', delta: 1 },
+      { timestamp: '2025-01-01T12:00:00Z', itemName: 'A', reason: 'SOLD', delta: -5 },
+      { timestamp: '2025-01-01T12:00:00Z', itemName: 'A', reason: 'LOST', delta: -1 },
+      { timestamp: '2025-01-01T12:00:00Z', itemName: 'A', reason: 'RETURNED_TO_SUPPLIER', delta: -1 },
+      { timestamp: '2025-01-01T12:00:00Z', itemName: 'A', reason: 'NEW_CODE', delta: 1 },
+    ]);
+    const view = setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
+    await waitFor(() => expect(view.getAllByTestId('bar-series').length).toBeGreaterThan(1));
+    const fills = Object.fromEntries(view.getAllByTestId('bar-series').map((el) => [el.getAttribute('data-key'), el.getAttribute('data-fill')]));
+    expect(fills.sale).toBe(soldAlone);
+    expect(new Set(Object.values(fills)).size).toBe(7);
+  });
+
+  it('places days on a time axis padded by half a day', async () => {
+    vi.mocked(getStockUpdates).mockResolvedValue([
+      { timestamp: '2025-01-10T12:00:00Z', itemName: 'A', reason: 'SOLD', delta: -5 },
     ]);
     setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
     await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
-    expect(legendOrderOf(['other', 'return', 'writeOff', 'sale', 'adjustment', 'initialStock'])).toEqual([
-      'initialStock', 'adjustment', 'sale', 'writeOff', 'return', 'other',
-    ]);
+    expect(lastXAxis).toMatchObject({ type: 'number', scale: 'time' });
+    expect(lastXAxis?.domain).toEqual([Date.parse('2025-01-01') - 43_200_000, Date.parse('2025-01-31') + 43_200_000]);
+    expect(lastXAxis?.ticks?.[0]).toBe(Date.parse('2025-01-01'));
+    expect(lastTooltipLabelFormatter?.(Date.parse('2025-01-10'))).toBe('2025-01-01');
   });
 
-  it('normalizes edge-case reasons, skips bad timestamps, and formats values', async () => {
-    const updates = [
-      // Missing / invalid timestamps are skipped entirely.
-      { itemName: 'A', delta: 5, reason: 'SOLD' },
-      { itemName: 'B', timestamp: 'not-a-date', delta: 5, reason: 'SOLD' },
-      // Reason-less rows and unknown reasons bucket into "other".
-      { itemName: 'C', timestamp: '2025-02-01T10:00:00Z', delta: 2 },
-      { itemName: 'D', timestamp: '2025-02-01T11:00:00Z', delta: 1, reason: 'SOMETHING_ELSE' },
-      // Category keyword arms.
-      { itemName: 'E', timestamp: '2025-02-01T12:00:00Z', delta: 3, reason: 'INITIAL_STOCK' },
-      { itemName: 'F', timestamp: '2025-02-01T13:00:00Z', delta: -4, reason: 'MANUAL_UPDATE' },
-      // Non-numeric delta degrades to 0 instead of crashing the sum.
-      { itemName: 'G', timestamp: '2025-02-01T14:00:00Z', delta: 'x', reason: 'DAMAGED' },
-    ] as unknown as StockUpdateRow[];
-    vi.mocked(getStockUpdates).mockResolvedValue(updates);
+  it('groups a long range by week, pads by half a week and labels the week', async () => {
+    vi.mocked(getStockUpdates).mockResolvedValue([
+      { timestamp: '2026-06-09T12:00:00Z', itemName: 'A', reason: 'SOLD', delta: -5 },
+      { timestamp: '2026-06-11T12:00:00Z', itemName: 'A', reason: 'SOLD', delta: -2 },
+    ]);
+    setup(queryClient, { from: '2026-04-15', to: '2026-10-12' });
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-length', '1'));
+    expect(lastXAxis?.domain).toEqual([Date.parse('2026-04-15') - 302_400_000, Date.parse('2026-10-12') + 302_400_000]);
+    expect(lastTooltipLabelFormatter?.(Date.parse('2026-06-08'))).toBe('Week of 2025-01-01');
+  });
 
+  it('orders the legend and the tooltip stock in first, then stock out', async () => {
+    vi.mocked(getStockUpdates).mockResolvedValue([
+      { timestamp: '2025-01-01T12:00:00Z', itemName: 'Widget A', reason: 'SOLD', delta: -5 },
+    ]);
+    setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+    const keys = ['other', 'returnOut', 'writeOff', 'sale', 'returnIn', 'adjustment', 'initialStock'];
+    const expected = ['initialStock', 'adjustment', 'returnIn', 'sale', 'writeOff', 'returnOut', 'other'];
+    expect(legendOrderOf(keys)).toEqual(expected);
+    expect(tooltipOrderOf(keys)).toEqual(expected);
+  });
+
+  it('formats axis counts and tooltip pieces', async () => {
+    vi.mocked(getStockUpdates).mockResolvedValue([
+      { timestamp: '2025-02-01T10:00:00Z', itemName: 'C', reason: 'SOLD', delta: -2 },
+    ]);
     setup(queryClient, { from: '2025-02-01', to: '2025-02-28' });
-
-    await waitFor(() => {
-      // Rows with bad timestamps are dropped; the rest share one daily bucket.
-      expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-length', '1');
-    });
-
-    const seriesKeys = screen
-      .getAllByTestId('bar-series')
-      .map((el) => el.getAttribute('data-key'));
-    expect(seriesKeys).toEqual(
-      expect.arrayContaining(['other', 'initialStock', 'adjustment', 'writeOff']),
-    );
-
-    // Formatter callbacks: counts, tooltip pieces, and label passthrough.
-    expect(lastYTickFormatter?.(1234)).toBe('1234');
-    expect(lastTooltipFormatter?.(1234)).toBe('1234 pcs');
-    expect(lastTooltipLabelFormatter?.('Feb 1')).toBe('Feb 1');
-  });
-
-  it('lists tooltip series in series order, like the legend', async () => {
-    vi.mocked(getStockUpdates).mockResolvedValue([
-      { timestamp: '2025-01-01T12:00:00Z', itemName: 'Widget A', reason: 'Sale order', delta: -5 },
-    ]);
-    setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
     await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
-    expect(tooltipOrderOf(['other', 'return', 'writeOff', 'sale', 'adjustment', 'initialStock'])).toEqual([
-      'initialStock', 'adjustment', 'sale', 'writeOff', 'return', 'other',
-    ]);
+    expect(lastYTickFormatter?.(1234)).toBe('1234');
+    expect(lastTooltipFormatter?.(-1234)).toBe('-1234 pcs');
+    expect(lastXAxis?.tickFormatter?.(Date.parse('2025-02-01'))).toBe('2025-01-01');
   });
 });
