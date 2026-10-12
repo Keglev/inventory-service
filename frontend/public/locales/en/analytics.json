@@ -3,6 +3,7 @@
   "cards": {
     "stockValue": "Stock value over time (€)",
     "stockValueSeries": "Stock value",
+    "priceSeries": "Price",
     "monthlyMovement": "Monthly stock movement (pieces)",
     "stockIn": "Stock in",
     "stockOut": "Stock out",
@@ -19,6 +20,7 @@
   },
   "priceTrend": {
     "selectSupplierShort": "Select supplier",
+    "selectItem": "Choose an item to see its price history",
     "noItemsForSupplier": "No items for this supplier",
     "typeToSearch": "Start typing to search…"
   },

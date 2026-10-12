@@ -28,12 +28,16 @@ import { getStockUpdates, type StockUpdateRow } from '../../../api/analytics/upd
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { legendOrder } from '../../../utils/chartLegend';
 
 export type RecentStockActivityCardProps = { from?: string; to?: string; supplierId?: string | null };
 
 type ReasonLabelKey = 'initialStock' | 'adjustment' | 'sale' | 'writeOff' | 'return' | 'other';
 
 const SERIES_ORDER: ReasonLabelKey[] = ['initialStock', 'adjustment', 'sale', 'writeOff', 'return', 'other'];
+
+/** Legend follows SERIES_ORDER, not the alphabet of the translated labels. */
+const LEGEND_ORDER = legendOrder(SERIES_ORDER);
 
 function normalizeReason(reason?: string): ReasonLabelKey {
   if (!reason) return 'other';
@@ -147,7 +151,7 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
                   }
                   labelFormatter={(label) => label as string}
                 />
-                <Legend />
+                <Legend itemSorter={LEGEND_ORDER} />
                 {reasonKeys.map((key) => (
                   <Bar
                     key={key}

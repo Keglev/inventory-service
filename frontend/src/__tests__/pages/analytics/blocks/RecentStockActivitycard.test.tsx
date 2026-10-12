@@ -77,12 +77,18 @@ vi.mock('recharts', () => ({
     lastTooltipLabelFormatter = labelFormatter ?? null;
     return <div data-testid="tooltip" />;
   },
-  Legend: () => <div data-testid="legend" />,
+  Legend: ({ itemSorter }: { itemSorter?: (item: { dataKey?: unknown }) => number }) => {
+    lastLegendSorter = itemSorter ?? null;
+    return <div data-testid="legend" />;
+  },
   Bar: ({ dataKey, name }: { dataKey: string; name?: string }) => (
     <div data-testid="bar-series" data-key={dataKey} data-name={name} />
   ),
 }));
 
+let lastLegendSorter: ((item: { dataKey?: unknown }) => number) | null = null;
+const legendOrderOf = (keys: string[]) =>
+  [...keys].sort((a, b) => (lastLegendSorter?.({ dataKey: a }) ?? 0) - (lastLegendSorter?.({ dataKey: b }) ?? 0));
 let lastYTickFormatter: ((v: string | number) => string) | null = null;
 let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
@@ -167,6 +173,17 @@ describe('RecentStockActivityCard', () => {
 
     // We validate the contract: expected series exist (stacked by reason category).
     expect(seriesKeys).toEqual(expect.arrayContaining(['sale', 'return', 'writeOff']));
+  });
+
+  it('orders the legend by series order, not by label', async () => {
+    vi.mocked(getStockUpdates).mockResolvedValue([
+      { timestamp: '2025-01-01T12:00:00Z', itemName: 'Widget A', reason: 'Sale order', delta: -5 },
+    ]);
+    setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+    expect(legendOrderOf(['other', 'return', 'writeOff', 'sale', 'adjustment', 'initialStock'])).toEqual([
+      'initialStock', 'adjustment', 'sale', 'writeOff', 'return', 'other',
+    ]);
   });
 
   it('normalizes edge-case reasons, skips bad timestamps, and formats values', async () => {

@@ -117,7 +117,8 @@ export function EmployeesActivityChart({
                 <XAxis dataKey="period" tick={{ fontSize: 12 }} />
                 <YAxis allowDecimals={false} tickFormatter={formatCount} />
                 <Tooltip {...chartTooltipProps(muiTheme)} formatter={formatTooltipCount} />
-                <Legend />
+                {/* Series are people: alphabetical by name reads the same in every language. */}
+                <Legend itemSorter="value" />
                 {employees.map((emp, idx) => (
                   <Line
                     key={emp.createdBy}

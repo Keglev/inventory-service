@@ -41,6 +41,10 @@ vi.mock('@mui/material/styles', async () => {
   };
 });
 
+let lastLegendSorter: ((item: { dataKey?: unknown }) => number) | null = null;
+const legendOrderOf = (keys: string[]) =>
+  [...keys].sort((a, b) => (lastLegendSorter?.({ dataKey: a }) ?? 0) - (lastLegendSorter?.({ dataKey: b }) ?? 0));
+
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children?: ReactNode }) => <div data-testid="responsive-container">{children}</div>,
   BarChart: ({ children, data }: { children?: ReactNode; data: unknown[] }) => (
@@ -51,7 +55,10 @@ vi.mock('recharts', () => ({
   XAxis: () => <div data-testid="xaxis" />,
   YAxis: () => <div data-testid="yaxis" />,
   Tooltip: () => <div data-testid="tooltip" />,
-  Legend: () => <div data-testid="legend" />,
+  Legend: ({ itemSorter }: { itemSorter?: (item: { dataKey?: unknown }) => number }) => {
+    lastLegendSorter = itemSorter ?? null;
+    return <div data-testid="legend" />;
+  },
 }));
 
 vi.mock('@/api/analytics/reasonBreakdown', () => ({
@@ -98,5 +105,12 @@ describe('ReasonBreakdownMini', () => {
     const bars = screen.getAllByTestId('bar').map((b) => b.getAttribute('data-key'));
     expect(bars).toContain('increase');
     expect(bars).toContain('decrease');
+  });
+
+  it('orders the legend increase before decrease', async () => {
+    vi.mocked(getReasonBreakdown).mockResolvedValue([{ reason: 'SOLD', increase: 0, decrease: 40 }]);
+    setup(queryClient);
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+    expect(legendOrderOf(['decrease', 'increase'])).toEqual(['increase', 'decrease']);
   });
 });

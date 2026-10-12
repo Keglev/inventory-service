@@ -26,6 +26,10 @@ import { reasonLabel } from '../../analytics/sections/reasonLabels';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { legendOrder } from '../../../utils/chartLegend';
+
+/** Stock in before stock out in every language (see utils/chartLegend). */
+const LEGEND_ORDER = legendOrder(['increase', 'decrease']);
 
 export default function ReasonBreakdownMini() {
   const { t } = useTranslation('common');
@@ -75,7 +79,7 @@ export default function ReasonBreakdownMini() {
                       : value
                   }
                 />
-                <Legend />
+                <Legend itemSorter={LEGEND_ORDER} />
                 <Bar dataKey="increase" name={t('dashboard.reasons.increase')} fill={muiTheme.palette.success.main} />
                 <Bar dataKey="decrease" name={t('dashboard.reasons.decrease')} fill={muiTheme.palette.error.main} />
               </BarChart>

@@ -39,6 +39,10 @@ vi.mock('@/hooks/useSettings', () => ({
   }),
 }));
 
+let lastLegendSorter: ((item: { dataKey?: unknown }) => number) | null = null;
+const legendOrderOf = (keys: string[]) =>
+  [...keys].sort((a, b) => (lastLegendSorter?.({ dataKey: a }) ?? 0) - (lastLegendSorter?.({ dataKey: b }) ?? 0));
+
 vi.mock('@/api/analytics/stock', () => ({
   getMonthlyStockMovement: vi.fn(),
 }));
@@ -71,7 +75,10 @@ vi.mock('recharts', () => ({
     lastTooltipLabelFormatter = labelFormatter ?? null;
     return <div data-testid="tooltip" />;
   },
-  Legend: () => <div data-testid="legend" />,
+  Legend: ({ itemSorter }: { itemSorter?: (item: { dataKey?: unknown }) => number }) => {
+    lastLegendSorter = itemSorter ?? null;
+    return <div data-testid="legend" />;
+  },
   Line: ({ name }: { name?: string }) => <div data-testid="line" data-name={name} />,
 }));
 
@@ -142,6 +149,13 @@ describe('MovementLineCard', () => {
       to: '2026-06-30',
       supplierId: 'sup-1',
     });
+  });
+
+  it('orders the legend stock in before stock out', async () => {
+    getMonthlyStockMovementMock.mockResolvedValue(sample);
+    setup({ from: '2026-05-01', to: '2026-06-30' });
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(legendOrderOf(['stockOut', 'stockIn'])).toEqual(['stockIn', 'stockOut']);
   });
 
   it('normalizes a null supplierId to undefined in the fetch params', async () => {

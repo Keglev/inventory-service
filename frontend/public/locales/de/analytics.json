@@ -3,9 +3,10 @@
   "cards": {
     "stockValue": "Bestandswert im Zeitverlauf (€)",
     "stockValueSeries": "Bestandswert",
+    "priceSeries": "Preis",
     "monthlyMovement": "Monatliche Bestandsbewegung (Stück)",
-    "stockIn": "Zugang",
-    "stockOut": "Abgang",
+    "stockIn": "Lagerzugang",
+    "stockOut": "Lagerabgang",
     "priceTrend": "Preisverlauf (€)",
     "noData": "Keine Daten für die ausgewählten Filter."
   },
@@ -19,6 +20,7 @@
   },
   "priceTrend": {
     "selectSupplierShort": "Lieferant auswählen",
+    "selectItem": "Wähle einen Artikel, um den Preisverlauf zu sehen",
     "noItemsForSupplier": "Keine Artikel für diesen Lieferanten",
     "typeToSearch": "Tippe zum Suchen…"
   },

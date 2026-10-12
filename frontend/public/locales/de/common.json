@@ -25,8 +25,8 @@
       "suppliers": "Lieferanten",
       "lowStock": "Artikel unter Mindestbestand",
       "movementTitle": "Bestandsbewegung, letzte 90 Tage (Stück)",
-      "stockIn": "Zugang",
-      "stockOut": "Abgang"
+      "stockIn": "Lagerzugang",
+      "stockOut": "Lagerabgang"
     },
     "actions": {
       "manageInventory": "Bestand verwalten",
@@ -45,8 +45,8 @@
     "reasons": {
       "title": "Lagerbewegung nach Grund (Stück)",
       "empty": "Keine Bewegung in diesem Zeitraum",
-      "increase": "Zugang",
-      "decrease": "Abgang"
+      "increase": "Lagerzugang",
+      "decrease": "Lagerabgang"
     }
   },
   "actions": {
