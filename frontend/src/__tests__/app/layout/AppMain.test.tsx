@@ -52,6 +52,12 @@ describe('AppMain', () => {
       const main = container.querySelector('main');
       expect(main).toHaveStyle({ overflowY: 'auto' });
     });
+
+    it('adds no bottom padding, so the page panel meets the footer', () => {
+      const { container } = renderAppMain();
+
+      expect(container.querySelector('main')).toHaveStyle({ paddingBottom: '0px' });
+    });
   });
 
   describe('Removed behavior', () => {
