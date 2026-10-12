@@ -24,7 +24,7 @@ import { dayTimeAxis } from '../../../utils/timeAxis';
 import { priceValueAxis, type ChartPricePoint } from './priceSeries';
 
 export type PriceTrendChartProps = {
-  /** Non-empty series from buildPriceSeries. */
+  /** Non-empty series from toStepSeries. */
   series: ChartPricePoint[];
   /** Selected range (ISO dates); the X axis spans it. */
   from?: string;

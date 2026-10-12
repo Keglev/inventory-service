@@ -3,40 +3,20 @@
  * @module pages/analytics/blocks/priceSeries
  *
  * @summary
- * Shapes price-trend points for the step chart in PriceTrendCard: series on a
- * time scale, the carried last price, and the price axis domain and ticks
- * (the time axis comes from utils/timeAxis).
+ * Price axis for the step chart in PriceTrendCard: domain and round ticks.
+ * The series comes from utils/stepSeries, the time axis from utils/timeAxis.
  *
  * @enterprise
- * The API returns one point per recorded price change. A price holds until the
- * next change, so the chart draws steps and repeats the last price at the end of
- * the selected range; otherwise the line would stop at the last change and read
- * as "no price since then". The repeated point is marked so the chart draws no
- * dot on a day without a recorded change. Points sit on a time scale: on a
- * category axis 62 days and 97 days took the same width.
+ * The API returns one point per recorded price change; the step series carries
+ * the last price to the range end, and the time axis gives each gap between
+ * changes its real width (on a category axis 62 days and 97 days took the same
+ * width).
  */
 import type { PricePoint } from '../../../api/analytics/types';
+import type { StepPoint } from '../../../utils/stepSeries';
 
 /** A plotted price at time `t` (epoch ms); `carried` marks the last price repeated at the range end. */
-export type ChartPricePoint = PricePoint & { t: number; carried?: boolean };
-
-/**
- * Builds the series: drops points without a valid date (a time axis cannot place
- * them), sorts by time and carries the last price to `to`.
- *
- * @param points price changes as returned by the API, in any order
- * @param to range end (ISO date); without it, or when the last change is on or after it, nothing is added
- * @returns the series to plot
- */
-export function buildPriceSeries(points: readonly PricePoint[] | undefined, to?: string): ChartPricePoint[] {
-  const sorted = (points ?? [])
-    .map((p) => ({ ...p, t: Date.parse(p?.date ?? '') }))
-    .filter((p) => Number.isFinite(p.t))
-    .sort((a, b) => a.t - b.t);
-  const last = sorted[sorted.length - 1];
-  const end = to ? Date.parse(to) : NaN;
-  return last && last.t < end ? [...sorted, { date: to as string, price: last.price, t: end, carried: true }] : sorted;
-}
+export type ChartPricePoint = StepPoint<PricePoint>;
 
 /**
  * Price axis with a margin of at least 10% above and below the prices, widened
