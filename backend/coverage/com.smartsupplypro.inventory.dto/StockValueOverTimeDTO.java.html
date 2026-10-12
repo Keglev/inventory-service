@@ -3,14 +3,15 @@
 import java.time.LocalDate;
 
 /**
- * Response payload for a daily inventory valuation data point.
+ * Response payload for one point of the stock value series: the closing inventory
+ * value of a day on which it changed (or the first or last day of the range).
  *
  * &lt;p&gt;Returned by {@link com.smartsupplypro.inventory.controller.AnalyticsController#getStockValueOverTime()}.&lt;/p&gt;
  *
  * @param date       date of this valuation snapshot
  * @param totalValue total inventory value on this date, calculated as the sum of quantity * price
  */
-<span class="fc" id="L13">public record StockValueOverTimeDTO(</span>
+<span class="fc" id="L14">public record StockValueOverTimeDTO(</span>
         LocalDate date,
         double totalValue
 ) {}
