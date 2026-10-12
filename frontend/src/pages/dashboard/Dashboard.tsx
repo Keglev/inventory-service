@@ -37,6 +37,9 @@ import { HelpIconButton } from '../../features/help/components/HelpIconButton';
 import DashboardQuickActions from './DashboardQuickActions';
 import { pagePanelSx } from '../../theme/pagePanel';
 
+/** Pie area on the dashboard, smaller than on Analytik so the page fits a 1920x950 viewport (Carlos, 2026-10-12). */
+const DASHBOARD_PIE_HEIGHT = 220;
+
 /**
  * Dashboard page component.
  * Provides KPI overview, trending chart, and navigation shortcuts.
@@ -130,7 +133,7 @@ const Dashboard: React.FC = () => {
           }}
         >
           <Grid size={{ xs: 12, md: 6 }}>
-            <StockValuePerSupplierPie />
+            <StockValuePerSupplierPie chartHeight={DASHBOARD_PIE_HEIGHT} />
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <ReasonBreakdownMini />

@@ -28,7 +28,12 @@ import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { supplierValueSlices } from './supplierValueSlices';
 
-export default function StockValuePerSupplierPie() {
+export type StockValuePerSupplierPieProps = {
+  /** Pie area height in px; the dashboard passes a smaller one so it fits one screen. */
+  chartHeight?: number;
+};
+
+export default function StockValuePerSupplierPie({ chartHeight = 260 }: StockValuePerSupplierPieProps = {}) {
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
@@ -72,7 +77,7 @@ export default function StockValuePerSupplierPie() {
             {t('analytics:stockPerSupplier.empty')}
           </Box>
         ) : (
-          <Box sx={{ height: 260 }}>
+          <Box sx={{ height: chartHeight }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
