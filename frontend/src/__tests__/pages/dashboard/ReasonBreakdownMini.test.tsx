@@ -90,6 +90,13 @@ describe('ReasonBreakdownMini', () => {
     expect(container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
   });
 
+  it('requests the last 90 days, the window its title names', async () => {
+    vi.mocked(getReasonBreakdown).mockResolvedValue([]);
+    setup(queryClient);
+    await waitFor(() => expect(getReasonBreakdown).toHaveBeenCalled());
+    expect(getReasonBreakdown).toHaveBeenCalledWith({ from: getDaysAgoIso(90), to: getTodayIso() });
+  });
+
   it('shows the empty state when all reasons have zero movement', async () => {
     vi.mocked(getReasonBreakdown).mockResolvedValue([{ reason: 'SOLD', increase: 0, decrease: 0 }]);
     setup(queryClient);
@@ -113,13 +120,6 @@ describe('ReasonBreakdownMini', () => {
     setup(queryClient);
     await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
     expect(legendOrderOf(['decrease', 'increase'])).toEqual(['increase', 'decrease']);
-  });
-
-  it('requests the last 90 days, the window its title names', async () => {
-    vi.mocked(getReasonBreakdown).mockResolvedValue([]);
-    setup(queryClient);
-    await waitFor(() => expect(getReasonBreakdown).toHaveBeenCalled());
-    expect(getReasonBreakdown).toHaveBeenCalledWith({ from: getDaysAgoIso(90), to: getTodayIso() });
   });
 
 });
