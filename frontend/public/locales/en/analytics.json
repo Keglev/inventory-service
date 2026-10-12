@@ -39,16 +39,18 @@
     "selectSupplier": "Select a supplier to view"
   },
   "updates": {
-    "title": "Recent stock updates",
+    "title": "Stock changes by reason (pieces)",
     "empty": "No updates in this period.",
     "labels": {
-      "initialStock": "Purchases",
-      "adjustment": "Adjustments",
-      "sale": "Sales",
+      "initialStock": "Initial stock",
+      "adjustment": "Manual adjustment",
+      "returnIn": "Returned by customer",
+      "sale": "Sold",
       "writeOff": "Write-offs",
-      "return": "Returns",
+      "returnOut": "Returned to supplier",
       "other": "Other"
-    }
+    },
+    "weekOf": "Week of {{date}}"
   },
   "item": "Item",
   "filters": {

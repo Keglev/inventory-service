@@ -39,16 +39,18 @@
     "selectSupplier": "Wähle einen Lieferanten zur Ansicht"
   },
   "updates": {
-    "title": "Kürzliche Bestandsaktualisierungen",
+    "title": "Bestandsänderungen nach Grund (Stück)",
     "empty": "Keine Aktualisierungen in diesem Zeitraum.",
     "labels": {
-      "initialStock": "Einkäufe",
-      "adjustment": "Anpassungen",
-      "sale": "Verkäufe",
+      "initialStock": "Anfangsbestand",
+      "adjustment": "Manuelle Korrektur",
+      "returnIn": "Rückgabe vom Kunden",
+      "sale": "Verkauft",
       "writeOff": "Abschreibungen",
-      "return": "Rückgaben",
+      "returnOut": "Rückgabe an Lieferant",
       "other": "Andere"
-    }
+    },
+    "weekOf": "Woche ab {{date}}"
   },
   "item": "Artikel",
   "filters": {

@@ -3,60 +3,43 @@
  * @module pages/analytics/blocks/RecentStockActivityCard
  *
  * @summary
- * Stacked-bar view of recent stock updates grouped by day and reason.
- * Visual alternative to the table view that uses the same backing API.
+ * Stock changes per day and kind over the selected range: stock in as bars
+ * above zero, stock out below, on a time axis.
  *
  * @enterprise
  * - Reads the full list from `getStockUpdates`; the movement drilldown
- *   pages the same data through `getStockUpdatesPage`.
- * - Reason codes are normalized via substring matching, resilient to
- *   spelling drift in the backend enum. Final labels are i18n-keyed
- *   so localization happens at the resource layer, not in code.
- * - It needs every row of the window: daily aggregation collapses many
- *   rows into few bars, and a truncated list would drop whole days. The
- *   list endpoint returns them all; it has no row limit.
- * - Day buckets group by UTC date so day boundaries are stable
- *   regardless of the browser timezone.
+ *   pages the same data through `getStockUpdatesPage`. Daily aggregation
+ *   needs every row of the window, and the list endpoint has no row limit.
+ * - Grouping and signs live in stockActivitySeries.
+ * - Bars stack by sign (stackOffset="sign"), so in and out never add up.
+ * - The X axis is a time scale over the selected range: days without changes
+ *   keep their width instead of disappearing between two bars. Long ranges
+ *   group by week (see stockActivitySeries) and the tooltip says "Woche ab".
+ * - Each kind keeps its colour whatever else the supplier has. Colours were
+ *   assigned by position among the kinds present, so "Verkauf" changed colour
+ *   between suppliers, and two near-identical blues sat side by side.
  */
 import * as React from 'react';
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
+import { purple } from '@mui/material/colors';
+import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar, ReferenceLine } from 'recharts';
 import { getStockUpdates, type StockUpdateRow } from '../../../api/analytics/updates';
+import { dayTimeAxis } from '../../../utils/timeAxis';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { legendOrder } from '../../../utils/chartLegend';
+import { activityBucket, buildActivitySeries, ACTIVITY_LEGEND_ORDER, type ActivityKey } from './stockActivitySeries';
 
 export type RecentStockActivityCardProps = { from?: string; to?: string; supplierId?: string | null };
 
-type ReasonLabelKey = 'initialStock' | 'adjustment' | 'sale' | 'writeOff' | 'return' | 'other';
+/** Legend and tooltip follow ACTIVITY_LEGEND_ORDER, not the alphabet of the translated labels. */
+const LEGEND_ORDER = legendOrder(ACTIVITY_LEGEND_ORDER);
 
-const SERIES_ORDER: ReasonLabelKey[] = ['initialStock', 'adjustment', 'sale', 'writeOff', 'return', 'other'];
-
-/** Legend follows SERIES_ORDER, not the alphabet of the translated labels. */
-const LEGEND_ORDER = legendOrder(SERIES_ORDER);
-
-function normalizeReason(reason?: string): ReasonLabelKey {
-  if (!reason) return 'other';
-  const upper = reason.toUpperCase();
-  if (upper.startsWith('INITIAL')) return 'initialStock';
-  if (upper.includes('ADJUST') || upper.includes('MANUAL')) return 'adjustment';
-  if (upper.includes('SALE') || upper.includes('SOLD')) return 'sale';
-  if (
-    upper.includes('WRITE') ||
-    upper.includes('SCRAP') ||
-    upper.includes('EXPIRE') ||
-    upper.includes('DAMAG') ||
-    upper.includes('DESTROY')
-  ) {
-    return 'writeOff';
-  }
-  if (upper.includes('RETURN')) return 'return';
-  return 'other';
-}
+const DAY_MS = 86_400_000;
 
 export default function RecentStockActivityCard({ from, to, supplierId }: RecentStockActivityCardProps) {
   const { t } = useTranslation(['analytics']);
@@ -68,62 +51,35 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
     queryFn: () => getStockUpdates({ from, to, supplierId: supplierId ?? undefined }),
   });
 
-  const { rows, reasonKeys } = React.useMemo(() => {
-    if (!q.data) return { rows: [] as Array<Record<string, number | string>>, reasonKeys: [] as ReasonLabelKey[] };
+  const bucket = activityBucket(from, to);
+  const bucketMs = bucket === 'week' ? 7 * DAY_MS : DAY_MS;
+  const { days, keys } = React.useMemo(() => buildActivitySeries(q.data, bucket), [q.data, bucket]);
+  const timeAxis = React.useMemo(() => dayTimeAxis(days.map((d) => d.t), from, to), [days, from, to]);
 
-    const buckets = new Map<string, { dateObj: Date; totals: Partial<Record<ReasonLabelKey, number>> }>();
-    const presentReasons = new Set<ReasonLabelKey>();
+  const colors = React.useMemo((): Record<ActivityKey, string> => {
+    const { palette } = muiTheme;
+    return {
+      returnIn: palette.secondary.main,
+      initialStock: palette.success.main,
+      adjustment: palette.primary.main,
+      sale: palette.error.main,
+      returnOut: palette.mode === 'dark' ? purple[300] : purple[700],
+      writeOff: palette.warning.main,
+      other: palette.grey[500],
+    };
+  }, [muiTheme]);
 
-    for (const update of q.data) {
-      if (!update.timestamp) continue;
-      const timestamp = new Date(update.timestamp);
-      if (Number.isNaN(timestamp.getTime())) continue;
-      const dayKey = timestamp.toISOString().slice(0, 10); // group by UTC day
-      const reasonKey = normalizeReason(update.reason);
-      presentReasons.add(reasonKey);
-
-      const bucket = buckets.get(dayKey) ?? { dateObj: timestamp, totals: {} };
-      const delta = typeof update.delta === 'number' ? Math.abs(update.delta) : 0;
-      bucket.totals[reasonKey] = (bucket.totals[reasonKey] ?? 0) + delta;
-      buckets.set(dayKey, bucket);
-    }
-
-    const orderedReasonKeys = SERIES_ORDER.filter((key) => presentReasons.has(key));
-
-    const rows = Array.from(buckets.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([, bucket]) => {
-        const base: Record<string, number | string> = {
-          dateKey: bucket.dateObj.toISOString(),
-          dateLabel: formatDate(bucket.dateObj, userPreferences.dateFormat),
-        };
-        orderedReasonKeys.forEach((key) => {
-          base[key] = bucket.totals[key] ?? 0;
-        });
-        return base;
-      });
-
-    return { rows, reasonKeys: orderedReasonKeys };
-  }, [q.data, userPreferences.dateFormat]);
-
-  const reasonColors = React.useMemo(() => {
-    const palette = [
-      muiTheme.palette.success.main,
-      muiTheme.palette.info.main,
-      muiTheme.palette.error.main,
-      muiTheme.palette.warning.main,
-      muiTheme.palette.primary.main,
-      muiTheme.palette.grey[500],
-    ];
-    return reasonKeys.reduce((acc, key, idx) => {
-      acc[key] = palette[idx % palette.length];
-      return acc;
-    }, {} as Record<ReasonLabelKey, string>);
-  }, [reasonKeys, muiTheme]);
-
-  const formatReasonLabel = React.useCallback(
-    (key: ReasonLabelKey) => t(`analytics:updates.labels.${key}`),
-    [t]
+  const formatDay = React.useCallback(
+    (value: unknown) => formatDate(new Date(Number(value)), userPreferences.dateFormat),
+    [userPreferences.dateFormat]
+  );
+  const formatBucket = React.useCallback(
+    (value: unknown) => (bucket === 'week' ? t('analytics:updates.weekOf', { date: formatDay(value) }) : formatDay(value)),
+    [bucket, formatDay, t]
+  );
+  const formatPieces = React.useCallback(
+    (value: unknown) => `${formatNumber(Number(value), userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`,
+    [userPreferences.numberFormat, t]
   );
 
   return (
@@ -135,31 +91,39 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
 
         {q.isLoading ? (
           <Skeleton variant="rounded" height={260} />
-        ) : rows.length === 0 ? (
+        ) : days.length === 0 ? (
           <Box sx={{ color: 'text.secondary' }}>{t('analytics:updates.empty')}</Box>
         ) : (
           <Box sx={{ height: 320 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={rows} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+              <BarChart data={days} stackOffset="sign" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="dateLabel" />
-                <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
+                <XAxis
+                  dataKey="t"
+                  type="number"
+                  scale="time"
+                  // Half a bucket on each side, so a bar at either end is not cut in half.
+                  domain={[timeAxis.domain[0] - bucketMs / 2, timeAxis.domain[1] + bucketMs / 2]}
+                  ticks={timeAxis.ticks}
+                  tickFormatter={formatDay}
+                />
+                <YAxis width="auto" tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
+                <ReferenceLine y={0} stroke={muiTheme.palette.text.secondary} />
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
                   itemSorter={LEGEND_ORDER}
-                  formatter={(value) =>
-                    `${formatNumber(Number(value), userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
-                  }
-                  labelFormatter={(label) => label as string}
+                  formatter={formatPieces}
+                  labelFormatter={formatBucket}
                 />
                 <Legend itemSorter={LEGEND_ORDER} />
-                {reasonKeys.map((key) => (
+                {keys.map((key) => (
                   <Bar
                     key={key}
                     dataKey={key}
                     stackId="activity"
-                    name={formatReasonLabel(key)}
-                    fill={reasonColors[key]}
+                    name={t(`analytics:updates.labels.${key}`)}
+                    fill={colors[key]}
+                    maxBarSize={14}
                     isAnimationActive={false}
                   />
                 ))}

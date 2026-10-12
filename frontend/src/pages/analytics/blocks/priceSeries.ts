@@ -4,7 +4,8 @@
  *
  * @summary
  * Shapes price-trend points for the step chart in PriceTrendCard: series on a
- * time scale, the carried last price, and the axis domain and ticks.
+ * time scale, the carried last price, and the price axis domain and ticks
+ * (the time axis comes from utils/timeAxis).
  *
  * @enterprise
  * The API returns one point per recorded price change. A price holds until the
@@ -18,8 +19,6 @@ import type { PricePoint } from '../../../api/analytics/types';
 
 /** A plotted price at time `t` (epoch ms); `carried` marks the last price repeated at the range end. */
 export type ChartPricePoint = PricePoint & { t: number; carried?: boolean };
-
-const DAY_MS = 86_400_000;
 
 /**
  * Builds the series: drops points without a valid date (a time axis cannot place
@@ -37,30 +36,6 @@ export function buildPriceSeries(points: readonly PricePoint[] | undefined, to?:
   const last = sorted[sorted.length - 1];
   const end = to ? Date.parse(to) : NaN;
   return last && last.t < end ? [...sorted, { date: to as string, price: last.price, t: end, carried: true }] : sorted;
-}
-
-/**
- * Axis domain spanning the selected range (and every point), with `count` + 1
- * day-aligned ticks spread evenly across it.
- *
- * @param series the plotted series (non-empty)
- * @param from range start (ISO date), optional
- * @param to range end (ISO date), optional
- * @param count number of tick intervals
- * @returns domain and ticks in epoch ms
- */
-export function priceTimeAxis(
-  series: readonly ChartPricePoint[],
-  from?: string,
-  to?: string,
-  count = 5,
-): { domain: [number, number]; ticks: number[] } {
-  const ts = series.map((p) => p.t);
-  const bounds = [Date.parse(from ?? ''), Date.parse(to ?? '')].filter(Number.isFinite);
-  const lo = Math.min(...ts, ...bounds);
-  const hi = Math.max(...ts, ...bounds);
-  const ticks = Array.from({ length: count + 1 }, (_, i) => Math.round((lo + ((hi - lo) * i) / count) / DAY_MS) * DAY_MS);
-  return { domain: [lo, hi], ticks: [...new Set(ticks)] };
 }
 
 /**

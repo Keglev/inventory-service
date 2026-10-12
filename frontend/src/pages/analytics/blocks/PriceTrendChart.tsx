@@ -20,7 +20,8 @@ import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, L
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
-import { priceTimeAxis, priceValueAxis, type ChartPricePoint } from './priceSeries';
+import { dayTimeAxis } from '../../../utils/timeAxis';
+import { priceValueAxis, type ChartPricePoint } from './priceSeries';
 
 export type PriceTrendChartProps = {
   /** Non-empty series from buildPriceSeries. */
@@ -42,7 +43,7 @@ export default function PriceTrendChart({ series, from, to }: PriceTrendChartPro
     },
     [userPreferences.dateFormat]
   );
-  const timeAxis = React.useMemo(() => priceTimeAxis(series, from, to), [series, from, to]);
+  const timeAxis = React.useMemo(() => dayTimeAxis(series.map((p) => p.t), from, to), [series, from, to]);
   const valueAxis = React.useMemo(() => priceValueAxis(series), [series]);
   const color = muiTheme.palette.primary.main;
 
