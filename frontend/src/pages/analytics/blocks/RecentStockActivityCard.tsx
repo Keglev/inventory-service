@@ -146,6 +146,7 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
                 <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
+                  itemSorter={LEGEND_ORDER}
                   formatter={(value) =>
                     `${formatNumber(Number(value), userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
                   }

@@ -22,6 +22,7 @@ import type { EmployeesChartRow } from './useEmployeesSectionData';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
 
 /** One chart series descriptor (an employee). @public */
 export type EmployeeSeries = { createdBy: string; displayName: string };
@@ -38,6 +39,9 @@ export type EmployeesActivityChartProps = {
   employees: EmployeeSeries[];
   /** True while the aggregation query loads. */
   loading: boolean;
+  /** Selected range (ISO dates); a monthly tooltip names the covered days of a partial month. */
+  from?: string;
+  to?: string;
 };
 
 /**
@@ -53,8 +57,10 @@ export function EmployeesActivityChart({
   chartData,
   employees,
   loading,
+  from,
+  to,
 }: EmployeesActivityChartProps): React.JSX.Element {
-  const { t } = useTranslation(['analytics']);
+  const { t, i18n } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
 
@@ -76,6 +82,14 @@ export function EmployeesActivityChart({
     [userPreferences.numberFormat]
   );
 
+  // Monthly buckets ("YYYY-MM") get month labels; the helpers return daily and
+  // weekly keys unchanged, so no granularity check is needed here.
+  const formatPeriod = React.useCallback((value: unknown) => monthLabel(String(value), i18n.language), [i18n.language]);
+  const formatPeriodSpan = React.useCallback(
+    (value: unknown) =>
+      monthSpanLabel(String(value), { from, to, lang: i18n.language, dateFormat: userPreferences.dateFormat }),
+    [from, to, i18n.language, userPreferences.dateFormat]
+  );
   const formatTooltipCount = React.useCallback(
     (value: unknown) =>
       typeof value === 'number'
@@ -114,20 +128,27 @@ export function EmployeesActivityChart({
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="period" tick={{ fontSize: 12 }} />
+                <XAxis dataKey="period" tick={{ fontSize: 12 }} tickFormatter={formatPeriod} />
                 <YAxis allowDecimals={false} tickFormatter={formatCount} />
-                <Tooltip {...chartTooltipProps(muiTheme)} formatter={formatTooltipCount} />
+                {/* Same order as the legend: people, alphabetical by name. */}
+                <Tooltip
+                  {...chartTooltipProps(muiTheme)}
+                  itemSorter="name"
+                  formatter={formatTooltipCount}
+                  labelFormatter={formatPeriodSpan}
+                />
                 {/* Series are people: alphabetical by name reads the same in every language. */}
                 <Legend itemSorter="value" />
                 {employees.map((emp, idx) => (
                   <Line
                     key={emp.createdBy}
-                    type="monotone"
+                    // Counts per period: straight segments, no invented curve between periods.
+                    type="linear"
                     dataKey={(row: EmployeesChartRow) => (row[emp.createdBy] as number | undefined) ?? 0}
                     name={emp.displayName}
                     stroke={seriesColors[idx]}
                     strokeWidth={2}
-                    dot={{ r: 2 }}
+                    dot={{ r: 3 }}
                     activeDot={{ r: 4 }}
                     isAnimationActive={false}
                   />

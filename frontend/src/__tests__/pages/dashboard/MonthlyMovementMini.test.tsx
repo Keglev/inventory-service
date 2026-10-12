@@ -32,6 +32,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     // Prefer defaultValue for stable user-visible copy where used.
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
+    i18n: { language: 'en' },
   }),
 }));
 
@@ -69,7 +70,9 @@ vi.mock('@/api/analytics/stock', () => ({
  * Date utilities must be deterministic for query keys / request params.
  * Avoid using real Date() in tests.
  */
-vi.mock('@/utils/formatters', () => ({
+vi.mock('@/utils/formatters', async (importOriginal) => ({
+  // Real formatDate for the month labels; fixed dates for the 90-day window.
+  ...(await importOriginal<typeof import('@/utils/formatters')>()),
   getTodayIso: () => '2024-12-22',
   getDaysAgoIso: (days: number) => (days === 90 ? '2024-09-23' : '2024-01-01'),
   formatNumber: (num: number) => String(num),
@@ -102,15 +105,30 @@ vi.mock('recharts', () => ({
     </div>
   )),
   CartesianGrid: vi.fn(() => <div data-testid="cartesian-grid" />),
-  XAxis: vi.fn(() => <div data-testid="x-axis" />),
+  XAxis: vi.fn(({ tickFormatter }: { tickFormatter?: (v: string) => string }) => {
+    lastXTickFormatter = tickFormatter ?? null;
+    return <div data-testid="x-axis" />;
+  }),
   YAxis: vi.fn(({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
     lastYTickFormatter = tickFormatter ?? null;
     return <div data-testid="y-axis" />;
   }),
-  Tooltip: vi.fn(({ formatter }: { formatter?: (v: number | string) => string }) => {
+  Tooltip: vi.fn(
+    ({
+      formatter,
+      labelFormatter,
+      itemSorter,
+    }: {
+      formatter?: (v: number | string) => string;
+      labelFormatter?: (v: string) => string;
+      itemSorter?: (item: { dataKey?: unknown }) => number;
+    }) => {
     lastTooltipFormatter = formatter ?? null;
+    lastTooltipSorter = itemSorter ?? null;
+    lastTooltipLabelFormatter = labelFormatter ?? null;
     return <div data-testid="tooltip" />;
-  }),
+  },
+  ),
   Legend: vi.fn(({ itemSorter }: { itemSorter?: (item: { dataKey?: unknown }) => number }) => {
     lastLegendSorter = itemSorter ?? null;
     return <div data-testid="legend" />;
@@ -119,10 +137,15 @@ vi.mock('recharts', () => ({
 }));
 
 let lastLegendSorter: ((item: { dataKey?: unknown }) => number) | null = null;
+let lastTooltipSorter: ((item: { dataKey?: unknown }) => number) | null = null;
+const tooltipOrderOf = (keys: string[]) =>
+  [...keys].sort((a, b) => (lastTooltipSorter?.({ dataKey: a }) ?? 0) - (lastTooltipSorter?.({ dataKey: b }) ?? 0));
 const legendOrderOf = (keys: string[]) =>
   [...keys].sort((a, b) => (lastLegendSorter?.({ dataKey: a }) ?? 0) - (lastLegendSorter?.({ dataKey: b }) ?? 0));
 let lastYTickFormatter: ((v: string | number) => string) | null = null;
 let lastTooltipFormatter: ((v: number | string) => string) | null = null;
+let lastXTickFormatter: ((v: string) => string) | null = null;
+let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
 
 // -------------------------------------
 // Helpers
@@ -212,5 +235,22 @@ describe('MonthlyMovementMini', () => {
     expect(lastYTickFormatter?.(1234)).toBe('1234');
     expect(lastTooltipFormatter?.(1234)).toBe(`1234 ${tEn('units.pieces')}`);
     expect(lastTooltipFormatter?.('n/a')).toBe('n/a');
+  });
+
+  it('labels months on the axis and names the covered dates of partial months in the tooltip', async () => {
+    renderMonthlyMovementMini(queryClient);
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+
+    expect(lastXTickFormatter?.('2024-10')).toBe('Oct 2024');
+    // The 90-day window runs 2024-09-23 .. 2024-12-22: September and December are partial.
+    expect(lastTooltipLabelFormatter?.('2024-09')).toBe('September 2024 (2024-09-23 – 2024-09-30)');
+    expect(lastTooltipLabelFormatter?.('2024-10')).toBe('October 2024');
+    expect(lastTooltipLabelFormatter?.('2024-12')).toBe('December 2024 (2024-12-01 – 2024-12-22)');
+  });
+
+  it('lists tooltip series stock in before stock out, like the legend', async () => {
+    renderMonthlyMovementMini(queryClient);
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+    expect(tooltipOrderOf(['stockOut', 'stockIn'])).toEqual(['stockIn', 'stockOut']);
   });
 });

@@ -69,11 +69,14 @@ vi.mock('recharts', () => ({
   Tooltip: ({
     formatter,
     labelFormatter,
+    itemSorter,
   }: {
     formatter?: (v: number | string) => string;
     labelFormatter?: (v: string) => string;
+    itemSorter?: (item: { dataKey?: unknown }) => number;
   }) => {
     lastTooltipFormatter = formatter ?? null;
+    lastTooltipSorter = itemSorter ?? null;
     lastTooltipLabelFormatter = labelFormatter ?? null;
     return <div data-testid="tooltip" />;
   },
@@ -87,6 +90,9 @@ vi.mock('recharts', () => ({
 }));
 
 let lastLegendSorter: ((item: { dataKey?: unknown }) => number) | null = null;
+let lastTooltipSorter: ((item: { dataKey?: unknown }) => number) | null = null;
+const tooltipOrderOf = (keys: string[]) =>
+  [...keys].sort((a, b) => (lastTooltipSorter?.({ dataKey: a }) ?? 0) - (lastTooltipSorter?.({ dataKey: b }) ?? 0));
 const legendOrderOf = (keys: string[]) =>
   [...keys].sort((a, b) => (lastLegendSorter?.({ dataKey: a }) ?? 0) - (lastLegendSorter?.({ dataKey: b }) ?? 0));
 let lastYTickFormatter: ((v: string | number) => string) | null = null;
@@ -220,5 +226,16 @@ describe('RecentStockActivityCard', () => {
     expect(lastYTickFormatter?.(1234)).toBe('1234');
     expect(lastTooltipFormatter?.(1234)).toBe('1234 pcs');
     expect(lastTooltipLabelFormatter?.('Feb 1')).toBe('Feb 1');
+  });
+
+  it('lists tooltip series in series order, like the legend', async () => {
+    vi.mocked(getStockUpdates).mockResolvedValue([
+      { timestamp: '2025-01-01T12:00:00Z', itemName: 'Widget A', reason: 'Sale order', delta: -5 },
+    ]);
+    setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+    expect(tooltipOrderOf(['other', 'return', 'writeOff', 'sale', 'adjustment', 'initialStock'])).toEqual([
+      'initialStock', 'adjustment', 'sale', 'writeOff', 'return', 'other',
+    ]);
   });
 });
