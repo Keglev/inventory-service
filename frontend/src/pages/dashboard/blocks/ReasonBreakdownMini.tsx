@@ -24,7 +24,7 @@ import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Le
 import { getReasonBreakdown, type ReasonBreakdownRow } from '../../../api/analytics/reasonBreakdown';
 import { reasonLabel } from '../../analytics/sections/reasonLabels';
 import { useSettings } from '../../../hooks/useSettings';
-import { formatNumber } from '../../../utils/formatters';
+import { formatNumber, getDaysAgoIso, getTodayIso } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { legendOrder } from '../../../utils/chartLegend';
 
@@ -37,9 +37,13 @@ export default function ReasonBreakdownMini() {
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
 
+  // Same window as the movement chart beside it (Carlos, fork 5 option A). Without
+  // dates the server answered with its default of 30 days, which the title never said.
+  const from = getDaysAgoIso(90);
+  const to = getTodayIso();
   const q = useQuery<ReasonBreakdownRow[]>({
-    queryKey: ['dashboard', 'reasonBreakdownMini'],
-    queryFn: () => getReasonBreakdown(),
+    queryKey: ['dashboard', 'reasonBreakdownMini', from, to],
+    queryFn: () => getReasonBreakdown({ from, to }),
     staleTime: 60_000,
   });
 

@@ -16,6 +16,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReasonBreakdownRow } from '@/api/analytics/reasonBreakdown';
 import { getReasonBreakdown } from '@/api/analytics/reasonBreakdown';
 import ReasonBreakdownMini from '@/pages/dashboard/blocks/ReasonBreakdownMini';
+import { getDaysAgoIso, getTodayIso } from '@/utils/formatters';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -93,6 +94,13 @@ describe('ReasonBreakdownMini', () => {
     vi.mocked(getReasonBreakdown).mockReturnValue(new Promise(() => {}) as Promise<ReasonBreakdownRow[]>);
     const { container } = setup(queryClient);
     expect(container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
+  });
+
+  it('requests the last 90 days, the window its title names', async () => {
+    vi.mocked(getReasonBreakdown).mockResolvedValue([]);
+    setup(queryClient);
+    await waitFor(() => expect(getReasonBreakdown).toHaveBeenCalled());
+    expect(getReasonBreakdown).toHaveBeenCalledWith({ from: getDaysAgoIso(90), to: getTodayIso() });
   });
 
   it('shows the empty state when all reasons have zero movement', async () => {

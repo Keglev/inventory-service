@@ -171,10 +171,10 @@ export default function Analytics(): JSX.Element {
         {section === 'inventory' && (
           <>
             {/* A4 — Low stock table (fetch gated by supplier) */}
-            <LowStockTable supplierId={filters.supplierId ?? ''} from={filters.from} to={filters.to} limit={12} />
+            <LowStockTable supplierId={filters.supplierId ?? ''} limit={12} />
 
             {/* A4 — Stock value per supplier (pie) */}
-            <StockValuePerSupplierPie />
+            <StockValuePerSupplierPie dateScopeNote />
           </>
         )}
         {section === 'finance' && (

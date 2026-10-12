@@ -43,7 +43,7 @@
       "low": "Niedrig"
     },
     "reasons": {
-      "title": "Lagerbewegung nach Grund (Stück)",
+      "title": "Lagerbewegung nach Grund, letzte 90 Tage (Stück)",
       "empty": "Keine Bewegung in diesem Zeitraum",
       "increase": "Lagerzugang",
       "decrease": "Lagerabgang"

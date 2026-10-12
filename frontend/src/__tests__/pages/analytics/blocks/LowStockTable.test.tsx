@@ -151,15 +151,23 @@ describe('LowStockTable', () => {
 
     setup({ limit: 2 });
 
-    expect(useLowStockRowsMock).toHaveBeenCalledWith('sup-1', undefined, undefined, 2);
+    expect(useLowStockRowsMock).toHaveBeenCalledWith('sup-1', 2);
     expect(screen.getByText('analytics:lowStock.shownNOfM 2/5')).toBeInTheDocument();
   });
 
-  it('passes the date range and default limit to the rows hook', () => {
+  it('passes the supplier and the default limit to the rows hook', () => {
     useLowStockRowsMock.mockReturnValue(hookState({}));
 
-    setup({ from: '2026-01-01', to: '2026-06-30' });
+    setup();
 
-    expect(useLowStockRowsMock).toHaveBeenCalledWith('sup-1', '2026-01-01', '2026-06-30', 12);
+    expect(useLowStockRowsMock).toHaveBeenCalledWith('sup-1', 12);
   });
+
+  it('titles the card and notes the current snapshot, also before a supplier is chosen', () => {
+    useLowStockRowsMock.mockReturnValue(hookState({ enabled: false }));
+    setup({ supplierId: '' });
+    expect(screen.getByText('analytics:lowStock.title')).toBeInTheDocument();
+    expect(screen.getByTestId('date-scope-note')).toHaveTextContent('analytics:scope.current');
+  });
+
 });

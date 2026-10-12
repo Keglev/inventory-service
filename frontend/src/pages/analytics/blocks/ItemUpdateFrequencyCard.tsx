@@ -19,6 +19,7 @@ import { getItemUpdateFrequency, type ItemUpdateFrequencyPoint } from '../../../
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import DateScopeNote from '../components/DateScopeNote';
 
 export type ItemUpdateFrequencyCardProps = { supplierId?: string | null };
 
@@ -43,6 +44,7 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
             {t('analytics:frequency.title')}
           </Typography>
+          <DateScopeNote kind="allTime" />
           <Box sx={{ color: 'text.secondary' }}>
             {t('analytics:frequency.selectSupplier')}
           </Box>
@@ -67,6 +69,8 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
         <Typography variant="subtitle1" sx={{ mb: 1 }}>
           {t('analytics:frequency.title')}
         </Typography>
+        {/* Counts over all recorded history: the endpoint takes no dates. */}
+        <DateScopeNote kind="allTime" />
 
         {q.isLoading ? (
           <Skeleton variant="rounded" height={220} />

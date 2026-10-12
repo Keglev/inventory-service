@@ -25,7 +25,6 @@ vi.mock('@/api/httpClient', () => ({
 
 import http from '@/api/httpClient';
 import { getLowStockItems } from '@/api/analytics/lowStock';
-import type { AnalyticsParams } from '@/api/analytics/validation';
 
 describe('api/analytics/lowStock.getLowStockItems', () => {
   const httpGet = http.get as unknown as ReturnType<typeof vi.fn>;
@@ -44,14 +43,13 @@ describe('api/analytics/lowStock.getLowStockItems', () => {
   });
 
   describe('request contract', () => {
-    it('calls endpoint with supplierId + cleaned params', async () => {
+    it('calls the endpoint with the supplier only, since the list is a current snapshot', async () => {
       httpGet.mockResolvedValueOnce({ data: [] });
 
-      const params: AnalyticsParams = { from: '2025-09-01', to: '2025-11-30' };
-      await getLowStockItems('SUP-001', params);
+      await getLowStockItems('SUP-001');
 
       expect(httpGet).toHaveBeenCalledWith('/api/analytics/low-stock-items', {
-        params: { supplierId: 'SUP-001', start: '2025-09-01', end: '2025-11-30' },
+        params: { supplierId: 'SUP-001' },
       });
     });
   });

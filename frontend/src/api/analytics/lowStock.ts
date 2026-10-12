@@ -7,8 +7,7 @@
  */
 
 import http from '../httpClient';
-import { isArrayOfRecords, firstNumberOrZero, firstStringOrEmpty, paramClean } from './util';
-import type { AnalyticsParams } from './validation';
+import { isArrayOfRecords, firstNumberOrZero, firstStringOrEmpty } from './util';
 import type { LowStockRow } from './types';
 
 /**
@@ -16,11 +15,11 @@ import type { LowStockRow } from './types';
  * Reads LowStockItemDTO's field names from a bare array; returns `[]`
  * on any error so the table renders empty rather than crashing.
  */
-export async function getLowStockItems(supplierId: string, p?: AnalyticsParams): Promise<LowStockRow[]> {
+export async function getLowStockItems(supplierId: string): Promise<LowStockRow[]> {
     if (!supplierId) return [];
     try {
         const { data } = await http.get<unknown>('/api/analytics/low-stock-items', {
-            params: { supplierId, ...paramClean(p) },
+            params: { supplierId },
         });
 
         const rawList: Array<Record<string, unknown>> = isArrayOfRecords(data) ? data : [];
