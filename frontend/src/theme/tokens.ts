@@ -53,3 +53,11 @@ export const darkPalette: PaletteOptions = {
  * papers in dark mode only; in light mode cards stay on background.paper.
  */
 export const darkCardSurface = '#243040';
+
+/**
+ * Card outline in light mode. Cards and the panel they lie on are both
+ * background.paper, so a shadow alone barely separates them on many monitors
+ * (FW6, seen on Carlos's screen 2026-10-09); a 1px outline does. Dark mode
+ * separates them by surface grade instead and takes no outline.
+ */
+export const lightCardOutline = 'rgba(0,0,0,0.12)';

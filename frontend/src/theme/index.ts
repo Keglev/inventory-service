@@ -20,7 +20,7 @@ import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 import { deDE as coreDeDE, enUS as coreEnUS } from '@mui/material/locale';
 import { deDE as dataGridDeDE, enUS as dataGridEnUS } from '@mui/x-data-grid/locales';
 import '@mui/x-data-grid/themeAugmentation';
-import { darkCardSurface, darkPalette, lightPalette } from './tokens';
+import { darkCardSurface, darkPalette, lightCardOutline, lightPalette } from './tokens';
 
 const locales = {
   en: [coreEnUS, dataGridEnUS],
@@ -90,6 +90,12 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
               // elevation overlay would shift that grade by each card's elevation, so KPI
               // and chart cards would differ; the overlay is dropped for one card colour.
               ...(mode === 'dark' && { backgroundColor: darkCardSurface, backgroundImage: 'none' }),
+              // WHY: in light mode card and panel share one colour; the outline separates them,
+              // and a slightly stronger shadow lifts the card (mockup approved 2026-10-09).
+              ...(mode === 'light' && {
+                border: `1px solid ${lightCardOutline}`,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.05)',
+              }),
             } 
           },
         },
@@ -97,8 +103,8 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
           // WHY: targeting `root` applies to all Paper instances regardless of variant; the `rounded` slot is variant-specific.
           styleOverrides: {
             // WHY: outlined papers (filter bars, table frames, KPI cards) are cards on a panel,
-            // so in dark mode they take the card grade too.
-            outlined: mode === 'dark' ? { backgroundColor: darkCardSurface } : {},
+            // so in dark mode they take the card grade and in light mode the card outline.
+            outlined: mode === 'dark' ? { backgroundColor: darkCardSurface } : { borderColor: lightCardOutline },
             root: { 
               borderRadius: 10,
               boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
