@@ -5,17 +5,19 @@
  * Calls GET /api/analytics/financial/summary with `from`/`to` params (not
  * the `start`/`end` used by other analytics endpoints). The body is the bare
  * FinancialSummaryDTO; the backend wraps it in no envelope.
- * All fields default to 0 on missing or invalid data; the function never throws.
+ * Numeric fields default to 0 and `method` to '' on missing or invalid data;
+ * the function never throws.
  */
 
 import http from '../httpClient';
-import { firstNumberOrZero } from './util';
+import { firstNumberOrZero, firstStringOrEmpty } from './util';
 import { isRecord } from '../shared/typeGuards';
 import type { Rec } from './util';
 
 /**
  * Canonical frontend shape for a financial summary period.
- * All fields are guaranteed numbers (0 when absent or unparseable).
+ * Amounts are guaranteed numbers (0 when absent or unparseable); `method` is
+ * the costing method the backend used ('' when absent).
  * @example
  * ```typescript
  * const summary = await getFinancialSummary({
@@ -33,6 +35,8 @@ export type FinancialSummary = {
     returns: number;
     openingValue: number;
     endingValue: number;
+    /** Costing method of the amounts, e.g. "WAC" (weighted average cost); '' when absent. */
+    method: string;
 };
 
 /** @internal */
@@ -43,6 +47,7 @@ const ZERO_FINANCE: FinancialSummary = {
     returns: 0,
     openingValue: 0,
     endingValue: 0,
+    method: '',
 };
 
 /**
@@ -72,6 +77,7 @@ export async function getFinancialSummary(
         returns:      firstNumberOrZero(body, ['returnsInCost']),
         openingValue: firstNumberOrZero(body, ['openingValue']),
         endingValue:  firstNumberOrZero(body, ['endingValue']),
+        method:       firstStringOrEmpty(body, ['method']),
     };
 
   } catch {

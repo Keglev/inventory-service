@@ -4,7 +4,7 @@
  *
  * @summary
  * WAC-based financial summary for the selected period and supplier:
- * an Opening/Ending KPI row plus a categorical bar chart (Purchases,
+ * an Opening/Ending KPI row plus a horizontal bar chart (Purchases,
  * COGS, Write-offs, Returns).
  *
  * @enterprise
@@ -17,6 +17,14 @@
  *   apart from "nothing happened in this period".
  * - DTO field-name drift across deployments is absorbed in the API
  *   layer; this component consumes a single normalized shape.
+ * - A caption names the costing method the backend reports. The ending value
+ *   is valued at weighted average cost, so it differs from a stock value at
+ *   current prices; without the caption the two figures look contradictory.
+ * - Bars run horizontally, so the category names sit on the Y axis, which
+ *   sizes itself to the longest one (width="auto") and draws all of them
+ *   (interval={0}). As vertical bars on a card about 400 px wide, the German
+ *   labels overlapped, Recharts dropped "Warenaufwand", and the value axis
+ *   cut "1.400,00" to ".400,00".
  */
 import { Card, CardContent, Typography, Skeleton, Box, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -99,6 +107,14 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
           </Box>
         ) : (
           <>
+            {s?.method ? (
+              <Typography variant="caption" color="text.secondary" component="p" data-testid="valuation-basis" sx={{ mt: -0.5, mb: 1 }}>
+                {s.method === 'WAC'
+                  ? t('analytics:finance.valuation.wac')
+                  : t('analytics:finance.valuation.other', { method: s.method })}
+              </Typography>
+            ) : null}
+
             {/* KPIs */}
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 1 }}>
               <Kpi label={t('analytics:finance.opening')} value={q.data?.openingValue} numberFormat={userPreferences.numberFormat} />
@@ -108,10 +124,10 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
             {/* Bars */}
             <Box sx={{ height: 260 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+                <BarChart data={data} layout="vertical" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)} />
+                  <XAxis type="number" tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)} />
+                  <YAxis type="category" dataKey="name" width="auto" interval={0} />
                   <Tooltip
                     {...chartTooltipProps(muiTheme)}
                     formatter={(value) =>
@@ -120,7 +136,7 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
                         : value
                     }
                   />
-                  <Bar dataKey="value" isAnimationActive={false}>
+                  <Bar dataKey="value" name={t('analytics:finance.amount')} isAnimationActive={false}>
                     {data.map((_, i) => (
                       <Cell key={i} fill={barColors[i % barColors.length]} />
                     ))}
