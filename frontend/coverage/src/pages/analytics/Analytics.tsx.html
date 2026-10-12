@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>23/23</span>
+                <span class='fraction'>24/24</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>20/20</span>
+                <span class='fraction'>21/21</span>
             </div>
         
             
@@ -257,7 +257,9 @@
 <a name='L192'></a><a href='#L192'>192</a>
 <a name='L193'></a><a href='#L193'>193</a>
 <a name='L194'></a><a href='#L194'>194</a>
-<a name='L195'></a><a href='#L195'>195</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -358,6 +360,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">30x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">30x</span>
 <span class="cline-any cline-yes">30x</span>
@@ -554,6 +558,8 @@ export default function Analytics(): JSX.Element {
   
   // Suppliers list: the shared entry, so supplier writes refresh the filter
   const suppliersQ = useSupplierListQuery();
+  // The window and supplier every date-aware card receives.
+  const scope = { from: filters.from, to: filters.to, supplierId: filters.supplierId };
   return (
     &lt;Paper elevation={0} sx={{ ...pagePanelSx, p: { xs: 2, md: 3 }, pl: railGutter, bgcolor: 'background.paper', m: 0 }}&gt;
       &lt;Stack 
@@ -599,25 +605,25 @@ export default function Analytics(): JSX.Element {
         {section === 'overview' &amp;&amp; (
           &lt;&gt;
             {/* A1 */}
-            &lt;StockValueCard from={filters.from} to={filters.to} supplierId={filters.supplierId} /&gt;
+            &lt;StockValueCard {...scope} /&gt;
 &nbsp;
             {/* A2 (Line) */}
-            &lt;MovementLineCard from={filters.from} to={filters.to} supplierId={filters.supplierId} /&gt;
+            &lt;MovementLineCard {...scope} /&gt;
           &lt;/&gt;
         )}
 &nbsp;
         {section === 'movements' &amp;&amp; (
-          &lt;MovementsSection from={filters.from} to={filters.to} supplierId={filters.supplierId} /&gt;
+          &lt;MovementsSection {...scope} /&gt;
         )}
 &nbsp;
         {section === 'employees' &amp;&amp; (
-          &lt;EmployeesSection from={filters.from} to={filters.to} supplierId={filters.supplierId} /&gt;
+          &lt;EmployeesSection {...scope} /&gt;
         )}
 &nbsp;
         {section === 'pricing' &amp;&amp; (
           &lt;&gt;
             {/* A3 */}
-            &lt;PriceTrendCard from={filters.from} to={filters.to} supplierId={filters.supplierId} /&gt;
+            &lt;PriceTrendCard {...scope} /&gt;
           &lt;/&gt;
         )}
 &nbsp;
@@ -633,13 +639,13 @@ export default function Analytics(): JSX.Element {
         {section === 'finance' &amp;&amp; (
           &lt;&gt;
             {/* Finance — WAC summary (period + supplier) */}
-            &lt;FinancialSummaryCard from={filters.from} to={filters.to} supplierId={filters.supplierId} /&gt;
+            &lt;FinancialSummaryCard {...scope} /&gt;
 &nbsp;
             {/* Operations — top updated items (requires supplier) */}
             &lt;ItemUpdateFrequencyCard supplierId={filters.supplierId} /&gt;
 &nbsp;
             {/* Operations — recent stock activity (stacked by reason) */}
-            &lt;RecentStockActivityCard from={filters.from} to={filters.to} supplierId={filters.supplierId} /&gt;
+            &lt;RecentStockActivityCard {...scope} /&gt;
           &lt;/&gt;
         )}
       &lt;/Box&gt;

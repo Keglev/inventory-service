@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">90% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>9/10</span>
+                <span class='fraction'>5/6</span>
             </div>
         
             
@@ -139,19 +139,7 @@
 <a name='L74'></a><a href='#L74'>74</a>
 <a name='L75'></a><a href='#L75'>75</a>
 <a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L77'></a><a href='#L77'>77</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -210,18 +198,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">45x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -250,9 +226,9 @@
  * rendered twice side by side (increases left, decreases right).
  */
 import * as React from 'react';
-import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
-import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
+import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
+import ChartCard from '../components/ChartCard';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
@@ -298,33 +274,21 @@ export default function ReasonBreakdownChartCard({ title, seriesName, data, colo
   );
 &nbsp;
   return (
-    &lt;Card data-testid="reason-breakdown-card"&gt;
-      &lt;CardContent&gt;
-        &lt;Typography variant="subtitle1" sx={{ mb: 1 }}&gt;
-          {title}
-        &lt;/Typography&gt;
-&nbsp;
-        {loading ? (
-          &lt;Skeleton variant="rounded" height={220} /&gt;
-        ) : data.length === 0 ? (
-          &lt;Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}&gt;
-            {t('analytics:cards.noData')}
-          &lt;/Box&gt;
-        ) : (
-          &lt;Box sx={{ height: 260 }}&gt;
-            &lt;ResponsiveContainer width="100%" height="100%"&gt;
-              &lt;BarChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 24 }}&gt;
-                &lt;CartesianGrid strokeDasharray="3 3" /&gt;
-                &lt;XAxis dataKey="label" interval={0} angle={-25} textAnchor="end" height={70} tick={{ fontSize: 12 }} /&gt;
-                &lt;YAxis allowDecimals={false} tickFormatter={formatValue} /&gt;
-                &lt;Tooltip {...chartTooltipProps(muiTheme)} formatter={formatTooltipValue} /&gt;
-                &lt;Bar dataKey="value" name={seriesName} fill={color} isAnimationActive={false} /&gt;
-              &lt;/BarChart&gt;
-            &lt;/ResponsiveContainer&gt;
-          &lt;/Box&gt;
-        )}
-      &lt;/CardContent&gt;
-    &lt;/Card&gt;
+    &lt;ChartCard
+      title={title}
+      loading={loading}
+      empty={data.length === 0}
+      emptyText={t('analytics:cards.noData')}
+      testId="reason-breakdown-card"
+    &gt;
+      &lt;BarChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 24 }}&gt;
+        &lt;CartesianGrid strokeDasharray="3 3" /&gt;
+        &lt;XAxis dataKey="label" interval={0} angle={-25} textAnchor="end" height={70} tick={{ fontSize: 12 }} /&gt;
+        &lt;YAxis allowDecimals={false} tickFormatter={formatValue} /&gt;
+        &lt;Tooltip {...chartTooltipProps(muiTheme)} formatter={formatTooltipValue} /&gt;
+        &lt;Bar dataKey="value" name={seriesName} fill={color} isAnimationActive={false} /&gt;
+      &lt;/BarChart&gt;
+    &lt;/ChartCard&gt;
   );
 }
 &nbsp;</pre></td></tr></table></pre>

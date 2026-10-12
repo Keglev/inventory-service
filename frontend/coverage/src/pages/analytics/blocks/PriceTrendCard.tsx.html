@@ -225,10 +225,8 @@
 <a name='L160'></a><a href='#L160'>160</a>
 <a name='L161'></a><a href='#L161'>161</a>
 <a name='L162'></a><a href='#L162'>162</a>
-<a name='L163'></a><a href='#L163'>163</a>
-<a name='L164'></a><a href='#L164'>164</a>
-<a name='L165'></a><a href='#L165'>165</a>
-<a name='L166'></a><a href='#L166'>166</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L163'></a><a href='#L163'>163</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -389,10 +387,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file PriceTrendCard.tsx
  * @module pages/analytics/blocks/PriceTrendCard
@@ -420,7 +414,7 @@
  */
 &nbsp;
 import * as React from 'react';
-import { Card, CardContent, Typography, Skeleton, Box, Stack } from '@mui/material';
+import { Card, CardContent, Typography, Skeleton, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getPriceTrend } from '../../../api/analytics/priceTrend';
@@ -430,6 +424,7 @@ import { useItemSearchOptions } from '../hooks/useItemSearchOptions';
 import { ItemSearchAutocomplete } from '../components/ItemSearchAutocomplete';
 import { toStepSeries } from '../../../utils/stepSeries';
 import PriceTrendChart from './PriceTrendChart';
+import { ChartPlaceholder } from '../components/ChartCard';
 &nbsp;
 export type PriceTrendCardProps = { from?: string; to?: string; supplierId?: string | null };
 &nbsp;
@@ -542,15 +537,11 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
         &lt;/Stack&gt;
 &nbsp;
         {!selectedItemId ? (
-          &lt;Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}&gt;
-            {t('analytics:priceTrend.selectItem')}
-          &lt;/Box&gt;
+          &lt;ChartPlaceholder&gt;{t('analytics:priceTrend.selectItem')}&lt;/ChartPlaceholder&gt;
         ) : priceQ.isLoading ? (
           &lt;Skeleton variant="rounded" height={220} /&gt;
         ) : priceData.length === 0 ? (
-          &lt;Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}&gt;
-            {t('analytics:cards.noData')}
-          &lt;/Box&gt;
+          &lt;ChartPlaceholder&gt;{t('analytics:cards.noData')}&lt;/ChartPlaceholder&gt;
         ) : (
           &lt;PriceTrendChart series={priceData} from={from} to={to} /&gt;
         )}

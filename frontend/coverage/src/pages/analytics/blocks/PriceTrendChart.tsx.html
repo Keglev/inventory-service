@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>17/17</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>9/9</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>14/14</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -147,20 +147,8 @@
 <a name='L82'></a><a href='#L82'>82</a>
 <a name='L83'></a><a href='#L83'>83</a>
 <a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a>
-<a name='L92'></a><a href='#L92'>92</a>
-<a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a>
-<a name='L95'></a><a href='#L95'>95</a>
-<a name='L96'></a><a href='#L96'>96</a>
-<a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L85'></a><a href='#L85'>85</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -198,13 +186,6 @@
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">10x</span>
@@ -218,18 +199,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -277,9 +251,10 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
 import { useSettings } from '../../../hooks/useSettings';
-import { formatDate, formatNumber } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
-import { dayTimeAxis } from '../../../utils/timeAxis';
+import { dayTimeAxis, timeXAxisProps } from '../../../utils/timeAxis';
+import { useDayFormatter } from '../../../hooks/useDayFormatter';
 import { priceValueAxis, type ChartPricePoint } from './priceSeries';
 &nbsp;
 export type PriceTrendChartProps = {
@@ -294,14 +269,7 @@ export default function PriceTrendChart({ series, from, to }: PriceTrendChartPro
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
-  const formatDateLabel = React.useCallback(
-    (value: string | number) =&gt; {
-      // Numbers are epoch ms from the time axis; strings are ISO dates.
-      const formatted = formatDate(typeof value === 'number' ? new Date(value) : String(value), userPreferences.dateFormat);
-      return formatted || String(value);
-    },
-    [userPreferences.dateFormat]
-  );
+  const formatDateLabel = useDayFormatter();
   const timeAxis = React.useMemo(() =&gt; dayTimeAxis(series.map((p) =&gt; p.t), from, to), [series, from, to]);
   const valueAxis = React.useMemo(() =&gt; priceValueAxis(series), [series]);
   const color = muiTheme.palette.primary.main;
@@ -311,14 +279,7 @@ export default function PriceTrendChart({ series, from, to }: PriceTrendChartPro
       &lt;ResponsiveContainer width="100%" height="100%"&gt;
         &lt;LineChart data={series} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}&gt;
           &lt;CartesianGrid strokeDasharray="3 3" /&gt;
-          &lt;XAxis
-            dataKey="t"
-            type="number"
-            scale="time"
-            domain={timeAxis.domain}
-            ticks={timeAxis.ticks}
-            tickFormatter={formatDateLabel}
-          /&gt;
+          &lt;XAxis {...timeXAxisProps(timeAxis, formatDateLabel)} /&gt;
           &lt;YAxis
             domain={valueAxis.domain}
             ticks={valueAxis.ticks}
@@ -326,7 +287,7 @@ export default function PriceTrendChart({ series, from, to }: PriceTrendChartPro
           /&gt;
           &lt;Tooltip
             {...chartTooltipProps(muiTheme)}
-            labelFormatter={(value) =&gt; formatDateLabel(value as string | number)}
+            labelFormatter={formatDateLabel}
             formatter={(value) =&gt;
               typeof value === 'number' ? `${formatNumber(value, userPreferences.numberFormat, 2)} €` : value
             }
