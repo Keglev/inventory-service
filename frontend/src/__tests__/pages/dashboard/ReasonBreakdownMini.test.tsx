@@ -42,6 +42,9 @@ vi.mock('@mui/material/styles', async () => {
 });
 
 let lastLegendSorter: ((item: { dataKey?: unknown }) => number) | null = null;
+let lastTooltipSorter: ((item: { dataKey?: unknown }) => number) | null = null;
+const tooltipOrderOf = (keys: string[]) =>
+  [...keys].sort((a, b) => (lastTooltipSorter?.({ dataKey: a }) ?? 0) - (lastTooltipSorter?.({ dataKey: b }) ?? 0));
 const legendOrderOf = (keys: string[]) =>
   [...keys].sort((a, b) => (lastLegendSorter?.({ dataKey: a }) ?? 0) - (lastLegendSorter?.({ dataKey: b }) ?? 0));
 
@@ -54,7 +57,10 @@ vi.mock('recharts', () => ({
   CartesianGrid: () => <div data-testid="grid" />,
   XAxis: () => <div data-testid="xaxis" />,
   YAxis: () => <div data-testid="yaxis" />,
-  Tooltip: () => <div data-testid="tooltip" />,
+  Tooltip: ({ itemSorter }: { itemSorter?: (item: { dataKey?: unknown }) => number }) => {
+    lastTooltipSorter = itemSorter ?? null;
+    return <div data-testid="tooltip" />;
+  },
   Legend: ({ itemSorter }: { itemSorter?: (item: { dataKey?: unknown }) => number }) => {
     lastLegendSorter = itemSorter ?? null;
     return <div data-testid="legend" />;
@@ -112,5 +118,12 @@ describe('ReasonBreakdownMini', () => {
     setup(queryClient);
     await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
     expect(legendOrderOf(['decrease', 'increase'])).toEqual(['increase', 'decrease']);
+  });
+
+  it('lists tooltip series increase before decrease, like the legend', async () => {
+    vi.mocked(getReasonBreakdown).mockResolvedValue([{ reason: 'SOLD', increase: 0, decrease: 40 }]);
+    setup(queryClient);
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+    expect(tooltipOrderOf(['decrease', 'increase'])).toEqual(['increase', 'decrease']);
   });
 });

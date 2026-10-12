@@ -30,16 +30,19 @@ let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'de' } }),
 }));
 
 vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
-    userPreferences: { dateFormat: 'DD/MM/YYYY', numberFormat: 'DE' },
+    userPreferences: { dateFormat: 'DD.MM.YYYY', numberFormat: 'DE' },
   }),
 }));
 
 let lastLegendSorter: ((item: { dataKey?: unknown }) => number) | null = null;
+let lastTooltipSorter: ((item: { dataKey?: unknown }) => number) | null = null;
+const tooltipOrderOf = (keys: string[]) =>
+  [...keys].sort((a, b) => (lastTooltipSorter?.({ dataKey: a }) ?? 0) - (lastTooltipSorter?.({ dataKey: b }) ?? 0));
 const legendOrderOf = (keys: string[]) =>
   [...keys].sort((a, b) => (lastLegendSorter?.({ dataKey: a }) ?? 0) - (lastLegendSorter?.({ dataKey: b }) ?? 0));
 
@@ -67,11 +70,14 @@ vi.mock('recharts', () => ({
   Tooltip: ({
     formatter,
     labelFormatter,
+    itemSorter,
   }: {
     formatter?: (v: number | string) => string;
     labelFormatter?: (v: string) => string;
+    itemSorter?: (item: { dataKey?: unknown }) => number;
   }) => {
     lastTooltipFormatter = formatter ?? null;
+    lastTooltipSorter = itemSorter ?? null;
     lastTooltipLabelFormatter = labelFormatter ?? null;
     return <div data-testid="tooltip" />;
   },
@@ -79,7 +85,7 @@ vi.mock('recharts', () => ({
     lastLegendSorter = itemSorter ?? null;
     return <div data-testid="legend" />;
   },
-  Line: ({ name }: { name?: string }) => <div data-testid="line" data-name={name} />,
+  Line: ({ name, type }: { name?: string; type?: string }) => <div data-testid="line" data-name={name} data-type={type} />,
 }));
 
 const getMonthlyStockMovementMock = vi.mocked(getMonthlyStockMovement);
@@ -171,6 +177,25 @@ describe('MovementLineCard', () => {
     });
   });
 
+  it('draws straight segments between the monthly totals', async () => {
+    getMonthlyStockMovementMock.mockResolvedValue(sample);
+
+    setup();
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+
+    expect(screen.getAllByTestId('line').map((l) => l.getAttribute('data-type'))).toEqual(['linear', 'linear']);
+  });
+
+  it('names the covered dates in the tooltip of a partial month', async () => {
+    getMonthlyStockMovementMock.mockResolvedValue(sample);
+
+    setup({ from: '2026-05-15', to: '2026-06-30' });
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+
+    expect(lastTooltipLabelFormatter?.('2026-05')).toBe('Mai 2026 (15.05.2026 – 31.05.2026)');
+    expect(lastTooltipLabelFormatter?.('2026-06')).toBe('Juni 2026');
+  });
+
   it('formats axis ticks and tooltip values via user preferences', async () => {
     getMonthlyStockMovementMock.mockResolvedValue(sample);
 
@@ -182,8 +207,15 @@ describe('MovementLineCard', () => {
     expect(lastTooltipFormatter?.(1234)).toBe('1.234 analytics:units.pieces');
     // Non-numeric tooltip values pass through untouched.
     expect(lastTooltipFormatter?.('n/a')).toBe('n/a');
-    // Date labels fall back to the raw string when not parseable as a date.
-    expect(lastXTickFormatter?.('2026-05')).toBeTruthy();
-    expect(lastTooltipLabelFormatter?.('2026-05')).toBeTruthy();
+    // Month buckets: short month on the axis, the month name in the tooltip (no range: whole month).
+    expect(lastXTickFormatter?.('2026-05')).toBe('Mai 2026');
+    expect(lastTooltipLabelFormatter?.('2026-05')).toBe('Mai 2026');
+  });
+
+  it('lists tooltip series stock in before stock out, like the legend', async () => {
+    getMonthlyStockMovementMock.mockResolvedValue(sample);
+    setup({ from: '2026-05-01', to: '2026-06-30' });
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(tooltipOrderOf(['stockOut', 'stockIn'])).toEqual(['stockIn', 'stockOut']);
   });
 });

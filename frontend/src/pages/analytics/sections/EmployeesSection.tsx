@@ -57,6 +57,8 @@ export default function EmployeesSection({ from, to, supplierId }: EmployeesSect
         chartData={chartData}
         employees={employees}
         loading={activityQ.isLoading}
+        from={from}
+        to={to}
       />
 
       <Card data-testid="employee-changes-card">

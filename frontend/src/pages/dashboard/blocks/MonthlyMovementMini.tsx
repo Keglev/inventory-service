@@ -32,6 +32,7 @@ import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import { getTodayIso, getDaysAgoIso, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { legendOrder } from '../../../utils/chartLegend';
+import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
 import { useSettings } from '../../../hooks/useSettings';
 
 /** Stock in before stock out in every language (see utils/chartLegend). */
@@ -43,7 +44,7 @@ const LEGEND_ORDER = legendOrder(['stockIn', 'stockOut']);
  * @returns Memoized React component with dual-bar chart or skeleton loading state
  */
 export default function MonthlyMovementMini() {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const { userPreferences } = useSettings();
   // Calculate 90-day window (from: 90 days ago, to: today)
   const from = getDaysAgoIso(90);
@@ -71,12 +72,16 @@ export default function MonthlyMovementMini() {
             <ResponsiveContainer width="100%" height="90%">
               <BarChart data={q.data ?? []}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
+                <XAxis dataKey="month" tickFormatter={(value) => monthLabel(String(value), i18n.language)} />
                 <YAxis
                   tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)}
                 />
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
+                  itemSorter={LEGEND_ORDER}
+                  labelFormatter={(value) =>
+                    monthSpanLabel(String(value), { from, to, lang: i18n.language, dateFormat: userPreferences.dateFormat })
+                  }
                   formatter={(value) =>
                     typeof value === 'number'
                       ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('units.pieces')}`

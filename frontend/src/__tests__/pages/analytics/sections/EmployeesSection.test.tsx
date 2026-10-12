@@ -35,6 +35,7 @@ vi.mock('recharts', () => ({
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
+    i18n: { language: 'en' },
   }),
 }));
 
