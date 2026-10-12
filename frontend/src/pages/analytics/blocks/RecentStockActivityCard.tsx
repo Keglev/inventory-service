@@ -27,9 +27,10 @@ import { useTranslation } from 'react-i18next';
 import { purple } from '@mui/material/colors';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar, ReferenceLine } from 'recharts';
 import { getStockUpdates, type StockUpdateRow } from '../../../api/analytics/updates';
-import { dayTimeAxis } from '../../../utils/timeAxis';
+import { dayTimeAxis, timeXAxisProps } from '../../../utils/timeAxis';
+import { useDayFormatter } from '../../../hooks/useDayFormatter';
 import { useSettings } from '../../../hooks/useSettings';
-import { formatDate, formatNumber } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { legendOrder } from '../../../utils/chartLegend';
 import { activityBucket, buildActivitySeries, ACTIVITY_LEGEND_ORDER, type ActivityKey } from './stockActivitySeries';
@@ -69,10 +70,7 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
     };
   }, [muiTheme]);
 
-  const formatDay = React.useCallback(
-    (value: unknown) => formatDate(new Date(Number(value)), userPreferences.dateFormat),
-    [userPreferences.dateFormat]
-  );
+  const formatDay = useDayFormatter();
   const formatBucket = React.useCallback(
     (value: unknown) => (bucket === 'week' ? t('analytics:updates.weekOf', { date: formatDay(value) }) : formatDay(value)),
     [bucket, formatDay, t]
@@ -99,13 +97,9 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
               <BarChart data={days} stackOffset="sign" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
-                  dataKey="t"
-                  type="number"
-                  scale="time"
+                  {...timeXAxisProps(timeAxis, formatDay)}
                   // Half a bucket on each side, so a bar at either end is not cut in half.
                   domain={[timeAxis.domain[0] - bucketMs / 2, timeAxis.domain[1] + bucketMs / 2]}
-                  ticks={timeAxis.ticks}
-                  tickFormatter={formatDay}
                 />
                 <YAxis width="auto" tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
                 <ReferenceLine y={0} stroke={muiTheme.palette.text.secondary} />

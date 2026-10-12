@@ -11,16 +11,12 @@
  * any filter returns to the first page.
  */
 import * as React from 'react';
-import {
-  Card, CardContent, Typography, Skeleton, Box,
-  Table, TableHead, TableRow, TableCell, TableBody, TableContainer, TablePagination,
-} from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { getStockUpdatesPage, type StockUpdatesPage } from '../../../api/analytics/updates';
+import { getStockUpdatesPage, type StockUpdateRow, type StockUpdatesPage } from '../../../api/analytics/updates';
 import { useSettings } from '../../../hooks/useSettings';
-import { formatDate, formatNumber } from '../../../utils/formatters';
-import { reasonLabel } from './reasonLabels';
+import StockChangeTable from './StockChangeTable';
+import { changeColumn, dateColumn, reasonColumn, type StockChangeColumn } from './stockChangeColumns';
 
 export type MovementDrilldownTableProps = {
   from?: string;
@@ -62,64 +58,31 @@ export default function MovementDrilldownTable({ from, to, supplierId, itemName 
   const rows = q.data?.rows ?? [];
   const total = q.data?.total ?? 0;
 
+  const columns: StockChangeColumn<StockUpdateRow>[] = [
+    dateColumn(t('analytics:stockUpdates.columns.datetime'), (row) => row.timestamp, userPreferences.dateFormat),
+    { header: t('analytics:stockUpdates.columns.item'), render: (row) => row.itemName },
+    changeColumn(t('analytics:stockUpdates.columns.change'), (row) => row.delta, userPreferences.numberFormat),
+    reasonColumn(t('analytics:stockUpdates.columns.reason'), (row) => row.reason, t),
+  ];
+
   return (
-    <Card data-testid="movement-drilldown">
-      <CardContent>
-        <Typography variant="subtitle1" sx={{ mb: 1 }}>
-          {t('analytics:movements.drilldownTitle')}
-        </Typography>
-
-        {q.isLoading ? (
-          <Skeleton variant="rounded" height={180} />
-        ) : rows.length === 0 ? (
-          <Box sx={{ height: 120, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-            {t('analytics:movements.empty')}
-          </Box>
-        ) : (
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('analytics:stockUpdates.columns.datetime')}</TableCell>
-                  <TableCell>{t('analytics:stockUpdates.columns.item')}</TableCell>
-                  <TableCell align="right">{t('analytics:stockUpdates.columns.change')}</TableCell>
-                  <TableCell>{t('analytics:stockUpdates.columns.reason')}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row, idx) => (
-                  <TableRow key={`${row.timestamp}-${row.itemName}-${idx}`} hover>
-                    <TableCell>{formatDate(row.timestamp, userPreferences.dateFormat) || row.timestamp}</TableCell>
-                    <TableCell>{row.itemName}</TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ color: row.delta < 0 ? 'error.main' : 'success.main', fontVariantNumeric: 'tabular-nums' }}
-                    >
-                      {(row.delta > 0 ? '+' : '') + formatNumber(row.delta, userPreferences.numberFormat, 0)}
-                    </TableCell>
-                    <TableCell>{row.reason ? reasonLabel(t, row.reason) : ''}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-
-        {rows.length > 0 && (
-          <TablePagination
-            component="div"
-            count={total}
-            page={page}
-            onPageChange={(_e, next) => setPage(next)}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(parseInt(e.target.value, 10));
-              setPage(0);
-            }}
-            rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-          />
-        )}
-      </CardContent>
-    </Card>
+    <StockChangeTable
+      title={t('analytics:movements.drilldownTitle')}
+      testId="movement-drilldown"
+      loading={q.isLoading}
+      emptyText={t('analytics:movements.empty')}
+      rows={rows}
+      rowKey={(row, idx) => `${row.timestamp}-${row.itemName}-${idx}`}
+      columns={columns}
+      total={total}
+      page={page}
+      onPageChange={setPage}
+      rowsPerPage={rowsPerPage}
+      onRowsPerPageChange={(size) => {
+        setRowsPerPage(size);
+        setPage(0);
+      }}
+      rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+    />
   );
 }

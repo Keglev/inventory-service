@@ -12,21 +12,19 @@
  *
  * @enterprise
  * - Composition only: data, granularity, and the client-side pivot live in
- *   useEmployeesSectionData; the chart card is EmployeesActivityChart; this
- *   file renders the change-log card and wires pagination.
+ *   useEmployeesSectionData; the chart card is EmployeesActivityChart; the
+ *   change log is a StockChangeTable with this section's columns.
  * - Pagination is server-side (Spring Page): only the visible slice is
  *   fetched; the page index resets when the window changes.
  */
-import {
-  Box, Card, CardContent, Skeleton, Typography,
-  Table, TableHead, TableRow, TableCell, TableBody, TableContainer, TablePagination,
-} from '@mui/material';
+import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useEmployeesSectionData } from './useEmployeesSectionData';
 import { EmployeesActivityChart } from './EmployeesActivityChart';
 import { useSettings } from '../../../hooks/useSettings';
-import { formatDate, formatNumber } from '../../../utils/formatters';
-import { reasonLabel } from './reasonLabels';
+import type { EmployeeChangeRow } from '../../../api/analytics/employees';
+import StockChangeTable from './StockChangeTable';
+import { changeColumn, dateColumn, reasonColumn, type StockChangeColumn } from './stockChangeColumns';
 
 export type EmployeesSectionProps = {
   from?: string;
@@ -48,6 +46,14 @@ export default function EmployeesSection({ from, to, supplierId }: EmployeesSect
   } = useEmployeesSectionData({ from, to, supplierId });
 
   const changes = changesQ.data ?? { rows: [], total: 0 };
+  const columns: StockChangeColumn<EmployeeChangeRow>[] = [
+    dateColumn(t('analytics:employees.columns.datetime'), (row) => row.timestamp, userPreferences.dateFormat),
+    { header: t('analytics:employees.columns.employee'), render: (row) => row.createdBy },
+    { header: t('analytics:employees.columns.item'), render: (row) => row.itemName },
+    { header: t('analytics:employees.columns.supplier'), render: (row) => row.supplierName },
+    changeColumn(t('analytics:employees.columns.change'), (row) => row.change, userPreferences.numberFormat),
+    reasonColumn(t('analytics:employees.columns.reason'), (row) => row.reason, t),
+  ];
 
   return (
     <Box sx={{ gridColumn: '1 / -1', display: 'grid', gap: 2 }}>
@@ -61,67 +67,26 @@ export default function EmployeesSection({ from, to, supplierId }: EmployeesSect
         to={to}
       />
 
-      <Card data-testid="employee-changes-card">
-        <CardContent>
-          <Typography variant="subtitle1" sx={{ mb: 1 }}>
-            {t('analytics:employees.tableTitle')}
-          </Typography>
-
-          {changesQ.isLoading ? (
-            <Skeleton variant="rounded" height={180} />
-          ) : changes.rows.length === 0 ? (
-            <Box sx={{ height: 120, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-              {t('analytics:employees.empty')}
-            </Box>
-          ) : (
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>{t('analytics:employees.columns.datetime')}</TableCell>
-                    <TableCell>{t('analytics:employees.columns.employee')}</TableCell>
-                    <TableCell>{t('analytics:employees.columns.item')}</TableCell>
-                    <TableCell>{t('analytics:employees.columns.supplier')}</TableCell>
-                    <TableCell align="right">{t('analytics:employees.columns.change')}</TableCell>
-                    <TableCell>{t('analytics:employees.columns.reason')}</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {changes.rows.map((row, idx) => (
-                    <TableRow key={`${row.timestamp}-${row.itemName}-${idx}`} hover>
-                      <TableCell>{formatDate(row.timestamp, userPreferences.dateFormat) || row.timestamp}</TableCell>
-                      <TableCell>{row.createdBy}</TableCell>
-                      <TableCell>{row.itemName}</TableCell>
-                      <TableCell>{row.supplierName}</TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{ color: row.change < 0 ? 'error.main' : 'success.main', fontVariantNumeric: 'tabular-nums' }}
-                      >
-                        {(row.change > 0 ? '+' : '') + formatNumber(row.change, userPreferences.numberFormat, 0)}
-                      </TableCell>
-                      <TableCell>{row.reason ? reasonLabel(t, row.reason) : ''}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-
-          <TablePagination
-            component="div"
-            count={changes.total}
-            page={page}
-            onPageChange={(_e, next) => setPage(next)}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(parseInt(e.target.value, 10));
-              setPage(0);
-            }}
-            rowsPerPageOptions={[10, 25, 50]}
-            labelRowsPerPage={t('analytics:employees.rowsPerPage')}
-          />
-        </CardContent>
-      </Card>
+      <StockChangeTable
+        title={t('analytics:employees.tableTitle')}
+        testId="employee-changes-card"
+        loading={changesQ.isLoading}
+        emptyText={t('analytics:employees.empty')}
+        rows={changes.rows}
+        rowKey={(row, idx) => `${row.timestamp}-${row.itemName}-${idx}`}
+        columns={columns}
+        total={changes.total}
+        page={page}
+        onPageChange={setPage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={(size) => {
+          setRowsPerPage(size);
+          setPage(0);
+        }}
+        rowsPerPageOptions={[10, 25, 50]}
+        labelRowsPerPage={t('analytics:employees.rowsPerPage')}
+        paginationWhenEmpty
+      />
     </Box>
   );
 }

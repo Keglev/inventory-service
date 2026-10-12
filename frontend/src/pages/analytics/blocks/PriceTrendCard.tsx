@@ -25,7 +25,7 @@
  */
 
 import * as React from 'react';
-import { Card, CardContent, Typography, Skeleton, Box, Stack } from '@mui/material';
+import { Card, CardContent, Typography, Skeleton, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getPriceTrend } from '../../../api/analytics/priceTrend';
@@ -35,6 +35,7 @@ import { useItemSearchOptions } from '../hooks/useItemSearchOptions';
 import { ItemSearchAutocomplete } from '../components/ItemSearchAutocomplete';
 import { toStepSeries } from '../../../utils/stepSeries';
 import PriceTrendChart from './PriceTrendChart';
+import { ChartPlaceholder } from '../components/ChartCard';
 
 export type PriceTrendCardProps = { from?: string; to?: string; supplierId?: string | null };
 
@@ -147,15 +148,11 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
         </Stack>
 
         {!selectedItemId ? (
-          <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-            {t('analytics:priceTrend.selectItem')}
-          </Box>
+          <ChartPlaceholder>{t('analytics:priceTrend.selectItem')}</ChartPlaceholder>
         ) : priceQ.isLoading ? (
           <Skeleton variant="rounded" height={220} />
         ) : priceData.length === 0 ? (
-          <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-            {t('analytics:cards.noData')}
-          </Box>
+          <ChartPlaceholder>{t('analytics:cards.noData')}</ChartPlaceholder>
         ) : (
           <PriceTrendChart series={priceData} from={from} to={to} />
         )}

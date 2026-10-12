@@ -36,3 +36,18 @@ export function dayTimeAxis(
   const ticks = Array.from({ length: count + 1 }, (_, i) => Math.round((lo + ((hi - lo) * i) / count) / DAY_MS) * DAY_MS);
   return { domain: [lo, hi], ticks: [...new Set(ticks)] };
 }
+
+/**
+ * Props for a Recharts XAxis on the time axis: points keyed by `t` (epoch ms),
+ * placed on a time scale with the given domain and ticks.
+ *
+ * @param axis domain and ticks from dayTimeAxis, or null while there is no data
+ * @param tickFormatter formats a tick's epoch ms
+ * @returns props to spread onto `<XAxis />`
+ */
+export function timeXAxisProps(
+  axis: { domain: [number, number]; ticks: number[] } | null,
+  tickFormatter: (value: unknown) => string,
+) {
+  return { dataKey: 't', type: 'number' as const, scale: 'time' as const, domain: axis?.domain, ticks: axis?.ticks, tickFormatter };
+}
