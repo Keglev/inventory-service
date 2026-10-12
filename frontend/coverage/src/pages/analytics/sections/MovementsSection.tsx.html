@@ -238,7 +238,9 @@
 <a name='L173'></a><a href='#L173'>173</a>
 <a name='L174'></a><a href='#L174'>174</a>
 <a name='L175'></a><a href='#L175'>175</a>
-<a name='L176'></a><a href='#L176'>176</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -382,6 +384,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -572,12 +576,14 @@ export default function MovementsSection({ from, to, supplierId }: MovementsSect
       &gt;
         &lt;ReasonBreakdownChartCard
           title={t('analytics:movements.increasesTitle')}
+          seriesName={t('analytics:cards.stockIn')}
           data={increases}
           color={muiTheme.palette.success.main}
           loading={q.isLoading}
         /&gt;
         &lt;ReasonBreakdownChartCard
           title={t('analytics:movements.decreasesTitle')}
+          seriesName={t('analytics:cards.stockOut')}
           data={decreases}
           color={muiTheme.palette.error.main}
           loading={q.isLoading}

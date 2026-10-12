@@ -204,7 +204,8 @@
 <a name='L139'></a><a href='#L139'>139</a>
 <a name='L140'></a><a href='#L140'>140</a>
 <a name='L141'></a><a href='#L141'>141</a>
-<a name='L142'></a><a href='#L142'>142</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -301,6 +302,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -464,7 +466,8 @@ export function EmployeesActivityChart({
                 &lt;XAxis dataKey="period" tick={{ fontSize: 12 }} /&gt;
                 &lt;YAxis allowDecimals={false} tickFormatter={formatCount} /&gt;
                 &lt;Tooltip {...chartTooltipProps(muiTheme)} formatter={formatTooltipCount} /&gt;
-                &lt;Legend /&gt;
+                {/* Series are people: alphabetical by name reads the same in every language. */}
+                &lt;Legend itemSorter="value" /&gt;
                 {employees.map((emp, idx) =&gt; (
                   &lt;Line
                     key={emp.createdBy}
