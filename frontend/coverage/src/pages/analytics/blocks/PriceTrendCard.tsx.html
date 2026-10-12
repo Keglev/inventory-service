@@ -428,7 +428,7 @@ import type { PricePoint } from '../../../api/analytics/types';
 import type { ItemRef } from '../../../api/shared/types';
 import { useItemSearchOptions } from '../hooks/useItemSearchOptions';
 import { ItemSearchAutocomplete } from '../components/ItemSearchAutocomplete';
-import { buildPriceSeries } from './priceSeries';
+import { toStepSeries } from '../../../utils/stepSeries';
 import PriceTrendChart from './PriceTrendChart';
 &nbsp;
 export type PriceTrendCardProps = { from?: string; to?: string; supplierId?: string | null };
@@ -494,7 +494,7 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
     enabled: !!selectedItemId,
   });
 &nbsp;
-  const priceData = React.useMemo(() =&gt; buildPriceSeries(priceQ.data, to), [priceQ.data, to]);
+  const priceData = React.useMemo(() =&gt; toStepSeries(priceQ.data, to), [priceQ.data, to]);
 &nbsp;
   // ---------------------------------------------------------------------------
   // Render

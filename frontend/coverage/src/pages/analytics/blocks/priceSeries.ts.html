@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>24/24</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.5% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>14/16</span>
+                <span class='fraction'>4/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>9/9</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>20/20</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -109,27 +109,7 @@
 <a name='L44'></a><a href='#L44'>44</a>
 <a name='L45'></a><a href='#L45'>45</a>
 <a name='L46'></a><a href='#L46'>46</a>
-<a name='L47'></a><a href='#L47'>47</a>
-<a name='L48'></a><a href='#L48'>48</a>
-<a name='L49'></a><a href='#L49'>49</a>
-<a name='L50'></a><a href='#L50'>50</a>
-<a name='L51'></a><a href='#L51'>51</a>
-<a name='L52'></a><a href='#L52'>52</a>
-<a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a>
-<a name='L55'></a><a href='#L55'>55</a>
-<a name='L56'></a><a href='#L56'>56</a>
-<a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a>
-<a name='L60'></a><a href='#L60'>60</a>
-<a name='L61'></a><a href='#L61'>61</a>
-<a name='L62'></a><a href='#L62'>62</a>
-<a name='L63'></a><a href='#L63'>63</a>
-<a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a>
-<a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L47'></a><a href='#L47'>47</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -147,26 +127,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">30x</span>
-<span class="cline-any cline-yes">17x</span>
-<span class="cline-any cline-yes">17x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">30x</span>
-<span class="cline-any cline-yes">30x</span>
-<span class="cline-any cline-yes">30x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -200,40 +160,20 @@
  * @module pages/analytics/blocks/priceSeries
  *
  * @summary
- * Shapes price-trend points for the step chart in PriceTrendCard: series on a
- * time scale, the carried last price, and the price axis domain and ticks
- * (the time axis comes from utils/timeAxis).
+ * Price axis for the step chart in PriceTrendCard: domain and round ticks.
+ * The series comes from utils/stepSeries, the time axis from utils/timeAxis.
  *
  * @enterprise
- * The API returns one point per recorded price change. A price holds until the
- * next change, so the chart draws steps and repeats the last price at the end of
- * the selected range; otherwise the line would stop at the last change and read
- * as "no price since then". The repeated point is marked so the chart draws no
- * dot on a day without a recorded change. Points sit on a time scale: on a
- * category axis 62 days and 97 days took the same width.
+ * The API returns one point per recorded price change; the step series carries
+ * the last price to the range end, and the time axis gives each gap between
+ * changes its real width (on a category axis 62 days and 97 days took the same
+ * width).
  */
 import type { PricePoint } from '../../../api/analytics/types';
+import type { StepPoint } from '../../../utils/stepSeries';
 &nbsp;
 /** A plotted price at time `t` (epoch ms); `carried` marks the last price repeated at the range end. */
-export type ChartPricePoint = PricePoint &amp; { t: number; carried?: boolean };
-&nbsp;
-/**
- * Builds the series: drops points without a valid date (a time axis cannot place
- * them), sorts by time and carries the last price to `to`.
- *
- * @param points price changes as returned by the API, in any order
- * @param to range end (ISO date); without it, or when the last change is on or after it, nothing is added
- * @returns the series to plot
- */
-export function buildPriceSeries(points: readonly PricePoint[] | undefined, to?: string): ChartPricePoint[] {
-  const sorted = (points ?? [])
-    .map((p) =&gt; ({ ...p, t: Date.parse(p?.date ?? '') }))
-    .filter((p) =&gt; Number.isFinite(p.t))
-    .sort((a, b) =&gt; a.t - b.t);
-  const last = sorted[sorted.length - 1];
-  const end = to ? Date.parse(to) : NaN;
-  return last &amp;&amp; last.t &lt; end ? [...sorted, { date: to as string, price: last.price, t: end, carried: true }] : sorted;
-}
+export type ChartPricePoint = StepPoint&lt;PricePoint&gt;;
 &nbsp;
 /**
  * Price axis with a margin of at least 10% above and below the prices, widened
