@@ -206,4 +206,10 @@ describe('Dashboard', () => {
       expect(screen.getAllByText('—').length).toBeGreaterThan(0);
     });
   });
+
+  it('lays the page on a square panel, so it meets the navigation rail without a seam', () => {
+    const { container } = renderDashboard(queryClient);
+    expect(container.querySelector('.MuiPaper-root')).toHaveStyle({ borderRadius: '0', boxShadow: 'none' });
+  });
+
 });

@@ -61,3 +61,12 @@ export const darkCardSurface = '#243040';
  * separates them by surface grade instead and takes no outline.
  */
 export const lightCardOutline = 'rgba(0,0,0,0.12)';
+
+/**
+ * Footer surface in light mode, one grade darker than the page background so the
+ * footer reads as its own band (Carlos, 2026-10-12). Footer links use
+ * primary.dark on it: primary.main (#1976D2) reaches only 3.71:1 there, below
+ * WCAG AA (4.5:1) for small text; primary.dark (#115293) reaches 6.39:1. Dark mode keeps
+ * background.default.
+ */
+export const lightFooterSurface = '#E4E7EC';

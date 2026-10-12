@@ -68,7 +68,7 @@ export default function MonthlyMovementMini() {
         {q.isLoading ? (
           <Skeleton variant="rounded" height={220} />
         ) : (
-          <Box sx={{ height: 240 }}>
+          <Box sx={{ height: 220 }}>
             <ResponsiveContainer width="100%" height="90%">
               <BarChart data={q.data ?? []}>
                 <CartesianGrid strokeDasharray="3 3" />

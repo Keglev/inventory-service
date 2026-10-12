@@ -45,6 +45,7 @@ import { useToolbarHandlers } from './handlers/useToolbarHandlers';
 import { useFilterHandlers } from './handlers/useFilterHandlers';
 import { useRefreshHandler } from './handlers/useRefreshHandler';
 import { useDataFetchingLogic } from './handlers/useDataFetchingLogic';
+import { pagePanelSx, railGutter } from '../../theme/pagePanel';
 
 const InventoryBoard: React.FC = () => {
   const { t } = useTranslation(['common', 'auth', 'analytics', 'inventory']);
@@ -81,6 +82,7 @@ const InventoryBoard: React.FC = () => {
       <Paper
         elevation={0}
         sx={{
+          ...pagePanelSx,
           p: 0,
           bgcolor: 'background.paper',
           flex: 1,
@@ -93,7 +95,7 @@ const InventoryBoard: React.FC = () => {
           direction="row"
           alignItems="center"
           justifyContent="space-between"
-          sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 }, pb: 2 }}
+          sx={{ px: { xs: 2, md: 3 }, pl: railGutter, pt: { xs: 2, md: 3 }, pb: 2 }}
         >
           <Stack direction="row" alignItems="center" spacing={1}>
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
@@ -116,7 +118,7 @@ const InventoryBoard: React.FC = () => {
         </Stack>
 
         {/* Filter Panel */}
-        <Paper variant="outlined" sx={{ p: 1.5, mb: 2, mx: { xs: 2, md: 3 } }}>
+        <Paper variant="outlined" sx={{ p: 1.5, mb: 2, mx: { xs: 2, md: 3 }, ml: railGutter }}>
           <InventoryFilterPanel
             q={state.q}
             setQ={handleSearchChange}
@@ -136,6 +138,7 @@ const InventoryBoard: React.FC = () => {
             flex: 1,
             position: 'relative',
             mx: { xs: 2, md: 3 },
+            ml: railGutter,
             mb: { xs: 2, md: 3 },
             p: state.supplierId ? 0 : 2,
             minHeight: 420,

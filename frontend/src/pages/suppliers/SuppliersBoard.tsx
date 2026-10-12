@@ -32,6 +32,7 @@ import { SuppliersSearchPanel } from './components/SuppliersSearchPanel';
 import { SuppliersFilterPanel } from './components/SuppliersFilterPanel';
 import { SuppliersTable } from './components/SuppliersTable';
 import { SuppliersDialogs } from './components/SuppliersDialogs';
+import { pagePanelSx, railGutter } from '../../theme/pagePanel';
 
 /**
  * Suppliers Management Board - main page orchestrator.
@@ -98,6 +99,7 @@ const SuppliersBoard: React.FC = () => {
       <Paper
         elevation={0}
         sx={{
+          ...pagePanelSx,
           p: 0,
           bgcolor: 'background.paper',
           flex: 1,
@@ -115,7 +117,7 @@ const SuppliersBoard: React.FC = () => {
         />
 
         {/* Search Panel */}
-        <Box sx={{ px: 2 }}>
+        <Box sx={{ px: 2, pl: railGutter }}>
           <SuppliersSearchPanel
             searchQuery={state.searchQuery}
             onSearchChange={handleSearchChange}
@@ -128,7 +130,7 @@ const SuppliersBoard: React.FC = () => {
         </Box>
 
         {/* Filter Panel */}
-        <Box sx={{ px: 2 }}>
+        <Box sx={{ px: 2, pl: railGutter }}>
           <SuppliersFilterPanel
             showAllSuppliers={state.showAllSuppliers}
             onToggleChange={handleToggleShowAll}
@@ -145,13 +147,14 @@ const SuppliersBoard: React.FC = () => {
               display: 'grid',
               placeItems: 'center',
               mx: 2,
+              ml: railGutter,
               mb: 2,
             }}
           >
             {/* Empty state */}
           </Paper>
         ) : (
-          <Box sx={{ px: 2, mb: 2, flex: 1, minHeight: 0 }}>
+          <Box sx={{ px: 2, pl: railGutter, mb: 2, flex: 1, minHeight: 0 }}>
             <SuppliersTable
               rows={displayRows}
               paginationModel={state.paginationModel}

@@ -66,4 +66,11 @@ describe('StatCard', () => {
     // MUI Skeleton lacks a stable role/label here; class presence is a pragmatic smoke check.
     expect(container.querySelectorAll('.MuiSkeleton-root').length).toBeGreaterThan(0);
   });
+
+  it('renders the value as a paragraph, not a heading', () => {
+    setup({ value: 7 });
+    expect(screen.getByTestId('stat-value').tagName).toBe('P');
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
+  });
+
 });

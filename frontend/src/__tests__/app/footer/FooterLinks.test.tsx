@@ -16,6 +16,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material';
+import { buildTheme } from '@/theme';
 import FooterLinks from '@/app/footer/FooterLinks';
 import { tEn } from '@/__tests__/test/i18nEn';
 
@@ -122,4 +124,24 @@ describe('FooterLinks', () => {
     expect(mockT).toHaveBeenCalledWith('footer:legal.impressum');
     expect(mockT).toHaveBeenCalledWith('footer:legal.privacy');
   });
+
+  it('colours every link primary.dark when mode is light and primary.main when dark', () => {
+    for (const mode of ['light', 'dark'] as const) {
+      const theme = buildTheme('de', mode);
+      const { unmount } = render(
+        <ThemeProvider theme={theme}>
+          <MemoryRouter>
+            <FooterLinks />
+          </MemoryRouter>
+        </ThemeProvider>
+      );
+      const expected = mode === 'light' ? theme.palette.primary.dark : theme.palette.primary.main;
+      const probe = document.createElement('span');
+      probe.style.color = expected;
+      const colours = new Set(screen.getAllByRole('link').map((a) => getComputedStyle(a).color));
+      expect([...colours]).toEqual([probe.style.color]);
+      unmount();
+    }
+  });
+
 });

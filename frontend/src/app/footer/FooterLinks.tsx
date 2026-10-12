@@ -18,6 +18,10 @@
 import { Link, Stack } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import type { Theme } from '@mui/material/styles';
+
+/** primary.dark on the light footer surface keeps link text above WCAG AA (theme/tokens lightFooterSurface). */
+const linkSx = { color: (theme: Theme) => (theme.palette.mode === 'light' ? theme.palette.primary.dark : theme.palette.primary.main) };
 
 /** External or mailto link rendered as a plain anchor. */
 interface ExternalFooterLink {
@@ -96,7 +100,7 @@ export default function FooterLinks() {
             to={link.to}
             underline="hover"
             variant="caption"
-            sx={{ color: 'primary.main' }}
+            sx={linkSx}
           >
             {link.label}
           </Link>
@@ -108,7 +112,7 @@ export default function FooterLinks() {
             rel={link.external ? 'noopener noreferrer' : undefined}
             underline="hover"
             variant="caption"
-            sx={{ color: 'primary.main' }}
+            sx={linkSx}
           >
             {link.label}
           </Link>

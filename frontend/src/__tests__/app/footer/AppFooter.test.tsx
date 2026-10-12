@@ -16,6 +16,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material';
+import { buildTheme } from '@/theme';
 import AppFooter from '@/app/footer/AppFooter';
 import { tEn } from '@/__tests__/test/i18nEn';
 
@@ -134,4 +136,23 @@ describe('AppFooter', () => {
     arrange();
     expect(screen.queryByText(/portfolio showcases a fictional/)).toBeNull();
   });
+
+  it('paints the footer one grade darker than the page when mode is light, the page grade when dark', () => {
+    const footerBg = (mode: 'light' | 'dark') => {
+      const { unmount } = render(
+        <ThemeProvider theme={buildTheme('de', mode)}>
+          <MemoryRouter>
+            <AppFooter />
+          </MemoryRouter>
+        </ThemeProvider>
+      );
+      const bg = getComputedStyle(screen.getByRole('contentinfo')).backgroundColor;
+      unmount();
+      return bg;
+    };
+    // #E4E7EC in light mode (page #F0F2F5); dark mode keeps background.default #0B0F14.
+    expect(footerBg('light')).toBe('rgb(228, 231, 236)');
+    expect(footerBg('dark')).toBe('rgb(11, 15, 20)');
+  });
+
 });
