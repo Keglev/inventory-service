@@ -31,7 +31,6 @@ vi.mock('react-i18next', () => ({
  */
 type ToolbarActionsProps = {
   helpTopic: string;
-  onSettingsOpen: () => void;
   onAboutOpen: () => void;
   onLogout: () => void;
 };
@@ -62,7 +61,6 @@ vi.mock('@/app/layout/header/HeaderDemoBadge', () => ({
 
 describe('AppHeader', () => {
   const baseProps = {
-    onSettingsOpen: vi.fn(),
     onAboutOpen: vi.fn(),
     onLogout: vi.fn(),
     helpTopic: 'dashboard',
@@ -95,19 +93,20 @@ describe('AppHeader', () => {
 
     expect(lastToolbarProps).toMatchObject({
       helpTopic: 'dashboard',
-      onSettingsOpen: baseProps.onSettingsOpen,
       onAboutOpen: baseProps.onAboutOpen,
       onLogout: baseProps.onLogout,
     });
+    // Settings opens from the sidebar since FW6; the toolbar gets no handler for it.
+    expect(lastToolbarProps).not.toHaveProperty('onSettingsOpen');
   });
 
-  it('calls onDrawerToggle when the menu button is clicked', async () => {
+  it('calls onDrawerToggle when the navigation toggle is clicked', async () => {
     // Simulates a real user click to ensure the drawer toggling interaction works.
     const user = userEvent.setup();
     render(<AppHeader {...baseProps} />);
 
-    // AppHeader should expose exactly one menu trigger button (hamburger icon).
-    const menuButton = screen.getByRole('button');
+    // The phone navigation toggle is the header's only own button, and it has a name.
+    const menuButton = screen.getByRole('button', { name: 'actions.openNavigation' });
     await user.click(menuButton);
 
     expect(baseProps.onDrawerToggle).toHaveBeenCalledTimes(1);

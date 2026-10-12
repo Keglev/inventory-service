@@ -7,7 +7,7 @@
  * Delegates rendering to focused sub-components (header, sidebar, main).
  *
  * @enterprise
- * - Theme mode and locale are owned by ShellPreferencesProvider (App.tsx); AppShell only applies the theme. The header, the user menu and the settings dialog read what they need themselves, so no preference props pass through the shell (FW5).
+ * - Theme mode and locale are owned by ShellPreferencesProvider (App.tsx); AppShell only applies the theme. The header, the avatar menu and the settings dialog read what they need themselves, so no preference props pass through the shell (FW5).
  * - Session keep-alive ping fires at shell level so it runs regardless of which page route is active.
  * - Viewport-fit layout: an inner flex column bounds the shell to exactly one viewport (100dvh, overflow hidden); AppMain is the single internal scroll region, so the footer is always visible. AppPublicShell keeps its own document-scroll layout and is unaffected.
  * - Single Snackbar instance prevents duplicate toasts from concurrent state changes across sub-components.
@@ -105,7 +105,6 @@ export default function AppShell() {
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}>
           {/* Application Header (fixed) */}
           <AppHeader
-            onSettingsOpen={() => setSettingsOpen(true)}
             onAboutOpen={() => setAboutOpen(true)}
             onLogout={handleLogout}
             helpTopic={helpTopic}
@@ -126,6 +125,7 @@ export default function AppShell() {
             <AppSidebar
               mobileOpen={mobileOpen}
               onMobileClose={() => setMobileOpen(false)}
+              onSettingsOpen={() => setSettingsOpen(true)}
             />
 
             {/* Main Content Area */}

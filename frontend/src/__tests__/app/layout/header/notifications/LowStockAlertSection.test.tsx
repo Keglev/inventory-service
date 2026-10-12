@@ -1,6 +1,6 @@
 /**
  * @file LowStockAlertSection.test.tsx
- * @module __tests__/app/HamburgerMenu/NotificationSettings
+ * @module __tests__/app/layout/header/notifications
  *
  * @description
  * Unit tests for <LowStockAlertSection /> — displays an alert when items are below minimum stock.
@@ -23,7 +23,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { tEn } from '@/__tests__/test/i18nEn';
 import { render, screen } from '@testing-library/react';
-import LowStockAlertSection from '@/app/HamburgerMenu/NotificationSettings/LowStockAlertSection';
+import LowStockAlertSection from '@/app/layout/header/notifications/LowStockAlertSection';
 
 // -----------------------------------------------------------------------------
 // i18n mock

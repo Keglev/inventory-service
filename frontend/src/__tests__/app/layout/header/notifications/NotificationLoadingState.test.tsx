@@ -1,6 +1,6 @@
 /**
  * @file NotificationLoadingState.test.tsx
- * @module __tests__/app/HamburgerMenu/NotificationSettings
+ * @module __tests__/app/layout/header/notifications
  *
  * @description
  * Unit tests for <NotificationLoadingState /> — skeleton UI displayed while notification
@@ -18,7 +18,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import NotificationLoadingState from '@/app/HamburgerMenu/NotificationSettings/NotificationLoadingState';
+import NotificationLoadingState from '@/app/layout/header/notifications/NotificationLoadingState';
 
 describe('NotificationLoadingState', () => {
   /**

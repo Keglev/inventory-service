@@ -4,12 +4,15 @@
  *
  * @summary
  * Individual navigation list item with route matching and disabled state support.
- * Highlights current route and supports feature flag-based disabling.
+ * Highlights current route and supports feature flag-based disabling. Renders as
+ * a list row (phone drawer) or as a rail tile, icon above label (desktop rail).
  *
  * @enterprise
  * - Active state uses `startsWith` (not exact match) so nested routes like `/inventory/123` correctly highlight the parent nav item.
  * - Disabled items remain visible and non-interactive; tooltip explains the feature-flag reason, preventing silent dead links.
  * - onClick guard prevents default on disabled items rather than relying solely on the `disabled` attribute, which can be bypassed programmatically.
+ * - The rail variant keeps the label under the icon (Material 3 navigation rail): with four
+ *   destinations an icon-only rail would save no space worth losing the words for (FW6 UX-1).
  */
 
 import {
@@ -17,7 +20,10 @@ import {
   ListItemIcon,
   ListItemText,
   Tooltip,
+  Typography,
 } from '@mui/material';
+import type { SidebarVariant } from './sidebarVariant';
+import { railItemSx } from './sidebarVariant';
 import { Link, useLocation } from 'react-router-dom';
 
 interface NavItemProps {
@@ -35,6 +41,9 @@ interface NavItemProps {
 
   /** Tooltip text when disabled */
   tooltip?: string;
+
+  /** List row (default) or rail tile */
+  variant?: SidebarVariant;
 }
 
 /**
@@ -62,6 +71,7 @@ export default function NavItem({
   label,
   disabled,
   tooltip,
+  variant = 'list',
 }: NavItemProps) {
   const location = useLocation();
   // startsWith is intentional: activates the nav item for any nested route under `to`.
@@ -83,13 +93,25 @@ export default function NavItem({
       to={to}
       onClick={handleClick}
       selected={selected}
-      sx={{ borderRadius: 1, mx: 1 }}
+      aria-current={selected ? 'page' : undefined}
+      sx={variant === 'rail' ? railItemSx : { borderRadius: 1, mx: 1 }}
       disabled={disabled}
     >
-      <ListItemIcon sx={{ minWidth: 36 }}>
-        <Icon />
-      </ListItemIcon>
-      <ListItemText primary={label} />
+      {variant === 'rail' ? (
+        <>
+          <Icon />
+          <Typography variant="caption" sx={{ lineHeight: 1.2, textAlign: 'center' }}>
+            {label}
+          </Typography>
+        </>
+      ) : (
+        <>
+          <ListItemIcon sx={{ minWidth: 36 }}>
+            <Icon />
+          </ListItemIcon>
+          <ListItemText primary={label} />
+        </>
+      )}
     </ListItemButton>
   );
 

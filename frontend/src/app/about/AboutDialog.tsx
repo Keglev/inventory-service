@@ -3,8 +3,8 @@
  * @module app/about/AboutDialog
  *
  * @summary
- * "About Smart Supply Pro" dialog: version, build, environment, backend status and
- * database, opened from the user menu.
+ * "About Smart Supply Pro" dialog: version, build, environment, backend status,
+ * database and the source repository, opened from the avatar menu.
  *
  * @enterprise
  * - SAP Fiori and Oracle keep version facts in one About dialog reached from the
@@ -12,6 +12,8 @@
  * - Backend status and database come from useHealthCheck, the same query as the
  *   header badge and the footer, so the three can never disagree.
  * - The build id shows its first 10 characters; the full hash is in the title.
+ * - The repository link moved here from the removed hamburger menu (FW6 UX-1);
+ *   the documentation links it also held are in the footer of every page.
  */
 
 import * as React from 'react';
@@ -24,10 +26,14 @@ import {
   Stack,
   Typography,
   Chip,
+  Link,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { APP_VERSION, BUILD_ID, APP_ENVIRONMENT } from '../../config/appMeta';
 import { useHealthCheck } from '../../features/health/hooks/useHealthCheck';
+
+/** Source repository, opened in a new tab. */
+const REPO_URL = 'https://github.com/Keglev/inventory-service';
 
 interface AboutDialogProps {
   /** Whether the dialog is open */
@@ -80,6 +86,11 @@ export default function AboutDialog({ open, onClose }: AboutDialogProps) {
           />
         </AboutRow>
         <AboutRow label={t('about.database')}>{health.databaseProduct ?? t('about.unknown')}</AboutRow>
+        <AboutRow label={t('about.repository')}>
+          <Link href={REPO_URL} target="_blank" rel="noopener noreferrer">
+            Keglev/inventory-service
+          </Link>
+        </AboutRow>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} variant="contained" sx={{ textTransform: 'none', fontWeight: 600 }}>

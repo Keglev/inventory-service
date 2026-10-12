@@ -8,6 +8,7 @@
  * - Basic rendering (label, icon, link target)
  * - Disabled state rendering + optional tooltip usage
  * - Label edge cases (undefined, long text)
+ * - Rail variant: label as a caption under the icon, same link target (FW6 UX-1)
  *
  * Out of scope:
  * - Active route highlighting / selection logic (covered in NavItem.active-state.test.tsx)
@@ -116,6 +117,30 @@ describe('NavItem (rendering)', () => {
 
       // preventDefault marks the event as cancelled: the router never navigates.
       expect(clickEvent.defaultPrevented).toBe(true);
+    });
+  });
+
+  describe('Rail variant', () => {
+    it('renders the label as a caption under the icon when variant is rail', () => {
+      const { container } = renderNavItem({ label: 'Inventar', variant: 'rail' });
+
+      const caption = container.querySelector('.MuiTypography-caption');
+      expect(caption).toHaveTextContent('Inventar');
+      expect(container.querySelector('.MuiListItemIcon-root')).not.toBeInTheDocument();
+      expect(container.querySelector('a')).toHaveStyle({ flexDirection: 'column' });
+    });
+
+    it('keeps the link target when variant is rail', () => {
+      renderNavItem({ to: '/inventory', label: 'Inventar', variant: 'rail' });
+
+      expect(screen.getByRole('link', { name: 'Inventar' })).toHaveAttribute('href', '/inventory');
+    });
+
+    it('renders the list row with icon slot and text when no variant is given', () => {
+      const { container } = renderNavItem({ label: 'Inventar' });
+
+      expect(container.querySelector('.MuiListItemIcon-root')).toBeInTheDocument();
+      expect(container.querySelector('.MuiTypography-caption')).not.toBeInTheDocument();
     });
   });
 });

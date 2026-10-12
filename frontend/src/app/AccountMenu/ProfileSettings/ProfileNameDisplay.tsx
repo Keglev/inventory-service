@@ -1,6 +1,6 @@
 /**
  * @file ProfileNameDisplay.tsx
- * @module app/HamburgerMenu/ProfileSettings/ProfileNameDisplay
+ * @module app/AccountMenu/ProfileSettings/ProfileNameDisplay
  *
  * @summary
  * Read-only name row driven entirely by props; no hooks beyond useTranslation.

@@ -13,7 +13,7 @@ import { Badge, IconButton, Popover, Box, Tooltip } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useTranslation } from 'react-i18next';
 import { useDashboardMetrics } from '../../../api/analytics/hooks/useDashboardMetrics';
-import NotificationsMenuSection from '../../HamburgerMenu/NotificationsMenuSection';
+import NotificationsMenuSection from './notifications/NotificationsMenuSection';
 
 export default function NotificationBell() {
   const { t } = useTranslation(['common']);

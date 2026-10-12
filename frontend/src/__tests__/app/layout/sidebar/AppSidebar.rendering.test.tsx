@@ -5,27 +5,27 @@
  * Rendering/structure tests for AppSidebar.
  *
  * Scope:
- * - Drawer and title render
- * - Navigation only: the nav list and nothing else (FW5 fork 1)
+ * - Desktop rail (88 px, rail tiles) and phone drawer (list rows) (FW6 UX-1)
+ * - Contents: navigation list plus one settings entry, no product title (FW6)
+ * - Settings wiring, closing the phone drawer first
  *
  * Out of scope:
  * - Routing behavior and navigation item logic (SidebarNavList.test.tsx)
+ * - Rail tile rendering of a single entry (NavItem.rendering.test.tsx)
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import AppSidebar from '@/app/layout/AppSidebar';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('@/app/layout/sidebar/SidebarNavList', () => ({
-  default: () => <div data-testid="nav-list" />,
+  default: ({ variant }: { variant: string }) => <div data-testid="nav-list" data-variant={variant} />,
 }));
 
-/**
- * i18n mock:
- * AppSidebar commonly provides default translation values; return those defaults for stable assertions.
- */
+/** i18n mock: English strings from the real locale file. */
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
@@ -42,9 +42,13 @@ vi.mock('@/app/layout/navConfig', () => ({
 type SidebarProps = React.ComponentProps<typeof AppSidebar>;
 
 describe('AppSidebar (rendering)', () => {
+  const onMobileClose = vi.fn();
+  const onSettingsOpen = vi.fn();
+
   const baseProps: SidebarProps = {
     mobileOpen: false,
-    onMobileClose: vi.fn(),
+    onMobileClose,
+    onSettingsOpen,
   };
 
   beforeEach(() => {
@@ -63,38 +67,51 @@ describe('AppSidebar (rendering)', () => {
     );
   }
 
-  it('renders a MUI Drawer container', () => {
-    // Ensures the responsive navigation container exists.
+  const railPaper = (container: HTMLElement) =>
+    container.querySelector('.MuiDrawer-docked .MuiDrawer-paper') as HTMLElement;
+
+  it('renders the desktop drawer as an 88 px rail of rail tiles', () => {
     const { container } = renderSidebar();
 
-    expect(container.querySelector('.MuiDrawer-root')).toBeInTheDocument();
+    const rail = railPaper(container);
+    expect(rail).toHaveStyle({ width: '88px' });
+    expect(within(rail).getByTestId('nav-list')).toHaveAttribute('data-variant', 'rail');
   });
 
-  it('renders the sidebar title', () => {
-    // Title is part of the user-facing layout contract.
-    renderSidebar();
+  it('renders the phone drawer with list rows when it is open', () => {
+    renderSidebar({ mobileOpen: true });
 
-    expect(screen.getAllByText('Smart Supply Pro').length).toBeGreaterThan(0);
+    const phoneDrawer = screen.getByRole('presentation');
+    expect(within(phoneDrawer).getByTestId('nav-list')).toHaveAttribute('data-variant', 'list');
   });
 
-  it('renders the navigation list and nothing else besides the title', () => {
-    // Navigation only: no profile, environment, version, toggles, settings, help or sign-out.
-    renderSidebar();
-    const lists = screen.getAllByTestId('nav-list');
-    expect(lists.length).toBeGreaterThan(0);
-    for (const list of lists) {
-      const paper = list.closest('.MuiDrawer-paper');
-      expect(paper?.textContent).toBe('Smart Supply Pro');
-    }
-    expect(screen.queryAllByRole('button')).toHaveLength(0);
+  it('renders the navigation list and a settings entry but no product title', () => {
+    const { container } = renderSidebar();
+
+    const rail = railPaper(container);
+    expect(within(rail).getByRole('button', { name: tEn('nav.settings') })).toBeInTheDocument();
+    expect(within(rail).getAllByRole('button')).toHaveLength(1);
+    expect(rail.textContent).not.toContain('Smart Supply Pro');
   });
 
-  it('renders regardless of mobileOpen state (true/false)', () => {
-    // Ensures responsive mode flag does not break rendering.
-    const { container: c1 } = renderSidebar({ mobileOpen: false });
-    expect(c1.querySelector('.MuiDrawer-root')).toBeInTheDocument();
+  it('opens settings from the rail without touching the phone drawer', async () => {
+    const user = userEvent.setup();
+    const { container } = renderSidebar();
 
-    const { container: c2 } = renderSidebar({ mobileOpen: true });
-    expect(c2.querySelector('.MuiDrawer-root')).toBeInTheDocument();
+    await user.click(within(railPaper(container)).getByRole('button', { name: tEn('nav.settings') }));
+
+    expect(onSettingsOpen).toHaveBeenCalledTimes(1);
+    expect(onMobileClose).not.toHaveBeenCalled();
+  });
+
+  it('closes the phone drawer before opening settings from it', async () => {
+    const user = userEvent.setup();
+    renderSidebar({ mobileOpen: true });
+
+    await user.click(within(screen.getByRole('presentation')).getByRole('button', { name: tEn('nav.settings') }));
+
+    expect(onMobileClose).toHaveBeenCalledTimes(1);
+    expect(onSettingsOpen).toHaveBeenCalledTimes(1);
+    expect(onMobileClose.mock.invocationCallOrder[0]).toBeLessThan(onSettingsOpen.mock.invocationCallOrder[0]);
   });
 });

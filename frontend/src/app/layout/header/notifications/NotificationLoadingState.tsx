@@ -1,6 +1,6 @@
 /**
  * @file NotificationLoadingState.tsx
- * @module app/HamburgerMenu/NotificationSettings/NotificationLoadingState
+ * @module app/layout/header/notifications/NotificationLoadingState
  *
  * @summary
  * Renders skeletons while the notification metrics are loading.

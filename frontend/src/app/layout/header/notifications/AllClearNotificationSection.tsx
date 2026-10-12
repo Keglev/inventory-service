@@ -1,6 +1,6 @@
 /**
  * @file AllClearNotificationSection.tsx
- * @module app/HamburgerMenu/NotificationSettings/AllClearNotificationSection
+ * @module app/layout/header/notifications/AllClearNotificationSection
  *
  * @summary
  * Renders the success "all clear" row when no low-stock items exist.

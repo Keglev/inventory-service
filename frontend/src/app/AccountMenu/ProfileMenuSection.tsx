@@ -1,15 +1,14 @@
 /**
  * @file ProfileMenuSection.tsx
- * @module app/HamburgerMenu/ProfileMenuSection
+ * @module app/AccountMenu/ProfileMenuSection
  *
  * @summary
  * Section coordinator that composes the three ProfileSettings leaf components
- * (name, email, role) into the profile block of the hamburger menu.
+ * (name, email, role) into the profile block of the avatar menu.
  *
  * @enterprise
  * Sole consumer of useAuth for profile display; leaves are props-only so they
- * can be unit-tested without an auth context. Mounted exclusively by
- * MenuContent/MenuSectionsRenderer — no other consumer.
+ * can be unit-tested without an auth context. Mounted only by AccountMenu.
  */
 
 import { Box, Typography, Stack } from '@mui/material';

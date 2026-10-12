@@ -6,7 +6,7 @@
  *
  * Scope:
  * - Renders navigation items from NAV_ITEMS (navConfig)
- * - Renders no sign-out entry (sign-out lives in the user menu, FW5 fork 1)
+ * - Renders no sign-out entry (sign-out lives in the avatar menu, FW5 fork 1)
  * - Basic list structure (MUI List)
  *
  * Out of scope:
@@ -24,8 +24,8 @@ import SidebarNavList from '@/app/layout/sidebar/SidebarNavList';
  * Keeps tests focused on list composition and wiring, not NavItem internals.
  */
 vi.mock('@/app/layout/sidebar/NavItem', () => ({
-  default: ({ label, to }: { label?: string; to: string }) => (
-    <a href={to} data-testid="nav-item">
+  default: ({ label, to, variant }: { label?: string; to: string; variant?: string }) => (
+    <a href={to} data-testid="nav-item" data-variant={variant}>
       {label ?? ''}
     </a>
   ),
@@ -72,10 +72,10 @@ describe('SidebarNavList', () => {
     });
   });
 
-  function renderNavList() {
+  function renderNavList(props: React.ComponentProps<typeof SidebarNavList> = {}) {
     return render(
       <MemoryRouter>
-        <SidebarNavList />
+        <SidebarNavList {...props} />
       </MemoryRouter>,
     );
   }
@@ -90,6 +90,17 @@ describe('SidebarNavList', () => {
     expect(screen.getByText('Analytics')).toBeInTheDocument();
 
     expect(screen.getAllByTestId('nav-item')).toHaveLength(4);
+  });
+
+  it('passes the variant to every item, defaulting to list rows', () => {
+    const { unmount } = renderNavList();
+    const listVariants = screen.getAllByTestId('nav-item').map((el) => el.getAttribute('data-variant'));
+    expect(listVariants).toEqual(['list', 'list', 'list', 'list']);
+    unmount();
+
+    renderNavList({ variant: 'rail' });
+    const railVariants = screen.getAllByTestId('nav-item').map((el) => el.getAttribute('data-variant'));
+    expect(railVariants).toEqual(['rail', 'rail', 'rail', 'rail']);
   });
 
   it('renders the items as an MUI list', () => {

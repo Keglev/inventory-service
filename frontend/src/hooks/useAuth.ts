@@ -5,9 +5,10 @@
  * @enterprise
  * - Built via createContextHook to share the null-check + throw pattern with
  *   useHelp and useSettings.
- * - Heaviest consumer of the factory: ~14 production call sites across routes,
- *   guards, layout shell, auth pages, dashboard, inventory, suppliers, and the
- *   HamburgerMenu profile section.
+ * - Heaviest consumer of the factory: 15 production call sites (measured
+ *   2026-10-12) across routes, guards, the layout shell, the auth, home,
+ *   analytics, inventory, suppliers and system pages, and the avatar menu
+ *   (AccountMenu).
  * - Throws "useAuth must be used within the corresponding provider" when called
  *   outside <AuthProvider>; tested.
  */

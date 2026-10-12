@@ -1,6 +1,6 @@
 /**
  * @file LowStockAlertSection.tsx
- * @module app/HamburgerMenu/NotificationSettings/LowStockAlertSection
+ * @module app/layout/header/notifications/LowStockAlertSection
  *
  * @summary
  * Renders the warning Stack + chip with the low-stock item count.
