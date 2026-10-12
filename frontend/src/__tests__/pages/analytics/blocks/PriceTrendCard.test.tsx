@@ -8,6 +8,10 @@
  *   prompts for an item instead of showing a loading skeleton.
  * - The price line is drawn as steps (stepAfter): a price holds until it changes,
  *   so the last price is carried to the range end, without a dot on that day.
+ * - The X axis is a time scale over the selected range: spacing follows time,
+ *   not the number of price changes; points without a date are dropped.
+ * - The price axis keeps at least a 10% margin with round ticks (steps of 1, 2
+ *   or 5 times a power of ten, at least one cent); the line is named for the tooltip.
  * - Client-side option enrichment: supplier filter, text narrowing, and
  *   union of the selected item back into transiently missing options.
  * - Helper text: no-items message when a typed search finds nothing,
@@ -41,6 +45,10 @@ let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
 let lastPickerProps: Record<string, unknown> | null = null;
 let lastLineType: string | null = null;
+let lastLineName: string | null = null;
+let lastYDomain: unknown = null;
+let lastYTicks: number[] | null = null;
+let lastXAxisProps: { type?: string; scale?: string; domain?: number[]; ticks?: number[] } | null = null;
 let lastDot: ((props: { payload?: { carried?: boolean } }) => { type: unknown }) | null = null;
 
 vi.mock('react-i18next', () => ({
@@ -77,12 +85,32 @@ vi.mock('recharts', () => ({
     return <div data-testid="line-chart">{children}</div>;
   },
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
-  XAxis: ({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
+  XAxis: ({
+    tickFormatter,
+    ...axis
+  }: {
+    tickFormatter?: (v: string | number) => string;
+    type?: string;
+    scale?: string;
+    domain?: number[];
+    ticks?: number[];
+  }) => {
     lastXTickFormatter = tickFormatter ?? null;
+    lastXAxisProps = axis;
     return <div data-testid="x-axis" />;
   },
-  YAxis: ({ tickFormatter }: { tickFormatter?: (v: string | number) => string }) => {
+  YAxis: ({
+    tickFormatter,
+    domain,
+    ticks,
+  }: {
+    tickFormatter?: (v: string | number) => string;
+    domain?: unknown;
+    ticks?: number[];
+  }) => {
     lastYTickFormatter = tickFormatter ?? null;
+    lastYDomain = domain ?? null;
+    lastYTicks = ticks ?? null;
     return <div data-testid="y-axis" />;
   },
   Tooltip: ({
@@ -96,8 +124,9 @@ vi.mock('recharts', () => ({
     lastTooltipLabelFormatter = labelFormatter ?? null;
     return <div data-testid="tooltip" />;
   },
-  Line: ({ type, dot }: { type?: string; dot?: unknown }) => {
+  Line: ({ type, dot, name }: { type?: string; dot?: unknown; name?: string }) => {
     lastLineType = type ?? null;
+    lastLineName = name ?? null;
     lastDot = typeof dot === 'function' ? (dot as typeof lastDot) : null;
     return <div data-testid="line" />;
   },
@@ -311,7 +340,7 @@ describe('PriceTrendCard', () => {
     setup({ supplierId: 'sup-1', from: '2026-05-01', to: '2026-06-30' });
 
     await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
-    expect(lastChartData?.at(-1)).toEqual({ date: '2026-06-30', price: 3, carried: true });
+    expect(lastChartData?.at(-1)).toEqual({ date: '2026-06-30', price: 3, t: Date.parse('2026-06-30'), carried: true });
     expect(lastDot?.({ payload: { carried: true } }).type).toBe('g');
     expect(lastDot?.({ payload: {} }).type).toBe('circle');
   });
@@ -323,10 +352,83 @@ describe('PriceTrendCard', () => {
     setup({ supplierId: 'sup-1', from: '2026-05-01', to: '2026-06-30' });
 
     await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
-    expect(lastChartData).toEqual([{ date: '2026-06-30', price: 3 }]);
+    expect(lastChartData).toEqual([{ date: '2026-06-30', price: 3, t: Date.parse('2026-06-30') }]);
   });
 
-  it('sorts undefined dates first and omits the supplier param without one', async () => {
+  it('places points on a time scale over the selected range', async () => {
+    getPriceTrendMock.mockResolvedValue([
+      { date: '2026-05-06', price: 16.4 },
+      { date: '2026-07-07', price: 16.8 },
+    ] as PricePoint[]);
+    useItemSearchOptionsMock.mockReturnValue(searchState({ selectedItem: options[0] }));
+
+    setup({ supplierId: 'sup-1', from: '2026-04-16', to: '2026-10-12' });
+
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(lastXAxisProps).toMatchObject({ type: 'number', scale: 'time' });
+    expect(lastXAxisProps?.domain).toEqual([Date.parse('2026-04-16'), Date.parse('2026-10-12')]);
+    const ticks = lastXAxisProps?.ticks ?? [];
+    expect(ticks).toHaveLength(6);
+    expect([ticks[0], ticks.at(-1)]).toEqual([Date.parse('2026-04-16'), Date.parse('2026-10-12')]);
+    expect(ticks.every((t) => t % 86_400_000 === 0)).toBe(true);
+    // Time-scale ticks arrive as epoch ms and format as dates.
+    expect(lastXTickFormatter?.(Date.parse('2026-05-01'))).toBe('01.05.2026');
+  });
+
+  it('widens the price axis to round ticks around the prices and names the series', async () => {
+    getPriceTrendMock.mockResolvedValue([
+      { date: '2026-05-06', price: 16.4 },
+      { date: '2026-07-07', price: 16.8 },
+    ] as PricePoint[]);
+    useItemSearchOptionsMock.mockReturnValue(searchState({ selectedItem: options[0] }));
+
+    setup({ supplierId: 'sup-1', to: '2026-07-07' });
+
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(lastYDomain).toEqual([16.2, 17]);
+    expect(lastYTicks).toEqual([16.2, 16.4, 16.6, 16.8, 17]);
+    expect(lastLineName).toBe('analytics:cards.priceSeries');
+  });
+
+  it('gives a flat price a margin of 5% of the price', async () => {
+    getPriceTrendMock.mockResolvedValue([{ date: '2026-05-06', price: 3 }] as PricePoint[]);
+    useItemSearchOptionsMock.mockReturnValue(searchState({ selectedItem: options[0] }));
+
+    setup({ supplierId: 'sup-1', to: '2026-07-07' });
+
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(lastYDomain).toEqual([2.8, 3.2]);
+    expect(lastYTicks).toEqual([2.8, 2.9, 3, 3.1, 3.2]);
+  });
+
+  it('steps ticks by 1, 2 or 5 times a power of ten, never 2.5', async () => {
+    getPriceTrendMock.mockResolvedValue([
+      { date: '2026-05-06', price: 0.12 },
+      { date: '2026-07-07', price: 0.19 },
+    ] as PricePoint[]);
+    useItemSearchOptionsMock.mockReturnValue(searchState({ selectedItem: options[0] }));
+
+    setup({ supplierId: 'sup-1', to: '2026-07-07' });
+
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    // A 2.5 step would give 0.125, which a two-decimal label shows as 0,13.
+    expect(lastYTicks).toEqual([0.1, 0.15, 0.2]);
+  });
+
+  it('never ticks finer than one cent', async () => {
+    getPriceTrendMock.mockResolvedValue([
+      { date: '2026-05-06', price: 30 },
+      { date: '2026-07-07', price: 30.01 },
+    ] as PricePoint[]);
+    useItemSearchOptionsMock.mockReturnValue(searchState({ selectedItem: options[0] }));
+
+    setup({ supplierId: 'sup-1', to: '2026-07-07' });
+
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(lastYTicks).toEqual([29.99, 30, 30.01, 30.02]);
+  });
+
+  it('drops points without a date and omits the supplier param without one', async () => {
     const points = [
       { date: '2026-05-01', price: 2.5 },
       { price: 3 },
@@ -343,7 +445,7 @@ describe('PriceTrendCard', () => {
       to: undefined,
       supplierId: undefined,
     });
-    // The undefined date coerces to '' and sorts ahead of real dates.
-    expect(lastChartData?.map((p) => p.date)).toEqual([undefined, '2026-05-01']);
+    // A point without a date has no place on the time axis.
+    expect(lastChartData?.map((p) => p.date)).toEqual(['2026-05-01']);
   });
 });

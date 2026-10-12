@@ -3,6 +3,7 @@
   "cards": {
     "stockValue": "Bestandswert im Zeitverlauf (€)",
     "stockValueSeries": "Bestandswert",
+    "priceSeries": "Preis",
     "monthlyMovement": "Monatliche Bestandsbewegung (Stück)",
     "stockIn": "Zugang",
     "stockOut": "Abgang",

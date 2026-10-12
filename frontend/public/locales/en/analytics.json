@@ -3,6 +3,7 @@
   "cards": {
     "stockValue": "Stock value over time (€)",
     "stockValueSeries": "Stock value",
+    "priceSeries": "Price",
     "monthlyMovement": "Monthly stock movement (pieces)",
     "stockIn": "Stock in",
     "stockOut": "Stock out",
