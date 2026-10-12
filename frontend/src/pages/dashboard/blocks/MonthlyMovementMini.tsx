@@ -31,7 +31,11 @@ import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Le
 import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import { getTodayIso, getDaysAgoIso, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { legendOrder } from '../../../utils/chartLegend';
 import { useSettings } from '../../../hooks/useSettings';
+
+/** Stock in before stock out in every language (see utils/chartLegend). */
+const LEGEND_ORDER = legendOrder(['stockIn', 'stockOut']);
 
 /**
  * Monthly stock movement chart component for dashboard KPI section.
@@ -79,7 +83,7 @@ export default function MonthlyMovementMini() {
                       : value
                   }
                 />
-                <Legend />
+                <Legend itemSorter={LEGEND_ORDER} />
                 {/* Green bars: inbound stock movements */}
                 <Bar
                   dataKey="stockIn"

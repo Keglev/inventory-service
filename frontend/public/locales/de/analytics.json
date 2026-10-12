@@ -19,6 +19,7 @@
   },
   "priceTrend": {
     "selectSupplierShort": "Lieferant auswählen",
+    "selectItem": "Wähle einen Artikel, um den Preisverlauf zu sehen",
     "noItemsForSupplier": "Keine Artikel für diesen Lieferanten",
     "typeToSearch": "Tippe zum Suchen…"
   },

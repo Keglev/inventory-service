@@ -38,6 +38,7 @@ import { useItemSearchOptions } from '../hooks/useItemSearchOptions';
 import { ItemSearchAutocomplete } from '../components/ItemSearchAutocomplete';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { buildPriceSeries, type ChartPricePoint } from './priceSeries';
 
 export type PriceTrendCardProps = { from?: string; to?: string; supplierId?: string | null };
 
@@ -116,10 +117,7 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
     enabled: !!selectedItemId,
   });
 
-  const priceData = React.useMemo(
-    () => [...(priceQ.data ?? [])].sort((a, b) => (a?.date ?? '').localeCompare(b?.date ?? '')),
-    [priceQ.data]
-  );
+  const priceData = React.useMemo(() => buildPriceSeries(priceQ.data, to), [priceQ.data, to]);
 
   // ---------------------------------------------------------------------------
   // Render
@@ -166,7 +164,11 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
           />
         </Stack>
 
-        {!selectedItemId || priceQ.isLoading ? (
+        {!selectedItemId ? (
+          <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
+            {t('analytics:priceTrend.selectItem')}
+          </Box>
+        ) : priceQ.isLoading ? (
           <Skeleton variant="rounded" height={220} />
         ) : priceData.length === 0 ? (
           <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
@@ -192,11 +194,18 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
                   }
                 />
                 <Line
-                  type="monotone"
+                  // A price holds until the next change: steps, not a curve between changes.
+                  type="stepAfter"
                   dataKey="price"
                   stroke={muiTheme.palette.primary.main}
                   strokeWidth={2}
-                  dot={{ r: 2 }}
+                  dot={(props: { cx?: number; cy?: number; index?: number; payload?: ChartPricePoint }) =>
+                    props.payload?.carried ? (
+                      <g key={props.index} />
+                    ) : (
+                      <circle key={props.index} cx={props.cx} cy={props.cy} r={2} fill={muiTheme.palette.primary.main} />
+                    )
+                  }
                   activeDot={{ r: 4 }}
                   connectNulls
                   isAnimationActive={false}

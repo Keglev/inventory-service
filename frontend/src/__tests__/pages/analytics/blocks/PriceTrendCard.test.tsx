@@ -4,7 +4,10 @@
  * @description Supplier-aware item typeahead + price trend chart (A3).
  *
  * Contract under test:
- * - Chart fetch is gated on an explicit item selection (skeleton before).
+ * - Chart fetch is gated on an explicit item selection; before it the card
+ *   prompts for an item instead of showing a loading skeleton.
+ * - The price line is drawn as steps (stepAfter): a price holds until it changes,
+ *   so the last price is carried to the range end, without a dot on that day.
  * - Client-side option enrichment: supplier filter, text narrowing, and
  *   union of the selected item back into transiently missing options.
  * - Helper text: no-items message when a typed search finds nothing,
@@ -37,6 +40,8 @@ let lastYTickFormatter: ((v: string | number) => string) | null = null;
 let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
 let lastPickerProps: Record<string, unknown> | null = null;
+let lastLineType: string | null = null;
+let lastDot: ((props: { payload?: { carried?: boolean } }) => { type: unknown }) | null = null;
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -91,7 +96,11 @@ vi.mock('recharts', () => ({
     lastTooltipLabelFormatter = labelFormatter ?? null;
     return <div data-testid="tooltip" />;
   },
-  Line: () => <div data-testid="line" />,
+  Line: ({ type, dot }: { type?: string; dot?: unknown }) => {
+    lastLineType = type ?? null;
+    lastDot = typeof dot === 'function' ? (dot as typeof lastDot) : null;
+    return <div data-testid="line" />;
+  },
 }));
 
 const getPriceTrendMock = vi.mocked(getPriceTrend);
@@ -141,11 +150,13 @@ describe('PriceTrendCard', () => {
     lastPickerProps = null;
   });
 
-  it('shows a skeleton and never fetches the trend before an item is selected', () => {
+  it('prompts for an item and never fetches the trend before one is selected', () => {
     useItemSearchOptionsMock.mockReturnValue(searchState());
 
-    setup({ supplierId: 'sup-1' });
+    const { container } = setup({ supplierId: 'sup-1' });
 
+    expect(screen.getByText('analytics:priceTrend.selectItem')).toBeInTheDocument();
+    expect(container.querySelector('.MuiSkeleton-root')).not.toBeInTheDocument();
     expect(getPriceTrendMock).not.toHaveBeenCalled();
     expect(screen.queryByTestId('line-chart')).not.toBeInTheDocument();
   });
@@ -269,7 +280,8 @@ describe('PriceTrendCard', () => {
       to: '2026-06-30',
       supplierId: 'sup-1',
     });
-    expect(lastChartData?.map((p) => p.date)).toEqual(['2026-05-01', '2026-06-01']);
+    // Sorted ascending; the last price is carried to the range end (2026-06-30).
+    expect(lastChartData?.map((p) => p.date)).toEqual(['2026-05-01', '2026-06-01', '2026-06-30']);
     // DE format with two decimals; non-numeric tooltip values pass through.
     expect(lastYTickFormatter?.(1234.5)).toBe('1.234,50');
     expect(lastTooltipFormatter?.(2.5)).toBe('2,50 €');
@@ -277,6 +289,41 @@ describe('PriceTrendCard', () => {
     // Date labels format parseable dates and fall back to the raw string.
     expect(lastXTickFormatter?.('2026-05-01')).toBe('01.05.2026');
     expect(lastTooltipLabelFormatter?.('not-a-date')).toBe('not-a-date');
+  });
+
+  it('draws the price as steps between changes', async () => {
+    getPriceTrendMock.mockResolvedValue([{ date: '2026-05-01', price: 2.5 }] as PricePoint[]);
+    useItemSearchOptionsMock.mockReturnValue(searchState({ selectedItem: options[0] }));
+
+    setup({ supplierId: 'sup-1' });
+
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(lastLineType).toBe('stepAfter');
+  });
+
+  it('carries the last price to the range end without a dot', async () => {
+    getPriceTrendMock.mockResolvedValue([
+      { date: '2026-05-01', price: 2.5 },
+      { date: '2026-06-01', price: 3 },
+    ] as PricePoint[]);
+    useItemSearchOptionsMock.mockReturnValue(searchState({ selectedItem: options[0] }));
+
+    setup({ supplierId: 'sup-1', from: '2026-05-01', to: '2026-06-30' });
+
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(lastChartData?.at(-1)).toEqual({ date: '2026-06-30', price: 3, carried: true });
+    expect(lastDot?.({ payload: { carried: true } }).type).toBe('g');
+    expect(lastDot?.({ payload: {} }).type).toBe('circle');
+  });
+
+  it('adds no carried point when the last change falls on the range end', async () => {
+    getPriceTrendMock.mockResolvedValue([{ date: '2026-06-30', price: 3 }] as PricePoint[]);
+    useItemSearchOptionsMock.mockReturnValue(searchState({ selectedItem: options[0] }));
+
+    setup({ supplierId: 'sup-1', from: '2026-05-01', to: '2026-06-30' });
+
+    await waitFor(() => expect(screen.getByTestId('line-chart')).toBeInTheDocument());
+    expect(lastChartData).toEqual([{ date: '2026-06-30', price: 3 }]);
   });
 
   it('sorts undefined dates first and omits the supplier param without one', async () => {

@@ -111,10 +111,16 @@ vi.mock('recharts', () => ({
     lastTooltipFormatter = formatter ?? null;
     return <div data-testid="tooltip" />;
   }),
-  Legend: vi.fn(() => <div data-testid="legend" />),
+  Legend: vi.fn(({ itemSorter }: { itemSorter?: (item: { dataKey?: unknown }) => number }) => {
+    lastLegendSorter = itemSorter ?? null;
+    return <div data-testid="legend" />;
+  }),
   Bar: vi.fn(({ dataKey }: { dataKey: string }) => <div data-testid={`bar-${dataKey}`} />),
 }));
 
+let lastLegendSorter: ((item: { dataKey?: unknown }) => number) | null = null;
+const legendOrderOf = (keys: string[]) =>
+  [...keys].sort((a, b) => (lastLegendSorter?.({ dataKey: a }) ?? 0) - (lastLegendSorter?.({ dataKey: b }) ?? 0));
 let lastYTickFormatter: ((v: string | number) => string) | null = null;
 let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 
@@ -183,6 +189,12 @@ describe('MonthlyMovementMini', () => {
 
     expect(screen.getByTestId('bar-stockIn')).toBeInTheDocument();
     expect(screen.getByTestId('bar-stockOut')).toBeInTheDocument();
+  });
+
+  it('orders the legend stock in before stock out', async () => {
+    renderMonthlyMovementMini(queryClient);
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+    expect(legendOrderOf(['stockOut', 'stockIn'])).toEqual(['stockIn', 'stockOut']);
   });
 
   it('tolerates an empty payload and formats axis/tooltip values', async () => {
