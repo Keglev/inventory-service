@@ -91,9 +91,7 @@
 <a name='L26'></a><a href='#L26'>26</a>
 <a name='L27'></a><a href='#L27'>27</a>
 <a name='L28'></a><a href='#L28'>28</a>
-<a name='L29'></a><a href='#L29'>29</a>
-<a name='L30'></a><a href='#L30'>30</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L29'></a><a href='#L29'>29</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -117,8 +115,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-yes">37x</span>
+<span class="cline-any cline-yes">37x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
@@ -126,25 +124,24 @@
  * @module utils/chartLegend
  *
  * @summary
- * Fixed legend order for Recharts charts, keyed by series dataKey.
+ * Fixed series order for Recharts legends and tooltips, keyed by series dataKey.
  *
  * @enterprise
  * Recharts 3 sorts legend items alphabetically by their label unless told
  * otherwise, so the order followed the language: German showed "Abgang, Zugang",
  * English "Stock in, Stock out". Sorting by dataKey keeps one order in every
  * language; null is no alternative, the library documents it as unstable
- * between renders.
+ * between renders. The tooltip has the same flaw (default itemSorter 'name',
+ * alphabetical), so it takes the same sorter and lists series in legend order.
  */
-import type { LegendPayload } from 'recharts';
-&nbsp;
 /**
- * Builds a Legend itemSorter that orders items as `keys` lists them.
+ * Builds an itemSorter for Legend and Tooltip that orders items as `keys` lists them.
  * Items whose dataKey is not listed (or not a string) go last.
  *
  * @param keys series dataKeys in display order
- * @returns a function for `&lt;Legend itemSorter={...} /&gt;`
+ * @returns a function for `&lt;Legend itemSorter={...} /&gt;` and `&lt;Tooltip itemSorter={...} /&gt;`
  */
-export function legendOrder(keys: readonly string[]): (item: LegendPayload) =&gt; number {
+export function legendOrder(keys: readonly string[]): (item: { dataKey?: unknown }) =&gt; number {
   return (item) =&gt; {
     const index = typeof item.dataKey === 'string' ? keys.indexOf(item.dataKey) : -1;
     return index === -1 ? keys.length : index;
