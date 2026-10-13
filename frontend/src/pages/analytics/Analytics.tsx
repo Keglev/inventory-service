@@ -104,7 +104,7 @@ export default function Analytics(): JSX.Element {
   // The window and supplier every date-aware card receives.
   const scope = { from: filters.from, to: filters.to, supplierId: filters.supplierId };
   return (
-    <Paper elevation={0} sx={{ ...pagePanelSx, p: { xs: 2, md: 3 }, pl: railGutter, bgcolor: 'background.paper', m: 0 }}>
+    <Paper elevation={0} sx={{ ...pagePanelSx, p: { xs: 2, md: 3 }, pl: railGutter, pr: railGutter, bgcolor: 'background.paper', m: 0 }}>
       <Stack 
         direction="row" 
         alignItems="center" 

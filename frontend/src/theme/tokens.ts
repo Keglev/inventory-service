@@ -70,3 +70,20 @@ export const lightCardOutline = 'rgba(0,0,0,0.12)';
  * background.default.
  */
 export const lightFooterSurface = '#E4E7EC';
+
+/**
+ * Categorical colours for series that stand for an entity with no meaning of its
+ * own (an employee). Status colours (success, error, warning) stay reserved for
+ * meaning. Four slots, because only four-colour sets from the dataviz reference
+ * palette pass the validator for ALL pairs (an entity's colour is keyed, so any
+ * two can meet): light on #FFFFFF, dark on the card surface #243040 (fork 7,
+ * Carlos 2026-10-13). Light mode takes the deeper yellow and pink steps, so every
+ * colour reaches 3:1 on white; a grey card would lower the contrast of all four.
+ * Green and yellow stay close for red-blind readers (CVD delta E 6.9), which the
+ * names in legend, tooltip and table cover. More people than slots means a
+ * larger validated palette, not a new card colour.
+ */
+export const seriesPalette = {
+  light: ['#2a78d6', '#c98500', '#d55181', '#008300'],
+  dark: ['#3987e5', '#c98500', '#d55181', '#008300'],
+} as const;

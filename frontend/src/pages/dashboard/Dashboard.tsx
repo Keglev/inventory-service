@@ -71,6 +71,7 @@ const Dashboard: React.FC = () => {
           flexDirection: 'column',
           px: { xs: 2, md: 3 },
           pl: railGutter,
+          pr: railGutter,
           pt: { xs: 1.5, md: 2 },
           pb: { xs: 2, md: 3 },
         }}

@@ -102,7 +102,7 @@ const InventoryBoard: React.FC = () => {
         direction="row"
         alignItems="center"
         justifyContent="space-between"
-        sx={{ px: { xs: 2, md: 3 }, pl: railGutter, pt: { xs: 2, md: 3 }, pb: 2 }}
+        sx={{ px: { xs: 2, md: 3 }, pl: railGutter, pr: railGutter, pt: { xs: 2, md: 3 }, pb: 2 }}
       >
         <Stack direction="row" alignItems="center" spacing={1}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
@@ -125,7 +125,7 @@ const InventoryBoard: React.FC = () => {
       </Stack>
 
       {/* Filter Panel */}
-      <Paper variant="outlined" sx={{ p: 1.5, mb: 2, mx: { xs: 2, md: 3 }, ml: railGutter }}>
+      <Paper variant="outlined" sx={{ p: 1.5, mb: 2, mx: { xs: 2, md: 3 }, ml: railGutter, mr: railGutter }}>
         <InventoryFilterPanel
           q={state.q}
           setQ={handleSearchChange}
@@ -146,6 +146,7 @@ const InventoryBoard: React.FC = () => {
           position: 'relative',
           mx: { xs: 2, md: 3 },
           ml: railGutter,
+          mr: railGutter,
           mb: { xs: 2, md: 3 },
           p: state.supplierId ? 0 : 2,
           minHeight: 420,

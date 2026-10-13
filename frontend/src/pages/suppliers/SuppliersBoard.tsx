@@ -121,7 +121,7 @@ const SuppliersBoard: React.FC = () => {
       />
 
       {/* Search Panel */}
-      <Box sx={{ px: 2, pl: railGutter }}>
+      <Box sx={{ px: 2, pl: railGutter, pr: railGutter }}>
         <SuppliersSearchPanel
           searchQuery={state.searchQuery}
           onSearchChange={handleSearchChange}
@@ -134,7 +134,7 @@ const SuppliersBoard: React.FC = () => {
       </Box>
 
       {/* Filter Panel */}
-      <Box sx={{ px: 2, pl: railGutter }}>
+      <Box sx={{ px: 2, pl: railGutter, pr: railGutter }}>
         <SuppliersFilterPanel
           showAllSuppliers={state.showAllSuppliers}
           onToggleChange={handleToggleShowAll}
@@ -152,13 +152,14 @@ const SuppliersBoard: React.FC = () => {
             placeItems: 'center',
             mx: 2,
             ml: railGutter,
+            mr: railGutter,
             mb: 2,
           }}
         >
           {/* Empty state */}
         </Paper>
       ) : (
-        <Box sx={{ px: 2, pl: railGutter, mb: 2, flex: 1, minHeight: 0 }}>
+        <Box sx={{ px: 2, pl: railGutter, pr: railGutter, mb: 2, flex: 1, minHeight: 0 }}>
           <SuppliersTable
             rows={displayRows}
             paginationModel={state.paginationModel}

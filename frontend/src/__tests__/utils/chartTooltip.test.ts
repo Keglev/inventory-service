@@ -13,6 +13,7 @@ describe('utils/chartTooltip.chartTooltipProps', () => {
         background: { paper: '#111' },
         divider: '#333',
         text: { primary: '#eee' },
+        action: { selected: 'rgba(255, 255, 255, 0.16)' },
       },
     } as unknown as Parameters<typeof chartTooltipProps>[0];
 
@@ -21,5 +22,18 @@ describe('utils/chartTooltip.chartTooltipProps', () => {
     expect(props.contentStyle.backgroundColor).toBe('#111');
     expect(props.contentStyle.border).toContain('#333');
     expect(props.labelStyle.color).toBe('#eee');
+  });
+
+  it('tints the hover band behind a bar with the theme selection colour', () => {
+    const theme = {
+      palette: {
+        background: { paper: '#111' },
+        divider: '#333',
+        text: { primary: '#eee' },
+        action: { selected: 'rgba(255, 255, 255, 0.16)' },
+      },
+    } as unknown as Parameters<typeof chartTooltipProps>[0];
+
+    expect(chartTooltipProps(theme).cursor).toEqual({ fill: 'rgba(255, 255, 255, 0.16)' });
   });
 });

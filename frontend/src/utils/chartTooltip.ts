@@ -24,5 +24,8 @@ export function chartTooltipProps(theme: Theme) {
       borderRadius: 8,
     },
     labelStyle: { color: theme.palette.text.primary },
+    // The band behind a hovered bar. Recharts paints it #ccc, which glares on a
+    // dark card; the theme's selection tint is subtle in both modes.
+    cursor: { fill: theme.palette.action.selected },
   } as const;
 }

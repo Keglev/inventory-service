@@ -41,6 +41,7 @@ vi.mock('@mui/material/styles', async () => {
         background: { paper: '#111111' },
         divider: '#333333',
         text: { primary: '#eeeeee' },
+        action: { selected: 'rgba(255, 255, 255, 0.16)' },
       },
     }),
   };
