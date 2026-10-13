@@ -1,6 +1,6 @@
 /**
  * @file EditItemForm.test.tsx
- * @module __tests__/pages/inventory/EditItemDialog/EditItemForm
+ * @module __tests__/pages/inventory/dialogs/EditItemDialog/EditItemForm
  * @description Three-step rename form rendering (supplier select, item
  * autocomplete, new-name input) with progressive disclosure.
  *

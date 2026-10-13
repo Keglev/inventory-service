@@ -1,6 +1,6 @@
 /**
  * @file inventoryValidation.test.ts
- * @module __tests__/pages/inventory/inventoryValidation
+ * @module __tests__/pages/inventory/validation/inventoryValidation
  * @description Contract tests for inventory validation schemas (Zod):
  * - itemFormSchema
  * - quantityAdjustSchema
@@ -21,7 +21,7 @@ import {
   editItemSchema,
   deleteItemSchema,
 } from '@/pages/inventory/validation/inventoryValidation';
-import { expectInvalidMessage, expectValid } from '@/__tests__/pages/inventory/validationTestUtils';
+import { expectInvalidMessage, expectValid } from '@/__tests__/pages/inventory/validation/validationTestUtils';
 
 describe('inventoryValidation', () => {
   describe('itemFormSchema', () => {

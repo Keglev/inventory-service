@@ -1,6 +1,6 @@
 /**
  * @file DeleteFormFields.test.tsx
- * @module __tests__/pages/inventory/DeleteItemDialog/DeleteFormFields
+ * @module __tests__/pages/inventory/dialogs/DeleteItemDialog/DeleteFormFields
  * @description The three step-field components of the delete flow:
  * SupplierSelectField, ItemSelectField, and ItemInfoDisplay.
  *

@@ -1,6 +1,6 @@
 /**
  * @file QuantityAdjustSupplierSelect.test.tsx
- * @module __tests__/pages/inventory/QuantityAdjustDialog/QuantityAdjustSupplierSelect
+ * @module __tests__/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustSupplierSelect
  * @description Contract tests for QuantityAdjustSupplierSelect:
  * - Renders the supplier step UI.
  * - Emits the selected supplier via callback.
@@ -12,7 +12,7 @@
  */
 
 // Shared deterministic mocks (i18n + toast) for this folder.
-import './testSetup';
+import '@/__tests__/pages/inventory/dialogs/QuantityAdjustDialog/testSetup';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';

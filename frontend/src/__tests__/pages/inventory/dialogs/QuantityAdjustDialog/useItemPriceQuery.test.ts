@@ -1,6 +1,6 @@
 /**
  * @file useItemPriceQuery.test.ts
- * @module __tests__/pages/inventory/QuantityAdjustDialog/useItemPriceQuery
+ * @module __tests__/pages/inventory/dialogs/QuantityAdjustDialog/useItemPriceQuery
  * @description Contract tests for useItemPriceQuery:
  * - Returns the latest price from trend data when available.
  * - Falls back to the item's current price when trend is empty.
@@ -13,7 +13,7 @@
  */
 
 // Shared deterministic mocks (i18n + toast) for this folder.
-import './testSetup';
+import '@/__tests__/pages/inventory/dialogs/QuantityAdjustDialog/testSetup';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';

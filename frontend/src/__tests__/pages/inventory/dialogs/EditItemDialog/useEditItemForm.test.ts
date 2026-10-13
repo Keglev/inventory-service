@@ -1,6 +1,6 @@
 /**
  * @file useEditItemForm.test.ts
- * @module __tests__/pages/inventory/EditItemDialog/useEditItemForm
+ * @module __tests__/pages/inventory/dialogs/EditItemDialog/useEditItemForm
  * @description Contract tests for useEditItemForm hook - state and query orchestration.
  *
  * Contract under test:

@@ -1,6 +1,6 @@
 /**
  * @file QuantityAdjustItemSelect.test.tsx
- * @module __tests__/pages/inventory/QuantityAdjustDialog/QuantityAdjustItemSelect
+ * @module __tests__/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemSelect
  * @description Contract tests for QuantityAdjustItemSelect:
  * - Disabled until a supplier is selected.
  * - Calls onSearchChange as the user types.
@@ -13,7 +13,7 @@
  */
 
 // Shared deterministic mocks (i18n + toast) for this folder.
-import './testSetup';
+import '@/__tests__/pages/inventory/dialogs/QuantityAdjustDialog/testSetup';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';

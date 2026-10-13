@@ -1,6 +1,6 @@
 /**
  * @file useDeleteItemHandlers.test.ts
- * @module __tests__/pages/inventory/DeleteItemDialog/useDeleteItemHandlers
+ * @module __tests__/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers
  * @description Unit tests for useDeleteItemHandlers (delete dialog workflow handlers).
  *
  * Contract under test:

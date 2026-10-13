@@ -1,6 +1,6 @@
 /**
  * @file InventoryToolbar.test.tsx
- * @module __tests__/pages/InventoryToolbar
+ * @module __tests__/pages/inventory/components/InventoryToolbar
  * @description Contract tests for the `InventoryToolbar` presentation component.
  *
  * Contract under test:

@@ -1,6 +1,6 @@
 /**
  * @file StepSection.test.tsx
- * @module __tests__/pages/inventory/DeleteItemDialog/StepSection
+ * @module __tests__/pages/inventory/dialogs/DeleteItemDialog/StepSection
  * @description Contract tests for StepSection.
  */
 

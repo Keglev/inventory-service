@@ -1,6 +1,6 @@
 /**
  * @file QuantityAdjustQuantityInput.test.tsx
- * @module __tests__/pages/inventory/QuantityAdjustDialog/QuantityAdjustQuantityInput
+ * @module __tests__/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput
  * @description Contract tests for QuantityAdjustQuantityInput:
  * - Renders quantity + reason fields.
  * - Shows a user-facing hint describing the change.
@@ -13,7 +13,7 @@
  */
 
 // Shared deterministic mocks (i18n + toast) for this folder.
-import './testSetup';
+import '@/__tests__/pages/inventory/dialogs/QuantityAdjustDialog/testSetup';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';

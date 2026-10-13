@@ -1,6 +1,6 @@
 /**
  * @file ItemForm.test.tsx
- * @module __tests__/pages/inventory/ItemFormDialog/ItemForm
+ * @module __tests__/pages/inventory/dialogs/ItemFormDialog/ItemForm
  * @description Contract tests for ItemForm:
  * - Renders all expected fields, and no Reason field
  * - Shows generic form error banner when present

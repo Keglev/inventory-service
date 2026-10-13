@@ -1,6 +1,6 @@
 /**
  * @file useDataFetchingLogic.test.ts
- * @module __tests__/pages/inventory/useDataFetchingLogic
+ * @module __tests__/pages/inventory/handlers/useDataFetchingLogic
  * @description Adapter between InventoryBoard state and useInventoryPageData.
  *
  * Contract under test:
