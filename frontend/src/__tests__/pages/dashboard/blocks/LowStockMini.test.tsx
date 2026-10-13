@@ -1,6 +1,6 @@
 /**
  * @file LowStockMini.test.tsx
- * @module __tests__/pages/dashboard/LowStockMini
+ * @module __tests__/pages/dashboard/blocks/LowStockMini
  * @description
  * Enterprise tests for LowStockMini:
  * - Loading state (skeleton)
