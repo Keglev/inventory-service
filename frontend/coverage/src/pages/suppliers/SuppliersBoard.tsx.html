@@ -240,17 +240,8 @@
 <a name='L175'></a><a href='#L175'>175</a>
 <a name='L176'></a><a href='#L176'>176</a>
 <a name='L177'></a><a href='#L177'>177</a>
-<a name='L178'></a><a href='#L178'>178</a>
-<a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a>
-<a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a>
-<a name='L184'></a><a href='#L184'>184</a>
-<a name='L185'></a><a href='#L185'>185</a>
-<a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a>
-<a name='L188'></a><a href='#L188'>188</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L178'></a><a href='#L178'>178</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -426,17 +417,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file SuppliersBoard.tsx
  * @module pages/suppliers/SuppliersBoard
@@ -471,7 +451,8 @@ import { SuppliersSearchPanel } from './components/SuppliersSearchPanel';
 import { SuppliersFilterPanel } from './components/SuppliersFilterPanel';
 import { SuppliersTable } from './components/SuppliersTable';
 import { SuppliersDialogs } from './components/SuppliersDialogs';
-import { pagePanelSx, railGutter } from '../../theme/pagePanel';
+import { railGutter } from '../../theme/pagePanel';
+import { PagePanel } from '../../components/ui/PagePanel';
 &nbsp;
 /**
  * Suppliers Management Board - main page orchestrator.
@@ -534,92 +515,81 @@ const SuppliersBoard: React.FC = () =&gt; {
   // Render
   // =====================
   return (
-    &lt;Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, gap: 2 }}&gt;
-      &lt;Paper
-        elevation={0}
-        sx={{
-          ...pagePanelSx,
-          p: 0,
-          bgcolor: 'background.paper',
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      &gt;
-        {/* Header with Toolbar */}
-        &lt;SuppliersToolbar
-          onCreateClick={handleAddNew}
-          editEnabled={state.selectedId !== null || Boolean(user?.isDemo) || user?.role === 'ADMIN'}
-          onEditClick={handleEdit}
-          deleteEnabled={state.selectedId !== null || Boolean(user?.isDemo) || user?.role === 'ADMIN'}
-          onDeleteClick={handleDelete}
+    &lt;PagePanel
+      overlays={
+        &lt;SuppliersDialogs
+          openCreate={state.openCreate}
+          onCloseCreate={handleCloseCreate}
+          onCreated={handleSupplierCreated}
+          openEdit={state.openEdit}
+          onCloseEdit={handleCloseEdit}
+          onUpdated={handleSupplierUpdated}
+          openDelete={state.openDelete}
+          onCloseDelete={handleCloseDelete}
+          onDeleted={handleSupplierDeleted}
         /&gt;
-&nbsp;
-        {/* Search Panel */}
-        &lt;Box sx={{ px: 2, pl: railGutter }}&gt;
-          &lt;SuppliersSearchPanel
-            searchQuery={state.searchQuery}
-            onSearchChange={handleSearchChange}
-            isLoading={data.isLoadingSearch}
-            searchResults={data.searchResults}
-            onResultSelect={handleSearchResultSelect}
-            selectedSupplier={state.selectedSearchResult as SupplierRow | null}
-            onClearSelection={handleClearSearchSelection}
-          /&gt;
-        &lt;/Box&gt;
-&nbsp;
-        {/* Filter Panel */}
-        &lt;Box sx={{ px: 2, pl: railGutter }}&gt;
-          &lt;SuppliersFilterPanel
-            showAllSuppliers={state.showAllSuppliers}
-            onToggleChange={handleToggleShowAll}
-          /&gt;
-        &lt;/Box&gt;
-&nbsp;
-        {/* Suppliers Table */}
-        {!state.showAllSuppliers &amp;&amp; !selectedResult ? (
-          &lt;Paper
-            variant="outlined"
-            sx={{
-              p: 2,
-              height: 260,
-              display: 'grid',
-              placeItems: 'center',
-              mx: 2,
-              ml: railGutter,
-              mb: 2,
-            }}
-          &gt;
-            {/* Empty state */}
-          &lt;/Paper&gt;
-        ) : (
-          &lt;Box sx={{ px: 2, pl: railGutter, mb: 2, flex: 1, minHeight: 0 }}&gt;
-            &lt;SuppliersTable
-              rows={displayRows}
-              paginationModel={state.paginationModel}
-              onPaginationChange={state.setPaginationModel}
-              sortModel={state.sortModel}
-              onSortChange={state.setSortModel}
-              isLoading={data.isLoadingSuppliers}
-              onRowClick={state.setSelectedId}
-            /&gt;
-          &lt;/Box&gt;
-        )}
-      &lt;/Paper&gt;
-&nbsp;
-      {/* Dialogs */}
-      &lt;SuppliersDialogs
-        openCreate={state.openCreate}
-        onCloseCreate={handleCloseCreate}
-        onCreated={handleSupplierCreated}
-        openEdit={state.openEdit}
-        onCloseEdit={handleCloseEdit}
-        onUpdated={handleSupplierUpdated}
-        openDelete={state.openDelete}
-        onCloseDelete={handleCloseDelete}
-        onDeleted={handleSupplierDeleted}
+      }
+    &gt;
+      {/* Header with Toolbar */}
+      &lt;SuppliersToolbar
+        onCreateClick={handleAddNew}
+        editEnabled={state.selectedId !== null || Boolean(user?.isDemo) || user?.role === 'ADMIN'}
+        onEditClick={handleEdit}
+        deleteEnabled={state.selectedId !== null || Boolean(user?.isDemo) || user?.role === 'ADMIN'}
+        onDeleteClick={handleDelete}
       /&gt;
-    &lt;/Box&gt;
+&nbsp;
+      {/* Search Panel */}
+      &lt;Box sx={{ px: 2, pl: railGutter }}&gt;
+        &lt;SuppliersSearchPanel
+          searchQuery={state.searchQuery}
+          onSearchChange={handleSearchChange}
+          isLoading={data.isLoadingSearch}
+          searchResults={data.searchResults}
+          onResultSelect={handleSearchResultSelect}
+          selectedSupplier={state.selectedSearchResult as SupplierRow | null}
+          onClearSelection={handleClearSearchSelection}
+        /&gt;
+      &lt;/Box&gt;
+&nbsp;
+      {/* Filter Panel */}
+      &lt;Box sx={{ px: 2, pl: railGutter }}&gt;
+        &lt;SuppliersFilterPanel
+          showAllSuppliers={state.showAllSuppliers}
+          onToggleChange={handleToggleShowAll}
+        /&gt;
+      &lt;/Box&gt;
+&nbsp;
+      {/* Suppliers Table */}
+      {!state.showAllSuppliers &amp;&amp; !selectedResult ? (
+        &lt;Paper
+          variant="outlined"
+          sx={{
+            p: 2,
+            height: 260,
+            display: 'grid',
+            placeItems: 'center',
+            mx: 2,
+            ml: railGutter,
+            mb: 2,
+          }}
+        &gt;
+          {/* Empty state */}
+        &lt;/Paper&gt;
+      ) : (
+        &lt;Box sx={{ px: 2, pl: railGutter, mb: 2, flex: 1, minHeight: 0 }}&gt;
+          &lt;SuppliersTable
+            rows={displayRows}
+            paginationModel={state.paginationModel}
+            onPaginationChange={state.setPaginationModel}
+            sortModel={state.sortModel}
+            onSortChange={state.setSortModel}
+            isLoading={data.isLoadingSuppliers}
+            onRowClick={state.setSelectedId}
+          /&gt;
+        &lt;/Box&gt;
+      )}
+    &lt;/PagePanel&gt;
   );
 };
 &nbsp;

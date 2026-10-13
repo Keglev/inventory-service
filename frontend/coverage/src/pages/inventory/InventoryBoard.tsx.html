@@ -245,17 +245,8 @@
 <a name='L180'></a><a href='#L180'>180</a>
 <a name='L181'></a><a href='#L181'>181</a>
 <a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a>
-<a name='L184'></a><a href='#L184'>184</a>
-<a name='L185'></a><a href='#L185'>185</a>
-<a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a>
-<a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a>
-<a name='L190'></a><a href='#L190'>190</a>
-<a name='L191'></a><a href='#L191'>191</a>
-<a name='L192'></a><a href='#L192'>192</a>
-<a name='L193'></a><a href='#L193'>193</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L183'></a><a href='#L183'>183</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -436,17 +427,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file InventoryBoard.tsx
  * @module pages/inventory/InventoryBoard
@@ -494,7 +474,8 @@ import { useToolbarHandlers } from './handlers/useToolbarHandlers';
 import { useFilterHandlers } from './handlers/useFilterHandlers';
 import { useRefreshHandler } from './handlers/useRefreshHandler';
 import { useDataFetchingLogic } from './handlers/useDataFetchingLogic';
-import { pagePanelSx, railGutter } from '../../theme/pagePanel';
+import { railGutter } from '../../theme/pagePanel';
+import { PagePanel } from '../../components/ui/PagePanel';
 &nbsp;
 const InventoryBoard: React.FC = () =&gt; {
   const { t } = useTranslation(['common', 'auth', 'analytics', 'inventory']);
@@ -527,114 +508,103 @@ const InventoryBoard: React.FC = () =&gt; {
   // Render
   // =====================
   return (
-    &lt;Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, gap: 2 }}&gt;
+    &lt;PagePanel
+      overlays={
+        &lt;InventoryDialogs
+          openNew={state.openNew}
+          setOpenNew={state.setOpenNew}
+          openEditName={state.openEditName}
+          setOpenEditName={state.setOpenEditName}
+          openDelete={state.openDelete}
+          setOpenDelete={state.setOpenDelete}
+          openAdjust={state.openAdjust}
+          setOpenAdjust={state.setOpenAdjust}
+          openPrice={state.openPrice}
+          setOpenPrice={state.setOpenPrice}
+          onReload={handleReload}
+          isDemo={isDemo}
+        /&gt;
+      }
+    &gt;
+      {/* Header */}
+      &lt;Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ px: { xs: 2, md: 3 }, pl: railGutter, pt: { xs: 2, md: 3 }, pb: 2 }}
+      &gt;
+        &lt;Stack direction="row" alignItems="center" spacing={1}&gt;
+          &lt;Typography variant="h5" sx={{ fontWeight: 600 }}&gt;
+            {t('inventory:page.title')}
+          &lt;/Typography&gt;
+          &lt;HelpIconButton
+            topicId="inventory.overview"
+            tooltip={t('actions.help')}
+          /&gt;
+        &lt;/Stack&gt;
+&nbsp;
+        {/* Toolbar */}
+        &lt;InventoryToolbar
+          onAddNew={handleAddNew}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onAdjustQty={handleAdjustQty}
+          onChangePrice={handleChangePrice}
+        /&gt;
+      &lt;/Stack&gt;
+&nbsp;
+      {/* Filter Panel */}
+      &lt;Paper variant="outlined" sx={{ p: 1.5, mb: 2, mx: { xs: 2, md: 3 }, ml: railGutter }}&gt;
+        &lt;InventoryFilterPanel
+          q={state.q}
+          setQ={handleSearchChange}
+          supplierId={state.supplierId}
+          setSupplierId={handleSupplierChange}
+          belowMinOnly={state.belowMinOnly}
+          setBelowMinOnly={handleBelowMinChange}
+          suppliers={data.suppliers}
+          supplierLoading={data.supplierLoading}
+        /&gt;
+      &lt;/Paper&gt;
+&nbsp;
+      {/* Table Container */}
       &lt;Paper
-        elevation={0}
+        variant="outlined"
         sx={{
-          ...pagePanelSx,
-          p: 0,
-          bgcolor: 'background.paper',
           flex: 1,
+          position: 'relative',
+          mx: { xs: 2, md: 3 },
+          ml: railGutter,
+          mb: { xs: 2, md: 3 },
+          p: state.supplierId ? 0 : 2,
+          minHeight: 420,
           display: 'flex',
           flexDirection: 'column',
         }}
       &gt;
-        {/* Header */}
-        &lt;Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ px: { xs: 2, md: 3 }, pl: railGutter, pt: { xs: 2, md: 3 }, pb: 2 }}
-        &gt;
-          &lt;Stack direction="row" alignItems="center" spacing={1}&gt;
-            &lt;Typography variant="h5" sx={{ fontWeight: 600 }}&gt;
-              {t('inventory:page.title')}
+        {!state.supplierId ? (
+          &lt;Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}&gt;
+            &lt;Typography variant="body1" color="text.secondary"&gt;
+              {t('inventory:search.selectSupplierPrompt')}
             &lt;/Typography&gt;
-            &lt;HelpIconButton
-              topicId="inventory.overview"
-              tooltip={t('actions.help')}
-            /&gt;
-          &lt;/Stack&gt;
-&nbsp;
-          {/* Toolbar */}
-          &lt;InventoryToolbar
-            onAddNew={handleAddNew}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onAdjustQty={handleAdjustQty}
-            onChangePrice={handleChangePrice}
+          &lt;/Box&gt;
+        ) : (
+          &lt;InventoryTable
+            rows={data.items}
+            columns={data.columns}
+            paginationModel={state.paginationModel}
+            onPaginationChange={state.setPaginationModel}
+            sortModel={state.sortModel}
+            onSortChange={state.setSortModel}
+            selectedId={state.selectedId}
+            onRowClick={state.setSelectedId}
+            getRowClassName={data.getRowClassName}
+            loading={data.loading}
+            rowCount={data.server.total}
           /&gt;
-        &lt;/Stack&gt;
-&nbsp;
-        {/* Filter Panel */}
-        &lt;Paper variant="outlined" sx={{ p: 1.5, mb: 2, mx: { xs: 2, md: 3 }, ml: railGutter }}&gt;
-          &lt;InventoryFilterPanel
-            q={state.q}
-            setQ={handleSearchChange}
-            supplierId={state.supplierId}
-            setSupplierId={handleSupplierChange}
-            belowMinOnly={state.belowMinOnly}
-            setBelowMinOnly={handleBelowMinChange}
-            suppliers={data.suppliers}
-            supplierLoading={data.supplierLoading}
-          /&gt;
-        &lt;/Paper&gt;
-&nbsp;
-        {/* Table Container */}
-        &lt;Paper
-          variant="outlined"
-          sx={{
-            flex: 1,
-            position: 'relative',
-            mx: { xs: 2, md: 3 },
-            ml: railGutter,
-            mb: { xs: 2, md: 3 },
-            p: state.supplierId ? 0 : 2,
-            minHeight: 420,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        &gt;
-          {!state.supplierId ? (
-            &lt;Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}&gt;
-              &lt;Typography variant="body1" color="text.secondary"&gt;
-                {t('inventory:search.selectSupplierPrompt')}
-              &lt;/Typography&gt;
-            &lt;/Box&gt;
-          ) : (
-            &lt;InventoryTable
-              rows={data.items}
-              columns={data.columns}
-              paginationModel={state.paginationModel}
-              onPaginationChange={state.setPaginationModel}
-              sortModel={state.sortModel}
-              onSortChange={state.setSortModel}
-              selectedId={state.selectedId}
-              onRowClick={state.setSelectedId}
-              getRowClassName={data.getRowClassName}
-              loading={data.loading}
-              rowCount={data.server.total}
-            /&gt;
-          )}
-        &lt;/Paper&gt;
+        )}
       &lt;/Paper&gt;
-&nbsp;
-      {/* Dialogs */}
-      &lt;InventoryDialogs
-        openNew={state.openNew}
-        setOpenNew={state.setOpenNew}
-        openEditName={state.openEditName}
-        setOpenEditName={state.setOpenEditName}
-        openDelete={state.openDelete}
-        setOpenDelete={state.setOpenDelete}
-        openAdjust={state.openAdjust}
-        setOpenAdjust={state.setOpenAdjust}
-        openPrice={state.openPrice}
-        setOpenPrice={state.setOpenPrice}
-        onReload={handleReload}
-        isDemo={isDemo}
-      /&gt;
-    &lt;/Box&gt;
+    &lt;/PagePanel&gt;
   );
 };
 &nbsp;
