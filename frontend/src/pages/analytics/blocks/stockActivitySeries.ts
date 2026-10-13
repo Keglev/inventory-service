@@ -28,7 +28,7 @@ export type ActivityKey = 'returnIn' | 'initialStock' | 'adjustment' | 'sale' | 
  * Stack order, from zero outwards: Recharts stacks series in this order, and
  * neighbouring segments get colours that stay distinct in both themes.
  */
-export const ACTIVITY_STACK_ORDER: readonly ActivityKey[] = [
+const ACTIVITY_STACK_ORDER: readonly ActivityKey[] = [
   'returnIn', 'initialStock', 'adjustment', 'sale', 'returnOut', 'writeOff', 'other',
 ];
 
@@ -56,7 +56,7 @@ export type ActivityDay = { t: number } & Partial<Record<ActivityKey, number>>;
 export type ActivityBucket = 'day' | 'week';
 
 /** Ranges longer than this many days are grouped by week. */
-export const WEEKLY_AFTER_DAYS = 62;
+const WEEKLY_AFTER_DAYS = 62;
 
 const DAY_MS = 86_400_000;
 
