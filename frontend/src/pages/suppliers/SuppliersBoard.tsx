@@ -32,7 +32,8 @@ import { SuppliersSearchPanel } from './components/SuppliersSearchPanel';
 import { SuppliersFilterPanel } from './components/SuppliersFilterPanel';
 import { SuppliersTable } from './components/SuppliersTable';
 import { SuppliersDialogs } from './components/SuppliersDialogs';
-import { pagePanelSx, railGutter } from '../../theme/pagePanel';
+import { railGutter } from '../../theme/pagePanel';
+import { PagePanel } from '../../components/ui/PagePanel';
 
 /**
  * Suppliers Management Board - main page orchestrator.
@@ -95,92 +96,81 @@ const SuppliersBoard: React.FC = () => {
   // Render
   // =====================
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, gap: 2 }}>
-      <Paper
-        elevation={0}
-        sx={{
-          ...pagePanelSx,
-          p: 0,
-          bgcolor: 'background.paper',
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {/* Header with Toolbar */}
-        <SuppliersToolbar
-          onCreateClick={handleAddNew}
-          editEnabled={state.selectedId !== null || Boolean(user?.isDemo) || user?.role === 'ADMIN'}
-          onEditClick={handleEdit}
-          deleteEnabled={state.selectedId !== null || Boolean(user?.isDemo) || user?.role === 'ADMIN'}
-          onDeleteClick={handleDelete}
+    <PagePanel
+      overlays={
+        <SuppliersDialogs
+          openCreate={state.openCreate}
+          onCloseCreate={handleCloseCreate}
+          onCreated={handleSupplierCreated}
+          openEdit={state.openEdit}
+          onCloseEdit={handleCloseEdit}
+          onUpdated={handleSupplierUpdated}
+          openDelete={state.openDelete}
+          onCloseDelete={handleCloseDelete}
+          onDeleted={handleSupplierDeleted}
         />
-
-        {/* Search Panel */}
-        <Box sx={{ px: 2, pl: railGutter }}>
-          <SuppliersSearchPanel
-            searchQuery={state.searchQuery}
-            onSearchChange={handleSearchChange}
-            isLoading={data.isLoadingSearch}
-            searchResults={data.searchResults}
-            onResultSelect={handleSearchResultSelect}
-            selectedSupplier={state.selectedSearchResult as SupplierRow | null}
-            onClearSelection={handleClearSearchSelection}
-          />
-        </Box>
-
-        {/* Filter Panel */}
-        <Box sx={{ px: 2, pl: railGutter }}>
-          <SuppliersFilterPanel
-            showAllSuppliers={state.showAllSuppliers}
-            onToggleChange={handleToggleShowAll}
-          />
-        </Box>
-
-        {/* Suppliers Table */}
-        {!state.showAllSuppliers && !selectedResult ? (
-          <Paper
-            variant="outlined"
-            sx={{
-              p: 2,
-              height: 260,
-              display: 'grid',
-              placeItems: 'center',
-              mx: 2,
-              ml: railGutter,
-              mb: 2,
-            }}
-          >
-            {/* Empty state */}
-          </Paper>
-        ) : (
-          <Box sx={{ px: 2, pl: railGutter, mb: 2, flex: 1, minHeight: 0 }}>
-            <SuppliersTable
-              rows={displayRows}
-              paginationModel={state.paginationModel}
-              onPaginationChange={state.setPaginationModel}
-              sortModel={state.sortModel}
-              onSortChange={state.setSortModel}
-              isLoading={data.isLoadingSuppliers}
-              onRowClick={state.setSelectedId}
-            />
-          </Box>
-        )}
-      </Paper>
-
-      {/* Dialogs */}
-      <SuppliersDialogs
-        openCreate={state.openCreate}
-        onCloseCreate={handleCloseCreate}
-        onCreated={handleSupplierCreated}
-        openEdit={state.openEdit}
-        onCloseEdit={handleCloseEdit}
-        onUpdated={handleSupplierUpdated}
-        openDelete={state.openDelete}
-        onCloseDelete={handleCloseDelete}
-        onDeleted={handleSupplierDeleted}
+      }
+    >
+      {/* Header with Toolbar */}
+      <SuppliersToolbar
+        onCreateClick={handleAddNew}
+        editEnabled={state.selectedId !== null || Boolean(user?.isDemo) || user?.role === 'ADMIN'}
+        onEditClick={handleEdit}
+        deleteEnabled={state.selectedId !== null || Boolean(user?.isDemo) || user?.role === 'ADMIN'}
+        onDeleteClick={handleDelete}
       />
-    </Box>
+
+      {/* Search Panel */}
+      <Box sx={{ px: 2, pl: railGutter }}>
+        <SuppliersSearchPanel
+          searchQuery={state.searchQuery}
+          onSearchChange={handleSearchChange}
+          isLoading={data.isLoadingSearch}
+          searchResults={data.searchResults}
+          onResultSelect={handleSearchResultSelect}
+          selectedSupplier={state.selectedSearchResult as SupplierRow | null}
+          onClearSelection={handleClearSearchSelection}
+        />
+      </Box>
+
+      {/* Filter Panel */}
+      <Box sx={{ px: 2, pl: railGutter }}>
+        <SuppliersFilterPanel
+          showAllSuppliers={state.showAllSuppliers}
+          onToggleChange={handleToggleShowAll}
+        />
+      </Box>
+
+      {/* Suppliers Table */}
+      {!state.showAllSuppliers && !selectedResult ? (
+        <Paper
+          variant="outlined"
+          sx={{
+            p: 2,
+            height: 260,
+            display: 'grid',
+            placeItems: 'center',
+            mx: 2,
+            ml: railGutter,
+            mb: 2,
+          }}
+        >
+          {/* Empty state */}
+        </Paper>
+      ) : (
+        <Box sx={{ px: 2, pl: railGutter, mb: 2, flex: 1, minHeight: 0 }}>
+          <SuppliersTable
+            rows={displayRows}
+            paginationModel={state.paginationModel}
+            onPaginationChange={state.setPaginationModel}
+            sortModel={state.sortModel}
+            onSortChange={state.setSortModel}
+            isLoading={data.isLoadingSuppliers}
+            onRowClick={state.setSelectedId}
+          />
+        </Box>
+      )}
+    </PagePanel>
   );
 };
 

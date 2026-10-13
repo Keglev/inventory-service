@@ -45,7 +45,8 @@ import { useToolbarHandlers } from './handlers/useToolbarHandlers';
 import { useFilterHandlers } from './handlers/useFilterHandlers';
 import { useRefreshHandler } from './handlers/useRefreshHandler';
 import { useDataFetchingLogic } from './handlers/useDataFetchingLogic';
-import { pagePanelSx, railGutter } from '../../theme/pagePanel';
+import { railGutter } from '../../theme/pagePanel';
+import { PagePanel } from '../../components/ui/PagePanel';
 
 const InventoryBoard: React.FC = () => {
   const { t } = useTranslation(['common', 'auth', 'analytics', 'inventory']);
@@ -78,114 +79,103 @@ const InventoryBoard: React.FC = () => {
   // Render
   // =====================
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, gap: 2 }}>
+    <PagePanel
+      overlays={
+        <InventoryDialogs
+          openNew={state.openNew}
+          setOpenNew={state.setOpenNew}
+          openEditName={state.openEditName}
+          setOpenEditName={state.setOpenEditName}
+          openDelete={state.openDelete}
+          setOpenDelete={state.setOpenDelete}
+          openAdjust={state.openAdjust}
+          setOpenAdjust={state.setOpenAdjust}
+          openPrice={state.openPrice}
+          setOpenPrice={state.setOpenPrice}
+          onReload={handleReload}
+          isDemo={isDemo}
+        />
+      }
+    >
+      {/* Header */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ px: { xs: 2, md: 3 }, pl: railGutter, pt: { xs: 2, md: 3 }, pb: 2 }}
+      >
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Typography variant="h5" sx={{ fontWeight: 600 }}>
+            {t('inventory:page.title')}
+          </Typography>
+          <HelpIconButton
+            topicId="inventory.overview"
+            tooltip={t('actions.help')}
+          />
+        </Stack>
+
+        {/* Toolbar */}
+        <InventoryToolbar
+          onAddNew={handleAddNew}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onAdjustQty={handleAdjustQty}
+          onChangePrice={handleChangePrice}
+        />
+      </Stack>
+
+      {/* Filter Panel */}
+      <Paper variant="outlined" sx={{ p: 1.5, mb: 2, mx: { xs: 2, md: 3 }, ml: railGutter }}>
+        <InventoryFilterPanel
+          q={state.q}
+          setQ={handleSearchChange}
+          supplierId={state.supplierId}
+          setSupplierId={handleSupplierChange}
+          belowMinOnly={state.belowMinOnly}
+          setBelowMinOnly={handleBelowMinChange}
+          suppliers={data.suppliers}
+          supplierLoading={data.supplierLoading}
+        />
+      </Paper>
+
+      {/* Table Container */}
       <Paper
-        elevation={0}
+        variant="outlined"
         sx={{
-          ...pagePanelSx,
-          p: 0,
-          bgcolor: 'background.paper',
           flex: 1,
+          position: 'relative',
+          mx: { xs: 2, md: 3 },
+          ml: railGutter,
+          mb: { xs: 2, md: 3 },
+          p: state.supplierId ? 0 : 2,
+          minHeight: 420,
           display: 'flex',
           flexDirection: 'column',
         }}
       >
-        {/* Header */}
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ px: { xs: 2, md: 3 }, pl: railGutter, pt: { xs: 2, md: 3 }, pb: 2 }}
-        >
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography variant="h5" sx={{ fontWeight: 600 }}>
-              {t('inventory:page.title')}
+        {!state.supplierId ? (
+          <Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}>
+            <Typography variant="body1" color="text.secondary">
+              {t('inventory:search.selectSupplierPrompt')}
             </Typography>
-            <HelpIconButton
-              topicId="inventory.overview"
-              tooltip={t('actions.help')}
-            />
-          </Stack>
-
-          {/* Toolbar */}
-          <InventoryToolbar
-            onAddNew={handleAddNew}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onAdjustQty={handleAdjustQty}
-            onChangePrice={handleChangePrice}
+          </Box>
+        ) : (
+          <InventoryTable
+            rows={data.items}
+            columns={data.columns}
+            paginationModel={state.paginationModel}
+            onPaginationChange={state.setPaginationModel}
+            sortModel={state.sortModel}
+            onSortChange={state.setSortModel}
+            selectedId={state.selectedId}
+            onRowClick={state.setSelectedId}
+            getRowClassName={data.getRowClassName}
+            loading={data.loading}
+            rowCount={data.server.total}
           />
-        </Stack>
-
-        {/* Filter Panel */}
-        <Paper variant="outlined" sx={{ p: 1.5, mb: 2, mx: { xs: 2, md: 3 }, ml: railGutter }}>
-          <InventoryFilterPanel
-            q={state.q}
-            setQ={handleSearchChange}
-            supplierId={state.supplierId}
-            setSupplierId={handleSupplierChange}
-            belowMinOnly={state.belowMinOnly}
-            setBelowMinOnly={handleBelowMinChange}
-            suppliers={data.suppliers}
-            supplierLoading={data.supplierLoading}
-          />
-        </Paper>
-
-        {/* Table Container */}
-        <Paper
-          variant="outlined"
-          sx={{
-            flex: 1,
-            position: 'relative',
-            mx: { xs: 2, md: 3 },
-            ml: railGutter,
-            mb: { xs: 2, md: 3 },
-            p: state.supplierId ? 0 : 2,
-            minHeight: 420,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {!state.supplierId ? (
-            <Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}>
-              <Typography variant="body1" color="text.secondary">
-                {t('inventory:search.selectSupplierPrompt')}
-              </Typography>
-            </Box>
-          ) : (
-            <InventoryTable
-              rows={data.items}
-              columns={data.columns}
-              paginationModel={state.paginationModel}
-              onPaginationChange={state.setPaginationModel}
-              sortModel={state.sortModel}
-              onSortChange={state.setSortModel}
-              selectedId={state.selectedId}
-              onRowClick={state.setSelectedId}
-              getRowClassName={data.getRowClassName}
-              loading={data.loading}
-              rowCount={data.server.total}
-            />
-          )}
-        </Paper>
+        )}
       </Paper>
-
-      {/* Dialogs */}
-      <InventoryDialogs
-        openNew={state.openNew}
-        setOpenNew={state.setOpenNew}
-        openEditName={state.openEditName}
-        setOpenEditName={state.setOpenEditName}
-        openDelete={state.openDelete}
-        setOpenDelete={state.setOpenDelete}
-        openAdjust={state.openAdjust}
-        setOpenAdjust={state.setOpenAdjust}
-        openPrice={state.openPrice}
-        setOpenPrice={state.setOpenPrice}
-        onReload={handleReload}
-        isDemo={isDemo}
-      />
-    </Box>
+    </PagePanel>
   );
 };
 
