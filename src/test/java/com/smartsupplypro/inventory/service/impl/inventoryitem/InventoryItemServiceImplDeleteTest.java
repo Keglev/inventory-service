@@ -4,16 +4,15 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -21,11 +20,14 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
+import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
-import com.smartsupplypro.inventory.service.StockHistoryService;
 import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemAuditHelper;
 import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidationHelper;
@@ -43,16 +45,20 @@ class InventoryItemServiceImplDeleteTest {
 
     @Mock private InventoryItemRepository repository;
     @Mock private SupplierRepository supplierRepository;
-    @Mock private StockHistoryService stockHistoryService;
-    @Mock private InventoryItemValidationHelper validationHelper;
     @Mock private InventoryItemAuditHelper auditHelper;
-    @InjectMocks private InventoryItemServiceImpl service;
+    private InventoryItemServiceImpl service;
 
     private InventoryItem existing;
 
     @BeforeEach
     void setup() {
         InventoryItemServiceImplTestHelper.authenticateAsOAuth2("admin", "ADMIN");
+
+        // The real helper runs over the mocked repositories, so every assertion below
+        // sees the exception types and messages production throws (NF-21).
+        InventoryItemValidationHelper validationHelper =
+                new InventoryItemValidationHelper(repository, supplierRepository);
+        service = new InventoryItemServiceImpl(repository, validationHelper, auditHelper, new InventoryItemMapper());
 
         existing = new InventoryItem();
         existing.setId("item-1");
@@ -62,46 +68,30 @@ class InventoryItemServiceImplDeleteTest {
         existing.setPrice(new BigDecimal("10.00"));
         existing.setSupplierId("S1");
         existing.setSku("SKU-SVC-1");
-
-        lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
-
-        lenient().when(validationHelper.validateExists(anyString())).thenAnswer(inv -> {
-            String id = inv.getArgument(0);
-            return repository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Item not found: " + id));
-        });
-
-        lenient().doAnswer(inv -> {
-            String id = inv.getArgument(0);
-            InventoryItem item = repository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Item not found: " + id));
-            if (item.getQuantity() > 0) {
-                throw new IllegalStateException(
-                        "You still have merchandise in stock. " +
-                        "You need to first remove items from stock by changing quantity.");
-            }
-            return null;
-        }).when(validationHelper).validateForDeletion(anyString());
     }
 
     @Test
-    void should_throw_illegal_argument_when_item_not_found() {
+    void should_throw_404_when_item_not_found() {
         when(repository.findById("missing-id")).thenReturn(Optional.empty());
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> service.delete("missing-id"));
-        assertTrue(ex.getMessage().toLowerCase().contains("not found"));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+        assertEquals("Item not found: missing-id", ex.getReason());
+        verify(repository, never()).save(any());
     }
 
     @Test
-    void should_throw_illegal_state_when_item_still_has_stock() {
+    void should_throw_business_rule_violation_when_item_still_has_stock() {
         InventoryItem found = copyOf(existing);
         found.setQuantity(10);
         when(repository.findById("item-1")).thenReturn(Optional.of(found));
 
-        IllegalStateException ex = assertThrows(IllegalStateException.class,
+        BusinessRuleViolationException ex = assertThrows(BusinessRuleViolationException.class,
                 () -> service.delete("item-1"));
-        assertTrue(ex.getMessage().toLowerCase().contains("still have"));
+        assertEquals("You still have merchandise in stock. "
+                + "You need to first remove items from stock by changing quantity.", ex.getMessage());
+        verify(repository, never()).save(any());
     }
 
     @Test
@@ -115,8 +105,8 @@ class InventoryItemServiceImplDeleteTest {
         assertFalse(found.isActive());
         verify(repository).save(found);
         verify(repository, never()).deleteById(anyString());
+        // The audit helper is the only writer of stock history in the service.
         verifyNoInteractions(auditHelper);
-        verifyNoInteractions(stockHistoryService);
     }
 
     private static InventoryItem copyOf(InventoryItem src) {
