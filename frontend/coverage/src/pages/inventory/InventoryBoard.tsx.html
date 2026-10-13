@@ -245,7 +245,8 @@
 <a name='L180'></a><a href='#L180'>180</a>
 <a name='L181'></a><a href='#L181'>181</a>
 <a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -326,6 +327,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -531,7 +533,7 @@ const InventoryBoard: React.FC = () =&gt; {
         direction="row"
         alignItems="center"
         justifyContent="space-between"
-        sx={{ px: { xs: 2, md: 3 }, pl: railGutter, pt: { xs: 2, md: 3 }, pb: 2 }}
+        sx={{ px: { xs: 2, md: 3 }, pl: railGutter, pr: railGutter, pt: { xs: 2, md: 3 }, pb: 2 }}
       &gt;
         &lt;Stack direction="row" alignItems="center" spacing={1}&gt;
           &lt;Typography variant="h5" sx={{ fontWeight: 600 }}&gt;
@@ -554,7 +556,7 @@ const InventoryBoard: React.FC = () =&gt; {
       &lt;/Stack&gt;
 &nbsp;
       {/* Filter Panel */}
-      &lt;Paper variant="outlined" sx={{ p: 1.5, mb: 2, mx: { xs: 2, md: 3 }, ml: railGutter }}&gt;
+      &lt;Paper variant="outlined" sx={{ p: 1.5, mb: 2, mx: { xs: 2, md: 3 }, ml: railGutter, mr: railGutter }}&gt;
         &lt;InventoryFilterPanel
           q={state.q}
           setQ={handleSearchChange}
@@ -575,6 +577,7 @@ const InventoryBoard: React.FC = () =&gt; {
           position: 'relative',
           mx: { xs: 2, md: 3 },
           ml: railGutter,
+          mr: railGutter,
           mb: { xs: 2, md: 3 },
           p: state.supplierId ? 0 : 2,
           minHeight: 420,

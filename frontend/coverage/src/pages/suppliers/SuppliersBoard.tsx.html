@@ -240,7 +240,8 @@
 <a name='L175'></a><a href='#L175'>175</a>
 <a name='L176'></a><a href='#L176'>176</a>
 <a name='L177'></a><a href='#L177'>177</a>
-<a name='L178'></a><a href='#L178'>178</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -338,6 +339,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -540,7 +542,7 @@ const SuppliersBoard: React.FC = () =&gt; {
       /&gt;
 &nbsp;
       {/* Search Panel */}
-      &lt;Box sx={{ px: 2, pl: railGutter }}&gt;
+      &lt;Box sx={{ px: 2, pl: railGutter, pr: railGutter }}&gt;
         &lt;SuppliersSearchPanel
           searchQuery={state.searchQuery}
           onSearchChange={handleSearchChange}
@@ -553,7 +555,7 @@ const SuppliersBoard: React.FC = () =&gt; {
       &lt;/Box&gt;
 &nbsp;
       {/* Filter Panel */}
-      &lt;Box sx={{ px: 2, pl: railGutter }}&gt;
+      &lt;Box sx={{ px: 2, pl: railGutter, pr: railGutter }}&gt;
         &lt;SuppliersFilterPanel
           showAllSuppliers={state.showAllSuppliers}
           onToggleChange={handleToggleShowAll}
@@ -571,13 +573,14 @@ const SuppliersBoard: React.FC = () =&gt; {
             placeItems: 'center',
             mx: 2,
             ml: railGutter,
+            mr: railGutter,
             mb: 2,
           }}
         &gt;
           {/* Empty state */}
         &lt;/Paper&gt;
       ) : (
-        &lt;Box sx={{ px: 2, pl: railGutter, mb: 2, flex: 1, minHeight: 0 }}&gt;
+        &lt;Box sx={{ px: 2, pl: railGutter, pr: railGutter, mb: 2, flex: 1, minHeight: 0 }}&gt;
           &lt;SuppliersTable
             rows={displayRows}
             paginationModel={state.paginationModel}
