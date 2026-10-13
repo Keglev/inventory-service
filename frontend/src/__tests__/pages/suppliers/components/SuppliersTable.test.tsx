@@ -1,6 +1,6 @@
 /**
  * @file SuppliersTable.test.tsx
- * @module __tests__/pages/suppliers/SuppliersTable
+ * @module __tests__/pages/suppliers/components/SuppliersTable
  * @description Contract tests for the `SuppliersTable` presentation component.
  *
  * Contract under test:

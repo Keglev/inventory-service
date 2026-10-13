@@ -1,6 +1,6 @@
 /**
  * @file useEditSupplierConfirmation.test.ts
- * @module __tests__/pages/suppliers/EditSupplierDialog/useEditSupplierConfirmation
+ * @module __tests__/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierConfirmation
  * @description Orchestration tests for `useEditSupplierConfirmation`.
  *
  * Contract under test:
