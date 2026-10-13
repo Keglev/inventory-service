@@ -114,8 +114,8 @@ public class InventoryItemValidationHelper {
      * @throws NoSuchElementException if item not found (answered as 404)
      */
     public InventoryItem validateExists(String id) {
-<span class="pc" id="L117">        return repository.findById(id)</span>
-<span class="pc" id="L118">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Item not found&quot;));</span>
+<span class="fc" id="L117">        return repository.findById(id)</span>
+<span class="fc" id="L118">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Item not found&quot;));</span>
     }
 
     /**
@@ -127,8 +127,8 @@ public class InventoryItemValidationHelper {
      */
     public void validateForDeletion(String id) {
 <span class="fc" id="L129">        InventoryItem item = InventoryItemLookupValidator.validateExists(id, repository);</span>
-<span class="nc" id="L130">        InventoryItemValidator.assertQuantityIsZeroForDeletion(item);</span>
-<span class="nc" id="L131">    }</span>
+<span class="fc" id="L130">        InventoryItemValidator.assertQuantityIsZeroForDeletion(item);</span>
+<span class="fc" id="L131">    }</span>
 
     /**
      * Validates that the specified supplier exists.
