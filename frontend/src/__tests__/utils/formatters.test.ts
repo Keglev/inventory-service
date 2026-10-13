@@ -42,6 +42,25 @@ describe('formatDate', () => {
       expect(formatDate(new Date('invalid'), 'YYYY-MM-DD')).toBe('');
     });
   });
+
+  // The day must not depend on the browser's offset from UTC (G-L3): each case
+  // runs in a zone where a UTC reading lands on the neighbouring day.
+  describe('calendar day across time zones', () => {
+    const originalTz = process.env.TZ;
+    afterEach(() => {
+      process.env.TZ = originalTz;
+    });
+
+    it('keeps the day of a date-only string when west of UTC', () => {
+      process.env.TZ = 'America/New_York';
+      expect(formatDate('2026-10-05', 'DD.MM.YYYY')).toBe('05.10.2026');
+    });
+
+    it('builds the ISO fallback from the local day when the format token is unknown', () => {
+      process.env.TZ = 'Europe/Berlin';
+      expect(formatDate(new Date(2026, 9, 5), 'DD/MM/YYYY' as never)).toBe('2026-10-05');
+    });
+  });
 });
 
 describe('formatNumber', () => {
@@ -142,6 +161,16 @@ describe('formatDateCell', () => {
   it('renders a placeholder rather than echoing an unreadable value', () => {
     expect(formatDateCell('not-a-date', 'DD.MM.YYYY')).toBe(EM_DASH);
     expect(formatDateCell({}, 'DD.MM.YYYY')).toBe(EM_DASH);
+  });
+
+  it('keeps the day of a date-only value when west of UTC', () => {
+    const originalTz = process.env.TZ;
+    process.env.TZ = 'America/New_York';
+    try {
+      expect(formatDateCell('2026-10-05', 'DD.MM.YYYY')).toBe('05.10.2026');
+    } finally {
+      process.env.TZ = originalTz;
+    }
   });
 
   it('formats a parseable timestamp per the preference token', () => {
