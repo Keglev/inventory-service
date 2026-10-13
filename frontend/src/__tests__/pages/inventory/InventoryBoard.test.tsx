@@ -10,7 +10,7 @@
  * - MUI rendering details.
  */
 
-import './testSetup';
+import '@/__tests__/pages/inventory/testSetup';
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
