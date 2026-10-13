@@ -23,8 +23,18 @@ import type { DateFormat, NumberFormat } from '../context/settings/SettingsConte
  * formatDate(new Date(2025, 10, 27), 'YYYY-MM-DD')  // -> '2025-11-27'
  * formatDate(new Date(2025, 10, 27), 'MM/DD/YYYY')  // -> '11/27/2025'
  */
+// A bare ISO day ('2026-10-05') names a calendar day, but new Date() reads it as
+// UTC midnight, which is the previous day west of UTC. Parse it as a local day.
+const ISO_DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+const toDate = (value: Date | string): Date => {
+  if (typeof value !== 'string') return value;
+  const day = ISO_DAY.exec(value);
+  return day ? new Date(Number(day[1]), Number(day[2]) - 1, Number(day[3])) : new Date(value);
+};
+
 export const formatDate = (date: Date | string, format: DateFormat): string => {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = toDate(date);
 
   if (isNaN(d.getTime())) {
     return '';
@@ -42,7 +52,9 @@ export const formatDate = (date: Date | string, format: DateFormat): string => {
     case 'MM/DD/YYYY':
       return `${month}/${day}/${year}`;
     default:
-      return d.toISOString().split('T')[0];
+      // An unknown token (a stale stored preference) falls back to ISO order, built
+      // from the local day like the cases above; toISOString would use the UTC day.
+      return `${year}-${month}-${day}`;
   }
 };
 
@@ -102,7 +114,7 @@ export const formatDateCell = (value: unknown, dateFormat: DateFormat): string =
   if (value === null || value === undefined || value === '') {
     return '—';
   }
-  const date = new Date(String(value));
+  const date = toDate(String(value));
   if (Number.isNaN(date.getTime())) {
     return '—';
   }

@@ -29,7 +29,7 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
-    userPreferences: { dateFormat: 'DD/MM/YYYY', numberFormat: 'DE' },
+    userPreferences: { dateFormat: 'DD.MM.YYYY', numberFormat: 'DE' },
   }),
 }));
 
