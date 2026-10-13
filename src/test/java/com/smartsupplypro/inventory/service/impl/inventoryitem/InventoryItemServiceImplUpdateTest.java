@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,9 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -28,18 +27,20 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
-import com.smartsupplypro.inventory.service.StockHistoryService;
 import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemAuditHelper;
 import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidationHelper;
 
 /**
  * Unit tests for {@link InventoryItemServiceImpl#update(String, InventoryItemDTO)}
- * covering not-found, duplicate-name conflict, optimistic locking, and field-update behavior.
+ * covering not-found, duplicate-name conflict, optimistic locking, and field-update
+ * behavior, run through the real {@link InventoryItemValidationHelper}.
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -47,12 +48,8 @@ class InventoryItemServiceImplUpdateTest {
 
     @Mock private InventoryItemRepository repository;
     @Mock private SupplierRepository supplierRepository;
-    @Mock private StockHistoryService stockHistoryService;
-    @Mock private InventoryItemValidationHelper validationHelper;
     @Mock private InventoryItemAuditHelper auditHelper;
-    @SuppressWarnings("FieldMayBeFinal")
-    @Spy  private InventoryItemMapper inventoryItemMapper = new InventoryItemMapper();
-    @InjectMocks private InventoryItemServiceImpl service;
+    private InventoryItemServiceImpl service;
 
     private InventoryItemDTO baseDto;
     private InventoryItem existing;
@@ -60,6 +57,12 @@ class InventoryItemServiceImplUpdateTest {
     @BeforeEach
     void setup() {
         InventoryItemServiceImplTestHelper.authenticateAsOAuth2("admin", "ADMIN");
+
+        // The real helper runs over the mocked repositories, so every assertion below
+        // sees the exception types and messages production throws (NF-21).
+        InventoryItemValidationHelper validationHelper =
+                new InventoryItemValidationHelper(repository, supplierRepository);
+        service = new InventoryItemServiceImpl(repository, validationHelper, auditHelper, new InventoryItemMapper());
 
         baseDto = new InventoryItemDTO();
         baseDto.setName("Widget");
@@ -80,43 +83,21 @@ class InventoryItemServiceImplUpdateTest {
         existing.setSku("SKU-SVC-1");
 
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
-
-        lenient().when(validationHelper.validateForUpdate(anyString(), any())).thenAnswer(inv -> {
-            String id = inv.getArgument(0);
-            return repository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Item not found for update"));
-        });
-
-        // Uniqueness check: throws DuplicateResourceException when another item has the same name+price
-        lenient().doAnswer(inv -> {
-            String id = inv.getArgument(0);
-            InventoryItem existingItem = inv.getArgument(1);
-            InventoryItemDTO dto = inv.getArgument(2);
-            boolean nameChanged = !existingItem.getName().equalsIgnoreCase(dto.getName());
-            boolean priceChanged = !existingItem.getPrice().equals(dto.getPrice());
-            if (nameChanged || priceChanged) {
-                for (InventoryItem item : repository.findByNameIgnoreCase(dto.getName())) {
-                    if (!item.getId().equals(id) && item.getPrice().equals(dto.getPrice())) {
-                        throw new com.smartsupplypro.inventory.exception.DuplicateResourceException(
-                                "Item with name '" + dto.getName() + "' and price " + dto.getPrice() + " already exists");
-                    }
-                }
-            }
-            return null;
-        }).when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
     }
 
     @Test
-    void should_throw_illegal_argument_when_item_not_found() {
+    void should_throw_404_when_item_not_found() {
         when(repository.findById("missing-id")).thenReturn(Optional.empty());
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> service.update("missing-id", copyOf(baseDto)));
-        assertTrue(ex.getMessage().contains("not found"));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+        assertEquals("Item not found: missing-id", ex.getReason());
+        verify(repository, never()).save(any());
     }
 
     @Test
-    void should_throw_conflict_when_name_already_taken_by_another_item() {
+    void should_throw_duplicate_resource_when_name_already_taken_by_another_item() {
         when(repository.findById("id-1")).thenReturn(Optional.of(copyOf(existing)));
 
         InventoryItemDTO updateDto = copyOf(baseDto);
@@ -127,26 +108,13 @@ class InventoryItemServiceImplUpdateTest {
         conflict.setPrice(new BigDecimal("10.00"));
         conflict.setQuantity(1); conflict.setMinimumQuantity(1); conflict.setSupplierId("S1");
         conflict.setSku("SKU-SVC-2");
-        when(repository.findByNameIgnoreCase("Widget-2")).thenReturn(java.util.List.of(conflict));
+        when(repository.findByNameIgnoreCase("Widget-2")).thenReturn(List.of(conflict));
 
-        lenient().when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> {
-            InventoryItem src = inv.getArgument(0, InventoryItem.class);
-            if (src.getId() == null) src.setId("generated-id");
-            return src;
-        });
-
-        try {
-            ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                    () -> service.update("id-1", updateDto));
-            assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
-            assertTrue(safeReason(ex).contains("already"));
-        } catch (org.opentest4j.AssertionFailedError ignored) {
-            // Some implementations throw DuplicateResourceException directly instead of wrapping
-            com.smartsupplypro.inventory.exception.DuplicateResourceException ex2 =
-                    assertThrows(com.smartsupplypro.inventory.exception.DuplicateResourceException.class,
-                            () -> service.update("id-1", updateDto));
-            assertTrue(ex2.getMessage() != null && !ex2.getMessage().isBlank());
-        }
+        DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
+                () -> service.update("id-1", updateDto));
+        assertEquals("Another inventory item with this name and price already exists.", ex.getMessage());
+        assertEquals("name", ex.getField());
+        verify(repository, never()).save(any());
     }
 
     @Test
@@ -166,8 +134,7 @@ class InventoryItemServiceImplUpdateTest {
         InventoryItem current = copyOf(existing);
         current.setMinimumQuantity(5);
 
-        when(validationHelper.validateForUpdate(eq("id-1"), any())).thenReturn(current);
-        lenient().doNothing().when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
+        when(repository.findById("id-1")).thenReturn(Optional.of(current));
         when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
 
         InventoryItemDTO updateDto = copyOf(baseDto);
@@ -187,8 +154,7 @@ class InventoryItemServiceImplUpdateTest {
         InventoryItem current = copyOf(existing);
         current.setPrice(new BigDecimal("10.00"));
 
-        when(validationHelper.validateForUpdate(eq("id-1"), any())).thenReturn(current);
-        lenient().doNothing().when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
+        when(repository.findById("id-1")).thenReturn(Optional.of(current));
         when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
 
         InventoryItemDTO updateDto = copyOf(baseDto);
@@ -207,8 +173,7 @@ class InventoryItemServiceImplUpdateTest {
         InventoryItem current = copyOf(existing);
         current.setPrice(new BigDecimal("10.00"));
 
-        when(validationHelper.validateForUpdate(eq("id-1"), any())).thenReturn(current);
-        lenient().doNothing().when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
+        when(repository.findById("id-1")).thenReturn(Optional.of(current));
         when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
 
         InventoryItemDTO updateDto = copyOf(baseDto);
@@ -224,8 +189,7 @@ class InventoryItemServiceImplUpdateTest {
     void should_log_only_the_quantity_change_when_the_price_is_unchanged() {
         InventoryItem current = copyOf(existing);
 
-        when(validationHelper.validateForUpdate(eq("id-1"), any())).thenReturn(current);
-        lenient().doNothing().when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
+        when(repository.findById("id-1")).thenReturn(Optional.of(current));
         when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
 
         InventoryItemDTO updateDto = copyOf(baseDto);
@@ -238,34 +202,36 @@ class InventoryItemServiceImplUpdateTest {
     }
 
     @Test
-    void should_throw_422_when_updated_price_is_zero_or_negative() {
+    void should_throw_invalid_request_when_updated_price_is_zero() {
         InventoryItem current = copyOf(existing);
         current.setPrice(new BigDecimal("10.00"));
 
-        when(validationHelper.validateForUpdate(eq("id-1"), any())).thenReturn(current);
-        lenient().doNothing().when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
+        when(repository.findById("id-1")).thenReturn(Optional.of(current));
 
         InventoryItemDTO updateDto = copyOf(baseDto);
         updateDto.setPrice(BigDecimal.ZERO);
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+        // validateBase rejects the price before the service compares it, so the
+        // answer is 400 (InvalidRequestException), not the 422 of assertPriceValid.
+        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> service.update("id-1", updateDto));
-        assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, ex.getStatusCode());
+        assertEquals("Price must be positive or greater than zero", ex.getMessage());
+        verify(repository, never()).save(any());
     }
 
     @Test
-    void should_throw_422_and_log_nothing_when_the_updated_price_is_missing() {
+    void should_throw_invalid_request_and_log_nothing_when_the_updated_price_is_missing() {
         InventoryItem current = copyOf(existing);
 
-        when(validationHelper.validateForUpdate(eq("id-1"), any())).thenReturn(current);
-        lenient().doNothing().when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
+        when(repository.findById("id-1")).thenReturn(Optional.of(current));
 
         InventoryItemDTO updateDto = copyOf(baseDto);
         updateDto.setPrice(null);
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> service.update("id-1", updateDto));
-        assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, ex.getStatusCode());
+        assertEquals("Price must be positive or greater than zero", ex.getMessage());
+        verify(repository, never()).save(any());
         verify(auditHelper, never()).logPriceChange(anyString(), any());
     }
 
@@ -288,7 +254,4 @@ class InventoryItemServiceImplUpdateTest {
         return i;
     }
 
-    private static String safeReason(ResponseStatusException ex) {
-        return String.valueOf(ex.getReason()).toLowerCase();
-    }
 }
