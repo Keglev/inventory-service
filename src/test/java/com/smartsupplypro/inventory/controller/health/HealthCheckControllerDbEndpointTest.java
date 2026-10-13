@@ -8,29 +8,36 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import com.smartsupplypro.inventory.controller.HealthCheckController;
+import com.smartsupplypro.inventory.testsupport.LogCapture;
+
+import ch.qos.logback.classic.Level;
 
 /**
  * Unit tests for {@link HealthCheckController#checkDatabaseConnection(Authentication)} covering
  * who sees which UP fields, the fixed DOWN body on every failure path, the log line that keeps
- * the failure detail, and try-with-resources cleanup branches using mocked JDBC.
+ * the failure detail, and try-with-resources cleanup branches using mocked JDBC. Every expected
+ * warning is captured and asserted, so none of them reaches the build log (NF-18).
  */
-@ExtendWith({ MockitoExtension.class, OutputCaptureExtension.class })
+@ExtendWith(MockitoExtension.class)
 class HealthCheckControllerDbEndpointTest {
 
     private static final String IP_SQL = "SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') AS ip FROM DUAL";
@@ -51,6 +58,18 @@ class HealthCheckControllerDbEndpointTest {
     @Mock
     private ResultSet resultSet;
 
+    private LogCapture log;
+
+    @BeforeEach
+    void captureLog() {
+        log = LogCapture.of(HealthCheckController.class, Level.WARN);
+    }
+
+    @AfterEach
+    void releaseLog() {
+        log.close();
+    }
+
     private HealthCheckController newController() {
         return new HealthCheckController(dataSource);
     }
@@ -66,6 +85,16 @@ class HealthCheckControllerDbEndpointTest {
         assertEquals(DOWN, response.getBody());
     }
 
+    /** The one warning a failed check writes: fixed text, the cause attached with its detail. */
+    private void assertLoggedFailure(String detail) {
+        assertThat(log.events()).singleElement().satisfies(event -> {
+            assertEquals(Level.WARN, event.getLevel());
+            assertEquals("Database health check failed", event.getFormattedMessage());
+            assertNotNull(event.getThrowableProxy(), "the cause is attached");
+            assertEquals(detail, event.getThrowableProxy().getMessage());
+        });
+    }
+
     @Test
     void should_return_up_with_the_ip_when_an_admin_asks_and_the_database_returns_a_row() throws Exception {
         stubDbQuery();
@@ -76,6 +105,7 @@ class HealthCheckControllerDbEndpointTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(Map.of("status", "UP", "oracleSeesIp", "1.2.3.4"), response.getBody());
+        assertThat(log.events()).isEmpty();
     }
 
     @Test
@@ -87,6 +117,7 @@ class HealthCheckControllerDbEndpointTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(UP, response.getBody());
+        assertThat(log.events()).isEmpty();
     }
 
     @Test
@@ -98,6 +129,7 @@ class HealthCheckControllerDbEndpointTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(UP, response.getBody());
+        assertThat(log.events()).isEmpty();
     }
 
     @Test
@@ -110,6 +142,7 @@ class HealthCheckControllerDbEndpointTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(Map.of("status", "UP", "oracleSeesIp", "null"), response.getBody());
+        assertThat(log.events()).isEmpty();
     }
 
     @Test
@@ -118,15 +151,19 @@ class HealthCheckControllerDbEndpointTest {
         when(resultSet.next()).thenReturn(false);
 
         assertDown(newController().checkDatabaseConnection(ADMIN));
+        assertThat(log.events()).singleElement().satisfies(event -> {
+            assertEquals("Database health check returned no row", event.getFormattedMessage());
+            assertNull(event.getThrowableProxy());
+        });
     }
 
     @Test
-    void should_keep_the_failure_detail_in_the_log_and_out_of_the_body_when_the_data_source_throws(
-            CapturedOutput output) throws Exception {
+    void should_keep_the_failure_detail_in_the_log_and_out_of_the_body_when_the_data_source_throws()
+            throws Exception {
         when(dataSource.getConnection()).thenThrow(new SQLException("ORA-12506: listener rejected 10.0.0.9"));
 
         assertDown(newController().checkDatabaseConnection(ADMIN));
-        assertTrue(output.getOut().contains("ORA-12506: listener rejected 10.0.0.9"));
+        assertLoggedFailure("ORA-12506: listener rejected 10.0.0.9");
     }
 
     @Test
@@ -135,6 +172,7 @@ class HealthCheckControllerDbEndpointTest {
         when(connection.prepareStatement(IP_SQL)).thenThrow(new SQLException("prepare failed"));
 
         assertDown(newController().checkDatabaseConnection(ADMIN));
+        assertLoggedFailure("prepare failed");
     }
 
     @Test
@@ -144,6 +182,7 @@ class HealthCheckControllerDbEndpointTest {
         when(statement.executeQuery()).thenThrow(new SQLException("execute failed"));
 
         assertDown(newController().checkDatabaseConnection(ADMIN));
+        assertLoggedFailure("execute failed");
     }
 
     @Test
@@ -154,6 +193,7 @@ class HealthCheckControllerDbEndpointTest {
         doThrow(new SQLException("close failed")).when(resultSet).close();
 
         assertDown(newController().checkDatabaseConnection(ADMIN));
+        assertLoggedFailure("close failed");
     }
 
     @Test
@@ -164,6 +204,7 @@ class HealthCheckControllerDbEndpointTest {
         doThrow(new SQLException("close failed")).when(statement).close();
 
         assertDown(newController().checkDatabaseConnection(ADMIN));
+        assertLoggedFailure("execute failed");
     }
 
     @Test
@@ -172,6 +213,7 @@ class HealthCheckControllerDbEndpointTest {
         when(resultSet.next()).thenThrow(new SQLException("next failed"));
 
         assertDown(newController().checkDatabaseConnection(ADMIN));
+        assertLoggedFailure("next failed");
     }
 
     @Test
@@ -181,6 +223,7 @@ class HealthCheckControllerDbEndpointTest {
         doThrow(new SQLException("close failed")).when(resultSet).close();
 
         assertDown(newController().checkDatabaseConnection(ADMIN));
+        assertLoggedFailure("next failed");
     }
 
     @Test
@@ -193,6 +236,8 @@ class HealthCheckControllerDbEndpointTest {
         AssertionError thrown = assertThrows(AssertionError.class,
                 () -> newController().checkDatabaseConnection(ADMIN));
         assertEquals("close error", thrown.getMessage());
+        // An Error is not caught, so the check writes no warning for it.
+        assertThat(log.events()).isEmpty();
     }
 
     @Test
@@ -202,5 +247,6 @@ class HealthCheckControllerDbEndpointTest {
         when(resultSet.getString("ip")).thenThrow(new SQLException("getString failed"));
 
         assertDown(newController().checkDatabaseConnection(ADMIN));
+        assertLoggedFailure("getString failed");
     }
 }

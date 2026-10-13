@@ -127,30 +127,45 @@ class GlobalExceptionHandlerTest {
         }
     }
 
-    /** Pass-through and fallback responses. */
+    /** Pass-through and fallback responses. A fallback logs one ERROR with the cause attached. */
     @Nested class WhenPassThrough {
         @Test void should_preserve_the_status_and_message_when_a_response_status_exception_is_thrown() throws Exception {
             mockMvc.perform(get("/err/rse"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Supplier not found"));
         }
-        @Test void should_return_500_when_an_exception_is_unhandled() throws Exception {
-            mockMvc.perform(get("/err/boom"))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.message").value("Unexpected server error"));
+        @Test void should_return_500_and_log_the_cause_when_an_exception_is_unhandled() throws Exception {
+            try (LogCapture log = LogCapture.of(GlobalExceptionHandler.class, Level.ERROR)) {
+                mockMvc.perform(get("/err/boom"))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(jsonPath("$.message").value("Unexpected server error"));
+                assertUnhandledLogged(log, RuntimeException.class);
+            }
         }
         // Rejected client input is an InvalidRequestException; an IllegalArgumentException that
         // escapes comes from the framework or a programming error (a failed security expression).
-        @Test void should_return_a_generic_500_when_an_illegal_argument_escapes() throws Exception {
-            mockMvc.perform(get("/err/iae"))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.message").value("Unexpected server error"));
+        @Test void should_return_a_generic_500_and_log_the_cause_when_an_illegal_argument_escapes() throws Exception {
+            try (LogCapture log = LogCapture.of(GlobalExceptionHandler.class, Level.ERROR)) {
+                mockMvc.perform(get("/err/iae"))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(jsonPath("$.message").value("Unexpected server error"));
+                assertUnhandledLogged(log, IllegalArgumentException.class);
+            }
         }
         // An internal fault, not a business conflict: it must not answer 409 with its raw text.
-        @Test void should_return_a_generic_500_when_an_internal_state_error_escapes() throws Exception {
-            mockMvc.perform(get("/err/ise"))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.message").value("Unexpected server error"));
+        @Test void should_return_a_generic_500_and_log_the_cause_when_an_internal_state_error_escapes() throws Exception {
+            try (LogCapture log = LogCapture.of(GlobalExceptionHandler.class, Level.ERROR)) {
+                mockMvc.perform(get("/err/ise"))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(jsonPath("$.message").value("Unexpected server error"));
+                assertUnhandledLogged(log, IllegalStateException.class);
+            }
+        }
+        private void assertUnhandledLogged(LogCapture log, Class<? extends Throwable> cause) {
+            assertThat(log.events()).singleElement().satisfies(event -> {
+                assertThat(event.getFormattedMessage()).isEqualTo("Unhandled exception while processing request");
+                assertThat(event.getThrowableProxy().getClassName()).isEqualTo(cause.getName());
+            });
         }
     }
 }

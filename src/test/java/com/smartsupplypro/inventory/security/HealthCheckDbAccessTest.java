@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -32,6 +33,9 @@ import com.smartsupplypro.inventory.config.SecurityConfig;
 import com.smartsupplypro.inventory.config.SecurityEntryPointHelper;
 import com.smartsupplypro.inventory.config.SecurityFilterHelper;
 import com.smartsupplypro.inventory.controller.HealthCheckController;
+import com.smartsupplypro.inventory.testsupport.LogCapture;
+
+import ch.qos.logback.classic.Level;
 
 /**
  * Proves through the production {@link SecurityConfig} that GET /api/health/db stays open to
@@ -99,8 +103,12 @@ class HealthCheckDbAccessTest {
     void should_answer_a_fixed_down_body_when_the_database_fails() throws Exception {
         when(dataSource.getConnection()).thenThrow(new SQLException("ORA-12506: listener rejected"));
 
-        mvc.perform(get("/api/health/db"))
-            .andExpect(status().isServiceUnavailable())
-            .andExpect(content().json("{\"status\":\"DOWN\"}", JsonCompareMode.STRICT));
+        // The expected warning is captured, so its stack trace stays out of the build log (NF-18).
+        try (LogCapture log = LogCapture.of(HealthCheckController.class, Level.WARN)) {
+            mvc.perform(get("/api/health/db"))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(content().json("{\"status\":\"DOWN\"}", JsonCompareMode.STRICT));
+            assertThat(log.messages()).containsExactly("Database health check failed");
+        }
     }
 }
