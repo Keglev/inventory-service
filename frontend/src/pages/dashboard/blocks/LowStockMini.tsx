@@ -133,7 +133,7 @@ export default function LowStockMini() {
                     <XAxis type="number" domain={[0, 1]} hide />
                     <YAxis type="category" dataKey="itemName" width={170} tickFormatter={shortName} />
                     <Tooltip
-                      cursor={{ fillOpacity: 0.08 }}
+                      cursor={chartTooltipProps(muiTheme).cursor}
                       content={({ active, payload }) => (
                         <RowTooltip row={active ? (payload?.[0]?.payload as ChartRow | undefined) : undefined} num={num} />
                       )}

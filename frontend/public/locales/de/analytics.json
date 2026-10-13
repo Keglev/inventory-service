@@ -152,6 +152,7 @@
   "units": {
     "pieces": "Stk.",
     "updates": "Aktualisierungen",
-    "changes": "Änderungen"
+    "changes_one": "Änderung",
+    "changes_other": "Änderungen"
   }
 }

@@ -32,6 +32,7 @@ import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import { getTodayIso, getDaysAgoIso, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { legendOrder } from '../../../utils/chartLegend';
+import { CHART_MARGIN } from './chartMargin';
 import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
 import { useSettings } from '../../../hooks/useSettings';
 
@@ -70,7 +71,7 @@ export default function MonthlyMovementMini() {
         ) : (
           <Box sx={{ height: 220 }}>
             <ResponsiveContainer width="100%" height="90%">
-              <BarChart data={q.data ?? []}>
+              <BarChart data={q.data ?? []} margin={CHART_MARGIN}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" tickFormatter={(value) => monthLabel(String(value), i18n.language)} />
                 <YAxis

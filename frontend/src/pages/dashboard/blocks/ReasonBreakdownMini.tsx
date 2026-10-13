@@ -27,6 +27,7 @@ import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber, getDaysAgoIso, getTodayIso } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { legendOrder } from '../../../utils/chartLegend';
+import { CHART_MARGIN } from './chartMargin';
 
 /** Stock in before stock out in every language (see utils/chartLegend). */
 const LEGEND_ORDER = legendOrder(['increase', 'decrease']);
@@ -71,7 +72,7 @@ export default function ReasonBreakdownMini() {
         ) : (
           <Box sx={{ height: 200 }}>
             <ResponsiveContainer width="100%" height="90%">
-              <BarChart data={data}>
+              <BarChart data={data} margin={CHART_MARGIN}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={0} angle={-30} textAnchor="end" height={60} />
                 <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />

@@ -5,7 +5,7 @@
  * @enterprise
  * Extracted from EmployeesSection so the section composes two cards
  * instead of inlining the chart. Owns the presentation of the pivoted
- * per-employee series: palette cycling per employee, count formatting
+ * per-employee series: a fixed colour per employee (keyed by email), count formatting
  * bound to the user's number preference, and the recharts wiring.
  * Emails contain dots and Recharts resolves string dataKeys as nested
  * paths, so each series uses a FUNCTION accessor (locked lesson) --
@@ -20,9 +20,12 @@ import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tool
 import type { EmployeeGranularity } from '../../../api/analytics/employees';
 import type { EmployeesChartRow } from './useEmployeesSectionData';
 import { useSettings } from '../../../hooks/useSettings';
-import { formatNumber } from '../../../utils/formatters';
+import { formatDate, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
+import { parseDayOrWeekKey } from '../../../utils/periodKeys';
+import { colorsByKey } from '../../../utils/entityColors';
+import { seriesPalette } from '../../../theme/tokens';
 
 /** One chart series descriptor (an employee). @public */
 export type EmployeeSeries = { createdBy: string; displayName: string };
@@ -65,16 +68,12 @@ export function EmployeesActivityChart({
   const { userPreferences } = useSettings();
 
   const seriesColors = React.useMemo(() => {
-    const palette = [
-      muiTheme.palette.primary.main,
-      muiTheme.palette.success.main,
-      muiTheme.palette.warning.main,
-      muiTheme.palette.error.main,
-      muiTheme.palette.info.main,
-      muiTheme.palette.secondary.main,
-    ];
-    return employees.map((_, idx) => palette[idx % palette.length]);
-  }, [employees, muiTheme]);
+    const byEmail = colorsByKey(
+      employees.map((e) => e.createdBy),
+      seriesPalette[muiTheme.palette.mode === 'dark' ? 'dark' : 'light'],
+    );
+    return employees.map((e) => byEmail[e.createdBy]);
+  }, [employees, muiTheme.palette.mode]);
 
   const formatCount = React.useCallback(
     (value: number | string) =>
@@ -82,18 +81,31 @@ export function EmployeesActivityChart({
     [userPreferences.numberFormat]
   );
 
-  // Monthly buckets ("YYYY-MM") get month labels; the helpers return daily and
-  // weekly keys unchanged, so no granularity check is needed here.
-  const formatPeriod = React.useCallback((value: unknown) => monthLabel(String(value), i18n.language), [i18n.language]);
+  // Daily and weekly keys become dates in the user's format (a week by its
+  // Monday, as on the stock activity card); monthly keys ("YYYY-MM") get month
+  // labels, and the tooltip names the covered days of a partial month.
+  const formatPeriod = React.useCallback(
+    (value: unknown) => {
+      const bucket = parseDayOrWeekKey(String(value));
+      return bucket ? formatDate(bucket.start, userPreferences.dateFormat) : monthLabel(String(value), i18n.language);
+    },
+    [i18n.language, userPreferences.dateFormat]
+  );
   const formatPeriodSpan = React.useCallback(
-    (value: unknown) =>
-      monthSpanLabel(String(value), { from, to, lang: i18n.language, dateFormat: userPreferences.dateFormat }),
-    [from, to, i18n.language, userPreferences.dateFormat]
+    (value: unknown) => {
+      const bucket = parseDayOrWeekKey(String(value));
+      if (!bucket) {
+        return monthSpanLabel(String(value), { from, to, lang: i18n.language, dateFormat: userPreferences.dateFormat });
+      }
+      const date = formatDate(bucket.start, userPreferences.dateFormat);
+      return bucket.kind === 'week' ? t('analytics:updates.weekOf', { date }) : date;
+    },
+    [from, to, i18n.language, userPreferences.dateFormat, t]
   );
   const formatTooltipCount = React.useCallback(
     (value: unknown) =>
       typeof value === 'number'
-        ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.changes')}`
+        ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.changes', { count: value })}`
         : String(value ?? ''),
     [userPreferences.numberFormat, t]
   );

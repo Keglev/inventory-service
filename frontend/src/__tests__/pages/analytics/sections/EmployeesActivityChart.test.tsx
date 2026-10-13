@@ -16,7 +16,7 @@
  * - Recharts rendering internals (mocked to markers).
  */
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { tEn } from '@/__tests__/test/i18nEn';
@@ -26,8 +26,8 @@ vi.mock('recharts', () => ({
     <div data-testid="chart-container">{children}</div>
   ),
   LineChart: ({ children }: { children?: React.ReactNode }) => <div data-testid="line-chart">{children}</div>,
-  Line: ({ name, type }: { name?: string; type?: string }) => (
-    <div data-testid="line" data-type={type}>
+  Line: ({ name, type, stroke }: { name?: string; type?: string; stroke?: string }) => (
+    <div data-testid="line" data-type={type} data-stroke={stroke}>
       {name}
     </div>
   ),
@@ -129,13 +129,27 @@ describe('EmployeesActivityChart', () => {
     expect(screen.getByText('Ben')).toBeInTheDocument();
   });
 
-  it('formats axis counts and tooltip changes, passing strings through', () => {
+  it('formats axis counts and tooltip changes with a singular for one, passing strings through', () => {
     renderChart();
 
     expect(lastYTickFormatter?.(1234)).toBe('1.234');
     expect(lastYTickFormatter?.('raw')).toBe('raw');
-    expect(lastTooltipFormatter?.(1234)).toBe(`1.234 ${tEn('analytics:units.changes')}`);
+    expect(lastTooltipFormatter?.(1234)).toBe('1.234 changes');
+    expect(lastTooltipFormatter?.(1)).toBe('1 change');
     expect(lastTooltipFormatter?.('raw')).toBe('raw');
+  });
+
+  it('keeps each employee in one colour when the set of employees changes', () => {
+    renderChart();
+    const both = Object.fromEntries(
+      screen.getAllByTestId('line').map((l) => [l.textContent, l.getAttribute('data-stroke')]),
+    );
+    cleanup();
+
+    renderChart({ employees: [EMPLOYEES[1]] });
+
+    expect(screen.getByTestId('line')).toHaveAttribute('data-stroke', both.Ben);
+    expect(both.Anna).not.toBe(both.Ben);
   });
 
   it('draws straight segments between the periods', () => {
@@ -150,9 +164,15 @@ describe('EmployeesActivityChart', () => {
     expect(lastTooltipLabelFormatter?.('2026-02')).toBe('February 2026');
   });
 
-  it('passes daily and weekly period keys through unchanged', () => {
+  it('labels daily buckets with the date in the user format', () => {
+    renderChart({ granularity: 'daily' });
+    expect(lastXTickFormatter?.('2026-06-13')).toBe('13.06.2026');
+    expect(lastTooltipLabelFormatter?.('2026-06-13')).toBe('13.06.2026');
+  });
+
+  it('labels weekly buckets by their Monday and names the week in the tooltip', () => {
     renderChart({ granularity: 'weekly' });
-    expect(lastXTickFormatter?.('2026-W37')).toBe('2026-W37');
-    expect(lastTooltipLabelFormatter?.('2026-W37')).toBe('2026-W37');
+    expect(lastXTickFormatter?.('2026-W37')).toBe('07.09.2026');
+    expect(lastTooltipLabelFormatter?.('2026-W37')).toBe('Week of 07.09.2026');
   });
 });

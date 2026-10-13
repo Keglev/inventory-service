@@ -19,6 +19,8 @@ export const pagePanelSx = { borderRadius: 0, boxShadow: 'none' } as const;
  * Distance from the navigation rail to the page content on desktop, where the rail
  * is shown (md and up). One value for every page, so cards line up when switching
  * pages (Carlos, 2026-10-12: 15px; before, 24px on three pages and 16px on
- * suppliers). Use as `pl` or `ml`; phones keep their own padding.
+ * suppliers). The right edge uses the same value, so content sits symmetric in
+ * the panel (Carlos, 2026-10-13; before, 24px and 16px on suppliers). Use as
+ * `pl`/`pr` or `ml`/`mr`; phones keep their own padding.
  */
 export const railGutter = { md: '15px' } as const;

@@ -41,6 +41,11 @@ const RESOURCES: Record<string, unknown> = {
 
 const ALL_NS = Object.keys(RESOURCES);
 
+// i18next resolves `key` with a numeric `count` to key_one / key_other (English
+// plural rule); resolve the same way so specs see the real singular text.
+const pluralKey = (key: string, options?: Record<string, unknown>): string | undefined =>
+  typeof options?.count === 'number' ? `${key}_${options.count === 1 ? 'one' : 'other'}` : undefined;
+
 const lookup = (ns: string, key: string): string | undefined => {
   let node: unknown = RESOURCES[ns];
   for (const part of key.split('.')) {
@@ -70,11 +75,13 @@ export const makeTEn =
   (key: string, options?: Record<string, unknown>): string => {
     if (key.includes(':')) {
       const [ns, rest] = key.split(/:(.+)/);
-      const hit = lookup(ns, rest);
+      const plural = pluralKey(rest, options);
+      const hit = (plural !== undefined ? lookup(ns, plural) : undefined) ?? lookup(ns, rest);
       return hit !== undefined ? interpolate(hit, options) : key;
     }
     for (const ns of [...nsOrder, ...ALL_NS.filter((n) => !nsOrder.includes(n))]) {
-      const hit = lookup(ns, key);
+      const plural = pluralKey(key, options);
+      const hit = (plural !== undefined ? lookup(ns, plural) : undefined) ?? lookup(ns, key);
       if (hit !== undefined) return interpolate(hit, options);
     }
     return key;
