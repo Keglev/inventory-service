@@ -13,6 +13,7 @@ import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 
 import type { ItemUpdateFrequencyPoint } from '@/api/analytics/frequency';
 import { getItemUpdateFrequency } from '@/api/analytics/frequency';
@@ -71,11 +72,6 @@ vi.mock('@/api/analytics/frequency', () => ({
 // Helpers
 // -----------------------------------------------------------------------------
 
-function createClient() {
-  return new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-}
 
 function setup(client: QueryClient, supplierId?: string | null) {
   return render(
@@ -94,7 +90,7 @@ describe('ItemUpdateFrequencyCard', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    queryClient = createClient();
+    queryClient = createTestQueryClient();
   });
 
   it('renders empty state when supplier is not selected and does not fetch', () => {

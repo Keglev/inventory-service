@@ -28,6 +28,7 @@ import type { MockInstance } from 'vitest';
 import * as React from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 import { useHealthCheck } from '@/features/health/hooks/useHealthCheck';
 
 function makeResponse(options: {
@@ -54,7 +55,7 @@ describe('useHealthCheck', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 60_000 } } });
+    queryClient = createTestQueryClient({ staleTime: 60_000 });
     vi.stubGlobal('fetch', fetchMock);
     // The probe builds its URL from VITE_API_BASE; pin the same-origin arm so
     // the default assertions do not depend on the machine's environment.

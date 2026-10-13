@@ -12,8 +12,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import { createQueryWrapper } from '@/__tests__/test/queryClient';
 
 vi.mock('@/api/shared/itemSearch', () => ({
   searchItemsForSupplier: vi.fn(),
@@ -37,16 +36,11 @@ const searchGlobalMock = vi.mocked(searchItemsGlobal);
 
 const items = [{ id: 'it-1', name: 'Blue Widget' }];
 
-function wrapper({ children }: { children: ReactNode }) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
-}
-
 function renderOptions(params: Partial<Parameters<typeof useItemSearchOptions>[0]> = {}) {
   return renderHook(
     (p: Parameters<typeof useItemSearchOptions>[0]) => useItemSearchOptions(p),
     {
-      wrapper,
+      wrapper: createQueryWrapper(),
       initialProps: {
         supplierId: undefined,
         minChars: 0,

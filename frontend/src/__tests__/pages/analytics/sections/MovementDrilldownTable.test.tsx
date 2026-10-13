@@ -10,7 +10,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
@@ -44,7 +45,7 @@ function rows(count: number, prefix: string) {
 }
 
 function setup(props: Props = { from: '2026-01-01', to: '2026-06-30' }) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const client = createTestQueryClient();
   const view = render(
     <QueryClientProvider client={client}>
       <MovementDrilldownTable {...props} />

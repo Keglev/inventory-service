@@ -21,6 +21,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 
 import MonthlyMovementMini from '@/pages/dashboard/blocks/MonthlyMovementMini';
 import { tEn } from '@/__tests__/test/i18nEn';
@@ -150,11 +151,6 @@ let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
 // -------------------------------------
 // Helpers
 // -------------------------------------
-function createTestQueryClient() {
-  return new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-}
 
 function renderMonthlyMovementMini(queryClient: QueryClient) {
   return render(

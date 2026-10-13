@@ -15,6 +15,7 @@ import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 
 import type { FinancialSummary } from '@/api/analytics/finance';
 import { getFinancialSummary } from '@/api/analytics/finance';
@@ -81,11 +82,6 @@ vi.mock('recharts', () => ({
 // Helpers
 // -----------------------------------------------------------------------------
 
-function createClient() {
-  return new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-}
 
 function setup(
   client: QueryClient,
@@ -128,7 +124,7 @@ describe('FinancialSummaryCard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     chartProps = {};
-    queryClient = createClient();
+    queryClient = createTestQueryClient();
   });
 
   it('renders title and prompts to select a supplier when supplierId is missing', () => {

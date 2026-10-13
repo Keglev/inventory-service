@@ -15,10 +15,9 @@
  * - The fetchers themselves (itemSearch.search.test).
  */
 
-import { createElement, type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createQueryWrapper, createTestQueryClient } from '@/__tests__/test/queryClient';
 
 vi.mock('@/api/shared/itemSearch', () => ({
   listItemsForSupplier: vi.fn(),
@@ -38,8 +37,8 @@ const pallet = { id: 'I-1', name: 'EUR-1 Wooden Pallet', sku: 'LOG-PAL-EUR1' };
 const band = { id: 'I-2', name: 'PET Strapping Band', sku: 'LOG-STRAP-16' };
 
 function setup(initial: { supplier: SupplierOption | null; query: string }) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  const wrapper = ({ children }: { children: ReactNode }) => createElement(QueryClientProvider, { client, children });
+  const client = createTestQueryClient();
+  const wrapper = createQueryWrapper(client);
   const view = renderHook(({ supplier, query }) => useItemSearchQuery(supplier, query), {
     initialProps: initial,
     wrapper,

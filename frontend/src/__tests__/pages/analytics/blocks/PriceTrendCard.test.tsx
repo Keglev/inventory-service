@@ -26,7 +26,8 @@
 import type { ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 
 import type { PricePoint } from '@/api/analytics/types';
 import type { ItemRef } from '@/api/shared/types';
@@ -149,13 +150,10 @@ function searchState(overrides: Partial<ReturnType<typeof useItemSearchOptions>>
   } as unknown as ReturnType<typeof useItemSearchOptions>;
 }
 
-function createClient() {
-  return new QueryClient({ defaultOptions: { queries: { retry: false } } });
-}
 
 function setup(props: Partial<React.ComponentProps<typeof PriceTrendCard>> = {}) {
   return render(
-    <QueryClientProvider client={createClient()}>
+    <QueryClientProvider client={createTestQueryClient()}>
       <PriceTrendCard {...props} />
     </QueryClientProvider>
   );

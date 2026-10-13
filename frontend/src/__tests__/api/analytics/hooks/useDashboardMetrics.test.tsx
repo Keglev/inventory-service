@@ -17,7 +17,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 
-import { createReactQueryWrapper } from '@/__tests__/utils/reactQueryTestUtils';
 
 // Mock what the hook imports: ../index from hooks => api/analytics/index.ts
 vi.mock('@/api/analytics/metrics', () => ({
@@ -29,6 +28,7 @@ vi.mock('@/api/analytics/metrics', () => ({
 import { getItemCount, getSupplierCount, getLowStockCount } from '@/api/analytics/metrics';
 
 import { useDashboardMetrics } from '@/api/analytics/hooks/useDashboardMetrics';
+import { createQueryWrapper } from '@/__tests__/test/queryClient';
 
 describe('useDashboardMetrics', () => {
   beforeEach(() => {
@@ -41,7 +41,7 @@ describe('useDashboardMetrics', () => {
     vi.mocked(getSupplierCount).mockResolvedValue(25);
     vi.mocked(getLowStockCount).mockResolvedValue(50);
 
-    const wrapper = createReactQueryWrapper({ retry: false });
+    const wrapper = createQueryWrapper();
 
     // Act
     const { result } = renderHook(() => useDashboardMetrics(true), { wrapper });
@@ -64,7 +64,7 @@ describe('useDashboardMetrics', () => {
 
   it('does not fetch when enabled is false', async () => {
     // Arrange
-    const wrapper = createReactQueryWrapper({ retry: false });
+    const wrapper = createQueryWrapper();
 
     // Act
     renderHook(() => useDashboardMetrics(false), { wrapper });
@@ -84,7 +84,7 @@ describe('useDashboardMetrics', () => {
     vi.mocked(getSupplierCount).mockResolvedValue(25);
     vi.mocked(getLowStockCount).mockResolvedValue(50);
 
-    const wrapper = createReactQueryWrapper({ retry: false });
+    const wrapper = createQueryWrapper();
 
     // Act
     const { result } = renderHook(() => useDashboardMetrics(true), { wrapper });

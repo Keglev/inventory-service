@@ -17,8 +17,7 @@ import '@/__tests__/pages/inventory/dialogs/QuantityAdjustDialog/testSetup';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createElement, type ReactNode } from 'react';
+import { createQueryWrapper, createTestQueryClient } from '@/__tests__/test/queryClient';
 import type { ItemOption } from '@/api/analytics/types';
 import { useItemPriceQuery } from '@/pages/inventory/dialogs/QuantityAdjustDialog/useItemPriceQuery';
 
@@ -33,14 +32,9 @@ const getPriceTrendMock = vi.mocked(getPriceTrend);
 
 // React Query wrapper with retry disabled for deterministic unit tests.
 const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-    },
-  });
+  const queryClient = createTestQueryClient();
 
-  const Wrapper = ({ children }: { children: ReactNode }) =>
-    createElement(QueryClientProvider, { client: queryClient, children });
+  const Wrapper = createQueryWrapper(queryClient);
 
   return { Wrapper, queryClient };
 };
