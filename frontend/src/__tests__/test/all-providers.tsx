@@ -7,43 +7,23 @@
  *
  * @responsibility
  * - Centralize routing + React Query providers for consistent test setup.
- * - Configure React Query for deterministic tests (no retries, no caching between tests).
+ * - Configure React Query for deterministic tests (no retries, no caching between tests;
+ *   the cache survives a rerender within one test).
  *
  * @out_of_scope
  * - App-level provider wiring (belongs in src/app).
  * - Domain fixtures and per-suite helpers (belongs next to the tests).
  */
 
-import type { PropsWithChildren } from 'react';
+import { useState, type PropsWithChildren } from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 
-/**
- * Create a QueryClient configured for tests:
- * - No retries (fail fast)
- * - No cache persistence across tests
- */
-function createTestQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        gcTime: 0,
-      },
-      mutations: {
-        retry: false,
-      },
-    },
-  });
-}
-
-/**
- * Wrap the UI under test with all required providers.
- *
- * Note: We create a fresh QueryClient per render to ensure isolation between tests.
- */
 export function AllProviders({ children }: PropsWithChildren) {
-  const queryClient = createTestQueryClient();
+  // One client per mounted provider: a rerender keeps the cache, a new render()
+  // mounts a new provider and so starts empty. gcTime 0 drops unobserved data.
+  const [queryClient] = useState(() => createTestQueryClient({ gcTime: 0 }));
 
   return (
     <QueryClientProvider client={queryClient}>
