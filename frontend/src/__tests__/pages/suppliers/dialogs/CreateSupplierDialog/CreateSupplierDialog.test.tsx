@@ -1,6 +1,6 @@
 /**
  * @file CreateSupplierDialog.test.tsx
- * @module __tests__/pages/suppliers/CreateSupplierDialog/CreateSupplierDialog
+ * @module __tests__/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierDialog
  * @description Wrapper-level contract tests for the CreateSupplierDialog container.
  *
  * Contract under test:

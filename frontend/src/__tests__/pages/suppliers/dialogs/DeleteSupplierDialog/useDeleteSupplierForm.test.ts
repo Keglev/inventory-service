@@ -1,6 +1,6 @@
 /**
  * @file useDeleteSupplierForm.test.ts
- * @module __tests__/pages/suppliers/DeleteSupplierDialog/useDeleteSupplierForm
+ * @module __tests__/pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm
  * @description Orchestration tests for the `useDeleteSupplierForm` workflow hook.
  *
  * Contract under test:

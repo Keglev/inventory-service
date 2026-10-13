@@ -1,6 +1,6 @@
 /**
  * @file SuppliersToolbar.test.tsx
- * @module __tests__/pages/suppliers/SuppliersToolbar
+ * @module __tests__/pages/suppliers/components/SuppliersToolbar
  * @description Contract tests for the `SuppliersToolbar` presentation component.
  *
  * Contract under test:
