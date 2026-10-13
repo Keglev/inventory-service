@@ -21,17 +21,10 @@
  *   a valid submit before the request (frontend ADR-0013).
  */
 
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Box,
-  CircularProgress,
-} from '@mui/material';
+import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 import { HelpIconButton } from '../../../../features/help/components/HelpIconButton';
 import { useTranslation } from 'react-i18next';
+import { SubmitDialogActions } from '../SubmitDialogActions';
 import { ItemForm } from './ItemForm';
 import { useItemForm } from './useItemForm';
 import type { ItemFormDialogProps } from './ItemFormDialog.types';
@@ -85,35 +78,12 @@ export function ItemFormDialog({
       </DialogContent>
 
       {/* Dialog actions */}
-      <DialogActions>
-        <Button onClick={() => state.handleClose()} disabled={state.formState.isSubmitting}>
-          {t('common:actions.cancel')}
-        </Button>
-        <Box sx={{ position: 'relative', display: 'inline-block' }}>
-          <Button
-            variant="contained"
-            onClick={(e) => {
-              e.preventDefault();
-              void state.onSubmit();
-            }}
-            disabled={state.formState.isSubmitting}
-          >
-            {t('common:actions.create')}
-          </Button>
-          {state.formState.isSubmitting && (
-            <CircularProgress
-              size={24}
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                marginTop: '-12px',
-                marginLeft: '-12px',
-              }}
-            />
-          )}
-        </Box>
-      </DialogActions>
+      <SubmitDialogActions
+        onCancel={() => state.handleClose()}
+        onSubmit={() => void state.onSubmit()}
+        submitting={state.formState.isSubmitting}
+        submitLabel={t('common:actions.create')}
+      />
     </Dialog>
   );
 }

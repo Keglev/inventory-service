@@ -30,14 +30,13 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
   Box,
   CircularProgress,
   Stack,
 } from '@mui/material';
 import { HelpIconButton } from '../../../../features/help/components/HelpIconButton';
 import { useTranslation } from 'react-i18next';
+import { SubmitDialogActions } from '../SubmitDialogActions';
 import { PriceChangeForm } from './PriceChangeForm';
 import { usePriceChangeForm } from './usePriceChangeForm';
 import type { PriceChangeDialogProps } from './PriceChangeDialog.types';
@@ -74,43 +73,23 @@ export function PriceChangeDialog({
       </DialogContent>
 
       {/* Dialog actions */}
-      <DialogActions>
-        <Button onClick={() => state.handleClose()} disabled={state.formState.isSubmitting}>
-          {t('common:actions.cancel')}
-        </Button>
-        <Box sx={{ position: 'relative', display: 'inline-block' }}>
-          <Button
-            variant="contained"
-            onClick={(e) => {
-              e.preventDefault();
-              state.onSubmit();
-            }}
-            disabled={state.formState.isSubmitting || !state.selectedItem}
-            data-testid="apply-price-change-button"
-          >
-            {state.formState.isSubmitting ? (
-              <>
-                <CircularProgress size={16} sx={{ mr: 1 }} />
-                {t('common:actions.saving')}
-              </>
-            ) : (
-              t('inventory:buttons.applyPriceChange')
-            )}
-          </Button>
-          {state.formState.isSubmitting && (
-            <CircularProgress
-              size={24}
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                marginTop: '-12px',
-                marginLeft: '-12px',
-              }}
-            />
-          )}
-        </Box>
-      </DialogActions>
+      <SubmitDialogActions
+        onCancel={() => state.handleClose()}
+        onSubmit={() => state.onSubmit()}
+        submitting={state.formState.isSubmitting}
+        submitDisabled={!state.selectedItem}
+        submitTestId="apply-price-change-button"
+        submitLabel={
+          state.formState.isSubmitting ? (
+            <>
+              <CircularProgress size={16} sx={{ mr: 1 }} />
+              {t('common:actions.saving')}
+            </>
+          ) : (
+            t('inventory:buttons.applyPriceChange')
+          )
+        }
+      />
     </Dialog>
   );
 }
