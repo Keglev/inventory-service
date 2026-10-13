@@ -16,16 +16,31 @@ import * as React from 'react';
 import { Box, Card, CardContent, Skeleton, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
-import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Dot } from 'recharts';
+import type { DotItemDotProps } from 'recharts/types/util/types';
 import type { EmployeeGranularity } from '../../../api/analytics/employees';
 import type { EmployeesChartRow } from './useEmployeesSectionData';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
-import { parseDayOrWeekKey } from '../../../utils/periodKeys';
+import { dayTimeAxis, timeXAxisProps } from '../../../utils/timeAxis';
+import { employeeTimeRows, monthKey, monthTicks, utcDay } from './employeeTimeSeries';
 import { colorsByKey } from '../../../utils/entityColors';
 import { seriesPalette } from '../../../theme/tokens';
+
+/**
+ * Daily buckets fill a long range with zeros; a dot on each would bead the base
+ * line, so a day shows a dot only when someone changed something.
+ */
+function nonZeroDot(props: DotItemDotProps) {
+  const { cx, cy, stroke, fill, strokeWidth, index, value } = props;
+  return value ? (
+    <Dot key={index} cx={cx} cy={cy} r={3} stroke={stroke} fill={fill} strokeWidth={strokeWidth} />
+  ) : (
+    <g key={index} />
+  );
+}
 
 /** One chart series descriptor (an employee). @public */
 export type EmployeeSeries = { createdBy: string; displayName: string };
@@ -81,26 +96,37 @@ export function EmployeesActivityChart({
     [userPreferences.numberFormat]
   );
 
-  // Daily and weekly keys become dates in the user's format (a week by its
-  // Monday, as on the stock activity card); monthly keys ("YYYY-MM") get month
-  // labels, and the tooltip names the covered days of a partial month.
+  // Buckets sit on a time axis at their first day; quiet periods are filled with
+  // zeros (employeeTimeSeries). Days and weeks are labelled by date in the
+  // user's format (a week by its Monday, as on the stock activity card), months
+  // by name; the tooltip names the covered days of a partial month.
+  const rows = React.useMemo(
+    () => employeeTimeRows(chartData, granularity, from, to),
+    [chartData, granularity, from, to]
+  );
+  const timeAxis = React.useMemo(() => {
+    const times = rows.map((r) => r.t);
+    if (times.length === 0) return null;
+    if (granularity !== 'monthly') return dayTimeAxis(times);
+    return { domain: [times[0], times[times.length - 1]] as [number, number], ticks: monthTicks(times) };
+  }, [rows, granularity]);
   const formatPeriod = React.useCallback(
-    (value: unknown) => {
-      const bucket = parseDayOrWeekKey(String(value));
-      return bucket ? formatDate(bucket.start, userPreferences.dateFormat) : monthLabel(String(value), i18n.language);
-    },
-    [i18n.language, userPreferences.dateFormat]
+    (value: unknown) =>
+      granularity === 'monthly'
+        ? monthLabel(monthKey(Number(value)), i18n.language)
+        : formatDate(utcDay(Number(value)), userPreferences.dateFormat),
+    [granularity, i18n.language, userPreferences.dateFormat]
   );
   const formatPeriodSpan = React.useCallback(
     (value: unknown) => {
-      const bucket = parseDayOrWeekKey(String(value));
-      if (!bucket) {
-        return monthSpanLabel(String(value), { from, to, lang: i18n.language, dateFormat: userPreferences.dateFormat });
+      const start = Number(value);
+      if (granularity === 'monthly') {
+        return monthSpanLabel(monthKey(start), { from, to, lang: i18n.language, dateFormat: userPreferences.dateFormat });
       }
-      const date = formatDate(bucket.start, userPreferences.dateFormat);
-      return bucket.kind === 'week' ? t('analytics:updates.weekOf', { date }) : date;
+      const date = formatDate(utcDay(start), userPreferences.dateFormat);
+      return granularity === 'weekly' ? t('analytics:updates.weekOf', { date }) : date;
     },
-    [from, to, i18n.language, userPreferences.dateFormat, t]
+    [granularity, from, to, i18n.language, userPreferences.dateFormat, t]
   );
   const formatTooltipCount = React.useCallback(
     (value: unknown) =>
@@ -138,9 +164,9 @@ export function EmployeesActivityChart({
         ) : (
           <Box sx={{ height: 280 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+              <LineChart data={rows} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="period" tick={{ fontSize: 12 }} tickFormatter={formatPeriod} />
+                <XAxis {...timeXAxisProps(timeAxis, formatPeriod)} tick={{ fontSize: 12 }} />
                 <YAxis allowDecimals={false} tickFormatter={formatCount} />
                 {/* Same order as the legend: people, alphabetical by name. */}
                 <Tooltip
@@ -160,7 +186,7 @@ export function EmployeesActivityChart({
                     name={emp.displayName}
                     stroke={seriesColors[idx]}
                     strokeWidth={2}
-                    dot={{ r: 3 }}
+                    dot={granularity === 'daily' ? nonZeroDot : { r: 3 }}
                     activeDot={{ r: 4 }}
                     isAnimationActive={false}
                   />
