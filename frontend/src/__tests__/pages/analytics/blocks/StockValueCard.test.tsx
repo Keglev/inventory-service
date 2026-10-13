@@ -17,6 +17,7 @@ import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 import { createTheme } from '@mui/material/styles';
 
 import type { StockValuePoint } from '@/api/analytics/stock';
@@ -101,11 +102,6 @@ vi.mock('recharts', () => ({
 // Helpers
 // -----------------------------------------------------------------------------
 
-function createClient() {
-  return new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-}
 
 function setup(
   client: QueryClient,
@@ -135,7 +131,7 @@ describe('StockValueCard', () => {
     lastTooltipLabelFormatter = null;
     lastTooltipProps = null;
     lastLineProps = null;
-    queryClient = createClient();
+    queryClient = createTestQueryClient();
   });
 
   it('drops rows without a valid date and formats axis and tooltip values', async () => {
@@ -197,7 +193,7 @@ describe('StockValueCard', () => {
 
     view.unmount();
     vi.mocked(getStockValueOverTime).mockResolvedValue([{ date: '2025-01-10', totalValue: 250 }, { date: '2025-01-20', totalValue: 260 }]);
-    setup(createClient(), { from: '2025-01-01', to: '2025-01-31' });
+    setup(createTestQueryClient(), { from: '2025-01-01', to: '2025-01-31' });
     await waitFor(() => expect(lastYDomain).toEqual(['auto', 'auto']));
   });
 

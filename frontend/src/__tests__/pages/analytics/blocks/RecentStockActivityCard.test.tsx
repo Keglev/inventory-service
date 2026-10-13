@@ -15,6 +15,7 @@ import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 
 import type { StockUpdateRow } from '@/api/analytics/updates';
 import { getStockUpdates } from '@/api/analytics/updates';
@@ -111,11 +112,6 @@ let lastTooltipLabelFormatter: ((v: number) => string) | null = null;
 // Helpers
 // -----------------------------------------------------------------------------
 
-function createClient() {
-  return new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-}
 
 function setup(
   client: QueryClient,
@@ -137,7 +133,7 @@ describe('RecentStockActivityCard', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    queryClient = createClient();
+    queryClient = createTestQueryClient();
   });
 
   it('renders a loading skeleton while fetching', () => {
@@ -188,7 +184,7 @@ describe('RecentStockActivityCard', () => {
     await waitFor(() => expect(screen.getByTestId('bar-series')).toBeInTheDocument());
     const soldAlone = screen.getByTestId('bar-series').getAttribute('data-fill');
 
-    queryClient = createClient();
+    queryClient = createTestQueryClient();
     vi.mocked(getStockUpdates).mockResolvedValue([
       { timestamp: '2025-01-01T12:00:00Z', itemName: 'A', reason: 'INITIAL_STOCK', delta: 5 },
       { timestamp: '2025-01-01T12:00:00Z', itemName: 'A', reason: 'MANUAL_UPDATE', delta: 1 },

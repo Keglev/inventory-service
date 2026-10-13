@@ -23,6 +23,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, waitFor, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 import { MemoryRouter } from 'react-router-dom';
 
 import LogoutPage from '@/pages/auth/LogoutPage';
@@ -51,11 +52,6 @@ vi.mock('@/api/httpClient', () => ({
 // -------------------------------------
 // Suite utilities
 // -------------------------------------
-function createTestQueryClient() {
-  return new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-}
 
 describe('LogoutPage', () => {
   let queryClient: QueryClient;

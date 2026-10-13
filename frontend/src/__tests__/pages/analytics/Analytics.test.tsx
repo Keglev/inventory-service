@@ -18,6 +18,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 const { mockUseAuth } = vi.hoisted(() => ({ mockUseAuth: vi.fn() }));
@@ -106,11 +107,6 @@ const Analytics = (await import('@/pages/analytics/Analytics')).default;
 // Helpers
 // -----------------------------------------------------------------------------
 
-function createClient() {
-  return new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-}
 
 function setup(client: QueryClient, initialRoute = '/analytics') {
   return render(
@@ -134,7 +130,7 @@ describe('Analytics', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseAuth.mockReturnValue({ user: null });
-    queryClient = createClient();
+    queryClient = createTestQueryClient();
   });
 
   it('defaults to "overview" when no section is provided', () => {
@@ -220,7 +216,7 @@ describe('Analytics', () => {
   it('navigates back to the dashboard from the header action', async () => {
     const user = userEvent.setup();
     render(
-      <QueryClientProvider client={createClient()}>
+      <QueryClientProvider client={createTestQueryClient()}>
         <MemoryRouter initialEntries={['/analytics/overview']}>
           <Routes>
             <Route path="/analytics/:section?" element={<Analytics />} />

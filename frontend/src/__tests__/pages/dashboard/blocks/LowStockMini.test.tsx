@@ -14,6 +14,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 
 import type { LowStockRow } from '@/api/analytics/types';
 import { getDashboardLowStock } from '@/api/analytics/dashboardSummary';
@@ -74,9 +75,6 @@ vi.mock('@/api/analytics/dashboardSummary', () => ({
   getDashboardLowStock: vi.fn(),
 }));
 
-function createClient() {
-  return new QueryClient({ defaultOptions: { queries: { retry: false } } });
-}
 function setup(client: QueryClient) {
   return render(
     <QueryClientProvider client={client}>
@@ -89,7 +87,7 @@ describe('LowStockMini', () => {
   let queryClient: QueryClient;
   beforeEach(() => {
     vi.clearAllMocks();
-    queryClient = createClient();
+    queryClient = createTestQueryClient();
   });
 
   it('renders loading skeleton while query is in flight', () => {

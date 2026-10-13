@@ -12,7 +12,8 @@
 import type { ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 
 import type { MonthlyMovement } from '@/api/analytics/types';
 import { getMonthlyStockMovement } from '@/api/analytics/stock';
@@ -95,13 +96,10 @@ const sample: MonthlyMovement[] = [
   { month: '2026-06', stockIn: 7, stockOut: 9 },
 ] as MonthlyMovement[];
 
-function createClient() {
-  return new QueryClient({ defaultOptions: { queries: { retry: false } } });
-}
 
 function setup(props: Partial<React.ComponentProps<typeof MovementLineCard>> = {}) {
   return render(
-    <QueryClientProvider client={createClient()}>
+    <QueryClientProvider client={createTestQueryClient()}>
       <MovementLineCard {...props} />
     </QueryClientProvider>
   );

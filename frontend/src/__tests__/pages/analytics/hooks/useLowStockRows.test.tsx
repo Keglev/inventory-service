@@ -17,8 +17,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import * as React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createQueryWrapper } from '@/__tests__/test/queryClient';
 import { useLowStockRows } from '@/pages/analytics/hooks/useLowStockRows';
 
 const mockGetLowStockItems = vi.fn();
@@ -26,18 +25,13 @@ vi.mock('@/api/analytics/lowStock', () => ({
   getLowStockItems: (...args: unknown[]) => mockGetLowStockItems(...args),
 }));
 
-function wrapper({ children }: { children?: React.ReactNode }) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
-}
-
 describe('useLowStockRows', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('is disabled without a supplier and never calls the API', () => {
-    const { result } = renderHook(() => useLowStockRows('', 12), { wrapper });
+    const { result } = renderHook(() => useLowStockRows('', 12), { wrapper: createQueryWrapper() });
     expect(result.current.enabled).toBe(false);
     expect(mockGetLowStockItems).not.toHaveBeenCalled();
   });
@@ -49,7 +43,7 @@ describe('useLowStockRows', () => {
       { itemName: 'Big gap', quantity: 0, minimumQuantity: 8 },
       { itemName: 'At minimum', quantity: 5, minimumQuantity: 5 },
     ]);
-    const { result } = renderHook(() => useLowStockRows('sup-1', 0), { wrapper });
+    const { result } = renderHook(() => useLowStockRows('sup-1', 0), { wrapper: createQueryWrapper() });
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.visible.map((r) => r.itemName)).toEqual(['Big gap', 'Small gap', 'At minimum']);
     expect(result.current.visible.map((r) => r.deficit)).toEqual([8, 1, 0]);
@@ -61,7 +55,7 @@ describe('useLowStockRows', () => {
       { itemName: 'B', quantity: 0, minimumQuantity: 2 },
       { itemName: 'C', quantity: 0, minimumQuantity: 1 },
     ]);
-    const { result } = renderHook(() => useLowStockRows('sup-1', 2), { wrapper });
+    const { result } = renderHook(() => useLowStockRows('sup-1', 2), { wrapper: createQueryWrapper() });
     await waitFor(() => expect(result.current.visible.length).toBe(2));
     expect(result.current.total).toBe(3);
     expect(result.current.visible.map((r) => r.itemName)).toEqual(['A', 'B']);
@@ -69,7 +63,7 @@ describe('useLowStockRows', () => {
 
   it('treats missing quantity and minimum as zero', async () => {
     mockGetLowStockItems.mockResolvedValue([{ itemName: 'Nulls', quantity: null, minimumQuantity: null }]);
-    const { result } = renderHook(() => useLowStockRows('sup-1', 0), { wrapper });
+    const { result } = renderHook(() => useLowStockRows('sup-1', 0), { wrapper: createQueryWrapper() });
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     // 0 - 0 = deficit 0, quantity <= minimum keeps the row.
     expect(result.current.visible).toHaveLength(1);
@@ -78,7 +72,7 @@ describe('useLowStockRows', () => {
 
   it('requests the supplier only, without date bounds', async () => {
     mockGetLowStockItems.mockResolvedValue([]);
-    renderHook(() => useLowStockRows('sup-1', 12), { wrapper });
+    renderHook(() => useLowStockRows('sup-1', 12), { wrapper: createQueryWrapper() });
     await waitFor(() => expect(mockGetLowStockItems).toHaveBeenCalled());
     expect(mockGetLowStockItems).toHaveBeenCalledWith('sup-1');
   });

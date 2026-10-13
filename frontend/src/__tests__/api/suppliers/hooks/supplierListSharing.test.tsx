@@ -13,10 +13,9 @@
  * - The fetcher's HTTP wiring and parsing (supplierListFetcher.test.ts).
  */
 
-import type { PropsWithChildren } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createQueryWrapper, createTestQueryClient } from '@/__tests__/test/queryClient';
 
 vi.mock('@/api/suppliers/supplierListFetcher', () => ({
   getAllSuppliers: vi.fn(),
@@ -29,10 +28,8 @@ import { useSuppliersQuery } from '@/api/inventory/hooks/useSuppliersQuery';
 const getAllSuppliersMock = getAllSuppliers as ReturnType<typeof vi.fn>;
 
 function renderBoth() {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  const wrapper = ({ children }: PropsWithChildren) => (
-    <QueryClientProvider client={client}>{children}</QueryClientProvider>
-  );
+  const client = createTestQueryClient();
+  const wrapper = createQueryWrapper(client);
   const view = renderHook(
     () => ({ rows: useSupplierListQuery(), options: useSuppliersQuery(true) }),
     { wrapper },

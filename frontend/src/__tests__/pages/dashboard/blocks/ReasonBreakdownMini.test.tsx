@@ -12,6 +12,7 @@ import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 
 import type { ReasonBreakdownRow } from '@/api/analytics/reasonBreakdown';
 import { getReasonBreakdown } from '@/api/analytics/reasonBreakdown';
@@ -72,9 +73,6 @@ vi.mock('@/api/analytics/reasonBreakdown', () => ({
   getReasonBreakdown: vi.fn(),
 }));
 
-function createClient() {
-  return new QueryClient({ defaultOptions: { queries: { retry: false } } });
-}
 function setup(client: QueryClient) {
   return render(
     <QueryClientProvider client={client}>
@@ -87,7 +85,7 @@ describe('ReasonBreakdownMini', () => {
   let queryClient: QueryClient;
   beforeEach(() => {
     vi.clearAllMocks();
-    queryClient = createClient();
+    queryClient = createTestQueryClient();
   });
 
   it('renders loading skeleton while query is in flight', () => {

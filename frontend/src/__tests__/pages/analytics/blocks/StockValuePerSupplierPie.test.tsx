@@ -11,7 +11,8 @@
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 
 import type { StockPerSupplierPoint } from '@/api/analytics/types';
 import { getStockPerSupplier } from '@/api/analytics/stock';
@@ -82,7 +83,7 @@ function point(supplierName: string, totalValue: number): StockPerSupplierPoint 
 }
 
 function setup(props: React.ComponentProps<typeof StockValuePerSupplierPie> = {}) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const client = createTestQueryClient();
   return render(
     <QueryClientProvider client={client}>
       <StockValuePerSupplierPie {...props} />

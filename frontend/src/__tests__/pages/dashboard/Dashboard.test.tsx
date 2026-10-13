@@ -20,6 +20,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTestQueryClient } from '@/__tests__/test/queryClient';
 import { MemoryRouter } from 'react-router-dom';
 
 import Dashboard from '@/pages/dashboard/Dashboard';
@@ -84,11 +85,6 @@ vi.mock('@/components/ui/StatCard', () => ({
 // -------------------------------------
 // Helpers
 // -------------------------------------
-function createTestQueryClient() {
-  return new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-}
 
 function renderDashboard(queryClient: QueryClient) {
   return render(
