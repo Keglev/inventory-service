@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95.83% </span>
+                <span class="strong">95.55% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>46/48</span>
+                <span class='fraction'>43/45</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95.74% </span>
+                <span class="strong">95.45% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>45/47</span>
+                <span class='fraction'>42/44</span>
             </div>
         
             
@@ -292,23 +292,7 @@
 <a name='L227'></a><a href='#L227'>227</a>
 <a name='L228'></a><a href='#L228'>228</a>
 <a name='L229'></a><a href='#L229'>229</a>
-<a name='L230'></a><a href='#L230'>230</a>
-<a name='L231'></a><a href='#L231'>231</a>
-<a name='L232'></a><a href='#L232'>232</a>
-<a name='L233'></a><a href='#L233'>233</a>
-<a name='L234'></a><a href='#L234'>234</a>
-<a name='L235'></a><a href='#L235'>235</a>
-<a name='L236'></a><a href='#L236'>236</a>
-<a name='L237'></a><a href='#L237'>237</a>
-<a name='L238'></a><a href='#L238'>238</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L230'></a><a href='#L230'>230</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -398,9 +382,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">37x</span>
-<span class="cline-any cline-yes">37x</span>
-<span class="cline-any cline-yes">37x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">37x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -578,26 +562,18 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast/ToastContext';
 import { renameItem } from '../../../../api/inventory/itemMutations';
 import { editItemSchema, type EditItemForm } from '../../validation/inventoryValidation';
-import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
 import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
 import { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
 import { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
 import { logError } from '../../../../utils/logger';
+import { useItemSelectionState, type ItemSelectionState, type ItemSelectionStateSetters } from '../useItemSelectionState';
 &nbsp;
 /**
  * Complete edit item form state and handlers
  * 
 &nbsp;
  */
-export interface UseEditItemFormReturn {
-  selectedSupplier: SupplierOption | null;
-  selectedItem: ItemOption | null;
-  itemQuery: string;
-  formError: string;
-  setSelectedSupplier: (supplier: SupplierOption | null) =&gt; void;
-  setSelectedItem: (item: ItemOption | null) =&gt; void;
-  setItemQuery: (query: string) =&gt; void;
-  setFormError: (error: string) =&gt; void;
+export interface UseEditItemFormReturn extends ItemSelectionState, ItemSelectionStateSetters {
   suppliersQuery: ReturnType&lt;typeof useSuppliersQuery&gt;;
   itemsQuery: ReturnType&lt;typeof useItemSearchQuery&gt;;
   itemDetailsQuery: ReturnType&lt;typeof useItemDetailsQuery&gt;;
@@ -635,10 +611,10 @@ export function useEditItemForm(
   // State Management
   // ================================
 &nbsp;
-  const [selectedSupplier, setSelectedSupplier] = React.useState&lt;SupplierOption | null&gt;(null);
-  const [selectedItem, setSelectedItem] = React.useState&lt;ItemOption | null&gt;(null);
-  const [itemQuery, setItemQuery] = React.useState('');
-  const [formError, setFormError] = React.useState('');
+  const {
+    selectedSupplier, setSelectedSupplier, selectedItem, setSelectedItem,
+    itemQuery, setItemQuery, formError, setFormError,
+  } = useItemSelectionState();
 &nbsp;
   // ================================
   // Data Queries
@@ -685,7 +661,7 @@ export function useEditItemForm(
     setValue('itemId', '');
     setValue('newName', '');
     setFormError('');
-  }, [selectedSupplier, setValue]);
+  }, [selectedSupplier, setValue, setSelectedItem, setItemQuery, setFormError]);
   /**
    * Pre-fill new name with current item name when details load
    * Uses fetched data (not search placeholder)

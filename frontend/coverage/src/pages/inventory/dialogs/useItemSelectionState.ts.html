@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeFormState.ts</title>
+    <title>Code coverage report for src/pages/inventory/dialogs/useItemSelectionState.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../../../prettify.css" />
-    <link rel="stylesheet" href="../../../../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.png" />
+    <link rel="stylesheet" href="../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../../../../sort-arrow-sprite.png);
+            background-image: url(../../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../../index.html">All files</a> / <a href="index.html">src/pages/inventory/dialogs/PriceChangeDialog</a> usePriceChangeFormState.ts</h1>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/pages/inventory/dialogs</a> useItemSelectionState.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -113,7 +113,10 @@
 <a name='L48'></a><a href='#L48'>48</a>
 <a name='L49'></a><a href='#L49'>49</a>
 <a name='L50'></a><a href='#L50'>50</a>
-<a name='L51'></a><a href='#L51'>51</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -147,12 +150,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-yes">46x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">46x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">144x</span>
+<span class="cline-any cline-yes">144x</span>
+<span class="cline-any cline-yes">144x</span>
+<span class="cline-any cline-yes">144x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">144x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -164,43 +170,46 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @file usePriceChangeFormState.ts
- * @module pages/inventory/dialogs/PriceChangeDialog/usePriceChangeFormState
+ * @file useItemSelectionState.ts
+ * @module pages/inventory/dialogs/useItemSelectionState
  *
  * @summary
- * Pure local-state hook for the price-change flow: selected supplier,
- * selected item, search query, and form error.
+ * The selection state every item dialog starts from: the chosen supplier, the
+ * chosen item, the item search text and the dialog's error message.
  *
  * @enterprise
- * - No effects, no queries, no react-hook-form. Pure useState. This
- *   isolation lets tests mount the orchestrator's behavior with a
- *   hand-built state replacement.
- * - Type-level split between values and setters makes the consumer
- *   contract explicit at the interface boundary.
+ * The delete, edit, price-change and quantity-adjust dialogs each declared
+ * these four values themselves (jscpd, LO-3), with the error typed as
+ * `string | null` in one and `string` in the others. One hook keeps them
+ * identical; an empty string means "no error" in every dialog. Pure useState,
+ * so a dialog's own effects and queries stay in its own hook.
  */
 &nbsp;
 import * as React from 'react';
-import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
+import type { SupplierOption, ItemOption } from '../../../api/analytics/types';
 &nbsp;
-export interface PriceChangeFormState {
+/** Current selection values of an item dialog. */
+export interface ItemSelectionState {
   selectedSupplier: SupplierOption | null;
   selectedItem: ItemOption | null;
   itemQuery: string;
-  formError: string | null;
+  formError: string;
 }
 &nbsp;
-export interface PriceChangeFormStateSetters {
+/** Setters for {@link ItemSelectionState}. */
+export interface ItemSelectionStateSetters {
   setSelectedSupplier: (supplier: SupplierOption | null) =&gt; void;
   setSelectedItem: (item: ItemOption | null) =&gt; void;
   setItemQuery: (query: string) =&gt; void;
-  setFormError: (error: string | null) =&gt; void;
+  setFormError: (error: string) =&gt; void;
 }
 &nbsp;
-export function usePriceChangeFormState(): PriceChangeFormState &amp; PriceChangeFormStateSetters {
+/** @returns the selection values and their setters, all starting empty */
+export function useItemSelectionState(): ItemSelectionState &amp; ItemSelectionStateSetters {
   const [selectedSupplier, setSelectedSupplier] = React.useState&lt;SupplierOption | null&gt;(null);
   const [selectedItem, setSelectedItem] = React.useState&lt;ItemOption | null&gt;(null);
   const [itemQuery, setItemQuery] = React.useState('');
-  const [formError, setFormError] = React.useState&lt;string | null&gt;(null);
+  const [formError, setFormError] = React.useState('');
 &nbsp;
   return {
     selectedSupplier,
@@ -221,14 +230,14 @@ export function usePriceChangeFormState(): PriceChangeFormState &amp; PriceChang
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
             </div>
-        <script src="../../../../../prettify.js"></script>
+        <script src="../../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../../../../sorter.js"></script>
-        <script src="../../../../../block-navigation.js"></script>
+        <script src="../../../../sorter.js"></script>
+        <script src="../../../../block-navigation.js"></script>
     </body>
 </html>
     

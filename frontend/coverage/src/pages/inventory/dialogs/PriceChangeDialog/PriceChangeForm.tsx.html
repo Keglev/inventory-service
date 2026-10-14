@@ -463,7 +463,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
     &lt;Box sx={{ display: 'grid', gap: 2.5, mt: 1 }}&gt;
       {/* Error banner for non-field errors */}
       {state.formError &amp;&amp; (
-        &lt;Alert severity="error" onClose={() =&gt; state.setFormError(null)}&gt;
+        &lt;Alert severity="error" onClose={() =&gt; state.setFormError('')}&gt;
           {state.formError}
         &lt;/Alert&gt;
       )}

@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>22/22</span>
+                <span class='fraction'>19/19</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>22/22</span>
+                <span class='fraction'>19/19</span>
             </div>
         
             
@@ -170,9 +170,10 @@
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
 <a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -207,13 +208,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -310,19 +306,17 @@
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
 import { deleteItemSchema, type DeleteItemForm } from '../../validation/inventoryValidation';
+import { useItemSelectionState } from '../useItemSelectionState';
 &nbsp;
 export function useDeleteItemState() {
-  // Selection state - core domain entities
-  const [selectedSupplier, setSelectedSupplier] = React.useState&lt;SupplierOption | null&gt;(null);
-  const [selectedItem, setSelectedItem] = React.useState&lt;ItemOption | null&gt;(null);
-&nbsp;
-  // Form inputs
-  const [itemQuery, setItemQuery] = React.useState('');
+  // Selection, search text and error, shared with the other item dialogs
+  const {
+    selectedSupplier, setSelectedSupplier, selectedItem, setSelectedItem,
+    itemQuery, setItemQuery, formError, setFormError,
+  } = useItemSelectionState();
 &nbsp;
   // Dialog state
-  const [formError, setFormError] = React.useState('');
   const [showConfirmation, setShowConfirmation] = React.useState(false);
 &nbsp;
   // Form validation state
@@ -342,7 +336,7 @@ export function useDeleteItemState() {
     setValue('itemId', '');
     setFormError('');
     setShowConfirmation(false);
-  }, [selectedSupplier, setValue]);
+  }, [selectedSupplier, setValue, setSelectedItem, setItemQuery, setFormError]);
 &nbsp;
   /**
    * Sync form validation state with UI item selection

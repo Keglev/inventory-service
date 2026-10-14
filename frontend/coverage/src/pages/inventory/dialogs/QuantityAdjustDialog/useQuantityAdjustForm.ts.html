@@ -251,9 +251,7 @@
 <a name='L186'></a><a href='#L186'>186</a>
 <a name='L187'></a><a href='#L187'>187</a>
 <a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a>
-<a name='L190'></a><a href='#L190'>190</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L189'></a><a href='#L189'>189</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -467,7 +465,7 @@
  *   offers only the reasons valid for the current direction. The schema
  *   mirrors the backend StockHistoryValidator's accepted set.
  * - useQuantityAdjustFormQueries receives the combined state object
- *   (QuantityAdjustFormState &amp; QuantityAdjustFormStateSetters) as a
+ *   (ItemSelectionState &amp; ItemSelectionStateSetters) as a
  *   single parameter, eliminating the prior two-slot ambiguity.
  */
 &nbsp;
@@ -478,15 +476,14 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast/ToastContext';
 import { adjustQuantity } from '../../../../api/inventory/stockMutations';
 import { quantityAdjustSchema, type QuantityAdjustForm } from '../../validation/inventoryValidation';
-import { useQuantityAdjustFormState } from './useQuantityAdjustFormState';
 import { useQuantityAdjustFormQueries } from './useQuantityAdjustFormQueries';
-import type { QuantityAdjustFormState, QuantityAdjustFormStateSetters } from './useQuantityAdjustFormState';
+import { useItemSelectionState, type ItemSelectionState, type ItemSelectionStateSetters } from '../useItemSelectionState';
 import type { QuantityAdjustFormQueries } from './useQuantityAdjustFormQueries';
 import { logError } from '../../../../utils/logger';
 &nbsp;
 export interface UseQuantityAdjustFormReturn
-  extends QuantityAdjustFormState,
-    QuantityAdjustFormStateSetters,
+  extends ItemSelectionState,
+    ItemSelectionStateSetters,
     QuantityAdjustFormQueries {
   control: Control&lt;QuantityAdjustForm&gt;;
   formState: UseFormStateReturn&lt;QuantityAdjustForm&gt;;
@@ -507,7 +504,7 @@ export const useQuantityAdjustForm = (
   // ================================
   // Composition: State Management
   // ================================
-  const state = useQuantityAdjustFormState();
+  const state = useItemSelectionState();
 &nbsp;
   // ================================
   // Composition: Form Management
