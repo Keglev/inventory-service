@@ -323,9 +323,9 @@
  *   app-internal format codes, not BCP-47 locale tags.
  *
  * @enterprise
- * - Cross-feature utility: ~18 production call sites across api/analytics,
- *   app/settings, pages/analytics blocks, pages/dashboard, pages/inventory,
- *   pages/suppliers.
+ * - Cross-feature utility used by api/analytics, app/settings, hooks, utils and
+ *   the analytics, dashboard, inventory and supplier pages; a change here reaches
+ *   all of them.
  * - Type-only dependency on SettingsContext for DateFormat / NumberFormat union
  *   types; no runtime coupling to context state.
  * - Thousands separation is manual regex, not Intl.NumberFormat — historical
