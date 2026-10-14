@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.smartsupplypro.inventory.security.LogSanitizer;
 
 /**
  * REST controller for application and database health monitoring.
@@ -30,9 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(&quot;/api/health&quot;)
 public class HealthCheckController {
 
-<span class="fc" id="L33">    private static final Logger log = LoggerFactory.getLogger(HealthCheckController.class);</span>
-<span class="fc" id="L34">    private static final Map&lt;String, String&gt; UP = Map.of(&quot;status&quot;, &quot;UP&quot;);</span>
-<span class="fc" id="L35">    private static final Map&lt;String, String&gt; DOWN = Map.of(&quot;status&quot;, &quot;DOWN&quot;);</span>
+<span class="fc" id="L36">    private static final Logger log = LoggerFactory.getLogger(HealthCheckController.class);</span>
+<span class="fc" id="L37">    private static final Map&lt;String, String&gt; UP = Map.of(&quot;status&quot;, &quot;UP&quot;);</span>
+<span class="fc" id="L38">    private static final Map&lt;String, String&gt; DOWN = Map.of(&quot;status&quot;, &quot;DOWN&quot;);</span>
 
     private final DataSource dataSource;
 
@@ -43,9 +46,9 @@ public class HealthCheckController {
      */
     private volatile String databaseProduct;
 
-<span class="fc" id="L46">    public HealthCheckController(DataSource dataSource) {</span>
-<span class="fc" id="L47">        this.dataSource = dataSource;</span>
-<span class="fc" id="L48">    }</span>
+<span class="fc" id="L49">    public HealthCheckController(DataSource dataSource) {</span>
+<span class="fc" id="L50">        this.dataSource = dataSource;</span>
+<span class="fc" id="L51">    }</span>
 
     /**
      * Basic health check for the frontend.
@@ -55,16 +58,16 @@ public class HealthCheckController {
      */
     @GetMapping
     public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; health() {
-<span class="fc" id="L58">        long now = System.currentTimeMillis();</span>
-<span class="fc" id="L59">        boolean dbUp = pingDatabase();</span>
-<span class="fc" id="L60">        Map&lt;String, Object&gt; body = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L61">        body.put(&quot;status&quot;, &quot;ok&quot;); // application is up if this controller was reached</span>
-<span class="fc bfc" id="L62" title="All 2 branches covered.">        body.put(&quot;database&quot;, dbUp ? &quot;ok&quot; : &quot;down&quot;);</span>
+<span class="fc" id="L61">        long now = System.currentTimeMillis();</span>
+<span class="fc" id="L62">        boolean dbUp = pingDatabase();</span>
+<span class="fc" id="L63">        Map&lt;String, Object&gt; body = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L64">        body.put(&quot;status&quot;, &quot;ok&quot;); // application is up if this controller was reached</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        body.put(&quot;database&quot;, dbUp ? &quot;ok&quot; : &quot;down&quot;);</span>
         // Real DB flavor from JDBC metadata; &quot;unknown&quot; until first successful ping.
-<span class="fc bfc" id="L64" title="All 2 branches covered.">        body.put(&quot;databaseProduct&quot;, databaseProduct != null ? databaseProduct : &quot;unknown&quot;);</span>
-<span class="fc" id="L65">        body.put(&quot;timestamp&quot;, now);</span>
-<span class="fc bfc" id="L66" title="All 2 branches covered.">        HttpStatus status = dbUp ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;</span>
-<span class="fc" id="L67">        return new ResponseEntity&lt;&gt;(body, status);</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        body.put(&quot;databaseProduct&quot;, databaseProduct != null ? databaseProduct : &quot;unknown&quot;);</span>
+<span class="fc" id="L68">        body.put(&quot;timestamp&quot;, now);</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        HttpStatus status = dbUp ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;</span>
+<span class="fc" id="L70">        return new ResponseEntity&lt;&gt;(body, status);</span>
     }
 
     /**
@@ -83,34 +86,34 @@ public class HealthCheckController {
     @GetMapping(&quot;/db&quot;)
     public ResponseEntity&lt;Map&lt;String, String&gt;&gt; checkDatabaseConnection(Authentication authentication) {
         try (
-<span class="fc" id="L86">            Connection conn = dataSource.getConnection();</span>
+<span class="fc" id="L89">            Connection conn = dataSource.getConnection();</span>
             // SYS_CONTEXT verifies actual Oracle functionality and returns client IP for diagnostics
-<span class="fc" id="L88">            PreparedStatement stmt = conn.prepareStatement(</span>
+<span class="fc" id="L91">            PreparedStatement stmt = conn.prepareStatement(</span>
                     &quot;SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') AS ip FROM DUAL&quot;);
-<span class="fc" id="L90">            ResultSet rs = stmt.executeQuery()</span>
+<span class="fc" id="L93">            ResultSet rs = stmt.executeQuery()</span>
         ) {
-<span class="fc bfc" id="L92" title="All 2 branches covered.">            if (!rs.next()) {</span>
-<span class="fc" id="L93">                log.warn(&quot;Database health check returned no row&quot;);</span>
-<span class="fc" id="L94">                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(DOWN);</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">            if (!rs.next()) {</span>
+<span class="fc" id="L96">                log.warn(&quot;Database health check returned no row&quot;);</span>
+<span class="fc" id="L97">                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(DOWN);</span>
             }
-<span class="fc bfc" id="L96" title="All 2 branches covered.">            return ResponseEntity.ok(isAdmin(authentication)</span>
-<span class="fc" id="L97">                    ? Map.of(&quot;status&quot;, &quot;UP&quot;, &quot;oracleSeesIp&quot;, String.valueOf(rs.getString(&quot;ip&quot;)))</span>
-<span class="fc" id="L98">                    : UP);</span>
-<span class="pc bpc" id="L99" title="3 of 6 branches missed.">        } catch (Exception ex) {</span>
-<span class="fc" id="L100">            log.warn(&quot;Database health check failed&quot;, ex);</span>
-<span class="fc" id="L101">            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(DOWN);</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">            return ResponseEntity.ok(isAdmin(authentication)</span>
+<span class="fc" id="L100">                    ? Map.of(&quot;status&quot;, &quot;UP&quot;, &quot;oracleSeesIp&quot;, String.valueOf(rs.getString(&quot;ip&quot;)))</span>
+<span class="fc" id="L101">                    : UP);</span>
+<span class="pc bpc" id="L102" title="3 of 6 branches missed.">        } catch (Exception ex) {</span>
+<span class="fc" id="L103">            log.warn(&quot;Database health check failed: {}&quot;, describeFailure(ex));</span>
+<span class="fc" id="L104">            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(DOWN);</span>
         }
     }
 
     // low-cost ping; runs every 15 min from the frontend health check
     private boolean pingDatabase() {
-<span class="fc" id="L107">        try (Connection conn = dataSource.getConnection();</span>
-<span class="fc" id="L108">             PreparedStatement stmt = conn.prepareStatement(&quot;SELECT 1 FROM DUAL&quot;);</span>
-<span class="fc" id="L109">             ResultSet rs = stmt.executeQuery()) {</span>
-<span class="fc" id="L110">            resolveDatabaseProduct(conn);</span>
-<span class="fc" id="L111">            return rs.next();</span>
-<span class="fc" id="L112">        } catch (SQLException ex) {</span>
-<span class="fc" id="L113">            return false;</span>
+<span class="fc" id="L110">        try (Connection conn = dataSource.getConnection();</span>
+<span class="fc" id="L111">             PreparedStatement stmt = conn.prepareStatement(&quot;SELECT 1 FROM DUAL&quot;);</span>
+<span class="fc" id="L112">             ResultSet rs = stmt.executeQuery()) {</span>
+<span class="fc" id="L113">            resolveDatabaseProduct(conn);</span>
+<span class="fc" id="L114">            return rs.next();</span>
+<span class="fc" id="L115">        } catch (SQLException ex) {</span>
+<span class="fc" id="L116">            return false;</span>
         }
     }
 
@@ -120,23 +123,37 @@ public class HealthCheckController {
      * breaks the health ping; the next ping retries.
      */
     private void resolveDatabaseProduct(Connection conn) {
-<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (databaseProduct != null) {</span>
-<span class="fc" id="L124">            return;</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (databaseProduct != null) {</span>
+<span class="fc" id="L127">            return;</span>
         }
         try {
-<span class="fc" id="L127">            String name = conn.getMetaData().getDatabaseProductName();</span>
-<span class="fc bfc" id="L128" title="All 4 branches covered.">            if (name != null &amp;&amp; !name.isBlank()) {</span>
-<span class="fc" id="L129">                databaseProduct = name;</span>
+<span class="fc" id="L130">            String name = conn.getMetaData().getDatabaseProductName();</span>
+<span class="fc bfc" id="L131" title="All 4 branches covered.">            if (name != null &amp;&amp; !name.isBlank()) {</span>
+<span class="fc" id="L132">                databaseProduct = name;</span>
             }
-<span class="fc" id="L131">        } catch (Exception ex) {</span>
+<span class="fc" id="L134">        } catch (Exception ex) {</span>
             // metadata unavailable; keep null and retry on a later ping
-<span class="fc" id="L133">        }</span>
-<span class="fc" id="L134">    }</span>
+<span class="fc" id="L136">        }</span>
+<span class="fc" id="L137">    }</span>
+
+    // One line, no stack trace (NF-18): the check repeats on every probe while the
+    // database is down. A driver can wrap the network or wallet error that a fix
+    // needs, so the deepest cause is named when there is one. Driver text can span
+    // lines; LogSanitizer keeps the warning on one line and bounds its length.
+    private static String describeFailure(Exception ex) {
+<span class="fc" id="L144">        Throwable root = NestedExceptionUtils.getRootCause(ex);</span>
+<span class="fc" id="L145">        String top = describe(ex);</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        return root == null ? top : top + &quot; (root cause &quot; + describe(root) + &quot;)&quot;;</span>
+    }
+
+    private static String describe(Throwable t) {
+<span class="fc" id="L150">        return t.getClass().getName() + &quot;: &quot; + LogSanitizer.sanitize(String.valueOf(t.getMessage()));</span>
+    }
 
     private static boolean isAdmin(Authentication authentication) {
-<span class="fc bfc" id="L137" title="All 2 branches covered.">        return authentication != null &amp;&amp; authentication.getAuthorities().stream()</span>
-<span class="fc" id="L138">                .map(GrantedAuthority::getAuthority)</span>
-<span class="fc bfc" id="L139" title="All 2 branches covered.">                .anyMatch(&quot;ROLE_ADMIN&quot;::equals);</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        return authentication != null &amp;&amp; authentication.getAuthorities().stream()</span>
+<span class="fc" id="L155">                .map(GrantedAuthority::getAuthority)</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">                .anyMatch(&quot;ROLE_ADMIN&quot;::equals);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
