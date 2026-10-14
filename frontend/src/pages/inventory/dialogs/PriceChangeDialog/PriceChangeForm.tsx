@@ -56,7 +56,7 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
     <Box sx={{ display: 'grid', gap: 2.5, mt: 1 }}>
       {/* Error banner for non-field errors */}
       {state.formError && (
-        <Alert severity="error" onClose={() => state.setFormError(null)}>
+        <Alert severity="error" onClose={() => state.setFormError('')}>
           {state.formError}
         </Alert>
       )}

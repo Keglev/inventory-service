@@ -27,19 +27,17 @@
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
 import { deleteItemSchema, type DeleteItemForm } from '../../validation/inventoryValidation';
+import { useItemSelectionState } from '../useItemSelectionState';
 
 export function useDeleteItemState() {
-  // Selection state - core domain entities
-  const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierOption | null>(null);
-  const [selectedItem, setSelectedItem] = React.useState<ItemOption | null>(null);
-
-  // Form inputs
-  const [itemQuery, setItemQuery] = React.useState('');
+  // Selection, search text and error, shared with the other item dialogs
+  const {
+    selectedSupplier, setSelectedSupplier, selectedItem, setSelectedItem,
+    itemQuery, setItemQuery, formError, setFormError,
+  } = useItemSelectionState();
 
   // Dialog state
-  const [formError, setFormError] = React.useState('');
   const [showConfirmation, setShowConfirmation] = React.useState(false);
 
   // Form validation state
@@ -59,7 +57,7 @@ export function useDeleteItemState() {
     setValue('itemId', '');
     setFormError('');
     setShowConfirmation(false);
-  }, [selectedSupplier, setValue]);
+  }, [selectedSupplier, setValue, setSelectedItem, setItemQuery, setFormError]);
 
   /**
    * Sync form validation state with UI item selection

@@ -4,7 +4,7 @@
  *
  * @summary
  * Orchestrator hook for the price-change flow. Composes
- * usePriceChangeFormState, usePriceChangeFormQueries, and a react-hook-form
+ * useItemSelectionState, usePriceChangeFormQueries, and a react-hook-form
  * instance. Owns the submit pipeline that calls changePrice.
  *
  * @enterprise
@@ -29,11 +29,11 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast/ToastContext';
 import { changePrice } from '../../../../api/inventory/priceMutations';
 import { priceChangeSchema, type PriceChangeForm } from '../../validation/inventoryValidation';
-import { usePriceChangeFormState, type PriceChangeFormState, type PriceChangeFormStateSetters } from './usePriceChangeFormState';
+import { useItemSelectionState, type ItemSelectionState, type ItemSelectionStateSetters } from '../useItemSelectionState';
 import { usePriceChangeFormQueries, type PriceChangeFormQueries } from './usePriceChangeFormQueries';
 import { logError } from '../../../../utils/logger';
 
-export interface UsePriceChangeFormReturn extends PriceChangeFormState, PriceChangeFormStateSetters, PriceChangeFormQueries {
+export interface UsePriceChangeFormReturn extends ItemSelectionState, ItemSelectionStateSetters, PriceChangeFormQueries {
   control: Control<PriceChangeForm>;
   formState: UseFormStateReturn<PriceChangeForm>;
   setValue: UseFormSetValue<PriceChangeForm>;
@@ -56,7 +56,7 @@ export function usePriceChangeForm({
   const toast = useToast();
 
   // Compose state management
-  const state = usePriceChangeFormState();
+  const state = useItemSelectionState();
 
   // Form management
   const {
@@ -88,7 +88,7 @@ export function usePriceChangeForm({
     state.setSelectedSupplier(null);
     state.setSelectedItem(null);
     state.setItemQuery('');
-    state.setFormError(null);
+    state.setFormError('');
     reset();
     onClose();
   };
@@ -107,7 +107,7 @@ export function usePriceChangeForm({
       return;
     }
 
-    state.setFormError(null);
+    state.setFormError('');
     clearErrors();
 
     try {

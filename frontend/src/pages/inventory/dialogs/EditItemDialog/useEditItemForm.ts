@@ -39,26 +39,18 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast/ToastContext';
 import { renameItem } from '../../../../api/inventory/itemMutations';
 import { editItemSchema, type EditItemForm } from '../../validation/inventoryValidation';
-import type { SupplierOption, ItemOption } from '../../../../api/analytics/types';
 import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQuery';
 import { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
 import { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
 import { logError } from '../../../../utils/logger';
+import { useItemSelectionState, type ItemSelectionState, type ItemSelectionStateSetters } from '../useItemSelectionState';
 
 /**
  * Complete edit item form state and handlers
  * 
 
  */
-export interface UseEditItemFormReturn {
-  selectedSupplier: SupplierOption | null;
-  selectedItem: ItemOption | null;
-  itemQuery: string;
-  formError: string;
-  setSelectedSupplier: (supplier: SupplierOption | null) => void;
-  setSelectedItem: (item: ItemOption | null) => void;
-  setItemQuery: (query: string) => void;
-  setFormError: (error: string) => void;
+export interface UseEditItemFormReturn extends ItemSelectionState, ItemSelectionStateSetters {
   suppliersQuery: ReturnType<typeof useSuppliersQuery>;
   itemsQuery: ReturnType<typeof useItemSearchQuery>;
   itemDetailsQuery: ReturnType<typeof useItemDetailsQuery>;
@@ -96,10 +88,10 @@ export function useEditItemForm(
   // State Management
   // ================================
 
-  const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierOption | null>(null);
-  const [selectedItem, setSelectedItem] = React.useState<ItemOption | null>(null);
-  const [itemQuery, setItemQuery] = React.useState('');
-  const [formError, setFormError] = React.useState('');
+  const {
+    selectedSupplier, setSelectedSupplier, selectedItem, setSelectedItem,
+    itemQuery, setItemQuery, formError, setFormError,
+  } = useItemSelectionState();
 
   // ================================
   // Data Queries
@@ -146,7 +138,7 @@ export function useEditItemForm(
     setValue('itemId', '');
     setValue('newName', '');
     setFormError('');
-  }, [selectedSupplier, setValue]);
+  }, [selectedSupplier, setValue, setSelectedItem, setItemQuery, setFormError]);
   /**
    * Pre-fill new name with current item name when details load
    * Uses fetched data (not search placeholder)

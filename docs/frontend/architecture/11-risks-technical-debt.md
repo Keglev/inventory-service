@@ -23,14 +23,15 @@ live as BUCKET markers at their source sites.
 
 ## Size-Budget Waivers
 
-Measured over code lines against the budgets in [§2](02-constraints.md). Two files exceed
-their layer's alarm; each is waived, with the reason, rather than split. No function
-exceeds its layer's alarm.
+Measured over code lines against the budgets in [§2](02-constraints.md). One file exceeds
+its layer's alarm; it is waived, with the reason, rather than split. No function
+exceeds its layer's alarm. `useEditItemForm.ts` no longer needs its waiver: the shared
+`useItemSelectionState` brought it to 116 code lines, above the hooks band and below its
+alarm.
 
 | File | Code lines | Alarm | Why not split |
 |---|---|---|---|
 | `inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` | 164 | 160 (dialogs) | Four lines over. A flat, single-purpose JSX form; any split would be a fragment defined by the threshold rather than by a responsibility |
-| `inventory/dialogs/EditItemDialog/useEditItemForm.ts` | 124 | 120 (hooks) | One responsibility, the edit dialog's form controller, with the same shape and reasoning as the create dialog's (`useItemForm.ts`, 116, within its alarm): what remains is coupled through form state. Four lines over |
 
 Seven functions sit above their band but below their alarm (`PriceChangeForm` 146,
 `EditItemForm` 133, `PriceTrendCard` 122, `MovementsSection` 112, `DateRangeFilter`
