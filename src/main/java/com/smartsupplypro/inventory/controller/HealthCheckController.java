@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.smartsupplypro.inventory.security.LogSanitizer;
 
 /**
  * REST controller for application and database health monitoring.
@@ -97,7 +100,7 @@ public class HealthCheckController {
                     ? Map.of("status", "UP", "oracleSeesIp", String.valueOf(rs.getString("ip")))
                     : UP);
         } catch (Exception ex) {
-            log.warn("Database health check failed", ex);
+            log.warn("Database health check failed: {}", describeFailure(ex));
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(DOWN);
         }
     }
@@ -131,6 +134,20 @@ public class HealthCheckController {
         } catch (Exception ex) {
             // metadata unavailable; keep null and retry on a later ping
         }
+    }
+
+    // One line, no stack trace (NF-18): the check repeats on every probe while the
+    // database is down. A driver can wrap the network or wallet error that a fix
+    // needs, so the deepest cause is named when there is one. Driver text can span
+    // lines; LogSanitizer keeps the warning on one line and bounds its length.
+    private static String describeFailure(Exception ex) {
+        Throwable root = NestedExceptionUtils.getRootCause(ex);
+        String top = describe(ex);
+        return root == null ? top : top + " (root cause " + describe(root) + ")";
+    }
+
+    private static String describe(Throwable t) {
+        return t.getClass().getName() + ": " + LogSanitizer.sanitize(String.valueOf(t.getMessage()));
     }
 
     private static boolean isAdmin(Authentication authentication) {
