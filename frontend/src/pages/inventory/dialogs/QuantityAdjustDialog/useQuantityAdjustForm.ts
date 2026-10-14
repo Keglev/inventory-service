@@ -24,7 +24,7 @@
  *   offers only the reasons valid for the current direction. The schema
  *   mirrors the backend StockHistoryValidator's accepted set.
  * - useQuantityAdjustFormQueries receives the combined state object
- *   (QuantityAdjustFormState & QuantityAdjustFormStateSetters) as a
+ *   (ItemSelectionState & ItemSelectionStateSetters) as a
  *   single parameter, eliminating the prior two-slot ambiguity.
  */
 
@@ -35,15 +35,14 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/toast/ToastContext';
 import { adjustQuantity } from '../../../../api/inventory/stockMutations';
 import { quantityAdjustSchema, type QuantityAdjustForm } from '../../validation/inventoryValidation';
-import { useQuantityAdjustFormState } from './useQuantityAdjustFormState';
 import { useQuantityAdjustFormQueries } from './useQuantityAdjustFormQueries';
-import type { QuantityAdjustFormState, QuantityAdjustFormStateSetters } from './useQuantityAdjustFormState';
+import { useItemSelectionState, type ItemSelectionState, type ItemSelectionStateSetters } from '../useItemSelectionState';
 import type { QuantityAdjustFormQueries } from './useQuantityAdjustFormQueries';
 import { logError } from '../../../../utils/logger';
 
 export interface UseQuantityAdjustFormReturn
-  extends QuantityAdjustFormState,
-    QuantityAdjustFormStateSetters,
+  extends ItemSelectionState,
+    ItemSelectionStateSetters,
     QuantityAdjustFormQueries {
   control: Control<QuantityAdjustForm>;
   formState: UseFormStateReturn<QuantityAdjustForm>;
@@ -64,7 +63,7 @@ export const useQuantityAdjustForm = (
   // ================================
   // Composition: State Management
   // ================================
-  const state = useQuantityAdjustFormState();
+  const state = useItemSelectionState();
 
   // ================================
   // Composition: Form Management

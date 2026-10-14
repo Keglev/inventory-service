@@ -255,7 +255,7 @@ describe('usePriceChangeForm', () => {
 
     expect(hook.result.current.selectedItem).toBeNull();
     expect(hook.result.current.itemQuery).toBe('');
-    expect(hook.result.current.formError).toBeNull();
+    expect(hook.result.current.formError).toBe('');
     expect(hook.onClose).toHaveBeenCalled();
   });
 });

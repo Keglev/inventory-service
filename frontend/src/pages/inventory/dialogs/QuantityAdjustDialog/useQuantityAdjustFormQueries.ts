@@ -30,7 +30,7 @@ import { useSuppliersQuery } from '../../../../api/inventory/hooks/useSuppliersQ
 import { useItemSearchQuery } from '../../../../api/inventory/hooks/useItemSearchQuery';
 import { useItemDetailsQuery } from '../../../../api/inventory/hooks/useItemDetailsQuery';
 import { useItemPriceQuery } from './useItemPriceQuery';
-import type { QuantityAdjustFormState, QuantityAdjustFormStateSetters } from './useQuantityAdjustFormState';
+import type { ItemSelectionState, ItemSelectionStateSetters } from '../useItemSelectionState';
 import type { UseFormSetValue } from 'react-hook-form';
 import type { QuantityAdjustForm } from '../../validation/inventoryValidation';
 
@@ -45,7 +45,7 @@ export interface QuantityAdjustFormQueries {
 }
 
 export const useQuantityAdjustFormQueries = (
-  state: QuantityAdjustFormState & QuantityAdjustFormStateSetters,
+  state: ItemSelectionState & ItemSelectionStateSetters,
   setValue: UseFormSetValue<QuantityAdjustForm>,
   isDialogOpen: boolean
 ): QuantityAdjustFormQueries => {

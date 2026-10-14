@@ -102,7 +102,7 @@ const makeState = (
     selectedSupplier: null,
     selectedItem: null,
     itemQuery: '',
-    formError: null,
+    formError: '',
 
     setSelectedSupplier: vi.fn(),
     setSelectedItem: vi.fn(),
@@ -222,7 +222,7 @@ describe('PriceChangeForm', () => {
 
     await user.click(screen.getByLabelText(/close/i));
 
-    expect(setFormError).toHaveBeenCalledWith(null);
+    expect(setFormError).toHaveBeenCalledWith('');
   });
 
   it('renders item details section when item is selected', () => {

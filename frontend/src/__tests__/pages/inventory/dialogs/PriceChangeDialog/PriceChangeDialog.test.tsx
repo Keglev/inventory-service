@@ -100,7 +100,7 @@ const makeFormState = (overrides: FormStateOverrides = {}): UsePriceChangeFormRe
     selectedSupplier: null,
     selectedItem: null,
     itemQuery: '',
-    formError: null,
+    formError: '',
     setSelectedSupplier: vi.fn(),
     setSelectedItem: vi.fn(),
     setItemQuery: vi.fn(),
