@@ -94,7 +94,10 @@
 <a name='L29'></a><a href='#L29'>29</a>
 <a name='L30'></a><a href='#L30'>30</a>
 <a name='L31'></a><a href='#L31'>31</a>
-<a name='L32'></a><a href='#L32'>32</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -112,8 +115,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">168x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">167x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -132,8 +138,7 @@
  * @summary
  * Theme-aware Recharts tooltip styling. Recharts renders tooltips on a
  * hard-coded white surface, which is wrong in dark mode; this binds the tooltip
- * surface and label to MUI theme tokens. Per-series item colors are left
- * untouched so value coloring survives.
+ * surface, label and item text to MUI theme tokens.
  */
 import type { Theme } from '@mui/material/styles';
 &nbsp;
@@ -151,6 +156,10 @@ export function chartTooltipProps(theme: Theme) {
       borderRadius: 8,
     },
     labelStyle: { color: theme.palette.text.primary },
+    // Recharts colours each item in its series colour. As text those colours fall
+    // below 4.5:1 on the tooltip surface (dark: 3.32 for the green), so names and
+    // values take the text token; the series colour stays on the marks (LO-2).
+    itemStyle: { color: theme.palette.text.primary },
     // The band behind a hovered bar. Recharts paints it #ccc, which glares on a
     // dark card; the theme's selection tint is subtle in both modes.
     cursor: { fill: theme.palette.action.selected },
