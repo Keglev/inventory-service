@@ -1,5 +1,6 @@
 package com.smartsupplypro.inventory.controller.health;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,7 +13,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,13 +85,16 @@ class HealthCheckControllerDbEndpointTest {
         assertEquals(DOWN, response.getBody());
     }
 
-    /** The one warning a failed check writes: fixed text, the cause attached with its detail. */
+    /** The one warning a failed check writes: one line naming the exception, no stack trace. */
     private void assertLoggedFailure(String detail) {
+        assertLoggedLine("Database health check failed: java.sql.SQLException: " + detail);
+    }
+
+    private void assertLoggedLine(String line) {
         assertThat(log.events()).singleElement().satisfies(event -> {
             assertEquals(Level.WARN, event.getLevel());
-            assertEquals("Database health check failed", event.getFormattedMessage());
-            assertNotNull(event.getThrowableProxy(), "the cause is attached");
-            assertEquals(detail, event.getThrowableProxy().getMessage());
+            assertEquals(line, event.getFormattedMessage());
+            assertNull(event.getThrowableProxy(), "no stack trace is attached");
         });
     }
 
@@ -164,6 +167,24 @@ class HealthCheckControllerDbEndpointTest {
 
         assertDown(newController().checkDatabaseConnection(ADMIN));
         assertLoggedFailure("ORA-12506: listener rejected 10.0.0.9");
+    }
+
+    @Test
+    void should_name_the_root_cause_when_the_driver_wraps_it() throws Exception {
+        when(dataSource.getConnection())
+                .thenThrow(new SQLException("IO Error: connection failed", new IOException("Connection refused")));
+
+        assertDown(newController().checkDatabaseConnection(ADMIN));
+        assertLoggedLine("Database health check failed: java.sql.SQLException: IO Error: connection failed"
+                + " (root cause java.io.IOException: Connection refused)");
+    }
+
+    @Test
+    void should_keep_the_warning_on_one_line_when_the_driver_message_spans_lines() throws Exception {
+        when(dataSource.getConnection()).thenThrow(new SQLException("ORA-28759: failure to open file\nwallet"));
+
+        assertDown(newController().checkDatabaseConnection(ADMIN));
+        assertLoggedFailure("ORA-28759: failure to open file_wallet");
     }
 
     @Test
