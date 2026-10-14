@@ -90,8 +90,8 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     /**
      * {@inheritDoc}
      *
-     * <p>Price validation is applied only when the price actually changed,
-     * to avoid redundant checks on quantity-only updates.</p>
+     * <p>A price change is written to the stock history only when the price
+     * actually changed; a quantity-only update logs no price entry.</p>
      */
     @Override
     @Transactional
@@ -123,13 +123,13 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     }
 
     // compareTo, not equals: 2.5 and 2.50 are one price, and equals would log a price
-    // change for a difference in scale alone. A null still reaches assertPriceValid,
-    // which answers 422.
+    // change for a difference in scale alone. validateForUpdate has already rejected a
+    // missing or non-positive price with 400 (validateBase), the one rule for update
+    // (LO-1), so the price needs no second check here.
     private static boolean applyPriceChange(InventoryItem existing, BigDecimal newPrice) {
-        if (newPrice != null && existing.getPrice().compareTo(newPrice) == 0) {
+        if (existing.getPrice().compareTo(newPrice) == 0) {
             return false;
         }
-        assertPriceValid(newPrice);
         existing.setPrice(newPrice);
         return true;
     }
