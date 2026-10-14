@@ -212,7 +212,7 @@ class InventoryItemServiceImplUpdateTest {
         updateDto.setPrice(BigDecimal.ZERO);
 
         // validateBase rejects the price before the service compares it, so the
-        // answer is 400 (InvalidRequestException), not the 422 of assertPriceValid.
+        // answer is 400 (InvalidRequestException); update has no second price check.
         InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> service.update("id-1", updateDto));
         assertEquals("Price must be positive or greater than zero", ex.getMessage());
