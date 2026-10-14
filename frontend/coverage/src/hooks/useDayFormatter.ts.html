@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -88,7 +88,15 @@
 <a name='L23'></a><a href='#L23'>23</a>
 <a name='L24'></a><a href='#L24'>24</a>
 <a name='L25'></a><a href='#L25'>25</a>
-<a name='L26'></a><a href='#L26'>26</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -107,9 +115,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">56x</span>
-<span class="cline-any cline-yes">56x</span>
-<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">58x</span>
+<span class="cline-any cline-yes">58x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -130,11 +146,19 @@ import { useCallback } from 'react';
 import { useSettings } from './useSettings';
 import { formatDate } from '../utils/formatters';
 &nbsp;
+// Time-axis values are UTC midnights (Date.parse of an ISO day). Local getters
+// would read the previous day west of UTC (LO-4), so the UTC day is rebuilt as
+// a local date first, as utcDay does for the employee chart.
+function localDayOf(ms: number): Date {
+  const d = new Date(ms);
+  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+}
+&nbsp;
 /** @returns a formatter for axis ticks and tooltip labels */
 export function useDayFormatter(): (value: unknown) =&gt; string {
   const { userPreferences } = useSettings();
   return useCallback(
-    (value: unknown) =&gt; formatDate(typeof value === 'number' ? new Date(value) : String(value), userPreferences.dateFormat) || String(value),
+    (value: unknown) =&gt; formatDate(typeof value === 'number' ? localDayOf(value) : String(value), userPreferences.dateFormat) || String(value),
     [userPreferences.dateFormat]
   );
 }
