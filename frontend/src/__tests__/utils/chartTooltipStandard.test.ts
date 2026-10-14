@@ -4,7 +4,8 @@
  * @description Contract test: every component that renders a Recharts tooltip takes its
  *   surface from chartTooltipProps, so tooltips follow the theme in light and dark mode.
  *   Recharts' default tooltip is a white box whose label is drawn in the theme's text
- *   colour, which is invisible in dark mode.
+ *   colour, which is invisible in dark mode. No chart sets its own itemStyle, which would
+ *   override the text token chartTooltipProps gives the items (LO-2).
  */
 import { describe, it, expect } from 'vitest';
 
@@ -22,5 +23,10 @@ describe('chart tooltip standard', () => {
   it('styles every Recharts tooltip through chartTooltipProps', () => {
     const unstyled = charts.filter(([, code]) => !code.includes('chartTooltipProps(')).map(([path]) => path);
     expect(unstyled).toEqual([]);
+  });
+
+  it('leaves the item text to chartTooltipProps when a chart renders a tooltip', () => {
+    const overriding = charts.filter(([, code]) => /\bitemStyle\s*=/.test(code)).map(([path]) => path);
+    expect(overriding).toEqual([]);
   });
 });
