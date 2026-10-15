@@ -56,8 +56,8 @@ RUN npm run build
 # generation the backend runtime runs, with 0 CRITICAL and 7 fixed HIGH.
 FROM nginx:1.30-alpine AS runtime
 
-# ca-certificates: Alpine ships without a full CA bundle, needed for HTTPS
-# proxy_pass to upstream services.
+# ca-certificates: Alpine ships without a full CA bundle; default.conf reads it
+# (proxy_ssl_trusted_certificate) to verify the API's certificate.
 # apk upgrade: the seven remaining findings above are packages the base image
 # lags on, not packages without a fix. Alpine 3.24 publishes libuuid 2.42.3-r1
 # against libuuid 2.42.1-r0 in the base. The backend runtime stage has carried
