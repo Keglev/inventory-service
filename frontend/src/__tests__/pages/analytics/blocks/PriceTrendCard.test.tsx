@@ -275,6 +275,59 @@ describe('PriceTrendCard', () => {
     expect(screen.getByTestId('picker')).toHaveAttribute('data-helper', ' ');
   });
 
+  // The server matches name OR code; the client narrowing must keep code hits.
+  it('keeps an option whose code matches the query when its name does not', () => {
+    const coded: ItemWithSupplier = { id: 'it-5', name: 'Radial Shaft Seal', sku: 'SEA-SHAFT-35', supplierId: 'sup-1' };
+    useItemSearchOptionsMock.mockReturnValue(
+      searchState({
+        debouncedQuery: 'sea-shaft',
+        searchQuery: { data: [...options, coded], isLoading: false } as never,
+      })
+    );
+
+    setup({ supplierId: 'sup-1' });
+
+    expect(lastPickerProps?.options).toEqual([coded]);
+  });
+
+  it('asks for an item name or code, with and without a supplier', () => {
+    useItemSearchOptionsMock.mockReturnValue(searchState());
+
+    const { rerender } = setup({ supplierId: 'sup-1' });
+    expect(lastPickerProps?.placeholder).toBe('analytics:priceTrend.itemPlaceholder');
+
+    rerender(
+      <QueryClientProvider client={createTestQueryClient()}>
+        <PriceTrendCard />
+      </QueryClientProvider>
+    );
+    expect(lastPickerProps?.placeholder).toBe('analytics:priceTrend.itemPlaceholder');
+  });
+
+  it('prompts to type in the empty popup instead of asking for a supplier', () => {
+    useItemSearchOptionsMock.mockReturnValue(searchState());
+
+    setup({ supplierId: 'sup-1' });
+
+    expect(lastPickerProps?.noOptionsText).toBe('analytics:priceTrend.typeToSearch');
+  });
+
+  it('names the supplier in a miss only when one is selected', () => {
+    useItemSearchOptionsMock.mockReturnValue(
+      searchState({ debouncedQuery: 'zzz', searchQuery: { data: [], isLoading: false } as never })
+    );
+
+    const { rerender } = setup({ supplierId: 'sup-1' });
+    expect(lastPickerProps?.noOptionsText).toBe('analytics:priceTrend.noItemsForSupplier');
+
+    rerender(
+      <QueryClientProvider client={createTestQueryClient()}>
+        <PriceTrendCard />
+      </QueryClientProvider>
+    );
+    expect(lastPickerProps?.noOptionsText).toBe('analytics:priceTrend.noItems');
+  });
+
   it('shows the no-data state when the selected item has no price points', async () => {
     getPriceTrendMock.mockResolvedValue([]);
     useItemSearchOptionsMock.mockReturnValue(

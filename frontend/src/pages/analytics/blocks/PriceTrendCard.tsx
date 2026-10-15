@@ -4,8 +4,8 @@
  *
  * @summary
  * Supplier-aware item typeahead + price trend card (A3). User picks an
- * item from the typeahead; the chart (PriceTrendChart) fetches and renders
- * only after an explicit selection.
+ * item by name or code from the typeahead; the chart (PriceTrendChart)
+ * fetches and renders only after an explicit selection.
  *
  * @enterprise
  * - Cross-supplier leak prevention is double-locked: (a) selection and
@@ -75,7 +75,12 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
     const sid = supplierId ?? '';
     const q = debouncedQuery.trim().toLowerCase();
     const bySupplier = sid ? base.filter((it) => (it.supplierId ?? '') === sid) : base;
-    const byQuery = q ? bySupplier.filter((it) => it.name.toLowerCase().includes(q)) : bySupplier;
+    // The server matches name OR code; narrowing by name alone dropped every
+    // code hit. Narrowing stays because keepPrevious shows the last query's
+    // results while the next one loads.
+    const byQuery = q
+      ? bySupplier.filter((it) => it.name.toLowerCase().includes(q) || (it.sku ?? '').toLowerCase().includes(q))
+      : bySupplier;
     return byQuery.slice(0, 50);
   }, [itemSearchQ.data, supplierId, debouncedQuery]);
 
@@ -137,12 +142,14 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
             onSelect={setSelectedItem}
             onInputChange={setItemQuery}
             label={t('analytics:item')}
-            placeholder={t('analytics:priceTrend.selectSupplierShort')}
+            placeholder={t('analytics:priceTrend.itemPlaceholder')}
             helperText={pickerHelperText}
             noOptionsText={
-              debouncedQuery
+              !debouncedQuery
+                ? t('analytics:priceTrend.typeToSearch')
+                : supplierId
                 ? t('analytics:priceTrend.noItemsForSupplier')
-                : t('analytics:priceTrend.selectSupplierShort')
+                : t('analytics:priceTrend.noItems')
             }
           />
         </Stack>

@@ -131,7 +131,7 @@ describe('MovementsSection', () => {
       expect(screen.getAllByTestId('reason-breakdown-card')).toHaveLength(2);
     });
 
-    const input = screen.getByLabelText('Filter by item name');
+    const input = screen.getByLabelText('Filter by item name or code');
     await user.type(input, 'bear');
 
     await waitFor(() => {

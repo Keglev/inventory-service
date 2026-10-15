@@ -19,9 +19,10 @@
     "employees": "Employees"
   },
   "priceTrend": {
-    "selectSupplierShort": "Select supplier",
+    "itemPlaceholder": "Item name or code",
     "selectItem": "Choose an item to see its price history",
     "noItemsForSupplier": "No items for this supplier",
+    "noItems": "No items found",
     "typeToSearch": "Start typing to search…"
   },
   "finance": {
@@ -123,7 +124,7 @@
   "movements": {
     "increasesTitle": "Stock increases by reason (pieces)",
     "decreasesTitle": "Stock decreases by reason (pieces)",
-    "itemFilter": "Filter by item name",
+    "itemFilter": "Filter by item name or code",
     "reasonFilter": "Reasons",
     "drilldownTitle": "Matching stock changes",
     "empty": "No stock changes in this period",
