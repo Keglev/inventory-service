@@ -17,10 +17,12 @@
  *   as the About dialog), not a fixed label (FW5 fork 3).
  * - All labels resolve via the footer i18n namespace; the "Backend"/"Database"
  *   captions are chip tooltips (title) rather than visible text to keep the row
- *   compact. Status dots and Chip borders use semantic theme tokens (success/error).
+ *   compact. Status dots, Chip borders and labels use the success/error palette
+ *   steps that keep their contrast on the footer surface in both modes.
  */
 
 import { Box, Chip, Stack, Typography } from '@mui/material';
+import type { Theme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import type { HealthStatus } from '../../features/health/hooks/useHealthCheck';
 
@@ -51,6 +53,14 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
   const backendColor = backendOnline ? 'success' : 'error';
   const dbColor = databaseOnline ? 'success' : 'error';
 
+  // A bare palette name ('success') never resolved in sx, so the chips drew in
+  // neutral grey. Border in the main step; text in the step that keeps 4.5:1 on
+  // the footer surface (dark in light mode, light in dark mode).
+  const chipSx = (tone: 'success' | 'error') => ({
+    borderColor: `${tone}.main`,
+    color: (theme: Theme) => (theme.palette.mode === 'light' ? theme.palette[tone].dark : theme.palette[tone].light),
+  });
+
   const statusDot = (online: boolean) => (
     <Box
       sx={{
@@ -72,7 +82,7 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
           label={backendOnline ? t('footer:status.online') : t('footer:status.offline')}
           size="small"
           variant="outlined"
-          sx={{ borderColor: backendColor, color: backendColor }}
+          sx={chipSx(backendColor)}
         />
         {health.responseTime > 0 && (
           <Typography variant="caption" color="text.secondary">
@@ -88,7 +98,7 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
         label={databaseOnline ? (health.databaseProduct ?? t('footer:status.online')) : t('footer:status.offline')}
         size="small"
         variant="outlined"
-        sx={{ borderColor: dbColor, color: dbColor }}
+        sx={chipSx(dbColor)}
       />
     </Stack>
   );

@@ -17,6 +17,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import HealthStatusDisplay from '@/app/footer/HealthStatusDisplay';
 import { tEn } from '@/__tests__/test/i18nEn';
 
@@ -161,5 +162,33 @@ describe('HealthStatusDisplay', () => {
 
     expect(mockT).toHaveBeenCalledWith('footer:health.backend');
     expect(mockT).toHaveBeenCalledWith('footer:health.database');
+  });
+  // The sx used bare palette names ('success'), which never resolved: the chips
+  // drew in neutral grey and only the dot showed the status.
+  describe('status colours', () => {
+    const chipOf = (text: string) => screen.getByText(text).closest('.MuiChip-root') as HTMLElement;
+    const inMode = (mode: 'light' | 'dark', overrides?: Partial<Health>) => {
+      const theme = createTheme({ palette: { mode } });
+      render(
+        <ThemeProvider theme={theme}>
+          <HealthStatusDisplay health={makeHealth(overrides)} />
+        </ThemeProvider>
+      );
+      return theme;
+    };
+
+    it('draws an online chip in the success colours of the light footer', () => {
+      const theme = inMode('light');
+
+      expect(screen.getByText('Oracle')).toHaveStyle({ color: theme.palette.success.dark });
+      expect(chipOf('Oracle')).toHaveStyle({ borderTopColor: theme.palette.success.main });
+    });
+
+    it('draws an offline chip in the error colours of the dark footer', () => {
+      const theme = inMode('dark', { database: 'offline' });
+
+      expect(screen.getByText('Offline')).toHaveStyle({ color: theme.palette.error.light });
+      expect(chipOf('Offline')).toHaveStyle({ borderTopColor: theme.palette.error.main });
+    });
   });
 });
