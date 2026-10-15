@@ -58,6 +58,15 @@ describe('HelpIconButton', () => {
     expect(screen.getByRole('button', { name: 'Help' })).toBeInTheDocument();
   });
 
+  it('takes the icon colour it is given and keeps the default otherwise', () => {
+    mockUseHelp();
+    const { rerender } = render(<HelpIconButton topicId="test-topic" color="inherit" />);
+    expect(screen.getByRole('button', { name: 'Help' })).toHaveClass('MuiIconButton-colorInherit');
+
+    rerender(<HelpIconButton topicId="test-topic" />);
+    expect(screen.getByRole('button', { name: 'Help' })).not.toHaveClass('MuiIconButton-colorInherit');
+  });
+
   it('calls openHelp(topicId) when clicked', async () => {
     const user = userEvent.setup();
     const { openHelp } = mockUseHelp();

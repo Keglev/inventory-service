@@ -10,7 +10,8 @@
  * - Owns its own health polling via useHealthCheck, keeping the header decoupled from polling configuration.
  * - Three-state model (allOk / backend-only / neither) maps cleanly to MUI Chip's success/warning/error color props.
  * - Hidden on xs to avoid crowding the mobile toolbar where horizontal space is constrained.
- * - Dot icon duplicates the chip's color signal so status is legible even when theme color perception varies.
+ * - The dot (and the border in dark mode) carries the status colour; the label stays in the
+ *   text token, because status colours have no contrast on the blue light-mode bar.
  */
 
 import { Box, Chip, Tooltip } from '@mui/material';
@@ -90,13 +91,18 @@ export default function HealthBadge() {
           }
           label={healthLabel}
           sx={{
+            // On the blue light-mode bar a status colour has no contrast
+            // (dot 1.11:1, text 1.86:1): a white pill carries the dot, and
+            // the label stays in the text token in both modes.
+            bgcolor: (theme) => (theme.palette.mode === 'light' ? 'common.white' : 'transparent'),
+            borderColor: (theme) => (theme.palette.mode === 'light' ? 'common.white' : undefined),
             '& .MuiChip-icon': {
               mr: 0.5,
             },
             fontWeight: 700,
             '& .MuiChip-label': {
               fontWeight: 700,
-              color: `${healthTone}.dark`,
+              color: 'text.primary',
             },
           }}
         />

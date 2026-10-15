@@ -54,6 +54,7 @@ export default function AppToolbarActions({
       <HelpIconButton
         topicId={helpTopic}
         tooltip={t('actions.help')}
+        color="inherit"
       />
 
       {/* Avatar menu: profile, About, sign-out */}

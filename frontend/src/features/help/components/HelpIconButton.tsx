@@ -19,7 +19,7 @@
  *   omits the tooltip prop. Callers may still override the visible tooltip.
  */
 import * as React from 'react';
-import { IconButton, Tooltip } from '@mui/material';
+import { IconButton, Tooltip, type IconButtonProps } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../../hooks/useHelp';
@@ -28,9 +28,11 @@ interface HelpIconButtonProps {
   /** ID from HELP_TOPICS (e.g. "app.main", "analytics.overview") */
   topicId: string;
   tooltip?: string;
+  /** Icon colour; the app bar passes 'inherit' so the icon follows the bar's text colour. */
+  color?: IconButtonProps['color'];
 }
 
-export const HelpIconButton: React.FC<HelpIconButtonProps> = ({ topicId, tooltip }) => {
+export const HelpIconButton: React.FC<HelpIconButtonProps> = ({ topicId, tooltip, color }) => {
   const { openHelp } = useHelp();
   const { t } = useTranslation(['common']);
 
@@ -40,6 +42,7 @@ export const HelpIconButton: React.FC<HelpIconButtonProps> = ({ topicId, tooltip
     <Tooltip title={tooltip ?? label}>
       <IconButton
         size="small"
+        color={color}
         onClick={() => openHelp(topicId)}
         aria-label={label}
       >

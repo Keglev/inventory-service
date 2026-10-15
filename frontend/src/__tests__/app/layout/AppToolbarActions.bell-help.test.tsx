@@ -17,8 +17,8 @@ import AppToolbarActions from '@/app/layout/AppToolbarActions';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('@/features/help/components/HelpIconButton', () => ({
-  HelpIconButton: ({ tooltip, topicId }: { tooltip: string; topicId: string }) => (
-    <button type="button" data-testid="help-button" aria-label={tooltip} data-topic={topicId}>
+  HelpIconButton: ({ tooltip, topicId, color }: { tooltip: string; topicId: string; color?: string }) => (
+    <button type="button" data-testid="help-button" aria-label={tooltip} data-topic={topicId} data-color={color}>
       Help
     </button>
   ),
@@ -90,6 +90,12 @@ describe('AppToolbarActions (bell + help)', () => {
       renderActions();
 
       expect(screen.getByLabelText(/help/i)).toBeInTheDocument();
+    });
+
+    // On the blue light-mode bar the default icon colour reads 2.65:1.
+    it('gives the help button the bar text colour', () => {
+      renderActions();
+      expect(screen.getByTestId('help-button')).toHaveAttribute('data-color', 'inherit');
     });
 
     it('updates the help topic when the prop changes', () => {

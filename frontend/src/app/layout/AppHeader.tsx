@@ -67,10 +67,12 @@ export default function AppHeader({
       color="primary"
       sx={{ width: '100%', zIndex: (theme) => theme.zIndex.drawer + 1 }}
     >
-      <Toolbar>
+      {/* Phones get 8px gutters so the full title fits at 360px */}
+      <Toolbar sx={{ px: { xs: 1, sm: 2 } }}>
         {/* Navigation drawer toggle, phones only (desktop shows the rail) */}
         <IconButton
           edge="start"
+          color="inherit"
           onClick={onDrawerToggle}
           aria-label={t('actions.openNavigation')}
           sx={{ mr: 1, display: { md: 'none' } }}
@@ -79,7 +81,12 @@ export default function AppHeader({
         </IconButton>
 
         {/* Application Title */}
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+        {/* One line on phones: the full name, smaller, never wrapped (fork 1 B) */}
+        <Typography
+          variant="h6"
+          noWrap
+          sx={(theme) => ({ fontWeight: 700, [theme.breakpoints.down('sm')]: { fontSize: '0.9375rem' } })}
+        >
           {t('app.title')}
         </Typography>
 
