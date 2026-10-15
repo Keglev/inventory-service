@@ -26,6 +26,7 @@ on:
       - '.github/scripts/verify-image-contract.sh'
       - '.github/scripts/report-dependency-tree.sh'
       - '.github/scripts/frontend-ci-summary.sh'
+      - '.github/actions/image-sbom-scan/**'
   pull_request:
     branches: [ "main" ]
     paths:
@@ -35,6 +36,7 @@ on:
       - '.github/scripts/verify-image-contract.sh'
       - '.github/scripts/report-dependency-tree.sh'
       - '.github/scripts/frontend-ci-summary.sh'
+      - '.github/actions/image-sbom-scan/**'
   workflow_dispatch:
 
 # Read scope only. This workflow publishes to Docker Hub, authenticated with
@@ -256,56 +258,25 @@ jobs:
           bash .github/scripts/verify-image-contract.sh --selftest http://127.0.0.1:8080
           bash .github/scripts/verify-image-contract.sh http://127.0.0.1:8080
 
-      # The backend image has been scanned since it existed; this image never
-      # was. Same action, same version, same terms, so the two images are held
-      # to one standard rather than two.
-      #   PASSES when the image carries no CVE of high severity or above that
-      #     has a published fix.
+      # The image's SBOM and CVE gate, one Trivy analysis (the action's banner
+      # records why the SBOM comes first). Same action and terms as the backend
+      # image, so the two images are held to one standard.
+      #   PASSES when the SBOM holds the image's Alpine packages and the image
+      #     carries no HIGH or CRITICAL CVE with a published fix.
       #   FAILS the job before the publishing step below runs, so the image
       #     never leaves the runner, and stops frontend-deploy with it: that
       #     workflow runs only when this one concludes success. On a pull
-      #     request there is nothing to publish and nothing to deploy, so the
-      #     same failure lands on the required build-and-test check instead. A
-      #     rejected image is not kept anywhere; to reproduce a finding, build
-      #     the commit locally with the same build arguments.
-      #   DOES NOT CHECK findings with no fix available. ignore-unfixed keeps
-      #     the gate actionable; an unfixable finding would block every merge
-      #     until upstream moved, which is how a gate gets switched off.
-      #
-      # Pinned by commit SHA for the reason recorded in backend-docker.yml:
-      # in March 2026 every version tag of this action was force-pushed to
-      # credential-stealing code. The scanner version is set explicitly rather
-      # than inherited, because the action's own default trails its releases.
-      - name: Scan image for CVEs (Trivy)
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+      #     request the same failure lands on the required build-and-test check.
+      #   DOES NOT CHECK findings with no fix available (ignore-unfixed).
+      # The SBOM is kept as an artifact only for an image that is published.
+      - name: SBOM and CVE gate (Trivy)
+        uses: ./.github/actions/image-sbom-scan
         with:
           image-ref: docker.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          version: v0.74.0
-          format: table
-          scanners: vuln
-          vuln-type: os,library
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
-          exit-code: '1'
-          # The action caches Trivy's databases by default, under a key it
-          # hardcodes as cache-trivy-<date> with a cache-trivy- restore prefix,
-          # so the backend scan and this one share one entry and the key is not
-          # configurable. On 2026-09-10 this step restored 964 MB, was told by
-          # Trivy that the database still needed updating, downloaded the 112 MB
-          # database anyway in 3.3 s, and wrote 964 MB back under a new daily
-          # key: 25 s spent to avoid 3 s, and a gigabyte a day against a cache
-          # budget this repository has already had to defend once (see the note
-          # above the JDK step in backend-ci.yml).
-          #
-          # Most of that gigabyte is the Java database, which this scan never
-          # opens: the image is Nginx and static assets, and the same run logged
-          # "Number of language-specific files num=0". The backend image ships a
-          # jar and does need it, so the backend step keeps its cache.
-          #
-          # One input governs both caches, so this also gives up the 44 MB
-          # binary cache; setup-trivy falls back to its install script and a
-          # 50 MB release download instead.
-          cache: false
+          name: frontend
+          sha: ${{ github.sha }}
+          required-purl: 'pkg:apk/'
+          upload: ${{ github.event_name != 'pull_request' }}
 
       # The only step in this job that changes anything outside the runner, and
       # deliberately the last one. Every tag the metadata step produced is moved

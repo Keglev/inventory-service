@@ -40,8 +40,12 @@ version: 2
 updates:
   # "/" is the repository root, which is where Dependabot looks for
   # .github/workflows - not a directory to point at the workflows themselves.
+  # The composite action under .github/actions pins its own actions (Trivy,
+  # upload-artifact); those directories are listed so the pins stay tracked.
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      - /
+      - /.github/actions/*
     schedule:
       interval: monthly
     open-pull-requests-limit: 1

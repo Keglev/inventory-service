@@ -44,6 +44,7 @@ while IFS= read -r path; do
     .github/scripts/verify-image-contract.sh) ;;
     .github/scripts/report-dependency-tree.sh) ;;
     .github/scripts/frontend-ci-summary.sh) ;;
+    .github/actions/image-sbom-scan/*) ;;
     *)
       deploy=true
       reason="$path"
