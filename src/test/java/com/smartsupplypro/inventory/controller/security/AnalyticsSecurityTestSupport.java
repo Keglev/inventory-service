@@ -56,6 +56,8 @@ class AnalyticsSecurityTestSupport {
             if (end == null) end = LocalDateTime.now();
             return new LocalDateTime[] { start, end };
         });
+        // The summary endpoint completes its window with the real per-bound defaults
+        when(mock.completeDateWindow(any(), any())).thenCallRealMethod();
         when(mock.buildFilter(any(), any(), any(), any(), any(), any(), any()))
             .thenReturn(new StockUpdateFilterDTO());
         return mock;

@@ -6,14 +6,17 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,14 +72,8 @@ public class AnalyticsControllerFinancialTest {
 
     @BeforeEach
     void setup() {
-        // applyDefaultDateWindow must return a non-null array; the controller indexes into it immediately
-        when(validationHelper.applyDefaultDateWindow(any(), any())).thenAnswer(inv -> {
-            LocalDateTime start = inv.getArgument(0);
-            LocalDateTime end = inv.getArgument(1);
-            if (start == null) start = LocalDateTime.now().minusDays(30);
-            if (end == null) end = LocalDateTime.now();
-            return new LocalDateTime[] { start, end };
-        });
+        // The real defaults: a hand-written stub here filled both bounds and hid B2 (a lone date -> 500)
+        when(validationHelper.completeDateWindow(any(), any())).thenCallRealMethod();
 
         // throw on invalid date range so financialSummary_fromAfterTo_returnsBadRequest can verify the 400
         doAnswer(inv -> {
@@ -131,6 +128,32 @@ public class AnalyticsControllerFinancialTest {
             .andExpect(jsonPath("$.lowStockItems.length()").value(1))
             .andExpect(jsonPath("$.monthlyStockMovement.length()").value(1))
             .andExpect(jsonPath("$.topUpdatedItems.length()").value(1));
+    }
+
+    @WithMockUser
+    @Test
+    void should_end_the_window_now_when_only_the_start_date_is_given() throws Exception {
+        LocalDateTime start = LocalDateTime.of(2025, 1, 1, 0, 0);
+
+        mockMvc.perform(get("/api/analytics/summary").param("startDate", "2025-01-01T00:00:00"))
+            .andExpect(status().isOk());
+
+        verify(dashboardHelper).buildDashboardSummary(isNull(), eq(start), notNull());
+    }
+
+    @WithMockUser
+    @Test
+    void should_start_the_window_30_days_ago_when_only_the_end_date_is_given() throws Exception {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        LocalDateTime end = tomorrow.atTime(12, 0);
+        LocalDateTime before = LocalDateTime.now().minusDays(30);
+
+        mockMvc.perform(get("/api/analytics/summary").param("endDate", tomorrow + "T12:00:00"))
+            .andExpect(status().isOk());
+
+        ArgumentCaptor<LocalDateTime> startCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+        verify(dashboardHelper).buildDashboardSummary(isNull(), startCaptor.capture(), eq(end));
+        assertFalse(startCaptor.getValue().isBefore(before));
     }
 
     @Test

@@ -94,6 +94,27 @@ public class AnalyticsControllerValidationHelper {
     }
 
     /**
+     * Defaults each missing bound on its own: start to 30 days ago, end to now.
+     *
+     * <p>For endpoints that need both bounds (the dashboard summary feeds them
+     * to {@code LocalDateTime.toLocalDate()}). {@link #applyDefaultDateWindow}
+     * keeps a lone bound open-ended because the stock-update queries accept a
+     * null bound; reusing it here let a lone date through as a null and
+     * answered 500.</p>
+     *
+     * @param startDate requested start (nullable)
+     * @param endDate requested end (nullable)
+     * @return array with [startDate, endDate], both non-null
+     */
+    public LocalDateTime[] completeDateWindow(LocalDateTime startDate, LocalDateTime endDate) {
+        LocalDateTime now = LocalDateTime.now();
+        return new LocalDateTime[]{
+            startDate != null ? startDate : now.minusDays(30),
+            endDate != null ? endDate : now
+        };
+    }
+
+    /**
      * Validates stock update filter DTO constraints.
      *
      * @param filter the filter DTO to validate

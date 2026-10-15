@@ -43,8 +43,10 @@ public class AnalyticsController {
      * Gets dashboard summary with multiple analytics (defaults to last 30 days).
      *
      * @param supplierId optional supplier filter
-     * @param startDate  optional inclusive start date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
-     * @param endDate    optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
+     * @param startDate  optional inclusive start date-time (ISO yyyy-MM-dd'T'HH:mm:ss);
+     *                   defaults to 30 days ago
+     * @param endDate    optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss);
+     *                   defaults to now
      * @return dashboard summary DTO
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
@@ -54,7 +56,7 @@ public class AnalyticsController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
 
-        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);
+        LocalDateTime[] dateWindow = validationHelper.completeDateWindow(startDate, endDate);
         validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], "startDate", "endDate");
         return ResponseEntity.ok(dashboardHelper.buildDashboardSummary(supplierId, dateWindow[0], dateWindow[1]));
     }
