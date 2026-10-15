@@ -120,34 +120,24 @@ jobs:
             ls /app/docs    2>&1 || echo "OK: no docs directory"
           '
 
-      # Blocks backend-deploy.yml if HIGH or CRITICAL CVEs are found in the
-      # image, and now does so before that image is published. Until 2026-09-15
-      # the push ran here, between the inspection above and this scan, so a
-      # rejected image was already on GHCR under both tags, :latest included, by
-      # the time the gate fired. The release was blocked either way, because
-      # backend-deploy chains on this workflow's success; the registry was
-      # not. The frontend image was reordered for the same reason in #124.
-      #
-      # Pinned by commit SHA, not by tag. In March 2026 an attacker force-pushed
-      # nearly every version tag of this action, and every tag of the setup-trivy
-      # action it calls, to credential-stealing code. A tag can be moved; a commit
-      # cannot. The version lives in the trailing comment so it stays readable.
-      #
-      # The scanner version is set here rather than inherited. The action's own
-      # default trails its releases, which is how this pipeline ended up several
-      # Trivy versions behind without anything in this repository saying so.
-      - name: Scan image for CVEs (Trivy)
+      # The image's SBOM and CVE gate, one Trivy analysis (the action's banner
+      # records why the SBOM comes first). Blocks backend-deploy.yml, which
+      # chains on this workflow's success, and does so before the image is
+      # published: until 2026-09-15 the push ran before the scan, so a rejected
+      # image was already on GHCR under both tags when the gate fired.
+      #   PASSES when the SBOM holds the Java libraries inside app.jar and the
+      #     image carries no HIGH or CRITICAL CVE with a published fix.
+      #   FAILS the job before the push below, so nothing reaches GHCR.
+      #   DOES NOT CHECK findings with no fix available (ignore-unfixed).
+      - name: SBOM and CVE gate (Trivy)
         if: steps.gate.outputs.build == 'true'
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        uses: ./.github/actions/image-sbom-scan
         with:
           image-ref: ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG_SHA }}
-          version: v0.74.0
-          format: table
-          scanners: vuln
-          vuln-type: os,library
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
-          exit-code: '1'
+          name: backend
+          sha: ${{ env.IMAGE_TAG_SHA }}
+          required-purl: 'pkg:maven/'
+          upload: 'true'
 
       # The only step here that publishes anything, and deliberately the last
       # one that could. Both tags move together once the scan above has passed,
@@ -186,5 +176,6 @@ jobs:
           {
             echo "## Backend Docker Build & Scan"
             echo "- **Image:** \`$IMAGE_REPO:${IMAGE_TAG_SHA}\`"
+            echo "- **SBOM:** artifact \`sbom-backend-${IMAGE_TAG_SHA}\` (90 days)"
             echo "- **Next:** \`backend-deploy.yml\` releases this image to the Hetzner host"
           } >> "$GITHUB_STEP_SUMMARY"

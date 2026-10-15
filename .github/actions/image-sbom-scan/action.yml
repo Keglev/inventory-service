@@ -1,0 +1,113 @@
+# =============================================================================
+# image-sbom-scan - SBOM and CVE gate for a locally built container image
+# Usage: a step in frontend-ci.yml and backend-docker.yml, after the image is
+#        built and before it is published:
+#          uses: ./.github/actions/image-sbom-scan
+#          with: {image-ref, name, sha, required-purl, upload}
+#
+# One Trivy analysis per image. Trivy writes a CycloneDX SBOM from the local
+# image; the CVE gate then scans that SBOM file, not the image again. Measured
+# on 2026-10-15 with Trivy 0.74.0: scanning the SBOM found exactly what
+# scanning the image found (alpine:3.10.0 30 = 30, tomcat:9.0.30 691 = 691,
+# Debian and jar findings alike). Until then a separate sbom.yml analysed every
+# published image a second time.
+#
+# The order is the point. A scan that misses the jar finds no jar CVEs and
+# passes: a local run on 2026-10-15 reused the layer cache of a failed run and
+# wrote a backend SBOM with 0 of its 102 jar components, without an error. The
+# component check runs before the CVE gate, so an incomplete analysis fails
+# instead of passing. For the same reason both Trivy runs use no cache: the
+# analysis starts from the image alone, never from an earlier run's layers.
+#
+# Produces: <name>-<sha>.cdx.json in the workspace (components only; findings
+# go stale, the gate re-checks every build), a table of fixable HIGH and
+# CRITICAL findings in the log, component counts in the job summary, and, when
+# upload is 'true', the 90-day artifact sbom-<name>-<sha>.
+#
+# FAILURE MODE. Fails the calling job, before its publishing step, so the image
+# never leaves the runner and the deploy chain behind it does not start:
+#   PASSES when the SBOM holds the components the image must have and the image
+#     carries no HIGH or CRITICAL CVE with a published fix.
+#   FAILS when the SBOM holds no component with the required purl prefix (an
+#     incomplete analysis), or on such a CVE.
+#   DOES NOT CHECK findings with no fix available (ignore-unfixed): an
+#     unfixable finding would block every merge until upstream moved, which is
+#     how a gate gets switched off.
+#
+# Pinned by commit SHA, not by tag: in March 2026 nearly every version tag of
+# trivy-action and of the setup-trivy action it calls was force-pushed to
+# credential-stealing code. The scanner version is set explicitly because the
+# action's own default trails its releases.
+# =============================================================================
+name: Image SBOM and CVE gate
+description: Writes a CycloneDX SBOM of a local image, checks it is complete, and gates on fixable HIGH/CRITICAL CVEs found in it.
+
+inputs:
+  image-ref:
+    description: Local image reference to analyse
+    required: true
+  name:
+    description: Image name used in the file and artifact names (frontend or backend)
+    required: true
+  sha:
+    description: Commit SHA of the image tag
+    required: true
+  required-purl:
+    description: Purl prefix the SBOM must contain at least once (pkg:apk/ or pkg:maven/)
+    required: true
+  upload:
+    description: "'true' keeps the SBOM as a 90-day artifact"
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Write the SBOM (Trivy, CycloneDX)
+      uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+      with:
+        image-ref: ${{ inputs.image-ref }}
+        version: v0.74.0
+        format: cyclonedx
+        output: ${{ inputs.name }}-${{ inputs.sha }}.cdx.json
+        cache: false
+
+    - name: Check the SBOM holds the image's components
+      shell: bash
+      env:
+        FILE: ${{ inputs.name }}-${{ inputs.sha }}.cdx.json
+        MUST: ${{ inputs.required-purl }}
+        NAME: ${{ inputs.name }}
+      run: |
+        set -euo pipefail
+        total=$(jq '.components | length' "$FILE")
+        required=$(jq --arg p "$MUST" '[.components[] | select((.purl // "") | startswith($p))] | length' "$FILE")
+        echo "components: $total, ${MUST%/} components: $required"
+        echo "- **SBOM (${NAME}):** ${total} components, ${required} \`${MUST%/}\`" >> "$GITHUB_STEP_SUMMARY"
+        if [ "$required" -eq 0 ]; then
+          echo "::error::${FILE} lists no ${MUST%/} components; the analysis is incomplete"
+          exit 1
+        fi
+
+    # Scans the file the step above wrote: same packages, no second image
+    # analysis. setup-trivy already put the pinned binary on PATH.
+    - name: Scan the SBOM for CVEs (Trivy)
+      uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+      with:
+        scan-type: sbom
+        scan-ref: ${{ inputs.name }}-${{ inputs.sha }}.cdx.json
+        skip-setup-trivy: 'true'
+        format: table
+        severity: CRITICAL,HIGH
+        ignore-unfixed: true
+        exit-code: '1'
+        cache: false
+
+    - name: Upload the SBOM
+      if: inputs.upload == 'true'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: sbom-${{ inputs.name }}-${{ inputs.sha }}
+        path: ${{ inputs.name }}-${{ inputs.sha }}.cdx.json
+        retention-days: 90
+        if-no-files-found: error
