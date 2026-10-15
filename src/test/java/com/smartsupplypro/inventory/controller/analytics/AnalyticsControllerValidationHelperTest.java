@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
@@ -129,6 +130,34 @@ class AnalyticsControllerValidationHelperTest {
         window = helper.applyDefaultDateWindow(start, end);
         assertEquals(start, window[0]);
         assertEquals(end, window[1]);
+    }
+
+    @Test
+    void should_default_only_the_missing_bound_when_completing_a_one_sided_window() {
+        LocalDateTime start = LocalDateTime.of(2025, 1, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2025, 1, 31, 0, 0);
+
+        LocalDateTime before = LocalDateTime.now();
+        LocalDateTime[] startOnly = helper.completeDateWindow(start, null);
+        LocalDateTime[] endOnly = helper.completeDateWindow(null, end);
+        LocalDateTime after = LocalDateTime.now();
+
+        assertEquals(start, startOnly[0]);
+        assertTrue(!startOnly[1].isBefore(before) && !startOnly[1].isAfter(after));
+        assertEquals(end, endOnly[1]);
+        assertTrue(!endOnly[0].isBefore(before.minusDays(30)) && !endOnly[0].isAfter(after.minusDays(30)));
+    }
+
+    @Test
+    void should_default_to_the_last_30_days_or_keep_both_bounds_when_completing_a_window() {
+        LocalDateTime[] defaulted = helper.completeDateWindow(null, null);
+        assertEquals(defaulted[1], defaulted[0].plusDays(30));
+
+        LocalDateTime start = LocalDateTime.of(2025, 1, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2025, 1, 31, 0, 0);
+        LocalDateTime[] given = helper.completeDateWindow(start, end);
+        assertEquals(start, given[0]);
+        assertEquals(end, given[1]);
     }
 
     @Test
