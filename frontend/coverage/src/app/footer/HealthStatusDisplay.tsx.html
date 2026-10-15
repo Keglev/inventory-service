@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>14/14</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -158,7 +158,17 @@
 <a name='L93'></a><a href='#L93'>93</a>
 <a name='L94'></a><a href='#L94'>94</a>
 <a name='L95'></a><a href='#L95'>95</a>
-<a name='L96'></a><a href='#L96'>96</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -204,25 +214,35 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">22x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">44x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -272,10 +292,12 @@
  *   as the About dialog), not a fixed label (FW5 fork 3).
  * - All labels resolve via the footer i18n namespace; the "Backend"/"Database"
  *   captions are chip tooltips (title) rather than visible text to keep the row
- *   compact. Status dots and Chip borders use semantic theme tokens (success/error).
+ *   compact. Status dots, Chip borders and labels use the success/error palette
+ *   steps that keep their contrast on the footer surface in both modes.
  */
 &nbsp;
 import { Box, Chip, Stack, Typography } from '@mui/material';
+import type { Theme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import type { HealthStatus } from '../../features/health/hooks/useHealthCheck';
 &nbsp;
@@ -306,6 +328,14 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
   const backendColor = backendOnline ? 'success' : 'error';
   const dbColor = databaseOnline ? 'success' : 'error';
 &nbsp;
+  // A bare palette name ('success') never resolved in sx, so the chips drew in
+  // neutral grey. Border in the main step; text in the step that keeps 4.5:1 on
+  // the footer surface (dark in light mode, light in dark mode).
+  const chipSx = (tone: 'success' | 'error') =&gt; ({
+    borderColor: `${tone}.main`,
+    color: (theme: Theme) =&gt; (theme.palette.mode === 'light' ? theme.palette[tone].dark : theme.palette[tone].light),
+  });
+&nbsp;
   const statusDot = (online: boolean) =&gt; (
     &lt;Box
       sx={{
@@ -327,7 +357,7 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
           label={backendOnline ? t('footer:status.online') : t('footer:status.offline')}
           size="small"
           variant="outlined"
-          sx={{ borderColor: backendColor, color: backendColor }}
+          sx={chipSx(backendColor)}
         /&gt;
         {health.responseTime &gt; 0 &amp;&amp; (
           &lt;Typography variant="caption" color="text.secondary"&gt;
@@ -343,7 +373,7 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
         label={databaseOnline ? (health.databaseProduct ?? t('footer:status.online')) : t('footer:status.offline')}
         size="small"
         variant="outlined"
-        sx={{ borderColor: dbColor, color: dbColor }}
+        sx={chipSx(dbColor)}
       /&gt;
     &lt;/Stack&gt;
   );
