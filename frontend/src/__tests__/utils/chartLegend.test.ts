@@ -8,7 +8,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import type { LegendPayload } from 'recharts';
-import { legendOrder } from '@/utils/chartLegend';
+import { chartLegendProps, legendOrder } from '@/utils/chartLegend';
 
 const item = (dataKey: LegendPayload['dataKey'], value: string): LegendPayload => ({ dataKey, value });
 
@@ -25,5 +25,14 @@ describe('legendOrder', () => {
     expect(sorter(item('b', 'B'))).toBe(1);
     expect(sorter(item('zzz', 'Z'))).toBe(2);
     expect(sorter(item((row: unknown) => row, 'F'))).toBe(2);
+  });
+});
+
+describe('chartLegendProps', () => {
+  // At 16px most series colours fall below 4.5:1 as legend text (C8).
+  it('draws legend labels in the text token', () => {
+    const theme = { palette: { text: { primary: '#eee' } } } as unknown as Parameters<typeof chartLegendProps>[0];
+
+    expect(chartLegendProps(theme).labelStyle).toEqual({ color: '#eee' });
   });
 });

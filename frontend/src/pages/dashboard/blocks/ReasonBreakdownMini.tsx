@@ -26,7 +26,7 @@ import { reasonLabel } from '../../analytics/sections/reasonLabels';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber, getDaysAgoIso, getTodayIso } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
-import { legendOrder } from '../../../utils/chartLegend';
+import { chartLegendProps, legendOrder } from '../../../utils/chartLegend';
 import { CHART_MARGIN } from './chartMargin';
 
 /** Stock in before stock out in every language (see utils/chartLegend). */
@@ -85,7 +85,7 @@ export default function ReasonBreakdownMini() {
                       : value
                   }
                 />
-                <Legend itemSorter={LEGEND_ORDER} />
+                <Legend {...chartLegendProps(muiTheme)} itemSorter={LEGEND_ORDER} />
                 <Bar dataKey="increase" name={t('dashboard.reasons.increase')} fill={muiTheme.palette.success.main} />
                 <Bar dataKey="decrease" name={t('dashboard.reasons.decrease')} fill={muiTheme.palette.error.main} />
               </BarChart>

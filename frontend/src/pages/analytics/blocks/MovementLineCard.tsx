@@ -23,7 +23,7 @@ import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
-import { legendOrder } from '../../../utils/chartLegend';
+import { chartLegendProps, legendOrder } from '../../../utils/chartLegend';
 
 /** Stock in before stock out in every language (see utils/chartLegend). */
 const LEGEND_ORDER = legendOrder(['stockIn', 'stockOut']);
@@ -69,7 +69,7 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
               : value
           }
         />
-        <Legend itemSorter={LEGEND_ORDER} />
+        <Legend {...chartLegendProps(muiTheme)} itemSorter={LEGEND_ORDER} />
         <Line
           // Monthly totals: straight segments between the months, no invented curve.
           type="linear"
