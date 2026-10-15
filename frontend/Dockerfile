@@ -23,11 +23,9 @@ ARG NPM_VERSION=11.10.1
 RUN npm install -g "npm@${NPM_VERSION}" && npm --version
 
 # Build context is repo root, so package files live under frontend/ relative to context.
-# The .npmrc travels with them: it carries the peer-resolution setting this tree needs,
-# and copying it here means the image build and a developer's install obey one file
-# instead of each carrying its own flag. See frontend/.npmrc for what it works around
-# and when it can be deleted.
-COPY frontend/package*.json frontend/.npmrc ./
+# The tree resolves its peers without legacy-peer-deps since i18next 26 and
+# react-i18next 17 accept TypeScript 6 (2026-10-15); no .npmrc is copied.
+COPY frontend/package*.json ./
 RUN npm ci
 
 COPY frontend/ .
