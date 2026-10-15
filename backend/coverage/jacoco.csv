@@ -46,7 +46,7 @@ Inventory Service,com.smartsupplypro.inventory.exception,BusinessExceptionHandle
 Inventory Service,com.smartsupplypro.inventory.exception,BusinessRuleViolationException,0,4,0,0,0,2,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.exception,DuplicateResourceException,0,25,0,0,0,10,0,4,0,4
 Inventory Service,com.smartsupplypro.inventory.exception,GlobalExceptionHandler,12,208,5,19,1,44,6,25,1,18
-Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemServiceImpl,0,304,1,17,0,59,1,19,0,11
+Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemServiceImpl,0,308,1,17,0,60,1,19,0,11
 Inventory Service,com.smartsupplypro.inventory.service.impl,SupplierServiceImpl,0,154,0,2,0,32,0,10,0,9
 Inventory Service,com.smartsupplypro.inventory.service.impl,StockHistoryServiceImpl,0,175,0,0,0,53,0,11,0,11
 Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl,0,52,0,0,0,9,0,9,0,9
@@ -54,7 +54,7 @@ Inventory Service,com.smartsupplypro.inventory.mapper,StockHistoryMapper,0,37,0,
 Inventory Service,com.smartsupplypro.inventory.mapper,SupplierMapper,0,75,0,8,0,22,0,8,0,4
 Inventory Service,com.smartsupplypro.inventory.mapper,InventoryItemMapper,0,106,1,9,0,33,1,9,0,5
 Inventory Service,com.smartsupplypro.inventory.controller.analytics,AnalyticsDashboardHelper,0,57,0,8,0,12,0,6,0,2
-Inventory Service,com.smartsupplypro.inventory.controller.analytics,AnalyticsControllerValidationHelper,0,137,0,26,0,31,0,21,0,8
+Inventory Service,com.smartsupplypro.inventory.controller.analytics,AnalyticsControllerValidationHelper,0,160,0,30,0,35,0,24,0,9
 Inventory Service,com.smartsupplypro.inventory.security,OAuth2AuthorizationRequestCookieSerializer.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.security,LogSanitizer,0,61,0,14,0,9,0,9,0,2
 Inventory Service,com.smartsupplypro.inventory.security,DemoIdentityMasking.Pseudonyms,0,165,0,21,0,27,0,18,0,6
@@ -87,6 +87,7 @@ Inventory Service,com.smartsupplypro.inventory.dto,ItemUpdateFrequencyDTO,0,9,0,
 Inventory Service,com.smartsupplypro.inventory.dto,EmployeeActivityDTO,0,15,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,ReasonBreakdownDTO,0,12,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,FinancialSummaryDTO,0,48,0,0,0,1,0,1,0,1
+Inventory Service,com.smartsupplypro.inventory.validation,SortValidator,0,26,0,2,0,7,0,2,0,1
 Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemValidator,0,88,1,23,0,20,1,15,0,4
 Inventory Service,com.smartsupplypro.inventory.validation,SupplierValidator,1,97,2,20,0,21,2,15,0,6
 Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemLookupValidator,7,106,2,14,2,21,2,12,0,6

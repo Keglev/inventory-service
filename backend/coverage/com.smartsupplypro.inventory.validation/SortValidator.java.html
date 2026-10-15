@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SortValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.validation</a> &gt; <span class="el_source">SortValidator.java</span></div><h1>SortValidator.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.validation;
+
+import org.springframework.data.core.PropertyPath;
+import org.springframework.data.core.PropertyReferenceException;
+import org.springframework.data.domain.Sort;
+
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
+
+/**
+ * Checks a client-supplied sort against the entity before the query runs.
+ *
+ * &lt;p&gt;Spring Data passes the {@code sort} request parameter to the query as
+ * is. A property the entity does not have fails inside Hibernate as an
+ * {@code InvalidDataAccessApiUsageException}, a framework type that also
+ * covers genuine server faults, so it cannot be mapped to 400 safely. This
+ * check turns the client mistake into the domain
+ * {@link InvalidRequestException} instead.&lt;/p&gt;
+ */
+public final class SortValidator {
+
+    private SortValidator() {}
+
+    /**
+     * Rejects any sort order whose property path does not resolve on the entity.
+     * Nested paths through associations (for example {@code supplier.name})
+     * resolve and are accepted.
+     *
+     * @param sort       requested sort (may be unsorted)
+     * @param entityType entity the query selects
+     * @throws InvalidRequestException if a sort property is unknown
+     */
+    public static void requireKnownProperties(Sort sort, Class&lt;?&gt; entityType) {
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        for (Sort.Order order : sort) {</span>
+            try {
+<span class="fc" id="L35">                PropertyPath.from(order.getProperty(), entityType);</span>
+<span class="fc" id="L36">            } catch (PropertyReferenceException ex) {</span>
+<span class="fc" id="L37">                throw new InvalidRequestException(&quot;Unsupported sort property: &quot; + order.getProperty());</span>
+<span class="fc" id="L38">            }</span>
+<span class="fc" id="L39">        }</span>
+<span class="fc" id="L40">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
