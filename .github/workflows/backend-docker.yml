@@ -176,6 +176,6 @@ jobs:
           {
             echo "## Backend Docker Build & Scan"
             echo "- **Image:** \`$IMAGE_REPO:${IMAGE_TAG_SHA}\`"
-            echo "- **SBOM:** artifact \`sbom-backend-${IMAGE_TAG_SHA}\` (90 days)"
+            echo "- **SBOM:** artifact \`sbom-backend-${IMAGE_TAG_SHA}\` (60 days)"
             echo "- **Next:** \`backend-deploy.yml\` releases this image to the Hetzner host"
           } >> "$GITHUB_STEP_SUMMARY"
