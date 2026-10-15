@@ -128,10 +128,9 @@
         <code>dist/</code> with both Nginx configs copied in. There is
         no test stage: Vitest runs in <code>frontend-ci</code> ahead of
         the image build, where a failure surfaces as a GitHub
-        annotation. Peer resolution comes from
-        <code>frontend/.npmrc</code>, which the build copies alongside
-        the package files, rather than from a flag on the command
-        line.</p>
+        annotation. The dependency tree resolves its peers without
+        <code>legacy-peer-deps</code> (no <code>.npmrc</code>) since
+        i18next 26 and react-i18next 17 accept TypeScript 6.</p>
         <p>Nginx delivery rules:</p>
         <ul>
         <li>SPA fallback (<code>try_files ... /index.html</code>) for
