@@ -23,6 +23,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { tEn } from '@/__tests__/test/i18nEn';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import LowStockAlertSection from '@/app/layout/header/notifications/LowStockAlertSection';
 
 // -----------------------------------------------------------------------------
@@ -41,7 +43,8 @@ describe('LowStockAlertSection', () => {
    * Arrange helper: renders the component with a specific lowStockCount.
    */
   const arrange = (lowStockCount: number) =>
-    render(<LowStockAlertSection lowStockCount={lowStockCount} />);
+    // The section links to the inventory, so it renders inside a router.
+    render(<LowStockAlertSection lowStockCount={lowStockCount} />, { wrapper: MemoryRouter });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -115,5 +118,16 @@ describe('LowStockAlertSection', () => {
 
     // Integration: correct key used
     expect(mockT).toHaveBeenCalledWith('notifications.lowStockAlert');
+  });
+
+  // The count alone named no items; the link opens the list (C6).
+  it('links to every item below minimum and reports the click', async () => {
+    const onShowAll = vi.fn();
+    render(<LowStockAlertSection lowStockCount={5} onShowAll={onShowAll} />, { wrapper: MemoryRouter });
+
+    const link = screen.getByRole('link', { name: 'Show all' });
+    expect(link).toHaveAttribute('href', '/inventory?belowMinimum=1');
+    await userEvent.setup().click(link);
+    expect(onShowAll).toHaveBeenCalledTimes(1);
   });
 });

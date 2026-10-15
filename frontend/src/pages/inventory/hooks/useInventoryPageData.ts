@@ -17,6 +17,9 @@
  * - serverPage is 0-based (Spring Pageable), matching the MUI grid's own
  *   0-based page model; it is forwarded to getInventoryPage unchanged.
  *   No index conversion occurs anywhere in this path.
+ * - The board lists items only with a supplier chosen or "below minimum"
+ *   ticked (listsItems): below minimum is a short list across all suppliers,
+ *   the full catalogue is never fetched unfiltered.
  * - All filtering is server-side: q, supplierId, and the
  *   below-minimum flag are sent to GET /api/inventory/search and the
  *   returned page is rendered as-is. The search input is debounced here
@@ -78,6 +81,17 @@ export interface InventoryPageDataResult {
  * @param serverSort - Sort string (field,direction)
  * @returns Data loading results
  */
+/**
+ * Whether the inventory board lists items for these filters: a chosen supplier,
+ * or the below-minimum filter across all suppliers.
+ *
+ * @param supplierId - Selected supplier ID, or null for all suppliers
+ * @param belowMinOnly - Whether only items below their minimum are shown
+ * @returns true when the board fetches and shows the grid
+ */
+export const listsItems = (supplierId: string | number | null, belowMinOnly: boolean): boolean =>
+  Boolean(supplierId) || belowMinOnly;
+
 export const useInventoryPageData = (
   supplierId: string | number | null,
   q: string,
@@ -101,7 +115,7 @@ export const useInventoryPageData = (
   const suppliersQuery = useSuppliersQuery(true);
 
   // Column definitions
-  const columns = useInventoryColumns();
+  const columns = useInventoryColumns(!supplierId);
 
   // Row styling function
   const getRowClassName = useInventoryRowStyling();
@@ -128,20 +142,20 @@ export const useInventoryPageData = (
   }, [serverPage, pageSize, debouncedQ, belowMinOnly, supplierId, serverSort]);
 
   React.useEffect(() => {
-    if (supplierId) {
+    if (listsItems(supplierId, belowMinOnly)) {
       void load();
     } else {
       setServer((s) => ({ ...s, items: [], total: 0 }));
     }
-  }, [supplierId, load]);
+  }, [supplierId, belowMinOnly, load]);
 
   // Explicit refresh path. Re-runs the current query directly rather than
   // poking paginationModel back to page 0, which no-opped when the user was
-  // already on page 0 (React bails on an equal setState). Guarded on
-  // supplierId to preserve the "no supplier -> no unfiltered fetch" invariant.
+  // already on page 0 (React bails on an equal setState). Guarded by listsItems
+  // so the catalogue is never fetched unfiltered.
   const reload = React.useCallback(() => {
-    if (supplierId) void load();
-  }, [supplierId, load]);
+    if (listsItems(supplierId, belowMinOnly)) void load();
+  }, [supplierId, belowMinOnly, load]);
 
   return {
     server,

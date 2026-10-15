@@ -53,6 +53,9 @@ export function useFilterHandlers(state: InventoryStateReturn) {
   const handleBelowMinChange = useCallback(
     (value: boolean) => {
       state.setBelowMinOnly(value);
+      // Without a supplier, unticking hides the grid; a selected row would
+      // otherwise stay targeted by the toolbar actions.
+      if (!value && !state.supplierId) state.setSelectedId(null);
       state.setPaginationModel({ page: 0, pageSize: state.paginationModel.pageSize });
     },
     [state]

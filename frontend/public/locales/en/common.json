@@ -93,6 +93,7 @@
   "notifications": {
     "lowStockAlert": "Alert: items below minimum",
     "lowStockMessage": "You have {{count}} item(s) below minimum",
+    "showAll": "Show all",
     "allGood": "All clear – no items below minimum",
     "title": "Notifications"
   },

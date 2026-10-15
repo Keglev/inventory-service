@@ -93,6 +93,7 @@
   "notifications": {
     "lowStockAlert": "Warnung: Artikel unter Mindestbestand",
     "lowStockMessage": "Du hast {{count}} Artikel unter Mindestbestand",
+    "showAll": "Alle anzeigen",
     "allGood": "Alles in Ordnung – keine Artikel unter Mindestbestand",
     "title": "Benachrichtigungen"
   },
