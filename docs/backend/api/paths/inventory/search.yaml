@@ -6,7 +6,8 @@ get:
     Server-side search over ACTIVE inventory items with pagination and sorting.
     All filters are optional: an empty name matches all active items. Sorting is
     fully honored via the sort parameter (no hardcoded ordering); the server-computed
-    totalValue field is not sortable.
+    totalValue field is not sortable. A sort property that is not a property of the
+    item (nested paths such as `supplier.name` are) is answered with 400.
 
     **Security:** Requires authentication OR demo mode enabled (APP_DEMO_READONLY=true
     permits unauthenticated read access).
@@ -47,6 +48,8 @@ get:
         application/json:
           schema:
             $ref: '../../schemas/inventory/inventory-item.yaml#/components/schemas/InventoryItemPageResponse'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
     '401':
       $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
     '500':

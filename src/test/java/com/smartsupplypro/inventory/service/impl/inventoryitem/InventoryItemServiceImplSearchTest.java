@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -21,7 +23,9 @@ import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
@@ -31,7 +35,7 @@ import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 
 /**
  * Unit tests for {@link InventoryItemServiceImpl#searchItems(String, String, boolean, org.springframework.data.domain.Pageable)}
- * covering pagination delegation and DTO mapping.
+ * covering pagination delegation, DTO mapping and sort validation.
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -83,5 +87,16 @@ class InventoryItemServiceImplSearchTest {
 
         assertEquals(0, result.getTotalElements());
         assertEquals(0, result.getContent().size());
+    }
+
+    @Test
+    void should_reject_without_querying_when_a_sort_property_is_unknown() {
+        var pageable = PageRequest.of(0, 10, Sort.by("doesNotExist"));
+
+        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
+                () -> service.searchItems("", null, false, pageable));
+
+        assertEquals("Unsupported sort property: doesNotExist", ex.getMessage());
+        verifyNoInteractions(repository);
     }
 }
