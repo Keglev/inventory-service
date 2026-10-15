@@ -94,36 +94,15 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
     }
 
     /**
-     * Defaults each missing bound on its own: start to 30 days ago, end to now.
-     *
-     * &lt;p&gt;For endpoints that need both bounds (the dashboard summary feeds them
-     * to {@code LocalDateTime.toLocalDate()}). {@link #applyDefaultDateWindow}
-     * keeps a lone bound open-ended because the stock-update queries accept a
-     * null bound; reusing it here let a lone date through as a null and
-     * answered 500.&lt;/p&gt;
-     *
-     * @param startDate requested start (nullable)
-     * @param endDate requested end (nullable)
-     * @return array with [startDate, endDate], both non-null
-     */
-    public LocalDateTime[] completeDateWindow(LocalDateTime startDate, LocalDateTime endDate) {
-<span class="fc" id="L110">        LocalDateTime now = LocalDateTime.now();</span>
-<span class="fc" id="L111">        return new LocalDateTime[]{</span>
-<span class="fc bfc" id="L112" title="All 2 branches covered.">            startDate != null ? startDate : now.minusDays(30),</span>
-<span class="fc bfc" id="L113" title="All 2 branches covered.">            endDate != null ? endDate : now</span>
-        };
-    }
-
-    /**
      * Validates stock update filter DTO constraints.
      *
      * @param filter the filter DTO to validate
      * @throws InvalidRequestException if validation fails
      */
     public void validateStockUpdateFilter(StockUpdateFilterDTO filter) {
-<span class="fc" id="L124">        validateDateTimeRange(filter.getStartDate(), filter.getEndDate(), &quot;startDate&quot;, &quot;endDate&quot;);</span>
-<span class="fc" id="L125">        validateNumericRange(filter.getMinChange(), filter.getMaxChange(), &quot;minChange&quot;, &quot;maxChange&quot;);</span>
-<span class="fc" id="L126">    }</span>
+<span class="fc" id="L103">        validateDateTimeRange(filter.getStartDate(), filter.getEndDate(), &quot;startDate&quot;, &quot;endDate&quot;);</span>
+<span class="fc" id="L104">        validateNumericRange(filter.getMinChange(), filter.getMaxChange(), &quot;minChange&quot;, &quot;maxChange&quot;);</span>
+<span class="fc" id="L105">    }</span>
 
     /**
      * Builds a {@link StockUpdateFilterDTO} from individual query parameters.
@@ -145,15 +124,15 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
             String itemName, String supplierId, String createdBy,
             Integer minChange, Integer maxChange) {
 
-<span class="fc" id="L148">        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();</span>
-<span class="fc" id="L149">        filter.setStartDate(startDate);</span>
-<span class="fc" id="L150">        filter.setEndDate(endDate);</span>
-<span class="fc" id="L151">        filter.setItemName(itemName);</span>
-<span class="fc" id="L152">        filter.setSupplierId(supplierId);</span>
-<span class="fc" id="L153">        filter.setCreatedBy(createdBy);</span>
-<span class="fc" id="L154">        filter.setMinChange(minChange);</span>
-<span class="fc" id="L155">        filter.setMaxChange(maxChange);</span>
-<span class="fc" id="L156">        return filter;</span>
+<span class="fc" id="L127">        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();</span>
+<span class="fc" id="L128">        filter.setStartDate(startDate);</span>
+<span class="fc" id="L129">        filter.setEndDate(endDate);</span>
+<span class="fc" id="L130">        filter.setItemName(itemName);</span>
+<span class="fc" id="L131">        filter.setSupplierId(supplierId);</span>
+<span class="fc" id="L132">        filter.setCreatedBy(createdBy);</span>
+<span class="fc" id="L133">        filter.setMinChange(minChange);</span>
+<span class="fc" id="L134">        filter.setMaxChange(maxChange);</span>
+<span class="fc" id="L135">        return filter;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
