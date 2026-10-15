@@ -48,13 +48,16 @@
   -->
   <properties>
     <java.version>21</java.version>
-    <!-- H2 2.4.240 mis-validates the CHECK constraint Hibernate generates for
-         boolean @Convert columns (h2database #4323). Measured 2026-09-02:
-         building with -Dh2.version=2.4.240 gives 35 errors across 10
-         @DataJpaTest classes, every one on an INSERT into inventory_item
-         carrying the active flag, reported as H2 error 23514. This pin is the
-         only thing keeping those tests green. Remove once a fixed 2.4.x ships. -->
-    <h2.version>2.3.232</h2.version>
+    <!-- Ahead of the Spring Boot 4.1.1 BOM, which manages H2 2.4.240. That
+         version mis-validates the CHECK constraint Hibernate generates for
+         boolean @Convert columns (h2database #4323): measured 2026-10-15 over
+         all 14 @DataJpaTest classes, -Dh2.version=2.4.240 gives 38 errors
+         (H2 error 23514 on INSERTs carrying the active flag), 2.5.252 gives 0.
+         2.5.252 replaces the earlier 2.3.232 pin. Test-scoped only; production
+         runs Oracle. Keep in step with H2_VERSION in
+         .github/workflows/e2e-playwright.yml. Drop when the Boot BOM manages
+         H2 2.5 or later. -->
+    <h2.version>2.5.252</h2.version>
     <!-- Ahead of the Spring Boot 4.1.1 BOM, which pins Tomcat 11.0.24. Trivy
          failed the image build on 2026-09-09 with three CRITICAL findings
          against tomcat-embed-core 11.0.24, all fixed in 11.0.25:

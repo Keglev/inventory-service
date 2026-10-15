@@ -6,7 +6,7 @@
 # H2 is test-scoped in the pom and is not inside the packaged jar, so a plain
 # `java -jar` cannot start this profile. Launch the packaged jar with the H2
 # driver on the parent classpath instead (Boot's launcher delegates to it):
-#   java -cp target/inventory-service-*.jar:<m2>/com/h2database/h2/2.3.232/h2-2.3.232.jar \
+#   java -cp target/inventory-service-*.jar:<m2>/com/h2database/h2/2.5.252/h2-2.5.252.jar \
 #        org.springframework.boot.loader.launch.JarLauncher --spring.profiles.active=test,e2e
 # The version is the H2 pin from the pom; keep the two in step.
 #
