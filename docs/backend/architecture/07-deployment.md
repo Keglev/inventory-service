@@ -75,9 +75,9 @@ serve more than one chain or none ([ADR 0017](09-decisions/adr-0017-workflows-na
 | Chain | Workflow | Purpose |
 |---|---|---|
 | Backend | `backend-ci.yml` | `mvn clean verify` — compile, unit + integration tests, JaCoCo coverage report; calls the Playwright suite beside it and reports both through one `build-and-test` job |
-| Backend | `backend-docker.yml` | `docker build` (prod profile), SBOM and CVE gate (`image-sbom-scan`: blocks on an incomplete SBOM or a fixable HIGH/CRITICAL CVE; keeps the SBOM 90 days as `sbom-backend-<sha>`), `docker push :SHA :latest` to GHCR, each push up to three attempts |
+| Backend | `backend-docker.yml` | `docker build` (prod profile), SBOM and CVE gate (`image-sbom-scan`: blocks on an incomplete SBOM or a fixable HIGH/CRITICAL CVE; keeps the SBOM 60 days as `sbom-backend-<sha>`), `docker push :SHA :latest` to GHCR, each push up to three attempts |
 | Backend | `backend-deploy.yml` | Copies the compose file to the host over SSH, validates it, pulls the SHA-tagged image, restarts only the backend service, then runs the health and smoke checks against `api.smartsupplypro.de` |
-| Frontend | `frontend-ci.yml` | Audits the shipped dependency tree (gate), lints, runs Vitest, then builds the image and runs the SBOM and CVE gate (`image-sbom-scan`) before it reaches Docker Hub, keeping the SBOM 90 days as `sbom-frontend-<sha>` for a published image; calls the Playwright suite beside it and reports both through one `build-and-test` job |
+| Frontend | `frontend-ci.yml` | Audits the shipped dependency tree (gate), lints, runs Vitest, then builds the image and runs the SBOM and CVE gate (`image-sbom-scan`) before it reaches Docker Hub, keeping the SBOM 60 days as `sbom-frontend-<sha>` for a published image; calls the Playwright suite beside it and reports both through one `build-and-test` job |
 | Frontend | `frontend-deploy.yml` | Deploys the scanned image to Koyeb by digest, then verifies the commit's build id reached the served bundle before trusting the platform's status |
 | Docs | `docs-pr-check.yml` | Pull request gate for documentation: builds the site and verifies internal links without publishing |
 | Docs | `docs-build.yml` | Generates OpenAPI docs (Redocly), converts architecture markdown to HTML (Pandoc + Lua filter) and checks internal links |

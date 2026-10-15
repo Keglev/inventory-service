@@ -22,7 +22,9 @@
 # Produces: <name>-<sha>.cdx.json in the workspace (components only; findings
 # go stale, the gate re-checks every build), a table of fixable HIGH and
 # CRITICAL findings in the log, component counts in the job summary, and, when
-# upload is 'true', the 90-day artifact sbom-<name>-<sha>.
+# upload is 'true', the artifact sbom-<name>-<sha>, kept 60 days: the
+# repository's maximum retention, so a longer request only logs a warning
+# and is cut to 60 anyway (every sbom.yml run did so until 2026-10-15).
 #
 # FAILURE MODE. Fails the calling job, before its publishing step, so the image
 # never leaves the runner and the deploy chain behind it does not start:
@@ -56,7 +58,7 @@ inputs:
     description: Purl prefix the SBOM must contain at least once (pkg:apk/ or pkg:maven/)
     required: true
   upload:
-    description: "'true' keeps the SBOM as a 90-day artifact"
+    description: "'true' keeps the SBOM as a 60-day artifact"
     required: false
     default: 'false'
 
@@ -109,5 +111,5 @@ runs:
       with:
         name: sbom-${{ inputs.name }}-${{ inputs.sha }}
         path: ${{ inputs.name }}-${{ inputs.sha }}.cdx.json
-        retention-days: 90
+        retention-days: 60
         if-no-files-found: error
