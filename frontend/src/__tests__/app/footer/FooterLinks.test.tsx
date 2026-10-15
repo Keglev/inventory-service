@@ -144,4 +144,12 @@ describe('FooterLinks', () => {
     }
   });
 
+  // On a 390px phone four of seven links sat past the right edge, unreachable.
+  it('wraps its links within the footer width', () => {
+    arrange();
+
+    const row = screen.getAllByRole('link')[0].parentElement as HTMLElement;
+    expect(row).toHaveStyle({ flexWrap: 'wrap', maxWidth: '100%' });
+  });
+
 });
