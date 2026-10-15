@@ -35,7 +35,7 @@ permissions:
   contents: read
 
 env:
-  H2_VERSION: 2.3.232
+  H2_VERSION: 2.5.252
   BACKEND_URL: http://localhost:8081
   # Same pin as frontend-ci.yml. Without it this job took whatever npm the
   # Node 24 image happened to ship, which is why the two jobs printed different
