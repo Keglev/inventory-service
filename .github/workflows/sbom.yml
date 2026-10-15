@@ -1,0 +1,162 @@
+# =============================================================================
+# Smart Supply Pro – SBOM
+#
+# Writes a CycloneDX SBOM (software bill of materials) for each container image
+# the release chains publish: the frontend image on Docker Hub and the backend
+# image on GHCR. GitHub's dependency graph already exports an SBOM of the
+# repository's manifests; this one lists what the shipped image contains (the
+# Alpine packages and, for the backend, the Java libraries inside app.jar).
+#
+# Usage: runs after "Frontend CI - Build & Test" or "Backend Docker - Build &
+# Scan" succeeds for a push to main. By hand (Actions > SBOM > Run workflow):
+# pick the image and give a full commit SHA (empty means main's head) to write
+# the SBOM of an image that is already published.
+#
+# Produces: one artifact per image and commit, sbom-<frontend|backend>-<sha>,
+# holding <frontend|backend>-<sha>.cdx.json (components only, kept 90 days),
+# and a job summary with the component counts. Vulnerabilities are not written
+# into the file: the Trivy gates in frontend-ci and backend-docker block an
+# image with a fixable HIGH or CRITICAL CVE, and a stored finding goes stale.
+#
+# No chain prefix on purpose: it serves both image chains (ADR-0017).
+#
+# FAILURE MODE. Three outcomes, one per image:
+#   PASSES when the image exists under the commit's tag and its SBOM holds the
+#     components that image must have (backend: Maven libraries from app.jar;
+#     frontend: Alpine packages).
+#   SKIPS, with a notice, when backend-docker built no image for the commit:
+#     its gate builds one only when src/main and the other image inputs change.
+#   FAILS when the frontend image is missing (frontend-ci publishes one on
+#     every push to main), or when an SBOM lacks those components: an analysis
+#     that silently dropped the jar wrote an Alpine-only backend SBOM in a
+#     local test on 2026-10-15, after a cache left by a failed run.
+# =============================================================================
+name: SBOM
+
+on:
+  workflow_run:
+    workflows: ["Frontend CI - Build & Test", "Backend Docker - Build & Scan"]
+    types: [completed]
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      image:
+        description: Image to describe
+        type: choice
+        options: [frontend, backend]
+        default: frontend
+      sha:
+        description: Full commit SHA of the image tag (empty = main's head)
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sbom-${{ github.event.workflow_run.name || inputs.image }}-${{ github.event.workflow_run.head_sha || inputs.sha || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  sbom:
+    # Frontend CI is a first-level consumer of a push (event 'push'); Backend
+    # Docker is itself started by workflow_run, so its event reads that way and
+    # its own guard already required a push to this repository's main.
+    if: >
+      github.event_name == 'workflow_dispatch'
+      || (github.event.workflow_run.conclusion == 'success'
+        && github.event.workflow_run.head_branch == 'main'
+        && github.event.workflow_run.head_repository.full_name == github.repository
+        && (github.event.workflow_run.event == 'push'
+          || github.event.workflow_run.name == 'Backend Docker - Build & Scan'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      HEAD_SHA: ${{ github.event.workflow_run.head_sha || inputs.sha || github.sha }}
+      SOURCE: ${{ github.event.workflow_run.name || (inputs.image == 'backend' && 'Backend Docker - Build & Scan' || 'Frontend CI - Build & Test') }}
+
+    steps:
+      - name: Find the image
+        id: image
+        run: |
+          set -euo pipefail
+          case "$SOURCE" in
+            "Frontend CI - Build & Test")
+              name=frontend; ref="docker.io/ckbuzin/ssp-frontend:${HEAD_SHA}"; must='pkg:apk/' ;;
+            "Backend Docker - Build & Scan")
+              name=backend; ref="ghcr.io/keglev/inventory-service/backend:${HEAD_SHA}"; must='pkg:maven/' ;;
+            *)
+              echo "::error::unexpected source workflow: $SOURCE"; exit 1 ;;
+          esac
+          if docker manifest inspect "$ref" > /dev/null 2>&1; then
+            present=true
+          elif [ "$name" = backend ]; then
+            present=false
+            echo "::notice::no backend image for ${HEAD_SHA}: backend-docker built none for this commit"
+          else
+            echo "::error::frontend image ${ref} not found; frontend-ci publishes one on every push to main"
+            exit 1
+          fi
+          {
+            echo "name=$name"
+            echo "ref=$ref"
+            echo "must=$must"
+            echo "present=$present"
+            echo "file=${name}-${HEAD_SHA}.cdx.json"
+          } >> "$GITHUB_OUTPUT"
+
+      # Same action, commit and scanner version as the CVE gates. No cache: each
+      # SBOM is analysed from the image alone, never from an earlier run's layers.
+      - name: Write the SBOM (Trivy, CycloneDX)
+        if: steps.image.outputs.present == 'true'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ steps.image.outputs.ref }}
+          version: v0.74.0
+          format: cyclonedx
+          output: ${{ steps.image.outputs.file }}
+          cache: false
+
+      - name: Check the SBOM holds the image's components
+        if: steps.image.outputs.present == 'true'
+        env:
+          FILE: ${{ steps.image.outputs.file }}
+          MUST: ${{ steps.image.outputs.must }}
+        run: |
+          set -euo pipefail
+          total=$(jq '.components | length' "$FILE")
+          required=$(jq --arg p "$MUST" '[.components[] | select((.purl // "") | startswith($p))] | length' "$FILE")
+          echo "components: $total, ${MUST%/} components: $required"
+          if [ "$required" -eq 0 ]; then
+            echo "::error::${FILE} lists no ${MUST%/} components; the analysis is incomplete"
+            exit 1
+          fi
+
+      - name: Upload the SBOM
+        if: steps.image.outputs.present == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sbom-${{ steps.image.outputs.name }}-${{ env.HEAD_SHA }}
+          path: ${{ steps.image.outputs.file }}
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Job summary
+        if: always()
+        env:
+          NAME: ${{ steps.image.outputs.name }}
+          REF: ${{ steps.image.outputs.ref }}
+          FILE: ${{ steps.image.outputs.file }}
+          PRESENT: ${{ steps.image.outputs.present }}
+        run: |
+          {
+            echo "## SBOM: ${NAME:-unknown}"
+            echo "- **Image:** \`${REF:-none}\`"
+            if [ "$PRESENT" = true ] && [ -f "$FILE" ]; then
+              jq -r '"- **Format:** CycloneDX \(.specVersion), \(.components | length) components"' "$FILE"
+              jq -r '[.components[].purl // empty | split(":")[1] | split("/")[0]] | group_by(.) | map("- `\(.[0])`: \(length)") | .[]' "$FILE"
+              echo "- **Artifact:** \`sbom-${NAME}-${HEAD_SHA}\` (90 days)"
+            else
+              echo "- No SBOM written for this commit (see the notice or error above)."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
