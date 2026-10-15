@@ -264,7 +264,9 @@
 <a name='L199'></a><a href='#L199'>199</a>
 <a name='L200'></a><a href='#L200'>200</a>
 <a name='L201'></a><a href='#L201'>201</a>
-<a name='L202'></a><a href='#L202'>202</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -490,6 +492,7 @@ import type { EmployeesChartRow } from './useEmployeesSectionData';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartLegendProps } from '../../../utils/chartLegend';
 import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
 import { dayTimeAxis, timeXAxisProps } from '../../../utils/timeAxis';
 import { employeeTimeRows, monthKey, monthTicks, utcDay } from './employeeTimeSeries';
@@ -643,7 +646,7 @@ export function EmployeesActivityChart({
                   labelFormatter={formatPeriodSpan}
                 /&gt;
                 {/* Series are people: alphabetical by name reads the same in every language. */}
-                &lt;Legend itemSorter="value" /&gt;
+                &lt;Legend {...chartLegendProps(muiTheme)} itemSorter="value" /&gt;
                 {employees.map((emp, idx) =&gt; (
                   &lt;Line
                     key={emp.createdBy}
