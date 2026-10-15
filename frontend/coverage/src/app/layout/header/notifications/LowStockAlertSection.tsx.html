@@ -110,7 +110,15 @@
 <a name='L45'></a><a href='#L45'>45</a>
 <a name='L46'></a><a href='#L46'>46</a>
 <a name='L47'></a><a href='#L47'>47</a>
-<a name='L48'></a><a href='#L48'>48</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -136,11 +144,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -173,16 +189,20 @@
  * ```
  */
 &nbsp;
-import { Stack, Typography } from '@mui/material';
+import { Link, Stack, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { useTranslation } from 'react-i18next';
+import { BELOW_MINIMUM_LINK } from '../../../../config/inventoryPolicy';
 &nbsp;
 interface LowStockAlertSectionProps {
   lowStockCount: number;
+  /** Called when the user follows the link, so the popover can close. */
+  onShowAll?: () =&gt; void;
 }
 &nbsp;
-export default function LowStockAlertSection({ lowStockCount }: LowStockAlertSectionProps) {
+export default function LowStockAlertSection({ lowStockCount, onShowAll }: LowStockAlertSectionProps) {
   const { t } = useTranslation('common');
 &nbsp;
   return (
@@ -200,6 +220,10 @@ export default function LowStockAlertSection({ lowStockCount }: LowStockAlertSec
             { count: lowStockCount }
           )}
         &lt;/Typography&gt;
+        {/* The count alone named no items; this opens the list (C6). */}
+        &lt;Link component={RouterLink} to={BELOW_MINIMUM_LINK} onClick={onShowAll} variant="body2" underline="hover"&gt;
+          {t('notifications.showAll')}
+        &lt;/Link&gt;
       &lt;/Stack&gt;
     &lt;/&gt;
   );

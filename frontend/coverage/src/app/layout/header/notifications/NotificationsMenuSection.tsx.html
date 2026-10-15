@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
@@ -152,7 +152,7 @@ import AllClearNotificationSection from './AllClearNotificationSection';
 import LowStockAlertSection from './LowStockAlertSection';
 import NotificationLoadingState from './NotificationLoadingState';
 &nbsp;
-export default function NotificationsMenuSection() {
+export default function NotificationsMenuSection({ onNavigate }: { onNavigate?: () =&gt; void } = {}) {
   const q = useDashboardMetrics();
 &nbsp;
   const lowStockCount = q.data?.lowStockCount ?? 0;
@@ -163,7 +163,7 @@ export default function NotificationsMenuSection() {
   }
 &nbsp;
   return hasLowStock ? (
-    &lt;LowStockAlertSection lowStockCount={lowStockCount} /&gt;
+    &lt;LowStockAlertSection lowStockCount={lowStockCount} onShowAll={onNavigate} /&gt;
   ) : (
     &lt;AllClearNotificationSection /&gt;
   );
