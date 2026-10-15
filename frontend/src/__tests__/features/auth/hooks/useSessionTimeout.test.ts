@@ -6,7 +6,8 @@
  * Contract under test:
  * - DEMO users skip heartbeat and idle timeout behavior.
  * - Non-demo users ping the heartbeat endpoint immediately and on an interval.
- * - If a ping fails, the hook broadcasts cross-tab logout and navigates to `/logout`.
+ * - If a ping answers 401, the hook broadcasts cross-tab logout and navigates to `/logout`;
+ *   a network error or a 5xx keeps the session (the next ping asks again).
  * - When idle timeout is enabled, inactivity triggers navigation to `/logout`.
  * - A `storage` event with the force-logout flag triggers navigation to `/logout`.
  *
@@ -21,6 +22,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
+import { AxiosError, type AxiosResponse } from 'axios';
 import { useSessionTimeout } from '@/features/auth/hooks/useSessionTimeout';
 import { useAuth } from '@/hooks/useAuth';
 import type { AuthContextType } from '@/context/auth/authTypes';
@@ -47,6 +49,14 @@ vi.mock('@/hooks/useAuth', () => ({
 const useAuthMock = vi.mocked(useAuth);
 
 const STORAGE_FLAG = 'ssp:forceLogout';
+
+/** A real AxiosError, as httpClient rejects; no status means no response (offline, timeout). */
+function pingError(status?: number): AxiosError {
+  const response = status === undefined
+    ? undefined
+    : ({ status, statusText: '', headers: {}, config: {}, data: null } as unknown as AxiosResponse);
+  return new AxiosError('ping failed', status === undefined ? 'ERR_NETWORK' : 'ERR_BAD_RESPONSE', undefined, undefined, response);
+}
 
 function setAuth(overrides: Partial<AuthContextType>) {
   useAuthMock.mockReturnValue({
@@ -122,9 +132,9 @@ describe('useSessionTimeout', () => {
     unmount();
   });
 
-  it('navigates to /logout and broadcasts when heartbeat ping fails', async () => {
+  it('navigates to /logout and broadcasts when the heartbeat ping answers 401', async () => {
     vi.useFakeTimers();
-    httpClientMock.get.mockRejectedValue(new Error('401'));
+    httpClientMock.get.mockRejectedValue(pingError(401));
     const { unmount } = renderHook(() => useSessionTimeout({ pingIntervalMs: 10_000 }));
 
     await act(async () => {
@@ -134,6 +144,30 @@ describe('useSessionTimeout', () => {
     expect(navigateMock).toHaveBeenCalledWith('/logout', { replace: true });
     expect(Storage.prototype.setItem).toHaveBeenCalledWith(STORAGE_FLAG, '1');
     expect(Storage.prototype.removeItem).toHaveBeenCalledWith(STORAGE_FLAG);
+
+    unmount();
+  });
+
+  it.each([
+    ['a network error', undefined],
+    ['a 500', 500],
+    ['a 503', 503],
+  ])('keeps the session when the heartbeat ping fails with %s', async (_label, status) => {
+    vi.useFakeTimers();
+    httpClientMock.get.mockRejectedValue(pingError(status));
+    const { unmount } = renderHook(() => useSessionTimeout({ pingIntervalMs: 10_000 }));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+
+    // Both pings ran and failed; neither ended the session.
+    expect(httpClientMock.get).toHaveBeenCalledTimes(2);
+    expect(navigateMock).not.toHaveBeenCalled();
+    expect(Storage.prototype.setItem).not.toHaveBeenCalled();
 
     unmount();
   });
