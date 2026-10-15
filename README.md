@@ -104,7 +104,7 @@ Prerequisites: **JDK 21**, **Node 24+**, **Docker** (optional, for containerized
 
 # Frontend
 cd frontend
-npm install --legacy-peer-deps   # the flag is required; the Dockerfile uses it too
+npm install        # dependencies
 npm run dev        # development server
 npm run build      # production build
 npx vitest run     # test suite

@@ -16,8 +16,8 @@ frontend source): a base stage that installs dependencies with `npm ci`, a build
 stage that runs `vite build`, and an `nginx:1.30-alpine` runtime serving `dist/`
 with both Nginx configs copied in. There is no test stage: Vitest runs in
 `frontend-ci` ahead of the image build, where a failure surfaces as a GitHub
-annotation. Peer resolution comes from `frontend/.npmrc`, which the build copies
-alongside the package files, rather than from a flag on the command line.
+annotation. The dependency tree resolves its peers without `legacy-peer-deps`
+(no `.npmrc`) since i18next 26 and react-i18next 17 accept TypeScript 6.
 
 Nginx delivery rules:
 
