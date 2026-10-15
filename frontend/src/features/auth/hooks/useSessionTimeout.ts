@@ -12,8 +12,9 @@
  * - Three concerns in three effects:
  *   (1) HEARTBEAT — pings pingEndpoint (default /api/me) on tab visibility +
  *       interval. DEMO sessions skip heartbeat entirely (no server cookie to
- *       validate). A 401/403/network failure forces /logout via
- *       forceLogoutAcrossTabs + navigate.
+ *       validate). Only a 401 forces /logout via forceLogoutAcrossTabs +
+ *       navigate; a network error, timeout or 5xx keeps the session and the
+ *       next ping asks again.
  *   (2) IDLE TIMEOUT (opt-in) — when enableIdleTimeout, resets a timer on
  *       mouse/keyboard/wheel/touch events; firing the timer forces /logout.
  *       OFF by default — enable for strict environments.
@@ -27,6 +28,7 @@
  */
 
 import * as React from 'react';
+import { isAxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import httpClient from '../../../api/httpClient';
 import { useAuth } from '../../../hooks/useAuth';
@@ -65,8 +67,11 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
     const ping = async () => {
       try {
         await httpClient.get(pingEndpoint, { withCredentials: true });
-      } catch {
-        // Likely 401/403/network -> force logout route (centralized cleanup there)
+      } catch (error) {
+        // WHY: only the server saying the session is gone ends it. Offline, a
+        // timeout or a 5xx says nothing about the session, and ending it there
+        // logged the user out in every tab on a network blip.
+        if (!isAxiosError(error) || error.response?.status !== 401) return;
         forceLogoutAcrossTabs();
         navigate('/logout', { replace: true });
       }
