@@ -9,7 +9,7 @@
  */
 
 import type { ReactNode } from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createTestQueryClient } from '@/__tests__/test/queryClient';
@@ -50,8 +50,11 @@ vi.mock('@mui/material/styles', async () => {
 });
 
 type Slice = { name: string; value: number };
-let lastTooltipFormatter: ((v: number | string) => string) | null = null;
+type ReadoutProps = { active?: boolean; payload?: Array<{ name?: string; value?: unknown }> };
+type TooltipProps = { content?: (p: ReadoutProps) => ReactNode; position?: { x?: number; y?: number }; trigger?: string };
+let lastTooltip: TooltipProps | null = null;
 let lastLegendSorter: ((item: { value: string }) => number | string) | null = null;
+let lastLegend: Record<string, unknown> | null = null;
 
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
@@ -64,12 +67,13 @@ vi.mock('recharts', () => ({
       {children}
     </div>
   ),
-  Tooltip: ({ formatter }: { formatter?: (v: number | string) => string }) => {
-    lastTooltipFormatter = formatter ?? null;
+  Tooltip: (props: TooltipProps) => {
+    lastTooltip = props;
     return null;
   },
-  Legend: ({ itemSorter }: { itemSorter?: (item: { value: string }) => number | string }) => {
-    lastLegendSorter = itemSorter ?? null;
+  Legend: (props: { itemSorter?: (item: { value: string }) => number | string } & Record<string, unknown>) => {
+    lastLegendSorter = props.itemSorter ?? null;
+    lastLegend = props;
     return <div data-testid="legend" />;
   },
   Cell: ({ fill }: { fill?: string }) => <div data-testid="pie-cell" data-fill={fill} />,
@@ -95,8 +99,9 @@ function setup(props: React.ComponentProps<typeof StockValuePerSupplierPie> = {}
 describe('StockValuePerSupplierPie', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    lastTooltipFormatter = null;
+    lastTooltip = null;
     lastLegendSorter = null;
+    lastLegend = null;
   });
 
   it('renders the loading skeleton while the query is in flight', () => {
@@ -157,14 +162,64 @@ describe('StockValuePerSupplierPie', () => {
     expect(ranked).toEqual(['Zeta', 'Epsilon', 'Delta', 'Beta', 'All others (2 suppliers)']);
   });
 
-  it('formats the tooltip as euros and a share of the total', async () => {
+  it('reads out the slice name over its euros and share of the total', async () => {
     vi.mocked(getStockPerSupplier).mockResolvedValue([point('Alpha', 750), point('Beta', 250)]);
 
     setup();
 
-    await waitFor(() => expect(lastTooltipFormatter).not.toBeNull());
-    expect(lastTooltipFormatter?.(750)).toBe('750.00 € · 75.0 %');
-    expect(lastTooltipFormatter?.('n/a')).toBe('n/a');
+    await waitFor(() => expect(lastTooltip?.content).toBeDefined());
+    const { container } = render(<>{lastTooltip?.content?.({ active: true, payload: [{ name: 'Alpha', value: 750 }] })}</>);
+    const lines = [...container.querySelectorAll('p')].map((el) => el.textContent);
+    expect(lines).toEqual(['Alpha', '750.00 € · 75.0 %']);
+    expect(lastTooltip?.content?.({ active: false, payload: [{ name: 'Alpha', value: 750 }] })).toBeNull();
+    expect(lastTooltip?.content?.({ active: true, payload: [{ name: 'Alpha', value: 'n/a' }] })).toBeNull();
+  });
+
+  // The tooltip followed the cursor and covered up to 62% of the pie (C7).
+  describe('pinned readout', () => {
+    const widthSpy = (px: number) => vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(px);
+    afterEach(() => vi.restoreAllMocks());
+
+    it('pins the readout in a band above the pie on a narrow chart, legend below', async () => {
+      widthSpy(320);
+      vi.mocked(getStockPerSupplier).mockResolvedValue([point('Alpha', 750), point('Beta', 250)]);
+
+      setup();
+
+      await waitFor(() => expect(lastTooltip?.position).toEqual({ x: 0, y: 0 }));
+      expect(lastLegend).not.toHaveProperty('layout');
+    });
+
+    it('pins the readout at the foot of a legend column on a wide chart', async () => {
+      widthSpy(700);
+      vi.mocked(getStockPerSupplier).mockResolvedValue([point('Alpha', 750), point('Beta', 250)]);
+
+      setup();
+
+      // Default chart height 260 minus the 54px readout and a 5px edge.
+      await waitFor(() => expect(lastTooltip?.position).toEqual({ x: 0, y: 201 }));
+      expect(lastLegend).toMatchObject({ layout: 'vertical', align: 'left', verticalAlign: 'top' });
+    });
+
+    // A tap never selected the tapped slice; touch screens open the readout on tap.
+    it('opens the readout on tap on a screen without hover and on hover otherwise', async () => {
+      vi.mocked(getStockPerSupplier).mockResolvedValue([point('Alpha', 750)]);
+      const original = window.matchMedia;
+      window.matchMedia = ((query: string) => ({
+        matches: query === '(hover: none)', media: query, onchange: null,
+        addListener: () => {}, removeListener: () => {}, addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false,
+      })) as typeof window.matchMedia;
+      try {
+        const { unmount } = setup();
+        await waitFor(() => expect(lastTooltip?.trigger).toBe('click'));
+        unmount();
+      } finally {
+        window.matchMedia = original;
+      }
+
+      setup();
+      await waitFor(() => expect(lastTooltip?.trigger).toBe('hover'));
+    });
   });
 
   it('notes the current snapshot only when asked, as on Analytik under the date filter', () => {

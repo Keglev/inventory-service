@@ -38,6 +38,10 @@ Seven functions sit above their band but below their alarm (`PriceChangeForm` 14
 110, `useEditItemForm` 90, `usePriceChangeForm` 81). These are accepted: the band
 is guidance, the alarm is the gate.
 
+One component file sits above its band and below its alarm
+(`analytics/blocks/StockValuePerSupplierPie.tsx` 122, band 100, alarm 150): the
+pinned readout and the wide/narrow layout (C7) belong to the pie they position.
+
 One spec file sits above the service band and below its alarm
 (`unit/api/suppliers/supplierMutations.test.ts` 173). No spec approaches either
 spec alarm; the largest in the tree is 243 code lines.
