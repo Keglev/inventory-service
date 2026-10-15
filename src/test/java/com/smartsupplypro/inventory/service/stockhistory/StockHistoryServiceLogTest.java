@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.service.stockhistory;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,6 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -60,6 +64,21 @@ class StockHistoryServiceLogTest extends StockHistoryServiceTestBase {
         assertEquals(StockChangeReason.SCRAPPED, saved.getReason());
         assertEquals(ADMIN, saved.getCreatedBy());
         assertNotNull(saved.getTimestamp());
+    }
+
+    @Test
+    void should_assign_distinct_ids_when_changes_are_logged_back_to_back() {
+        // update() logs price and quantity within one millisecond; a clock-based
+        // id made the second save merge into the first row.
+        int writes = 200;
+        for (int i = 0; i < writes; i++) {
+            service.logStockChange(ITEM_1, 1, StockChangeReason.SOLD, ADMIN);
+        }
+
+        ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
+        verify(repository, times(writes)).save(captor.capture());
+        List<String> ids = captor.getAllValues().stream().map(StockHistory::getId).toList();
+        assertEquals(writes, ids.stream().distinct().count());
     }
 
     static Stream<Arguments> invalidLogStockChangeCases() {
