@@ -111,4 +111,17 @@ describe('AppHeader', () => {
 
     expect(baseProps.onDrawerToggle).toHaveBeenCalledTimes(1);
   });
+
+  // The default icon colour reads 2.65:1 on the blue light-mode bar.
+  it('draws the navigation toggle in the bar text colour', () => {
+    render(<AppHeader {...baseProps} />);
+
+    expect(screen.getByRole('button', { name: 'actions.openNavigation' })).toHaveClass('MuiIconButton-colorInherit');
+  });
+
+  it('keeps the title on one line', () => {
+    render(<AppHeader {...baseProps} />);
+
+    expect(screen.getByText('app.title')).toHaveClass('MuiTypography-noWrap');
+  });
 });

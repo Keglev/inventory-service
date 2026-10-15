@@ -16,6 +16,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import HealthBadge from '@/app/layout/header/HealthBadge';
 import { tEn } from '@/__tests__/test/i18nEn';
 
@@ -131,6 +132,34 @@ describe('HealthBadge', () => {
       renderWithHealth('offline', 'online');
 
       expect(screen.getByText('Offline')).toBeInTheDocument();
+    });
+  });
+
+  // A status colour reads 1.11:1 (dot) and 1.86:1 (text) on the blue light-mode bar.
+  describe('Surface (light and dark bar)', () => {
+    function renderInMode(mode: 'light' | 'dark') {
+      mockUseHealthCheck.mockReturnValue({ health: { status: 'online', database: 'online', responseTime: 50 } });
+      const theme = createTheme({ palette: { mode } });
+      const view = render(
+        <ThemeProvider theme={theme}>
+          <HealthBadge />
+        </ThemeProvider>
+      );
+      return { theme, chip: view.container.querySelector('.MuiChip-root') as HTMLElement };
+    }
+
+    it('puts the dot on a white pill with the label in the text token on the light bar', () => {
+      const { theme, chip } = renderInMode('light');
+
+      expect(chip).toHaveStyle({ backgroundColor: 'rgb(255, 255, 255)' });
+      expect(screen.getByText('System OK')).toHaveStyle({ color: theme.palette.text.primary });
+    });
+
+    it('keeps the chip transparent with the label in the text token on the dark bar', () => {
+      const { theme, chip } = renderInMode('dark');
+
+      expect(chip).toHaveStyle({ backgroundColor: 'rgba(0, 0, 0, 0)' });
+      expect(screen.getByText('System OK')).toHaveStyle({ color: theme.palette.text.primary });
     });
   });
 });
