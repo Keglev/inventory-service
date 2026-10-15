@@ -14,16 +14,20 @@
  * ```
  */
 
-import { Stack, Typography } from '@mui/material';
+import { Link, Stack, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { useTranslation } from 'react-i18next';
+import { BELOW_MINIMUM_LINK } from '../../../../config/inventoryPolicy';
 
 interface LowStockAlertSectionProps {
   lowStockCount: number;
+  /** Called when the user follows the link, so the popover can close. */
+  onShowAll?: () => void;
 }
 
-export default function LowStockAlertSection({ lowStockCount }: LowStockAlertSectionProps) {
+export default function LowStockAlertSection({ lowStockCount, onShowAll }: LowStockAlertSectionProps) {
   const { t } = useTranslation('common');
 
   return (
@@ -41,6 +45,10 @@ export default function LowStockAlertSection({ lowStockCount }: LowStockAlertSec
             { count: lowStockCount }
           )}
         </Typography>
+        {/* The count alone named no items; this opens the list (C6). */}
+        <Link component={RouterLink} to={BELOW_MINIMUM_LINK} onClick={onShowAll} variant="body2" underline="hover">
+          {t('notifications.showAll')}
+        </Link>
       </Stack>
     </>
   );

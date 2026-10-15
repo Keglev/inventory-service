@@ -17,13 +17,17 @@
  * - Defaults are deliberate. Sort 'name,asc' matches the alphabetical
  *   mental model for inventory browse; page size 10 fits one viewport
  *   on standard laptops without vertical scroll.
+ * - ?belowMinimum=1 (the notification bell's link) starts the page with the
+ *   below-minimum filter across all suppliers.
  * - Five independent dialog flags rather than one discriminated union.
  *   Dialogs may overlap (selection survives across open/close cycles)
  *   and an exclusive-open invariant would not match the UX.
  */
 
 import * as React from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import type { GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
+import { BELOW_MINIMUM_PARAM } from '../../../config/inventoryPolicy';
 
 /**
  * Complete inventory page state interface.
@@ -78,7 +82,10 @@ export interface InventoryStateSetters {
 export const useInventoryState = (): InventoryState & InventoryStateSetters => {
   const [q, setQ] = React.useState('');
   const [supplierId, setSupplierId] = React.useState<string | number | null>(null);
-  const [belowMinOnly, setBelowMinOnly] = React.useState(false);
+  const [searchParams] = useSearchParams();
+  const { key: navigationKey } = useLocation();
+  const linkedBelowMinimum = searchParams.get(BELOW_MINIMUM_PARAM) === '1';
+  const [belowMinOnly, setBelowMinOnly] = React.useState(linkedBelowMinimum);
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
     page: 0,
     pageSize: 10,
@@ -92,6 +99,17 @@ export const useInventoryState = (): InventoryState & InventoryStateSetters => {
   const [openDelete, setOpenDelete] = React.useState(false);
   const [openAdjust, setOpenAdjust] = React.useState(false);
   const [openPrice, setOpenPrice] = React.useState(false);
+
+  // The bell links here with ?belowMinimum=1, also while the page is open:
+  // every arrival on that link shows all items below minimum. The location key
+  // changes on each navigation, also to the same URL; the params object does not.
+  React.useEffect(() => {
+    if (!linkedBelowMinimum) return;
+    setBelowMinOnly(true);
+    setSupplierId(null);
+    setSelectedId(null);
+    setPaginationModel((m) => ({ ...m, page: 0 }));
+  }, [linkedBelowMinimum, navigationKey]);
 
   return {
     q,

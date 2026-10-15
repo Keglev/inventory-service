@@ -17,7 +17,7 @@ import AllClearNotificationSection from './AllClearNotificationSection';
 import LowStockAlertSection from './LowStockAlertSection';
 import NotificationLoadingState from './NotificationLoadingState';
 
-export default function NotificationsMenuSection() {
+export default function NotificationsMenuSection({ onNavigate }: { onNavigate?: () => void } = {}) {
   const q = useDashboardMetrics();
 
   const lowStockCount = q.data?.lowStockCount ?? 0;
@@ -28,7 +28,7 @@ export default function NotificationsMenuSection() {
   }
 
   return hasLowStock ? (
-    <LowStockAlertSection lowStockCount={lowStockCount} />
+    <LowStockAlertSection lowStockCount={lowStockCount} onShowAll={onNavigate} />
   ) : (
     <AllClearNotificationSection />
   );

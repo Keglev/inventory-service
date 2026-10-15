@@ -37,7 +37,7 @@ export default function NotificationBell() {
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Box sx={{ p: 1.5, maxWidth: 320 }}>
-          <NotificationsMenuSection />
+          <NotificationsMenuSection onNavigate={() => setAnchorEl(null)} />
         </Box>
       </Popover>
     </>

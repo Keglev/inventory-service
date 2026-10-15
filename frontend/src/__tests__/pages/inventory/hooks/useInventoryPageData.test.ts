@@ -47,7 +47,8 @@ vi.mock('@/utils/logger', () => ({
   logError: vi.fn(),
 }));
 
-import { useInventoryPageData } from '@/pages/inventory/hooks/useInventoryPageData';
+import { listsItems, useInventoryPageData } from '@/pages/inventory/hooks/useInventoryPageData';
+import { useInventoryColumns } from '@/pages/inventory/hooks/useInventoryColumns';
 import { getInventoryPage } from '@/api/inventory/listFetcher';
 import { logError } from '@/utils/logger';
 
@@ -135,6 +136,32 @@ describe('useInventoryPageData', () => {
     await waitFor(() =>
       expect(getInventoryPageMock.mock.calls.length).toBe(callsAfterMount + 1)
     );
+  });
+
+  // The bell's link lists every item below its minimum across suppliers (C6).
+  it('fetches all suppliers below minimum when the filter is on without a supplier', async () => {
+    const { result } = renderHook(() => useInventoryPageData(null, '', true, 0, 10, 'name,asc'));
+
+    await waitFor(() => expect(result.current.items).toHaveLength(1));
+    expect(getInventoryPageMock).toHaveBeenCalledWith({
+      page: 0, pageSize: 10, q: '', supplierId: undefined, sort: 'name,asc', belowMinimumOnly: true,
+    });
+  });
+
+  it('asks the columns for a supplier column only without a chosen supplier', async () => {
+    const { rerender } = renderPageData(null);
+    expect(vi.mocked(useInventoryColumns)).toHaveBeenLastCalledWith(true);
+
+    rerender({ sid: 'sup-1' });
+    expect(vi.mocked(useInventoryColumns)).toHaveBeenLastCalledWith(false);
+    await waitFor(() => expect(getInventoryPageMock).toHaveBeenCalled());
+  });
+
+  it('lists items for a supplier or the below-minimum filter, never unfiltered', () => {
+    expect(listsItems('sup-1', false)).toBe(true);
+    expect(listsItems(null, true)).toBe(true);
+    expect(listsItems(null, false)).toBe(false);
+    expect(listsItems('', false)).toBe(false);
   });
 
   it('reload is a no-op without a supplier', async () => {

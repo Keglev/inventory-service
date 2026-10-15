@@ -4,7 +4,8 @@
  *
  * @summary
  * Low-stock severity, shared by the inventory row styling and the analytics
- * low-stock table (frontend ADR-0012).
+ * low-stock table (frontend ADR-0012), and the link to all items below their
+ * minimum.
  *
  * @enterprise
  * - Whether an item is low is the backend's rule (quantity below the item's
@@ -37,3 +38,9 @@ export function lowStockSeverity(quantity: number, minimum: number): LowStockSev
   if (quantity < minimum) return 'warning';
   return 'none';
 }
+
+/** Query parameter that opens the inventory with only items below their minimum, across all suppliers. */
+export const BELOW_MINIMUM_PARAM = 'belowMinimum';
+
+/** Inventory URL listing every item below its minimum (the notification bell links here). */
+export const BELOW_MINIMUM_LINK = `/inventory?${BELOW_MINIMUM_PARAM}=1`;

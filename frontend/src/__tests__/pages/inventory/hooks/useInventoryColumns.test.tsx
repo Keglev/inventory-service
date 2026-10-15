@@ -22,6 +22,7 @@ import { renderHook } from '@testing-library/react';
 import { AllProviders } from '@/__tests__/test/all-providers';
 import { useInventoryColumns } from '@/pages/inventory/hooks/useInventoryColumns';
 import type { InventoryRow } from '@/api/inventory/types';
+import type { GridColDef } from '@mui/x-data-grid';
 
 // -----------------------------------------------------------------------------
 // Hoisted mocks
@@ -305,5 +306,20 @@ describe('useInventoryColumns', () => {
     // Memoization matters for DataGrid performance: stable column identity
     // avoids unnecessary internal recalculation and re-render churn.
     expect(second).toBe(first);
+  });
+
+  // Across all suppliers (below-minimum list) a row must say whose item it is (C6).
+  it('adds a non-sortable supplier column after the name only when asked', () => {
+    const { result: without } = setup();
+    expect(getColumnByField(without.current, 'supplierName')).toBeUndefined();
+
+    const { result } = renderHook(() => useInventoryColumns(true), { wrapper: AllProviders });
+    const fields = result.current.map((c) => c.field);
+    expect(fields.indexOf('supplierName')).toBe(fields.indexOf('name') + 1);
+    const col = getColumnByField(result.current, 'supplierName') as GridColDef;
+    expect(col.sortable).toBe(false);
+    const getter = col.valueGetter as unknown as (v: unknown, row: unknown) => string;
+    expect(getter(undefined, { supplierName: 'Nordbay' })).toBe('Nordbay');
+    expect(getter(undefined, { supplierName: null })).toBe('—');
   });
 });

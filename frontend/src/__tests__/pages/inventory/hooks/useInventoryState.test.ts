@@ -17,6 +17,8 @@
 
 import { describe, expect, it } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
+import { createElement } from 'react';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { useInventoryState } from '@/pages/inventory/hooks/useInventoryState';
 
 // -----------------------------------------------------------------------------
@@ -24,7 +26,8 @@ import { useInventoryState } from '@/pages/inventory/hooks/useInventoryState';
 // -----------------------------------------------------------------------------
 
 function setup() {
-  return renderHook(() => useInventoryState());
+  // The hook reads ?belowMinimum from the URL, so it runs inside a router.
+  return renderHook(() => useInventoryState(), { wrapper: MemoryRouter });
 }
 
 describe('useInventoryState', () => {
@@ -175,5 +178,37 @@ describe('useInventoryState', () => {
 
     expect(result.current.selectedId).toBe('ITEM999');
     expect(result.current.openNew).toBe(true);
+  });
+
+  // The bell links to /inventory?belowMinimum=1 (C6).
+  it('starts with the below-minimum filter across all suppliers from the bell link', () => {
+    const { result } = renderHook(() => useInventoryState(), {
+      wrapper: ({ children }) => createElement(MemoryRouter, { initialEntries: ['/inventory?belowMinimum=1'] }, children),
+    });
+
+    expect(result.current.belowMinOnly).toBe(true);
+    expect(result.current.supplierId).toBeNull();
+  });
+
+  it('resets to all suppliers below minimum when the link is followed again on the page', () => {
+    let go: (to: string) => void = () => {};
+    const { result } = renderHook(
+      () => {
+        go = useNavigate();
+        return useInventoryState();
+      },
+      { wrapper: ({ children }) => createElement(MemoryRouter, { initialEntries: ['/inventory?belowMinimum=1'] }, children) },
+    );
+    act(() => {
+      result.current.setSupplierId('sup-1');
+      result.current.setBelowMinOnly(false);
+      result.current.setSelectedId('it-1');
+    });
+
+    act(() => go('/inventory?belowMinimum=1'));
+
+    expect(result.current.belowMinOnly).toBe(true);
+    expect(result.current.supplierId).toBeNull();
+    expect(result.current.selectedId).toBeNull();
   });
 });

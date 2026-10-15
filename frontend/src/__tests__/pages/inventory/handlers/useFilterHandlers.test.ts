@@ -68,4 +68,15 @@ describe('useFilterHandlers', () => {
     expect(mockState.setBelowMinOnly).toHaveBeenCalledWith(true);
     expect(mockState.setPaginationModel).toHaveBeenCalledWith({ page: 0, pageSize: 20 });
   });
+
+  // Without a supplier, unticking hides the grid; the toolbar must not keep a hidden row.
+  it('clears the selection when below minimum is turned off without a supplier', () => {
+    const noSupplier = makeInventoryState({ selectedId: 'it-1' });
+    renderHook(() => useFilterHandlers(noSupplier)).result.current.handleBelowMinChange(false);
+    expect(noSupplier.setSelectedId).toHaveBeenCalledWith(null);
+
+    const withSupplier = makeInventoryState({ supplierId: 'sup-1', selectedId: 'it-1' });
+    renderHook(() => useFilterHandlers(withSupplier)).result.current.handleBelowMinChange(false);
+    expect(withSupplier.setSelectedId).not.toHaveBeenCalled();
+  });
 });

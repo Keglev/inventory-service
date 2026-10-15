@@ -16,6 +16,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import NotificationsMenuSection from '@/app/layout/header/notifications/NotificationsMenuSection';
 import { tEn } from '@/__tests__/test/i18nEn';
 
@@ -41,7 +42,8 @@ type MetricsState =
 describe('NotificationsMenuSection', () => {
   const arrange = (state: MetricsState) => {
     mockUseDashboardMetrics.mockReturnValue(state);
-    return render(<NotificationsMenuSection />);
+    // The low-stock section links to the inventory, so it renders inside a router.
+    return render(<NotificationsMenuSection />, { wrapper: MemoryRouter });
   };
 
   beforeEach(() => {

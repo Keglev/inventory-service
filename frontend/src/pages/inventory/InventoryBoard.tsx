@@ -45,6 +45,7 @@ import { useToolbarHandlers } from './handlers/useToolbarHandlers';
 import { useFilterHandlers } from './handlers/useFilterHandlers';
 import { useRefreshHandler } from './handlers/useRefreshHandler';
 import { useDataFetchingLogic } from './handlers/useDataFetchingLogic';
+import { listsItems } from './hooks/useInventoryPageData';
 import { railGutter } from '../../theme/pagePanel';
 import { PagePanel } from '../../components/ui/PagePanel';
 
@@ -57,6 +58,7 @@ const InventoryBoard: React.FC = () => {
   // State Management
   // =====================
   const state = useInventoryState();
+  const showsGrid = listsItems(state.supplierId, state.belowMinOnly);
 
   // =====================
   // Event Handlers
@@ -148,13 +150,13 @@ const InventoryBoard: React.FC = () => {
           ml: railGutter,
           mr: railGutter,
           mb: { xs: 2, md: 3 },
-          p: state.supplierId ? 0 : 2,
+          p: showsGrid ? 0 : 2,
           minHeight: 420,
           display: 'flex',
           flexDirection: 'column',
         }}
       >
-        {!state.supplierId ? (
+        {!showsGrid ? (
           <Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}>
             <Typography variant="body1" color="text.secondary">
               {t('inventory:search.selectSupplierPrompt')}

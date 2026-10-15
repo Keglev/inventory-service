@@ -20,7 +20,12 @@ vi.mock('@/api/analytics/hooks/useDashboardMetrics', () => ({
   useDashboardMetrics: () => mockUseDashboardMetrics(),
 }));
 vi.mock('@/app/layout/header/notifications/NotificationsMenuSection', () => ({
-  default: () => <div data-testid="notifications-section">Notifications body</div>,
+  default: ({ onNavigate }: { onNavigate?: () => void }) => (
+    <div data-testid="notifications-section">
+      Notifications body
+      <button type="button" onClick={onNavigate}>follow link</button>
+    </div>
+  ),
 }));
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
@@ -65,6 +70,17 @@ describe('NotificationBell', () => {
     expect(await screen.findByTestId('notifications-section')).toBeInTheDocument();
 
     await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByTestId('notifications-section')).not.toBeInTheDocument());
+  });
+
+  // Following the "show all" link must not leave the popover over the new page.
+  it('closes the popover when the section reports a navigation', async () => {
+    const user = userEvent.setup();
+    render(<NotificationBell />);
+
+    await user.click(screen.getByRole('button', { name: 'Notifications' }));
+    await user.click(await screen.findByRole('button', { name: 'follow link' }));
+
     await waitFor(() => expect(screen.queryByTestId('notifications-section')).not.toBeInTheDocument());
   });
 });

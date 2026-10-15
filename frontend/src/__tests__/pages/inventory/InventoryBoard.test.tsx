@@ -168,8 +168,28 @@ describe('InventoryBoard', () => {
     render(<InventoryBoard />);
 
     expect(
-      screen.getByText('Please select a supplier to view their items.')
+      screen.getByText('Select a supplier to see its items, or tick "Below minimum quantity only" to see every item below its minimum.')
     ).toBeInTheDocument();
     expect(screen.queryByTestId('inventory-table')).not.toBeInTheDocument();
+  });
+
+  // All items below minimum across suppliers (C6): no supplier needed for the grid.
+  it('shows the table without a supplier when below minimum is ticked', async () => {
+    const { useInventoryState } = await import('@/pages/inventory/hooks/useInventoryState');
+    vi.mocked(useInventoryState).mockReturnValue({
+      q: '',
+      supplierId: null,
+      belowMinOnly: true,
+      selectedId: null,
+      pageIndex: 0,
+      pageSize: 10,
+      sortField: 'name',
+      sortOrder: 'asc',
+    } as unknown as ReturnType<typeof useInventoryState>);
+
+    render(<InventoryBoard />);
+
+    expect(screen.getByTestId('inventory-table')).toBeInTheDocument();
+    expect(screen.queryByText(/Select a supplier to see its items/)).not.toBeInTheDocument();
   });
 });

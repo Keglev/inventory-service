@@ -39,13 +39,27 @@ import type { InventoryRow } from '../../../api/inventory/types';
 /**
  * Hook to generate inventory DataGrid column definitions.
  * 
+ * @param showSupplier - Add a supplier column (the list spans all suppliers)
  * @returns Column definitions with formatters and value getters
  */
-export const useInventoryColumns = (): GridColDef[] => {
+export const useInventoryColumns = (showSupplier = false): GridColDef[] => {
   const { t } = useTranslation(['common', 'inventory']);
   const { userPreferences } = useSettings();
 
   return React.useMemo<GridColDef[]>(() => {
+    // Across all suppliers (below-minimum list) a row must say whose item it is;
+    // with one supplier chosen the column would repeat one name.
+    const supplierColumn: GridColDef[] = showSupplier
+      ? [{
+          field: 'supplierName',
+          headerName: t('inventory:table.supplier'),
+          flex: 0.6,
+          minWidth: 160,
+          // The server sort has no supplier key (listFetcher SORT_FIELD_MAP).
+          sortable: false,
+          valueGetter: (_value: unknown, row: InventoryRow | null) => row?.supplierName ?? '—',
+        }]
+      : [];
     return [
       {
         field: 'name',
@@ -53,6 +67,7 @@ export const useInventoryColumns = (): GridColDef[] => {
         flex: 1,
         minWidth: 180,
       },
+      ...supplierColumn,
       {
         field: 'code',
         headerName: t('inventory:table.code'),
@@ -107,5 +122,5 @@ export const useInventoryColumns = (): GridColDef[] => {
         valueFormatter: (value: unknown) => formatDateCell(value, userPreferences.dateFormat),
       },
     ];
-  }, [t, userPreferences.numberFormat, userPreferences.dateFormat]);
+  }, [t, userPreferences.numberFormat, userPreferences.dateFormat, showSupplier]);
 };
