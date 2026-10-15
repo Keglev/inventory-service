@@ -169,7 +169,7 @@
             User["End User"]:::actor
 
             Dev -->|push| GHA
-            GHA -->|backend-docker.yml\ndocker build + Trivy + push :SHA| GHCR
+            GHA -->|backend-docker.yml\ndocker build + SBOM/Trivy gate + push :SHA| GHCR
             GHA -->|backend-deploy.yml\nscp compose + pull + up over SSH| SSP
             GHCR -.->|image pull on release| SSP
             GHA -->|frontend-deploy.yml| Koyeb
@@ -217,9 +217,12 @@
         <tr class="even">
         <td>Backend</td>
         <td><code>backend-docker.yml</code></td>
-        <td><code>docker build</code> (prod profile), Trivy CVE scan
-        (blocks on HIGH/CRITICAL), <code>docker push :SHA :latest</code>
-        to GHCR, each push up to three attempts</td>
+        <td><code>docker build</code> (prod profile), SBOM and CVE gate
+        (<code>image-sbom-scan</code>: blocks on an incomplete SBOM or a
+        fixable HIGH/CRITICAL CVE; keeps the SBOM 90 days as
+        <code>sbom-backend-&lt;sha&gt;</code>),
+        <code>docker push :SHA :latest</code> to GHCR, each push up to
+        three attempts</td>
         </tr>
         <tr class="odd">
         <td>Backend</td>
@@ -233,9 +236,12 @@
         <td>Frontend</td>
         <td><code>frontend-ci.yml</code></td>
         <td>Audits the shipped dependency tree (gate), lints, runs
-        Vitest, then builds and Trivy-scans the image before it reaches
-        Docker Hub; calls the Playwright suite beside it and reports
-        both through one <code>build-and-test</code> job</td>
+        Vitest, then builds the image and runs the SBOM and CVE gate
+        (<code>image-sbom-scan</code>) before it reaches Docker Hub,
+        keeping the SBOM 90 days as
+        <code>sbom-frontend-&lt;sha&gt;</code> for a published image;
+        calls the Playwright suite beside it and reports both through
+        one <code>build-and-test</code> job</td>
         </tr>
         <tr class="odd">
         <td>Frontend</td>
@@ -281,15 +287,13 @@
         </tr>
         <tr class="even">
         <td>Shared</td>
-        <td><code>sbom.yml</code></td>
-        <td>After the frontend CI or the backend image build succeeds on
-        main, writes a CycloneDX SBOM (components only) of the published
-        image with Trivy and keeps it 90 days as the artifact
-        <code>sbom-frontend-&lt;sha&gt;</code> or
-        <code>sbom-backend-&lt;sha&gt;</code>; fails when the SBOM lacks
-        the image’s own components (Alpine packages, and for the backend
-        the Java libraries in <code>app.jar</code>). Also runs by hand
-        for any published commit</td>
+        <td><code>.github/actions/image-sbom-scan</code></td>
+        <td>Composite action used by both image builds: one Trivy
+        analysis writes a CycloneDX SBOM (components only) of the local
+        image, fails when it lacks the image’s own components (Alpine
+        packages; for the backend the Java libraries in
+        <code>app.jar</code>), then gates on fixable HIGH/CRITICAL CVEs
+        found in that SBOM, before the image is published</td>
         </tr>
         <tr class="odd">
         <td>Shared</td>
@@ -337,7 +341,7 @@
             CI->>CI: mvn clean verify + JaCoCo
             CI->>Docker: trigger on CI success
             Docker->>Docker: docker build (prod profile)
-            Docker->>Docker: Trivy scan — block on HIGH/CRITICAL
+            Docker->>Docker: SBOM + Trivy CVE gate — block on HIGH/CRITICAL
             Docker->>GHCR: docker push :SHA + :latest
             GHCR-->>Deploy: trigger on Docker success
             Deploy->>Host: scp docker-compose.prod.yml
