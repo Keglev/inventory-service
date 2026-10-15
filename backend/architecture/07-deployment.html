@@ -281,13 +281,25 @@
         </tr>
         <tr class="even">
         <td>Shared</td>
+        <td><code>sbom.yml</code></td>
+        <td>After the frontend CI or the backend image build succeeds on
+        main, writes a CycloneDX SBOM (components only) of the published
+        image with Trivy and keeps it 90 days as the artifact
+        <code>sbom-frontend-&lt;sha&gt;</code> or
+        <code>sbom-backend-&lt;sha&gt;</code>; fails when the SBOM lacks
+        the image’s own components (Alpine packages, and for the backend
+        the Java libraries in <code>app.jar</code>). Also runs by hand
+        for any published commit</td>
+        </tr>
+        <tr class="odd">
+        <td>Shared</td>
         <td><code>release.yml</code></td>
         <td>On a <code>v*.*.*</code> tag push, verifies both tiers
         report that version, then publishes the GitHub Release with
         notes generated from the merged pull requests since the previous
         tag</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>Shared</td>
         <td><code>yaml-lint.yml</code></td>
         <td>Pull request check on YAML changes: parses every tracked
