@@ -113,7 +113,12 @@
 <a name='L48'></a><a href='#L48'>48</a>
 <a name='L49'></a><a href='#L49'>49</a>
 <a name='L50'></a><a href='#L50'>50</a>
-<a name='L51'></a><a href='#L51'>51</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -146,12 +151,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-yes">29x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">29x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -184,7 +190,7 @@
  *   omits the tooltip prop. Callers may still override the visible tooltip.
  */
 import * as React from 'react';
-import { IconButton, Tooltip } from '@mui/material';
+import { IconButton, Tooltip, type IconButtonProps } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../../hooks/useHelp';
@@ -193,9 +199,11 @@ interface HelpIconButtonProps {
   /** ID from HELP_TOPICS (e.g. "app.main", "analytics.overview") */
   topicId: string;
   tooltip?: string;
+  /** Icon colour; the app bar passes 'inherit' so the icon follows the bar's text colour. */
+  color?: IconButtonProps['color'];
 }
 &nbsp;
-export const HelpIconButton: React.FC&lt;HelpIconButtonProps&gt; = ({ topicId, tooltip }) =&gt; {
+export const HelpIconButton: React.FC&lt;HelpIconButtonProps&gt; = ({ topicId, tooltip, color }) =&gt; {
   const { openHelp } = useHelp();
   const { t } = useTranslation(['common']);
 &nbsp;
@@ -205,6 +213,7 @@ export const HelpIconButton: React.FC&lt;HelpIconButtonProps&gt; = ({ topicId, t
     &lt;Tooltip title={tooltip ?? label}&gt;
       &lt;IconButton
         size="small"
+        color={color}
         onClick={() =&gt; openHelp(topicId)}
         aria-label={label}
       &gt;
