@@ -43,6 +43,8 @@ public interface InventoryItemService {
      * @param belowMinimumOnly when true, only items below their minimum quantity
      * @param pageable         pagination and sorting parameters
      * @return paginated results
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException
+     *         if a sort property is not a property of the item
      */
     Page<InventoryItemDTO> searchItems(String name, String supplierId,
                                        boolean belowMinimumOnly, Pageable pageable);

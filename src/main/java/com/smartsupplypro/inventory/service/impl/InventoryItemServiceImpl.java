@@ -19,6 +19,7 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemAuditHelper;
 import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidationHelper;
+import com.smartsupplypro.inventory.validation.SortValidator;
 import static com.smartsupplypro.inventory.validation.InventoryItemValidator.assertFinalQuantityNonNegative;
 import static com.smartsupplypro.inventory.validation.InventoryItemValidator.assertPriceValid;
 
@@ -59,6 +60,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Override
     public Page<InventoryItemDTO> searchItems(String name, String supplierId,
                                               boolean belowMinimumOnly, Pageable pageable) {
+        SortValidator.requireKnownProperties(pageable.getSort(), InventoryItem.class);
         Page<InventoryItem> page = repository.searchActiveItems(name, supplierId, belowMinimumOnly, pageable);
         return page == null ? Page.empty() : page.map(inventoryItemMapper::toDTO);
     }
