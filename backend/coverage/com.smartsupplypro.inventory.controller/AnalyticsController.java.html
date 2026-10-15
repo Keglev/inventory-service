@@ -43,8 +43,10 @@ public class AnalyticsController {
      * Gets dashboard summary with multiple analytics (defaults to last 30 days).
      *
      * @param supplierId optional supplier filter
-     * @param startDate  optional inclusive start date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
-     * @param endDate    optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
+     * @param startDate  optional inclusive start date-time (ISO yyyy-MM-dd'T'HH:mm:ss);
+     *                   defaults to 30 days ago
+     * @param endDate    optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss);
+     *                   defaults to now
      * @return dashboard summary DTO
      */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
@@ -54,9 +56,9 @@ public class AnalyticsController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
 
-<span class="fc" id="L57">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
-<span class="fc" id="L58">        validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], &quot;startDate&quot;, &quot;endDate&quot;);</span>
-<span class="fc" id="L59">        return ResponseEntity.ok(dashboardHelper.buildDashboardSummary(supplierId, dateWindow[0], dateWindow[1]));</span>
+<span class="fc" id="L59">        LocalDateTime[] dateWindow = validationHelper.completeDateWindow(startDate, endDate);</span>
+<span class="fc" id="L60">        validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], &quot;startDate&quot;, &quot;endDate&quot;);</span>
+<span class="fc" id="L61">        return ResponseEntity.ok(dashboardHelper.buildDashboardSummary(supplierId, dateWindow[0], dateWindow[1]));</span>
     }
 
     /**
@@ -74,8 +76,8 @@ public class AnalyticsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) String supplierId) {
 
-<span class="fc" id="L77">        validationHelper.validateDateRange(from, to, &quot;from&quot;, &quot;to&quot;);</span>
-<span class="fc" id="L78">        return ResponseEntity.ok(financialAnalyticsService.getFinancialSummaryWAC(from, to, supplierId));</span>
+<span class="fc" id="L79">        validationHelper.validateDateRange(from, to, &quot;from&quot;, &quot;to&quot;);</span>
+<span class="fc" id="L80">        return ResponseEntity.ok(financialAnalyticsService.getFinancialSummaryWAC(from, to, supplierId));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
