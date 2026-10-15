@@ -19,9 +19,10 @@
     "employees": "Mitarbeiter"
   },
   "priceTrend": {
-    "selectSupplierShort": "Lieferant auswählen",
+    "itemPlaceholder": "Artikelname oder Code",
     "selectItem": "Wähle einen Artikel, um den Preisverlauf zu sehen",
     "noItemsForSupplier": "Keine Artikel für diesen Lieferanten",
+    "noItems": "Keine Artikel gefunden",
     "typeToSearch": "Tippe zum Suchen…"
   },
   "finance": {
@@ -123,7 +124,7 @@
   "movements": {
     "increasesTitle": "Bestandszugänge nach Grund (Stück)",
     "decreasesTitle": "Bestandsabgänge nach Grund (Stück)",
-    "itemFilter": "Nach Artikelname filtern",
+    "itemFilter": "Nach Artikelname oder Code filtern",
     "reasonFilter": "Gründe",
     "drilldownTitle": "Passende Bestandsänderungen",
     "empty": "Keine Bestandsänderungen im Zeitraum",
