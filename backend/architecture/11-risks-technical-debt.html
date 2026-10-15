@@ -138,14 +138,16 @@
         <tbody>
         <tr class="odd">
         <td>R-01</td>
-        <td>The test suite pins H2 to 2.3.232 because the
+        <td>The test suite pins H2 to 2.5.252 because the
         Boot-4.1-managed H2 2.4.240 rejects Hibernate 7
-        converter-generated CHECK constraints (h2database issue #4323).
-        The pin diverges from the Boot-managed version.</td>
+        converter-generated CHECK constraints (h2database issue #4323;
+        measured 2026-10-15: 38 errors across the 14
+        <code>@DataJpaTest</code> classes on 2.4.240, 0 on 2.5.252). The
+        pin diverges from the Boot-managed version.</td>
         <td>Low — test-only dependency; production runs Oracle</td>
         <td>Low</td>
-        <td>Remove the pin once a fixed H2 2.4.x ships; tracked against
-        the upstream issue</td>
+        <td>Remove the pin once the Boot BOM manages H2 2.5 or
+        later</td>
         </tr>
         <tr class="even">
         <td>R-02</td>
