@@ -32,7 +32,7 @@ import { useDayFormatter } from '../../../hooks/useDayFormatter';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
-import { legendOrder } from '../../../utils/chartLegend';
+import { chartLegendProps, legendOrder } from '../../../utils/chartLegend';
 import { activityBucket, buildActivitySeries, ACTIVITY_LEGEND_ORDER, type ActivityKey } from './stockActivitySeries';
 
 export type RecentStockActivityCardProps = { from?: string; to?: string; supplierId?: string | null };
@@ -109,7 +109,7 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
                   formatter={formatPieces}
                   labelFormatter={formatBucket}
                 />
-                <Legend itemSorter={LEGEND_ORDER} />
+                <Legend {...chartLegendProps(muiTheme)} itemSorter={LEGEND_ORDER} />
                 {keys.map((key) => (
                   <Bar
                     key={key}

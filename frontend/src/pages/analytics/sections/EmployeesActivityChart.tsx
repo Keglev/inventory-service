@@ -23,6 +23,7 @@ import type { EmployeesChartRow } from './useEmployeesSectionData';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartLegendProps } from '../../../utils/chartLegend';
 import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
 import { dayTimeAxis, timeXAxisProps } from '../../../utils/timeAxis';
 import { employeeTimeRows, monthKey, monthTicks, utcDay } from './employeeTimeSeries';
@@ -176,7 +177,7 @@ export function EmployeesActivityChart({
                   labelFormatter={formatPeriodSpan}
                 />
                 {/* Series are people: alphabetical by name reads the same in every language. */}
-                <Legend itemSorter="value" />
+                <Legend {...chartLegendProps(muiTheme)} itemSorter="value" />
                 {employees.map((emp, idx) => (
                   <Line
                     key={emp.createdBy}

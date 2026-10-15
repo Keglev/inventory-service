@@ -25,6 +25,16 @@ describe('chart legend standard', () => {
     expect(unordered).toEqual([]);
   });
 
+  it('styles every Recharts legend through chartLegendProps', () => {
+    const unstyled = legends.filter(([, tag]) => !/\{\.\.\.chartLegendProps\(/.test(tag)).map(([path]) => path);
+    expect(unstyled).toEqual([]);
+  });
+
+  it('leaves the label text to chartLegendProps', () => {
+    const overriding = legends.filter(([, tag]) => /\blabelStyle\s*=/.test(tag)).map(([path]) => path);
+    expect(overriding).toEqual([]);
+  });
+
   it('declares an itemSorter on the tooltip of every line or bar chart with a legend', () => {
     // Recharts sorts tooltip items by name by default; the tooltip must list series in legend order.
     const charts = Object.entries(sources).filter(

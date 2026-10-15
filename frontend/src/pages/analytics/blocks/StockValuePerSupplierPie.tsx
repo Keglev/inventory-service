@@ -26,6 +26,7 @@ import type { StockPerSupplierPoint } from '../../../api/analytics/types';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartLegendProps } from '../../../utils/chartLegend';
 import { supplierValueSlices } from './supplierValueSlices';
 import DateScopeNote from '../components/DateScopeNote';
 
@@ -109,7 +110,7 @@ export default function StockValuePerSupplierPie({ chartHeight = 260, dateScopeN
                 />
                 {/* Recharts sorts legend items alphabetically by default; keep the
                     slices' rank order so "all others" stays last. */}
-                <Legend itemSorter={(item) => data.findIndex((d) => d.name === item.value)} />
+                <Legend {...chartLegendProps(muiTheme)} itemSorter={(item) => data.findIndex((d) => d.name === item.value)} />
               </PieChart>
             </ResponsiveContainer>
           </Box>

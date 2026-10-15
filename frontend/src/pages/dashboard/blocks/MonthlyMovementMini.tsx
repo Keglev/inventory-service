@@ -31,7 +31,7 @@ import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Le
 import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import { getTodayIso, getDaysAgoIso, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
-import { legendOrder } from '../../../utils/chartLegend';
+import { chartLegendProps, legendOrder } from '../../../utils/chartLegend';
 import { CHART_MARGIN } from './chartMargin';
 import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
 import { useSettings } from '../../../hooks/useSettings';
@@ -89,7 +89,7 @@ export default function MonthlyMovementMini() {
                       : value
                   }
                 />
-                <Legend itemSorter={LEGEND_ORDER} />
+                <Legend {...chartLegendProps(muiTheme)} itemSorter={LEGEND_ORDER} />
                 {/* Green bars: inbound stock movements */}
                 <Bar
                   dataKey="stockIn"
