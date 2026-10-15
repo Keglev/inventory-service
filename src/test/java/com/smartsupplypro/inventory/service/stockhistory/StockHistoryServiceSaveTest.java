@@ -1,10 +1,10 @@
 package com.smartsupplypro.inventory.service.stockhistory;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -39,7 +39,7 @@ class StockHistoryServiceSaveTest extends StockHistoryServiceTestBase {
 
         StockHistory saved = captureSavedHistory();
         assertNotNull(saved.getId());
-        assertTrue(saved.getId().startsWith("sh-" + ITEM_1 + "-"));
+        assertEquals(saved.getId(), UUID.fromString(saved.getId()).toString());
         assertEquals(ITEM_1, saved.getItemId());
         assertEquals(SUPPLIER_1, saved.getSupplierId());
         assertEquals(2, saved.getChange());

@@ -3,6 +3,7 @@ package com.smartsupplypro.inventory.service.impl;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -46,6 +47,18 @@ public class StockHistoryServiceImpl implements StockHistoryService {
         return itemRepository.findById(itemId)
                 .map(item -> item.getSupplierId())
                 .orElse(null);
+    }
+
+    /**
+     * Returns a new primary key for a history row.
+     *
+     * <p>Random, not time-based: one request can log several changes in the
+     * same millisecond (an update logs price and quantity back to back), and
+     * a key built from item id and clock millis made the second save merge
+     * into the first row instead of inserting a new one.</p>
+     */
+    private static String newHistoryId() {
+        return UUID.randomUUID().toString();
     }
 
     /** {@inheritDoc} */
@@ -117,7 +130,7 @@ public class StockHistoryServiceImpl implements StockHistoryService {
 
         // Server-authoritative timestamp ensures consistency across distributed writes
         StockHistory history = StockHistory.builder()
-                .id("sh-" + itemId + "-" + System.currentTimeMillis())
+                .id(newHistoryId())
                 .itemId(itemId)
                 .supplierId(supplierId)
                 .change(change)
@@ -143,7 +156,7 @@ public class StockHistoryServiceImpl implements StockHistoryService {
         String supplierId = resolveSupplierId(dto.itemId());
 
         StockHistory history = StockHistory.builder()
-                .id("sh-" + dto.itemId() + "-" + System.currentTimeMillis())
+                .id(newHistoryId())
                 .itemId(dto.itemId())
                 .supplierId(supplierId)
                 .change(dto.change())
