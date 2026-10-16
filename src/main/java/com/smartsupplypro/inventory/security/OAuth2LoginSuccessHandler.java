@@ -100,8 +100,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         clear.setPath("/");
         clear.setMaxAge(0);
         clear.setSecure(isSecureOrForwardedHttps(request));
-        // Not HttpOnly: frontend created it non-HttpOnly so clearing must match
-        clear.setHttpOnly(false);
+        // HttpOnly to match the cookie CookieOAuth2AuthorizationRequestRepository writes
+        clear.setHttpOnly(true);
         addCookieWithSameSite(response, clear, "Lax");
     }
 
