@@ -3,8 +3,10 @@ package com.smartsupplypro.inventory.service.impl.analytics;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -319,6 +321,11 @@ public class StockAnalyticsService {
     /**
      * Returns average unit price per day for an item within a date window.
      *
+     * <p>When the window has no row on its first day, the series opens with the
+     * price in force at {@code start} (the last recorded price before it), dated
+     * {@code start}. A price holds until it changes, so without that point an item
+     * whose price did not change inside the window had no series at all.
+     *
      * @param itemId     required inventory item identifier
      * @param supplierId optional supplier filter (null/blank = all suppliers)
      * @param start      inclusive start date (required)
@@ -336,6 +343,34 @@ public class StockAnalyticsService {
         }
 
         // startOfDay/endOfDay so start and end dates are fully inclusive at TIMESTAMP precision
-        return stockHistoryRepository.getItemPriceTrend(iid, supplierId, startOfDay(s), endOfDay(e));
+        List<PriceTrendDTO> window = stockHistoryRepository.getItemPriceTrend(iid, supplierId, startOfDay(s), endOfDay(e));
+        return withOpeningPrice(window, iid, supplierId, s);
+    }
+
+    /**
+     * Prepends the price in force at {@code start} unless the window already has a
+     * point on that day. Nothing is added for an item without history before
+     * {@code start}: it had no price yet.
+     *
+     * @param window     in-window points ordered by date ascending
+     * @param itemId     item identifier
+     * @param supplierId optional supplier filter
+     * @param start      first day of the window
+     * @return the window, possibly opened by one point dated {@code start}
+     */
+    private List<PriceTrendDTO> withOpeningPrice(List<PriceTrendDTO> window, String itemId, String supplierId, LocalDate start) {
+        // day strings are ISO yyyy-MM-dd, so string order is date order
+        if (!window.isEmpty() && window.get(0).getTimestamp().compareTo(start.toString()) <= 0) {
+            return window;
+        }
+        List<BigDecimal> prior = stockHistoryRepository.findPricesBefore(
+                itemId, blankToNull(supplierId), startOfDay(start), Limit.of(1));
+        if (prior.isEmpty()) {
+            return window;
+        }
+        List<PriceTrendDTO> opened = new ArrayList<>(window.size() + 1);
+        opened.add(new PriceTrendDTO(start.toString(), prior.get(0)));
+        opened.addAll(window);
+        return opened;
     }
 }

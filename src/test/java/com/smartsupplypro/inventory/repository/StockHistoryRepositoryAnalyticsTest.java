@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Limit;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
@@ -166,7 +167,7 @@ class StockHistoryRepositoryAnalyticsTest {
     }
 
     /**
-     * Price trend DTO projection and supplier-filtered variant.
+     * Price trend DTO projection, supplier-filtered variant and the opening-price lookup.
      */
     @Nested
     class PriceTrend {
@@ -187,6 +188,45 @@ class StockHistoryRepositoryAnalyticsTest {
 
             assertEquals(2, result.size());
             assertNotNull(result.get(0).getPrice());
+        }
+
+        @Test
+        void should_return_the_newest_price_first_when_listing_prices_before_a_time() {
+            List<BigDecimal> result = stockHistoryRepository.findPricesBefore(item1.getId(), null, now, Limit.of(2));
+
+            // sh-2 (one day ago, 20) is newer than sh-1 (two days ago, 22)
+            assertEquals(List.of(new BigDecimal("20.00"), new BigDecimal("22.00")), result);
+        }
+
+        @Test
+        void should_exclude_a_row_at_the_bound_when_listing_prices_before_a_time() {
+            List<BigDecimal> result = stockHistoryRepository.findPricesBefore(
+                    item1.getId(), null, now.minusDays(1), Limit.of(1));
+
+            assertEquals(List.of(new BigDecimal("22.00")), result);
+        }
+
+        @Test
+        void should_skip_a_row_without_a_price_when_listing_prices_before_a_time() {
+            stockHistoryRepository.save(StockHistory.builder()
+                    .id("sh-5").itemId("item-1").supplierId("sup-a")
+                    .change(1).reason(StockChangeReason.MANUAL_UPDATE).createdBy("admin")
+                    .timestamp(now.minusHours(1)).priceAtChange(null).build());
+
+            List<BigDecimal> result = stockHistoryRepository.findPricesBefore(item1.getId(), null, now, Limit.of(1));
+
+            assertEquals(List.of(new BigDecimal("20.00")), result);
+        }
+
+        @Test
+        void should_match_the_items_supplier_when_listing_prices_before_a_time() {
+            List<BigDecimal> own = stockHistoryRepository.findPricesBefore(
+                    item1.getId(), supplierA.getId(), now, Limit.of(1));
+            List<BigDecimal> other = stockHistoryRepository.findPricesBefore(
+                    item1.getId(), supplierB.getId(), now, Limit.of(1));
+
+            assertEquals(List.of(new BigDecimal("20.00")), own);
+            assertEquals(List.of(), other);
         }
     }
 }

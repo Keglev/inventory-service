@@ -5,6 +5,12 @@ get:
   description: |
     Gets historical price changes for a specific inventory item.
     Shows price evolution over a date range with optional supplier filtering.
+    One point per day with history rows (the day's average price), ordered by date.
+
+    **Opening point:** when no row falls on the start date, the series begins with
+    the last recorded price before `start`, dated `start`. A price holds until it
+    changes, so an item whose price did not change in the window still has a series.
+    Nothing is added for an item without history before `start`.
   operationId: getPriceTrend
   security:
     - oauth2: [openid]

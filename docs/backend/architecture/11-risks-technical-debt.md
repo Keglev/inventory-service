@@ -37,7 +37,7 @@ reaches the 300 hard cap.
 | `SecurityConfig::securityFilterChain` | 31 | 30 | One fluent `HttpSecurity` statement. The parts that can be extracted already are, into the entry-point, filter and authorization helpers. |
 
 Two files sit above their target and below their alarm and are watched rather
-than waived: `StockHistoryRepository.java` at 111 and
+than waived: `StockHistoryRepository.java` at 129 and
 `StockTrendAnalyticsRepositoryImpl.java` at 88, both against a repository target
 of 80. Thirteen methods sit between the target of 20 and the alarm of 30, the
 largest being `EmployeeAnalyticsService::getEmployeeActivity` at 29. The two
