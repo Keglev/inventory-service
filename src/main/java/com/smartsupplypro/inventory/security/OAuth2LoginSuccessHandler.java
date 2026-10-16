@@ -43,7 +43,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
      * Validates the authenticated principal and redirects to the frontend.
      *
      * <p>Guards against duplicate invocations in the same request cycle.
-     * Requires email and name to be present. Redirect target is resolved
+     * Requires an email; the display name is optional. Redirect target is resolved
      * from the optional {@code SSP_RETURN} cookie, validated against the
      * configured CORS allowed origins.</p>
      *
@@ -61,10 +61,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         request.setAttribute("OAUTH2_SUCCESS_REDIRECT_DONE", Boolean.TRUE);
 
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
+        // The name is optional: provisioning already fell back to the email for it
         String email = token.getPrincipal().getAttribute("email");
-        String name = token.getPrincipal().getAttribute("name");
-        if (email == null || name == null) {
-            throw new IllegalStateException("Email or name not provided by OAuth2 provider");
+        if (email == null) {
+            throw new IllegalStateException("Email not provided by OAuth2 provider");
         }
 
         String target = resolveRedirectTarget(request, response);

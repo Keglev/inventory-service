@@ -75,7 +75,7 @@ class OAuth2LoginSuccessHandlerProvisioningTest {
     }
 
     /**
-     * Behavior when required principal attributes are missing.
+     * Behavior when principal attributes are missing: email is required, name is not.
      */
     @Nested
     class WhenPrincipalAttributesMissing {
@@ -92,16 +92,19 @@ class OAuth2LoginSuccessHandlerProvisioningTest {
                     new MockHttpServletRequest(), new MockHttpServletResponse(), t));
         }
 
+        // provisioning stores the email as the name, so a missing name must not fail the login (B7)
         @Test
-        void should_throw_when_name_attribute_is_missing() {
+        void should_redirect_when_the_name_attribute_is_missing() throws Exception {
+            stubFrontend("https://localhost:8081", "/api/me");
             OAuth2User principal = new DefaultOAuth2User(
                 singletonList(() -> "ROLE_USER"), Map.of("email", "no-name@example.com"), "email");
             OAuth2AuthenticationToken t = new OAuth2AuthenticationToken(
                 principal, principal.getAuthorities(), "google");
+            MockHttpServletResponse res = new OAuth2LoginSuccessHandlerTestSupport.LenientRedirectResponse();
 
-            assertThrows(IllegalStateException.class, () ->
-                handler.onAuthenticationSuccess(
-                    new MockHttpServletRequest(), new MockHttpServletResponse(), t));
+            handler.onAuthenticationSuccess(new MockHttpServletRequest(), res, t);
+
+            assertThat(res.getRedirectedUrl()).isEqualTo("https://localhost:8081/api/me");
         }
     }
 }
