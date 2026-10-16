@@ -232,17 +232,16 @@
         <td>Audit-trail writes and paginated reads</td>
         </tr>
         <tr class="even">
-        <td><code>AnalyticsService</code>
-        (<code>AnalyticsServiceImpl</code>)</td>
-        <td>Facade over the analytics sub-services</td>
+        <td><code>StockAnalyticsService</code></td>
+        <td>Stock-movement calculations</td>
         </tr>
         <tr class="odd">
-        <td><code>StockAnalyticsService</code></td>
-        <td>Stock-movement calculations (sub-service)</td>
+        <td><code>FinancialAnalyticsService</code></td>
+        <td>Weighted-average-cost (WAC) calculations</td>
         </tr>
         <tr class="even">
-        <td><code>FinancialAnalyticsService</code></td>
-        <td>Weighted-average-cost (WAC) calculations (sub-service)</td>
+        <td><code>EmployeeAnalyticsService</code></td>
+        <td>Per-employee update analytics</td>
         </tr>
         <tr class="odd">
         <td><code>UserProvisioningService</code></td>
@@ -434,7 +433,7 @@
                 SS["SupplierService"]:::service
                 IS["InventoryItemService"]:::service
                 SHS["StockHistoryService"]:::service
-                AS["AnalyticsService"]:::service
+                AS["StockAnalyticsService\nFinancialAnalyticsService\nEmployeeAnalyticsService"]:::service
                 UPS["UserProvisioningService"]:::service
             end
 

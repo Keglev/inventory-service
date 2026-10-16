@@ -139,47 +139,42 @@
         href="./09-decisions/index.html">§9</a></td>
         </tr>
         <tr class="odd">
-        <td>AnalyticsService</td>
-        <td>Service computing stock valuation and trends using Weighted
-        Average Cost (WAC)</td>
-        </tr>
-        <tr class="even">
         <td>AppUser</td>
         <td>JPA entity for an authenticated user; carries the assigned
         role</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>arc42</td>
         <td>The documentation template structuring this architecture
         (§1–§12)</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>BusinessExceptionHandler</td>
         <td><code>@ControllerAdvice</code> mapping domain exceptions to
         HTTP status: <code>InvalidRequest</code> → 400,
         <code>Duplicate</code> / <code>BusinessRuleViolation</code> →
         409; applies <code>sanitize()</code></td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>cwallet.sso</code></td>
         <td>Oracle auto-login wallet file (part of a downloaded wallet
         archive). Production opens the wallet in encrypted form with a
         runtime wallet password instead. See <a
         href="./09-decisions/adr-0009-runtime-wallet-delivery.html">ADR-0009</a></td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>DTO (Data Transfer Object)</td>
         <td>The only object types that cross the controller boundary; 16
         in the <code>dto/</code> package. See <a
         href="./09-decisions/adr-0003-dto-boundary-no-entity-exposure.html">ADR-0003</a></td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>@EntityGraph</code></td>
         <td>JPA fetch hint on <code>InventoryItemRepository</code>
         loading <code>supplier</code> in a single join to avoid N+1
         queries</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>ErrorResponse</td>
         <td>The canonical error record
         <code>{error, message, timestamp}</code> with an optional
@@ -187,6 +182,11 @@
         <code>error</code> =
         <code>HttpStatus.name().toLowerCase()</code>. See <a
         href="./09-decisions/adr-0004-http-status-as-envelope.html">ADR-0004</a></td>
+        </tr>
+        <tr class="even">
+        <td>FinancialAnalyticsService</td>
+        <td>Service computing opening and ending value, purchases, COGS
+        and write-offs using Weighted Average Cost (WAC)</td>
         </tr>
         <tr class="odd">
         <td>Hetzner Cloud</td>
@@ -290,7 +290,7 @@
         <tr class="odd">
         <td>WAC</td>
         <td>Weighted Average Cost inventory costing method used by
-        <code>AnalyticsService</code></td>
+        <code>FinancialAnalyticsService</code></td>
         </tr>
         <tr class="even">
         <td>Wallet (Oracle)</td>
