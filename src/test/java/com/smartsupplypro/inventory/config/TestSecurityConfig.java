@@ -48,8 +48,7 @@ public class TestSecurityConfig {
                 .authenticationEntryPoint(jsonEntryPoint)
             )
             .csrf(csrf -> csrf.disable())
-            .oauth2Login(oauth -> oauth.disable())
-            .headers(headers -> headers.frameOptions(frame -> frame.disable()));
+            .oauth2Login(oauth -> oauth.disable());
 
         return http.build();
     }

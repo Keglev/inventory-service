@@ -12,7 +12,7 @@ global logging). Two profile overlays specialise it:
 | Profile | Activation | Database | SQL logging |
 |---|---|---|---|
 | (none) | No `SPRING_PROFILES_ACTIVE` | Oracle via `DB_URL` env var (H2 if unset) | DEBUG — JDBC + Hibernate SQL |
-| `test` | `SPRING_PROFILES_ACTIVE=test` | H2 `MODE=Oracle` in-memory; `ddl-auto=create-drop` | DEBUG; H2 console at `/h2-console` |
+| `test` | `SPRING_PROFILES_ACTIVE=test` | H2 `MODE=Oracle` in-memory; `ddl-auto=create-drop` | off (`logback-test.xml`, root WARN); on demand `-Dlogging.level.org.hibernate.SQL=DEBUG` |
 | `prod` | `SPRING_PROFILES_ACTIVE=prod` | Oracle Autonomous DB via wallet; Flyway-managed schema, `ddl-auto=validate` | off (`show-sql=false`, root INFO) |
 
 `AppProperties` (`@ConfigurationProperties(prefix="app")`) centralises all
