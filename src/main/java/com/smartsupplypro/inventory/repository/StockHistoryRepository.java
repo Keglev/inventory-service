@@ -42,6 +42,8 @@ public interface StockHistoryRepository
      *
      * <p>All filter parameters are optional; pass {@code null} to omit a filter.
      * Uses a separate {@code countQuery} to avoid re-executing the JOIN for pagination counts.
+     * The ORDER BY is part of the SQL: pass an UNSORTED {@link Pageable}, since Spring
+     * Data appends a sort to native SQL as entity property names, not columns.
      *
      * @param startDate  optional start timestamp (inclusive)
      * @param endDate    optional end timestamp (inclusive)

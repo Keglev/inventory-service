@@ -14,7 +14,8 @@ get:
     - endDate must be >= startDate if both provided
     - Page size is capped at 200 to prevent memory issues
     
-    **Default sorting:** timestamp DESC (newest first)
+    **Ordering:** always newest first (timestamp DESC). A `sort` parameter is
+    ignored: the native query orders by its own column.
   operationId: searchStockHistory
   security:
     - oauth2: [openid]
@@ -61,20 +62,6 @@ get:
         maximum: 200
         default: 50
       example: 50
-    - name: sort
-      in: query
-      description: |
-        Sort criteria in format: `property,direction`.
-        Default: `timestamp,desc`
-        
-        **Examples:**
-        - `timestamp,desc` - Newest changes first
-        - `itemId,asc` - Grouped by item
-        - `change,desc` - Largest changes first
-      required: false
-      schema:
-        type: string
-      example: "timestamp,desc"
   responses:
     '200':
       description: Paginated search results
