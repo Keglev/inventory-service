@@ -18,8 +18,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -40,7 +38,6 @@ import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidati
  * audited stock movement).
  */
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class InventoryItemServiceImplDeleteTest {
 
     @Mock private InventoryItemRepository repository;
