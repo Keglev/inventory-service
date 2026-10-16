@@ -45,8 +45,6 @@ Thumbs.db
 # Backend: build outputs & logs
 # -----------------------------------------------------------------------------
 target/
-logs/
-log/
 **/logs/
 **/log/
 *.log
@@ -63,8 +61,6 @@ src/test/
 # -----------------------------------------------------------------------------
 docs/
 *.md
-README.md
-HELP.md
 
 # -----------------------------------------------------------------------------
 # Backend: Maven wrapper — KEEP `.mvn/`, ignore wrapper launchers
@@ -94,7 +90,6 @@ ewallet.p12
 frontend/dist
 frontend/coverage
 frontend/cert
-frontend/node_modules
 frontend/src/**/*.test.*
 frontend/src/**/*.spec.*
 
