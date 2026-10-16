@@ -21,14 +21,9 @@ public class DuplicateResourceException extends RuntimeException {
 <span class="fc" id="L21">        this.field = field;</span>
 <span class="fc" id="L22">    }</span>
 
-    public DuplicateResourceException(String message, Throwable cause) {
-<span class="fc" id="L25">        super(message, cause);</span>
-<span class="fc" id="L26">        this.field = null;</span>
-<span class="fc" id="L27">    }</span>
-
     /** @return the conflicting field name, or {@code null} when not attributable */
     public String getField() {
-<span class="fc" id="L31">        return field;</span>
+<span class="fc" id="L26">        return field;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

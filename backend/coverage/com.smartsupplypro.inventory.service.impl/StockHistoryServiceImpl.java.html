@@ -94,12 +94,6 @@ public class StockHistoryServiceImpl implements StockHistoryService {
 <span class="fc" id="L94">                .map(mapper::toDTO);</span>
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void logStockChange(String itemId, int change, StockChangeReason reason, String createdBy) {
-<span class="fc" id="L100">        logStockChange(itemId, change, reason, createdBy, null);</span>
-<span class="fc" id="L101">    }</span>
-
     /**
      * {@inheritDoc}
      *
@@ -113,66 +107,32 @@ public class StockHistoryServiceImpl implements StockHistoryService {
                                String createdBy,
                                BigDecimal priceAtChange) {
 
-<span class="fc" id="L116">        StockHistoryValidator.validateEnum(reason);</span>
+        // A null reason fails validate(); the price snapshot enables WAC and PRICE_CHANGE tracking
+<span class="fc" id="L111">        StockHistoryDTO dto = StockHistoryDTO.builder()</span>
+<span class="fc" id="L112">                .itemId(itemId)</span>
+<span class="fc" id="L113">                .change(change)</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">                .reason(reason == null ? null : reason.name())</span>
+<span class="fc" id="L115">                .createdBy(createdBy)</span>
+<span class="fc" id="L116">                .priceAtChange(priceAtChange)</span>
+<span class="fc" id="L117">                .build();</span>
 
-        // Build DTO for domain validation; price snapshot enables WAC and PRICE_CHANGE tracking
-<span class="fc" id="L119">        StockHistoryDTO dto = StockHistoryDTO.builder()</span>
-<span class="fc" id="L120">                .itemId(itemId)</span>
-<span class="fc" id="L121">                .change(change)</span>
-<span class="fc" id="L122">                .reason(reason.name())</span>
-<span class="fc" id="L123">                .createdBy(createdBy)</span>
-<span class="fc" id="L124">                .priceAtChange(priceAtChange)</span>
-<span class="fc" id="L125">                .build();</span>
+<span class="fc" id="L119">        StockHistoryValidator.validate(dto);</span>
 
-<span class="fc" id="L127">        StockHistoryValidator.validate(dto);</span>
-
-<span class="fc" id="L129">        String supplierId = resolveSupplierId(itemId);</span>
+<span class="fc" id="L121">        String supplierId = resolveSupplierId(itemId);</span>
 
         // Server-authoritative timestamp ensures consistency across distributed writes
-<span class="fc" id="L132">        StockHistory history = StockHistory.builder()</span>
-<span class="fc" id="L133">                .id(newHistoryId())</span>
-<span class="fc" id="L134">                .itemId(itemId)</span>
-<span class="fc" id="L135">                .supplierId(supplierId)</span>
-<span class="fc" id="L136">                .change(change)</span>
-<span class="fc" id="L137">                .reason(reason)</span>
-<span class="fc" id="L138">                .createdBy(createdBy)</span>
-<span class="fc" id="L139">                .timestamp(LocalDateTime.now())</span>
-<span class="fc" id="L140">                .priceAtChange(priceAtChange)</span>
-<span class="fc" id="L141">                .build();</span>
+<span class="fc" id="L124">        StockHistory history = StockHistory.builder()</span>
+<span class="fc" id="L125">                .id(newHistoryId())</span>
+<span class="fc" id="L126">                .itemId(itemId)</span>
+<span class="fc" id="L127">                .supplierId(supplierId)</span>
+<span class="fc" id="L128">                .change(change)</span>
+<span class="fc" id="L129">                .reason(reason)</span>
+<span class="fc" id="L130">                .createdBy(createdBy)</span>
+<span class="fc" id="L131">                .timestamp(LocalDateTime.now())</span>
+<span class="fc" id="L132">                .priceAtChange(priceAtChange)</span>
+<span class="fc" id="L133">                .build();</span>
 
-<span class="fc" id="L143">        repository.save(history);</span>
-<span class="fc" id="L144">    }</span>
-
-    /**
-     * {@inheritDoc}
-     *
-     * &lt;p&gt;Applies domain validation, enriches the record with the denormalized
-     * supplierId, and uses a server-authoritative timestamp for audit consistency.&lt;/p&gt;
-     */
-    @Override
-    public void save(StockHistoryDTO dto) {
-<span class="fc" id="L154">        StockHistoryValidator.validate(dto);</span>
-
-<span class="fc" id="L156">        String supplierId = resolveSupplierId(dto.itemId());</span>
-
-<span class="fc" id="L158">        StockHistory history = StockHistory.builder()</span>
-<span class="fc" id="L159">                .id(newHistoryId())</span>
-<span class="fc" id="L160">                .itemId(dto.itemId())</span>
-<span class="fc" id="L161">                .supplierId(supplierId)</span>
-<span class="fc" id="L162">                .change(dto.change())</span>
-<span class="fc" id="L163">                .reason(StockChangeReason.valueOf(dto.reason()))</span>
-<span class="fc" id="L164">                .createdBy(dto.createdBy())</span>
-<span class="fc" id="L165">                .timestamp(LocalDateTime.now())</span>
-<span class="fc" id="L166">                .priceAtChange(dto.priceAtChange())</span>
-<span class="fc" id="L167">                .build();</span>
-
-<span class="fc" id="L169">        repository.save(history);</span>
-<span class="fc" id="L170">    }</span>
-
-    /** {@inheritDoc} */
-    @Override
-    public void delete(String itemId, StockChangeReason reason, String createdBy) {
-<span class="fc" id="L175">        logStockChange(itemId, -1, reason, createdBy);</span>
-<span class="fc" id="L176">    }</span>
+<span class="fc" id="L135">        repository.save(history);</span>
+<span class="fc" id="L136">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

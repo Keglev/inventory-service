@@ -22,10 +22,5 @@ import com.fasterxml.jackson.annotation.JsonInclude;
         String message,
         String timestamp,
         @JsonInclude(JsonInclude.Include.NON_NULL) Map&lt;String, String&gt; fieldErrors) {
-
-    /** Convenience constructor for errors without field attribution. */
-    public ErrorResponse(String error, String message, String timestamp) {
-<span class="fc" id="L28">        this(error, message, timestamp, null);</span>
-<span class="fc" id="L29">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
