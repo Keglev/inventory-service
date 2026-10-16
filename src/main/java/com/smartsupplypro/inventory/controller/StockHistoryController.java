@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -64,7 +63,11 @@ public class StockHistoryController {
      * @param endDate   optional inclusive end timestamp (ISO-8601)
      * @param itemName  optional partial item name filter
      * @param supplierId optional supplier identifier filter
-     * @param pageable  pagination config (max 200 per page, default timestamp DESC)
+     * <p>Results are always newest first: the native query orders by
+     * {@code CREATED_AT}, and a client {@code sort} is ignored because Spring Data
+     * appends it to native SQL as entity property names, which are not columns.
+     *
+     * @param pageable  page and size (max 200 per page); its sort is dropped
      * @return paginated stock history results
      */
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
@@ -74,14 +77,14 @@ public class StockHistoryController {
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
         @RequestParam(required = false) String itemName,
         @RequestParam(required = false) String supplierId,
-        @PageableDefault(size = 50, sort = "timestamp", direction = Sort.Direction.DESC) Pageable pageable
+        @PageableDefault(size = 50) Pageable pageable
     ) {
         if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
             // audit date queries must be temporally consistent
             throw new InvalidRequestException("endDate must be >= startDate");
         }
         // cap to prevent memory exhaustion on large audit datasets
-        pageable = PageRequest.of(pageable.getPageNumber(), Math.min(pageable.getPageSize(), MAX_PAGE_SIZE), pageable.getSort());
+        pageable = PageRequest.of(pageable.getPageNumber(), Math.min(pageable.getPageSize(), MAX_PAGE_SIZE));
         return stockHistoryService.findFiltered(startDate, endDate, itemName, supplierId, pageable);
     }
 }

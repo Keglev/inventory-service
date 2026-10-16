@@ -3,6 +3,7 @@ package com.smartsupplypro.inventory.controller.stockhistory;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -198,6 +199,25 @@ class StockHistoryControllerSearchTest {
 
         assertTrue(pageableCaptor.getValue().getPageSize() == 10,
                 "Controller should keep requested page size when <= 200");
+    }
+
+    // the native query orders by CREATED_AT itself; an appended sort broke the SQL (B3b)
+    @ParameterizedTest
+    @ValueSource(strings = {"", "timestamp,desc", "doesNotExist,asc"})
+    void should_pass_an_unsorted_page_when_any_sort_is_requested(String sort) throws Exception {
+        stubSearchReturns(new PageImpl<>(List.of(history)));
+
+        mockMvc.perform(get("/api/stock-history/search")
+                        .param("sort", sort)
+                        .param("page", "2")
+                        .with(user("mockuser").roles("ADMIN")))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(stockHistoryService).findFiltered(any(), any(), any(), any(), pageableCaptor.capture());
+
+        assertTrue(pageableCaptor.getValue().getSort().isUnsorted());
+        assertEquals(2, pageableCaptor.getValue().getPageNumber());
     }
 
     @Test

@@ -96,6 +96,15 @@ class StockHistoryRepositoryFilteringTest {
 
             assertEquals(2, result.getTotalElements());
         }
+
+        @Test
+        void should_return_the_newest_entry_first_when_the_page_is_unsorted() {
+            Page<StockHistory> result = stockHistoryRepository.findFiltered(
+                    now.minusDays(3), now, "Wrench", supplierA.getId(), PageRequest.of(0, 10));
+
+            // sh-2 (one day ago) before sh-1 (two days ago): the order comes from the SQL
+            assertEquals(List.of("sh-2", "sh-1"), result.getContent().stream().map(StockHistory::getId).toList());
+        }
     }
 
     /**
