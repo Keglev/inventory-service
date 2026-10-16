@@ -35,25 +35,6 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
     }
 
     /**
-     * Executes dialect-specific native SQL for monthly stock movement aggregation.
-     *
-     * @param start inclusive lower bound
-     * @param end   inclusive upper bound
-     * @return monthly aggregations ordered by month ascending
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<Object[]> getMonthlyStockMovement(LocalDateTime start, LocalDateTime end) {
-        final String sql = dialectDetector.isH2()
-            ? StockTrendSqlBuilder.buildH2MonthlyMovementSql(false)
-            : StockTrendSqlBuilder.buildOracleMonthlyMovementSql(false);
-        return em.createNativeQuery(sql)
-                .setParameter("start", start)
-                .setParameter("end", end)
-                .getResultList();
-    }
-
-    /**
      * Executes dialect-specific native SQL for monthly stock movement filtered by supplier.
      *
      * @param start      inclusive lower bound
@@ -65,8 +46,8 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
     @Override
     public List<Object[]> getMonthlyStockMovementBySupplier(LocalDateTime start, LocalDateTime end, String supplierId) {
         final String sql = dialectDetector.isH2()
-            ? StockTrendSqlBuilder.buildH2MonthlyMovementSql(true)
-            : StockTrendSqlBuilder.buildOracleMonthlyMovementSql(true);
+            ? StockTrendSqlBuilder.buildH2MonthlyMovementSql()
+            : StockTrendSqlBuilder.buildOracleMonthlyMovementSql();
         return em.createNativeQuery(sql)
                 .setParameter("start", start)
                 .setParameter("end", end)

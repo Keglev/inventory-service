@@ -18,7 +18,7 @@ the code or decision it concerns.
 
 | ID | Item | Impact | Resolution |
 |------|------|--------|------------|
-| TD-01 | `createdAt` is set three different ways across entities: `@PrePersist` (InventoryItem, StockHistory), `@CreationTimestamp` (Supplier), field initializer (AppUser). | Low — inconsistent audit semantics, harder to reason about | Standardise on one mechanism |
+| TD-01 | `createdAt` is set four different ways across entities: the service before the first save (InventoryItem), `@PrePersist` (StockHistory), `@CreationTimestamp` (Supplier), field initializer (AppUser). | Low — inconsistent audit semantics, harder to reason about | Standardise on one mechanism |
 | TD-02 | `handleDataIntegrity` Javadoc states it sanitizes SQL detail, but it returns a hardcoded conflict message and never calls `sanitize()`. | Trivial — misleading documentation | Correct the comment to match behaviour |
 | TD-03 | No optimistic locking (`@Version`) anywhere; concurrent updates to the same row last-write-wins. | Low — acceptable for current single-writer workload | Accepted; revisit if concurrent edit volume grows |
 | TD-05 | Docs UI: double scrollbars on documentation pages. | Low — cosmetic | Fix in the docs cleanup pass |
@@ -26,21 +26,22 @@ the code or decision it concerns.
 
 ## 11.3 Size-Budget Waivers
 
-Measured over code lines against the budgets in [§2](02-constraints.md). One file
-and one method exceed their alarm; each is waived below, with the same reason
-stated at the site in the code. No method reaches the 50 hard cap and no file
+Measured over code lines against the budgets in [§2](02-constraints.md). One
+method exceeds its alarm and is waived below, with the same reason stated at the
+site in the code. No method reaches the 50 hard cap and no file
 reaches the 300 hard cap.
 
 | Waived | Measured | Alarm | Reason |
 |------|------|--------|------------|
-| `repository/custom/util/StockTrendSqlBuilder.java` | 153 | 150 (repository) | 109 of the 153 code lines are SQL inside text blocks. Splitting the file moves SQL between files without reducing it. |
 | `SecurityConfig::securityFilterChain` | 31 | 30 | One fluent `HttpSecurity` statement. The parts that can be extracted already are, into the entry-point, filter and authorization helpers. |
 
 Two files sit above their target and below their alarm and are watched rather
-than waived: `StockHistoryRepository.java` at 129 and
-`StockTrendAnalyticsRepositoryImpl.java` at 88, both against a repository target
-of 80. Thirteen methods sit between the target of 20 and the alarm of 30, the
-largest being `EmployeeAnalyticsService::getEmployeeActivity` at 29. The two
+than waived: `StockHistoryRepository.java` at 115 and
+`repository/custom/util/StockTrendSqlBuilder.java` at 145, both against a
+repository target of 80. The builder was waived at 153 until its unused
+all-suppliers monthly variant was removed (2026-10-16). Thirteen methods sit
+between the target of 20 and the alarm of 30, the largest being
+`EmployeeAnalyticsService::getEmployeeActivity` at 29. The two
 daily-movement builders in `StockTrendSqlBuilder` (25 each) joined that band
 when they replaced the daily-valuation builders, which had been waived above.
 The band is guidance, the alarm is the gate.

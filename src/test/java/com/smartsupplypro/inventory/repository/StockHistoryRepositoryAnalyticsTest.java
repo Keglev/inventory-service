@@ -61,13 +61,16 @@ class StockHistoryRepositoryAnalyticsTest {
 
         item1 = inventoryItemRepository.save(InventoryItem.builder()
                 .id("item-1").name("Wrench").sku("SKU-SHA-1").price(BigDecimal.valueOf(20))
-                .quantity(100).minimumQuantity(10).supplier(supplierA).createdBy("admin").build());
+                .quantity(100).minimumQuantity(10).supplier(supplierA)
+                .supplierId(supplierA.getId()).createdBy("admin").createdAt(now).build());
         item2 = inventoryItemRepository.save(InventoryItem.builder()
                 .id("item-2").name("Hammer").sku("SKU-SHA-2").price(BigDecimal.valueOf(15))
-                .quantity(50).minimumQuantity(5).supplier(supplierB).createdBy("admin").build());
+                .quantity(50).minimumQuantity(5).supplier(supplierB)
+                .supplierId(supplierB.getId()).createdBy("admin").createdAt(now).build());
         inventoryItemRepository.save(InventoryItem.builder()
                 .id("item-3").name("Screwdriver").sku("SKU-SHA-3").price(BigDecimal.valueOf(12))
-                .quantity(80).minimumQuantity(10).supplier(supplierA).createdBy("admin").build());
+                .quantity(80).minimumQuantity(10).supplier(supplierA)
+                .supplierId(supplierA.getId()).createdBy("admin").createdAt(now).build());
 
         stockHistoryRepository.save(StockHistory.builder()
                 .id("sh-1").itemId("item-1").supplierId("sup-a")
@@ -136,8 +139,8 @@ class StockHistoryRepositoryAnalyticsTest {
 
         @Test
         void should_return_the_monthly_movement_when_no_supplier_is_given() {
-            List<Object[]> result = stockHistoryRepository.getMonthlyStockMovement(
-                    now.minusMonths(1), now.plusDays(1));
+            List<Object[]> result = stockHistoryRepository.getMonthlyStockMovementBySupplier(
+                    now.minusMonths(1), now.plusDays(1), null);
 
             assertEquals(1, result.size());
             assertTrue(result.get(0)[0].toString().matches("\\d{4}-\\d{2}"));
@@ -167,19 +170,11 @@ class StockHistoryRepositoryAnalyticsTest {
     }
 
     /**
-     * Price trend DTO projection, supplier-filtered variant and the opening-price lookup.
+     * Supplier-filtered price trend projection and the opening-price lookup.
      */
     @Nested
     class PriceTrend {
 
-        @Test
-        void should_return_price_trend_rows_when_an_item_and_date_range_are_given() {
-            List<PriceTrendDTO> result = stockHistoryRepository.getPriceTrend(
-                    item1.getId(), now.minusDays(3), now);
-
-            assertEquals(2, result.size());
-            assertTrue(result.get(0).getPrice().compareTo(BigDecimal.ZERO) > 0);
-        }
 
         @Test
         void should_return_supplier_filtered_price_trend_rows_when_the_custom_query_runs() {

@@ -179,7 +179,7 @@ POST /inventory/items
 | DTO-Muster | Entkoppelt API-Vertrag vom internen Domain-Modell |
 | Exception-Übersetzung | Geschäfts-Exceptions werden an einer Grenze auf HTTP-Statuscodes gemappt |
 | Validierungs-Helfer | Komplexe Geschäftsregeln in dedizierten Validator-Klassen isoliert |
-| Audit-Protokollierung | `createdAt` per `@PrePersist` / `@CreationTimestamp`; `createdBy` im `@PrePersist` auf `"system"` gesetzt oder vom Service vor dem Persistieren gesetzt |
+| Audit-Protokollierung | `createdAt` vom Service (`InventoryItem`), per `@PrePersist` (`StockHistory`) oder `@CreationTimestamp` (`Supplier`); `createdBy` vom Service vor dem Persistieren gesetzt |
 
 ## Performance-Überlegungen
 

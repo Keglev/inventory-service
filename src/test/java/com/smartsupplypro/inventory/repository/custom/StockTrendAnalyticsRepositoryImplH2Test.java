@@ -81,8 +81,8 @@ class StockTrendAnalyticsRepositoryImplH2Test {
             seedTestData();
             StockTrendAnalyticsRepositoryImpl repo = repoH2();
 
-            List<Object[]> out = repo.getMonthlyStockMovement(
-                    LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 3, 31, 23, 59));
+            List<Object[]> out = repo.getMonthlyStockMovementBySupplier(
+                    LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 3, 31, 23, 59), null);
 
             assertEquals(2, out.size());
             // Feb: itemA +5, itemB +1 = 6 in; itemA -2 = 2 out

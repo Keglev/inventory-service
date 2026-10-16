@@ -2,7 +2,6 @@ package com.smartsupplypro.inventory.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -11,7 +10,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import org.hibernate.type.NumericBooleanConverter;
 import lombok.AllArgsConstructor;
@@ -41,12 +39,11 @@ import lombok.ToString;
 public class InventoryItem {
 
     /**
-     * Minimum quantity applied when an item is stored without one.
+     * Minimum quantity applied when an item is created without one.
      *
-     * <p>Declared here because both guards that apply it must use the same
-     * number: {@link #onCreate()} below, and
-     * {@code InventoryItemValidationHelper.populateServerFields}, which sets it
-     * before the entity is saved so callers see it without a flush.</p>
+     * <p>A domain default, so it lives with the entity;
+     * {@code InventoryItemValidationHelper.populateServerFields} applies it
+     * before the entity is saved.</p>
      */
     public static final int DEFAULT_MINIMUM_QUANTITY = 10;
 
@@ -94,29 +91,4 @@ public class InventoryItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SUPPLIER_ID", insertable = false, updatable = false)
     private Supplier supplier;
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.id == null || this.id.isBlank()) {
-            this.id = UUID.randomUUID().toString();
-        }
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
-        }
-        if (this.createdBy == null || this.createdBy.isBlank()) {
-            this.createdBy = "system";
-        }
-        if (this.minimumQuantity <= 0) {
-            this.minimumQuantity = DEFAULT_MINIMUM_QUANTITY;
-        }
-        // denormalized supplierId must match the supplier relationship when only the entity is set
-        boolean supplierIdMissing = (this.supplierId == null || this.supplierId.isBlank());
-        if (supplierIdMissing) {
-            if (this.supplier != null) {
-                this.supplierId = this.supplier.getId();
-            } else {
-                this.supplierId = "default-supplier";
-            }
-        }
-    }
 }

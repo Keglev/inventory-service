@@ -40,23 +40,20 @@ class StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest {
         LocalDateTime start = LocalDateTime.of(2024, 2, 1, 0, 0);
         LocalDateTime end   = LocalDateTime.of(2024, 3, 31, 23, 59);
 
-        repo.getMonthlyStockMovement(start, end);
         repo.getMonthlyStockMovementBySupplier(start, end, "   ");
         repo.getDailyItemMovements(end, "   ");
         repo.getItemPriceTrend("itemA", "   ", start, end);
 
         ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
-        org.mockito.Mockito.verify(em, org.mockito.Mockito.times(4)).createNativeQuery(sql.capture());
+        org.mockito.Mockito.verify(em, org.mockito.Mockito.times(3)).createNativeQuery(sql.capture());
 
         // Oracle monthly movement uses TO_CHAR(..., 'YYYY-MM')
         assertTrue(sql.getAllValues().get(0).contains("TO_CHAR"));
         assertTrue(sql.getAllValues().get(0).contains("YYYY-MM"));
-        // Oracle supplier-filtered movement is also TO_CHAR-flavored
-        assertTrue(sql.getAllValues().get(1).contains("TO_CHAR"));
         // Oracle daily item movements use TRUNC
-        assertTrue(sql.getAllValues().get(2).contains("TRUNC"));
+        assertTrue(sql.getAllValues().get(1).contains("TRUNC"));
         // Oracle price trend uses YYYY-MM-DD format
-        assertTrue(sql.getAllValues().get(3).contains("YYYY-MM-DD"));
+        assertTrue(sql.getAllValues().get(2).contains("YYYY-MM-DD"));
 
         // blank supplier must normalize to null so the supplier filter is disabled
         org.mockito.Mockito.verify(query, org.mockito.Mockito.atLeastOnce())

@@ -13,8 +13,8 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 /**
  * Service contract for immutable stock movement event logging and audit trail management.
  *
- * <p>Defines operations for logging stock changes with optional price snapshots,
- * querying history by item or reason, paginated filtered search, and deletion recording.</p>
+ * <p>Defines operations for logging stock changes with price snapshots,
+ * querying history by item or reason, and paginated filtered search.</p>
  *
  * @see com.smartsupplypro.inventory.service.impl.StockHistoryServiceImpl
  * @see com.smartsupplypro.inventory.model.StockHistory
@@ -58,51 +58,18 @@ public interface StockHistoryService {
                                        Pageable pageable);
 
     /**
-     * Logs a stock change without a price snapshot.
-     * Delegates to the price-aware overload with a null price.
-     *
-     * @param itemId    inventory item ID
-     * @param change    quantity change (positive or negative)
-     * @param reason    business reason for change
-     * @param createdBy user who initiated change
-     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if the record fails validation
-     * @throws IllegalArgumentException if {@code reason} is null or unsupported; callers pass
-     *         a constant, so this is a programming error (500)
-     */
-    void logStockChange(String itemId, int change, StockChangeReason reason, String createdBy);
-
-    /**
      * Logs a stock change with a price snapshot for WAC analytics.
      * @param itemId        inventory item ID
      * @param change        quantity change (positive or negative)
      * @param reason        business reason for change
      * @param createdBy     user who initiated change
      * @param priceAtChange unit price at time of change (nullable)
-     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if the record fails validation
-     * @throws IllegalArgumentException if {@code reason} is null or unsupported; callers pass
-     *         a constant, so this is a programming error (500)
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if the record fails
+     *         validation, including a null {@code reason}
      */
     void logStockChange(String itemId,
                         int change,
                         StockChangeReason reason,
                         String createdBy,
                         BigDecimal priceAtChange);
-
-    /**
-     * Persists a stock history event from an API-facing DTO.
-     * Applies domain validation and enriches the record with denormalized supplierId.
-     *
-     * @param dto stock history DTO (validated by this method)
-     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if validation fails or
-     *         reason is not a valid enum name (400)
-     */
-    void save(StockHistoryDTO dto);
-
-    /**
-     * Records item deletion in stock history using -1 as a sentinel quantity.
-     * @param itemId    inventory item ID
-     * @param reason    deletion reason
-     * @param createdBy user who initiated deletion
-     */
-    void delete(String itemId, StockChangeReason reason, String createdBy);
 }

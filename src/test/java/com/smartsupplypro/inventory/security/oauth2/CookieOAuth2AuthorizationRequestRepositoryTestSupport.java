@@ -10,10 +10,10 @@ import java.util.stream.Stream;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 
-import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository;
 
 /**
- * Shared test utilities for {@link CookieOAuth2AuthorizationRequestRepository} unit tests.
+ * Shared test utilities for
+ * {@link com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository} unit tests.
  * Package-private; helpers must remain deterministic and side-effect free — no assertions here.
  */
 final class CookieOAuth2AuthorizationRequestRepositoryTestSupport {
@@ -21,7 +21,8 @@ final class CookieOAuth2AuthorizationRequestRepositoryTestSupport {
     static final String HEADER_SET_COOKIE = "Set-Cookie";
     static final String HEADER_X_FORWARDED_PROTO = "X-Forwarded-Proto";
 
-    static final String AUTH_COOKIE = CookieOAuth2AuthorizationRequestRepository.AUTH_REQUEST_COOKIE_NAME;
+    // AppProperties.Cookie default, which the repository reads
+    static final String AUTH_COOKIE = "OAUTH2_AUTH_REQUEST";
     static final String RETURN_COOKIE = "SSP_RETURN";
 
     private CookieOAuth2AuthorizationRequestRepositoryTestSupport() {

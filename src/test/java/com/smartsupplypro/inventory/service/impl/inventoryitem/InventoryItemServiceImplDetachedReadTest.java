@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,6 +73,7 @@ class InventoryItemServiceImplDetachedReadTest {
         item.setMinimumQuantity(0);
         item.setSupplierId(SUPPLIER_ID);
         item.setCreatedBy("test");
+        item.setCreatedAt(LocalDateTime.now());
         item.setActive(true);
         itemRepository.save(item);
     }

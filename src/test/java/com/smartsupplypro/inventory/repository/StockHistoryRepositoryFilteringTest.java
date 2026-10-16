@@ -57,13 +57,16 @@ class StockHistoryRepositoryFilteringTest {
 
         item1 = inventoryItemRepository.save(InventoryItem.builder()
                 .id("item-1").name("Wrench").sku("SKU-SHF-1").price(BigDecimal.valueOf(20))
-                .quantity(100).minimumQuantity(10).supplier(supplierA).createdBy("admin").build());
+                .quantity(100).minimumQuantity(10).supplier(supplierA)
+                .supplierId(supplierA.getId()).createdBy("admin").createdAt(now).build());
         inventoryItemRepository.save(InventoryItem.builder()
                 .id("item-2").name("Hammer").sku("SKU-SHF-2").price(BigDecimal.valueOf(15))
-                .quantity(50).minimumQuantity(5).supplier(supplierB).createdBy("admin").build());
+                .quantity(50).minimumQuantity(5).supplier(supplierB)
+                .supplierId(supplierB.getId()).createdBy("admin").createdAt(now).build());
         inventoryItemRepository.save(InventoryItem.builder()
                 .id("item-3").name("Screwdriver").sku("SKU-SHF-3").price(BigDecimal.valueOf(12))
-                .quantity(80).minimumQuantity(10).supplier(supplierA).createdBy("admin").build());
+                .quantity(80).minimumQuantity(10).supplier(supplierA)
+                .supplierId(supplierA.getId()).createdBy("admin").createdAt(now).build());
 
         stockHistoryRepository.save(StockHistory.builder()
                 .id("sh-1").itemId("item-1").supplierId("sup-a")

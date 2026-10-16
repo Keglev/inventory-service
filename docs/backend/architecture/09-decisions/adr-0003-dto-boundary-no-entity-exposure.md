@@ -112,6 +112,16 @@ Entities never cross the controller boundary; DTOs never enter the repository la
   - Service tests use entity objects and mock the repository layer
   - The mapper classes are unit-tested independently
 
+
+## Amendment 2026-10-16: unused price-trend query removed
+- `StockHistoryRepository.getPriceTrend()`, the example of a JPQL constructor
+  expression in a Spring Data `@Query`, was removed as unused. The decision is
+  unchanged; the remaining DTO-returning reporting queries are the custom
+  `StockTrendAnalyticsRepository.getItemPriceTrend()` and
+  `StockDetailQueryRepository.streamEventsForWAC()`.
+- `InventoryItem` lost its `@PrePersist` callback: the service sets `createdAt`
+  and `createdBy` before the first save (see the ADR-0002 amendment of the same date).
+
 ## References
 - [§5 Building Block View](../05-building-blocks.md) — layer narrative describing
   the controller/service/repository boundary
