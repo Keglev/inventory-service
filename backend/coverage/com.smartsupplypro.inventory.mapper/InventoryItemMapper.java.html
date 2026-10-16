@@ -45,25 +45,25 @@ import com.smartsupplypro.inventory.model.Supplier;
      * Converts an inventory item DTO to a persistable entity.
      *
      * &lt;p&gt;Returns {@code null} for a {@code null} input; derived response-only
-     * values such as {@code totalValue} are not part of the entity.&lt;/p&gt;
+     * values such as {@code totalValue} are not part of the entity, and the audit
+     * fields {@code createdBy} and {@code createdAt} are left to the server.&lt;/p&gt;
      *
      * @param dto the inventory item DTO to convert
      * @return the mapped entity, or {@code null} if {@code dto} is {@code null}
      */
     public InventoryItem toEntity(InventoryItemDTO dto) {
-<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (dto == null) {</span>
-<span class="fc" id="L55">            return null;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (dto == null) {</span>
+<span class="fc" id="L56">            return null;</span>
         }
-<span class="fc" id="L57">        return InventoryItem.builder()</span>
-<span class="fc" id="L58">                .id(dto.getId())</span>
-<span class="fc" id="L59">                .name(dto.getName())</span>
-<span class="fc" id="L60">                .sku(dto.getSku())</span>
-<span class="fc" id="L61">                .quantity(dto.getQuantity())</span>
-<span class="fc" id="L62">                .price(dto.getPrice())</span>
-<span class="fc" id="L63">                .supplierId(dto.getSupplierId())</span>
-<span class="fc" id="L64">                .minimumQuantity(dto.getMinimumQuantity())</span>
-<span class="fc" id="L65">                .createdBy(dto.getCreatedBy())    // overwritten in service if null</span>
-<span class="fc" id="L66">                .createdAt(dto.getCreatedAt())    // @PrePersist covers nulls</span>
+<span class="fc" id="L58">        return InventoryItem.builder()</span>
+<span class="fc" id="L59">                .id(dto.getId())</span>
+<span class="fc" id="L60">                .name(dto.getName())</span>
+<span class="fc" id="L61">                .sku(dto.getSku())</span>
+<span class="fc" id="L62">                .quantity(dto.getQuantity())</span>
+<span class="fc" id="L63">                .price(dto.getPrice())</span>
+<span class="fc" id="L64">                .supplierId(dto.getSupplierId())</span>
+<span class="fc" id="L65">                .minimumQuantity(dto.getMinimumQuantity())</span>
+                // createdBy and createdAt are not copied: the service sets both from the server
 <span class="fc" id="L67">                .build();</span>
     }
 
