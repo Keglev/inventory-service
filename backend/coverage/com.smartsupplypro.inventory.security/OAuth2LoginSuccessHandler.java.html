@@ -43,7 +43,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
      * Validates the authenticated principal and redirects to the frontend.
      *
      * &lt;p&gt;Guards against duplicate invocations in the same request cycle.
-     * Requires email and name to be present. Redirect target is resolved
+     * Requires an email; the display name is optional. Redirect target is resolved
      * from the optional {@code SSP_RETURN} cookie, validated against the
      * configured CORS allowed origins.&lt;/p&gt;
      *
@@ -61,10 +61,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 <span class="fc" id="L61">        request.setAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;, Boolean.TRUE);</span>
 
 <span class="fc" id="L63">        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;</span>
-<span class="fc" id="L64">        String email = token.getPrincipal().getAttribute(&quot;email&quot;);</span>
-<span class="fc" id="L65">        String name = token.getPrincipal().getAttribute(&quot;name&quot;);</span>
-<span class="fc bfc" id="L66" title="All 4 branches covered.">        if (email == null || name == null) {</span>
-<span class="fc" id="L67">            throw new IllegalStateException(&quot;Email or name not provided by OAuth2 provider&quot;);</span>
+        // The name is optional: provisioning already fell back to the email for it
+<span class="fc" id="L65">        String email = token.getPrincipal().getAttribute(&quot;email&quot;);</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (email == null) {</span>
+<span class="fc" id="L67">            throw new IllegalStateException(&quot;Email not provided by OAuth2 provider&quot;);</span>
         }
 
 <span class="fc" id="L70">        String target = resolveRedirectTarget(request, response);</span>
