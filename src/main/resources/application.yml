@@ -58,9 +58,6 @@ spring:
     # the query behind it was fixed. Spring warns twice per run when unset.
     open-in-view: false
 
-  main:
-    allow-bean-definition-overriding: true      # Useful when using multiple configs (e.g., testing mocks)
-
 server:
   port: 8081                                     # Default server port
   address: 0.0.0.0                               # Listen on all interfaces
