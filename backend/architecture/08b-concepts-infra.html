@@ -145,7 +145,8 @@
         <td><code>SPRING_PROFILES_ACTIVE=test</code></td>
         <td>H2 <code>MODE=Oracle</code> in-memory;
         <code>ddl-auto=create-drop</code></td>
-        <td>DEBUG; H2 console at <code>/h2-console</code></td>
+        <td>off (<code>logback-test.xml</code>, root WARN); on demand
+        <code>-Dlogging.level.org.hibernate.SQL=DEBUG</code></td>
         </tr>
         <tr class="odd">
         <td><code>prod</code></td>
