@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.StockHistory;
 import com.smartsupplypro.inventory.repository.custom.StockDetailQueryRepository;
@@ -189,27 +188,4 @@ public interface StockHistoryRepository
     List<StockHistory> findByItemIdOrderByTimestampDesc(String itemId);
 
     List<StockHistory> findByReasonOrderByTimestampDesc(StockChangeReason reason);
-
-    /**
-     * Retrieves time-ordered price snapshots for an item within a date range.
-     * Only entries with a non-null {@code priceAtChange} are included.
-     *
-     * @param itemId item ID
-     * @param start  start timestamp (inclusive)
-     * @param end    end timestamp (inclusive)
-     * @return {@link PriceTrendDTO} projections ordered by timestamp ascending
-     */
-    @Query("""
-        SELECT new com.smartsupplypro.inventory.dto.PriceTrendDTO(sh.timestamp, sh.priceAtChange)
-        FROM StockHistory sh
-        WHERE sh.itemId = :itemId
-          AND sh.timestamp BETWEEN :start AND :end
-          AND sh.priceAtChange IS NOT NULL
-        ORDER BY sh.timestamp
-        """)
-    List<PriceTrendDTO> getPriceTrend(
-        @Param("itemId") String itemId,
-        @Param("start") LocalDateTime start,
-        @Param("end") LocalDateTime end
-    );
 }

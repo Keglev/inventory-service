@@ -179,7 +179,7 @@ POST /inventory/items
 | DTO pattern | Decouples API contract from internal domain model |
 | Exception translation | Business exceptions mapped to HTTP status codes at one boundary |
 | Validation helpers | Complex business rules isolated in dedicated validator classes |
-| Audit logging | `createdAt` set by `@PrePersist` / `@CreationTimestamp`; `createdBy` defaulted to `"system"` in `@PrePersist`, or set by the service before persist |
+| Audit logging | `createdAt` set by the service (`InventoryItem`), `@PrePersist` (`StockHistory`) or `@CreationTimestamp` (`Supplier`); `createdBy` set by the service before persist |
 
 ## Performance considerations
 

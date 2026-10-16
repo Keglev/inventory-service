@@ -17,17 +17,6 @@ import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 public interface StockTrendAnalyticsRepository {
 
     /**
-     * Returns monthly stock-in/stock-out aggregations over a time window.
-     *
-     * <p>Result format: [month (YYYY-MM String), stockIn (Number), stockOut (Number)].
-     *
-     * @param start inclusive lower bound
-     * @param end   inclusive upper bound
-     * @return monthly aggregations ordered by month ascending
-     */
-    List<Object[]> getMonthlyStockMovement(LocalDateTime start, LocalDateTime end);
-
-    /**
      * Returns monthly stock-in/stock-out aggregations filtered by supplier.
      *
      * <p>Result format: [month (YYYY-MM String), stockIn (Number), stockOut (Number)].

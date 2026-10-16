@@ -95,6 +95,14 @@ generation framework is used.
   - Mappers can be unit-tested directly (no Spring context required) by
     constructing an entity, calling `toDTO()`, and asserting field values
 
+
+## Amendment 2026-10-16: InventoryItem without @PrePersist
+`InventoryItem` no longer has a `@PrePersist` callback. Creating an item has one
+path, `InventoryItemServiceImpl.save`, and `InventoryItemValidationHelper.populateServerFields`
+sets the id, `createdBy`, `createdAt` and the minimum-quantity default there before
+the first save. The Implementation Notes line on `@PrePersist` and the `"system"`
+fallback describes the code before this date.
+
 ## References
 - [§5 Building Block View](../05-building-blocks.md) — service layer description
 - [ADR-0003: DTO boundary](./adr-0003-dto-boundary-no-entity-exposure.md) — why

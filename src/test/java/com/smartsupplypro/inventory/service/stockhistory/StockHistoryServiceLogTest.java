@@ -37,7 +37,7 @@ class StockHistoryServiceLogTest extends StockHistoryServiceTestBase {
 
     @Test
     void should_persist_stock_change_when_reason_and_positive_delta_are_valid() {
-        service.logStockChange(ITEM_1, 10, StockChangeReason.SOLD, ADMIN);
+        service.logStockChange(ITEM_1, 10, StockChangeReason.SOLD, ADMIN, null);
 
         StockHistory saved = captureSavedHistory();
         assertEquals(ITEM_1, saved.getItemId());
@@ -47,16 +47,10 @@ class StockHistoryServiceLogTest extends StockHistoryServiceTestBase {
         assertNotNull(saved.getTimestamp());
     }
 
-    @Test
-    void should_throw_when_reason_is_null() {
-        Exception ex = assertThrows(IllegalArgumentException.class,
-                () -> service.logStockChange(ITEM_1, 5, null, ADMIN));
-        assertTrue(ex.getMessage().contains("Invalid stock change reason"));
-    }
 
     @Test
     void should_persist_negative_change_when_delta_is_negative() {
-        service.logStockChange(ITEM_1, -5, StockChangeReason.SCRAPPED, ADMIN);
+        service.logStockChange(ITEM_1, -5, StockChangeReason.SCRAPPED, ADMIN, null);
 
         StockHistory saved = captureSavedHistory();
         assertEquals(ITEM_1, saved.getItemId());
@@ -72,7 +66,7 @@ class StockHistoryServiceLogTest extends StockHistoryServiceTestBase {
         // id made the second save merge into the first row.
         int writes = 200;
         for (int i = 0; i < writes; i++) {
-            service.logStockChange(ITEM_1, 1, StockChangeReason.SOLD, ADMIN);
+            service.logStockChange(ITEM_1, 1, StockChangeReason.SOLD, ADMIN, null);
         }
 
         ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
@@ -87,7 +81,8 @@ class StockHistoryServiceLogTest extends StockHistoryServiceTestBase {
                 Arguments.of("blank createdBy",  ITEM_1, 5,  StockChangeReason.MANUAL_UPDATE, "  ",  price, "createdby"),
                 Arguments.of("null createdBy",   ITEM_1, 5,  StockChangeReason.MANUAL_UPDATE, null,  price, "createdby"),
                 Arguments.of("zero change",       ITEM_1, 0,  StockChangeReason.MANUAL_UPDATE, ADMIN, price, "zero"),
-                Arguments.of("null itemId",       null,   10, StockChangeReason.MANUAL_UPDATE, ADMIN, price, "item id")
+                Arguments.of("null itemId",       null,   10, StockChangeReason.MANUAL_UPDATE, ADMIN, price, "item id"),
+                Arguments.of("null reason",       ITEM_1, 5,  null,                          ADMIN, price, "reason")
         );
     }
 

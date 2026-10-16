@@ -94,12 +94,6 @@ public class StockHistoryServiceImpl implements StockHistoryService {
                 .map(mapper::toDTO);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void logStockChange(String itemId, int change, StockChangeReason reason, String createdBy) {
-        logStockChange(itemId, change, reason, createdBy, null);
-    }
-
     /**
      * {@inheritDoc}
      *
@@ -113,13 +107,11 @@ public class StockHistoryServiceImpl implements StockHistoryService {
                                String createdBy,
                                BigDecimal priceAtChange) {
 
-        StockHistoryValidator.validateEnum(reason);
-
-        // Build DTO for domain validation; price snapshot enables WAC and PRICE_CHANGE tracking
+        // A null reason fails validate(); the price snapshot enables WAC and PRICE_CHANGE tracking
         StockHistoryDTO dto = StockHistoryDTO.builder()
                 .itemId(itemId)
                 .change(change)
-                .reason(reason.name())
+                .reason(reason == null ? null : reason.name())
                 .createdBy(createdBy)
                 .priceAtChange(priceAtChange)
                 .build();
@@ -141,37 +133,5 @@ public class StockHistoryServiceImpl implements StockHistoryService {
                 .build();
 
         repository.save(history);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Applies domain validation, enriches the record with the denormalized
-     * supplierId, and uses a server-authoritative timestamp for audit consistency.</p>
-     */
-    @Override
-    public void save(StockHistoryDTO dto) {
-        StockHistoryValidator.validate(dto);
-
-        String supplierId = resolveSupplierId(dto.itemId());
-
-        StockHistory history = StockHistory.builder()
-                .id(newHistoryId())
-                .itemId(dto.itemId())
-                .supplierId(supplierId)
-                .change(dto.change())
-                .reason(StockChangeReason.valueOf(dto.reason()))
-                .createdBy(dto.createdBy())
-                .timestamp(LocalDateTime.now())
-                .priceAtChange(dto.priceAtChange())
-                .build();
-
-        repository.save(history);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void delete(String itemId, StockChangeReason reason, String createdBy) {
-        logStockChange(itemId, -1, reason, createdBy);
     }
 }

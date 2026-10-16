@@ -21,11 +21,6 @@ public class DuplicateResourceException extends RuntimeException {
         this.field = field;
     }
 
-    public DuplicateResourceException(String message, Throwable cause) {
-        super(message, cause);
-        this.field = null;
-    }
-
     /** @return the conflicting field name, or {@code null} when not attributable */
     public String getField() {
         return field;

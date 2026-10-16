@@ -36,7 +36,7 @@ immutably at creation):
 | Entity | `createdAt` mechanism |
 |---|---|
 | `Supplier` | `@CreationTimestamp` |
-| `InventoryItem` | `@PrePersist` |
+| `InventoryItem` | Service, before the first `save()` (`InventoryItemValidationHelper.populateServerFields`) |
 | `StockHistory` | `@PrePersist` |
 | `AppUser` | Field initialiser |
 

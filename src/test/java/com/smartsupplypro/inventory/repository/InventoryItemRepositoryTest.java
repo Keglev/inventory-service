@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,6 +37,8 @@ import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetect
 @Import(DatabaseDialectDetector.class)
 class InventoryItemRepositoryTest {
 
+    private static final LocalDateTime CREATED_AT = LocalDateTime.of(2026, 1, 1, 0, 0);
+
     @Autowired private InventoryItemRepository inventoryItemRepository;
     @Autowired private SupplierRepository supplierRepository;
 
@@ -62,7 +65,8 @@ class InventoryItemRepositoryTest {
         void should_find_the_items_when_the_name_matches_in_any_case() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-1").name("Wrench").sku("SKU-REP-1").price(BigDecimal.valueOf(8))
-                    .quantity(20).minimumQuantity(5).supplier(supplier1).build());
+                    .quantity(20).minimumQuantity(5).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
 
             List<InventoryItem> result = inventoryItemRepository.findByNameIgnoreCase("wrench");
             assertEquals(1, result.size());
@@ -73,7 +77,8 @@ class InventoryItemRepositoryTest {
         void should_return_empty_when_name_does_not_match_exactly() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-2").name("Wrench Pro").sku("SKU-REP-2").price(BigDecimal.valueOf(12))
-                    .quantity(10).minimumQuantity(2).supplier(supplier1).build());
+                    .quantity(10).minimumQuantity(2).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
 
             // exact lookup must not match partial names
             assertTrue(inventoryItemRepository.findByNameIgnoreCase("Wrench").isEmpty());
@@ -83,10 +88,12 @@ class InventoryItemRepositoryTest {
         void should_sort_by_price_ascending_when_filtering_by_name() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-3").name("Screw").sku("SKU-REP-3").price(BigDecimal.valueOf(1))
-                    .quantity(100).minimumQuantity(10).supplier(supplier1).build());
+                    .quantity(100).minimumQuantity(10).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-4").name("Screw-2").sku("SKU-REP-4").price(BigDecimal.valueOf(5))
-                    .quantity(80).minimumQuantity(10).supplier(supplier1).build());
+                    .quantity(80).minimumQuantity(10).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
 
             Page<InventoryItem> result = inventoryItemRepository.searchActiveItems(
                     "screw", null, false, PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "price")));
@@ -98,10 +105,12 @@ class InventoryItemRepositoryTest {
         void should_match_all_active_items_when_name_is_empty() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-e1").name("Hammer").sku("SKU-REP-E1").price(BigDecimal.valueOf(9))
-                    .quantity(10).minimumQuantity(5).supplier(supplier1).build());
+                    .quantity(10).minimumQuantity(5).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-e2").name("Chisel").sku("SKU-REP-E2").price(BigDecimal.valueOf(4))
-                    .quantity(10).minimumQuantity(5).supplier(supplier2).active(false).build());
+                    .quantity(10).minimumQuantity(5).supplier(supplier2)
+                    .supplierId(supplier2.getId()).active(false).createdBy("admin").createdAt(CREATED_AT).build());
 
             Page<InventoryItem> result = inventoryItemRepository.searchActiveItems(
                     "", null, false, PageRequest.of(0, 10));
@@ -113,10 +122,12 @@ class InventoryItemRepositoryTest {
         void should_filter_by_supplier_when_a_supplier_id_is_given() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-s1").name("Plate").sku("SKU-REP-S1").price(BigDecimal.valueOf(3))
-                    .quantity(10).minimumQuantity(5).supplier(supplier1).supplierId("sup-1").build());
+                    .quantity(10).minimumQuantity(5).supplier(supplier1).supplierId("sup-1")
+                    .createdBy("admin").createdAt(CREATED_AT).build());
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-s2").name("Plate XL").sku("SKU-REP-S2").price(BigDecimal.valueOf(6))
-                    .quantity(10).minimumQuantity(5).supplier(supplier2).supplierId("sup-2").build());
+                    .quantity(10).minimumQuantity(5).supplier(supplier2).supplierId("sup-2")
+                    .createdBy("admin").createdAt(CREATED_AT).build());
 
             Page<InventoryItem> result = inventoryItemRepository.searchActiveItems(
                     "plate", "sup-2", false, PageRequest.of(0, 10));
@@ -128,10 +139,12 @@ class InventoryItemRepositoryTest {
         void should_filter_below_minimum_when_flag_set() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-b1").name("Rod low").sku("SKU-REP-B1").price(BigDecimal.valueOf(2))
-                    .quantity(3).minimumQuantity(10).supplier(supplier1).build());
+                    .quantity(3).minimumQuantity(10).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-b2").name("Rod ok").sku("SKU-REP-B2").price(BigDecimal.valueOf(2))
-                    .quantity(50).minimumQuantity(10).supplier(supplier1).build());
+                    .quantity(50).minimumQuantity(10).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
 
             Page<InventoryItem> result = inventoryItemRepository.searchActiveItems(
                     "rod", null, true, PageRequest.of(0, 10));
@@ -143,10 +156,12 @@ class InventoryItemRepositoryTest {
         void should_honor_the_pageable_sort_when_it_differs_from_the_default() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-o1").name("Alpha").sku("SKU-REP-O1").price(BigDecimal.valueOf(50))
-                    .quantity(10).minimumQuantity(5).supplier(supplier1).build());
+                    .quantity(10).minimumQuantity(5).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-o2").name("Beta").sku("SKU-REP-O2").price(BigDecimal.valueOf(1))
-                    .quantity(10).minimumQuantity(5).supplier(supplier1).build());
+                    .quantity(10).minimumQuantity(5).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
 
             Page<InventoryItem> result = inventoryItemRepository.searchActiveItems(
                     "", null, false, PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "name")));
@@ -164,7 +179,8 @@ class InventoryItemRepositoryTest {
         void should_confirm_active_stock_when_a_supplier_holds_more_than_the_threshold() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-5").name("Bolt").sku("SKU-REP-5").price(BigDecimal.valueOf(2))
-                    .quantity(30).minimumQuantity(5).supplier(supplier1).build());
+                    .quantity(30).minimumQuantity(5).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
 
             assertTrue(inventoryItemRepository.existsActiveStockForSupplier(supplier1.getId(), 0));
         }
@@ -173,7 +189,8 @@ class InventoryItemRepositoryTest {
         void should_return_false_when_supplier_has_no_stock_above_threshold() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-6").name("Nut").sku("SKU-REP-6").price(BigDecimal.valueOf(1))
-                    .quantity(0).minimumQuantity(5).supplier(supplier1).build());
+                    .quantity(0).minimumQuantity(5).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
 
             assertFalse(inventoryItemRepository.existsActiveStockForSupplier(supplier1.getId(), 0));
         }
@@ -189,11 +206,13 @@ class InventoryItemRepositoryTest {
         void should_return_items_below_minimum_stock_when_a_supplier_is_given() {
             InventoryItem low1 = InventoryItem.builder()
                     .id("item-low-1").name("Pen Blue").sku("SKU-REP-7").quantity(2)
-                    .minimumQuantity(5).price(BigDecimal.TEN).supplier(supplier1).build();
+                    .minimumQuantity(5).price(BigDecimal.TEN).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build();
             low1.setSupplierId(supplier1.getId());
             InventoryItem low2 = InventoryItem.builder()
                     .id("item-low-2").name("Pen Red").sku("SKU-REP-8").quantity(1)
-                    .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier2).build();
+                    .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier2)
+                    .supplierId(supplier2.getId()).createdBy("admin").createdAt(CREATED_AT).build();
             low2.setSupplierId(supplier2.getId());
             inventoryItemRepository.saveAllAndFlush(List.of(low1, low2));
 
@@ -206,14 +225,17 @@ class InventoryItemRepositoryTest {
         void should_count_the_items_below_their_own_minimum_as_the_low_stock_list_does() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-cnt-1").name("Pin").sku("SKU-REP-9").quantity(3)
-                    .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier1).build());
+                    .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-cnt-2").name("Clip").sku("SKU-REP-10").quantity(10)
-                    .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier1).build());
+                    .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
             // Four is below the old fixed threshold of 5, but not below its own minimum of 2.
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-cnt-3").name("Nut").sku("SKU-REP-11").quantity(4)
-                    .minimumQuantity(2).price(BigDecimal.ONE).supplier(supplier1).build());
+                    .minimumQuantity(2).price(BigDecimal.ONE).supplier(supplier1)
+                    .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
 
             long count = inventoryItemRepository.countItemsBelowMinimumStock();
 

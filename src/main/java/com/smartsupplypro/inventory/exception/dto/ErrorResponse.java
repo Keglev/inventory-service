@@ -22,9 +22,4 @@ public record ErrorResponse(
         String message,
         String timestamp,
         @JsonInclude(JsonInclude.Include.NON_NULL) Map<String, String> fieldErrors) {
-
-    /** Convenience constructor for errors without field attribution. */
-    public ErrorResponse(String error, String message, String timestamp) {
-        this(error, message, timestamp, null);
-    }
 }

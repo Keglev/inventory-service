@@ -29,8 +29,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public class CookieOAuth2AuthorizationRequestRepository
         implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
-    /** Default name; matches {@link AppProperties.Cookie} default value. */
-    public static final String AUTH_REQUEST_COOKIE_NAME = "OAUTH2_AUTH_REQUEST";
     private static final Logger log = LoggerFactory.getLogger(CookieOAuth2AuthorizationRequestRepository.class);
 
     private final String cookieName;

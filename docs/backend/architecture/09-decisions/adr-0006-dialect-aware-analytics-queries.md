@@ -118,6 +118,13 @@ or `@Query` annotations.
   - CI runs the H2 branch; the Oracle branch is exercised only against the prod
     database. Both SQL variants of a query should be kept under test where feasible.
 
+
+## Amendment 2026-10-16: one monthly movement query
+`StockTrendAnalyticsRepository.getMonthlyStockMovement(start, end)` was removed as
+unused; `getMonthlyStockMovementBySupplier(start, end, null)` covers all suppliers.
+The monthly builders in `StockTrendSqlBuilder` lost their `withSupplierFilter` flag
+and always carry the join and the optional supplier filter.
+
 ## References
 - [ADR-0003: DTO boundary](./adr-0003-dto-boundary-no-entity-exposure.md) — the
   reporting exception these repositories implement

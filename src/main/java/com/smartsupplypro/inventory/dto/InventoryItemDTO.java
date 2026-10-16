@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
  *
  * <p>Submitted to and returned by
  * {@link com.smartsupplypro.inventory.controller.InventoryItemController}.
- * Validation groups {@link Create} and {@link Update} allow controllers
- * to apply context-specific constraints via {@code @Validated}.</p>
+ * The validation group {@link Create} lets the create endpoint add
+ * constraints via {@code @Validated}.</p>
  */
 @Data
 @Builder
@@ -34,8 +34,6 @@ public class InventoryItemDTO {
 
     /** Validation group applied on item creation. */
     public interface Create {}
-    /** Validation group applied on item update. */
-    public interface Update {}
 
     @Null(message = "ID must be absent when creating", groups = Create.class)
     private String id;

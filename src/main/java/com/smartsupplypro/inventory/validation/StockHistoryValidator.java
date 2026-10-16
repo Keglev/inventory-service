@@ -1,7 +1,5 @@
 package com.smartsupplypro.inventory.validation;
 
-import java.util.EnumSet;
-
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
@@ -52,40 +50,6 @@ public class StockHistoryValidator {
                 dto.priceAtChange() != null &&
                 dto.priceAtChange().signum() < 0) {
             throw new InvalidRequestException("priceAtChange must be >= 0 for PRICE_CHANGE");
-        }
-    }
-
-    /**
-     * Validates that a stock-change reason is one the system accepts for a
-     * stock-history write (quantity increase, decrease, disposal, or price
-     * correction).
-     *
-     * <p>Deliberately an explicit allow-list rather than a blanket non-null
-     * check: every current {@link StockChangeReason} is a legal history reason
-     * -- including the disposal reasons DESTROYED, DAMAGED, EXPIRED and LOST,
-     * which back stock reductions and item deletions -- but a reason constant
-     * added in the future is rejected here by default until it is reviewed and
-     * added explicitly. The only always-invalid input is {@code null}.</p>
-     *
-     * @param reason the reason to validate
-     * @throws IllegalArgumentException if {@code reason} is null or not in the
-     *         accepted set
-     */
-    public static void validateEnum(StockChangeReason reason) {
-        if (reason == null || !EnumSet.of(
-                StockChangeReason.SOLD,
-                StockChangeReason.SCRAPPED,
-                StockChangeReason.DESTROYED,
-                StockChangeReason.DAMAGED,
-                StockChangeReason.EXPIRED,
-                StockChangeReason.LOST,
-                StockChangeReason.RETURNED_TO_SUPPLIER,
-                StockChangeReason.RETURNED_BY_CUSTOMER,
-                StockChangeReason.INITIAL_STOCK,
-                StockChangeReason.MANUAL_UPDATE,
-                StockChangeReason.PRICE_CHANGE
-        ).contains(reason)) {
-            throw new IllegalArgumentException("Invalid stock change reason: " + reason);
         }
     }
 }

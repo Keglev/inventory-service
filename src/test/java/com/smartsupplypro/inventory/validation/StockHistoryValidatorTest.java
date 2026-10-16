@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -17,9 +15,8 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
 /**
  * Unit tests for {@link StockHistoryValidator}.
  *
- * <p>Covers required-field rejection, the zero-delta cross-field rule,
- * PRICE_CHANGE-specific branches, and {@code validateEnum} (accepts every
- * reason constant, rejects only null). All tests are pure unit tests with
+ * <p>Covers required-field rejection, the zero-delta cross-field rule and
+ * PRICE_CHANGE-specific branches. All tests are pure unit tests with
  * no Spring context.</p>
  */
 class StockHistoryValidatorTest {
@@ -131,10 +128,10 @@ class StockHistoryValidatorTest {
     }
 
     /**
-     * PRICE_CHANGE-specific rules and {@link StockHistoryValidator#validateEnum(StockChangeReason)}.
+     * PRICE_CHANGE-specific rules.
      */
     @Nested
-    class PriceChangeAndEnumRules {
+    class PriceChangeRules {
         @Test
         void should_pass_when_price_change_allows_zero_delta() {
             StockHistoryDTO dto = StockHistoryDTO.builder().id("sh-1").itemId("item-1")
@@ -159,21 +156,6 @@ class StockHistoryValidatorTest {
                     .change(1).reason(StockChangeReason.SOLD.name())
                     .createdBy("admin").priceAtChange(new BigDecimal("-0.01")).build();
             assertDoesNotThrow(() -> StockHistoryValidator.validate(dto));
-        }
-
-        @Test
-        void should_accept_every_reason_and_reject_only_null_when_validating_the_reason() {
-            // validateEnum is an explicit allow-list covering all current
-            // reasons; disposal reasons (DESTROYED/DAMAGED/EXPIRED/LOST) are
-            // accepted so they can back stock reductions and deletions. Only
-            // null is rejected.
-            for (StockChangeReason reason : StockChangeReason.values()) {
-                assertDoesNotThrow(() -> StockHistoryValidator.validateEnum(reason));
-            }
-            IllegalArgumentException nullEx = assertThrows(IllegalArgumentException.class,
-                    () -> StockHistoryValidator.validateEnum(null));
-            assertNotNull(nullEx.getMessage());
-            assertTrue(nullEx.getMessage().contains("Invalid stock change reason"));
         }
     }
 }

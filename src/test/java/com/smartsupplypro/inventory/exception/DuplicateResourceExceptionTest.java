@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Verifies that {@link DuplicateResourceException} carries the correct message and cause.
+ * Verifies that {@link DuplicateResourceException} carries the correct message.
  */
 @SuppressWarnings("ThrowableNotThrown")
 class DuplicateResourceExceptionTest {
@@ -18,15 +18,5 @@ class DuplicateResourceExceptionTest {
 
         assertEquals("Supplier already exists", ex.getMessage());
         assertNull(ex.getCause());
-    }
-
-    @Test
-    @DisplayName("message+cause constructor: stores both")
-    void should_store_the_message_and_the_cause_when_built_from_both() {
-        Throwable cause = new RuntimeException("root");
-        DuplicateResourceException ex = new DuplicateResourceException("Item SKU conflict", cause);
-
-        assertEquals("Item SKU conflict", ex.getMessage());
-        assertEquals(cause, ex.getCause());
     }
 }
