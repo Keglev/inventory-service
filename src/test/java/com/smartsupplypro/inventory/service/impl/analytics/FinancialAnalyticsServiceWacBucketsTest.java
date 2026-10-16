@@ -13,7 +13,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -64,7 +64,7 @@ class FinancialAnalyticsServiceWacBucketsTest {
             new StockEventRowDTO("item1", "sup1", at(2024, 2,  7,  9, 0),  -2, null,                   StockChangeReason.SOLD)
         );
 
-        lenient().when(stockHistoryRepository.streamEventsForWAC(any(), any())).thenReturn(events);
+        when(stockHistoryRepository.streamEventsForWAC(any(), any())).thenReturn(events);
 
         // blank supplierId -> blankToNull("   ") -> null passed to repository
         FinancialSummaryDTO dto = service.getFinancialSummaryWAC(

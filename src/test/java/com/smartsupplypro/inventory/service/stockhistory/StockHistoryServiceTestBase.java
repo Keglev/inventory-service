@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -44,10 +43,9 @@ abstract class StockHistoryServiceTestBase {
     @InjectMocks
     protected StockHistoryServiceImpl service;
 
-    @BeforeEach
-    void setUpBase() {
-        when(itemRepository.findById(ITEM_1)).thenReturn(Optional.of(mkItem(ITEM_1, SUPPLIER_1)));
-        when(itemRepository.findById(ITEM_2)).thenReturn(Optional.of(mkItem(ITEM_2, SUPPLIER_2)));
+    /** Stubs the item lookup that logStockChange makes once its inputs are valid. */
+    protected void givenItemExists(String id, String supplierId) {
+        when(itemRepository.findById(id)).thenReturn(Optional.of(mkItem(id, supplierId)));
     }
 
     protected static com.smartsupplypro.inventory.model.InventoryItem mkItem(String id, String supplierId) {

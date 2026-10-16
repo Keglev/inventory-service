@@ -10,17 +10,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
@@ -40,7 +36,6 @@ import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidati
  * covering happy-path persistence, audit logging, and validation rejection.
  */
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class InventoryItemServiceImplSaveTest {
 
     @Mock private InventoryItemRepository repository;
@@ -66,8 +61,6 @@ class InventoryItemServiceImplSaveTest {
         baseDto.setSupplierId("S1");
         baseDto.setCreatedBy("admin");
         baseDto.setSku("SKU-SVC-1");
-
-        lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
     }
 
     @AfterEach

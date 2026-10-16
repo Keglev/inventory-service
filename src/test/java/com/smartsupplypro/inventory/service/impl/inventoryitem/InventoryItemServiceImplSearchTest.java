@@ -14,12 +14,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -38,7 +35,6 @@ import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
  * covering pagination delegation, DTO mapping and sort validation.
  */
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class InventoryItemServiceImplSearchTest {
 
     @Mock private InventoryItemRepository repository;
@@ -51,7 +47,6 @@ class InventoryItemServiceImplSearchTest {
     @BeforeEach
     void setup() {
         InventoryItemServiceImplTestHelper.authenticateAsOAuth2("admin", "ADMIN");
-        lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
     }
 
     @Test

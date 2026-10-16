@@ -20,8 +20,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.http.HttpStatus;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.server.ResponseStatusException;
@@ -43,7 +41,6 @@ import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidati
  * behavior, run through the real {@link InventoryItemValidationHelper}.
  */
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class InventoryItemServiceImplUpdateTest {
 
     @Mock private InventoryItemRepository repository;
@@ -82,6 +79,7 @@ class InventoryItemServiceImplUpdateTest {
         existing.setSupplierId("S1");
         existing.setSku("SKU-SVC-1");
 
+        // lenient: the two price-validation tests are rejected before the supplier check.
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
     }
 
@@ -203,11 +201,6 @@ class InventoryItemServiceImplUpdateTest {
 
     @Test
     void should_throw_invalid_request_when_updated_price_is_zero() {
-        InventoryItem current = copyOf(existing);
-        current.setPrice(new BigDecimal("10.00"));
-
-        when(repository.findById("id-1")).thenReturn(Optional.of(current));
-
         InventoryItemDTO updateDto = copyOf(baseDto);
         updateDto.setPrice(BigDecimal.ZERO);
 
@@ -221,10 +214,6 @@ class InventoryItemServiceImplUpdateTest {
 
     @Test
     void should_throw_invalid_request_and_log_nothing_when_the_updated_price_is_missing() {
-        InventoryItem current = copyOf(existing);
-
-        when(repository.findById("id-1")).thenReturn(Optional.of(current));
-
         InventoryItemDTO updateDto = copyOf(baseDto);
         updateDto.setPrice(null);
 

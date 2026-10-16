@@ -18,8 +18,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.enums.StockChangeReason;
@@ -32,11 +30,11 @@ import com.smartsupplypro.inventory.model.StockHistory;
  */
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class StockHistoryServiceLogTest extends StockHistoryServiceTestBase {
 
     @Test
     void should_persist_stock_change_when_reason_and_positive_delta_are_valid() {
+        givenItemExists(ITEM_1, SUPPLIER_1);
         service.logStockChange(ITEM_1, 10, StockChangeReason.SOLD, ADMIN, null);
 
         StockHistory saved = captureSavedHistory();
@@ -50,6 +48,7 @@ class StockHistoryServiceLogTest extends StockHistoryServiceTestBase {
 
     @Test
     void should_persist_negative_change_when_delta_is_negative() {
+        givenItemExists(ITEM_1, SUPPLIER_1);
         service.logStockChange(ITEM_1, -5, StockChangeReason.SCRAPPED, ADMIN, null);
 
         StockHistory saved = captureSavedHistory();
@@ -64,6 +63,7 @@ class StockHistoryServiceLogTest extends StockHistoryServiceTestBase {
     void should_assign_distinct_ids_when_changes_are_logged_back_to_back() {
         // update() logs price and quantity within one millisecond; a clock-based
         // id made the second save merge into the first row.
+        givenItemExists(ITEM_1, SUPPLIER_1);
         int writes = 200;
         for (int i = 0; i < writes; i++) {
             service.logStockChange(ITEM_1, 1, StockChangeReason.SOLD, ADMIN, null);
