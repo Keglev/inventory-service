@@ -60,9 +60,15 @@ ARG BUILD_COMMIT=unknown
 # Package the application JAR (skip tests here for faster Docker builds)
 RUN mvn -q -B -DskipTests -Dbuild.commit=${BUILD_COMMIT} package
 
-# (Optional) Clean Maven cache to keep intermediate layers lean and reduce memory
-# pressure on constrained builders. This does not affect the final runtime image.
-RUN rm -rf /root/.m2/repository || true
+# Name the jar here, in the discarded stage: a rename in the runtime stage stores
+# the jar a second time in its own layer. The Spring Boot repackage leaves exactly
+# one match for the glob: the unpackaged artefact beside it ends in .jar.original,
+# which the glob does not take. So the glob is expanded directly rather than
+# filtered through `ls | head`. If that assumption is ever violated, mv is handed
+# two sources and a non-directory target and fails, instead of silently moving
+# whichever one sorted first.
+RUN set -eux; \
+    mv /build/target/*.jar /build/app.jar
 
 # -----------------------------------------------------------------------------
 # 3) Runtime Stage (JRE only, non-root)
@@ -100,20 +106,11 @@ LABEL org.opencontainers.image.source="https://github.com/Keglev/inventory-servi
 COPY --chown=appuser:appgroup --chmod=0755 scripts/start.sh /app/start.sh
 
 # Copy packaged JAR from build stage with correct ownership
-COPY --from=build --chown=appuser:appgroup /build/target/*.jar /app/
+COPY --from=build --chown=appuser:appgroup /build/app.jar /app/app.jar
 
-# Normalize to /app/app.jar (must run as root before switching user).
-# The COPY above takes target/*.jar, and the Spring Boot repackage leaves exactly
-# one match: the unpackaged artefact beside it ends in .jar.original, which the
-# glob does not take. So the glob is expanded directly rather than filtered
-# through `ls | head`. If that assumption is ever violated, mv is handed two
-# sources and a non-directory target and fails, instead of silently moving
-# whichever one sorted first.
-RUN set -eux; \
-    mv /app/*.jar /app/app.jar
-
-# Set correct file ownership for the non-root user
-RUN chown -R appuser:appgroup /app
+# start.sh unpacks the wallet into /app at run time, so the non-root user must
+# own the directory itself; the files in it already carry --chown.
+RUN chown appuser:appgroup /app
 
 # Drop privileges - must be last.
 # The name is deliberate. A numeric id would matter only if a host mapped uids
