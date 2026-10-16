@@ -100,8 +100,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 <span class="fc" id="L100">        clear.setPath(&quot;/&quot;);</span>
 <span class="fc" id="L101">        clear.setMaxAge(0);</span>
 <span class="fc" id="L102">        clear.setSecure(isSecureOrForwardedHttps(request));</span>
-        // Not HttpOnly: frontend created it non-HttpOnly so clearing must match
-<span class="fc" id="L104">        clear.setHttpOnly(false);</span>
+        // HttpOnly to match the cookie CookieOAuth2AuthorizationRequestRepository writes
+<span class="fc" id="L104">        clear.setHttpOnly(true);</span>
 <span class="fc" id="L105">        addCookieWithSameSite(response, clear, &quot;Lax&quot;);</span>
 <span class="fc" id="L106">    }</span>
 
@@ -117,7 +117,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 <span class="fc bfc" id="L117" title="All 2 branches covered.">        sb.append(&quot;; Path=&quot;).append(cookie.getPath() == null ? &quot;/&quot; : cookie.getPath());</span>
 <span class="fc bfc" id="L118" title="All 2 branches covered.">        if (cookie.getMaxAge() &gt;= 0) sb.append(&quot;; Max-Age=&quot;).append(cookie.getMaxAge());</span>
 <span class="fc bfc" id="L119" title="All 2 branches covered.">        if (cookie.getSecure()) sb.append(&quot;; Secure&quot;);</span>
-<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (cookie.isHttpOnly()) sb.append(&quot;; HttpOnly&quot;);</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        if (cookie.isHttpOnly()) sb.append(&quot;; HttpOnly&quot;);</span>
 <span class="pc bpc" id="L121" title="1 of 4 branches missed.">        if (sameSite != null &amp;&amp; !sameSite.isBlank()) sb.append(&quot;; SameSite=&quot;).append(sameSite);</span>
 <span class="fc" id="L122">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
 <span class="fc" id="L123">    }</span>

@@ -113,8 +113,8 @@ public class CookieOAuth2AuthorizationRequestRepository
 <span class="fc" id="L113">            return;</span>
         }
 <span class="fc" id="L115">        Cookie r = new Cookie(&quot;SSP_RETURN&quot;, ret);</span>
-        // Not HttpOnly so frontend JS can read and restore post-login destination
-<span class="fc" id="L117">        r.setHttpOnly(false);</span>
+        // HttpOnly: only OAuth2LoginSuccessHandler reads it; no script needs it
+<span class="fc" id="L117">        r.setHttpOnly(true);</span>
 <span class="fc" id="L118">        r.setSecure(isSecureOrForwardedHttps(request));</span>
 <span class="fc" id="L119">        r.setPath(&quot;/&quot;);</span>
 <span class="fc" id="L120">        r.setMaxAge(300);</span>
