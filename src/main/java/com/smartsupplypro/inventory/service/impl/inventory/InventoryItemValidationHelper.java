@@ -50,7 +50,8 @@ public class InventoryItemValidationHelper {
 
     /**
      * Populates server-managed fields on a new entity before persistence.
-     * Generates a UUID when none is present and applies a minimum-quantity default of 10.
+     * Generates a UUID when none is present, sets the creator and the creation
+     * time from the server, and applies a minimum-quantity default of 10.
      *
      * @param entity the inventory item entity to populate
      */
@@ -58,11 +59,9 @@ public class InventoryItemValidationHelper {
         if (entity.getId() == null || entity.getId().isBlank()) {
             entity.setId(UUID.randomUUID().toString());
         }
-        // Always override createdBy from SecurityContext — client-supplied value is untrusted
+        // Always override createdBy and createdAt: both are audit facts the client cannot supply
         entity.setCreatedBy(SecurityAuditHelper.currentUsername());
-        if (entity.getCreatedAt() == null) {
-            entity.setCreatedAt(LocalDateTime.now());
-        }
+        entity.setCreatedAt(LocalDateTime.now());
         if (entity.getMinimumQuantity() <= 0) {
             entity.setMinimumQuantity(InventoryItem.DEFAULT_MINIMUM_QUANTITY);
         }

@@ -45,7 +45,8 @@ public class InventoryItemMapper {
      * Converts an inventory item DTO to a persistable entity.
      *
      * <p>Returns {@code null} for a {@code null} input; derived response-only
-     * values such as {@code totalValue} are not part of the entity.</p>
+     * values such as {@code totalValue} are not part of the entity, and the audit
+     * fields {@code createdBy} and {@code createdAt} are left to the server.</p>
      *
      * @param dto the inventory item DTO to convert
      * @return the mapped entity, or {@code null} if {@code dto} is {@code null}
@@ -62,8 +63,7 @@ public class InventoryItemMapper {
                 .price(dto.getPrice())
                 .supplierId(dto.getSupplierId())
                 .minimumQuantity(dto.getMinimumQuantity())
-                .createdBy(dto.getCreatedBy())    // overwritten in service if null
-                .createdAt(dto.getCreatedAt())    // @PrePersist covers nulls
+                // createdBy and createdAt are not copied: the service sets both from the server
                 .build();
     }
 

@@ -104,6 +104,17 @@ class InventoryItemMapperTest {
         }
 
         @Test
+        void should_leave_the_audit_fields_to_the_server_when_mapping_to_an_entity() {
+            InventoryItemDTO dto = InventoryItemDTO.builder()
+                    .name("SSD").sku("SKU-MAP-D3").quantity(7).price(new BigDecimal("10.00"))
+                    .supplierId("s-1").createdBy("client@example.com")
+                    .createdAt(LocalDateTime.of(2020, 1, 1, 0, 0)).build();
+            InventoryItem entity = mapper.toEntity(dto);
+            assertNull(entity.getCreatedBy());
+            assertNull(entity.getCreatedAt());
+        }
+
+        @Test
         void should_omit_computed_dto_fields_when_mapping_to_an_entity() {
             // totalValue and supplierName are DTO-only; passing them in must not affect the entity
             InventoryItemDTO dto = InventoryItemDTO.builder()

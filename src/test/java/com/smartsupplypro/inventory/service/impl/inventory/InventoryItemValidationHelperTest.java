@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Nested;
@@ -108,18 +109,29 @@ class InventoryItemValidationHelperTest {
         }
 
         @Test
-        void should_preserve_existing_id_created_at_and_minimum_quantity_and_fall_back_to_system_when_unauthenticated() {
+        void should_preserve_existing_id_and_minimum_quantity_and_fall_back_to_system_when_unauthenticated() {
             SecurityContextHolder.clearContext();
-            LocalDateTime createdAt = LocalDateTime.of(2026, 1, 1, 0, 0);
-            InventoryItem entity = entity("item-123", "Widget", 1, 20, "1.00", "sup-1", createdAt);
+            InventoryItem entity = entity("item-123", "Widget", 1, 20, "1.00", "sup-1", null);
             entity.setSku("SKU-HLP-4");
 
             helper.populateServerFields(entity);
 
             assertEquals("item-123", entity.getId());
             assertEquals("system",   entity.getCreatedBy());
-            assertEquals(createdAt,  entity.getCreatedAt());
             assertEquals(20,         entity.getMinimumQuantity());
+        }
+
+        @Test
+        void should_replace_a_client_created_at_with_the_server_time_when_populating() {
+            authenticateAs("admin");
+            LocalDateTime clientValue = LocalDateTime.of(2020, 1, 1, 0, 0);
+            InventoryItem entity = entity(null, "Widget", 1, 20, "1.00", "sup-1", clientValue);
+            entity.setSku("SKU-HLP-4B");
+            LocalDateTime before = LocalDateTime.now();
+
+            helper.populateServerFields(entity);
+
+            assertFalse(entity.getCreatedAt().isBefore(before));
         }
     }
 
