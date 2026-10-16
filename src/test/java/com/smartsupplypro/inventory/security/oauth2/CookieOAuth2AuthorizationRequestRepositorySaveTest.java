@@ -94,7 +94,7 @@ class CookieOAuth2AuthorizationRequestRepositorySaveTest {
 
             assertThat(returnHdr).startsWith(
                 CookieOAuth2AuthorizationRequestRepositoryTestSupport.RETURN_COOKIE + "=" + returnOrigin)
-                .contains("SameSite=Lax").contains("Secure").doesNotContain("HttpOnly");
+                .contains("SameSite=Lax").contains("Secure").contains("HttpOnly");
             assertThat(authHdr).contains("HttpOnly").contains("Max-Age=180");
         }
 

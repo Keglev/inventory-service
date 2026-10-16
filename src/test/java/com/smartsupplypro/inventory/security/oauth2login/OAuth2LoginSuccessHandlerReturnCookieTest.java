@@ -74,7 +74,7 @@ class OAuth2LoginSuccessHandlerReturnCookieTest {
             assertThat(res.getRedirectedUrl()).isEqualTo(baseUrl + "/auth");
             assertThat(res.getHeaders("Set-Cookie")).anySatisfy(h -> assertThat(h)
                 .contains("SSP_RETURN=").contains("Path=/").contains("Max-Age=0")
-                .contains("SameSite=Lax").contains("Secure").doesNotContain("HttpOnly"));
+                .contains("SameSite=Lax").contains("Secure").contains("HttpOnly"));
         }
 
         @Test
