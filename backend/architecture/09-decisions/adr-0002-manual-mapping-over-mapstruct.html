@@ -249,6 +249,19 @@
         <code>toDTO()</code>, and asserting field values</li>
         </ul></li>
         </ul>
+        <h2
+        id="amendment-2026-10-16-inventoryitem-without-prepersist">Amendment
+        2026-10-16: InventoryItem without <span class="citation"
+        data-cites="PrePersist">@PrePersist</span></h2>
+        <p><code>InventoryItem</code> no longer has a
+        <code>@PrePersist</code> callback. Creating an item has one
+        path, <code>InventoryItemServiceImpl.save</code>, and
+        <code>InventoryItemValidationHelper.populateServerFields</code>
+        sets the id, <code>createdBy</code>, <code>createdAt</code> and
+        the minimum-quantity default there before the first save. The
+        Implementation Notes line on <code>@PrePersist</code> and the
+        <code>"system"</code> fallback describes the code before this
+        date.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a href="../05-building-blocks.html">§5 Building Block
@@ -282,6 +295,11 @@
       </ul></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a
+      href="#amendment-2026-10-16-inventoryitem-without-prepersist"
+      id="toc-amendment-2026-10-16-inventoryitem-without-prepersist">Amendment
+      2026-10-16: InventoryItem without <span class="citation"
+      data-cites="PrePersist">@PrePersist</span></a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

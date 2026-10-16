@@ -299,6 +299,23 @@
         <li>The mapper classes are unit-tested independently</li>
         </ul></li>
         </ul>
+        <h2
+        id="amendment-2026-10-16-unused-price-trend-query-removed">Amendment
+        2026-10-16: unused price-trend query removed</h2>
+        <ul>
+        <li><code>StockHistoryRepository.getPriceTrend()</code>, the
+        example of a JPQL constructor expression in a Spring Data
+        <code>@Query</code>, was removed as unused. The decision is
+        unchanged; the remaining DTO-returning reporting queries are the
+        custom
+        <code>StockTrendAnalyticsRepository.getItemPriceTrend()</code>
+        and
+        <code>StockDetailQueryRepository.streamEventsForWAC()</code>.</li>
+        <li><code>InventoryItem</code> lost its <code>@PrePersist</code>
+        callback: the service sets <code>createdAt</code> and
+        <code>createdBy</code> before the first save (see the ADR-0002
+        amendment of the same date).</li>
+        </ul>
         <h2 id="references">References</h2>
         <ul>
         <li><a href="../05-building-blocks.html">§5 Building Block
@@ -333,6 +350,10 @@
       </ul></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a
+      href="#amendment-2026-10-16-unused-price-trend-query-removed"
+      id="toc-amendment-2026-10-16-unused-price-trend-query-removed">Amendment
+      2026-10-16: unused price-trend query removed</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

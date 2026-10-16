@@ -281,6 +281,16 @@
         be kept under test where feasible.</li>
         </ul></li>
         </ul>
+        <h2
+        id="amendment-2026-10-16-one-monthly-movement-query">Amendment
+        2026-10-16: one monthly movement query</h2>
+        <p><code>StockTrendAnalyticsRepository.getMonthlyStockMovement(start, end)</code>
+        was removed as unused;
+        <code>getMonthlyStockMovementBySupplier(start, end, null)</code>
+        covers all suppliers. The monthly builders in
+        <code>StockTrendSqlBuilder</code> lost their
+        <code>withSupplierFilter</code> flag and always carry the join
+        and the optional supplier filter.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -318,6 +328,9 @@
       </ul></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#amendment-2026-10-16-one-monthly-movement-query"
+      id="toc-amendment-2026-10-16-one-monthly-movement-query">Amendment
+      2026-10-16: one monthly movement query</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

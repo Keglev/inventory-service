@@ -369,10 +369,11 @@
         </tr>
         <tr class="even">
         <td>Audit-Protokollierung</td>
-        <td><code>createdAt</code> per <code>@PrePersist</code> /
-        <code>@CreationTimestamp</code>; <code>createdBy</code> im
-        <code>@PrePersist</code> auf <code>"system"</code> gesetzt oder
-        vom Service vor dem Persistieren gesetzt</td>
+        <td><code>createdAt</code> vom Service
+        (<code>InventoryItem</code>), per <code>@PrePersist</code>
+        (<code>StockHistory</code>) oder <code>@CreationTimestamp</code>
+        (<code>Supplier</code>); <code>createdBy</code> vom Service vor
+        dem Persistieren gesetzt</td>
         </tr>
         </tbody>
         </table>

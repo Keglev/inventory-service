@@ -177,6 +177,10 @@
         foreign key to <code>AppUser</code>) and <code>createdAt</code>
         (<code>LocalDateTime</code>, set immutably at creation):</p>
         <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
         <thead>
         <tr class="header">
         <th>Entity</th>
@@ -190,7 +194,8 @@
         </tr>
         <tr class="even">
         <td><code>InventoryItem</code></td>
-        <td><code>@PrePersist</code></td>
+        <td>Service, before the first <code>save()</code>
+        (<code>InventoryItemValidationHelper.populateServerFields</code>)</td>
         </tr>
         <tr class="odd">
         <td><code>StockHistory</code></td>

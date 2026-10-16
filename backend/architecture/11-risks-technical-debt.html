@@ -213,10 +213,11 @@
         <tbody>
         <tr class="odd">
         <td>TD-01</td>
-        <td><code>createdAt</code> is set three different ways across
-        entities: <code>@PrePersist</code> (InventoryItem,
-        StockHistory), <code>@CreationTimestamp</code> (Supplier), field
-        initializer (AppUser).</td>
+        <td><code>createdAt</code> is set four different ways across
+        entities: the service before the first save (InventoryItem),
+        <code>@PrePersist</code> (StockHistory),
+        <code>@CreationTimestamp</code> (Supplier), field initializer
+        (AppUser).</td>
         <td>Low — inconsistent audit semantics, harder to reason
         about</td>
         <td>Standardise on one mechanism</td>
@@ -258,10 +259,10 @@
         </table>
         <h2 id="size-budget-waivers">11.3 Size-Budget Waivers</h2>
         <p>Measured over code lines against the budgets in <a
-        href="02-constraints.html">§2</a>. One file and one method
-        exceed their alarm; each is waived below, with the same reason
-        stated at the site in the code. No method reaches the 50 hard
-        cap and no file reaches the 300 hard cap.</p>
+        href="02-constraints.html">§2</a>. One method exceeds its alarm
+        and is waived below, with the same reason stated at the site in
+        the code. No method reaches the 50 hard cap and no file reaches
+        the 300 hard cap.</p>
         <table>
         <colgroup>
         <col style="width: 18%" />
@@ -279,14 +280,6 @@
         </thead>
         <tbody>
         <tr class="odd">
-        <td><code>repository/custom/util/StockTrendSqlBuilder.java</code></td>
-        <td>153</td>
-        <td>150 (repository)</td>
-        <td>109 of the 153 code lines are SQL inside text blocks.
-        Splitting the file moves SQL between files without reducing
-        it.</td>
-        </tr>
-        <tr class="even">
         <td><code>SecurityConfig::securityFilterChain</code></td>
         <td>31</td>
         <td>30</td>
@@ -298,10 +291,12 @@
         </table>
         <p>Two files sit above their target and below their alarm and
         are watched rather than waived:
-        <code>StockHistoryRepository.java</code> at 129 and
-        <code>StockTrendAnalyticsRepositoryImpl.java</code> at 88, both
-        against a repository target of 80. Thirteen methods sit between
-        the target of 20 and the alarm of 30, the largest being
+        <code>StockHistoryRepository.java</code> at 115 and
+        <code>repository/custom/util/StockTrendSqlBuilder.java</code> at
+        145, both against a repository target of 80. The builder was
+        waived at 153 until its unused all-suppliers monthly variant was
+        removed (2026-10-16). Thirteen methods sit between the target of
+        20 and the alarm of 30, the largest being
         <code>EmployeeAnalyticsService::getEmployeeActivity</code> at
         29. The two daily-movement builders in
         <code>StockTrendSqlBuilder</code> (25 each) joined that band

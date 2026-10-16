@@ -360,10 +360,11 @@
         </tr>
         <tr class="even">
         <td>Audit logging</td>
-        <td><code>createdAt</code> set by <code>@PrePersist</code> /
-        <code>@CreationTimestamp</code>; <code>createdBy</code>
-        defaulted to <code>"system"</code> in <code>@PrePersist</code>,
-        or set by the service before persist</td>
+        <td><code>createdAt</code> set by the service
+        (<code>InventoryItem</code>), <code>@PrePersist</code>
+        (<code>StockHistory</code>) or <code>@CreationTimestamp</code>
+        (<code>Supplier</code>); <code>createdBy</code> set by the
+        service before persist</td>
         </tr>
         </tbody>
         </table>
