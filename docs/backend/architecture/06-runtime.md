@@ -170,35 +170,41 @@ steps shown above.
 
 ## Scenario 3 — Analytics Read
 
+The dashboard summary has no service of its own: `AnalyticsDashboardHelper`
+assembles it from four `StockAnalyticsService` reads. Supplier-scoped low-stock
+and top-updated lists are cut to 3 and 5 rows; without a supplier the low-stock
+list spans all suppliers and the top-updated list is empty.
+
 ```mermaid
 %%{init: {"sequence": {"useMaxWidth": false}}}%%
 sequenceDiagram
     participant Client
     participant SF as Spring Security Filter
     participant AC as AnalyticsController
-    participant AS as AnalyticsService
+    participant DH as AnalyticsDashboardHelper
+    participant SAS as StockAnalyticsService
+    participant SHR as StockHistoryRepository
     participant IR as InventoryItemRepository
-    participant SMR as StockMetricsRepositoryImpl
     participant DB as Oracle ADB
 
-    Client->>SF: GET /api/analytics/dashboard-summary (session cookie)
-    SF->>SF: validate session, populate SecurityContext
-    SF->>AC: authenticated (USER or ADMIN role accepted)
+    Client->>SF: GET /api/analytics/summary (session cookie or demo)
+    SF->>AC: authenticated, or demo read-only
+    AC->>AC: complete the date window (30 days ago, now), validate the range
+    AC->>DH: buildDashboardSummary(supplierId, start, end)
 
-    AC->>AS: getDashboardSummary()
+    DH->>SAS: getTotalStockPerSupplier()
+    SAS->>SHR: getTotalStockBySupplier (all suppliers)
+    DH->>SAS: getItemsBelowMinimumStock(supplierId)
+    SAS->>IR: findItemsBelowMinimumStockFiltered
+    DH->>SAS: getMonthlyStockMovement(start, end, supplierId)
+    SAS->>SHR: getMonthlyStockMovementBySupplier
+    DH->>SAS: getItemUpdateFrequency(supplierId), only with a supplier
+    SAS->>SHR: getUpdateCountByItem
+    SHR->>DB: native SQL over SUPPLIER, INVENTORY_ITEM, STOCK_HISTORY
+    IR->>DB: JPQL, active items below their minimum
 
-    AS->>IR: findAll() with EntityGraph supplier join
-    IR->>DB: SELECT INVENTORY_ITEM JOIN SUPPLIER
-    DB-->>IR: item + supplier rows (single query, no N+1)
-    IR-->>AS: List of InventoryItem
-
-    AS->>SMR: aggregate low-stock count and total stock value
-    SMR->>DB: native SQL over INVENTORY_ITEM and STOCK_HISTORY
-    DB-->>SMR: aggregated rows
-    SMR-->>AS: stock metrics
-
-    AS->>AS: compute WAC snapshot, low-stock items, movement summary
-    AS-->>AC: DashboardSummaryDTO
+    SAS-->>DH: DTO lists
+    DH-->>AC: DashboardSummaryDTO
     AC-->>Client: 200 OK — DashboardSummaryDTO
 ```
 

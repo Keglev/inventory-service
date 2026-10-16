@@ -82,7 +82,8 @@ Contains all business logic and orchestrates operations: business rule validatio
 transaction management, data transformation, and audit logging.
 
 Key services: `SupplierService`, `InventoryItemService`, `StockHistoryService`,
-`AnalyticsService` (weighted-average-cost (WAC) financial analysis).
+`StockAnalyticsService`, `FinancialAnalyticsService` (weighted-average-cost (WAC)
+financial analysis), `EmployeeAnalyticsService`.
 
 ### Validation layer
 

@@ -40,9 +40,9 @@ interfaces are constructor-injected; every state-mutating operation is wrapped i
 | `SupplierService` | Supplier business rules and orchestration |
 | `InventoryItemService` | Item lifecycle, uniqueness, soft-delete gating |
 | `StockHistoryService` | Audit-trail writes and paginated reads |
-| `AnalyticsService` (`AnalyticsServiceImpl`) | Facade over the analytics sub-services |
-| `StockAnalyticsService` | Stock-movement calculations (sub-service) |
-| `FinancialAnalyticsService` | Weighted-average-cost (WAC) calculations (sub-service) |
+| `StockAnalyticsService` | Stock-movement calculations |
+| `FinancialAnalyticsService` | Weighted-average-cost (WAC) calculations |
+| `EmployeeAnalyticsService` | Per-employee update analytics |
 | `UserProvisioningService` | Single authoritative OAuth2 provisioner |
 
 `UserProvisioningService` is called at token load by `CustomOidcUserService`; it finds
@@ -113,7 +113,7 @@ graph TB
         SS["SupplierService"]:::service
         IS["InventoryItemService"]:::service
         SHS["StockHistoryService"]:::service
-        AS["AnalyticsService"]:::service
+        AS["StockAnalyticsService\nFinancialAnalyticsService\nEmployeeAnalyticsService"]:::service
         UPS["UserProvisioningService"]:::service
     end
 
