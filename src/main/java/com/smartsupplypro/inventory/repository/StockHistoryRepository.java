@@ -1,8 +1,10 @@
 package com.smartsupplypro.inventory.repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -150,6 +152,36 @@ public interface StockHistoryRepository
         @Param("createdBy") String createdBy,
         @Param("supplierId") String supplierId,
         Pageable pageable
+    );
+
+    /**
+     * Returns the item's recorded unit prices before a point in time, newest first.
+     *
+     * <p>Every history row snapshots the item's price, so the newest row before
+     * {@code before} holds the price in force at that moment. The supplier filter
+     * matches the item's current supplier, as the price-trend window query does.
+     *
+     * @param itemId     item identifier
+     * @param supplierId optional supplier filter; {@code null} for any supplier
+     * @param before     exclusive upper bound
+     * @param limit      maximum number of prices to return
+     * @return prices ordered by timestamp descending
+     */
+    @Query("""
+        SELECT sh.priceAtChange
+        FROM StockHistory sh, InventoryItem i
+        WHERE i.id = sh.itemId
+          AND sh.itemId = :itemId
+          AND sh.timestamp < :before
+          AND sh.priceAtChange IS NOT NULL
+          AND (:supplierId IS NULL OR i.supplierId = :supplierId)
+        ORDER BY sh.timestamp DESC
+        """)
+    List<BigDecimal> findPricesBefore(
+        @Param("itemId") String itemId,
+        @Param("supplierId") String supplierId,
+        @Param("before") LocalDateTime before,
+        Limit limit
     );
 
     List<StockHistory> findByItemIdOrderByTimestampDesc(String itemId);
