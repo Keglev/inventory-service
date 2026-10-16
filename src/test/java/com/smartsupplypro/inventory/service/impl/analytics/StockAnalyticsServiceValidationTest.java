@@ -22,7 +22,7 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
  * blank/null supplier IDs, invalid date ranges, and malformed filter objects.
  */
 @ExtendWith(MockitoExtension.class)
-class AnalyticsServiceImplValidationTest {
+class StockAnalyticsServiceValidationTest {
 
     @Mock private StockHistoryRepository stockHistoryRepository;
     @Mock private InventoryItemRepository inventoryItemRepository;

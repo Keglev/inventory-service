@@ -39,7 +39,7 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
  * mixed numeric type coercion, and blank-to-null normalization.
  */
 @ExtendWith(MockitoExtension.class)
-class AnalyticsServiceImplQueryTest {
+class StockAnalyticsServiceQueryTest {
 
     @Mock private StockHistoryRepository stockHistoryRepository;
     @Mock private InventoryItemRepository inventoryItemRepository;

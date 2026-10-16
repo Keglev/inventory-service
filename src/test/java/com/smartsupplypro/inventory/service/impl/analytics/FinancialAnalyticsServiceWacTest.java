@@ -28,7 +28,7 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
  * calculation correctness and date range boundary behavior.
  */
 @ExtendWith(MockitoExtension.class)
-class AnalyticsServiceImplWacTest {
+class FinancialAnalyticsServiceWacTest {
 
     @Mock private StockHistoryRepository stockHistoryRepository;
     @InjectMocks private FinancialAnalyticsService service;

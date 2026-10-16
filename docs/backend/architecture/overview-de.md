@@ -82,7 +82,8 @@ Enthält die gesamte Geschäftslogik und koordiniert Operationen: Geschäftsrege
 Transaktionsverwaltung, Datentransformation und Audit-Protokollierung.
 
 Wichtigste Services: `SupplierService`, `InventoryItemService`, `StockHistoryService`,
-`AnalyticsService` (Finanzanalyse auf Basis gewichteter Durchschnittskosten, WAC).
+`StockAnalyticsService`, `FinancialAnalyticsService` (Finanzanalyse auf Basis gewichteter
+Durchschnittskosten, WAC), `EmployeeAnalyticsService`.
 
 ### Validierungs-Schicht
 

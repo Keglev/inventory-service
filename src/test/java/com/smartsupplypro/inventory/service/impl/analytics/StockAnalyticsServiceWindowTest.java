@@ -28,7 +28,7 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
  * in {@code getMonthlyStockMovement} and {@code getPriceTrend}.
  */
 @ExtendWith(MockitoExtension.class)
-class AnalyticsServiceImplWindowTest {
+class StockAnalyticsServiceWindowTest {
 
     @Mock private StockHistoryRepository stockHistoryRepository;
     @Mock private InventoryItemRepository inventoryItemRepository;

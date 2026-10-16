@@ -8,7 +8,6 @@ where a term is treated in depth.
 |------|------------|
 | ADB (Oracle Autonomous Database) | Managed Oracle 23ai database backing the `prod` profile; reached via the wallet. See [ADR-0001](./09-decisions/adr-0001-oracle-wallet-autologin.md) |
 | ADR | Architecture Decision Record — a decision with its justification and rejected alternatives. See [§9](./09-decisions/index.md) |
-| AnalyticsService | Service computing stock valuation and trends using Weighted Average Cost (WAC) |
 | AppUser | JPA entity for an authenticated user; carries the assigned role |
 | arc42 | The documentation template structuring this architecture (§1–§12) |
 | BusinessExceptionHandler | `@ControllerAdvice` mapping domain exceptions to HTTP status: `InvalidRequest` → 400, `Duplicate` / `BusinessRuleViolation` → 409; applies `sanitize()` |
@@ -16,6 +15,7 @@ where a term is treated in depth.
 | DTO (Data Transfer Object) | The only object types that cross the controller boundary; 16 in the `dto/` package. See [ADR-0003](./09-decisions/adr-0003-dto-boundary-no-entity-exposure.md) |
 | `@EntityGraph` | JPA fetch hint on `InventoryItemRepository` loading `supplier` in a single join to avoid N+1 queries |
 | ErrorResponse | The canonical error record `{error, message, timestamp}` with an optional `fieldErrors` map on validation failures; `error` = `HttpStatus.name().toLowerCase()`. See [ADR-0004](./09-decisions/adr-0004-http-status-as-envelope.md) |
+| FinancialAnalyticsService | Service computing opening and ending value, purchases, COGS and write-offs using Weighted Average Cost (WAC) |
 | Hetzner Cloud | Shared host running the backend container (port 8081, health check `/api/health`) |
 | GlobalExceptionHandler | `@ControllerAdvice` for framework and uncaught exceptions; applies `sanitize()`. See [ADR-0005](./09-decisions/adr-0005-error-message-sanitization.md) |
 | HikariCP | JDBC connection pool, sized for the container memory cap |
@@ -34,5 +34,5 @@ where a term is treated in depth.
 | Supplier | Domain entity representing a goods supplier linked to inventory items |
 | `TNS_ADMIN` | Environment variable pointing the JDBC driver at the wallet directory |
 | Trivy | Container-image CVE scanner run in the Docker build workflow |
-| WAC | Weighted Average Cost inventory costing method used by `AnalyticsService` |
+| WAC | Weighted Average Cost inventory costing method used by `FinancialAnalyticsService` |
 | Wallet (Oracle) | Directory of TLS certificates and config (`tnsnames.ora`, `ewallet.p12`, …) authenticating the DB connection; delivered at runtime from the host environment file. See [ADR-0009](./09-decisions/adr-0009-runtime-wallet-delivery.md) |

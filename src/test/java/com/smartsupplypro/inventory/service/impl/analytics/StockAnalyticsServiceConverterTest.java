@@ -27,7 +27,7 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
  * {@code getFilteredStockUpdates} — verifying numeric and date type coercion.
  */
 @ExtendWith(MockitoExtension.class)
-class AnalyticsServiceImplConverterTest {
+class StockAnalyticsServiceConverterTest {
 
     @Mock private StockHistoryRepository stockHistoryRepository;
     @Mock private InventoryItemRepository inventoryItemRepository;
