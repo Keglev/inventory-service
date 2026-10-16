@@ -32,16 +32,10 @@ spring:
     properties:
       hibernate:
         '[format_sql]': true                   # Format SQL for easier reading in logs
-        '[globally_quoted_identifiers]': false # keep "CHANGE" / "TIMESTAMP" quoted
         '[jdbc.time_zone]': UTC                # Ensure consistent timezone handling
   sql:
     init:
       mode: never
-
-  h2:
-    console:
-      enabled: true               # Enable browser-based H2 console for debugging
-      path: /h2-console           # Accessible at /h2-console (only in local/test environments)
 
 # Logging for tests lives in src/test/resources/logback-test.xml and nowhere
 # else. This profile used to set a root level and two Hibernate levels here,
@@ -77,5 +71,3 @@ app:
     # No frontend needed: redirect to backend /api/me after Google login
     base-url: http://localhost:8081
     landing-path: /api/me
-
-# Overrides schema for H2 tests (used in @Table(schema = "$(USERS_SCHEMA:ADMIN)"))
