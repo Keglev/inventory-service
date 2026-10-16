@@ -121,13 +121,7 @@ public class StockAnalyticsService {
         String sid = requireNonBlank(supplierId, "supplierId");
         List<Object[]> rows = inventoryItemRepository.findItemsBelowMinimumStockFiltered(sid);
 
-        return rows.stream()
-                .map(r -> new LowStockItemDTO(
-                        (String) r[0],
-                        asNumber(r[1]).intValue(),
-                        asNumber(r[2]).intValue()
-                ))
-                .toList();
+        return rows.stream().map(StockAnalyticsService::toLowStockItem).toList();
     }
 
     /**
@@ -143,13 +137,7 @@ public class StockAnalyticsService {
     public List<LowStockItemDTO> getItemsBelowMinimumStock() {
         List<Object[]> rows = inventoryItemRepository.findItemsBelowMinimumStockFiltered(null);
 
-        return rows.stream()
-                .map(r -> new LowStockItemDTO(
-                        (String) r[0],
-                        asNumber(r[1]).intValue(),
-                        asNumber(r[2]).intValue()
-                ))
-                .toList();
+        return rows.stream().map(StockAnalyticsService::toLowStockItem).toList();
     }
 
     /**
@@ -278,6 +266,11 @@ public class StockAnalyticsService {
                 min, max,
                 pageable
         ).map(StockAnalyticsService::toStockUpdate);
+    }
+
+    /** Maps one below-minimum row [name, quantity, minimumQuantity]; both public variants share it. */
+    private static LowStockItemDTO toLowStockItem(Object[] r) {
+        return new LowStockItemDTO((String) r[0], asNumber(r[1]).intValue(), asNumber(r[2]).intValue());
     }
 
     /** Maps one search row [item, supplier, change, reason, createdBy, createdAt]. */
