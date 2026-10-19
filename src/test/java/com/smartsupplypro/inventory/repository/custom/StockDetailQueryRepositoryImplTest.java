@@ -65,15 +65,15 @@ class StockDetailQueryRepositoryImplTest {
     }
 
     /**
-     * Optional filter normalization and dialect-specific SQL selection for searchStockUpdates.
+     * Optional filter normalization and the supplier predicate for searchStockUpdates.
      */
     @Nested
     class StockUpdateSearch {
 
         @Test
-        void should_normalize_optional_filters_and_return_all_rows_when_the_dialect_is_h2() {
+        void should_normalize_optional_filters_and_return_all_rows() {
             seedTestData();
-            StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
+            StockDetailQueryRepositoryImpl repo = newRepo();
 
             // null/blank inputs normalize to SQL NULL -> no predicates applied
             assertEquals(3, repo.searchStockUpdates(null, null, null, "   ", null, null, null).size());
@@ -89,13 +89,13 @@ class StockDetailQueryRepositoryImplTest {
         }
 
         @Test
-        void should_narrow_the_results_by_supplier_when_the_dialect_is_oracle() {
+        void should_narrow_the_results_by_supplier() {
             seedTestData();
-            StockDetailQueryRepositoryImpl repo = repoWithDialect(false);
+            StockDetailQueryRepositoryImpl repo = newRepo();
 
             List<Object[]> out = repo.searchStockUpdates(null, null, "item", "sup1", "alice", null, null);
 
-            // Oracle SQL variant is selected; supplierId predicate narrows to itemA's events
+            // the supplierId predicate narrows to itemA's events
             assertEquals(2, out.size());
             assertEquals("Item A", out.get(0)[0]);
         }
@@ -108,9 +108,9 @@ class StockDetailQueryRepositoryImplTest {
     class StockUpdatePaging {
 
         @Test
-        void should_split_the_search_into_pages_with_the_total_count_when_the_dialect_is_h2() {
+        void should_split_the_search_into_pages_with_the_total_count() {
             seedTestData();
-            StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
+            StockDetailQueryRepositoryImpl repo = newRepo();
 
             Page<Object[]> first = repo.searchStockUpdatesPage(null, null, null, null, null, null, null, PageRequest.of(0, 2));
             Page<Object[]> second = repo.searchStockUpdatesPage(null, null, null, null, null, null, null, PageRequest.of(1, 2));
@@ -124,9 +124,9 @@ class StockDetailQueryRepositoryImplTest {
         }
 
         @Test
-        void should_count_only_the_filtered_rows_when_the_dialect_is_oracle() {
+        void should_count_only_the_filtered_rows() {
             seedTestData();
-            StockDetailQueryRepositoryImpl repo = repoWithDialect(false);
+            StockDetailQueryRepositoryImpl repo = newRepo();
 
             Page<Object[]> page = repo.searchStockUpdatesPage(null, null, "item", "sup1", null, null, null, PageRequest.of(0, 10));
 
@@ -142,7 +142,7 @@ class StockDetailQueryRepositoryImplTest {
                 "('sh4','itemB','sup2', 1, 'SOLD', 'bob', TIMESTAMP '2024-02-02 10:00:00', 5.00)," +
                 "('sh5','itemB','sup2', 2, 'SOLD', 'bob', TIMESTAMP '2024-02-02 10:00:00', 5.00)"
             ).executeUpdate();
-            StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
+            StockDetailQueryRepositoryImpl repo = newRepo();
 
             List<Integer> seen = new java.util.ArrayList<>();
             for (int p = 0; p < 5; p++) {
@@ -155,12 +155,11 @@ class StockDetailQueryRepositoryImplTest {
         }
 
         @Test
-        void should_break_timestamp_ties_by_id_in_both_dialects() {
+        void should_break_timestamp_ties_by_id() {
             // H2 happens to return equal timestamps in a stable order even without a
             // tie-breaker, so the walk above cannot prove it on its own; Oracle does not.
-            String order = "ORDER BY sh.created_at DESC, sh.id DESC";
-            assertTrue(StockDetailSqlBuilder.buildH2FilteredSearchSql().contains(order));
-            assertTrue(StockDetailSqlBuilder.buildOracleFilteredSearchSql().contains(order));
+            assertTrue(StockDetailSqlBuilder.buildFilteredSearchSql()
+                .contains("ORDER BY sh.created_at DESC, sh.id DESC"));
         }
     }
 
@@ -173,7 +172,7 @@ class StockDetailQueryRepositoryImplTest {
         @Test
         void should_stream_events_ordered_by_item_and_time_when_a_supplier_filter_is_given() {
             seedTestData();
-            StockDetailQueryRepositoryImpl repo = repoWithDialect(true);
+            StockDetailQueryRepositoryImpl repo = newRepo();
 
             LocalDateTime end = LocalDateTime.of(2024, 12, 31, 23, 59);
 
@@ -193,11 +192,8 @@ class StockDetailQueryRepositoryImplTest {
         }
     }
 
-    // forces the dialect branch without needing an Oracle database in CI
-    private StockDetailQueryRepositoryImpl repoWithDialect(boolean isH2) {
-        DatabaseDialectDetector detector = org.mockito.Mockito.mock(DatabaseDialectDetector.class);
-        org.mockito.Mockito.when(detector.isH2()).thenReturn(isH2);
-        StockDetailQueryRepositoryImpl repo = new StockDetailQueryRepositoryImpl(detector);
+    private StockDetailQueryRepositoryImpl newRepo() {
+        StockDetailQueryRepositoryImpl repo = new StockDetailQueryRepositoryImpl();
         injectEntityManager(repo, em);
         return repo;
     }

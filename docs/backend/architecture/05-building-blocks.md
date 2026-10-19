@@ -57,14 +57,15 @@ login without the `openid` scope is rejected by `OidcOnlyUserService`.
 | `InventoryItemRepository` | Spring Data JPA | `@EntityGraph(attributePaths = {"supplier"})` on `findAll()` and `searchActiveItems()` eager-loads the supplier in one JOIN, preventing N+1 on the two hot list paths |
 | `StockHistoryRepository` | Spring Data JPA | Core domain |
 | `AppUserRepository` | Spring Data JPA | Written only by `UserProvisioningService`; read by `AuthController` (`/auth/me`) and `EmployeeAnalyticsService` (display names); outside the domain mutation flow |
-| `StockDetailQueryRepository` + `Impl` | Custom analytics | Dialect-specific SQL |
-| `StockMetricsRepository` + `Impl` | Custom analytics | Dialect-specific SQL; static `StockMetricsSqlBuilder` |
+| `StockDetailQueryRepository` + `Impl` | Custom analytics | One SQL for H2 and Oracle; static `StockDetailSqlBuilder` |
+| `StockMetricsRepository` + `Impl` | Custom analytics | One SQL for H2 and Oracle; static `StockMetricsSqlBuilder` |
 | `StockTrendAnalyticsRepository` + `Impl` | Custom analytics | Dialect-specific SQL |
 
 The three custom analytics implementations handle aggregations that exceed what JPQL
 can express cleanly, backed by dedicated SQL builders in `repository/custom/util/`.
-They build dialect-specific SQL (H2 in tests, Oracle in prod) selected at runtime via
-`DatabaseDialectDetector`, and return either raw `Object[]` tuples mapped to DTOs in
+Where H2 and Oracle differ (trend and valuation SQL) the trend repository selects
+the variant at runtime via `DatabaseDialectDetector`; the other two run one statement
+on both. They return either raw `Object[]` tuples mapped to DTOs in
 the service layer or, in two cases, typed projections (`StockEventRowDTO`,
 `PriceTrendDTO`). See ADR-0006.
 

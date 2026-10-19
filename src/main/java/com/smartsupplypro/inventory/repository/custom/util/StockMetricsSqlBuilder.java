@@ -1,38 +1,21 @@
 package com.smartsupplypro.inventory.repository.custom.util;
 
 /**
- * SQL factory for {@code StockMetricsRepositoryImpl} — produces KPI queries for H2 and Oracle.
+ * SQL factory for {@code StockMetricsRepositoryImpl} — produces the KPI queries.
+ *
+ * <p>Each statement serves H2 (Oracle mode, unquoted identifiers upper-cased) and Oracle, so the
+ * tests run the exact text production runs.
  */
 public final class StockMetricsSqlBuilder {
 
     private StockMetricsSqlBuilder() {}
 
     /**
-     * Returns the H2 SQL for stock quantity and value per supplier over active items.
-     *
-     * <p>Quotes identifiers with double-quotes required by H2's default case-sensitive mode.
+     * Returns the SQL for stock quantity and value per supplier over active items.
      *
      * @return SQL ordered by total_value descending, then supplier name
      */
-    public static String buildH2SupplierTotalsSql() {
-        return """
-            SELECT s."NAME" AS supplier_name,
-                   SUM(i."QUANTITY") AS total_quantity,
-                   SUM(i."QUANTITY" * COALESCE(i."PRICE", 0)) AS total_value
-            FROM "SUPPLIER" s
-            JOIN "INVENTORY_ITEM" i ON s."ID" = i."SUPPLIER_ID"
-            WHERE i."ACTIVE" = 1
-            GROUP BY s."NAME"
-            ORDER BY total_value DESC, supplier_name ASC
-        """;
-    }
-
-    /**
-     * Returns the Oracle SQL for stock quantity and value per supplier over active items.
-     *
-     * @return SQL ordered by total_value descending, then supplier name
-     */
-    public static String buildOracleSupplierTotalsSql() {
+    public static String buildSupplierTotalsSql() {
         return """
             SELECT s.name AS supplier_name,
                    SUM(i.quantity) AS total_quantity,
@@ -46,27 +29,11 @@ public final class StockMetricsSqlBuilder {
     }
 
     /**
-     * Returns the H2 SQL for update event count per item with optional supplier filter.
+     * Returns the SQL for update event count per item with optional supplier filter.
      *
      * @return SQL ordered by update_count descending; accepts named parameter {@code :supplierId}
      */
-    public static String buildH2UpdateCountSql() {
-        return """
-            SELECT i."NAME" AS item_name, COUNT(sh."ID") AS update_count
-            FROM "INVENTORY_ITEM" i
-            JOIN "STOCK_HISTORY" sh ON sh."ITEM_ID" = i."ID"
-            WHERE (:supplierId IS NULL OR UPPER(i."SUPPLIER_ID") = UPPER(:supplierId))
-            GROUP BY i."NAME"
-            ORDER BY update_count DESC
-        """;
-    }
-
-    /**
-     * Returns the Oracle SQL for update event count per item with optional supplier filter.
-     *
-     * @return SQL ordered by update_count descending; accepts named parameter {@code :supplierId}
-     */
-    public static String buildOracleUpdateCountSql() {
+    public static String buildUpdateCountSql() {
         return """
             SELECT i.name AS item_name, COUNT(sh.id) AS update_count
             FROM stock_history sh

@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
@@ -21,7 +19,7 @@ import jakarta.persistence.EntityManager;
 /**
  * Integration tests for dynamic query methods in {@link StockMetricsRepositoryImpl}.
  *
- * <p>Verifies supplier filter normalization and dialect-specific SQL selection
+ * <p>Verifies supplier filter normalization and result ordering
  * for stock metrics queries.</p>
  */
 @DataJpaTest(showSql = false)
@@ -66,9 +64,8 @@ class StockMetricsRepositoryImplTest {
     @Nested
     class TotalStockBySupplier {
 
-        @ParameterizedTest(name = "h2 dialect = {0}")
-        @ValueSource(booleans = {true, false})
-        void should_order_by_value_then_name_and_skip_inactive_items(boolean isH2) {
+        @Test
+        void should_order_by_value_then_name_and_skip_inactive_items() {
             seedTestData();
             // Supplier One: fewer units than Supplier Two, but the highest value (4 + 200).
             // Default Supplier ties Supplier Two at 100 and comes first by name.
@@ -80,7 +77,7 @@ class StockMetricsRepositoryImplTest {
                 "('itemE','SKU-MET-E','Item E', 1.00, 1000, 0, 'sup2', CURRENT_TIMESTAMP, 'test', 0)"
             ).executeUpdate();
 
-            List<Object[]> out = repoWithDialect(isH2).getTotalStockBySupplier();
+            List<Object[]> out = newRepo().getTotalStockBySupplier();
 
             assertEquals(List.of("Supplier One", "Default Supplier", "Supplier Two"),
                     out.stream().map(r -> r[0]).toList());
@@ -98,9 +95,9 @@ class StockMetricsRepositoryImplTest {
     class UpdateCountByItem {
 
         @Test
-        void should_filter_by_supplier_and_treat_blank_as_null_when_the_dialect_is_oracle() {
+        void should_filter_by_supplier_and_treat_blank_as_null() {
             seedTestData();
-            StockMetricsRepositoryImpl repo = repoWithDialect(false);
+            StockMetricsRepositoryImpl repo = newRepo();
 
             List<Object[]> forSup1 = repo.getUpdateCountByItem("sup1");
             assertEquals(1, forSup1.size());
@@ -115,11 +112,8 @@ class StockMetricsRepositoryImplTest {
         }
     }
 
-    // forces the dialect branch without needing an Oracle database in CI
-    private StockMetricsRepositoryImpl repoWithDialect(boolean isH2) {
-        DatabaseDialectDetector detector = org.mockito.Mockito.mock(DatabaseDialectDetector.class);
-        org.mockito.Mockito.when(detector.isH2()).thenReturn(isH2);
-        StockMetricsRepositoryImpl repo = new StockMetricsRepositoryImpl(detector);
+    private StockMetricsRepositoryImpl newRepo() {
+        StockMetricsRepositoryImpl repo = new StockMetricsRepositoryImpl();
         injectEntityManager(repo, em);
         return repo;
     }
