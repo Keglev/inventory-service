@@ -51,7 +51,7 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
         return em.createNativeQuery(sql)
                 .setParameter("start", start)
                 .setParameter("end", end)
-                .setParameter("supplierId", normalizeOptionalParam(supplierId))
+                .setParameter("supplierId", OptionalQueryParam.normalize(supplierId))
                 .getResultList();
     }
 
@@ -74,7 +74,7 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
 
         return em.createNativeQuery(sql)
                 .setParameter("end", java.sql.Timestamp.valueOf(end))
-                .setParameter("supplierId", normalizeOptionalParam(supplierId))
+                .setParameter("supplierId", OptionalQueryParam.normalize(supplierId))
                 .getResultList();
     }
 
@@ -100,7 +100,7 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
         query.setParameter("start", start);
         query.setParameter("end", end);
         query.setParameter("itemId", itemId);
-        query.setParameter("supplierId", normalizeOptionalParam(supplierId));
+        query.setParameter("supplierId", OptionalQueryParam.normalize(supplierId));
 
         final List<Object[]> raw = query.getResultList();
         return raw.stream()
@@ -131,11 +131,7 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
         return em.createNativeQuery(sql)
                 .setParameter("start", startTs)
                 .setParameter("end", endTs)
-                .setParameter("supplierId", normalizeOptionalParam(supplierId))
+                .setParameter("supplierId", OptionalQueryParam.normalize(supplierId))
                 .getResultList();
-    }
-
-    private String normalizeOptionalParam(String param) {
-        return (param == null || param.isBlank()) ? null : param.trim();
     }
 }
