@@ -74,75 +74,40 @@ public class CookieOAuth2AuthorizationRequestRepository
         }
 <span class="fc" id="L75">        saveReturnCookie(request, response);</span>
 <span class="fc" id="L76">        String encoded = OAuth2AuthorizationRequestCookieSerializer.serialize(authorizationRequest);</span>
-<span class="fc" id="L77">        Cookie cookie = new Cookie(cookieName, encoded);</span>
-<span class="fc" id="L78">        cookie.setHttpOnly(true);</span>
-<span class="fc" id="L79">        cookie.setSecure(isSecureOrForwardedHttps(request));</span>
-<span class="fc" id="L80">        cookie.setPath(&quot;/&quot;);</span>
-<span class="fc" id="L81">        cookie.setMaxAge(cookieMaxAge);</span>
-        // Lax suffices: the callback from Google is a top-level GET navigation.
-        // Secure=true stays mandatory whenever the request is HTTPS.
-<span class="fc" id="L84">        addCookieWithSameSite(response, cookie, &quot;Lax&quot;);</span>
-<span class="fc" id="L85">    }</span>
+<span class="fc" id="L77">        OAuthCookies.write(request, response, cookieName, encoded, cookieMaxAge);</span>
+<span class="fc" id="L78">    }</span>
 
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
                                                                  HttpServletResponse response) {
-<span class="fc" id="L90">        OAuth2AuthorizationRequest existing = read(request).orElse(null);</span>
-<span class="fc" id="L91">        deleteCookie(request, response);</span>
-<span class="fc" id="L92">        return existing;</span>
+<span class="fc" id="L83">        OAuth2AuthorizationRequest existing = read(request).orElse(null);</span>
+<span class="fc" id="L84">        deleteCookie(request, response);</span>
+<span class="fc" id="L85">        return existing;</span>
     }
 
     private Optional&lt;OAuth2AuthorizationRequest&gt; read(HttpServletRequest request) {
-<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (request.getCookies() == null) return Optional.empty();</span>
-<span class="fc bfc" id="L97" title="All 2 branches covered.">        for (Cookie c : request.getCookies()) {</span>
-<span class="pc bpc" id="L98" title="1 of 2 branches missed.">            if (cookieName.equals(c.getName())) {</span>
-<span class="fc" id="L99">                OAuth2AuthorizationRequest r = OAuth2AuthorizationRequestCookieSerializer.deserialize(c.getValue());</span>
-<span class="fc bfc" id="L100" title="All 2 branches covered.">                if (r != null) return Optional.of(r);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (request.getCookies() == null) return Optional.empty();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (Cookie c : request.getCookies()) {</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">            if (cookieName.equals(c.getName())) {</span>
+<span class="fc" id="L92">                OAuth2AuthorizationRequest r = OAuth2AuthorizationRequestCookieSerializer.deserialize(c.getValue());</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">                if (r != null) return Optional.of(r);</span>
             }
         }
-<span class="fc" id="L103">        return Optional.empty();</span>
+<span class="fc" id="L96">        return Optional.empty();</span>
     }
 
     private void saveReturnCookie(HttpServletRequest request, HttpServletResponse response) {
-<span class="fc" id="L107">        String ret = request.getParameter(&quot;return&quot;);</span>
-<span class="pc bpc" id="L108" title="1 of 4 branches missed.">        if (ret == null || ret.isBlank()) return;</span>
-<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (!allowedReturnOrigins.contains(ret)) {</span>
-<span class="fc" id="L110">            log.warn(&quot;Rejected non-allowlisted return origin: {}&quot;, LogSanitizer.sanitize(ret));</span>
-<span class="fc" id="L111">            return;</span>
+<span class="fc" id="L100">        String ret = request.getParameter(&quot;return&quot;);</span>
+<span class="pc bpc" id="L101" title="1 of 4 branches missed.">        if (ret == null || ret.isBlank()) return;</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (!allowedReturnOrigins.contains(ret)) {</span>
+<span class="fc" id="L103">            log.warn(&quot;Rejected non-allowlisted return origin: {}&quot;, LogSanitizer.sanitize(ret));</span>
+<span class="fc" id="L104">            return;</span>
         }
-<span class="fc" id="L113">        Cookie r = new Cookie(&quot;SSP_RETURN&quot;, ret);</span>
-        // HttpOnly: only OAuth2LoginSuccessHandler reads it; no script needs it
-<span class="fc" id="L115">        r.setHttpOnly(true);</span>
-<span class="fc" id="L116">        r.setSecure(isSecureOrForwardedHttps(request));</span>
-<span class="fc" id="L117">        r.setPath(&quot;/&quot;);</span>
-<span class="fc" id="L118">        r.setMaxAge(300);</span>
-<span class="fc" id="L119">        addCookieWithSameSite(response, r, &quot;Lax&quot;);</span>
-<span class="fc" id="L120">    }</span>
+<span class="fc" id="L106">        OAuthCookies.write(request, response, OAuthCookies.RETURN_COOKIE, ret, 300);</span>
+<span class="fc" id="L107">    }</span>
 
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
-<span class="fc" id="L123">        Cookie cookie = new Cookie(cookieName, &quot;&quot;);</span>
-<span class="fc" id="L124">        cookie.setHttpOnly(true);</span>
-<span class="fc" id="L125">        cookie.setSecure(isSecureOrForwardedHttps(request));</span>
-<span class="fc" id="L126">        cookie.setPath(&quot;/&quot;);</span>
-<span class="fc" id="L127">        cookie.setMaxAge(0);</span>
-<span class="fc" id="L128">        addCookieWithSameSite(response, cookie, &quot;Lax&quot;);</span>
-<span class="fc" id="L129">    }</span>
-
-    private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {
-<span class="fc" id="L132">        StringBuilder sb = new StringBuilder();</span>
-<span class="fc bfc" id="L133" title="All 2 branches covered.">        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? &quot;&quot; : cookie.getValue());</span>
-<span class="fc bfc" id="L134" title="All 2 branches covered.">        sb.append(&quot;; Path=&quot;).append(cookie.getPath() == null ? &quot;/&quot; : cookie.getPath());</span>
-<span class="fc bfc" id="L135" title="All 2 branches covered.">        if (cookie.getMaxAge() &gt;= 0) sb.append(&quot;; Max-Age=&quot;).append(cookie.getMaxAge());</span>
-<span class="fc bfc" id="L136" title="All 2 branches covered.">        if (cookie.getSecure()) sb.append(&quot;; Secure&quot;);</span>
-<span class="fc bfc" id="L137" title="All 2 branches covered.">        if (cookie.isHttpOnly()) sb.append(&quot;; HttpOnly&quot;);</span>
-<span class="pc bpc" id="L138" title="1 of 4 branches missed.">        if (sameSite != null &amp;&amp; !sameSite.isBlank()) sb.append(&quot;; SameSite=&quot;).append(sameSite);</span>
-<span class="fc" id="L139">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
-<span class="fc" id="L140">    }</span>
-
-    private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
-<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (request.isSecure()) return true;</span>
-<span class="fc" id="L144">        String xfProto = request.getHeader(&quot;X-Forwarded-Proto&quot;);</span>
-<span class="pc bpc" id="L145" title="1 of 4 branches missed.">        return xfProto != null &amp;&amp; xfProto.equalsIgnoreCase(&quot;https&quot;);</span>
-    }
+<span class="fc" id="L110">        OAuthCookies.write(request, response, cookieName, &quot;&quot;, 0);</span>
+<span class="fc" id="L111">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

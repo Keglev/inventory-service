@@ -79,7 +79,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 <span class="fc" id="L79">        Cookie[] cookies = request.getCookies();</span>
 <span class="fc bfc" id="L80" title="All 2 branches covered.">        if (cookies == null) return target;</span>
 <span class="fc bfc" id="L81" title="All 2 branches covered.">        for (Cookie c : cookies) {</span>
-<span class="fc bfc" id="L82" title="All 2 branches covered.">            if (!&quot;SSP_RETURN&quot;.equals(c.getName())) continue;</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            if (!OAuthCookies.RETURN_COOKIE.equals(c.getName())) continue;</span>
 <span class="fc" id="L83">            String candidate = c.getValue();</span>
 <span class="pc bpc" id="L84" title="1 of 4 branches missed.">            if (candidate != null &amp;&amp; !candidate.isBlank()) {</span>
                 // Redirect URL construction: validate against allowed origins to prevent open redirect
@@ -96,30 +96,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     }
 
     private void clearReturnCookie(HttpServletRequest request, HttpServletResponse response) {
-<span class="fc" id="L99">        Cookie clear = new Cookie(&quot;SSP_RETURN&quot;, &quot;&quot;);</span>
-<span class="fc" id="L100">        clear.setPath(&quot;/&quot;);</span>
-<span class="fc" id="L101">        clear.setMaxAge(0);</span>
-<span class="fc" id="L102">        clear.setSecure(isSecureOrForwardedHttps(request));</span>
-        // HttpOnly to match the cookie CookieOAuth2AuthorizationRequestRepository writes
-<span class="fc" id="L104">        clear.setHttpOnly(true);</span>
-<span class="fc" id="L105">        addCookieWithSameSite(response, clear, &quot;Lax&quot;);</span>
-<span class="fc" id="L106">    }</span>
-
-    private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
-<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (request.isSecure()) return true;</span>
-<span class="fc" id="L110">        String xfProto = request.getHeader(&quot;X-Forwarded-Proto&quot;);</span>
-<span class="fc bfc" id="L111" title="All 4 branches covered.">        return xfProto != null &amp;&amp; xfProto.equalsIgnoreCase(&quot;https&quot;);</span>
-    }
-
-    private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {
-<span class="fc" id="L115">        StringBuilder sb = new StringBuilder();</span>
-<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? &quot;&quot; : cookie.getValue());</span>
-<span class="fc bfc" id="L117" title="All 2 branches covered.">        sb.append(&quot;; Path=&quot;).append(cookie.getPath() == null ? &quot;/&quot; : cookie.getPath());</span>
-<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (cookie.getMaxAge() &gt;= 0) sb.append(&quot;; Max-Age=&quot;).append(cookie.getMaxAge());</span>
-<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (cookie.getSecure()) sb.append(&quot;; Secure&quot;);</span>
-<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        if (cookie.isHttpOnly()) sb.append(&quot;; HttpOnly&quot;);</span>
-<span class="pc bpc" id="L121" title="1 of 4 branches missed.">        if (sameSite != null &amp;&amp; !sameSite.isBlank()) sb.append(&quot;; SameSite=&quot;).append(sameSite);</span>
-<span class="fc" id="L122">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
-<span class="fc" id="L123">    }</span>
+<span class="fc" id="L99">        OAuthCookies.write(request, response, OAuthCookies.RETURN_COOKIE, &quot;&quot;, 0);</span>
+<span class="fc" id="L100">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

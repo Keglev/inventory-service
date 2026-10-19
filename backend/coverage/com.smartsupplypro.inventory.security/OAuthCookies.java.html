@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OAuthCookies.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.security</a> &gt; <span class="el_source">OAuthCookies.java</span></div><h1>OAuthCookies.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.security;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * Writes the short-lived cookies of the OAuth2 login flow: the authorization request
+ * and the post-login return origin.
+ *
+ * &lt;p&gt;Both live for one login round trip and are read only by the server, so every one is
+ * HttpOnly, Path=/ and SameSite=Lax (the callback from Google is a top-level GET navigation).
+ * Secure follows the request scheme as seen through the proxy. The header is built by hand
+ * because the servlet {@code Cookie} API has no SameSite attribute.&lt;/p&gt;
+ */
+final class OAuthCookies {
+
+    /** Post-login return origin, written on authorization and cleared on success. */
+    static final String RETURN_COOKIE = &quot;SSP_RETURN&quot;;
+
+    private OAuthCookies() {}
+
+    /**
+     * Adds a Set-Cookie header for {@code name}.
+     *
+     * @param request       current request; decides the Secure flag
+     * @param response      response receiving the header
+     * @param name          cookie name
+     * @param value         cookie value; empty to clear
+     * @param maxAgeSeconds lifetime; 0 clears the cookie, a negative value omits Max-Age
+     */
+    static void write(HttpServletRequest request, HttpServletResponse response,
+                      String name, String value, int maxAgeSeconds) {
+<span class="fc" id="L33">        StringBuilder sb = new StringBuilder(name).append('=').append(value).append(&quot;; Path=/&quot;);</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (maxAgeSeconds &gt;= 0) sb.append(&quot;; Max-Age=&quot;).append(maxAgeSeconds);</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (isHttps(request)) sb.append(&quot;; Secure&quot;);</span>
+<span class="fc" id="L36">        sb.append(&quot;; HttpOnly; SameSite=Lax&quot;);</span>
+<span class="fc" id="L37">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
+<span class="fc" id="L38">    }</span>
+
+    /**
+     * Returns whether the browser reached us over HTTPS. TLS ends at the reverse proxy, so the
+     * forwarded scheme counts as well as the connection's own.
+     *
+     * @param request current request
+     * @return true for a secure connection or {@code X-Forwarded-Proto: https}
+     */
+    static boolean isHttps(HttpServletRequest request) {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (request.isSecure()) return true;</span>
+<span class="fc" id="L49">        String xfProto = request.getHeader(&quot;X-Forwarded-Proto&quot;);</span>
+<span class="fc bfc" id="L50" title="All 4 branches covered.">        return xfProto != null &amp;&amp; xfProto.equalsIgnoreCase(&quot;https&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
