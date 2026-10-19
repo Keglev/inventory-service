@@ -3,9 +3,6 @@ package com.smartsupplypro.inventory.validation;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
@@ -13,7 +10,7 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 /**
  * Persistence-backed validators for inventory items.
  *
- * <p>Requires a repository for existence and uniqueness checks.
+ * <p>Requires a repository for uniqueness checks.
  * This separation from {@link InventoryItemValidator} is intentional:
  * pure format guards must not make persistence calls.</p>
  *
@@ -23,20 +20,6 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 public class InventoryItemLookupValidator {
 
     private InventoryItemLookupValidator() {}
-
-    /**
-     * Returns the item if found; throws 404 otherwise.
-     *
-     * @param id   the item identifier
-     * @param repo inventory repository
-     * @return the found entity
-     * @throws ResponseStatusException 404 if absent
-     */
-    public static InventoryItem validateExists(String id, InventoryItemRepository repo) {
-        return repo.findById(id).orElseThrow(() ->
-            new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found: " + id)
-        );
-    }
 
     /**
      * Duplicate name+price check that excludes the item with {@code excludeId}.

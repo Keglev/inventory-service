@@ -75,11 +75,12 @@ public class InventoryItemValidationHelper {
      * @param dto the updated inventory item data
      * @return the existing item entity
      * @throws InvalidRequestException if a field is invalid or the supplier does not exist (400)
+     * @throws NoSuchElementException if the item is not found (answered as 404)
      */
     public InventoryItem validateForUpdate(String id, InventoryItemDTO dto) {
         InventoryItemValidator.validateBase(dto);
         validateSupplierExists(dto.getSupplierId());
-        InventoryItem existing = InventoryItemLookupValidator.validateExists(id, repository);
+        InventoryItem existing = validateExists(id);
         InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);
         return existing;
     }
@@ -120,13 +121,15 @@ public class InventoryItemValidationHelper {
     /**
      * Validates that the item exists and that its quantity is zero before deletion.
      * @param id the item ID to validate
-     * @throws org.springframework.web.server.ResponseStatusException 404 if the item is not found
+     * @return the existing item entity, so the caller does not load it again
+     * @throws NoSuchElementException if the item is not found (answered as 404)
      * @throws com.smartsupplypro.inventory.exception.BusinessRuleViolationException if quantity is
      *         greater than zero (409)
      */
-    public void validateForDeletion(String id) {
-        InventoryItem item = InventoryItemLookupValidator.validateExists(id, repository);
+    public InventoryItem validateForDeletion(String id) {
+        InventoryItem item = validateExists(id);
         InventoryItemValidator.assertQuantityIsZeroForDeletion(item);
+        return item;
     }
 
     /**

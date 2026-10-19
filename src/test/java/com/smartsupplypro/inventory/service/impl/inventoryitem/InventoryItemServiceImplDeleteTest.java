@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.math.BigDecimal;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,12 +15,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.Mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
 import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
@@ -71,10 +71,9 @@ class InventoryItemServiceImplDeleteTest {
     void should_throw_404_when_item_not_found() {
         when(repository.findById("missing-id")).thenReturn(Optional.empty());
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+        NoSuchElementException ex = assertThrows(NoSuchElementException.class,
                 () -> service.delete("missing-id"));
-        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
-        assertEquals("Item not found: missing-id", ex.getReason());
+        assertEquals("Item not found", ex.getMessage());
         verify(repository, never()).save(any());
     }
 
@@ -100,6 +99,8 @@ class InventoryItemServiceImplDeleteTest {
         service.delete("item-1");
 
         assertFalse(found.isActive());
+        // one lookup: the item validated for deletion is the one marked inactive
+        verify(repository, times(1)).findById("item-1");
         verify(repository).save(found);
         verify(repository, never()).deleteById(anyString());
         // The audit helper is the only writer of stock history in the service.
