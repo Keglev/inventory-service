@@ -74,14 +74,7 @@ public class CookieOAuth2AuthorizationRequestRepository
         }
         saveReturnCookie(request, response);
         String encoded = OAuth2AuthorizationRequestCookieSerializer.serialize(authorizationRequest);
-        Cookie cookie = new Cookie(cookieName, encoded);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(isSecureOrForwardedHttps(request));
-        cookie.setPath("/");
-        cookie.setMaxAge(cookieMaxAge);
-        // Lax suffices: the callback from Google is a top-level GET navigation.
-        // Secure=true stays mandatory whenever the request is HTTPS.
-        addCookieWithSameSite(response, cookie, "Lax");
+        OAuthCookies.write(request, response, cookieName, encoded, cookieMaxAge);
     }
 
     @Override
@@ -110,38 +103,10 @@ public class CookieOAuth2AuthorizationRequestRepository
             log.warn("Rejected non-allowlisted return origin: {}", LogSanitizer.sanitize(ret));
             return;
         }
-        Cookie r = new Cookie("SSP_RETURN", ret);
-        // HttpOnly: only OAuth2LoginSuccessHandler reads it; no script needs it
-        r.setHttpOnly(true);
-        r.setSecure(isSecureOrForwardedHttps(request));
-        r.setPath("/");
-        r.setMaxAge(300);
-        addCookieWithSameSite(response, r, "Lax");
+        OAuthCookies.write(request, response, OAuthCookies.RETURN_COOKIE, ret, 300);
     }
 
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
-        Cookie cookie = new Cookie(cookieName, "");
-        cookie.setHttpOnly(true);
-        cookie.setSecure(isSecureOrForwardedHttps(request));
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        addCookieWithSameSite(response, cookie, "Lax");
-    }
-
-    private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? "" : cookie.getValue());
-        sb.append("; Path=").append(cookie.getPath() == null ? "/" : cookie.getPath());
-        if (cookie.getMaxAge() >= 0) sb.append("; Max-Age=").append(cookie.getMaxAge());
-        if (cookie.getSecure()) sb.append("; Secure");
-        if (cookie.isHttpOnly()) sb.append("; HttpOnly");
-        if (sameSite != null && !sameSite.isBlank()) sb.append("; SameSite=").append(sameSite);
-        response.addHeader("Set-Cookie", sb.toString());
-    }
-
-    private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
-        if (request.isSecure()) return true;
-        String xfProto = request.getHeader("X-Forwarded-Proto");
-        return xfProto != null && xfProto.equalsIgnoreCase("https");
+        OAuthCookies.write(request, response, cookieName, "", 0);
     }
 }
