@@ -79,7 +79,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return target;
         for (Cookie c : cookies) {
-            if (!"SSP_RETURN".equals(c.getName())) continue;
+            if (!OAuthCookies.RETURN_COOKIE.equals(c.getName())) continue;
             String candidate = c.getValue();
             if (candidate != null && !candidate.isBlank()) {
                 // Redirect URL construction: validate against allowed origins to prevent open redirect
@@ -96,29 +96,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     }
 
     private void clearReturnCookie(HttpServletRequest request, HttpServletResponse response) {
-        Cookie clear = new Cookie("SSP_RETURN", "");
-        clear.setPath("/");
-        clear.setMaxAge(0);
-        clear.setSecure(isSecureOrForwardedHttps(request));
-        // HttpOnly to match the cookie CookieOAuth2AuthorizationRequestRepository writes
-        clear.setHttpOnly(true);
-        addCookieWithSameSite(response, clear, "Lax");
-    }
-
-    private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
-        if (request.isSecure()) return true;
-        String xfProto = request.getHeader("X-Forwarded-Proto");
-        return xfProto != null && xfProto.equalsIgnoreCase("https");
-    }
-
-    private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? "" : cookie.getValue());
-        sb.append("; Path=").append(cookie.getPath() == null ? "/" : cookie.getPath());
-        if (cookie.getMaxAge() >= 0) sb.append("; Max-Age=").append(cookie.getMaxAge());
-        if (cookie.getSecure()) sb.append("; Secure");
-        if (cookie.isHttpOnly()) sb.append("; HttpOnly");
-        if (sameSite != null && !sameSite.isBlank()) sb.append("; SameSite=").append(sameSite);
-        response.addHeader("Set-Cookie", sb.toString());
+        OAuthCookies.write(request, response, OAuthCookies.RETURN_COOKIE, "", 0);
     }
 }
