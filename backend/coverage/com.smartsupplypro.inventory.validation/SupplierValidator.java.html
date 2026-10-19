@@ -37,36 +37,27 @@ public final class SupplierValidator {
     public static void assertUniqueName(SupplierRepository repo, String name, String excludeId) {
 <span class="fc bfc" id="L38" title="All 2 branches covered.">        if (isBlank(name)) return; // blank names are already rejected by validateBase</span>
 
-<span class="fc" id="L40">        var existing = repo.findByNameIgnoreCase(name.trim()).map(s -&gt; (Object) s).orElse(null);</span>
-<span class="fc bfc" id="L41" title="All 4 branches covered.">        if (existing != null &amp;&amp; !Objects.equals(invokeGetId(existing), excludeId)) {</span>
-<span class="fc" id="L42">            throw new DuplicateResourceException(&quot;Supplier already exists&quot;, &quot;name&quot;);</span>
+<span class="fc" id="L40">        boolean takenByAnother = repo.findByNameIgnoreCase(name.trim())</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">                .filter(existing -&gt; !Objects.equals(existing.getId(), excludeId))</span>
+<span class="fc" id="L42">                .isPresent();</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (takenByAnother) {</span>
+<span class="fc" id="L44">            throw new DuplicateResourceException(&quot;Supplier already exists&quot;, &quot;name&quot;);</span>
         }
-<span class="fc" id="L44">    }</span>
+<span class="fc" id="L46">    }</span>
 
     public static void assertDeletable(String supplierId, BooleanSupplier hasAnyLinks) {
-<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (isBlank(supplierId)) {</span>
-<span class="fc" id="L48">            throw new InvalidRequestException(&quot;Supplier id must be provided for deletion&quot;);</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (isBlank(supplierId)) {</span>
+<span class="fc" id="L50">            throw new InvalidRequestException(&quot;Supplier id must be provided for deletion&quot;);</span>
         }
-<span class="fc bfc" id="L50" title="All 4 branches covered.">        if (hasAnyLinks != null &amp;&amp; hasAnyLinks.getAsBoolean()) {</span>
-<span class="fc" id="L51">            throw new BusinessRuleViolationException(&quot;Cannot delete supplier with linked items&quot;);</span>
+<span class="fc bfc" id="L52" title="All 4 branches covered.">        if (hasAnyLinks != null &amp;&amp; hasAnyLinks.getAsBoolean()) {</span>
+<span class="fc" id="L53">            throw new BusinessRuleViolationException(&quot;Cannot delete supplier with linked items&quot;);</span>
         }
-<span class="fc" id="L53">    }</span>
+<span class="fc" id="L55">    }</span>
 
     // ---- helpers ----------------------------------------------------------------
 
     private static boolean isBlank(String s) {
-<span class="pc bpc" id="L58" title="1 of 4 branches missed.">        return s == null || s.trim().isEmpty();</span>
-    }
-
-    private static String invokeGetId(Object entity) {
-        try {
-<span class="fc" id="L63">            var m = entity.getClass().getMethod(&quot;getId&quot;);</span>
-<span class="fc" id="L64">            Object v = m.invoke(entity);</span>
-<span class="pc bpc" id="L65" title="1 of 2 branches missed.">            return v != null ? v.toString() : null;</span>
-<span class="fc" id="L66">        } catch (NoSuchMethodException | IllegalAccessException |</span>
-                 java.lang.reflect.InvocationTargetException | SecurityException e) {
-<span class="fc" id="L68">            return null; // reflective access failed; null ID lets Objects.equals decide the outcome</span>
-        }
+<span class="pc bpc" id="L60" title="1 of 4 branches missed.">        return s == null || s.trim().isEmpty();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
