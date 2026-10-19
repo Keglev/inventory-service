@@ -28,7 +28,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.OracleDialect
@@ -39,5 +38,6 @@ spring:
 
 logging:
   level:
+    # The SQL log, once: show-sql would print every statement a second time to stdout
     '[org.hibernate.SQL]': DEBUG
     root: INFO

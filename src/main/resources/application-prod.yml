@@ -2,16 +2,16 @@
 # Spring Boot - Production Environment Config
 # Profile: prod
 # Used in deployment (e.g. Docker, cloud, prod server)
+#
+# Holds only what production sets differently from application.yml: the
+# datasource, OAuth2 client, server port and cookies, demo flag and landing
+# path come from there unchanged.
 # ===================================================
 
 # Note: avoid hardcoding secrets here; use environment variables or secret management
 
 spring:
   datasource:
-    url: ${DB_URL}                             # Use environment variable for Oracle Wallet path
-    username: ${DB_USER}                       # Set via GitHub secrets or secure env injection
-    password: ${DB_PASS}
-    driver-class-name: oracle.jdbc.OracleDriver
     hikari:
       # Oracle Autonomous Database has aggressive idle timeouts (~5 min)
       # These settings prevent "ORA-17008: Closed connection" errors
@@ -44,33 +44,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.OracleDialect
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}         # Provided via secrets in CI/CD or vault
-            client-secret: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET}
-            scope:
-              - openid
-              - profile
-              - email
-            # Endpoints + redirect-uri come from Spring's CommonOAuth2Provider.GOOGLE
-
-server:
-  port: 8081                                       # Override default port (if needed by reverse proxy/load balancer)
-  forward-headers-strategy: framework              # Use framework strategy to respect X-Forwarded-* headers from proxies
-  servlet:
-    session:
-      cookie:
-        same-site: lax                       # top-level OAuth2 redirect is Lax-compatible; cross-site path retired (ADR-0007/0012)
-        secure: true                        # Ensure cookies are secure (HTTPS only)
-
-logging:
-  level:
-    '[com.smartsupplypro]': INFO                           # Application logs: keep informative, not verbose
-    root: INFO                                             # Suppress framework-level noise unless needed
-
+# Health details stay hidden (Boot's default, never) and log levels stay at
+# Boot's default (INFO).
 management:
   endpoints:
     web:
@@ -80,18 +55,9 @@ management:
         # asserts against it. None of that is secret on a public repository, and
         # the frontend bundle already ships the same commit.
         include: health,info
-  endpoint:
-    health:
-      show-details: never                         # Hide internals in production for security reasons
-  info:
-    build:
-      enabled: true                               # Contribute build-info.properties to /actuator/info
 
 # -------- App-level (prod) --------
 app:
-  # Flip ON in production by setting APP_DEMO_READONLY="true" (kept off by default)
-  demo-readonly: ${APP_DEMO_READONLY:true}
-
   cors:
     allowed-origins:
       # Canonical public origin. The platform-generated Koyeb hostname still serves the
@@ -101,5 +67,3 @@ app:
   frontend:
     # Canonical public domain; drives every post-login and error redirect.
     base-url: ${APP_FRONTEND_BASE_URL:https://www.smartsupplypro.de}
-    # Your SPA login landing (matches your success handler)
-    landing-path: /auth  # After login, redirect here (frontend route)

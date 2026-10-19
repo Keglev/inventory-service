@@ -33,10 +33,6 @@ import lombok.RequiredArgsConstructor;
  * <p><strong>WAC formula</strong>:
  * {@code newWAC = (oldQty * oldWAC + inboundQty * unitCost) / (oldQty + inboundQty)}</p>
  *
- * <p>Exceeds the 200-line guideline due to private WAC calculation helpers
- * ({@code applyInbound}, {@code issueAt}, phase helpers) that must remain
- * co-located for algorithmic coherence.</p>
- *
  * @see AnalyticsConverterHelper
  */
 @Service
