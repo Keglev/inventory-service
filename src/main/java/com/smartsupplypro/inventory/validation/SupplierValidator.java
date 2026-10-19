@@ -37,8 +37,10 @@ public final class SupplierValidator {
     public static void assertUniqueName(SupplierRepository repo, String name, String excludeId) {
         if (isBlank(name)) return; // blank names are already rejected by validateBase
 
-        var existing = repo.findByNameIgnoreCase(name.trim()).map(s -> (Object) s).orElse(null);
-        if (existing != null && !Objects.equals(invokeGetId(existing), excludeId)) {
+        boolean takenByAnother = repo.findByNameIgnoreCase(name.trim())
+                .filter(existing -> !Objects.equals(existing.getId(), excludeId))
+                .isPresent();
+        if (takenByAnother) {
             throw new DuplicateResourceException("Supplier already exists", "name");
         }
     }
@@ -56,16 +58,5 @@ public final class SupplierValidator {
 
     private static boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
-    }
-
-    private static String invokeGetId(Object entity) {
-        try {
-            var m = entity.getClass().getMethod("getId");
-            Object v = m.invoke(entity);
-            return v != null ? v.toString() : null;
-        } catch (NoSuchMethodException | IllegalAccessException |
-                 java.lang.reflect.InvocationTargetException | SecurityException e) {
-            return null; // reflective access failed; null ID lets Objects.equals decide the outcome
-        }
     }
 }
