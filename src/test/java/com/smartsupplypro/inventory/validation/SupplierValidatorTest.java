@@ -59,14 +59,6 @@ class SupplierValidatorTest {
      */
     @Nested
     class NameUniqueness {
-        private Supplier brokenSupplier() {
-            Supplier s = new Supplier() {
-                @Override public String getId() { throw new RuntimeException("boom"); }
-            };
-            s.setName("Acme");
-            return s;
-        }
-
         @Test
         void should_fail_when_name_belongs_to_different_supplier() {
             SupplierRepository repo = mock(SupplierRepository.class);
@@ -89,6 +81,16 @@ class SupplierValidatorTest {
         }
 
         @Test
+        void should_fail_when_creating_with_a_name_another_supplier_has() {
+            // create passes no id to exclude; any existing supplier with the name conflicts
+            SupplierRepository repo = mock(SupplierRepository.class);
+            Supplier existing = Supplier.builder().id("other-123").name("Acme").build();
+            when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(existing));
+            assertThrows(DuplicateResourceException.class,
+                    () -> SupplierValidator.assertUniqueName(repo, "Acme", null));
+        }
+
+        @Test
         void should_pass_when_name_is_unique() {
             SupplierRepository repo = mock(SupplierRepository.class);
             when(repo.findByNameIgnoreCase("Unique")).thenReturn(Optional.empty());
@@ -101,23 +103,6 @@ class SupplierValidatorTest {
             SupplierRepository repo = mock(SupplierRepository.class);
             assertDoesNotThrow(() -> SupplierValidator.assertUniqueName(repo, "   ", null));
             verifyNoInteractions(repo);
-        }
-
-        @Test
-        void should_allow_when_get_id_throws_and_the_exclude_id_is_null() {
-            SupplierRepository repo = mock(SupplierRepository.class);
-            when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(brokenSupplier()));
-            // null falls back to null via reflective failure; Objects.equals(null, null) == true
-            assertDoesNotThrow(() -> SupplierValidator.assertUniqueName(repo, "Acme", null));
-        }
-
-        @Test
-        void should_reject_when_get_id_throws_and_the_exclude_id_differs() {
-            SupplierRepository repo = mock(SupplierRepository.class);
-            when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(brokenSupplier()));
-            DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
-                    () -> SupplierValidator.assertUniqueName(repo, "Acme", "sup-1"));
-            assertEquals("Supplier already exists", ex.getMessage());
         }
     }
 
