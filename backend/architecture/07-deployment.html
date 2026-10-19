@@ -326,7 +326,12 @@
         still cancel each other; on <code>main</code> it,
         <code>backend-docker.yml</code> and
         <code>backend-deploy.yml</code> queue their runs in order
-        (<code>queue: max</code>).</p>
+        (<code>queue: max</code>). <code>backend-deploy</code> releases
+        the commit <code>backend-docker</code> built, which hands it
+        over as the one-day artifact <code>built-commit</code>: a
+        <code>workflow_run</code> run’s own <code>head_sha</code> is
+        <code>main</code>’s HEAD when the run was created and can name a
+        later merge.</p>
         <p>Every action reference across all eleven workflows is pinned
         to a commit SHA rather than a mutable tag;
         <code>dependabot.yml</code> opens one grouped pull request a
