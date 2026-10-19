@@ -37,9 +37,6 @@ import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConve
  * when not specified. Type coercion from native SQL projections is handled
  * by {@link AnalyticsConverterHelper} to bridge H2 (test) and Oracle (prod) differences.</p>
  *
- * <p>Exceeds the 200-line guideline due to private helper methods and per-method
- * inline documentation that must remain co-located for analytical coherence.</p>
- *
  * @see AnalyticsConverterHelper
  */
 @Service

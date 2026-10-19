@@ -206,7 +206,6 @@
         </configuration>
       </plugin>
 
-      <!-- JaCoCo coverage at verify phase -->
       <!-- Fail the build early, with a clear message, if the local JDK or
            Maven is too old (avoids cryptic "release version 21 not supported"). -->
       <plugin>
@@ -257,6 +256,7 @@
         </configuration>
       </plugin>
 
+      <!-- JaCoCo coverage at verify phase -->
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>

@@ -77,7 +77,8 @@ server:
 
 # -------- App-level knobs used by SecurityConfig & SuccessHandler --------
 app:
-  # Global default: demo OFF. In PROD you can flip with APP_DEMO_READONLY=true
+  # Default ON: anonymous callers get the read-only demo. APP_DEMO_READONLY=false
+  # turns it off.
   demo-readonly: ${APP_DEMO_READONLY:true}
 
   # Sign-in allow-list and admin role (comma-separated, case-insensitive).
