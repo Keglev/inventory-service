@@ -299,12 +299,13 @@
         <td><code>StockDetailQueryRepository</code> +
         <code>Impl</code></td>
         <td>Custom analytics</td>
-        <td>Dialect-specific SQL</td>
+        <td>One SQL for H2 and Oracle; static
+        <code>StockDetailSqlBuilder</code></td>
         </tr>
         <tr class="even">
         <td><code>StockMetricsRepository</code> + <code>Impl</code></td>
         <td>Custom analytics</td>
-        <td>Dialect-specific SQL; static
+        <td>One SQL for H2 and Oracle; static
         <code>StockMetricsSqlBuilder</code></td>
         </tr>
         <tr class="odd">
@@ -318,11 +319,12 @@
         <p>The three custom analytics implementations handle
         aggregations that exceed what JPQL can express cleanly, backed
         by dedicated SQL builders in
-        <code>repository/custom/util/</code>. They build
-        dialect-specific SQL (H2 in tests, Oracle in prod) selected at
-        runtime via <code>DatabaseDialectDetector</code>, and return
-        either raw <code>Object[]</code> tuples mapped to DTOs in the
-        service layer or, in two cases, typed projections
+        <code>repository/custom/util/</code>. Where H2 and Oracle differ
+        (trend and valuation SQL) the trend repository selects the
+        variant at runtime via <code>DatabaseDialectDetector</code>; the
+        other two run one statement on both. They return either raw
+        <code>Object[]</code> tuples mapped to DTOs in the service layer
+        or, in two cases, typed projections
         (<code>StockEventRowDTO</code>, <code>PriceTrendDTO</code>). See
         ADR-0006.</p>
         <h2 id="model-layer">Model Layer</h2>

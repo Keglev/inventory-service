@@ -291,6 +291,25 @@
         <code>StockTrendSqlBuilder</code> lost their
         <code>withSupplierFilter</code> flag and always carry the join
         and the optional supplier filter.</p>
+        <h2
+        id="amendment-2026-10-19-one-statement-where-the-dialects-agree">Amendment
+        2026-10-19: one statement where the dialects agree</h2>
+        <p>The filtered stock history search
+        (<code>StockDetailSqlBuilder.buildFilteredSearchSql</code>), the
+        supplier totals and the update counts
+        (<code>StockMetricsSqlBuilder</code>) had H2 and Oracle variants
+        that differed only in identifier quoting and, for the search, in
+        an <code>UPPER()</code> on the supplier id. H2 runs in Oracle
+        mode with upper-cased unquoted identifiers, so each now has one
+        statement: the former Oracle text, unchanged for production. CI
+        therefore runs the exact SQL production runs for these three
+        queries, and <code>StockDetailQueryRepositoryImpl</code> and
+        <code>StockMetricsRepositoryImpl</code> no longer take a
+        <code>DatabaseDialectDetector</code>. The supplier filter of the
+        search is case-sensitive on H2 as it already was on Oracle.
+        Paired variants remain where the dialects really differ
+        (<code>StockTrendSqlBuilder</code>: date bucketing and
+        valuation).</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -331,6 +350,10 @@
       <li><a href="#amendment-2026-10-16-one-monthly-movement-query"
       id="toc-amendment-2026-10-16-one-monthly-movement-query">Amendment
       2026-10-16: one monthly movement query</a></li>
+      <li><a
+      href="#amendment-2026-10-19-one-statement-where-the-dialects-agree"
+      id="toc-amendment-2026-10-19-one-statement-where-the-dialects-agree">Amendment
+      2026-10-19: one statement where the dialects agree</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
