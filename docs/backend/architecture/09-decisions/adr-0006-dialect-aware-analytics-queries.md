@@ -125,6 +125,18 @@ unused; `getMonthlyStockMovementBySupplier(start, end, null)` covers all supplie
 The monthly builders in `StockTrendSqlBuilder` lost their `withSupplierFilter` flag
 and always carry the join and the optional supplier filter.
 
+## Amendment 2026-10-19: one statement where the dialects agree
+The filtered stock history search (`StockDetailSqlBuilder.buildFilteredSearchSql`),
+the supplier totals and the update counts (`StockMetricsSqlBuilder`) had H2 and Oracle
+variants that differed only in identifier quoting and, for the search, in an
+`UPPER()` on the supplier id. H2 runs in Oracle mode with upper-cased unquoted
+identifiers, so each now has one statement: the former Oracle text, unchanged for
+production. CI therefore runs the exact SQL production runs for these three queries,
+and `StockDetailQueryRepositoryImpl` and `StockMetricsRepositoryImpl` no longer take
+a `DatabaseDialectDetector`. The supplier filter of the search is case-sensitive on
+H2 as it already was on Oracle. Paired variants remain where the dialects really
+differ (`StockTrendSqlBuilder`: date bucketing and valuation).
+
 ## References
 - [ADR-0003: DTO boundary](./adr-0003-dto-boundary-no-entity-exposure.md) — the
   reporting exception these repositories implement

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
 import com.smartsupplypro.inventory.repository.custom.util.StockMetricsSqlBuilder;
 
 import jakarta.persistence.EntityManager;
@@ -13,8 +12,8 @@ import jakarta.persistence.PersistenceContext;
 /**
  * Custom repository implementation for aggregated stock KPI metrics.
  *
- * <p>Delegates SQL generation to {@link StockMetricsSqlBuilder} and selects the correct
- * dialect variant at runtime via {@link DatabaseDialectDetector}.</p>
+ * <p>Delegates SQL generation to {@link StockMetricsSqlBuilder}; the same statements run on H2
+ * and Oracle.</p>
  *
  * @see StockMetricsRepository
  */
@@ -24,28 +23,19 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
     @PersistenceContext
     private EntityManager em;
 
-    private final DatabaseDialectDetector dialectDetector;
-
-    public StockMetricsRepositoryImpl(DatabaseDialectDetector dialectDetector) {
-        this.dialectDetector = dialectDetector;
-    }
-
     /**
-     * Executes dialect-specific native SQL for total stock per supplier.
+     * Executes native SQL for total stock per supplier.
      *
      * @return per-supplier totals ordered by value descending, then supplier name
      */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getTotalStockBySupplier() {
-        final String sql = dialectDetector.isH2()
-            ? StockMetricsSqlBuilder.buildH2SupplierTotalsSql()
-            : StockMetricsSqlBuilder.buildOracleSupplierTotalsSql();
-        return em.createNativeQuery(sql).getResultList();
+        return em.createNativeQuery(StockMetricsSqlBuilder.buildSupplierTotalsSql()).getResultList();
     }
 
     /**
-     * Executes dialect-specific native SQL for update count per item with optional supplier filter.
+     * Executes native SQL for update count per item with optional supplier filter.
      *
      * @param supplierId optional supplier filter (null returns all suppliers)
      * @return per-item counts ordered by update_count descending
@@ -53,10 +43,7 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getUpdateCountByItem(String supplierId) {
-        final String sql = dialectDetector.isH2()
-            ? StockMetricsSqlBuilder.buildH2UpdateCountSql()
-            : StockMetricsSqlBuilder.buildOracleUpdateCountSql();
-        return em.createNativeQuery(sql)
+        return em.createNativeQuery(StockMetricsSqlBuilder.buildUpdateCountSql())
                 .setParameter("supplierId", normalizeOptionalParam(supplierId))
                 .getResultList();
     }

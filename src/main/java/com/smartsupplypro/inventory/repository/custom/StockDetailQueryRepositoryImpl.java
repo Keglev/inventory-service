@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
-import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
 import com.smartsupplypro.inventory.repository.custom.util.StockDetailSqlBuilder;
 
 import jakarta.persistence.EntityManager;
@@ -19,8 +18,8 @@ import jakarta.persistence.Query;
 /**
  * Custom repository implementation for granular stock history searches and WAC event streaming.
  *
- * <p>Delegates SQL generation to {@link StockDetailSqlBuilder} and selects the correct
- * dialect variant at runtime via {@link DatabaseDialectDetector}.</p>
+ * <p>Delegates SQL generation to {@link StockDetailSqlBuilder}; the same statement runs on H2
+ * and Oracle.</p>
  *
  * @see StockDetailQueryRepository
  */
@@ -30,14 +29,8 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
     @PersistenceContext
     private EntityManager em;
 
-    private final DatabaseDialectDetector dialectDetector;
-
-    public StockDetailQueryRepositoryImpl(DatabaseDialectDetector dialectDetector) {
-        this.dialectDetector = dialectDetector;
-    }
-
     /**
-     * Executes dialect-specific native SQL for filtered stock history search.
+     * Executes native SQL for filtered stock history search.
      *
      * <p>Delegates SQL construction to {@link StockDetailSqlBuilder}. Optional string
      * parameters are normalised to {@code null} before binding so the SQL's
@@ -63,7 +56,7 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         Integer minChange,
         Integer maxChange
     ) {
-        final Query query = em.createNativeQuery(filteredSearchSql());
+        final Query query = em.createNativeQuery(StockDetailSqlBuilder.buildFilteredSearchSql());
         bindSearchParameters(query, startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);
         return query.getResultList();
     }
@@ -97,7 +90,7 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         Integer maxChange,
         Pageable pageable
     ) {
-        final String sql = filteredSearchSql();
+        final String sql = StockDetailSqlBuilder.buildFilteredSearchSql();
 
         final Query count = em.createNativeQuery("SELECT COUNT(*) FROM (" + sql + ") q");
         bindSearchParameters(count, startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);
@@ -109,12 +102,6 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         rows.setMaxResults(pageable.getPageSize());
 
         return new PageImpl<>(rows.getResultList(), pageable, total);
-    }
-
-    private String filteredSearchSql() {
-        return dialectDetector.isH2()
-            ? StockDetailSqlBuilder.buildH2FilteredSearchSql()
-            : StockDetailSqlBuilder.buildOracleFilteredSearchSql();
     }
 
     /**
