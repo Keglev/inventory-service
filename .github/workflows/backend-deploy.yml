@@ -52,11 +52,39 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+      actions: read
     env:
-      IMAGE_TAG_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
       HEALTH_URL: https://api.smartsupplypro.de
 
     steps:
+      # The commit to release is the one backend-docker built, handed over as an
+      # artifact; this run's own head_sha and the triggering run's head_sha are
+      # main's HEAD at creation time and can name a later, unbuilt merge (CI-2).
+      - name: Fetch the commit backend-docker built
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: built-commit
+          path: built-commit
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # Outcomes: a full commit hash -> IMAGE_TAG_SHA for every later step; a
+      # missing artifact fails the step above; anything that is not a 40-hex
+      # hash fails here, before the host is touched. A manual run releases the
+      # dispatched commit.
+      - name: Resolve the commit to release
+        run: |
+          set -eu
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            sha="$GITHUB_SHA"
+          else
+            sha=$(cat built-commit/built-commit.txt)
+          fi
+          if ! grep -qE '^[0-9a-f]{40}$' <<< "$sha"; then
+            echo "::error::backend-docker handed over '$sha', not a commit hash"; exit 1
+          fi
+          echo "IMAGE_TAG_SHA=$sha" >> "$GITHUB_ENV"
+
       # A catch-all merge (README, LICENSE, workflow tweaks) still runs backend
       # CI, but rebuilding and restarting a healthy backend for it serves
       # nothing. Compare the released commit against its first parent and stop
@@ -69,7 +97,7 @@ jobs:
       - name: Checkout for change detection
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ env.IMAGE_TAG_SHA }}
           fetch-depth: 2
       - name: Decide whether the image must be rebuilt
         id: gate
