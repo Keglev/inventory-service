@@ -126,7 +126,7 @@ import jakarta.persistence.Query;
 <span class="fc bfc" id="L126" title="All 2 branches covered.">        query.setParameter(&quot;startDate&quot;, (startDate == null) ? null : java.sql.Timestamp.valueOf(startDate));</span>
 <span class="fc bfc" id="L127" title="All 2 branches covered.">        query.setParameter(&quot;endDate&quot;, (endDate == null) ? null : java.sql.Timestamp.valueOf(endDate));</span>
 <span class="fc" id="L128">        query.setParameter(&quot;itemPattern&quot;, itemPattern);</span>
-<span class="fc" id="L129">        query.setParameter(&quot;supplierId&quot;, normalizeOptionalParam(supplierId));</span>
+<span class="fc" id="L129">        query.setParameter(&quot;supplierId&quot;, OptionalQueryParam.normalize(supplierId));</span>
 <span class="fc" id="L130">        query.setParameter(&quot;createdByNorm&quot;, normalizedCreator);</span>
 <span class="fc" id="L131">        query.setParameter(&quot;minChange&quot;, minChange);</span>
 <span class="fc" id="L132">        query.setParameter(&quot;maxChange&quot;, maxChange);</span>
@@ -168,10 +168,6 @@ import jakarta.persistence.Query;
 <span class="fc" id="L168">                .setParameter(&quot;end&quot;, end)</span>
 <span class="fc" id="L169">                .setParameter(&quot;supplierIdNorm&quot;, supplierIdNorm)</span>
 <span class="fc" id="L170">                .getResultList();</span>
-    }
-
-    private String normalizeOptionalParam(String param) {
-<span class="fc bfc" id="L174" title="All 4 branches covered.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
