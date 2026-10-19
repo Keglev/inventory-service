@@ -441,13 +441,11 @@
             VH->>REPO: load item / check quantity
 
             alt quantity > 0
-                VH-->>IS: InvalidRequestException
+                VH-->>IS: BusinessRuleViolationException
                 IS-->>IC: propagate
                 IC-->>Client: 409 conflict — remove stock via quantity adjustments first
             else quantity == 0
-                VH-->>IS: ok
-                IS->>VH: validateExists(id)
-                VH-->>IS: InventoryItem
+                VH-->>IS: InventoryItem (the one loaded item)
                 IS->>REPO: save(item with active=false)
                 REPO->>DB: UPDATE INVENTORY_ITEM SET ACTIVE=0
                 DB-->>REPO: updated
