@@ -23,9 +23,14 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+# One release at a time, in order. Each run releases its own commit's image and
+# skips a commit with no image-relevant change, so a dropped pending run could
+# leave a built image unreleased when the run that replaced it skips (CI-1).
+# queue: max keeps every pending run; without it GitHub keeps one.
 concurrency:
   group: backend-deploy
   cancel-in-progress: false
+  queue: max
 
 # The login name is configuration, not a credential; the SSH key is the
 # credential and stays a secret. Holding it as a secret bought nothing and cost

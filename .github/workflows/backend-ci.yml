@@ -53,9 +53,19 @@ on:
       - '.github/workflows/docs-pr-check.yml'
   workflow_dispatch:
 
+# A pull request's runs cancel each other: only the branch's newest commit needs
+# a verdict. Runs on main never do. backend-docker's image gate compares a main
+# commit with its parent only, so a cancelled main run left that commit without
+# an image check (CI-1: #372's run was cancelled by #373's 61 s later and its
+# change was never built on its own). queue: max keeps every pending main run in
+# commit order; the default (single) keeps one and drops it for a newer one. It
+# cannot be combined with cancel-in-progress: true, so both follow the branch.
+# Both sides were probed with these expressions on a scratch branch (2026-10-19:
+# three queued runs all ran in order; three cancelling runs left the newest).
 concurrency:
   group: backend-ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  queue: ${{ github.ref == 'refs/heads/main' && 'max' || 'single' }}
 
 jobs:
   backend:

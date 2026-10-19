@@ -24,9 +24,14 @@ on:
         required: false
         default: ''
 
+# Every run here belongs to one main commit (a workflow_run event carries main as
+# its ref), and the gate below looks at that commit alone. A cancelled or dropped
+# run would leave its commit's change unbuilt, so runs wait in order instead
+# (CI-1). queue: max holds up to 100 pending runs; without it GitHub keeps one.
 concurrency:
   group: backend-docker-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
+  queue: max
 
 jobs:
   docker-build-and-scan:

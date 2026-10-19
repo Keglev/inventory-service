@@ -92,6 +92,12 @@ suite passes, and the deploy runs only after the image has been scanned. There i
 no direct push trigger on the image build, so nothing is released in parallel with
 the tests meant to gate it.
 
+No run of that chain on `main` is cancelled or dropped. Each image build and each
+release compares its commit with the parent only, so a skipped run would leave that
+commit's change unbuilt. Pull request runs of `backend-ci.yml` still cancel each
+other; on `main` it, `backend-docker.yml` and `backend-deploy.yml` queue their runs
+in order (`queue: max`).
+
 Every action reference across all eleven workflows is pinned to a commit SHA rather
 than a mutable tag; `dependabot.yml` opens one grouped pull request a month to
 move those pins, which is the only way they get updated at all.
