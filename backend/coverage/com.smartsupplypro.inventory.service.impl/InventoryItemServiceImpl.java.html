@@ -149,35 +149,34 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Override
     @Transactional
     public void delete(String id) {
-<span class="fc" id="L152">        validationHelper.validateForDeletion(id);</span>
-<span class="fc" id="L153">        InventoryItem item = validationHelper.validateExists(id);</span>
-<span class="fc" id="L154">        item.setActive(false);</span>
-<span class="fc" id="L155">        repository.save(item);</span>
-<span class="fc" id="L156">    }</span>
+<span class="fc" id="L152">        InventoryItem item = validationHelper.validateForDeletion(id);</span>
+<span class="fc" id="L153">        item.setActive(false);</span>
+<span class="fc" id="L154">        repository.save(item);</span>
+<span class="fc" id="L155">    }</span>
 
     /** {@inheritDoc} */
     @Override
     @Transactional
     public InventoryItemDTO adjustQuantity(String id, int delta, StockChangeReason reason) {
-<span class="fc" id="L162">        InventoryItem item = validationHelper.validateExists(id);</span>
-<span class="fc" id="L163">        int newQty = item.getQuantity() + delta;</span>
-<span class="fc" id="L164">        assertFinalQuantityNonNegative(newQty);</span>
-<span class="fc" id="L165">        item.setQuantity(newQty);</span>
-<span class="fc" id="L166">        InventoryItem saved = repository.save(item);</span>
-<span class="fc" id="L167">        auditHelper.logQuantityAdjustment(saved, delta, reason);</span>
-<span class="fc" id="L168">        return inventoryItemMapper.toDTO(saved);</span>
+<span class="fc" id="L161">        InventoryItem item = validationHelper.validateExists(id);</span>
+<span class="fc" id="L162">        int newQty = item.getQuantity() + delta;</span>
+<span class="fc" id="L163">        assertFinalQuantityNonNegative(newQty);</span>
+<span class="fc" id="L164">        item.setQuantity(newQty);</span>
+<span class="fc" id="L165">        InventoryItem saved = repository.save(item);</span>
+<span class="fc" id="L166">        auditHelper.logQuantityAdjustment(saved, delta, reason);</span>
+<span class="fc" id="L167">        return inventoryItemMapper.toDTO(saved);</span>
     }
 
     /** {@inheritDoc} */
     @Override
     @Transactional
     public InventoryItemDTO updatePrice(String id, BigDecimal newPrice) {
-<span class="fc" id="L175">        assertPriceValid(newPrice);</span>
-<span class="fc" id="L176">        InventoryItem item = validationHelper.validateExists(id);</span>
-<span class="fc" id="L177">        item.setPrice(newPrice);</span>
-<span class="fc" id="L178">        InventoryItem saved = repository.save(item);</span>
-<span class="fc" id="L179">        auditHelper.logPriceChange(id, newPrice);</span>
-<span class="fc" id="L180">        return inventoryItemMapper.toDTO(saved);</span>
+<span class="fc" id="L174">        assertPriceValid(newPrice);</span>
+<span class="fc" id="L175">        InventoryItem item = validationHelper.validateExists(id);</span>
+<span class="fc" id="L176">        item.setPrice(newPrice);</span>
+<span class="fc" id="L177">        InventoryItem saved = repository.save(item);</span>
+<span class="fc" id="L178">        auditHelper.logPriceChange(id, newPrice);</span>
+<span class="fc" id="L179">        return inventoryItemMapper.toDTO(saved);</span>
     }
 
     /**
@@ -189,22 +188,22 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Override
     @Transactional
     public InventoryItemDTO renameItem(String id, String newName) {
-<span class="pc bpc" id="L192" title="1 of 4 branches missed.">        if (newName == null || newName.trim().isEmpty()) {</span>
-<span class="fc" id="L193">            throw new InvalidRequestException(&quot;Item name cannot be empty&quot;);</span>
+<span class="pc bpc" id="L191" title="1 of 4 branches missed.">        if (newName == null || newName.trim().isEmpty()) {</span>
+<span class="fc" id="L192">            throw new InvalidRequestException(&quot;Item name cannot be empty&quot;);</span>
         }
 
-<span class="fc" id="L196">        InventoryItem existing = validationHelper.validateExists(id);</span>
+<span class="fc" id="L195">        InventoryItem existing = validationHelper.validateExists(id);</span>
 
-<span class="fc" id="L198">        List&lt;InventoryItem&gt; duplicates = repository.findByNameIgnoreCase(newName.trim());</span>
-<span class="fc bfc" id="L199" title="All 2 branches covered.">        for (InventoryItem dup : duplicates) {</span>
-<span class="fc bfc" id="L200" title="All 4 branches covered.">            if (!dup.getId().equals(id) &amp;&amp; dup.getSupplierId().equals(existing.getSupplierId())) {</span>
-<span class="fc" id="L201">                throw new DuplicateResourceException(&quot;An item with this name already exists for this supplier&quot;);</span>
+<span class="fc" id="L197">        List&lt;InventoryItem&gt; duplicates = repository.findByNameIgnoreCase(newName.trim());</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        for (InventoryItem dup : duplicates) {</span>
+<span class="fc bfc" id="L199" title="All 4 branches covered.">            if (!dup.getId().equals(id) &amp;&amp; dup.getSupplierId().equals(existing.getSupplierId())) {</span>
+<span class="fc" id="L200">                throw new DuplicateResourceException(&quot;An item with this name already exists for this supplier&quot;);</span>
             }
-<span class="fc" id="L203">        }</span>
+<span class="fc" id="L202">        }</span>
 
-<span class="fc" id="L205">        existing.setName(newName.trim());</span>
-<span class="fc" id="L206">        InventoryItem saved = repository.save(existing);</span>
-<span class="fc" id="L207">        return inventoryItemMapper.toDTO(saved);</span>
+<span class="fc" id="L204">        existing.setName(newName.trim());</span>
+<span class="fc" id="L205">        InventoryItem saved = repository.save(existing);</span>
+<span class="fc" id="L206">        return inventoryItemMapper.toDTO(saved);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
