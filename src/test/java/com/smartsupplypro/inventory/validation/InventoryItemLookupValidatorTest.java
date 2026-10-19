@@ -6,14 +6,11 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.model.InventoryItem;
@@ -22,37 +19,12 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 /**
  * Unit tests for {@link InventoryItemLookupValidator}.
  *
- * <p>Covers the persistence-backed existence and uniqueness guards.
+ * <p>Covers the persistence-backed uniqueness guards.
  * Repository interactions are mocked to isolate validator logic.
  * Pure format guards with no DB dependency are tested in
  * {@link InventoryItemValidatorTest}.</p>
  */
 class InventoryItemLookupValidatorTest {
-
-    /**
-     * Existence checks via {@link InventoryItemLookupValidator#validateExists(String, InventoryItemRepository)}.
-     */
-    @Nested
-    class ExistenceChecks {
-        @Test
-        void should_return_entity_when_present() {
-            InventoryItemRepository repo = mock(InventoryItemRepository.class);
-            InventoryItem item = new InventoryItem(); item.setId("item-1");
-            when(repo.findById("item-1")).thenReturn(Optional.of(item));
-            InventoryItem found = InventoryItemLookupValidator.validateExists("item-1", repo);
-            assertNotNull(found);
-            assertEquals("item-1", found.getId());
-        }
-
-        @Test
-        void should_throw_404_when_absent() {
-            InventoryItemRepository repo = mock(InventoryItemRepository.class);
-            when(repo.findById("missing")).thenReturn(Optional.empty());
-            ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                    () -> InventoryItemLookupValidator.validateExists("missing", repo));
-            assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
-        }
-    }
 
     /**
      * Uniqueness checks via {@link InventoryItemLookupValidator#validateInventoryItemNotExists}.

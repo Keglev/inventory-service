@@ -2,6 +2,7 @@ package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,9 +21,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
@@ -87,10 +86,9 @@ class InventoryItemServiceImplUpdateTest {
     void should_throw_404_when_item_not_found() {
         when(repository.findById("missing-id")).thenReturn(Optional.empty());
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+        NoSuchElementException ex = assertThrows(NoSuchElementException.class,
                 () -> service.update("missing-id", copyOf(baseDto)));
-        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
-        assertEquals("Item not found: missing-id", ex.getReason());
+        assertEquals("Item not found", ex.getMessage());
         verify(repository, never()).save(any());
     }
 

@@ -149,8 +149,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Override
     @Transactional
     public void delete(String id) {
-        validationHelper.validateForDeletion(id);
-        InventoryItem item = validationHelper.validateExists(id);
+        InventoryItem item = validationHelper.validateForDeletion(id);
         item.setActive(false);
         repository.save(item);
     }
