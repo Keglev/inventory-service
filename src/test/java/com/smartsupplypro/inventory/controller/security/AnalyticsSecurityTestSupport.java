@@ -1,7 +1,6 @@
 package com.smartsupplypro.inventory.controller.security;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -15,7 +14,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import com.smartsupplypro.inventory.controller.analytics.AnalyticsControllerValidationHelper;
 import com.smartsupplypro.inventory.controller.analytics.AnalyticsDashboardHelper;
-import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.service.impl.analytics.FinancialAnalyticsService;
 import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
@@ -45,22 +43,10 @@ class AnalyticsSecurityTestSupport {
         return mock;
     }
 
+    // The helper has no dependencies and no side effects: the real one, not a stub
     @Bean
     AnalyticsControllerValidationHelper analyticsControllerValidationHelper() {
-        AnalyticsControllerValidationHelper mock = Mockito.mock(AnalyticsControllerValidationHelper.class);
-        // applyDefaultDateWindow must return a non-null array; the controller indexes into it immediately
-        when(mock.applyDefaultDateWindow(any(), any())).thenAnswer(invocation -> {
-            LocalDateTime start = invocation.getArgument(0);
-            LocalDateTime end = invocation.getArgument(1);
-            if (start == null) start = LocalDateTime.now().minusDays(30);
-            if (end == null) end = LocalDateTime.now();
-            return new LocalDateTime[] { start, end };
-        });
-        // The summary endpoint completes its window with the real per-bound defaults
-        when(mock.completeDateWindow(any(), any())).thenCallRealMethod();
-        when(mock.buildFilter(any(), any(), any(), any(), any(), any(), any()))
-            .thenReturn(new StockUpdateFilterDTO());
-        return mock;
+        return new AnalyticsControllerValidationHelper();
     }
 
     @Bean

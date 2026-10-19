@@ -1,14 +1,13 @@
 package com.smartsupplypro.inventory.controller.analytics;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -42,21 +41,6 @@ public class AnalyticsControllerBasicTest {
 
     @MockitoBean
     private StockAnalyticsService stockAnalyticsService;
-
-    @MockitoBean
-    private AnalyticsControllerValidationHelper validationHelper;
-
-    @BeforeEach
-    void setup() {
-        // applyDefaultDateWindow must return a non-null array; the controller indexes into it immediately
-        when(validationHelper.applyDefaultDateWindow(any(), any())).thenAnswer(inv -> {
-            LocalDateTime start = inv.getArgument(0);
-            LocalDateTime end = inv.getArgument(1);
-            if (start == null) start = LocalDateTime.now().minusDays(30);
-            if (end == null) end = LocalDateTime.now();
-            return new LocalDateTime[] { start, end };
-        });
-    }
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
@@ -144,5 +128,29 @@ public class AnalyticsControllerBasicTest {
         mockMvc.perform(get("/api/analytics/stock-per-supplier")
                 .with(user("userWithNoRoles")))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    void should_return_400_when_the_stock_value_range_is_inverted() throws Exception {
+        // the check lives in the service: run the real method behind the mock
+        when(stockAnalyticsService.getTotalStockValueOverTime(any(), any(), any())).thenCallRealMethod();
+
+        mockMvc.perform(get("/api/analytics/stock-value")
+                .param("start", "2024-03-01")
+                .param("end", "2024-02-01")
+                .with(user("tester").roles("ADMIN")))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("start must be on or before end"));
+    }
+
+    @Test
+    void should_return_400_when_the_low_stock_supplier_id_is_blank() throws Exception {
+        when(stockAnalyticsService.getItemsBelowMinimumStock(anyString())).thenCallRealMethod();
+
+        mockMvc.perform(get("/api/analytics/low-stock-items")
+                .param("supplierId", "   ")
+                .with(user("tester").roles("ADMIN")))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("supplierId must not be blank"));
     }
 }

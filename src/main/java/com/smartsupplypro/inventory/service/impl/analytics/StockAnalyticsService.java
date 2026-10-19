@@ -220,18 +220,12 @@ public class StockAnalyticsService {
         LocalDateTime start = window[0];
         LocalDateTime end   = window[1];
 
-        Integer min = filter.getMinChange();
-        Integer max = filter.getMaxChange();
-        if (min != null && max != null && min > max) {
-            throw new InvalidRequestException("minChange must be <= maxChange");
-        }
-
         List<Object[]> rows = stockHistoryRepository.searchStockUpdates(
                 start, end,
                 blankToNull(filter.getItemName()),
                 blankToNull(filter.getSupplierId()),
                 blankToNull(filter.getCreatedBy()),
-                min, max
+                filter.getMinChange(), filter.getMaxChange()
         );
 
         return rows.stream().map(StockAnalyticsService::toStockUpdate).toList();
@@ -249,18 +243,12 @@ public class StockAnalyticsService {
     public Page<StockUpdateResultDTO> getFilteredStockUpdatesPage(StockUpdateFilterDTO filter, Pageable pageable) {
         LocalDateTime[] window = resolveFilterWindow(filter);
 
-        Integer min = filter.getMinChange();
-        Integer max = filter.getMaxChange();
-        if (min != null && max != null && min > max) {
-            throw new InvalidRequestException("minChange must be <= maxChange");
-        }
-
         return stockHistoryRepository.searchStockUpdatesPage(
                 window[0], window[1],
                 blankToNull(filter.getItemName()),
                 blankToNull(filter.getSupplierId()),
                 blankToNull(filter.getCreatedBy()),
-                min, max,
+                filter.getMinChange(), filter.getMaxChange(),
                 pageable
         ).map(StockAnalyticsService::toStockUpdate);
     }
@@ -282,7 +270,7 @@ public class StockAnalyticsService {
     }
 
     /**
-     * Resolves and validates the date window for a stock-update filter.
+     * Resolves the date window of a stock-update filter and validates the filter.
      *
      * <p>Applies the 30-day default only when both bounds are absent; a single
      * supplied bound is honoured as-is. This differs from the per-bound defaulting
@@ -290,7 +278,7 @@ public class StockAnalyticsService {
      *
      * @param filter filter object (required, must not be null)
      * @return normalized {@code [start, end]}; an element may be null when only one bound was supplied
-     * @throws InvalidRequestException if filter is null or the date range is inverted
+     * @throws InvalidRequestException if filter is null or the date or quantity range is inverted
      */
     private static LocalDateTime[] resolveFilterWindow(StockUpdateFilterDTO filter) {
         if (filter == null) {
@@ -304,6 +292,11 @@ public class StockAnalyticsService {
         }
         if (start != null && end != null && start.isAfter(end)) {
             throw new InvalidRequestException("startDate must be on or before endDate");
+        }
+        Integer min = filter.getMinChange();
+        Integer max = filter.getMaxChange();
+        if (min != null && max != null && min > max) {
+            throw new InvalidRequestException("minChange must be <= maxChange");
         }
         return new LocalDateTime[]{ start, end };
     }

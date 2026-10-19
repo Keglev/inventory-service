@@ -75,8 +75,6 @@ public class AnalyticsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) String supplierId) {
-
-        validationHelper.validateDateRange(from, to, "from", "to");
         return ResponseEntity.ok(financialAnalyticsService.getFinancialSummaryWAC(from, to, supplierId));
     }
 }
