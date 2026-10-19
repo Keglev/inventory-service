@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
-import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
 import com.smartsupplypro.inventory.repository.custom.util.StockDetailSqlBuilder;
 
 import jakarta.persistence.EntityManager;
@@ -19,25 +18,19 @@ import jakarta.persistence.Query;
 /**
  * Custom repository implementation for granular stock history searches and WAC event streaming.
  *
- * &lt;p&gt;Delegates SQL generation to {@link StockDetailSqlBuilder} and selects the correct
- * dialect variant at runtime via {@link DatabaseDialectDetector}.&lt;/p&gt;
+ * &lt;p&gt;Delegates SQL generation to {@link StockDetailSqlBuilder}; the same statement runs on H2
+ * and Oracle.&lt;/p&gt;
  *
  * @see StockDetailQueryRepository
  */
 @Repository
-public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepository {
+<span class="fc" id="L27">public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepository {</span>
 
     @PersistenceContext
     private EntityManager em;
 
-    private final DatabaseDialectDetector dialectDetector;
-
-<span class="fc" id="L35">    public StockDetailQueryRepositoryImpl(DatabaseDialectDetector dialectDetector) {</span>
-<span class="fc" id="L36">        this.dialectDetector = dialectDetector;</span>
-<span class="fc" id="L37">    }</span>
-
     /**
-     * Executes dialect-specific native SQL for filtered stock history search.
+     * Executes native SQL for filtered stock history search.
      *
      * &lt;p&gt;Delegates SQL construction to {@link StockDetailSqlBuilder}. Optional string
      * parameters are normalised to {@code null} before binding so the SQL's
@@ -63,9 +56,9 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         Integer minChange,
         Integer maxChange
     ) {
-<span class="fc" id="L66">        final Query query = em.createNativeQuery(filteredSearchSql());</span>
-<span class="fc" id="L67">        bindSearchParameters(query, startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);</span>
-<span class="fc" id="L68">        return query.getResultList();</span>
+<span class="fc" id="L59">        final Query query = em.createNativeQuery(StockDetailSqlBuilder.buildFilteredSearchSql());</span>
+<span class="fc" id="L60">        bindSearchParameters(query, startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);</span>
+<span class="fc" id="L61">        return query.getResultList();</span>
     }
 
     /**
@@ -97,24 +90,18 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         Integer maxChange,
         Pageable pageable
     ) {
-<span class="fc" id="L100">        final String sql = filteredSearchSql();</span>
+<span class="fc" id="L93">        final String sql = StockDetailSqlBuilder.buildFilteredSearchSql();</span>
 
-<span class="fc" id="L102">        final Query count = em.createNativeQuery(&quot;SELECT COUNT(*) FROM (&quot; + sql + &quot;) q&quot;);</span>
-<span class="fc" id="L103">        bindSearchParameters(count, startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);</span>
-<span class="fc" id="L104">        final long total = ((Number) count.getSingleResult()).longValue();</span>
+<span class="fc" id="L95">        final Query count = em.createNativeQuery(&quot;SELECT COUNT(*) FROM (&quot; + sql + &quot;) q&quot;);</span>
+<span class="fc" id="L96">        bindSearchParameters(count, startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);</span>
+<span class="fc" id="L97">        final long total = ((Number) count.getSingleResult()).longValue();</span>
 
-<span class="fc" id="L106">        final Query rows = em.createNativeQuery(sql);</span>
-<span class="fc" id="L107">        bindSearchParameters(rows, startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);</span>
-<span class="fc" id="L108">        rows.setFirstResult((int) pageable.getOffset());</span>
-<span class="fc" id="L109">        rows.setMaxResults(pageable.getPageSize());</span>
+<span class="fc" id="L99">        final Query rows = em.createNativeQuery(sql);</span>
+<span class="fc" id="L100">        bindSearchParameters(rows, startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);</span>
+<span class="fc" id="L101">        rows.setFirstResult((int) pageable.getOffset());</span>
+<span class="fc" id="L102">        rows.setMaxResults(pageable.getPageSize());</span>
 
-<span class="fc" id="L111">        return new PageImpl&lt;&gt;(rows.getResultList(), pageable, total);</span>
-    }
-
-    private String filteredSearchSql() {
-<span class="fc bfc" id="L115" title="All 2 branches covered.">        return dialectDetector.isH2()</span>
-<span class="fc" id="L116">            ? StockDetailSqlBuilder.buildH2FilteredSearchSql()</span>
-<span class="fc" id="L117">            : StockDetailSqlBuilder.buildOracleFilteredSearchSql();</span>
+<span class="fc" id="L104">        return new PageImpl&lt;&gt;(rows.getResultList(), pageable, total);</span>
     }
 
     /**
@@ -131,19 +118,19 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         Integer minChange,
         Integer maxChange
     ) {
-<span class="fc bfc" id="L134" title="All 4 branches covered.">        final String itemPattern = (itemName == null || itemName.isBlank())</span>
-<span class="fc" id="L135">            ? null : &quot;%&quot; + itemName.toLowerCase() + &quot;%&quot;;</span>
-<span class="fc bfc" id="L136" title="All 4 branches covered.">        final String normalizedCreator = (createdBy == null || createdBy.isBlank())</span>
-<span class="fc" id="L137">            ? null : createdBy.toLowerCase();</span>
+<span class="fc bfc" id="L121" title="All 4 branches covered.">        final String itemPattern = (itemName == null || itemName.isBlank())</span>
+<span class="fc" id="L122">            ? null : &quot;%&quot; + itemName.toLowerCase() + &quot;%&quot;;</span>
+<span class="fc bfc" id="L123" title="All 4 branches covered.">        final String normalizedCreator = (createdBy == null || createdBy.isBlank())</span>
+<span class="fc" id="L124">            ? null : createdBy.toLowerCase();</span>
         // Use java.sql.Timestamp for JDBC/native query compatibility with LocalDateTime parameters
-<span class="fc bfc" id="L139" title="All 2 branches covered.">        query.setParameter(&quot;startDate&quot;, (startDate == null) ? null : java.sql.Timestamp.valueOf(startDate));</span>
-<span class="fc bfc" id="L140" title="All 2 branches covered.">        query.setParameter(&quot;endDate&quot;, (endDate == null) ? null : java.sql.Timestamp.valueOf(endDate));</span>
-<span class="fc" id="L141">        query.setParameter(&quot;itemPattern&quot;, itemPattern);</span>
-<span class="fc" id="L142">        query.setParameter(&quot;supplierId&quot;, normalizeOptionalParam(supplierId));</span>
-<span class="fc" id="L143">        query.setParameter(&quot;createdByNorm&quot;, normalizedCreator);</span>
-<span class="fc" id="L144">        query.setParameter(&quot;minChange&quot;, minChange);</span>
-<span class="fc" id="L145">        query.setParameter(&quot;maxChange&quot;, maxChange);</span>
-<span class="fc" id="L146">    }</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        query.setParameter(&quot;startDate&quot;, (startDate == null) ? null : java.sql.Timestamp.valueOf(startDate));</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        query.setParameter(&quot;endDate&quot;, (endDate == null) ? null : java.sql.Timestamp.valueOf(endDate));</span>
+<span class="fc" id="L128">        query.setParameter(&quot;itemPattern&quot;, itemPattern);</span>
+<span class="fc" id="L129">        query.setParameter(&quot;supplierId&quot;, normalizeOptionalParam(supplierId));</span>
+<span class="fc" id="L130">        query.setParameter(&quot;createdByNorm&quot;, normalizedCreator);</span>
+<span class="fc" id="L131">        query.setParameter(&quot;minChange&quot;, minChange);</span>
+<span class="fc" id="L132">        query.setParameter(&quot;maxChange&quot;, maxChange);</span>
+<span class="fc" id="L133">    }</span>
 
     /**
      * Streams stock events via JPQL for WAC cost-flow replay.
@@ -158,7 +145,7 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
     @Override
     public List&lt;StockEventRowDTO&gt; streamEventsForWAC(LocalDateTime end, String supplierId) {
         // JPQL ensures this query runs unchanged on H2 and Oracle
-<span class="fc" id="L161">        final String jpql = &quot;&quot;&quot;</span>
+<span class="fc" id="L148">        final String jpql = &quot;&quot;&quot;</span>
             SELECT new com.smartsupplypro.inventory.dto.StockEventRowDTO(
                 sh.itemId,
                 COALESCE(sh.supplierId, i.supplierId),
@@ -174,17 +161,17 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
             ORDER BY sh.itemId ASC, sh.timestamp ASC
         &quot;&quot;&quot;;
 
-<span class="fc bfc" id="L177" title="All 4 branches covered.">        final String supplierIdNorm = (supplierId == null || supplierId.isBlank())</span>
-<span class="fc" id="L178">            ? null : supplierId.trim().toLowerCase();</span>
+<span class="fc bfc" id="L164" title="All 4 branches covered.">        final String supplierIdNorm = (supplierId == null || supplierId.isBlank())</span>
+<span class="fc" id="L165">            ? null : supplierId.trim().toLowerCase();</span>
 
-<span class="fc" id="L180">        return em.createQuery(jpql, StockEventRowDTO.class)</span>
-<span class="fc" id="L181">                .setParameter(&quot;end&quot;, end)</span>
-<span class="fc" id="L182">                .setParameter(&quot;supplierIdNorm&quot;, supplierIdNorm)</span>
-<span class="fc" id="L183">                .getResultList();</span>
+<span class="fc" id="L167">        return em.createQuery(jpql, StockEventRowDTO.class)</span>
+<span class="fc" id="L168">                .setParameter(&quot;end&quot;, end)</span>
+<span class="fc" id="L169">                .setParameter(&quot;supplierIdNorm&quot;, supplierIdNorm)</span>
+<span class="fc" id="L170">                .getResultList();</span>
     }
 
     private String normalizeOptionalParam(String param) {
-<span class="fc bfc" id="L187" title="All 4 branches covered.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
+<span class="fc bfc" id="L174" title="All 4 branches covered.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

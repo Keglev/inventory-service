@@ -1,39 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StockMetricsSqlBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.repository.custom.util</a> &gt; <span class="el_source">StockMetricsSqlBuilder.java</span></div><h1>StockMetricsSqlBuilder.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.repository.custom.util;
 
 /**
- * SQL factory for {@code StockMetricsRepositoryImpl} — produces KPI queries for H2 and Oracle.
+ * SQL factory for {@code StockMetricsRepositoryImpl} — produces the KPI queries.
+ *
+ * &lt;p&gt;Each statement serves H2 (Oracle mode, unquoted identifiers upper-cased) and Oracle, so the
+ * tests run the exact text production runs.
  */
 public final class StockMetricsSqlBuilder {
 
     private StockMetricsSqlBuilder() {}
 
     /**
-     * Returns the H2 SQL for stock quantity and value per supplier over active items.
-     *
-     * &lt;p&gt;Quotes identifiers with double-quotes required by H2's default case-sensitive mode.
+     * Returns the SQL for stock quantity and value per supplier over active items.
      *
      * @return SQL ordered by total_value descending, then supplier name
      */
-    public static String buildH2SupplierTotalsSql() {
-<span class="fc" id="L18">        return &quot;&quot;&quot;</span>
-            SELECT s.&quot;NAME&quot; AS supplier_name,
-                   SUM(i.&quot;QUANTITY&quot;) AS total_quantity,
-                   SUM(i.&quot;QUANTITY&quot; * COALESCE(i.&quot;PRICE&quot;, 0)) AS total_value
-            FROM &quot;SUPPLIER&quot; s
-            JOIN &quot;INVENTORY_ITEM&quot; i ON s.&quot;ID&quot; = i.&quot;SUPPLIER_ID&quot;
-            WHERE i.&quot;ACTIVE&quot; = 1
-            GROUP BY s.&quot;NAME&quot;
-            ORDER BY total_value DESC, supplier_name ASC
-        &quot;&quot;&quot;;
-    }
-
-    /**
-     * Returns the Oracle SQL for stock quantity and value per supplier over active items.
-     *
-     * @return SQL ordered by total_value descending, then supplier name
-     */
-    public static String buildOracleSupplierTotalsSql() {
-<span class="fc" id="L36">        return &quot;&quot;&quot;</span>
+    public static String buildSupplierTotalsSql() {
+<span class="fc" id="L19">        return &quot;&quot;&quot;</span>
             SELECT s.name AS supplier_name,
                    SUM(i.quantity) AS total_quantity,
                    SUM(i.quantity * COALESCE(i.price, 0)) AS total_value
@@ -46,28 +29,12 @@ public final class StockMetricsSqlBuilder {
     }
 
     /**
-     * Returns the H2 SQL for update event count per item with optional supplier filter.
+     * Returns the SQL for update event count per item with optional supplier filter.
      *
      * @return SQL ordered by update_count descending; accepts named parameter {@code :supplierId}
      */
-    public static String buildH2UpdateCountSql() {
-<span class="fc" id="L54">        return &quot;&quot;&quot;</span>
-            SELECT i.&quot;NAME&quot; AS item_name, COUNT(sh.&quot;ID&quot;) AS update_count
-            FROM &quot;INVENTORY_ITEM&quot; i
-            JOIN &quot;STOCK_HISTORY&quot; sh ON sh.&quot;ITEM_ID&quot; = i.&quot;ID&quot;
-            WHERE (:supplierId IS NULL OR UPPER(i.&quot;SUPPLIER_ID&quot;) = UPPER(:supplierId))
-            GROUP BY i.&quot;NAME&quot;
-            ORDER BY update_count DESC
-        &quot;&quot;&quot;;
-    }
-
-    /**
-     * Returns the Oracle SQL for update event count per item with optional supplier filter.
-     *
-     * @return SQL ordered by update_count descending; accepts named parameter {@code :supplierId}
-     */
-    public static String buildOracleUpdateCountSql() {
-<span class="fc" id="L70">        return &quot;&quot;&quot;</span>
+    public static String buildUpdateCountSql() {
+<span class="fc" id="L37">        return &quot;&quot;&quot;</span>
             SELECT i.name AS item_name, COUNT(sh.id) AS update_count
             FROM stock_history sh
             JOIN inventory_item i ON sh.item_id = i.id

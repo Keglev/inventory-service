@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
 import com.smartsupplypro.inventory.repository.custom.util.StockMetricsSqlBuilder;
 
 import jakarta.persistence.EntityManager;
@@ -13,39 +12,30 @@ import jakarta.persistence.PersistenceContext;
 /**
  * Custom repository implementation for aggregated stock KPI metrics.
  *
- * &lt;p&gt;Delegates SQL generation to {@link StockMetricsSqlBuilder} and selects the correct
- * dialect variant at runtime via {@link DatabaseDialectDetector}.&lt;/p&gt;
+ * &lt;p&gt;Delegates SQL generation to {@link StockMetricsSqlBuilder}; the same statements run on H2
+ * and Oracle.&lt;/p&gt;
  *
  * @see StockMetricsRepository
  */
 @Repository
-public class StockMetricsRepositoryImpl implements StockMetricsRepository {
+<span class="fc" id="L21">public class StockMetricsRepositoryImpl implements StockMetricsRepository {</span>
 
     @PersistenceContext
     private EntityManager em;
 
-    private final DatabaseDialectDetector dialectDetector;
-
-<span class="fc" id="L29">    public StockMetricsRepositoryImpl(DatabaseDialectDetector dialectDetector) {</span>
-<span class="fc" id="L30">        this.dialectDetector = dialectDetector;</span>
-<span class="fc" id="L31">    }</span>
-
     /**
-     * Executes dialect-specific native SQL for total stock per supplier.
+     * Executes native SQL for total stock per supplier.
      *
      * @return per-supplier totals ordered by value descending, then supplier name
      */
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; getTotalStockBySupplier() {
-<span class="fc bfc" id="L41" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
-<span class="fc" id="L42">            ? StockMetricsSqlBuilder.buildH2SupplierTotalsSql()</span>
-<span class="fc" id="L43">            : StockMetricsSqlBuilder.buildOracleSupplierTotalsSql();</span>
-<span class="fc" id="L44">        return em.createNativeQuery(sql).getResultList();</span>
+<span class="fc" id="L34">        return em.createNativeQuery(StockMetricsSqlBuilder.buildSupplierTotalsSql()).getResultList();</span>
     }
 
     /**
-     * Executes dialect-specific native SQL for update count per item with optional supplier filter.
+     * Executes native SQL for update count per item with optional supplier filter.
      *
      * @param supplierId optional supplier filter (null returns all suppliers)
      * @return per-item counts ordered by update_count descending
@@ -53,16 +43,13 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; getUpdateCountByItem(String supplierId) {
-<span class="fc bfc" id="L56" title="All 2 branches covered.">        final String sql = dialectDetector.isH2()</span>
-<span class="fc" id="L57">            ? StockMetricsSqlBuilder.buildH2UpdateCountSql()</span>
-<span class="fc" id="L58">            : StockMetricsSqlBuilder.buildOracleUpdateCountSql();</span>
-<span class="fc" id="L59">        return em.createNativeQuery(sql)</span>
-<span class="fc" id="L60">                .setParameter(&quot;supplierId&quot;, normalizeOptionalParam(supplierId))</span>
-<span class="fc" id="L61">                .getResultList();</span>
+<span class="fc" id="L46">        return em.createNativeQuery(StockMetricsSqlBuilder.buildUpdateCountSql())</span>
+<span class="fc" id="L47">                .setParameter(&quot;supplierId&quot;, normalizeOptionalParam(supplierId))</span>
+<span class="fc" id="L48">                .getResultList();</span>
     }
 
     private String normalizeOptionalParam(String param) {
-<span class="pc bpc" id="L65" title="1 of 4 branches missed.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
+<span class="pc bpc" id="L52" title="1 of 4 branches missed.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
