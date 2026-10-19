@@ -1,6 +1,5 @@
 package com.smartsupplypro.inventory.controller.analytics;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Component;
@@ -9,31 +8,15 @@ import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 
 /**
- * Validates incoming analytics request parameters.
+ * Shapes analytics request parameters at the HTTP boundary.
  *
- * <p>Extracted from {@link com.smartsupplypro.inventory.controller.AnalyticsController}
- * to keep endpoint methods under 15 lines.</p>
+ * <p>Input rules that hold for every caller (date order, quantity ranges, blank
+ * ids, the stock-update window default) belong to the services, which check them
+ * once. What remains here is specific to an endpoint: the dashboard summary's
+ * window, which no single service owns, and the stock-update filter object.</p>
  */
 @Component
 public class AnalyticsControllerValidationHelper {
-
-    /**
-     * Validates LocalDate range parameters.
-     *
-     * @param start start date (must not be null)
-     * @param end end date (must not be null and >= start)
-     * @param startName parameter name for error messages
-     * @param endName parameter name for error messages
-     * @throws InvalidRequestException if validation fails
-     */
-    public void validateDateRange(LocalDate start, LocalDate end, String startName, String endName) {
-        if (start == null || end == null) {
-            throw new InvalidRequestException(startName + " and " + endName + " are required");
-        }
-        if (start.isAfter(end)) {
-            throw new InvalidRequestException(startName + " must be on or before " + endName);
-        }
-    }
 
     /**
      * Validates LocalDateTime range parameters.
@@ -51,55 +34,12 @@ public class AnalyticsControllerValidationHelper {
     }
 
     /**
-     * Validates string parameter is not blank.
-     *
-     * @param value parameter value to check
-     * @param name parameter name for error messages
-     * @throws InvalidRequestException if value is blank
-     */
-    public void requireNonBlank(String value, String name) {
-        if (value == null || value.trim().isEmpty()) {
-            throw new InvalidRequestException(name + " must not be blank");
-        }
-    }
-
-    /**
-     * Validates numeric range parameters.
-     *
-     * @param min minimum value
-     * @param max maximum value
-     * @param minName parameter name for error messages
-     * @param maxName parameter name for error messages
-     * @throws InvalidRequestException if min > max
-     */
-    public void validateNumericRange(Integer min, Integer max, String minName, String maxName) {
-        if (min != null && max != null && min > max) {
-            throw new InvalidRequestException(minName + " must be <= " + maxName);
-        }
-    }
-
-    /**
-     * Applies default date window (last 30 days) if both dates are null.
-     *
-     * @param startDate current start date (nullable)
-     * @param endDate current end date (nullable)
-     * @return array with [startDate, endDate] with defaults applied
-     */
-    public LocalDateTime[] applyDefaultDateWindow(LocalDateTime startDate, LocalDateTime endDate) {
-        if (startDate == null && endDate == null) {
-            endDate = LocalDateTime.now();
-            startDate = endDate.minusDays(30);
-        }
-        return new LocalDateTime[]{startDate, endDate};
-    }
-
-    /**
      * Defaults each missing bound on its own: start to 30 days ago, end to now.
      *
-     * <p>For endpoints that need both bounds (the dashboard summary feeds them
-     * to {@code LocalDateTime.toLocalDate()}). {@link #applyDefaultDateWindow}
-     * keeps a lone bound open-ended because the stock-update queries accept a
-     * null bound; reusing it here let a lone date through as a null and
+     * <p>For the dashboard summary, which feeds both bounds to
+     * {@code LocalDateTime.toLocalDate()}. The stock-update window differs: the
+     * service keeps a lone bound open-ended there, because those queries accept a
+     * null bound; reusing that rule here let a lone date through as a null and
      * answered 500.</p>
      *
      * @param startDate requested start (nullable)
@@ -112,17 +52,6 @@ public class AnalyticsControllerValidationHelper {
             startDate != null ? startDate : now.minusDays(30),
             endDate != null ? endDate : now
         };
-    }
-
-    /**
-     * Validates stock update filter DTO constraints.
-     *
-     * @param filter the filter DTO to validate
-     * @throws InvalidRequestException if validation fails
-     */
-    public void validateStockUpdateFilter(StockUpdateFilterDTO filter) {
-        validateDateTimeRange(filter.getStartDate(), filter.getEndDate(), "startDate", "endDate");
-        validateNumericRange(filter.getMinChange(), filter.getMaxChange(), "minChange", "maxChange");
     }
 
     /**

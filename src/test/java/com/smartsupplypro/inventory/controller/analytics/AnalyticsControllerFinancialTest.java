@@ -17,7 +17,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.notNull;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,24 +75,9 @@ public class AnalyticsControllerFinancialTest {
         // The real defaults: a hand-written stub here filled both bounds and hid B2 (a lone date -> 500)
         when(validationHelper.completeDateWindow(any(), any())).thenCallRealMethod();
 
-        // throw on invalid date range so financialSummary_fromAfterTo_returnsBadRequest can verify the 400
-        doAnswer(inv -> {
-            LocalDate from = inv.getArgument(0);
-            LocalDate to = inv.getArgument(1);
-            if (from != null && to != null && from.isAfter(to)) {
-                throw new com.smartsupplypro.inventory.exception.InvalidRequestException("Start date must be before or equal to end date");
-            }
-            return null;
-        }).when(validationHelper).validateDateRange(any(LocalDate.class), any(LocalDate.class), anyString(), anyString());
-
-        doAnswer(inv -> {
-            LocalDateTime from = inv.getArgument(0);
-            LocalDateTime to = inv.getArgument(1);
-            if (from != null && to != null && from.isAfter(to)) {
-                throw new com.smartsupplypro.inventory.exception.InvalidRequestException("Start date must be before or equal to end date");
-            }
-            return null;
-        }).when(validationHelper).validateDateTimeRange(any(), any(), anyString(), anyString());
+        // the real summary-window check, not a hand-written copy of it (R51)
+        doCallRealMethod().when(validationHelper)
+            .validateDateTimeRange(any(), any(), anyString(), anyString());
 
         when(stockAnalyticsService.getTotalStockValueOverTime(any(), any(), any()))
             .thenReturn(Collections.emptyList());
@@ -204,10 +189,14 @@ public class AnalyticsControllerFinancialTest {
 
     @Test
     void should_return_400_when_from_is_after_to() throws Exception {
+        // the check lives in the service: run the real method behind the mock
+        when(financialAnalyticsService.getFinancialSummaryWAC(any(), any(), any())).thenCallRealMethod();
+
         mockMvc.perform(get("/api/analytics/financial/summary")
                 .param("from", "2024-03-01")
                 .param("to", "2024-02-01")
                 .with(user("tester").roles("ADMIN")))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("from must be on or before to"));
     }
 }

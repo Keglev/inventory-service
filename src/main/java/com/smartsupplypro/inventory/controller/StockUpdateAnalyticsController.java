@@ -71,12 +71,8 @@ public class StockUpdateAnalyticsController {
             @RequestParam(required = false) Integer minChange,
             @RequestParam(required = false) Integer maxChange) {
 
-        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);
-        validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], "startDate", "endDate");
-        validationHelper.validateNumericRange(minChange, maxChange, "minChange", "maxChange");
-        StockUpdateFilterDTO filter = validationHelper.buildFilter(
-                dateWindow[0], dateWindow[1], itemName, supplierId,
-                identityMasking.resolveFilter(createdBy), minChange, maxChange);
+        StockUpdateFilterDTO filter = filterFromParams(
+                startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);
         return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));
     }
 
@@ -109,12 +105,8 @@ public class StockUpdateAnalyticsController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);
-        validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], "startDate", "endDate");
-        validationHelper.validateNumericRange(minChange, maxChange, "minChange", "maxChange");
-        StockUpdateFilterDTO filter = validationHelper.buildFilter(
-                dateWindow[0], dateWindow[1], itemName, supplierId,
-                identityMasking.resolveFilter(createdBy), minChange, maxChange);
+        StockUpdateFilterDTO filter = filterFromParams(
+                startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);
         PageRequest pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));
         return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdatesPage(filter, pageable));
     }
@@ -129,8 +121,15 @@ public class StockUpdateAnalyticsController {
     @PostMapping(value = "/stock-updates/query", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StockUpdateResultDTO>> getFilteredStockUpdatesPost(
             @RequestBody @Valid StockUpdateFilterDTO filter) {
-
-        validationHelper.validateStockUpdateFilter(filter);
         return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));
+    }
+
+    // The service defaults the window and rejects inverted ranges for every caller;
+    // anonymous callers' creator filter is resolved here, at the HTTP boundary.
+    private StockUpdateFilterDTO filterFromParams(
+            LocalDateTime startDate, LocalDateTime endDate, String itemName, String supplierId,
+            String createdBy, Integer minChange, Integer maxChange) {
+        return validationHelper.buildFilter(startDate, endDate, itemName, supplierId,
+                identityMasking.resolveFilter(createdBy), minChange, maxChange);
     }
 }

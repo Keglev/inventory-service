@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,17 +56,9 @@ public class AnalyticsControllerFilteringTest {
 
     @BeforeEach
     void setup() {
-        // applyDefaultDateWindow must return a non-null array; the controller indexes into it immediately
-        when(validationHelper.applyDefaultDateWindow(any(), any())).thenAnswer(inv -> {
-            LocalDateTime start = inv.getArgument(0);
-            LocalDateTime end = inv.getArgument(1);
-            if (start == null) start = LocalDateTime.now().minusDays(30);
-            if (end == null) end = LocalDateTime.now();
-            return new LocalDateTime[] { start, end };
-        });
-        // GET endpoint calls buildFilter(); return a non-null DTO so the service stub can match it
+        // GET endpoints build the filter object through the helper; run the real method
         when(validationHelper.buildFilter(any(), any(), any(), any(), any(), any(), any()))
-            .thenReturn(new StockUpdateFilterDTO());
+            .thenCallRealMethod();
     }
 
     @ParameterizedTest
@@ -224,5 +217,46 @@ public class AnalyticsControllerFilteringTest {
                 .param("size", "5000"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.page.totalElements").value(0));
+    }
+
+    @Test
+    void should_return_400_when_a_get_carries_an_inverted_date_range() throws Exception {
+        // the window and range checks live in the service: run the real method behind the mock
+        when(stockAnalyticsService.getFilteredStockUpdates(any(StockUpdateFilterDTO.class))).thenCallRealMethod();
+
+        mockMvc.perform(get("/api/analytics/stock-updates")
+                .with(user("mockuser").roles("ADMIN"))
+                .param("startDate", "2024-05-15T00:00:00")
+                .param("endDate", "2024-05-01T00:00:00"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("startDate must be on or before endDate"));
+    }
+
+    @Test
+    void should_return_400_when_a_paged_get_has_min_change_above_max_change() throws Exception {
+        when(stockAnalyticsService.getFilteredStockUpdatesPage(any(StockUpdateFilterDTO.class), any()))
+            .thenCallRealMethod();
+
+        mockMvc.perform(get("/api/analytics/stock-updates/page")
+                .with(user("mockuser").roles("ADMIN"))
+                .param("minChange", "5")
+                .param("maxChange", "1"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("minChange must be <= maxChange"));
+    }
+
+    @Test
+    void should_return_400_when_a_posted_filter_has_min_change_above_max_change() throws Exception {
+        when(stockAnalyticsService.getFilteredStockUpdates(any(StockUpdateFilterDTO.class))).thenCallRealMethod();
+        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
+        filter.setMinChange(5);
+        filter.setMaxChange(1);
+
+        mockMvc.perform(post("/api/analytics/stock-updates/query")
+                .with(user("mockuser").roles("ADMIN"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("minChange must be <= maxChange"));
     }
 }
