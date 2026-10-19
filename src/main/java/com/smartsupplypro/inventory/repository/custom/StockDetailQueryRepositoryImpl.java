@@ -126,7 +126,7 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         query.setParameter("startDate", (startDate == null) ? null : java.sql.Timestamp.valueOf(startDate));
         query.setParameter("endDate", (endDate == null) ? null : java.sql.Timestamp.valueOf(endDate));
         query.setParameter("itemPattern", itemPattern);
-        query.setParameter("supplierId", normalizeOptionalParam(supplierId));
+        query.setParameter("supplierId", OptionalQueryParam.normalize(supplierId));
         query.setParameter("createdByNorm", normalizedCreator);
         query.setParameter("minChange", minChange);
         query.setParameter("maxChange", maxChange);
@@ -168,9 +168,5 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
                 .setParameter("end", end)
                 .setParameter("supplierIdNorm", supplierIdNorm)
                 .getResultList();
-    }
-
-    private String normalizeOptionalParam(String param) {
-        return (param == null || param.isBlank()) ? null : param.trim();
     }
 }

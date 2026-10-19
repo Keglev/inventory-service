@@ -44,11 +44,7 @@ public class StockMetricsRepositoryImpl implements StockMetricsRepository {
     @Override
     public List<Object[]> getUpdateCountByItem(String supplierId) {
         return em.createNativeQuery(StockMetricsSqlBuilder.buildUpdateCountSql())
-                .setParameter("supplierId", normalizeOptionalParam(supplierId))
+                .setParameter("supplierId", OptionalQueryParam.normalize(supplierId))
                 .getResultList();
-    }
-
-    private String normalizeOptionalParam(String param) {
-        return (param == null || param.isBlank()) ? null : param.trim();
     }
 }
