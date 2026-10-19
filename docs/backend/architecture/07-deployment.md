@@ -96,7 +96,9 @@ No run of that chain on `main` is cancelled or dropped. Each image build and eac
 release compares its commit with the parent only, so a skipped run would leave that
 commit's change unbuilt. Pull request runs of `backend-ci.yml` still cancel each
 other; on `main` it, `backend-docker.yml` and `backend-deploy.yml` queue their runs
-in order (`queue: max`).
+in order (`queue: max`). `backend-deploy` releases the commit `backend-docker` built,
+which hands it over as the one-day artifact `built-commit`: a `workflow_run` run's own
+`head_sha` is `main`'s HEAD when the run was created and can name a later merge.
 
 Every action reference across all eleven workflows is pinned to a commit SHA rather
 than a mutable tag; `dependabot.yml` opens one grouped pull request a month to
