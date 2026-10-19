@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticsControllerValidationHelper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.controller.analytics</a> &gt; <span class="el_source">AnalyticsControllerValidationHelper.java</span></div><h1>AnalyticsControllerValidationHelper.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.controller.analytics;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Component;
@@ -9,31 +8,15 @@ import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 
 /**
- * Validates incoming analytics request parameters.
+ * Shapes analytics request parameters at the HTTP boundary.
  *
- * &lt;p&gt;Extracted from {@link com.smartsupplypro.inventory.controller.AnalyticsController}
- * to keep endpoint methods under 15 lines.&lt;/p&gt;
+ * &lt;p&gt;Input rules that hold for every caller (date order, quantity ranges, blank
+ * ids, the stock-update window default) belong to the services, which check them
+ * once. What remains here is specific to an endpoint: the dashboard summary's
+ * window, which no single service owns, and the stock-update filter object.&lt;/p&gt;
  */
 @Component
-<span class="fc" id="L18">public class AnalyticsControllerValidationHelper {</span>
-
-    /**
-     * Validates LocalDate range parameters.
-     *
-     * @param start start date (must not be null)
-     * @param end end date (must not be null and &gt;= start)
-     * @param startName parameter name for error messages
-     * @param endName parameter name for error messages
-     * @throws InvalidRequestException if validation fails
-     */
-    public void validateDateRange(LocalDate start, LocalDate end, String startName, String endName) {
-<span class="fc bfc" id="L30" title="All 4 branches covered.">        if (start == null || end == null) {</span>
-<span class="fc" id="L31">            throw new InvalidRequestException(startName + &quot; and &quot; + endName + &quot; are required&quot;);</span>
-        }
-<span class="fc bfc" id="L33" title="All 2 branches covered.">        if (start.isAfter(end)) {</span>
-<span class="fc" id="L34">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
-        }
-<span class="fc" id="L36">    }</span>
+<span class="fc" id="L19">public class AnalyticsControllerValidationHelper {</span>
 
     /**
      * Validates LocalDateTime range parameters.
@@ -45,61 +28,18 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @throws InvalidRequestException if start &gt; end
      */
     public void validateDateTimeRange(LocalDateTime start, LocalDateTime end, String startName, String endName) {
-<span class="fc bfc" id="L48" title="All 6 branches covered.">        if (start != null &amp;&amp; end != null &amp;&amp; start.isAfter(end)) {</span>
-<span class="fc" id="L49">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
+<span class="fc bfc" id="L31" title="All 6 branches covered.">        if (start != null &amp;&amp; end != null &amp;&amp; start.isAfter(end)) {</span>
+<span class="fc" id="L32">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
         }
-<span class="fc" id="L51">    }</span>
-
-    /**
-     * Validates string parameter is not blank.
-     *
-     * @param value parameter value to check
-     * @param name parameter name for error messages
-     * @throws InvalidRequestException if value is blank
-     */
-    public void requireNonBlank(String value, String name) {
-<span class="fc bfc" id="L61" title="All 4 branches covered.">        if (value == null || value.trim().isEmpty()) {</span>
-<span class="fc" id="L62">            throw new InvalidRequestException(name + &quot; must not be blank&quot;);</span>
-        }
-<span class="fc" id="L64">    }</span>
-
-    /**
-     * Validates numeric range parameters.
-     *
-     * @param min minimum value
-     * @param max maximum value
-     * @param minName parameter name for error messages
-     * @param maxName parameter name for error messages
-     * @throws InvalidRequestException if min &gt; max
-     */
-    public void validateNumericRange(Integer min, Integer max, String minName, String maxName) {
-<span class="fc bfc" id="L76" title="All 6 branches covered.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
-<span class="fc" id="L77">            throw new InvalidRequestException(minName + &quot; must be &lt;= &quot; + maxName);</span>
-        }
-<span class="fc" id="L79">    }</span>
-
-    /**
-     * Applies default date window (last 30 days) if both dates are null.
-     *
-     * @param startDate current start date (nullable)
-     * @param endDate current end date (nullable)
-     * @return array with [startDate, endDate] with defaults applied
-     */
-    public LocalDateTime[] applyDefaultDateWindow(LocalDateTime startDate, LocalDateTime endDate) {
-<span class="fc bfc" id="L89" title="All 4 branches covered.">        if (startDate == null &amp;&amp; endDate == null) {</span>
-<span class="fc" id="L90">            endDate = LocalDateTime.now();</span>
-<span class="fc" id="L91">            startDate = endDate.minusDays(30);</span>
-        }
-<span class="fc" id="L93">        return new LocalDateTime[]{startDate, endDate};</span>
-    }
+<span class="fc" id="L34">    }</span>
 
     /**
      * Defaults each missing bound on its own: start to 30 days ago, end to now.
      *
-     * &lt;p&gt;For endpoints that need both bounds (the dashboard summary feeds them
-     * to {@code LocalDateTime.toLocalDate()}). {@link #applyDefaultDateWindow}
-     * keeps a lone bound open-ended because the stock-update queries accept a
-     * null bound; reusing it here let a lone date through as a null and
+     * &lt;p&gt;For the dashboard summary, which feeds both bounds to
+     * {@code LocalDateTime.toLocalDate()}. The stock-update window differs: the
+     * service keeps a lone bound open-ended there, because those queries accept a
+     * null bound; reusing that rule here let a lone date through as a null and
      * answered 500.&lt;/p&gt;
      *
      * @param startDate requested start (nullable)
@@ -107,23 +47,12 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
      * @return array with [startDate, endDate], both non-null
      */
     public LocalDateTime[] completeDateWindow(LocalDateTime startDate, LocalDateTime endDate) {
-<span class="fc" id="L110">        LocalDateTime now = LocalDateTime.now();</span>
-<span class="fc" id="L111">        return new LocalDateTime[]{</span>
-<span class="fc bfc" id="L112" title="All 2 branches covered.">            startDate != null ? startDate : now.minusDays(30),</span>
-<span class="fc bfc" id="L113" title="All 2 branches covered.">            endDate != null ? endDate : now</span>
+<span class="fc" id="L50">        LocalDateTime now = LocalDateTime.now();</span>
+<span class="fc" id="L51">        return new LocalDateTime[]{</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            startDate != null ? startDate : now.minusDays(30),</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">            endDate != null ? endDate : now</span>
         };
     }
-
-    /**
-     * Validates stock update filter DTO constraints.
-     *
-     * @param filter the filter DTO to validate
-     * @throws InvalidRequestException if validation fails
-     */
-    public void validateStockUpdateFilter(StockUpdateFilterDTO filter) {
-<span class="fc" id="L124">        validateDateTimeRange(filter.getStartDate(), filter.getEndDate(), &quot;startDate&quot;, &quot;endDate&quot;);</span>
-<span class="fc" id="L125">        validateNumericRange(filter.getMinChange(), filter.getMaxChange(), &quot;minChange&quot;, &quot;maxChange&quot;);</span>
-<span class="fc" id="L126">    }</span>
 
     /**
      * Builds a {@link StockUpdateFilterDTO} from individual query parameters.
@@ -145,15 +74,15 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
             String itemName, String supplierId, String createdBy,
             Integer minChange, Integer maxChange) {
 
-<span class="fc" id="L148">        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();</span>
-<span class="fc" id="L149">        filter.setStartDate(startDate);</span>
-<span class="fc" id="L150">        filter.setEndDate(endDate);</span>
-<span class="fc" id="L151">        filter.setItemName(itemName);</span>
-<span class="fc" id="L152">        filter.setSupplierId(supplierId);</span>
-<span class="fc" id="L153">        filter.setCreatedBy(createdBy);</span>
-<span class="fc" id="L154">        filter.setMinChange(minChange);</span>
-<span class="fc" id="L155">        filter.setMaxChange(maxChange);</span>
-<span class="fc" id="L156">        return filter;</span>
+<span class="fc" id="L77">        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();</span>
+<span class="fc" id="L78">        filter.setStartDate(startDate);</span>
+<span class="fc" id="L79">        filter.setEndDate(endDate);</span>
+<span class="fc" id="L80">        filter.setItemName(itemName);</span>
+<span class="fc" id="L81">        filter.setSupplierId(supplierId);</span>
+<span class="fc" id="L82">        filter.setCreatedBy(createdBy);</span>
+<span class="fc" id="L83">        filter.setMinChange(minChange);</span>
+<span class="fc" id="L84">        filter.setMaxChange(maxChange);</span>
+<span class="fc" id="L85">        return filter;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

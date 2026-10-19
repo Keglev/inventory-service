@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.smartsupplypro.inventory.controller.analytics.AnalyticsControllerValidationHelper;
 import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
 import com.smartsupplypro.inventory.dto.LowStockItemDTO;
 import com.smartsupplypro.inventory.dto.MonthlyStockMovementDTO;
@@ -41,7 +40,6 @@ import lombok.RequiredArgsConstructor;
 public class StockAnalyticsController {
 
     private final StockAnalyticsService stockAnalyticsService;
-    private final AnalyticsControllerValidationHelper validationHelper;
 
     /**
      * Gets the total stock value between dates as change points: the first day with
@@ -57,19 +55,17 @@ public class StockAnalyticsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) String supplierId) {
-
-<span class="fc" id="L61">        validationHelper.validateDateRange(start, end, &quot;start&quot;, &quot;end&quot;);</span>
-<span class="fc" id="L62">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockValueOverTime(start, end, supplierId));</span>
+<span class="fc" id="L58">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockValueOverTime(start, end, supplierId));</span>
     }
 
     @GetMapping(&quot;/stock-per-supplier&quot;)
     public ResponseEntity&lt;List&lt;StockPerSupplierDTO&gt;&gt; getStockPerSupplier() {
-<span class="fc" id="L67">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockPerSupplier());</span>
+<span class="fc" id="L63">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockPerSupplier());</span>
     }
 
     @GetMapping(&quot;/low-stock/count&quot;)
     public long getLowStockCount() {
-<span class="fc" id="L72">        return stockAnalyticsService.lowStockCount();</span>
+<span class="fc" id="L68">        return stockAnalyticsService.lowStockCount();</span>
     }
 
     /**
@@ -81,9 +77,7 @@ public class StockAnalyticsController {
     @GetMapping(&quot;/item-update-frequency&quot;)
     public ResponseEntity&lt;List&lt;ItemUpdateFrequencyDTO&gt;&gt; getItemUpdateFrequency(
             @RequestParam String supplierId) {
-
-<span class="fc" id="L85">        validationHelper.requireNonBlank(supplierId, &quot;supplierId&quot;);</span>
-<span class="fc" id="L86">        return ResponseEntity.ok(stockAnalyticsService.getItemUpdateFrequency(supplierId));</span>
+<span class="fc" id="L80">        return ResponseEntity.ok(stockAnalyticsService.getItemUpdateFrequency(supplierId));</span>
     }
 
     /**
@@ -95,9 +89,7 @@ public class StockAnalyticsController {
     @GetMapping(&quot;/low-stock-items&quot;)
     public ResponseEntity&lt;List&lt;LowStockItemDTO&gt;&gt; getLowStockItems(
             @RequestParam String supplierId) {
-
-<span class="fc" id="L99">        validationHelper.requireNonBlank(supplierId, &quot;supplierId&quot;);</span>
-<span class="fc" id="L100">        return ResponseEntity.ok(stockAnalyticsService.getItemsBelowMinimumStock(supplierId));</span>
+<span class="fc" id="L92">        return ResponseEntity.ok(stockAnalyticsService.getItemsBelowMinimumStock(supplierId));</span>
     }
 
     /**
@@ -113,9 +105,7 @@ public class StockAnalyticsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) String supplierId) {
-
-<span class="fc" id="L117">        validationHelper.validateDateRange(start, end, &quot;start&quot;, &quot;end&quot;);</span>
-<span class="fc" id="L118">        return ResponseEntity.ok(stockAnalyticsService.getMonthlyStockMovement(start, end, supplierId));</span>
+<span class="fc" id="L108">        return ResponseEntity.ok(stockAnalyticsService.getMonthlyStockMovement(start, end, supplierId));</span>
     }
 
     /**
@@ -133,10 +123,7 @@ public class StockAnalyticsController {
             @RequestParam(required = false) String supplierId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-
-<span class="fc" id="L137">        validationHelper.requireNonBlank(itemId, &quot;itemId&quot;);</span>
-<span class="fc" id="L138">        validationHelper.validateDateRange(start, end, &quot;start&quot;, &quot;end&quot;);</span>
-<span class="fc" id="L139">        return ResponseEntity.ok(stockAnalyticsService.getPriceTrend(itemId, supplierId, start, end));</span>
+<span class="fc" id="L126">        return ResponseEntity.ok(stockAnalyticsService.getPriceTrend(itemId, supplierId, start, end));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

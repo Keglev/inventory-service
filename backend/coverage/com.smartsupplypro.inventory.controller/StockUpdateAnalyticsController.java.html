@@ -71,13 +71,9 @@ public class StockUpdateAnalyticsController {
             @RequestParam(required = false) Integer minChange,
             @RequestParam(required = false) Integer maxChange) {
 
-<span class="fc" id="L74">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
-<span class="fc" id="L75">        validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], &quot;startDate&quot;, &quot;endDate&quot;);</span>
-<span class="fc" id="L76">        validationHelper.validateNumericRange(minChange, maxChange, &quot;minChange&quot;, &quot;maxChange&quot;);</span>
-<span class="fc" id="L77">        StockUpdateFilterDTO filter = validationHelper.buildFilter(</span>
-                dateWindow[0], dateWindow[1], itemName, supplierId,
-<span class="fc" id="L79">                identityMasking.resolveFilter(createdBy), minChange, maxChange);</span>
-<span class="fc" id="L80">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
+<span class="fc" id="L74">        StockUpdateFilterDTO filter = filterFromParams(</span>
+                startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);
+<span class="fc" id="L76">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
     }
 
     /**
@@ -109,14 +105,10 @@ public class StockUpdateAnalyticsController {
             @RequestParam(defaultValue = &quot;0&quot;) int page,
             @RequestParam(defaultValue = &quot;10&quot;) int size) {
 
-<span class="fc" id="L112">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
-<span class="fc" id="L113">        validationHelper.validateDateTimeRange(dateWindow[0], dateWindow[1], &quot;startDate&quot;, &quot;endDate&quot;);</span>
-<span class="fc" id="L114">        validationHelper.validateNumericRange(minChange, maxChange, &quot;minChange&quot;, &quot;maxChange&quot;);</span>
-<span class="fc" id="L115">        StockUpdateFilterDTO filter = validationHelper.buildFilter(</span>
-                dateWindow[0], dateWindow[1], itemName, supplierId,
-<span class="fc" id="L117">                identityMasking.resolveFilter(createdBy), minChange, maxChange);</span>
-<span class="fc" id="L118">        PageRequest pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));</span>
-<span class="fc" id="L119">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdatesPage(filter, pageable));</span>
+<span class="fc" id="L108">        StockUpdateFilterDTO filter = filterFromParams(</span>
+                startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);
+<span class="fc" id="L110">        PageRequest pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));</span>
+<span class="fc" id="L111">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdatesPage(filter, pageable));</span>
     }
 
     /**
@@ -129,9 +121,16 @@ public class StockUpdateAnalyticsController {
     @PostMapping(value = &quot;/stock-updates/query&quot;, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;List&lt;StockUpdateResultDTO&gt;&gt; getFilteredStockUpdatesPost(
             @RequestBody @Valid StockUpdateFilterDTO filter) {
+<span class="fc" id="L124">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
+    }
 
-<span class="fc" id="L133">        validationHelper.validateStockUpdateFilter(filter);</span>
-<span class="fc" id="L134">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
+    // The service defaults the window and rejects inverted ranges for every caller;
+    // anonymous callers' creator filter is resolved here, at the HTTP boundary.
+    private StockUpdateFilterDTO filterFromParams(
+            LocalDateTime startDate, LocalDateTime endDate, String itemName, String supplierId,
+            String createdBy, Integer minChange, Integer maxChange) {
+<span class="fc" id="L132">        return validationHelper.buildFilter(startDate, endDate, itemName, supplierId,</span>
+<span class="fc" id="L133">                identityMasking.resolveFilter(createdBy), minChange, maxChange);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
