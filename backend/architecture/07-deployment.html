@@ -319,6 +319,14 @@
         the image has been scanned. There is no direct push trigger on
         the image build, so nothing is released in parallel with the
         tests meant to gate it.</p>
+        <p>No run of that chain on <code>main</code> is cancelled or
+        dropped. Each image build and each release compares its commit
+        with the parent only, so a skipped run would leave that commit’s
+        change unbuilt. Pull request runs of <code>backend-ci.yml</code>
+        still cancel each other; on <code>main</code> it,
+        <code>backend-docker.yml</code> and
+        <code>backend-deploy.yml</code> queue their runs in order
+        (<code>queue: max</code>).</p>
         <p>Every action reference across all eleven workflows is pinned
         to a commit SHA rather than a mutable tag;
         <code>dependabot.yml</code> opens one grouped pull request a
