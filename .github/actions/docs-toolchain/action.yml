@@ -1,0 +1,88 @@
+# =============================================================================
+# docs-toolchain - the pinned tools the docs site is built with
+# Usage: a step in docs-build.yml and docs-pr-check.yml, before build-docs.sh:
+#          uses: ./.github/actions/docs-toolchain
+#          with: {redoc, pandoc, frontend-install}
+#
+# Both docs workflows render the same site, and a page rendered by one tool
+# version in the pull request and another on main is a page nobody reviewed.
+# Until 2026-10-20 each workflow carried its own copy of these steps and pins
+# (W6); the versions now live here once.
+#
+# Pins and why:
+#   Node 24, as every other Node job. Always set up: build-docs.sh vendors
+#     Mermaid with `npm pack`.
+#   npm 11.10.1, only when frontend-install is 'true'. npm ci resolves the
+#     frontend lockfile there, and the project pins its npm for that (CI env,
+#     Dockerfile ARG). Global CLI installs have no peer graph to resolve, so the
+#     client version cannot change them (W4).
+#   The npm cache on frontend/package-lock.json, also only for frontend-install
+#     (W3): the key belongs to the frontend tree. A job that never runs npm ci
+#     restored 48 MB for nothing, and on a key miss its post step could save
+#     a near-empty cache under the frontend's key for every later job to hit.
+#   @redocly/cli 2.51.1 (pinned 2026-09-04): it renders the published API
+#     reference; the rendered HTML records the bundled renderer, not the tool
+#     that ran it, so an unpinned install changed pages with no trace.
+#   pandoc 3.1.3+ds-2: the one version Ubuntu 24.04 publishes, frozen in the
+#     Release pocket. Naming it makes a security update arrive as a failed
+#     install here, not as 64 silently re-rendered pages. Callers run on
+#     ubuntu-24.04 for this reason.
+#
+# Produces: node, npm and, as requested, redocly and pandoc on PATH; prints
+# each version.
+#
+# FAILURE MODE: fails the calling job when a pinned version cannot be
+# installed (registry or archive no longer serves it). Nothing is skipped
+# silently; an input set to anything but 'true' leaves that tool out.
+# =============================================================================
+name: Docs toolchain
+description: Node, npm and the pinned Redocly CLI and Pandoc for the docs build.
+
+inputs:
+  redoc:
+    description: "'true' installs @redocly/cli"
+    required: false
+    default: 'false'
+  pandoc:
+    description: "'true' installs pandoc"
+    required: false
+    default: 'false'
+  frontend-install:
+    description: "'true' when the caller runs npm ci in frontend/ (TypeDoc): pins npm and restores the frontend npm cache"
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: '24'
+        cache: ${{ inputs.frontend-install == 'true' && 'npm' || '' }}
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Pin npm for the frontend install
+      if: inputs.frontend-install == 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        npm install -g npm@11.10.1
+        echo "npm: $(npm --version)"
+
+    - name: Install Redocly CLI
+      if: inputs.redoc == 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        npm install -g @redocly/cli@2.51.1
+        echo "redocly: $(redocly --version)"
+
+    - name: Install Pandoc
+      if: inputs.pandoc == 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update -qq
+        sudo apt-get install -y pandoc=3.1.3+ds-2
+        pandoc --version | head -n 1
