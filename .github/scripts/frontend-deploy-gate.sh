@@ -4,7 +4,8 @@
 # Usage: git diff --name-only HEAD^ HEAD | bash .github/scripts/frontend-deploy-gate.sh
 #        Reads the changed paths of the merge on stdin. Invoked by
 #        .github/workflows/frontend-deploy.yml; the backend chain has the same
-#        gate inline in backend-docker.yml and backend-deploy.yml.
+#        gate inline in backend-docker.yml, which hands its verdict to
+#        backend-deploy.
 #
 # frontend-ci runs on every frontend/** change, and the deploy used to follow
 # every green run, so a merge that touched only specs rebuilt nothing the
