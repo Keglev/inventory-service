@@ -109,6 +109,8 @@ describe('SettingsProvider', () => {
     // System info moved to the shared health query; the context carries no fetch state.
     let keys: string[] = [];
     function KeysProbe() {
+      // TODO(F7B): the probe writes an outer variable during render; read the context through a returned value instead.
+      // eslint-disable-next-line react-hooks/globals
       keys = Object.keys(React.useContext(SettingsContext) ?? {}).sort();
       return null;
     }

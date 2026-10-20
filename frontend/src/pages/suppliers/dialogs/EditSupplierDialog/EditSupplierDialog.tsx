@@ -72,6 +72,8 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
   const form = useEditSupplierForm(() => {
     toast(t('suppliers:status.updated'), 'success');
     onSupplierUpdated();
+    // TODO(F7B): the callback reads handleClose before its declaration; reorder the declarations.
+    // eslint-disable-next-line react-hooks/immutability
     handleClose();
   });
 
@@ -82,6 +84,8 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
   /**
    * Handle dialog close.
    */
+  // TODO(F7B): the compiler cannot keep this useCallback; restructure so its dependencies are stable.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleClose = React.useCallback(() => {
     resetForm();
     onClose();

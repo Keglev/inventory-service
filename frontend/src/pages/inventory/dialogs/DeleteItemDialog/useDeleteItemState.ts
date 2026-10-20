@@ -56,6 +56,8 @@ export function useDeleteItemState() {
     setItemQuery('');
     setValue('itemId', '');
     setFormError('');
+    // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShowConfirmation(false);
   }, [selectedSupplier, setValue, setSelectedItem, setItemQuery, setFormError]);
 
