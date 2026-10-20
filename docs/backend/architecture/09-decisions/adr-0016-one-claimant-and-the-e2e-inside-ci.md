@@ -160,6 +160,27 @@ aggregator, as the Consequences above ask of a new check:
 Superseded by this block: the Decision's "each ends in an aggregator job"
 applied to the two callers of the suite; it now applies to all three claimants.
 
+## Amendment 2026-10-20: one suite per pull request
+
+A pull request touching both families ran the suite twice, once inside each
+claimant, on the same merge commit (W1 of SURVEY-2: `ce8b118`, two runs). Both
+runs evaluate the same diff with the same gate script, so the second can only
+repeat the first.
+
+- `backend-ci.yml` passes `caller: backend-ci` to the reusable workflow. On a
+  `pull_request` run, when the diff also contains a path `frontend-ci.yml`
+  triggers on, the gate returns `run=false` for that caller; `frontend-ci.yml`
+  runs the suite and its `build-and-test` reports it.
+- Pushes to `main` keep both runs (fork C): each chain's release gate still
+  includes the suite, so a red suite stops both deploys.
+- The gate's copy of `frontend-ci.yml`'s path list must match it. A missing
+  path only costs a duplicate run; an extra one would leave a pull request
+  without a suite.
+
+Replayed as pull requests over the 300 commits on `main` up to `045d9aa`: 159
+trigger `backend-ci.yml`, and 11 of those skip the duplicate run; no other
+verdict changes.
+
 ## References
 - [ADR-0013: The docs pipeline rebuilds, and publishes, by change](adr-0013-docs-pipeline-rebuilds-by-change.md)
 - [ADR-0015: GitHub Pages is deployed by the publisher job](adr-0015-pages-deployed-from-the-publisher-job.md)
