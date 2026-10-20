@@ -3,7 +3,9 @@
 # build-typedoc-html.sh — Converts TypeDoc markdown output to HTML pages
 # Usage: .github/scripts/docs/build-typedoc-html.sh <project-dir> <lua-filter>
 #
-# Non-blocking: skips silently if the TypeDoc markdown directory is absent.
+# Skips when the TypeDoc markdown directory is absent (docs-pr-check, and any
+# run that does not build TypeDoc). Fails when that directory has no README.md,
+# the API index, rather than publishing pages without one.
 # Prerequisites: pandoc, Lua filter written by build-docs.sh
 # =============================================================================
 set -euo pipefail
@@ -42,27 +44,21 @@ find "$TYPEDOC_MD_DIR" -type f -name "*.md" | while read -r md; do
     -o "$out"
 done
 
-# Landing page: build it from TypeDoc's own root README when present — it is the
-# complete module index with working relative links. Fall back to a placeholder.
-if [ -f "$TYPEDOC_MD_DIR/README.md" ]; then
-  pandoc "$TYPEDOC_MD_DIR/README.md" \
-    --from gfm --to html \
-    --data-dir="$DATA_DIR" \
-    --template "$TEMPLATE" \
-    --lua-filter "$LUA_FILTER" \
-    --metadata=title:"Frontend API" \
-    --standalone --toc --toc-depth=3 \
-    -o "$API_OUT/index.html"
-else
-  printf '# Frontend API\nGenerated API reference for the Smart Supply Pro frontend.\n' > "$API_OUT/index.md"
-  pandoc "$API_OUT/index.md" \
-    --from gfm --to html \
-    --data-dir="$DATA_DIR" \
-    --template "$TEMPLATE" \
-    --lua-filter "$LUA_FILTER" \
-    --metadata=title:"Frontend API" \
-    --standalone -o "$API_OUT/index.html"
-  rm -f "$API_OUT/index.md"
+# Landing page: TypeDoc's own root README, the complete module index with
+# working relative links. The markdown plugin always writes it; a placeholder
+# page used to stand in when it was missing, which would have published an
+# index without links instead of failing (W12).
+if [ ! -f "$TYPEDOC_MD_DIR/README.md" ]; then
+  echo "::error::TypeDoc wrote no README.md in $TYPEDOC_MD_DIR: no index for the API pages"
+  exit 1
 fi
+pandoc "$TYPEDOC_MD_DIR/README.md" \
+  --from gfm --to html \
+  --data-dir="$DATA_DIR" \
+  --template "$TEMPLATE" \
+  --lua-filter "$LUA_FILTER" \
+  --metadata=title:"Frontend API" \
+  --standalone --toc --toc-depth=3 \
+  -o "$API_OUT/index.html"
 
 echo "✓ TypeDoc HTML complete"

@@ -8,9 +8,6 @@
    diagrams. Those use !important because Mermaid writes them as inline styles.
    ========================================================================== */
 
-/* Wrap wide diagrams so they scroll instead of shrinking to an unreadable size. */
-.diagram-scroll { overflow-x: auto; }
-
 .mermaid { background: transparent; overflow-x: auto; }
 
 /* Edges and arrowheads: one themed color so flow stays legible on either bg. */

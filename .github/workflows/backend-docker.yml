@@ -17,12 +17,9 @@ on:
     workflows: ["Backend CI - Build & Test"]
     types: [completed]
     branches: [ "main" ]
+  # A manual run builds the dispatched ref's HEAD (IMAGE_TAG_SHA falls back to
+  # github.sha). It took an image_tag input that no step ever read (W9).
   workflow_dispatch:
-    inputs:
-      image_tag:
-        description: 'Commit SHA to build (defaults to HEAD)'
-        required: false
-        default: ''
 
 # Every run here belongs to one main commit (a workflow_run event carries main as
 # its ref), and the gate below looks at that commit alone. A cancelled or dropped

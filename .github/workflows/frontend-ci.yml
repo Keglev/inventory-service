@@ -175,7 +175,6 @@ jobs:
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=raw,value=${{ github.sha }}
-            type=sha
       # Build context is repo root so the Dockerfile can access ops/nginx config
       #
       # The image is exported to the runner's Docker daemon and goes no further
