@@ -30,7 +30,7 @@ import { Card, CardContent, Typography, Skeleton, Box, Stack } from '@mui/materi
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
-import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Cell } from 'recharts';
+import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar } from 'recharts';
 import { getFinancialSummary, type FinancialSummary } from '../../../api/analytics/finance';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
@@ -69,27 +69,21 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
     );
   }
 
-  // Build chart series (no hook -> safe w.r.t. Rules of Hooks)
+  // Build chart series (no hook -> safe w.r.t. Rules of Hooks). Each bar
+  // carries its colour as `fill`, which Recharts reads per entry (Cell is
+  // deprecated in Recharts 3 and goes in 4).
   const s = q.data;
-  const data: Array<{ name: string; value: number }> = s
+  const data: Array<{ name: string; value: number; fill: string }> = s
     ? [
-      { name: t('analytics:finance.purchases'), value: s.purchases },
-      { name: t('analytics:finance.cogs'), value: s.cogs },
-      { name: t('analytics:finance.writeOffs'), value: s.writeOffs },
-      { name: t('analytics:finance.returns'), value: s.returns },
+      { name: t('analytics:finance.purchases'), value: s.purchases, fill: muiTheme.palette.success.main },
+      { name: t('analytics:finance.cogs'), value: s.cogs, fill: muiTheme.palette.error.main },
+      { name: t('analytics:finance.writeOffs'), value: s.writeOffs, fill: muiTheme.palette.warning.main },
+      { name: t('analytics:finance.returns'), value: s.returns, fill: muiTheme.palette.info.main },
     ]
     : [];
 
   /** True when all buckets are zero -> show a light empty state. */
   const allZero = q.isSuccess && data.length > 0 && data.every(d => d.value === 0);
-
-  /** Bar colors matching the series order. */
-  const barColors = [
-    muiTheme.palette.success.main, // Purchases
-    muiTheme.palette.error.main,   // COGS
-    muiTheme.palette.warning.main, // Write-offs
-    muiTheme.palette.info.main,    // Returns
-  ];
 
   return (
     <Card>
@@ -136,11 +130,7 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
                         : value
                     }
                   />
-                  <Bar dataKey="value" name={t('analytics:finance.amount')} isAnimationActive={false}>
-                    {data.map((_, i) => (
-                      <Cell key={i} fill={barColors[i % barColors.length]} />
-                    ))}
-                  </Bar>
+                  <Bar dataKey="value" name={t('analytics:finance.amount')} isAnimationActive={false} />
                 </BarChart>
               </ResponsiveContainer>
             </Box>

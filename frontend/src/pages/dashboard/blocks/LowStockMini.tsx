@@ -28,7 +28,7 @@ import { Card, CardContent, Typography, Skeleton, Box, TablePagination } from '@
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar, Cell, LabelList } from 'recharts';
+import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar, LabelList } from 'recharts';
 import { getDashboardLowStock } from '../../../api/analytics/dashboardSummary';
 import type { LowStockRow } from '../../../api/analytics/types';
 import { lowStockSeverity } from '../../../config/inventoryPolicy';
@@ -104,12 +104,16 @@ export default function LowStockMini() {
   // A refetch can shrink the list below the current page; fall back to the last one.
   const lastPage = Math.max(0, Math.ceil(rows.length / ROWS_PER_PAGE) - 1);
   const current = Math.min(page, lastPage);
-  const visible = rows.slice(current * ROWS_PER_PAGE, current * ROWS_PER_PAGE + ROWS_PER_PAGE);
-
   const colorOf = (r: LowStockRow) =>
     lowStockSeverity(r.quantity, r.minimumQuantity) === 'critical'
       ? muiTheme.palette.error.main
       : muiTheme.palette.warning.main;
+
+  // Each bar carries its severity colour as `fill`, which Recharts reads per
+  // entry (Cell is deprecated in Recharts 3 and goes in 4).
+  const visible = rows
+    .slice(current * ROWS_PER_PAGE, current * ROWS_PER_PAGE + ROWS_PER_PAGE)
+    .map((r) => ({ ...r, fill: colorOf(r) }));
 
   return (
     <Card>
@@ -139,9 +143,6 @@ export default function LowStockMini() {
                       )}
                     />
                     <Bar dataKey="share" barSize={20} radius={[0, 3, 3, 0]} isAnimationActive={false}>
-                      {visible.map((r, i) => (
-                        <Cell key={`${r.itemName}-${i}`} fill={colorOf(r)} />
-                      ))}
                       <LabelList dataKey="label" position="right" />
                     </Bar>
                   </BarChart>
