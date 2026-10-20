@@ -11,9 +11,8 @@
  * @enterprise
  * - Composition over duplication. This hook composes the api-layer
  *   useSuppliersQuery and getInventoryPage; it does not re-implement
- *   transport. The api-layer useInventoryData remains the transport-
- *   facing hook; this pages-layer hook adapts it for the inventory
- *   board.
+ *   transport. The page is a React Query keyed by its filters, so a late
+ *   response for filters already left cannot overwrite the current page.
  * - serverPage is 0-based (Spring Pageable), matching the MUI grid's own
  *   0-based page model; it is forwarded to getInventoryPage unchanged.
  *   No index conversion occurs anywhere in this path.
@@ -27,6 +26,7 @@
  */
 
 import * as React from 'react';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useSuppliersQuery } from '../../../api/inventory/hooks/useSuppliersQuery';
 import { getInventoryPage } from '../../../api/inventory/listFetcher';
 import type { InventoryListResponse, InventoryRow } from '../../../api/inventory/types';
@@ -100,14 +100,6 @@ export const useInventoryPageData = (
   pageSize: number,
   serverSort: string
 ): InventoryPageDataResult => {
-  const [server, setServer] = React.useState<InventoryListResponse>({
-    items: [],
-    total: 0,
-    page: 0,
-    pageSize: 10,
-  });
-  const [loading, setLoading] = React.useState(false);
-
   // Debounce the search input so typing does not fire a request per keystroke
   const debouncedQ = useDebounced(q, 300);
 
@@ -120,48 +112,64 @@ export const useInventoryPageData = (
   // Row styling function
   const getRowClassName = useInventoryRowStyling();
 
-  // Load inventory from backend
-  const load = React.useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await getInventoryPage({
-        page: serverPage,
-        pageSize,
-        q: debouncedQ,
-        supplierId: supplierId ?? undefined,
-        sort: serverSort,
-        belowMinimumOnly: belowMinOnly,
-      });
-      setServer(res);
-    } catch (err) {
-      logError('Failed to load inventory:', err);
-      setServer({ items: [], total: 0, page: serverPage, pageSize });
-    } finally {
-      setLoading(false);
-    }
-  }, [serverPage, pageSize, debouncedQ, belowMinOnly, supplierId, serverSort]);
+  const listing = listsItems(supplierId, belowMinOnly);
+  const params = {
+    page: serverPage,
+    pageSize,
+    q: debouncedQ,
+    supplierId: supplierId ?? undefined,
+    sort: serverSort,
+    belowMinimumOnly: belowMinOnly,
+  };
 
-  React.useEffect(() => {
-    if (listsItems(supplierId, belowMinOnly)) {
-      // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      void load();
-    } else {
-      setServer((s) => ({ ...s, items: [], total: 0 }));
-    }
-  }, [supplierId, belowMinOnly, load]);
+  // The page belongs to its filters (the query key), so a slow response for
+  // filters the user has already left can no longer overwrite the current one.
+  const pageQuery = useQuery({
+    queryKey: ['inventory', 'page', params],
+    queryFn: async () => {
+      try {
+        return await getInventoryPage(params);
+      } catch (err) {
+        logError('Failed to load inventory:', err);
+        throw err;
+      }
+    },
+    enabled: listing,
+    // The rows of the previous filters stay on screen while the next page
+    // loads, as before; the grid shows its loading state over them.
+    placeholderData: keepPreviousData,
+    // WHY: the grid must show what the server holds after an edit elsewhere;
+    // the app-wide 60 s staleTime would serve a cached page instead.
+    staleTime: 0,
+    // WHY: a failed load empties the grid at once, as before; a retry would
+    // hold the old rows for another round trip.
+    retry: false,
+  });
+
+  // A failed load shows an empty page, also when a reload of a page that had
+  // loaded before fails (React Query would keep the last data).
+  // Memoized so the grid receives the same rows array until the data changes.
+  const { data, isError } = pageQuery;
+  const server = React.useMemo<InventoryListResponse>(
+    () =>
+      listing && data && !isError
+        ? data
+        : { items: [], total: 0, page: serverPage, pageSize },
+    [listing, data, isError, serverPage, pageSize],
+  );
 
   // Explicit refresh path. Re-runs the current query directly rather than
   // poking paginationModel back to page 0, which no-opped when the user was
   // already on page 0 (React bails on an equal setState). Guarded by listsItems
   // so the catalogue is never fetched unfiltered.
+  const { refetch } = pageQuery;
   const reload = React.useCallback(() => {
-    if (listsItems(supplierId, belowMinOnly)) void load();
-  }, [supplierId, belowMinOnly, load]);
+    if (listing) void refetch();
+  }, [listing, refetch]);
 
   return {
     server,
-    loading,
+    loading: listing && pageQuery.isFetching,
     suppliers: suppliersQuery.data,
     supplierLoading: suppliersQuery.isLoading,
     items: server.items,
