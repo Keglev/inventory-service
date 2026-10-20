@@ -95,6 +95,16 @@ order, in `docs-deploy.yml`, `docs-build.yml` and `frontend-ci.yml`. The last
 group is shared by every branch, and on 2026-10-09 it cancelled a pull
 request's required check this way.
 
+## Amendment 2026-10-20: the back-to-docs link is added at build time
+
+The Decision lists "the back-to-docs injection" among what the publisher job
+keeps. It no longer does it. The coverage index pages get the link when
+`build-docs.sh` copies them into the site, from the same script that gives it
+to the ReDoc page (`.github/scripts/docs/inject-back-link.sh`, W5); the markup
+had been written out twice. The publisher job publishes what the build
+produced, link included; pages already on the branch carry it and the script
+leaves a page that has it unchanged.
+
 ## References
 - [ADR-0013: The docs pipeline rebuilds, and publishes, by change](adr-0013-docs-pipeline-rebuilds-by-change.md)
 - Configuring a publishing source for GitHub Pages: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
