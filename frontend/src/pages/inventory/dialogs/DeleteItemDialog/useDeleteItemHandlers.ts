@@ -65,6 +65,8 @@ export function useDeleteItemHandlers(
    * Usage: triggered by "Delete" button in form view
    */
   const onSubmit = state.handleSubmit(
+    // TODO(F7B): the compiler cannot keep this useCallback; restructure so its dependencies are stable.
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     React.useCallback(async () => {
     if (!state.selectedItem) {
       state.setFormError(t('errors:inventory.selection.noItemSelected'));

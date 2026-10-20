@@ -105,6 +105,8 @@ export const useInventoryState = (): InventoryState & InventoryStateSetters => {
   // changes on each navigation, also to the same URL; the params object does not.
   React.useEffect(() => {
     if (!linkedBelowMinimum) return;
+    // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBelowMinOnly(true);
     setSupplierId(null);
     setSelectedId(null);

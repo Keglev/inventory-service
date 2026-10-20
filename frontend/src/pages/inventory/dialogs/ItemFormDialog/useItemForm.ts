@@ -162,6 +162,8 @@ export function useItemForm({
   React.useEffect(() => {
     if (!isOpen) return;
     reset(ITEM_FORM_DEFAULTS);
+    // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormError(null);
     clearErrors();
   }, [isOpen, reset, clearErrors]);

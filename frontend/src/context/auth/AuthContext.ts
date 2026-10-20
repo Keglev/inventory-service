@@ -57,6 +57,8 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   useEffect(() => {
     const demo = readDemoSession();
     if (demo) {
+      // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUser(demo);
       setLoading(false);
       return; // short-circuit: demo sessions don't call /api/me
@@ -118,6 +120,8 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   // WHY: a successful re-login (server or demo) after logout must clear logoutInProgress so guards stop suppressing routes; also cancels any pending safety-valve timer.
   useEffect(() => {
     if (user) {
+      // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLogoutInProgress(false);
       if (logoutTimerRef.current) {
         clearTimeout(logoutTimerRef.current);

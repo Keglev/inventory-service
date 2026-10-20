@@ -33,6 +33,8 @@ export function useEmployeesSectionData({ from, to, supplierId }: UseEmployeesSe
 
   // A new window invalidates the current page position.
   React.useEffect(() => {
+    // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(0);
   }, [from, to, supplierId]);
 
