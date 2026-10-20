@@ -29,6 +29,13 @@ name: E2E - Playwright Browser Suite
 
 on:
   workflow_call:
+    inputs:
+      # backend-ci passes its name so the gate can leave a pull request that
+      # frontend-ci also checks to frontend-ci's run (F4, see e2e-relevant.sh).
+      caller:
+        type: string
+        required: false
+        default: ''
   workflow_dispatch:
 
 permissions:
@@ -60,6 +67,8 @@ jobs:
 
       - name: Decide whether the suite is relevant
         id: decide
+        env:
+          E2E_CALLER: ${{ inputs.caller }}
         run: bash .github/scripts/e2e-relevant.sh
 
   e2e-playwright:

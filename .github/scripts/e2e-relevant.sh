@@ -14,6 +14,15 @@
 # enter it. A commit that touches only those skips the suite. Any other path,
 # a new file included, runs it.
 #
+# One suite per pull request (F4, fork C, 2026-10-20). When backend-ci calls
+# this (E2E_CALLER=backend-ci) for a pull request that also touches a path
+# frontend-ci triggers on, frontend-ci runs this same script on the same diff
+# and so reaches the same verdict; backend-ci skips its copy instead of a second
+# identical run. Pushes to main keep both runs, so a red suite still stops both
+# deploy chains. The list below must match frontend-ci.yml's paths filter: a
+# path missing from it costs a duplicate run, a path listed here that
+# frontend-ci does not trigger on would leave the pull request without a suite.
+#
 # Writes run=true|false to $GITHUB_OUTPUT. A manual dispatch always runs.
 # HEAD^..HEAD is the pull request's own diff on a pull_request run, because the
 # checked-out commit is the merge commit; on a push it is the pushed commit.
@@ -27,6 +36,14 @@ fi
 
 changed=$(git diff --name-only HEAD^ HEAD)
 echo "$changed"
+
+frontend_ci='^(frontend/|ops/nginx/|\.github/(workflows/frontend-ci\.yml|scripts/(verify-image-contract|report-dependency-tree|frontend-ci-summary)\.sh|actions/image-sbom-scan/))'
+if [ "${E2E_CALLER:-}" = "backend-ci" ] && [ "${GITHUB_EVENT_NAME:-}" = "pull_request" ] \
+    && grep -qE "$frontend_ci" <<< "$changed"; then
+  echo "run=false" >> "$GITHUB_OUTPUT"
+  echo "frontend-ci also checks this pull request and runs the browser suite there; backend-ci skips its copy." >> "$GITHUB_STEP_SUMMARY"
+  exit 0
+fi
 
 watched='^(src/|pom\.xml|frontend/|\.github/(workflows/e2e-playwright\.yml|scripts/e2e-relevant\.sh))'
 unseen='^(src/test/|frontend/(src/__tests__/|vitest\.config\.ts$|eslint\.config\.js$|README\.md$|typedoc\.json$|Dockerfile$|\.env\.development$|\.env\.example$))'

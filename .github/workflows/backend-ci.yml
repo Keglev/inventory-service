@@ -197,9 +197,12 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   # The suite runs beside the backend job, not after it: it builds its own jar
-  # and its own bundle. Skipped when the gate inside it finds nothing to see.
+  # and its own bundle. Skipped when the gate inside it finds nothing to see,
+  # and on a pull request frontend-ci also checks (frontend-ci runs it there).
   e2e:
     uses: ./.github/workflows/e2e-playwright.yml
+    with:
+      caller: backend-ci
 
   # YAML hygiene and actionlint; skipped unless the pull request changes a
   # checked YAML file (gate inside yaml-lint.yml).
