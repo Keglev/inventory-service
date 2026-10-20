@@ -93,9 +93,10 @@ jobs:
       # trigger: a lint that could only fail after the merge would stop a
       # release instead of stopping a merge.
       #
-      # Pinned by version tag, not by digest. Dependabot's scope in this
-      # repository is github-actions only, so a digest here would be a pin
-      # nothing moves - the failure mode dependabot.yml's own header describes.
+      # Pinned by version tag, not by digest. Dependabot's docker ecosystem
+      # reads the Dockerfiles, not an image named in a workflow's run: line, so
+      # a digest here would be a pin nothing moves - the failure mode
+      # dependabot.yml's own header describes.
       #
       # The warnings that remain in both Dockerfiles carry inline
       # `hadolint ignore=` pragmas with their reasons, so a clean run means the
@@ -116,12 +117,12 @@ jobs:
       # same patch release on every run. Turning it on would make the toolchain
       # move without a record in this repository, which is the opposite of how
       # every other version here is handled - npm, pandoc, redocly, the scanner,
-      # Tomcat, H2 and all 36 action references are pinned.
+      # Tomcat, H2 and every action reference are pinned.
       #
       # It costs nothing in security. This JDK never reaches production: the
-      # shipped jar is compiled inside the image by maven:3.9.11-eclipse-temurin-21
-      # and runs on eclipse-temurin:21-jre-alpine, which is upgraded on every
-      # build. The JDK here only runs the test suite.
+      # shipped jar is compiled inside the image by the Dockerfile's
+      # maven:3-eclipse-temurin-21 stage and runs on eclipse-temurin:21-jre-alpine,
+      # both pulled fresh on every build. The JDK here only runs the test suite.
       #
       # It also has diagnostic value. A fixed resolution line in the log is what
       # let the PR #110 investigation rule out the setup-java major bump as the
@@ -175,8 +176,8 @@ jobs:
 
       # Only on failure, and deliberately so. Surefire writes one XML and one
       # .txt per test class under target/surefire-reports; the .txt carries the
-      # exception and stack trace for each failure. On a green run that is 129
-      # files nobody reads.
+      # exception and stack trace for each failure. On a green run that is two
+      # files per test class that nobody reads.
       #
       # On a red run it is the difference between downloading one artifact and
       # searching a 50,000-line log. PR #110 failed with 177 context-load errors
