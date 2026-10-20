@@ -120,8 +120,7 @@
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -154,7 +153,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -213,7 +211,6 @@ export const createSupplierSchema = z.object({
     .optional()
     .transform((v) =&gt; v || null),
   email: z
-    .string()
     .email('errors:validation.invalidEmail')
     .optional()
     .transform((v) =&gt; v || null),
@@ -233,7 +230,7 @@ export const editSupplierSchema = z.object({
   supplierId: z.string().min(1, 'errors:validation.required'),
   contactName: z.string().nullable().catch(null),
   phone: z.string().nullable().catch(null),
-  email: z.string().email('errors:validation.invalidEmail').nullable().catch(null),
+  email: z.email('errors:validation.invalidEmail').nullable().catch(null),
 });
 &nbsp;
 export type EditSupplierForm = z.infer&lt;typeof editSupplierSchema&gt;;

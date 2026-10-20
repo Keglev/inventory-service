@@ -130,14 +130,14 @@ api/suppliers/validation/variables/editSupplierSchema · Smart Supply Pro · API
         <code>ZodObject</code>&lt;{ <code>contactName</code>:
         <code>ZodCatch</code>&lt;<code>ZodNullable</code>&lt;<code>ZodString</code>&gt;&gt;;
         <code>email</code>:
-        <code>ZodCatch</code>&lt;<code>ZodNullable</code>&lt;<code>ZodString</code>&gt;&gt;;
+        <code>ZodCatch</code>&lt;<code>ZodNullable</code>&lt;<code>ZodEmail</code>&gt;&gt;;
         <code>phone</code>:
         <code>ZodCatch</code>&lt;<code>ZodNullable</code>&lt;<code>ZodString</code>&gt;&gt;;
         <code>supplierId</code>: <code>ZodString</code>; },
         <code>$strip</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/suppliers/validation.ts#L51">api/suppliers/validation.ts:51</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/suppliers/validation.ts#L50">api/suppliers/validation.ts:50</a></p>
         <p>Schema for the supplier edit form. Excludes <code>name</code>
         — renaming is not exposed through this form.</p>
         <h2 id="remarks">Remarks</h2>
