@@ -232,6 +232,19 @@
         <code>frontend-ci.yml</code>. The last group is shared by every
         branch, and on 2026-10-09 it cancelled a pull request’s required
         check this way.</p>
+        <h2
+        id="amendment-2026-10-20-the-back-to-docs-link-is-added-at-build-time">Amendment
+        2026-10-20: the back-to-docs link is added at build time</h2>
+        <p>The Decision lists “the back-to-docs injection” among what
+        the publisher job keeps. It no longer does it. The coverage
+        index pages get the link when <code>build-docs.sh</code> copies
+        them into the site, from the same script that gives it to the
+        ReDoc page
+        (<code>.github/scripts/docs/inject-back-link.sh</code>, W5); the
+        markup had been written out twice. The publisher job publishes
+        what the build produced, link included; pages already on the
+        branch carry it and the script leaves a page that has it
+        unchanged.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -268,6 +281,10 @@
       href="#amendment-2026-10-09-the-queue-keeps-every-pending-run"
       id="toc-amendment-2026-10-09-the-queue-keeps-every-pending-run">Amendment
       2026-10-09: the queue keeps every pending run</a></li>
+      <li><a
+      href="#amendment-2026-10-20-the-back-to-docs-link-is-added-at-build-time"
+      id="toc-amendment-2026-10-20-the-back-to-docs-link-is-added-at-build-time">Amendment
+      2026-10-20: the back-to-docs link is added at build time</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
