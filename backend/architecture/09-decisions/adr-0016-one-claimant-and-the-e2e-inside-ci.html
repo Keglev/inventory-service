@@ -323,6 +323,33 @@
         <p>Superseded by this block: the Decision’s “each ends in an
         aggregator job” applied to the two callers of the suite; it now
         applies to all three claimants.</p>
+        <h2
+        id="amendment-2026-10-20-one-suite-per-pull-request">Amendment
+        2026-10-20: one suite per pull request</h2>
+        <p>A pull request touching both families ran the suite twice,
+        once inside each claimant, on the same merge commit (W1 of
+        SURVEY-2: <code>ce8b118</code>, two runs). Both runs evaluate
+        the same diff with the same gate script, so the second can only
+        repeat the first.</p>
+        <ul>
+        <li><code>backend-ci.yml</code> passes
+        <code>caller: backend-ci</code> to the reusable workflow. On a
+        <code>pull_request</code> run, when the diff also contains a
+        path <code>frontend-ci.yml</code> triggers on, the gate returns
+        <code>run=false</code> for that caller;
+        <code>frontend-ci.yml</code> runs the suite and its
+        <code>build-and-test</code> reports it.</li>
+        <li>Pushes to <code>main</code> keep both runs (fork C): each
+        chain’s release gate still includes the suite, so a red suite
+        stops both deploys.</li>
+        <li>The gate’s copy of <code>frontend-ci.yml</code>’s path list
+        must match it. A missing path only costs a duplicate run; an
+        extra one would leave a pull request without a suite.</li>
+        </ul>
+        <p>Replayed as pull requests over the 300 commits on
+        <code>main</code> up to <code>045d9aa</code>: 159 trigger
+        <code>backend-ci.yml</code>, and 11 of those skip the duplicate
+        run; no other verdict changes.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -371,6 +398,9 @@
       href="#amendment-2026-10-20-the-yaml-lint-joins-all-three-claimants"
       id="toc-amendment-2026-10-20-the-yaml-lint-joins-all-three-claimants">Amendment
       2026-10-20: the YAML lint joins all three claimants</a></li>
+      <li><a href="#amendment-2026-10-20-one-suite-per-pull-request"
+      id="toc-amendment-2026-10-20-one-suite-per-pull-request">Amendment
+      2026-10-20: one suite per pull request</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
