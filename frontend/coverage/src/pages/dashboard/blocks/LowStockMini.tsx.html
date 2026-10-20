@@ -232,7 +232,8 @@
 <a name='L167'></a><a href='#L167'>167</a>
 <a name='L168'></a><a href='#L168'>168</a>
 <a name='L169'></a><a href='#L169'>169</a>
-<a name='L170'></a><a href='#L170'>170</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -338,12 +339,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -372,9 +377,6 @@
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -431,7 +433,7 @@ import { Card, CardContent, Typography, Skeleton, Box, TablePagination } from '@
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar, Cell, LabelList } from 'recharts';
+import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar, LabelList } from 'recharts';
 import { getDashboardLowStock } from '../../../api/analytics/dashboardSummary';
 import type { LowStockRow } from '../../../api/analytics/types';
 import { lowStockSeverity } from '../../../config/inventoryPolicy';
@@ -507,12 +509,16 @@ export default function LowStockMini() {
   // A refetch can shrink the list below the current page; fall back to the last one.
   const lastPage = Math.max(0, Math.ceil(rows.length / ROWS_PER_PAGE) - 1);
   const current = Math.min(page, lastPage);
-  const visible = rows.slice(current * ROWS_PER_PAGE, current * ROWS_PER_PAGE + ROWS_PER_PAGE);
-&nbsp;
   const colorOf = (r: LowStockRow) =&gt;
     lowStockSeverity(r.quantity, r.minimumQuantity) === 'critical'
       ? muiTheme.palette.error.main
       : muiTheme.palette.warning.main;
+&nbsp;
+  // Each bar carries its severity colour as `fill`, which Recharts reads per
+  // entry (Cell is deprecated in Recharts 3 and goes in 4).
+  const visible = rows
+    .slice(current * ROWS_PER_PAGE, current * ROWS_PER_PAGE + ROWS_PER_PAGE)
+    .map((r) =&gt; ({ ...r, fill: colorOf(r) }));
 &nbsp;
   return (
     &lt;Card&gt;
@@ -542,9 +548,6 @@ export default function LowStockMini() {
                       )}
                     /&gt;
                     &lt;Bar dataKey="share" barSize={20} radius={[0, 3, 3, 0]} isAnimationActive={false}&gt;
-                      {visible.map((r, i) =&gt; (
-                        &lt;Cell key={`${r.itemName}-${i}`} fill={colorOf(r)} /&gt;
-                      ))}
                       &lt;LabelList dataKey="label" position="right" /&gt;
                     &lt;/Bar&gt;
                   &lt;/BarChart&gt;

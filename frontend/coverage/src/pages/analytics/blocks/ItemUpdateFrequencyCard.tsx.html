@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>14/14</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -196,6 +196,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
@@ -227,10 +228,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -266,10 +270,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -286,14 +286,15 @@
  *
  * @enterprise
  * - Hook order is stable: useQuery is declared unconditionally and gated via `enabled`.
- * - Bars are individually colored via &lt;Cell&gt;, cycling through MUI theme palette.
+ * - Bars are individually colored through each entry's `fill`, cycling through
+ *   the MUI theme palette (Recharts' Cell is deprecated in v3, removed in v4).
  * - Layout uses vertical bars; right margin avoids clipping on narrow screens.
  */
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Cell } from 'recharts';
+import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar } from 'recharts';
 import { getItemUpdateFrequency, type ItemUpdateFrequencyPoint } from '../../../api/analytics/frequency';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
@@ -333,7 +334,6 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
   }
 &nbsp;
   // Stable data + color cycle
-  const data: ItemUpdateFrequencyPoint[] = q.data ?? [];
   const barColors = [
     muiTheme.palette.primary.main,
     muiTheme.palette.success.main,
@@ -341,6 +341,10 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
     muiTheme.palette.warning.main,
     muiTheme.palette.error.main,
   ];
+  const data: Array&lt;ItemUpdateFrequencyPoint &amp; { fill: string }&gt; = (q.data ?? []).map((d, i) =&gt; ({
+    ...d,
+    fill: barColors[i % barColors.length],
+  }));
 &nbsp;
   return (
     &lt;Card&gt;
@@ -371,11 +375,7 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
                       : value
                   }
                 /&gt;
-                &lt;Bar dataKey="updates" isAnimationActive={false}&gt;
-                  {data.map((_, i) =&gt; (
-                    &lt;Cell key={`u-${i}`} fill={barColors[i % barColors.length]} /&gt;
-                  ))}
-                &lt;/Bar&gt;
+                &lt;Bar dataKey="updates" isAnimationActive={false} /&gt;
               &lt;/BarChart&gt;
             &lt;/ResponsiveContainer&gt;
           &lt;/Box&gt;
