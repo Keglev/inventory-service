@@ -2,22 +2,21 @@
  * @file useSessionTimeout.ts
  * @module features/auth/hooks/useSessionTimeout
  * @summary
- * Proactive session management for authenticated layout: heartbeat /api/me on
- * visibility + interval, optional idle-timeout logout, cross-tab logout listener.
+ * Proactive session management for the authenticated layout: an activity-aware
+ * heartbeat on /api/me and the cross-tab logout listener.
  *
  * @enterprise
  * - Single production consumer: app/layout/AppShell.tsx — mounted once inside
- *   the authenticated layout, options passed in. Covers all authenticated routes
- *   via the shell.
- * - Three concerns in three effects:
- *   (1) HEARTBEAT — pings pingEndpoint (default /api/me) on tab visibility +
- *       interval. DEMO sessions skip heartbeat entirely (no server cookie to
- *       validate). Only a 401 navigates to /logout; a network error, timeout
- *       or 5xx keeps the session and the next ping asks again.
- *   (2) IDLE TIMEOUT (opt-in) — when enableIdleTimeout, resets a timer on
- *       mouse/keyboard/wheel/touch events; firing the timer forces /logout.
- *       OFF by default — enable for strict environments.
- *   (3) CROSS-TAB LISTENER — reacts to a `storage` event with key ===
+ *   the authenticated layout. Covers all authenticated routes via the shell.
+ * - Two concerns in two effects:
+ *   (1) HEARTBEAT — pings pingEndpoint (default /api/me) when the tab becomes
+ *       visible, then on an interval only if the user did something since the
+ *       last ping. An idle tab sends nothing, so the server's session timeout
+ *       ends an unattended session; the next ping after the user returns gets
+ *       the 401. DEMO sessions skip it (no server session). Only a 401
+ *       navigates to /logout; a network error, timeout or 5xx keeps the
+ *       session and the next ping asks again.
+ *   (2) CROSS-TAB LISTENER — reacts to a `storage` event with key ===
  *       FORCE_LOGOUT_FLAG and newValue === '1' and navigates to /logout. THIS IS
  *       THE LISTENER for AuthContext's logout broadcast.
  * - Does NOT clear AuthContext state directly — navigates to /logout and lets
@@ -37,33 +36,38 @@ import { FORCE_LOGOUT_FLAG } from '../../../config/storageKeys';
 type UseSessionTimeoutOptions = {
   /** Endpoint returning 200/OK when the session is valid (e.g., GET /api/me). */
   pingEndpoint?: string;
-  /** How often to ping while the tab is visible. Default: 60s. */
+  /** How often to check while the tab is visible. Default: 60s. */
   pingIntervalMs?: number;
-  /** Whether to auto-logout after idle period. Default: false (off). */
-  enableIdleTimeout?: boolean;
-  /** Idle period before logout when `enableIdleTimeout` is true. Default: 15 min. */
-  idleTimeoutMs?: number;
 };
 
+/** Input that counts as the user being present. */
+const ACTIVITY_EVENTS = ['pointerdown', 'mousemove', 'keydown', 'wheel', 'touchstart'] as const;
+
 export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
-  const {
-    pingEndpoint = '/api/me',
-    pingIntervalMs = 60_000,
-    enableIdleTimeout = false,
-    idleTimeoutMs = 15 * 60_000,
-  } = options;
+  const { pingEndpoint = '/api/me', pingIntervalMs = 60_000 } = options;
 
   const navigate = useNavigate();
-  // WHY: re-subscribe heartbeat/idle effects when isDemo flips (login/logout transitions) so DEMO short-circuits apply correctly.
+  // WHY: re-subscribe the heartbeat when isDemo flips (login/logout transitions) so the DEMO short-circuit applies correctly.
   const { user } = useAuth();
 
   // ---- Heartbeat: detect server-side invalidation ----
+  // Every request refreshes the server session, so a ping on a timer kept an
+  // unattended tab signed in forever. The interval pings only when the user
+  // did something since the last ping; the server's session timeout (Spring
+  // Boot's 30 min) is then the one idle limit, shared by all tabs because
+  // they share the session (fork 10 C).
   React.useEffect(() => {
     let timer: number | null = null;
+    let activeSinceLastPing = false;
     // DEMO sessions have no server cookie/token; skip heartbeat entirely
     if (user?.isDemo) return;
 
+    const markActive = () => {
+      activeSinceLastPing = true;
+    };
+
     const ping = async () => {
+      activeSinceLastPing = false;
       try {
         // httpClient sends the session cookie by default (withCredentials).
         await httpClient.get(pingEndpoint);
@@ -77,10 +81,14 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
       }
     };
 
+    const pingIfActive = () => {
+      if (activeSinceLastPing) void ping();
+    };
+
     const start = () => {
-      // immediate check when becoming visible
-      ping();
-      timer = window.setInterval(ping, pingIntervalMs);
+      // Opening the app or returning to the tab is the user acting: check now.
+      void ping();
+      timer = window.setInterval(pingIfActive, pingIntervalMs);
     };
     const stop = () => {
       if (timer) {
@@ -95,38 +103,16 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
       else stop();
     };
 
+    ACTIVITY_EVENTS.forEach((e) => window.addEventListener(e, markActive, { passive: true }));
     document.addEventListener('visibilitychange', handleVisibility);
     handleVisibility(); // initialize
 
     return () => {
+      ACTIVITY_EVENTS.forEach((e) => window.removeEventListener(e, markActive));
       document.removeEventListener('visibilitychange', handleVisibility);
       stop();
     };
   }, [user?.isDemo, pingEndpoint, pingIntervalMs, navigate]);
-
-  // ---- Idle timeout (optional) ----
-  React.useEffect(() => {
-
-    if (!enableIdleTimeout || user?.isDemo) return;
-
-    let idleTimer: number;
-
-    const resetIdle = () => {
-      if (idleTimer) window.clearTimeout(idleTimer);
-      idleTimer = window.setTimeout(() => {
-        navigate('/logout', { replace: true });
-      }, idleTimeoutMs);
-    };
-
-    const events = ['mousemove', 'keydown', 'wheel', 'touchstart'];
-    events.forEach((e) => window.addEventListener(e, resetIdle, { passive: true }));
-    resetIdle();
-
-    return () => {
-      if (idleTimer) window.clearTimeout(idleTimer);
-      events.forEach((e) => window.removeEventListener(e, resetIdle));
-    };
-  }, [enableIdleTimeout, idleTimeoutMs, user?.isDemo, navigate]);
 
   // ---- Cross-tab sync for logout ----
   React.useEffect(() => {

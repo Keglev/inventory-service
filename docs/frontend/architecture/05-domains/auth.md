@@ -30,8 +30,13 @@ refresh, deep links, and reopening.
 `RequireAuth` renders a fallback while auth is bootstrapping, treats
 `logoutInProgress` as a temporary loading state (no `/login` flash during
 teardown), and treats demo users as authenticated unless a route omits
-`allowDemo`. The authenticated shell runs `useSessionTimeout` as a heartbeat;
-401/403 routes to logout.
+`allowDemo`. The authenticated shell runs `useSessionTimeout` as a heartbeat:
+it pings `/api/me` on opening and on returning to the tab, then once a minute
+only if the user did something since the last ping. An unattended tab sends
+nothing, so the backend's session timeout (Spring Boot default, 30 minutes) is
+the single idle limit for all tabs; the first ping after the user returns gets
+the 401 and routes to logout. The 15-minute health poll sends no cookie, so it
+cannot keep a session alive.
 
 ## Logout
 

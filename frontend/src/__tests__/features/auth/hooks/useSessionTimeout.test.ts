@@ -4,11 +4,12 @@
  * @description Contract tests for the `useSessionTimeout` hook.
  *
  * Contract under test:
- * - DEMO users skip heartbeat and idle timeout behavior.
- * - Non-demo users ping the heartbeat endpoint immediately and on an interval.
- * - If a ping answers 401, the hook broadcasts cross-tab logout and navigates to `/logout`;
- *   a network error or a 5xx keeps the session (the next ping asks again).
- * - When idle timeout is enabled, inactivity triggers navigation to `/logout`.
+ * - DEMO users skip the heartbeat.
+ * - Non-demo users ping immediately (and on returning to the tab), then on an
+ *   interval only after user activity: an idle tab sends nothing, so the
+ *   server's session timeout can end the session.
+ * - If a ping answers 401, the hook navigates to `/logout` (the logout page
+ *   broadcasts to other tabs); a network error or a 5xx keeps the session.
  * - A `storage` event with the force-logout flag triggers navigation to `/logout`.
  *
  * Out of scope:
@@ -102,10 +103,11 @@ describe('useSessionTimeout', () => {
     vi.restoreAllMocks();
   });
 
-  it('skips heartbeat and idle logic for demo users', () => {
+  it('skips the heartbeat for demo users', () => {
     setAuth({ user: { email: 'demo@test.local', fullName: 'Demo', role: 'DEMO', isDemo: true } });
 
-    const { unmount } = renderHook(() => useSessionTimeout({ enableIdleTimeout: true, pingIntervalMs: 10_000 }));
+    const { unmount } = renderHook(() => useSessionTimeout({ pingIntervalMs: 10_000 }));
+    window.dispatchEvent(new Event('pointerdown'));
 
     expect(httpClientMock.get).not.toHaveBeenCalled();
     expect(navigateMock).not.toHaveBeenCalled();
@@ -113,7 +115,7 @@ describe('useSessionTimeout', () => {
     unmount();
   });
 
-  it('pings immediately and on an interval for non-demo users', async () => {
+  it('pings immediately, then on an interval while the user is active', async () => {
     vi.useFakeTimers();
     const { unmount } = renderHook(() => useSessionTimeout({ pingEndpoint: '/api/me', pingIntervalMs: 10_000 }));
 
@@ -124,11 +126,67 @@ describe('useSessionTimeout', () => {
     // Credentials come from the shared client's default (httpClient.test).
     expect(httpClientMock.get).toHaveBeenCalledWith('/api/me');
 
+    window.dispatchEvent(new Event('keydown'));
     await act(async () => {
       await vi.advanceTimersByTimeAsync(10_000);
+    });
+    expect(httpClientMock.get).toHaveBeenCalledTimes(2);
+
+    unmount();
+  });
+
+  it('sends no ping while the user is idle, so the server session can expire', async () => {
+    vi.useFakeTimers();
+    const { unmount } = renderHook(() => useSessionTimeout({ pingIntervalMs: 10_000 }));
+    await act(async () => {
       await Promise.resolve();
     });
-    expect(httpClientMock.get.mock.calls.length).toBeGreaterThanOrEqual(2);
+    expect(httpClientMock.get).toHaveBeenCalledTimes(1);
+
+    // Thirty idle minutes: no interval tick may refresh the session.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30 * 60_000);
+    });
+    expect(httpClientMock.get).toHaveBeenCalledTimes(1);
+
+    unmount();
+  });
+
+  it('ends an expired session at the first ping after the user returns', async () => {
+    vi.useFakeTimers();
+    const { unmount } = renderHook(() => useSessionTimeout({ pingIntervalMs: 10_000 }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31 * 60_000);
+    });
+    expect(navigateMock).not.toHaveBeenCalled();
+
+    // The server dropped the idle session; the user moves the mouse.
+    httpClientMock.get.mockRejectedValue(pingError(401));
+    window.dispatchEvent(new Event('mousemove'));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+
+    expect(navigateMock).toHaveBeenCalledWith('/logout', { replace: true });
+
+    unmount();
+  });
+
+  it('counts one burst of activity for one ping only', async () => {
+    vi.useFakeTimers();
+    const { unmount } = renderHook(() => useSessionTimeout({ pingIntervalMs: 10_000 }));
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    window.dispatchEvent(new Event('wheel'));
+    window.dispatchEvent(new Event('touchstart'));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+
+    // Immediate ping + one for the activity; the two later ticks saw none.
+    expect(httpClientMock.get).toHaveBeenCalledTimes(2);
 
     unmount();
   });
@@ -162,6 +220,7 @@ describe('useSessionTimeout', () => {
     await act(async () => {
       await Promise.resolve();
     });
+    window.dispatchEvent(new Event('pointerdown'));
     await act(async () => {
       await vi.advanceTimersByTimeAsync(10_000);
     });
@@ -170,20 +229,6 @@ describe('useSessionTimeout', () => {
     expect(httpClientMock.get).toHaveBeenCalledTimes(2);
     expect(navigateMock).not.toHaveBeenCalled();
     expect(Storage.prototype.setItem).not.toHaveBeenCalled();
-
-    unmount();
-  });
-
-  it('logs out after idleTimeoutMs when idle timeout is enabled', async () => {
-    vi.useFakeTimers();
-    const { unmount } = renderHook(() => useSessionTimeout({ enableIdleTimeout: true, idleTimeoutMs: 60_000 }));
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(60_000);
-      await Promise.resolve();
-    });
-
-    expect(navigateMock).toHaveBeenCalledWith('/logout', { replace: true });
 
     unmount();
   });
@@ -235,35 +280,6 @@ describe('useSessionTimeout', () => {
       await Promise.resolve();
     });
     expect(httpClientMock.get.mock.calls.length).toBeGreaterThan(callsWhileVisible);
-
-    unmount();
-  });
-
-  it('extends the idle window on user activity', async () => {
-    vi.useFakeTimers();
-    const { unmount } = renderHook(() =>
-      useSessionTimeout({ enableIdleTimeout: true, idleTimeoutMs: 10_000 }),
-    );
-
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(6_000);
-    });
-    // Activity resets the timer: without the reset this would fire at 10s.
-    window.dispatchEvent(new Event('mousemove'));
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(6_000);
-    });
-
-    expect(navigateMock).not.toHaveBeenCalled();
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(4_100);
-    });
-    expect(navigateMock).toHaveBeenCalledWith('/logout', { replace: true });
 
     unmount();
   });

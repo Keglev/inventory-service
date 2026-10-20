@@ -69,8 +69,11 @@ const isBackendHealthResponse = (obj: unknown): obj is BackendHealthResponse => 
 async function probeHealth(): Promise<HealthStatus> {
   try {
     const start = performance.now();
+    // No cookie: /api/health is public, and this poll runs every 15 minutes
+    // whether or not anyone is at the screen, so it must not keep a signed-in
+    // session alive past its idle timeout (useSessionTimeout).
     const response = await fetch(apiUrl('/api/health'), {
-      credentials: 'include',
+      credentials: 'omit',
     });
     const elapsed = Math.round(performance.now() - start);
 

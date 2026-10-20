@@ -82,13 +82,11 @@ export default function AppShell() {
   // Logout flow (demo redirect vs real POST-form logout) lives in useShellLogout.
   const handleLogout = useShellLogout({ isDemo, logout, queryClient, navigate });
 
-  // Idle timeout is intentionally disabled (enableIdleTimeout: false); this hook only pings
-  // the backend to keep the session alive, not to enforce inactivity logout.
+  // Heartbeat while the user is active; an idle session ends on the server's
+  // session timeout and the next ping after the user returns leads to /logout.
   useSessionTimeout({
     pingEndpoint: '/api/me',
     pingIntervalMs: 60_000,
-    enableIdleTimeout: false,
-    idleTimeoutMs: 15 * 60_000,
   });
 
   // Drawer and dialog state
