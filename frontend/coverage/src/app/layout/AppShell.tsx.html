@@ -221,9 +221,7 @@
 <a name='L156'></a><a href='#L156'>156</a>
 <a name='L157'></a><a href='#L157'>157</a>
 <a name='L158'></a><a href='#L158'>158</a>
-<a name='L159'></a><a href='#L159'>159</a>
-<a name='L160'></a><a href='#L160'>160</a>
-<a name='L161'></a><a href='#L161'>161</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L159'></a><a href='#L159'>159</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -310,8 +308,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">19x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -467,13 +463,11 @@ export default function AppShell() {
   // Logout flow (demo redirect vs real POST-form logout) lives in useShellLogout.
   const handleLogout = useShellLogout({ isDemo, logout, queryClient, navigate });
 &nbsp;
-  // Idle timeout is intentionally disabled (enableIdleTimeout: false); this hook only pings
-  // the backend to keep the session alive, not to enforce inactivity logout.
+  // Heartbeat while the user is active; an idle session ends on the server's
+  // session timeout and the next ping after the user returns leads to /logout.
   useSessionTimeout({
     pingEndpoint: '/api/me',
     pingIntervalMs: 60_000,
-    enableIdleTimeout: false,
-    idleTimeoutMs: 15 * 60_000,
   });
 &nbsp;
   // Drawer and dialog state
