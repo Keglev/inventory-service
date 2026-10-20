@@ -41,7 +41,7 @@ changed="$(git diff --name-only HEAD^ HEAD)"
 echo "$changed"
 
 full=false
-if grep -qE '^(docs/_theme/|\.github/scripts/docs/|\.github/workflows/docs-build\.yml$)' <<<"$changed"; then
+if grep -qE '^(docs/_theme/|\.github/scripts/docs/|\.github/actions/docs-toolchain/|\.github/workflows/docs-build\.yml$)' <<<"$changed"; then
   full=true
 fi
 
