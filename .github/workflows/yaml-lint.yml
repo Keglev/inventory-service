@@ -96,7 +96,7 @@ jobs:
       - name: Install the YAML parser
         run: |
           set -euo pipefail
-          npm install -g js-yaml@5.4.2
+          npm install -g js-yaml@5.4.3
           js-yaml --help | head -n 1
 
       - name: Check YAML

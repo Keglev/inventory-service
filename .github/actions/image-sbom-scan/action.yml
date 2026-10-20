@@ -39,7 +39,12 @@
 # Pinned by commit SHA, not by tag: in March 2026 nearly every version tag of
 # trivy-action and of the setup-trivy action it calls was force-pushed to
 # credential-stealing code. The scanner version is set explicitly because the
-# action's own default trails its releases.
+# action's own default trails its releases. 0.75.0 since 2026-10-20 (W21): it
+# knows Alpine 3.24's end of life, which 0.74.0 logged as "not on the EOL
+# list" on every frontend scan; same components as 0.74.0 on the live backend
+# image (177, of which 102 maven and 74 apk) and 0 fixable HIGH/CRITICAL on the
+# live frontend. 0.76.0 was six days old, inside the seven-day wait the
+# repository applies to every update.
 # =============================================================================
 name: Image SBOM and CVE gate
 description: Writes a CycloneDX SBOM of a local image, checks it is complete, and gates on fixable HIGH/CRITICAL CVEs found in it.
@@ -69,7 +74,7 @@ runs:
       uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
       with:
         image-ref: ${{ inputs.image-ref }}
-        version: v0.74.0
+        version: v0.75.0
         format: cyclonedx
         output: ${{ inputs.name }}-${{ inputs.sha }}.cdx.json
         cache: false

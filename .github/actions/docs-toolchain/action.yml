@@ -20,9 +20,12 @@
 #     (W3): the key belongs to the frontend tree. A job that never runs npm ci
 #     restored 48 MB for nothing, and on a key miss its post step could save
 #     a near-empty cache under the frontend's key for every later job to hit.
-#   @redocly/cli 2.51.1 (pinned 2026-09-04): it renders the published API
-#     reference; the rendered HTML records the bundled renderer, not the tool
-#     that ran it, so an unpinned install changed pages with no trace.
+#   @redocly/cli 2.63.0 (2.51.1 from 2026-09-04 to 2026-10-20): it renders
+#     the published API reference; the rendered HTML records the bundled
+#     renderer, not the tool that ran it, so an unpinned install changed pages
+#     with no trace. 2.63.0 bundles ReDoc 2.5.4: same spec and options in the
+#     page, same 41 operations; links are underlined. Newer releases were
+#     under seven days old.
 #   pandoc 3.1.3+ds-2: the one version Ubuntu 24.04 publishes, frozen in the
 #     Release pocket. Naming it makes a security update arrive as a failed
 #     install here, not as 64 silently re-rendered pages. Callers run on
@@ -75,7 +78,7 @@ runs:
       shell: bash
       run: |
         set -euo pipefail
-        npm install -g @redocly/cli@2.51.1
+        npm install -g @redocly/cli@2.63.0
         echo "redocly: $(redocly --version)"
 
     - name: Install Pandoc

@@ -122,8 +122,8 @@ jobs:
       - name: Install Koyeb CLI
         if: steps.gate.outputs.deploy == 'true'
         env:
-          KOYEB_CLI_VERSION: '5.10.2'
-          KOYEB_CLI_SHA256: 'a6dc0b3079d1c345571891c0d12592db07a9730578afc915e2ddda88a0556c28'
+          KOYEB_CLI_VERSION: '5.12.0'
+          KOYEB_CLI_SHA256: 'c39ce972e48c641368d4c09e98fbe6f3b7ae210687db2ed1de706299b7a8534a'
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.koyeb/bin"
@@ -191,13 +191,17 @@ jobs:
       # On any failure after the update, show what Koyeb itself reports: the
       # 2026-10-05 timeout left nothing in the log to tell a slow rollout from
       # a failed one.
+      # Each command ends in `|| true`, so a wrong one fails silently: until
+      # 2026-10-20 two of the three were not CLI commands at all ("service
+      # deployments list --limit", "service instances list" print an
+      # invalid-command error or the help text in 5.10.2 and 5.12.0 alike).
       - name: Koyeb diagnostics
         if: failure() && steps.gate.outputs.deploy == 'true'
         run: |
           SVC="${{ env.KOYEB_SERVICE_ID }}"
           koyeb service describe "$SVC" || true
-          koyeb service deployments list "$SVC" --limit 5 || true
-          koyeb service instances list "$SVC" || true
+          koyeb deployments list --service "$SVC" || true
+          koyeb instances list --service "$SVC" || true
 
       - name: Health check and smoke tests
         if: steps.gate.outputs.deploy == 'true'
