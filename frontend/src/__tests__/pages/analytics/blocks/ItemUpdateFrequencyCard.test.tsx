@@ -14,6 +14,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createTestQueryClient } from '@/__tests__/test/queryClient';
+import { createTheme } from '@mui/material/styles';
 
 import type { ItemUpdateFrequencyPoint } from '@/api/analytics/frequency';
 import { getItemUpdateFrequency } from '@/api/analytics/frequency';
@@ -42,8 +43,12 @@ vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children?: ReactNode }) => (
     <div data-testid="responsive-container">{children}</div>
   ),
-  BarChart: ({ children, data }: { children?: ReactNode; data: unknown[] }) => (
+  // Each bar's colour travels in its data entry (`fill`), as Recharts reads it.
+  BarChart: ({ children, data }: { children?: ReactNode; data: Array<{ fill?: string }> }) => (
     <div data-testid="bar-chart" data-length={Array.isArray(data) ? data.length : 0}>
+      {data.map((d, i) => (
+        <div key={i} data-testid="bar-cell" data-fill={d.fill} />
+      ))}
       {children}
     </div>
   ),
@@ -58,7 +63,6 @@ vi.mock('recharts', () => ({
     return <div data-testid="tooltip" />;
   },
   Bar: ({ children }: { children?: ReactNode }) => <div data-testid="bar">{children}</div>,
-  Cell: ({ fill }: { fill?: string }) => <div data-testid="bar-cell" data-fill={fill} />,
 }));
 
 let lastXTickFormatter: ((v: string | number) => string) | null = null;
@@ -125,8 +129,13 @@ describe('ItemUpdateFrequencyCard', () => {
       expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-length', '3');
     });
 
-    // One cell per bar item.
-    expect(screen.getAllByTestId('bar-cell')).toHaveLength(mockData.length);
+    // One coloured bar per item, cycling through the palette in order.
+    const { palette } = createTheme();
+    expect(screen.getAllByTestId('bar-cell').map((c) => c.getAttribute('data-fill'))).toEqual([
+      palette.primary.main,
+      palette.success.main,
+      palette.info.main,
+    ]);
   });
 
   it('requests data for the provided supplier', async () => {

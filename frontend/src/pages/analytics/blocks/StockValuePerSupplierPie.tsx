@@ -24,7 +24,7 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ResponsiveContainer, PieChart, Pie, Tooltip, Legend, Cell } from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Tooltip, Legend } from 'recharts';
 import { getStockPerSupplier } from '../../../api/analytics/stock';
 import type { StockPerSupplierPoint } from '../../../api/analytics/types';
 import { useSettings } from '../../../hooks/useSettings';
@@ -61,15 +61,23 @@ export default function StockValuePerSupplierPie({ chartHeight = 260, dateScopeN
     staleTime: 60_000,
   });
 
-  const data = React.useMemo(
-    () =>
-      supplierValueSlices(q.data ?? []).map((s) => ({
-        name: s.kind === 'others' ? t('analytics:stockPerSupplier.others', { count: s.others }) : s.name,
-        value: s.value,
-        others: s.kind === 'others',
-      })),
-    [q.data, t]
-  );
+  // Named slices take fixed colours in rank order; the grouped slice is always
+  // grey. The colour travels with each slice as `fill`, which Recharts reads for
+  // the sector, its legend swatch and the tooltip (Cell is deprecated in v3).
+  const data = React.useMemo(() => {
+    const colors = [
+      muiTheme.palette.primary.main,
+      muiTheme.palette.success.main,
+      muiTheme.palette.info.main,
+      muiTheme.palette.warning.main,
+    ];
+    return supplierValueSlices(q.data ?? []).map((s, i) => ({
+      name: s.kind === 'others' ? t('analytics:stockPerSupplier.others', { count: s.others }) : s.name,
+      value: s.value,
+      others: s.kind === 'others',
+      fill: s.kind === 'others' ? muiTheme.palette.grey[500] : colors[i],
+    }));
+  }, [q.data, t, muiTheme]);
   const total = data.reduce((sum, d) => sum + d.value, 0);
 
   // The tooltip followed the cursor and covered a third of the pie (62% on a
@@ -103,14 +111,6 @@ export default function StockValuePerSupplierPie({ chartHeight = 260, dateScopeN
     );
   };
 
-  // Named slices take fixed colours in rank order; the grouped slice is always grey.
-  const colors = [
-    muiTheme.palette.primary.main,
-    muiTheme.palette.success.main,
-    muiTheme.palette.info.main,
-    muiTheme.palette.warning.main,
-  ];
-
   return (
     <Card>
       <CardContent>
@@ -140,11 +140,7 @@ export default function StockValuePerSupplierPie({ chartHeight = 260, dateScopeN
                   nameKey="name"
                   outerRadius="90%"
                   isAnimationActive={false}
-                >
-                  {data.map((d, i) => (
-                    <Cell key={`slice-${i}`} fill={d.others ? muiTheme.palette.grey[500] : colors[i]} />
-                  ))}
-                </Pie>
+                />
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
                   content={renderReadout}

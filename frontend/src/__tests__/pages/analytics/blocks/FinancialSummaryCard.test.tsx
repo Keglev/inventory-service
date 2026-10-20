@@ -16,6 +16,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createTestQueryClient } from '@/__tests__/test/queryClient';
+import { createTheme } from '@mui/material/styles';
 
 import type { FinancialSummary } from '@/api/analytics/finance';
 import { getFinancialSummary } from '@/api/analytics/finance';
@@ -75,7 +76,6 @@ vi.mock('recharts', () => ({
     chartProps.bar = props;
     return <div data-testid="bar">{props.children}</div>;
   },
-  Cell: () => <div data-testid="cell" />,
 }));
 
 // -----------------------------------------------------------------------------
@@ -245,6 +245,20 @@ describe('FinancialSummaryCard', () => {
     expect(chartProps.barChart).toMatchObject({ layout: 'vertical' });
     expect(chartProps.xAxis).toMatchObject({ type: 'number' });
     expect(chartProps.yAxis).toMatchObject({ type: 'category', dataKey: 'name', width: 'auto', interval: 0 });
+  });
+
+  it('colours each bar by its category through the entry fill', async () => {
+    vi.mocked(getFinancialSummary).mockResolvedValue(nonZeroSummary);
+    setup(queryClient, { supplierId: 'sup-123' });
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+    const { palette } = createTheme();
+    const data = (chartProps.barChart as { data: Array<{ fill: string }> }).data;
+    expect(data.map((d) => d.fill)).toEqual([
+      palette.success.main,
+      palette.error.main,
+      palette.warning.main,
+      palette.info.main,
+    ]);
   });
 
   it('names the bar series for the tooltip', async () => {

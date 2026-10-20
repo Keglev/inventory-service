@@ -51,10 +51,14 @@ const chart = vi.hoisted(() => ({ data: [] as unknown[] }));
 
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children?: ReactNode }) => <div data-testid="responsive-container">{children}</div>,
-  BarChart: ({ children, data }: { children?: ReactNode; data: Array<{ itemName: string }> }) => {
+  // Each bar's colour travels in its data entry (`fill`), as Recharts reads it.
+  BarChart: ({ children, data }: { children?: ReactNode; data: Array<{ itemName: string; fill?: string }> }) => {
     chart.data = data;
     return (
       <div data-testid="bar-chart" data-length={data.length} data-names={data.map((d) => d.itemName).join('|')}>
+        {data.map((d, i) => (
+          <div key={i} data-testid="cell" data-fill={d.fill} />
+        ))}
         {children}
       </div>
     );
@@ -62,7 +66,6 @@ vi.mock('recharts', () => ({
   Bar: ({ dataKey, children }: { dataKey?: string; children?: ReactNode }) => (
     <div data-testid="bar" data-key={dataKey}>{children}</div>
   ),
-  Cell: ({ fill }: { fill?: string }) => <div data-testid="cell" data-fill={fill} />,
   LabelList: () => <div data-testid="label-list" />,
   XAxis: () => <div data-testid="xaxis" />,
   YAxis: () => <div data-testid="yaxis" />,

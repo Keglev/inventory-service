@@ -7,14 +7,15 @@
  *
  * @enterprise
  * - Hook order is stable: useQuery is declared unconditionally and gated via `enabled`.
- * - Bars are individually colored via <Cell>, cycling through MUI theme palette.
+ * - Bars are individually colored through each entry's `fill`, cycling through
+ *   the MUI theme palette (Recharts' Cell is deprecated in v3, removed in v4).
  * - Layout uses vertical bars; right margin avoids clipping on narrow screens.
  */
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Cell } from 'recharts';
+import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar } from 'recharts';
 import { getItemUpdateFrequency, type ItemUpdateFrequencyPoint } from '../../../api/analytics/frequency';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
@@ -54,7 +55,6 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
   }
 
   // Stable data + color cycle
-  const data: ItemUpdateFrequencyPoint[] = q.data ?? [];
   const barColors = [
     muiTheme.palette.primary.main,
     muiTheme.palette.success.main,
@@ -62,6 +62,10 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
     muiTheme.palette.warning.main,
     muiTheme.palette.error.main,
   ];
+  const data: Array<ItemUpdateFrequencyPoint & { fill: string }> = (q.data ?? []).map((d, i) => ({
+    ...d,
+    fill: barColors[i % barColors.length],
+  }));
 
   return (
     <Card>
@@ -92,11 +96,7 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
                       : value
                   }
                 />
-                <Bar dataKey="updates" isAnimationActive={false}>
-                  {data.map((_, i) => (
-                    <Cell key={`u-${i}`} fill={barColors[i % barColors.length]} />
-                  ))}
-                </Bar>
+                <Bar dataKey="updates" isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>
           </Box>

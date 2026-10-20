@@ -49,7 +49,7 @@ vi.mock('@mui/material/styles', async () => {
   };
 });
 
-type Slice = { name: string; value: number };
+type Slice = { name: string; value: number; fill?: string };
 type ReadoutProps = { active?: boolean; payload?: Array<{ name?: string; value?: unknown }> };
 type TooltipProps = { content?: (p: ReadoutProps) => ReactNode; position?: { x?: number; y?: number }; trigger?: string };
 let lastTooltip: TooltipProps | null = null;
@@ -64,6 +64,10 @@ vi.mock('recharts', () => ({
       {data.map((d) => (
         <span key={d.name} data-testid="slice-name">{d.name}</span>
       ))}
+      {/* Each slice's colour travels in its data entry (`fill`), as Recharts reads it. */}
+      {data.map((d) => (
+        <div key={`fill-${d.name}`} data-testid="pie-cell" data-fill={d.fill} />
+      ))}
       {children}
     </div>
   ),
@@ -76,7 +80,6 @@ vi.mock('recharts', () => ({
     lastLegend = props;
     return <div data-testid="legend" />;
   },
-  Cell: ({ fill }: { fill?: string }) => <div data-testid="pie-cell" data-fill={fill} />,
 }));
 
 vi.mock('@/api/analytics/stock', () => ({
