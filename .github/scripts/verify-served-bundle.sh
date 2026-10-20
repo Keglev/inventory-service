@@ -43,7 +43,7 @@ echo "==> [verify-served-bundle] $ROOT (frontend host $FRONTEND_HOST, backend ho
 
 # index.html is served no-cache, but ask the edge explicitly: a stale shell would
 # name a previous build's assets and this check would verify the wrong bytes.
-curl -fsS -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$ROOT/" -o "$WORK/index.html"
+curl -fsS --max-time 10 -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$ROOT/" -o "$WORK/index.html"
 
 # The entry chunk holds the application's call sites; vendor chunks do not.
 ENTRY="$(grep -oE '/assets/index-[A-Za-z0-9_-]+\.js' "$WORK/index.html" | head -n1 || true)"
@@ -52,7 +52,7 @@ if [ -z "$ENTRY" ]; then
   exit 1
 fi
 
-CTYPE="$(curl -fsS --compressed -o "$WORK/entry.js" -w '%{content_type}' "$ROOT$ENTRY")"
+CTYPE="$(curl -fsS --max-time 20 --compressed -o "$WORK/entry.js" -w '%{content_type}' "$ROOT$ENTRY")"
 echo "Entry bundle: $ENTRY"
 echo "Content-Type: $CTYPE"
 

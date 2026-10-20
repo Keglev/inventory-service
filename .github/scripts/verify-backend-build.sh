@@ -33,7 +33,7 @@ REPORTED=""
 for i in $(seq 1 "$ATTEMPTS"); do
   # -f leaves 3xx alone, so a redirect to the login page arrives as an empty
   # body rather than an error: that has to reach the missing-field branch below.
-  BODY="$(curl -fsS -H 'Cache-Control: no-cache' "$INFO_URL" || true)"
+  BODY="$(curl -fsS --max-time 10 -H 'Cache-Control: no-cache' "$INFO_URL" || true)"
   # Parsed with grep rather than jq: the payload shape is fixed and this keeps
   # the check runnable on any machine, not only on a runner that ships jq. The
   # grep is guarded because no match is an outcome this script reports, not a

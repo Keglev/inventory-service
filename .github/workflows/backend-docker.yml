@@ -126,18 +126,6 @@ jobs:
             -t "$IMAGE_REPO:${IMAGE_TAG_SHA}" \
             .
 
-      # Verify the production image contains only runtime artifacts — no test sources or docs
-      - name: Inspect image contents
-        if: steps.gate.outputs.build == 'true'
-        run: |
-          docker run --rm "$IMAGE_REPO:${IMAGE_TAG_SHA}" sh -c '
-            echo "=== Runtime artifacts ==="
-            ls -lh /app/app.jar /app/start.sh
-            echo "=== Confirming no test or docs directories ==="
-            ls /app/src/test 2>&1 || echo "OK: no test directory"
-            ls /app/docs    2>&1 || echo "OK: no docs directory"
-          '
-
       # The image's SBOM and CVE gate, one Trivy analysis (the action's banner
       # records why the SBOM comes first). Blocks backend-deploy.yml, which
       # chains on this workflow's success, and does so before the image is
