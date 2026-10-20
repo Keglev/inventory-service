@@ -25,6 +25,20 @@ on:
 permissions:
   contents: read
 
+# One rollout at a time, in merge order (W19). Without a group two deploys
+# could run `koyeb service update` and their build waits side by side, and the
+# older could finish last. It has not happened yet (0 overlaps in the last 100
+# runs, 2026-09-28 to 2026-10-20), so this guards a latent race. Each run
+# deploys the commit its push-triggered frontend-ci run built
+# (workflow_run.head_sha of a push run is the pushed commit, unlike a
+# workflow_run run's own head_sha: R66), so the queue keeps every pending run:
+# without queue: max GitHub keeps one and drops it for a newer one, which would
+# skip that commit's deploy.
+concurrency:
+  group: frontend-deploy
+  cancel-in-progress: false
+  queue: max
+
 jobs:
   deploy:
     # Only a push to this repository's main may start this job. The branches
