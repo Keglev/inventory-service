@@ -210,9 +210,9 @@
         <td>Backend</td>
         <td><code>backend-ci.yml</code></td>
         <td><code>mvn clean verify</code> — compile, unit + integration
-        tests, JaCoCo coverage report; calls the Playwright suite beside
-        it and reports both through one <code>build-and-test</code>
-        job</td>
+        tests, JaCoCo coverage report; calls the Playwright suite and
+        the YAML lint beside it and reports all three through one
+        <code>build-and-test</code> job</td>
         </tr>
         <tr class="even">
         <td>Backend</td>
@@ -240,8 +240,9 @@
         (<code>image-sbom-scan</code>) before it reaches Docker Hub,
         keeping the SBOM 60 days as
         <code>sbom-frontend-&lt;sha&gt;</code> for a published image;
-        calls the Playwright suite beside it and reports both through
-        one <code>build-and-test</code> job</td>
+        calls the Playwright suite and the YAML lint beside it and
+        reports all three through one <code>build-and-test</code>
+        job</td>
         </tr>
         <tr class="odd">
         <td>Frontend</td>
@@ -254,7 +255,9 @@
         <td>Docs</td>
         <td><code>docs-pr-check.yml</code></td>
         <td>Pull request gate for documentation: builds the site and
-        verifies internal links without publishing</td>
+        verifies internal links without publishing; calls the YAML lint
+        beside it and reports both through one
+        <code>build-and-test</code> job</td>
         </tr>
         <tr class="odd">
         <td>Docs</td>
@@ -306,11 +309,14 @@
         <tr class="even">
         <td>Shared</td>
         <td><code>yaml-lint.yml</code></td>
-        <td>Pull request check on YAML changes: parses every tracked
+        <td>Reusable: called as a job by all three
+        <code>build-and-test</code> claimants, and skipped unless the
+        pull request changes a checked YAML file. Parses every tracked
         YAML file outside <code>docs/backend/api</code> (duplicate keys
-        included) and rejects trailing whitespace and a missing final
-        newline; it reports as <code>yaml-lint</code>, not
-        <code>build-and-test</code>, so it does not gate the merge</td>
+        included), rejects trailing whitespace and a missing final
+        newline, and runs actionlint over the workflows; a finding fails
+        the caller’s <code>build-and-test</code> and blocks the
+        merge</td>
         </tr>
         </tbody>
         </table>

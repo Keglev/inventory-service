@@ -293,6 +293,36 @@
         the script itself in the commit’s own diff”. It still looks for
         those, less the paths above.</li>
         </ul>
+        <h2
+        id="amendment-2026-10-20-the-yaml-lint-joins-all-three-claimants">Amendment
+        2026-10-20: the YAML lint joins all three claimants</h2>
+        <p><code>yaml-lint.yml</code> was an advisory pull request check
+        under its own job name. It is now reusable like the browser
+        suite and runs behind every <code>build-and-test</code>
+        aggregator, as the Consequences above ask of a new check:</p>
+        <ul>
+        <li><code>backend-ci.yml</code>, <code>frontend-ci.yml</code>
+        and <code>docs-pr-check.yml</code> each call it as a job. The
+        checked files span all three families (workflows, the composite
+        action, Spring profiles, Compose), and a pull request confined
+        to one family is reported by that family’s claimant alone, so
+        one caller would leave the other families’ YAML unchecked.</li>
+        <li>A gate job inside it runs the lint only for a pull request
+        whose own diff (<code>HEAD^..HEAD</code>) touches a checked YAML
+        file or its script, and on a manual run. A push to
+        <code>main</code> skips it: the pull request linted the same
+        files.</li>
+        <li><code>docs-pr-check.yml</code> gained an aggregator: its
+        site job is now <code>docs</code>, and
+        <code>build-and-test</code> requires it and passes a skipped
+        lint.</li>
+        <li>The workflow has no concurrency block. The callers of one
+        pull request share a ref, and a cancelling group would let them
+        cancel each other.</li>
+        </ul>
+        <p>Superseded by this block: the Decision’s “each ends in an
+        aggregator job” applied to the two callers of the suite; it now
+        applies to all three claimants.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -337,6 +367,10 @@
       <li><a href="#amendment-2026-09-24-paths-the-suite-cannot-see"
       id="toc-amendment-2026-09-24-paths-the-suite-cannot-see">Amendment
       2026-09-24: paths the suite cannot see</a></li>
+      <li><a
+      href="#amendment-2026-10-20-the-yaml-lint-joins-all-three-claimants"
+      id="toc-amendment-2026-10-20-the-yaml-lint-joins-all-three-claimants">Amendment
+      2026-10-20: the YAML lint joins all three claimants</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
