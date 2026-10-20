@@ -48,7 +48,7 @@ Card/Paper radius). Rule of thumb: theme overrides for global consistency, `sx`
 for one-off layout only.
 
 A small `styles/global.css` covers what component styles handle awkwardly:
-full-height root layout, webkit scrollbars, `.visually-hidden`, print overrides.
+full-height root layout, webkit scrollbars, print overrides.
 Two tracked open items live here: the scrollbar rules are duplicated between
 global.css and the theme's CssBaseline (CB-APP15), and the print `!important`
 overrides await an audit (CM-APP2).

@@ -62,7 +62,6 @@
   },
   "quantity": {
     "currentItemInfo": "Current Item Information",
-    "currentQuantity": "Current Quantity",
     "newQuantity": "New Quantity",
     "quantityChangeHint": "Changing from {{current}} to {{new}}",
     "quantityUpdatedTo": "Quantity updated to {{quantity}}"
@@ -72,7 +71,6 @@
     "priceChange": "Unit price: change from {{from}} to {{to}}",
     "currentTotalValue": "Current Total Value",
     "newTotalValue": "New total value: {{total}}",
-    "currentPrice": "Current Price",
     "priceUpdatedTo": "Price updated to ${{price}}"
   },
   "status": {
@@ -104,8 +102,5 @@
   },
   "fields": {
     "reasonLabel": "Reason"
-  },
-  "selection": {
-    "selectedItemLabel": "Selected Item"
   }
 }
