@@ -90,14 +90,20 @@ jobs:
       # backend-deploy must release the commit this run builds. It cannot read it
       # from this run: a workflow_run run's head_sha is main's HEAD when the run was
       # created, a later merge whenever merges outpace CI (CI-2: deploy #88 asked
-      # GHCR for 8b7794a while this workflow had built 858e0c6). One line, one day.
-      - name: Record the commit for backend-deploy
-        run: echo "${IMAGE_TAG_SHA}" > built-commit.txt
-      - name: Hand the commit to backend-deploy
+      # GHCR for 8b7794a while this workflow had built 858e0c6). The gate's verdict
+      # travels with it, so the release decision is made once, here (W2): two
+      # files, one day.
+      - name: Record the commit and the verdict for backend-deploy
+        run: |
+          echo "${IMAGE_TAG_SHA}" > built-commit.txt
+          echo "${{ steps.gate.outputs.build }}" > build.txt
+      - name: Hand them to backend-deploy
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: built-commit
-          path: built-commit.txt
+          path: |
+            built-commit.txt
+            build.txt
           retention-days: 1
 
       - name: Checkout code

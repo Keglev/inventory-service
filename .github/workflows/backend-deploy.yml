@@ -58,9 +58,12 @@ jobs:
 
     steps:
       # The commit to release is the one backend-docker built, handed over as an
-      # artifact; this run's own head_sha and the triggering run's head_sha are
-      # main's HEAD at creation time and can name a later, unbuilt merge (CI-2).
-      - name: Fetch the commit backend-docker built
+      # artifact with that run's image gate verdict; this run's own head_sha and
+      # the triggering run's head_sha are main's HEAD at creation time and can
+      # name a later, unbuilt merge (CI-2). The gate itself lives in
+      # backend-docker only (W2): a commit without an image has nothing to
+      # release, and a second copy of the path list could drift from the first.
+      - name: Fetch the commit and the verdict backend-docker recorded
         if: github.event_name == 'workflow_run'
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -68,52 +71,34 @@ jobs:
           path: built-commit
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      # Outcomes: a full commit hash -> IMAGE_TAG_SHA for every later step; a
-      # missing artifact fails the step above; anything that is not a 40-hex
-      # hash fails here, before the host is touched. A manual run releases the
-      # dispatched commit.
+      # Outcomes: a full commit hash -> IMAGE_TAG_SHA for every later step, and
+      # build=true releases it; build=false (backend-docker built no image)
+      # releases nothing and the run ends green. A missing artifact fails the
+      # step above; a value that is not a 40-hex hash or not true/false fails
+      # here, before the host is touched. A manual run releases the dispatched
+      # commit.
       - name: Resolve the commit to release
-        run: |
-          set -eu
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            sha="$GITHUB_SHA"
-          else
-            sha=$(cat built-commit/built-commit.txt)
-          fi
-          if ! grep -qE '^[0-9a-f]{40}$' <<< "$sha"; then
-            echo "::error::backend-docker handed over '$sha', not a commit hash"; exit 1
-          fi
-          echo "IMAGE_TAG_SHA=$sha" >> "$GITHUB_ENV"
-
-      # A catch-all merge (README, LICENSE, workflow tweaks) still runs backend
-      # CI, but rebuilding and restarting a healthy backend for it serves
-      # nothing. Compare the released commit against its first parent and stop
-      # here when no path the image depends on has changed. backend-deploy
-      # chains on this workflow's success, so skipping the build skips the
-      # release too; a skipped run is reported as success with no image.
-      # Only src/main/ reaches the jar: it is packaged with tests skipped, and
-      # nothing else under src/ is part of the build. A test-only merge would
-      # otherwise rebuild and restart the backend with an identical jar.
-      - name: Checkout for change detection
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ env.IMAGE_TAG_SHA }}
-          fetch-depth: 2
-      - name: Decide whether the image must be rebuilt
         id: gate
         run: |
           set -eu
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "build=true" >> "$GITHUB_OUTPUT"; exit 0
-          fi
-          changed=$(git diff --name-only HEAD^ HEAD)
-          echo "$changed"
-          if echo "$changed" | grep -qE '^(src/main/|pom\.xml|Dockerfile|scripts/|docker/docker-compose\.prod\.yml|\.github/workflows/(backend-docker|backend-deploy)\.yml)'; then
-            echo "build=true" >> "$GITHUB_OUTPUT"
+            sha="$GITHUB_SHA"; build=true
           else
-            echo "build=false" >> "$GITHUB_OUTPUT"
-            echo "No image-relevant change; nothing to release." >> "$GITHUB_STEP_SUMMARY"
+            sha=$(cat built-commit/built-commit.txt)
+            # Only a backend-docker run older than W2 hands over no verdict.
+            [ -f built-commit/build.txt ] || { echo "::error::no build.txt: backend-docker ran an older workflow file; dispatch backend-deploy"; exit 1; }
+            build=$(cat built-commit/build.txt)
           fi
+          if ! grep -qE '^[0-9a-f]{40}$' <<< "$sha"; then
+            echo "::error::backend-docker handed over '$sha', not a commit hash"; exit 1
+          fi
+          case "$build" in
+            true) ;;
+            false) echo "No image-relevant change in $sha; nothing to release." >> "$GITHUB_STEP_SUMMARY" ;;
+            *) echo "::error::backend-docker handed over build='$build', not true or false"; exit 1 ;;
+          esac
+          echo "IMAGE_TAG_SHA=$sha" >> "$GITHUB_ENV"
+          echo "build=$build" >> "$GITHUB_OUTPUT"
 
       - name: Checkout code
         if: steps.gate.outputs.build == 'true'
