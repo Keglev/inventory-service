@@ -157,14 +157,23 @@ export function useItemForm({
   // ================================
 
   /**
-   * Reset form state each time the dialog opens
+   * Clear the previous error each time the dialog opens. Adjusted during
+   * render (React's pattern for state that follows a prop), so the opening
+   * render never shows the last session's error.
+   */
+  const [wasOpen, setWasOpen] = React.useState(isOpen);
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+    if (isOpen) setFormError(null);
+  }
+
+  /**
+   * Reset the form fields each time the dialog opens. react-hook-form is an
+   * external store, so its reset stays in an effect.
    */
   React.useEffect(() => {
     if (!isOpen) return;
     reset(ITEM_FORM_DEFAULTS);
-    // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setFormError(null);
     clearErrors();
   }, [isOpen, reset, clearErrors]);
 

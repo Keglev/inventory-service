@@ -234,6 +234,25 @@ describe('useItemForm', () => {
     });
   });
 
+  it('clears the last error when the dialog opens again', async () => {
+    mockCreateItem.mockResolvedValue({ ok: false, error: 'Boom' });
+    const { result, rerender } = renderHook(
+      ({ isOpen }: { isOpen: boolean }) => useItemForm({ isOpen, onClose: vi.fn() }),
+      { initialProps: { isOpen: true } },
+    );
+    await submitValid(result);
+    await waitFor(() => {
+      expect(result.current.formError).toBe('A server error occurred. Please try again.');
+    });
+
+    // Closed by the parent (not through handleClose), then opened again.
+    rerender({ isOpen: false });
+    expect(result.current.formError).toBe('A server error occurred. Please try again.');
+    rerender({ isOpen: true });
+
+    expect(result.current.formError).toBeNull();
+  });
+
   it('uses a generic message for an unmapped failure', async () => {
     mockCreateItem.mockResolvedValue({ ok: false, error: 'Boom' });
 

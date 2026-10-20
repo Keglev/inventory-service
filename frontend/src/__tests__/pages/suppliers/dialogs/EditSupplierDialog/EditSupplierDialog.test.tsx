@@ -316,7 +316,8 @@ describe('EditSupplierDialog', () => {
 
     expect(mocks.toast).toHaveBeenCalledWith('Supplier information updated successfully!', 'success');
     expect(onSupplierUpdated).toHaveBeenCalledTimes(1);
-    expect(form.resetForm).toHaveBeenCalledTimes(1);
+    // The form hook resets itself before this callback runs (its own spec).
+    expect(form.resetForm).not.toHaveBeenCalled();
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

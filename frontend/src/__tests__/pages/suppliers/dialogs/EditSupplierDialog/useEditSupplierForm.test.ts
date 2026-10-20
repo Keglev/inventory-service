@@ -159,6 +159,27 @@ describe('useEditSupplierForm', () => {
     expect(mocks.mapSupplierError).not.toHaveBeenCalled();
   });
 
+  it('resets the form before it calls onUpdated on success', async () => {
+    const onUpdated = vi.fn();
+    const { result } = renderForm(onUpdated);
+
+    selectSupplier(result);
+    confirmationState.pendingChanges = pendingChanges;
+    mocks.updateSupplier.mockResolvedValue({ success: true });
+
+    await act(async () => {
+      await result.current.handleConfirmChanges();
+    });
+
+    // The dialog's success callback only closes, so the reset belongs here.
+    expect(result.current.selectedSupplier).toBeNull();
+    expect(confirmationState.reset).toHaveBeenCalledTimes(1);
+    expect(formState.reset).toHaveBeenCalledTimes(1);
+    expect(formState.reset.mock.invocationCallOrder[0]).toBeLessThan(
+      onUpdated.mock.invocationCallOrder[0],
+    );
+  });
+
   it('maps API error when update fails', async () => {
     const { result } = renderForm();
 

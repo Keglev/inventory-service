@@ -76,7 +76,7 @@ export interface UseEditSupplierFormReturn {
  * - Submission and error handling
  * - Authorization checks
  *
- * @param onUpdated - Callback when supplier is successfully updated
+ * @param onUpdated - Callback after a successful update; the form is already reset when it runs
  * @returns Workflow state and handlers
  */
 export const useEditSupplierForm = (
@@ -110,6 +110,17 @@ export const useEditSupplierForm = (
   );
 
   /**
+   * Reset form to initial state.
+   */
+  const resetForm = React.useCallback(() => {
+    setSelectedSupplier(null);
+    search.resetSearch();
+    setFormError('');
+    confirmation.reset();
+    formState.reset();
+  }, [search, confirmation, formState]);
+
+  /**
    * Handle update confirmation and submission.
    */
   const handleConfirmChanges = React.useCallback(async () => {
@@ -124,6 +135,9 @@ export const useEditSupplierForm = (
       });
 
       if (response.success) {
+        // Reset here, before the caller closes: the dialog's success callback
+        // cannot reach its own close handler, which is declared after this hook.
+        resetForm();
         onUpdated();
       } else {
         setFormError(mapSupplierError(response, t));
@@ -135,18 +149,7 @@ export const useEditSupplierForm = (
       confirmation.setShowConfirmation(false);
       logError('Update failed:', err);
     }
-  }, [confirmation, selectedSupplier, onUpdated, t]);
-
-  /**
-   * Reset form to initial state.
-   */
-  const resetForm = React.useCallback(() => {
-    setSelectedSupplier(null);
-    search.resetSearch();
-    setFormError('');
-    confirmation.reset();
-    formState.reset();
-  }, [search, confirmation, formState]);
+  }, [confirmation, selectedSupplier, onUpdated, resetForm, t]);
 
   return {
     // Search state

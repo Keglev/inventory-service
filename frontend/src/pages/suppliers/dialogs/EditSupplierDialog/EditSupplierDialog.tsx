@@ -68,28 +68,21 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
   const toast = useToast();
 
-  // Form logic hook
+  // Form logic hook. The hook resets the form before it calls back, so the
+  // success path only closes; it cannot call handleClose, declared below.
   const form = useEditSupplierForm(() => {
     toast(t('suppliers:status.updated'), 'success');
     onSupplierUpdated();
-    // TODO(F7B): the callback reads handleClose before its declaration; reorder the declarations.
-    // eslint-disable-next-line react-hooks/immutability
-    handleClose();
+    onClose();
   });
-
-  // Destructured so the callback depends on the function itself rather than the
-  // whole form object, which is a new reference on every render.
-  const { resetForm } = form;
 
   /**
    * Handle dialog close.
    */
-  // TODO(F7B): the compiler cannot keep this useCallback; restructure so its dependencies are stable.
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  const handleClose = React.useCallback(() => {
-    resetForm();
+  const handleClose = () => {
+    form.resetForm();
     onClose();
-  }, [resetForm, onClose]);
+  };
 
   /**
    * Handle showing confirmation dialog.
