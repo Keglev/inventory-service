@@ -200,17 +200,6 @@ button:focus-visible {
   color: var(--muted);
 }
 
-.docsearch {
-  flex: 1;
-  max-width: 360px;
-  height: 36px;
-  padding: 0 0.75rem;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--muted);
-}
-
 .topbar-tools {
   margin-left: auto;
   display: flex;
@@ -546,9 +535,6 @@ button:focus-visible {
    cannot reach: edges, arrowheads, edge labels, clusters, and sequence
    diagrams. Those use !important because Mermaid writes them as inline styles.
    ========================================================================== */
-
-/* Wrap wide diagrams so they scroll instead of shrinking to an unreadable size. */
-.diagram-scroll { overflow-x: auto; }
 
 .mermaid { background: transparent; overflow-x: auto; }
 
