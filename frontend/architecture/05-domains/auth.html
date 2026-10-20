@@ -146,8 +146,14 @@
         temporary loading state (no <code>/login</code> flash during
         teardown), and treats demo users as authenticated unless a route
         omits <code>allowDemo</code>. The authenticated shell runs
-        <code>useSessionTimeout</code> as a heartbeat; 401/403 routes to
-        logout.</p>
+        <code>useSessionTimeout</code> as a heartbeat: it pings
+        <code>/api/me</code> on opening and on returning to the tab,
+        then once a minute only if the user did something since the last
+        ping. An unattended tab sends nothing, so the backend’s session
+        timeout (Spring Boot default, 30 minutes) is the single idle
+        limit for all tabs; the first ping after the user returns gets
+        the 401 and routes to logout. The 15-minute health poll sends no
+        cookie, so it cannot keep a session alive.</p>
         <h2 id="logout">Logout</h2>
         <p>Logout is a full navigation, not XHR: <code>LogoutPage</code>
         clears the React Query cache (<code>queryClient.clear()</code>)
