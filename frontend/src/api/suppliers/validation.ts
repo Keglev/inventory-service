@@ -32,7 +32,6 @@ export const createSupplierSchema = z.object({
     .optional()
     .transform((v) => v || null),
   email: z
-    .string()
     .email('errors:validation.invalidEmail')
     .optional()
     .transform((v) => v || null),
@@ -52,7 +51,7 @@ export const editSupplierSchema = z.object({
   supplierId: z.string().min(1, 'errors:validation.required'),
   contactName: z.string().nullable().catch(null),
   phone: z.string().nullable().catch(null),
-  email: z.string().email('errors:validation.invalidEmail').nullable().catch(null),
+  email: z.email('errors:validation.invalidEmail').nullable().catch(null),
 });
 
 export type EditSupplierForm = z.infer<typeof editSupplierSchema>;
