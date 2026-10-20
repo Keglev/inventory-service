@@ -64,7 +64,7 @@ describe('buildTheme', () => {
   it('draws the drawer paper square and flat, so the rail meets the page panel', () => {
     render(
       <ThemeProvider theme={buildTheme('de', 'light')}>
-        <Drawer variant="permanent" open PaperProps={{ 'data-testid': 'rail' } as object}>
+        <Drawer variant="permanent" open slotProps={{ paper: { 'data-testid': 'rail' } as object }}>
           rail
         </Drawer>
       </ThemeProvider>,

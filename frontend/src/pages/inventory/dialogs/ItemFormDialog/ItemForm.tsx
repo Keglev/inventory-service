@@ -104,13 +104,13 @@ export function ItemForm({ state }: { state: UseItemFormReturn }) {
       <TextField
         label={t('inventory:table.price')}
         type="number"
-        slotProps={{ htmlInput: { min: 0.01, step: 0.01 } }}
+        slotProps={{
+          htmlInput: { min: 0.01, step: 0.01 },
+          input: { startAdornment: <span style={{ marginRight: '8px' }}>€</span> },
+        }}
         {...state.register('price', { valueAsNumber: true })}
         error={!!state.formState.errors.price}
         helperText={fieldErrorText(state.formState.errors.price, t)}
-        InputProps={{
-          startAdornment: <span style={{ marginRight: '8px' }}>€</span>,
-        }}
       />
     </Box>
   );

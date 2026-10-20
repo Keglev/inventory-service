@@ -95,7 +95,7 @@ export function ItemSearchAutocomplete({
           label={label}
           placeholder={placeholder}
           helperText={helperText}
-          FormHelperTextProps={{ sx: { minHeight: 20, mt: 0.5 } }}
+          slotProps={{ formHelperText: { sx: { minHeight: 20, mt: 0.5 } } }}
         />
       )}
       {...(noOptionsText !== undefined ? { noOptionsText } : {})}

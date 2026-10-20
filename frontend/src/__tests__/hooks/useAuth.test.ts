@@ -41,7 +41,7 @@ describe('useAuth (src/hooks/useAuth)', () => {
   it('throws when used outside AuthProvider (src/hooks)', () => {
     // This error message comes from the hook factory used by `@/hooks/useAuth`.
     // We treat it as a contract because it guides developers during integration.
-    expect(() => renderHook(() => useAuth())).toThrowError(
+    expect(() => renderHook(() => useAuth())).toThrow(
       'useAuth must be used within the corresponding provider',
     );
   });
