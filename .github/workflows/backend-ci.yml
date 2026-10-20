@@ -67,6 +67,12 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
   queue: ${{ github.ref == 'refs/heads/main' && 'max' || 'single' }}
 
+# Read scope for every job, the called browser suite included. The repository
+# default is already read-only; stated here it no longer depends on a setting
+# outside the repository (W17). The backend job repeats it for itself.
+permissions:
+  contents: read
+
 jobs:
   backend:
     runs-on: ubuntu-24.04
