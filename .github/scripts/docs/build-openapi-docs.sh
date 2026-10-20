@@ -64,8 +64,7 @@ sed -i -E "s|$CDN_RE|redoc.standalone.js|" "$API_OUT/index.html"
 sed -i 's|<head>|<head><meta http-equiv="Content-Security-Policy" content="img-src '"'"'self'"'"' data:">|' "$API_OUT/index.html"
 echo "✓ ReDoc $REDOC_VERSION served from the site (integrity verified); images limited to the site"
 
-# Inject a fixed-position "back to docs" link into the self-contained ReDoc page.
-# Same pattern as the JaCoCo coverage injection in docs-deploy.yml, applied
-# at build time because this file is regenerated on every docs build.
-sed -i 's|<body[^>]*>|&<a id="back-to-docs" href="/inventory-service/" style="position:fixed;top:8px;right:12px;z-index:9999;font:14px sans-serif;padding:6px 12px;background:#2563eb;color:#fff;text-decoration:none;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.2);">\&larr; Back to docs</a>|' "$API_OUT/index.html"
+# The self-contained ReDoc page loads none of the site's CSS; it gets the same
+# fixed "Back to docs" link as the coverage reports, from one script.
+bash "$(dirname "$0")/inject-back-link.sh" "$API_OUT/index.html"
 echo "✓ ReDoc HTML generated at backend/api/index.html (back-to-docs link injected)"

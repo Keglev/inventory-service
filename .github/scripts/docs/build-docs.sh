@@ -117,6 +117,7 @@ copy_backend_coverage() {
     perl -pi -e 's{<sessioninfo [^>]*/>}{}g' "$DEST/jacoco.xml"
     perl -0pi -e 's{<p>This coverage report is based.*?(?=<div class="footer">)}{<p>Session details are not published: they change on every run.</p>}s' \
       "$DEST/jacoco-sessions.html"
+    bash "$SCRIPTS_DIR/inject-back-link.sh" "$DEST/index.html"
     echo "✓ Backend coverage (JaCoCo) copied"
   else
     echo "ℹ️  No backend coverage found — skipping"
@@ -133,6 +134,7 @@ copy_frontend_coverage() {
     cp -R "$SRC/." "$DEST/"
     find "$DEST" -name '*.html' -exec perl -ni -e \
       'print unless /^\s*at \d{4}-\d\d-\d\dT[\d:.]+Z\s*$/' {} +
+    bash "$SCRIPTS_DIR/inject-back-link.sh" "$DEST/index.html"
     echo "✓ Frontend coverage copied"
   else
     echo "ℹ️  No frontend coverage found — skipping"
