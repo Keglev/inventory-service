@@ -25,11 +25,10 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    // Blocked by i18next peer dep incompatibility with TS 6.0; remove once resolved.
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
+    // Relative to this file. No baseUrl: TypeScript 6 deprecates it (removed in
+    // 7) and paths no longer needs it.
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
 
     "strict": true,

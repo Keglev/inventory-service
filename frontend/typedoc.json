@@ -17,16 +17,15 @@
   // markdown theme is required by typedoc-plugin-markdown; the default HTML theme
   // is incompatible with the plugin.
   "theme": "markdown",
+  // Only patterns that can fall inside the entry points above: main.tsx,
+  // App.tsx and vite-env.d.ts sit in src/ itself, and the project has no
+  // stories or __mocks__. Specs live in src/__tests__; these keep one placed
+  // beside its source out of the published docs.
   "exclude": [
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/*.spec.ts",
-    "**/*.spec.tsx",
-    "**/*.stories.tsx",
-    "**/__mocks__/**",
-    "**/vite-env.d.ts",
-    "**/main.tsx",
-    "**/App.tsx"
+    "**/*.spec.tsx"
   ],
   // Suppresses TypeDoc's default behaviour of prepending the project README to generated docs.
   "readme": "none",
