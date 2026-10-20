@@ -121,7 +121,8 @@ describe('useSessionTimeout', () => {
     await act(async () => {
       await Promise.resolve();
     });
-    expect(httpClientMock.get).toHaveBeenCalledWith('/api/me', { withCredentials: true });
+    // Credentials come from the shared client's default (httpClient.test).
+    expect(httpClientMock.get).toHaveBeenCalledWith('/api/me');
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(10_000);
@@ -132,7 +133,7 @@ describe('useSessionTimeout', () => {
     unmount();
   });
 
-  it('navigates to /logout and broadcasts when the heartbeat ping answers 401', async () => {
+  it('navigates to /logout when the heartbeat ping answers 401', async () => {
     vi.useFakeTimers();
     httpClientMock.get.mockRejectedValue(pingError(401));
     const { unmount } = renderHook(() => useSessionTimeout({ pingIntervalMs: 10_000 }));
@@ -142,8 +143,9 @@ describe('useSessionTimeout', () => {
     });
 
     expect(navigateMock).toHaveBeenCalledWith('/logout', { replace: true });
-    expect(Storage.prototype.setItem).toHaveBeenCalledWith(STORAGE_FLAG, '1');
-    expect(Storage.prototype.removeItem).toHaveBeenCalledWith(STORAGE_FLAG);
+    // The other tabs hear it once, from AuthContext.logout on the logout page
+    // (LogoutPage and AuthProvider specs), not a second time from here.
+    expect(Storage.prototype.setItem).not.toHaveBeenCalled();
 
     unmount();
   });

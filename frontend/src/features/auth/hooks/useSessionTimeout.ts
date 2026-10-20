@@ -12,9 +12,8 @@
  * - Three concerns in three effects:
  *   (1) HEARTBEAT — pings pingEndpoint (default /api/me) on tab visibility +
  *       interval. DEMO sessions skip heartbeat entirely (no server cookie to
- *       validate). Only a 401 forces /logout via forceLogoutAcrossTabs +
- *       navigate; a network error, timeout or 5xx keeps the session and the
- *       next ping asks again.
+ *       validate). Only a 401 navigates to /logout; a network error, timeout
+ *       or 5xx keeps the session and the next ping asks again.
  *   (2) IDLE TIMEOUT (opt-in) — when enableIdleTimeout, resets a timer on
  *       mouse/keyboard/wheel/touch events; firing the timer forces /logout.
  *       OFF by default — enable for strict environments.
@@ -66,13 +65,14 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
 
     const ping = async () => {
       try {
-        await httpClient.get(pingEndpoint, { withCredentials: true });
+        // httpClient sends the session cookie by default (withCredentials).
+        await httpClient.get(pingEndpoint);
       } catch (error) {
         // WHY: only the server saying the session is gone ends it. Offline, a
         // timeout or a 5xx says nothing about the session, and ending it there
         // logged the user out in every tab on a network blip.
         if (!isAxiosError(error) || error.response?.status !== 401) return;
-        forceLogoutAcrossTabs();
+        // LogoutPage calls AuthContext.logout, which tells the other tabs.
         navigate('/logout', { replace: true });
       }
     };
@@ -114,7 +114,6 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
     const resetIdle = () => {
       if (idleTimer) window.clearTimeout(idleTimer);
       idleTimer = window.setTimeout(() => {
-        forceLogoutAcrossTabs();
         navigate('/logout', { replace: true });
       }, idleTimeoutMs);
     };
@@ -140,15 +139,4 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, [navigate]);
-}
-
-/** Broadcast a /logout signal to other tabs via the FORCE_LOGOUT_FLAG localStorage write+delete pattern. Caller is responsible for navigating this tab. */
-function forceLogoutAcrossTabs() {
-  try {
-    localStorage.setItem(FORCE_LOGOUT_FLAG, '1');
-    // clear quickly to keep storage clean while still triggering event
-    localStorage.removeItem(FORCE_LOGOUT_FLAG);
-  } catch {
-    // ignore storage failures
-  }
 }
