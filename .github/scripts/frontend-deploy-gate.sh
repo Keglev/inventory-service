@@ -41,6 +41,7 @@ while IFS= read -r path; do
     frontend/tsconfig.test.json|frontend/eslint.config.js) ;;
     frontend/typedoc.json|frontend/README.md|docs/*) ;;
     .github/workflows/frontend-ci.yml|.github/workflows/e2e-playwright.yml) ;;
+    .github/workflows/yaml-lint.yml|.github/scripts/check-yaml.sh) ;;
     .github/scripts/verify-image-contract.sh) ;;
     .github/scripts/report-dependency-tree.sh) ;;
     .github/scripts/frontend-ci-summary.sh) ;;

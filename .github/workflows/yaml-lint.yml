@@ -1,49 +1,82 @@
 # =============================================================================
 # Smart Supply Pro – YAML Lint
 #
-# Pull request check for YAML hygiene. Every tracked .yml and .yaml file must
-# parse, end with a newline, and carry no trailing whitespace. The rules and the
-# scope both live in .github/scripts/check-yaml.sh, so there is one place to
-# change either. The workflows are also linted by actionlint, which runs
-# shellcheck on every run: block.
+# YAML hygiene for pull requests. Every tracked .yml and .yaml file must parse,
+# end with a newline, and carry no trailing whitespace; the rules and the scope
+# both live in .github/scripts/check-yaml.sh, so there is one place to change
+# either. The workflows are also linted by actionlint, which runs shellcheck on
+# every run: block.
 #
 # No chain prefix on purpose: a lint belongs to none of the backend, frontend or
 # docs chains (ADR-0017).
 #
-# The job is named `yaml-lint`, deliberately NOT `build-and-test`: this check is
-# advisory until it has proven itself across a run of pull requests. Branch
-# protection requires only `build-and-test`, so renaming the job is what would
-# turn this into a gate. See the header of backend-ci.yml for why three workflows
-# share that name today.
+# Reusable, like e2e-playwright.yml: backend-ci.yml, frontend-ci.yml and
+# docs-pr-check.yml each call it as a job behind their build-and-test
+# aggregator, so a finding blocks the merge (F5, 2026-10-20). The checked files
+# belong to all three families (workflows, the composite action, Spring
+# profiles, Compose), and a pull request confined to one family is reported by
+# that family's claimant alone, so all three call it. It was advisory, under its
+# own job name, from 2026-10-09 until then.
 #
-# Three outcomes. A pull request touching any .yml or .yaml file runs this,
-# except one confined to docs/backend/api, which is OpenAPI and is gated by
-# Redocly in docs-build.yml. A change to the script runs it, because the
-# checks are the thing being changed. Everything else does not run it at all:
-# no job, no check, no minutes.
+# No concurrency block: the three callers of one pull request share a ref, so a
+# group with cancel-in-progress would let them cancel each other's lint.
+#
+# Three outcomes, decided by the gate job. A pull request whose diff touches a
+# checked YAML file, check-yaml.sh or this workflow runs the lint over the whole
+# tree, and a finding fails the caller's build-and-test. A manual run always
+# lints. Anything else skips the lint and the caller passes it as skipped: a
+# pull request without such a change, one confined to docs/backend/api (OpenAPI,
+# gated by Redocly in docs-build.yml), and every push to main, whose files the
+# pull request already linted.
 # =============================================================================
 name: YAML Lint
 
 on:
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - '**.yml'
-      - '**.yaml'
-      - '.github/scripts/check-yaml.sh'
-      - '!docs/backend/api/**'
+  workflow_call:
   workflow_dispatch:
 
-concurrency:
-  group: yaml-lint-${{ github.ref }}
-  cancel-in-progress: true
+permissions:
+  contents: read
 
 jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      # HEAD^..HEAD is the pull request's own diff: the checked-out commit is
+      # the merge commit. Outcomes as in the header: run=true for a manual run
+      # or a relevant pull request diff, run=false otherwise.
+      - name: Decide whether the lint is relevant
+        id: decide
+        run: |
+          set -euo pipefail
+          case "$GITHUB_EVENT_NAME" in
+            workflow_dispatch) echo "run=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+            pull_request) ;;
+            *) echo "run=false" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+          changed=$(git diff --name-only HEAD^ HEAD)
+          relevant=$(grep -E '\.ya?ml$|^\.github/scripts/check-yaml\.sh$' <<< "$changed" | grep -vE '^docs/backend/api/' || true)
+          echo "${relevant:-no checked YAML in this diff}"
+          if [ -n "$relevant" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "No checked YAML file changed; the YAML lint is skipped." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   yaml-lint:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout code
@@ -88,5 +121,5 @@ jobs:
             echo "## YAML Lint"
             echo "- Checks: parse (including duplicate keys), trailing whitespace, final newline."
             echo "- Workflows: actionlint 1.7.12 with shellcheck."
-            echo "- Advisory: this check does not gate merges yet."
+            echo "- Gate: a finding fails the caller's build-and-test check."
           } >> "$GITHUB_STEP_SUMMARY"

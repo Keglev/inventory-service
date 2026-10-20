@@ -138,6 +138,28 @@ Superseded by this block:
   workflow or the script itself in the commit's own diff". It still looks for
   those, less the paths above.
 
+## Amendment 2026-10-20: the YAML lint joins all three claimants
+
+`yaml-lint.yml` was an advisory pull request check under its own job name. It is
+now reusable like the browser suite and runs behind every `build-and-test`
+aggregator, as the Consequences above ask of a new check:
+
+- `backend-ci.yml`, `frontend-ci.yml` and `docs-pr-check.yml` each call it as a
+  job. The checked files span all three families (workflows, the composite
+  action, Spring profiles, Compose), and a pull request confined to one family
+  is reported by that family's claimant alone, so one caller would leave the
+  other families' YAML unchecked.
+- A gate job inside it runs the lint only for a pull request whose own diff
+  (`HEAD^..HEAD`) touches a checked YAML file or its script, and on a manual
+  run. A push to `main` skips it: the pull request linted the same files.
+- `docs-pr-check.yml` gained an aggregator: its site job is now `docs`, and
+  `build-and-test` requires it and passes a skipped lint.
+- The workflow has no concurrency block. The callers of one pull request share
+  a ref, and a cancelling group would let them cancel each other.
+
+Superseded by this block: the Decision's "each ends in an aggregator job"
+applied to the two callers of the suite; it now applies to all three claimants.
+
 ## References
 - [ADR-0013: The docs pipeline rebuilds, and publishes, by change](adr-0013-docs-pipeline-rebuilds-by-change.md)
 - [ADR-0015: GitHub Pages is deployed by the publisher job](adr-0015-pages-deployed-from-the-publisher-job.md)

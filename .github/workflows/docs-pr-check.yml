@@ -4,10 +4,12 @@
 # Pull request gate for documentation changes. Builds the docs site exactly as
 # docs-build.yml does (minus coverage and TypeDoc, which come from CI
 # artifacts) and checks that every internal link resolves. Nothing is uploaded
-# or deployed from this workflow. Its job is named build-and-test so it
-# satisfies the required status check for docs-only pull requests; the trigger
-# paths below must stay identical to the docs entries in the paths-ignore list
-# of backend-ci.yml, this file included. A pull request editing this file is
+# or deployed from this workflow. Its last job is named build-and-test so it
+# satisfies the required status check for docs-only pull requests: it requires
+# the site job and the YAML lint (yaml-lint.yml, skipped unless a checked YAML
+# file changed, such as docs-build.yml or this file). The trigger paths below
+# must stay identical to the docs entries in the paths-ignore list of
+# backend-ci.yml, this file included. A pull request editing this file is
 # therefore reported by this workflow alone, which is the intent: the docs gate
 # checks itself.
 # =============================================================================
@@ -29,7 +31,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-test:
+  docs:
     # Pinned to the image, not to a moving label. This job installs pandoc from the
     # Ubuntu archive, and 24.04 publishes exactly one pandoc: 3.1.3+ds-2. When
     # ubuntu-latest migrates to the next LTS that version is simply not there, so
@@ -109,3 +111,21 @@ jobs:
             echo "## Docs PR Check"
             echo "- Site built and internal links checked; nothing published."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  yaml-lint:
+    uses: ./.github/workflows/yaml-lint.yml
+
+  # The only job branch protection sees: fails when the site job did not
+  # succeed or the lint failed or was cancelled; passes a skipped lint.
+  build-and-test:
+    needs: [docs, yaml-lint]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require the site job and the YAML lint
+        run: |
+          set -eu
+          echo "docs=${{ needs.docs.result }} yaml-lint=${{ needs.yaml-lint.result }}"
+          [ "${{ needs.docs.result }}" = "success" ] || exit 1
+          case "${{ needs.yaml-lint.result }}" in success|skipped) ;; *) exit 1 ;; esac
