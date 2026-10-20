@@ -276,6 +276,14 @@
         0015</a>)</td>
         </tr>
         <tr class="odd">
+        <td>Docs</td>
+        <td><code>.github/actions/docs-toolchain</code></td>
+        <td>Composite action used by both docs workflows: Node 24, and
+        as asked the pinned Redocly CLI and Pandoc; the npm pin and the
+        frontend npm cache only when TypeDoc runs <code>npm ci</code>.
+        One place for the docs tool versions</td>
+        </tr>
+        <tr class="even">
         <td>Shared</td>
         <td><code>e2e-playwright.yml</code></td>
         <td>Reusable: called as a job by <code>backend-ci.yml</code> and
@@ -291,7 +299,7 @@
         href="09-decisions/adr-0016-one-claimant-and-the-e2e-inside-ci.html">ADR
         0016</a>)</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>Shared</td>
         <td><code>.github/actions/image-sbom-scan</code></td>
         <td>Composite action used by both image builds: one Trivy
@@ -301,7 +309,7 @@
         <code>app.jar</code>), then gates on fixable HIGH/CRITICAL CVEs
         found in that SBOM, before the image is published</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>Shared</td>
         <td><code>release.yml</code></td>
         <td>On a <code>v*.*.*</code> tag push, verifies both tiers
@@ -309,7 +317,7 @@
         notes generated from the merged pull requests since the previous
         tag</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>Shared</td>
         <td><code>yaml-lint.yml</code></td>
         <td>Reusable: called as a job by all three
