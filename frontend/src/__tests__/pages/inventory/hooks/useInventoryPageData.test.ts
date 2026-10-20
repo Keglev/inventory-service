@@ -15,6 +15,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { createQueryWrapper } from '@/__tests__/test/queryClient';
 
 const getRowClassNameFn = vi.fn(() => 'row-ok');
 
@@ -66,7 +67,7 @@ function renderPageData(supplierId: string | null) {
   return renderHook(
     ({ sid }: { sid: string | null }) =>
       useInventoryPageData(sid, 'widget', false, 0, 10, 'name,asc'),
-    { initialProps: { sid: supplierId } }
+    { initialProps: { sid: supplierId }, wrapper: createQueryWrapper() }
   );
 }
 
@@ -114,6 +115,19 @@ describe('useInventoryPageData', () => {
     expect(result.current.loading).toBe(false);
   });
 
+  it('empties the page when a reload of a loaded page fails', async () => {
+    const { result } = renderPageData('sup-1');
+    await waitFor(() => expect(result.current.items).toHaveLength(1));
+
+    getInventoryPageMock.mockRejectedValueOnce(new Error('boom'));
+    await act(async () => {
+      result.current.reload();
+    });
+
+    await waitFor(() => expect(result.current.items).toEqual([]));
+    expect(result.current.server.total).toBe(0);
+  });
+
   it('clears items when the supplier is deselected after a successful load', async () => {
     const { result, rerender } = renderPageData('sup-1');
     await waitFor(() => expect(result.current.items).toHaveLength(1));
@@ -122,6 +136,25 @@ describe('useInventoryPageData', () => {
 
     await waitFor(() => expect(result.current.items).toEqual([]));
     expect(result.current.server.total).toBe(0);
+  });
+
+  it('keeps the newest filters when an older request answers last', async () => {
+    let answerFirst: (value: unknown) => void = () => {};
+    const otherPage = { ...serverPage, items: [{ id: 'it-2', name: 'Gasket', onHand: 9, minQty: 1 }] };
+    getInventoryPageMock
+      .mockImplementationOnce(() => new Promise((resolve) => { answerFirst = resolve; }) as never)
+      .mockResolvedValueOnce(otherPage as never);
+
+    const { result, rerender } = renderPageData('sup-1');
+    rerender({ sid: 'sup-2' });
+    await waitFor(() => expect(result.current.items[0]?.id).toBe('it-2'));
+
+    // The request for sup-1 answers after the user moved on to sup-2.
+    await act(async () => {
+      answerFirst(serverPage);
+    });
+
+    expect(result.current.items[0]?.id).toBe('it-2');
   });
 
   it('reload re-runs the current query when a supplier is selected', async () => {
@@ -140,7 +173,9 @@ describe('useInventoryPageData', () => {
 
   // The bell's link lists every item below its minimum across suppliers (C6).
   it('fetches all suppliers below minimum when the filter is on without a supplier', async () => {
-    const { result } = renderHook(() => useInventoryPageData(null, '', true, 0, 10, 'name,asc'));
+    const { result } = renderHook(() => useInventoryPageData(null, '', true, 0, 10, 'name,asc'), {
+      wrapper: createQueryWrapper(),
+    });
 
     await waitFor(() => expect(result.current.items).toHaveLength(1));
     expect(getInventoryPageMock).toHaveBeenCalledWith({
