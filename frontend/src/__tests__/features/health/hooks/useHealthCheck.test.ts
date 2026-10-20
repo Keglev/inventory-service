@@ -90,7 +90,7 @@ describe('useHealthCheck', () => {
 
     const { result, unmount } = renderHook(() => useHealthCheck(), { wrapper });
 
-    expect(fetchMock).toHaveBeenCalledWith('/api/health', { credentials: 'include' });
+    expect(fetchMock).toHaveBeenCalledWith('/api/health', { credentials: 'omit' });
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.health).toEqual({
       status: 'online',
@@ -115,7 +115,7 @@ describe('useHealthCheck', () => {
     const { result, unmount } = renderHook(() => useHealthCheck(), { wrapper });
 
     expect(fetchMock).toHaveBeenCalledWith('https://backend.example.com/api/health', {
-      credentials: 'include',
+      credentials: 'omit',
     });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
