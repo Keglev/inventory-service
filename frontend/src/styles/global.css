@@ -2,8 +2,7 @@
  * File:    src/styles/global.css
  * Module:  styles
  * Summary: Document-level CSS resets that MUI CssBaseline does not own: full-viewport
- *   height on html/body/#root, webkit scrollbar styling, a screen-reader-only utility
- *   class, and print overrides.
+ *   height on html/body/#root, webkit scrollbar styling, and print overrides.
  *
  * Enterprise:
  *   - Loaded via index.css (@import './styles/global.css'), which main.tsx imports
@@ -33,19 +32,6 @@ html, body, #root {
 }
 *::-webkit-scrollbar-track {
   background: transparent;
-}
-
-/* WHY: WCAG screen-reader-only pattern; !important on position prevents any outer positioning rule from accidentally making the element visible. */
-.visually-hidden {
-  position: absolute !important;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-  clip: rect(1px, 1px, 1px, 1px);
-  white-space: nowrap;
-  border: 0;
-  padding: 0;
-  margin: -1px;
 }
 
 /* WHY: MUI CssBaseline ships no print baseline, so these rules are the only print handling. !important is required to override the palette-driven background and text colors MUI injects on body and links at higher specificity. */

@@ -62,7 +62,6 @@
   },
   "quantity": {
     "currentItemInfo": "Aktuelle Artikelinformationen",
-    "currentQuantity": "Aktuelle Menge",
     "newQuantity": "Neue Menge",
     "quantityChangeHint": "Änderung von {{current}} auf {{new}}",
     "quantityUpdatedTo": "Menge wurde auf {{quantity}} geändert"
@@ -72,7 +71,6 @@
     "priceChange": "Einzelpreis: Änderung von {{from}} auf {{to}}",
     "currentTotalValue": "Aktueller Gesamtwert",
     "newTotalValue": "Neuer Gesamtwert: {{total}}",
-    "currentPrice": "Aktueller Preis",
     "priceUpdatedTo": "Preis wurde auf ${{price}} geändert"
   },
   "status": {
@@ -104,8 +102,5 @@
   },
   "fields": {
     "reasonLabel": "Grund"
-  },
-  "selection": {
-    "selectedItemLabel": "Ausgewählter Artikel"
   }
 }
