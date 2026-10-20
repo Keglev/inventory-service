@@ -20,9 +20,9 @@
 # minor and patch releases only: a major version is a migration planned by
 # hand (Spring Boot 4, React 19), not a bot update. The restriction sits in
 # `allow`, whose update-types apply to version updates only, so a security
-# update that needs a major version still arrives. A release must be seven
-# days old before it is proposed, time for a compromised version to be caught
-# and pulled; security updates skip that wait.
+# update that needs a major version still arrives. In every ecosystem a
+# release must be seven days old before it is proposed, time for a compromised
+# version to be caught and pulled; security updates skip that wait.
 #
 # Docker was added on 2026-10-09 (FW6 C1). Every base tag floats
 # (3-eclipse-temurin-21, 21-jre-alpine, 24-bookworm-slim, 1.30-alpine) and is
@@ -53,6 +53,11 @@ updates:
     commit-message:
       # Conventional Commits, so the generated release notes stay readable.
       prefix: ci
+    # The same seven days as the other ecosystems (W20). Actions are where a
+    # hijacked release tag did harm (the trivy-action tag attack): a pin moved
+    # within hours of a compromised release would carry it into every job.
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns:
