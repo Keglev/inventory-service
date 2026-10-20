@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>58/58</span>
+                <span class='fraction'>53/53</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>17/17</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>49/49</span>
+                <span class='fraction'>44/44</span>
             </div>
         
             
@@ -205,20 +205,7 @@
 <a name='L140'></a><a href='#L140'>140</a>
 <a name='L141'></a><a href='#L141'>141</a>
 <a name='L142'></a><a href='#L142'>142</a>
-<a name='L143'></a><a href='#L143'>143</a>
-<a name='L144'></a><a href='#L144'>144</a>
-<a name='L145'></a><a href='#L145'>145</a>
-<a name='L146'></a><a href='#L146'>146</a>
-<a name='L147'></a><a href='#L147'>147</a>
-<a name='L148'></a><a href='#L148'>148</a>
-<a name='L149'></a><a href='#L149'>149</a>
-<a name='L150'></a><a href='#L150'>150</a>
-<a name='L151'></a><a href='#L151'>151</a>
-<a name='L152'></a><a href='#L152'>152</a>
-<a name='L153'></a><a href='#L153'>153</a>
-<a name='L154'></a><a href='#L154'>154</a>
-<a name='L155'></a><a href='#L155'>155</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L143'></a><a href='#L143'>143</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -285,13 +272,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -334,7 +322,6 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -360,17 +347,6 @@
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file useSessionTimeout.ts
  * @module features/auth/hooks/useSessionTimeout
@@ -385,9 +361,8 @@
  * - Three concerns in three effects:
  *   (1) HEARTBEAT — pings pingEndpoint (default /api/me) on tab visibility +
  *       interval. DEMO sessions skip heartbeat entirely (no server cookie to
- *       validate). Only a 401 forces /logout via forceLogoutAcrossTabs +
- *       navigate; a network error, timeout or 5xx keeps the session and the
- *       next ping asks again.
+ *       validate). Only a 401 navigates to /logout; a network error, timeout
+ *       or 5xx keeps the session and the next ping asks again.
  *   (2) IDLE TIMEOUT (opt-in) — when enableIdleTimeout, resets a timer on
  *       mouse/keyboard/wheel/touch events; firing the timer forces /logout.
  *       OFF by default — enable for strict environments.
@@ -439,13 +414,14 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
 &nbsp;
     const ping = async () =&gt; {
       try {
-        await httpClient.get(pingEndpoint, { withCredentials: true });
+        // httpClient sends the session cookie by default (withCredentials).
+        await httpClient.get(pingEndpoint);
       } catch (error) {
         // WHY: only the server saying the session is gone ends it. Offline, a
         // timeout or a 5xx says nothing about the session, and ending it there
         // logged the user out in every tab on a network blip.
         if (!isAxiosError(error) || error.response?.status !== 401) return;
-        forceLogoutAcrossTabs();
+        // LogoutPage calls AuthContext.logout, which tells the other tabs.
         navigate('/logout', { replace: true });
       }
     };
@@ -487,7 +463,6 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
     const resetIdle = () =&gt; {
       if (idleTimer) window.clearTimeout(idleTimer);
       idleTimer = window.setTimeout(() =&gt; {
-        forceLogoutAcrossTabs();
         navigate('/logout', { replace: true });
       }, idleTimeoutMs);
     };
@@ -513,17 +488,6 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
     window.addEventListener('storage', onStorage);
     return () =&gt; window.removeEventListener('storage', onStorage);
   }, [navigate]);
-}
-&nbsp;
-/** Broadcast a /logout signal to other tabs via the FORCE_LOGOUT_FLAG localStorage write+delete pattern. Caller is responsible for navigating this tab. */
-function forceLogoutAcrossTabs() {
-  try {
-    localStorage.setItem(FORCE_LOGOUT_FLAG, '1');
-    // clear quickly to keep storage clean while still triggering event
-    localStorage.removeItem(FORCE_LOGOUT_FLAG);
-  } catch {
-    // ignore storage failures
-  }
 }
 &nbsp;</pre></td></tr></table></pre>
 
