@@ -61,6 +61,12 @@ function AuthProbe() {
       <button type="button" onClick={ctx.logout}>
         logout
       </button>
+      <button
+        type="button"
+        onClick={() => ctx.setUser({ email: 'admin@example.com', fullName: 'Admin', role: 'ADMIN' })}
+      >
+        setServerUser
+      </button>
     </div>
   );
 }
@@ -276,10 +282,28 @@ describe('AuthProvider', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'loginAsDemo' }));
 
-    // The user-set effect resets the guard without waiting for the timer.
+    // Setting a user resets the guard without waiting for the timer.
     await waitFor(() =>
       expect(screen.getByTestId('logout-in-progress')).toHaveTextContent('false'),
     );
     expect(screen.getByTestId('user-is-demo')).toHaveTextContent('true');
+  });
+
+  it('a server re-login through setUser after logout clears the in-progress flag immediately', async () => {
+    httpClientMock.get.mockRejectedValue(new Error('no session'));
+
+    renderAuth();
+    await waitFor(() =>
+      expect(screen.getByTestId('loading')).toHaveTextContent('false'),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'logout' }));
+    expect(screen.getByTestId('logout-in-progress')).toHaveTextContent('true');
+
+    // AuthCallback sets the server user through the context's setUser.
+    fireEvent.click(screen.getByRole('button', { name: 'setServerUser' }));
+
+    expect(screen.getByTestId('logout-in-progress')).toHaveTextContent('false');
+    expect(screen.getByTestId('user-role')).toHaveTextContent('ADMIN');
   });
 });

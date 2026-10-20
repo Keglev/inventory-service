@@ -20,7 +20,7 @@
  */
 
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -107,18 +107,10 @@ describe('SettingsProvider', () => {
 
   it('exposes preferences and their controls only', () => {
     // System info moved to the shared health query; the context carries no fetch state.
-    let keys: string[] = [];
-    function KeysProbe() {
-      // TODO(F7B): the probe writes an outer variable during render; read the context through a returned value instead.
-      // eslint-disable-next-line react-hooks/globals
-      keys = Object.keys(React.useContext(SettingsContext) ?? {}).sort();
-      return null;
-    }
-    render(
-      <SettingsProvider>
-        <KeysProbe />
-      </SettingsProvider>,
-    );
+    const { result } = renderHook(() => React.useContext(SettingsContext), {
+      wrapper: SettingsProvider,
+    });
+    const keys = Object.keys(result.current ?? {}).sort();
     expect(keys).toEqual(['resetToDefaults', 'setUserPreferences', 'userPreferences']);
   });
 

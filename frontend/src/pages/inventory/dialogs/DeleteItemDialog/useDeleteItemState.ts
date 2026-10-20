@@ -29,16 +29,28 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { deleteItemSchema, type DeleteItemForm } from '../../validation/inventoryValidation';
 import { useItemSelectionState } from '../useItemSelectionState';
+import type { SupplierOption } from '../../../../api/analytics/types';
 
 export function useDeleteItemState() {
   // Selection, search text and error, shared with the other item dialogs
   const {
-    selectedSupplier, setSelectedSupplier, selectedItem, setSelectedItem,
+    selectedSupplier, setSelectedSupplier: setSupplierState, selectedItem, setSelectedItem,
     itemQuery, setItemQuery, formError, setFormError,
   } = useItemSelectionState();
 
   // Dialog state
   const [showConfirmation, setShowConfirmation] = React.useState(false);
+
+  // A new supplier also leaves the confirmation step. Cleared where the
+  // supplier is set rather than in the reset effect below, so no render passes
+  // with a stale confirmation flag.
+  const setSelectedSupplier = React.useCallback(
+    (supplier: SupplierOption | null) => {
+      setShowConfirmation(false);
+      setSupplierState(supplier);
+    },
+    [setSupplierState],
+  );
 
   // Form validation state
   const { handleSubmit, formState: { isSubmitting }, reset, setValue } = useForm<DeleteItemForm>({
@@ -56,9 +68,6 @@ export function useDeleteItemState() {
     setItemQuery('');
     setValue('itemId', '');
     setFormError('');
-    // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setShowConfirmation(false);
   }, [selectedSupplier, setValue, setSelectedItem, setItemQuery, setFormError]);
 
   /**

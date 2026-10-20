@@ -63,19 +63,17 @@ export function useDeleteItemHandlers(
    * Validation: ensures item is selected
    * Action: shows confirmation dialog with warning
    * Usage: triggered by "Delete" button in form view
+   * Not memoized: handleSubmit returns a new function on every render, and
+   * `state` is a new object each render, so a useCallback here never held.
    */
-  const onSubmit = state.handleSubmit(
-    // TODO(F7B): the compiler cannot keep this useCallback; restructure so its dependencies are stable.
-    // eslint-disable-next-line react-hooks/preserve-manual-memoization
-    React.useCallback(async () => {
+  const onSubmit = state.handleSubmit(async () => {
     if (!state.selectedItem) {
       state.setFormError(t('errors:inventory.selection.noItemSelected'));
       return;
     }
     // Validation passed: show confirmation dialog
     state.setShowConfirmation(true);
-    }, [state, t])
-  );
+  });
 
   /**
    * Confirmed deletion handler

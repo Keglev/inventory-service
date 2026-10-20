@@ -157,6 +157,36 @@ describe('EmployeesSection', () => {
     });
   });
 
+  it('returns to the first page when the date window changes', async () => {
+    const user = userEvent.setup();
+    const client = createTestQueryClient();
+    const view = (from: string) => (
+      <QueryClientProvider client={client}>
+        <EmployeesSection from={from} to="2026-06-30" />
+      </QueryClientProvider>
+    );
+    const { rerender } = render(view('2026-01-01'));
+
+    await user.click(await screen.findByRole('button', { name: /next page/i }));
+    await waitFor(() => {
+      expect(mockGetEmployeeChanges).toHaveBeenCalledWith(
+        expect.objectContaining({ from: '2026-01-01', page: 1 }),
+      );
+    });
+
+    rerender(view('2026-02-01'));
+
+    await waitFor(() => {
+      expect(mockGetEmployeeChanges).toHaveBeenLastCalledWith(
+        expect.objectContaining({ from: '2026-02-01', page: 0 }),
+      );
+    });
+    // The new window is never requested at the old page position.
+    expect(mockGetEmployeeChanges).not.toHaveBeenCalledWith(
+      expect.objectContaining({ from: '2026-02-01', page: 1 }),
+    );
+  });
+
   it('renders the change log in the page flow without an inner scroll box', async () => {
     setup();
 

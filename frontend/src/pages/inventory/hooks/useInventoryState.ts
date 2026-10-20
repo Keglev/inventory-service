@@ -103,15 +103,19 @@ export const useInventoryState = (): InventoryState & InventoryStateSetters => {
   // The bell links here with ?belowMinimum=1, also while the page is open:
   // every arrival on that link shows all items below minimum. The location key
   // changes on each navigation, also to the same URL; the params object does not.
-  React.useEffect(() => {
-    if (!linkedBelowMinimum) return;
-    // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setBelowMinOnly(true);
-    setSupplierId(null);
-    setSelectedId(null);
-    setPaginationModel((m) => ({ ...m, page: 0 }));
-  }, [linkedBelowMinimum, navigationKey]);
+  // Adjusted during render (React's pattern for state that follows the route):
+  // an effect first rendered the page once more with the previous filter.
+  // The first render needs no adjustment: the initial state already matches.
+  const [seenNavigationKey, setSeenNavigationKey] = React.useState(navigationKey);
+  if (navigationKey !== seenNavigationKey) {
+    setSeenNavigationKey(navigationKey);
+    if (linkedBelowMinimum) {
+      setBelowMinOnly(true);
+      setSupplierId(null);
+      setSelectedId(null);
+      setPaginationModel((m) => ({ ...m, page: 0 }));
+    }
+  }
 
   return {
     q,

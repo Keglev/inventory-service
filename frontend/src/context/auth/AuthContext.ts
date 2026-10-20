@@ -32,7 +32,7 @@
  *   navigation/redirect.
  */
 
-import React, { createContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AuthContextType, AppUser } from './authTypes';
 import httpClient, { API_BASE } from '../../api/httpClient';
 import { DEMO_SESSION_KEY, FORCE_LOGOUT_FLAG } from '../../config/storageKeys';
@@ -48,21 +48,32 @@ const LOGOUT_GUARD_MS = 4000;
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [user, setUser] = useState<AppUser | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  // A stored demo session is read once, during the first render, so that render
+  // already has the user and no effect has to set it.
+  const [initialDemo] = useState(readDemoSession);
+  const [user, setUserState] = useState<AppUser | null>(initialDemo);
+  const [loading, setLoading] = useState<boolean>(initialDemo === null);
   const [logoutInProgress, setLogoutInProgress] = useState<boolean>(false);
   const logoutTimerRef = useRef<number | null>(null);
 
-  /** One-time session hydration: tries DEMO first, then /api/me. */
-  useEffect(() => {
-    const demo = readDemoSession();
-    if (demo) {
-      // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUser(demo);
-      setLoading(false);
-      return; // short-circuit: demo sessions don't call /api/me
+  // WHY: a successful re-login (server or demo) after logout must clear
+  // logoutInProgress so guards stop suppressing routes, and cancel the pending
+  // safety-valve timer. Done where a user is set rather than in an effect on
+  // user, which rendered once more with the stale flag.
+  const setUser = useCallback((next: AppUser | null) => {
+    if (next) {
+      setLogoutInProgress(false);
+      if (logoutTimerRef.current) {
+        clearTimeout(logoutTimerRef.current);
+        logoutTimerRef.current = null;
+      }
     }
+    setUserState(next);
+  }, []);
+
+  /** One-time server-session hydration via /api/me; a demo session skips it. */
+  useEffect(() => {
+    if (initialDemo) return; // demo sessions don't call /api/me
 
     const ac = new AbortController();
     (async () => {
@@ -76,7 +87,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       }
     })();
     return () => ac.abort();
-  }, []);
+  }, [initialDemo, setUser]);
 
   const login = () => {
     const origin = window.location.origin;
@@ -84,7 +95,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     window.location.assign(url);
   };
 
-  const loginAsDemo = () => {
+  const loginAsDemo = useCallback(() => {
     const demoUser: AppUser = {
       email: 'demo@smartsupplypro.local',
       fullName: 'Demo User',
@@ -97,7 +108,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       // WHY: storage failures (private mode, quota) are tolerable — in-memory user state still works; deep-link persistence is best-effort.
     }
     setUser(demoUser);
-  };
+  }, [setUser]);
 
   const logout = () => {
     setLogoutInProgress(true);
@@ -112,23 +123,10 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     } catch {
       // ignore storage failures
     }
-    setUser(null);
+    setUserState(null);
     // WHY: prevents auth-guard flicker if navigation/redirect stalls after logout — flag must eventually drop.
     logoutTimerRef.current = window.setTimeout(() => setLogoutInProgress(false), LOGOUT_GUARD_MS);
   };
-
-  // WHY: a successful re-login (server or demo) after logout must clear logoutInProgress so guards stop suppressing routes; also cancels any pending safety-valve timer.
-  useEffect(() => {
-    if (user) {
-      // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLogoutInProgress(false);
-      if (logoutTimerRef.current) {
-        clearTimeout(logoutTimerRef.current);
-        logoutTimerRef.current = null;
-      }
-    }
-  }, [user]);
 
   // WHY: on unmount, clear the safety-valve timer so it never fires against a stale state setter.
   useEffect(() => () => {
@@ -139,7 +137,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
   const value = useMemo<AuthContextType>(
     () => ({ user, setUser, login, loginAsDemo, logout, loading, logoutInProgress }),
-    [user, loading, logoutInProgress]
+    [user, setUser, loginAsDemo, loading, logoutInProgress]
   );
 
   return React.createElement(AuthContext.Provider, { value }, children);

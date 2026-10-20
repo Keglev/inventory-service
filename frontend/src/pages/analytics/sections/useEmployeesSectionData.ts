@@ -31,12 +31,15 @@ export function useEmployeesSectionData({ from, to, supplierId }: UseEmployeesSe
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
 
-  // A new window invalidates the current page position.
-  React.useEffect(() => {
-    // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+  // A new window invalidates the current page position. Adjusted during render
+  // (React's pattern for state that follows props): an effect first rendered,
+  // and fetched, the old page of the new window.
+  const windowKey = JSON.stringify([from ?? null, to ?? null, supplierId ?? null]);
+  const [seenWindowKey, setSeenWindowKey] = React.useState(windowKey);
+  if (windowKey !== seenWindowKey) {
+    setSeenWindowKey(windowKey);
     setPage(0);
-  }, [from, to, supplierId]);
+  }
 
   const activityQ = useQuery<EmployeeActivityRow[]>({
     queryKey: ['analytics', 'employeeActivity', granularity, from ?? null, to ?? null, supplierId ?? null],

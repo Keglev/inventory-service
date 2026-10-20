@@ -50,12 +50,14 @@ export function useItemSearchOptions({
   const [selectedItem, setSelectedItem] = React.useState<ItemRef | null>(null);
 
   // Reset text + selection when supplier changes (prevents cross-supplier leaks).
-  React.useEffect(() => {
-    // TODO(F7B): state reset in an effect renders twice; derive it during render or move it to the event that causes it.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+  // Adjusted during render, React's pattern for state that follows a prop: an
+  // effect would first render the new supplier with the old selection.
+  const [seenSupplierId, setSeenSupplierId] = React.useState(supplierId);
+  if (supplierId !== seenSupplierId) {
+    setSeenSupplierId(supplierId);
     setItemQuery('');
     setSelectedItem(null);
-  }, [supplierId]);
+  }
 
   const searchQuery = useQuery<ItemRef[]>({
     queryKey: ['analytics', queryKeyScope, supplierId ?? null, debouncedQuery],
