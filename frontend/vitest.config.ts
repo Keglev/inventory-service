@@ -45,14 +45,9 @@ export default mergeConfig(viteConfig, defineConfig({
     environment: 'jsdom',
     // Avoids importing describe/it/expect in every test file; matches Jest's API surface.
     globals: true,
+    // No exclude list: include already limits the run to src/, where none of
+    // node_modules, dist, docs, coverage or the tool folders live.
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/docs/**',
-      '**/coverage/**',
-      '**/.{idea,git,cache,output,temp}/**',
-    ],
     setupFiles: ['src/__tests__/test/setupTests.ts'],
     clearMocks: true,
     restoreMocks: true,

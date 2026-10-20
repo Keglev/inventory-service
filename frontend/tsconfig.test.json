@@ -6,9 +6,6 @@
 {
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
-    // extends does not inherit ignoreDeprecations; repeated here for the same reason
-    // as tsconfig.app.json (blocked by i18next peer dep).
-    "ignoreDeprecations": "6.0",
     // vitest/globals matches globals: true in vitest.config.ts, providing describe/it/expect
     // types without explicit imports in every test file.
     // "node" is required by src/__tests__/test/setupTests.ts, which imports createRequire
@@ -19,9 +16,8 @@
     // pulled in @types/node. Declaring it here makes the dependency real rather than a
     // side effect of an unused devDependency. Verified 2026-09-03.
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom", "node"],
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": [
