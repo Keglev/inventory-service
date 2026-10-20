@@ -83,20 +83,6 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 2
 
-      # Supports flat layout (pom.xml + docs/) and monorepo (backend/pom.xml + backend/docs/)
-      - name: Detect project root
-        id: where
-        run: |
-          set -euo pipefail
-          if [ -f "pom.xml" ] && [ -d "docs" ]; then
-            echo "dir=." >> "$GITHUB_OUTPUT"
-          elif [ -f "backend/pom.xml" ] && [ -d "backend/docs" ]; then
-            echo "dir=backend" >> "$GITHUB_OUTPUT"
-          else
-            echo "::error::No project root found (expected pom.xml + docs/)"
-            exit 1
-          fi
-
       # Which of the five generated subtrees this merge can possibly have changed.
       # Same shape as the change gate in backend-docker.yml: compare the released
       # commit against its first parent, which is exact for the squash merges this
@@ -124,7 +110,7 @@ jobs:
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: jacoco-html-${{ github.event.workflow_run.head_sha }}
-          path: ${{ steps.where.outputs.dir }}/target/site/jacoco
+          path: target/site/jacoco
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -136,7 +122,7 @@ jobs:
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: frontend-coverage-html-${{ github.event.workflow_run.head_sha }}
-          path: ${{ steps.where.outputs.dir }}/target/frontend/coverage
+          path: target/frontend/coverage
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -151,23 +137,17 @@ jobs:
           pandoc: ${{ steps.gate.outputs.pandoc }}
           frontend-install: ${{ steps.gate.outputs.typedoc }}
 
-      # Install frontend deps so TypeDoc can generate markdown from source. The
-      # previous form chained the install onto a directory test and then swallowed
-      # whatever came back with a trailing echo, so a failed install and an absent
-      # directory produced the same message and the same exit 0 and the build went
-      # on to render a site from whatever happened to be there. That is the defect
-      # the next step was fixed for in eee1b410. An absent frontend directory is
-      # still tolerated; nothing else is.
+      # Install frontend deps so TypeDoc can generate markdown from source. A
+      # failed install fails the run: an earlier form swallowed it and rendered a
+      # site from whatever happened to be there (the defect the next step was
+      # fixed for in eee1b410). The repository always has frontend/ and its
+      # typedoc.json, so the fallbacks for their absence went with W11.
       - name: Install frontend dependencies
         if: steps.gate.outputs.typedoc == 'true'
         run: |
           set -euo pipefail
-          if [ -d "frontend" ]; then
-            cd frontend
-            npm ci
-          else
-            echo "No frontend directory — skipping"
-          fi
+          cd frontend
+          npm ci
 
       # Blocking since 2026-09-04. This step swallowed failures while it printed 64
       # warnings on every run; a4088857 declared the project's block tags and took that
@@ -178,12 +158,9 @@ jobs:
       - name: Generate TypeDoc markdown
         if: steps.gate.outputs.typedoc == 'true'
         run: |
-          if [ -f "frontend/typedoc.json" ]; then
-            cd frontend
-            npx typedoc --options typedoc.json --treatWarningsAsErrors
-          else
-            echo "No frontend/typedoc.json — skipping TypeDoc"
-          fi
+          set -euo pipefail
+          cd frontend
+          npx typedoc --options typedoc.json --treatWarningsAsErrors
 
       # The generators the gate selected. build-docs.sh treats an unset variable as
       # "build it", so docs-pr-check.yml, which sets none of these, keeps building
@@ -196,8 +173,7 @@ jobs:
           DOCS_BUILD_ARCH_FRONTEND: ${{ steps.gate.outputs.arch_frontend }}
           DOCS_BUILD_DECISIONS: ${{ steps.gate.outputs.decisions }}
         run: |
-          PROJECT_DIR="${{ steps.where.outputs.dir }}"
-          bash .github/scripts/docs/build-docs.sh "$PROJECT_DIR"
+          bash .github/scripts/docs/build-docs.sh .
 
       # The site currently published, fetched one commit deep, so the assembly below
       # has something to lay this build over. A missing branch is tolerated and
@@ -223,8 +199,7 @@ jobs:
       # carried forward instead of vanishing.
       - name: Assemble the site to publish
         run: |
-          bash .github/scripts/docs/assemble-site.sh \
-            "${{ steps.where.outputs.dir }}" target/gh-pages
+          bash .github/scripts/docs/assemble-site.sh . target/gh-pages
 
       # Same checker, same version and config as docs-pr-check.yml: the publishing
       # build must not disagree with the PR gate about what a broken link is. It
@@ -233,7 +208,7 @@ jobs:
       - name: Stage the site for link checking
         run: |
           mkdir -p target/link-check
-          cp -r "${{ steps.where.outputs.dir }}/target/publish" target/link-check/inventory-service
+          cp -r target/publish target/link-check/inventory-service
       - name: Check internal links
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
@@ -252,4 +227,4 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: docs-site
-          path: ${{ steps.where.outputs.dir }}/target/docs
+          path: target/docs
