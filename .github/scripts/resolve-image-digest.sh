@@ -18,7 +18,7 @@ echo "==> [resolve-image-digest] docker.io/${NAMESPACE}/${REPO}:${TAG}"
 
 # Step 1 — Obtain an anonymous pull token (public images do not need credentials)
 TOKEN="$(
-  curl -fsSL --retry 5 --retry-connrefused --retry-delay 2 \
+  curl -fsSL --max-time 20 --retry 5 --retry-connrefused --retry-delay 2 \
     "https://auth.docker.io/token?service=registry.docker.io&scope=repository:${NAMESPACE}/${REPO}:pull" \
   | grep -oE '"token"\s*:\s*"[^"]+"' \
   | sed -E 's/.*"token"\s*:\s*"([^"]+)".*/\1/'
@@ -33,7 +33,7 @@ STATUS=""
 
 for attempt in $(seq 1 12); do
   echo "Manifest check $attempt/12..."
-  STATUS="$(curl -sS \
+  STATUS="$(curl -sS --max-time 20 \
     -D "$HDRS" -o /dev/null -w '%{http_code}' \
     -H "Authorization: Bearer $TOKEN" \
     -H "Accept: application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.index.v1+json" \
@@ -50,8 +50,10 @@ DIGEST="$(tr -d '\r' < "$HDRS" \
   | awk -F': ' 'tolower($1)=="docker-content-digest" {print $2}' \
   | tail -n1)"
 
-if [ -z "${DIGEST:-}" ]; then
-  echo "::error::Manifest returned 200 but Docker-Content-Digest header is missing"
+# The digest is the only part of the reference that comes from the network, so
+# it is checked here, where it arrives, rather than by the caller (W8).
+if ! grep -qE '^sha256:[a-f0-9]{64}$' <<< "${DIGEST:-}"; then
+  echo "::error::Manifest returned 200 but Docker-Content-Digest is missing or malformed: '${DIGEST:-}'"
   echo "::group::Response headers"; sed -n '1,40p' "$HDRS" || true; echo "::endgroup::"
   exit 1
 fi

@@ -30,11 +30,11 @@ echo "==> [wait-for-build] $ROOT must serve build $BUILD_ID (max $ATTEMPTS attem
 for i in $(seq 1 "$ATTEMPTS"); do
   # index.html is served no-cache, but ask the edge explicitly: a stale shell
   # would name the previous build's assets and stall this loop on a cache.
-  if ! curl -fsS -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$ROOT/" -o "$WORK/index.html"; then
+  if ! curl -fsS --max-time 10 -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$ROOT/" -o "$WORK/index.html"; then
     echo "Attempt $i/$ATTEMPTS - index not reachable"
   elif ENTRY="$(grep -oE '/assets/index-[A-Za-z0-9_-]+\.js' "$WORK/index.html" | head -n1)" \
     && [ -n "$ENTRY" ] \
-    && curl -fsS --compressed "$ROOT$ENTRY" -o "$WORK/entry.js"; then
+    && curl -fsS --max-time 20 --compressed "$ROOT$ENTRY" -o "$WORK/entry.js"; then
     if grep -q -F "$BUILD_ID" "$WORK/entry.js"; then
       echo "PASS [wait-for-build] $ENTRY carries $BUILD_ID after $i attempt(s)"
       exit 0
