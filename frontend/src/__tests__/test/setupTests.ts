@@ -43,7 +43,7 @@ if (!(globalThis as { __MUI_ICON_PATCHED__?: boolean }).__MUI_ICON_PATCHED__) {
   const originalLoad = Module._load;
 
   // Patch `Module._load` so all `@mui/icons-material/*` imports resolve to a lightweight SVG stub.
-  Module._load = function patchedLoad(request: string, parent: NodeModule | undefined, isMain: boolean) {
+  Module._load = function patchedLoad(request: string, parent: NodeJS.Module | undefined, isMain: boolean) {
     if (request && request.startsWith('@mui/icons-material/')) {
       return { __esModule: true, default: iconStub };
     }

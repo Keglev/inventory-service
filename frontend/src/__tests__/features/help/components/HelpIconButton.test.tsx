@@ -92,7 +92,7 @@ describe('HelpIconButton', () => {
   });
 
   it('does not submit a parent form (IconButton is not a submit control)', () => {
-    const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+    const onSubmit = vi.fn((e: React.SubmitEvent) => e.preventDefault());
     mockUseHelp();
 
     render(

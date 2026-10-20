@@ -36,7 +36,7 @@ const providerValue: SettingsContextType = {
 describe('useSettings (src/hooks/useSettings)', () => {
   it('throws when used outside SettingsProvider (src/hooks)', () => {
     // The thrown message is part of the integration contract for this convenience hook.
-    expect(() => renderHook(() => useSettings())).toThrowError(
+    expect(() => renderHook(() => useSettings())).toThrow(
       'useSettings must be used within the corresponding provider',
     );
   });
