@@ -84,18 +84,16 @@ export const formatNumber = (num: number, format: NumberFormat, decimals: number
   }
 };
 
-export const getTodayIso = (): string => {
-  const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-};
-
+/** The local calendar day `n` days before today, as YYYY-MM-DD. */
 export const getDaysAgoIso = (n: number): string => {
   const d = new Date();
   d.setDate(d.getDate() - n);
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
+
+/** Today's local calendar day as YYYY-MM-DD (FO3: one day helper, not two copies). */
+export const getTodayIso = (): string => getDaysAgoIso(0);
 
 /**
  * Defensive rendering of a date value inside a data-grid cell.
