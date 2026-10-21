@@ -21,12 +21,11 @@ import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import type { MonthlyMovement } from '../../../api/analytics/types';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
-import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
+import { monthLabel } from '../../../utils/monthLabels';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
-import { chartLegendProps, legendOrder } from '../../../utils/chartLegend';
+import { chartLegendProps } from '../../../utils/chartLegend';
+import { MOVEMENT_ORDER, movementTooltip } from '../../../utils/movementTooltip';
 
-/** Stock in before stock out in every language (see utils/chartLegend). */
-const LEGEND_ORDER = legendOrder(['stockIn', 'stockOut']);
 
 export type MovementLineCardProps = { from?: string; to?: string; supplierId?: string | null };
 
@@ -59,17 +58,17 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
         <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
         <Tooltip
           {...chartTooltipProps(muiTheme)}
-          itemSorter={LEGEND_ORDER}
-          labelFormatter={(value) =>
-            monthSpanLabel(String(value), { from, to, lang: i18n.language, dateFormat: userPreferences.dateFormat })
-          }
-          formatter={(value) =>
-            typeof value === 'number'
-              ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
-              : value
-          }
+          itemSorter={MOVEMENT_ORDER}
+          {...movementTooltip({
+            from,
+            to,
+            lang: i18n.language,
+            dateFormat: userPreferences.dateFormat,
+            numberFormat: userPreferences.numberFormat,
+            unit: t('analytics:units.pieces'),
+          })}
         />
-        <Legend {...chartLegendProps(muiTheme)} itemSorter={LEGEND_ORDER} />
+        <Legend {...chartLegendProps(muiTheme)} itemSorter={MOVEMENT_ORDER} />
         <Line
           // Monthly totals: straight segments between the months, no invented curve.
           type="linear"

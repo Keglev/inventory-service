@@ -31,13 +31,11 @@ import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Le
 import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import { getTodayIso, getDaysAgoIso, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
-import { chartLegendProps, legendOrder } from '../../../utils/chartLegend';
+import { chartLegendProps } from '../../../utils/chartLegend';
+import { MOVEMENT_ORDER, movementTooltip } from '../../../utils/movementTooltip';
 import { CHART_MARGIN } from './chartMargin';
-import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
+import { monthLabel } from '../../../utils/monthLabels';
 import { useSettings } from '../../../hooks/useSettings';
-
-/** Stock in before stock out in every language (see utils/chartLegend). */
-const LEGEND_ORDER = legendOrder(['stockIn', 'stockOut']);
 
 /**
  * Monthly stock movement chart component for dashboard KPI section.
@@ -79,17 +77,17 @@ export default function MonthlyMovementMini() {
                 />
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
-                  itemSorter={LEGEND_ORDER}
-                  labelFormatter={(value) =>
-                    monthSpanLabel(String(value), { from, to, lang: i18n.language, dateFormat: userPreferences.dateFormat })
-                  }
-                  formatter={(value) =>
-                    typeof value === 'number'
-                      ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('units.pieces')}`
-                      : value
-                  }
+                  itemSorter={MOVEMENT_ORDER}
+                  {...movementTooltip({
+                    from,
+                    to,
+                    lang: i18n.language,
+                    dateFormat: userPreferences.dateFormat,
+                    numberFormat: userPreferences.numberFormat,
+                    unit: t('units.pieces'),
+                  })}
                 />
-                <Legend {...chartLegendProps(muiTheme)} itemSorter={LEGEND_ORDER} />
+                <Legend {...chartLegendProps(muiTheme)} itemSorter={MOVEMENT_ORDER} />
                 {/* Green bars: inbound stock movements */}
                 <Bar
                   dataKey="stockIn"
