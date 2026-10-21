@@ -167,32 +167,32 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -211,8 +211,8 @@
  *
  * @summary
  * Public route that performs logout via a top-level form POST to
- * `${API_BASE}/logout?return=&lt;origin&gt;/logout-success`. Clears React Query
- * cache and AuthContext on mount, then navigates the browser away.
+ * `&lt;API origin&gt;/logout?return=&lt;origin&gt;/logout-success` (api/apiBase). Clears
+ * React Query cache and AuthContext on mount, then navigates the browser away.
  *
  * @enterprise
  * - Form-POST navigation (not XHR) avoids CORS/XHR-redirect issues on the
@@ -235,7 +235,7 @@ import { Box, CircularProgress, Stack, Typography } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
-import { API_BASE } from '../../api/httpClient';
+import { apiUrl } from '../../api/apiBase';
 &nbsp;
 const LogoutPage: React.FC = () =&gt; {
   const { t } = useTranslation&lt;'auth'&gt;('auth');
@@ -251,7 +251,7 @@ const LogoutPage: React.FC = () =&gt; {
     const form = document.createElement('form');
     form.method = 'POST';
     const returnUrl = `${window.location.origin}/logout-success`;
-    form.action = `${API_BASE}/logout?return=${encodeURIComponent(returnUrl)}`;
+    form.action = apiUrl(`/logout?return=${encodeURIComponent(returnUrl)}`);
     form.style.display = 'none';
     document.body.appendChild(form);
     form.submit();

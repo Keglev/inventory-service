@@ -136,9 +136,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-yes">22x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -146,13 +146,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
@@ -167,7 +167,7 @@
 &nbsp;
 import type { useNavigate } from 'react-router-dom';
 import type { QueryClient } from '@tanstack/react-query';
-import { API_BASE } from '../../api/httpClient';
+import { apiUrl } from '../../api/apiBase';
 &nbsp;
 interface ShellLogoutDeps {
   isDemo: boolean;
@@ -195,7 +195,7 @@ export function useShellLogout({
     const form = document.createElement('form');
     form.method = 'POST';
     const returnUrl = `${window.location.origin}/logout-success`;
-    form.action = `${API_BASE}/logout?return=${encodeURIComponent(returnUrl)}`;
+    form.action = apiUrl(`/logout?return=${encodeURIComponent(returnUrl)}`);
     form.style.display = 'none';
     document.body.appendChild(form);
     form.submit();
