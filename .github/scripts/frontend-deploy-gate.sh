@@ -39,7 +39,7 @@ while IFS= read -r path; do
   case "$path" in
     frontend/src/__tests__/*|frontend/e2e/*) ;;
     frontend/vitest.config.ts|frontend/playwright.config.ts) ;;
-    frontend/tsconfig.test.json|frontend/eslint.config.js) ;;
+    frontend/tsconfig.test.json|frontend/tsconfig.e2e.json|frontend/eslint.config.js) ;;
     frontend/typedoc.json|frontend/README.md|docs/*) ;;
     .github/workflows/frontend-ci.yml|.github/workflows/e2e-playwright.yml) ;;
     .github/workflows/yaml-lint.yml|.github/scripts/check-yaml.sh) ;;
