@@ -226,6 +226,22 @@
         been measured; if it matters later it belongs in a dated
         amendment, as ADR-0009 carries.</li>
         </ul>
+        <h2 id="amendment-2026-10-21">Amendment 2026-10-21</h2>
+        <p>The five security headers are declared once, at server level
+        in <code>ops/nginx/default.conf</code>, with
+        <code>add_header_inherit merge</code> (nginx 1.29.3 and later;
+        the image runs 1.30): a location’s own headers (Cache-Control,
+        the CSP) now get the five appended instead of dropping them. The
+        four proxied locations set <code>add_header_inherit off</code>,
+        so the backend’s own security headers are not doubled. Measured
+        on nginx 1.30.6 over 16 request cases (files, SPA routes, 404s,
+        the four proxy paths, the apex and plain-http redirects):
+        headers and their order are identical to the six-copy config
+        except the plain-http redirect, which now carries the five as
+        well (a browser ignores HSTS sent over http). The gate’s
+        per-location assertions stay: the failure they catch is now a
+        location that turns inheritance off, or a base image older than
+        1.29.3, whose <code>nginx -t</code> rejects the directive.</p>
       </article>
     </main>
 
@@ -245,6 +261,8 @@
       id="toc-alternatives-considered">Alternatives Considered</a></li>
       <li><a href="#consequences"
       id="toc-consequences">Consequences</a></li>
+      <li><a href="#amendment-2026-10-21"
+      id="toc-amendment-2026-10-21">Amendment 2026-10-21</a></li>
       </ul></li>
       </ul>
     </nav>
