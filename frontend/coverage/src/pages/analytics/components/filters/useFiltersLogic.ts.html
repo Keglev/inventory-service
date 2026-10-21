@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>18/18</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>15/15</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -158,6 +158,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">108x</span>
 <span class="cline-any cline-yes">100x</span>
 <span class="cline-any cline-yes">100x</span>
@@ -167,11 +172,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">56x</span>
-<span class="cline-any cline-yes">53x</span>
-<span class="cline-any cline-yes">53x</span>
-<span class="cline-any cline-yes">53x</span>
-<span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-yes">58x</span>
+<span class="cline-any cline-yes">55x</span>
+<span class="cline-any cline-yes">55x</span>
+<span class="cline-any cline-yes">55x</span>
+<span class="cline-any cline-yes">55x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -180,14 +185,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -206,13 +206,18 @@
  * quick-range computation, and date-order validation.
  *
  * @enterprise
- * - All dates are normalized to UTC so that "last 30 days" yields the
- *   same window regardless of the browser timezone.
+ * - A Date here carries a calendar day at UTC midnight: parseIsoDate and
+ *   formatToIsoDate round-trip YYYY-MM-DD without the browser offset.
  * - Date range is inclusive (`from &lt;= to`); equal bounds are valid (a
  *   single-day window).
- * - Quick presets are computed against the current UTC day, not local
- *   midnight, so day-boundary edge cases are deterministic.
+ * - Quick presets end on the LOCAL day, like the page's default window
+ *   (utils/formatters getTodayIso, FO3 fork 5 A). They used the UTC day,
+ *   which is still yesterday between local midnight and UTC midnight
+ *   (00:00-02:00 in Berlin summer time), so a preset moved the window back
+ *   one day against the default.
  */
+&nbsp;
+import { getDaysAgoIso, getTodayIso } from '../../../../utils/formatters';
 &nbsp;
 export interface DateRange {
   from: Date;
@@ -244,17 +249,12 @@ export function formatToIsoDate(date?: Date): string | undefined {
 /**
  * Get date range bounds based on quick selector
  * @param quickDays 30, 90, or 180 days
- * @returns {from, to} date pair
+ * @returns {from, to} date pair: today's local day and the local day
+ *   `quickDays` earlier, each at UTC midnight
  */
 export function getQuickDateRange(quickDays: number): DateRange {
-  const to = new Date();
-  // Set to start of day (UTC)
-  to.setUTCHours(0, 0, 0, 0);
-&nbsp;
-  const from = new Date(to);
-  from.setUTCDate(from.getUTCDate() - quickDays);
-&nbsp;
-  return { from, to };
+  const atUtcMidnight = (isoDay: string) =&gt; new Date(`${isoDay}T00:00:00Z`);
+  return { from: atUtcMidnight(getDaysAgoIso(quickDays)), to: atUtcMidnight(getTodayIso()) };
 }
 &nbsp;
 /**
