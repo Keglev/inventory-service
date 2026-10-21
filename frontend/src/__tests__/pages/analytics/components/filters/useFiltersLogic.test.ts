@@ -8,10 +8,11 @@
  *   valid ISO strings parse as UTC midnight.
  * - formatToIsoDate: undefined passes through; Dates render as YYYY-MM-DD
  *   in UTC with zero padding.
- * - getQuickDateRange: inclusive window ending at the current UTC day.
+ * - getQuickDateRange: inclusive window ending at the current LOCAL day,
+ *   also in the hours where the UTC day is still yesterday.
  * - validateDateRange: open-ended ranges are valid; from <= to inclusive.
  */
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 
 import {
   parseIsoDate,
@@ -48,12 +49,30 @@ describe('formatToIsoDate', () => {
 });
 
 describe('getQuickDateRange', () => {
-  it('spans the requested number of days ending today (UTC)', () => {
+  const originalTz = process.env.TZ;
+  afterEach(() => {
+    process.env.TZ = originalTz;
+    vi.useRealTimers();
+  });
+
+  it('spans the requested number of days ending today', () => {
     const { from, to } = getQuickDateRange(30);
 
     expect(to.getUTCHours()).toBe(0);
     const diffDays = (to.getTime() - from.getTime()) / 86_400_000;
     expect(diffDays).toBe(30);
+  });
+
+  it('ends on the local day when the UTC day is still yesterday', () => {
+    // 00:30 in Berlin (summer time) is 22:30 UTC on the previous day.
+    process.env.TZ = 'Europe/Berlin';
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-20T22:30:00Z'));
+
+    const { from, to } = getQuickDateRange(180);
+
+    expect(formatToIsoDate(to)).toBe('2026-10-21');
+    expect(formatToIsoDate(from)).toBe('2026-04-24');
   });
 });
 
