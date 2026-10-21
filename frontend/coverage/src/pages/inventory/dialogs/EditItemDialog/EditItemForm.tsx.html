@@ -238,11 +238,8 @@
 <a name='L173'></a><a href='#L173'>173</a>
 <a name='L174'></a><a href='#L174'>174</a>
 <a name='L175'></a><a href='#L175'>175</a>
-<a name='L176'></a><a href='#L176'>176</a>
-<a name='L177'></a><a href='#L177'>177</a>
-<a name='L178'></a><a href='#L178'>178</a>
-<a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L176'></a><a href='#L176'>176</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -400,11 +397,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -462,6 +454,7 @@ import { useTranslation } from 'react-i18next';
 import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import { ItemSearchField } from '../../components/ItemSearchField';
 import type { UseEditItemFormReturn } from './useEditItemForm';
+import ReadOnlyField from '../../../../components/ui/ReadOnlyField';
 &nbsp;
 /**
  * EditItemForm - Renders three-step edit workflow
@@ -568,16 +561,11 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
             {t('inventory:steps.editName')}
           &lt;/Typography&gt;
 &nbsp;
-          {/* Display current item name for reference */}
-          &lt;Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}&gt;
-            &lt;Typography variant="body2" color="text.secondary"&gt;
-              {t('inventory:quantity.currentItemInfo')}
-            &lt;/Typography&gt;
-            &lt;Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}&gt;
-              {/* Show fetched current name if available, fallback to search result */}
-              {state.itemDetailsQuery.data?.name ?? state.selectedItem.name}
-            &lt;/Typography&gt;
-          &lt;/Box&gt;
+          {/* Current name for reference: the fetched name, else the search result's */}
+          &lt;ReadOnlyField
+            label={t('inventory:quantity.currentItemInfo')}
+            value={state.itemDetailsQuery.data?.name ?? state.selectedItem.name}
+          /&gt;
 &nbsp;
           {/* New name input with form validation */}
           &lt;Controller

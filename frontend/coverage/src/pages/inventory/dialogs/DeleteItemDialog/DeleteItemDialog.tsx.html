@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -196,7 +196,14 @@
 <a name='L131'></a><a href='#L131'>131</a>
 <a name='L132'></a><a href='#L132'>132</a>
 <a name='L133'></a><a href='#L133'>133</a>
-<a name='L134'></a><a href='#L134'>134</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -250,6 +257,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -263,24 +293,6 @@
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -375,6 +387,30 @@ import { useTranslation } from 'react-i18next';
 import { DeleteItemContent } from './DeleteItemContent';
 import { useDeleteItemDialog } from './useDeleteItemDialog';
 &nbsp;
+interface DeleteActionButtonProps {
+  onClick: () =&gt; void;
+  disabled: boolean;
+  isSubmitting: boolean;
+  label: string;
+}
+&nbsp;
+/** Destructive action button; while the request runs it shows a spinner and "Deleting". */
+const DeleteActionButton: React.FC&lt;DeleteActionButtonProps&gt; = ({ onClick, disabled, isSubmitting, label }) =&gt; {
+  const { t } = useTranslation(['common']);
+  return (
+    &lt;Button onClick={onClick} variant="contained" color="error" disabled={disabled}&gt;
+      {isSubmitting ? (
+        &lt;&gt;
+          &lt;CircularProgress size={16} sx={{ mr: 1 }} /&gt;
+          {t('common:actions.deleting')}
+        &lt;/&gt;
+      ) : (
+        label
+      )}
+    &lt;/Button&gt;
+  );
+};
+&nbsp;
 export interface DeleteItemDialogProps {
   open: boolean; // Dialog visibility state
   onClose: () =&gt; void; // Callback when dialog closes
@@ -413,21 +449,12 @@ export const DeleteItemDialog: React.FC&lt;DeleteItemDialogProps&gt; = ({
             {t('inventory:buttons.cancel')}
           &lt;/Button&gt;
           {/* Delete button: disabled until item selected and quantity is zero */}
-          &lt;Button
+          &lt;DeleteActionButton
             onClick={state.onSubmit}
-            variant="contained"
-            color="error"
             disabled={!state.selectedItem || blockedByStock || state.isSubmitting}
-          &gt;
-            {state.isSubmitting ? (
-              &lt;&gt;
-                &lt;CircularProgress size={16} sx={{ mr: 1 }} /&gt;
-                {t('common:actions.deleting')}
-              &lt;/&gt;
-            ) : (
-              t('inventory:toolbar.delete')
-            )}
-          &lt;/Button&gt;
+            isSubmitting={state.isSubmitting}
+            label={t('inventory:toolbar.delete')}
+          /&gt;
         &lt;/DialogActions&gt;
       &lt;/Dialog&gt;
 &nbsp;
@@ -442,21 +469,12 @@ export const DeleteItemDialog: React.FC&lt;DeleteItemDialogProps&gt; = ({
             {t('inventory:buttons.no')}
           &lt;/Button&gt;
           {/* Final confirmation: executes deletion after warning */}
-          &lt;Button
+          &lt;DeleteActionButton
             onClick={state.onConfirmedDelete}
-            variant="contained"
-            color="error"
             disabled={state.isSubmitting}
-          &gt;
-            {state.isSubmitting ? (
-              &lt;&gt;
-                &lt;CircularProgress size={16} sx={{ mr: 1 }} /&gt;
-                {t('common:actions.deleting')}
-              &lt;/&gt;
-            ) : (
-              t('inventory:buttons.yes')
-            )}
-          &lt;/Button&gt;
+            isSubmitting={state.isSubmitting}
+            label={t('inventory:buttons.yes')}
+          /&gt;
         &lt;/DialogActions&gt;
       &lt;/Dialog&gt;
     &lt;/&gt;

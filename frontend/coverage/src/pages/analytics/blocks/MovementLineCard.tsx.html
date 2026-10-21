@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -160,8 +160,7 @@
 <a name='L95'></a><a href='#L95'>95</a>
 <a name='L96'></a><a href='#L96'>96</a>
 <a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a>
-<a name='L99'></a><a href='#L99'>99</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L98'></a><a href='#L98'>98</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -189,7 +188,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -223,11 +221,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -282,12 +280,11 @@ import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import type { MonthlyMovement } from '../../../api/analytics/types';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
-import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
+import { monthLabel } from '../../../utils/monthLabels';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
-import { chartLegendProps, legendOrder } from '../../../utils/chartLegend';
+import { chartLegendProps } from '../../../utils/chartLegend';
+import { MOVEMENT_ORDER, movementTooltip } from '../../../utils/movementTooltip';
 &nbsp;
-/** Stock in before stock out in every language (see utils/chartLegend). */
-const LEGEND_ORDER = legendOrder(['stockIn', 'stockOut']);
 &nbsp;
 export type MovementLineCardProps = { from?: string; to?: string; supplierId?: string | null };
 &nbsp;
@@ -320,17 +317,17 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
         &lt;YAxis tickFormatter={(value) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 0)} /&gt;
         &lt;Tooltip
           {...chartTooltipProps(muiTheme)}
-          itemSorter={LEGEND_ORDER}
-          labelFormatter={(value) =&gt;
-            monthSpanLabel(String(value), { from, to, lang: i18n.language, dateFormat: userPreferences.dateFormat })
-          }
-          formatter={(value) =&gt;
-            typeof value === 'number'
-              ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.pieces')}`
-              : value
-          }
+          itemSorter={MOVEMENT_ORDER}
+          {...movementTooltip({
+            from,
+            to,
+            lang: i18n.language,
+            dateFormat: userPreferences.dateFormat,
+            numberFormat: userPreferences.numberFormat,
+            unit: t('analytics:units.pieces'),
+          })}
         /&gt;
-        &lt;Legend {...chartLegendProps(muiTheme)} itemSorter={LEGEND_ORDER} /&gt;
+        &lt;Legend {...chartLegendProps(muiTheme)} itemSorter={MOVEMENT_ORDER} /&gt;
         &lt;Line
           // Monthly totals: straight segments between the months, no invented curve.
           type="linear"

@@ -217,13 +217,8 @@
 <a name='L152'></a><a href='#L152'>152</a>
 <a name='L153'></a><a href='#L153'>153</a>
 <a name='L154'></a><a href='#L154'>154</a>
-<a name='L155'></a><a href='#L155'>155</a>
-<a name='L156'></a><a href='#L156'>156</a>
-<a name='L157'></a><a href='#L157'>157</a>
-<a name='L158'></a><a href='#L158'>158</a>
-<a name='L159'></a><a href='#L159'>159</a>
-<a name='L160'></a><a href='#L160'>160</a>
-<a name='L161'></a><a href='#L161'>161</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L155'></a><a href='#L155'>155</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -324,13 +319,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -412,6 +400,7 @@ import { useTranslation } from 'react-i18next';
 import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import type { EditSupplierForm } from '../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../api/suppliers/types';
+import ReadOnlyField from '../../../../components/ui/ReadOnlyField';
 &nbsp;
 /**
  * Props for EditSupplierInfoStep component.
@@ -471,18 +460,11 @@ export const EditSupplierInfoStep: React.FC&lt;EditSupplierInfoStepProps&gt; = (
         {t('suppliers:steps.editInfo')}
       &lt;/Typography&gt;
 &nbsp;
-      {/* Supplier Name Display (Read-only) */}
-      &lt;Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}&gt;
-        &lt;Typography variant="body2" color="text.secondary"&gt;
-          {t('suppliers:table.name')}
-        &lt;/Typography&gt;
-        &lt;Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}&gt;
-          {selectedSupplier.name}
-        &lt;/Typography&gt;
-        &lt;Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}&gt;
-          {t('suppliers:hints.nameCannotBeChanged')}
-        &lt;/Typography&gt;
-      &lt;/Box&gt;
+      &lt;ReadOnlyField
+        label={t('suppliers:table.name')}
+        value={selectedSupplier.name}
+        hint={t('suppliers:hints.nameCannotBeChanged')}
+      /&gt;
 &nbsp;
       &lt;Divider sx={{ my: 2 }} /&gt;
 &nbsp;
