@@ -116,7 +116,7 @@
         <p><code>LoginPage</code> is SSO-first: the Google button calls
         <code>useAuth().login()</code>, a full-page redirect (not XHR)
         to
-        <code>${API_BASE}/oauth2/authorization/google?return=&lt;origin&gt;</code>.
+        <code>&lt;API origin&gt;/oauth2/authorization/google?return=&lt;origin&gt;</code>.
         A <code>?error=</code> query renders an error banner:
         <code>?error=unauthorized</code> shows a distinct “not
         authorized” message (the Google account is not on the access
@@ -158,7 +158,7 @@
         <p>Logout is a full navigation, not XHR: <code>LogoutPage</code>
         clears the React Query cache (<code>queryClient.clear()</code>)
         and client auth state, then submits a top-level form POST to
-        <code>${API_BASE}/logout?return=&lt;origin&gt;/logout-success</code>,
+        <code>&lt;API origin&gt;/logout?return=&lt;origin&gt;/logout-success</code>,
         guaranteeing server-side session invalidation;
         <code>LogoutSuccess</code> confirms.</p>
       </article>

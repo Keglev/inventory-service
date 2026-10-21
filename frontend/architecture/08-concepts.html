@@ -176,11 +176,14 @@
         <p><code>httpClient</code> semantics (from the module
         itself):</p>
         <ul>
-        <li>Base URL from <code>VITE_API_BASE</code>: production bakes
-        the backend host (rewritten to the frontend origin at serve time
-        — <a href="07-deployment.html">§7</a>); development uses the
-        Vite proxy; a <code>/api</code> fallback exists defensively
-        only.</li>
+        <li>Base URL from <code>VITE_API_BASE</code>, resolved once by
+        <code>api/apiBase</code> for the client, the login redirect, the
+        logout forms and the health probe: production bakes the backend
+        host (rewritten to the frontend origin at serve time — <a
+        href="07-deployment.html">§7</a>); development (<code>/</code>)
+        and an unset value are same-origin, answered by the Vite proxy
+        (<code>/api</code>, <code>/oauth2</code>,
+        <code>/logout</code>).</li>
         <li><code>withCredentials: true</code> on every call;
         <code>Accept: application/json</code> and
         <code>X-Requested-With</code> defaults; 30s timeout.</li>
