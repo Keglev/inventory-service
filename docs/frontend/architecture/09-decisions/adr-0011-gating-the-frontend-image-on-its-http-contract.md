@@ -90,3 +90,17 @@ production, so the CI result would not describe the deployed behaviour.
   while `add_header ... always` does. It is untidy rather than harmful.
 - No timing figure is recorded here. The step's cost has not been measured; if it
   matters later it belongs in a dated amendment, as ADR-0009 carries.
+
+## Amendment 2026-10-21
+The five security headers are declared once, at server level in
+`ops/nginx/default.conf`, with `add_header_inherit merge` (nginx 1.29.3 and later;
+the image runs 1.30): a location's own headers (Cache-Control, the CSP) now get
+the five appended instead of dropping them. The four proxied locations set
+`add_header_inherit off`, so the backend's own security headers are not doubled.
+Measured on nginx 1.30.6 over 16 request cases (files, SPA routes, 404s, the four
+proxy paths, the apex and plain-http redirects): headers and their order are
+identical to the six-copy config except the plain-http redirect, which now
+carries the five as well (a browser ignores HSTS sent over http). The gate's
+per-location assertions stay: the failure they catch is now a location that
+turns inheritance off, or a base image older than 1.29.3, whose `nginx -t`
+rejects the directive.

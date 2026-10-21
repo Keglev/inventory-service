@@ -9,11 +9,12 @@
 # The Playwright suite runs the bundle under `vite preview`, which serves dist/
 # directly and executes none of ops/nginx. Everything this image adds at serve
 # time was therefore unproven before this gate: the SPA fallback, the asset 404,
-# the caching headers, the five security headers that ops/nginx/default.conf
-# repeats in six locations because add_header does not accumulate across
-# levels, and the plain-http redirect. That repetition is the failure this gate
-# exists for: a location added without its copy of the five serves them
-# silently missing.
+# the caching headers, the five security headers and the plain-http redirect.
+# The headers are declared once at server level with add_header_inherit merge
+# (until FO4 they were repeated in six locations, because add_header alone does
+# not accumulate across levels). A location that turns inheritance off, or a
+# base image older than nginx 1.29.3, serves them silently missing: that is
+# the failure this gate exists for.
 #
 # Not covered, deliberately. The proxy locations reach the production backend,
 # so exercising them from CI would send traffic there; /api/ is proven after
