@@ -7,9 +7,10 @@
  * their own resources.
  *
  * Base-URL contract: `VITE_API_BASE` is origin-only — no `/api` suffix;
- * call sites append `/api` on each request path themselves.  Production
- * sets this to the backend host; development sets it to `/`.  The fallback
- * value `/api` is a defensive default not used by any committed environment.
+ * call sites append `/api` on each request path themselves.  The origin is
+ * resolved once, by api/apiBase, for every reader (this client, the login
+ * redirect, the logout forms, the health probe), so an unset or '/' value
+ * means same-origin everywhere instead of a different fallback per reader.
  *
  * Production guidance: deploy behind Nginx so frontend and backend share
  * the same origin; this keeps session cookies first-party and avoids CORS.
@@ -21,27 +22,10 @@
 import axios, { AxiosError } from 'axios';
 
 import { readDemoSession } from '../context/auth/demoSession';
-
-/** Narrows `import.meta.env` to the env vars this module reads. */
-interface ViteEnv {
-  VITE_API_BASE?: string;
-}
-
-/**
- * Resolved base URL prepended to every request.
- *
- * `VITE_API_BASE` must be origin-only (no `/api` suffix) because call
- * sites append `/api` themselves.  Undefined, empty, or whitespace-only
- * values fall back to `/api` for local dev (Vite proxy assumed).
- */
-const RAW_BASE = (import.meta.env as unknown as ViteEnv)?.VITE_API_BASE;
-export const API_BASE: string = (() => {
-  const v = (RAW_BASE ?? '').trim();
-  return v.length > 0 ? v : '/api';
-})();
+import { apiOrigin } from './apiBase';
 
 const httpClient = axios.create({
-  baseURL: API_BASE.replace(/\/+$/, ''), // normalise trailing slash for consistent path joining
+  baseURL: apiOrigin(),
   withCredentials: true,
   timeout: 30_000,
 });

@@ -37,7 +37,6 @@ const httpClientMock = vi.hoisted(() => ({
 
 vi.mock('@/api/httpClient', () => ({
   default: httpClientMock,
-  API_BASE: 'http://api.example.com',
 }));
 
 function AuthProbe() {
@@ -98,6 +97,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
 });
 
 describe('AuthProvider', () => {
@@ -213,6 +213,7 @@ describe('AuthProvider', () => {
   });
 
   it('redirects to the Google OAuth2 authorization endpoint when login is called', async () => {
+    vi.stubEnv('VITE_API_BASE', 'http://api.example.com');
     httpClientMock.get.mockRejectedValue(new Error('no session'));
     const assign = vi.fn();
     const originalLocation = window.location;
@@ -241,6 +242,38 @@ describe('AuthProvider', () => {
     expect(assign).toHaveBeenCalledWith(
       expect.stringContaining('/oauth2/authorization/google?return='),
     );
+
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: originalLocation,
+    });
+  });
+
+  it('redirects to the same-origin OAuth2 endpoint when the env value is the development root', async () => {
+    // '/' once produced '//oauth2/...', a protocol-relative URL to a host named "oauth2".
+    vi.stubEnv('VITE_API_BASE', '/');
+    httpClientMock.get.mockRejectedValue(new Error('no session'));
+    const assign = vi.fn();
+    const originalLocation = window.location;
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: { ...originalLocation, assign },
+    });
+
+    function LoginProbe() {
+      const ctx = React.useContext(AuthContext);
+      return ctx ? <button type="button" onClick={ctx.login}>login</button> : null;
+    }
+    render(
+      <AuthProvider>
+        <LoginProbe />
+      </AuthProvider>,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'login' }));
+
+    const origin = encodeURIComponent(originalLocation.origin);
+    expect(assign).toHaveBeenCalledWith(`/oauth2/authorization/google?return=${origin}`);
 
     Object.defineProperty(window, 'location', {
       configurable: true,

@@ -34,7 +34,8 @@
 
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AuthContextType, AppUser } from './authTypes';
-import httpClient, { API_BASE } from '../../api/httpClient';
+import httpClient from '../../api/httpClient';
+import { apiUrl } from '../../api/apiBase';
 import { DEMO_SESSION_KEY, FORCE_LOGOUT_FLAG } from '../../config/storageKeys';
 import { readDemoSession } from './demoSession';
 
@@ -91,7 +92,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
   const login = () => {
     const origin = window.location.origin;
-    const url = `${API_BASE}/oauth2/authorization/google?return=${encodeURIComponent(origin)}`;
+    const url = apiUrl(`/oauth2/authorization/google?return=${encodeURIComponent(origin)}`);
     window.location.assign(url);
   };
 

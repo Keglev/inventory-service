@@ -171,9 +171,6 @@ vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: { isDemo: true }, logout: mockLogout }),
 }));
 
-// Prevent accidental access to real config in logout code paths.
-vi.mock('@/api/httpClient', () => ({ API_BASE: '/api' }));
-
 /** Test helpers */
 function renderAppShell() {
   // Locale and theme state live in the provider (FW5 fork 4); it reads the same fake i18n.

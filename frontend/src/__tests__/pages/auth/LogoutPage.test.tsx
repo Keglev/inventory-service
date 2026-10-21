@@ -6,13 +6,13 @@
  * Contract under test (see LogoutPage.tsx):
  * - On mount, clears React Query cache and clears AuthContext via useAuth().logout().
  * - Performs a top-level POST navigation by creating a hidden <form> and submitting it to:
- *     `${API_BASE}/logout?return=<origin>/logout-success` (URL-encoded).
+ *     `<API origin>/logout?return=<origin>/logout-success` (URL-encoded).
  * - Appends the form to document.body before submission.
  * - On unmount, attempts to remove the form and must not throw if removal fails.
  *
  * Test strategy:
  * - Wraps the page with a QueryClientProvider configured with retry:false (deterministic).
- * - Mocks useAuth().logout and the API_BASE constant.
+ * - Mocks useAuth().logout; stubs VITE_API_BASE (api/apiBase reads it per call).
  * - Captures the generated form by intercepting document.body.appendChild.
  * - Stubs HTMLFormElement.prototype.submit to prevent actual navigation in jsdom.
  *
@@ -45,10 +45,6 @@ vi.mock('@/hooks/useAuth', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('@/api/httpClient', () => ({
-  API_BASE: 'http://localhost:8080',
-}));
-
 // -------------------------------------
 // Suite utilities
 // -------------------------------------
@@ -63,6 +59,7 @@ describe('LogoutPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv('VITE_API_BASE', 'http://localhost:8080');
 
     queryClient = createTestQueryClient();
 
@@ -99,6 +96,7 @@ describe('LogoutPage', () => {
     capturedForm = null;
 
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   function renderLogoutPage() {
@@ -145,6 +143,19 @@ describe('LogoutPage', () => {
 
     // 4) Form is submitted.
     expect(form.submit).toHaveBeenCalledTimes(1);
+  });
+
+  it('posts to the same-origin /logout when the env value is the development root', async () => {
+    // '/' once produced '//logout', a protocol-relative URL to a host named "logout".
+    vi.stubEnv('VITE_API_BASE', '/');
+
+    renderLogoutPage();
+
+    await waitFor(() => {
+      expect(capturedForm).not.toBeNull();
+    });
+    const encodedReturn = encodeURIComponent(`${window.location.origin}/logout-success`);
+    expect(capturedForm!.action).toBe(`${window.location.origin}/logout?return=${encodedReturn}`);
   });
 
   it('removes the generated form on unmount and does not throw if removal fails', async () => {

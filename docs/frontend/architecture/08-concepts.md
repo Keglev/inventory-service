@@ -59,9 +59,11 @@ UI never imports Axios directly; fetchers never import UI
 
 `httpClient` semantics (from the module itself):
 
-- Base URL from `VITE_API_BASE`: production bakes the backend host (rewritten to
-  the frontend origin at serve time — [§7](07-deployment.md)); development uses
-  the Vite proxy; a `/api` fallback exists defensively only.
+- Base URL from `VITE_API_BASE`, resolved once by `api/apiBase` for the client,
+  the login redirect, the logout forms and the health probe: production bakes the
+  backend host (rewritten to the frontend origin at serve time —
+  [§7](07-deployment.md)); development (`/`) and an unset value are same-origin,
+  answered by the Vite proxy (`/api`, `/oauth2`, `/logout`).
 - `withCredentials: true` on every call; `Accept: application/json` and
   `X-Requested-With` defaults; 30s timeout.
 - **Central 401 handling** with three exemptions: public pages (`/`, `/login`,
