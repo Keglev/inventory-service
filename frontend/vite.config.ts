@@ -58,6 +58,10 @@ export default defineConfig({
           // and stops react-dom being absorbed into vendor-mui (empty chunk fix).
           if (/\/node_modules\/(react|react-dom|scheduler|react-is|prop-types|use-sync-external-store)\//.test(id))
             return 'vendor-react';
+          // The data grid (@mui/x-*) is half of all MUI code: on its own it keeps
+          // both chunks below the 800 kB warning (FQ2: vendor-mui was 801.72 kB).
+          // It imports @mui/material, never the reverse, so no cycle forms.
+          if (id.includes('/node_modules/@mui/x-')) return 'vendor-grid';
           if (id.includes('/node_modules/@mui/')) return 'vendor-mui';
           // clsx + reselect are the only non-React modules shared by recharts and
           // MUI (x-data-grid); pinning them with recharts removes the reverse
