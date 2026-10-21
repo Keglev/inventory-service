@@ -14,7 +14,8 @@
  *   - requires a selected supplier,
  *   - requires ADMIN role.
  * - On successful delete, calls the provided `onDeleted` callback.
- * - On failed/blocked deletes, surfaces a user-facing error message and resets loading state.
+ * - On failed/blocked deletes, surfaces a user-facing error message and resets loading state;
+ *   a thrown request is also logged (logError), captured so it asserts instead of printing.
  *
  * Out of scope:
  * - UI rendering (dialog steps are covered by component tests).
@@ -176,7 +177,9 @@ describe('useDeleteSupplierForm', () => {
     // A rejected promise (network drop, unexpected throw) is a different path from a
     // resolved { success: false } response: it lands in the catch arm.
     const onDeleted = vi.fn();
-    mocks.deleteSupplier.mockRejectedValue(new Error('network down'));
+    const failure = new Error('network down');
+    mocks.deleteSupplier.mockRejectedValue(failure);
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const { result } = renderHook(() => useDeleteSupplierForm(onDeleted));
 
@@ -191,6 +194,8 @@ describe('useDeleteSupplierForm', () => {
     expect(onDeleted).not.toHaveBeenCalled();
     expect(result.current.error).toEqual(expect.any(String));
     expect(result.current.isDeleting).toBe(false);
+    expect(errorSpy).toHaveBeenCalledWith('Delete failed:', failure);
+    errorSpy.mockRestore();
   });
 
   it('clears selection, error and confirmation and resets search when resetForm is called', () => {
