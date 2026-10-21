@@ -7,7 +7,7 @@ global state in `context/auth/`.
 
 `LoginPage` is SSO-first: the Google button calls `useAuth().login()`, a
 full-page redirect (not XHR) to
-`${API_BASE}/oauth2/authorization/google?return=<origin>`. A `?error=` query
+`<API origin>/oauth2/authorization/google?return=<origin>`. A `?error=` query
 renders an error banner: `?error=unauthorized` shows a distinct "not authorized"
 message (the Google account is not on the access allow-list), while other values
 show a generic sign-in-failed message.
@@ -42,5 +42,5 @@ cannot keep a session alive.
 
 Logout is a full navigation, not XHR: `LogoutPage` clears the React Query cache
 (`queryClient.clear()`) and client auth state, then submits a top-level form POST
-to `${API_BASE}/logout?return=<origin>/logout-success`, guaranteeing server-side
+to `<API origin>/logout?return=<origin>/logout-success`, guaranteeing server-side
 session invalidation; `LogoutSuccess` confirms.

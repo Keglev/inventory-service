@@ -5,8 +5,8 @@
  * defaults, and the cross-cutting 401 response interceptor.
  *
  * Contract under test:
- * - API_BASE falls back to '/api' without a configured env and honors a
- *   set VITE_API_BASE (trailing slash trimmed on the axios baseURL).
+ * - The axios baseURL is api/apiBase's origin: same-origin ('') without a
+ *   configured env, the configured origin (trailing slash trimmed) otherwise.
  * - Credentialed requests, timeout, and shared headers are set.
  * - Success responses pass through untouched; errors without a response
  *   (network) and non-401 statuses reject unchanged.
@@ -63,8 +63,8 @@ describe('httpClient', () => {
     });
   });
 
-  describe('API_BASE resolution and defaults', () => {
-    it('falls back to /api when the base URL env is blank', async () => {
+  describe('base URL resolution and defaults', () => {
+    it('uses a same-origin base URL when the env value is blank', async () => {
       // CI and local machines may or may not define VITE_API_BASE, so the
       // fallback arm is pinned by stubbing the env and importing fresh.
       vi.resetModules();
@@ -72,8 +72,8 @@ describe('httpClient', () => {
 
       const fresh = await import('@/api/httpClient');
 
-      expect(fresh.API_BASE).toBe('/api');
-      expect(fresh.default.defaults.baseURL).toBe('/api');
+      // The old '/api' fallback turned every '/api/...' call into '/api/api/...'.
+      expect(fresh.default.defaults.baseURL).toBe('');
 
       vi.unstubAllEnvs();
       vi.resetModules();
@@ -85,7 +85,6 @@ describe('httpClient', () => {
 
       const fresh = await import('@/api/httpClient');
 
-      expect(fresh.API_BASE).toBe('https://backend.example.com/');
       expect(fresh.default.defaults.baseURL).toBe('https://backend.example.com');
 
       vi.unstubAllEnvs();

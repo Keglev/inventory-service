@@ -1,24 +1,22 @@
 /**
  * @file apiBase.ts
  * @module api/apiBase
- * @summary Builds request URLs from the configured API origin for the few
- *   callers that deliberately bypass httpClient.
+ * @summary The single reader of VITE_API_BASE: resolves the API origin and
+ *   builds absolute request URLs from it.
  *
  * @enterprise
- * - One consumer, the raw-fetch health probe that stays outside httpClient on
- *   purpose (features/health/hooks/useHealthCheck.ts).
- *   A relative path in that probe follows the SERVING origin, not the API
- *   origin: under `vite preview` the static server answers it, and behind
- *   the dev proxy the production backend did.
- * - httpClient's exported API_BASE is deliberately not reused. Its fallback
- *   for a blank env value is '/api', an axios baseURL rather than an origin,
- *   so `${API_BASE}/api/health` would resolve to '/api/api/health' whenever
- *   VITE_API_BASE is unset (test runs, builds without an env file).
+ * - Readers: httpClient's axios baseURL, the login redirect (AuthContext),
+ *   the logout form POSTs (LogoutPage, useShellLogout) and the raw-fetch
+ *   health probe (useHealthCheck). Before FO1 the client and the redirects
+ *   used their own resolver, which turned '/' into '//logout' (a host named
+ *   "logout") and an unset value into '/api/api/...'.
  * - VITE_API_BASE is origin-only by contract (no '/api' suffix); call sites
- *   pass the full path. An unset or '/' value yields '', which keeps
- *   same-origin development and the Vite dev proxy working unchanged.
+ *   pass the full path. An unset or '/' value yields '', so every reader
+ *   stays same-origin and the Vite dev proxy (/api, /oauth2, /logout)
+ *   answers.
  * - Read at call time rather than at module scope so tests can stub the
- *   environment without resetting module state.
+ *   environment without resetting module state; httpClient reads it once,
+ *   when its module loads.
  */
 
 /** Narrows `import.meta.env` to the env var this module reads. */

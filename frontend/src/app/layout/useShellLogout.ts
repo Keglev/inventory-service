@@ -10,7 +10,7 @@
 
 import type { useNavigate } from 'react-router-dom';
 import type { QueryClient } from '@tanstack/react-query';
-import { API_BASE } from '../../api/httpClient';
+import { apiUrl } from '../../api/apiBase';
 
 interface ShellLogoutDeps {
   isDemo: boolean;
@@ -38,7 +38,7 @@ export function useShellLogout({
     const form = document.createElement('form');
     form.method = 'POST';
     const returnUrl = `${window.location.origin}/logout-success`;
-    form.action = `${API_BASE}/logout?return=${encodeURIComponent(returnUrl)}`;
+    form.action = apiUrl(`/logout?return=${encodeURIComponent(returnUrl)}`);
     form.style.display = 'none';
     document.body.appendChild(form);
     form.submit();
