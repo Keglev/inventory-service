@@ -278,7 +278,7 @@ export interface SupplierErrorEnvelope {
 /** The mutation that failed; disambiguates the two meanings of 409. */
 export type SupplierOperation = 'add' | 'update' | 'delete';
 &nbsp;
-type SupplierT = TFunction&lt;['common', 'suppliers', 'errors']&gt;;
+export type SupplierT = TFunction&lt;['common', 'suppliers', 'errors']&gt;;
 &nbsp;
 const FALLBACK_KEY = {
   add: 'errors:supplier.requests.failedToAddSupplier',
