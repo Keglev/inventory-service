@@ -7,13 +7,18 @@
  * quick-range computation, and date-order validation.
  *
  * @enterprise
- * - All dates are normalized to UTC so that "last 30 days" yields the
- *   same window regardless of the browser timezone.
+ * - A Date here carries a calendar day at UTC midnight: parseIsoDate and
+ *   formatToIsoDate round-trip YYYY-MM-DD without the browser offset.
  * - Date range is inclusive (`from <= to`); equal bounds are valid (a
  *   single-day window).
- * - Quick presets are computed against the current UTC day, not local
- *   midnight, so day-boundary edge cases are deterministic.
+ * - Quick presets end on the LOCAL day, like the page's default window
+ *   (utils/formatters getTodayIso, FO3 fork 5 A). They used the UTC day,
+ *   which is still yesterday between local midnight and UTC midnight
+ *   (00:00-02:00 in Berlin summer time), so a preset moved the window back
+ *   one day against the default.
  */
+
+import { getDaysAgoIso, getTodayIso } from '../../../../utils/formatters';
 
 export interface DateRange {
   from: Date;
@@ -45,17 +50,12 @@ export function formatToIsoDate(date?: Date): string | undefined {
 /**
  * Get date range bounds based on quick selector
  * @param quickDays 30, 90, or 180 days
- * @returns {from, to} date pair
+ * @returns {from, to} date pair: today's local day and the local day
+ *   `quickDays` earlier, each at UTC midnight
  */
 export function getQuickDateRange(quickDays: number): DateRange {
-  const to = new Date();
-  // Set to start of day (UTC)
-  to.setUTCHours(0, 0, 0, 0);
-
-  const from = new Date(to);
-  from.setUTCDate(from.getUTCDate() - quickDays);
-
-  return { from, to };
+  const atUtcMidnight = (isoDay: string) => new Date(`${isoDay}T00:00:00Z`);
+  return { from: atUtcMidnight(getDaysAgoIso(quickDays)), to: atUtcMidnight(getTodayIso()) };
 }
 
 /**
