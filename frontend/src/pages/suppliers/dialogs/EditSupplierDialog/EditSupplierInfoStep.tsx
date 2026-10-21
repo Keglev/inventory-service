@@ -27,6 +27,7 @@ import { useTranslation } from 'react-i18next';
 import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import type { EditSupplierForm } from '../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../api/suppliers/types';
+import ReadOnlyField from '../../../../components/ui/ReadOnlyField';
 
 /**
  * Props for EditSupplierInfoStep component.
@@ -86,18 +87,11 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
         {t('suppliers:steps.editInfo')}
       </Typography>
 
-      {/* Supplier Name Display (Read-only) */}
-      <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}>
-        <Typography variant="body2" color="text.secondary">
-          {t('suppliers:table.name')}
-        </Typography>
-        <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
-          {selectedSupplier.name}
-        </Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-          {t('suppliers:hints.nameCannotBeChanged')}
-        </Typography>
-      </Box>
+      <ReadOnlyField
+        label={t('suppliers:table.name')}
+        value={selectedSupplier.name}
+        hint={t('suppliers:hints.nameCannotBeChanged')}
+      />
 
       <Divider sx={{ my: 2 }} />
 

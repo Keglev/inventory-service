@@ -39,6 +39,7 @@ import { useTranslation } from 'react-i18next';
 import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import { ItemSearchField } from '../../components/ItemSearchField';
 import type { UseEditItemFormReturn } from './useEditItemForm';
+import ReadOnlyField from '../../../../components/ui/ReadOnlyField';
 
 /**
  * EditItemForm - Renders three-step edit workflow
@@ -145,16 +146,11 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
             {t('inventory:steps.editName')}
           </Typography>
 
-          {/* Display current item name for reference */}
-          <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              {t('inventory:quantity.currentItemInfo')}
-            </Typography>
-            <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
-              {/* Show fetched current name if available, fallback to search result */}
-              {state.itemDetailsQuery.data?.name ?? state.selectedItem.name}
-            </Typography>
-          </Box>
+          {/* Current name for reference: the fetched name, else the search result's */}
+          <ReadOnlyField
+            label={t('inventory:quantity.currentItemInfo')}
+            value={state.itemDetailsQuery.data?.name ?? state.selectedItem.name}
+          />
 
           {/* New name input with form validation */}
           <Controller
