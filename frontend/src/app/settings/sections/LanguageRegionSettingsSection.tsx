@@ -27,7 +27,7 @@ import type { SupportedLocale } from '../../../theme';
 import { formatDate, formatNumber } from '../../../utils/formatters';
 import type { DateFormat, NumberFormat } from '../../../context/settings/SettingsContext.types';
 
-interface LanguageRegionSettingsSectionProps {
+export interface LanguageRegionSettingsSectionProps {
   /** Current UI language */
   locale: SupportedLocale;
 

@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import type { SidebarVariant } from './sidebarVariant';
 import { railItemSx } from './sidebarVariant';
 
-interface SidebarSettingsItemProps {
+export interface SidebarSettingsItemProps {
   /** Opens the settings dialog */
   onOpen: () => void;
 

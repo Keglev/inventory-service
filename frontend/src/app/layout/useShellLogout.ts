@@ -12,7 +12,7 @@ import type { useNavigate } from 'react-router-dom';
 import type { QueryClient } from '@tanstack/react-query';
 import { apiUrl } from '../../api/apiBase';
 
-interface ShellLogoutDeps {
+export interface ShellLogoutDeps {
   isDemo: boolean;
   logout: () => void;
   queryClient: QueryClient;

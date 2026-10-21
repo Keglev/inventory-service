@@ -37,7 +37,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { SupplierOption } from '../../../api/analytics/types';
 
-interface InventoryFilterPanelProps {
+export interface InventoryFilterPanelProps {
   q: string;
   setQ: (q: string) => void;
   supplierId: string | number | null;

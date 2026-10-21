@@ -20,7 +20,7 @@ import { useMemo } from 'react';
 import { useInventoryPageData } from '../hooks/useInventoryPageData';
 import type { InventoryState, InventoryStateSetters } from '../hooks/useInventoryState';
 
-type InventoryStateReturn = InventoryState & InventoryStateSetters;
+export type InventoryStateReturn = InventoryState & InventoryStateSetters;
 
 /**
  * Hook that prepares and executes data fetching with transformed state parameters.

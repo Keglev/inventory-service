@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 import type { ItemOption, SupplierOption } from '../../../../api/analytics/types';
 import { ItemSearchField } from '../../components/ItemSearchField';
 
-interface QuantityAdjustItemSelectProps {
+export interface QuantityAdjustItemSelectProps {
   selectedItem: ItemOption | null;
   onItemChange: (item: ItemOption | null) => void;
   searchQuery: string;

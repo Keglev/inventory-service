@@ -25,7 +25,7 @@ import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../a
  * 
  * @interface CreateSupplierFormProps
  */
-interface CreateSupplierFormProps {
+export interface CreateSupplierFormProps {
   /** React Hook Form register function for binding fields */
   register: UseFormRegister<CreateSupplierFormData>;
   /** Field-level validation errors */

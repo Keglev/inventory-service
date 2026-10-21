@@ -24,7 +24,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../../hooks/useHelp';
 
-interface HelpIconButtonProps {
+export interface HelpIconButtonProps {
   /** ID from HELP_TOPICS (e.g. "app.main", "analytics.overview") */
   topicId: string;
   tooltip?: string;

@@ -18,7 +18,7 @@
 import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-interface ProfileNameDisplayProps {
+export interface ProfileNameDisplayProps {
   fullName?: string;
 }
 

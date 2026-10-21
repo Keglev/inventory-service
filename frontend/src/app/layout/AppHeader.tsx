@@ -26,7 +26,7 @@ import AppToolbarActions from './AppToolbarActions';
 import { default as HealthBadge } from './header/HealthBadge';
 import { default as HeaderDemoBadge } from './header/HeaderDemoBadge';
 
-interface AppHeaderProps {
+export interface AppHeaderProps {
   /** Opens the About dialog */
   onAboutOpen: () => void;
 

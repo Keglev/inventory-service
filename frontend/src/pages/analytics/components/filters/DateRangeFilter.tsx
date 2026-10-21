@@ -25,7 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { formatToIsoDate, getQuickDateRange, parseIsoDate, validateDateRange } from './useFiltersLogic';
 import type { AnalyticsFilters } from './Filters.types';
 
-interface DateRangeFilterProps {
+export interface DateRangeFilterProps {
   /** Current filter state */
   value: AnalyticsFilters;
   /** Changed on any date or quick-range change */

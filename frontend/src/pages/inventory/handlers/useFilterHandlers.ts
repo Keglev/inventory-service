@@ -23,7 +23,7 @@
 import { useCallback } from 'react';
 import type { InventoryState, InventoryStateSetters } from '../hooks/useInventoryState';
 
-type InventoryStateReturn = InventoryState & InventoryStateSetters;
+export type InventoryStateReturn = InventoryState & InventoryStateSetters;
 
 /**
  * Hook providing filter panel handlers.

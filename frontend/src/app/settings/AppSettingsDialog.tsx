@@ -25,7 +25,7 @@ import { HelpIconButton } from '../../features/help/components/HelpIconButton';
 import { useAppSettingsForm } from './hooks/useAppSettingsForm';
 import { useShellSettings } from '../layout/useShellSettings';
 
-interface AppSettingsDialogProps {
+export interface AppSettingsDialogProps {
   /** Whether dialog is open */
   open: boolean;
 

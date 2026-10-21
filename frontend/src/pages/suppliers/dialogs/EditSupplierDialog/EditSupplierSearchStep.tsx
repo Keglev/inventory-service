@@ -22,7 +22,7 @@ import { SupplierSearchField } from '../../components/SupplierSearchField';
  *
  * @interface EditSupplierSearchStepProps
  */
-interface EditSupplierSearchStepProps {
+export interface EditSupplierSearchStepProps {
   /** Current search query */
   searchQuery: string;
   /** Called when search query changes */

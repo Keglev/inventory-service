@@ -21,7 +21,7 @@
 import { Typography, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-interface FooterMetaInfoProps {
+export interface FooterMetaInfoProps {
   /** Application version number */
   appVersion: string;
 

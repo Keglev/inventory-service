@@ -20,7 +20,7 @@
 import { Box, Stack, Typography, Chip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-interface ProfileRoleDisplayProps {
+export interface ProfileRoleDisplayProps {
   role?: string;
   isDemo: boolean;
 }

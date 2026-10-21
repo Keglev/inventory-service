@@ -19,7 +19,7 @@ import { FormControl, InputLabel, Select, MenuItem, Box, Typography } from '@mui
 import { useTranslation } from 'react-i18next';
 import type { SupplierOption } from '../../../../api/analytics/types';
 
-interface QuantityAdjustSupplierSelectProps {
+export interface QuantityAdjustSupplierSelectProps {
   selectedSupplier: SupplierOption | null;
   onSupplierChange: (supplier: SupplierOption | null) => void;
   suppliers: SupplierOption[] | undefined;

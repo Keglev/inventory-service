@@ -33,7 +33,7 @@ import { SupplierSearchField } from '../../components/SupplierSearchField';
  *
  * @interface DeleteSupplierSearchProps
  */
-interface DeleteSupplierSearchProps {
+export interface DeleteSupplierSearchProps {
   /** Search query value */
   searchQuery: string;
   /** Called when search query changes */

@@ -34,7 +34,7 @@ import ReadOnlyField from '../../../../components/ui/ReadOnlyField';
  *
  * @interface EditSupplierInfoStepProps
  */
-interface EditSupplierInfoStepProps {
+export interface EditSupplierInfoStepProps {
   /** Currently selected supplier */
   selectedSupplier: SupplierRow | null;
   /** React Hook Form control */

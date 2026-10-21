@@ -22,7 +22,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { TableDensity } from '../../../context/settings/SettingsContext.types';
 
-interface AppearanceSettingsSectionProps {
+export interface AppearanceSettingsSectionProps {
   /** Current colour scheme */
   themeMode: 'light' | 'dark';
 

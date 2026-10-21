@@ -35,7 +35,7 @@ import { useHealthCheck } from '../../features/health/hooks/useHealthCheck';
 /** Source repository, opened in a new tab. */
 const REPO_URL = 'https://github.com/Keglev/inventory-service';
 
-interface AboutDialogProps {
+export interface AboutDialogProps {
   /** Whether the dialog is open */
   open: boolean;
 

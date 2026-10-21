@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-interface FinalCtaProps {
+export interface FinalCtaProps {
   onDemo: () => void;
   onSignIn: () => void;
 }

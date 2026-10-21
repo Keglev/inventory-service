@@ -32,7 +32,7 @@ import { Box, CircularProgress, Stack } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import type { InventoryRow } from '../../../api/inventory/types';
 
-interface InventoryTableProps {
+export interface InventoryTableProps {
   rows: InventoryRow[];
   columns: GridColDef[];
   paginationModel: GridPaginationModel;
