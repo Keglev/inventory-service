@@ -30,6 +30,7 @@ import { alpha } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import type { EditSupplierForm } from '../../../../api/suppliers/validation';
 import type { SupplierRow } from '../../../../api/suppliers/types';
+import ReadOnlyField from '../../../../components/ui/ReadOnlyField';
 
 /** The editable fields the summary compares, in display order, with their label key. */
 const CHANGE_FIELDS = [
@@ -112,18 +113,11 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
 
           {supplier && (
             <Box>
-              {/* Supplier Name (Read-only for display) */}
-              <Box sx={{ mb: 2, p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  {t('suppliers:table.name')}
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
-                  {supplier.name}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                  {t('suppliers:hints.nameCannotBeChanged')}
-                </Typography>
-              </Box>
+              <ReadOnlyField
+                label={t('suppliers:table.name')}
+                value={supplier.name}
+                hint={t('suppliers:hints.nameCannotBeChanged')}
+              />
 
               <Divider sx={{ my: 2 }} />
 

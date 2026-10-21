@@ -44,6 +44,30 @@ import { useTranslation } from 'react-i18next';
 import { DeleteItemContent } from './DeleteItemContent';
 import { useDeleteItemDialog } from './useDeleteItemDialog';
 
+interface DeleteActionButtonProps {
+  onClick: () => void;
+  disabled: boolean;
+  isSubmitting: boolean;
+  label: string;
+}
+
+/** Destructive action button; while the request runs it shows a spinner and "Deleting". */
+const DeleteActionButton: React.FC<DeleteActionButtonProps> = ({ onClick, disabled, isSubmitting, label }) => {
+  const { t } = useTranslation(['common']);
+  return (
+    <Button onClick={onClick} variant="contained" color="error" disabled={disabled}>
+      {isSubmitting ? (
+        <>
+          <CircularProgress size={16} sx={{ mr: 1 }} />
+          {t('common:actions.deleting')}
+        </>
+      ) : (
+        label
+      )}
+    </Button>
+  );
+};
+
 export interface DeleteItemDialogProps {
   open: boolean; // Dialog visibility state
   onClose: () => void; // Callback when dialog closes
@@ -82,21 +106,12 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
             {t('inventory:buttons.cancel')}
           </Button>
           {/* Delete button: disabled until item selected and quantity is zero */}
-          <Button
+          <DeleteActionButton
             onClick={state.onSubmit}
-            variant="contained"
-            color="error"
             disabled={!state.selectedItem || blockedByStock || state.isSubmitting}
-          >
-            {state.isSubmitting ? (
-              <>
-                <CircularProgress size={16} sx={{ mr: 1 }} />
-                {t('common:actions.deleting')}
-              </>
-            ) : (
-              t('inventory:toolbar.delete')
-            )}
-          </Button>
+            isSubmitting={state.isSubmitting}
+            label={t('inventory:toolbar.delete')}
+          />
         </DialogActions>
       </Dialog>
 
@@ -111,21 +126,12 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
             {t('inventory:buttons.no')}
           </Button>
           {/* Final confirmation: executes deletion after warning */}
-          <Button
+          <DeleteActionButton
             onClick={state.onConfirmedDelete}
-            variant="contained"
-            color="error"
             disabled={state.isSubmitting}
-          >
-            {state.isSubmitting ? (
-              <>
-                <CircularProgress size={16} sx={{ mr: 1 }} />
-                {t('common:actions.deleting')}
-              </>
-            ) : (
-              t('inventory:buttons.yes')
-            )}
-          </Button>
+            isSubmitting={state.isSubmitting}
+            label={t('inventory:buttons.yes')}
+          />
         </DialogActions>
       </Dialog>
     </>
