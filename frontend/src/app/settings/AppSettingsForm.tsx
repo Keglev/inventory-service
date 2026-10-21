@@ -22,7 +22,7 @@ import type { DateFormat, NumberFormat, TableDensity } from '../../context/setti
 import type { SupportedLocale } from '../../theme';
 import type { ThemeMode } from '../../context/shellPreferences/ShellPreferencesContext.types';
 
-interface AppSettingsFormProps {
+export interface AppSettingsFormProps {
   /** Current date format value */
   dateFormat: DateFormat;
 

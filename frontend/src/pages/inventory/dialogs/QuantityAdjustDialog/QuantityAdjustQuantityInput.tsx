@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import { INCREASE_ADJUST_REASONS, DECREASE_ADJUST_REASONS, ADJUST_REASONS, type QuantityAdjustForm } from '../../validation/inventoryValidation';
 
-interface QuantityAdjustQuantityInputProps {
+export interface QuantityAdjustQuantityInputProps {
   control: Control<QuantityAdjustForm>;
   errors: FieldErrors<QuantityAdjustForm>;
   disabled: boolean;

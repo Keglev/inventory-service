@@ -43,7 +43,7 @@ const CHANGE_FIELDS = [
  *
  * @interface EditSupplierConfirmationProps
  */
-interface EditSupplierConfirmationProps {
+export interface EditSupplierConfirmationProps {
   /** Whether confirmation dialog is open */
   open: boolean;
   /** Selected supplier to update */

@@ -21,7 +21,7 @@ import type { SnackbarCloseReason } from '@mui/material/Snackbar';
 import type { Toast } from './hooks/usePublicShellToast';
 import { useTranslation } from 'react-i18next';
 
-interface PublicShellToastContainerProps {
+export interface PublicShellToastContainerProps {
   toast: Toast | null;
   onClose: () => void;
 }

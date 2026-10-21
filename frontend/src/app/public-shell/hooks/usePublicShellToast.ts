@@ -21,7 +21,7 @@ export interface Toast {
   severity: 'success' | 'info' | 'warning' | 'error';
 }
 
-interface UsePublicShellToastReturn {
+export interface UsePublicShellToastReturn {
   toast: Toast | null;
   showToast: (msg: string, severity?: 'success' | 'info' | 'warning' | 'error') => void;
   hideToast: () => void;

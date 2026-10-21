@@ -33,7 +33,7 @@ import { useAuth } from '../../../hooks/useAuth';
 import { FORCE_LOGOUT_FLAG } from '../../../config/storageKeys';
 
 
-type UseSessionTimeoutOptions = {
+export type UseSessionTimeoutOptions = {
   /** Endpoint returning 200/OK when the session is valid (e.g., GET /api/me). */
   pingEndpoint?: string;
   /** How often to check while the tab is visible. Default: 60s. */

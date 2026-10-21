@@ -24,7 +24,7 @@ import { SelectedItemDetails } from '../SelectedItemDetails';
 import { QuantityAdjustQuantityInput } from './QuantityAdjustQuantityInput';
 import type { UseQuantityAdjustFormReturn } from './useQuantityAdjustForm';
 
-interface QuantityAdjustFormProps {
+export interface QuantityAdjustFormProps {
   form: UseQuantityAdjustFormReturn;
 }
 

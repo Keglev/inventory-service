@@ -21,7 +21,7 @@ const drawerWidth = 248;
 /** Desktop rail width: room for the longest German label ("Einstellungen") under its icon. */
 const railWidth = 88;
 
-interface AppSidebarProps {
+export interface AppSidebarProps {
   /** Whether drawer is open on mobile */
   mobileOpen: boolean;
 

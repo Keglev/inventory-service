@@ -26,7 +26,7 @@ import type { SidebarVariant } from './sidebarVariant';
 import { railItemSx } from './sidebarVariant';
 import { Link, useLocation } from 'react-router-dom';
 
-interface NavItemProps {
+export interface NavItemProps {
   /** Route path to navigate to */
   to: string;
 

@@ -41,7 +41,7 @@ import { getHelpTopic } from '../../help/topics';
  */
 const DOCS_URL = 'https://keglev.github.io/inventory-service/';
 
-interface HelpPanelProps {
+export interface HelpPanelProps {
   /** Width of drawer on desktop */
   width?: number;
   /** Drawer position */

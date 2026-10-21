@@ -21,7 +21,7 @@ import { HelpIconButton } from '../../features/help/components/HelpIconButton';
 import AccountMenu from '../AccountMenu/AccountMenu';
 import NotificationBell from './header/NotificationBell';
 
-interface AppToolbarActionsProps {
+export interface AppToolbarActionsProps {
   /** Opens the About dialog */
   onAboutOpen: () => void;
 

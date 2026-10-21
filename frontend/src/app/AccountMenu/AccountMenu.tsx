@@ -35,7 +35,7 @@ import { useAuth } from '../../hooks/useAuth';
 import ProfileMenuSection from './ProfileMenuSection';
 import LogoutMenuAction from './LogoutMenuAction';
 
-interface AccountMenuProps {
+export interface AccountMenuProps {
   /** Opens the About dialog */
   onAboutOpen: () => void;
 

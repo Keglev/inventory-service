@@ -33,7 +33,7 @@ import type { SupplierRow } from '../../../../api/suppliers/types';
  *
  * @interface EditSupplierInfoStepProps
  */
-interface EditSupplierInfoStepProps {
+export interface EditSupplierInfoStepProps {
   /** Currently selected supplier */
   selectedSupplier: SupplierRow | null;
   /** React Hook Form control */

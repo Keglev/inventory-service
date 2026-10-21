@@ -22,7 +22,7 @@ import { useAuth } from '../../../hooks/useAuth';
  * - Unauthenticated redirect preserves location state so LoginPage can
  *   post-login-redirect back to the originally requested route.
  */
-type Props = {
+export type Props = {
   children: React.ReactElement;
   fallback?: React.ReactNode;
   allowDemo?: boolean;

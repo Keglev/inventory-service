@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Button, Tooltip } from '@mui/material';
 import type { SupportedLocale } from '../../../theme';
 
-interface LanguageToggleProps {
+export interface LanguageToggleProps {
   locale: SupportedLocale;
   onToggle: () => void;
   tooltip: string;

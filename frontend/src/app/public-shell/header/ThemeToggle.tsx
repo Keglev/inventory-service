@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 
-interface ThemeToggleProps {
+export interface ThemeToggleProps {
   themeMode: 'light' | 'dark';
   onToggle: () => void;
 }

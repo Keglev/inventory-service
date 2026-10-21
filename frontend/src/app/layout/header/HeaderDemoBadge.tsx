@@ -20,7 +20,7 @@
 import { Chip, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-interface HeaderDemoBadgeProps {
+export interface HeaderDemoBadgeProps {
   /** Whether user is on demo account */
   isDemo: boolean;
 }

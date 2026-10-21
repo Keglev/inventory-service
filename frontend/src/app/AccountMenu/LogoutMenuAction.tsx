@@ -16,7 +16,7 @@ import { MenuItem, Typography } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useTranslation } from 'react-i18next';
 
-interface LogoutMenuActionProps {
+export interface LogoutMenuActionProps {
   /** Callback when logout is clicked */
   onLogout: () => void;
 

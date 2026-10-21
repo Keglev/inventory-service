@@ -21,7 +21,7 @@ import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { useTranslation } from 'react-i18next';
 import { BELOW_MINIMUM_LINK } from '../../../../config/inventoryPolicy';
 
-interface LowStockAlertSectionProps {
+export interface LowStockAlertSectionProps {
   lowStockCount: number;
   /** Called when the user follows the link, so the popover can close. */
   onShowAll?: () => void;

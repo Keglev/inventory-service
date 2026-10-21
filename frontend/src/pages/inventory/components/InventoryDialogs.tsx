@@ -32,7 +32,7 @@ import { DeleteItemDialog } from '../dialogs/DeleteItemDialog/DeleteItemDialog';
 import { QuantityAdjustDialog } from '../dialogs/QuantityAdjustDialog/QuantityAdjustDialog';
 import { PriceChangeDialog } from '../dialogs/PriceChangeDialog/PriceChangeDialog';
 
-interface InventoryDialogsProps {
+export interface InventoryDialogsProps {
   openNew: boolean;
   setOpenNew: (open: boolean) => void;
   openEditName: boolean;

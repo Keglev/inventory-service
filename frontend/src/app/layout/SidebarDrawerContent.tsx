@@ -22,7 +22,7 @@ import { default as SidebarNavList } from './sidebar/SidebarNavList';
 import SidebarSettingsItem from './sidebar/SidebarSettingsItem';
 import type { SidebarVariant } from './sidebar/sidebarVariant';
 
-interface SidebarDrawerContentProps {
+export interface SidebarDrawerContentProps {
   /** List rows (phone drawer) or rail tiles (desktop) */
   variant: SidebarVariant;
 

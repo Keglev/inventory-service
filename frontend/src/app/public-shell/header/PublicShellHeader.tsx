@@ -26,7 +26,7 @@ import type { SupportedLocale } from '../../../theme';
 import ThemeToggle from './ThemeToggle';
 import LanguageToggle from './LanguageToggle';
 
-interface PublicShellHeaderProps {
+export interface PublicShellHeaderProps {
   appTitle: string;
   themeMode: 'light' | 'dark';
   onThemeToggle: () => void;

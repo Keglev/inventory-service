@@ -27,7 +27,7 @@ import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import type { ItemOption } from '../../../api/analytics/types';
 
-interface SelectedItemDetailsProps {
+export interface SelectedItemDetailsProps {
   item: ItemOption | null;
   currentQty: number;
   currentPrice: number | null;

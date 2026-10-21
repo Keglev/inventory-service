@@ -20,7 +20,7 @@ import * as React from 'react';
 import { Stack, Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-interface InventoryToolbarProps {
+export interface InventoryToolbarProps {
   onAddNew: () => void;
   onEdit: () => void;
   onDelete: () => void;

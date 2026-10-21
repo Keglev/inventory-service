@@ -26,7 +26,7 @@ import type { Theme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import type { HealthStatus } from '../../features/health/hooks/useHealthCheck';
 
-interface HealthStatusDisplayProps {
+export interface HealthStatusDisplayProps {
   /** Health status data */
   health: HealthStatus;
 }
