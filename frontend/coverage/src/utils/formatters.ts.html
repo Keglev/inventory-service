@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">97.95% </span>
+                <span class="strong">97.82% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>48/49</span>
+                <span class='fraction'>45/46</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">97.82% </span>
+                <span class="strong">97.67% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>45/46</span>
+                <span class='fraction'>42/43</span>
             </div>
         
             
@@ -187,9 +187,7 @@
 <a name='L122'></a><a href='#L122'>122</a>
 <a name='L123'></a><a href='#L123'>123</a>
 <a name='L124'></a><a href='#L124'>124</a>
-<a name='L125'></a><a href='#L125'>125</a>
-<a name='L126'></a><a href='#L126'>126</a>
-<a name='L127'></a><a href='#L127'>127</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L125'></a><a href='#L125'>125</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -275,18 +273,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">45x</span>
-<span class="cline-any cline-yes">40x</span>
-<span class="cline-any cline-yes">80x</span>
-<span class="cline-any cline-yes">40x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">45x</span>
-<span class="cline-any cline-yes">41x</span>
-<span class="cline-any cline-yes">41x</span>
-<span class="cline-any cline-yes">82x</span>
-<span class="cline-any cline-yes">41x</span>
+<span class="cline-any cline-yes">81x</span>
+<span class="cline-any cline-yes">81x</span>
+<span class="cline-any cline-yes">162x</span>
+<span class="cline-any cline-yes">81x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">45x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -401,18 +397,16 @@ export const formatNumber = (num: number, format: NumberFormat, decimals: number
   }
 };
 &nbsp;
-export const getTodayIso = (): string =&gt; {
-  const d = new Date();
-  const pad = (n: number) =&gt; String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-};
-&nbsp;
+/** The local calendar day `n` days before today, as YYYY-MM-DD. */
 export const getDaysAgoIso = (n: number): string =&gt; {
   const d = new Date();
   d.setDate(d.getDate() - n);
   const pad = (n: number) =&gt; String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
+&nbsp;
+/** Today's local calendar day as YYYY-MM-DD (FO3: one day helper, not two copies). */
+export const getTodayIso = (): string =&gt; getDaysAgoIso(0);
 &nbsp;
 /**
  * Defensive rendering of a date value inside a data-grid cell.
