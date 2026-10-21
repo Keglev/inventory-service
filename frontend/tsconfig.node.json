@@ -1,4 +1,4 @@
-// TypeScript configuration for build tooling files (vite.config.ts, etc.).
+// TypeScript configuration for build tooling files (vite, vitest and playwright configs).
 // Targets a newer ES version than the app config because these files run in Node,
 // not the browser, and are never bundled or shipped to users.
 
@@ -24,5 +24,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["vite.config.ts", "vitest.config.ts", "playwright.config.ts"]
 }

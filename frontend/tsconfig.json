@@ -1,6 +1,6 @@
 // Root TypeScript configuration — entry point for project references.
 // Contains no source itself; delegates to tsconfig.app.json, tsconfig.node.json,
-// and tsconfig.test.json via tsc --build. It holds no compilerOptions or exclude:
+// tsconfig.test.json and tsconfig.e2e.json via tsc --build. It holds no compilerOptions or exclude:
 // with "files": [] they applied to nothing, and referenced projects do not
 // inherit them.
 
@@ -11,6 +11,7 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" },
-    { "path": "./tsconfig.test.json" }
+    { "path": "./tsconfig.test.json" },
+    { "path": "./tsconfig.e2e.json" }
   ]
 }

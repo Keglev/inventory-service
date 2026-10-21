@@ -1,0 +1,29 @@
+// TypeScript configuration for the Playwright suite (e2e/). The tooling settings of
+// tsconfig.node.json plus the DOM lib: the specs run in Node, but the callbacks they
+// pass to page.evaluate run in the browser and read window. Until FQ1 no project
+// included e2e/, so these files were never type-checked.
+
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.e2e.tsbuildinfo",
+    // Node 20+ supports all ES2023 features natively; no browser compatibility constraint here.
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["e2e/**/*.ts"]
+}
