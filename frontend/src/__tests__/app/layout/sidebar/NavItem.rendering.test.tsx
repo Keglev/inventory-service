@@ -15,35 +15,13 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import NavItem from '@/app/layout/sidebar/NavItem';
-
-type Props = React.ComponentProps<typeof NavItem>;
+import { screen } from '@testing-library/react';
+import { renderNavItem } from '@/__tests__/app/layout/sidebar/fixtures';
 
 describe('NavItem (rendering)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
-
-  function renderNavItem(
-    props: Partial<Props> = {},
-    initialEntries: string[] = ['/'],
-  ) {
-    const merged: Props = {
-      to: '/dashboard',
-      icon: DashboardIcon,
-      label: 'Dashboard',
-      ...props,
-    } as Props;
-
-    return render(
-      <MemoryRouter initialEntries={initialEntries}>
-        <NavItem {...merged} />
-      </MemoryRouter>,
-    );
-  }
 
   describe('Basic rendering', () => {
     it('renders the navigation label', () => {

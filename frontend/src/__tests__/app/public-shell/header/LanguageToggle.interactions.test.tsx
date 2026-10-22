@@ -13,27 +13,15 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
+import { screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LanguageToggle from '@/app/public-shell/header/LanguageToggle';
-
-
-type Props = React.ComponentProps<typeof LanguageToggle>;
+import { renderToggle } from '@/__tests__/app/public-shell/header/fixtures';
 
 describe('LanguageToggle (interactions)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
-
-  function renderToggle(props: Partial<Props> = {}) {
-    const merged: Props = {
-      locale: 'de',
-      onToggle: vi.fn(),
-      tooltip: 'Switch language',
-      ...props,
-    };
-    return render(<LanguageToggle {...merged} />);
-  }
 
   it('shows the provided tooltip text on hover', async () => {
     // Ensures the tooltip is wired to the IconButton hover interaction.

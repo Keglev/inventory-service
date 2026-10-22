@@ -14,25 +14,14 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import LanguageToggle from '@/app/public-shell/header/LanguageToggle';
-
-type Props = React.ComponentProps<typeof LanguageToggle>;
+import { renderToggle } from '@/__tests__/app/public-shell/header/fixtures';
 
 describe('LanguageToggle (rendering)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
-
-  function renderToggle(props: Partial<Props> = {}) {
-    const merged: Props = {
-      locale: 'de',
-      onToggle: vi.fn(),
-      tooltip: 'Switch language',
-      ...props,
-    };
-    return render(<LanguageToggle {...merged} />);
-  }
 
   it('renders as a button (accessible role)', () => {
     // Accessibility contract: control must be reachable via role="button".
