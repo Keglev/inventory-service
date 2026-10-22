@@ -143,6 +143,22 @@ describe('useEditItemForm', () => {
     return renderHook(() => useEditItemForm(open, onClose, onItemRenamed));
   }
 
+  /** Picks supplier and item, then submits a rename of item-1 to 'New Name'. */
+  async function submitRename(result: ReturnType<typeof render>['result']) {
+    act(() => {
+      result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
+    });
+    act(() => {
+      result.current.setSelectedItem({ id: 'item-1', name: 'Old Name' });
+    });
+
+    formData = { itemId: 'item-1', newName: 'New Name' };
+
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+  }
+
   describe('query wiring', () => {
     it('wires suppliers/items/details queries with correct arguments', () => {
       const { result } = render(true);
@@ -242,19 +258,7 @@ describe('useEditItemForm', () => {
     it('calls renameItem and triggers success effects', async () => {
       const { result } = render(true);
 
-      act(() => {
-        result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
-      });
-
-      act(() => {
-        result.current.setSelectedItem({ id: 'item-1', name: 'Old Name' });
-      });
-
-      formData = { itemId: 'item-1', newName: 'New Name' };
-
-      await act(async () => {
-        await result.current.onSubmit();
-      });
+      await submitRename(result);
 
       expect(renameItemMock).toHaveBeenCalledWith({ id: 'item-1', newName: 'New Name' });
       expect(toastSpy).toHaveBeenCalled();
@@ -270,18 +274,7 @@ describe('useEditItemForm', () => {
 
       const { result } = render(true);
 
-      act(() => {
-        result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
-      });
-      act(() => {
-        result.current.setSelectedItem({ id: 'item-1', name: 'Old Name' });
-      });
-
-      formData = { itemId: 'item-1', newName: 'New Name' };
-
-      await act(async () => {
-        await result.current.onSubmit();
-      });
+      await submitRename(result);
 
       expect(onItemRenamed).not.toHaveBeenCalled();
       expect(result.current.formError).toBe('Failed to rename item. Please try again.');
@@ -294,18 +287,7 @@ describe('useEditItemForm', () => {
 
       const { result } = render(true);
 
-      act(() => {
-        result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
-      });
-      act(() => {
-        result.current.setSelectedItem({ id: 'item-1', name: 'Old Name' });
-      });
-
-      formData = { itemId: 'item-1', newName: 'New Name' };
-
-      await act(async () => {
-        await result.current.onSubmit();
-      });
+      await submitRename(result);
 
       expect(onItemRenamed).not.toHaveBeenCalled();
       expect(result.current.formError).toBe('Only administrators can perform this action');
@@ -318,18 +300,7 @@ describe('useEditItemForm', () => {
 
       const { result } = render(true);
 
-      act(() => {
-        result.current.setSelectedSupplier({ id: 'sup-1', label: 'Supplier A' });
-      });
-      act(() => {
-        result.current.setSelectedItem({ id: 'item-1', name: 'Old Name' });
-      });
-
-      formData = { itemId: 'item-1', newName: 'New Name' };
-
-      await act(async () => {
-        await result.current.onSubmit();
-      });
+      await submitRename(result);
 
       expect(onItemRenamed).not.toHaveBeenCalled();
       expect(result.current.formError).toBe('An item with this name and price already exists');

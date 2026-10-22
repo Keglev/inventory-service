@@ -16,27 +16,28 @@
  *
  * State orchestration lives in useEditItemForm (own test); a handcrafted
  * state object drives the render here.
+ *
+ * The supplier pick and item-picker tests run from the shared
+ * supplierItemPickerContract (sibling: DeleteFormFields.test.tsx).
  */
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 
 import { EditItemForm } from '@/pages/inventory/dialogs/EditItemDialog/EditItemForm';
 import type { UseEditItemFormReturn } from '@/pages/inventory/dialogs/EditItemDialog/useEditItemForm';
+import {
+  itPicksItem,
+  itPicksSupplier,
+  pickerItems as items,
+  pickerSuppliers as suppliers,
+} from '@/__tests__/pages/inventory/dialogs/supplierItemPickerContract';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-const suppliers = [
-  { id: 's1', label: 'Alpha' },
-  { id: 's2', label: 'Beta' },
-];
-const items = [
-  { id: 'it-1', name: 'Blue Widget' },
-  { id: 'it-2', name: 'Red Widget' },
-];
 
 type StateOverrides = Partial<UseEditItemFormReturn> & { nameError?: string };
 
@@ -98,83 +99,12 @@ describe('EditItemForm', () => {
     expect(screen.queryByLabelText('inventory:table.supplier')).not.toBeInTheDocument();
   });
 
-  it('lists suppliers and resolves the selected id to the supplier object', () => {
-    const setSelectedSupplier = vi.fn();
-    setup({ setSelectedSupplier });
+  itPicksSupplier((overrides) => setup(overrides));
 
-    fireEvent.mouseDown(screen.getByRole('combobox'));
-    fireEvent.click(within(screen.getByRole('listbox')).getByText('Beta'));
-
-    expect(setSelectedSupplier).toHaveBeenCalledWith(suppliers[1]);
-  });
-
-  it('guards step 2 with an info message until a supplier is selected', () => {
-    setup();
-
-    expect(screen.getByText('inventory:search.selectSupplierFirst')).toBeInTheDocument();
-  });
-
-  it('keeps the item field editable while items load', () => {
-    setup({
-      selectedSupplier: suppliers[0] as never,
-      itemsQuery: { data: [], isLoading: true } as never,
-      itemQuery: 'bl',
-    });
-
-    const input = screen.getByLabelText('inventory:item');
-    expect(input).toBeEnabled();
-    fireEvent.keyDown(input, { key: 'ArrowDown' });
-    expect(screen.getByText('common:loading')).toBeInTheDocument();
-  });
-
-  it('selecting an item forwards it', () => {
-    const setSelectedItem = vi.fn();
-    setup({
-      selectedSupplier: suppliers[0] as never,
-      setSelectedItem,
-      itemQuery: 'widget',
-    });
-
-    const input = screen.getByLabelText('inventory:item');
-    fireEvent.keyDown(input, { key: 'ArrowDown' });
-    fireEvent.click(screen.getByText('Blue Widget'));
-
-    expect(setSelectedItem).toHaveBeenCalledWith(items[0]);
-  });
-
-  it('typing in the item search forwards the query', () => {
-    const setItemQuery = vi.fn();
-    setup({ selectedSupplier: suppliers[0] as never, setItemQuery });
-
-    fireEvent.change(screen.getByLabelText('inventory:item'), {
-      target: { value: 'blu' },
-    });
-
-    expect(setItemQuery).toHaveBeenCalledWith('blu');
-  });
-
-  it('prompts to type when the query is under 2 characters and nothing matches', () => {
-    setup({
-      selectedSupplier: suppliers[0] as never,
-      itemsQuery: { data: [], isLoading: false } as never,
-      itemQuery: 'b',
-    });
-
-    fireEvent.keyDown(screen.getByLabelText('inventory:item'), { key: 'ArrowDown' });
-
-    expect(screen.getByText('inventory:search.typeToSearch')).toBeInTheDocument();
-  });
-
-  it('reports no matches once 2+ characters are typed', () => {
-    setup({
-      selectedSupplier: suppliers[0] as never,
-      itemsQuery: { data: [], isLoading: false } as never,
-      itemQuery: 'zz',
-    });
-
-    fireEvent.keyDown(screen.getByLabelText('inventory:item'), { key: 'ArrowDown' });
-
-    expect(screen.getByText('inventory:search.noItemsFound')).toBeInTheDocument();
+  itPicksItem((overrides) => setup(overrides), {
+    guard: 'guards step 2 with an info message until a supplier is selected',
+    editableWhileLoading: 'keeps the item field editable while items load',
+    typingForwards: 'typing in the item search forwards the query',
   });
 
   it('hides step 3 until an item is selected', () => {

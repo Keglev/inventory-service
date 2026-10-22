@@ -12,6 +12,9 @@
  * - Submit pipeline: no-item guard, readOnly demo guard, success path
  *   (changePrice call, toast, onPriceChanged, close + reset), errorToken
  *   mapping (forbidden / not_found / other), and thrown-transport logging.
+ *
+ * The guards, failure mapping and close reset run from the shared
+ * itemSubmitFormContract (sibling: useQuantityAdjustForm.test.ts).
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
@@ -53,6 +56,11 @@ import { useItemSearchQuery } from '@/api/inventory/hooks/useItemSearchQuery';
 import { useItemDetailsQuery } from '@/api/inventory/hooks/useItemDetailsQuery';
 import { logError } from '@/utils/logger';
 import type { ItemOption } from '@/api/analytics/types';
+import {
+  itSubmitFailuresAndClose,
+  itSubmitGuards,
+  type ItemSubmitFormContract,
+} from '@/__tests__/pages/inventory/dialogs/itemSubmitFormContract';
 
 const changePriceMock = vi.mocked(changePrice);
 const useSuppliersQueryMock = vi.mocked(useSuppliersQuery);
@@ -87,6 +95,26 @@ async function selectItem(hook: ReturnType<typeof renderForm>) {
   });
   await waitFor(() => expect(hook.result.current.selectedItem).toEqual(item));
 }
+
+const contract: ItemSubmitFormContract<ReturnType<typeof renderForm>> = {
+  renderForm: (options) => renderForm(options),
+  selectItem,
+  arrangeLoadedItem: () => {},
+  enterNewValue: (result) => result.setValue('newPrice', 5),
+  fillValuesWithoutSelection: (result) => {
+    result.setValue('itemId', 'it-1');
+    result.setValue('newPrice', 5);
+  },
+  mutation: changePriceMock,
+  logError: logErrorMock,
+  errorTokens: [
+    ['forbidden', 'errors:inventory.businessRules.adminOnly'],
+    ['not_found', 'errors:inventory.businessRules.itemNotFound'],
+    ['conflict', 'errors:inventory.requests.failedToChangePrice'],
+  ],
+  transportLogPrefix: 'Price change error:',
+  genericMessage: 'errors:inventory.requests.failedToChangePrice',
+};
 
 describe('usePriceChangeForm', () => {
   beforeEach(() => {
@@ -139,36 +167,7 @@ describe('usePriceChangeForm', () => {
     });
   });
 
-  it('blocks submission with the no-item message when the selection is gone', async () => {
-    const hook = renderForm();
-
-    // Valid form values but no selection: the guard, not the schema, fires.
-    act(() => {
-      hook.result.current.setValue('itemId', 'it-1');
-      hook.result.current.setValue('newPrice', 5);
-    });
-    await act(async () => {
-      await hook.result.current.onSubmit();
-    });
-
-    expect(hook.result.current.formError).toBe('errors:inventory.selection.noItemSelected');
-    expect(changePriceMock).not.toHaveBeenCalled();
-  });
-
-  it('blocks submission in read-only demo mode', async () => {
-    const hook = renderForm({ readOnly: true });
-    await selectItem(hook);
-
-    act(() => {
-      hook.result.current.setValue('newPrice', 5);
-    });
-    await act(async () => {
-      await hook.result.current.onSubmit();
-    });
-
-    expect(hook.result.current.formError).toBe('common:demoDisabled');
-    expect(changePriceMock).not.toHaveBeenCalled();
-  });
+  itSubmitGuards(contract);
 
   it('submits, toasts, notifies, and closes on success', async () => {
     changePriceMock.mockResolvedValue({ ok: true } as never);
@@ -209,53 +208,5 @@ describe('usePriceChangeForm', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it.each([
-    ['forbidden', 'errors:inventory.businessRules.adminOnly'],
-    ['not_found', 'errors:inventory.businessRules.itemNotFound'],
-    ['conflict', 'errors:inventory.requests.failedToChangePrice'],
-  ])('maps the %s error token to its message', async (token, message) => {
-    changePriceMock.mockResolvedValue({ ok: false, errorToken: token } as never);
-    const hook = renderForm();
-    await selectItem(hook);
-
-    act(() => {
-      hook.result.current.setValue('newPrice', 5);
-    });
-    await act(async () => {
-      await hook.result.current.onSubmit();
-    });
-
-    expect(hook.result.current.formError).toBe(message);
-    expect(hook.onClose).not.toHaveBeenCalled();
-  });
-
-  it('logs thrown transport errors and shows the generic message', async () => {
-    changePriceMock.mockRejectedValue(new Error('boom'));
-    const hook = renderForm();
-    await selectItem(hook);
-
-    act(() => {
-      hook.result.current.setValue('newPrice', 5);
-    });
-    await act(async () => {
-      await hook.result.current.onSubmit();
-    });
-
-    expect(logErrorMock).toHaveBeenCalledWith('Price change error:', expect.any(Error));
-    expect(hook.result.current.formError).toBe('errors:inventory.requests.failedToChangePrice');
-  });
-
-  it('resets selection state and calls onClose when handleClose runs', async () => {
-    const hook = renderForm();
-    await selectItem(hook);
-
-    act(() => {
-      hook.result.current.handleClose();
-    });
-
-    expect(hook.result.current.selectedItem).toBeNull();
-    expect(hook.result.current.itemQuery).toBe('');
-    expect(hook.result.current.formError).toBe('');
-    expect(hook.onClose).toHaveBeenCalled();
-  });
+  itSubmitFailuresAndClose(contract);
 });
