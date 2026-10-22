@@ -79,7 +79,7 @@ export default function AppShell() {
   // MUI theme from the shared preferences; the settings dialog changes them.
   const { theme } = useShellPreferences();
 
-  // Logout flow (demo redirect vs real POST-form logout) lives in useShellLogout.
+  // Logout flow (demo redirect vs real-user route to /logout) lives in useShellLogout.
   const handleLogout = useShellLogout({ isDemo, logout, queryClient, navigate });
 
   // Heartbeat while the user is active; an idle session ends on the server's

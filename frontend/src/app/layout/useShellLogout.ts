@@ -4,13 +4,22 @@
  *
  * @summary
  * Builds the shell's logout handler: demo users get a client-side redirect to
- * the logout-success route; real users are logged out via a POST form redirect
- * to the backend (avoiding SPA-guard flicker). Extracted from AppShell.
+ * the logout-success route; real users are routed to /logout, where LogoutPage
+ * clears client state, tells the other tabs and posts the backend logout form.
+ * Extracted from AppShell.
+ *
+ * @enterprise
+ * - Real users go through LogoutPage like the heartbeat's 401 path, so every
+ *   logout clears the query cache and broadcasts to the other tabs. The menu
+ *   once posted its own form and skipped both (FO7): other tabs kept showing
+ *   cached data until their next request answered 401.
+ * - /logout sits outside AppShell and RequireAuth, so clearing the user there
+ *   cannot bounce the page to /login before the form posts.
+ * - Demo users have no server session: no backend round trip is needed.
  */
 
 import type { useNavigate } from 'react-router-dom';
 import type { QueryClient } from '@tanstack/react-query';
-import { apiUrl } from '../../api/apiBase';
 
 export interface ShellLogoutDeps {
   isDemo: boolean;
@@ -26,7 +35,6 @@ export function useShellLogout({
   navigate,
 }: ShellLogoutDeps): () => void {
   return () => {
-    // Demo mode: clear client state and route directly to logout-success
     if (isDemo) {
       queryClient.clear();
       logout();
@@ -34,13 +42,6 @@ export function useShellLogout({
       return;
     }
 
-    // Real user: trigger backend logout via POST redirect, avoid SPA guard flicker
-    const form = document.createElement('form');
-    form.method = 'POST';
-    const returnUrl = `${window.location.origin}/logout-success`;
-    form.action = apiUrl(`/logout?return=${encodeURIComponent(returnUrl)}`);
-    form.style.display = 'none';
-    document.body.appendChild(form);
-    form.submit();
+    navigate('/logout', { replace: true });
   };
 }
