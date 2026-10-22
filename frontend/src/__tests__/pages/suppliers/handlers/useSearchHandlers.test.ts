@@ -23,34 +23,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useSearchHandlers } from '@/pages/suppliers/handlers/useSearchHandlers';
 import type { UseSuppliersBoardStateReturn } from '@/pages/suppliers/hooks/useSuppliersBoardState';
+import { createState } from '@/__tests__/pages/suppliers/handlers/fixtures';
 import type { SupplierRow } from '@/api/suppliers/types';
 
 describe('useSearchHandlers', () => {
   const supplierRow = (overrides: Partial<SupplierRow> = {}): SupplierRow => ({
     id: 'supplier-1',
     name: 'Acme Corp',
-    ...overrides,
-  });
-
-  const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {}): UseSuppliersBoardStateReturn => ({
-    paginationModel: { page: 0, pageSize: 10 },
-    sortModel: [],
-    searchQuery: '',
-    showAllSuppliers: false,
-    selectedId: null,
-    selectedSearchResult: null,
-    openCreate: false,
-    openEdit: false,
-    openDelete: false,
-    setOpenCreate: vi.fn(),
-    setOpenEdit: vi.fn(),
-    setOpenDelete: vi.fn(),
-    setSearchQuery: vi.fn(),
-    setSelectedSearchResult: vi.fn(),
-    setSelectedId: vi.fn(),
-    setPaginationModel: vi.fn(),
-    setSortModel: vi.fn(),
-    setShowAllSuppliers: vi.fn(),
     ...overrides,
   });
 

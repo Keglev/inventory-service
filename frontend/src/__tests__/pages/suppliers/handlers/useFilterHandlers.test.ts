@@ -20,30 +20,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useFilterHandlers } from '@/pages/suppliers/handlers/useFilterHandlers';
 import type { UseSuppliersBoardStateReturn } from '@/pages/suppliers/hooks/useSuppliersBoardState';
+import { createState } from '@/__tests__/pages/suppliers/handlers/fixtures';
 
 describe('useFilterHandlers', () => {
-  const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {}): UseSuppliersBoardStateReturn => ({
-    paginationModel: { page: 0, pageSize: 10 },
-    sortModel: [],
-    searchQuery: '',
-    showAllSuppliers: false,
-    selectedId: null,
-    selectedSearchResult: null,
-    openCreate: false,
-    openEdit: false,
-    openDelete: false,
-    setOpenCreate: vi.fn(),
-    setOpenEdit: vi.fn(),
-    setOpenDelete: vi.fn(),
-    setSearchQuery: vi.fn(),
-    setSelectedSearchResult: vi.fn(),
-    setSelectedId: vi.fn(),
-    setPaginationModel: vi.fn(),
-    setSortModel: vi.fn(),
-    setShowAllSuppliers: vi.fn(),
-    ...overrides,
-  });
-
   const renderHandlers = (state: UseSuppliersBoardStateReturn) =>
     renderHook(() => useFilterHandlers(state)).result.current;
 
