@@ -14,35 +14,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import NavItem from '@/app/layout/sidebar/NavItem';
-
-type Props = React.ComponentProps<typeof NavItem>;
+import { renderNavItem } from '@/__tests__/app/layout/sidebar/fixtures';
 
 describe('NavItem (active state)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
-
-  function renderNavItem(
-    props: Partial<Props>,
-    initialEntries: string[],
-  ) {
-    const merged: Props = {
-      to: '/dashboard',
-      icon: DashboardIcon,
-      label: 'Dashboard',
-      ...props,
-    } as Props;
-
-    return render(
-      <MemoryRouter initialEntries={initialEntries}>
-        <NavItem {...merged} />
-      </MemoryRouter>,
-    );
-  }
 
   it('marks the item as selected when the current route matches exactly', () => {
     // Business rule: selected state must reflect the current route for UX clarity.

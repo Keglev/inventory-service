@@ -13,21 +13,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PublicShellHeader from '@/app/public-shell/header/PublicShellHeader';
+import type { ThemeToggleProps } from '@/app/public-shell/header/ThemeToggle';
+import type { LanguageToggleProps } from '@/app/public-shell/header/LanguageToggle';
+import { makeHeaderProps, type HeaderProps } from '@/__tests__/app/public-shell/header/fixtures';
 
-type ThemeMode = 'light' | 'dark';
-type Locale = 'de' | 'en';
-
-type ThemeToggleProps = {
-  themeMode: ThemeMode;
-  onToggle: () => void;
-  tooltip?: string;
-};
-
-type LanguageToggleProps = {
-  locale: Locale;
-  onToggle: () => void;
-  tooltip: string;
-};
 
 /**
  * Interactive stubs:
@@ -49,22 +38,13 @@ vi.mock('@/app/public-shell/header/LanguageToggle', () => ({
   ),
 }));
 
-type HeaderProps = React.ComponentProps<typeof PublicShellHeader>;
-
 describe('PublicShellHeader (interactions)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   function renderHeader(props: Partial<HeaderProps> = {}) {
-    const baseProps: HeaderProps = {
-      appTitle: 'Test App',
-      themeMode: 'light',
-      onThemeToggle: vi.fn(),
-      locale: 'en',
-      onLocaleToggle: vi.fn(),
-      languageTooltip: 'Switch language',
-    };
+    const baseProps: HeaderProps = makeHeaderProps();
 
     return render(<PublicShellHeader {...baseProps} {...props} />);
   }
