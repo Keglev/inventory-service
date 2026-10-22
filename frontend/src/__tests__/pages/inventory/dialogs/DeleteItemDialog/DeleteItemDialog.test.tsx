@@ -20,6 +20,7 @@ import { HelpProvider } from '@/context/help/HelpContext';
 import { DeleteItemDialog } from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog';
 import type { UseDeleteItemDialogReturn } from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types';
 import { tEn } from '@/__tests__/test/i18nEn';
+import { createMockState } from '@/__tests__/pages/inventory/dialogs/DeleteItemDialog/fixtures';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
@@ -47,33 +48,6 @@ vi.mock('@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemDialog', () => 
 // -------------------------------------
 // Helpers
 // -------------------------------------
-function createMockState(
-  overrides: Partial<UseDeleteItemDialogReturn> = {},
-): UseDeleteItemDialogReturn {
-  const base: UseDeleteItemDialogReturn = {
-    selectedSupplier: null,
-    selectedItem: null,
-    formError: '',
-    itemQuery: '',
-    showConfirmation: false,
-    isSubmitting: false,
-    suppliersQuery: ({ data: [], isLoading: false } as unknown) as UseDeleteItemDialogReturn['suppliersQuery'],
-    itemsQuery: ({ data: [], isLoading: false } as unknown) as UseDeleteItemDialogReturn['itemsQuery'],
-    itemDetailsQuery: ({ data: null, isLoading: false } as unknown) as UseDeleteItemDialogReturn['itemDetailsQuery'],
-    setItemQuery: vi.fn(),
-    setSelectedSupplier: vi.fn(),
-    setSelectedItem: vi.fn(),
-    setFormError: vi.fn(),
-    setShowConfirmation: vi.fn(),
-    handleClose: vi.fn(),
-    handleCancelConfirmation: vi.fn(),
-    onSubmit: vi.fn(),
-    onConfirmedDelete: vi.fn(),
-  };
-
-  return { ...base, ...overrides };
-}
-
 function renderDialog(props?: Partial<React.ComponentProps<typeof DeleteItemDialog>>) {
   const defaultProps: React.ComponentProps<typeof DeleteItemDialog> = {
     open: true,

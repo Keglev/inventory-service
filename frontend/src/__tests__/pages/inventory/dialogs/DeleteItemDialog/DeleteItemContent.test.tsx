@@ -19,6 +19,7 @@ import { render, screen } from '@testing-library/react';
 import { DeleteItemContent } from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemContent';
 import type { UseDeleteItemDialogReturn } from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types';
 import { tEn } from '@/__tests__/test/i18nEn';
+import { createMockState } from '@/__tests__/pages/inventory/dialogs/DeleteItemDialog/fixtures';
 
 // B2: provide a react-i18next mock so useTranslation resolves without an
 // i18n instance in this suite, silencing the NO_I18NEXT_INSTANCE warning. The stub
@@ -31,33 +32,6 @@ vi.mock('react-i18next', () => ({
     i18n: { language: 'en' },
   }),
 }));
-
-const createMockState = (
-  overrides: Partial<UseDeleteItemDialogReturn> = {},
-): UseDeleteItemDialogReturn => {
-  const baseState: UseDeleteItemDialogReturn = {
-    selectedSupplier: null,
-    selectedItem: null,
-    formError: '',
-    itemQuery: '',
-    showConfirmation: false,
-    isSubmitting: false,
-    suppliersQuery: ({ data: [], isLoading: false } as unknown) as UseDeleteItemDialogReturn['suppliersQuery'],
-    itemsQuery: ({ data: [], isLoading: false } as unknown) as UseDeleteItemDialogReturn['itemsQuery'],
-    itemDetailsQuery: ({ data: null, isLoading: false } as unknown) as UseDeleteItemDialogReturn['itemDetailsQuery'],
-    setItemQuery: vi.fn(),
-    setSelectedSupplier: vi.fn(),
-    setSelectedItem: vi.fn(),
-    setFormError: vi.fn(),
-    setShowConfirmation: vi.fn(),
-    handleClose: vi.fn(),
-    handleCancelConfirmation: vi.fn(),
-    onSubmit: vi.fn(),
-    onConfirmedDelete: vi.fn(),
-  };
-
-  return { ...baseState, ...overrides };
-};
 
 function renderDeleteItemContent(
   opts: { showConfirmation: boolean; state?: UseDeleteItemDialogReturn } = { showConfirmation: false },

@@ -14,6 +14,9 @@
  *   adjustQuantity with the reason; no-item guard; readOnly demo guard;
  *   errorToken mapping (forbidden / not_found / unprocessable_entity /
  *   other); thrown-transport logging; close + reset on success.
+ *
+ * The guards, failure mapping and close reset run from the shared
+ * itemSubmitFormContract (sibling: usePriceChangeForm.test.ts).
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
@@ -63,6 +66,11 @@ import { useItemDetailsQuery } from '@/api/inventory/hooks/useItemDetailsQuery';
 import { useItemPriceQuery } from '@/pages/inventory/dialogs/QuantityAdjustDialog/useItemPriceQuery';
 import { logError } from '@/utils/logger';
 import type { ItemOption } from '@/api/analytics/types';
+import {
+  itSubmitFailuresAndClose,
+  itSubmitGuards,
+  type ItemSubmitFormContract,
+} from '@/__tests__/pages/inventory/dialogs/itemSubmitFormContract';
 
 const adjustQuantityMock = vi.mocked(adjustQuantity);
 const useSuppliersQueryMock = vi.mocked(useSuppliersQuery);
@@ -97,6 +105,29 @@ async function selectItem(hook: ReturnType<typeof renderForm>, target: ItemOptio
   });
   await waitFor(() => expect(hook.result.current.selectedItem).toEqual(target));
 }
+
+const contract: ItemSubmitFormContract<ReturnType<typeof renderForm>> = {
+  renderForm: (options) => renderForm(options?.readOnly),
+  selectItem: (hook) => selectItem(hook),
+  arrangeLoadedItem: () => mockQueries({ details: { onHand: 7 } }),
+  enterNewValue: (result) => result.setValue('newQuantity', 10),
+  fillValuesWithoutSelection: (result) => {
+    result.setValue('itemId', 'it-1');
+    result.setValue('currentQuantity', 7);
+    result.setValue('newQuantity', 10);
+    result.setValue('reason', 'MANUAL_UPDATE');
+  },
+  mutation: adjustQuantityMock,
+  logError: logErrorMock,
+  errorTokens: [
+    ['forbidden', 'errors:inventory.businessRules.notAllowed'],
+    ['not_found', 'errors:inventory.businessRules.itemNotFound'],
+    ['unprocessable_entity', 'errors:inventory.businessRules.stockCannotGoNegative'],
+    ['conflict', 'errors:inventory.requests.failedToAdjustQuantity'],
+  ],
+  transportLogPrefix: 'Quantity adjustment error:',
+  genericMessage: 'errors:inventory.requests.failedToAdjustQuantity',
+};
 
 describe('useQuantityAdjustForm', () => {
   beforeEach(() => {
@@ -144,38 +175,7 @@ describe('useQuantityAdjustForm', () => {
     expect(hook.result.current.effectiveCurrentPrice).toBeNull();
   });
 
-  it('blocks submission with the no-item message when the selection is gone', async () => {
-    const hook = renderForm();
-
-    act(() => {
-      hook.result.current.setValue('itemId', 'it-1');
-      hook.result.current.setValue('currentQuantity', 7);
-      hook.result.current.setValue('newQuantity', 10);
-      hook.result.current.setValue('reason', 'MANUAL_UPDATE');
-    });
-    await act(async () => {
-      await hook.result.current.onSubmit();
-    });
-
-    expect(hook.result.current.formError).toBe('errors:inventory.selection.noItemSelected');
-    expect(adjustQuantityMock).not.toHaveBeenCalled();
-  });
-
-  it('blocks submission in read-only demo mode', async () => {
-    mockQueries({ details: { onHand: 7 } });
-    const hook = renderForm(true);
-    await selectItem(hook);
-
-    act(() => {
-      hook.result.current.setValue('newQuantity', 10);
-    });
-    await act(async () => {
-      await hook.result.current.onSubmit();
-    });
-
-    expect(hook.result.current.formError).toBe('common:demoDisabled');
-    expect(adjustQuantityMock).not.toHaveBeenCalled();
-  });
+  itSubmitGuards(contract);
 
   it('computes the delta from the live quantity and closes on success', async () => {
     mockQueries({ details: { onHand: 7 } });
@@ -201,61 +201,5 @@ describe('useQuantityAdjustForm', () => {
     expect(hook.result.current.selectedItem).toBeNull();
   });
 
-  it.each([
-    ['forbidden', 'errors:inventory.businessRules.notAllowed'],
-    ['not_found', 'errors:inventory.businessRules.itemNotFound'],
-    ['unprocessable_entity', 'errors:inventory.businessRules.stockCannotGoNegative'],
-    ['conflict', 'errors:inventory.requests.failedToAdjustQuantity'],
-  ])('maps the %s error token to its message', async (token, message) => {
-    mockQueries({ details: { onHand: 7 } });
-    adjustQuantityMock.mockResolvedValue({ ok: false, errorToken: token } as never);
-    const hook = renderForm();
-    await selectItem(hook);
-
-    act(() => {
-      hook.result.current.setValue('newQuantity', 10);
-    });
-    await act(async () => {
-      await hook.result.current.onSubmit();
-    });
-
-    expect(hook.result.current.formError).toBe(message);
-    expect(hook.onClose).not.toHaveBeenCalled();
-  });
-
-  it('logs thrown transport errors and shows the generic message', async () => {
-    mockQueries({ details: { onHand: 7 } });
-    adjustQuantityMock.mockRejectedValue(new Error('boom'));
-    const hook = renderForm();
-    await selectItem(hook);
-
-    act(() => {
-      hook.result.current.setValue('newQuantity', 10);
-    });
-    await act(async () => {
-      await hook.result.current.onSubmit();
-    });
-
-    expect(logErrorMock).toHaveBeenCalledWith(
-      'Quantity adjustment error:',
-      expect.any(Error)
-    );
-    expect(hook.result.current.formError).toBe(
-      'errors:inventory.requests.failedToAdjustQuantity'
-    );
-  });
-
-  it('resets selection state and calls onClose when handleClose runs', async () => {
-    const hook = renderForm();
-    await selectItem(hook);
-
-    act(() => {
-      hook.result.current.handleClose();
-    });
-
-    expect(hook.result.current.selectedItem).toBeNull();
-    expect(hook.result.current.itemQuery).toBe('');
-    expect(hook.result.current.formError).toBe('');
-    expect(hook.onClose).toHaveBeenCalled();
-  });
+  itSubmitFailuresAndClose(contract);
 });

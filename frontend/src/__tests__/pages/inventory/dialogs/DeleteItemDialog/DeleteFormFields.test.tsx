@@ -15,9 +15,12 @@
  *
  * State orchestration lives in useDeleteItemDialog (own tests); a
  * handcrafted state object drives the renders here.
+ *
+ * The supplier pick and item-picker tests run from the shared
+ * supplierItemPickerContract (sibling: EditItemForm.test.tsx).
  */
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import {
   SupplierSelectField,
@@ -25,19 +28,17 @@ import {
   ItemInfoDisplay,
 } from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteFormFields';
 import type { UseDeleteItemDialogReturn } from '@/pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types';
+import {
+  itPicksItem,
+  itPicksSupplier,
+  pickerItems as items,
+  pickerSuppliers as suppliers,
+} from '@/__tests__/pages/inventory/dialogs/supplierItemPickerContract';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-const suppliers = [
-  { id: 's1', label: 'Alpha' },
-  { id: 's2', label: 'Beta' },
-];
-const items = [
-  { id: 'it-1', name: 'Blue Widget' },
-  { id: 'it-2', name: 'Red Widget' },
-];
 
 function makeState(overrides: Partial<UseDeleteItemDialogReturn> = {}) {
   return {
@@ -66,103 +67,14 @@ describe('SupplierSelectField', () => {
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 
-  it('lists suppliers and resolves the selected id to the supplier object', () => {
-    const setSelectedSupplier = vi.fn();
-    render(<SupplierSelectField state={makeState({ setSelectedSupplier })} />);
-
-    fireEvent.mouseDown(screen.getByRole('combobox'));
-    fireEvent.click(within(screen.getByRole('listbox')).getByText('Beta'));
-
-    expect(setSelectedSupplier).toHaveBeenCalledWith(suppliers[1]);
-  });
+  itPicksSupplier((overrides) => render(<SupplierSelectField state={makeState(overrides)} />));
 });
 
 describe('ItemSelectField', () => {
-  it('guards with an info message until a supplier is selected', () => {
-    render(<ItemSelectField state={makeState()} />);
-
-    expect(screen.getByText('inventory:search.selectSupplierFirst')).toBeInTheDocument();
-  });
-
-  it('keeps the item field editable while the items load', () => {
-    render(
-      <ItemSelectField
-        state={makeState({
-          selectedSupplier: suppliers[0] as never,
-          itemsQuery: { data: [], isLoading: true } as never,
-          itemQuery: 'bl',
-        })}
-      />
-    );
-
-    const input = screen.getByLabelText('inventory:item');
-    expect(input).toBeEnabled();
-    fireEvent.keyDown(input, { key: 'ArrowDown' });
-    expect(screen.getByText('common:loading')).toBeInTheDocument();
-  });
-
-  it('selecting an item forwards it', () => {
-    const setSelectedItem = vi.fn();
-    render(
-      <ItemSelectField
-        state={makeState({
-          selectedSupplier: suppliers[0] as never,
-          setSelectedItem,
-          itemQuery: 'widget',
-        })}
-      />
-    );
-
-    const input = screen.getByLabelText('inventory:item');
-    fireEvent.keyDown(input, { key: 'ArrowDown' });
-    fireEvent.click(screen.getByText('Blue Widget'));
-
-    expect(setSelectedItem).toHaveBeenCalledWith(items[0]);
-  });
-
-  it('typing in the search forwards the query', () => {
-    const setItemQuery = vi.fn();
-    render(
-      <ItemSelectField
-        state={makeState({ selectedSupplier: suppliers[0] as never, setItemQuery })}
-      />
-    );
-
-    fireEvent.change(screen.getByLabelText('inventory:item'), { target: { value: 'blu' } });
-
-    expect(setItemQuery).toHaveBeenCalledWith('blu');
-  });
-
-  it('prompts to type when the query is under 2 characters and nothing matches', () => {
-    render(
-      <ItemSelectField
-        state={makeState({
-          selectedSupplier: suppliers[0] as never,
-          itemsQuery: { data: [], isLoading: false } as never,
-          itemQuery: 'b',
-        })}
-      />
-    );
-
-    fireEvent.keyDown(screen.getByLabelText('inventory:item'), { key: 'ArrowDown' });
-
-    expect(screen.getByText('inventory:search.typeToSearch')).toBeInTheDocument();
-  });
-
-  it('reports no matches once 2+ characters are typed', () => {
-    render(
-      <ItemSelectField
-        state={makeState({
-          selectedSupplier: suppliers[0] as never,
-          itemsQuery: { data: [], isLoading: false } as never,
-          itemQuery: 'zz',
-        })}
-      />
-    );
-
-    fireEvent.keyDown(screen.getByLabelText('inventory:item'), { key: 'ArrowDown' });
-
-    expect(screen.getByText('inventory:search.noItemsFound')).toBeInTheDocument();
+  itPicksItem((overrides) => render(<ItemSelectField state={makeState(overrides)} />), {
+    guard: 'guards with an info message until a supplier is selected',
+    editableWhileLoading: 'keeps the item field editable while the items load',
+    typingForwards: 'typing in the search forwards the query',
   });
 });
 
