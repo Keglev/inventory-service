@@ -8,25 +8,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createTestQueryClient } from '@/__tests__/test/queryClient';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-vi.mock('recharts', () => ({
-  ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => (
-    <div data-testid="chart-container">{children}</div>
-  ),
-  BarChart: ({ children }: { children?: React.ReactNode }) => <div data-testid="bar-chart">{children}</div>,
-  LineChart: ({ children }: { children?: React.ReactNode }) => <div data-testid="line-chart">{children}</div>,
-  Bar: () => <div data-testid="bar" />,
-  Line: () => <div data-testid="line" />,
-  CartesianGrid: () => <div data-testid="cartesian-grid" />,
-  XAxis: () => <div data-testid="x-axis" />,
-  YAxis: () => <div data-testid="y-axis" />,
-  Tooltip: () => <div data-testid="tooltip" />,
-  Legend: () => <div data-testid="legend" />,
-}));
+vi.mock('recharts', () => import('@/__tests__/pages/analytics/sections/rechartsSectionStub'));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
