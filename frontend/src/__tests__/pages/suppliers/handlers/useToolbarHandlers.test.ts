@@ -24,30 +24,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useToolbarHandlers } from '@/pages/suppliers/handlers/useToolbarHandlers';
 import type { UseSuppliersBoardStateReturn } from '@/pages/suppliers/hooks/useSuppliersBoardState';
+import { createState } from '@/__tests__/pages/suppliers/handlers/fixtures';
 
 describe('useToolbarHandlers', () => {
-  const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {}): UseSuppliersBoardStateReturn => ({
-    paginationModel: { page: 0, pageSize: 10 },
-    sortModel: [],
-    searchQuery: '',
-    showAllSuppliers: false,
-    selectedId: null,
-    selectedSearchResult: null,
-    openCreate: false,
-    openEdit: false,
-    openDelete: false,
-    setOpenCreate: vi.fn(),
-    setOpenEdit: vi.fn(),
-    setOpenDelete: vi.fn(),
-    setSearchQuery: vi.fn(),
-    setSelectedSearchResult: vi.fn(),
-    setSelectedId: vi.fn(),
-    setPaginationModel: vi.fn(),
-    setSortModel: vi.fn(),
-    setShowAllSuppliers: vi.fn(),
-    ...overrides,
-  });
-
   const renderHandlers = (state: UseSuppliersBoardStateReturn) =>
     renderHook(() => useToolbarHandlers(state)).result.current;
 

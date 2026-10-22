@@ -23,6 +23,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useDialogHandlers } from '@/pages/suppliers/handlers/useDialogHandlers';
 import type { UseSuppliersBoardStateReturn } from '@/pages/suppliers/hooks/useSuppliersBoardState';
+import { createState } from '@/__tests__/pages/suppliers/handlers/fixtures';
 import { tEn } from '@/__tests__/test/i18nEn';
 
 const mocks = vi.hoisted(() => ({
@@ -44,28 +45,6 @@ vi.mock('@tanstack/react-query', () => ({
 }));
 
 describe('useDialogHandlers', () => {
-  const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {}): UseSuppliersBoardStateReturn => ({
-    paginationModel: { page: 0, pageSize: 10 },
-    sortModel: [],
-    searchQuery: '',
-    showAllSuppliers: false,
-    selectedId: null,
-    selectedSearchResult: null,
-    openCreate: false,
-    openEdit: false,
-    openDelete: false,
-    setOpenCreate: vi.fn(),
-    setOpenEdit: vi.fn(),
-    setOpenDelete: vi.fn(),
-    setSearchQuery: vi.fn(),
-    setSelectedSearchResult: vi.fn(),
-    setSelectedId: vi.fn(),
-    setPaginationModel: vi.fn(),
-    setSortModel: vi.fn(),
-    setShowAllSuppliers: vi.fn(),
-    ...overrides,
-  });
-
   const renderHandlers = (state: UseSuppliersBoardStateReturn) =>
     renderHook(() => useDialogHandlers(state)).result.current;
 
