@@ -6,7 +6,7 @@
  *
  * @enterprise
  * - Readers: httpClient's axios baseURL, the login redirect (AuthContext),
- *   the logout form POSTs (LogoutPage, useShellLogout) and the raw-fetch
+ *   the logout form POST (LogoutPage) and the raw-fetch
  *   health probe (useHealthCheck). Before FO1 the client and the redirects
  *   used their own resolver, which turned '/' into '//logout' (a host named
  *   "logout") and an unset value into '/api/api/...'.
