@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,13 +19,16 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static com.smartsupplypro.inventory.service.impl.inventoryitem.InventoryItemServiceImplFixtures.copyOf;
+import static com.smartsupplypro.inventory.service.impl.inventoryitem.InventoryItemServiceImplFixtures.newBaseDto;
+import static com.smartsupplypro.inventory.service.impl.inventoryitem.InventoryItemServiceImplFixtures.newExistingItem;
+import static com.smartsupplypro.inventory.service.impl.inventoryitem.InventoryItemServiceImplFixtures.newServiceWithRealValidation;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
-import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
@@ -56,27 +58,11 @@ class InventoryItemServiceImplUpdateTest {
 
         // The real helper runs over the mocked repositories, so every assertion below
         // sees the exception types and messages production throws (NF-21).
-        InventoryItemValidationHelper validationHelper =
-                new InventoryItemValidationHelper(repository, supplierRepository);
-        service = new InventoryItemServiceImpl(repository, validationHelper, auditHelper, new InventoryItemMapper());
+        service = newServiceWithRealValidation(repository, supplierRepository, auditHelper);
 
-        baseDto = new InventoryItemDTO();
-        baseDto.setName("Widget");
-        baseDto.setQuantity(100);
-        baseDto.setMinimumQuantity(5);
-        baseDto.setPrice(new BigDecimal("10.00"));
-        baseDto.setSupplierId("S1");
-        baseDto.setCreatedBy("admin");
-        baseDto.setSku("SKU-SVC-1");
+        baseDto = newBaseDto();
 
-        existing = new InventoryItem();
-        existing.setId("item-1");
-        existing.setName("Widget");
-        existing.setQuantity(100);
-        existing.setMinimumQuantity(5);
-        existing.setPrice(new BigDecimal("10.00"));
-        existing.setSupplierId("S1");
-        existing.setSku("SKU-SVC-1");
+        existing = newExistingItem();
 
         // lenient: the two price-validation tests are rejected before the supplier check.
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
@@ -220,25 +206,6 @@ class InventoryItemServiceImplUpdateTest {
         assertEquals("Price must be positive or greater than zero", ex.getMessage());
         verify(repository, never()).save(any());
         verify(auditHelper, never()).logPriceChange(anyString(), any());
-    }
-
-    private static InventoryItemDTO copyOf(InventoryItemDTO src) {
-        InventoryItemDTO d = new InventoryItemDTO();
-        d.setName(src.getName()); d.setQuantity(src.getQuantity());
-        d.setMinimumQuantity(src.getMinimumQuantity()); d.setPrice(src.getPrice());
-        d.setSupplierId(src.getSupplierId()); d.setCreatedBy(src.getCreatedBy());
-        d.setSku(src.getSku());
-        return d;
-    }
-
-    private static InventoryItem copyOf(InventoryItem src) {
-        InventoryItem i = new InventoryItem();
-        i.setId(src.getId() != null ? src.getId() : UUID.randomUUID().toString());
-        i.setName(src.getName()); i.setQuantity(src.getQuantity());
-        i.setMinimumQuantity(src.getMinimumQuantity()); i.setPrice(src.getPrice());
-        i.setSupplierId(src.getSupplierId());
-        i.setSku(src.getSku());
-        return i;
     }
 
 }

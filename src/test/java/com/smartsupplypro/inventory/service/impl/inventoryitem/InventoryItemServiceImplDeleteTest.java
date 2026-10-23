@@ -1,9 +1,7 @@
 package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
-import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -19,16 +17,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static com.smartsupplypro.inventory.service.impl.inventoryitem.InventoryItemServiceImplFixtures.copyOf;
+import static com.smartsupplypro.inventory.service.impl.inventoryitem.InventoryItemServiceImplFixtures.newExistingItem;
+import static com.smartsupplypro.inventory.service.impl.inventoryitem.InventoryItemServiceImplFixtures.newServiceWithRealValidation;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
-import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemAuditHelper;
-import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidationHelper;
 
 /**
  * Unit tests for {@link InventoryItemServiceImpl#delete(String)} covering the
@@ -53,18 +52,9 @@ class InventoryItemServiceImplDeleteTest {
 
         // The real helper runs over the mocked repositories, so every assertion below
         // sees the exception types and messages production throws (NF-21).
-        InventoryItemValidationHelper validationHelper =
-                new InventoryItemValidationHelper(repository, supplierRepository);
-        service = new InventoryItemServiceImpl(repository, validationHelper, auditHelper, new InventoryItemMapper());
+        service = newServiceWithRealValidation(repository, supplierRepository, auditHelper);
 
-        existing = new InventoryItem();
-        existing.setId("item-1");
-        existing.setName("Widget");
-        existing.setQuantity(100);
-        existing.setMinimumQuantity(5);
-        existing.setPrice(new BigDecimal("10.00"));
-        existing.setSupplierId("S1");
-        existing.setSku("SKU-SVC-1");
+        existing = newExistingItem();
     }
 
     @Test
@@ -105,17 +95,5 @@ class InventoryItemServiceImplDeleteTest {
         verify(repository, never()).deleteById(anyString());
         // The audit helper is the only writer of stock history in the service.
         verifyNoInteractions(auditHelper);
-    }
-
-    private static InventoryItem copyOf(InventoryItem src) {
-        InventoryItem i = new InventoryItem();
-        i.setId(src.getId() != null ? src.getId() : UUID.randomUUID().toString());
-        i.setName(src.getName());
-        i.setQuantity(src.getQuantity());
-        i.setMinimumQuantity(src.getMinimumQuantity());
-        i.setPrice(src.getPrice());
-        i.setSupplierId(src.getSupplierId());
-        i.setSku(src.getSku());
-        return i;
     }
 }
