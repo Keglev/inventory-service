@@ -175,6 +175,14 @@ jobs:
         run: |
           bash .github/scripts/docs/build-docs.sh .
 
+      # W23: a page loads the Mermaid bundle exactly when it draws a diagram. Reads
+      # what this run built, not the assembled site: a carried-forward subtree was
+      # checked by the run that built it, and a run racing an unpublished change
+      # would otherwise fail on pages it never touched. Passes when every page
+      # agrees; fails on a page that disagrees in either direction or on no page.
+      - name: Check which pages load Mermaid
+        run: bash .github/scripts/docs/check-mermaid-pages.sh target/docs
+
       # The site currently published, fetched one commit deep, so the assembly below
       # has something to lay this build over. A missing branch is tolerated and
       # nothing else is: before the first ever publish there is no gh-pages, and the

@@ -5,7 +5,8 @@
 // Pandoc's variable syntax during the build.
 // =============================================================================
 
-// Guarded: the landing pages load docs.js but no Mermaid, so the global is absent.
+// Guarded: the landing pages and every page without a diagram load docs.js but
+// no Mermaid, so the global is absent there.
 if (typeof mermaid !== "undefined") {
   mermaid.initialize({ startOnLoad: true });
 }
