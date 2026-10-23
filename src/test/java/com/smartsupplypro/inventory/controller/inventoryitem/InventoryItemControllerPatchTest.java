@@ -19,6 +19,7 @@ import static com.smartsupplypro.inventory.controller.inventoryitem.InventoryIte
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.controller.InventoryItemPatchController;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.exception.BusinessExceptionHandler;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 
@@ -27,7 +28,7 @@ import com.smartsupplypro.inventory.service.InventoryItemService;
  * using {@link MockMvc}.
  */
 @WebMvcTest(controllers = InventoryItemPatchController.class)
-@Import({ GlobalExceptionHandler.class, TestSecurityConfig.class })
+@Import({ GlobalExceptionHandler.class, BusinessExceptionHandler.class, TestSecurityConfig.class })
 class InventoryItemControllerPatchTest {
 
     @Autowired MockMvc mockMvc;
