@@ -1,6 +1,5 @@
 package com.smartsupplypro.inventory.controller.inventoryitem;
 
-import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Nested;
@@ -17,6 +16,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static com.smartsupplypro.inventory.controller.inventoryitem.InventoryItemControllerTestFixtures.sample;
 
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.controller.InventoryItemPatchController;
@@ -40,17 +40,6 @@ class InventoryItemControllerRenameTest {
 
     @MockitoBean
     InventoryItemService inventoryItemService;
-
-    private InventoryItemDTO sample(String id) {
-        InventoryItemDTO dto = new InventoryItemDTO();
-        dto.setId(id);
-        dto.setName("Monitor");
-        dto.setQuantity(10);
-        dto.setPrice(new BigDecimal("199.99"));
-        dto.setSupplierId("sup-1");
-        dto.setSku("SKU-CTL-1");
-        return dto;
-    }
 
     private InventoryItemDTO sampleWithName(String id, String name) {
         InventoryItemDTO dto = sample(id);
