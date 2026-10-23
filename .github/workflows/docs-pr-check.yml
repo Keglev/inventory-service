@@ -59,6 +59,12 @@ jobs:
       - name: Build docs site
         run: bash .github/scripts/docs/build-docs.sh .
 
+      # W23: a page loads the Mermaid bundle exactly when it draws a diagram. Passes
+      # when every built page agrees; fails on a page that draws without loading
+      # it or loads it without drawing, and on a site with no page.
+      - name: Check which pages load Mermaid
+        run: bash .github/scripts/docs/check-mermaid-pages.sh target/docs
+
       - name: Stage the site for link checking
         run: |
           mkdir -p target/link-check

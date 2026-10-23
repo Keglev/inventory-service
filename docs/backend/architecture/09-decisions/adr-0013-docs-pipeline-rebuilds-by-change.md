@@ -182,6 +182,25 @@ Superseded by this block: "It follows whichever CI workflow chained into the
 run" remains true for coverage; the subtree table is now applied per run as
 above rather than to every run.
 
+## Amendment 2026-10-23: only pages with a diagram load Mermaid
+
+The page template loaded the 3.3 MB Mermaid bundle on every architecture and
+decision page: 75 published pages, 16 of which draw a diagram (W23). The build
+now decides per page. The Lua filter that turns a mermaid code block into a
+diagram also sets the page flag `has-mermaid`, and `app-docs.html` writes the
+script tag only under that flag; the tag, its version and its integrity hash
+are unchanged, so diagram pages load as before. Carlos chose the build over a
+loader in `docs.js` (2026-10-23): the published HTML says which pages load the
+bundle, so a check can read it.
+
+That check is `.github/scripts/docs/check-mermaid-pages.sh`, run by
+`docs-pr-check.yml` and `docs-build.yml`. Both directions fail it: a page with
+a diagram and no bundle, and a page with the bundle and no diagram. In
+`docs-build.yml` it reads what the run built, not the assembled site, so a
+subtree carried forward is judged by the run that built it. A theme or
+pipeline change rebuilds every subtree (table above), so the first run after
+this change replaces all 75 pages.
+
 ## References
 - [ADR-0012: Backend hosting on the shared Hetzner host](adr-0012-backend-hosting-on-shared-hetzner-host.md)
 - Section 7 Deployment (`../07-deployment.md`)
