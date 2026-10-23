@@ -1,6 +1,5 @@
 package com.smartsupplypro.inventory.repository.custom;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -114,17 +113,7 @@ class StockMetricsRepositoryImplTest {
 
     private StockMetricsRepositoryImpl newRepo() {
         StockMetricsRepositoryImpl repo = new StockMetricsRepositoryImpl();
-        injectEntityManager(repo, em);
+        RepositoryImplTestSupport.injectEntityManager(repo, em);
         return repo;
-    }
-
-    private static void injectEntityManager(Object target, EntityManager em) {
-        try {
-            Field f = target.getClass().getDeclaredField("em");
-            f.setAccessible(true);
-            f.set(target, em);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Failed to inject EntityManager into repository under test", e);
-        }
     }
 }

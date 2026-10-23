@@ -1,6 +1,5 @@
 package com.smartsupplypro.inventory.repository.custom;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -194,17 +193,7 @@ class StockDetailQueryRepositoryImplTest {
 
     private StockDetailQueryRepositoryImpl newRepo() {
         StockDetailQueryRepositoryImpl repo = new StockDetailQueryRepositoryImpl();
-        injectEntityManager(repo, em);
+        RepositoryImplTestSupport.injectEntityManager(repo, em);
         return repo;
-    }
-
-    private static void injectEntityManager(Object target, EntityManager em) {
-        try {
-            Field f = target.getClass().getDeclaredField("em");
-            f.setAccessible(true);
-            f.set(target, em);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Failed to inject EntityManager into repository under test", e);
-        }
     }
 }
