@@ -48,7 +48,7 @@ import com.smartsupplypro.inventory.config.SecurityFilterHelper;
     SecurityEntryPointHelper.class,
     OAuth2Config.class,
     SecurityConfigDemoReadonlyAuthorizationTest.DemoApiStubController.class,
-    SecurityConfigDemoReadonlyTestBeans.class
+    SecurityTestBeans.class
 })
 class SecurityConfigDemoReadonlyAuthorizationTest {
 
