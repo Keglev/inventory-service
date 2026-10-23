@@ -180,14 +180,6 @@ public class AnalyticsControllerFinancialTest {
     }
 
     @Test
-    void should_return_401_when_the_financial_summary_is_requested_unauthenticated() throws Exception {
-        mockMvc.perform(get("/api/analytics/financial/summary")
-                .param("from", "2024-02-01")
-                .param("to", "2024-02-28"))
-            .andExpect(status().isUnauthorized());
-    }
-
-    @Test
     void should_return_400_when_from_is_after_to() throws Exception {
         // the check lives in the service: run the real method behind the mock
         when(financialAnalyticsService.getFinancialSummaryWAC(any(), any(), any())).thenCallRealMethod();

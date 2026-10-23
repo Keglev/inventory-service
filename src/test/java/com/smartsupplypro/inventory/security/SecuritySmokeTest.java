@@ -8,14 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,7 +22,7 @@ import com.smartsupplypro.inventory.config.OAuth2Config;
 import com.smartsupplypro.inventory.config.SecurityConfig;
 
 /**
- * Smoke tests for the production {@link SecurityConfig}: bean wiring, ADMIN/USER access control,
+ * Smoke tests for the production {@link SecurityConfig}: bean wiring,
  * CORS preflight, and OAuth2 authorization endpoint reachability.
  */
 @WebMvcTest(controllers = AdminStubController.class)
@@ -51,7 +48,8 @@ class SecuritySmokeTest {
     @Autowired AppProperties appProperties;
 
     /**
-     * Behavior when verifying critical beans and access control rules.
+     * Behavior when verifying critical beans. The admin endpoint's access rules are
+     * covered once, in {@link SecurityConfigAuthorizationRulesTest}.
      */
     @Nested
     class WhenCheckingContextAndAccess {
@@ -61,21 +59,6 @@ class SecuritySmokeTest {
             assertThat(successHandler).isNotNull();
             assertThat(clientRegistrationRepository.findByRegistrationId("google")).isNotNull();
             assertThat(appProperties).isNotNull();
-        }
-
-        @Test
-        @WithMockUser(username = "admin", roles = "ADMIN")
-        void should_return_200_when_the_admin_role_accesses_an_admin_endpoint() throws Exception {
-            mvc.perform(get("/api/admin/ping").accept(MediaType.APPLICATION_JSON))
-               .andExpect(status().isOk())
-               .andExpect(content().string("admin ok"));
-        }
-
-        @Test
-        @WithMockUser(username = "user", roles = "USER")
-        void should_return_403_when_the_user_role_accesses_an_admin_endpoint() throws Exception {
-            mvc.perform(get("/api/admin/ping").accept(MediaType.APPLICATION_JSON))
-               .andExpect(status().isForbidden());
         }
     }
 
