@@ -18,6 +18,7 @@ export interface ItemSubmitFormResult {
   formError: string;
   selectedItem: unknown;
   itemQuery: string;
+  setItemQuery: (query: string) => void;
   onSubmit: () => unknown;
   handleClose: () => void;
 }
@@ -121,6 +122,11 @@ export function itSubmitFailuresAndClose<H extends ItemSubmitFormHook>(
   it('resets selection state and calls onClose when handleClose runs', async () => {
     const hook = c.renderForm();
     await c.selectItem(hook);
+    // A typed query proves the reset: the field starts empty.
+    act(() => {
+      hook.result.current.setItemQuery('Bea');
+    });
+    expect(hook.result.current.itemQuery).toBe('Bea');
 
     act(() => {
       hook.result.current.handleClose();
