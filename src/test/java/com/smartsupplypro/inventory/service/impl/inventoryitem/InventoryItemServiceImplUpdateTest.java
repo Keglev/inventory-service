@@ -68,6 +68,11 @@ class InventoryItemServiceImplUpdateTest {
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
     }
 
+    private void stubFoundAndEchoingSave(InventoryItem current) {
+        when(repository.findById("id-1")).thenReturn(Optional.of(current));
+        when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
+    }
+
     @Test
     void should_throw_404_when_item_not_found() {
         when(repository.findById("missing-id")).thenReturn(Optional.empty());
@@ -116,8 +121,7 @@ class InventoryItemServiceImplUpdateTest {
         InventoryItem current = copyOf(existing);
         current.setMinimumQuantity(5);
 
-        when(repository.findById("id-1")).thenReturn(Optional.of(current));
-        when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
+        stubFoundAndEchoingSave(current);
 
         InventoryItemDTO updateDto = copyOf(baseDto);
         updateDto.setMinimumQuantity(0); // non-positive value must be ignored
@@ -136,8 +140,7 @@ class InventoryItemServiceImplUpdateTest {
         InventoryItem current = copyOf(existing);
         current.setPrice(new BigDecimal("10.00"));
 
-        when(repository.findById("id-1")).thenReturn(Optional.of(current));
-        when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
+        stubFoundAndEchoingSave(current);
 
         InventoryItemDTO updateDto = copyOf(baseDto);
         updateDto.setPrice(new BigDecimal("12.50"));
@@ -155,8 +158,7 @@ class InventoryItemServiceImplUpdateTest {
         InventoryItem current = copyOf(existing);
         current.setPrice(new BigDecimal("10.00"));
 
-        when(repository.findById("id-1")).thenReturn(Optional.of(current));
-        when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
+        stubFoundAndEchoingSave(current);
 
         InventoryItemDTO updateDto = copyOf(baseDto);
         updateDto.setPrice(new BigDecimal("10.0"));
@@ -171,8 +173,7 @@ class InventoryItemServiceImplUpdateTest {
     void should_log_only_the_quantity_change_when_the_price_is_unchanged() {
         InventoryItem current = copyOf(existing);
 
-        when(repository.findById("id-1")).thenReturn(Optional.of(current));
-        when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> inv.getArgument(0, InventoryItem.class));
+        stubFoundAndEchoingSave(current);
 
         InventoryItemDTO updateDto = copyOf(baseDto);
         updateDto.setQuantity(90);
