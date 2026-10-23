@@ -373,6 +373,29 @@
         chained into the run” remains true for coverage; the subtree
         table is now applied per run as above rather than to every
         run.</p>
+        <h2
+        id="amendment-2026-10-23-only-pages-with-a-diagram-load-mermaid">Amendment
+        2026-10-23: only pages with a diagram load Mermaid</h2>
+        <p>The page template loaded the 3.3 MB Mermaid bundle on every
+        architecture and decision page: 75 published pages, 16 of which
+        draw a diagram (W23). The build now decides per page. The Lua
+        filter that turns a mermaid code block into a diagram also sets
+        the page flag <code>has-mermaid</code>, and
+        <code>app-docs.html</code> writes the script tag only under that
+        flag; the tag, its version and its integrity hash are unchanged,
+        so diagram pages load as before. Carlos chose the build over a
+        loader in <code>docs.js</code> (2026-10-23): the published HTML
+        says which pages load the bundle, so a check can read it.</p>
+        <p>That check is
+        <code>.github/scripts/docs/check-mermaid-pages.sh</code>, run by
+        <code>docs-pr-check.yml</code> and <code>docs-build.yml</code>.
+        Both directions fail it: a page with a diagram and no bundle,
+        and a page with the bundle and no diagram. In
+        <code>docs-build.yml</code> it reads what the run built, not the
+        assembled site, so a subtree carried forward is judged by the
+        run that built it. A theme or pipeline change rebuilds every
+        subtree (table above), so the first run after this change
+        replaces all 75 pages.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -407,6 +430,10 @@
       href="#amendment-2026-09-24-each-run-builds-only-its-own-share"
       id="toc-amendment-2026-09-24-each-run-builds-only-its-own-share">Amendment
       2026-09-24: each run builds only its own share</a></li>
+      <li><a
+      href="#amendment-2026-10-23-only-pages-with-a-diagram-load-mermaid"
+      id="toc-amendment-2026-10-23-only-pages-with-a-diagram-load-mermaid">Amendment
+      2026-10-23: only pages with a diagram load Mermaid</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
@@ -421,10 +448,9 @@
        party). data-mermaid-version and the integrity hash are the pin:
        vendor-mermaid.sh copies that version from npm and fails the build unless
        it matches the hash, and the browser refuses any other file. Update both
-       together. -->
-  <script src="/inventory-service/assets/mermaid.min.js"
-          data-mermaid-version="10.9.8"
-          integrity="sha384-N3QqR/7q+xm3BGX+CBbNI8AUmRRqcsDzToy+0z1NLDI0QmTKW8zvwLvqulJgk3dP"></script>
-  <script src="/inventory-service/assets/docs.js?v=3354f25964"></script>
+       together. Only pages with a diagram load it: md-to-html-links.lua sets
+       has-mermaid on them, and check-mermaid-pages.sh fails the build when a
+       page and its flag disagree (W23). -->
+  <script src="/inventory-service/assets/docs.js?v=f546e6c747"></script>
 </body>
 </html>

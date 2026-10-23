@@ -211,10 +211,9 @@
        party). data-mermaid-version and the integrity hash are the pin:
        vendor-mermaid.sh copies that version from npm and fails the build unless
        it matches the hash, and the browser refuses any other file. Update both
-       together. -->
-  <script src="/inventory-service/assets/mermaid.min.js"
-          data-mermaid-version="10.9.8"
-          integrity="sha384-N3QqR/7q+xm3BGX+CBbNI8AUmRRqcsDzToy+0z1NLDI0QmTKW8zvwLvqulJgk3dP"></script>
-  <script src="/inventory-service/assets/docs.js?v=3354f25964"></script>
+       together. Only pages with a diagram load it: md-to-html-links.lua sets
+       has-mermaid on them, and check-mermaid-pages.sh fails the build when a
+       page and its flag disagree (W23). -->
+  <script src="/inventory-service/assets/docs.js?v=f546e6c747"></script>
 </body>
 </html>
