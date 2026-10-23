@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static com.smartsupplypro.inventory.controller.inventoryitem.InventoryItemControllerTestFixtures.sample;
 
 import tools.jackson.databind.ObjectMapper;
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
@@ -50,17 +51,6 @@ class InventoryItemControllerCreateReadTest {
     @Autowired ObjectMapper objectMapper;
 
     @MockitoBean InventoryItemService inventoryItemService;
-
-    private InventoryItemDTO sample(String id) {
-        InventoryItemDTO dto = new InventoryItemDTO();
-        dto.setId(id);
-        dto.setName("Monitor");
-        dto.setQuantity(10);
-        dto.setPrice(new BigDecimal("199.99"));
-        dto.setSupplierId("sup-1");
-        dto.setSku("SKU-CTL-1");
-        return dto;
-    }
 
     private InventoryItemDTO withoutId() {
         InventoryItemDTO dto = sample(null);

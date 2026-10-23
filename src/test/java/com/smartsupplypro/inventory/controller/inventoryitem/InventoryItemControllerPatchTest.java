@@ -14,10 +14,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static com.smartsupplypro.inventory.controller.inventoryitem.InventoryItemControllerTestFixtures.sample;
 
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.controller.InventoryItemPatchController;
-import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.InventoryItemService;
@@ -33,17 +33,6 @@ class InventoryItemControllerPatchTest {
     @Autowired MockMvc mockMvc;
 
     @MockitoBean InventoryItemService inventoryItemService;
-
-    private InventoryItemDTO sample(String id) {
-        InventoryItemDTO dto = new InventoryItemDTO();
-        dto.setId(id);
-        dto.setName("Monitor");
-        dto.setQuantity(10);
-        dto.setPrice(new BigDecimal("199.99"));
-        dto.setSupplierId("sup-1");
-        dto.setSku("SKU-CTL-1");
-        return dto;
-    }
 
     @Test
     @WithMockUser(roles = "USER")
