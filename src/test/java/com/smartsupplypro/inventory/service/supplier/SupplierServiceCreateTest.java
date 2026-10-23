@@ -67,14 +67,18 @@ class SupplierServiceCreateTest extends SupplierServiceTestBase {
 
     // The client sends no createdBy — the UI never has — so the service must supply it
     // or the insert fails against a NOT NULL column.
+    private void stubFreeNameAndEchoingSave() {
+        when(supplierRepository.findByNameIgnoreCase("Acme GmbH")).thenReturn(Optional.empty());
+        when(supplierRepository.save(any(Supplier.class))).thenAnswer(inv -> inv.getArgument(0, Supplier.class));
+    }
+
     @Test
     void should_attribute_creation_to_the_user_when_the_client_sends_no_created_by() {
         authenticateAs("carlos@example.com");
 
         SupplierDTO input = SupplierDTO.builder().name("Acme GmbH").build();
 
-        when(supplierRepository.findByNameIgnoreCase("Acme GmbH")).thenReturn(Optional.empty());
-        when(supplierRepository.save(any(Supplier.class))).thenAnswer(inv -> inv.getArgument(0, Supplier.class));
+        stubFreeNameAndEchoingSave();
 
         ArgumentCaptor<Supplier> captor = ArgumentCaptor.forClass(Supplier.class);
         supplierService.create(input);
@@ -94,8 +98,7 @@ class SupplierServiceCreateTest extends SupplierServiceTestBase {
                 .createdBy("someone.else@example.com")
                 .build();
 
-        when(supplierRepository.findByNameIgnoreCase("Acme GmbH")).thenReturn(Optional.empty());
-        when(supplierRepository.save(any(Supplier.class))).thenAnswer(inv -> inv.getArgument(0, Supplier.class));
+        stubFreeNameAndEchoingSave();
 
         ArgumentCaptor<Supplier> captor = ArgumentCaptor.forClass(Supplier.class);
         supplierService.create(input);
@@ -110,8 +113,7 @@ class SupplierServiceCreateTest extends SupplierServiceTestBase {
 
         SupplierDTO input = SupplierDTO.builder().name("Acme GmbH").build();
 
-        when(supplierRepository.findByNameIgnoreCase("Acme GmbH")).thenReturn(Optional.empty());
-        when(supplierRepository.save(any(Supplier.class))).thenAnswer(inv -> inv.getArgument(0, Supplier.class));
+        stubFreeNameAndEchoingSave();
 
         ArgumentCaptor<Supplier> captor = ArgumentCaptor.forClass(Supplier.class);
         supplierService.create(input);

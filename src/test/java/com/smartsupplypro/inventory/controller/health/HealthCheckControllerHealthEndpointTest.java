@@ -57,14 +57,22 @@ class HealthCheckControllerHealthEndpointTest {
         return body;
     }
 
-    @Test
-    void should_return_200_when_the_database_is_up() throws Exception {
+    private void stubSuccessfulPing() throws SQLException {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
         when(statement.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true);
+    }
+
+    private void stubPingWithProduct(String productName) throws SQLException {
+        stubSuccessfulPing();
         when(connection.getMetaData()).thenReturn(databaseMetaData);
-        when(databaseMetaData.getDatabaseProductName()).thenReturn("Oracle");
+        when(databaseMetaData.getDatabaseProductName()).thenReturn(productName);
+    }
+
+    @Test
+    void should_return_200_when_the_database_is_up() throws Exception {
+        stubPingWithProduct("Oracle");
 
         ResponseEntity<Map<String, Object>> response = newController().health();
 
@@ -126,12 +134,7 @@ class HealthCheckControllerHealthEndpointTest {
 
     @Test
     void should_cache_the_database_product_when_the_first_ping_succeeds() throws Exception {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
-        when(statement.executeQuery()).thenReturn(resultSet);
-        when(resultSet.next()).thenReturn(true);
-        when(connection.getMetaData()).thenReturn(databaseMetaData);
-        when(databaseMetaData.getDatabaseProductName()).thenReturn("Oracle");
+        stubPingWithProduct("Oracle");
 
         HealthCheckController controller = newController();
         controller.health();                                          // first ping resolves and caches "Oracle"
@@ -143,12 +146,7 @@ class HealthCheckControllerHealthEndpointTest {
 
     @Test
     void should_report_unknown_when_the_product_name_is_null() throws Exception {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
-        when(statement.executeQuery()).thenReturn(resultSet);
-        when(resultSet.next()).thenReturn(true);
-        when(connection.getMetaData()).thenReturn(databaseMetaData);
-        when(databaseMetaData.getDatabaseProductName()).thenReturn(null);
+        stubPingWithProduct(null);
 
         Map<String, Object> body = requireBody(newController().health());
 
@@ -158,12 +156,7 @@ class HealthCheckControllerHealthEndpointTest {
 
     @Test
     void should_report_unknown_when_the_product_name_is_blank() throws Exception {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
-        when(statement.executeQuery()).thenReturn(resultSet);
-        when(resultSet.next()).thenReturn(true);
-        when(connection.getMetaData()).thenReturn(databaseMetaData);
-        when(databaseMetaData.getDatabaseProductName()).thenReturn("   ");
+        stubPingWithProduct("   ");
 
         Map<String, Object> body = requireBody(newController().health());
 
@@ -172,10 +165,7 @@ class HealthCheckControllerHealthEndpointTest {
 
     @Test
     void should_report_unknown_and_stay_up_when_the_metadata_throws() throws Exception {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(PING_SQL)).thenReturn(statement);
-        when(statement.executeQuery()).thenReturn(resultSet);
-        when(resultSet.next()).thenReturn(true);
+        stubSuccessfulPing();
         when(connection.getMetaData()).thenThrow(new SQLException("metadata unavailable"));
 
         Map<String, Object> body = requireBody(newController().health());

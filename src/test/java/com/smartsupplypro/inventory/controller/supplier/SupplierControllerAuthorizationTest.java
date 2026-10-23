@@ -54,15 +54,20 @@ class SupplierControllerAuthorizationTest {
                 .build();
     }
 
-    @Test
-    void should_return_403_when_a_user_creates_a_supplier() throws Exception {
-        SupplierDTO create = SupplierDTO.builder()
+    private SupplierDTO userRequestBody(String id) {
+        return SupplierDTO.builder()
+                .id(id)
                 .name(dto.getName())
                 .contactName(dto.getContactName())
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
                 .createdBy("user")
                 .build();
+    }
+
+    @Test
+    void should_return_403_when_a_user_creates_a_supplier() throws Exception {
+        SupplierDTO create = userRequestBody(null);
 
         mockMvc.perform(post("/api/suppliers")
                         .with(user("u").roles("USER"))
@@ -74,14 +79,7 @@ class SupplierControllerAuthorizationTest {
 
     @Test
     void should_return_403_when_a_user_updates_a_supplier() throws Exception {
-        SupplierDTO body = SupplierDTO.builder()
-                .id("sup-1")
-                .name(dto.getName())
-                .contactName(dto.getContactName())
-                .phone(dto.getPhone())
-                .email(dto.getEmail())
-                .createdBy("user")
-                .build();
+        SupplierDTO body = userRequestBody("sup-1");
 
         mockMvc.perform(put("/api/suppliers/sup-1")
                         .with(user("u").roles("USER"))
