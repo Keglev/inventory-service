@@ -1,6 +1,5 @@
 package com.smartsupplypro.inventory.repository.custom;
 
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
@@ -35,7 +34,7 @@ class StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest {
         org.mockito.Mockito.when(query.getResultList()).thenReturn(Collections.emptyList());
 
         StockTrendAnalyticsRepositoryImpl repo = new StockTrendAnalyticsRepositoryImpl(detector);
-        injectEntityManager(repo, em);
+        RepositoryImplTestSupport.injectEntityManager(repo, em);
 
         LocalDateTime start = LocalDateTime.of(2024, 2, 1, 0, 0);
         LocalDateTime end   = LocalDateTime.of(2024, 3, 31, 23, 59);
@@ -58,15 +57,5 @@ class StockTrendAnalyticsRepositoryImplOracleDialectSelectionTest {
         // blank supplier must normalize to null so the supplier filter is disabled
         org.mockito.Mockito.verify(query, org.mockito.Mockito.atLeastOnce())
             .setParameter("supplierId", null);
-    }
-
-    private static void injectEntityManager(Object target, EntityManager em) {
-        try {
-            Field f = target.getClass().getDeclaredField("em");
-            f.setAccessible(true);
-            f.set(target, em);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Failed to inject EntityManager into repository under test", e);
-        }
     }
 }
