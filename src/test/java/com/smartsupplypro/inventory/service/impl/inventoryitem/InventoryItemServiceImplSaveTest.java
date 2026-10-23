@@ -16,6 +16,8 @@ import org.mockito.Spy;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static com.smartsupplypro.inventory.service.impl.inventoryitem.InventoryItemServiceImplFixtures.copyOf;
+import static com.smartsupplypro.inventory.service.impl.inventoryitem.InventoryItemServiceImplFixtures.newBaseDto;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -53,14 +55,7 @@ class InventoryItemServiceImplSaveTest {
     void setup() {
         InventoryItemServiceImplTestHelper.authenticateAsOAuth2("admin", "ADMIN");
 
-        baseDto = new InventoryItemDTO();
-        baseDto.setName("Widget");
-        baseDto.setQuantity(100);
-        baseDto.setMinimumQuantity(5);
-        baseDto.setPrice(new BigDecimal("10.00"));
-        baseDto.setSupplierId("S1");
-        baseDto.setCreatedBy("admin");
-        baseDto.setSku("SKU-SVC-1");
+        baseDto = newBaseDto();
     }
 
     @AfterEach
@@ -153,17 +148,5 @@ class InventoryItemServiceImplSaveTest {
         InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> service.save(baseDto));
         assertEquals("Supplier does not exist", ex.getMessage());
-    }
-
-    private static InventoryItem copyOf(InventoryItem src) {
-        InventoryItem i = new InventoryItem();
-        i.setId(src.getId());
-        i.setName(src.getName());
-        i.setQuantity(src.getQuantity());
-        i.setMinimumQuantity(src.getMinimumQuantity());
-        i.setPrice(src.getPrice());
-        i.setSupplierId(src.getSupplierId());
-        i.setSku(src.getSku());
-        return i;
     }
 }
