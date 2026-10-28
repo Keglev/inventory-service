@@ -292,12 +292,14 @@
         </table>
         <p>Two files sit above their target and below their alarm and
         are watched rather than waived:
-        <code>StockHistoryRepository.java</code> at 115 and
+        <code>StockHistoryRepository.java</code> at 85 and
         <code>repository/custom/util/StockTrendSqlBuilder.java</code> at
-        145, both against a repository target of 80. The builder was
-        waived at 153 until its unused all-suppliers monthly variant was
-        removed (2026-10-16). Thirteen methods sit between the target of
-        20 and the alarm of 30, the largest being
+        145, both against a repository target of 80. The repository was
+        at 115 until the stock-history read API and its three queries
+        were removed (2026-10-28). The builder was waived at 153 until
+        its unused all-suppliers monthly variant was removed
+        (2026-10-16). Thirteen methods sit between the target of 20 and
+        the alarm of 30, the largest being
         <code>EmployeeAnalyticsService::getEmployeeActivity</code> at
         29. The two daily-movement builders in
         <code>StockTrendSqlBuilder</code> (25 each) joined that band

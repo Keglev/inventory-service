@@ -145,46 +145,41 @@
         each class focused)</td>
         </tr>
         <tr class="even">
-        <td><code>StockHistoryController</code></td>
-        <td><code>/api/stock-history</code></td>
-        <td>Paginated read and search</td>
-        </tr>
-        <tr class="odd">
         <td><code>AnalyticsController</code></td>
         <td><code>/api/analytics</code></td>
         <td>Dashboard and financial summaries</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>StockAnalyticsController</code></td>
         <td><code>/api/analytics</code></td>
         <td>Stock-per-supplier, low-stock, movement</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>StockUpdateAnalyticsController</code></td>
         <td><code>/api/analytics</code></td>
         <td>Stock update query and post</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>StockReasonAnalyticsController</code></td>
         <td><code>/api/analytics</code></td>
         <td>Update-reason breakdown</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>EmployeeAnalyticsController</code></td>
         <td><code>/api/analytics</code></td>
         <td>Per-employee update analytics</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>HealthCheckController</code></td>
         <td><code>/api/health</code></td>
         <td>Application and database health</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>AuthController</code></td>
         <td><code>/api</code></td>
         <td><code>/auth/me</code> and logout</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>RootRedirectController</code></td>
         <td><code>/</code></td>
         <td>Site-root redirect (plain <code>@Controller</code>)</td>
@@ -228,7 +223,8 @@
         </tr>
         <tr class="odd">
         <td><code>StockHistoryService</code></td>
-        <td>Audit-trail writes and paginated reads</td>
+        <td>Audit-trail writes (the trail is read by the analytics
+        repositories)</td>
         </tr>
         <tr class="even">
         <td><code>StockAnalyticsService</code></td>
@@ -425,7 +421,6 @@
             subgraph Controllers
                 SC["SupplierController"]:::controller
                 IC["InventoryItemController\nInventoryItemPatchController"]:::controller
-                SHC["StockHistoryController"]:::controller
                 AC["AnalyticsController\nStockAnalyticsController\nStockUpdateAnalyticsController"]:::controller
                 AuC["AuthController"]:::controller
             end
@@ -461,7 +456,7 @@
 
             SC --> SS
             IC --> IS
-            SHC --> SHS
+            IS --> SHS
             AC --> AS
             AuC --> UPS
 
