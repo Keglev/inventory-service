@@ -33,22 +33,17 @@ import jakarta.servlet.http.HttpServletResponse;
     }
 
     /**
-     * Returns 204 for API logout or redirects the browser to the logout-success page.
+     * Redirects the browser to the logout-success page after POST /logout.
      * The {@code return} query parameter is honoured only when its origin (scheme, host
      * and port) equals the origin of the configured frontend base URL.
      */
     public LogoutSuccessHandler createLogoutSuccessHandler(AppProperties props) {
 <span class="fc" id="L41">        return (req, res, auth) -&gt; {</span>
-<span class="fc" id="L42">            boolean isApi = Boolean.TRUE.equals(req.getAttribute(&quot;IS_API_REQUEST&quot;));</span>
-<span class="fc bfc" id="L43" title="All 2 branches covered.">            if (isApi) {</span>
-<span class="fc" id="L44">                res.setStatus(HttpServletResponse.SC_NO_CONTENT);</span>
-<span class="fc" id="L45">                return;</span>
-            }
-<span class="fc" id="L47">            String base = props.getFrontend().getBaseUrl();</span>
-<span class="fc" id="L48">            String ret = req.getParameter(&quot;return&quot;);</span>
-<span class="fc bfc" id="L49" title="All 2 branches covered.">            String target = isSameOrigin(ret, base) ? ret : base + &quot;/logout-success&quot;;</span>
-<span class="fc" id="L50">            res.sendRedirect(target);</span>
-<span class="fc" id="L51">        };</span>
+<span class="fc" id="L42">            String base = props.getFrontend().getBaseUrl();</span>
+<span class="fc" id="L43">            String ret = req.getParameter(&quot;return&quot;);</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">            String target = isSameOrigin(ret, base) ? ret : base + &quot;/logout-success&quot;;</span>
+<span class="fc" id="L45">            res.sendRedirect(target);</span>
+<span class="fc" id="L46">        };</span>
     }
 
     // /logout accepts cross-site form posts, so this check is all that stands between
@@ -57,16 +52,16 @@ import jakarta.servlet.http.HttpServletResponse;
     // https://app.example@attacker.test. User info is refused as well: the frontend never
     // sends it, and a return URL has no use for credentials.
     private static boolean isSameOrigin(String candidate, String base) {
-<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (candidate == null) return false;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (candidate == null) return false;</span>
         try {
-<span class="fc" id="L62">            URI target = new URI(candidate);</span>
-<span class="fc" id="L63">            URI origin = new URI(base);</span>
-<span class="fc bfc" id="L64" title="All 2 branches covered.">            return target.getRawUserInfo() == null</span>
-<span class="fc bfc" id="L65" title="All 2 branches covered.">                &amp;&amp; origin.getScheme().equalsIgnoreCase(target.getScheme())</span>
-<span class="fc bfc" id="L66" title="All 2 branches covered.">                &amp;&amp; origin.getHost().equalsIgnoreCase(target.getHost())</span>
-<span class="fc bfc" id="L67" title="All 2 branches covered.">                &amp;&amp; origin.getPort() == target.getPort();</span>
-<span class="fc" id="L68">        } catch (URISyntaxException e) {</span>
-<span class="fc" id="L69">            return false;</span>
+<span class="fc" id="L57">            URI target = new URI(candidate);</span>
+<span class="fc" id="L58">            URI origin = new URI(base);</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">            return target.getRawUserInfo() == null</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">                &amp;&amp; origin.getScheme().equalsIgnoreCase(target.getScheme())</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">                &amp;&amp; origin.getHost().equalsIgnoreCase(target.getHost())</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">                &amp;&amp; origin.getPort() == target.getPort();</span>
+<span class="fc" id="L63">        } catch (URISyntaxException e) {</span>
+<span class="fc" id="L64">            return false;</span>
         }
     }
 }

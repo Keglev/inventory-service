@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.controller</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.controller;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * REST controller for authentication and current-user profile operations.
@@ -32,9 +25,9 @@ public class AuthController {
 
     private final AppUserRepository appUserRepository;
 
-<span class="fc" id="L35">    public AuthController(AppUserRepository appUserRepository) {</span>
-<span class="fc" id="L36">        this.appUserRepository = appUserRepository;</span>
-<span class="fc" id="L37">    }</span>
+<span class="fc" id="L28">    public AuthController(AppUserRepository appUserRepository) {</span>
+<span class="fc" id="L29">        this.appUserRepository = appUserRepository;</span>
+<span class="fc" id="L30">    }</span>
 
     /**
      * DTO for user profile response with frontend-specific fields.
@@ -44,7 +37,7 @@ public class AuthController {
      * @param role       user role (ADMIN/USER)
      * @param pictureUrl optional profile picture URL
      */
-<span class="fc" id="L47">    public record AppUserProfileDTO(</span>
+<span class="fc" id="L40">    public record AppUserProfileDTO(</span>
             String email,
             String fullName,
             String role,
@@ -60,17 +53,17 @@ public class AuthController {
      */
     @GetMapping(&quot;/me&quot;)
     public AppUserProfileDTO me(@AuthenticationPrincipal OAuth2User principal) {
-<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (principal == null) {</span>
-<span class="fc" id="L64">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication provided&quot;);</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (principal == null) {</span>
+<span class="fc" id="L57">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication provided&quot;);</span>
         }
-<span class="fc" id="L66">        String email = principal.getAttribute(&quot;email&quot;);</span>
-<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (email == null) {</span>
-<span class="fc" id="L68">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;Email not provided by OAuth2 provider&quot;);</span>
+<span class="fc" id="L59">        String email = principal.getAttribute(&quot;email&quot;);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (email == null) {</span>
+<span class="fc" id="L61">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;Email not provided by OAuth2 provider&quot;);</span>
         }
-<span class="fc" id="L70">        AppUser user = appUserRepository.findByEmail(email)</span>
-<span class="fc" id="L71">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;User not found&quot;));</span>
-<span class="fc" id="L72">        String picture = principal.getAttribute(&quot;picture&quot;);</span>
-<span class="fc" id="L73">        return new AppUserProfileDTO(user.getEmail(), user.getName(), user.getRole().name(), picture);</span>
+<span class="fc" id="L63">        AppUser user = appUserRepository.findByEmail(email)</span>
+<span class="fc" id="L64">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;User not found&quot;));</span>
+<span class="fc" id="L65">        String picture = principal.getAttribute(&quot;picture&quot;);</span>
+<span class="fc" id="L66">        return new AppUserProfileDTO(user.getEmail(), user.getName(), user.getRole().name(), picture);</span>
     }
 
     /**
@@ -82,37 +75,14 @@ public class AuthController {
      */
     @GetMapping(&quot;/me/authorities&quot;)
     public java.util.List&lt;String&gt; meAuthorities(@AuthenticationPrincipal OAuth2User principal) {
-<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (principal == null) {</span>
-<span class="fc" id="L86">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication&quot;);</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (principal == null) {</span>
+<span class="fc" id="L79">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication&quot;);</span>
         }
-<span class="fc" id="L88">        return principal.getAuthorities().stream()</span>
-<span class="fc" id="L89">                .map(org.springframework.security.core.GrantedAuthority::getAuthority)</span>
-<span class="fc" id="L90">                .distinct()</span>
-<span class="fc" id="L91">                .sorted()</span>
-<span class="fc" id="L92">                .toList();</span>
-    }
-
-    /**
-     * API logout endpoint for programmatic clients.
-     *
-     * &lt;p&gt;Invalidates the session and expires cookies.
-     * For browser clients, prefer the standard POST /logout endpoint.&lt;/p&gt;
-     *
-     * @param request  HTTP servlet request
-     * @param response HTTP servlet response
-     * @return 204 No Content response
-     */
-    @PostMapping(&quot;/auth/logout&quot;)
-    public ResponseEntity&lt;Void&gt; apiLogout(HttpServletRequest request, HttpServletResponse response) {
-<span class="fc" id="L107">        new SecurityContextLogoutHandler().logout(request, response, null);</span>
-
-        // Expire cookies for API clients (SPA/mobile) that can't follow the standard form-POST /logout
-<span class="fc" id="L110">        ResponseCookie jsess = ResponseCookie.from(&quot;JSESSIONID&quot;, &quot;&quot;)</span>
-<span class="fc" id="L111">                .path(&quot;/&quot;).httpOnly(true).secure(true).sameSite(&quot;Lax&quot;).maxAge(0).build();</span>
-
-<span class="fc" id="L113">        return ResponseEntity.noContent()</span>
-<span class="fc" id="L114">                .header(&quot;Set-Cookie&quot;, jsess.toString())</span>
-<span class="fc" id="L115">                .build();</span>
+<span class="fc" id="L81">        return principal.getAuthorities().stream()</span>
+<span class="fc" id="L82">                .map(org.springframework.security.core.GrantedAuthority::getAuthority)</span>
+<span class="fc" id="L83">                .distinct()</span>
+<span class="fc" id="L84">                .sorted()</span>
+<span class="fc" id="L85">                .toList();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
