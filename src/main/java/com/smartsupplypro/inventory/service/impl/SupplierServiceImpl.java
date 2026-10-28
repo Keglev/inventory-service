@@ -3,7 +3,6 @@ package com.smartsupplypro.inventory.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -46,22 +45,6 @@ public class SupplierServiceImpl implements SupplierService {
     public List<SupplierDTO> findAll() {
         // No filtering here; caller controls access via @PreAuthorize at controller level
         return supplierRepository.findAll().stream()
-                .map(supplierMapper::toDTO)
-                .toList();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<SupplierDTO> findById(String id) {
-        return supplierRepository.findById(id).map(supplierMapper::toDTO);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    @Transactional(readOnly = true)
-    public List<SupplierDTO> findByName(String name) {
-        return supplierRepository.findByNameContainingIgnoreCase(name).stream()
                 .map(supplierMapper::toDTO)
                 .toList();
     }

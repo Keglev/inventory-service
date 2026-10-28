@@ -48,7 +48,7 @@ independently and does not trust the client's claimed role.
 | OAuth2 state cookie | `OAUTH2_AUTH_REQUEST`, HTTP-only, TTL 180 s | Configurable via `AppProperties.Cookie` |
 | Session cookie | `HttpOnly`, `Secure=true`, `SameSite=Lax` | Same-origin behind the serve-time rewrite proxy; `Lax` since the API and the frontend share a registrable domain ([ADR-0012](09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.md)) |
 | CORS allowed origins | dev `http://localhost:5173`; prod `https://www.smartsupplypro.de` | Per profile in `AppProperties.cors.allowedOrigins`; the platform-generated Koyeb hostname is deliberately not allow-listed ([ADR-0010](09-decisions/adr-0010-custom-domain-and-canonical-host.md)) |
-| Audit attribution | `createdBy` is read from the security context (`SecurityAuditHelper.currentUsername()`), never from the request body | The OAuth2 principal carries `email` as its name attribute; unauthenticated callers (migrations, batch) attribute to `system`. A client is not trusted to state who created a row. `SecurityAuditHelper` is the single resolution point — reading the principal name anywhere else re-introduces a copy that can drift. Reading `Authentication` for authorization (`InventoryItemSecurityValidator`) is a separate concern and stays where it is |
+| Audit attribution | `createdBy` is read from the security context (`SecurityAuditHelper.currentUsername()`), never from the request body | The OAuth2 principal carries `email` as its name attribute; unauthenticated callers (migrations, batch) attribute to `system`. A client is not trusted to state who created a row. `SecurityAuditHelper` is the single resolution point — reading the principal name anywhere else re-introduces a copy that can drift. |
 | Demo mode | `AppProperties.isDemoReadonly` (env `APP_DEMO_READONLY`, default `true` in prod) | Permits unauthenticated read access; evaluated inside `@PreAuthorize` SpEL (`SecuritySpelBridgeConfig` exposes `@appProperties`); does NOT disable the security filter chain |
 | Demo identities | `DemoIdentityMasking`, a `ResponseBodyAdvice` | An anonymous caller never receives a real identity: every `createdBy` and employee name becomes `demo-user-N@example.com` / "Demo-Nutzer N", numbered by account creation so one person keeps one pseudonym. `@example.com` addresses (the seeded demo users) and values without `@` (`system`) pass unchanged. An anonymous `createdBy` filter resolves only a pseudonym, so a real address cannot be probed. Without the user table the masking fails closed to an unnumbered "Demo-Nutzer". Signed-in callers see real values |
 
@@ -65,10 +65,10 @@ Three tiers enforce data integrity in sequence:
    executes. Failures throw `MethodArgumentNotValidException` → 400.
 
 2. **Service — business rules**: dedicated validator classes (`SupplierValidator`,
-   `InventoryItemValidator`, `InventoryItemLookupValidator`,
-   `InventoryItemSecurityValidator`, `StockHistoryValidator`) enforce uniqueness,
-   referential integrity, and state guards that require database reads. Failures throw
-   `InvalidRequestException` → 400 or `DuplicateResourceException` → 409.
+   `InventoryItemValidator`, `InventoryItemLookupValidator`, `StockHistoryValidator`)
+   enforce uniqueness, referential integrity, and state guards that require database
+   reads. Failures throw `InvalidRequestException` → 400 or
+   `DuplicateResourceException` → 409.
 
 3. **Database — constraints**: `NOT NULL`, `UNIQUE`, and foreign-key constraints in
    Oracle act as the final safety net. Violations surface as

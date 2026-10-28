@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -66,28 +65,10 @@ class InventoryItemAuditHelperTest {
     }
 
     /**
-     * Tests for {@code logQuantityChange()} and {@code logQuantityAdjustment()}.
+     * Tests for {@code logQuantityAdjustment()}.
      */
     @Nested
-    class LogQuantityChange {
-
-        @Test
-        void should_not_log_when_delta_is_zero() {
-            authenticateAs("admin");
-            helper.logQuantityChange(item("item-1", 5, new BigDecimal("10.00")), 0);
-            verify(stockHistoryService, never()).logStockChange(
-                    org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyInt(),
-                    org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
-                    org.mockito.ArgumentMatchers.any());
-        }
-
-        @Test
-        void should_log_manual_update_reason_when_delta_is_non_zero() {
-            authenticateAs("admin");
-            helper.logQuantityChange(item("item-1", 5, new BigDecimal("10.00")), -2);
-            verify(stockHistoryService).logStockChange(
-                    "item-1", -2, StockChangeReason.MANUAL_UPDATE, "admin", new BigDecimal("10.00"));
-        }
+    class LogQuantityAdjustment {
 
         @Test
         void should_log_the_provided_reason_when_the_quantity_is_adjusted() {

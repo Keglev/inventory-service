@@ -115,50 +115,6 @@ components:
         Request body for creating new inventory items.
         ID and audit fields are system-generated and must be omitted.
 
-    UpdateInventoryItemRequest:
-      type: object
-      required:
-        - name
-        - sku
-        - quantity
-        - price
-        - supplierId
-      properties:
-        name:
-          type: string
-          minLength: 1
-          description: Display name of the inventory item
-          example: "Premium Widget (Updated)"
-        sku:
-          type: string
-          description: Stock Keeping Unit - required, unique across items; stays reserved after soft delete
-          example: "ELEC-0001"
-        quantity:
-          type: integer
-          format: int32
-          minimum: 0
-          description: Current stock quantity
-          example: 120
-        price:
-          type: number
-          format: double
-          minimum: 0.01
-          description: Price per unit
-          example: 34.99
-        supplierId:
-          type: string
-          description: Associated supplier identifier
-          example: "supplier-123"
-        minimumQuantity:
-          type: integer
-          format: int32
-          minimum: 0
-          description: Minimum stock threshold
-          example: 60
-      description: |
-        Request body for updating existing inventory items.
-        Path parameter ID takes precedence; request body ID is ignored.
-
     InventoryItemPageResponse:
       type: object
       required:

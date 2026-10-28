@@ -22,30 +22,7 @@ public class InventoryItemLookupValidator {
     private InventoryItemLookupValidator() {}
 
     /**
-     * Duplicate name+price check that excludes the item with {@code excludeId}.
-     * Use during create operations when the incoming item's own ID is known.
-     *
-     * @param excludeId id to skip when scanning matches (prevents self-conflict)
-     * @param name      item name
-     * @param price     item price
-     * @param repo      inventory repository
-     * @throws DuplicateResourceException if a different item shares the same name and price
-     */
-    public static void validateInventoryItemNotExists(
-            String excludeId, String name, BigDecimal price, InventoryItemRepository repo) {
-        List<InventoryItem> matches = repo.findByNameIgnoreCase(name);
-        for (InventoryItem item : matches) {
-            if (!item.getId().equals(excludeId) && item.getPrice().compareTo(price) == 0) {
-                throw new DuplicateResourceException(
-                    "Another inventory item with this name and price already exists.", "name"
-                );
-            }
-        }
-    }
-
-    /**
-     * Duplicate name+price check with no ID exclusion.
-     * Use during update operations when the call site does not need to exclude self.
+     * Duplicate name+price check for a new item (create operations).
      *
      * @param name  item name
      * @param price item price
@@ -65,28 +42,7 @@ public class InventoryItemLookupValidator {
     }
 
     /**
-     * Duplicate SKU check that excludes the item with {@code excludeId}.
-     * Use during update operations when the incoming item's own ID is known.
-     *
-     * @param excludeId id to skip when scanning matches (prevents self-conflict)
-     * @param sku       item SKU
-     * @param repo      inventory repository
-     * @throws DuplicateResourceException if a different item shares the same SKU
-     */
-    public static void validateSkuNotExists(
-            String excludeId, String sku, InventoryItemRepository repo) {
-        List<InventoryItem> matches = repo.findBySkuIgnoreCase(sku);
-        for (InventoryItem item : matches) {
-            if (!item.getId().equals(excludeId)) {
-                throw new DuplicateResourceException(
-                    "Another inventory item with this SKU already exists.", "sku"
-                );
-            }
-        }
-    }
-
-    /**
-     * Duplicate SKU check with no ID exclusion. Use during create operations.
+     * Duplicate SKU check for a new item (create operations).
      *
      * @param sku  item SKU
      * @param repo inventory repository

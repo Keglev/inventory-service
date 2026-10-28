@@ -2,10 +2,8 @@ package com.smartsupplypro.inventory.service.supplier;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.verify;
@@ -49,61 +47,6 @@ class SupplierServiceReadCountTest extends SupplierServiceTestBase {
             assertEquals("sup-2", result.get(1).getId());
             assertEquals("Globex", result.get(1).getName());
             verify(supplierRepository).findAll();
-        }
-    }
-
-    /**
-     * Tests for {@code findById(String)}.
-     */
-    @Nested
-    class FindById {
-
-        @Test
-        void should_return_mapped_optional_when_supplier_exists() {
-            Supplier entity = Supplier.builder()
-                    .id("sup-1").name("Acme GmbH").contactName("Alice")
-                    .phone("111").email("alice@acme.test")
-                    .createdBy("admin").createdAt(LocalDateTime.now().minusDays(1))
-                    .build();
-            when(supplierRepository.findById("sup-1")).thenReturn(Optional.of(entity));
-
-            Optional<SupplierDTO> result = supplierService.findById("sup-1");
-
-            assertTrue(result.isPresent());
-            assertEquals("sup-1", result.get().getId());
-            assertEquals("Acme GmbH", result.get().getName());
-            verify(supplierRepository).findById("sup-1");
-        }
-
-        @Test
-        void should_return_empty_optional_when_supplier_not_found() {
-            when(supplierRepository.findById("missing")).thenReturn(Optional.empty());
-
-            assertTrue(supplierService.findById("missing").isEmpty());
-            verify(supplierRepository).findById("missing");
-        }
-    }
-
-    /**
-     * Tests for {@code findByName(String)}.
-     */
-    @Nested
-    class FindByName {
-
-        @Test
-        void should_return_the_matching_suppliers_when_searching_by_name() {
-            Supplier s1 = Supplier.builder()
-                    .id("sup-1").name("Acme GmbH")
-                    .createdBy("admin").createdAt(LocalDateTime.now().minusDays(1))
-                    .build();
-            when(supplierRepository.findByNameContainingIgnoreCase("ac")).thenReturn(List.of(s1));
-
-            List<SupplierDTO> result = supplierService.findByName("ac");
-
-            assertEquals(1, result.size());
-            assertEquals("sup-1", result.get(0).getId());
-            assertEquals("Acme GmbH", result.get(0).getName());
-            verify(supplierRepository).findByNameContainingIgnoreCase("ac");
         }
     }
 

@@ -2,7 +2,6 @@ package com.smartsupplypro.inventory.controller;
 
 import java.net.URI;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -59,32 +57,6 @@ public class SupplierController {
     @GetMapping("/count")
     public long countSuppliers() {
         return supplierService.countSuppliers();
-    }
-
-    /**
-     * Retrieves a supplier by ID.
-     *
-     * @param id supplier ID
-     * @return supplier DTO or 404 if not found
-     */
-    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
-    @GetMapping("/{id}")
-    public ResponseEntity<SupplierDTO> getById(@PathVariable String id) {
-        return supplierService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new NoSuchElementException("Supplier not found: " + id));
-    }
-
-    /**
-     * Searches suppliers by name (case-insensitive partial match).
-     *
-     * @param name search term
-     * @return matching suppliers
-     */
-    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
-    @GetMapping("/search")
-    public ResponseEntity<List<SupplierDTO>> search(@RequestParam String name) {
-        return ResponseEntity.ok(supplierService.findByName(name));
     }
 
     /**

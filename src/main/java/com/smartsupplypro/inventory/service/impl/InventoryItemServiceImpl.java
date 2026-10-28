@@ -92,53 +92,6 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     /**
      * {@inheritDoc}
      *
-     * <p>A price change is written to the stock history only when the price
-     * actually changed; a quantity-only update logs no price entry.</p>
-     */
-    @Override
-    @Transactional
-    public Optional<InventoryItemDTO> update(String id, InventoryItemDTO dto) {
-        InventoryItem existing = validationHelper.validateForUpdate(id, dto);
-        validationHelper.validateUniquenessOnUpdate(id, existing, dto);
-
-        int quantityDiff = dto.getQuantity() - existing.getQuantity();
-
-        existing.setName(dto.getName());
-        existing.setSku(dto.getSku());
-        existing.setQuantity(dto.getQuantity());
-        existing.setSupplierId(dto.getSupplierId());
-
-        if (dto.getMinimumQuantity() > 0) {
-            existing.setMinimumQuantity(dto.getMinimumQuantity());
-        }
-
-        boolean priceChanged = applyPriceChange(existing, dto.getPrice());
-
-        InventoryItem updated = repository.save(existing);
-        // The history carries every price an item has had: the stock value series, the
-        // price trend and the average cost read it, as they read updatePrice's entries.
-        if (priceChanged) {
-            auditHelper.logPriceChange(updated.getId(), updated.getPrice());
-        }
-        auditHelper.logQuantityChange(updated, quantityDiff);
-        return Optional.of(inventoryItemMapper.toDTO(updated));
-    }
-
-    // compareTo, not equals: 2.5 and 2.50 are one price, and equals would log a price
-    // change for a difference in scale alone. validateForUpdate has already rejected a
-    // missing or non-positive price with 400 (validateBase), the one rule for update
-    // (LO-1), so the price needs no second check here.
-    private static boolean applyPriceChange(InventoryItem existing, BigDecimal newPrice) {
-        if (existing.getPrice().compareTo(newPrice) == 0) {
-            return false;
-        }
-        existing.setPrice(newPrice);
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * <p>Soft delete: the row is never physically removed. The
      * item is marked inactive, which hides it from the active catalog while
      * its full stock history stays available for auditing. Only permitted

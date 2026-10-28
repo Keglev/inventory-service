@@ -1,9 +1,7 @@
 package com.smartsupplypro.inventory.repository;
 
-import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -59,30 +57,4 @@ class SupplierRepositoryTest {
         }
     }
 
-    /**
-     * Case-insensitive substring name search behavior.
-     */
-    @Nested
-    class NameSearch {
-
-        @Test
-        void should_return_matching_suppliers_when_a_substring_matches_in_any_case() {
-            save("SuperCo");
-            save("SuperMart");
-            save("OtherCompany");
-
-            List<Supplier> results = supplierRepository.findByNameContainingIgnoreCase("super");
-
-            assertEquals(2, results.size());
-            assertTrue(results.stream().anyMatch(s -> s.getName().equals("SuperCo")));
-            assertTrue(results.stream().anyMatch(s -> s.getName().equals("SuperMart")));
-        }
-
-        @Test
-        void should_return_empty_when_no_suppliers_match_substring() {
-            save("UnrelatedName");
-
-            assertTrue(supplierRepository.findByNameContainingIgnoreCase("missing").isEmpty());
-        }
-    }
 }
