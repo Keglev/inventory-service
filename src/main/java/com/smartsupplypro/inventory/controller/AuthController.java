@@ -1,22 +1,15 @@
 package com.smartsupplypro.inventory.controller;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * REST controller for authentication and current-user profile operations.
@@ -90,28 +83,5 @@ public class AuthController {
                 .distinct()
                 .sorted()
                 .toList();
-    }
-
-    /**
-     * API logout endpoint for programmatic clients.
-     *
-     * <p>Invalidates the session and expires cookies.
-     * For browser clients, prefer the standard POST /logout endpoint.</p>
-     *
-     * @param request  HTTP servlet request
-     * @param response HTTP servlet response
-     * @return 204 No Content response
-     */
-    @PostMapping("/auth/logout")
-    public ResponseEntity<Void> apiLogout(HttpServletRequest request, HttpServletResponse response) {
-        new SecurityContextLogoutHandler().logout(request, response, null);
-
-        // Expire cookies for API clients (SPA/mobile) that can't follow the standard form-POST /logout
-        ResponseCookie jsess = ResponseCookie.from("JSESSIONID", "")
-                .path("/").httpOnly(true).secure(true).sameSite("Lax").maxAge(0).build();
-
-        return ResponseEntity.noContent()
-                .header("Set-Cookie", jsess.toString())
-                .build();
     }
 }

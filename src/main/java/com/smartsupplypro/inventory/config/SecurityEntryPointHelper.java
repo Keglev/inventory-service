@@ -33,17 +33,12 @@ public class SecurityEntryPointHelper {
     }
 
     /**
-     * Returns 204 for API logout or redirects the browser to the logout-success page.
+     * Redirects the browser to the logout-success page after POST /logout.
      * The {@code return} query parameter is honoured only when its origin (scheme, host
      * and port) equals the origin of the configured frontend base URL.
      */
     public LogoutSuccessHandler createLogoutSuccessHandler(AppProperties props) {
         return (req, res, auth) -> {
-            boolean isApi = Boolean.TRUE.equals(req.getAttribute("IS_API_REQUEST"));
-            if (isApi) {
-                res.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                return;
-            }
             String base = props.getFrontend().getBaseUrl();
             String ret = req.getParameter("return");
             String target = isSameOrigin(ret, base) ? ret : base + "/logout-success";

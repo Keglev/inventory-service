@@ -28,8 +28,7 @@ class ApiAuthorizationContractTest {
         "GET /api/health",            // public liveness check
         "GET /api/health/db",         // public, answers up or down only
         "GET /api/me",                // the caller's own identity
-        "GET /api/me/authorities",    // the caller's own roles
-        "POST /api/auth/logout"       // ends the caller's own session
+        "GET /api/me/authorities"     // the caller's own roles
     );
 
     private record Handler(String key, boolean hasRule) {}

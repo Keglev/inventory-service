@@ -8,10 +8,6 @@ paths:
     get:
       $ref: './auth/authorities.yaml#/get'
 
-  /api/auth/logout:
-    post:
-      $ref: './auth/logout.yaml#/post'
-
   # Inventory endpoints
   /api/inventory:
     get:

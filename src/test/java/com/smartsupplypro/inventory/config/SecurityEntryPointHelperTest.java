@@ -46,19 +46,6 @@ class SecurityEntryPointHelperTest {
     }
 
     @Test
-    void should_return_204_when_the_logout_handler_sees_the_api_request_attribute() throws Exception {
-        LogoutSuccessHandler handler = helper.createLogoutSuccessHandler(propsWithBase("https://frontend.test"));
-
-        MockHttpServletRequest req = new MockHttpServletRequest("POST", "/logout");
-        req.setAttribute("IS_API_REQUEST", Boolean.TRUE);
-        MockHttpServletResponse res = new MockHttpServletResponse();
-
-        handler.onLogoutSuccess(req, res, null);
-
-        assertEquals(204, res.getStatus());
-    }
-
-    @Test
     void should_redirect_to_the_logout_success_page_when_the_logout_comes_from_a_browser() throws Exception {
         LogoutSuccessHandler handler = helper.createLogoutSuccessHandler(propsWithBase("https://frontend.test"));
 

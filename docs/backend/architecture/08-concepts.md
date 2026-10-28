@@ -18,7 +18,7 @@ flowchart TD
   E --> F["OAuth2LoginSuccessHandler validates principal, redirects to frontend baseUrl + landingPath"]
   C -->|failure| G["Failure handler (OAuth2Config): log cause, redirect to frontend login — ?error=oauth, or ?error=unauthorized when the email is not allow-listed"]
   F --> H["Session established (cookie)"]
-  H -->|"POST /api/auth/logout"| I["Server session invalidated, session cookie cleared — frontend returns to login view"]
+  H -->|"POST /logout (form post from the frontend)"| I["Server session invalidated, session cookie cleared — browser redirected to the frontend logout-success page"]
 ```
 
 Provisioning happens at token load — `UserProvisioningService` is the single
@@ -36,7 +36,7 @@ frontend login with `?error=unauthorized` (distinct from the generic
 | `USER` | Read + basic stock ops |
 
 Roles are stored as `STRING` on `AppUser.role`. Roles are decided in one place:
-every `/api` endpoint except health, `/api/me` and the API logout carries
+every `/api` endpoint except health and `/api/me` carries
 `@PreAuthorize`, and `ApiAuthorizationContractTest` fails for one that does not. The
 URL rules in `SecurityAuthorizationHelper` only decide who must be signed in (public
 paths, the demo read permits, everything else authenticated), so the two layers cannot
