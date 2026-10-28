@@ -2,7 +2,6 @@
 
 import java.net.URI;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -47,7 +45,7 @@ public class SupplierController {
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping
     public ResponseEntity&lt;List&lt;SupplierDTO&gt;&gt; listAll() {
-<span class="fc" id="L50">        return ResponseEntity.ok(supplierService.findAll());</span>
+<span class="fc" id="L48">        return ResponseEntity.ok(supplierService.findAll());</span>
     }
 
     /**
@@ -58,33 +56,7 @@ public class SupplierController {
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/count&quot;)
     public long countSuppliers() {
-<span class="nc" id="L61">        return supplierService.countSuppliers();</span>
-    }
-
-    /**
-     * Retrieves a supplier by ID.
-     *
-     * @param id supplier ID
-     * @return supplier DTO or 404 if not found
-     */
-    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
-    @GetMapping(&quot;/{id}&quot;)
-    public ResponseEntity&lt;SupplierDTO&gt; getById(@PathVariable String id) {
-<span class="fc" id="L73">        return supplierService.findById(id)</span>
-<span class="fc" id="L74">                .map(ResponseEntity::ok)</span>
-<span class="fc" id="L75">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
-    }
-
-    /**
-     * Searches suppliers by name (case-insensitive partial match).
-     *
-     * @param name search term
-     * @return matching suppliers
-     */
-    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
-    @GetMapping(&quot;/search&quot;)
-    public ResponseEntity&lt;List&lt;SupplierDTO&gt;&gt; search(@RequestParam String name) {
-<span class="fc" id="L87">        return ResponseEntity.ok(supplierService.findByName(name));</span>
+<span class="nc" id="L59">        return supplierService.countSuppliers();</span>
     }
 
     /**
@@ -97,12 +69,12 @@ public class SupplierController {
     @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
     @PostMapping
     public ResponseEntity&lt;SupplierDTO&gt; create(@Valid @RequestBody SupplierDTO dto) {
-<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (dto.getId() != null) {</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (dto.getId() != null) {</span>
             // client-generated IDs rejected to enforce server-side generation
-<span class="fc" id="L102">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;ID must be null on create&quot;);</span>
+<span class="fc" id="L74">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;ID must be null on create&quot;);</span>
         }
-<span class="fc" id="L104">        SupplierDTO created = supplierService.create(dto);</span>
-<span class="fc" id="L105">        return ResponseEntity.created(URI.create(&quot;/api/suppliers/&quot; + created.getId())).body(created);</span>
+<span class="fc" id="L76">        SupplierDTO created = supplierService.create(dto);</span>
+<span class="fc" id="L77">        return ResponseEntity.created(URI.create(&quot;/api/suppliers/&quot; + created.getId())).body(created);</span>
     }
 
     /**
@@ -117,11 +89,11 @@ public class SupplierController {
     @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
     @PutMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;SupplierDTO&gt; update(@PathVariable String id, @Valid @RequestBody SupplierDTO dto) {
-<span class="pc bpc" id="L120" title="1 of 4 branches missed.">        if (dto.getId() != null &amp;&amp; !id.equals(dto.getId())) {</span>
+<span class="pc bpc" id="L92" title="1 of 4 branches missed.">        if (dto.getId() != null &amp;&amp; !id.equals(dto.getId())) {</span>
             // prevent mismatched identifiers that could lead to unintended updates
-<span class="fc" id="L122">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Path id and body id must match&quot;);</span>
+<span class="fc" id="L94">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Path id and body id must match&quot;);</span>
         }
-<span class="fc" id="L124">        return ResponseEntity.ok(supplierService.update(id, dto));</span>
+<span class="fc" id="L96">        return ResponseEntity.ok(supplierService.update(id, dto));</span>
     }
 
     /**
@@ -134,8 +106,8 @@ public class SupplierController {
     @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
     @DeleteMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;Void&gt; delete(@PathVariable String id) {
-<span class="fc" id="L137">        supplierService.delete(id);</span>
-<span class="fc" id="L138">        return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L109">        supplierService.delete(id);</span>
+<span class="fc" id="L110">        return ResponseEntity.noContent().build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
