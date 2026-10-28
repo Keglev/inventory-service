@@ -41,10 +41,10 @@ import org.springframework.stereotype.Component;
                 &quot;/actuator/health&quot;,
                 &quot;/actuator/info&quot;,
                 &quot;/api/health/**&quot;,
-                &quot;/oauth2/**&quot;,
-                &quot;/login/oauth2/**&quot;,
                 &quot;/error&quot;
-<span class="fc" id="L47">        ).permitAll();</span>
+<span class="fc" id="L45">        ).permitAll();</span>
+        // No rule for /oauth2/** or /login/oauth2/**: the OAuth2 filters answer the
+        // sign-in start and the callback before any rule here is read.
 
 <span class="fc bfc" id="L49" title="All 2 branches covered.">        if (isDemoReadonly) {</span>
 <span class="fc" id="L50">            auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).permitAll();</span>
