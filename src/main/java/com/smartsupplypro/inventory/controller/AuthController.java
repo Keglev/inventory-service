@@ -65,23 +65,4 @@ public class AuthController {
         String picture = principal.getAttribute("picture");
         return new AppUserProfileDTO(user.getEmail(), user.getName(), user.getRole().name(), picture);
     }
-
-    /**
-     * Gets user's granted authorities for authorization checks.
-     *
-     * @param principal OAuth2 authentication principal
-     * @return sorted list of authority strings (e.g., ROLE_USER, ROLE_ADMIN)
-     * @throws ResponseStatusException 401 if not authenticated
-     */
-    @GetMapping("/me/authorities")
-    public java.util.List<String> meAuthorities(@AuthenticationPrincipal OAuth2User principal) {
-        if (principal == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication");
-        }
-        return principal.getAuthorities().stream()
-                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
-                .distinct()
-                .sorted()
-                .toList();
-    }
 }

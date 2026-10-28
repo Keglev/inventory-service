@@ -16,17 +16,14 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.MediaType;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import tools.jackson.databind.ObjectMapper;
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.controller.StockUpdateAnalyticsController;
 import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
@@ -35,7 +32,7 @@ import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
 /**
- * Tests {@link StockUpdateAnalyticsController} GET and POST filtering endpoints using {@link MockMvc},
+ * Tests {@link StockUpdateAnalyticsController} GET filtering endpoints using {@link MockMvc},
  * covering date-range defaults, parameter validation, and filter criteria processing.
  */
 @WebMvcTest(StockUpdateAnalyticsController.class)
@@ -51,36 +48,11 @@ public class AnalyticsControllerFilteringTest {
     @MockitoBean
     private AnalyticsControllerValidationHelper validationHelper;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @BeforeEach
     void setup() {
         // GET endpoints build the filter object through the helper; run the real method
         when(validationHelper.buildFilter(any(), any(), any(), any(), any(), any(), any()))
             .thenCallRealMethod();
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"ADMIN", "USER"})
-    void should_return_filtered_stock_updates_when_posted(String role) throws Exception {
-        List<StockUpdateResultDTO> sample = List.of(
-            new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
-        );
-        when(stockAnalyticsService.getFilteredStockUpdates(any(StockUpdateFilterDTO.class))).thenReturn(sample);
-
-        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
-        filter.setItemName("ItemX");
-        filter.setSupplierId("Supplier A");
-        filter.setStartDate(LocalDateTime.now().minusDays(10));
-        filter.setEndDate(LocalDateTime.now());
-
-        mockMvc.perform(post("/api/analytics/stock-updates/query")
-                .with(user("mockuser").roles(role))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].itemName").value("ItemX"));
     }
 
     @ParameterizedTest
@@ -103,25 +75,6 @@ public class AnalyticsControllerFilteringTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ADMIN", "USER"})
-    void should_use_the_default_start_date_when_it_is_missing_from_a_post(String role) throws Exception {
-        List<StockUpdateResultDTO> sample = List.of(
-            new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
-        );
-        when(stockAnalyticsService.getFilteredStockUpdates(any(StockUpdateFilterDTO.class))).thenReturn(sample);
-
-        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
-        filter.setEndDate(LocalDateTime.now());
-
-        mockMvc.perform(post("/api/analytics/stock-updates/query")
-                .with(user("mockuser").roles(role))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].itemName").value("ItemX"));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"ADMIN", "USER"})
     void should_use_the_default_start_date_when_it_is_missing_from_a_get(String role) throws Exception {
         List<StockUpdateResultDTO> sample = List.of(
             new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
@@ -132,25 +85,6 @@ public class AnalyticsControllerFilteringTest {
                 .with(user("mockuser").roles(role))
                 .param("endDate", "2024-05-15T23:59:59")
                 .param("itemName", "ItemX"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].itemName").value("ItemX"));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"ADMIN", "USER"})
-    void should_use_the_default_end_date_when_it_is_missing_from_a_post(String role) throws Exception {
-        List<StockUpdateResultDTO> sample = List.of(
-            new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
-        );
-        when(stockAnalyticsService.getFilteredStockUpdates(any(StockUpdateFilterDTO.class))).thenReturn(sample);
-
-        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
-        filter.setStartDate(LocalDateTime.now().minusDays(10));
-
-        mockMvc.perform(post("/api/analytics/stock-updates/query")
-                .with(user("mockuser").roles(role))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].itemName").value("ItemX"));
     }
@@ -174,17 +108,6 @@ public class AnalyticsControllerFilteringTest {
                 .with(user("mockuser").roles(role))
                 .param("startDate", "invalid-date"))
             .andExpect(status().isBadRequest());
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"USER", "ADMIN"})
-    void should_return_an_empty_list_when_the_post_body_is_missing(String role) throws Exception {
-        mockMvc.perform(post("/api/analytics/stock-updates/query")
-                .with(user("mockuser").roles(role))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}"))
-            .andExpect(status().isOk())
-            .andExpect(content().json("[]"));
     }
 
     @ParameterizedTest
@@ -245,18 +168,4 @@ public class AnalyticsControllerFilteringTest {
             .andExpect(jsonPath("$.message").value("minChange must be <= maxChange"));
     }
 
-    @Test
-    void should_return_400_when_a_posted_filter_has_min_change_above_max_change() throws Exception {
-        when(stockAnalyticsService.getFilteredStockUpdates(any(StockUpdateFilterDTO.class))).thenCallRealMethod();
-        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
-        filter.setMinChange(5);
-        filter.setMaxChange(1);
-
-        mockMvc.perform(post("/api/analytics/stock-updates/query")
-                .with(user("mockuser").roles("ADMIN"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("minChange must be <= maxChange"));
-    }
 }

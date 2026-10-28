@@ -11,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,14 +21,12 @@ import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
 import com.smartsupplypro.inventory.security.DemoIdentityMasking;
 import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 /**
  * REST controller for stock update query endpoints.
  *
- * <p>GET endpoint requires authentication or demo-readonly access.
- * POST query endpoint requires full authentication.</p>
+ * <p>Both GET endpoints require authentication or demo-readonly access.</p>
  *
  * @see StockAnalyticsService
  */
@@ -109,19 +105,6 @@ public class StockUpdateAnalyticsController {
                 startDate, endDate, itemName, supplierId, createdBy, minChange, maxChange);
         PageRequest pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));
         return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdatesPage(filter, pageable));
-    }
-
-    /**
-     * Gets filtered stock updates via JSON payload.
-     *
-     * @param filter stock update filter criteria
-     * @return list of filtered stock updates
-     */
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping(value = "/stock-updates/query", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<StockUpdateResultDTO>> getFilteredStockUpdatesPost(
-            @RequestBody @Valid StockUpdateFilterDTO filter) {
-        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));
     }
 
     // The service defaults the window and rejects inverted ranges for every caller;

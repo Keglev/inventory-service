@@ -198,50 +198,6 @@ components:
           example: "Acme Corp"
       description: Stock update result with full context
 
-    StockUpdateFilterDTO:
-      type: object
-      properties:
-        startDate:
-          type: string
-          format: date-time
-          nullable: true
-          description: Start timestamp (defaults to 30 days ago)
-          example: "2025-10-20T00:00:00Z"
-        endDate:
-          type: string
-          format: date-time
-          nullable: true
-          description: End timestamp (defaults to now)
-          example: "2025-11-20T23:59:59Z"
-        itemName:
-          type: string
-          nullable: true
-          description: Partial item name filter
-          example: "Widget"
-        supplierId:
-          type: string
-          nullable: true
-          description: Supplier identifier filter
-          example: "supplier-123"
-        createdBy:
-          type: string
-          nullable: true
-          description: User who made the change
-          example: "user@example.com"
-        minChange:
-          type: integer
-          format: int32
-          nullable: true
-          description: Minimum quantity change
-          example: -100
-        maxChange:
-          type: integer
-          format: int32
-          nullable: true
-          description: Maximum quantity change
-          example: 100
-      description: Filter criteria for stock update queries
-
     PriceTrendDTO:
       type: object
       properties:
