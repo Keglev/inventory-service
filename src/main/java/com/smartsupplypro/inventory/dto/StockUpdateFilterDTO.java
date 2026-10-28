@@ -9,8 +9,8 @@ import lombok.Data;
 /**
  * Request filter for stock history search queries.
  *
- * <p>Bound from query parameters by
- * {@link com.smartsupplypro.inventory.controller.StockHistoryController#search()}.
+ * <p>Built from the request by
+ * {@link com.smartsupplypro.inventory.controller.StockUpdateAnalyticsController}.
  * All fields are optional; omitted parameters are treated as unconstrained.</p>
  */
 @Data

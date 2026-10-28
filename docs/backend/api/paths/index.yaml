@@ -70,23 +70,6 @@ paths:
     get:
       $ref: './suppliers/search.yaml#/get'
 
-  # Stock History endpoints
-  /api/stock-history:
-    get:
-      $ref: './stock-history/get-all.yaml#/get'
-
-  /api/stock-history/item/{itemId}:
-    get:
-      $ref: './stock-history/get-by-item.yaml#/get'
-
-  /api/stock-history/reason/{reason}:
-    get:
-      $ref: './stock-history/get-by-reason.yaml#/get'
-
-  /api/stock-history/search:
-    get:
-      $ref: './stock-history/search.yaml#/get'
-
   # Analytics endpoints
   /api/analytics/stock-value:
     get:

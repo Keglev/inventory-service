@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 /**
  * Response payload for an enriched stock update result.
  *
- * <p>Returned by {@link com.smartsupplypro.inventory.controller.StockHistoryController#search()}.
+ * <p>Returned by {@link com.smartsupplypro.inventory.controller.StockUpdateAnalyticsController}.
  * Supplier and item identifiers are resolved to display names to avoid separate client lookups.</p>
  *
  * @param itemName     display name of the affected inventory item

@@ -2,17 +2,12 @@ package com.smartsupplypro.inventory.service.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
-import com.smartsupplypro.inventory.mapper.StockHistoryMapper;
 import com.smartsupplypro.inventory.model.StockHistory;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
@@ -29,7 +24,6 @@ import lombok.RequiredArgsConstructor;
  *
  * @see StockHistoryService
  * @see StockHistoryValidator
- * @see StockHistoryMapper
  */
 @Service
 @RequiredArgsConstructor
@@ -37,7 +31,6 @@ public class StockHistoryServiceImpl implements StockHistoryService {
 
     private final StockHistoryRepository repository;
     private final InventoryItemRepository itemRepository;
-    private final StockHistoryMapper mapper;
 
     /**
      * Resolves the supplier ID for denormalization on stock history records.
@@ -59,39 +52,6 @@ public class StockHistoryServiceImpl implements StockHistoryService {
      */
     private static String newHistoryId() {
         return UUID.randomUUID().toString();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public List<StockHistoryDTO> getAll() {
-        return repository.findAll().stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public List<StockHistoryDTO> getByItemId(String itemId) {
-        return repository.findByItemIdOrderByTimestampDesc(itemId)
-                .stream().map(mapper::toDTO).toList();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public List<StockHistoryDTO> getByReason(StockChangeReason reason) {
-        return repository.findByReasonOrderByTimestampDesc(reason)
-                .stream().map(mapper::toDTO).toList();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Page<StockHistoryDTO> findFiltered(LocalDateTime startDate,
-                                              LocalDateTime endDate,
-                                              String itemName,
-                                              String supplierId,
-                                              Pageable pageable) {
-        return repository.findFiltered(startDate, endDate, itemName, supplierId, pageable)
-                .map(mapper::toDTO);
     }
 
     /**
