@@ -46,10 +46,6 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     @NonNull
     Optional<InventoryItem> findById(@NonNull String id);
 
-    /** Fetches all ACTIVE items (soft-deleted items excluded) with supplier eagerly loaded. */
-    @EntityGraph(attributePaths = {"supplier"})
-    List<InventoryItem> findByActiveTrue();
-
     /** Counts ACTIVE items (soft-deleted items excluded). */
     long countByActiveTrue();
 

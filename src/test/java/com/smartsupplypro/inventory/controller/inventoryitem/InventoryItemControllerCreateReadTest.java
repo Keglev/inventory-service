@@ -194,25 +194,6 @@ class InventoryItemControllerCreateReadTest {
 
         @Test
         @WithMockUser(roles = "USER")
-        void should_return_the_list_when_items_exist() throws Exception {
-            when(inventoryItemService.getAll()).thenReturn(List.of(sample("i-1"), sample("i-2")));
-            mockMvc.perform(get("/api/inventory"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value("i-1"))
-                .andExpect(jsonPath("$[1].id").value("i-2"));
-        }
-
-        @Test
-        @WithMockUser(roles = "USER")
-        void should_return_an_empty_list_when_no_items_exist() throws Exception {
-            when(inventoryItemService.getAll()).thenReturn(List.of());
-            mockMvc.perform(get("/api/inventory"))
-                .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
-        }
-
-        @Test
-        @WithMockUser(roles = "USER")
         void should_apply_paging_and_sort_when_searching() throws Exception {
             when(inventoryItemService.searchItems(eq("mon"), eq(null), eq(false), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(sample("i-2"))));

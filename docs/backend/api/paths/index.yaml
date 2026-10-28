@@ -14,8 +14,6 @@ paths:
 
   # Inventory endpoints
   /api/inventory:
-    get:
-      $ref: './inventory/get-all.yaml#/get'
     post:
       $ref: './inventory/create.yaml#/post'
 
