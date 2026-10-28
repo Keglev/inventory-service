@@ -59,16 +59,6 @@ public interface InventoryItemService {
     InventoryItemDTO save(InventoryItemDTO dto);
 
     /**
-     * Updates an existing inventory item (full update).
-     * For atomic stock or price changes use {@link #adjustQuantity} or {@link #updatePrice}.
-     * @param id  inventory item ID
-     * @param dto updated item data
-     * @return updated item if found, empty otherwise
-     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if validation fails (400)
-     */
-    Optional<InventoryItemDTO> update(String id, InventoryItemDTO dto);
-
-    /**
      * Soft-deletes an inventory item: marks it inactive instead of removing
      * the row, preserving its stock history for auditing. Only permitted
      * when the item's quantity is already zero.

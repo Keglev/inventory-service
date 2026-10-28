@@ -29,7 +29,6 @@ import com.smartsupplypro.inventory.config.SecuritySpelBridgeConfig;
 import com.smartsupplypro.inventory.controller.InventoryItemController;
 import com.smartsupplypro.inventory.controller.SupplierController;
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
-import com.smartsupplypro.inventory.dto.SupplierDTO;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 import com.smartsupplypro.inventory.service.SupplierService;
 
@@ -71,14 +70,6 @@ class CatalogueAccessSecurityTest {
         {"name":"Widget","sku":"W-1","quantity":5,"minimumQuantity":1,
          "price":2.50,"supplierId":"s-1","createdBy":"user"}
         """;
-
-    @Test
-    void should_let_an_anonymous_demo_caller_read_one_supplier() throws Exception {
-        when(supplierService.findById(anyString())).thenReturn(Optional.of(new SupplierDTO()));
-
-        mvc.perform(get("/api/suppliers/s-1").accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk());
-    }
 
     @Test
     void should_let_an_anonymous_demo_caller_read_one_item() throws Exception {

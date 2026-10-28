@@ -1,7 +1,6 @@
 package com.smartsupplypro.inventory.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.smartsupplypro.inventory.dto.SupplierDTO;
 
@@ -27,20 +26,6 @@ public interface SupplierService {
      * @return total supplier count
      */
     long countSuppliers();
-
-    /**
-     * Retrieves a supplier by ID.
-     * @param id supplier identifier
-     * @return supplier if present, empty otherwise
-     */
-    Optional<SupplierDTO> findById(String id);
-
-    /**
-     * Searches suppliers by partial name (case-insensitive).
-     * @param name search fragment
-     * @return matching suppliers
-     */
-    List<SupplierDTO> findByName(String name);
 
     /**
      * Creates a new supplier after validating name uniqueness.

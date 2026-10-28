@@ -2,7 +2,6 @@ package com.smartsupplypro.inventory.controller.supplier;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.Matchers.containsString;
 import org.junit.jupiter.api.BeforeEach;
@@ -96,34 +95,6 @@ class SupplierControllerTest {
                     .andExpect(jsonPath("$[0].id").value("sup-1"));
         }
 
-        @Test
-        void should_return_the_supplier_when_it_exists() throws Exception {
-            given(supplierService.findById("sup-1")).willReturn(Optional.of(dto));
-
-            mockMvc.perform(get("/api/suppliers/sup-1").with(user("u").roles("USER")))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.name").value("Acme GmbH"));
-        }
-
-        @Test
-        void should_return_404_when_the_supplier_does_not_exist() throws Exception {
-            given(supplierService.findById("missing")).willReturn(Optional.empty());
-
-            mockMvc.perform(get("/api/suppliers/missing").with(user("u").roles("USER")))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.message", containsString("Supplier not found")));
-        }
-
-        @Test
-        void should_return_matches_when_searching_by_name() throws Exception {
-            given(supplierService.findByName("ac")).willReturn(List.of(dto));
-
-            mockMvc.perform(get("/api/suppliers/search")
-                            .param("name", "ac")
-                            .with(user("u").roles("USER")))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$[0].email").value("alice@acme.test"));
-        }
     }
 
     /** Write endpoints restricted to ADMIN role covering creation, update, deletion, and validation. */

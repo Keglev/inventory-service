@@ -20,8 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.GrantedAuthority;
@@ -34,7 +32,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
-import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
@@ -136,83 +133,7 @@ class InventoryItemValidationHelperTest {
     }
 
     /**
-     * Tests for {@code validateUniquenessOnUpdate()}.
-     */
-    @Nested
-    class ValidateUniquenessOnUpdate {
-
-        @Test
-        void should_skip_repository_query_when_name_and_price_are_unchanged() {
-            InventoryItem existing = existingItem("item-1", "Widget", "10.00");
-            existing.setSku("SKU-HLP-5");
-            InventoryItemDTO dto = new InventoryItemDTO();
-            dto.setName("widget"); dto.setPrice(new BigDecimal("10.00")); dto.setSku("SKU-HLP-5");
-
-            helper.validateUniquenessOnUpdate("item-1", existing, dto);
-
-            verify(repository, never()).findByNameIgnoreCase(anyString());
-        }
-
-        @Test
-        void should_throw_duplicate_exception_when_another_item_with_same_name_and_price_exists() {
-            InventoryItem existing = existingItem("item-1", "Widget", "10.00");
-            existing.setSku("SKU-HLP-6");
-            InventoryItemDTO dto = new InventoryItemDTO();
-            dto.setName("NewWidget"); dto.setPrice(new BigDecimal("10.00")); dto.setSku("SKU-HLP-6");
-
-            InventoryItem other = existingItem("item-2", "NewWidget", "10.00");
-            other.setSku("SKU-HLP-7");
-            when(repository.findByNameIgnoreCase("NewWidget")).thenReturn(List.of(other));
-
-            DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
-                    () -> helper.validateUniquenessOnUpdate("item-1", existing, dto));
-            assertEquals("Another inventory item with this name and price already exists.", ex.getMessage());
-            verify(repository).findByNameIgnoreCase("NewWidget");
-        }
-
-        @Test
-        void should_check_name_price_uniqueness_when_only_price_changed() {
-            InventoryItem existing = existingItem("item-1", "Widget", "10.00");
-            existing.setSku("SKU-1");
-            InventoryItemDTO dto = new InventoryItemDTO();
-            dto.setName("Widget"); dto.setPrice(new BigDecimal("20.00")); dto.setSku("SKU-1");
-            when(repository.findByNameIgnoreCase("Widget")).thenReturn(List.of());
-
-            helper.validateUniquenessOnUpdate("item-1", existing, dto);
-
-            verify(repository).findByNameIgnoreCase("Widget");
-            verify(repository, never()).findBySkuIgnoreCase(anyString());
-        }
-
-        @Test
-        void should_check_sku_uniqueness_when_sku_changed() {
-            InventoryItem existing = existingItem("item-1", "Widget", "10.00");
-            existing.setSku("SKU-OLD");
-            InventoryItemDTO dto = new InventoryItemDTO();
-            dto.setName("Widget"); dto.setPrice(new BigDecimal("10.00")); dto.setSku("SKU-NEW");
-            when(repository.findBySkuIgnoreCase("SKU-NEW")).thenReturn(List.of());
-
-            helper.validateUniquenessOnUpdate("item-1", existing, dto);
-
-            verify(repository).findBySkuIgnoreCase("SKU-NEW");
-            verify(repository, never()).findByNameIgnoreCase(anyString());
-        }
-
-        @Test
-        void should_check_sku_uniqueness_when_existing_sku_is_null() {
-            InventoryItem existing = existingItem("item-1", "Widget", "10.00");
-            InventoryItemDTO dto = new InventoryItemDTO();
-            dto.setName("Widget"); dto.setPrice(new BigDecimal("10.00")); dto.setSku("SKU-NEW");
-            when(repository.findBySkuIgnoreCase("SKU-NEW")).thenReturn(List.of());
-
-            helper.validateUniquenessOnUpdate("item-1", existing, dto);
-
-            verify(repository).findBySkuIgnoreCase("SKU-NEW");
-        }
-    }
-
-    /**
-     * Tests for {@code validateExists()}, {@code validateForDeletion()}, and {@code validateForUpdate()}.
+     * Tests for {@code validateExists()} and {@code validateForDeletion()}.
      */
     @Nested
     class ValidationGating {
@@ -234,22 +155,6 @@ class InventoryItemValidationHelperTest {
                     () -> helper.validateForDeletion("item-1")).getMessage());
         }
 
-        @Test
-        void should_return_existing_item_when_update_passes_all_validation() {
-            authenticateAs("admin");
-            InventoryItem existing = existingItem("item-1", "Widget", "10.00");
-            existing.setSupplierId("sup-1"); existing.setSku("SKU-HLP-9");
-
-            InventoryItemDTO dto = new InventoryItemDTO();
-            dto.setName("Widget"); dto.setQuantity(5); dto.setMinimumQuantity(1);
-            dto.setPrice(new BigDecimal("10.00")); dto.setSupplierId("sup-1");
-            dto.setCreatedBy("admin"); dto.setSku("SKU-HLP-9");
-
-            when(supplierRepository.existsById("sup-1")).thenReturn(true);
-            when(repository.findById("item-1")).thenReturn(Optional.of(existing));
-
-            assertEquals("item-1", helper.validateForUpdate("item-1", dto).getId());
-        }
     }
 
     private static InventoryItemDTO dto(String name, int qty, String price, String supplierId, String createdBy) {

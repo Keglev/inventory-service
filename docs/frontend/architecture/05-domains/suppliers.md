@@ -22,8 +22,8 @@ placeholder.
 The list fetcher returns an empty list on network errors, so the board keeps
 rendering under partial backend failure. `GET /api/suppliers` returns a bare JSON
 array (no Spring Page), loaded once and cached; the grid, the board search and the
-dialog searches all read that one list. `/api/suppliers/search?name=` stays in the
-backend but the frontend no longer calls it.
+dialog searches all read that one list. The backend has no supplier search endpoint
+since 2026-10-28 (frontend ADR-0014 amendment).
 
 ## Dialog Workflows
 

@@ -70,3 +70,13 @@ The backend caps a page at 2,000 rows, which is also the item-list limit above.
   the backend under the removal rule (troubleshooting use).
 - When a list outgrows the thresholds, this decision is revisited: the server
   search with a debounce and a cap is the documented fallback.
+
+## Amendment 2026-10-28: the server search is gone
+
+Nothing above is edited; this block states what has since changed. The
+backend's access log of 2026-10-12 to 2026-10-28 recorded no call to
+`GET /api/suppliers/search`, and the endpoint has been removed from the backend
+and its API reference. The removal rule the Consequences name was met: no
+caller in code, tests, docs, scripts, workflows, operations or the access log.
+The documented fallback for a list that outgrows the thresholds therefore needs
+a server search to be built again, not only wired up.

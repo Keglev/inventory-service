@@ -1,35 +1,24 @@
 package com.smartsupplypro.inventory.controller.inventoryitem;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static com.smartsupplypro.inventory.controller.inventoryitem.InventoryItemControllerTestFixtures.sample;
 
-import tools.jackson.databind.ObjectMapper;
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.controller.InventoryItemController;
-import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 
 /**
- * Tests {@link InventoryItemController} PUT update and DELETE endpoints using {@link MockMvc},
+ * Tests {@link InventoryItemController} DELETE endpoint using {@link MockMvc},
  * covering RBAC, HTTP contract, and security enforcement.
  */
 @WebMvcTest(controllers = InventoryItemController.class)
@@ -37,65 +26,8 @@ import com.smartsupplypro.inventory.service.InventoryItemService;
 class InventoryItemControllerUpdateDeleteTest {
 
     @Autowired MockMvc mockMvc;
-    @Autowired ObjectMapper objectMapper;
 
     @MockitoBean InventoryItemService inventoryItemService;
-
-    /** PUT /api/inventory/{id} update scenarios. */
-    @Nested
-    class UpdateItem {
-
-        @Test
-        @WithMockUser(roles = "USER")
-        void should_return_403_when_a_user_changes_a_restricted_field() throws Exception {
-            when(inventoryItemService.update(eq("i-1"), any(InventoryItemDTO.class)))
-                .thenThrow(new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.FORBIDDEN,
-                    "Users are only allowed to change quantity or price."
-                ));
-
-            mockMvc.perform(put("/api/inventory/i-1").with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(sample("i-1"))))
-                .andExpect(status().isForbidden());
-        }
-
-        @Test
-        @WithMockUser(roles = "ADMIN")
-        void should_update_or_return_404_when_the_item_is_found_or_missing() throws Exception {
-            InventoryItemDTO updated = sample("i-1");
-            when(inventoryItemService.update(eq("i-1"), any(InventoryItemDTO.class)))
-                .thenReturn(Optional.of(updated));
-            when(inventoryItemService.update(eq("missing"), any(InventoryItemDTO.class)))
-                .thenReturn(Optional.empty());
-
-            mockMvc.perform(put("/api/inventory/i-1").with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(updated)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("i-1"));
-
-            mockMvc.perform(put("/api/inventory/missing").with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(updated)))
-                .andExpect(status().isNotFound());
-        }
-
-        @Test
-        @WithMockUser(roles = "ADMIN")
-        void should_return_200_when_an_update_sets_the_quantity_to_zero() throws Exception {
-            InventoryItemDTO emptied = sample("i-1");
-            emptied.setQuantity(0);
-            when(inventoryItemService.update(eq("i-1"), any(InventoryItemDTO.class)))
-                .thenReturn(Optional.of(emptied));
-
-            mockMvc.perform(put("/api/inventory/i-1").with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(emptied)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.quantity").value(0));
-        }
-    }
 
     /** DELETE /api/inventory/{id} deletion scenarios. */
     @Nested

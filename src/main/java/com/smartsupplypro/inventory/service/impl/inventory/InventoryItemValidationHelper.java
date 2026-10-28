@@ -13,7 +13,6 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.security.SecurityAuditHelper;
 import com.smartsupplypro.inventory.validation.InventoryItemLookupValidator;
-import com.smartsupplypro.inventory.validation.InventoryItemSecurityValidator;
 import com.smartsupplypro.inventory.validation.InventoryItemValidator;
 
 import lombok.RequiredArgsConstructor;
@@ -21,11 +20,10 @@ import lombok.RequiredArgsConstructor;
 /**
  * Validation helper for inventory item write operations.
  *
- * <p>Centralises field validation, uniqueness checks, supplier existence checks,
- * security permission checks, and server-field population (ID, createdBy, timestamps).</p>
+ * <p>Centralises field validation, uniqueness checks, supplier existence checks
+ * and server-field population (ID, createdBy, timestamps).</p>
  *
  * @see InventoryItemValidator
- * @see InventoryItemSecurityValidator
  */
 @Component
 @RequiredArgsConstructor
@@ -64,46 +62,6 @@ public class InventoryItemValidationHelper {
         entity.setCreatedAt(LocalDateTime.now());
         if (entity.getMinimumQuantity() <= 0) {
             entity.setMinimumQuantity(InventoryItem.DEFAULT_MINIMUM_QUANTITY);
-        }
-    }
-
-    /**
-     * Validates a DTO for item update and returns the existing entity.
-     * Order: validate base fields -> validate supplier -> assert item exists -> check permissions.
-     *
-     * @param id  the item ID being updated
-     * @param dto the updated inventory item data
-     * @return the existing item entity
-     * @throws InvalidRequestException if a field is invalid or the supplier does not exist (400)
-     * @throws NoSuchElementException if the item is not found (answered as 404)
-     */
-    public InventoryItem validateForUpdate(String id, InventoryItemDTO dto) {
-        InventoryItemValidator.validateBase(dto);
-        validateSupplierExists(dto.getSupplierId());
-        InventoryItem existing = validateExists(id);
-        InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);
-        return existing;
-    }
-
-    /**
-     * Validates uniqueness when the name, price, or SKU changed during an update.
-     * No check is performed when neither field changed.
-     *
-     * @param id       the item ID being updated
-     * @param existing the existing item entity
-     * @param dto      the updated item data
-     */
-    public void validateUniquenessOnUpdate(String id, InventoryItem existing, InventoryItemDTO dto) {
-        boolean nameChanged  = !existing.getName().equalsIgnoreCase(dto.getName());
-        boolean priceChanged = !existing.getPrice().equals(dto.getPrice());
-        boolean skuChanged   = existing.getSku() == null
-                ? dto.getSku() != null
-                : !existing.getSku().equalsIgnoreCase(dto.getSku());
-        if (nameChanged || priceChanged) {
-            InventoryItemLookupValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);
-        }
-        if (skuChanged) {
-            InventoryItemLookupValidator.validateSkuNotExists(id, dto.getSku(), repository);
         }
     }
 

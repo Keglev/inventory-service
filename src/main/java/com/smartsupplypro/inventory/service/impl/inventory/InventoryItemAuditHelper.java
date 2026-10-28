@@ -41,25 +41,6 @@ public class InventoryItemAuditHelper {
     }
 
     /**
-     * Logs a MANUAL_UPDATE entry when the quantity actually changed.
-     * No entry is created for zero-delta updates to keep the audit trail clean.
-     *
-     * @param item          the updated item
-     * @param quantityDelta the quantity change (positive or negative)
-     */
-    public void logQuantityChange(InventoryItem item, int quantityDelta) {
-        if (quantityDelta != 0) {
-            stockHistoryService.logStockChange(
-                    item.getId(),
-                    quantityDelta,
-                    StockChangeReason.MANUAL_UPDATE,
-                    SecurityAuditHelper.currentUsername(),
-                    item.getPrice()
-            );
-        }
-    }
-
-    /**
      * Logs a quantity adjustment with an explicit reason code.
      * @param item   the item being adjusted
      * @param delta  the quantity change

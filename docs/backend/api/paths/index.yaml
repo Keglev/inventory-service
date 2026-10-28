@@ -14,8 +14,6 @@ paths:
   /api/inventory/{id}:
     get:
       $ref: './inventory/get-by-id.yaml#/get'
-    put:
-      $ref: './inventory/update.yaml#/put'
     delete:
       $ref: './inventory/delete.yaml#/delete'
 
@@ -47,8 +45,6 @@ paths:
       $ref: './suppliers/create.yaml#/post'
 
   /api/suppliers/{id}:
-    get:
-      $ref: './suppliers/get-by-id.yaml#/get'
     put:
       $ref: './suppliers/update.yaml#/put'
     delete:
@@ -57,10 +53,6 @@ paths:
   /api/suppliers/count:
     get:
       $ref: './suppliers/count.yaml#/get'
-
-  /api/suppliers/search:
-    get:
-      $ref: './suppliers/search.yaml#/get'
 
   # Analytics endpoints
   /api/analytics/stock-value:
