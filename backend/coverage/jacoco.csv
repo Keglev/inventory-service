@@ -16,7 +16,7 @@ Inventory Service,com.smartsupplypro.inventory.controller,StockReasonAnalyticsCo
 Inventory Service,com.smartsupplypro.inventory.controller,EmployeeAnalyticsController,0,32,0,0,0,6,0,2,0,2
 Inventory Service,com.smartsupplypro.inventory.controller,StockAnalyticsController,0,46,0,0,0,7,0,7,0,7
 Inventory Service,com.smartsupplypro.inventory.controller,StockUpdateAnalyticsController,0,57,0,0,0,7,0,3,0,3
-Inventory Service,com.smartsupplypro.inventory.controller,InventoryItemController,0,64,0,0,0,15,0,8,0,8
+Inventory Service,com.smartsupplypro.inventory.controller,InventoryItemController,0,60,0,0,0,14,0,7,0,7
 Inventory Service,com.smartsupplypro.inventory.controller,AnalyticsController,0,37,0,0,0,4,0,2,0,2
 Inventory Service,com.smartsupplypro.inventory.controller,AuthController.AppUserProfileDTO,0,15,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.controller,RootRedirectController,6,6,0,0,1,3,1,1,1,1
@@ -45,7 +45,7 @@ Inventory Service,com.smartsupplypro.inventory.exception,BusinessExceptionHandle
 Inventory Service,com.smartsupplypro.inventory.exception,BusinessRuleViolationException,0,4,0,0,0,2,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.exception,DuplicateResourceException,0,17,0,0,0,7,0,3,0,3
 Inventory Service,com.smartsupplypro.inventory.exception,GlobalExceptionHandler,12,208,5,19,1,44,6,25,1,18
-Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemServiceImpl,0,218,1,11,0,40,1,14,0,9
+Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemServiceImpl,0,205,1,11,0,39,1,13,0,8
 Inventory Service,com.smartsupplypro.inventory.service.impl,SupplierServiceImpl,0,128,0,2,0,28,0,8,0,7
 Inventory Service,com.smartsupplypro.inventory.service.impl,StockHistoryServiceImpl,0,65,0,2,0,25,0,5,0,4
 Inventory Service,com.smartsupplypro.inventory.mapper,SupplierMapper,0,75,0,8,0,22,0,8,0,4

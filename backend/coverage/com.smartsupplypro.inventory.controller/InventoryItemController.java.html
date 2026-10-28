@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryItemController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.controller</a> &gt; <span class="el_source">InventoryItemController.java</span></div><h1>InventoryItemController.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.controller;
 
 import java.net.URI;
-import java.util.List;
 
 import jakarta.validation.groups.Default;
 
@@ -41,9 +40,9 @@ public class InventoryItemController {
 
     private final InventoryItemService inventoryItemService;
 
-<span class="fc" id="L44">    public InventoryItemController(InventoryItemService inventoryItemService) {</span>
-<span class="fc" id="L45">        this.inventoryItemService = inventoryItemService;</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L43">    public InventoryItemController(InventoryItemService inventoryItemService) {</span>
+<span class="fc" id="L44">        this.inventoryItemService = inventoryItemService;</span>
+<span class="fc" id="L45">    }</span>
 
     /**
      * Gets a single inventory item by ID.
@@ -55,19 +54,8 @@ public class InventoryItemController {
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/{id}&quot;)
     public InventoryItemDTO getById(@PathVariable String id) {
-<span class="fc" id="L58">        return inventoryItemService.getById(id)</span>
-<span class="fc" id="L59">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
-    }
-
-    /**
-     * Returns all active inventory items without pagination.
-     *
-     * @return all active inventory items
-     */
-    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
-    @GetMapping
-    public List&lt;InventoryItemDTO&gt; getAll() {
-<span class="fc" id="L70">        return inventoryItemService.getAll();</span>
+<span class="fc" id="L57">        return inventoryItemService.getById(id)</span>
+<span class="fc" id="L58">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
     }
 
     /**
@@ -78,7 +66,7 @@ public class InventoryItemController {
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/count&quot;)
     public long countItems() {
-<span class="fc" id="L81">        return inventoryItemService.countItems();</span>
+<span class="fc" id="L69">        return inventoryItemService.countItems();</span>
     }
 
     /**
@@ -98,7 +86,7 @@ public class InventoryItemController {
             @RequestParam(required = false) String supplierId,
             @RequestParam(required = false, defaultValue = &quot;false&quot;) boolean belowMinimumOnly,
             @org.springframework.data.web.PageableDefault(size = 20, sort = &quot;price&quot;) Pageable pageable) {
-<span class="fc" id="L101">        return inventoryItemService.searchItems(name, supplierId, belowMinimumOnly, pageable);</span>
+<span class="fc" id="L89">        return inventoryItemService.searchItems(name, supplierId, belowMinimumOnly, pageable);</span>
     }
 
     /**
@@ -115,12 +103,12 @@ public class InventoryItemController {
     public ResponseEntity&lt;InventoryItemDTO&gt; create(
             @Validated({Default.class, InventoryItemDTO.Create.class}) @RequestBody InventoryItemDTO body) {
 
-<span class="fc" id="L118">        InventoryItemDTO created = inventoryItemService.save(body);</span>
+<span class="fc" id="L106">        InventoryItemDTO created = inventoryItemService.save(body);</span>
         URI location = ServletUriComponentsBuilder
-<span class="fc" id="L120">                .fromCurrentRequest().path(&quot;/{id}&quot;)</span>
-<span class="fc" id="L121">                .buildAndExpand(created.getId())</span>
-<span class="fc" id="L122">                .toUri();</span>
-<span class="fc" id="L123">        return ResponseEntity.created(location).body(created);</span>
+<span class="fc" id="L108">                .fromCurrentRequest().path(&quot;/{id}&quot;)</span>
+<span class="fc" id="L109">                .buildAndExpand(created.getId())</span>
+<span class="fc" id="L110">                .toUri();</span>
+<span class="fc" id="L111">        return ResponseEntity.created(location).body(created);</span>
     }
 
     /**
@@ -135,7 +123,7 @@ public class InventoryItemController {
     @DeleteMapping(&quot;/{id}&quot;)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String id) {
-<span class="fc" id="L138">        inventoryItemService.delete(id);</span>
-<span class="fc" id="L139">    }</span>
+<span class="fc" id="L126">        inventoryItemService.delete(id);</span>
+<span class="fc" id="L127">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
