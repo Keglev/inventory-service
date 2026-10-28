@@ -1,0 +1,360 @@
+<!-- ===========================================================================
+     Smart Supply Pro Docs — Architecture page template
+     Pandoc template for the architecture pages; build-architecture-docs.sh
+     renders the Markdown tree through it.
+
+     Pandoc copies this comment into every page the template produces, so it
+     is written for anyone reading a published page source. A dollar sign
+     here would be read as template syntax and substituted, so the comment
+     carries none.
+     ======================================================================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0018-endpoints-removed-after-measured-usage · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=5b1c5d5d46" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+    <li><a href="/inventory-service/decisions/index.html">All decisions</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0018-endpoints-without-callers-are-removed-after-a-measured-access-log-window">ADR-0018:
+        Endpoints without callers are removed after a measured
+        access-log window</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-10-28</p>
+        <h2 id="context">Context</h2>
+        <p>Code reviews found endpoints that no part of the frontend
+        calls: the stock-history read API, a POST twin of the
+        stock-update query, an authorities lookup, an API logout, a
+        full-replace item update, two supplier reads and an unpaged item
+        list. The project’s removal rule says that no caller in code is
+        not proof of disuse: an endpoint may serve scripts, operators, a
+        second client or a troubleshooting habit. It counts as unused
+        only when code, tests, docs, scripts, workflows, operations and
+        access logs all show no caller. The first five sources were
+        checked; the API host kept no access log, so the last one was
+        missing.</p>
+        <p>Forces: - Every public endpoint is attack surface and a
+        contract to keep documented, tested and secured. Several of
+        these were open to anonymous demo callers. - Removing a
+        documented endpoint is a breaking change for any caller we do
+        not know about. The evidence has to cover real traffic, not only
+        our own clients. - A request log holds personal data (addresses,
+        browser strings). Collecting it needs a purpose, a short life
+        and filters that keep out what the measurement does not
+        need.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Measure first, then remove. A temporary access log on the API
+        host recorded every request to
+        <code>api.smartsupplypro.de</code> for a window of about two
+        weeks; an aggregation script turned it into counts per endpoint
+        and client class; the endpoints with no real caller were
+        removed; the log was removed afterwards.</p>
+        <h3 id="method">Method</h3>
+        <ul>
+        <li><strong>Log</strong> (Caddy site block,
+        maintenance-assistant repository, 2026-10-12): JSON lines; IPv4
+        addresses masked to /16; Referer, redirect <code>Location</code>
+        and the OAuth callback’s <code>code</code> and
+        <code>state</code> deleted; Cookie, Set-Cookie and Authorization
+        redacted by Caddy’s defaults. Rolled at 10 MiB, kept at most 336
+        hours.</li>
+        <li><strong>Window</strong>: 2026-10-12 08:38 UTC to 2026-10-28
+        19:46 UTC (16.5 days), four files, nothing aged out. Every
+        browser call reaches this host, because the frontend proxies
+        <code>/api</code> same-origin (ADR-0008), so one log covers all
+        clients.</li>
+        <li><strong>Aggregation</strong>:
+        <code>ops/epa/epa-aggregate.sh</code>, run inside the Caddy
+        container. It prints counts only; no address, query string or
+        User-Agent text leaves the host. Path segments holding a digit
+        collapse to <code>{id}</code>. Calibrated beforehand on
+        <code>caddy:2.10-alpine</code> with planted lines (every class,
+        a query string, an OAuth callback, an empty directory). The
+        runbook is <code>ops/epa/README.md</code>.</li>
+        <li><strong>Classes</strong> by User-Agent: browser 6,825,
+        headless 9,388 (our own probes and test runs), curl 852, bot
+        284, other 203, script 123. 17,675 lines, 0 unparsed. 6,134
+        requests fell outside the application prefixes: scanners probing
+        <code>.env</code>, <code>.git</code>, <code>wp-*</code> and
+        credential files. 6,132 were answered with a redirect or an
+        error; two got 200 (one GET, one CORS preflight).</li>
+        </ul>
+        <h3
+        id="result-for-the-candidates-all-classes-whole-window">Result
+        for the candidates (all classes, whole window)</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Endpoint</th>
+        <th>Requests</th>
+        <th>Removed by</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>GET /api/stock-history</code>,
+        <code>/item/{id}</code>, <code>/reason/{r}</code></td>
+        <td>0</td>
+        <td>#436</td>
+        </tr>
+        <tr class="even">
+        <td><code>GET /api/stock-history/search</code></td>
+        <td>1 (our curl probe, 401)</td>
+        <td>#436</td>
+        </tr>
+        <tr class="odd">
+        <td><code>POST /api/analytics/stock-updates/query</code></td>
+        <td>0</td>
+        <td>#437</td>
+        </tr>
+        <tr class="even">
+        <td><code>GET /api/me/authorities</code></td>
+        <td>0</td>
+        <td>#437</td>
+        </tr>
+        <tr class="odd">
+        <td><code>POST /api/auth/logout</code></td>
+        <td>0</td>
+        <td>#435</td>
+        </tr>
+        <tr class="even">
+        <td><code>PUT /api/inventory/{id}</code></td>
+        <td>0</td>
+        <td>#438</td>
+        </tr>
+        <tr class="odd">
+        <td><code>GET /api/suppliers/{id}</code></td>
+        <td>0</td>
+        <td>#438</td>
+        </tr>
+        <tr class="even">
+        <td><code>GET /api/suppliers/search</code></td>
+        <td>0</td>
+        <td>#438</td>
+        </tr>
+        <tr class="odd">
+        <td><code>GET /api/inventory</code> (unpaged)</td>
+        <td>2 (our curl probes, 10-12)</td>
+        <td>#439</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>For comparison, the paths the frontend does use:
+        <code>POST /logout</code> 50,
+        <code>GET /api/analytics/stock-updates</code> 114,
+        <code>GET /api/inventory/search</code> 217.</p>
+        <p>The same log answered two questions about the security rules
+        (#434): <code>/health/**</code> was public with no controller
+        behind it (one request, 404), and <code>GET /login</code> served
+        Spring’s generated sign-in page (17 browser requests). The
+        public rules for <code>/health/**</code> and
+        <code>/login/**</code> were dropped, and naming the frontend
+        login page in the OAuth2 configuration switched the generated
+        login and logout pages off.</p>
+        <p>Kept although they saw no request in the window, because the
+        frontend calls them: <code>DELETE /api/inventory/{id}</code>,
+        <code>POST /api/suppliers</code>,
+        <code>PATCH /api/inventory/{id}/name</code>. A window without a
+        call proves nothing about an endpoint with a caller.</p>
+        <h3 id="the-log-itself">The log itself</h3>
+        <p>The log was removed after the measurement
+        (maintenance-assistant change, then
+        <code>/data/access-logs</code> deleted on the host). The privacy
+        page stays as it is: it covers the providers’ own server logs,
+        and the operator’s log no longer exists.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Keep every endpoint.</strong> Rejected: the removal
+        rule is satisfied for each one, and keeping them means keeping
+        their tests, docs and security rules for no caller. Several were
+        readable without a sign-in in demo mode.</li>
+        <li><strong>Remove them on code evidence alone.</strong>
+        Rejected: the rule exists because callers outside the code are
+        invisible to a code search.</li>
+        <li><strong>Keep the access log permanently, as security
+        monitoring.</strong> Rejected: nothing reads it, so it would
+        collect personal data without a use; it would need a paragraph
+        on the privacy page and a retention policy; and the scanner
+        traffic it showed was already answered by redirects and errors.
+        If monitoring is wanted later, it is a decision of its own, with
+        its own purpose and retention.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>The removals are breaking API changes for unknown callers.
+        The window makes such a caller unlikely, not impossible; the
+        version of the next release says so.</li>
+        <li>The OpenAPI reference goes from 41 to 30 operations
+        (measured on main before the removals and on all six removal
+        branches merged together).</li>
+        <li>The measurement can be repeated: turn the log on with the
+        block in the runbook, run the script, turn it off. The runbook
+        shows one synthetic input line and its output; no real log line
+        is published.</li>
+        <li>The log carried no roles, so the role rule on the employee
+        analytics (admin or demo, not user) is still open; it needs
+        another kind of evidence.</li>
+        <li>Record correction found while publishing the script: the
+        copy run on 2026-10-28 printed <code>ERROR</code> but exited 0
+        when no line parsed, because the check exits inside a pipeline.
+        The repository copy sets <code>pipefail</code>. That run parsed
+        every line, so its result stands.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li>Runbook and script: <code>ops/epa/README.md</code>,
+        <code>ops/epa/epa-aggregate.sh</code></li>
+        <li><a
+        href="adr-0008-serve-time-api-base-rewrite.html">ADR-0008:
+        Serve-time API-base rewrite and same-origin proxy</a></li>
+        <li><a
+        href="adr-0012-backend-hosting-on-shared-hetzner-host.html">ADR-0012:
+        Backend hosting on the shared Hetzner host</a></li>
+        <li>Frontend ADR-0014 (bounded lists searched in the browser),
+        amended 2026-10-28</li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0018-endpoints-without-callers-are-removed-after-a-measured-access-log-window"
+      id="toc-adr-0018-endpoints-without-callers-are-removed-after-a-measured-access-log-window">ADR-0018:
+      Endpoints without callers are removed after a measured access-log
+      window</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a>
+      <ul>
+      <li><a href="#method" id="toc-method">Method</a></li>
+      <li><a href="#result-for-the-candidates-all-classes-whole-window"
+      id="toc-result-for-the-candidates-all-classes-whole-window">Result
+      for the candidates (all classes, whole window)</a></li>
+      <li><a href="#the-log-itself" id="toc-the-log-itself">The log
+      itself</a></li>
+      </ul></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Served from this site, not a CDN (no visitor address goes to a third
+       party). data-mermaid-version and the integrity hash are the pin:
+       vendor-mermaid.sh copies that version from npm and fails the build unless
+       it matches the hash, and the browser refuses any other file. Update both
+       together. Only pages with a diagram load it: md-to-html-links.lua sets
+       has-mermaid on them, and check-mermaid-pages.sh fails the build when a
+       page and its flag disagree (W23). -->
+  <script src="/inventory-service/assets/docs.js?v=f546e6c747"></script>
+</body>
+</html>
