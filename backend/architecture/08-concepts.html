@@ -214,10 +214,7 @@
         to <code>system</code>. A client is not trusted to state who
         created a row. <code>SecurityAuditHelper</code> is the single
         resolution point — reading the principal name anywhere else
-        re-introduces a copy that can drift. Reading
-        <code>Authentication</code> for authorization
-        (<code>InventoryItemSecurityValidator</code>) is a separate
-        concern and stays where it is</td>
+        re-introduces a copy that can drift.</td>
         </tr>
         <tr class="odd">
         <td>Demo mode</td>
@@ -264,7 +261,6 @@
         validator classes (<code>SupplierValidator</code>,
         <code>InventoryItemValidator</code>,
         <code>InventoryItemLookupValidator</code>,
-        <code>InventoryItemSecurityValidator</code>,
         <code>StockHistoryValidator</code>) enforce uniqueness,
         referential integrity, and state guards that require database
         reads. Failures throw <code>InvalidRequestException</code> → 400

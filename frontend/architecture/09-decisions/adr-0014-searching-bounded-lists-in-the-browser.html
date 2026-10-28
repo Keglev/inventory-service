@@ -194,6 +194,18 @@
         revisited: the server search with a debounce and a cap is the
         documented fallback.</li>
         </ul>
+        <h2
+        id="amendment-2026-10-28-the-server-search-is-gone">Amendment
+        2026-10-28: the server search is gone</h2>
+        <p>Nothing above is edited; this block states what has since
+        changed. The backend’s access log of 2026-10-12 to 2026-10-28
+        recorded no call to <code>GET /api/suppliers/search</code>, and
+        the endpoint has been removed from the backend and its API
+        reference. The removal rule the Consequences name was met: no
+        caller in code, tests, docs, scripts, workflows, operations or
+        the access log. The documented fallback for a list that outgrows
+        the thresholds therefore needs a server search to be built
+        again, not only wired up.</p>
       </article>
     </main>
 
@@ -212,6 +224,9 @@
       id="toc-alternatives-considered">Alternatives Considered</a></li>
       <li><a href="#consequences"
       id="toc-consequences">Consequences</a></li>
+      <li><a href="#amendment-2026-10-28-the-server-search-is-gone"
+      id="toc-amendment-2026-10-28-the-server-search-is-gone">Amendment
+      2026-10-28: the server search is gone</a></li>
       </ul></li>
       </ul>
     </nav>
