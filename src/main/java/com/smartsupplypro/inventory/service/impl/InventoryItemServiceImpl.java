@@ -46,12 +46,6 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     /** {@inheritDoc} */
     @Override
-    public List<InventoryItemDTO> getAll() {
-        return repository.findByActiveTrue().stream().map(inventoryItemMapper::toDTO).toList();
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public Optional<InventoryItemDTO> getById(String id) {
         return repository.findById(id).map(inventoryItemMapper::toDTO);
     }

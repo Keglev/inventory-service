@@ -1,7 +1,6 @@
 package com.smartsupplypro.inventory.controller;
 
 import java.net.URI;
-import java.util.List;
 
 import jakarta.validation.groups.Default;
 
@@ -57,17 +56,6 @@ public class InventoryItemController {
     public InventoryItemDTO getById(@PathVariable String id) {
         return inventoryItemService.getById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found"));
-    }
-
-    /**
-     * Returns all active inventory items without pagination.
-     *
-     * @return all active inventory items
-     */
-    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
-    @GetMapping
-    public List<InventoryItemDTO> getAll() {
-        return inventoryItemService.getAll();
     }
 
     /**

@@ -1,7 +1,6 @@
 package com.smartsupplypro.inventory.service;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -20,13 +19,6 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
  * @see StockHistoryService
  */
 public interface InventoryItemService {
-
-    /**
-     * Retrieves all inventory items without pagination.
-     * Use {@link #searchItems} for large datasets.
-     * @return all inventory items
-     */
-    List<InventoryItemDTO> getAll();
 
     /**
      * Retrieves an inventory item by unique identifier.

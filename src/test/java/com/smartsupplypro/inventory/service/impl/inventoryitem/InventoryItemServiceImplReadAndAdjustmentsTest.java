@@ -55,24 +55,10 @@ class InventoryItemServiceImplReadAndAdjustmentsTest {
     }
 
     /**
-     * Tests for {@code getAll()}, {@code getById()}, and {@code countItems()}.
+     * Tests for {@code getById()} and {@code countItems()}.
      */
     @Nested
     class ReadOperations {
-
-        @Test
-        void should_map_every_entity_when_all_items_are_read() {
-            InventoryItem e1 = item("i-1", "Widget", 10, new BigDecimal("2.50"), "S1");
-            InventoryItem e2 = item("i-2", "Gadget", 0,  new BigDecimal("9.99"), "S2");
-            when(repository.findByActiveTrue()).thenReturn(List.of(e1, e2));
-
-            List<InventoryItemDTO> result = service.getAll();
-
-            assertEquals(2, result.size());
-            assertEquals("i-1", result.get(0).getId());
-            assertEquals(new BigDecimal("2.50"), result.get(0).getPrice());
-            assertEquals("i-2", result.get(1).getId());
-        }
 
         @Test
         void should_map_optional_entity_to_optional_dto_when_item_exists() {
