@@ -5,8 +5,6 @@ tags:
     description: Inventory item CRUD operations
   - name: Suppliers
     description: Supplier management
-  - name: Stock History
-    description: Stock movement tracking and history
   - name: Analytics
     description: Dashboard KPIs and analytics
   - name: System

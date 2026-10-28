@@ -66,7 +66,7 @@ Einstiegspunkt für alle HTTP-Anfragen. Die Controller übernehmen Request-Routi
 DTO-Konvertierung, Response-Serialisierung und Basisvalidierung über `@Valid`.
 
 Wichtigste Controller: `SupplierController`, `InventoryItemController`,
-`StockHistoryController`, `AnalyticsController`, `AuthController`.
+`AnalyticsController`, `AuthController`.
 
 ```java
 @PostMapping("/suppliers")

@@ -6,9 +6,11 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 
 /**
- * Response payload for a stock history audit entry.
+ * A stock history audit entry as validated before it is written.
  *
- * <p>Returned by {@link com.smartsupplypro.inventory.controller.StockHistoryController}.</p>
+ * <p>Built by {@link com.smartsupplypro.inventory.service.impl.StockHistoryServiceImpl#logStockChange}
+ * and checked by {@link com.smartsupplypro.inventory.validation.StockHistoryValidator}; no
+ * endpoint returns it since the stock-history read API was removed (2026-10-28).</p>
  *
  * @param id            unique audit record identifier
  * @param itemId        inventory item affected by this change

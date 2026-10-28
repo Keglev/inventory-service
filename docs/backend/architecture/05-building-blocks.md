@@ -11,7 +11,6 @@ site root.
 | `SupplierController` | `/api/suppliers` | Full supplier CRUD |
 | `InventoryItemController` | `/api/inventory` | Create, read, delete, list |
 | `InventoryItemPatchController` | `/api/inventory` | Price and quantity patch operations (kept separate to keep each class focused) |
-| `StockHistoryController` | `/api/stock-history` | Paginated read and search |
 | `AnalyticsController` | `/api/analytics` | Dashboard and financial summaries |
 | `StockAnalyticsController` | `/api/analytics` | Stock-per-supplier, low-stock, movement |
 | `StockUpdateAnalyticsController` | `/api/analytics` | Stock update query and post |
@@ -39,7 +38,7 @@ interfaces are constructor-injected; every state-mutating operation is wrapped i
 |---|---|
 | `SupplierService` | Supplier business rules and orchestration |
 | `InventoryItemService` | Item lifecycle, uniqueness, soft-delete gating |
-| `StockHistoryService` | Audit-trail writes and paginated reads |
+| `StockHistoryService` | Audit-trail writes (the trail is read by the analytics repositories) |
 | `StockAnalyticsService` | Stock-movement calculations |
 | `FinancialAnalyticsService` | Weighted-average-cost (WAC) calculations |
 | `EmployeeAnalyticsService` | Per-employee update analytics |
@@ -105,7 +104,6 @@ graph TB
     subgraph Controllers
         SC["SupplierController"]:::controller
         IC["InventoryItemController\nInventoryItemPatchController"]:::controller
-        SHC["StockHistoryController"]:::controller
         AC["AnalyticsController\nStockAnalyticsController\nStockUpdateAnalyticsController"]:::controller
         AuC["AuthController"]:::controller
     end
@@ -141,7 +139,7 @@ graph TB
 
     SC --> SS
     IC --> IS
-    SHC --> SHS
+    IS --> SHS
     AC --> AS
     AuC --> UPS
 

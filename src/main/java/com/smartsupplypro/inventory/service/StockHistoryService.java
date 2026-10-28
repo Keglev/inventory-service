@@ -1,61 +1,21 @@
 package com.smartsupplypro.inventory.service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
-import com.smartsupplypro.inventory.dto.StockHistoryDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 
 /**
  * Service contract for immutable stock movement event logging and audit trail management.
  *
- * <p>Defines operations for logging stock changes with price snapshots,
- * querying history by item or reason, and paginated filtered search.</p>
+ * <p>Logs stock changes with price snapshots. The history is read through the
+ * analytics repositories; the direct read API was removed after the access log
+ * showed no caller (2026-10-28).</p>
  *
  * @see com.smartsupplypro.inventory.service.impl.StockHistoryServiceImpl
  * @see com.smartsupplypro.inventory.model.StockHistory
  * @see com.smartsupplypro.inventory.validation.StockHistoryValidator
  */
 public interface StockHistoryService {
-
-    /**
-     * Retrieves all stock history entries.
-     * @return list of all stock history DTOs
-     */
-    List<StockHistoryDTO> getAll();
-
-    /**
-     * Retrieves stock history for a specific inventory item, newest first.
-     * @param itemId inventory item ID
-     * @return stock history DTOs ordered by timestamp descending
-     */
-    List<StockHistoryDTO> getByItemId(String itemId);
-
-    /**
-     * Retrieves stock history filtered by change reason, newest first.
-     * @param reason stock change reason filter
-     * @return stock history DTOs ordered by timestamp descending
-     */
-    List<StockHistoryDTO> getByReason(StockChangeReason reason);
-
-    /**
-     * Retrieves paginated stock history filtered by date range, item name, and supplier.
-     * @param startDate  start date (inclusive, nullable)
-     * @param endDate    end date (inclusive, nullable)
-     * @param itemName   item name filter (partial match, nullable)
-     * @param supplierId supplier ID filter (nullable)
-     * @param pageable   pagination parameters
-     * @return page of stock history DTOs
-     */
-    Page<StockHistoryDTO> findFiltered(LocalDateTime startDate,
-                                       LocalDateTime endDate,
-                                       String itemName,
-                                       String supplierId,
-                                       Pageable pageable);
 
     /**
      * Logs a stock change with a price snapshot for WAC analytics.

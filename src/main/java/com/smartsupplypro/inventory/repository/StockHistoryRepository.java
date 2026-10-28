@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.StockHistory;
 import com.smartsupplypro.inventory.repository.custom.StockDetailQueryRepository;
 import com.smartsupplypro.inventory.repository.custom.StockMetricsRepository;
@@ -35,49 +34,6 @@ public interface StockHistoryRepository
                 StockTrendAnalyticsRepository,
                 StockMetricsRepository,
                 StockDetailQueryRepository {
-
-    /**
-     * Returns a paginated, filtered view of stock history ordered by creation time descending.
-     *
-     * <p>All filter parameters are optional; pass {@code null} to omit a filter.
-     * Uses a separate {@code countQuery} to avoid re-executing the JOIN for pagination counts.
-     * The ORDER BY is part of the SQL: pass an UNSORTED {@link Pageable}, since Spring
-     * Data appends a sort to native SQL as entity property names, not columns.
-     *
-     * @param startDate  optional start timestamp (inclusive)
-     * @param endDate    optional end timestamp (inclusive)
-     * @param itemName   optional partial item name (case-insensitive)
-     * @param supplierId optional supplier ID filter
-     * @param pageable   pagination parameters
-     * @return paginated stock history records
-     */
-    @NativeQuery(
-        value = """
-            SELECT s.*
-            FROM stock_history s
-            JOIN inventory_item i ON s.item_id = i.id
-            WHERE (:startDate IS NULL OR s.CREATED_AT >= :startDate)
-              AND (:endDate   IS NULL OR s.CREATED_AT <= :endDate)
-              AND (:itemName  IS NULL OR LOWER(i.name) LIKE LOWER(CONCAT('%', :itemName, '%')))
-              AND (:supplierId IS NULL OR s.SUPPLIER_ID = :supplierId)
-            ORDER BY s.CREATED_AT DESC
-        """,
-        countQuery = """
-            SELECT COUNT(*)
-            FROM stock_history s
-            JOIN inventory_item i ON s.item_id = i.id
-            WHERE (:startDate IS NULL OR s.CREATED_AT >= :startDate)
-              AND (:endDate   IS NULL OR s.CREATED_AT <= :endDate)
-              AND (:itemName  IS NULL OR LOWER(i.name) LIKE LOWER(CONCAT('%', :itemName, '%')))
-              AND (:supplierId IS NULL OR s.SUPPLIER_ID = :supplierId)
-        """)
-    Page<StockHistory> findFiltered(
-        @Param("startDate") LocalDateTime startDate,
-        @Param("endDate") LocalDateTime endDate,
-        @Param("itemName") String itemName,
-        @Param("supplierId") String supplierId,
-        Pageable pageable
-    );
 
     /**
      * Aggregates stock movement per reason inside a time window, sign-split into
@@ -184,8 +140,4 @@ public interface StockHistoryRepository
         @Param("before") LocalDateTime before,
         Limit limit
     );
-
-    List<StockHistory> findByItemIdOrderByTimestampDesc(String itemId);
-
-    List<StockHistory> findByReasonOrderByTimestampDesc(StockChangeReason reason);
 }

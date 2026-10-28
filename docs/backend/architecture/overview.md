@@ -66,7 +66,7 @@ Entry point for all HTTP requests. Handles request routing, DTO conversion,
 response serialisation, and basic parameter validation via `@Valid`.
 
 Key controllers: `SupplierController`, `InventoryItemController`,
-`StockHistoryController`, `AnalyticsController`, `AuthController`.
+`AnalyticsController`, `AuthController`.
 
 ```java
 @PostMapping("/suppliers")

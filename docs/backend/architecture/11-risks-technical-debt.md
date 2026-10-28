@@ -36,9 +36,10 @@ reaches the 300 hard cap.
 | `SecurityConfig::securityFilterChain` | 32 | 30 | One fluent `HttpSecurity` statement. The parts that can be extracted already are, into the entry-point, filter and authorization helpers. The 32nd line names the frontend login page, which switches off the login and logout pages Spring generates (2026-10-28). |
 
 Two files sit above their target and below their alarm and are watched rather
-than waived: `StockHistoryRepository.java` at 115 and
+than waived: `StockHistoryRepository.java` at 85 and
 `repository/custom/util/StockTrendSqlBuilder.java` at 145, both against a
-repository target of 80. The builder was waived at 153 until its unused
+repository target of 80. The repository was at 115 until the stock-history read
+API and its three queries were removed (2026-10-28). The builder was waived at 153 until its unused
 all-suppliers monthly variant was removed (2026-10-16). Thirteen methods sit
 between the target of 20 and the alarm of 30, the largest being
 `EmployeeAnalyticsService::getEmployeeActivity` at 29. The two
