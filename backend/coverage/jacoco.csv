@@ -8,14 +8,14 @@ Inventory Service,com.smartsupplypro.inventory.model,AppUser,0,32,0,0,0,10,0,2,0
 Inventory Service,com.smartsupplypro.inventory.model,StockHistory,0,7,0,2,0,3,0,2,0,1
 Inventory Service,com.smartsupplypro.inventory.model,Role,0,15,0,0,0,3,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory,InventoryServiceApplication,0,49,0,10,0,13,0,9,0,4
-Inventory Service,com.smartsupplypro.inventory.controller,AuthController,0,75,0,6,0,19,0,7,0,4
+Inventory Service,com.smartsupplypro.inventory.controller,AuthController,0,58,0,4,0,12,0,5,0,3
 Inventory Service,com.smartsupplypro.inventory.controller,SupplierController,4,78,1,5,1,14,2,9,1,7
 Inventory Service,com.smartsupplypro.inventory.controller,InventoryItemPatchController,0,25,0,0,0,6,0,4,0,4
 Inventory Service,com.smartsupplypro.inventory.controller,HealthCheckController,0,214,3,25,0,49,3,20,0,9
 Inventory Service,com.smartsupplypro.inventory.controller,StockReasonAnalyticsController,0,9,0,0,0,2,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.controller,EmployeeAnalyticsController,0,32,0,0,0,6,0,2,0,2
 Inventory Service,com.smartsupplypro.inventory.controller,StockAnalyticsController,0,46,0,0,0,7,0,7,0,7
-Inventory Service,com.smartsupplypro.inventory.controller,StockUpdateAnalyticsController,0,63,0,0,0,8,0,4,0,4
+Inventory Service,com.smartsupplypro.inventory.controller,StockUpdateAnalyticsController,0,57,0,0,0,7,0,3,0,3
 Inventory Service,com.smartsupplypro.inventory.controller,InventoryItemController,0,82,0,0,0,18,0,10,0,10
 Inventory Service,com.smartsupplypro.inventory.controller,AnalyticsController,0,37,0,0,0,4,0,2,0,2
 Inventory Service,com.smartsupplypro.inventory.controller,AuthController.AppUserProfileDTO,0,15,0,0,0,1,0,1,0,1

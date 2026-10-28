@@ -65,24 +65,5 @@ public class AuthController {
 <span class="fc" id="L65">        String picture = principal.getAttribute(&quot;picture&quot;);</span>
 <span class="fc" id="L66">        return new AppUserProfileDTO(user.getEmail(), user.getName(), user.getRole().name(), picture);</span>
     }
-
-    /**
-     * Gets user's granted authorities for authorization checks.
-     *
-     * @param principal OAuth2 authentication principal
-     * @return sorted list of authority strings (e.g., ROLE_USER, ROLE_ADMIN)
-     * @throws ResponseStatusException 401 if not authenticated
-     */
-    @GetMapping(&quot;/me/authorities&quot;)
-    public java.util.List&lt;String&gt; meAuthorities(@AuthenticationPrincipal OAuth2User principal) {
-<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (principal == null) {</span>
-<span class="fc" id="L79">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication&quot;);</span>
-        }
-<span class="fc" id="L81">        return principal.getAuthorities().stream()</span>
-<span class="fc" id="L82">                .map(org.springframework.security.core.GrantedAuthority::getAuthority)</span>
-<span class="fc" id="L83">                .distinct()</span>
-<span class="fc" id="L84">                .sorted()</span>
-<span class="fc" id="L85">                .toList();</span>
-    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
