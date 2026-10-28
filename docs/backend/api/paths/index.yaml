@@ -4,10 +4,6 @@ paths:
     get:
       $ref: './auth/me.yaml#/get'
 
-  /api/me/authorities:
-    get:
-      $ref: './auth/authorities.yaml#/get'
-
   # Inventory endpoints
   /api/inventory:
     get:
@@ -94,10 +90,6 @@ paths:
   /api/analytics/stock-updates:
     get:
       $ref: './analytics/stock-updates-query.yaml#/get'
-
-  /api/analytics/stock-updates/query:
-    post:
-      $ref: './analytics/stock-updates-post.yaml#/post'
 
   /api/analytics/stock-updates/page:
     get:

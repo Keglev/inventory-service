@@ -27,8 +27,7 @@ class ApiAuthorizationContractTest {
     private static final Set<String> WITHOUT_ROLE_RULE = Set.of(
         "GET /api/health",            // public liveness check
         "GET /api/health/db",         // public, answers up or down only
-        "GET /api/me",                // the caller's own identity
-        "GET /api/me/authorities"     // the caller's own roles
+        "GET /api/me"                 // the caller's own identity
     );
 
     private record Handler(String key, boolean hasRule) {}

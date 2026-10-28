@@ -40,16 +40,4 @@ class AuthControllerBranchUnitTest {
         assertEquals("No authentication provided", reason);
     }
 
-    @Test
-    void should_throw_unauthorized_when_the_principal_is_null_on_me_authorities() {
-        AuthController controller = newController();
-
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> controller.meAuthorities(null));
-
-        assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
-
-        String reason = ex.getReason();
-        assertNotNull(reason);
-        assertEquals("No authentication", reason);
-    }
 }
