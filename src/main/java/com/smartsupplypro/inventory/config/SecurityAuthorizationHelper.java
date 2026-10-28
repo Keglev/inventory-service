@@ -41,10 +41,10 @@ public class SecurityAuthorizationHelper {
                 "/actuator/health",
                 "/actuator/info",
                 "/api/health/**",
-                "/oauth2/**",
-                "/login/oauth2/**",
                 "/error"
         ).permitAll();
+        // No rule for /oauth2/** or /login/oauth2/**: the OAuth2 filters answer the
+        // sign-in start and the callback before any rule here is read.
 
         if (isDemoReadonly) {
             auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").permitAll();
