@@ -40,11 +40,9 @@ public class SecurityAuthorizationHelper {
                 // would silently expose anything later added to the exposure list.
                 "/actuator/health",
                 "/actuator/info",
-                "/health/**",
                 "/api/health/**",
                 "/oauth2/**",
                 "/login/oauth2/**",
-                "/login/**",
                 "/error"
         ).permitAll();
 

@@ -79,6 +79,40 @@ class SecurityConfigAuthorizationRulesTest {
         }
 
         @Test
+        void should_redirect_to_the_frontend_login_when_the_api_login_path_is_requested() throws Exception {
+            // The login page is the frontend's; this host used to render Spring's generated one.
+            mvc.perform(get("/login").accept(MediaType.TEXT_HTML))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header().string("Location", "https://frontend.test/login"));
+        }
+
+        @Test
+        void should_redirect_to_the_frontend_login_when_a_path_under_login_is_requested() throws Exception {
+            mvc.perform(get("/login/livewire/update").accept(MediaType.TEXT_HTML))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header().string("Location", "https://frontend.test/login"));
+        }
+
+        @Test
+        void should_redirect_to_the_frontend_login_when_a_path_under_health_is_requested() throws Exception {
+            mvc.perform(get("/health/anything").accept(MediaType.TEXT_HTML))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header().string("Location", "https://frontend.test/login"));
+        }
+
+        @Test
+        void should_hand_the_oauth_callback_to_the_login_filter_when_it_carries_no_matching_request()
+                throws Exception {
+            // The OAuth filter answers the callback before any rule applies: it rejects this one
+            // (no stored request) and the failure handler names the error, which the entry
+            // point would not do. Guards the callback against the narrowed /login rules.
+            mvc.perform(get("/login/oauth2/code/google").param("code", "x").param("state", "y"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header().string("Location",
+                    org.hamcrest.Matchers.startsWith("https://frontend.test/login?error=")));
+        }
+
+        @Test
         void should_reach_mvc_when_the_api_health_endpoint_is_requested() throws Exception {
             // 404 confirms the request passed security and reached MVC (no handler registered in this slice).
             mvc.perform(get("/api/health").accept(MediaType.APPLICATION_JSON))
@@ -148,6 +182,14 @@ class SecurityConfigAuthorizationRulesTest {
                     .accept(MediaType.TEXT_HTML))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location", "https://frontend.test/logout-success"));
+        }
+
+        @Test
+        void should_not_serve_a_generated_confirmation_page_when_logout_is_requested_with_get() throws Exception {
+            // Only POST /logout signs out; the frontend posts its own form. A GET reaches MVC,
+            // which has no handler for it in this slice.
+            mvc.perform(get("/logout").accept(MediaType.TEXT_HTML))
+                .andExpect(status().isNotFound());
         }
 
         @Test
