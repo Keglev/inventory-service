@@ -32,6 +32,7 @@ ADRs do **not** document:
 - [ADR-0015: GitHub Pages is deployed by the publisher job](./adr-0015-pages-deployed-from-the-publisher-job.md)
 - [ADR-0016: One claimant for the required check, and the browser suite inside CI](./adr-0016-one-claimant-and-the-e2e-inside-ci.md)
 - [ADR-0017: Workflow files are named by chain, not numbered](./adr-0017-workflows-named-by-chain.md)
+- [ADR-0018: Endpoints without callers are removed after a measured access-log window](./adr-0018-endpoints-removed-after-measured-usage.md)
 
 ---
 
