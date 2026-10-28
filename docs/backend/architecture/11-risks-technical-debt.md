@@ -33,7 +33,7 @@ reaches the 300 hard cap.
 
 | Waived | Measured | Alarm | Reason |
 |------|------|--------|------------|
-| `SecurityConfig::securityFilterChain` | 31 | 30 | One fluent `HttpSecurity` statement. The parts that can be extracted already are, into the entry-point, filter and authorization helpers. |
+| `SecurityConfig::securityFilterChain` | 32 | 30 | One fluent `HttpSecurity` statement. The parts that can be extracted already are, into the entry-point, filter and authorization helpers. The 32nd line names the frontend login page, which switches off the login and logout pages Spring generates (2026-10-28). |
 
 Two files sit above their target and below their alarm and are watched rather
 than waived: `StockHistoryRepository.java` at 115 and

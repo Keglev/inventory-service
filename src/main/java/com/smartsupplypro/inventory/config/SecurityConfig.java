@@ -63,9 +63,10 @@ public class SecurityConfig {
         this.props = props;
     }
 
-    // SIZE WAIVER: 31 code lines against a 30 alarm. The body is one fluent
+    // SIZE WAIVER: 32 code lines against a 30 alarm. The body is one fluent
     // HttpSecurity statement; the parts that can be extracted already are, into the
-    // entry-point, filter and authorization helpers. Recorded in
+    // entry-point, filter and authorization helpers. The login page line (EPA-c)
+    // added the 32nd. Recorded in
     // docs/backend/architecture/11-risks-technical-debt.md.
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -84,6 +85,9 @@ public class SecurityConfig {
                 .defaultAuthenticationEntryPointFor(webEntry, request -> true)
             )
             .oauth2Login(oauth -> oauth
+                // A login page of our own switches off Spring's generated login and
+                // logout pages on this host; the sign-in screen is the frontend's.
+                .loginPage(props.getFrontend().getBaseUrl() + "/login")
                 .authorizationEndpoint(ae -> ae.authorizationRequestRepository(authorizationRequestRepository))
                 .userInfoEndpoint(ui -> ui
                     .oidcUserService(customOidcUserService)
