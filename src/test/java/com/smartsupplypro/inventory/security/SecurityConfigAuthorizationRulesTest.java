@@ -101,11 +101,20 @@ class SecurityConfigAuthorizationRulesTest {
         }
 
         @Test
+        void should_send_the_browser_to_the_provider_when_the_sign_in_starts() throws Exception {
+            // The OAuth filter answers this path; no public rule is needed for it.
+            mvc.perform(get("/oauth2/authorization/google"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header().string("Location",
+                    org.hamcrest.Matchers.startsWith("https://accounts.google.com/")));
+        }
+
+        @Test
         void should_hand_the_oauth_callback_to_the_login_filter_when_it_carries_no_matching_request()
                 throws Exception {
             // The OAuth filter answers the callback before any rule applies: it rejects this one
             // (no stored request) and the failure handler names the error, which the entry
-            // point would not do. Guards the callback against the narrowed /login rules.
+            // point would not do. Guards the callback, which has no public rule.
             mvc.perform(get("/login/oauth2/code/google").param("code", "x").param("state", "y"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location",
