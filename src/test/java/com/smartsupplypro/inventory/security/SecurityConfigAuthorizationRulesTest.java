@@ -157,11 +157,11 @@ class SecurityConfigAuthorizationRulesTest {
     class WhenLoggingOut {
 
         @Test
-        void should_return_204_when_an_api_logout_carries_the_api_request_attribute() throws Exception {
-            mvc.perform(post("/logout")
-                    .requestAttr("IS_API_REQUEST", Boolean.TRUE)
-                    .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
+        void should_redirect_to_the_logout_success_page_when_logout_asks_for_json() throws Exception {
+            // The API flag is set only for /api/ paths, so a JSON logout is still a browser redirect.
+            mvc.perform(post("/logout").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header().string("Location", "https://frontend.test/logout-success"));
         }
 
         @Test
