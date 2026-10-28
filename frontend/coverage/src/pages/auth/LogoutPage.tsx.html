@@ -221,9 +221,9 @@
  * - Assumes CSRF is disabled on /logout. If CSRF protection is enabled in
  *   the future, either allow GET logout or include the CSRF token as a
  *   hidden field on the form.
- * - Distinct from POST /api/auth/logout (AuthController.apiLogout), which is
- *   the JSON 204 endpoint for SPA/mobile clients that cannot follow a
- *   browser-level form POST.
+ * - The only sign-out path the backend offers. The JSON endpoint POST
+ *   /api/auth/logout was removed after the API access log of 2026-10-12 to
+ *   2026-10-28 showed no call to it.
  *
  * @i18n
  * Uses 'auth' namespace. Key: logoutSigningOut.
