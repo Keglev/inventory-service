@@ -23,25 +23,62 @@ live as BUCKET markers at their source sites.
 
 ## Size-Budget Waivers
 
-Measured over code lines against the budgets in [§2](02-constraints.md). One file exceeds
-its layer's alarm; it is waived, with the reason, rather than split. No function
-exceeds its layer's alarm. `useEditItemForm.ts` no longer needs its waiver: the shared
-`useItemSelectionState` brought it to 116 code lines, above the hooks band and below its
-alarm.
+Measured over code lines against the budgets in [§2](02-constraints.md); function
+lengths follow its counting rule, which leaves both brace lines out (2026-10-29).
+A file's layer follows its place in the tree: files under a `dialogs/` folder are
+dialogs, `use*` files and `handlers/` are hooks and handlers, a page's top-level
+file under `pages/<area>/` is a page orchestrator, and the remaining UI files are
+components.
 
-| File | Code lines | Alarm | Why not split |
-|---|---|---|---|
-| `inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` | 164 | 160 (dialogs) | Four lines over. A flat, single-purpose JSX form; any split would be a fragment defined by the threshold rather than by a responsibility |
+No file carries a waiver. The waiver for
+`pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` (164 code lines
+against the dialogs alarm of 160) is withdrawn: the file measures 134.
 
-Seven functions sit above their band but below their alarm (`PriceChangeForm` 146,
-`EditItemForm` 133, `PriceTrendCard` 122, `MovementsSection` 112, `DateRangeFilter`
-110, `useEditItemForm` 90, `usePriceChangeForm` 81). These are accepted: the band
-is guidance, the alarm is the gate.
+One file exceeds its layer's alarm and is an open finding:
+`pages/analytics/sections/EmployeesActivityChart.tsx` at 155, against the
+components alarm of 150. Its axis, tick and tooltip formatters are a separate
+abstraction level from the chart they configure; moving them into a sibling
+module was ruled on 2026-10-29. No function exceeds its layer's alarm.
 
-One component file sits above its band and below its alarm
-(`analytics/blocks/StockValuePerSupplierPie.tsx` 122, band 100, alarm 150): the
-pinned readout and the wide/narrow layout (C7) belong to the pie they position.
+Four functions sit above their band and below their alarm: `DateRangeFilter`
+122, `MovementsSection` 112 and `EmployeesActivityChart` 110 (components, band
+100), and `useEditItemForm` 88 (hooks, band 80). `PriceChangeForm` 113,
+`EditItemForm` 102, `PriceTrendCard` 82 and `usePriceChangeForm` 79 are inside
+their bands. The band is guidance, the alarm is the gate.
 
-One spec file sits above the service band and below its alarm
-(`unit/api/suppliers/supplierMutations.test.ts` 173). No spec approaches either
-spec alarm; the largest in the tree is 243 code lines.
+Files above their band and below their alarm are watched:
+
+| File (under `src/`) | Layer (band / alarm) | Code lines |
+|---|---|---|
+| `pages/analytics/components/filters/DateRangeFilter.tsx` | components (100 / 150) | 140 |
+| `pages/analytics/sections/MovementsSection.tsx` | components | 132 |
+| `app/settings/sections/LanguageRegionSettingsSection.tsx` | components | 130 |
+| `pages/analytics/blocks/LowStockTable.tsx` | components | 128 |
+| `pages/dashboard/blocks/LowStockMini.tsx` | components | 125 |
+| `components/help/HelpPanel.tsx` | components | 117 |
+| `pages/analytics/blocks/StockValuePerSupplierPie.tsx` | components | 117 |
+| `components/search/ListSearchField.tsx` | components | 113 |
+| `pages/analytics/blocks/FinancialSummaryCard.tsx` | components | 105 |
+| `app/layout/AppShell.tsx` | components | 102 |
+| `pages/inventory/components/InventoryTable.tsx` | components | 101 |
+| `pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` | dialogs (120 / 160) | 134 |
+| `pages/inventory/dialogs/EditItemDialog/EditItemForm.tsx` | dialogs | 122 |
+| `pages/inventory/dialogs/ItemFormDialog/useItemForm.ts` | hooks (80 / 120) | 120 |
+| `pages/inventory/dialogs/EditItemDialog/useEditItemForm.ts` | hooks | 116 |
+| `pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm.ts` | hooks | 107 |
+| `pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm.ts` | hooks | 103 |
+| `pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm.ts` | hooks | 103 |
+| `pages/inventory/hooks/useInventoryColumns.ts` | hooks | 90 |
+| `pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm.ts` | hooks | 88 |
+| `pages/inventory/hooks/useInventoryState.ts` | hooks | 85 |
+| `pages/inventory/hooks/useInventoryPageData.ts` | hooks | 81 |
+
+`useItemForm.ts` sits on its alarm: one more code line makes it a finding. The
+pie's pinned readout and its wide and narrow layouts (C7) belong to the pie they
+position.
+
+Three spec files sit above their band and below their alarm:
+`__tests__/pages/analytics/blocks/PriceTrendCard.test.tsx` at 378 (component and
+page specs, band 350, alarm 450), and `__tests__/api/suppliers/supplierMutations.test.ts`
+at 173 and `__tests__/api/analytics/updates.test.ts` at 166 (service specs, band
+150, alarm 200). The PriceTrendCard spec is the largest in the tree.
