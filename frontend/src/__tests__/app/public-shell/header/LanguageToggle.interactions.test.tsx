@@ -10,6 +10,8 @@
  *
  * Out of scope:
  * - i18next integration / persistence side effects
+ *
+ * Sibling spec: LanguageToggle.rendering.test.tsx.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

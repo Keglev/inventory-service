@@ -11,6 +11,8 @@
  * Out of scope:
  * - Deep schema validation of record contents
  * - Prototype edge cases beyond typical JSON-like payloads
+ *
+ * Sibling specs: util.firstStringOrEmpty.test.ts, util.number.test.ts, util.paramClean.test.ts.
  */
 
 import { describe, it, expect } from 'vitest';

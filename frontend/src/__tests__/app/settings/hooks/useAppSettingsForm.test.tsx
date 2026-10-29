@@ -1,5 +1,5 @@
 /**
- * @file useAppSettingsForm.test.ts
+ * @file useAppSettingsForm.test.tsx
  * @module __tests__/app/settings/hooks/useAppSettingsForm
  * @description
  * Tests for useAppSettingsForm.

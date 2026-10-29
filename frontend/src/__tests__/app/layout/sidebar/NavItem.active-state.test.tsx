@@ -11,6 +11,8 @@
  *
  * Notes:
  * - These assertions intentionally couple to MUI's `.Mui-selected` marker.
+ *
+ * Sibling spec: NavItem.rendering.test.tsx.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

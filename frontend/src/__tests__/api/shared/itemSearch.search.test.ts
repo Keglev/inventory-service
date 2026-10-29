@@ -15,6 +15,8 @@
  * Out of scope:
  * - HTTP transport details (headers, auth, interceptors, retries, and
  *   timeouts).
+ *
+ * Sibling spec: itemSearch.normalizeItemsList.test.ts.
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
