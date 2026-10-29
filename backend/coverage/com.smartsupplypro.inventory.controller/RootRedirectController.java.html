@@ -22,9 +22,14 @@ public class RootRedirectController {
 <span class="fc" id="L22">        this.props = props;</span>
 <span class="fc" id="L23">    }</span>
 
+    /**
+     * Sends a browser that opens the root of this host to the frontend.
+     *
+     * @return a redirect to the configured frontend base URL
+     */
     @GetMapping(&quot;/&quot;)
     public String root() {
-<span class="nc" id="L27">        return &quot;redirect:&quot; + props.getFrontend().getBaseUrl();</span>
+<span class="nc" id="L32">        return &quot;redirect:&quot; + props.getFrontend().getBaseUrl();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

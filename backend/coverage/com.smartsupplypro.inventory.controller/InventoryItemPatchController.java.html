@@ -51,11 +51,19 @@ public class InventoryItemPatchController {
 <span class="fc" id="L51">        return inventoryItemService.adjustQuantity(id, delta, reason);</span>
     }
 
+    /**
+     * Sets a new unit price and records the change in stock history.
+     *
+     * @param id    item identifier
+     * @param price new unit price, greater than zero
+     * @return updated inventory item
+     * @throws java.util.NoSuchElementException 404 if the item does not exist
+     */
     @PreAuthorize(&quot;hasAnyRole('USER','ADMIN')&quot;)
     @PatchMapping(&quot;/{id}/price&quot;)
     public InventoryItemDTO updatePrice(@PathVariable String id,
                                         @RequestParam @Positive BigDecimal price) {
-<span class="fc" id="L58">        return inventoryItemService.updatePrice(id, price);</span>
+<span class="fc" id="L66">        return inventoryItemService.updatePrice(id, price);</span>
     }
 
     /**
@@ -71,7 +79,7 @@ public class InventoryItemPatchController {
     @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
     @PatchMapping(&quot;/{id}/name&quot;)
     public InventoryItemDTO renameItem(@PathVariable String id, @RequestParam String name) {
-<span class="fc" id="L74">        return inventoryItemService.renameItem(id, name);</span>
+<span class="fc" id="L82">        return inventoryItemService.renameItem(id, name);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

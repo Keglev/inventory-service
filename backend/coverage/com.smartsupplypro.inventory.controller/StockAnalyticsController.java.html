@@ -58,14 +58,25 @@ public class StockAnalyticsController {
 <span class="fc" id="L58">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockValueOverTime(start, end, supplierId));</span>
     }
 
+    /**
+     * Returns the current stock quantity and value per supplier, over active items.
+     *
+     * @return suppliers with their totals, highest value first
+     */
     @GetMapping(&quot;/stock-per-supplier&quot;)
     public ResponseEntity&lt;List&lt;StockPerSupplierDTO&gt;&gt; getStockPerSupplier() {
-<span class="fc" id="L63">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockPerSupplier());</span>
+<span class="fc" id="L68">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockPerSupplier());</span>
     }
 
+    /**
+     * Counts the active items below their own minimum across all suppliers, the
+     * same items the dashboard's low-stock list shows.
+     *
+     * @return number of items below minimum
+     */
     @GetMapping(&quot;/low-stock/count&quot;)
     public long getLowStockCount() {
-<span class="fc" id="L68">        return stockAnalyticsService.lowStockCount();</span>
+<span class="fc" id="L79">        return stockAnalyticsService.lowStockCount();</span>
     }
 
     /**
@@ -77,7 +88,7 @@ public class StockAnalyticsController {
     @GetMapping(&quot;/item-update-frequency&quot;)
     public ResponseEntity&lt;List&lt;ItemUpdateFrequencyDTO&gt;&gt; getItemUpdateFrequency(
             @RequestParam String supplierId) {
-<span class="fc" id="L80">        return ResponseEntity.ok(stockAnalyticsService.getItemUpdateFrequency(supplierId));</span>
+<span class="fc" id="L91">        return ResponseEntity.ok(stockAnalyticsService.getItemUpdateFrequency(supplierId));</span>
     }
 
     /**
@@ -89,7 +100,7 @@ public class StockAnalyticsController {
     @GetMapping(&quot;/low-stock-items&quot;)
     public ResponseEntity&lt;List&lt;LowStockItemDTO&gt;&gt; getLowStockItems(
             @RequestParam String supplierId) {
-<span class="fc" id="L92">        return ResponseEntity.ok(stockAnalyticsService.getItemsBelowMinimumStock(supplierId));</span>
+<span class="fc" id="L103">        return ResponseEntity.ok(stockAnalyticsService.getItemsBelowMinimumStock(supplierId));</span>
     }
 
     /**
@@ -105,7 +116,7 @@ public class StockAnalyticsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) String supplierId) {
-<span class="fc" id="L108">        return ResponseEntity.ok(stockAnalyticsService.getMonthlyStockMovement(start, end, supplierId));</span>
+<span class="fc" id="L119">        return ResponseEntity.ok(stockAnalyticsService.getMonthlyStockMovement(start, end, supplierId));</span>
     }
 
     /**
@@ -123,7 +134,7 @@ public class StockAnalyticsController {
             @RequestParam(required = false) String supplierId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-<span class="fc" id="L126">        return ResponseEntity.ok(stockAnalyticsService.getPriceTrend(itemId, supplierId, start, end));</span>
+<span class="fc" id="L137">        return ResponseEntity.ok(stockAnalyticsService.getPriceTrend(itemId, supplierId, start, end));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

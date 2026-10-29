@@ -13,17 +13,23 @@ import com.smartsupplypro.inventory.model.Supplier;
 @Component
 <span class="fc" id="L14">public class SupplierMapper {</span>
 
+    /**
+     * Copies a supplier entity into its DTO.
+     *
+     * @param supplier the entity, or null
+     * @return the DTO, or null for a null entity
+     */
     public SupplierDTO toDTO(Supplier supplier) {
-<span class="fc bfc" id="L17" title="All 2 branches covered.">        if (supplier == null) return null;</span>
-<span class="fc" id="L18">        return SupplierDTO.builder()</span>
-<span class="fc" id="L19">                .id(supplier.getId())</span>
-<span class="fc" id="L20">                .name(supplier.getName())</span>
-<span class="fc" id="L21">                .contactName(supplier.getContactName())</span>
-<span class="fc" id="L22">                .phone(supplier.getPhone())</span>
-<span class="fc" id="L23">                .email(supplier.getEmail())</span>
-<span class="fc" id="L24">                .createdBy(supplier.getCreatedBy())</span>
-<span class="fc" id="L25">                .createdAt(supplier.getCreatedAt())</span>
-<span class="fc" id="L26">                .build();</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        if (supplier == null) return null;</span>
+<span class="fc" id="L24">        return SupplierDTO.builder()</span>
+<span class="fc" id="L25">                .id(supplier.getId())</span>
+<span class="fc" id="L26">                .name(supplier.getName())</span>
+<span class="fc" id="L27">                .contactName(supplier.getContactName())</span>
+<span class="fc" id="L28">                .phone(supplier.getPhone())</span>
+<span class="fc" id="L29">                .email(supplier.getEmail())</span>
+<span class="fc" id="L30">                .createdBy(supplier.getCreatedBy())</span>
+<span class="fc" id="L31">                .createdAt(supplier.getCreatedAt())</span>
+<span class="fc" id="L32">                .build();</span>
     }
 
     /**
@@ -34,21 +40,21 @@ import com.smartsupplypro.inventory.model.Supplier;
      * the service layer sets them.&lt;/p&gt;
      */
     public Supplier toEntity(SupplierDTO dto) {
-<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (dto == null) return null;</span>
-<span class="fc" id="L38">        return Supplier.builder()</span>
-<span class="fc" id="L39">                .id(dto.getId())</span>
-<span class="fc" id="L40">                .name(trimOrNull(dto.getName()))</span>
-<span class="fc" id="L41">                .contactName(trimOrNull(dto.getContactName()))</span>
-<span class="fc" id="L42">                .phone(trimOrNull(dto.getPhone()))</span>
-<span class="fc" id="L43">                .email(trimOrNull(dto.getEmail()))</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (dto == null) return null;</span>
+<span class="fc" id="L44">        return Supplier.builder()</span>
+<span class="fc" id="L45">                .id(dto.getId())</span>
+<span class="fc" id="L46">                .name(trimOrNull(dto.getName()))</span>
+<span class="fc" id="L47">                .contactName(trimOrNull(dto.getContactName()))</span>
+<span class="fc" id="L48">                .phone(trimOrNull(dto.getPhone()))</span>
+<span class="fc" id="L49">                .email(trimOrNull(dto.getEmail()))</span>
                 // service sets createdBy and createdAt; do not copy from DTO
-<span class="fc" id="L45">                .build();</span>
+<span class="fc" id="L51">                .build();</span>
     }
 
     private String trimOrNull(String s) {
-<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (s == null) return null;</span>
-<span class="fc" id="L50">        String t = s.trim();</span>
-<span class="fc bfc" id="L51" title="All 2 branches covered.">        return t.isEmpty() ? null : t;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (s == null) return null;</span>
+<span class="fc" id="L56">        String t = s.trim();</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        return t.isEmpty() ? null : t;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

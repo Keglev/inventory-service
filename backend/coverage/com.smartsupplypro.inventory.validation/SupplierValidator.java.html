@@ -25,39 +25,62 @@ public final class SupplierValidator {
 
     private SupplierValidator() {}
 
+    /**
+     * Rejects a missing payload or a blank name.
+     *
+     * @param dto the supplier request
+     * @throws InvalidRequestException if the payload is null or the name is blank
+     */
     public static void validateBase(SupplierDTO dto) {
-<span class="fc bfc" id="L29" title="All 2 branches covered.">        if (dto == null) {</span>
-<span class="fc" id="L30">            throw new InvalidRequestException(&quot;Supplier payload must not be null&quot;);</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (dto == null) {</span>
+<span class="fc" id="L36">            throw new InvalidRequestException(&quot;Supplier payload must not be null&quot;);</span>
         }
-<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (isBlank(dto.getName())) {</span>
-<span class="fc" id="L33">            throw new InvalidRequestException(&quot;Supplier name must not be blank&quot;);</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (isBlank(dto.getName())) {</span>
+<span class="fc" id="L39">            throw new InvalidRequestException(&quot;Supplier name must not be blank&quot;);</span>
         }
-<span class="fc" id="L35">    }</span>
+<span class="fc" id="L41">    }</span>
 
+    /**
+     * Rejects a name another supplier already holds, ignoring case and surrounding
+     * spaces. A blank name passes here; {@link #validateBase} rejects it.
+     *
+     * @param repo      supplier repository
+     * @param name      requested name
+     * @param excludeId id of the supplier being updated, or null on create
+     * @throws DuplicateResourceException if another supplier has the name
+     */
     public static void assertUniqueName(SupplierRepository repo, String name, String excludeId) {
-<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (isBlank(name)) return; // blank names are already rejected by validateBase</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (isBlank(name)) return; // blank names are already rejected by validateBase</span>
 
-<span class="fc" id="L40">        boolean takenByAnother = repo.findByNameIgnoreCase(name.trim())</span>
-<span class="fc bfc" id="L41" title="All 2 branches covered.">                .filter(existing -&gt; !Objects.equals(existing.getId(), excludeId))</span>
-<span class="fc" id="L42">                .isPresent();</span>
-<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (takenByAnother) {</span>
-<span class="fc" id="L44">            throw new DuplicateResourceException(&quot;Supplier already exists&quot;, &quot;name&quot;);</span>
+<span class="fc" id="L55">        boolean takenByAnother = repo.findByNameIgnoreCase(name.trim())</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">                .filter(existing -&gt; !Objects.equals(existing.getId(), excludeId))</span>
+<span class="fc" id="L57">                .isPresent();</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (takenByAnother) {</span>
+<span class="fc" id="L59">            throw new DuplicateResourceException(&quot;Supplier already exists&quot;, &quot;name&quot;);</span>
         }
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L61">    }</span>
 
+    /**
+     * Rejects a deletion without an id, or of a supplier that still has linked items.
+     *
+     * @param supplierId  supplier to delete
+     * @param hasAnyLinks reports whether items still reference the supplier; null skips the check
+     * @throws InvalidRequestException        if the id is blank
+     * @throws BusinessRuleViolationException if linked items remain
+     */
     public static void assertDeletable(String supplierId, BooleanSupplier hasAnyLinks) {
-<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (isBlank(supplierId)) {</span>
-<span class="fc" id="L50">            throw new InvalidRequestException(&quot;Supplier id must be provided for deletion&quot;);</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (isBlank(supplierId)) {</span>
+<span class="fc" id="L73">            throw new InvalidRequestException(&quot;Supplier id must be provided for deletion&quot;);</span>
         }
-<span class="fc bfc" id="L52" title="All 4 branches covered.">        if (hasAnyLinks != null &amp;&amp; hasAnyLinks.getAsBoolean()) {</span>
-<span class="fc" id="L53">            throw new BusinessRuleViolationException(&quot;Cannot delete supplier with linked items&quot;);</span>
+<span class="fc bfc" id="L75" title="All 4 branches covered.">        if (hasAnyLinks != null &amp;&amp; hasAnyLinks.getAsBoolean()) {</span>
+<span class="fc" id="L76">            throw new BusinessRuleViolationException(&quot;Cannot delete supplier with linked items&quot;);</span>
         }
-<span class="fc" id="L55">    }</span>
+<span class="fc" id="L78">    }</span>
 
     // ---- helpers ----------------------------------------------------------------
 
     private static boolean isBlank(String s) {
-<span class="pc bpc" id="L60" title="1 of 4 branches missed.">        return s == null || s.trim().isEmpty();</span>
+<span class="pc bpc" id="L83" title="1 of 4 branches missed.">        return s == null || s.trim().isEmpty();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
