@@ -71,9 +71,9 @@ There is deliberately **no blanket per-method cap**. A single figure cannot gove
 both a React component, whose body is largely JSX, and a pure utility function; the
 budgets are per layer for that reason.
 
-A function's code lines are counted from the opening brace of its body through
-its closing brace, inclusive, which is the rule the
-[backend](../../backend/architecture/02-constraints.md) applies to methods. The
-signature above the brace is not counted; an arrow function with an expression
-body counts the lines of that expression. A function is held to the band and
+A function's code lines are the code lines between the line of its body's opening
+brace and the line of its closing brace; neither brace line counts, which is the
+rule the [backend](../../backend/architecture/02-constraints.md) applies to
+methods. The signature above the brace is not counted; an arrow function with an
+expression body counts the lines of that expression. A function is held to the band and
 alarm of the layer it belongs to.
