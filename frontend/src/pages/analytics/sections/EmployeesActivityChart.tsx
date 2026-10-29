@@ -5,8 +5,8 @@
  * @enterprise
  * Extracted from EmployeesSection so the section composes two cards
  * instead of inlining the chart. Owns the presentation of the pivoted
- * per-employee series: a fixed colour per employee (keyed by email), count formatting
- * bound to the user's number preference, and the recharts wiring.
+ * per-employee series and the recharts wiring; colours, the time axis and every
+ * formatter come from useEmployeeChartFormatting.
  * Emails contain dots and Recharts resolves string dataKeys as nested
  * paths, so each series uses a FUNCTION accessor (locked lesson) --
  * do not "simplify" to string keys. Data, granularity state, and the
@@ -20,15 +20,10 @@ import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tool
 import type { DotItemDotProps } from 'recharts/types/util/types';
 import type { EmployeeGranularity } from '../../../api/analytics/employees';
 import type { EmployeesChartRow } from './useEmployeesSectionData';
-import { useSettings } from '../../../hooks/useSettings';
-import { formatDate, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
 import { chartLegendProps } from '../../../utils/chartLegend';
-import { monthLabel, monthSpanLabel } from '../../../utils/monthLabels';
-import { dayTimeAxis, timeXAxisProps } from '../../../utils/timeAxis';
-import { employeeTimeRows, monthKey, monthTicks, utcDay } from './employeeTimeSeries';
-import { colorsByKey } from '../../../utils/entityColors';
-import { seriesPalette } from '../../../theme/tokens';
+import { timeXAxisProps } from '../../../utils/timeAxis';
+import { useEmployeeChartFormatting } from './useEmployeeChartFormatting';
 
 /**
  * Daily buckets fill a long range with zeros; a dot on each would bead the base
@@ -79,63 +74,10 @@ export function EmployeesActivityChart({
   from,
   to,
 }: EmployeesActivityChartProps): React.JSX.Element {
-  const { t, i18n } = useTranslation(['analytics']);
+  const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
-  const { userPreferences } = useSettings();
-
-  const seriesColors = React.useMemo(() => {
-    const byEmail = colorsByKey(
-      employees.map((e) => e.createdBy),
-      seriesPalette[muiTheme.palette.mode === 'dark' ? 'dark' : 'light'],
-    );
-    return employees.map((e) => byEmail[e.createdBy]);
-  }, [employees, muiTheme.palette.mode]);
-
-  const formatCount = React.useCallback(
-    (value: number | string) =>
-      typeof value === 'number' ? formatNumber(value, userPreferences.numberFormat, 0) : String(value),
-    [userPreferences.numberFormat]
-  );
-
-  // Buckets sit on a time axis at their first day; quiet periods are filled with
-  // zeros (employeeTimeSeries). Days and weeks are labelled by date in the
-  // user's format (a week by its Monday, as on the stock activity card), months
-  // by name; the tooltip names the covered days of a partial month.
-  const rows = React.useMemo(
-    () => employeeTimeRows(chartData, granularity, from, to),
-    [chartData, granularity, from, to]
-  );
-  const timeAxis = React.useMemo(() => {
-    const times = rows.map((r) => r.t);
-    if (times.length === 0) return null;
-    if (granularity !== 'monthly') return dayTimeAxis(times);
-    return { domain: [times[0], times[times.length - 1]] as [number, number], ticks: monthTicks(times) };
-  }, [rows, granularity]);
-  const formatPeriod = React.useCallback(
-    (value: unknown) =>
-      granularity === 'monthly'
-        ? monthLabel(monthKey(Number(value)), i18n.language)
-        : formatDate(utcDay(Number(value)), userPreferences.dateFormat),
-    [granularity, i18n.language, userPreferences.dateFormat]
-  );
-  const formatPeriodSpan = React.useCallback(
-    (value: unknown) => {
-      const start = Number(value);
-      if (granularity === 'monthly') {
-        return monthSpanLabel(monthKey(start), { from, to, lang: i18n.language, dateFormat: userPreferences.dateFormat });
-      }
-      const date = formatDate(utcDay(start), userPreferences.dateFormat);
-      return granularity === 'weekly' ? t('analytics:updates.weekOf', { date }) : date;
-    },
-    [granularity, from, to, i18n.language, userPreferences.dateFormat, t]
-  );
-  const formatTooltipCount = React.useCallback(
-    (value: unknown) =>
-      typeof value === 'number'
-        ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${t('analytics:units.changes', { count: value })}`
-        : String(value ?? ''),
-    [userPreferences.numberFormat, t]
-  );
+  const { rows, timeAxis, seriesColors, formatCount, formatPeriod, formatPeriodSpan, formatTooltipCount } =
+    useEmployeeChartFormatting({ granularity, chartData, employees, from, to });
 
   return (
     <Card data-testid="employee-activity-card">
