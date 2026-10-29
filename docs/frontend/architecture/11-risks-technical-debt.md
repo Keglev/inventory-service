@@ -34,17 +34,17 @@ No file carries a waiver. The waiver for
 `pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` (164 code lines
 against the dialogs alarm of 160) is withdrawn: the file measures 134.
 
-One file exceeds its layer's alarm and is an open finding:
-`pages/analytics/sections/EmployeesActivityChart.tsx` at 155, against the
-components alarm of 150. Its axis, tick and tooltip formatters are a separate
-abstraction level from the chart they configure; moving them into a sibling
-module was ruled on 2026-10-29. No function exceeds its layer's alarm.
+No file and no function exceeds its layer's alarm.
+`pages/analytics/sections/EmployeesActivityChart.tsx` was at 155 against the
+components alarm of 150 until its series colours, time axis and formatters moved
+into the sibling hook `useEmployeeChartFormatting.ts` (2026-10-29): they decide
+what the chart shows and how it reads, a different level from the card that lays
+it out.
 
-Four functions sit above their band and below their alarm: `DateRangeFilter`
-122, `MovementsSection` 112 and `EmployeesActivityChart` 110 (components, band
-100), and `useEditItemForm` 88 (hooks, band 80). `PriceChangeForm` 113,
-`EditItemForm` 102, `PriceTrendCard` 82 and `usePriceChangeForm` 79 are inside
-their bands. The band is guidance, the alarm is the gate.
+Three functions sit above their band and below their alarm: `DateRangeFilter`
+122 and `MovementsSection` 112 (components, band 100), and `useEditItemForm` 88
+(hooks, band 80). `PriceChangeForm` 113, `EditItemForm` 102, `PriceTrendCard` 82,
+`usePriceChangeForm` 79 and `EmployeesActivityChart` 64 are inside their bands. The band is guidance, the alarm is the gate.
 
 Files above their band and below their alarm are watched:
 
@@ -59,6 +59,7 @@ Files above their band and below their alarm are watched:
 | `pages/analytics/blocks/StockValuePerSupplierPie.tsx` | components | 117 |
 | `components/search/ListSearchField.tsx` | components | 113 |
 | `pages/analytics/blocks/FinancialSummaryCard.tsx` | components | 105 |
+| `pages/analytics/sections/EmployeesActivityChart.tsx` | components | 104 |
 | `app/layout/AppShell.tsx` | components | 102 |
 | `pages/inventory/components/InventoryTable.tsx` | components | 101 |
 | `pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` | dialogs (120 / 160) | 134 |
