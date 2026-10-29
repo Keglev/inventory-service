@@ -6,6 +6,11 @@
 # Reads the pandoc Lua filter from this script's own directory, where it is
 # tracked.
 # Prerequisites: pandoc
+# Produces: one HTML page per Markdown file under <project-dir>/target/docs
+# (backend/architecture, frontend/architecture, decisions).
+# Failure mode: returns 1 on an unknown context name; pandoc's own non-zero
+# exit stops the run under set -euo pipefail, so a page that fails to render
+# fails the build instead of going missing.
 # =============================================================================
 set -euo pipefail
 
@@ -71,9 +76,9 @@ resolve_context() {
 
 # Converts all .md files in the context's source directory to HTML, preserving
 # subdirectory structure. Output mirrors the deployed URL tree:
-#   backend   → target/docs/backend/architecture/
-#   frontend  → target/docs/frontend/architecture/
-#   decisions → target/docs/decisions/
+#   backend   -> target/docs/backend/architecture/
+#   frontend  -> target/docs/frontend/architecture/
+#   decisions -> target/docs/decisions/
 convert_arch() {
   local CONTEXT="$1"
   resolve_context "$CONTEXT"

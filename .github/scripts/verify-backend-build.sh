@@ -16,6 +16,11 @@
 # previous release answers: the service is down until the new one is up, and
 # health-check.sh is what waits for that. The retry below only covers a proxy
 # still holding the draining upstream.
+# Produces: one line naming the commit /actuator/info reports.
+# Failure mode: exits 1 when the jar reports build.commit=unknown (packaged
+# without -Dbuild.commit), when /actuator/info exposes no build.commit, or
+# when the running commit is still not the released one after the last
+# attempt. A request that fails counts as one attempt.
 # =============================================================================
 set -euo pipefail
 

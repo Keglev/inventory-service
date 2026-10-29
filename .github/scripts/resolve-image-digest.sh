@@ -7,6 +7,10 @@
 # Deploying by digest guarantees that the Trivy-scanned image is exactly what
 # gets deployed, and enables safe rollback to any prior image.
 # Retries handle Docker Hub eventual consistency right after a push.
+# Failure mode: exits 1 when no registry token is issued, when the manifest is
+# still missing after 12 attempts (about two minutes), or when the response
+# carries no well-formed sha256 digest. The deploy step never runs on a tag
+# it could not pin.
 # =============================================================================
 set -euo pipefail
 

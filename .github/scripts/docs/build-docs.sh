@@ -7,6 +7,9 @@
 # sibling scripts for each doc type. Output tree mirrors the deployed site under
 # <project-dir>/target/docs.
 # Prerequisites: pandoc, redocly CLI, npx, npm, openssl
+# Failure mode: set -euo pipefail stops the build at the first failing step
+# (theme assets, a sibling script, a copy), so no partial site reaches the
+# assembly step.
 # =============================================================================
 set -euo pipefail
 
