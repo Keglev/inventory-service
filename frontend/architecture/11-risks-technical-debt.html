@@ -196,53 +196,169 @@
         sites.</p>
         <h2 id="size-budget-waivers">Size-Budget Waivers</h2>
         <p>Measured over code lines against the budgets in <a
-        href="02-constraints.html">§2</a>. One file exceeds its layer’s
-        alarm; it is waived, with the reason, rather than split. No
-        function exceeds its layer’s alarm.
-        <code>useEditItemForm.ts</code> no longer needs its waiver: the
-        shared <code>useItemSelectionState</code> brought it to 116 code
-        lines, above the hooks band and below its alarm.</p>
+        href="02-constraints.html">§2</a>; function lengths follow its
+        counting rule, which leaves both brace lines out (2026-10-29). A
+        file’s layer follows its place in the tree: files under a
+        <code>dialogs/</code> folder are dialogs, <code>use*</code>
+        files and <code>handlers/</code> are hooks and handlers, a
+        page’s top-level file under <code>pages/&lt;area&gt;/</code> is
+        a page orchestrator, and the remaining UI files are
+        components.</p>
+        <p>No file carries a waiver. The waiver for
+        <code>pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx</code>
+        (164 code lines against the dialogs alarm of 160) is withdrawn:
+        the file measures 134.</p>
+        <p>One file exceeds its layer’s alarm and is an open finding:
+        <code>pages/analytics/sections/EmployeesActivityChart.tsx</code>
+        at 155, against the components alarm of 150. Its axis, tick and
+        tooltip formatters are a separate abstraction level from the
+        chart they configure; moving them into a sibling module was
+        ruled on 2026-10-29. No function exceeds its layer’s alarm.</p>
+        <p>Four functions sit above their band and below their alarm:
+        <code>DateRangeFilter</code> 122, <code>MovementsSection</code>
+        112 and <code>EmployeesActivityChart</code> 110 (components,
+        band 100), and <code>useEditItemForm</code> 88 (hooks, band 80).
+        <code>PriceChangeForm</code> 113, <code>EditItemForm</code> 102,
+        <code>PriceTrendCard</code> 82 and
+        <code>usePriceChangeForm</code> 79 are inside their bands. The
+        band is guidance, the alarm is the gate.</p>
+        <p>Files above their band and below their alarm are watched:</p>
         <table>
         <colgroup>
-        <col style="width: 25%" />
-        <col style="width: 25%" />
-        <col style="width: 25%" />
-        <col style="width: 25%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
         </colgroup>
         <thead>
         <tr class="header">
-        <th>File</th>
+        <th>File (under <code>src/</code>)</th>
+        <th>Layer (band / alarm)</th>
         <th>Code lines</th>
-        <th>Alarm</th>
-        <th>Why not split</th>
         </tr>
         </thead>
         <tbody>
         <tr class="odd">
-        <td><code>inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx</code></td>
-        <td>164</td>
-        <td>160 (dialogs)</td>
-        <td>Four lines over. A flat, single-purpose JSX form; any split
-        would be a fragment defined by the threshold rather than by a
-        responsibility</td>
+        <td><code>pages/analytics/components/filters/DateRangeFilter.tsx</code></td>
+        <td>components (100 / 150)</td>
+        <td>140</td>
+        </tr>
+        <tr class="even">
+        <td><code>pages/analytics/sections/MovementsSection.tsx</code></td>
+        <td>components</td>
+        <td>132</td>
+        </tr>
+        <tr class="odd">
+        <td><code>app/settings/sections/LanguageRegionSettingsSection.tsx</code></td>
+        <td>components</td>
+        <td>130</td>
+        </tr>
+        <tr class="even">
+        <td><code>pages/analytics/blocks/LowStockTable.tsx</code></td>
+        <td>components</td>
+        <td>128</td>
+        </tr>
+        <tr class="odd">
+        <td><code>pages/dashboard/blocks/LowStockMini.tsx</code></td>
+        <td>components</td>
+        <td>125</td>
+        </tr>
+        <tr class="even">
+        <td><code>components/help/HelpPanel.tsx</code></td>
+        <td>components</td>
+        <td>117</td>
+        </tr>
+        <tr class="odd">
+        <td><code>pages/analytics/blocks/StockValuePerSupplierPie.tsx</code></td>
+        <td>components</td>
+        <td>117</td>
+        </tr>
+        <tr class="even">
+        <td><code>components/search/ListSearchField.tsx</code></td>
+        <td>components</td>
+        <td>113</td>
+        </tr>
+        <tr class="odd">
+        <td><code>pages/analytics/blocks/FinancialSummaryCard.tsx</code></td>
+        <td>components</td>
+        <td>105</td>
+        </tr>
+        <tr class="even">
+        <td><code>app/layout/AppShell.tsx</code></td>
+        <td>components</td>
+        <td>102</td>
+        </tr>
+        <tr class="odd">
+        <td><code>pages/inventory/components/InventoryTable.tsx</code></td>
+        <td>components</td>
+        <td>101</td>
+        </tr>
+        <tr class="even">
+        <td><code>pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx</code></td>
+        <td>dialogs (120 / 160)</td>
+        <td>134</td>
+        </tr>
+        <tr class="odd">
+        <td><code>pages/inventory/dialogs/EditItemDialog/EditItemForm.tsx</code></td>
+        <td>dialogs</td>
+        <td>122</td>
+        </tr>
+        <tr class="even">
+        <td><code>pages/inventory/dialogs/ItemFormDialog/useItemForm.ts</code></td>
+        <td>hooks (80 / 120)</td>
+        <td>120</td>
+        </tr>
+        <tr class="odd">
+        <td><code>pages/inventory/dialogs/EditItemDialog/useEditItemForm.ts</code></td>
+        <td>hooks</td>
+        <td>116</td>
+        </tr>
+        <tr class="even">
+        <td><code>pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm.ts</code></td>
+        <td>hooks</td>
+        <td>107</td>
+        </tr>
+        <tr class="odd">
+        <td><code>pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm.ts</code></td>
+        <td>hooks</td>
+        <td>103</td>
+        </tr>
+        <tr class="even">
+        <td><code>pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm.ts</code></td>
+        <td>hooks</td>
+        <td>103</td>
+        </tr>
+        <tr class="odd">
+        <td><code>pages/inventory/hooks/useInventoryColumns.ts</code></td>
+        <td>hooks</td>
+        <td>90</td>
+        </tr>
+        <tr class="even">
+        <td><code>pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm.ts</code></td>
+        <td>hooks</td>
+        <td>88</td>
+        </tr>
+        <tr class="odd">
+        <td><code>pages/inventory/hooks/useInventoryState.ts</code></td>
+        <td>hooks</td>
+        <td>85</td>
+        </tr>
+        <tr class="even">
+        <td><code>pages/inventory/hooks/useInventoryPageData.ts</code></td>
+        <td>hooks</td>
+        <td>81</td>
         </tr>
         </tbody>
         </table>
-        <p>Seven functions sit above their band but below their alarm
-        (<code>PriceChangeForm</code> 146, <code>EditItemForm</code>
-        133, <code>PriceTrendCard</code> 122,
-        <code>MovementsSection</code> 112, <code>DateRangeFilter</code>
-        110, <code>useEditItemForm</code> 90,
-        <code>usePriceChangeForm</code> 81). These are accepted: the
-        band is guidance, the alarm is the gate.</p>
-        <p>One component file sits above its band and below its alarm
-        (<code>analytics/blocks/StockValuePerSupplierPie.tsx</code> 122,
-        band 100, alarm 150): the pinned readout and the wide/narrow
-        layout (C7) belong to the pie they position.</p>
-        <p>One spec file sits above the service band and below its alarm
-        (<code>unit/api/suppliers/supplierMutations.test.ts</code> 173).
-        No spec approaches either spec alarm; the largest in the tree is
-        243 code lines.</p>
+        <p><code>useItemForm.ts</code> sits on its alarm: one more code
+        line makes it a finding. The pie’s pinned readout and its wide
+        and narrow layouts (C7) belong to the pie they position.</p>
+        <p>Three spec files sit above their band and below their alarm:
+        <code>__tests__/pages/analytics/blocks/PriceTrendCard.test.tsx</code>
+        at 378 (component and page specs, band 350, alarm 450), and
+        <code>__tests__/api/suppliers/supplierMutations.test.ts</code>
+        at 173 and <code>__tests__/api/analytics/updates.test.ts</code>
+        at 166 (service specs, band 150, alarm 200). The PriceTrendCard
+        spec is the largest in the tree.</p>
       </article>
     </main>
 
