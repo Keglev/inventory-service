@@ -17,7 +17,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static com.smartsupplypro.inventory.service.impl.inventoryitem.InventoryItemServiceImplFixtures.copyOf;
-import static com.smartsupplypro.inventory.service.impl.inventoryitem.InventoryItemServiceImplFixtures.newBaseDto;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -148,5 +147,18 @@ class InventoryItemServiceImplSaveTest {
         InvalidRequestException ex = assertThrows(InvalidRequestException.class,
                 () -> service.save(baseDto));
         assertEquals("Supplier does not exist", ex.getMessage());
+    }
+
+    /** A valid create or update request for supplier S1. */
+    private static InventoryItemDTO newBaseDto() {
+        InventoryItemDTO baseDto = new InventoryItemDTO();
+        baseDto.setName("Widget");
+        baseDto.setQuantity(100);
+        baseDto.setMinimumQuantity(5);
+        baseDto.setPrice(new BigDecimal("10.00"));
+        baseDto.setSupplierId("S1");
+        baseDto.setCreatedBy("admin");
+        baseDto.setSku("SKU-SVC-1");
+        return baseDto;
     }
 }
