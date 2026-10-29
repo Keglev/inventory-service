@@ -66,8 +66,9 @@ a finding.
 | Any source file | — | hard cap 300 |
 
 Methods carry one rule across every layer: target 20 code lines, alarm 30, hard
-cap 50. A method's code lines are counted from its opening brace through its
-closing brace, inclusive.
+cap 50. A method's code lines are the code lines between the line of its body's
+opening brace and the line of its closing brace; neither brace line counts, and
+neither does the signature.
 
 A file or method above its target and below its alarm is watched, not a finding.
 Above its alarm it is a finding, and it is either split or takes a written waiver

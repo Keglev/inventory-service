@@ -35,14 +35,22 @@ reaches the 300 hard cap.
 |------|------|--------|------------|
 | `SecurityConfig::securityFilterChain` | 32 | 30 | One fluent `HttpSecurity` statement. The parts that can be extracted already are, into the entry-point, filter and authorization helpers. The 32nd line names the frontend login page, which switches off the login and logout pages Spring generates (2026-10-28). |
 
-Two files sit above their target and below their alarm and are watched rather
-than waived: `StockHistoryRepository.java` at 85 and
-`repository/custom/util/StockTrendSqlBuilder.java` at 145, both against a
-repository target of 80. The repository was at 115 until the stock-history read
-API and its three queries were removed (2026-10-28). The builder was waived at 153 until its unused
-all-suppliers monthly variant was removed (2026-10-16). Thirteen methods sit
-between the target of 20 and the alarm of 30, the largest being
-`EmployeeAnalyticsService::getEmployeeActivity` at 29. The two
-daily-movement builders in `StockTrendSqlBuilder` (25 each) joined that band
-when they replaced the daily-valuation builders, which had been waived above.
-The band is guidance, the alarm is the gate.
+Three files sit above their target and below their alarm and are watched rather
+than waived, all against the repository target of 80:
+`StockHistoryRepository.java` at 85,
+`repository/custom/StockDetailQueryRepositoryImpl.java` at 100 and
+`repository/custom/util/StockTrendSqlBuilder.java` at 145. The repository was at
+115 until the stock-history read API and its three queries were removed
+(2026-10-28). The builder was waived at 153 until its unused all-suppliers
+monthly variant was removed (2026-10-16).
+
+Seven methods sit between the target of 20 and the alarm of 30:
+`EmployeeAnalyticsService::getEmployeeActivity` at 27, the two daily-movement
+builders in `StockTrendSqlBuilder` at 23 each, `UserProvisioningService::provision`
+at 22, and `StockValueSeries::build`, `StockHistoryValidator::validate` and
+`StockDetailQueryRepositoryImpl::streamEventsForWAC` at 21 each. These figures
+follow the counting rule in [§2](02-constraints.md), which leaves both brace
+lines out (2026-10-29); the earlier count of thirteen included them. The two
+daily-movement builders joined the band when they replaced the daily-valuation
+builders, which had been waived above. The band is guidance, the alarm is the
+gate.
