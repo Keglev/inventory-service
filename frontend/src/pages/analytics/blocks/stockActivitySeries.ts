@@ -10,7 +10,7 @@
  * - Totals keep their sign: stock in stacks above zero, stock out below. With
  *   absolute values, 40 pieces sold and 40 pieces received looked the same.
  * - Each reason code maps to one kind, named like the reason labels elsewhere
- *   (INITIAL_STOCK is "Anfangsbestand", not "Einkäufe"). Returns are split by
+ *   (INITIAL_STOCK is "Anfangsbestand", not "Einkaeufe"). Returns are split by
  *   direction, and LOST counts as a write-off, as in the financial summary.
  * - A row without a quantity change (PRICE_CHANGE) adds nothing to a stock
  *   chart and is skipped; an unknown code with a quantity goes to "other".
