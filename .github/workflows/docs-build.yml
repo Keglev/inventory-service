@@ -1,5 +1,5 @@
 # =============================================================================
-# Smart Supply Pro – Documentation Pipeline
+# docs-build.yml - Smart Supply Pro Documentation Pipeline
 #
 # Builds and packages all project documentation into the docs-site artifact.
 # Triggered after backend or frontend CI succeeds, or on docs-only pushes.
@@ -8,6 +8,11 @@
 # Artifacts consumed: jacoco-html-{SHA}            (from backend-ci.yml, optional)
 #                     frontend-coverage-html-{SHA}  (from frontend-ci.yml, optional)
 # Artifacts produced: docs-site                    (consumed by docs-deploy.yml)
+#
+# Failure mode: a page that fails to render, a page whose Mermaid loading
+# disagrees with its diagrams, or a broken internal link fails the run before
+# the docs-site artifact is uploaded; docs-deploy.yml then never starts and
+# the published site stays as it was.
 # =============================================================================
 name: Docs Build - Site & Link Check
 

@@ -1,5 +1,5 @@
 # =============================================================================
-# Smart Supply Pro – Deploy Frontend to Koyeb
+# frontend-deploy.yml - Smart Supply Pro Deploy Frontend to Koyeb
 #
 # Triggered automatically after frontend-ci.yml succeeds on main.
 # Manual trigger available for rollbacks or emergency deploys.
@@ -12,6 +12,12 @@
 # Those checks only mean something once the new image is the one answering, so
 # the deploy first waits for the commit's build id to appear in the served
 # bundle rather than trusting the platform's HEALTHY status.
+#
+# Failure mode: an image digest that cannot be resolved stops the run before
+# Koyeb is touched. A build id that never reaches the edge, a failed health
+# check or a rewrite that did not run fail it after the deploy, and the
+# diagnostics step prints the service state. Check the live bundle before
+# deploying again: a red run is not always a failed deploy.
 # =============================================================================
 name: Frontend Deploy - Koyeb
 

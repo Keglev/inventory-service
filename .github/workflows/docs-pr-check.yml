@@ -1,5 +1,5 @@
 # =============================================================================
-# Smart Supply Pro – Docs PR Check
+# docs-pr-check.yml - Smart Supply Pro Docs PR Check
 #
 # Pull request gate for documentation changes. Builds the docs site exactly as
 # docs-build.yml does (minus coverage and TypeDoc, which come from CI
@@ -12,6 +12,10 @@
 # backend-ci.yml, this file included. A pull request editing this file is
 # therefore reported by this workflow alone, which is the intent: the docs gate
 # checks itself.
+#
+# Failure mode: a page that fails to render, a Mermaid loading mismatch, a
+# broken internal link or a YAML finding fails build-and-test and blocks the
+# merge. Nothing is published either way.
 # =============================================================================
 name: Docs PR Check
 

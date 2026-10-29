@@ -1,5 +1,5 @@
 # =============================================================================
-# Smart Supply Pro – Backend Build & Test
+# backend-ci.yml - Smart Supply Pro Backend Build & Test
 #
 # Compiles, tests, and generates JaCoCo coverage for the backend service.
 # On success, triggers: backend-docker.yml (image build and scan).
@@ -17,6 +17,11 @@
 # they are outside docs/ and the docs build never reads them. docs-pr-check.yml
 # triggers on itself, and its own file is ignored below, so a pull request
 # editing the docs gate is reported by that workflow alone.
+#
+# Failure mode: a hadolint finding, a failing test, coverage under the JaCoCo
+# floor, a failed browser suite or a YAML finding fails its job, and
+# build-and-test fails with it. On a pull request that blocks the merge; on
+# main backend-docker.yml does not start, so no image is built or released.
 # =============================================================================
 name: Backend CI - Build & Test
 
