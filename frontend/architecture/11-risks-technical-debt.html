@@ -208,20 +208,21 @@
         <code>pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx</code>
         (164 code lines against the dialogs alarm of 160) is withdrawn:
         the file measures 134.</p>
-        <p>One file exceeds its layer’s alarm and is an open finding:
+        <p>No file and no function exceeds its layer’s alarm.
         <code>pages/analytics/sections/EmployeesActivityChart.tsx</code>
-        at 155, against the components alarm of 150. Its axis, tick and
-        tooltip formatters are a separate abstraction level from the
-        chart they configure; moving them into a sibling module was
-        ruled on 2026-10-29. No function exceeds its layer’s alarm.</p>
-        <p>Four functions sit above their band and below their alarm:
-        <code>DateRangeFilter</code> 122, <code>MovementsSection</code>
-        112 and <code>EmployeesActivityChart</code> 110 (components,
-        band 100), and <code>useEditItemForm</code> 88 (hooks, band 80).
+        was at 155 against the components alarm of 150 until its series
+        colours, time axis and formatters moved into the sibling hook
+        <code>useEmployeeChartFormatting.ts</code> (2026-10-29): they
+        decide what the chart shows and how it reads, a different level
+        from the card that lays it out.</p>
+        <p>Three functions sit above their band and below their alarm:
+        <code>DateRangeFilter</code> 122 and
+        <code>MovementsSection</code> 112 (components, band 100), and
+        <code>useEditItemForm</code> 88 (hooks, band 80).
         <code>PriceChangeForm</code> 113, <code>EditItemForm</code> 102,
-        <code>PriceTrendCard</code> 82 and
-        <code>usePriceChangeForm</code> 79 are inside their bands. The
-        band is guidance, the alarm is the gate.</p>
+        <code>PriceTrendCard</code> 82, <code>usePriceChangeForm</code>
+        79 and <code>EmployeesActivityChart</code> 64 are inside their
+        bands. The band is guidance, the alarm is the gate.</p>
         <p>Files above their band and below their alarm are watched:</p>
         <table>
         <colgroup>
@@ -283,66 +284,71 @@
         <td>105</td>
         </tr>
         <tr class="even">
+        <td><code>pages/analytics/sections/EmployeesActivityChart.tsx</code></td>
+        <td>components</td>
+        <td>104</td>
+        </tr>
+        <tr class="odd">
         <td><code>app/layout/AppShell.tsx</code></td>
         <td>components</td>
         <td>102</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>pages/inventory/components/InventoryTable.tsx</code></td>
         <td>components</td>
         <td>101</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx</code></td>
         <td>dialogs (120 / 160)</td>
         <td>134</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>pages/inventory/dialogs/EditItemDialog/EditItemForm.tsx</code></td>
         <td>dialogs</td>
         <td>122</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>pages/inventory/dialogs/ItemFormDialog/useItemForm.ts</code></td>
         <td>hooks (80 / 120)</td>
         <td>120</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>pages/inventory/dialogs/EditItemDialog/useEditItemForm.ts</code></td>
         <td>hooks</td>
         <td>116</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm.ts</code></td>
         <td>hooks</td>
         <td>107</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm.ts</code></td>
         <td>hooks</td>
         <td>103</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm.ts</code></td>
         <td>hooks</td>
         <td>103</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>pages/inventory/hooks/useInventoryColumns.ts</code></td>
         <td>hooks</td>
         <td>90</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm.ts</code></td>
         <td>hooks</td>
         <td>88</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><code>pages/inventory/hooks/useInventoryState.ts</code></td>
         <td>hooks</td>
         <td>85</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><code>pages/inventory/hooks/useInventoryPageData.ts</code></td>
         <td>hooks</td>
         <td>81</td>
