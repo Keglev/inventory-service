@@ -45,7 +45,7 @@ class StockValueSeriesTest {
     }
 
     @Test
-    void should_leave_out_the_days_on_which_the_value_does_not_change() {
+    void should_leave_out_a_day_when_the_value_does_not_change_on_it() {
         List<Object[]> movements = List.of(
                 move("a", "2024-03-01", 10, "2.00"),
                 move("a", "2024-03-04", 5, "2.00"));
@@ -57,7 +57,7 @@ class StockValueSeriesTest {
     }
 
     @Test
-    void should_send_the_range_end_with_the_value_carried_to_it() {
+    void should_send_the_range_end_with_the_carried_value_when_no_movement_falls_on_it() {
         List<Object[]> movements = List.of(
                 move("a", "2024-02-01", 10, "2.00"),
                 move("a", "2024-03-02", -2, "2.00"));
@@ -69,7 +69,7 @@ class StockValueSeriesTest {
     }
 
     @Test
-    void should_start_at_the_first_movement_instead_of_sending_zero_before_it() {
+    void should_start_at_the_first_movement_when_it_falls_after_the_range_start() {
         List<Object[]> movements = List.<Object[]>of(move("a", "2024-03-04", 10, "2.00"));
 
         List<StockValueOverTimeDTO> series = StockValueSeries.build(movements, START, START.plusDays(5));
@@ -79,7 +79,7 @@ class StockValueSeriesTest {
     }
 
     @Test
-    void should_keep_a_value_of_zero_once_the_stock_has_history() {
+    void should_keep_a_value_of_zero_when_the_stock_has_history() {
         List<Object[]> movements = List.of(
                 move("a", "2024-02-01", 5, "2.00"),
                 move("a", "2024-02-10", -5, "2.00"));

@@ -132,7 +132,7 @@ class EmployeeAnalyticsServiceTest {
     }
 
     @Test
-    void should_skip_users_without_an_email_and_fall_back_to_the_email_for_a_blank_name() {
+    void should_skip_a_user_without_an_email_and_show_the_email_when_the_name_is_blank() {
         when(stockHistoryRepository.getDailyEmployeeActivity(any(), any(), any()))
                 .thenReturn(List.<Object[]>of(row("anna.klein@example.com", "2026-02-01", 1)));
         when(appUserRepository.findAll()).thenReturn(List.of(

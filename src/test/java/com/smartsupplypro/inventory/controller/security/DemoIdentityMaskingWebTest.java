@@ -72,7 +72,7 @@ class DemoIdentityMaskingWebTest {
     }
 
     @Test
-    void should_send_pseudonyms_to_an_anonymous_demo_caller() throws Exception {
+    void should_send_pseudonyms_when_the_caller_is_anonymous_in_demo_mode() throws Exception {
         mockMvc.perform(get("/api/analytics/by-employee"))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$[0].createdBy").value("demo-user-1@example.com"))
@@ -82,7 +82,7 @@ class DemoIdentityMaskingWebTest {
     }
 
     @Test
-    void should_send_real_identities_to_an_admin() throws Exception {
+    void should_send_real_identities_when_the_caller_is_an_admin() throws Exception {
         mockMvc.perform(get("/api/analytics/by-employee").with(user("a").roles("ADMIN")))
                .andExpect(jsonPath("$[0].createdBy").value(REAL))
                .andExpect(jsonPath("$[0].displayName").value("Real Person"));

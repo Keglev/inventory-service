@@ -72,31 +72,33 @@ class CatalogueAccessSecurityTest {
         """;
 
     @Test
-    void should_let_an_anonymous_demo_caller_read_one_item() throws Exception {
+    void should_return_200_when_an_anonymous_demo_caller_reads_one_item() throws Exception {
         when(inventoryItemService.getById(anyString())).thenReturn(Optional.of(new InventoryItemDTO()));
 
         mvc.perform(get("/api/inventory/i-1").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
     }
 
+    // The method rule on create requires ADMIN.
     @Test
     @WithMockUser(username = "user", roles = "USER")
-    void should_refuse_a_user_who_creates_an_item_because_the_method_rule_requires_admin() throws Exception {
+    void should_return_403_when_a_user_creates_an_item() throws Exception {
         mvc.perform(post("/api/inventory").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON).content(ITEM_JSON))
             .andExpect(status().isForbidden());
     }
 
+    // The method rule on create requires ADMIN.
     @Test
     @WithMockUser(username = "user", roles = "USER")
-    void should_refuse_a_user_who_creates_a_supplier_because_the_method_rule_requires_admin() throws Exception {
+    void should_return_403_when_a_user_creates_a_supplier() throws Exception {
         mvc.perform(post("/api/suppliers").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Acme\"}"))
             .andExpect(status().isForbidden());
     }
 
     @Test
-    void should_refuse_an_anonymous_write_even_in_demo_mode() throws Exception {
+    void should_return_401_when_an_anonymous_caller_writes_in_demo_mode() throws Exception {
         mvc.perform(post("/api/inventory").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON).content(ITEM_JSON)
                 .accept(MediaType.APPLICATION_JSON))

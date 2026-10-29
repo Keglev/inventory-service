@@ -127,7 +127,7 @@ class GlobalExceptionHandlerTest {
         }
     }
 
-    /** Pass-through and fallback responses. A fallback logs one ERROR with the cause attached. */
+    /** Pass-through and fallback responses, where a fallback logs one ERROR with the cause attached. */
     @Nested class WhenPassThrough {
         @Test void should_preserve_the_status_and_message_when_a_response_status_exception_is_thrown() throws Exception {
             mockMvc.perform(get("/err/rse"))
