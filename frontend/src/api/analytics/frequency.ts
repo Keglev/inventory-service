@@ -1,11 +1,17 @@
 /**
+ * @file frequency.ts
  * @module api/analytics/frequency
  *
- * Supplier-scoped item update frequency (top N items by change count).
- * Calls GET /api/analytics/item-update-frequency?supplierId=... and keeps the
- * first N rows on the client; the endpoint takes no limit.
- * Returns [] on error or when supplierId is empty. Maps ItemUpdateFrequencyDTO
- * (itemName, updateCount) to the canonical {@link ItemUpdateFrequencyPoint} shape.
+ * @summary
+ * Supplier-scoped item update frequency (top N items by change count), from
+ * GET /api/analytics/item-update-frequency?supplierId=...; maps
+ * ItemUpdateFrequencyDTO (itemName, updateCount) to the canonical
+ * {@link ItemUpdateFrequencyPoint} shape.
+ *
+ * @enterprise
+ * The endpoint takes no limit, so the first N rows are kept on the client.
+ * Returns [] on error or when supplierId is empty, so the chart shows its empty
+ * state rather than an error.
  */
 
 import http from '../httpClient';

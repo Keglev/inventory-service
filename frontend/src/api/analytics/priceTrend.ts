@@ -1,10 +1,15 @@
 /**
+ * @file priceTrend.ts
  * @module api/analytics/priceTrend
  *
- * Historical price trend for a single item, fetched from
- * GET /api/analytics/price-trend. The backend requires `start` and `end`, so
- * `paramClean` always supplies them (defaulting to the last 180 days).
+ * @summary
+ * Historical price trend for a single item, from GET /api/analytics/price-trend.
  * Returns an empty array on any error.
+ *
+ * @enterprise
+ * The backend requires `start` and `end`, so `paramClean` always supplies them
+ * (defaulting to the last 180 days) rather than letting a missing bound reach
+ * the server.
  */
 import http from '../httpClient';
 import { asNumber, paramClean } from './util';

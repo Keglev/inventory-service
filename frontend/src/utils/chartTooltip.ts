@@ -3,9 +3,12 @@
  * @module utils/chartTooltip
  *
  * @summary
- * Theme-aware Recharts tooltip styling. Recharts renders tooltips on a
- * hard-coded white surface, which is wrong in dark mode; this binds the tooltip
- * surface, label and item text to MUI theme tokens.
+ * Theme-aware Recharts tooltip styling: binds the tooltip surface, label and
+ * item text to MUI theme tokens.
+ *
+ * @enterprise
+ * Recharts renders tooltips on a hard-coded white surface, which is wrong in
+ * dark mode.
  */
 import type { Theme } from '@mui/material/styles';
 

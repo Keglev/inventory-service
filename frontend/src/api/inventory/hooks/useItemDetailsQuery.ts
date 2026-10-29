@@ -2,10 +2,14 @@
  * @file useItemDetailsQuery.ts
  * @module api/inventory/hooks
  *
- * Fetches complete item data from GET /api/inventory/{id}.
- * Used to pre-fill edit forms with accurate current price and stock level, because
- * list/search responses carry placeholder values only.
- * Errors are swallowed (returns null) so that missing details don't block dialog open.
+ * @summary
+ * Fetches complete item data from GET /api/inventory/{id}, used to pre-fill edit
+ * forms with the current price and stock level.
+ *
+ * @enterprise
+ * List and search responses carry placeholder values only, so the forms read the
+ * item itself. Errors are swallowed (returns null) so that missing details do not
+ * block the dialog from opening.
  */
 
 import { useQuery } from '@tanstack/react-query';

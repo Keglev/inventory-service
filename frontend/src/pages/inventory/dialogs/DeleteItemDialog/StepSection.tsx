@@ -4,7 +4,11 @@
  *
  * @summary
  * Presentational step wrapper for the delete flow: a numbered badge with a
- * title, plus indented content. Extracted from DeleteFormView.
+ * title, plus indented content.
+ *
+ * @enterprise
+ * Extracted from DeleteFormView, so each step of the flow is laid out by one
+ * component.
  */
 
 import { Box, Typography } from '@mui/material';

@@ -1,14 +1,18 @@
 /**
  * @file main.tsx
- * @description
+ * @module main
+ *
+ * @summary
  * Application entry point. Mounts the React tree, wires the top-level providers,
  * and ensures localization is initialized before any UI renders.
  *
- * @remarks
+ * @enterprise
  * - Keep this file minimal and deterministic.
- * - Global CSS is imported via `index.css`, which in turn imports `styles/global.css`.
- * - i18n is initialized here (side-effect import) so any downstream `useTranslation()`
- *   calls in AppShell or pages can rely on an initialized i18next instance.
+ * - Global CSS is imported via `index.css`, which in turn imports
+ *   `styles/global.css`.
+ * - i18n is initialized here (side-effect import) so any downstream
+ *   `useTranslation()` calls in AppShell or pages can rely on an initialized
+ *   i18next instance.
  */
 
 // Side-effect import, first on purpose: zod reads this setting when a schema is

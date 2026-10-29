@@ -1,5 +1,13 @@
 /**
- * ItemFormDialogProps - Main dialog component props
+ * @file ItemFormDialog.types.ts
+ * @module pages/inventory/dialogs/ItemFormDialog/ItemFormDialog.types
+ *
+ * @summary
+ * Props of the item form dialog.
+ *
+ * @enterprise
+ * Kept apart from the component so the dialog's hook and its tests import the
+ * contract without importing the component.
  */
 export interface ItemFormDialogProps {
   /** Whether dialog is visible */

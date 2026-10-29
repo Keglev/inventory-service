@@ -3,10 +3,12 @@
  * @module pages/analytics/sections/reasonLabels
  *
  * @summary
- * Single source for the 11 StockChangeReason enum values on the analytics
- * side and their typed i18n label lookup. Unknown backend values fall back
- * to the raw string instead of a broken key, so a future enum addition
- * degrades gracefully until the locale files catch up.
+ * Single source for the 11 StockChangeReason enum values on the analytics side
+ * and their typed i18n label lookup.
+ *
+ * @enterprise
+ * Unknown backend values fall back to the raw string instead of a broken key, so
+ * a future enum addition degrades gracefully until the locale files catch up.
  */
 import type { TFunction } from 'i18next';
 

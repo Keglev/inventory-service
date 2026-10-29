@@ -1,4 +1,5 @@
 /**
+ * @file constants.ts
  * @module api/shared/constants
  *
  * @summary

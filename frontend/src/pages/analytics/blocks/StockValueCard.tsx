@@ -13,7 +13,7 @@
  *   selected range, so the gaps between points keep their real width, and the
  *   last value is carried to the range end (utils/stepSeries) should a response
  *   stop short of it. A series that starts after the range start leaves the
- *   days before it empty instead of drawing 0 €.
+ *   days before it empty instead of drawing 0 EUR.
  * - `staleTime: 60_000` keeps the chart stable during quick navigation
  *   between analytics sections without flicker.
  * - `retry: 0` because an empty result is a valid state for the cold-start
@@ -53,7 +53,7 @@ export default function StockValueCard({ from, to, supplierId }: StockValueCardP
     [series, from, to]
   );
   // A flat series on an 'auto' axis zooms to a sliver around its value (248–252 for
-  // 250 €); anchoring the axis at zero shows it as the level it is.
+  // 250 EUR); anchoring the axis at zero shows it as the level it is.
   const flat = series.length > 0 && series.every((p) => p.totalValue === series[0].totalValue);
   const formatDay = useDayFormatter();
 

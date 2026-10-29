@@ -1,5 +1,5 @@
 /**
- * @file src/theme/index.ts
+ * @file index.ts
  * @module theme
  * @summary MUI theme factory — builds the fully-configured ThemeProvider input for a
  *   given locale and color mode. Single source of truth for palette, typography,

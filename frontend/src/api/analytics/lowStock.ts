@@ -1,9 +1,15 @@
 /**
+ * @file lowStock.ts
  * @module api/analytics/lowStock
  *
- * Fetches and normalises low-stock alert rows from `GET /api/analytics/low-stock-items`.
- * Reads the bare List<LowStockItemDTO> the backend returns (no envelope) by
- * the DTO's field names, and sorts results by deficit severity.
+ * @summary
+ * Fetches and normalises low-stock alert rows from
+ * `GET /api/analytics/low-stock-items`, sorted by deficit severity.
+ *
+ * @enterprise
+ * Reads the bare List<LowStockItemDTO> the backend returns (no envelope) by the
+ * DTO's field names, so a renamed backend field fails visibly here instead of
+ * silently in the table.
  */
 
 import http from '../httpClient';

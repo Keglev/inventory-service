@@ -1,23 +1,25 @@
 /**
- * @module src/api/httpClient
+ * @file httpClient.ts
+ * @module api/httpClient
  *
- * Singleton Axios instance used by every feature-level API module.  All
- * session-cookie authentication, shared request headers, and cross-cutting
- * 401 handling are wired here so individual feature modules stay focused on
- * their own resources.
+ * @summary
+ * Singleton Axios instance used by every feature-level API module. Session-cookie
+ * authentication, shared request headers and cross-cutting 401 handling are wired
+ * here so individual feature modules stay focused on their own resources.
  *
- * Base-URL contract: `VITE_API_BASE` is origin-only — no `/api` suffix;
- * call sites append `/api` on each request path themselves.  The origin is
- * resolved once, by api/apiBase, for every reader (this client, the login
- * redirect, the logout forms, the health probe), so an unset or '/' value
- * means same-origin everywhere instead of a different fallback per reader.
+ * @enterprise
+ * Base-URL contract: `VITE_API_BASE` is origin-only, with no `/api` suffix; call
+ * sites append `/api` on each request path themselves. The origin is resolved
+ * once, by api/apiBase, for every reader (this client, the login redirect, the
+ * logout forms, the health probe), so an unset or '/' value means same-origin
+ * everywhere instead of a different fallback per reader.
  *
- * Production guidance: deploy behind Nginx so frontend and backend share
- * the same origin; this keeps session cookies first-party and avoids CORS.
+ * Production guidance: deploy behind Nginx so frontend and backend share the
+ * same origin; this keeps session cookies first-party and avoids CORS.
  *
- * Keep this file thin; feature APIs live under `src/features/**\/api.ts`.
- * Do not import from outside `src/api/` to avoid circular deps.
- * See https://axios-http.com/docs/interceptors for interceptor reference.
+ * Keep this file thin, and import nothing from outside `src/api/` to avoid
+ * circular dependencies. Interceptor reference:
+ * https://axios-http.com/docs/interceptors
  */
 import axios, { AxiosError } from 'axios';
 

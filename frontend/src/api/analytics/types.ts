@@ -1,3 +1,16 @@
+/**
+ * @file types.ts
+ * @module api/analytics/types
+ *
+ * @summary
+ * Shapes the analytics fetchers return and the analytics charts and pickers
+ * consume.
+ *
+ * @enterprise
+ * One module for the analytics data contract, so a chart and its fetcher cannot
+ * drift to two definitions of the same row. ItemRef comes from api/shared/types,
+ * where both the inventory and analytics layers read it.
+ */
 import type { ItemRef } from '../shared/types';
 
 /** Tracks aggregate portfolio value at a point in time; drives the stock-value trend chart. */

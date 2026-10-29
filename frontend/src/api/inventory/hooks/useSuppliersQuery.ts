@@ -1,9 +1,14 @@
 /**
+ * @file useSuppliersQuery.ts
  * @module api/inventory/hooks/useSuppliersQuery
  *
- * Provides a React Query hook that serves the supplier list from
- * `GET /api/suppliers` as `{ id, label }` options for dropdown and
- * autocomplete controls.
+ * @summary
+ * React Query hook that serves the supplier list from `GET /api/suppliers` as
+ * `{ id, label }` options for dropdown and autocomplete controls.
+ *
+ * @enterprise
+ * One cached query for every supplier control, so opening a dialog does not
+ * fetch the list again.
  */
 
 import { useQuery } from '@tanstack/react-query';

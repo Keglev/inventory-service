@@ -1,10 +1,15 @@
 /**
+ * @file itemMutations.ts
  * @module api/inventory/itemMutations
  *
- * Item lifecycle mutations (create, rename, delete) for the inventory API.
- * Uses POST /api/inventory to create, PATCH /api/inventory/{id}/name to rename,
- * and DELETE /api/inventory/{id} to remove.
- * All functions return typed response objects rather than throwing.
+ * @summary
+ * Item lifecycle mutations for the inventory API: POST /api/inventory to create,
+ * PATCH /api/inventory/{id}/name to rename and DELETE /api/inventory/{id} to
+ * remove.
+ *
+ * @enterprise
+ * All functions return typed response objects rather than throwing, so each
+ * dialog maps a failure to its own field or message.
  */
 
 import http from '../httpClient';

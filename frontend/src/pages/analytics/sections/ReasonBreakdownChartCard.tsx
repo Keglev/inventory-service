@@ -3,10 +3,13 @@
  * @module pages/analytics/sections/ReasonBreakdownChartCard
  *
  * @summary
- * Presentational bar chart for ONE movement direction (increases or
- * decreases) of the per-reason breakdown. The parent supplies already
- * translated labels and pre-filtered values, so this card stays dumb and is
- * rendered twice side by side (increases left, decreases right).
+ * Presentational bar chart for ONE movement direction (increases or decreases)
+ * of the per-reason breakdown.
+ *
+ * @enterprise
+ * The parent supplies already translated labels and pre-filtered values, so this
+ * card stays dumb and is rendered twice side by side (increases left, decreases
+ * right).
  */
 import * as React from 'react';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
