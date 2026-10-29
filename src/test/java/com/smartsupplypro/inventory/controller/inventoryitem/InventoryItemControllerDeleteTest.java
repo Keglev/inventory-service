@@ -23,7 +23,7 @@ import com.smartsupplypro.inventory.service.InventoryItemService;
  */
 @WebMvcTest(controllers = InventoryItemController.class)
 @Import({ GlobalExceptionHandler.class, TestSecurityConfig.class })
-class InventoryItemControllerUpdateDeleteTest {
+class InventoryItemControllerDeleteTest {
 
     @Autowired MockMvc mockMvc;
 
