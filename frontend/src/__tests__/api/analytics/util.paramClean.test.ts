@@ -12,6 +12,8 @@
  * Out of scope:
  * - Exact default range length (e.g., "180 days") and timezone semantics
  * - Input validation for malformed date strings
+ *
+ * Sibling specs: util.firstStringOrEmpty.test.ts, util.number.test.ts, util.recordGuards.test.ts.
  */
 
 import { describe, it, expect } from 'vitest';

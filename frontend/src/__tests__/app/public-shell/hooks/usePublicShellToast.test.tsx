@@ -1,5 +1,5 @@
 /**
- * @file usePublicShellToast.test.ts
+ * @file usePublicShellToast.test.tsx
  * @module __tests__/app/public-shell/hooks/usePublicShellToast
  * @description
  * Tests for the usePublicShellToast hook.

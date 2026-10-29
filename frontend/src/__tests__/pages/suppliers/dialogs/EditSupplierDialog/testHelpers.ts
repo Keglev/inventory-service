@@ -1,15 +1,16 @@
-import { vi } from 'vitest';
-import type { EditSupplierForm } from '@/api/suppliers/validation';
-import type { SupplierRow } from '@/api/suppliers/types';
-import type { UseEditSupplierFormReturn } from '@/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
-
 /**
- * Small, local test helpers for the EditSupplierDialog test directory.
+ * @file testHelpers.ts
+ * @module tests/pages/suppliers/dialogs/EditSupplierDialog/testHelpers
+ * @description Small, local test helpers for the EditSupplierDialog test directory.
  *
  * Rationale:
  * - These tests deliberately mock orchestration boundaries (hooks / child components).
  * - Keeping mock builders centralized reduces repetition and keeps individual test files focused.
  */
+import { vi } from 'vitest';
+import type { EditSupplierForm } from '@/api/suppliers/validation';
+import type { SupplierRow } from '@/api/suppliers/types';
+import type { UseEditSupplierFormReturn } from '@/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
 
 export type EditSupplierDialogFormOverrides = Omit<Partial<UseEditSupplierFormReturn>, 'formState'> & {
   formState?: Pick<UseEditSupplierFormReturn['formState'], 'errors' | 'isSubmitting'>;

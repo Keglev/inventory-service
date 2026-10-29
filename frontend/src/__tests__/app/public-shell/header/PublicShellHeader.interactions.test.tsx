@@ -7,6 +7,8 @@
  * Scope:
  * - Delegates user interactions from child toggles to parent handlers:
  *   onThemeToggle and onLocaleToggle.
+ *
+ * Sibling spec: PublicShellHeader.rendering.test.tsx.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

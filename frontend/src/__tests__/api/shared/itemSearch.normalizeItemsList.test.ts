@@ -13,6 +13,8 @@
  * - Enforcing uniqueness, ordering guarantees, or deep validation of
  *   item fields
  * - Backend contract correctness for identifiers and naming
+ *
+ * Sibling spec: itemSearch.search.test.ts.
  */
 
 import { describe, it, expect } from 'vitest';

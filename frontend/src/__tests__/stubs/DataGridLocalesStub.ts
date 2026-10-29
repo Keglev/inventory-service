@@ -1,5 +1,6 @@
 /**
  * @file DataGridLocalesStub.ts
+ * @module tests/stubs/DataGridLocalesStub
  * @description Test stub for the MUI/X DataGrid locale exports.
  *
  * Purpose:

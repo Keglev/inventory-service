@@ -12,6 +12,8 @@
  * Out of scope:
  * - Internationalization/locale formatting of string values
  * - Validation that the chosen keys reflect correct backend contract
+ *
+ * Sibling specs: util.number.test.ts, util.paramClean.test.ts, util.recordGuards.test.ts.
  */
 
 import { describe, it, expect } from 'vitest';

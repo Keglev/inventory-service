@@ -11,6 +11,8 @@
  * Out of scope:
  * - Theme application logic (e.g., MUI theme provider)
  * - i18n persistence / i18next integration
+ *
+ * Sibling spec: PublicShellHeader.interactions.test.tsx.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

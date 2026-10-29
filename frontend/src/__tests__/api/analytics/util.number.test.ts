@@ -13,6 +13,8 @@
  * - Locale-specific number parsing, currency formatting, and rounding
  *   policy
  * - Validation of upstream payload contracts that supply these values
+ *
+ * Sibling specs: util.firstStringOrEmpty.test.ts, util.paramClean.test.ts, util.recordGuards.test.ts.
  */
 
 import { describe, it, expect } from 'vitest';

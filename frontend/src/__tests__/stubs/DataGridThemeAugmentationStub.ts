@@ -1,5 +1,6 @@
 /**
  * @file DataGridThemeAugmentationStub.ts
+ * @module tests/stubs/DataGridThemeAugmentationStub
  * @description Empty module stub for DataGrid theme augmentation side-effect imports.
  *
  * Purpose:
