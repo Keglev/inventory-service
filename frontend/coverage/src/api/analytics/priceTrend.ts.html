@@ -115,7 +115,17 @@
 <a name='L50'></a><a href='#L50'>50</a>
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
-<a name='L53'></a><a href='#L53'>53</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -168,12 +178,17 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @file priceTrend.ts
  * @module api/analytics/priceTrend
  *
- * Historical price trend for a single item, fetched from
- * GET /api/analytics/price-trend. The backend requires `start` and `end`, so
- * `paramClean` always supplies them (defaulting to the last 180 days).
+ * @summary
+ * Historical price trend for a single item, from GET /api/analytics/price-trend.
  * Returns an empty array on any error.
+ *
+ * @enterprise
+ * The backend requires `start` and `end`, so `paramClean` always supplies them
+ * (defaulting to the last 180 days) rather than letting a missing bound reach
+ * the server.
  */
 import http from '../httpClient';
 import { asNumber, paramClean } from './util';

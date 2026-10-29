@@ -167,7 +167,17 @@
 <a name='L102'></a><a href='#L102'>102</a>
 <a name='L103'></a><a href='#L103'>103</a>
 <a name='L104'></a><a href='#L104'>104</a>
-<a name='L105'></a><a href='#L105'>105</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -272,12 +282,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @file itemMutations.ts
  * @module api/inventory/itemMutations
  *
- * Item lifecycle mutations (create, rename, delete) for the inventory API.
- * Uses POST /api/inventory to create, PATCH /api/inventory/{id}/name to rename,
- * and DELETE /api/inventory/{id} to remove.
- * All functions return typed response objects rather than throwing.
+ * @summary
+ * Item lifecycle mutations for the inventory API: POST /api/inventory to create,
+ * PATCH /api/inventory/{id}/name to rename and DELETE /api/inventory/{id} to
+ * remove.
+ *
+ * @enterprise
+ * All functions return typed response objects rather than throwing, so each
+ * dialog maps a failure to its own field or message.
  */
 &nbsp;
 import http from '../httpClient';

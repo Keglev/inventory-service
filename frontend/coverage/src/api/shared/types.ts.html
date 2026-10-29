@@ -74,7 +74,15 @@
 <a name='L9'></a><a href='#L9'>9</a>
 <a name='L10'></a><a href='#L10'>10</a>
 <a name='L11'></a><a href='#L11'>11</a>
-<a name='L12'></a><a href='#L12'>12</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -86,12 +94,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @file types.ts
  * @module api/shared/types
  *
- * Cross-cutting domain types shared by the inventory and analytics API
- * layers. ItemRef lives here (rather than in either domain module) so that
- * the shared item-search primitives in itemSearch.ts and their consumers in
- * both layers depend on one canonical definition.
+ * @summary
+ * Cross-cutting domain types shared by the inventory and analytics API layers.
+ *
+ * @enterprise
+ * ItemRef lives here (rather than in either domain module) so that the shared
+ * item-search primitives in itemSearch.ts and their consumers in both layers
+ * depend on one canonical definition.
  */
 &nbsp;
 /** Minimal item identity for type-ahead and dropdown controls; optional fields are included when callers need richer context (SKU, on-hand stock, price). */

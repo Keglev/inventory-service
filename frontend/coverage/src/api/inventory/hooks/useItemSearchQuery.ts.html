@@ -131,7 +131,15 @@
 <a name='L66'></a><a href='#L66'>66</a>
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -200,11 +208,15 @@
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @file useItemSearchQuery.ts
  * @module api/inventory/hooks/useItemSearchQuery
  *
- * Item picker data for the inventory dialogs (quantity, price, edit,
- * delete). Once a supplier is chosen, its items load once and every
- * keystroke is matched in the browser (frontend ADR-0014).
+ * @summary
+ * Item picker data for the inventory dialogs (quantity, price, edit, delete).
+ *
+ * @enterprise
+ * Once a supplier is chosen, its items load once and every keystroke is matched
+ * in the browser (frontend ADR-0014), so typing sends no request.
  */
 &nbsp;
 import * as React from 'react';

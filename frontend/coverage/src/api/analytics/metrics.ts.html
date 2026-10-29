@@ -117,7 +117,15 @@
 <a name='L52'></a><a href='#L52'>52</a>
 <a name='L53'></a><a href='#L53'>53</a>
 <a name='L54'></a><a href='#L54'>54</a>
-<a name='L55'></a><a href='#L55'>55</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -172,13 +180,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @file metrics.ts
  * @module api/analytics/metrics
  *
- * Aggregates scalar count metrics across three domains: inventory items
- * (`/api/inventory/count`), suppliers (`/api/suppliers/count`), and
- * low-stock alerts (`/api/analytics/low-stock/count`). Each helper is
- * intentionally fault-tolerant — it returns 0 on any HTTP error so callers
- * can render partial dashboards without cascading failures.
+ * @summary
+ * Scalar count metrics across three domains: inventory items
+ * (`/api/inventory/count`), suppliers (`/api/suppliers/count`) and low-stock
+ * alerts (`/api/analytics/low-stock/count`).
+ *
+ * @enterprise
+ * Each helper returns 0 on any HTTP error, so callers can render partial
+ * dashboards without cascading failures.
  */
 &nbsp;
 import http from '../httpClient';

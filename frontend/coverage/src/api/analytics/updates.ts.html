@@ -201,7 +201,17 @@
 <a name='L136'></a><a href='#L136'>136</a>
 <a name='L137'></a><a href='#L137'>137</a>
 <a name='L138'></a><a href='#L138'>138</a>
-<a name='L139'></a><a href='#L139'>139</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -340,13 +350,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @file updates.ts
  * @module api/analytics/updates
  *
+ * @summary
  * Stock updates from GET /api/analytics/stock-updates (the full list) and
- * GET /api/analytics/stock-updates/page (one page with the total).
+ * GET /api/analytics/stock-updates/page (one page with the total). Returns an
+ * empty array on any error.
+ *
+ * @enterprise
  * Each record is read by StockUpdateResultDTO's field names (timestamp,
- * itemName, change, reason, createdBy); a record without timestamp or item
- * name is dropped. Returns an empty array on any error.
+ * itemName, change, reason, createdBy); a record without timestamp or item name
+ * is dropped, so the tables never render a row they cannot label.
  */
 import http from '../httpClient';
 import { isArrayOfRecords, firstStringOrEmpty, firstNumberOrZero } from './util';

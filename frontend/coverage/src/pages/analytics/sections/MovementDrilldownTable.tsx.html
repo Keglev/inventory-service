@@ -151,7 +151,13 @@
 <a name='L86'></a><a href='#L86'>86</a>
 <a name='L87'></a><a href='#L87'>87</a>
 <a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -246,10 +252,13 @@
  * @summary
  * Row-level drilldown under the movement charts: recent stock changes for the
  * active window/supplier/item filters, showing direction (signed delta) and
- * reason per row. Paged on the server through /api/analytics/stock-updates/page.
- * The pagination bar is shown whenever there are rows, including a single page,
- * as in the inventory table; its arrows are disabled at either end. A change of
- * any filter returns to the first page.
+ * reason per row.
+ *
+ * @enterprise
+ * Paged on the server through /api/analytics/stock-updates/page, because the
+ * change log is unbounded. The pagination bar is shown whenever there are rows,
+ * including a single page, as in the inventory table; its arrows are disabled at
+ * either end. A change of any filter returns to the first page.
  */
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';

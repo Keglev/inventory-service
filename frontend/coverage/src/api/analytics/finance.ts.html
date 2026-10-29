@@ -149,7 +149,17 @@
 <a name='L84'></a><a href='#L84'>84</a>
 <a name='L85'></a><a href='#L85'>85</a>
 <a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -236,14 +246,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @file finance.ts
  * @module api/analytics/finance
  *
- * Fetches WAC-based (weighted-average-cost) financial figures for a given date window and optional supplier.
- * Calls GET /api/analytics/financial/summary with `from`/`to` params (not
- * the `start`/`end` used by other analytics endpoints). The body is the bare
- * FinancialSummaryDTO; the backend wraps it in no envelope.
- * Numeric fields default to 0 and `method` to '' on missing or invalid data;
- * the function never throws.
+ * @summary
+ * Fetches WAC-based (weighted-average-cost) financial figures for a given date
+ * window and optional supplier, from GET /api/analytics/financial/summary with
+ * `from`/`to` params (not the `start`/`end` used by other analytics endpoints).
+ * The body is the bare FinancialSummaryDTO; the backend wraps it in no envelope.
+ *
+ * @enterprise
+ * Numeric fields default to 0 and `method` to '' on missing or invalid data and
+ * the function never throws, so the financial card renders zeros instead of an
+ * error when the backend sends nothing usable.
  */
 &nbsp;
 import http from '../httpClient';
