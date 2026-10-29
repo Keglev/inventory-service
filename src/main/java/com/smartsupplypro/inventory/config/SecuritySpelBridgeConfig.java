@@ -12,6 +12,13 @@ import org.springframework.context.annotation.Primary;
 @Configuration
 public class SecuritySpelBridgeConfig {
 
+    /**
+     * Registers the bound properties a second time, under the name the SpEL
+     * expressions use.
+     *
+     * @param props the properties Spring binds from {@code app.*}
+     * @return the same instance, as the primary bean of its type
+     */
     @Bean("appProperties")
     @Primary
     public AppProperties appPropertiesPrimary(AppProperties props) {

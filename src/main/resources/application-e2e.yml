@@ -1,5 +1,5 @@
 # =============================================================================
-# e2e profile - additive to `test`, never used alone.
+# application-e2e.yml - additive to `test`, never used alone.
 #
 # Activate as: --spring.profiles.active=test,e2e
 #
@@ -18,6 +18,11 @@
 #
 # Keeping `test` active matters: DatabaseDialectDetector selects H2 SQL by
 # profile name (test or h2), not by connection metadata. ADR-0009 (frontend).
+#
+# Failure mode: started without `test`, the datasource and OAuth2 client fall
+# back to application.yml's environment variables and the start stops on the
+# first unresolved one; started with a plain `java -jar`, the H2 driver is
+# missing from the classpath.
 # =============================================================================
 spring:
   sql:

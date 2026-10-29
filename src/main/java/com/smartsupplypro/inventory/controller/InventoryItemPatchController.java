@@ -51,6 +51,14 @@ public class InventoryItemPatchController {
         return inventoryItemService.adjustQuantity(id, delta, reason);
     }
 
+    /**
+     * Sets a new unit price and records the change in stock history.
+     *
+     * @param id    item identifier
+     * @param price new unit price, greater than zero
+     * @return updated inventory item
+     * @throws java.util.NoSuchElementException 404 if the item does not exist
+     */
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PatchMapping("/{id}/price")
     public InventoryItemDTO updatePrice(@PathVariable String id,

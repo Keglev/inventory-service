@@ -13,6 +13,12 @@ import com.smartsupplypro.inventory.model.Supplier;
 @Component
 public class SupplierMapper {
 
+    /**
+     * Copies a supplier entity into its DTO.
+     *
+     * @param supplier the entity, or null
+     * @return the DTO, or null for a null entity
+     */
     public SupplierDTO toDTO(Supplier supplier) {
         if (supplier == null) return null;
         return SupplierDTO.builder()

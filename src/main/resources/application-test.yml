@@ -1,8 +1,16 @@
-# ============================================
-# Spring Boot - Test Environment Config
-# Profile: test
-# Used for unit, integration, and CI testing
-# ============================================
+# =============================================================================
+# application-test.yml - the in-memory profile the backend tests run on
+# Usage: @ActiveProfiles("test") on the test classes and
+#        -Dspring.profiles.active=test in the build; the e2e profile runs on
+#        top of it (test,e2e).
+# Produces: H2 in Oracle mode with create-drop, a stubbed Google client, no
+#        Flyway, demo read-only off, and actuator health (with details) and
+#        info (with build info) as the CI assertions read them.
+# Failure mode: a query H2 cannot run in Oracle mode fails the tests that reach
+#        it, not the start. The Oracle-only SQL builders are chosen by profile
+#        name (DatabaseDialectDetector), so this profile must stay active
+#        wherever H2 is the database.
+# =============================================================================
 
 spring:
   datasource:

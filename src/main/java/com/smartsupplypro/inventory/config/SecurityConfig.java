@@ -68,6 +68,16 @@ public class SecurityConfig {
     // entry-point, filter and authorization helpers. The login page line (EPA-c)
     // added the 32nd. Recorded in
     // docs/backend/architecture/11-risks-technical-debt.md.
+    /**
+     * Builds the one filter chain every request passes. A filter marks API requests,
+     * so an unauthenticated API call gets a 401 where a browser gets a redirect;
+     * sign-in runs through OAuth2 with the frontend's own login page, and logout
+     * invalidates the session.
+     *
+     * @param http the builder Spring supplies
+     * @return the configured chain
+     * @throws Exception when Spring rejects the configuration
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         OncePerRequestFilter apiFlagFilter = filterHelper.createApiDetectionFilter();

@@ -79,6 +79,7 @@ public class StockHistory {
     @Column(name = "PRICE_AT_CHANGE", precision = 12, scale = 2)
     private BigDecimal priceAtChange;
 
+    /** Stamps the movement time on first save when the caller set none. */
     @PrePersist
     public void prePersist() {
         if (timestamp == null) {

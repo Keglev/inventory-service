@@ -1,5 +1,5 @@
 # ============================================
-# Spring Boot - Local Oracle Integration Test Config
+# application-oracle-it.yml - local smoke test against the real Oracle database
 # Profile: oracle-it
 #
 # Purpose:
@@ -11,6 +11,14 @@
 # - Oracle Wallet extracted locally and configured via environment variables.
 # - DB_URL, DB_USER, DB_PASS configured.
 # - Network access: your public IP allowlisted in Oracle.
+#
+# Usage: mvn test -Dtest=InventoryServiceApplicationTest -DenableWalletTest=true
+#        (docs/backend/architecture/oracle-it-smoke-test.md); the profile is
+#        inactive without that flag.
+# Produces: a two-connection Oracle pool, no schema changes (ddl-auto none) and
+#        the SQL Hibernate sends, logged at DEBUG.
+# Failure mode: a missing wallet, unset DB variables or a blocked IP fail the
+#        context load, so the one test reports the connection error.
 # ============================================
 
 spring:
