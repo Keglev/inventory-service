@@ -55,7 +55,7 @@ import jakarta.validation.ConstraintViolationException;
 <span class="fc" id="L55">                .map(fe -&gt; fe.getField() + &quot; &quot; + fe.getDefaultMessage())</span>
 <span class="fc" id="L56">                .orElse(&quot;Validation failed&quot;);</span>
 <span class="fc" id="L57">        return respond(HttpStatus.BAD_REQUEST, sanitize(message),</span>
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">            fieldErrors.isEmpty() ? null : fieldErrors);</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">            fieldErrors.isEmpty() ? null : fieldErrors);</span>
     }
 
     /** Handles JSR-380 constraint violations ({@code @NotNull}, {@code @Size}). */
@@ -110,7 +110,7 @@ import jakarta.validation.ConstraintViolationException;
     }
 
     private static String messageOr(RuntimeException ex, String fallback) {
-<span class="pc bpc" id="L113" title="1 of 4 branches missed.">        return (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank()) ? ex.getMessage() : fallback;</span>
+<span class="fc bfc" id="L113" title="All 4 branches covered.">        return (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank()) ? ex.getMessage() : fallback;</span>
     }
 
     /** Handles missing static resources with no response body. */
@@ -158,7 +158,7 @@ import jakarta.validation.ConstraintViolationException;
     @ExceptionHandler(Exception.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleUnexpected(Exception ex) {
 <span class="fc bfc" id="L160" title="All 2 branches covered.">        if (ex instanceof org.springframework.web.ErrorResponse rejection</span>
-<span class="pc bpc" id="L161" title="1 of 2 branches missed.">                &amp;&amp; rejection.getStatusCode().is4xxClientError()) {</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">                &amp;&amp; rejection.getStatusCode().is4xxClientError()) {</span>
 <span class="fc" id="L162">            return respondToRejection(rejection);</span>
         }
         // The client gets a generic envelope; operators get the full stack trace.

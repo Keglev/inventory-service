@@ -29,7 +29,7 @@ final class ErrorResponses {
 
     /** Strips file paths, class names, SQL fragments, and credentials from error messages. */
     static String sanitize(String message) {
-<span class="pc bpc" id="L32" title="1 of 2 branches missed.">        if (message == null) return &quot;Unknown error&quot;;</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (message == null) return &quot;Unknown error&quot;;</span>
 <span class="fc" id="L33">        return message</span>
 <span class="fc" id="L34">            .replaceAll(&quot;\\b[A-Za-z]:\\\\[\\w\\\\.-]+&quot;, &quot;[PATH]&quot;)</span>
 <span class="fc" id="L35">            .replaceAll(&quot;/[\\w/.-]+\\.(java|class)&quot;, &quot;[INTERNAL]&quot;)</span>
