@@ -161,7 +161,7 @@ describe('StockValueCard', () => {
   });
 
   it('places the series on a time axis over the selected range', async () => {
-    // The series starts after the range start: the days before stay empty, no 0 € point.
+    // The series starts after the range start: the days before stay empty, no 0 EUR point.
     vi.mocked(getStockValueOverTime).mockResolvedValue([{ date: '2025-01-10', totalValue: 1000 }]);
 
     setup(queryClient, { from: '2025-01-01', to: '2025-01-31' });

@@ -78,7 +78,7 @@ describe('monthTicks', () => {
 });
 
 describe('utcDay and monthKey', () => {
-  it('turn a bucket start back into its calendar day and month', () => {
+  it('turns a bucket start back into its calendar day and month', () => {
     const t = Date.UTC(2026, 8, 7);
 
     expect(utcDay(t).getDate()).toBe(7);

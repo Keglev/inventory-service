@@ -133,7 +133,7 @@ describe('itemSearch fetchers', () => {
       expect((await listItemsForSupplier('S-1')).complete).toBe(true);
     });
 
-    it('without a total, a full page counts as incomplete', async () => {
+    it('counts a full page as incomplete when the response has no total', async () => {
       const full = Array.from({ length: 2000 }, (_, i) => ({ id: `I-${i}`, name: `Item ${i}` }));
       httpMock.get.mockResolvedValueOnce({ data: { content: full } });
       httpMock.get.mockResolvedValueOnce({ data: { content: full.slice(1) } });

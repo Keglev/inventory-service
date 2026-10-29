@@ -92,7 +92,7 @@ describe('useDeleteSupplierForm', () => {
     expect(result.current.searchQuery).toBe('');
   });
 
-  it('selecting a supplier enters confirmation and resets search', () => {
+  it('enters confirmation and resets the search when a supplier is selected', () => {
     const { result } = renderHook(() => useDeleteSupplierForm(vi.fn()));
 
     act(() => {
@@ -105,7 +105,7 @@ describe('useDeleteSupplierForm', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('confirm delete requires a selected supplier', async () => {
+  it('requires a selected supplier when delete is confirmed', async () => {
     const { result } = renderHook(() => useDeleteSupplierForm(vi.fn()));
 
     await act(async () => {
@@ -116,7 +116,7 @@ describe('useDeleteSupplierForm', () => {
     expect(result.current.error).toBe('Please select a supplier');
   });
 
-  it('confirm delete requires ADMIN role', async () => {
+  it('requires the ADMIN role when delete is confirmed', async () => {
     mocks.useAuth.mockReturnValue({ user: { role: 'USER' } });
     const { result } = renderHook(() => useDeleteSupplierForm(vi.fn()));
 
@@ -132,7 +132,7 @@ describe('useDeleteSupplierForm', () => {
     expect(result.current.error).toBe('Only administrators can perform this action.');
   });
 
-  it('on success, calls deleteSupplier and notifies parent', async () => {
+  it('calls deleteSupplier and notifies the parent when the deletion succeeds', async () => {
     const onDeleted = vi.fn();
     mocks.deleteSupplier.mockResolvedValue({ success: true });
 
@@ -151,7 +151,7 @@ describe('useDeleteSupplierForm', () => {
     expect(result.current.isDeleting).toBe(false);
   });
 
-  it('on API failure, surfaces a user-facing error and resets loading', async () => {
+  it('surfaces a user-facing error and resets loading when the API fails', async () => {
     const onDeleted = vi.fn();
     mocks.deleteSupplier.mockResolvedValue({
       success: false,
@@ -173,7 +173,7 @@ describe('useDeleteSupplierForm', () => {
     expect(result.current.isDeleting).toBe(false);
   });
 
-  it('when the delete request throws, surfaces an error and clears loading', async () => {
+  it('surfaces an error and clears loading when the delete request throws', async () => {
     // A rejected promise (network drop, unexpected throw) is a different path from a
     // resolved { success: false } response: it lands in the catch arm.
     const onDeleted = vi.fn();
