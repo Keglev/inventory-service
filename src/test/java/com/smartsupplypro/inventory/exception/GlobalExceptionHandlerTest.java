@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
@@ -51,6 +52,8 @@ class GlobalExceptionHandlerTest {
     static class ThrowingController {
         @GetMapping("/nse")    void nse()    { throw new NoSuchElementException(); }
         @GetMapping("/nse-m")  void nseMsg() { throw new NoSuchElementException("Item 1 not found"); }
+        @GetMapping("/nse-b")  void nseBlank() { throw new NoSuchElementException("   "); }
+        @GetMapping("/timeout") void timeout() { throw new AsyncRequestTimeoutException(); }
         @GetMapping("/iae")    void iae()    { throw new IllegalArgumentException("Failed to evaluate expression"); }
         @GetMapping("/auth")   void auth()   { throw new BadCredentialsException("bad"); }
         @GetMapping("/denied") void denied() { throw new AccessDeniedException("Denied"); }
@@ -74,6 +77,11 @@ class GlobalExceptionHandlerTest {
             mockMvc.perform(get("/err/nse-m"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Item 1 not found"));
+        }
+        @Test void should_fall_back_to_the_default_when_the_not_found_message_is_blank() throws Exception {
+            mockMvc.perform(get("/err/nse-b"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Resource not found"));
         }
     }
 
@@ -159,6 +167,16 @@ class GlobalExceptionHandlerTest {
                     .andExpect(status().isInternalServerError())
                     .andExpect(jsonPath("$.message").value("Unexpected server error"));
                 assertUnhandledLogged(log, IllegalStateException.class);
+            }
+        }
+        // A framework rejection with a server status is a server fault, not a client error
+        // to pass through: the 503 a timed-out async request carries is answered as 500.
+        @Test void should_return_a_generic_500_and_log_the_cause_when_a_framework_rejection_carries_a_5xx_status() throws Exception {
+            try (LogCapture log = LogCapture.of(GlobalExceptionHandler.class, Level.ERROR)) {
+                mockMvc.perform(get("/err/timeout"))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(jsonPath("$.message").value("Unexpected server error"));
+                assertUnhandledLogged(log, AsyncRequestTimeoutException.class);
             }
         }
         private void assertUnhandledLogged(LogCapture log, Class<? extends Throwable> cause) {

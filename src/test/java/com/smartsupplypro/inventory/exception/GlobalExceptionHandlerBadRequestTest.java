@@ -20,6 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.core.MethodParameter;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 
@@ -55,6 +59,21 @@ class GlobalExceptionHandlerBadRequestTest {
         @GetMapping("/constraint")    void constraint() { throw new ConstraintViolationException("bad", Set.of()); }
         @PostMapping("/parse")        void parse(@RequestBody Map<String, Object> body) { }
         @PostMapping("/valid")        void valid(@Valid @RequestBody Sample dto) { }
+        @GetMapping("/object-error")  void objectError() throws Exception {
+            BeanPropertyBindingResult result = new BeanPropertyBindingResult(new Object(), "sample");
+            result.reject("range", "Start must not be after end");
+            throw invalid(result, "objectError");
+        }
+        @GetMapping("/no-message")    void noMessage() throws Exception {
+            BeanPropertyBindingResult result = new BeanPropertyBindingResult(new Object(), "sample");
+            result.addError(new FieldError("sample", "name", null, false, null, null, null));
+            throw invalid(result, "noMessage");
+        }
+        private static MethodArgumentNotValidException invalid(BeanPropertyBindingResult result, String handler)
+                throws NoSuchMethodException {
+            return new MethodArgumentNotValidException(
+                new MethodParameter(ThrowingController.class.getDeclaredMethod(handler), -1), result);
+        }
 
         record Sample(@NotBlank String name) {}
     }
@@ -86,6 +105,20 @@ class GlobalExceptionHandlerBadRequestTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("bad_request"))
                 .andExpect(jsonPath("$.fieldErrors.name").exists());
+        }
+        // An object-level error (a class constraint) names no field, so the envelope carries no
+        // fieldErrors map at all rather than an empty one.
+        @Test void should_return_400_without_field_errors_when_only_an_object_error_fails() throws Exception {
+            mockMvc.perform(get("/err/object-error"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.fieldErrors").doesNotExist());
+        }
+        // Spring types a field error's default message as nullable.
+        @Test void should_report_an_unknown_error_for_the_field_when_its_message_is_missing() throws Exception {
+            mockMvc.perform(get("/err/no-message"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.name").value("Unknown error"));
         }
     }
 
