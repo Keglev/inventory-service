@@ -290,21 +290,30 @@
         </tr>
         </tbody>
         </table>
-        <p>Two files sit above their target and below their alarm and
-        are watched rather than waived:
-        <code>StockHistoryRepository.java</code> at 85 and
+        <p>Three files sit above their target and below their alarm and
+        are watched rather than waived, all against the repository
+        target of 80: <code>StockHistoryRepository.java</code> at 85,
+        <code>repository/custom/StockDetailQueryRepositoryImpl.java</code>
+        at 100 and
         <code>repository/custom/util/StockTrendSqlBuilder.java</code> at
-        145, both against a repository target of 80. The repository was
-        at 115 until the stock-history read API and its three queries
-        were removed (2026-10-28). The builder was waived at 153 until
-        its unused all-suppliers monthly variant was removed
-        (2026-10-16). Thirteen methods sit between the target of 20 and
-        the alarm of 30, the largest being
-        <code>EmployeeAnalyticsService::getEmployeeActivity</code> at
-        29. The two daily-movement builders in
-        <code>StockTrendSqlBuilder</code> (25 each) joined that band
-        when they replaced the daily-valuation builders, which had been
-        waived above. The band is guidance, the alarm is the gate.</p>
+        145. The repository was at 115 until the stock-history read API
+        and its three queries were removed (2026-10-28). The builder was
+        waived at 153 until its unused all-suppliers monthly variant was
+        removed (2026-10-16).</p>
+        <p>Seven methods sit between the target of 20 and the alarm of
+        30: <code>EmployeeAnalyticsService::getEmployeeActivity</code>
+        at 27, the two daily-movement builders in
+        <code>StockTrendSqlBuilder</code> at 23 each,
+        <code>UserProvisioningService::provision</code> at 22, and
+        <code>StockValueSeries::build</code>,
+        <code>StockHistoryValidator::validate</code> and
+        <code>StockDetailQueryRepositoryImpl::streamEventsForWAC</code>
+        at 21 each. These figures follow the counting rule in <a
+        href="02-constraints.html">§2</a>, which leaves both brace lines
+        out (2026-10-29); the earlier count of thirteen included them.
+        The two daily-movement builders joined the band when they
+        replaced the daily-valuation builders, which had been waived
+        above. The band is guidance, the alarm is the gate.</p>
       </article>
     </main>
 
