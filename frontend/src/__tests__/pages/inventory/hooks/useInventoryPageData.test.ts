@@ -157,7 +157,7 @@ describe('useInventoryPageData', () => {
     expect(result.current.items[0]?.id).toBe('it-2');
   });
 
-  it('reload re-runs the current query when a supplier is selected', async () => {
+  it('re-runs the current query on reload when a supplier is selected', async () => {
     const { result } = renderPageData('sup-1');
     await waitFor(() => expect(result.current.items).toHaveLength(1));
     const callsAfterMount = getInventoryPageMock.mock.calls.length;
@@ -199,7 +199,7 @@ describe('useInventoryPageData', () => {
     expect(listsItems('', false)).toBe(false);
   });
 
-  it('reload is a no-op without a supplier', async () => {
+  it('does nothing on reload when no supplier is selected', async () => {
     const { result } = renderPageData(null);
 
     await act(async () => {

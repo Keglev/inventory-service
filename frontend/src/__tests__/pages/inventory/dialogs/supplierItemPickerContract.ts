@@ -65,7 +65,7 @@ export function itPicksItem(renderPicker: RenderPicker, titles: ItemPickerTitles
     expect(screen.getByText('common:loading')).toBeInTheDocument();
   });
 
-  it('selecting an item forwards it', () => {
+  it('forwards the item when one is selected', () => {
     const setSelectedItem = vi.fn();
     renderPicker({
       selectedSupplier: pickerSuppliers[0],

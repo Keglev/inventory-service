@@ -234,7 +234,7 @@ describe('DeleteSupplierDialog', () => {
     expect(formState.handleConfirmDelete).toHaveBeenCalledTimes(1);
   });
 
-  it('on successful deletion, toasts, notifies the parent and closes', () => {
+  it('toasts, notifies the parent and closes when the deletion succeeds', () => {
     const onClose = vi.fn();
     const onSupplierDeleted = vi.fn();
     renderDialog({ onClose, onSupplierDeleted });

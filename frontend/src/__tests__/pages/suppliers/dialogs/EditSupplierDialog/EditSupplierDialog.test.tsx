@@ -290,7 +290,7 @@ describe('EditSupplierDialog', () => {
     expect(mocks.confirmation).toHaveBeenCalledWith(expect.objectContaining({ open: true }));
   });
 
-  it('cancelling the confirmation step closes it without resetting the whole form', () => {
+  it('closes the confirmation step without resetting the whole form when it is cancelled', () => {
     const form = createEditSupplierDialogForm({ showConfirmation: true, selectedSupplier: baseSupplier });
     renderDialog(form);
 

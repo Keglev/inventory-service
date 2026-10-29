@@ -281,7 +281,7 @@ describe('AuthProvider', () => {
     });
   });
 
-  it('a second logout cancels the pending safety timer before rearming it', async () => {
+  it('cancels the pending safety timer before rearming it when a second logout follows', async () => {
     vi.useFakeTimers();
     httpClientMock.get.mockRejectedValue(new Error('no session'));
 
@@ -302,7 +302,7 @@ describe('AuthProvider', () => {
     expect(screen.getByTestId('logout-in-progress')).toHaveTextContent('false');
   });
 
-  it('a demo re-login after logout clears the in-progress flag immediately', async () => {
+  it('clears the in-progress flag immediately when a demo re-login follows a logout', async () => {
     httpClientMock.get.mockRejectedValue(new Error('no session'));
 
     renderAuth();
@@ -322,7 +322,7 @@ describe('AuthProvider', () => {
     expect(screen.getByTestId('user-is-demo')).toHaveTextContent('true');
   });
 
-  it('a server re-login through setUser after logout clears the in-progress flag immediately', async () => {
+  it('clears the in-progress flag immediately when a server re-login through setUser follows a logout', async () => {
     httpClientMock.get.mockRejectedValue(new Error('no session'));
 
     renderAuth();
