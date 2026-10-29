@@ -58,11 +58,22 @@ public class StockAnalyticsController {
         return ResponseEntity.ok(stockAnalyticsService.getTotalStockValueOverTime(start, end, supplierId));
     }
 
+    /**
+     * Returns the current stock quantity and value per supplier, over active items.
+     *
+     * @return suppliers with their totals, highest value first
+     */
     @GetMapping("/stock-per-supplier")
     public ResponseEntity<List<StockPerSupplierDTO>> getStockPerSupplier() {
         return ResponseEntity.ok(stockAnalyticsService.getTotalStockPerSupplier());
     }
 
+    /**
+     * Counts the active items below their own minimum across all suppliers, the
+     * same items the dashboard's low-stock list shows.
+     *
+     * @return number of items below minimum
+     */
     @GetMapping("/low-stock/count")
     public long getLowStockCount() {
         return stockAnalyticsService.lowStockCount();

@@ -62,8 +62,21 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     boolean existsActiveStockForSupplier(@Param("supplierId") String supplierId,
                                          @Param("minQty") int minQty);
 
+    /**
+     * Finds items by exact name, ignoring case. The duplicate checks on create
+     * (same name and price) and on rename use it.
+     *
+     * @param name item name
+     * @return matching items, from any supplier
+     */
     List<InventoryItem> findByNameIgnoreCase(String name);
 
+    /**
+     * Finds items by SKU, ignoring case; the SKU check on create uses it.
+     *
+     * @param sku stock keeping unit
+     * @return matching items
+     */
     List<InventoryItem> findBySkuIgnoreCase(String sku);
 
     /**

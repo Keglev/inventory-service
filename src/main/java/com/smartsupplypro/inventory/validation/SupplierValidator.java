@@ -25,6 +25,12 @@ public final class SupplierValidator {
 
     private SupplierValidator() {}
 
+    /**
+     * Rejects a missing payload or a blank name.
+     *
+     * @param dto the supplier request
+     * @throws InvalidRequestException if the payload is null or the name is blank
+     */
     public static void validateBase(SupplierDTO dto) {
         if (dto == null) {
             throw new InvalidRequestException("Supplier payload must not be null");
@@ -34,6 +40,15 @@ public final class SupplierValidator {
         }
     }
 
+    /**
+     * Rejects a name another supplier already holds, ignoring case and surrounding
+     * spaces. A blank name passes here; {@link #validateBase} rejects it.
+     *
+     * @param repo      supplier repository
+     * @param name      requested name
+     * @param excludeId id of the supplier being updated, or null on create
+     * @throws DuplicateResourceException if another supplier has the name
+     */
     public static void assertUniqueName(SupplierRepository repo, String name, String excludeId) {
         if (isBlank(name)) return; // blank names are already rejected by validateBase
 
@@ -45,6 +60,14 @@ public final class SupplierValidator {
         }
     }
 
+    /**
+     * Rejects a deletion without an id, or of a supplier that still has linked items.
+     *
+     * @param supplierId  supplier to delete
+     * @param hasAnyLinks reports whether items still reference the supplier; null skips the check
+     * @throws InvalidRequestException        if the id is blank
+     * @throws BusinessRuleViolationException if linked items remain
+     */
     public static void assertDeletable(String supplierId, BooleanSupplier hasAnyLinks) {
         if (isBlank(supplierId)) {
             throw new InvalidRequestException("Supplier id must be provided for deletion");

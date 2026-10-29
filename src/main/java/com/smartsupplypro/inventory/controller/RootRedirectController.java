@@ -22,6 +22,11 @@ public class RootRedirectController {
         this.props = props;
     }
 
+    /**
+     * Sends a browser that opens the root of this host to the frontend.
+     *
+     * @return a redirect to the configured frontend base URL
+     */
     @GetMapping("/")
     public String root() {
         return "redirect:" + props.getFrontend().getBaseUrl();

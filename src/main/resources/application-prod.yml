@@ -1,12 +1,16 @@
-# ===================================================
-# Spring Boot - Production Environment Config
-# Profile: prod
-# Used in deployment (e.g. Docker, cloud, prod server)
-#
-# Holds only what production sets differently from application.yml: the
-# datasource, OAuth2 client, server port and cookies, demo flag and landing
-# path come from there unchanged.
-# ===================================================
+# =============================================================================
+# application-prod.yml - what production sets differently from application.yml
+# Usage: active in the backend container: scripts/start.sh defaults
+#        SPRING_PROFILES_ACTIVE to prod.
+# Produces: a Hikari pool sized for one small container against Oracle, Flyway
+#        migrations from db/migration with Hibernate validating the schema,
+#        actuator health and info, and the production CORS origin and frontend
+#        URL. The datasource, OAuth2 client, server port and cookies, demo flag
+#        and landing path come from application.yml unchanged.
+# Failure mode: a failed migration, or a schema that does not match the
+#        entities (ddl-auto validate), stops the start; so does a missing
+#        ORACLE_WALLET_PASSWORD, an unresolvable placeholder.
+# =============================================================================
 
 # Note: avoid hardcoding secrets here; use environment variables or secret management
 

@@ -1,8 +1,16 @@
-# =============================================
-# Spring Boot - Global Shared Configuration
-# This file provides default values and shared settings
-# across all environments (dev, test, prod)
-# =============================================
+# =============================================================================
+# application.yml - the settings every profile starts from
+# Usage: Spring Boot loads it on every start; a profile file (prod, test, e2e,
+#        oracle-it) overrides only the keys it names.
+# Produces: the Oracle datasource and the Google OAuth2 client from environment
+#        variables, port 8081 behind the proxy (forwarded headers trusted), the
+#        session cookie flags, and the app.* settings AppProperties binds: demo
+#        read-only, admin emails, CORS origins and the frontend URLs.
+# Failure mode: with no profile, a missing DB_URL, DB_USER, DB_PASS or OAuth2
+#        client variable stops the start, because Spring cannot resolve the
+#        placeholder. Flyway stays off here, so this file never migrates a
+#        schema on its own.
+# =============================================================================
 
 spring:
   application:
