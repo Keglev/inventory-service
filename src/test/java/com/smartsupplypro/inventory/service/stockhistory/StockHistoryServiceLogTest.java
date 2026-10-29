@@ -2,6 +2,7 @@ package com.smartsupplypro.inventory.service.stockhistory;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,15 +15,21 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.model.StockHistory;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
+import com.smartsupplypro.inventory.repository.StockHistoryRepository;
+import com.smartsupplypro.inventory.service.impl.StockHistoryServiceImpl;
 
 /**
  * Unit tests for {@link com.smartsupplypro.inventory.service.StockHistoryService}
@@ -30,7 +37,38 @@ import com.smartsupplypro.inventory.model.StockHistory;
  */
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-class StockHistoryServiceLogTest extends StockHistoryServiceTestBase {
+class StockHistoryServiceLogTest {
+
+    private static final String ITEM_1   = "item-1";
+    private static final String SUPPLIER_1 = "S1";
+    private static final String ADMIN    = "admin";
+
+    @Mock
+    private StockHistoryRepository repository;
+
+    @Mock
+    private InventoryItemRepository itemRepository;
+
+    @InjectMocks
+    private StockHistoryServiceImpl service;
+
+    /** Stubs the item lookup that logStockChange makes once its inputs are valid. */
+    private void givenItemExists(String id, String supplierId) {
+        when(itemRepository.findById(id)).thenReturn(Optional.of(mkItem(id, supplierId)));
+    }
+
+    private static com.smartsupplypro.inventory.model.InventoryItem mkItem(String id, String supplierId) {
+        var it = new com.smartsupplypro.inventory.model.InventoryItem();
+        it.setId(id);
+        it.setSupplierId(supplierId);
+        return it;
+    }
+
+    private StockHistory captureSavedHistory() {
+        ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
+        verify(repository).save(captor.capture());
+        return captor.getValue();
+    }
 
     @Test
     void should_persist_stock_change_when_reason_and_positive_delta_are_valid() {
