@@ -2,16 +2,11 @@ package com.smartsupplypro.inventory.service.impl.inventoryitem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -48,21 +43,5 @@ final class InventoryItemServiceImplTestHelper {
         OAuth2User principal = new DefaultOAuth2User(authorities, attrs, "sub");
         OAuth2AuthenticationToken oauth2 = new OAuth2AuthenticationToken(principal, authorities, "test");
         SecurityContextHolder.getContext().setAuthentication(oauth2);
-    }
-
-    /**
-     * Simpler alternative using {@link TestingAuthenticationToken}. Roles are passed as-is
-     * with no prefix transformation.
-     */
-    static void mockOAuth2Authentication(String email, String... roles) {
-        Map<String, Object> attributes = Map.of("email", email);
-        Collection<GrantedAuthority> authorities = Arrays.stream(roles)
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-        OAuth2User oauth2User = new DefaultOAuth2User(authorities, attributes, "email");
-        Authentication auth = new TestingAuthenticationToken(oauth2User, null, authorities);
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(auth);
-        SecurityContextHolder.setContext(context);
     }
 }
