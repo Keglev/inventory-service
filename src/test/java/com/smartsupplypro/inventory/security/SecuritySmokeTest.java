@@ -48,7 +48,7 @@ class SecuritySmokeTest {
     @Autowired AppProperties appProperties;
 
     /**
-     * Behavior when verifying critical beans. The admin endpoint's access rules are
+     * Behavior when verifying critical beans; the admin endpoint's access rules are
      * covered once, in {@link SecurityConfigAuthorizationRulesTest}.
      */
     @Nested

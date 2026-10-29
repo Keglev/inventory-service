@@ -222,7 +222,7 @@ class InventoryItemRepositoryTest {
         }
 
         @Test
-        void should_count_the_items_below_their_own_minimum_as_the_low_stock_list_does() {
+        void should_count_the_items_the_low_stock_list_shows_when_items_sit_below_their_own_minimum() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-cnt-1").name("Pin").sku("SKU-REP-9").quantity(3)
                     .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier1)

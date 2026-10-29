@@ -70,7 +70,7 @@ class StockDetailQueryRepositoryImplTest {
     class StockUpdateSearch {
 
         @Test
-        void should_normalize_optional_filters_and_return_all_rows() {
+        void should_return_all_rows_when_the_optional_filters_are_null_or_blank() {
             seedTestData();
             StockDetailQueryRepositoryImpl repo = newRepo();
 
@@ -88,7 +88,7 @@ class StockDetailQueryRepositoryImplTest {
         }
 
         @Test
-        void should_narrow_the_results_by_supplier() {
+        void should_return_only_that_suppliers_rows_when_a_supplier_is_given() {
             seedTestData();
             StockDetailQueryRepositoryImpl repo = newRepo();
 
@@ -107,7 +107,7 @@ class StockDetailQueryRepositoryImplTest {
     class StockUpdatePaging {
 
         @Test
-        void should_split_the_search_into_pages_with_the_total_count() {
+        void should_return_pages_with_the_total_count_when_the_search_is_paged() {
             seedTestData();
             StockDetailQueryRepositoryImpl repo = newRepo();
 
@@ -123,7 +123,7 @@ class StockDetailQueryRepositoryImplTest {
         }
 
         @Test
-        void should_count_only_the_filtered_rows() {
+        void should_count_only_the_matching_rows_when_the_paged_search_is_filtered() {
             seedTestData();
             StockDetailQueryRepositoryImpl repo = newRepo();
 
@@ -154,7 +154,7 @@ class StockDetailQueryRepositoryImplTest {
         }
 
         @Test
-        void should_break_timestamp_ties_by_id() {
+        void should_order_by_id_when_two_updates_share_a_timestamp() {
             // H2 happens to return equal timestamps in a stable order even without a
             // tie-breaker, so the walk above cannot prove it on its own; Oracle does not.
             assertTrue(StockDetailSqlBuilder.buildFilteredSearchSql()

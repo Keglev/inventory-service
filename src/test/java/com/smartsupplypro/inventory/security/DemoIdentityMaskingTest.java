@@ -94,7 +94,7 @@ class DemoIdentityMaskingTest {
     class Responses {
 
         @Test
-        void should_number_real_identities_by_account_creation_and_keep_exempt_values() {
+        void should_number_real_identities_by_account_creation_when_a_response_also_holds_exempt_values() {
             Object out = write(List.of(update(SECOND), update(FIRST),
                     update("ana.ferreira@example.com"), update("system")));
 
@@ -104,14 +104,14 @@ class DemoIdentityMaskingTest {
         }
 
         @Test
-        void should_match_an_identity_regardless_of_case() {
+        void should_mask_the_identity_when_its_case_differs_from_the_account() {
             StockUpdateResultDTO out = (StockUpdateResultDTO) write(update("First.Person@Example.ORG"));
 
             assertEquals("demo-user-1@example.com", out.createdBy());
         }
 
         @Test
-        void should_replace_the_display_name_only_for_a_masked_identity() {
+        void should_replace_the_display_name_only_when_the_identity_is_masked() {
             List<?> out = (List<?>) write(List.of(
                     new EmployeeActivityDTO("2026-09", FIRST, "Real Name", 3),
                     new EmployeeActivityDTO("2026-09", "ana.ferreira@example.com", "Ana Ferreira", 2)));
@@ -123,7 +123,7 @@ class DemoIdentityMaskingTest {
         }
 
         @Test
-        void should_mask_pages_items_and_suppliers() {
+        void should_mask_every_identity_when_the_body_is_a_page_an_item_or_a_supplier() {
             Page<?> page = (Page<?>) write(new PageImpl<>(List.of(update(FIRST))));
             InventoryItemDTO item = InventoryItemDTO.builder().name("Item").createdBy(SECOND).build();
             SupplierDTO supplier = SupplierDTO.builder().name("Supplier").createdBy(FIRST).build();
@@ -134,7 +134,7 @@ class DemoIdentityMaskingTest {
         }
 
         @Test
-        void should_use_the_unnumbered_pseudonym_for_an_identity_without_an_account() {
+        void should_use_the_unnumbered_pseudonym_when_the_identity_has_no_account() {
             List<?> out = (List<?>) write(List.of(new EmployeeActivityDTO("2026-09", "gone@example.org", "Gone", 1)));
 
             assertEquals(new EmployeeActivityDTO("2026-09", "demo-user@example.com", "Demo-Nutzer", 1), out.get(0));
@@ -148,14 +148,14 @@ class DemoIdentityMaskingTest {
         }
 
         @Test
-        void should_read_the_user_table_once_per_response() {
+        void should_read_the_user_table_once_when_a_response_repeats_identities() {
             write(List.of(update(FIRST), update(SECOND), update(FIRST)));
 
             verify(repository, times(1)).findAll();
         }
 
         @Test
-        void should_leave_the_body_untouched_for_a_signed_in_caller() {
+        void should_leave_the_body_untouched_when_the_caller_is_signed_in() {
             signIn();
             StockUpdateResultDTO row = update(FIRST);
 
@@ -170,17 +170,17 @@ class DemoIdentityMaskingTest {
     class Filters {
 
         @Test
-        void should_resolve_a_known_pseudonym_to_its_address() {
+        void should_resolve_the_address_when_the_filter_is_a_known_pseudonym() {
             assertEquals(SECOND, masking.resolveFilter("Demo-User-2@Example.com"));
         }
 
         @Test
-        void should_never_let_an_anonymous_caller_filter_by_a_real_address() {
+        void should_return_no_match_when_an_anonymous_caller_filters_by_a_real_address() {
             assertEquals(DemoIdentityMasking.NO_MATCH, masking.resolveFilter(FIRST));
         }
 
         @Test
-        void should_reject_unknown_or_malformed_pseudonyms() {
+        void should_return_no_match_when_the_pseudonym_is_unknown_or_malformed() {
             assertEquals(DemoIdentityMasking.NO_MATCH, masking.resolveFilter("demo-user-3@example.com"));
             assertEquals(DemoIdentityMasking.NO_MATCH, masking.resolveFilter("demo-user-0@example.com"));
             assertEquals(DemoIdentityMasking.NO_MATCH, masking.resolveFilter("demo-user-x@example.com"));
@@ -189,7 +189,7 @@ class DemoIdentityMaskingTest {
         }
 
         @Test
-        void should_pass_exempt_and_empty_filters_unchanged() {
+        void should_pass_the_filter_unchanged_when_it_is_exempt_or_empty() {
             assertEquals("ana.ferreira@example.com", masking.resolveFilter("ana.ferreira@example.com"));
             assertEquals("system", masking.resolveFilter("system"));
             assertEquals("  ", masking.resolveFilter("  "));
@@ -197,7 +197,7 @@ class DemoIdentityMaskingTest {
         }
 
         @Test
-        void should_pass_any_filter_unchanged_for_a_signed_in_caller() {
+        void should_pass_any_filter_unchanged_when_the_caller_is_signed_in() {
             signIn();
 
             assertEquals(FIRST, masking.resolveFilter(FIRST));

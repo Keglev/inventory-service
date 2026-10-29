@@ -64,7 +64,7 @@ class StockMetricsRepositoryImplTest {
     class TotalStockBySupplier {
 
         @Test
-        void should_order_by_value_then_name_and_skip_inactive_items() {
+        void should_order_by_value_then_name_and_skip_inactive_items_when_totalling_stock_per_supplier() {
             seedTestData();
             // Supplier One: fewer units than Supplier Two, but the highest value (4 + 200).
             // Default Supplier ties Supplier Two at 100 and comes first by name.
@@ -94,7 +94,7 @@ class StockMetricsRepositoryImplTest {
     class UpdateCountByItem {
 
         @Test
-        void should_filter_by_supplier_and_treat_blank_as_null() {
+        void should_filter_by_supplier_when_one_is_given_and_return_all_when_it_is_blank() {
             seedTestData();
             StockMetricsRepositoryImpl repo = newRepo();
 

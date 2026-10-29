@@ -59,12 +59,12 @@ class ApiAuthorizationContractTest {
     // count left by the endpoint removals of 2026-10-28 (41 before them, 37 after the
     // stock-history reads went) so each removal does not have to move it.
     @Test
-    void should_find_the_api_handlers_it_guards() throws Exception {
+    void should_find_at_least_25_handlers_when_scanning_the_api_controllers() throws Exception {
         assertTrue(apiHandlers().size() >= 25, "scan found too few handlers to be meaningful");
     }
 
     @Test
-    void should_declare_a_role_rule_on_every_api_handler_outside_the_allowlist() throws Exception {
+    void should_find_a_role_rule_when_an_api_handler_is_outside_the_allowlist() throws Exception {
         List<String> missing = apiHandlers().stream()
             .filter(h -> !h.hasRule() && !WITHOUT_ROLE_RULE.contains(h.key()))
             .map(Handler::key).sorted().toList();
@@ -72,7 +72,7 @@ class ApiAuthorizationContractTest {
     }
 
     @Test
-    void should_name_only_existing_handlers_in_the_allowlist() throws Exception {
+    void should_resolve_every_name_when_reading_the_allowlist() throws Exception {
         List<String> keys = apiHandlers().stream().map(Handler::key).toList();
         assertTrue(keys.containsAll(WITHOUT_ROLE_RULE), "allowlist names a handler that does not exist");
     }
