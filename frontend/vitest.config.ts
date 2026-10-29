@@ -1,7 +1,16 @@
-// Vitest configuration for the React frontend test suite.
-// Extends vite.config.ts through mergeConfig, so the React plugin and the '@' alias
-// are declared once. Test-only concerns (jsdom environment, MUI stubs, coverage
-// settings) stay here and do not bleed into the production build config.
+/**
+ * @file vitest.config.ts
+ * @module vitest.config
+ *
+ * @summary
+ * Vitest configuration for the React frontend test suite.
+ *
+ * @enterprise
+ * Extends vite.config.ts through mergeConfig, so the React plugin and the '@'
+ * alias are declared once. Test-only concerns (jsdom environment, MUI stubs,
+ * coverage settings) stay here and do not bleed into the production build
+ * config.
+ */
 
 import path from 'path';
 

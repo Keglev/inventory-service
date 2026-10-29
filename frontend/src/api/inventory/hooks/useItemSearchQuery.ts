@@ -1,9 +1,13 @@
 /**
+ * @file useItemSearchQuery.ts
  * @module api/inventory/hooks/useItemSearchQuery
  *
- * Item picker data for the inventory dialogs (quantity, price, edit,
- * delete). Once a supplier is chosen, its items load once and every
- * keystroke is matched in the browser (frontend ADR-0014).
+ * @summary
+ * Item picker data for the inventory dialogs (quantity, price, edit, delete).
+ *
+ * @enterprise
+ * Once a supplier is chosen, its items load once and every keystroke is matched
+ * in the browser (frontend ADR-0014), so typing sends no request.
  */
 
 import * as React from 'react';

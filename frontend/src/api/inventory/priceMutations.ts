@@ -1,9 +1,14 @@
 /**
+ * @file priceMutations.ts
  * @module api/inventory/priceMutations
  *
- * Price mutation for inventory items.
- * Hits PATCH /api/inventory/{id}/price to update the unit price for a given item.
- * Returns a structured result ({ ok, error, errorToken, status }) so callers can map failures by status token.
+ * @summary
+ * Price mutation for inventory items: PATCH /api/inventory/{id}/price updates
+ * the unit price of one item.
+ *
+ * @enterprise
+ * Returns a structured result ({ ok, error, errorToken, status }) so callers can
+ * map failures by status token instead of parsing messages.
  */
 
 import http from '../httpClient';

@@ -5,10 +5,13 @@
  * @summary
  * Row-level drilldown under the movement charts: recent stock changes for the
  * active window/supplier/item filters, showing direction (signed delta) and
- * reason per row. Paged on the server through /api/analytics/stock-updates/page.
- * The pagination bar is shown whenever there are rows, including a single page,
- * as in the inventory table; its arrows are disabled at either end. A change of
- * any filter returns to the first page.
+ * reason per row.
+ *
+ * @enterprise
+ * Paged on the server through /api/analytics/stock-updates/page, because the
+ * change log is unbounded. The pagination bar is shown whenever there are rows,
+ * including a single page, as in the inventory table; its arrows are disabled at
+ * either end. A change of any filter returns to the first page.
  */
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';

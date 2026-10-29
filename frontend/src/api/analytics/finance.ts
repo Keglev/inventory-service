@@ -1,12 +1,17 @@
 /**
+ * @file finance.ts
  * @module api/analytics/finance
  *
- * Fetches WAC-based (weighted-average-cost) financial figures for a given date window and optional supplier.
- * Calls GET /api/analytics/financial/summary with `from`/`to` params (not
- * the `start`/`end` used by other analytics endpoints). The body is the bare
- * FinancialSummaryDTO; the backend wraps it in no envelope.
- * Numeric fields default to 0 and `method` to '' on missing or invalid data;
- * the function never throws.
+ * @summary
+ * Fetches WAC-based (weighted-average-cost) financial figures for a given date
+ * window and optional supplier, from GET /api/analytics/financial/summary with
+ * `from`/`to` params (not the `start`/`end` used by other analytics endpoints).
+ * The body is the bare FinancialSummaryDTO; the backend wraps it in no envelope.
+ *
+ * @enterprise
+ * Numeric fields default to 0 and `method` to '' on missing or invalid data and
+ * the function never throws, so the financial card renders zeros instead of an
+ * error when the backend sends nothing usable.
  */
 
 import http from '../httpClient';

@@ -1,8 +1,14 @@
 /**
+ * @file validation.ts
  * @module api/analytics/validation
  *
- * Zod schema for the analytics filter parameters (date window and supplier)
- * shared across analytics API modules, and the type inferred from it.
+ * @summary
+ * Zod schema for the analytics filter parameters (date window and supplier) and
+ * the type inferred from it.
+ *
+ * @enterprise
+ * Shared across the analytics API modules, so every analytics call validates its
+ * filters by one rule.
  */
 
 import { z } from 'zod';

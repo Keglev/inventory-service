@@ -1,6 +1,17 @@
-// Vite configuration for the React frontend.
-// Covers local HTTPS (optional cert detection), vendor chunk splitting to improve
-// cache efficiency in production, and dev-server proxying to a local backend.
+/**
+ * @file vite.config.ts
+ * @module vite.config
+ *
+ * @summary
+ * Vite configuration for the React frontend: optional local HTTPS (certificate
+ * detection), vendor chunk splitting, and dev-server proxying to a local
+ * backend.
+ *
+ * @enterprise
+ * Vendor chunks change less often than application code, so splitting them keeps
+ * the browser cache warm across releases; the proxy keeps local work off the
+ * production API.
+ */
 
 import fs from 'fs';
 import path from 'path';

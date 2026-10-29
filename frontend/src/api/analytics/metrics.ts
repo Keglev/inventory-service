@@ -1,11 +1,15 @@
 /**
+ * @file metrics.ts
  * @module api/analytics/metrics
  *
- * Aggregates scalar count metrics across three domains: inventory items
- * (`/api/inventory/count`), suppliers (`/api/suppliers/count`), and
- * low-stock alerts (`/api/analytics/low-stock/count`). Each helper is
- * intentionally fault-tolerant — it returns 0 on any HTTP error so callers
- * can render partial dashboards without cascading failures.
+ * @summary
+ * Scalar count metrics across three domains: inventory items
+ * (`/api/inventory/count`), suppliers (`/api/suppliers/count`) and low-stock
+ * alerts (`/api/analytics/low-stock/count`).
+ *
+ * @enterprise
+ * Each helper returns 0 on any HTTP error, so callers can render partial
+ * dashboards without cascading failures.
  */
 
 import http from '../httpClient';

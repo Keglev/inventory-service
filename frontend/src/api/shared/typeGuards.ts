@@ -1,9 +1,13 @@
 /**
+ * @file typeGuards.ts
  * @module api/shared/typeGuards
  *
- * Type narrowing helpers for safe type checking.
- * Consumed by
- * both the inventory and supplier API layers.
+ * @summary
+ * Type narrowing helpers for values of unknown shape.
+ *
+ * @enterprise
+ * Consumed by both the inventory and supplier API layers, so both narrow backend
+ * data by the same checks.
  */
 
 /**

@@ -1,5 +1,5 @@
 /**
- * @file src/i18n/index.ts
+ * @file index.ts
  * @module i18n
  * @summary i18next runtime initialization (German-first). Bootstrapped via side-effect
  *   import in main.tsx; not consumed via named imports anywhere in production code.
@@ -10,7 +10,7 @@
  * - Side-effect import contract: imported once from main.tsx (`import './i18n'`).
  *   No production code imports from this module's named exports; I18N_NAMESPACES
  *   exists as test-pinning surface only (consumed by
- *   __tests__/unit/i18n/i18n.test.ts).
+ *   __tests__/i18n/i18n.test.ts).
  * - Translation JSON lives in frontend/public/locales/{en,de}/<ns>.json. Eleven
  *   namespaces match I18N_NAMESPACES exactly. EN files double as the typing source
  *   via resources.d.ts (see that file's header).

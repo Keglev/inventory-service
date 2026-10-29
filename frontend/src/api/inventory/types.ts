@@ -1,9 +1,14 @@
 /**
+ * @file types.ts
  * @module api/inventory/types
  *
+ * @summary
  * Type-safe shapes for inventory list operations.
- * These DTOs reflect the normalized shapes the frontend relies on,
- * not necessarily the raw backend payloads.
+ *
+ * @enterprise
+ * These reflect the normalized shapes the frontend relies on, not necessarily
+ * the raw backend payloads, so a backend field rename stays inside the
+ * normalizers.
  */
 
 /** Server sort expression (e.g., "name,asc" or "onHand,desc"). */

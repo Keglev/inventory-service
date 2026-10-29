@@ -1,11 +1,16 @@
 /**
+ * @file updates.ts
  * @module api/analytics/updates
  *
+ * @summary
  * Stock updates from GET /api/analytics/stock-updates (the full list) and
- * GET /api/analytics/stock-updates/page (one page with the total).
+ * GET /api/analytics/stock-updates/page (one page with the total). Returns an
+ * empty array on any error.
+ *
+ * @enterprise
  * Each record is read by StockUpdateResultDTO's field names (timestamp,
- * itemName, change, reason, createdBy); a record without timestamp or item
- * name is dropped. Returns an empty array on any error.
+ * itemName, change, reason, createdBy); a record without timestamp or item name
+ * is dropped, so the tables never render a row they cannot label.
  */
 import http from '../httpClient';
 import { isArrayOfRecords, firstStringOrEmpty, firstNumberOrZero } from './util';

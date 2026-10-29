@@ -4,8 +4,11 @@
  *
  * @summary
  * Section wrapper for the settings form: an uppercase section title above an
- * outlined content card. Extracted from AppSettingsForm where the identical
- * Box/Typography/Paper block was repeated three times.
+ * outlined content card.
+ *
+ * @enterprise
+ * Extracted from AppSettingsForm, where the identical Box/Typography/Paper block
+ * was repeated three times.
  */
 
 import { Box, Typography, Paper } from '@mui/material';

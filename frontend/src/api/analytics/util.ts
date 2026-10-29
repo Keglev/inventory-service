@@ -1,6 +1,8 @@
 /**
+ * @file util.ts
  * @module api/analytics/util
  *
+ * @summary
  * Low-level helpers for the analytics API layer: defensive numeric coercion,
  * tolerant backend-response parsing, and filter-parameter normalisation for
  * /api/analytics endpoints.

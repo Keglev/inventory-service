@@ -1,9 +1,14 @@
 /**
+ * @file errorHandling.ts
  * @module api/shared/errorHandling
  *
- * Shared error extraction utilities used by both the inventory and supplier API layers.
- * Converts Axios error shapes into user-friendly strings for UI display, with
- * HTTP status-specific fallback messages when the backend sends no body message.
+ * @summary
+ * Shared error extraction utilities for the inventory and supplier API layers:
+ * converts Axios error shapes into strings for UI display.
+ *
+ * @enterprise
+ * HTTP status-specific fallback messages cover a backend that sends no body
+ * message, so the user never sees an empty error.
  */
 
 import { isRecord } from './typeGuards';

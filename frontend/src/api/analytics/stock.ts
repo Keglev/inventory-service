@@ -1,10 +1,13 @@
 /**
+ * @file stock.ts
  * @module api/analytics/stock
  *
- * Stock value time series and snapshot endpoints. Hits
- * /api/analytics/stock-value, /api/analytics/monthly-stock-movement, and
- * /api/analytics/stock-per-supplier. All functions return `[]` on any error so
- * charts keep rendering.
+ * @summary
+ * Stock value time series and snapshot endpoints: /api/analytics/stock-value,
+ * /api/analytics/monthly-stock-movement and /api/analytics/stock-per-supplier.
+ *
+ * @enterprise
+ * All functions return `[]` on any error so the charts keep rendering.
  */
 import http from '../httpClient';
 import { asNumber, paramClean } from './util';

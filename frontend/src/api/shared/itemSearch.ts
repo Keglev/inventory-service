@@ -1,4 +1,5 @@
 /**
+ * @file itemSearch.ts
  * @module api/shared/itemSearch
  *
  * @summary

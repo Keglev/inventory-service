@@ -1,11 +1,15 @@
 /**
+ * @file stockMutations.ts
  * @module api/inventory/stockMutations
  *
- * Quantity-adjustment mutations for inventory items.
- * All stock changes route through PATCH /api/inventory/{id}/quantity so
- * error handling and endpoint encoding are uniform across the app.
- * Returns a structured result ({ ok, error, errorToken, status }) so callers
- * can map failures by backend status token.
+ * @summary
+ * Quantity-adjustment mutations for inventory items. Returns a structured result
+ * ({ ok, error, errorToken, status }).
+ *
+ * @enterprise
+ * All stock changes route through PATCH /api/inventory/{id}/quantity so error
+ * handling and endpoint encoding are uniform across the app, and callers map
+ * failures by backend status token.
  */
 
 import http from '../httpClient';

@@ -1,11 +1,16 @@
 /**
+ * @file fieldPickers.ts
  * @module api/shared/fieldPickers
  *
+ * @summary
  * Field extraction helpers for records of unknown shape coming from the backend.
+ * Consumed by the inventory, supplier and shared API layers.
+ *
+ * @enterprise
  * pickNumber coerces string representations of numbers; pickString requires the
- * value to already be a string — it never coerces. Both read one key, the name
+ * value to already be a string and never coerces. Both read one key, the name
  * the backend DTO uses, and return undefined rather than throwing on missing or
- * invalid fields. Consumed by the inventory, supplier and shared API layers.
+ * invalid fields.
  */
 
 /**

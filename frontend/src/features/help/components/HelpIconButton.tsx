@@ -1,5 +1,5 @@
 /**
- * @file features/help/components/HelpIconButton.tsx
+ * @file HelpIconButton.tsx
  * @module features/help/components/HelpIconButton
  * @summary Standardized icon button that opens a help topic on click —
  * the canonical surface for exposing context-sensitive help.

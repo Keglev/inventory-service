@@ -1,9 +1,11 @@
 /**
  * @file AppRouter.tsx
- * @description
+ * @module routes/AppRouter
+ *
+ * @summary
  * Application routing for Smart Supply Pro.
  *
- * @design
+ * @enterprise
  * - Public routes (login, OAuth callback, logout-success, home/landing) render
  *   *outside* of the application shell to keep the unauthenticated UI minimal.
  * - Authenticated routes render *inside* `AppShell` (SAP/Fiori-style chrome),

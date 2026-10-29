@@ -3,8 +3,11 @@
  * @module pages/home/sections/heroPreviewSrc
  *
  * @summary
- * Public path of the landing hero's screenshot for a language and colour mode. Only
- * English has its own variant; every other language gets German, the default.
+ * Public path of the landing hero's screenshot for a language and colour mode.
+ *
+ * @enterprise
+ * Only English has its own variant; every other language gets German, the
+ * default, so a new language needs no new screenshot to work.
  */
 
 export function previewSrc(language: string | undefined, mode: 'light' | 'dark'): string {
