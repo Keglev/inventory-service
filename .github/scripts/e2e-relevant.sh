@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Decides whether the Playwright suite can tell this commit anything.
+# e2e-relevant.sh - decides whether the Playwright suite can tell this commit anything
+# Usage: bash .github/scripts/e2e-relevant.sh, as the gate step of
+#        e2e-playwright.yml, with E2E_CALLER set by the calling workflow.
 #
 # The callers (backend-ci.yml, frontend-ci.yml) trigger on wider path sets
 # than the browser suite covers: the backend gate is the repository's catch-all,
@@ -23,9 +25,13 @@
 # path missing from it costs a duplicate run, a path listed here that
 # frontend-ci does not trigger on would leave the pull request without a suite.
 #
-# Writes run=true|false to $GITHUB_OUTPUT. A manual dispatch always runs.
+# Produces: run=true|false on $GITHUB_OUTPUT and, for a skip, the reason in the
+# job summary. A manual dispatch always runs.
 # HEAD^..HEAD is the pull request's own diff on a pull_request run, because the
 # checked-out commit is the merge commit; on a push it is the pushed commit.
+# Failure mode: exits non-zero (set -e) when git cannot compare HEAD with its
+# parent, as in a checkout without fetch-depth 2; the job then fails rather
+# than guessing, and the caller's build-and-test reports it.
 # =============================================================================
 set -euo pipefail
 

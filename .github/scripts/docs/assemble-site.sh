@@ -19,6 +19,13 @@
 # branch ends the same however they interleave. Publishing the assembled tree
 # instead would let a run that read gh-pages before a concurrent run pushed
 # revert that run's work.
+#
+# Produces: <project-dir>/target/publish, the complete site, and
+# <project-dir>/target/docs/MANIFEST, the paths this run built.
+# Failure mode: exits 1 when target/docs is missing, holds a file or directory
+# the layout does not know, or holds a built subtree with no files; set -e
+# stops the run when a copy fails. A wrong layout fails here, before the link
+# check and long before publishing.
 # =============================================================================
 set -euo pipefail
 

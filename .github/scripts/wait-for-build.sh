@@ -13,6 +13,11 @@
 # inlines it into the entry chunk. Finding it in the served bytes is direct
 # evidence that the new image is answering, and owes nothing to the platform's
 # own status semantics.
+# Produces: one line per attempt, then the attempt at which the build id
+# appeared.
+# Failure mode: exits 1 when the build id never appears within attempts *
+# interval seconds; the health and served-bundle checks after it are skipped,
+# because they would only measure the outgoing image.
 # =============================================================================
 set -euo pipefail
 
