@@ -1,5 +1,5 @@
 # =============================================================================
-# Smart Supply Pro – Frontend CI
+# frontend-ci.yml - Smart Supply Pro Frontend CI
 #
 # Triggers on push/PR to main when frontend or Nginx config files change, or
 # one of the three scripts this workflow runs.
@@ -13,6 +13,10 @@
 # stop there; only a push to main publishes to Docker Hub, tagged by commit
 # SHA, and only once the scan has passed.
 # On success, triggers: frontend-deploy.yml (Koyeb deployment).
+#
+# Failure mode: the audit, lint, unit-test or CVE gate above, a broken image
+# contract, a failed browser suite or a YAML finding fails build-and-test. A pull request cannot merge;
+# on main nothing is published and frontend-deploy.yml does not start.
 # =============================================================================
 name: Frontend CI - Build & Test
 

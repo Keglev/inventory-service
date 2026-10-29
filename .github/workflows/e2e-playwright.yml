@@ -1,5 +1,5 @@
 # =============================================================================
-# Smart Supply Pro – Frontend E2E (Playwright)
+# e2e-playwright.yml - Smart Supply Pro Frontend E2E (Playwright)
 #
 # Contract (ADR-0009, frontend): run the browser suite against a LOCAL stack
 # built from this commit. Backend = packaged jar on H2 in the `test,e2e`
@@ -24,6 +24,11 @@
 #
 # Playwright browsers are cached under the resolved Playwright version. A cache
 # hit installs the OS font packages only and downloads no browser.
+#
+# Failure mode: a failed build, a backend that is not healthy in time, or a
+# failing browser test fails the job; the caller's build-and-test fails with
+# it, and on main neither deploy chain starts. On failure the Playwright report
+# and the backend log are uploaded.
 # =============================================================================
 name: E2E - Playwright Browser Suite
 

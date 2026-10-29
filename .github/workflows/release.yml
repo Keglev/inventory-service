@@ -1,5 +1,5 @@
 # =============================================================================
-# Smart Supply Pro - Release
+# release.yml - Smart Supply Pro Release
 #
 # Turns a pushed tag into a GitHub release. The tag is the decision; this
 # workflow only records it. Nothing here builds, tests or deploys: by the time a
@@ -18,6 +18,9 @@
 # request label, this repository does not label pull requests, and a config
 # without labels would produce empty sections. The titles are Conventional
 # Commits and read as a changelog on their own.
+#
+# Failure mode: a tag that disagrees with either declared version fails the
+# run before the release is created; nothing else reads the tag.
 # =============================================================================
 name: Release
 

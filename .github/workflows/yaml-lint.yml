@@ -1,5 +1,5 @@
 # =============================================================================
-# Smart Supply Pro – YAML Lint
+# yaml-lint.yml - Smart Supply Pro YAML Lint
 #
 # YAML hygiene for pull requests. Every tracked .yml and .yaml file must parse,
 # end with a newline, and carry no trailing whitespace; the rules and the scope
@@ -28,6 +28,10 @@
 # pull request without such a change, one confined to docs/backend/api (OpenAPI,
 # gated by Redocly in docs-build.yml), and every push to main, whose files the
 # pull request already linted.
+#
+# Failure mode: a parse error (a duplicate key included), trailing
+# whitespace, a missing final newline or an actionlint finding fails the lint
+# job, and the calling workflow's build-and-test fails with it.
 # =============================================================================
 name: YAML Lint
 
