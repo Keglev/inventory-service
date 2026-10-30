@@ -1,0 +1,237 @@
+<!-- ===========================================================================
+     Smart Supply Pro Docs — Architecture page template
+     Pandoc template for the architecture pages; build-architecture-docs.sh
+     renders the Markdown tree through it.
+
+     Pandoc copies this comment into every page the template produces, so it
+     is written for anyone reading a published page source. A dollar sign
+     here would be read as template syntax and substituted, so the comment
+     carries none.
+     ======================================================================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend ·
+09-decisions/adr-0016-typescript-7-waits-for-its-tools · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=5b1c5d5d46" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Frontend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Frontend pages show only frontend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Backend docs &rarr;</a></li>
+    <li><a href="/inventory-service/decisions/index.html">All decisions</a></li>
+  </ul>
+
+  <p class="nav-title">Frontend</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/frontend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/frontend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/frontend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/frontend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/frontend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/frontend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/frontend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/frontend/architecture/08b-concepts-i18n-theming.html">Concepts: i18n &amp; Theming</a></li>
+    <li><a href="/inventory-service/frontend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/frontend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/frontend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/frontend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/frontend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/frontend/api/index.html">Frontend API</a></li>
+    <li><a href="/inventory-service/frontend/coverage/index.html">Frontend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0016-typescript-7-waits-until-the-linter-and-typedoc-accept-it">ADR-0016:
+        TypeScript 7 waits until the linter and TypeDoc accept it</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-10-30</p>
+        <h2 id="context">Context</h2>
+        <p>The frontend compiles with TypeScript 6.0.3. TypeScript 7.0.2
+        (released 2026-07-08) is the first release of the compiler
+        rewritten in Go. The major version survey of 2026-10-30 (F8)
+        tried it on main <code>da365d4</code>:</p>
+        <ul>
+        <li><strong>The compiler itself is close to ready.</strong>
+        <code>tsc -b</code> with 7.0.2 reports one error over the whole
+        tree: <code>useEmployeesSectionData.ts</code> line 64 (TS7053),
+        an index write on a value whose type 7 infers from the
+        <code>?? { period }</code> fallback on line 63. Annotating the
+        variable as <code>EmployeesChartRow</code> removes it.</li>
+        <li><strong>The tools that read the compiler are not.</strong>
+        Two gates load TypeScript as a library, not as a command:
+        <ul>
+        <li>ESLint’s type-aware rules run through
+        <code>typescript-eslint</code>. Its latest release (8.72.1) and
+        its canary (8.72.2-alpha.4) declare the peer range
+        <code>typescript &gt;=4.8.4 &lt;6.1.0</code>.</li>
+        <li>TypeDoc builds the published API pages from
+        <code>src/api</code> and <code>src/context</code> and runs with
+        <code>--treatWarningsAsErrors</code> in the docs build. Its
+        latest release (0.28.20) declares <code>typescript</code>
+        <code>5.0.x</code> to <code>6.0.x</code>.</li>
+        </ul></li>
+        <li><strong>The 7.0 package no longer carries the old library
+        interface.</strong> Its <code>exports</code> map offers the
+        version (<code>.</code>) and <code>./unstable/*</code> entry
+        points only, so neither tool can be pointed at it by hand.</li>
+        </ul>
+        <p>Dependabot does not propose majors for npm (minor and patch
+        only), so nothing would raise this again on its own.</p>
+        <h2 id="decision">Decision</h2>
+        <p>TypeScript stays on 6.0.x. The move to 7 is a single later
+        change, made when both of these hold:</p>
+        <ol type="1">
+        <li><code>npm view typescript-eslint peerDependencies.typescript</code>
+        admits 7, and</li>
+        <li><code>npm view typedoc peerDependencies.typescript</code>
+        admits 7,</li>
+        </ol>
+        <p>each in a release at least seven days old (the cooldown the
+        dependency updates use). That change bumps
+        <code>typescript</code>, the two tools, fixes line 63 above (or
+        whatever <code>tsc -b</code> with 7 reports then) and runs every
+        gate that reads the compiler: <code>tsc -b</code>, ESLint,
+        TypeDoc, Vitest and the production build.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>TypeScript 7 next to 6, with 7 only for the
+        type-check.</strong> It would give 7’s checks now. It costs a
+        second compiler as a dependency, two answers to “does this
+        type-check” that can disagree, and a migration done twice.
+        Rejected: a new dependency for a small gain.</li>
+        <li><strong>Drop the tools that block it</strong> (type-aware
+        lint rules, TypeDoc API pages). Rejected: both are gates the
+        project relies on; the API pages are published.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>The F8 major-version wave ships without TypeScript 7; the
+        other frontend majors (MUI 9, Data Grid 9, Vite 8, Vitest 5,
+        jsdom 30, jest-dom 7) do not depend on it.</li>
+        <li><code>tsconfig.app.json</code> already avoids
+        <code>baseUrl</code> (removed in 7), so the known config break
+        is gone before the move.</li>
+        <li>The check above is manual. It belongs to the next delta
+        survey of outdated dependencies, which re-runs the two
+        <code>npm view</code> commands.</li>
+        <li>Line 63 of <code>useEmployeesSectionData.ts</code> stays as
+        it is until the move: it is correct under 6, and changing it now
+        would deploy the frontend for a compiler the project does not
+        use.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a href="../02-constraints.html">Frontend
+        constraints</a></li>
+        </ul>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0016-typescript-7-waits-until-the-linter-and-typedoc-accept-it"
+      id="toc-adr-0016-typescript-7-waits-until-the-linter-and-typedoc-accept-it">ADR-0016:
+      TypeScript 7 waits until the linter and TypeDoc accept it</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Served from this site, not a CDN (no visitor address goes to a third
+       party). data-mermaid-version and the integrity hash are the pin:
+       vendor-mermaid.sh copies that version from npm and fails the build unless
+       it matches the hash, and the browser refuses any other file. Update both
+       together. Only pages with a diagram load it: md-to-html-links.lua sets
+       has-mermaid on them, and check-mermaid-pages.sh fails the build when a
+       page and its flag disagree (W23). -->
+  <script src="/inventory-service/assets/docs.js?v=f546e6c747"></script>
+</body>
+</html>
