@@ -232,7 +232,9 @@
 <a name='L167'></a><a href='#L167'>167</a>
 <a name='L168'></a><a href='#L168'>168</a>
 <a name='L169'></a><a href='#L169'>169</a>
-<a name='L170'></a><a href='#L170'>170</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -356,6 +358,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">36x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -530,9 +534,11 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
         &lt;Stack
           direction={{ xs: 'column', sm: 'row' }}
           spacing={2}
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ mb: 1 }}
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 1,
+          }}
         &gt;
           &lt;Typography variant="subtitle1"&gt;{t('analytics:cards.priceTrend')}&lt;/Typography&gt;
 &nbsp;

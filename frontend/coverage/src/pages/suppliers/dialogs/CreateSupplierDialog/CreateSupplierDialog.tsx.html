@@ -391,7 +391,7 @@ export const CreateSupplierDialog: React.FC&lt;CreateSupplierDialogProps&gt; = (
   return (
     &lt;Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth&gt;
       &lt;DialogTitle&gt;
-        &lt;Stack direction="row" alignItems="center" justifyContent="space-between"&gt;
+        &lt;Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}&gt;
           &lt;Box&gt;{t('suppliers:actions.create')}&lt;/Box&gt;
           &lt;HelpIconButton topicId="suppliers.manage" tooltip={t('common:actions.help')} /&gt;
         &lt;/Stack&gt;

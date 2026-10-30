@@ -255,13 +255,7 @@
 <a name='L190'></a><a href='#L190'>190</a>
 <a name='L191'></a><a href='#L191'>191</a>
 <a name='L192'></a><a href='#L192'>192</a>
-<a name='L193'></a><a href='#L193'>193</a>
-<a name='L194'></a><a href='#L194'>194</a>
-<a name='L195'></a><a href='#L195'>195</a>
-<a name='L196'></a><a href='#L196'>196</a>
-<a name='L197'></a><a href='#L197'>197</a>
-<a name='L198'></a><a href='#L198'>198</a>
-<a name='L199'></a><a href='#L199'>199</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L193'></a><a href='#L193'>193</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -434,12 +428,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -522,7 +510,7 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
     return (
       &lt;Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}&gt;
         &lt;CircularProgress size={20} /&gt;
-        &lt;Typography variant="body2" color="text.secondary"&gt;
+        &lt;Typography variant="body2" sx={{ color: 'text.secondary' }}&gt;
           {t('common:loading')}
         &lt;/Typography&gt;
       &lt;/Box&gt;
@@ -632,15 +620,9 @@ export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn })
   }
 &nbsp;
   return (
-    &lt;Box
-      sx={{
-        p: 1.5,
-        bgcolor: 'action.hover',
-        borderRadius: 1,
-      }}
-    &gt;
+    &lt;Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}&gt;
       {/* Item name section */}
-      &lt;Typography variant="body2" color="text.secondary"&gt;
+      &lt;Typography variant="body2" sx={{ color: 'text.secondary' }}&gt;
         {t('inventory:table.name')}
       &lt;/Typography&gt;
       &lt;Typography variant="body1" sx={{ fontWeight: 600 }}&gt;
@@ -648,7 +630,7 @@ export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn })
       &lt;/Typography&gt;
 &nbsp;
       {/* Item on-hand quantity section */}
-      &lt;Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}&gt;
+      &lt;Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}&gt;
         {t('inventory:table.onHand')}
       &lt;/Typography&gt;
       &lt;Typography variant="body1" sx={{ fontWeight: 600 }}&gt;

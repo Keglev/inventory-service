@@ -462,10 +462,10 @@ function RowTooltip({ row, num }: { row?: ChartRow; num: (n: number) =&gt; strin
   return (
     &lt;Box sx={{ ...chartTooltipProps(muiTheme).contentStyle, p: 1, maxWidth: 280 }}&gt;
       &lt;Typography variant="body2" sx={{ fontWeight: 500 }}&gt;{row.itemName}&lt;/Typography&gt;
-      &lt;Typography variant="caption" color="text.secondary" component="div"&gt;
+      &lt;Typography variant="caption" component="div" sx={{ color: 'text.secondary' }}&gt;
         {t('dashboard.lowStockChart.quantity')}: {num(row.quantity)}
       &lt;/Typography&gt;
-      &lt;Typography variant="caption" color="text.secondary" component="div"&gt;
+      &lt;Typography variant="caption" component="div" sx={{ color: 'text.secondary' }}&gt;
         {t('dashboard.lowStockChart.minimum')}: {num(row.minimumQuantity)}
       &lt;/Typography&gt;
     &lt;/Box&gt;

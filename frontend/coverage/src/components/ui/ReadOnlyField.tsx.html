@@ -180,14 +180,14 @@ export interface ReadOnlyFieldProps {
 &nbsp;
 const ReadOnlyField: React.FC&lt;ReadOnlyFieldProps&gt; = ({ label, value, hint }) =&gt; (
   &lt;Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}&gt;
-    &lt;Typography variant="body2" color="text.secondary"&gt;
+    &lt;Typography variant="body2" sx={{ color: 'text.secondary' }}&gt;
       {label}
     &lt;/Typography&gt;
     &lt;Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}&gt;
       {value}
     &lt;/Typography&gt;
     {hint &amp;&amp; (
-      &lt;Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}&gt;
+      &lt;Typography variant="caption" sx={{ color: 'text.secondary', mt: 1, display: 'block' }}&gt;
         {hint}
       &lt;/Typography&gt;
     )}

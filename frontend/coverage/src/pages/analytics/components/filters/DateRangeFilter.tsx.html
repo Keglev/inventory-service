@@ -507,8 +507,8 @@ export function DateRangeFilter({
     applyRange(fromIso, e.target.value || <span class="branch-1 cbranch-no" title="branch not covered" >undefined)</span>;
 &nbsp;
   return (
-    &lt;Stack spacing={1} alignItems="flex-start"&gt;
-      &lt;Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center"&gt;
+    &lt;Stack spacing={1} sx={{ alignItems: 'flex-start' }}&gt;
+      &lt;Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', alignItems: 'center' }}&gt;
         &lt;Button
           variant={value.quick === '30' ? 'contained' : 'outlined'}
           size="small"
@@ -559,7 +559,7 @@ export function DateRangeFilter({
 &nbsp;
       {showCustom &amp;&amp; (
         &lt;Stack spacing={0.5}&gt;
-          &lt;Stack direction="row" spacing={1.5} alignItems="center"&gt;
+          &lt;Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}&gt;
             &lt;TextField
               label={t('analytics:filters.from')}
               type="date"
@@ -572,7 +572,7 @@ export function DateRangeFilter({
               sx={{ minWidth: 160 }}
             /&gt;
             {/* An en dash, not "Bis": the second field already carries that label. */}
-            &lt;Typography variant="body2" color="text.secondary"&gt;
+            &lt;Typography variant="body2" sx={{ color: 'text.secondary' }}&gt;
               {'\u2013'}
             &lt;/Typography&gt;
             &lt;TextField

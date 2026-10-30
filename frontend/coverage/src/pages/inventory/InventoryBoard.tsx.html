@@ -248,7 +248,13 @@
 <a name='L183'></a><a href='#L183'>183</a>
 <a name='L184'></a><a href='#L184'>184</a>
 <a name='L185'></a><a href='#L185'>185</a>
-<a name='L186'></a><a href='#L186'>186</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -331,6 +337,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -537,11 +549,17 @@ const InventoryBoard: React.FC = () =&gt; {
       {/* Header */}
       &lt;Stack
         direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ px: { xs: 2, md: 3 }, pl: railGutter, pr: railGutter, pt: { xs: 2, md: 3 }, pb: 2 }}
+        sx={{
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: { xs: 2, md: 3 },
+          pl: railGutter,
+          pr: railGutter,
+          pt: { xs: 2, md: 3 },
+          pb: 2,
+        }}
       &gt;
-        &lt;Stack direction="row" alignItems="center" spacing={1}&gt;
+        &lt;Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}&gt;
           &lt;Typography variant="h5" sx={{ fontWeight: 600 }}&gt;
             {t('inventory:page.title')}
           &lt;/Typography&gt;
@@ -593,7 +611,7 @@ const InventoryBoard: React.FC = () =&gt; {
       &gt;
         {!showsGrid ? (
           &lt;Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}&gt;
-            &lt;Typography variant="body1" color="text.secondary"&gt;
+            &lt;Typography variant="body1" sx={{ color: 'text.secondary' }}&gt;
               {t('inventory:search.selectSupplierPrompt')}
             &lt;/Typography&gt;
           &lt;/Box&gt;

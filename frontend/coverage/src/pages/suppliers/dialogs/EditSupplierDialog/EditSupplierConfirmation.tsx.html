@@ -533,7 +533,7 @@ export const EditSupplierConfirmation: React.FC&lt;EditSupplierConfirmationProps
                     &lt;Typography variant="body2" sx={{ fontWeight: 600 }}&gt;
                       {t(label)}
                     &lt;/Typography&gt;
-                    &lt;Typography variant="caption" color="text.secondary"&gt;
+                    &lt;Typography variant="caption" sx={{ color: 'text.secondary' }}&gt;
                       {supplier[key] || t('suppliers:confirmations.emptyValue')} → {changes?.[key] || t('suppliers:confirmations.emptyValue')}
                     &lt;/Typography&gt;
                   &lt;/Box&gt;

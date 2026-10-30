@@ -319,7 +319,7 @@ export const QuantityAdjustDialog: React.FC&lt;QuantityAdjustDialogProps&gt; = (
   return (
     &lt;Dialog open={open} onClose={form.handleClose} fullWidth maxWidth="sm"&gt;
       &lt;DialogTitle&gt;
-        &lt;Stack direction="row" alignItems="center" justifyContent="space-between"&gt;
+        &lt;Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}&gt;
           &lt;Box&gt;{t('inventory:toolbar.adjustQty')}&lt;/Box&gt;
           &lt;HelpIconButton
             topicId="inventory.adjustQuantity"

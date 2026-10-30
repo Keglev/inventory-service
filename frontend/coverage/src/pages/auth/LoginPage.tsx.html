@@ -340,14 +340,14 @@ export default function LoginPage() {
             &lt;/Button&gt;
 &nbsp;
             &lt;Divider&gt;
-              &lt;Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}&gt;
+              &lt;Typography variant="caption" sx={{ color: 'text.secondary', textAlign: 'center' }}&gt;
                 {t('or')}
               &lt;/Typography&gt;
             &lt;/Divider&gt;
 &nbsp;
             {/* Demo entry (client-only, read-only), with the way back to the landing page
                 kept close under it as a quiet link rather than a third equal action. */}
-            &lt;Stack spacing={0.5} alignItems="center"&gt;
+            &lt;Stack spacing={0.5} sx={{ alignItems: 'center' }}&gt;
               &lt;Button variant="text" onClick={handleDemo} fullWidth&gt;
                 {t('continueDemo')}
               &lt;/Button&gt;
@@ -363,7 +363,7 @@ export default function LoginPage() {
               &lt;/Link&gt;
             &lt;/Stack&gt;
 &nbsp;
-            &lt;Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}&gt;
+            &lt;Typography variant="caption" sx={{ color: 'text.secondary', textAlign: 'center' }}&gt;
               {t('ssoHint')}
             &lt;/Typography&gt;
           &lt;/Stack&gt;

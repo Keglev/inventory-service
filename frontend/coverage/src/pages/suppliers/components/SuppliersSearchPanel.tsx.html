@@ -378,7 +378,7 @@ export const SuppliersSearchPanel: React.FC&lt;SuppliersSearchPanelProps&gt; = (
       {/* Selected supplier: compact one-line indicator with clear action.
           The former detail card duplicated the table row below. */}
       {selectedSupplier &amp;&amp; (
-        &lt;Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}&gt;
+        &lt;Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1 }}&gt;
           &lt;Typography variant="body2" sx={{ fontWeight: 600 }}&gt;
             {selectedSupplier.name}
           &lt;/Typography&gt;

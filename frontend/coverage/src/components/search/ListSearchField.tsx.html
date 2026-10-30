@@ -220,7 +220,13 @@
 <a name='L155'></a><a href='#L155'>155</a>
 <a name='L156'></a><a href='#L156'>156</a>
 <a name='L157'></a><a href='#L157'>157</a>
-<a name='L158'></a><a href='#L158'>158</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -283,6 +289,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">52x</span>
 <span class="cline-any cline-yes">52x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -445,8 +457,14 @@ function ResultsPaper({ children, moreCount, ...rest }: React.ComponentProps&lt;
       {moreCount ? (
         &lt;Typography
           variant="caption"
-          color="text.secondary"
-          sx={{ display: 'block', px: 2, py: 1, borderTop: 1, borderColor: 'divider' }}
+          sx={{
+            color: 'text.secondary',
+            display: 'block',
+            px: 2,
+            py: 1,
+            borderTop: 1,
+            borderColor: 'divider',
+          }}
         &gt;
           {t('common:search.moreResults', { count: moreCount })}
         &lt;/Typography&gt;
@@ -514,7 +532,7 @@ export function ListSearchField&lt;T&gt;({
             &lt;Box&gt;
               &lt;Typography variant="body2"&gt;{getLabel(option)}&lt;/Typography&gt;
               {detail &amp;&amp; (
-                &lt;Typography variant="caption" color="text.secondary"&gt;
+                &lt;Typography variant="caption" sx={{ color: 'text.secondary' }}&gt;
                   {detail}
                 &lt;/Typography&gt;
               )}

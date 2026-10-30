@@ -129,7 +129,9 @@
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
 <a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -162,6 +164,8 @@
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -233,14 +237,16 @@ const LogoutSuccess: React.FC = () =&gt; {
         &lt;Typography variant="h5" gutterBottom&gt;
           {t('logoutSuccessTitle')}
         &lt;/Typography&gt;
-        &lt;Typography variant="body1" color="text.secondary" gutterBottom&gt;
+        &lt;Typography variant="body1" gutterBottom sx={{ color: 'text.secondary' }}&gt;
           {t('logoutSuccessBody')}
         &lt;/Typography&gt;
         &lt;Stack
           direction={{ xs: 'column', sm: 'row' }}
           spacing={1.5}
-          justifyContent="center"
-          sx={{ mt: 3 }}
+          sx={{
+            justifyContent: 'center',
+            mt: 3,
+          }}
         &gt;
           &lt;Button
             variant="contained"

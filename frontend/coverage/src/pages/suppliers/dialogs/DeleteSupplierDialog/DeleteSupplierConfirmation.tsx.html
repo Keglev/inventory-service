@@ -492,7 +492,7 @@ export const DeleteSupplierConfirmation: React.FC&lt;DeleteSupplierConfirmationP
       &lt;DialogContent&gt;
         {/* Warning Alert */}
         &lt;Alert severity="warning" sx={{ mb: 2 }}&gt;
-          &lt;Typography variant="body2" fontWeight={500}&gt;
+          &lt;Typography variant="body2" sx={{ fontWeight: 500 }}&gt;
             {t(
               'suppliers:dialogs.delete.confirmation.warning'
             )}
@@ -511,17 +511,17 @@ export const DeleteSupplierConfirmation: React.FC&lt;DeleteSupplierConfirmationP
         &gt;
           &lt;Stack spacing={1}&gt;
             &lt;Box&gt;
-              &lt;Typography variant="caption" color="text.secondary"&gt;
+              &lt;Typography variant="caption" sx={{ color: 'text.secondary' }}&gt;
                 {t('suppliers:table.name')}
               &lt;/Typography&gt;
-              &lt;Typography variant="body2" fontWeight={500}&gt;
+              &lt;Typography variant="body2" sx={{ fontWeight: 500 }}&gt;
                 {supplier.name}
               &lt;/Typography&gt;
             &lt;/Box&gt;
 &nbsp;
             {supplier.contactName &amp;&amp; (
               &lt;Box&gt;
-                &lt;Typography variant="caption" color="text.secondary"&gt;
+                &lt;Typography variant="caption" sx={{ color: 'text.secondary' }}&gt;
                   {t('suppliers:table.contactName')}
                 &lt;/Typography&gt;
                 &lt;Typography variant="body2"&gt;{supplier.contactName}&lt;/Typography&gt;
@@ -530,7 +530,7 @@ export const DeleteSupplierConfirmation: React.FC&lt;DeleteSupplierConfirmationP
 &nbsp;
             {supplier.email &amp;&amp; (
               &lt;Box&gt;
-                &lt;Typography variant="caption" color="text.secondary"&gt;
+                &lt;Typography variant="caption" sx={{ color: 'text.secondary' }}&gt;
                   {t('suppliers:table.email')}
                 &lt;/Typography&gt;
                 &lt;Typography variant="body2"&gt;{supplier.email}&lt;/Typography&gt;
@@ -539,7 +539,7 @@ export const DeleteSupplierConfirmation: React.FC&lt;DeleteSupplierConfirmationP
 &nbsp;
             {supplier.phone &amp;&amp; (
               &lt;Box&gt;
-                &lt;Typography variant="caption" color="text.secondary"&gt;
+                &lt;Typography variant="caption" sx={{ color: 'text.secondary' }}&gt;
                   {t('suppliers:table.phone')}
                 &lt;/Typography&gt;
                 &lt;Typography variant="body2"&gt;{supplier.phone}&lt;/Typography&gt;

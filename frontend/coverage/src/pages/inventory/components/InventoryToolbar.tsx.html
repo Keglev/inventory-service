@@ -221,7 +221,7 @@ export const InventoryToolbar: React.FC&lt;InventoryToolbarProps&gt; = ({
   const { t } = useTranslation(['inventory']);
 &nbsp;
   return (
-    &lt;Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="flex-end"&gt;
+    &lt;Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}&gt;
       &lt;Button variant="contained" onClick={onAddNew}&gt;
         {t('inventory:toolbar.newItem')}
       &lt;/Button&gt;

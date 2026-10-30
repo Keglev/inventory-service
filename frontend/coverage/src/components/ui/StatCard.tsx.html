@@ -185,7 +185,7 @@ const StatCard: React.FC&lt;StatCardProps&gt; = ({ title, value, loading }) =&gt
   return (
     &lt;Card variant="outlined" sx={{ height: '100%' }}&gt;
       &lt;CardContent sx={{ py: 1.25, '&amp;:last-child': { pb: 1.25 } }}&gt;
-        &lt;Typography variant="body2" color="text.secondary"&gt;
+        &lt;Typography variant="body2" sx={{ color: 'text.secondary' }}&gt;
           {title}
         &lt;/Typography&gt;
         {loading ? (

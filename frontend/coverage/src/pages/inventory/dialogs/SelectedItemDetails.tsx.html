@@ -268,10 +268,10 @@ export function SelectedItemDetails({
 &nbsp;
   const row = (label: string, value: string | number) =&gt; (
     &lt;Box sx={{ display: 'flex', justifyContent: 'space-between' }}&gt;
-      &lt;Typography variant="body2" color="text.secondary"&gt;
+      &lt;Typography variant="body2" sx={{ color: 'text.secondary' }}&gt;
         {label}
       &lt;/Typography&gt;
-      &lt;Typography variant="body2" fontWeight="medium"&gt;
+      &lt;Typography variant="body2" sx={{ fontWeight: 'medium' }}&gt;
         {loading ? &lt;CircularProgress size={16} /&gt; : value}
       &lt;/Typography&gt;
     &lt;/Box&gt;

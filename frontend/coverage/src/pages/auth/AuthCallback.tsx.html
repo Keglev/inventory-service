@@ -250,9 +250,9 @@ const AuthCallback: React.FC = () =&gt; {
 &nbsp;
   return (
     &lt;Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}&gt;
-      &lt;Box textAlign="center"&gt;
+      &lt;Box sx={{ textAlign: 'center' }}&gt;
         &lt;CircularProgress /&gt;
-        &lt;Typography variant="body2" mt={2}&gt;
+        &lt;Typography variant="body2" sx={{ mt: 2 }}&gt;
           {t('verifying')}
         &lt;/Typography&gt;
       &lt;/Box&gt;

@@ -510,7 +510,7 @@ export const EditSupplierDialog: React.FC&lt;EditSupplierDialogProps&gt; = ({
       {/* Main Edit Dialog */}
       &lt;Dialog open={open &amp;&amp; !form.showConfirmation} onClose={handleClose} fullWidth maxWidth="sm"&gt;
         &lt;DialogTitle&gt;
-          &lt;Stack direction="row" alignItems="center" justifyContent="space-between"&gt;
+          &lt;Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}&gt;
             &lt;Box&gt;{t('suppliers:dialogs.editSupplierTitle')}&lt;/Box&gt;
             &lt;HelpIconButton topicId="suppliers.manage" tooltip={t('common:actions.help')} /&gt;
           &lt;/Stack&gt;

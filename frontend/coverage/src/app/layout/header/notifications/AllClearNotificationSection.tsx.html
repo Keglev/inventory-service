@@ -151,9 +151,9 @@ export default function AllClearNotificationSection() {
   const { t } = useTranslation('common');
 &nbsp;
   return (
-    &lt;Stack direction="row" spacing={1} alignItems="center" sx={{ p: 1 }}&gt;
+    &lt;Stack direction="row" spacing={1} sx={{ alignItems: 'center', p: 1 }}&gt;
       &lt;NotificationsIcon sx={{ fontSize: 20, color: 'success.main' }} /&gt;
-      &lt;Typography variant="caption" color="success.main"&gt;
+      &lt;Typography variant="caption" sx={{ color: 'success.main' }}&gt;
         {t('notifications.allGood')}
       &lt;/Typography&gt;
     &lt;/Stack&gt;

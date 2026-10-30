@@ -436,7 +436,7 @@ export const DeleteItemDialog: React.FC&lt;DeleteItemDialogProps&gt; = ({
       {/* Form dialog: supplier -&gt; item -&gt; reason selection */}
       &lt;Dialog open={open &amp;&amp; !state.showConfirmation} onClose={state.handleClose} fullWidth maxWidth="sm"&gt;
         &lt;DialogTitle&gt;
-          &lt;Stack direction="row" alignItems="center" justifyContent="space-between"&gt;
+          &lt;Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}&gt;
             &lt;Box&gt;{t('inventory:dialogs.deleteItemTitle')}&lt;/Box&gt;
             &lt;HelpIconButton topicId="inventory.deleteItem" tooltip={t('actions.help')} /&gt;
           &lt;/Stack&gt;
