@@ -110,11 +110,10 @@
       <article class="doc-body">
         <h1 id="suppliers-domain">§5.2 Suppliers Domain</h1>
         <p>Supplier master data under
-        <code>frontend/src/pages/suppliers/</code>: search-first
-        browsing and CRUD dialogs with an active-stock delete guard.</p>
+        <code>frontend/src/pages/suppliers/</code>: a paged list with
+        search, and CRUD dialogs with an active-stock delete guard.</p>
         <h2 id="search-display-modes">Search &amp; Display Modes</h2>
-        <p>The board avoids rendering a large table by default.
-        <code>SuppliersSearchPanel</code> offers a type-ahead
+        <p><code>SuppliersSearchPanel</code> offers a type-ahead
         (2-character minimum) through <code>SupplierSearchField</code>,
         the search field the edit and delete dialogs use too; it is a
         setting of the shared <code>ListSearchField</code>, which the
@@ -124,10 +123,10 @@
         count of the rest (<a
         href="../09-decisions/adr-0014-searching-bounded-lists-in-the-browser.html">ADR-0014</a>).
         Selecting a result pins the table to a single-row display, sets
-        the selection (enabling edit/delete), and resets paging. An
-        explicit “show all suppliers” toggle switches to the paginated
-        list. Search selection takes precedence over the toggle; with
-        neither active, the table stays hidden behind a placeholder.</p>
+        the selection (enabling edit/delete), and resets paging;
+        clearing it returns to the full list. Without a selection the
+        table shows every supplier, ten per page, paged and sorted in
+        the browser.</p>
         <h2 id="data-access">Data Access</h2>
         <p>The list fetcher returns an empty list on network errors, so
         the board keeps rendering under partial backend failure.
