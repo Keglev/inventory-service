@@ -19,6 +19,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MenuList } from '@mui/material';
 import LogoutMenuAction from '@/app/AccountMenu/LogoutMenuAction';
 import { tEn } from '@/__tests__/test/i18nEn';
 
@@ -46,10 +47,15 @@ describe('LogoutMenuAction', () => {
   };
 
   /**
-   * Arrange helper: centralizes rendering.
+   * Arrange helper: centralizes rendering. MUI 9 throws for a MenuItem outside
+   * Menu or MenuList, so the item renders inside a MenuList as in AccountMenu.
    */
   const arrange = (props?: Partial<Props>) =>
-    render(<LogoutMenuAction {...defaultProps} {...props} />);
+    render(
+      <MenuList>
+        <LogoutMenuAction {...defaultProps} {...props} />
+      </MenuList>,
+    );
 
   /**
    * Query helper: this component is designed to render a menuitem.

@@ -95,7 +95,9 @@ export function ItemSearchAutocomplete({
           label={label}
           placeholder={placeholder}
           helperText={helperText}
-          slotProps={{ formHelperText: { sx: { minHeight: 20, mt: 0.5 } } }}
+          // MUI 9 passes the input wiring in params.slotProps; replacing the
+          // object would detach the input from the Autocomplete.
+          slotProps={{ ...params.slotProps, formHelperText: { sx: { minHeight: 20, mt: 0.5 } } }}
         />
       )}
       {...(noOptionsText !== undefined ? { noOptionsText } : {})}
