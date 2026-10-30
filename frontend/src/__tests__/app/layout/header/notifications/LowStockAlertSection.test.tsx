@@ -17,7 +17,8 @@
  *
  * Notes:
  * - i18n interpolation is mocked in a minimal way to support `{{count}}` placeholders.
- * - We avoid asserting exact styling; instead, we assert presence of core UI elements.
+ * - Styling is asserted only for the S2-8 contrast colours (title and link per mode); the
+ *   icon is a stub in Vitest, so its colour is proven by a live measurement instead.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -25,6 +26,8 @@ import { tEn } from '@/__tests__/test/i18nEn';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import { buildTheme } from '@/theme';
 import LowStockAlertSection from '@/app/layout/header/notifications/LowStockAlertSection';
 
 // -----------------------------------------------------------------------------
@@ -129,5 +132,23 @@ describe('LowStockAlertSection', () => {
     expect(link).toHaveAttribute('href', '/inventory?belowMinimum=1');
     await userEvent.setup().click(link);
     expect(onShowAll).toHaveBeenCalledTimes(1);
+  });
+
+  // S2-8: on the warning tint, warning.main title text and the default link blue fell below 4.5:1.
+  // The theme emits CSS variables, so a palette token resolves to its var(); a value read
+  // from the palette in a function arrives as the colour itself.
+  it.each(['light', 'dark'] as const)('draws the title and the link in contrast-safe colours when the theme is %s', (mode) => {
+    const theme = buildTheme('en', mode);
+    render(
+      <ThemeProvider theme={theme}>
+        <MemoryRouter>
+          <LowStockAlertSection lowStockCount={5} />
+        </MemoryRouter>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByText('Alert: items below minimum')).toHaveStyle({ color: 'var(--mui-palette-text-primary)' });
+    const linkBlue = mode === 'light' ? theme.palette.primary.dark : theme.palette.primary.light;
+    expect(screen.getByRole('link', { name: 'Show all' })).toHaveStyle({ color: linkBlue });
   });
 });
