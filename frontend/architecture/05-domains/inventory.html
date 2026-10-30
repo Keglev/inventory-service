@@ -173,10 +173,13 @@
         <p>Every dialog reports success through a callback the board
         wires to one reload handler, so the table refreshes after any
         mutation.</p>
-        <p>The four supplier → item dialogs (rename, quantity, price,
-        delete) pick the item with one shared field,
-        <code>ItemSearchField</code>. Once a supplier is chosen, its
-        items load once
+        <p>Every dialog that asks for a supplier (create, rename,
+        quantity, price, delete) picks it in
+        <code>SupplierPickerField</code>, the board’s supplier search:
+        two characters, matched in the browser. The four supplier → item
+        dialogs (rename, quantity, price, delete) pick the item with one
+        shared field, <code>ItemSearchField</code>. Once a supplier is
+        chosen, its items load once
         (<code>GET /api/inventory/search?supplierId=</code>, one page of
         up to 2,000) and every keystroke is matched in the browser: name
         or SKU, anywhere, ignoring case, from two characters, at most
