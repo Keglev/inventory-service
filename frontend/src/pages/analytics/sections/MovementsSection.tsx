@@ -119,7 +119,7 @@ export default function MovementsSection({ from, to, supplierId }: MovementsSect
 
   return (
     <Box sx={{ gridColumn: '1 / -1', display: 'grid', gap: 2 }}>
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ alignItems: { md: 'center' } }}>
         <ItemSearchAutocomplete
           options={itemOptions}
           loading={itemSearchQ.isLoading}
@@ -130,7 +130,15 @@ export default function MovementsSection({ from, to, supplierId }: MovementsSect
           label={t('analytics:movements.itemFilter')}
           helperText={pickerHelperText}
         />
-        <Stack direction="row" spacing={0.5} useFlexGap flexWrap="wrap" alignItems="center">
+        <Stack
+          direction="row"
+          spacing={0.5}
+          useFlexGap
+          sx={{
+            flexWrap: 'wrap',
+            alignItems: 'center',
+          }}
+        >
           <Typography variant="body2" sx={{ mr: 0.5, color: 'text.secondary' }}>
             {t('analytics:movements.reasonFilter')}:
           </Typography>

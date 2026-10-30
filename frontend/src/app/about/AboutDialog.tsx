@@ -47,7 +47,7 @@ export interface AboutDialogProps {
 function AboutRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <Stack direction="row" spacing={2} sx={{ py: 0.75 }}>
-      <Typography variant="body2" color="text.secondary" sx={{ width: 120, flexShrink: 0 }}>
+      <Typography variant="body2" sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}>
         {label}
       </Typography>
       <Typography component="div" variant="body2" sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>

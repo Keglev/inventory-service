@@ -44,7 +44,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onDemo, onSignIn }) => {
       }}
     >
       <Stack spacing={2.5}>
-        <Typography variant="overline" color="primary.main" sx={{ letterSpacing: 1.2 }}>
+        <Typography variant="overline" sx={{ color: 'primary.main', letterSpacing: 1.2 }}>
           {t('hero.eyebrow')}
         </Typography>
 
@@ -52,7 +52,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onDemo, onSignIn }) => {
           {t('hero.title')}
         </Typography>
 
-        <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 520 }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: 520 }}>
           {t('hero.subtitle')}
         </Typography>
 
@@ -65,7 +65,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onDemo, onSignIn }) => {
           </Button>
         </Stack>
 
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
           {t('hero.note')}
         </Typography>
       </Stack>

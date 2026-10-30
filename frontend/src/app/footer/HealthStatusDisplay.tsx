@@ -73,9 +73,9 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
   );
 
   return (
-    <Stack direction="row" spacing={1.5} alignItems="center" sx={{ flexShrink: 0 }}>
+    <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', flexShrink: 0 }}>
       {/* Backend: chip + inline response time. Caption lives in the tooltip. */}
-      <Stack direction="row" spacing={0.5} alignItems="center">
+      <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
         <Chip
           title={t('footer:health.backend')}
           icon={statusDot(backendOnline)}
@@ -85,7 +85,7 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
           sx={chipSx(backendColor)}
         />
         {health.responseTime > 0 && (
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             {health.responseTime}ms
           </Typography>
         )}

@@ -38,7 +38,7 @@ export const InventoryToolbar: React.FC<InventoryToolbarProps> = ({
   const { t } = useTranslation(['inventory']);
 
   return (
-    <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="flex-end">
+    <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}>
       <Button variant="contained" onClick={onAddNew}>
         {t('inventory:toolbar.newItem')}
       </Button>

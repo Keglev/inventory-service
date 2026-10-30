@@ -63,7 +63,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
     <Dialog open={open} onClose={form.handleClose} fullWidth maxWidth="sm">
       {/* Dialog title with help button */}
       <DialogTitle>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Box>{t('inventory:dialogs.editItemTitle')}</Box>
           <HelpIconButton topicId="inventory.editItem" tooltip={t('common:actions.help')} />
         </Stack>

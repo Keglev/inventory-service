@@ -89,10 +89,15 @@ export default function FooterLinks() {
     // maxWidth lets the row wrap on phones; above that it stays one line.
     <Stack
       direction="row"
-      alignItems="center"
       useFlexGap
-      flexWrap="wrap"
-      sx={{ flexShrink: 0, maxWidth: '100%', columnGap: 2, rowGap: 0.5 }}
+      sx={{
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        flexShrink: 0,
+        maxWidth: '100%',
+        columnGap: 2,
+        rowGap: 0.5,
+      }}
     >
       {links.map((link) =>
         'to' in link ? (

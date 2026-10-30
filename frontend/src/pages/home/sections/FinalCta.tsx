@@ -41,12 +41,12 @@ const FinalCta: React.FC<FinalCtaProps> = ({ onDemo, onSignIn }) => {
         textAlign: 'center',
       }}
     >
-      <Stack spacing={2} alignItems="center">
+      <Stack spacing={2} sx={{ alignItems: 'center' }}>
         <Typography variant="h5" component="h2" sx={{ fontWeight: 700 }}>
           {t('finalCta.title')}
         </Typography>
 
-        <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 560 }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: 560 }}>
           {t('finalCta.body')}
         </Typography>
 

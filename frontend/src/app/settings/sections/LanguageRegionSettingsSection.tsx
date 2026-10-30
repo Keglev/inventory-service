@@ -106,7 +106,7 @@ export default function LanguageRegionSettingsSection({
             label={
               <Box>
                 <Typography variant="body2">DD.MM.YYYY</Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   {formatDate(new Date(), 'DD.MM.YYYY')}
                 </Typography>
               </Box>
@@ -118,7 +118,7 @@ export default function LanguageRegionSettingsSection({
             label={
               <Box>
                 <Typography variant="body2">YYYY-MM-DD</Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   {formatDate(new Date(), 'YYYY-MM-DD')}
                 </Typography>
               </Box>
@@ -130,7 +130,7 @@ export default function LanguageRegionSettingsSection({
             label={
               <Box>
                 <Typography variant="body2">MM/DD/YYYY</Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   {formatDate(new Date(), 'MM/DD/YYYY')}
                 </Typography>
               </Box>
@@ -153,7 +153,7 @@ export default function LanguageRegionSettingsSection({
             label={
               <Box>
                 <Typography variant="body2">{t('settings.numberFormatDe')}</Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   {formatNumber(1234.56, 'DE')}
                 </Typography>
               </Box>
@@ -165,7 +165,7 @@ export default function LanguageRegionSettingsSection({
             label={
               <Box>
                 <Typography variant="body2">{t('settings.numberFormatEnUs')}</Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   {formatNumber(1234.56, 'EN_US')}
                 </Typography>
               </Box>

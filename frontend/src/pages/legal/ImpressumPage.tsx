@@ -33,7 +33,7 @@ const ImpressumPage: React.FC = () => {
 
   return (
     <LegalPageLayout title={t('impressum.title')}>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+      <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
         {t('impressum.scope')}
       </Typography>
 

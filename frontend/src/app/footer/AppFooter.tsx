@@ -44,12 +44,14 @@ export default function AppFooter() {
       <Container maxWidth="xl" sx={{ py: 0.75 }}>
         <Stack
           direction="row"
-          alignItems="center"
-          justifyContent="space-between"
           spacing={2}
           useFlexGap
-          flexWrap="wrap"
-          sx={{ minHeight: 40 }}
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            minHeight: 40,
+          }}
         >
           {/* Meta Information */}
           <FooterMetaInfo

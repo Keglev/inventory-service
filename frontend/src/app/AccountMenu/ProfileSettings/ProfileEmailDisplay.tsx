@@ -32,7 +32,7 @@ export default function ProfileEmailDisplay({ email, isDemo }: ProfileEmailDispl
 
   return (
     <Box>
-      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+      <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
         {t('common:email')}
       </Typography>
       <Typography variant="body2">

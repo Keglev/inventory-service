@@ -64,7 +64,9 @@ export const InventoryFilterPanel: React.FC<InventoryFilterPanelProps> = ({
     <Stack
       spacing={2}
       direction={{ xs: 'column', md: 'row' }}
-      alignItems={{ xs: 'stretch', md: 'flex-end' }}
+      sx={{
+        alignItems: { xs: 'stretch', md: 'flex-end' }
+      }}
     >
       {/* Supplier dropdown on the left */}
       <Box sx={{ flex: 1, minWidth: 220 }}>

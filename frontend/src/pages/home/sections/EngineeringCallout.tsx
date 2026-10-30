@@ -39,7 +39,7 @@ const EngineeringCallout: React.FC = () => {
             {t('engineering.title')}
           </Typography>
 
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant="body1" sx={{ color: 'text.secondary' }}>
             {t('engineering.body')}
           </Typography>
 

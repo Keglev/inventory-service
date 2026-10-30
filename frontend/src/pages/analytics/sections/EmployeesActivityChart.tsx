@@ -82,7 +82,14 @@ export function EmployeesActivityChart({
   return (
     <Card data-testid="employee-activity-card">
       <CardContent>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 1,
+          }}
+        >
           <Typography variant="subtitle1">{t('analytics:employees.chartTitle')}</Typography>
           <ToggleButtonGroup
             size="small"

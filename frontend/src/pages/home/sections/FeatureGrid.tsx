@@ -48,7 +48,7 @@ const FeatureGrid: React.FC = () => {
         <Typography variant="h4" component="h2" sx={{ fontWeight: 700 }}>
           {t('features.title')}
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
           {t('features.subtitle')}
         </Typography>
       </Stack>
@@ -67,7 +67,7 @@ const FeatureGrid: React.FC = () => {
               <Typography variant="h6" component="h3" sx={{ mt: 1, fontWeight: 600 }}>
                 {t(titleKey)}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
                 {t(bodyKey)}
               </Typography>
             </CardContent>

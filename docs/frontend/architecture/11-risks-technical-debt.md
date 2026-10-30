@@ -42,24 +42,24 @@ what the chart shows and how it reads, a different level from the card that lays
 it out.
 
 Three functions sit above their band and below their alarm: `DateRangeFilter`
-122 and `MovementsSection` 112 (components, band 100), and `useEditItemForm` 88
+122 and `MovementsSection` 120 (components, band 100), and `useEditItemForm` 88
 (hooks, band 80). `PriceChangeForm` 113, `EditItemForm` 102, `PriceTrendCard` 82,
-`usePriceChangeForm` 79 and `EmployeesActivityChart` 64 are inside their bands. The band is guidance, the alarm is the gate.
+`usePriceChangeForm` 79 and `EmployeesActivityChart` 71 are inside their bands. The band is guidance, the alarm is the gate.
 
 Files above their band and below their alarm are watched:
 
 | File (under `src/`) | Layer (band / alarm) | Code lines |
 |---|---|---|
 | `pages/analytics/components/filters/DateRangeFilter.tsx` | components (100 / 150) | 140 |
-| `pages/analytics/sections/MovementsSection.tsx` | components | 132 |
+| `pages/analytics/sections/MovementsSection.tsx` | components | 140 |
 | `app/settings/sections/LanguageRegionSettingsSection.tsx` | components | 130 |
 | `pages/analytics/blocks/LowStockTable.tsx` | components | 128 |
 | `pages/dashboard/blocks/LowStockMini.tsx` | components | 125 |
-| `components/help/HelpPanel.tsx` | components | 117 |
+| `components/help/HelpPanel.tsx` | components | 120 |
+| `components/search/ListSearchField.tsx` | components | 119 |
 | `pages/analytics/blocks/StockValuePerSupplierPie.tsx` | components | 117 |
-| `components/search/ListSearchField.tsx` | components | 113 |
-| `pages/analytics/blocks/FinancialSummaryCard.tsx` | components | 105 |
-| `pages/analytics/sections/EmployeesActivityChart.tsx` | components | 104 |
+| `pages/analytics/blocks/FinancialSummaryCard.tsx` | components | 116 |
+| `pages/analytics/sections/EmployeesActivityChart.tsx` | components | 111 |
 | `app/layout/AppShell.tsx` | components | 102 |
 | `pages/inventory/components/InventoryTable.tsx` | components | 101 |
 | `pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` | dialogs (120 / 160) | 134 |

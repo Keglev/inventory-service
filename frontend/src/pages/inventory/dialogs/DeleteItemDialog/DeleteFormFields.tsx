@@ -61,7 +61,7 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <CircularProgress size={20} />
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {t('common:loading')}
         </Typography>
       </Box>
@@ -171,15 +171,9 @@ export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn })
   }
 
   return (
-    <Box
-      sx={{
-        p: 1.5,
-        bgcolor: 'action.hover',
-        borderRadius: 1,
-      }}
-    >
+    <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}>
       {/* Item name section */}
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
         {t('inventory:table.name')}
       </Typography>
       <Typography variant="body1" sx={{ fontWeight: 600 }}>
@@ -187,7 +181,7 @@ export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn })
       </Typography>
 
       {/* Item on-hand quantity section */}
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+      <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>
         {t('inventory:table.onHand')}
       </Typography>
       <Typography variant="body1" sx={{ fontWeight: 600 }}>

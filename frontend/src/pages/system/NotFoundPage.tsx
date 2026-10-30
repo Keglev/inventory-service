@@ -42,7 +42,7 @@ const NotFoundPage: React.FC = () => {
         <Typography variant="h4" gutterBottom>
           {t('notFound.title')}
         </Typography>
-        <Typography variant="body1" color="text.secondary" gutterBottom>
+        <Typography variant="body1" gutterBottom sx={{ color: 'text.secondary' }}>
           {t('notFound.body')}
         </Typography>
         <Button variant="contained" sx={{ mt: 2 }} onClick={primaryAction}>

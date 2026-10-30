@@ -62,7 +62,7 @@ export const SuppliersFilterPanel: React.FC<SuppliersFilterPanelProps> = ({
         }
         label={t('suppliers:filters.showAll')}
       />
-      <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+      <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 1 }}>
         {t(
           'suppliers:filters.showAllHint'
         )}

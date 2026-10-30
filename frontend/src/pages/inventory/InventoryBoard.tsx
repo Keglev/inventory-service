@@ -102,11 +102,17 @@ const InventoryBoard: React.FC = () => {
       {/* Header */}
       <Stack
         direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ px: { xs: 2, md: 3 }, pl: railGutter, pr: railGutter, pt: { xs: 2, md: 3 }, pb: 2 }}
+        sx={{
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: { xs: 2, md: 3 },
+          pl: railGutter,
+          pr: railGutter,
+          pt: { xs: 2, md: 3 },
+          pb: 2,
+        }}
       >
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
             {t('inventory:page.title')}
           </Typography>
@@ -158,7 +164,7 @@ const InventoryBoard: React.FC = () => {
       >
         {!showsGrid ? (
           <Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}>
-            <Typography variant="body1" color="text.secondary">
+            <Typography variant="body1" sx={{ color: 'text.secondary' }}>
               {t('inventory:search.selectSupplierPrompt')}
             </Typography>
           </Box>

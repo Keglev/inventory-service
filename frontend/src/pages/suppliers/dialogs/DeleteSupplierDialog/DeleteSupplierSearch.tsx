@@ -83,14 +83,14 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
   return (
     <>
       <DialogTitle sx={{ pt: 3.5 }}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Box>{t('suppliers:dialogs.delete.title')}</Box>
           <HelpIconButton topicId="suppliers.delete" tooltip={t('common:actions.help')} />
         </Stack>
       </DialogTitle>
 
       <DialogContent>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
           {t('suppliers:dialogs.delete.search.hint')}
         </Typography>
 

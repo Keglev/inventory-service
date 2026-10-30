@@ -53,10 +53,10 @@ export function SelectedItemDetails({
 
   const row = (label: string, value: string | number) => (
     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
         {label}
       </Typography>
-      <Typography variant="body2" fontWeight="medium">
+      <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
         {loading ? <CircularProgress size={16} /> : value}
       </Typography>
     </Box>
