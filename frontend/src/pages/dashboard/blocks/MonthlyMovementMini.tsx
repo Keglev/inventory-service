@@ -31,6 +31,7 @@ import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Le
 import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import { getTodayIso, getDaysAgoIso, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import { chartLegendProps } from '../../../utils/chartLegend';
 import { MOVEMENT_ORDER, movementTooltip } from '../../../utils/movementTooltip';
 import { CHART_MARGIN } from './chartMargin';
@@ -71,8 +72,9 @@ export default function MonthlyMovementMini() {
             <ResponsiveContainer width="100%" height="90%">
               <BarChart data={q.data ?? []} margin={CHART_MARGIN}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" tickFormatter={(value) => monthLabel(String(value), i18n.language)} />
+                <XAxis {...chartAxisProps(muiTheme)} dataKey="month" tickFormatter={(value) => monthLabel(String(value), i18n.language)} />
                 <YAxis
+                  {...chartAxisProps(muiTheme)}
                   tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)}
                 />
                 <Tooltip

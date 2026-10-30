@@ -35,6 +35,7 @@ import { getFinancialSummary, type FinancialSummary } from '../../../api/analyti
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 
 export type FinancialSummaryCardProps = { from?: string; to?: string; supplierId?: string | null };
 
@@ -129,8 +130,8 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data} layout="vertical" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)} />
-                  <YAxis type="category" dataKey="name" width="auto" interval={0} />
+                  <XAxis {...chartAxisProps(muiTheme)} type="number" tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)} />
+                  <YAxis {...chartAxisProps(muiTheme)} type="category" dataKey="name" width="auto" interval={0} />
                   <Tooltip
                     {...chartTooltipProps(muiTheme)}
                     formatter={(value) =>

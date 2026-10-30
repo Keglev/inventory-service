@@ -20,6 +20,7 @@ import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, L
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import { dayTimeAxis, timeXAxisProps } from '../../../utils/timeAxis';
 import { useDayFormatter } from '../../../hooks/useDayFormatter';
 import { priceValueAxis, type ChartPricePoint } from './priceSeries';
@@ -46,8 +47,9 @@ export default function PriceTrendChart({ series, from, to }: PriceTrendChartPro
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={series} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis {...timeXAxisProps(timeAxis, formatDateLabel)} />
+          <XAxis {...chartAxisProps(muiTheme)} {...timeXAxisProps(timeAxis, formatDateLabel)} />
           <YAxis
+            {...chartAxisProps(muiTheme)}
             domain={valueAxis.domain}
             ticks={valueAxis.ticks}
             tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)}

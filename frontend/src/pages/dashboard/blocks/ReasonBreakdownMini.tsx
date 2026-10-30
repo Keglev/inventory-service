@@ -26,6 +26,7 @@ import { reasonLabel } from '../../analytics/sections/reasonLabels';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber, getDaysAgoIso, getTodayIso } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import { chartLegendProps, legendOrder } from '../../../utils/chartLegend';
 import { CHART_MARGIN } from './chartMargin';
 
@@ -74,8 +75,8 @@ export default function ReasonBreakdownMini() {
             <ResponsiveContainer width="100%" height="90%">
               <BarChart data={data} margin={CHART_MARGIN}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={0} angle={-30} textAnchor="end" height={60} />
-                <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
+                <XAxis {...chartAxisProps(muiTheme, { fontSize: 11 })} dataKey="label" interval={0} angle={-30} textAnchor="end" height={60} />
+                <YAxis {...chartAxisProps(muiTheme)} tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
                   itemSorter={LEGEND_ORDER}

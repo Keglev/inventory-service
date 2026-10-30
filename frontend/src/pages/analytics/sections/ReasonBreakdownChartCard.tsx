@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 
 export type ReasonBreakdownDatum = {
   /** Translated reason label (X axis). */
@@ -69,8 +70,8 @@ export default function ReasonBreakdownChartCard({ title, seriesName, data, colo
     >
       <BarChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 24 }}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="label" interval={0} angle={-25} textAnchor="end" height={70} tick={{ fontSize: 12 }} />
-        <YAxis allowDecimals={false} tickFormatter={formatValue} />
+        <XAxis {...chartAxisProps(muiTheme, { fontSize: 12 })} dataKey="label" interval={0} angle={-25} textAnchor="end" height={70} />
+        <YAxis {...chartAxisProps(muiTheme)} allowDecimals={false} tickFormatter={formatValue} />
         <Tooltip {...chartTooltipProps(muiTheme)} formatter={formatTooltipValue} />
         <Bar dataKey="value" name={seriesName} fill={color} isAnimationActive={false} />
       </BarChart>

@@ -20,6 +20,7 @@ import { getItemUpdateFrequency, type ItemUpdateFrequencyPoint } from '../../../
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import DateScopeNote from '../components/DateScopeNote';
 
 export type ItemUpdateFrequencyCardProps = { supplierId?: string | null };
@@ -84,10 +85,11 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
               <BarChart data={data} layout="vertical" margin={{ left: 24, right: 16 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
+                  {...chartAxisProps(muiTheme)}
                   type="number"
                   tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)}
                 />
-                <YAxis type="category" dataKey="name" width={140} />
+                <YAxis {...chartAxisProps(muiTheme)} type="category" dataKey="name" width={140} />
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
                   formatter={(value) =>

@@ -23,6 +23,7 @@ import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { monthLabel } from '../../../utils/monthLabels';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import { chartLegendProps } from '../../../utils/chartLegend';
 import { MOVEMENT_ORDER, movementTooltip } from '../../../utils/movementTooltip';
 
@@ -54,8 +55,8 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
     >
       <LineChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="month" tickFormatter={(value) => monthLabel(String(value), i18n.language)} />
-        <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
+        <XAxis {...chartAxisProps(muiTheme)} dataKey="month" tickFormatter={(value) => monthLabel(String(value), i18n.language)} />
+        <YAxis {...chartAxisProps(muiTheme)} tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
         <Tooltip
           {...chartTooltipProps(muiTheme)}
           itemSorter={MOVEMENT_ORDER}
