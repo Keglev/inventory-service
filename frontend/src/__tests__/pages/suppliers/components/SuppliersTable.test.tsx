@@ -115,7 +115,7 @@ const supplierRow = (overrides: Partial<SupplierRow> = {}): SupplierRow => ({
 
 const createProps = (overrides: Partial<SuppliersTableProps> = {}): SuppliersTableProps => ({
   rows: [supplierRow(), supplierRow({ id: '2', name: 'Supplier B', contactName: null, phone: null, email: null })],
-  paginationModel: { page: 0, pageSize: 6 },
+  paginationModel: { page: 0, pageSize: 10 },
   onPaginationChange: vi.fn(),
   sortModel: [],
   onSortChange: vi.fn(),
@@ -192,7 +192,7 @@ describe('SuppliersTable', () => {
     // GET /api/suppliers returns every supplier and takes no parameters: in
     // server mode the grid showed all rows on every page and never sorted.
     const props = createProps({
-      paginationModel: { page: 2, pageSize: 6 },
+      paginationModel: { page: 2, pageSize: 10 },
       sortModel: [{ field: 'name', sort: 'asc' }],
     });
 
@@ -202,6 +202,8 @@ describe('SuppliersTable', () => {
       expect.objectContaining({
         paginationMode: 'client',
         sortingMode: 'client',
+        // Ten suppliers per page (S2-15).
+        pageSizeOptions: [10],
         paginationModel: props.paginationModel,
         sortModel: props.sortModel,
         onPaginationModelChange: props.onPaginationChange,

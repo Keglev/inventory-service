@@ -32,8 +32,7 @@ describe('useSuppliersBoardState', () => {
 
     expect(result.current).toMatchObject({
       searchQuery: '',
-      showAllSuppliers: false,
-      paginationModel: { page: 0, pageSize: 6 },
+      paginationModel: { page: 0, pageSize: 10 },
       sortModel: [{ field: 'name', sort: 'asc' }],
       selectedId: null,
       selectedSearchResult: null,
@@ -49,12 +48,6 @@ describe('useSuppliersBoardState', () => {
       perform: (state: UseSuppliersBoardStateReturn) => state.setSearchQuery('acme corp'),
       assert: (state: UseSuppliersBoardStateReturn) =>
         expect(state.searchQuery).toBe('acme corp'),
-    },
-    {
-      name: 'showAllSuppliers flag',
-      perform: (state: UseSuppliersBoardStateReturn) => state.setShowAllSuppliers(true),
-      assert: (state: UseSuppliersBoardStateReturn) =>
-        expect(state.showAllSuppliers).toBe(true),
     },
     {
       name: 'pagination model',
@@ -151,7 +144,6 @@ describe('useSuppliersBoardState', () => {
       paginationModel: newPaginationModel,
       sortModel: newSortModel,
       openCreate: true,
-      showAllSuppliers: false,
     });
   });
 });

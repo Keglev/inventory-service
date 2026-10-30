@@ -24,7 +24,6 @@ import type { SupplierRow } from '../../../api/suppliers/types';
 export interface SuppliersBoardState {
   // Search & Filter
   searchQuery: string;
-  showAllSuppliers: boolean;
 
   // Pagination & Sorting
   paginationModel: GridPaginationModel;
@@ -45,7 +44,6 @@ export interface SuppliersBoardState {
  */
 export interface SuppliersBoardStateSetters {
   setSearchQuery: (query: string) => void;
-  setShowAllSuppliers: (show: boolean) => void;
   setPaginationModel: (model: GridPaginationModel) => void;
   setSortModel: (model: GridSortModel) => void;
   setSelectedId: (id: string | null) => void;
@@ -69,10 +67,10 @@ export type UseSuppliersBoardStateReturn = SuppliersBoardState & SuppliersBoardS
  */
 export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [showAllSuppliers, setShowAllSuppliers] = React.useState(false);
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
     page: 0,
-    pageSize: 6,
+    // Ten rows fill a 1920x1080 screen without the former show-all card (S2-15).
+    pageSize: 10,
   });
   const [sortModel, setSortModel] = React.useState<GridSortModel>([
     { field: 'name', sort: 'asc' },
@@ -85,7 +83,6 @@ export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
 
   const stateObject = {
     searchQuery,
-    showAllSuppliers,
     paginationModel,
     sortModel,
     selectedId,
@@ -94,7 +91,6 @@ export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
     openEdit,
     openDelete,
     setSearchQuery,
-    setShowAllSuppliers,
     setPaginationModel,
     setSortModel,
     setSelectedId,

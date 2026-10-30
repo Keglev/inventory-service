@@ -6,7 +6,7 @@
  * Contract under test:
  * - Orchestrates state + handlers + data into presentation components.
  * - Applies board-only display rules:
- *   - Table is hidden when `showAllSuppliers=false` and no search selection.
+ *   - The table shows every supplier when no search result is selected (S2-15).
  *   - When a supplier is selected from search, the table shows exactly that one row.
  * - Computes toolbar enablement from auth + selection (board responsibility).
  *
@@ -37,7 +37,6 @@ const spies = vi.hoisted(() => ({
   // Component spies: we capture props only (no UI assertions here).
   SuppliersToolbar: vi.fn<(props: unknown) => void>(),
   SuppliersSearchPanel: vi.fn<(props: unknown) => void>(),
-  SuppliersFilterPanel: vi.fn<(props: unknown) => void>(),
   SuppliersTable: vi.fn<(props: unknown) => void>(),
   SuppliersDialogs: vi.fn<(props: unknown) => void>(),
 }));
@@ -53,7 +52,6 @@ const runtime = vi.hoisted(() => ({
     handleSearchChange: vi.fn(),
     handleSearchResultSelect: vi.fn(),
     handleClearSearchSelection: vi.fn(),
-    handleToggleShowAll: vi.fn(),
     handleSupplierCreated: vi.fn(),
     handleSupplierUpdated: vi.fn(),
     handleSupplierDeleted: vi.fn(),
@@ -70,13 +68,6 @@ vi.mock('@/pages/suppliers/components/SuppliersToolbar', () => ({
 vi.mock('@/pages/suppliers/components/SuppliersSearchPanel', () => ({
   SuppliersSearchPanel: (props: unknown) => {
     spies.SuppliersSearchPanel(props);
-    return null;
-  },
-}));
-
-vi.mock('@/pages/suppliers/components/SuppliersFilterPanel', () => ({
-  SuppliersFilterPanel: (props: unknown) => {
-    spies.SuppliersFilterPanel(props);
     return null;
   },
 }));
@@ -119,10 +110,6 @@ vi.mock('@/pages/suppliers/handlers/useSearchHandlers', () => ({
   }),
 }));
 
-vi.mock('@/pages/suppliers/handlers/useFilterHandlers', () => ({
-  useFilterHandlers: () => ({ handleToggleShowAll: runtime.handlers.handleToggleShowAll }),
-}));
-
 vi.mock('@/pages/suppliers/handlers/useDialogHandlers', () => ({
   useDialogHandlers: () => ({
     handleSupplierCreated: runtime.handlers.handleSupplierCreated,
@@ -147,8 +134,7 @@ const createState = (
   overrides: Partial<UseSuppliersBoardStateReturn> = {}
 ): UseSuppliersBoardStateReturn => ({
   searchQuery: '',
-  showAllSuppliers: false,
-  paginationModel: { page: 0, pageSize: 6 },
+  paginationModel: { page: 0, pageSize: 10 },
   sortModel: [{ field: 'name', sort: 'asc' }],
   selectedId: null,
   selectedSearchResult: null,
@@ -156,7 +142,6 @@ const createState = (
   openEdit: false,
   openDelete: false,
   setSearchQuery: vi.fn(),
-  setShowAllSuppliers: vi.fn(),
   setPaginationModel: vi.fn(),
   setSortModel: vi.fn(),
   setSelectedId: vi.fn(),
@@ -186,25 +171,18 @@ describe('SuppliersBoard', () => {
     runtime.data = createData();
   });
 
-  it('renders the composition children (toolbar/search/filter/dialogs)', () => {
+  it('renders the composition children (toolbar/search/dialogs)', () => {
     renderBoard();
 
     expect(spies.SuppliersToolbar).toHaveBeenCalledTimes(1);
     expect(spies.SuppliersSearchPanel).toHaveBeenCalledTimes(1);
-    expect(spies.SuppliersFilterPanel).toHaveBeenCalledTimes(1);
     expect(spies.SuppliersDialogs).toHaveBeenCalledTimes(1);
   });
 
-  it('hides the table when showAllSuppliers is false and no search result is selected', () => {
-    runtime.state = createState({ showAllSuppliers: false, selectedSearchResult: null });
-    renderBoard();
-
-    expect(spies.SuppliersTable).not.toHaveBeenCalled();
-  });
-
-  it('hands every supplier to the table when showAllSuppliers is true and nothing is selected', () => {
+  // S2-15: the grid no longer waits behind a "show all" checkbox.
+  it('hands every supplier to the table when nothing is selected', () => {
     const suppliers = [supplierRow({ id: 's-1', name: 'Acme' }), supplierRow({ id: 's-2', name: 'Beta' })];
-    runtime.state = createState({ showAllSuppliers: true, selectedSearchResult: null });
+    runtime.state = createState({ selectedSearchResult: null });
     runtime.data = createData({ suppliers });
 
     renderBoard();
@@ -217,7 +195,7 @@ describe('SuppliersBoard', () => {
   });
 
   it('wires the grid straight to the board state setters', () => {
-    runtime.state = createState({ showAllSuppliers: true, selectedSearchResult: null });
+    runtime.state = createState({ selectedSearchResult: null });
     runtime.data = createData({ suppliers: [supplierRow()] });
 
     renderBoard();
@@ -233,7 +211,7 @@ describe('SuppliersBoard', () => {
 
   it('renders a single-row table when a supplier is selected from search', () => {
     const selected = supplierRow({ id: 'selected', name: 'Selected Supplier' });
-    runtime.state = createState({ showAllSuppliers: false, selectedSearchResult: selected });
+    runtime.state = createState({ selectedSearchResult: selected });
     runtime.data = createData({ suppliers: [supplierRow({ id: 'other', name: 'Other' })] });
 
     renderBoard();

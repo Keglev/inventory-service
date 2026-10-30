@@ -20,10 +20,6 @@
     "noResults": "No suppliers found",
     "selectSupplierFirst": "Search and select a supplier to enable editing."
   },
-  "filters": {
-    "showAll": "Show all suppliers",
-    "showAllHint": "Check this box to display the complete supplier list"
-  },
   "actions": {
     "create": "Add Supplier",
     "edit": "Edit",
