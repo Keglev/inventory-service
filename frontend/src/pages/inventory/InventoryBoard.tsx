@@ -19,18 +19,17 @@
  *   pattern. Every dialog in the application now routes help through
  *   that same component; no raw IconButton + HelpOutlineIcon pairing
  *   remains.
- * - The "select a supplier to view items" placeholder is mandatory
- *   UX: the inventory page intentionally renders nothing until a
- *   supplier is chosen, because the backend item-search endpoint is
- *   supplier-gated for performance and the page would otherwise
- *   request a full unfiltered list on mount.
+ * - Without a supplier the grid lists the stock of all suppliers, one
+ *   server page at a time (S2-9, Carlos 2026-10-30). The former
+ *   "select a supplier" placeholder rested on a gate the backend never
+ *   had: GET /api/inventory/search takes no supplier and pages.
  * - Demo mode (isDemo from useAuth) flows down to the four dialogs
  *   that support readOnly (create, delete, quantity-adjust,
  *   price-change) via InventoryDialogs.
  */
 
 import * as React from 'react';
-import { Box, Paper, Typography, Stack } from '@mui/material';
+import { Paper, Typography, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '../../hooks/useAuth';
@@ -45,7 +44,6 @@ import { useToolbarHandlers } from './handlers/useToolbarHandlers';
 import { useFilterHandlers } from './handlers/useFilterHandlers';
 import { useRefreshHandler } from './handlers/useRefreshHandler';
 import { useDataFetchingLogic } from './handlers/useDataFetchingLogic';
-import { listsItems } from './hooks/useInventoryPageData';
 import { railGutter } from '../../theme/pagePanel';
 import { PagePanel } from '../../components/ui/PagePanel';
 
@@ -58,7 +56,6 @@ const InventoryBoard: React.FC = () => {
   // State Management
   // =====================
   const state = useInventoryState();
-  const showsGrid = listsItems(state.supplierId, state.belowMinOnly);
 
   // =====================
   // Event Handlers
@@ -156,33 +153,24 @@ const InventoryBoard: React.FC = () => {
           ml: railGutter,
           mr: railGutter,
           mb: { xs: 2, md: 3 },
-          p: showsGrid ? 0 : 2,
           minHeight: 420,
           display: 'flex',
           flexDirection: 'column',
         }}
       >
-        {!showsGrid ? (
-          <Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}>
-            <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-              {t('inventory:search.selectSupplierPrompt')}
-            </Typography>
-          </Box>
-        ) : (
-          <InventoryTable
-            rows={data.items}
-            columns={data.columns}
-            paginationModel={state.paginationModel}
-            onPaginationChange={state.setPaginationModel}
-            sortModel={state.sortModel}
-            onSortChange={state.setSortModel}
-            selectedId={state.selectedId}
-            onRowClick={state.setSelectedId}
-            getRowClassName={data.getRowClassName}
-            loading={data.loading}
-            rowCount={data.server.total}
-          />
-        )}
+        <InventoryTable
+          rows={data.items}
+          columns={data.columns}
+          paginationModel={state.paginationModel}
+          onPaginationChange={state.setPaginationModel}
+          sortModel={state.sortModel}
+          onSortChange={state.setSortModel}
+          selectedId={state.selectedId}
+          onRowClick={state.setSelectedId}
+          getRowClassName={data.getRowClassName}
+          loading={data.loading}
+          rowCount={data.server.total}
+        />
       </Paper>
     </PagePanel>
   );

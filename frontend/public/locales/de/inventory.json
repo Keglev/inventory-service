@@ -54,7 +54,6 @@
     "belowMinOnly": "Nur unter Mindestbestand"
   },
   "search": {
-    "selectSupplierPrompt": "Bitte wählen Sie einen Lieferanten, um dessen Artikel zu sehen, oder setzen Sie „Nur unter Mindestbestand“, um alle Artikel unter Mindestbestand zu sehen.",
     "selectSupplierFirst": "Bitte wählen Sie zuerst einen Lieferanten, um die Suche zu aktivieren.",
     "typeToSearchItems": "Artikelname oder SKU eingeben (mind. 2 Zeichen)...",
     "noItemsFound": "Keine Artikel für diese Suche gefunden.",

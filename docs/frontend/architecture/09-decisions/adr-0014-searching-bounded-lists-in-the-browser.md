@@ -80,3 +80,17 @@ and its API reference. The removal rule the Consequences name was met: no
 caller in code, tests, docs, scripts, workflows, operations or the access log.
 The documented fallback for a list that outgrows the thresholds therefore needs
 a server search to be built again, not only wired up.
+
+## Amendment 2026-10-30: every supplier picker searches
+
+Nothing above is edited; this block states what has since changed. The
+inventory board's supplier filter and the supplier selects of the inventory
+dialogs listed every supplier in a dropdown, which grows with the supplier base
+(Carlos, S2-9). They become `SupplierPickerField`, a picker setting of
+`ListSearchField` over the same cached supplier list: two characters, the name
+anywhere, ignoring case (`matchSupplierOptions`). The board's filter is the
+first; an empty field there means all suppliers, and the board then lists the
+stock of all suppliers through its paged server query (the "select a supplier
+first" gate is gone; `GET /api/inventory/search` never required a supplier).
+The inventory dialogs and the analytics supplier filter follow in their own
+changes.

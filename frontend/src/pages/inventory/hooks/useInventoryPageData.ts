@@ -16,9 +16,9 @@
  * - serverPage is 0-based (Spring Pageable), matching the MUI grid's own
  *   0-based page model; it is forwarded to getInventoryPage unchanged.
  *   No index conversion occurs anywhere in this path.
- * - The board lists items only with a supplier chosen or "below minimum"
- *   ticked (listsItems): below minimum is a short list across all suppliers,
- *   the full catalogue is never fetched unfiltered.
+ * - Without a supplier the board lists the stock of all suppliers, one
+ *   server page at a time (S2-9, Carlos 2026-10-30); the former gate that
+ *   waited for a supplier or "below minimum" is gone.
  * - All filtering is server-side: q, supplierId, and the
  *   below-minimum flag are sent to GET /api/inventory/search and the
  *   returned page is rendered as-is. The search input is debounced here
@@ -69,11 +69,11 @@ export interface InventoryPageDataResult {
  * Handles:
  * - Loading inventory from backend with filters/pagination/sorting
  *   (search, supplier, and below-minimum filters are server-side)
- * - Loading suppliers for filter dropdown
+ * - Loading suppliers for the supplier search field
  * - Column definitions with proper formatting
  * - Row classification for visual styling
  *
- * @param supplierId - Selected supplier ID (null to not load)
+ * @param supplierId - Selected supplier ID, or null for all suppliers
  * @param q - Search query (debounced)
  * @param belowMinOnly - Whether to filter for below-min items only
  * @param serverPage - Current page (0-based, Spring Pageable)
@@ -81,17 +81,6 @@ export interface InventoryPageDataResult {
  * @param serverSort - Sort string (field,direction)
  * @returns Data loading results
  */
-/**
- * Whether the inventory board lists items for these filters: a chosen supplier,
- * or the below-minimum filter across all suppliers.
- *
- * @param supplierId - Selected supplier ID, or null for all suppliers
- * @param belowMinOnly - Whether only items below their minimum are shown
- * @returns true when the board fetches and shows the grid
- */
-export const listsItems = (supplierId: string | number | null, belowMinOnly: boolean): boolean =>
-  Boolean(supplierId) || belowMinOnly;
-
 export const useInventoryPageData = (
   supplierId: string | number | null,
   q: string,
@@ -112,7 +101,6 @@ export const useInventoryPageData = (
   // Row styling function
   const getRowClassName = useInventoryRowStyling();
 
-  const listing = listsItems(supplierId, belowMinOnly);
   const params = {
     page: serverPage,
     pageSize,
@@ -134,7 +122,6 @@ export const useInventoryPageData = (
         throw err;
       }
     },
-    enabled: listing,
     // The rows of the previous filters stay on screen while the next page
     // loads, as before; the grid shows its loading state over them.
     placeholderData: keepPreviousData,
@@ -152,24 +139,23 @@ export const useInventoryPageData = (
   const { data, isError } = pageQuery;
   const server = React.useMemo<InventoryListResponse>(
     () =>
-      listing && data && !isError
+      data && !isError
         ? data
         : { items: [], total: 0, page: serverPage, pageSize },
-    [listing, data, isError, serverPage, pageSize],
+    [data, isError, serverPage, pageSize],
   );
 
   // Explicit refresh path. Re-runs the current query directly rather than
   // poking paginationModel back to page 0, which no-opped when the user was
-  // already on page 0 (React bails on an equal setState). Guarded by listsItems
-  // so the catalogue is never fetched unfiltered.
+  // already on page 0 (React bails on an equal setState).
   const { refetch } = pageQuery;
   const reload = React.useCallback(() => {
-    if (listing) void refetch();
-  }, [listing, refetch]);
+    void refetch();
+  }, [refetch]);
 
   return {
     server,
-    loading: listing && pageQuery.isFetching,
+    loading: pageQuery.isFetching,
     suppliers: suppliersQuery.data,
     supplierLoading: suppliersQuery.isLoading,
     items: server.items,

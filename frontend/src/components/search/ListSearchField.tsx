@@ -55,6 +55,8 @@ export interface ListSearchFieldProps<T> {
   disabled?: boolean;
   /** Hides the result list, e.g. while a picked option is shown elsewhere. */
   suppressResults?: boolean;
+  /** Keeps the label above the field, so the placeholder shows while it is empty. */
+  shrinkLabel?: boolean;
 }
 
 // The popup paper receives the hidden-result count through slotProps.
@@ -98,6 +100,7 @@ export function ListSearchField<T>({
   placeholder,
   disabled = false,
   suppressResults = false,
+  shrinkLabel = false,
 }: ListSearchFieldProps<T>) {
   const { t } = useTranslation(['common']);
   const [popupOpen, setPopupOpen] = React.useState(false);
@@ -156,6 +159,8 @@ export function ListSearchField<T>({
           label={label}
           placeholder={placeholder}
           helperText={query.trim().length > 0 && !longEnough ? hintText : undefined}
+          // MUI 9 passes the input wiring in params.slotProps; extend it, never replace it.
+          slotProps={shrinkLabel ? { ...params.slotProps, inputLabel: { ...params.slotProps.inputLabel, shrink: true } } : params.slotProps}
         />
       )}
     />

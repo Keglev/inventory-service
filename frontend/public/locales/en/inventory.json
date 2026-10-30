@@ -54,7 +54,6 @@
     "belowMinOnly": "Below minimum quantity only"
   },
   "search": {
-    "selectSupplierPrompt": "Select a supplier to see its items, or tick \"Below minimum quantity only\" to see every item below its minimum.",
     "selectSupplierFirst": "Please select a supplier first to enable searching.",
     "typeToSearchItems": "Enter item name or SKU (min 2 chars)...",
     "noItemsFound": "No items found for this search.",

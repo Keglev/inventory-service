@@ -5,12 +5,12 @@
  * columns + row styling composition).
  *
  * Contract under test:
- * - No supplier selected: no fetch fires; items/total reset to empty.
+ * - No supplier selected: the stock of all suppliers is fetched, paged (S2-9).
  * - Supplier selected: getInventoryPage is called with the debounced query,
  *   forwarded 0-based page, sort string, and below-minimum flag.
  * - Fetch failure: logs via logError and resets to an empty page for the
  *   current page/pageSize.
- * - reload(): re-runs the current query only when a supplier is selected.
+ * - reload(): re-runs the current query, with or without a supplier.
  * - Suppliers query, columns, and row styling are exposed pass-through.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -48,7 +48,7 @@ vi.mock('@/utils/logger', () => ({
   logError: vi.fn(),
 }));
 
-import { listsItems, useInventoryPageData } from '@/pages/inventory/hooks/useInventoryPageData';
+import { useInventoryPageData } from '@/pages/inventory/hooks/useInventoryPageData';
 import { useInventoryColumns } from '@/pages/inventory/hooks/useInventoryColumns';
 import { getInventoryPage } from '@/api/inventory/listFetcher';
 import { logError } from '@/utils/logger';
@@ -78,12 +78,14 @@ describe('useInventoryPageData', () => {
     getInventoryPageMock.mockResolvedValue(serverPage as never);
   });
 
-  it('does not fetch and keeps an empty page when no supplier is selected', async () => {
+  // S2-9: the board no longer waits for a supplier before it lists stock.
+  it('fetches the stock of all suppliers when no supplier is selected', async () => {
     const { result } = renderPageData(null);
 
-    expect(getInventoryPageMock).not.toHaveBeenCalled();
-    expect(result.current.items).toEqual([]);
-    expect(result.current.server.total).toBe(0);
+    await waitFor(() => expect(result.current.items).toHaveLength(1));
+    expect(getInventoryPageMock).toHaveBeenCalledWith(
+      expect.objectContaining({ supplierId: undefined, belowMinimumOnly: false }),
+    );
   });
 
   it('fetches the server page with forwarded filters when a supplier is selected', async () => {
@@ -128,14 +130,16 @@ describe('useInventoryPageData', () => {
     expect(result.current.server.total).toBe(0);
   });
 
-  it('clears items when the supplier is deselected after a successful load', async () => {
+  it('lists the stock of all suppliers when the supplier is deselected after a load', async () => {
+    const allPage = { ...serverPage, items: [{ id: 'it-9', name: 'Washer', onHand: 4, minQty: 1 }] };
     const { result, rerender } = renderPageData('sup-1');
     await waitFor(() => expect(result.current.items).toHaveLength(1));
+    getInventoryPageMock.mockResolvedValueOnce(allPage as never);
 
     rerender({ sid: null });
 
-    await waitFor(() => expect(result.current.items).toEqual([]));
-    expect(result.current.server.total).toBe(0);
+    await waitFor(() => expect(result.current.items[0]?.id).toBe('it-9'));
+    expect(getInventoryPageMock).toHaveBeenLastCalledWith(expect.objectContaining({ supplierId: undefined }));
   });
 
   it('keeps the newest filters when an older request answers last', async () => {
@@ -192,21 +196,18 @@ describe('useInventoryPageData', () => {
     await waitFor(() => expect(getInventoryPageMock).toHaveBeenCalled());
   });
 
-  it('lists items for a supplier or the below-minimum filter, never unfiltered', () => {
-    expect(listsItems('sup-1', false)).toBe(true);
-    expect(listsItems(null, true)).toBe(true);
-    expect(listsItems(null, false)).toBe(false);
-    expect(listsItems('', false)).toBe(false);
-  });
-
-  it('does nothing on reload when no supplier is selected', async () => {
+  it('re-runs the current query on reload when no supplier is selected', async () => {
     const { result } = renderPageData(null);
+    await waitFor(() => expect(result.current.items).toHaveLength(1));
+    const callsAfterMount = getInventoryPageMock.mock.calls.length;
 
     await act(async () => {
       result.current.reload();
     });
 
-    expect(getInventoryPageMock).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(getInventoryPageMock.mock.calls.length).toBe(callsAfterMount + 1)
+    );
   });
 
   it('exposes suppliers, columns, and the row styling function pass-through', async () => {

@@ -9,6 +9,7 @@
  * - Clearing the text clears the pick (onSelect(null)).
  * - A picked option outside the visible results is still offered first.
  * - The field is disabled only when the caller says so.
+ * - shrinkLabel keeps the label up, so an empty field shows its placeholder.
  */
 
 import * as React from 'react';
@@ -104,5 +105,19 @@ describe('ListSearchField (picker mode)', () => {
 
     rerender(<Picker onSelect={vi.fn()} disabled />);
     expect(screen.getByLabelText('Thing')).toBeDisabled();
+  });
+
+  // The inventory board shows "All suppliers" in the empty supplier field (S2-9).
+  it('keeps the label up when shrinkLabel is set', () => {
+    const props = {
+      query: '', onQueryChange: vi.fn(), results: [] as Thing[], loading: false, value: null, onSelect: vi.fn(),
+      getLabel: (t: Thing) => t.name, getKey: (t: Thing) => t.id, label: 'Thing', placeholder: 'All things',
+      noResultsText: 'None', hintText: 'Two characters',
+    };
+    const { rerender } = render(<ListSearchField<Thing> {...props} />);
+    expect(screen.getByText('Thing', { selector: 'label' })).toHaveAttribute('data-shrink', 'false');
+
+    rerender(<ListSearchField<Thing> {...props} shrinkLabel />);
+    expect(screen.getByText('Thing', { selector: 'label' })).toHaveAttribute('data-shrink', 'true');
   });
 });
