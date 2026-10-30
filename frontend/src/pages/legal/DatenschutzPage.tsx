@@ -58,7 +58,7 @@ const DatenschutzPage: React.FC = () => {
         </React.Fragment>
       ))}
 
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>
+      <Typography variant="body2" sx={{ color: 'text.secondary', mt: 3 }}>
         {t('privacy.updated')}
       </Typography>
     </LegalPageLayout>

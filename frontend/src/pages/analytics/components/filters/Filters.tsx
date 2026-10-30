@@ -75,7 +75,9 @@ export function Filters({
         <Stack
           direction={{ xs: 'column', md: 'row' }}
           spacing={{ xs: 1.5, md: 2 }}
-          alignItems={{ xs: 'stretch', md: 'flex-start' }}
+          sx={{
+            alignItems: { xs: 'stretch', md: 'flex-start' }
+          }}
         >
           <Box sx={{ flex: 2 }}>
             <Typography variant="body2" sx={{ mb: 0.75, fontWeight: 500 }}>

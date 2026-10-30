@@ -49,7 +49,7 @@ const HowItWorks: React.FC = () => {
             <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
               {t(titleKey)}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               {t(bodyKey)}
             </Typography>
           </Stack>

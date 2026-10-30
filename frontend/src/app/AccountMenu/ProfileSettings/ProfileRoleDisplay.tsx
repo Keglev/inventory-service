@@ -34,10 +34,10 @@ export default function ProfileRoleDisplay({ role, isDemo }: ProfileRoleDisplayP
 
   return (
     <Box>
-      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+      <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
         {t('common:role')}
       </Typography>
-      <Stack direction="row" spacing={0.5} alignItems="center">
+      <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
         <Typography variant="body2">
           {displayRole}
         </Typography>

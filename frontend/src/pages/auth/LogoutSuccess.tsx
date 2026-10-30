@@ -36,14 +36,16 @@ const LogoutSuccess: React.FC = () => {
         <Typography variant="h5" gutterBottom>
           {t('logoutSuccessTitle')}
         </Typography>
-        <Typography variant="body1" color="text.secondary" gutterBottom>
+        <Typography variant="body1" gutterBottom sx={{ color: 'text.secondary' }}>
           {t('logoutSuccessBody')}
         </Typography>
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
           spacing={1.5}
-          justifyContent="center"
-          sx={{ mt: 3 }}
+          sx={{
+            justifyContent: 'center',
+            mt: 3,
+          }}
         >
           <Button
             variant="contained"

@@ -23,7 +23,16 @@ export type DateScopeNoteProps = {
 export default function DateScopeNote({ kind }: DateScopeNoteProps) {
   const { t } = useTranslation(['analytics']);
   return (
-    <Typography variant="caption" color="text.secondary" component="p" data-testid="date-scope-note" sx={{ mt: -0.5, mb: 1 }}>
+    <Typography
+      variant="caption"
+      component="p"
+      data-testid="date-scope-note"
+      sx={{
+        color: 'text.secondary',
+        mt: -0.5,
+        mb: 1,
+      }}
+    >
       {t(kind === 'current' ? 'analytics:scope.current' : 'analytics:scope.allTime')}
     </Typography>
   );

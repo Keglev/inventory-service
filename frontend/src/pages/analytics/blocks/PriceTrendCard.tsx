@@ -127,9 +127,11 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
           spacing={2}
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ mb: 1 }}
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 1,
+          }}
         >
           <Typography variant="subtitle1">{t('analytics:cards.priceTrend')}</Typography>
 

@@ -69,14 +69,14 @@ export default function LoginPage() {
             </Button>
 
             <Divider>
-              <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
+              <Typography variant="caption" sx={{ color: 'text.secondary', textAlign: 'center' }}>
                 {t('or')}
               </Typography>
             </Divider>
 
             {/* Demo entry (client-only, read-only), with the way back to the landing page
                 kept close under it as a quiet link rather than a third equal action. */}
-            <Stack spacing={0.5} alignItems="center">
+            <Stack spacing={0.5} sx={{ alignItems: 'center' }}>
               <Button variant="text" onClick={handleDemo} fullWidth>
                 {t('continueDemo')}
               </Button>
@@ -92,7 +92,7 @@ export default function LoginPage() {
               </Link>
             </Stack>
 
-            <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary', textAlign: 'center' }}>
               {t('ssoHint')}
             </Typography>
           </Stack>

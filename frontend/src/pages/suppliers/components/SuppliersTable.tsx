@@ -140,7 +140,7 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
                 height: '100%',
               }}
             >
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {t('suppliers:empty.default')}
               </Typography>
             </Box>

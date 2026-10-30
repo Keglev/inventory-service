@@ -60,7 +60,7 @@ const LogoutPage: React.FC = () => {
     <Box sx={{ display: 'grid', placeItems: 'center', minHeight: '60vh', px: 3 }}>
       <Stack spacing={2} sx={{ textAlign: 'center' }}>
         <CircularProgress />
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {t('logoutSigningOut')}
         </Typography>
       </Stack>

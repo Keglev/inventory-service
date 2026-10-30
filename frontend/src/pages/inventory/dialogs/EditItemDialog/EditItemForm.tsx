@@ -79,7 +79,7 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
         {state.suppliersQuery.isLoading ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CircularProgress size={20} />
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               {t('common:loading')}
             </Typography>
           </Box>

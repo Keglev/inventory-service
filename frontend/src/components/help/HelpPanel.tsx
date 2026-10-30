@@ -104,10 +104,13 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
       </Box>
 
       <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Typography 
-          variant="body2" 
-          color="text.secondary" 
-          sx={{ lineHeight: 1.7, whiteSpace: 'pre-line' }}
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            lineHeight: 1.7,
+            whiteSpace: 'pre-line',
+          }}
         >
           {translate(topic.bodyKey)}
         </Typography>
@@ -148,7 +151,7 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
           bottom: 0,
         }}
       >
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
           {t('general.closeHint')}
         </Typography>
       </Box>

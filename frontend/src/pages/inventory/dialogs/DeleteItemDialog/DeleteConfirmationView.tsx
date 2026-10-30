@@ -66,7 +66,7 @@ export function DeleteConfirmationView({
       */}
       {state.selectedItem && state.itemDetailsQuery.data && (
         <Box>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
             {t('inventory:deleteFlow.itemBeingDeleted')}
           </Typography>
           <ItemInfoDisplay state={state} />

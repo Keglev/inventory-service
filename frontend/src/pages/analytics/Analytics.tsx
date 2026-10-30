@@ -105,17 +105,12 @@ export default function Analytics(): JSX.Element {
   const scope = { from: filters.from, to: filters.to, supplierId: filters.supplierId };
   return (
     <Paper elevation={0} sx={{ ...pagePanelSx, p: { xs: 2, md: 3 }, pl: railGutter, pr: railGutter, bgcolor: 'background.paper', m: 0 }}>
-      <Stack 
-        direction="row" 
-        alignItems="center" 
-        justifyContent="space-between" 
-        sx={{ mb: 3 }}
-      >
+      <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
           {t('analytics:title')}
         </Typography>
 
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
           <HelpIconButton
             topicId="analytics.overview"
             tooltip={t('common:actions.help')}
@@ -126,72 +121,72 @@ export default function Analytics(): JSX.Element {
         </Stack>
       </Stack>
       {/* Submenu (tabs) */}
-        <AnalyticsNav section={section} showEmployees={showEmployees} />  
+      <AnalyticsNav section={section} showEmployees={showEmployees} />
       <Box sx={{ mb: 2 }}>
           <Filters value={filters} onChange={setFilters} suppliers={suppliersQ.data ?? []} disabled={suppliersQ.isLoading} />
       </Box>
-            <Box
-        sx={{
-          display: 'grid',
-          gap: 2,
-          // the inventory-health section gives the low-stock table
-          // ~3/5 of the width (its fixed-layout table needs ~640px to show the
-          // Status chips without horizontal scroll) and the supplier pie ~2/5.
-          // Other sections keep the responsive auto-fit grid.
-          gridTemplateColumns:
-            section === 'inventory'
-              ? { xs: '1fr', md: 'minmax(0, 3fr) minmax(280px, 2fr)' }
-              : 'repeat(auto-fit, minmax(320px, 1fr))',
-          alignItems: 'stretch',
-        }}
-      >
-        {section === 'overview' && (
-          <>
-            {/* A1 */}
-            <StockValueCard {...scope} />
+      <Box
+  sx={{
+    display: 'grid',
+    gap: 2,
+    // the inventory-health section gives the low-stock table
+    // ~3/5 of the width (its fixed-layout table needs ~640px to show the
+    // Status chips without horizontal scroll) and the supplier pie ~2/5.
+    // Other sections keep the responsive auto-fit grid.
+    gridTemplateColumns:
+      section === 'inventory'
+        ? { xs: '1fr', md: 'minmax(0, 3fr) minmax(280px, 2fr)' }
+        : 'repeat(auto-fit, minmax(320px, 1fr))',
+    alignItems: 'stretch',
+  }}
+>
+  {section === 'overview' && (
+    <>
+      {/* A1 */}
+      <StockValueCard {...scope} />
 
-            {/* A2 (Line) */}
-            <MovementLineCard {...scope} />
-          </>
-        )}
+      {/* A2 (Line) */}
+      <MovementLineCard {...scope} />
+    </>
+  )}
 
-        {section === 'movements' && (
-          <MovementsSection {...scope} />
-        )}
+  {section === 'movements' && (
+    <MovementsSection {...scope} />
+  )}
 
-        {section === 'employees' && (
-          <EmployeesSection {...scope} />
-        )}
+  {section === 'employees' && (
+    <EmployeesSection {...scope} />
+  )}
 
-        {section === 'pricing' && (
-          <>
-            {/* A3 */}
-            <PriceTrendCard {...scope} />
-          </>
-        )}
+  {section === 'pricing' && (
+    <>
+      {/* A3 */}
+      <PriceTrendCard {...scope} />
+    </>
+  )}
 
-        {section === 'inventory' && (
-          <>
-            {/* A4 — Low stock table (fetch gated by supplier) */}
-            <LowStockTable supplierId={filters.supplierId ?? ''} limit={12} />
+  {section === 'inventory' && (
+    <>
+      {/* A4 — Low stock table (fetch gated by supplier) */}
+      <LowStockTable supplierId={filters.supplierId ?? ''} limit={12} />
 
-            {/* A4 — Stock value per supplier (pie) */}
-            <StockValuePerSupplierPie dateScopeNote />
-          </>
-        )}
-        {section === 'finance' && (
-          <>
-            {/* Finance — WAC summary (period + supplier) */}
-            <FinancialSummaryCard {...scope} />
+      {/* A4 — Stock value per supplier (pie) */}
+      <StockValuePerSupplierPie dateScopeNote />
+    </>
+  )}
+  {section === 'finance' && (
+    <>
+      {/* Finance — WAC summary (period + supplier) */}
+      <FinancialSummaryCard {...scope} />
 
-            {/* Operations — top updated items (requires supplier) */}
-            <ItemUpdateFrequencyCard supplierId={filters.supplierId} />
+      {/* Operations — top updated items (requires supplier) */}
+      <ItemUpdateFrequencyCard supplierId={filters.supplierId} />
 
-            {/* Operations — recent stock activity (stacked by reason) */}
-            <RecentStockActivityCard {...scope} />
-          </>
-        )}
-      </Box>
+      {/* Operations — recent stock activity (stacked by reason) */}
+      <RecentStockActivityCard {...scope} />
+    </>
+  )}
+</Box>
     </Paper>
   );
 }

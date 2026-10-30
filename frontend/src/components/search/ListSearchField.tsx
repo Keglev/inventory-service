@@ -66,8 +66,14 @@ function ResultsPaper({ children, moreCount, ...rest }: React.ComponentProps<typ
       {moreCount ? (
         <Typography
           variant="caption"
-          color="text.secondary"
-          sx={{ display: 'block', px: 2, py: 1, borderTop: 1, borderColor: 'divider' }}
+          sx={{
+            color: 'text.secondary',
+            display: 'block',
+            px: 2,
+            py: 1,
+            borderTop: 1,
+            borderColor: 'divider',
+          }}
         >
           {t('common:search.moreResults', { count: moreCount })}
         </Typography>
@@ -135,7 +141,7 @@ export function ListSearchField<T>({
             <Box>
               <Typography variant="body2">{getLabel(option)}</Typography>
               {detail && (
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   {detail}
                 </Typography>
               )}

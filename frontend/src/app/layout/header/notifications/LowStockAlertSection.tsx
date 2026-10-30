@@ -33,13 +33,13 @@ export default function LowStockAlertSection({ lowStockCount, onShowAll }: LowSt
   return (
     <>
       <Stack spacing={0.5} sx={{ p: 1, bgcolor: (theme) => alpha(theme.palette.warning.main, 0.15), borderRadius: 1 }}>
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
           <NotificationsActiveIcon sx={{ fontSize: 20, color: 'warning.main' }} />
           <Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.main' }}>
             {t('notifications.lowStockAlert')}
           </Typography>
         </Stack>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
           {t(
             'notifications.lowStockMessage',
             { count: lowStockCount }

@@ -87,7 +87,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
       <DialogContent>
         {/* Warning Alert */}
         <Alert severity="warning" sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={500}>
+          <Typography variant="body2" sx={{ fontWeight: 500 }}>
             {t(
               'suppliers:dialogs.delete.confirmation.warning'
             )}
@@ -106,17 +106,17 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
         >
           <Stack spacing={1}>
             <Box>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                 {t('suppliers:table.name')}
               </Typography>
-              <Typography variant="body2" fontWeight={500}>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {supplier.name}
               </Typography>
             </Box>
 
             {supplier.contactName && (
               <Box>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   {t('suppliers:table.contactName')}
                 </Typography>
                 <Typography variant="body2">{supplier.contactName}</Typography>
@@ -125,7 +125,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
 
             {supplier.email && (
               <Box>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   {t('suppliers:table.email')}
                 </Typography>
                 <Typography variant="body2">{supplier.email}</Typography>
@@ -134,7 +134,7 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
 
             {supplier.phone && (
               <Box>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   {t('suppliers:table.phone')}
                 </Typography>
                 <Typography variant="body2">{supplier.phone}</Typography>

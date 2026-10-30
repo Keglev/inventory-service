@@ -52,14 +52,9 @@ export default function FooterMetaInfo({
   const { t } = useTranslation(['footer']);
 
   return (
-    <Stack
-      direction="row"
-      spacing={1}
-      alignItems="center"
-      sx={{ minWidth: 0 }}
-    >
+    <Stack direction="row" spacing={1} sx={{ alignItems: 'center', minWidth: 0 }}>
       {/* Compact meta string for status bar */}
-      <Typography variant="caption" color="text.secondary">
+      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
         © {new Date().getFullYear()} Smart Supply Pro • v{appVersion} • {t('footer:meta.build')}{' '}
         <span title={buildId}>{buildId.slice(0, 10)}</span> • {t('footer:meta.demoData')}
       </Typography>

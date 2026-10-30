@@ -37,7 +37,7 @@ const HeroPreview: React.FC = () => {
 
   if (failedSrc === src) {
     return (
-      <Typography variant="body2" color="text.secondary" sx={{ p: 4 }}>
+      <Typography variant="body2" sx={{ color: 'text.secondary', p: 4 }}>
         {t('hero.previewFallback')}
       </Typography>
     );

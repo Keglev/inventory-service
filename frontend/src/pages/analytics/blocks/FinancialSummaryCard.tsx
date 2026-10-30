@@ -102,7 +102,16 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
         ) : (
           <>
             {s?.method ? (
-              <Typography variant="caption" color="text.secondary" component="p" data-testid="valuation-basis" sx={{ mt: -0.5, mb: 1 }}>
+              <Typography
+                variant="caption"
+                component="p"
+                data-testid="valuation-basis"
+                sx={{
+                  color: 'text.secondary',
+                  mt: -0.5,
+                  mb: 1,
+                }}
+              >
                 {s.method === 'WAC'
                   ? t('analytics:finance.valuation.wac')
                   : t('analytics:finance.valuation.other', { method: s.method })}
@@ -144,7 +153,9 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
 function Kpi({ label, value, numberFormat }: { label: string; value?: number; numberFormat: 'DE' | 'EN_US' }) {
   return (
     <Stack>
-      <Typography variant="caption" color="text.secondary">{label}</Typography>
+      <Typography variant="caption" sx={{
+        color: 'text.secondary'
+      }}>{label}</Typography>
       <Typography variant="h6">
         {typeof value === 'number' ? formatNumber(value, numberFormat, 2) : '—'}
       </Typography>

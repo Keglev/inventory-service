@@ -27,7 +27,7 @@ export default function ProfileNameDisplay({ fullName }: ProfileNameDisplayProps
 
   return (
     <Box>
-      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+      <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
         {t('common:name')}
       </Typography>
       <Typography variant="body2">
