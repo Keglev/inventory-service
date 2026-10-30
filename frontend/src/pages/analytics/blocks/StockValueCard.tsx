@@ -29,6 +29,7 @@ import { getStockValueOverTime, type StockValuePoint } from '../../../api/analyt
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import { toStepSeries } from '../../../utils/stepSeries';
 import { dayTimeAxis, timeXAxisProps } from '../../../utils/timeAxis';
 import { useDayFormatter } from '../../../hooks/useDayFormatter';
@@ -67,8 +68,9 @@ export default function StockValueCard({ from, to, supplierId }: StockValueCardP
     >
       <LineChart data={series} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis {...timeXAxisProps(timeAxis, formatDay)} />
+        <XAxis {...chartAxisProps(muiTheme)} {...timeXAxisProps(timeAxis, formatDay)} />
         <YAxis
+          {...chartAxisProps(muiTheme)}
           width="auto"
           domain={flat ? [0, 'auto'] : ['auto', 'auto']}
           tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)}

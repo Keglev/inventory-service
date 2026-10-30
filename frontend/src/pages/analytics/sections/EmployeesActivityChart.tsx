@@ -21,6 +21,7 @@ import type { DotItemDotProps } from 'recharts/types/util/types';
 import type { EmployeeGranularity } from '../../../api/analytics/employees';
 import type { EmployeesChartRow } from './useEmployeesSectionData';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import { chartLegendProps } from '../../../utils/chartLegend';
 import { timeXAxisProps } from '../../../utils/timeAxis';
 import { useEmployeeChartFormatting } from './useEmployeeChartFormatting';
@@ -116,8 +117,8 @@ export function EmployeesActivityChart({
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={rows} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis {...timeXAxisProps(timeAxis, formatPeriod)} tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tickFormatter={formatCount} />
+                <XAxis {...chartAxisProps(muiTheme, { fontSize: 12 })} {...timeXAxisProps(timeAxis, formatPeriod)} />
+                <YAxis {...chartAxisProps(muiTheme)} allowDecimals={false} tickFormatter={formatCount} />
                 {/* Same order as the legend: people, alphabetical by name. */}
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}

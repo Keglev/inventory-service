@@ -35,6 +35,7 @@ import { lowStockSeverity } from '../../../config/inventoryPolicy';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 
 /** Rows per page. */
 const ROWS_PER_PAGE = 5;
@@ -135,7 +136,7 @@ export default function LowStockMini() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={visible} layout="vertical" margin={{ left: 8, right: 80 }}>
                     <XAxis type="number" domain={[0, 1]} hide />
-                    <YAxis type="category" dataKey="itemName" width={170} tickFormatter={shortName} />
+                    <YAxis {...chartAxisProps(muiTheme)} type="category" dataKey="itemName" width={170} tickFormatter={shortName} />
                     <Tooltip
                       cursor={chartTooltipProps(muiTheme).cursor}
                       content={({ active, payload }) => (

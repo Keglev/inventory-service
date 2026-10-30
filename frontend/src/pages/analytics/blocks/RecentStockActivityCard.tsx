@@ -32,6 +32,7 @@ import { useDayFormatter } from '../../../hooks/useDayFormatter';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import { chartLegendProps, legendOrder } from '../../../utils/chartLegend';
 import { activityBucket, buildActivitySeries, ACTIVITY_LEGEND_ORDER, type ActivityKey } from './stockActivitySeries';
 
@@ -97,11 +98,12 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
               <BarChart data={days} stackOffset="sign" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
+                  {...chartAxisProps(muiTheme)}
                   {...timeXAxisProps(timeAxis, formatDay)}
                   // Half a bucket on each side, so a bar at either end is not cut in half.
                   domain={[timeAxis.domain[0] - bucketMs / 2, timeAxis.domain[1] + bucketMs / 2]}
                 />
-                <YAxis width="auto" tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
+                <YAxis {...chartAxisProps(muiTheme)} width="auto" tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
                 <ReferenceLine y={0} stroke={muiTheme.palette.text.secondary} />
                 <Tooltip
                   {...chartTooltipProps(muiTheme)}
