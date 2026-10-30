@@ -78,10 +78,10 @@ describe('PublicShellToastContainer', () => {
 
   describe('Severity styling', () => {
     const cases: Array<{ severity: Severity; expectedClassFragment: string }> = [
-      { severity: 'success', expectedClassFragment: 'filledSuccess' },
-      { severity: 'info', expectedClassFragment: 'filledInfo' },
-      { severity: 'warning', expectedClassFragment: 'filledWarning' },
-      { severity: 'error', expectedClassFragment: 'filledError' },
+      { severity: 'success', expectedClassFragment: 'MuiAlert-colorSuccess' },
+      { severity: 'info', expectedClassFragment: 'MuiAlert-colorInfo' },
+      { severity: 'warning', expectedClassFragment: 'MuiAlert-colorWarning' },
+      { severity: 'error', expectedClassFragment: 'MuiAlert-colorError' },
     ];
 
     cases.forEach(({ severity, expectedClassFragment }) => {
