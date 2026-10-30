@@ -16,7 +16,7 @@ import path from 'path';
 
 import { defineConfig, mergeConfig } from 'vitest/config';
 
-import viteConfig from './vite.config';
+import viteConfig from './vite.config.ts';
 
 // MUI icon and DataGrid imports are heavyweight at test time; these aliases redirect them
 // to lightweight stubs so individual tests load in milliseconds rather than seconds.
@@ -24,26 +24,26 @@ import viteConfig from './vite.config';
 const testAliases = [
   {
     find: /^@mui\/icons-material\/.+$/,
-    replacement: path.resolve(__dirname, './src/__tests__/stubs/MuiIconStub.tsx'),
+    replacement: path.resolve(import.meta.dirname, './src/__tests__/stubs/MuiIconStub.tsx'),
   },
   {
     find: '@mui/x-data-grid/esm/index.css',
-    replacement: path.resolve(__dirname, './src/__tests__/stubs/empty.css'),
+    replacement: path.resolve(import.meta.dirname, './src/__tests__/stubs/empty.css'),
   },
   {
     find: /^@mui\/x-data-grid\/locales$/,
-    replacement: path.resolve(__dirname, './src/__tests__/stubs/DataGridLocalesStub.ts'),
+    replacement: path.resolve(import.meta.dirname, './src/__tests__/stubs/DataGridLocalesStub.ts'),
   },
   {
     find: '@mui/x-data-grid/themeAugmentation',
     replacement: path.resolve(
-      __dirname,
+      import.meta.dirname,
       './src/__tests__/stubs/DataGridThemeAugmentationStub.ts'
     ),
   },
   {
     find: '@mui/x-data-grid',
-    replacement: path.resolve(__dirname, './src/__tests__/stubs/DataGridStub.tsx'),
+    replacement: path.resolve(import.meta.dirname, './src/__tests__/stubs/DataGridStub.tsx'),
   },
 ];
 

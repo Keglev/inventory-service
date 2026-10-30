@@ -11,7 +11,7 @@
  *   reach is the local one baked in at build time via VITE_API_BASE.
  */
 import { defineConfig } from 'vite';
-import base from '../vite.config';
+import base from '../vite.config.ts';
 
 // Vite resolves each preview option as `preview.x ?? server.x`, so preview
 // inherits the dev server's https and proxy. The dev block sets only those two
