@@ -50,8 +50,10 @@ row, and `isDemo` for read-only enforcement. The flows:
 Every dialog reports success through a callback the board wires to one reload
 handler, so the table refreshes after any mutation.
 
-The four supplier → item dialogs (rename, quantity, price, delete) pick the item
-with one shared field, `ItemSearchField`. Once a supplier is chosen, its items
+Every dialog that asks for a supplier (create, rename, quantity, price, delete)
+picks it in `SupplierPickerField`, the board's supplier search: two characters,
+matched in the browser. The four supplier → item dialogs (rename, quantity,
+price, delete) pick the item with one shared field, `ItemSearchField`. Once a supplier is chosen, its items
 load once (`GET /api/inventory/search?supplierId=`, one page of up to 2,000) and
 every keystroke is matched in the browser: name or SKU, anywhere, ignoring case,
 from two characters, at most six results with a count of the rest, the SKU as a

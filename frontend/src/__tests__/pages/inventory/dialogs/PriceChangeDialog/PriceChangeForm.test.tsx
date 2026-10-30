@@ -16,7 +16,7 @@
 
 import type { ReactElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useForm } from 'react-hook-form';
 
@@ -144,34 +144,26 @@ describe('PriceChangeForm', () => {
     expect(screen.getByText('inventory:steps.changePrice')).toBeInTheDocument();
   });
 
-  it('renders supplier select dropdown', () => {
+  // S2-9: the supplier is searched (two letters), not picked from a full dropdown.
+  it('renders the supplier search field', () => {
     renderForm();
 
-    const supplierSelect = within(screen.getByTestId('supplier-form-control')).getByRole(
-      'combobox',
-      { name: 'inventory:table.supplier' },
-    );
-    expect(supplierSelect).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'inventory:table.supplier' })).toHaveValue('');
   });
 
-  it('renders supplier options when opened', async () => {
+  it('lists the matching suppliers after two letters', async () => {
     const user = userEvent.setup();
     renderForm();
 
-    const supplierSelect = within(screen.getByTestId('supplier-form-control')).getByRole('combobox');
-    await user.click(supplierSelect);
+    await user.type(screen.getByRole('combobox', { name: 'inventory:table.supplier' }), 'er 2');
 
-    expect(screen.getByText('Supplier 1')).toBeInTheDocument();
-    expect(screen.getByText('Supplier 2')).toBeInTheDocument();
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['Supplier 2']);
   });
 
-  it('shows supplier control as disabled when loading', () => {
+  it('keeps the supplier field enabled while suppliers load', () => {
     renderForm({ suppliersLoading: true });
 
-    const supplierSelect = within(screen.getByTestId('supplier-form-control')).getByRole('combobox');
-
-    // MUI Select reports disabled via aria-disabled.
-    expect(supplierSelect).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('combobox', { name: 'inventory:table.supplier' })).toBeEnabled();
   });
 
   it('renders Item autocomplete (disabled until supplier is selected)', () => {
@@ -236,17 +228,16 @@ describe('PriceChangeForm', () => {
     expect(screen.getByText(/Item: Test Item/)).toBeInTheDocument();
   });
 
-  it('updates selected supplier on dropdown change', async () => {
+  it('hands the picked supplier to the state', async () => {
     const user = userEvent.setup();
     const setSelectedSupplier = vi.fn();
 
     renderForm({ setSelectedSupplier });
 
-    const supplierSelect = within(screen.getByTestId('supplier-form-control')).getByRole('combobox');
-    await user.click(supplierSelect);
-    await user.click(screen.getByText('Supplier 1'));
+    await user.type(screen.getByRole('combobox', { name: 'inventory:table.supplier' }), 'Supplier');
+    await user.click(screen.getByRole('option', { name: 'Supplier 1' }));
 
-    expect(setSelectedSupplier).toHaveBeenCalled();
+    expect(setSelectedSupplier).toHaveBeenCalledWith({ id: '1', label: 'Supplier 1' });
   });
 
   it('shows price-change helper text when item is selected and new price is entered', async () => {
@@ -276,7 +267,7 @@ describe('PriceChangeForm', () => {
     expect(detailsSpy).toHaveBeenCalledWith(expect.objectContaining({ showTotal: true }));
   });
 
-  it('handles multiple suppliers in dropdown', async () => {
+  it('lists every matching supplier', async () => {
     const user = userEvent.setup();
 
     renderForm({
@@ -287,11 +278,8 @@ describe('PriceChangeForm', () => {
       ],
     });
 
-    const supplierSelect = within(screen.getByTestId('supplier-form-control')).getByRole('combobox');
-    await user.click(supplierSelect);
+    await user.type(screen.getByRole('combobox', { name: 'inventory:table.supplier' }), 'Supplier');
 
-    expect(screen.getByText('Supplier A')).toBeInTheDocument();
-    expect(screen.getByText('Supplier B')).toBeInTheDocument();
-    expect(screen.getByText('Supplier C')).toBeInTheDocument();
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['Supplier A', 'Supplier B', 'Supplier C']);
   });
 });

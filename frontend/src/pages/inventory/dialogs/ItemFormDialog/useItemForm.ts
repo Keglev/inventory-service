@@ -76,6 +76,7 @@ export interface UseItemFormReturn {
 
   // Query
   suppliers: SupplierOption[];
+  suppliersLoading: boolean;
 
   // Form methods
   register: UseFormRegister<CreateItemForm>;
@@ -131,7 +132,7 @@ export function useItemForm({
   // Data Query
   // ================================
 
-  const { data: suppliers = [] } = useSuppliersQuery(isOpen);
+  const { data: suppliers = [], isLoading: suppliersLoading } = useSuppliersQuery(isOpen);
 
   // ================================
   // Form Management
@@ -237,6 +238,7 @@ export function useItemForm({
     setSupplierValue,
     setFormError,
     suppliers,
+    suppliersLoading,
     register,
     control,
     formState,

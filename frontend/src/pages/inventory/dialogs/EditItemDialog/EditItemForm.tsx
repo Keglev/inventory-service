@@ -23,10 +23,6 @@
 
 import {
   Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Typography,
   CircularProgress,
   Alert,
@@ -38,6 +34,7 @@ import { useTranslation } from 'react-i18next';
 
 import { fieldErrorText } from '../../../../utils/fieldErrorText';
 import { ItemSearchField } from '../../components/ItemSearchField';
+import { SupplierPickerField } from '../../../../components/search/SupplierPickerField';
 import type { UseEditItemFormReturn } from './useEditItemForm';
 import ReadOnlyField from '../../../../components/ui/ReadOnlyField';
 
@@ -84,31 +81,14 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
             </Typography>
           </Box>
         ) : (
-          <FormControl fullWidth>
-            <InputLabel id="edit-supplier-label">
-              {t('inventory:table.supplier')}
-            </InputLabel>
-            <Select
-              labelId="edit-supplier-label"
-              value={state.selectedSupplier?.id ?? ''}
-              onChange={(e) => {
-                // Find supplier object by ID and update state
-                // Resets item selection when supplier changes
-                const supplier = state.suppliersQuery.data?.find(
-                  (s) => String(s.id) === String(e.target.value)
-                );
-                state.setSelectedSupplier(supplier ?? null);
-              }}
-              label={t('inventory:table.supplier')}
-            >
-              {/* Map all suppliers to menu items */}
-              {state.suppliersQuery.data?.map((supplier) => (
-                <MenuItem key={supplier.id} value={supplier.id}>
-                  {supplier.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <SupplierPickerField
+            suppliers={state.suppliersQuery.data ?? []}
+            loading={state.suppliersQuery.isLoading}
+            value={state.selectedSupplier}
+            // A new supplier resets the item selection (useEditItemForm).
+            onSelect={state.setSelectedSupplier}
+            label={t('inventory:table.supplier')}
+          />
         )}
       </Box>
 

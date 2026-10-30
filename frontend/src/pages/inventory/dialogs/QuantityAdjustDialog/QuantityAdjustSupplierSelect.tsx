@@ -3,21 +3,22 @@
  * @module pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustSupplierSelect
  *
  * @summary
- * Step 1 of the quantity-adjust form: supplier dropdown, disabled
- * while suppliers are loading.
+ * Step 1 of the quantity-adjust form: the shared supplier search field
+ * (SupplierPickerField, two letters; S2-9).
  *
  * @enterprise
  * - Pure presentation. Selecting a supplier triggers the upstream
  *   useEffect that resets the item selection and search query, so a
  *   supplier switch starts a clean flow.
- * - The placeholder option (empty value) renders 'Select an option'
- *   from common.json so the dropdown has a deliberate empty state.
+ * - The field stays enabled while suppliers load (ListSearchField: a
+ *   disabled field drops focus and loses what the user types).
  */
 
 import * as React from 'react';
-import { FormControl, InputLabel, Select, MenuItem, Box, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { SupplierOption } from '../../../../api/analytics/types';
+import { SupplierPickerField } from '../../../../components/search/SupplierPickerField';
 
 export interface QuantityAdjustSupplierSelectProps {
   selectedSupplier: SupplierOption | null;
@@ -40,29 +41,13 @@ export const QuantityAdjustSupplierSelect: React.FC<QuantityAdjustSupplierSelect
         {t('inventory:steps.selectSupplier')}
       </Typography>
 
-      <FormControl fullWidth size="small">
-        <InputLabel id="quantity-adjust-supplier-label">{t('inventory:table.supplier')}</InputLabel>
-        <Select
-          labelId="quantity-adjust-supplier-label"
-          value={selectedSupplier?.id || ''}
-          label={t('inventory:table.supplier')}
-          onChange={(e) => {
-            const supplierId = e.target.value;
-            const supplier = suppliers?.find((s) => String(s.id) === String(supplierId)) || null;
-            onSupplierChange(supplier);
-          }}
-          disabled={loading}
-        >
-          <MenuItem value="">
-            <em>{t('common:selectOption')}</em>
-          </MenuItem>
-          {suppliers?.map((supplier) => (
-            <MenuItem key={supplier.id} value={supplier.id}>
-              {supplier.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <SupplierPickerField
+        suppliers={suppliers ?? []}
+        loading={loading}
+        value={selectedSupplier}
+        onSelect={onSupplierChange}
+        label={t('inventory:table.supplier')}
+      />
     </Box>
   );
 };
