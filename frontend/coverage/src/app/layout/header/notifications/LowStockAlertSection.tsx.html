@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">85.71% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>6/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>2/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">75% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>3/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -118,7 +118,17 @@
 <a name='L53'></a><a href='#L53'>53</a>
 <a name='L54'></a><a href='#L54'>54</a>
 <a name='L55'></a><a href='#L55'>55</a>
-<a name='L56'></a><a href='#L56'>56</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -148,11 +158,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -178,10 +198,14 @@
  * @module app/layout/header/notifications/LowStockAlertSection
  *
  * @summary
- * Renders the warning Stack + chip with the low-stock item count.
+ * Renders the low-stock warning: the item count and a link to the list.
  *
  * @enterprise
  * - Mounted by NotificationsMenuSection when lowStockCount &gt; 0.
+ * - Contrast (S2-8): the warning tint behind the section lowers every colour on
+ *   it. warning.main as title text read 2.64:1 in light mode and the default link
+ *   blue 3.90:1 (light) / 3.95:1 (dark), below the 4.5:1 text minimum. The title
+ *   takes the text token; the icon and the tint carry the warning.
  *
  * @example
  * ```tsx
@@ -192,6 +216,7 @@
 import { Link, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
+import type { Theme } from '@mui/material/styles';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { useTranslation } from 'react-i18next';
 import { BELOW_MINIMUM_LINK } from '../../../../config/inventoryPolicy';
@@ -202,6 +227,11 @@ export interface LowStockAlertSectionProps {
   onShowAll?: () =&gt; void;
 }
 &nbsp;
+// warning.main is a 2.64:1 icon on the light tint (graphics need 3:1); dark mode keeps it.
+const <span class="fstat-no" title="function not covered" >iconColor = (t</span>heme: Theme) =&gt; (<span class="cstat-no" title="statement not covered" >theme.palette.mode === 'light' ? theme.palette.warning.dark : theme.palette.warning.main);</span>
+// The default link blue falls below 4.5:1 on the tint in both modes.
+const linkColor = (theme: Theme) =&gt; (theme.palette.mode === 'light' ? theme.palette.primary.dark : theme.palette.primary.light);
+&nbsp;
 export default function LowStockAlertSection({ lowStockCount, onShowAll }: LowStockAlertSectionProps) {
   const { t } = useTranslation('common');
 &nbsp;
@@ -209,8 +239,8 @@ export default function LowStockAlertSection({ lowStockCount, onShowAll }: LowSt
     &lt;&gt;
       &lt;Stack spacing={0.5} sx={{ p: 1, bgcolor: (theme) =&gt; alpha(theme.palette.warning.main, 0.15), borderRadius: 1 }}&gt;
         &lt;Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}&gt;
-          &lt;NotificationsActiveIcon sx={{ fontSize: 20, color: 'warning.main' }} /&gt;
-          &lt;Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.main' }}&gt;
+          &lt;NotificationsActiveIcon sx={{ fontSize: 20, color: iconColor }} /&gt;
+          &lt;Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}&gt;
             {t('notifications.lowStockAlert')}
           &lt;/Typography&gt;
         &lt;/Stack&gt;
@@ -221,7 +251,7 @@ export default function LowStockAlertSection({ lowStockCount, onShowAll }: LowSt
           )}
         &lt;/Typography&gt;
         {/* The count alone named no items; this opens the list (C6). */}
-        &lt;Link component={RouterLink} to={BELOW_MINIMUM_LINK} onClick={onShowAll} variant="body2" underline="hover"&gt;
+        &lt;Link component={RouterLink} to={BELOW_MINIMUM_LINK} onClick={onShowAll} variant="body2" underline="hover" sx={{ color: linkColor }}&gt;
           {t('notifications.showAll')}
         &lt;/Link&gt;
       &lt;/Stack&gt;
