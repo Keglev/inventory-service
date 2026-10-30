@@ -11,14 +11,14 @@
  * - Pure presentation, callback props only. No useState, no useEffect.
  *   Filter state lives in useInventoryState; this component just
  *   reflects and dispatches.
- * - "All suppliers" is encoded as the empty-string MenuItem value (no
- *   selection); the parent setter receives null when that option is
- *   picked. Different from the AnalyticsFilters convention
+ * - The supplier is picked by typing (SupplierPickerField, two letters,
+ *   S2-9); an empty field means all suppliers, and the parent setter
+ *   receives null. Different from the AnalyticsFilters convention
  *   (supplierId === undefined for "all"); both encode "no filter" but
  *   the wire shape differs.
- * - belowMinOnly is the client-side critical-stock filter. It is NOT
- *   the same as the analytics LowStockTable view: this one filters the
- *   visible rows; LowStockTable shows a curated descending-deficit
+ * - belowMinOnly is sent to the server (belowMinimumOnly; S2-1 said
+ *   "client-side"). It is NOT the same as the analytics LowStockTable
+ *   view: this one filters the board's rows; LowStockTable shows a curated descending-deficit
  *   list, coloured by the shared severity rule (config/inventoryPolicy).
  */
 
@@ -27,15 +27,12 @@ import {
   Stack,
   Box,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   FormControlLabel,
   Checkbox,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { SupplierOption } from '../../../api/analytics/types';
+import { SupplierPickerField } from '../../../components/search/SupplierPickerField';
 
 export interface InventoryFilterPanelProps {
   q: string;
@@ -68,29 +65,16 @@ export const InventoryFilterPanel: React.FC<InventoryFilterPanelProps> = ({
         alignItems: { xs: 'stretch', md: 'flex-end' }
       }}
     >
-      {/* Supplier dropdown on the left */}
+      {/* Supplier search on the left; empty = all suppliers */}
       <Box sx={{ flex: 1, minWidth: 220 }}>
-        <FormControl size="small" fullWidth>
-          <InputLabel id="inventory-supplier-filter-label">
-            {t('inventory:filter.supplier')}
-          </InputLabel>
-          <Select
-            labelId="inventory-supplier-filter-label"
-            value={String(supplierId ?? '')}
-            label={t('inventory:filter.supplier')}
-            onChange={(e) => setSupplierId(e.target.value || null)}
-            disabled={supplierLoading}
-          >
-            <MenuItem value="">
-              {t('inventory:filter.allSuppliers')}
-            </MenuItem>
-            {(suppliers ?? []).map((supplier) => (
-              <MenuItem key={supplier.id} value={String(supplier.id)}>
-                {supplier.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <SupplierPickerField
+          suppliers={suppliers ?? []}
+          loading={supplierLoading}
+          value={(suppliers ?? []).find((supplier) => String(supplier.id) === String(supplierId)) ?? null}
+          onSelect={(supplier) => setSupplierId(supplier ? supplier.id : null)}
+          label={t('inventory:filter.supplier')}
+          placeholder={t('inventory:filter.allSuppliers')}
+        />
       </Box>
 
       {/* Item search on the right */}

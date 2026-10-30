@@ -7,8 +7,8 @@ filter, and mutate items through dialog workflows
 ## Orchestration & State
 
 `InventoryBoard.tsx` is the page orchestrator: it instantiates domain state,
-assembles handlers and data, owns dialog visibility, and renders the
-select-a-supplier prompt until a supplier is chosen. `useInventoryState` is the
+assembles handlers and data, owns dialog visibility, and renders the grid: the
+stock of all suppliers until a supplier is picked. `useInventoryState` is the
 single source of truth for filters (`supplierId`, `q`, `belowMinOnly`), MUI
 DataGrid pagination/sort models, row selection, and per-dialog open flags.
 Handler hooks stay thin and encode the reset invariants: changing supplier clears
@@ -20,11 +20,12 @@ the refresh handler resets paging and bumps a refetch signal.
 `handlers/useDataFetchingLogic.ts` adapts UI state to server parameters: both the
 MUI DataGrid and Spring Pageable are 0-based, so the page index passes through
 unchanged, and the sort model serializes to `"<field>,<direction>"` (default
-`name,asc`). Loading is gated on a selected supplier. All filtering is
-server-side: `GET /api/inventory/search` accepts `name`, `supplierId`, and
+`name,asc`). Without a supplier the grid pages through the stock of all
+suppliers. All filtering is server-side: `GET /api/inventory/search` accepts `name`, `supplierId`, and
 `belowMinimumOnly`, and the fetcher forwards all three with paging and sort.
-Supplier options come from the shared suppliers query, independent of the
-selection.
+The supplier is picked in `SupplierPickerField` (type two characters, matched
+in the browser against the shared suppliers query; an empty field means all
+suppliers, [ADR-0014](../09-decisions/adr-0014-searching-bounded-lists-in-the-browser.md)).
 
 ## Dialog Workflows
 

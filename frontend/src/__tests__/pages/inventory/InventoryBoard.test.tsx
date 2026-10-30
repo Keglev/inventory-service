@@ -152,7 +152,8 @@ describe('InventoryBoard', () => {
     });
   });
 
-  it('shows the select-supplier prompt instead of the table without a supplier', async () => {
+  // S2-9: without a supplier the board lists the stock of all suppliers.
+  it('shows the table without a supplier and no select-supplier prompt', async () => {
     const { useInventoryState } = await import('@/pages/inventory/hooks/useInventoryState');
     vi.mocked(useInventoryState).mockReturnValue({
       q: '',
@@ -167,10 +168,8 @@ describe('InventoryBoard', () => {
 
     render(<InventoryBoard />);
 
-    expect(
-      screen.getByText('Select a supplier to see its items, or tick "Below minimum quantity only" to see every item below its minimum.')
-    ).toBeInTheDocument();
-    expect(screen.queryByTestId('inventory-table')).not.toBeInTheDocument();
+    expect(screen.getByTestId('inventory-table')).toBeInTheDocument();
+    expect(screen.queryByText(/Select a supplier to see its items/)).not.toBeInTheDocument();
   });
 
   // All items below minimum across suppliers (C6): no supplier needed for the grid.

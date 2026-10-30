@@ -89,13 +89,17 @@ test('inventory grid shows the seeded rows', async ({ page }) => {
   await presetLocale(page, 'en');
   await enterDemo(page, /Continue in Demo Mode/i);
   await page.goto('/inventory');
-  // The board sends no search until a supplier is chosen (mandatory step 1).
-  // The filter Select is now selectable by its accessible name; the test runs
-  // with the English locale preset, so the name is the English label.
-  await page.getByRole('combobox', { name: 'Supplier' }).click();
+  // Without a supplier the grid lists the stock of every supplier (S2-9).
+  await expect(page.getByText('Hammer 300 g')).toBeVisible();
+  await expect(page.getByText('Kartons 40x30x30')).toBeVisible();
+  // The supplier is picked by typing two letters or more (S2-9); the test runs
+  // with the English locale preset, so the field's name is the English label.
+  await page.getByRole('combobox', { name: 'Supplier' }).fill('Nordlicht');
   await page.getByRole('option', { name: 'Nordlicht Werkzeuge GmbH' }).click();
   // All three items of that supplier, incl. the one below minimum quantity.
   await expect(page.getByText('Hammer 300 g')).toBeVisible();
   await expect(page.getByText('Schraubendreher Set')).toBeVisible();
   await expect(page.getByText('E2E-WWG-060')).toBeVisible();
+  // The other supplier's items are filtered out.
+  await expect(page.getByText('Kartons 40x30x30')).toHaveCount(0);
 });

@@ -6,9 +6,10 @@
  * Contract under test:
  * - Renders the three filter controls: supplier select, search input, below-min checkbox.
  * - Search input is controlled and emits updates via `setQ(next)`.
- * - Supplier select includes an "All suppliers" option and emits supplier id changes.
+ * - Supplier field: typed search from two letters (S2-9); empty means all suppliers
+ *   (placeholder "All suppliers"); a pick emits its id, clearing emits null.
  * - Checkbox reflects `belowMinOnly` and emits boolean updates.
- * - Supplier select is disabled while supplier data is loading.
+ * - The supplier field stays enabled while supplier data loads.
  *
  * Out of scope:
  * - MUI Select/TextField implementation details and styling.
@@ -76,13 +77,6 @@ function setup(overrides: Partial<Props> = {}) {
     rerenderWith: (next: Partial<Props>) =>
       renderResult.rerender(<InventoryFilterPanel {...props} {...next} />),
   };
-}
-
-async function openSupplierSelect(user: ReturnType<typeof userEvent.setup>) {
-  // MUI Select renders a combobox button; opening it makes the listbox/options available.
-  const select = screen.getByRole('combobox');
-  await user.click(select);
-  return screen.getByRole('listbox');
 }
 
 /**
@@ -154,38 +148,53 @@ describe('InventoryFilterPanel', () => {
     expect(mockSetQ).toHaveBeenLastCalledWith('widget');
   });
 
-  it('renders supplier dropdown options including "All suppliers"', async () => {
+  // S2-9: the supplier is picked by typing, as in the item pickers; an empty field means all.
+  it('shows "All suppliers" in the empty supplier field', () => {
+    setup();
+
+    expect(screen.getByRole('combobox', { name: 'Supplier' })).toHaveAttribute('placeholder', 'All suppliers');
+    expect(screen.getByRole('combobox', { name: 'Supplier' })).toHaveValue('');
+  });
+
+  it('lists only the suppliers that match two typed letters', async () => {
     const user = userEvent.setup();
     setup();
 
-    const listbox = await openSupplierSelect(user);
+    await user.type(screen.getByRole('combobox', { name: 'Supplier' }), 'r b');
 
-    expect(within(listbox).getByRole('option', { name: /all suppliers/i })).toBeInTheDocument();
-    expect(within(listbox).getByRole('option', { name: 'Supplier A' })).toBeInTheDocument();
-    expect(within(listbox).getByRole('option', { name: 'Supplier B' })).toBeInTheDocument();
-    expect(within(listbox).getByRole('option', { name: 'Supplier C' })).toBeInTheDocument();
+    const listbox = screen.getByRole('listbox');
+    expect(within(listbox).getAllByRole('option').map((o) => o.textContent)).toEqual(['Supplier B']);
+  });
+
+  it('opens no list after a single letter', async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await user.type(screen.getByRole('combobox', { name: 'Supplier' }), 'S');
+
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(screen.getByText('Type at least 2 characters to search')).toBeInTheDocument();
   });
 
   it.each([
     { label: 'Supplier A', expectedId: '1' },
     { label: 'Supplier B', expectedId: '2' },
     { label: 'Supplier C', expectedId: '3' },
-  ])('calls setSupplierId when a supplier is selected ($label)', async ({ label, expectedId }) => {
+  ])('calls setSupplierId when a supplier is picked ($label)', async ({ label, expectedId }) => {
     const user = userEvent.setup();
     setup();
 
-    await openSupplierSelect(user);
+    await user.type(screen.getByRole('combobox', { name: 'Supplier' }), 'Supplier');
     await user.click(screen.getByRole('option', { name: label }));
 
     expect(mockSetSupplierId).toHaveBeenCalledWith(expectedId);
   });
 
-  it('calls setSupplierId with null when "All suppliers" is selected', async () => {
+  it('calls setSupplierId with null when the supplier field is cleared', async () => {
     const user = userEvent.setup();
     setup({ supplierId: '1' });
 
-    await openSupplierSelect(user);
-    await user.click(screen.getByRole('option', { name: /all suppliers/i }));
+    await user.clear(screen.getByRole('combobox', { name: 'Supplier' }));
 
     expect(mockSetSupplierId).toHaveBeenCalledWith(null);
   });
@@ -213,11 +222,11 @@ describe('InventoryFilterPanel', () => {
     expect(mockSetBelowMinOnly).toHaveBeenCalledWith(true);
   });
 
-  it('disables the supplier dropdown when supplierLoading is true', () => {
+  // A disabled field drops focus and loses what the user types next (ListSearchField).
+  it('keeps the supplier field enabled while suppliers load', () => {
     setup({ supplierLoading: true });
 
-    // MUI Select uses aria-disabled when disabled.
-    expect(screen.getByRole('combobox')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('combobox', { name: 'Supplier' })).toBeEnabled();
   });
 
   it('does not crash when suppliers is empty or undefined', () => {
@@ -231,7 +240,6 @@ describe('InventoryFilterPanel', () => {
   it('shows the selected supplier label when supplierId matches an option', () => {
     setup({ supplierId: '2' });
 
-    // MUI Select renders the selected label in the closed state.
-    expect(screen.getByText('Supplier B')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Supplier' })).toHaveValue('Supplier B');
   });
 });
