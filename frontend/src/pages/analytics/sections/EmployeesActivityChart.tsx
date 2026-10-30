@@ -83,10 +83,13 @@ export function EmployeesActivityChart({
   return (
     <Card data-testid="employee-activity-card">
       <CardContent>
+        {/* Title and toggle share one row from sm up. At 390 px the German toggle alone is
+            279 px and the row ran 31 px past the card edge, cut "MONATLICH" (S2-14). */}
         <Stack
-          direction="row"
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={1}
           sx={{
-            alignItems: 'center',
+            alignItems: { xs: 'flex-start', sm: 'center' },
             justifyContent: 'space-between',
             mb: 1,
           }}
