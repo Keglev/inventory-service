@@ -7,7 +7,9 @@ navigable sections composed from self-contained chart/table blocks.
 
 `Analytics.tsx` orchestrates section routing with the URL as the source of truth:
 the active section and filters (date window, supplier) are synchronized to query
-parameters, so views are shareable and survive refresh. The six sections are
+parameters, so views are shareable and survive refresh. The supplier is picked in
+`SupplierPickerField`, the inventory's supplier search (two characters, matched in
+the browser); an empty field means all suppliers. The six sections are
 Overview, Movements, Pricing, Inventory Health, Finance, and Employees — the last
 visible only for ADMIN or demo sessions.
 

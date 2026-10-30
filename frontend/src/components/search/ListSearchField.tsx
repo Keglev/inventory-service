@@ -59,6 +59,8 @@ export interface ListSearchFieldProps<T> {
   shrinkLabel?: boolean;
   /** A validation message: marks the field as an error and replaces the hint. */
   errorText?: string;
+  /** The input's id, for a label rendered outside the field. */
+  id?: string;
 }
 
 // The popup paper receives the hidden-result count through slotProps.
@@ -104,6 +106,7 @@ export function ListSearchField<T>({
   suppressResults = false,
   shrinkLabel = false,
   errorText,
+  id,
 }: ListSearchFieldProps<T>) {
   const { t } = useTranslation(['common']);
   const [popupOpen, setPopupOpen] = React.useState(false);
@@ -118,6 +121,7 @@ export function ListSearchField<T>({
 
   return (
     <Autocomplete<T>
+      id={id}
       options={options}
       // Matching happens upstream; Autocomplete must not filter again.
       filterOptions={(all) => all}
