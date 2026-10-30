@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -169,26 +169,7 @@
 <a name='L104'></a><a href='#L104'>104</a>
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a>
-<a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a>
-<a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a>
-<a name='L120'></a><a href='#L120'>120</a>
-<a name='L121'></a><a href='#L121'>121</a>
-<a name='L122'></a><a href='#L122'>122</a>
-<a name='L123'></a><a href='#L123'>123</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L107'></a><a href='#L107'>107</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -245,11 +226,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-yes">23x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">23x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -262,19 +241,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">60x</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">57x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -320,14 +288,14 @@
  * - Pure presentation, callback props only. No useState, no useEffect.
  *   Filter state lives in useInventoryState; this component just
  *   reflects and dispatches.
- * - "All suppliers" is encoded as the empty-string MenuItem value (no
- *   selection); the parent setter receives null when that option is
- *   picked. Different from the AnalyticsFilters convention
+ * - The supplier is picked by typing (SupplierPickerField, two letters,
+ *   S2-9); an empty field means all suppliers, and the parent setter
+ *   receives null. Different from the AnalyticsFilters convention
  *   (supplierId === undefined for "all"); both encode "no filter" but
  *   the wire shape differs.
- * - belowMinOnly is the client-side critical-stock filter. It is NOT
- *   the same as the analytics LowStockTable view: this one filters the
- *   visible rows; LowStockTable shows a curated descending-deficit
+ * - belowMinOnly is sent to the server (belowMinimumOnly; S2-1 said
+ *   "client-side"). It is NOT the same as the analytics LowStockTable
+ *   view: this one filters the board's rows; LowStockTable shows a curated descending-deficit
  *   list, coloured by the shared severity rule (config/inventoryPolicy).
  */
 &nbsp;
@@ -336,15 +304,12 @@ import {
   Stack,
   Box,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   FormControlLabel,
   Checkbox,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { SupplierOption } from '../../../api/analytics/types';
+import { SupplierPickerField } from '../../../components/search/SupplierPickerField';
 &nbsp;
 export interface InventoryFilterPanelProps {
   q: string;
@@ -377,29 +342,16 @@ export const InventoryFilterPanel: React.FC&lt;InventoryFilterPanelProps&gt; = (
         alignItems: { xs: 'stretch', md: 'flex-end' }
       }}
     &gt;
-      {/* Supplier dropdown on the left */}
+      {/* Supplier search on the left; empty = all suppliers */}
       &lt;Box sx={{ flex: 1, minWidth: 220 }}&gt;
-        &lt;FormControl size="small" fullWidth&gt;
-          &lt;InputLabel id="inventory-supplier-filter-label"&gt;
-            {t('inventory:filter.supplier')}
-          &lt;/InputLabel&gt;
-          &lt;Select
-            labelId="inventory-supplier-filter-label"
-            value={String(supplierId ?? '')}
-            label={t('inventory:filter.supplier')}
-            onChange={(e) =&gt; setSupplierId(e.target.value || null)}
-            disabled={supplierLoading}
-          &gt;
-            &lt;MenuItem value=""&gt;
-              {t('inventory:filter.allSuppliers')}
-            &lt;/MenuItem&gt;
-            {(suppliers ?? []).map((supplier) =&gt; (
-              &lt;MenuItem key={supplier.id} value={String(supplier.id)}&gt;
-                {supplier.label}
-              &lt;/MenuItem&gt;
-            ))}
-          &lt;/Select&gt;
-        &lt;/FormControl&gt;
+        &lt;SupplierPickerField
+          suppliers={suppliers ?? []}
+          loading={supplierLoading}
+          value={(suppliers ?? []).find((supplier) =&gt; String(supplier.id) === String(supplierId)) ?? null}
+          onSelect={(supplier) =&gt; setSupplierId(supplier ? supplier.id : null)}
+          label={t('inventory:filter.supplier')}
+          placeholder={t('inventory:filter.allSuppliers')}
+        /&gt;
       &lt;/Box&gt;
 &nbsp;
       {/* Item search on the right */}

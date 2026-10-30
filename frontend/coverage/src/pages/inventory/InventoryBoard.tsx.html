@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/11</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>11/11</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -242,21 +242,7 @@
 <a name='L177'></a><a href='#L177'>177</a>
 <a name='L178'></a><a href='#L178'>178</a>
 <a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a>
-<a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a>
-<a name='L184'></a><a href='#L184'>184</a>
-<a name='L185'></a><a href='#L185'>185</a>
-<a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a>
-<a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a>
-<a name='L190'></a><a href='#L190'>190</a>
-<a name='L191'></a><a href='#L191'>191</a>
-<a name='L192'></a><a href='#L192'>192</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L180'></a><a href='#L180'>180</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -314,7 +300,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -337,15 +322,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -466,18 +442,17 @@
  *   pattern. Every dialog in the application now routes help through
  *   that same component; no raw IconButton + HelpOutlineIcon pairing
  *   remains.
- * - The "select a supplier to view items" placeholder is mandatory
- *   UX: the inventory page intentionally renders nothing until a
- *   supplier is chosen, because the backend item-search endpoint is
- *   supplier-gated for performance and the page would otherwise
- *   request a full unfiltered list on mount.
+ * - Without a supplier the grid lists the stock of all suppliers, one
+ *   server page at a time (S2-9, Carlos 2026-10-30). The former
+ *   "select a supplier" placeholder rested on a gate the backend never
+ *   had: GET /api/inventory/search takes no supplier and pages.
  * - Demo mode (isDemo from useAuth) flows down to the four dialogs
  *   that support readOnly (create, delete, quantity-adjust,
  *   price-change) via InventoryDialogs.
  */
 &nbsp;
 import * as React from 'react';
-import { Box, Paper, Typography, Stack } from '@mui/material';
+import { Paper, Typography, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 &nbsp;
 import { useAuth } from '../../hooks/useAuth';
@@ -492,7 +467,6 @@ import { useToolbarHandlers } from './handlers/useToolbarHandlers';
 import { useFilterHandlers } from './handlers/useFilterHandlers';
 import { useRefreshHandler } from './handlers/useRefreshHandler';
 import { useDataFetchingLogic } from './handlers/useDataFetchingLogic';
-import { listsItems } from './hooks/useInventoryPageData';
 import { railGutter } from '../../theme/pagePanel';
 import { PagePanel } from '../../components/ui/PagePanel';
 &nbsp;
@@ -505,7 +479,6 @@ const InventoryBoard: React.FC = () =&gt; {
   // State Management
   // =====================
   const state = useInventoryState();
-  const showsGrid = listsItems(state.supplierId, state.belowMinOnly);
 &nbsp;
   // =====================
   // Event Handlers
@@ -603,33 +576,24 @@ const InventoryBoard: React.FC = () =&gt; {
           ml: railGutter,
           mr: railGutter,
           mb: { xs: 2, md: 3 },
-          p: showsGrid ? 0 : 2,
           minHeight: 420,
           display: 'flex',
           flexDirection: 'column',
         }}
       &gt;
-        {!showsGrid ? (
-          &lt;Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}&gt;
-            &lt;Typography variant="body1" sx={{ color: 'text.secondary' }}&gt;
-              {t('inventory:search.selectSupplierPrompt')}
-            &lt;/Typography&gt;
-          &lt;/Box&gt;
-        ) : (
-          &lt;InventoryTable
-            rows={data.items}
-            columns={data.columns}
-            paginationModel={state.paginationModel}
-            onPaginationChange={state.setPaginationModel}
-            sortModel={state.sortModel}
-            onSortChange={state.setSortModel}
-            selectedId={state.selectedId}
-            onRowClick={state.setSelectedId}
-            getRowClassName={data.getRowClassName}
-            loading={data.loading}
-            rowCount={data.server.total}
-          /&gt;
-        )}
+        &lt;InventoryTable
+          rows={data.items}
+          columns={data.columns}
+          paginationModel={state.paginationModel}
+          onPaginationChange={state.setPaginationModel}
+          sortModel={state.sortModel}
+          onSortChange={state.setSortModel}
+          selectedId={state.selectedId}
+          onRowClick={state.setSelectedId}
+          getRowClassName={data.getRowClassName}
+          loading={data.loading}
+          rowCount={data.server.total}
+        /&gt;
       &lt;/Paper&gt;
     &lt;/PagePanel&gt;
   );
