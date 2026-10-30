@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">91.66% </span>
+                <span class="strong">90% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>11/12</span>
+                <span class='fraction'>9/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -234,31 +234,7 @@
 <a name='L169'></a><a href='#L169'>169</a>
 <a name='L170'></a><a href='#L170'>170</a>
 <a name='L171'></a><a href='#L171'>171</a>
-<a name='L172'></a><a href='#L172'>172</a>
-<a name='L173'></a><a href='#L173'>173</a>
-<a name='L174'></a><a href='#L174'>174</a>
-<a name='L175'></a><a href='#L175'>175</a>
-<a name='L176'></a><a href='#L176'>176</a>
-<a name='L177'></a><a href='#L177'>177</a>
-<a name='L178'></a><a href='#L178'>178</a>
-<a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a>
-<a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a>
-<a name='L184'></a><a href='#L184'>184</a>
-<a name='L185'></a><a href='#L185'>185</a>
-<a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a>
-<a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a>
-<a name='L190'></a><a href='#L190'>190</a>
-<a name='L191'></a><a href='#L191'>191</a>
-<a name='L192'></a><a href='#L192'>192</a>
-<a name='L193'></a><a href='#L193'>193</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L172'></a><a href='#L172'>172</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -328,24 +304,6 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -471,10 +429,6 @@
 &nbsp;
 import {
   Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Typography,
   CircularProgress,
   Alert,
@@ -482,15 +436,16 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { UseDeleteItemDialogReturn } from './DeleteItemDialog.types';
 import { ItemSearchField } from '../../components/ItemSearchField';
+import { SupplierPickerField } from '../../../../components/search/SupplierPickerField';
 &nbsp;
 /**
- * SupplierSelectField - Step 1: Select supplier from dropdown
+ * SupplierSelectField - Step 1: Search and pick the supplier (shared SupplierPickerField)
  * 
  * @param state - Complete dialog state from useDeleteItemDialog hook
  * 
  * @behavior
  * - Shows loading spinner while fetching suppliers from API
- * - Displays dropdown with all available suppliers
+ * - Two typed letters list the matching suppliers (S2-9)
  * - On selection: updates state.selectedSupplier (triggers item search reset)
  * - On change: clears previously selected item and search query
  * 
@@ -518,31 +473,13 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
   }
 &nbsp;
   return (
-    &lt;FormControl fullWidth&gt;
-      &lt;InputLabel id="supplier-select-label"&gt;
-        {t('inventory:table.supplier')}
-      &lt;/InputLabel&gt;
-      &lt;Select
-        labelId="supplier-select-label"
-        value={state.selectedSupplier?.id ?? ''}
-        onChange={(e) =&gt; {
-          // Find supplier by ID and update state
-          // Handles both string and numeric IDs via String comparison
-          const supplier = state.suppliersQuery.data?.find(
-            (s) =&gt; String(s.id) === String(e.target.value)
-          );
-          state.setSelectedSupplier(supplier ?? <span class="branch-1 cbranch-no" title="branch not covered" >null)</span>;
-        }}
-        label={t('inventory:table.supplier')}
-      &gt;
-        {/* Render all suppliers as menu items for selection */}
-        {state.suppliersQuery.data?.map((supplier) =&gt; (
-          &lt;MenuItem key={supplier.id} value={supplier.id}&gt;
-            {supplier.label}
-          &lt;/MenuItem&gt;
-        ))}
-      &lt;/Select&gt;
-    &lt;/FormControl&gt;
+    &lt;SupplierPickerField
+      suppliers={state.suppliersQuery.data ?? <span class="branch-1 cbranch-no" title="branch not covered" >[]}</span>
+      loading={state.suppliersQuery.isLoading}
+      value={state.selectedSupplier}
+      onSelect={state.setSelectedSupplier}
+      label={t('inventory:table.supplier')}
+    /&gt;
   );
 }
 &nbsp;
