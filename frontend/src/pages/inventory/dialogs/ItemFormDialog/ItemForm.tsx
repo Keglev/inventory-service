@@ -22,13 +22,12 @@
 import {
   Box,
   TextField,
-  Autocomplete,
   Alert,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import { fieldErrorText } from '../../../../utils/fieldErrorText';
-import type { SupplierOption } from '../../../../api/analytics/types';
+import { SupplierPickerField } from '../../../../components/search/SupplierPickerField';
 import type { CreateItemForm } from '../../validation/inventoryValidation';
 import type { UseItemFormReturn } from './useItemForm';
 
@@ -39,7 +38,8 @@ import type { UseItemFormReturn } from './useItemForm';
  * 
  * @enterprise
  * - Error banner at top for generic form errors
- * - Supplier Autocomplete fully controlled to prevent desync
+ * - Supplier picked in the shared SupplierPickerField (two letters, S2-9),
+ *   controlled by supplierValue
  * - Code / SKU field editable, required
  * - Quantity and price with numeric constraints
  */
@@ -51,27 +51,20 @@ export function ItemForm({ state }: { state: UseItemFormReturn }) {
       {/* Error banner for non-field errors */}
       {state.formError && <Alert severity="error">{state.formError}</Alert>}
 
-      {/* Supplier - Controlled Autocomplete */}
-      <Autocomplete<SupplierOption, false, false, false>
-        options={state.suppliers}
+      {/* Supplier: the shared search field, two letters (S2-9) */}
+      <SupplierPickerField
+        suppliers={state.suppliers}
+        loading={state.suppliersLoading}
         value={state.supplierValue}
-        onChange={(_, opt) => {
+        onSelect={(opt) => {
           state.setSupplierValue(opt);
           // Update RHF with supplier ID
           const nextSupplierId: CreateItemForm['supplierId'] =
             opt ? (opt.id as CreateItemForm['supplierId']) : ('' as CreateItemForm['supplierId']);
           state.setValue('supplierId', nextSupplierId, { shouldValidate: true });
         }}
-        getOptionLabel={(o) => o.label}
-        isOptionEqualToValue={(a, b) => String(a.id) === String(b.id)}
-        renderInput={(p) => (
-          <TextField
-            {...p}
-            label={t('inventory:table.supplier')}
-            error={!!state.formState.errors.supplierId}
-            helperText={fieldErrorText(state.formState.errors.supplierId, t)}
-          />
-        )}
+        label={t('inventory:table.supplier')}
+        errorText={fieldErrorText(state.formState.errors.supplierId, t)}
       />
 
       {/* Name field */}

@@ -22,10 +22,6 @@
 
 import {
   Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Typography,
   CircularProgress,
   Alert,
@@ -33,15 +29,16 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { UseDeleteItemDialogReturn } from './DeleteItemDialog.types';
 import { ItemSearchField } from '../../components/ItemSearchField';
+import { SupplierPickerField } from '../../../../components/search/SupplierPickerField';
 
 /**
- * SupplierSelectField - Step 1: Select supplier from dropdown
+ * SupplierSelectField - Step 1: Search and pick the supplier (shared SupplierPickerField)
  * 
  * @param state - Complete dialog state from useDeleteItemDialog hook
  * 
  * @behavior
  * - Shows loading spinner while fetching suppliers from API
- * - Displays dropdown with all available suppliers
+ * - Two typed letters list the matching suppliers (S2-9)
  * - On selection: updates state.selectedSupplier (triggers item search reset)
  * - On change: clears previously selected item and search query
  * 
@@ -69,31 +66,13 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
   }
 
   return (
-    <FormControl fullWidth>
-      <InputLabel id="supplier-select-label">
-        {t('inventory:table.supplier')}
-      </InputLabel>
-      <Select
-        labelId="supplier-select-label"
-        value={state.selectedSupplier?.id ?? ''}
-        onChange={(e) => {
-          // Find supplier by ID and update state
-          // Handles both string and numeric IDs via String comparison
-          const supplier = state.suppliersQuery.data?.find(
-            (s) => String(s.id) === String(e.target.value)
-          );
-          state.setSelectedSupplier(supplier ?? null);
-        }}
-        label={t('inventory:table.supplier')}
-      >
-        {/* Render all suppliers as menu items for selection */}
-        {state.suppliersQuery.data?.map((supplier) => (
-          <MenuItem key={supplier.id} value={supplier.id}>
-            {supplier.label}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+    <SupplierPickerField
+      suppliers={state.suppliersQuery.data ?? []}
+      loading={state.suppliersQuery.isLoading}
+      value={state.selectedSupplier}
+      onSelect={state.setSelectedSupplier}
+      label={t('inventory:table.supplier')}
+    />
   );
 }
 

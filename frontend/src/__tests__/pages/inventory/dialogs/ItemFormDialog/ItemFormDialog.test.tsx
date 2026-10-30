@@ -73,6 +73,7 @@ function createState(overrides: Partial<UseItemFormReturn> = {}): UseItemFormRet
     setSupplierValue: vi.fn(),
     setFormError: vi.fn(),
     suppliers: [],
+    suppliersLoading: false,
 
     // RHF surface used by ItemForm (and indirectly by dialog submit wiring)
     register: vi.fn((name: string) => ({

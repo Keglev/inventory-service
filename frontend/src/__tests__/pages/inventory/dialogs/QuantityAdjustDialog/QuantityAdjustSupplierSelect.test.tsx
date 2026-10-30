@@ -3,12 +3,12 @@
  * @module __tests__/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustSupplierSelect
  * @description Contract tests for QuantityAdjustSupplierSelect:
  * - Renders the supplier step UI.
- * - Emits the selected supplier via callback.
- * - Disables selection while suppliers are loading.
+ * - Typing two letters lists the matching suppliers (S2-9); a pick is emitted.
+ * - The field stays enabled while suppliers load; clearing emits null.
  *
  * Out of scope:
  * - Supplier fetching (react-query).
- * - MUI Select implementation details.
+ * - SupplierPickerField internals (its own spec).
  */
 
 // Shared deterministic mocks (i18n + toast) for this folder.
@@ -31,7 +31,7 @@ beforeEach(() => {
 });
 
 describe('QuantityAdjustSupplierSelect', () => {
-  it('renders step title and supplier options', async () => {
+  it('renders the step title and lists suppliers after typing', async () => {
     const user = userEvent.setup();
 
     render(
@@ -44,8 +44,7 @@ describe('QuantityAdjustSupplierSelect', () => {
     );
 
     expect(screen.getByText('Step 1: Select Supplier')).toBeInTheDocument();
-    const combo = screen.getByRole('combobox', { name: 'Supplier' });
-    await user.click(combo);
+    await user.type(screen.getByRole('combobox', { name: 'Supplier' }), 'Supplier');
 
     expect(await screen.findByRole('option', { name: 'Supplier One' })).toBeInTheDocument();
     expect(await screen.findByRole('option', { name: 'Supplier Two' })).toBeInTheDocument();
@@ -64,14 +63,13 @@ describe('QuantityAdjustSupplierSelect', () => {
       />
     );
 
-    const combo = screen.getByRole('combobox');
-    await user.click(combo);
+    await user.type(screen.getByRole('combobox', { name: 'Supplier' }), 'two');
     await user.click(await screen.findByRole('option', { name: 'Supplier Two' }));
 
     expect(onSupplierChange).toHaveBeenCalledWith(suppliers[1]);
   });
 
-  it('disables selection while loading suppliers', () => {
+  it('keeps the field enabled while suppliers load', () => {
     render(
       <QuantityAdjustSupplierSelect
         selectedSupplier={null}
@@ -81,11 +79,10 @@ describe('QuantityAdjustSupplierSelect', () => {
       />
     );
 
-    const combo = screen.getByRole('combobox');
-    expect(combo).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('combobox', { name: 'Supplier' })).toBeEnabled();
   });
 
-  it('clears selection when empty option chosen', async () => {
+  it('clears the selection when the field is emptied', async () => {
     const onSupplierChange = vi.fn();
     const user = userEvent.setup();
 
@@ -98,9 +95,7 @@ describe('QuantityAdjustSupplierSelect', () => {
       />
     );
 
-    const combo = screen.getByRole('combobox');
-    await user.click(combo);
-    await user.click(await screen.findByRole('option', { name: 'Select an option' }));
+    await user.clear(screen.getByRole('combobox', { name: 'Supplier' }));
 
     expect(onSupplierChange).toHaveBeenCalledWith(null);
   });

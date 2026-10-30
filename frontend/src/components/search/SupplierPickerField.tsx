@@ -35,9 +35,11 @@ export interface SupplierPickerFieldProps {
   label?: string;
   /** Shown while the field is empty; defaults to the type-to-search hint. */
   placeholder?: string;
+  /** A validation message (form dialogs). */
+  errorText?: string;
 }
 
-export function SupplierPickerField({ suppliers, loading, value, onSelect, label, placeholder }: SupplierPickerFieldProps) {
+export function SupplierPickerField({ suppliers, loading, value, onSelect, label, placeholder, errorText }: SupplierPickerFieldProps) {
   const { t } = useTranslation(['suppliers']);
   // MUI's Autocomplete resets the text to the picked label whenever the value
   // changes (a pick, a reset by the caller), so the text needs no sync here.
@@ -60,6 +62,7 @@ export function SupplierPickerField({ suppliers, loading, value, onSelect, label
       noResultsText={t('suppliers:search.noResults')}
       hintText={t('suppliers:search.typeToSearch')}
       shrinkLabel={placeholder !== undefined}
+      errorText={errorText}
     />
   );
 }

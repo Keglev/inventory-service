@@ -25,7 +25,8 @@ vi.mock('react-i18next', () => ({
 // -------------------------------------
 // Targeted MUI stubs
 // -------------------------------------
-// ItemForm uses MUI Autocomplete, which is difficult to drive in unit tests.
+// ItemForm's supplier field (SupplierPickerField -> ListSearchField) is a MUI
+// Autocomplete, which is difficult to drive in unit tests.
 // We stub it to capture and invoke handler props, improving branch/function coverage
 // without testing MUI internals.
 const muiSpies = vi.hoisted(() => ({
@@ -67,6 +68,7 @@ function createMockState(overrides: Partial<UseItemFormReturn> = {}): UseItemFor
     setSupplierValue: vi.fn(),
     setFormError: vi.fn(),
     suppliers: [],
+    suppliersLoading: false,
 
     // register() must return RHF field props consumed by TextField
     register: vi.fn((name: string) => ({
@@ -191,6 +193,9 @@ describe('ItemForm', () => {
     expect(screen.getAllByText(tEn('errors:validation.required')).length).toBeGreaterThan(0);
     expect(screen.getByText(tEn('errors:validation.nonNegative'))).toBeInTheDocument();
     expect(screen.queryByText('errors:validation.required')).not.toBeInTheDocument();
+
+    // The supplier search field shows its own error state (S2-9 picker passes errorText).
+    expect(screen.getByLabelText('Supplier')).toHaveAttribute('aria-invalid', 'true');
 
     // Non-string helperText branches should not render a stringified object.
     expect(screen.queryByText('[object Object]')).not.toBeInTheDocument();

@@ -2,7 +2,7 @@
  * @file supplierItemPickerContract.ts
  * @module __tests__/pages/inventory/dialogs/supplierItemPickerContract
  * @testing Shared contract suite and fixtures (fork 4 B + A, 2026-10-22)
- * @description The supplier select and the shared item picker
+ * @description The supplier search (SupplierPickerField) and the shared item picker
  * (ItemSearchField) render the same way in the edit-item form and in the
  * delete-item step fields. These tests ran word for word in both specs; each
  * consumer passes a render function over its own state shape and keeps its
@@ -11,6 +11,7 @@
  */
 import { it, expect, vi } from 'vitest';
 import { fireEvent, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 export const pickerSuppliers = [
   { id: 's1', label: 'Alpha' },
@@ -31,14 +32,15 @@ export interface ItemPickerTitles {
   typingForwards: string;
 }
 
-/** Picking a supplier option hands the supplier object, not its id, to the state. */
+/** Typing in the supplier search lists matches; a pick hands the supplier object to the state (S2-9). */
 export function itPicksSupplier(renderPicker: RenderPicker): void {
-  it('lists suppliers and resolves the selected id to the supplier object', () => {
+  it('lists the matching suppliers and hands the picked supplier object to the state', async () => {
+    const user = userEvent.setup();
     const setSelectedSupplier = vi.fn();
     renderPicker({ setSelectedSupplier });
 
-    fireEvent.mouseDown(screen.getByRole('combobox'));
-    fireEvent.click(within(screen.getByRole('listbox')).getByText('Beta'));
+    await user.type(screen.getByRole('combobox', { name: 'inventory:table.supplier' }), 'be');
+    await user.click(within(screen.getByRole('listbox')).getByText('Beta'));
 
     expect(setSelectedSupplier).toHaveBeenCalledWith(pickerSuppliers[1]);
   });

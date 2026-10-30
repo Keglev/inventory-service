@@ -29,10 +29,6 @@
 import {
   Box,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Typography,
   Alert,
   Divider,
@@ -45,6 +41,7 @@ import { useSettings } from '../../../../hooks/useSettings';
 import { formatNumber } from '../../../../utils/formatters';
 import { SelectedItemDetails } from '../SelectedItemDetails';
 import { ItemSearchField } from '../../components/ItemSearchField';
+import { SupplierPickerField } from '../../../../components/search/SupplierPickerField';
 import type { UsePriceChangeFormReturn } from './usePriceChangeForm';
 
 export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) {
@@ -66,35 +63,13 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
         <Typography variant="subtitle2" gutterBottom color="primary">
           {t('inventory:steps.selectSupplier')}
         </Typography>
-        <FormControl
-          fullWidth
-          size="small"
-          disabled={state.suppliersLoading}
-          data-testid="supplier-form-control"
-        >
-          <InputLabel id="price-change-supplier-label">{t('inventory:table.supplier')}</InputLabel>
-          <Select
-            labelId="price-change-supplier-label"
-            value={state.selectedSupplier?.id || ''}
-            label={t('inventory:table.supplier')}
-            onChange={(e) => {
-              const supplierId = e.target.value;
-              const supplier =
-                state.suppliers.find((s) => String(s.id) === String(supplierId)) || null;
-              state.setSelectedSupplier(supplier);
-            }}
-            disabled={state.suppliersLoading}
-          >
-            <MenuItem value="">
-              <em>{t('common:selectOption')}</em>
-            </MenuItem>
-            {state.suppliers.map((supplier) => (
-              <MenuItem key={supplier.id} value={supplier.id}>
-                {supplier.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <SupplierPickerField
+          suppliers={state.suppliers}
+          loading={state.suppliersLoading}
+          value={state.selectedSupplier}
+          onSelect={state.setSelectedSupplier}
+          label={t('inventory:table.supplier')}
+        />
       </Box>
 
       {/* Step 2: Item Selection */}
