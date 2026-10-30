@@ -527,7 +527,7 @@ export default function StockValuePerSupplierPie({ chartHeight = 260, dateScopeN
             // the browser outline framed it once the readout stopped covering it.
             sx={{ height: chartHeight + (wide ? 0 : NARROW_EXTRA_PX), '&amp; .recharts-sector:focus': { outline: 'none' } }}
           &gt;
-            &lt;ResponsiveContainer width="100%" height="100%" onResize={<span class="fstat-no" title="function not covered" >(w</span>idth) =&gt; <span class="cstat-no" title="statement not covered" >setChartWidth(width)}&gt;</span>
+            &lt;ResponsiveContainer width="100%" height="100%" <span class="fstat-no" title="function not covered" >onResize={(w</span>idth) =&gt; <span class="cstat-no" title="statement not covered" >setChartWidth(width)}&gt;</span>
               &lt;PieChart margin={wide ? undefined : { top: READOUT_BAND_PX }}&gt;
                 &lt;Pie
                   data={data}

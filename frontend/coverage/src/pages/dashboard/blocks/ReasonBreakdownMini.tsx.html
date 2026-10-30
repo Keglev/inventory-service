@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.5% </span>
+                <span class="strong">86.66% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>14/16</span>
+                <span class='fraction'>13/15</span>
             </div>
         
             
@@ -212,7 +212,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">4x</span>
@@ -336,11 +336,11 @@ export default function ReasonBreakdownMini() {
               &lt;BarChart data={data} margin={CHART_MARGIN}&gt;
                 &lt;CartesianGrid strokeDasharray="3 3" /&gt;
                 &lt;XAxis dataKey="label" tick={{ fontSize: 11 }} interval={0} angle={-30} textAnchor="end" height={60} /&gt;
-                &lt;YAxis tickFormatter={<span class="fstat-no" title="function not covered" >(<span class="cstat-no" title="statement not covered" >v</span>alue) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 0)} /</span>&gt;
+                &lt;YAxis <span class="fstat-no" title="function not covered" >tickFormatter={(v</span>alue) =&gt; <span class="cstat-no" title="statement not covered" >formatNumber(Number(value), userPreferences.numberFormat, 0)} /&gt;</span>
                 &lt;Tooltip
                   {...chartTooltipProps(muiTheme)}
                   itemSorter={LEGEND_ORDER}
-                  formatter={<span class="fstat-no" title="function not covered" >(v</span>alue) =&gt;
+<span class="fstat-no" title="function not covered" >                  formatter={(v</span>alue) =&gt;
 <span class="cstat-no" title="statement not covered" >                    typeof value === 'number'</span>
                       ? `${formatNumber(value, userPreferences.numberFormat, 0)} ${tAnalytics('analytics:units.pieces')}`
                       : value
