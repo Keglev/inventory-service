@@ -206,6 +206,23 @@
         the access log. The documented fallback for a list that outgrows
         the thresholds therefore needs a server search to be built
         again, not only wired up.</p>
+        <h2
+        id="amendment-2026-10-30-every-supplier-picker-searches">Amendment
+        2026-10-30: every supplier picker searches</h2>
+        <p>Nothing above is edited; this block states what has since
+        changed. The inventory board’s supplier filter and the supplier
+        selects of the inventory dialogs listed every supplier in a
+        dropdown, which grows with the supplier base (Carlos, S2-9).
+        They become <code>SupplierPickerField</code>, a picker setting
+        of <code>ListSearchField</code> over the same cached supplier
+        list: two characters, the name anywhere, ignoring case
+        (<code>matchSupplierOptions</code>). The board’s filter is the
+        first; an empty field there means all suppliers, and the board
+        then lists the stock of all suppliers through its paged server
+        query (the “select a supplier first” gate is gone;
+        <code>GET /api/inventory/search</code> never required a
+        supplier). The inventory dialogs and the analytics supplier
+        filter follow in their own changes.</p>
       </article>
     </main>
 
@@ -227,6 +244,9 @@
       <li><a href="#amendment-2026-10-28-the-server-search-is-gone"
       id="toc-amendment-2026-10-28-the-server-search-is-gone">Amendment
       2026-10-28: the server search is gone</a></li>
+      <li><a href="#amendment-2026-10-30-every-supplier-picker-searches"
+      id="toc-amendment-2026-10-30-every-supplier-picker-searches">Amendment
+      2026-10-30: every supplier picker searches</a></li>
       </ul></li>
       </ul>
     </nav>

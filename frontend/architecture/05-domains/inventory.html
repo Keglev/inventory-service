@@ -116,15 +116,16 @@
         <h2 id="orchestration-state">Orchestration &amp; State</h2>
         <p><code>InventoryBoard.tsx</code> is the page orchestrator: it
         instantiates domain state, assembles handlers and data, owns
-        dialog visibility, and renders the select-a-supplier prompt
-        until a supplier is chosen. <code>useInventoryState</code> is
-        the single source of truth for filters (<code>supplierId</code>,
-        <code>q</code>, <code>belowMinOnly</code>), MUI DataGrid
-        pagination/sort models, row selection, and per-dialog open
-        flags. Handler hooks stay thin and encode the reset invariants:
-        changing supplier clears selection and query and resets to page
-        0; toggling below-minimum resets paging; the refresh handler
-        resets paging and bumps a refetch signal.</p>
+        dialog visibility, and renders the grid: the stock of all
+        suppliers until a supplier is picked.
+        <code>useInventoryState</code> is the single source of truth for
+        filters (<code>supplierId</code>, <code>q</code>,
+        <code>belowMinOnly</code>), MUI DataGrid pagination/sort models,
+        row selection, and per-dialog open flags. Handler hooks stay
+        thin and encode the reset invariants: changing supplier clears
+        selection and query and resets to page 0; toggling below-minimum
+        resets paging; the refresh handler resets paging and bumps a
+        refetch signal.</p>
         <h2 id="data-fetching-filtering">Data Fetching &amp;
         Filtering</h2>
         <p><code>handlers/useDataFetchingLogic.ts</code> adapts UI state
@@ -132,13 +133,16 @@
         are 0-based, so the page index passes through unchanged, and the
         sort model serializes to
         <code>"&lt;field&gt;,&lt;direction&gt;"</code> (default
-        <code>name,asc</code>). Loading is gated on a selected supplier.
-        All filtering is server-side:
-        <code>GET /api/inventory/search</code> accepts
+        <code>name,asc</code>). Without a supplier the grid pages
+        through the stock of all suppliers. All filtering is
+        server-side: <code>GET /api/inventory/search</code> accepts
         <code>name</code>, <code>supplierId</code>, and
         <code>belowMinimumOnly</code>, and the fetcher forwards all
-        three with paging and sort. Supplier options come from the
-        shared suppliers query, independent of the selection.</p>
+        three with paging and sort. The supplier is picked in
+        <code>SupplierPickerField</code> (type two characters, matched
+        in the browser against the shared suppliers query; an empty
+        field means all suppliers, <a
+        href="../09-decisions/adr-0014-searching-bounded-lists-in-the-browser.html">ADR-0014</a>).</p>
         <h2 id="dialog-workflows">Dialog Workflows</h2>
         <p><code>InventoryDialogs</code> is a pure switchboard receiving
         open/close props, the selected row, and <code>isDemo</code> for
