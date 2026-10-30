@@ -15,7 +15,6 @@ export const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {
   paginationModel: { page: 0, pageSize: 10 },
   sortModel: [],
   searchQuery: '',
-  showAllSuppliers: false,
   selectedId: null,
   selectedSearchResult: null,
   openCreate: false,
@@ -29,6 +28,5 @@ export const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {
   setSelectedId: vi.fn(),
   setPaginationModel: vi.fn(),
   setSortModel: vi.fn(),
-  setShowAllSuppliers: vi.fn(),
   ...overrides,
 });

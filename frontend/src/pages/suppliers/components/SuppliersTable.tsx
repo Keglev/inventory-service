@@ -119,7 +119,7 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
         sortingMode="client"
         paginationModel={paginationModel}
         onPaginationModelChange={onPaginationChange}
-        pageSizeOptions={[6]}
+        pageSizeOptions={[10]}
         sortModel={sortModel}
         onSortModelChange={onSortChange}
         getRowId={(r) => r.id}

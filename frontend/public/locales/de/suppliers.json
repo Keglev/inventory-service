@@ -20,10 +20,6 @@
     "noResults": "Keine Lieferanten gefunden",
     "selectSupplierFirst": "Suchen und wählen Sie einen Lieferanten, um die Bearbeitung zu aktivieren."
   },
-  "filters": {
-    "showAll": "Alle Lieferanten anzeigen",
-    "showAllHint": "Aktivieren Sie dieses Kontrollkästchen, um die vollständige Lieferantenliste anzuzeigen"
-  },
   "actions": {
     "create": "Lieferant hinzufügen",
     "edit": "Bearbeiten",

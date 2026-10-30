@@ -8,7 +8,7 @@
  *
  * @enterprise
  * - Separation of concerns: state (useSuppliersBoardState) + data (useSuppliersBoardData) + UI (components)
- * - Server-side pagination and sorting
+ * - The grid pages and sorts in the browser over the full supplier list
  * - Search input is wired to the suppliers query layer; debouncing lives in the api/suppliers query layer, not here
  * - Row selection via click, with dialog management
  * - All dialogs (Create, Edit, Delete) managed here
@@ -17,19 +17,17 @@
  */
 
 import * as React from 'react';
-import { Box, Paper } from '@mui/material';
+import { Box } from '@mui/material';
 import { useAuth } from '../../hooks/useAuth';
 import type { SupplierRow } from '../../api/suppliers/types';
 
 import { useSuppliersBoardState } from './hooks/useSuppliersBoardState';
 import { useToolbarHandlers } from './handlers/useToolbarHandlers';
 import { useSearchHandlers } from './handlers/useSearchHandlers';
-import { useFilterHandlers } from './handlers/useFilterHandlers';
 import { useDialogHandlers } from './handlers/useDialogHandlers';
 import { useSuppliersBoardData } from './hooks/useSuppliersBoardData';
 import { SuppliersToolbar } from './components/SuppliersToolbar';
 import { SuppliersSearchPanel } from './components/SuppliersSearchPanel';
-import { SuppliersFilterPanel } from './components/SuppliersFilterPanel';
 import { SuppliersTable } from './components/SuppliersTable';
 import { SuppliersDialogs } from './components/SuppliersDialogs';
 import { railGutter } from '../../theme/pagePanel';
@@ -41,7 +39,7 @@ import { PagePanel } from '../../components/ui/PagePanel';
  * Responsibilities:
  * - Compose state hook (useSuppliersBoardState) for all UI state management
  * - Compose data hook (useSuppliersBoardData) for data fetching and processing
- * - Render UI components (Toolbar, SearchPanel, FilterPanel, Table, Dialogs)
+ * - Render UI components (Toolbar, SearchPanel, Table, Dialogs)
  * - Manage row selection and actions
  * - Handle data refresh after dialog operations
  *
@@ -68,7 +66,6 @@ const SuppliersBoard: React.FC = () => {
   const { handleAddNew, handleEdit, handleDelete } = useToolbarHandlers(state);
   const { handleSearchChange, handleSearchResultSelect, handleClearSearchSelection } =
     useSearchHandlers(state);
-  const { handleToggleShowAll } = useFilterHandlers(state);
   const { handleSupplierCreated, handleSupplierUpdated, handleSupplierDeleted } =
     useDialogHandlers(state);
 
@@ -78,14 +75,10 @@ const SuppliersBoard: React.FC = () => {
   const data = useSuppliersBoardData(state.searchQuery);
   const selectedResult = state.selectedSearchResult;
 
-  // What the grid shows, in priority order:
-  // 1. a supplier picked from the search dropdown -> only that one row
-  // 2. otherwise, if "show all" is on -> every supplier (the grid pages and sorts them)
-  // 3. otherwise -> nothing
-  // A selected result is non-null by construction here, so it needs no further guard.
-  const displayRows = selectedResult
-    ? [selectedResult]
-    : (state.showAllSuppliers ? data.suppliers : []);
+  // The grid shows every supplier and pages them; a supplier picked from the
+  // search dropdown narrows it to that one row. The former "show all" card that
+  // hid the grid by default is gone (S2-15): the list loads with the page anyway.
+  const displayRows = selectedResult ? [selectedResult] : data.suppliers;
 
   const { setOpenCreate, setOpenEdit, setOpenDelete } = state;
   const handleCloseCreate = React.useCallback(() => setOpenCreate(false), [setOpenCreate]);
@@ -133,44 +126,18 @@ const SuppliersBoard: React.FC = () => {
         />
       </Box>
 
-      {/* Filter Panel */}
-      <Box sx={{ px: 2, pl: railGutter, pr: railGutter }}>
-        <SuppliersFilterPanel
-          showAllSuppliers={state.showAllSuppliers}
-          onToggleChange={handleToggleShowAll}
+      {/* Suppliers Table */}
+      <Box sx={{ px: 2, pl: railGutter, pr: railGutter, mb: 2, flex: 1, minHeight: 0 }}>
+        <SuppliersTable
+          rows={displayRows}
+          paginationModel={state.paginationModel}
+          onPaginationChange={state.setPaginationModel}
+          sortModel={state.sortModel}
+          onSortChange={state.setSortModel}
+          isLoading={data.isLoadingSuppliers}
+          onRowClick={state.setSelectedId}
         />
       </Box>
-
-      {/* Suppliers Table */}
-      {!state.showAllSuppliers && !selectedResult ? (
-        <Paper
-          variant="outlined"
-          sx={{
-            p: 2,
-            height: 260,
-            display: 'grid',
-            placeItems: 'center',
-            mx: 2,
-            ml: railGutter,
-            mr: railGutter,
-            mb: 2,
-          }}
-        >
-          {/* Empty state */}
-        </Paper>
-      ) : (
-        <Box sx={{ px: 2, pl: railGutter, pr: railGutter, mb: 2, flex: 1, minHeight: 0 }}>
-          <SuppliersTable
-            rows={displayRows}
-            paginationModel={state.paginationModel}
-            onPaginationChange={state.setPaginationModel}
-            sortModel={state.sortModel}
-            onSortChange={state.setSortModel}
-            isLoading={data.isLoadingSuppliers}
-            onRowClick={state.setSelectedId}
-          />
-        </Box>
-      )}
     </PagePanel>
   );
 };
