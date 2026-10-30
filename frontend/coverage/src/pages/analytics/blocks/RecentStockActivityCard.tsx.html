@@ -194,7 +194,10 @@
 <a name='L129'></a><a href='#L129'>129</a>
 <a name='L130'></a><a href='#L130'>130</a>
 <a name='L131'></a><a href='#L131'>131</a>
-<a name='L132'></a><a href='#L132'>132</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -297,6 +300,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -359,6 +363,7 @@ import { useDayFormatter } from '../../../hooks/useDayFormatter';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import { chartLegendProps, legendOrder } from '../../../utils/chartLegend';
 import { activityBucket, buildActivitySeries, ACTIVITY_LEGEND_ORDER, type ActivityKey } from './stockActivitySeries';
 &nbsp;
@@ -424,11 +429,12 @@ export default function RecentStockActivityCard({ from, to, supplierId }: Recent
               &lt;BarChart data={days} stackOffset="sign" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}&gt;
                 &lt;CartesianGrid strokeDasharray="3 3" /&gt;
                 &lt;XAxis
+                  {...chartAxisProps(muiTheme)}
                   {...timeXAxisProps(timeAxis, formatDay)}
                   // Half a bucket on each side, so a bar at either end is not cut in half.
                   domain={[timeAxis.domain[0] - bucketMs / 2, timeAxis.domain[1] + bucketMs / 2]}
                 /&gt;
-                &lt;YAxis width="auto" tickFormatter={(value) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 0)} /&gt;
+                &lt;YAxis {...chartAxisProps(muiTheme)} width="auto" tickFormatter={(value) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 0)} /&gt;
                 &lt;ReferenceLine y={0} stroke={muiTheme.palette.text.secondary} /&gt;
                 &lt;Tooltip
                   {...chartTooltipProps(muiTheme)}

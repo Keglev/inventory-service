@@ -147,7 +147,10 @@
 <a name='L82'></a><a href='#L82'>82</a>
 <a name='L83'></a><a href='#L83'>83</a>
 <a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -191,6 +194,7 @@
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -253,6 +257,7 @@ import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, L
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import { dayTimeAxis, timeXAxisProps } from '../../../utils/timeAxis';
 import { useDayFormatter } from '../../../hooks/useDayFormatter';
 import { priceValueAxis, type ChartPricePoint } from './priceSeries';
@@ -279,8 +284,9 @@ export default function PriceTrendChart({ series, from, to }: PriceTrendChartPro
       &lt;ResponsiveContainer width="100%" height="100%"&gt;
         &lt;LineChart data={series} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}&gt;
           &lt;CartesianGrid strokeDasharray="3 3" /&gt;
-          &lt;XAxis {...timeXAxisProps(timeAxis, formatDateLabel)} /&gt;
+          &lt;XAxis {...chartAxisProps(muiTheme)} {...timeXAxisProps(timeAxis, formatDateLabel)} /&gt;
           &lt;YAxis
+            {...chartAxisProps(muiTheme)}
             domain={valueAxis.domain}
             ticks={valueAxis.ticks}
             tickFormatter={(value) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 2)}

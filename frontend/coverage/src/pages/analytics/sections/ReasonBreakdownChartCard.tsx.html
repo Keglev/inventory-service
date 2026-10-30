@@ -142,7 +142,9 @@
 <a name='L77'></a><a href='#L77'>77</a>
 <a name='L78'></a><a href='#L78'>78</a>
 <a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -242,6 +244,7 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 &nbsp;
 export type ReasonBreakdownDatum = {
   /** Translated reason label (X axis). */
@@ -292,8 +295,8 @@ export default function ReasonBreakdownChartCard({ title, seriesName, data, colo
     &gt;
       &lt;BarChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 24 }}&gt;
         &lt;CartesianGrid strokeDasharray="3 3" /&gt;
-        &lt;XAxis dataKey="label" interval={0} angle={-25} textAnchor="end" height={70} tick={{ fontSize: 12 }} /&gt;
-        &lt;YAxis allowDecimals={false} tickFormatter={formatValue} /&gt;
+        &lt;XAxis {...chartAxisProps(muiTheme, { fontSize: 12 })} dataKey="label" interval={0} angle={-25} textAnchor="end" height={70} /&gt;
+        &lt;YAxis {...chartAxisProps(muiTheme)} allowDecimals={false} tickFormatter={formatValue} /&gt;
         &lt;Tooltip {...chartTooltipProps(muiTheme)} formatter={formatTooltipValue} /&gt;
         &lt;Bar dataKey="value" name={seriesName} fill={color} isAnimationActive={false} /&gt;
       &lt;/BarChart&gt;

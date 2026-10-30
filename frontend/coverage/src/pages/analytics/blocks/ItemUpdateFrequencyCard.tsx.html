@@ -170,7 +170,10 @@
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
 <a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -257,6 +260,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -299,6 +303,7 @@ import { getItemUpdateFrequency, type ItemUpdateFrequencyPoint } from '../../../
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import DateScopeNote from '../components/DateScopeNote';
 &nbsp;
 export type ItemUpdateFrequencyCardProps = { supplierId?: string | null };
@@ -363,10 +368,11 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
               &lt;BarChart data={data} layout="vertical" margin={{ left: 24, right: 16 }}&gt;
                 &lt;CartesianGrid strokeDasharray="3 3" /&gt;
                 &lt;XAxis
+                  {...chartAxisProps(muiTheme)}
                   type="number"
                   tickFormatter={(value) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 0)}
                 /&gt;
-                &lt;YAxis type="category" dataKey="name" width={140} /&gt;
+                &lt;YAxis {...chartAxisProps(muiTheme)} type="category" dataKey="name" width={140} /&gt;
                 &lt;Tooltip
                   {...chartTooltipProps(muiTheme)}
                   formatter={(value) =&gt;

@@ -161,7 +161,9 @@
 <a name='L96'></a><a href='#L96'>96</a>
 <a name='L97'></a><a href='#L97'>97</a>
 <a name='L98'></a><a href='#L98'>98</a>
-<a name='L99'></a><a href='#L99'>99</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -287,6 +289,7 @@ import { reasonLabel } from '../../analytics/sections/reasonLabels';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber, getDaysAgoIso, getTodayIso } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import { chartLegendProps, legendOrder } from '../../../utils/chartLegend';
 import { CHART_MARGIN } from './chartMargin';
 &nbsp;
@@ -335,8 +338,8 @@ export default function ReasonBreakdownMini() {
             &lt;ResponsiveContainer width="100%" height="90%"&gt;
               &lt;BarChart data={data} margin={CHART_MARGIN}&gt;
                 &lt;CartesianGrid strokeDasharray="3 3" /&gt;
-                &lt;XAxis dataKey="label" tick={{ fontSize: 11 }} interval={0} angle={-30} textAnchor="end" height={60} /&gt;
-                &lt;YAxis <span class="fstat-no" title="function not covered" >tickFormatter={(v</span>alue) =&gt; <span class="cstat-no" title="statement not covered" >formatNumber(Number(value), userPreferences.numberFormat, 0)} /&gt;</span>
+                &lt;XAxis {...chartAxisProps(muiTheme, { fontSize: 11 })} dataKey="label" interval={0} angle={-30} textAnchor="end" height={60} /&gt;
+                &lt;YAxis {...chartAxisProps(muiTheme)} <span class="fstat-no" title="function not covered" >tickFormatter={(v</span>alue) =&gt; <span class="cstat-no" title="statement not covered" >formatNumber(Number(value), userPreferences.numberFormat, 0)} /&gt;</span>
                 &lt;Tooltip
                   {...chartTooltipProps(muiTheme)}
                   itemSorter={LEGEND_ORDER}

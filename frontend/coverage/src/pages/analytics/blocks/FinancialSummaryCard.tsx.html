@@ -227,7 +227,9 @@
 <a name='L162'></a><a href='#L162'>162</a>
 <a name='L163'></a><a href='#L163'>163</a>
 <a name='L164'></a><a href='#L164'>164</a>
-<a name='L165'></a><a href='#L165'>165</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -428,6 +430,7 @@ import { getFinancialSummary, type FinancialSummary } from '../../../api/analyti
 import { useSettings } from '../../../hooks/useSettings';
 import { formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 &nbsp;
 export type FinancialSummaryCardProps = { from?: string; to?: string; supplierId?: string | null };
 &nbsp;
@@ -522,8 +525,8 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
               &lt;ResponsiveContainer width="100%" height="100%"&gt;
                 &lt;BarChart data={data} layout="vertical" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}&gt;
                   &lt;CartesianGrid strokeDasharray="3 3" /&gt;
-                  &lt;XAxis type="number" tickFormatter={(value) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 2)} /&gt;
-                  &lt;YAxis type="category" dataKey="name" width="auto" interval={0} /&gt;
+                  &lt;XAxis {...chartAxisProps(muiTheme)} type="number" tickFormatter={(value) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 2)} /&gt;
+                  &lt;YAxis {...chartAxisProps(muiTheme)} type="category" dataKey="name" width="auto" interval={0} /&gt;
                   &lt;Tooltip
                     {...chartTooltipProps(muiTheme)}
                     formatter={(value) =&gt;

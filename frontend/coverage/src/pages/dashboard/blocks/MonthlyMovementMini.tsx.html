@@ -172,7 +172,10 @@
 <a name='L107'></a><a href='#L107'>107</a>
 <a name='L108'></a><a href='#L108'>108</a>
 <a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -247,6 +250,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -314,6 +318,7 @@ import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Le
 import { getMonthlyStockMovement } from '../../../api/analytics/stock';
 import { getTodayIso, getDaysAgoIso, formatNumber } from '../../../utils/formatters';
 import { chartTooltipProps } from '../../../utils/chartTooltip';
+import { chartAxisProps } from '../../../utils/chartAxis';
 import { chartLegendProps } from '../../../utils/chartLegend';
 import { MOVEMENT_ORDER, movementTooltip } from '../../../utils/movementTooltip';
 import { CHART_MARGIN } from './chartMargin';
@@ -354,8 +359,9 @@ export default function MonthlyMovementMini() {
             &lt;ResponsiveContainer width="100%" height="90%"&gt;
               &lt;BarChart data={q.data ?? <span class="branch-1 cbranch-no" title="branch not covered" >[]} m</span>argin={CHART_MARGIN}&gt;
                 &lt;CartesianGrid strokeDasharray="3 3" /&gt;
-                &lt;XAxis dataKey="month" tickFormatter={(value) =&gt; monthLabel(String(value), i18n.language)} /&gt;
+                &lt;XAxis {...chartAxisProps(muiTheme)} dataKey="month" tickFormatter={(value) =&gt; monthLabel(String(value), i18n.language)} /&gt;
                 &lt;YAxis
+                  {...chartAxisProps(muiTheme)}
                   tickFormatter={(value) =&gt; formatNumber(Number(value), userPreferences.numberFormat, 0)}
                 /&gt;
                 &lt;Tooltip
