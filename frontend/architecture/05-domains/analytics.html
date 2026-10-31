@@ -116,10 +116,12 @@
         <p><code>Analytics.tsx</code> orchestrates section routing with
         the URL as the source of truth: the active section and filters
         (date window, supplier) are synchronized to query parameters, so
-        views are shareable and survive refresh. The six sections are
-        Overview, Movements, Pricing, Inventory Health, Finance, and
-        Employees — the last visible only for ADMIN or demo
-        sessions.</p>
+        views are shareable and survive refresh. The supplier is picked
+        in <code>SupplierPickerField</code>, the inventory’s supplier
+        search (two characters, matched in the browser); an empty field
+        means all suppliers. The six sections are Overview, Movements,
+        Pricing, Inventory Health, Finance, and Employees — the last
+        visible only for ADMIN or demo sessions.</p>
         <h2 id="block-pattern">Block Pattern</h2>
         <p>Each block (card or table) renders one visualization,
         declares one React Query query with a stable key encoding every
