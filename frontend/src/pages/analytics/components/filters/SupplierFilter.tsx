@@ -3,24 +3,26 @@
  * @module pages/analytics/components/filters/SupplierFilter
  *
  * @summary
- * Single-supplier dropdown for the analytics filter panel. Empty value
- * means "all suppliers" — encoded as `supplierId === undefined`.
+ * Single-supplier search for the analytics filter panel (the shared
+ * SupplierPickerField, two letters; S2-9). An empty field means "all
+ * suppliers" — encoded as `supplierId === undefined`.
  *
  * @enterprise
  * - Caller passes the supplier list; this component does not fetch. The
  *   parent reuses the same list for filtering price-trend item lookups
- *   and for the supplier dropdown here.
+ *   and for the supplier search here.
  * - "All suppliers" is represented as `undefined` (not empty string) so
  *   the serialized URL omits the parameter entirely.
- * - Uses an external Typography label (not a floating InputLabel) so the
- *   dropdown aligns with the Date Range column label in the parent panel;
- *   the Select is theme-aware (dark mode) via MUI tokens.
+ * - Uses an external label (not a floating one) so the field aligns with
+ *   the Date Range column label in the parent panel; the label points at
+ *   the input by id.
  */
 
-import { MenuItem, Select, Typography } from '@mui/material';
-import type { SelectChangeEvent } from '@mui/material';
+import * as React from 'react';
+import { Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import type { SupplierRef } from '../../../../api/analytics/types';
+import type { SupplierOption, SupplierRef } from '../../../../api/analytics/types';
+import { SupplierPickerField } from '../../../../components/search/SupplierPickerField';
 import type { AnalyticsFilters } from './Filters.types';
 
 export interface SupplierFilterProps {
@@ -30,11 +32,12 @@ export interface SupplierFilterProps {
   suppliers: SupplierRef[];
   /** Called when supplier selection changes */
   onChange: (filters: AnalyticsFilters) => void;
+  /** True while the supplier list loads; the field shows loading but stays enabled. */
   disabled?: boolean;
 }
 
 /**
- * SupplierFilter - dropdown for selecting a single supplier
+ * SupplierFilter - search field for selecting a single supplier
  */
 export function SupplierFilter({
   value,
@@ -44,40 +47,29 @@ export function SupplierFilter({
 }: SupplierFilterProps) {
   const { t } = useTranslation(['analytics']);
 
-  const handleChange = (e: SelectChangeEvent<string>) => {
-    const supplierId = e.target.value || undefined;
-    onChange({
-      ...value,
-      supplierId,
-    });
-  };
+  const options = React.useMemo<SupplierOption[]>(
+    () => suppliers.map((supplier) => ({ id: supplier.id, label: supplier.name })),
+    [suppliers],
+  );
 
   return (
     <div>
       <Typography
-        id="supplier-select-label"
+        component="label"
+        htmlFor="supplier-select"
         variant="body2"
-        sx={{ mb: 0.75, fontWeight: 500 }}
+        sx={{ display: 'block', mb: 0.75, fontWeight: 500 }}
       >
         {t('analytics:filters.supplier')}
       </Typography>
-      <Select
-        labelId="supplier-select-label"
+      <SupplierPickerField
         id="supplier-select"
-        value={value.supplierId || ''}
-        onChange={handleChange}
-        disabled={disabled}
-        displayEmpty
-        fullWidth
-        size="small"
-      >
-        <MenuItem value="">{t('analytics:filters.allSuppliers')}</MenuItem>
-        {suppliers.map((supplier) => (
-          <MenuItem key={supplier.id} value={supplier.id}>
-            {supplier.name}
-          </MenuItem>
-        ))}
-      </Select>
+        suppliers={options}
+        loading={disabled}
+        value={options.find((supplier) => supplier.id === value.supplierId) ?? null}
+        onSelect={(supplier) => onChange({ ...value, supplierId: supplier ? supplier.id : undefined })}
+        placeholder={t('analytics:filters.allSuppliers')}
+      />
     </div>
   );
 }

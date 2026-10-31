@@ -2,16 +2,16 @@
  * @file SupplierFilter.test.tsx
  * @module __tests__/pages/analytics/components/filters/SupplierFilter
  * @description
- * Enterprise tests for SupplierFilter (MUI Select):
- * - Renders the dropdown and options (including "All suppliers")
- * - Reflects current selection via `value.supplierId`
- * - Emits `onChange` with updated supplierId (or undefined for "All suppliers")
- * - Honors disabled state
- * - Handles empty supplier lists safely
+ * Contract tests for SupplierFilter (the shared supplier search, S2-9):
+ * - The external label names the field; an empty field reads "All suppliers"
+ * - Two typed letters list the matching suppliers; a pick emits its supplierId
+ * - Clearing the field emits supplierId=undefined ("All suppliers")
+ * - Reflects the current selection via `value.supplierId`
+ * - Stays enabled while suppliers load; handles an empty supplier list
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type { SupplierRef } from '@/api/analytics/types';
@@ -52,40 +52,28 @@ const baseValue: AnalyticsFilters = {
 // Helpers
 // -----------------------------------------------------------------------------
 
-/** Opens the MUI Select and returns its listbox (options render in a portal). */
-async function openSelect(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole('combobox'));
-  return screen.getByRole('listbox');
-}
-
-// -----------------------------------------------------------------------------
-// Tests
-// -----------------------------------------------------------------------------
-
 describe('SupplierFilter', () => {
   const onChange = vi.fn();
+  const field = () => screen.getByRole('combobox', { name: 'Supplier' });
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('renders a supplier dropdown', () => {
+  it('renders a supplier search field named by its label, reading "All suppliers" when empty', () => {
     render(<SupplierFilter value={baseValue} suppliers={suppliers} onChange={onChange} />);
-    expect(screen.getByRole('combobox')).toBeInTheDocument();
+
+    expect(field()).toHaveValue('');
+    expect(field()).toHaveAttribute('placeholder', 'All Suppliers');
   });
 
-  it('renders "All suppliers" plus all supplier options when opened', async () => {
+  it('lists the matching suppliers after two letters', async () => {
     const user = userEvent.setup();
     render(<SupplierFilter value={baseValue} suppliers={suppliers} onChange={onChange} />);
 
-    const listbox = await openSelect(user);
-    const options = within(listbox).getAllByRole('option');
-    expect(options).toHaveLength(suppliers.length + 1);
+    await user.type(field(), 'r b');
 
-    expect(within(listbox).getByRole('option', { name: /all suppliers/i })).toBeInTheDocument();
-    expect(within(listbox).getByRole('option', { name: 'Supplier A' })).toBeInTheDocument();
-    expect(within(listbox).getByRole('option', { name: 'Supplier B' })).toBeInTheDocument();
-    expect(within(listbox).getByRole('option', { name: 'Supplier C' })).toBeInTheDocument();
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['Supplier B']);
   });
 
   it('reflects the selected supplier from props', () => {
@@ -97,20 +85,20 @@ describe('SupplierFilter', () => {
       />,
     );
 
-    // MUI Select renders the selected option's label in the combobox trigger.
-    expect(screen.getByRole('combobox')).toHaveTextContent('Supplier B');
+    expect(field()).toHaveValue('Supplier B');
   });
 
-  it('emits onChange with the selected supplierId', async () => {
+  it('emits onChange with the picked supplierId', async () => {
     const user = userEvent.setup();
     render(<SupplierFilter value={baseValue} suppliers={suppliers} onChange={onChange} />);
 
-    const listbox = await openSelect(user);
-    await user.click(within(listbox).getByRole('option', { name: 'Supplier A' }));
+    await user.type(field(), 'Supplier');
+    await user.click(screen.getByRole('option', { name: 'Supplier A' }));
+
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ supplierId: 'sup-1' }));
   });
 
-  it('emits onChange with supplierId=undefined when "All suppliers" is selected', async () => {
+  it('emits onChange with supplierId=undefined when the field is cleared', async () => {
     const user = userEvent.setup();
     render(
       <SupplierFilter
@@ -120,22 +108,24 @@ describe('SupplierFilter', () => {
       />,
     );
 
-    const listbox = await openSelect(user);
-    await user.click(within(listbox).getByRole('option', { name: /all suppliers/i }));
+    await user.clear(field());
+
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ supplierId: undefined }));
   });
 
-  it('disables the dropdown when disabled', () => {
+  it('keeps the field enabled while suppliers load', () => {
     render(<SupplierFilter value={baseValue} suppliers={suppliers} onChange={onChange} disabled />);
-    expect(screen.getByRole('combobox')).toHaveAttribute('aria-disabled', 'true');
+
+    expect(field()).toBeEnabled();
   });
 
-  it('handles an empty suppliers list', async () => {
+  it('shows no matches for an empty suppliers list', async () => {
     const user = userEvent.setup();
     render(<SupplierFilter value={baseValue} suppliers={[]} onChange={onChange} />);
 
-    const listbox = await openSelect(user);
-    expect(within(listbox).getAllByRole('option')).toHaveLength(1);
-    expect(within(listbox).getByRole('option', { name: /all suppliers/i })).toBeInTheDocument();
+    await user.type(field(), 'Supplier');
+
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+    expect(screen.getByText('No suppliers found')).toBeInTheDocument();
   });
 });

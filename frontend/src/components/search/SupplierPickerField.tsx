@@ -37,9 +37,11 @@ export interface SupplierPickerFieldProps {
   placeholder?: string;
   /** A validation message (form dialogs). */
   errorText?: string;
+  /** The input's id, for a label rendered outside the field. */
+  id?: string;
 }
 
-export function SupplierPickerField({ suppliers, loading, value, onSelect, label, placeholder, errorText }: SupplierPickerFieldProps) {
+export function SupplierPickerField({ suppliers, loading, value, onSelect, label, placeholder, errorText, id }: SupplierPickerFieldProps) {
   const { t } = useTranslation(['suppliers']);
   // MUI's Autocomplete resets the text to the picked label whenever the value
   // changes (a pick, a reset by the caller), so the text needs no sync here.
@@ -63,6 +65,7 @@ export function SupplierPickerField({ suppliers, loading, value, onSelect, label
       hintText={t('suppliers:search.typeToSearch')}
       shrinkLabel={placeholder !== undefined}
       errorText={errorText}
+      id={id}
     />
   );
 }
