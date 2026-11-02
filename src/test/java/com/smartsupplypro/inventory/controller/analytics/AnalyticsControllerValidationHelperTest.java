@@ -1,6 +1,5 @@
 package com.smartsupplypro.inventory.controller.analytics;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
