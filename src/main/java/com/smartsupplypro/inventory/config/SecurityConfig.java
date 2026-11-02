@@ -63,10 +63,9 @@ public class SecurityConfig {
         this.props = props;
     }
 
-    // SIZE WAIVER: 32 code lines against a 30 alarm. The body is one fluent
+    // SIZE WAIVER: 31 code lines against a 30 alarm. The body is one fluent
     // HttpSecurity statement; the parts that can be extracted already are, into the
-    // entry-point, filter and authorization helpers. The login page line (EPA-c)
-    // added the 32nd. Recorded in
+    // entry-point, filter and authorization helpers. Recorded in
     // docs/backend/architecture/11-risks-technical-debt.md.
     /**
      * Builds the one filter chain every request passes. A filter marks API requests,
@@ -110,7 +109,8 @@ public class SecurityConfig {
                 .logoutSuccessHandler(logoutHandler)
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
-                .permitAll()
+                // No permitAll(): the logout filter answers POST /logout before any
+                // authorization rule is read, so a rule here would decide nothing.
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             // CSRF is disabled for the REST surface and for logout. Session integrity
