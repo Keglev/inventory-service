@@ -48,10 +48,10 @@ const AnalyticsNav = (await import('@/pages/analytics/components/AnalyticsNav'))
 
 type Section = 'overview' | 'movements' | 'pricing' | 'inventory' | 'finance' | 'employees';
 
-function setup(section: Section = 'overview', showEmployees = false) {
+function setup(section: Section = 'overview') {
   return render(
     <MemoryRouter>
-      <AnalyticsNav section={section} showEmployees={showEmployees} />
+      <AnalyticsNav section={section} />
     </MemoryRouter>,
   );
 }
@@ -65,7 +65,9 @@ describe('AnalyticsNav', () => {
     vi.clearAllMocks();
   });
 
-  it('renders all public tabs and hides the gated employees tab by default', () => {
+  // Every signed-in user sees the employees tab; Analytics decides between the
+  // charts and the notice (backend ADR-0020).
+  it('renders every section tab, the employees tab included', () => {
     setup();
 
     expect(screen.getByRole('tab', { name: /overview/i })).toBeInTheDocument();
@@ -73,12 +75,6 @@ describe('AnalyticsNav', () => {
     expect(screen.getByRole('tab', { name: /pricing/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /inventory/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /finance/i })).toBeInTheDocument();
-    expect(screen.queryByRole('tab', { name: /employees/i })).not.toBeInTheDocument();
-  });
-
-  it('shows the employees tab only when showEmployees is set', () => {
-    setup('overview', true);
-
     expect(screen.getByRole('tab', { name: /employees/i })).toBeInTheDocument();
   });
 

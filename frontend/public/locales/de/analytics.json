@@ -148,7 +148,8 @@
       "reason": "Grund"
     },
     "empty": "Keine Mitarbeiteraktivität im Zeitraum",
-    "rowsPerPage": "Zeilen pro Seite"
+    "rowsPerPage": "Zeilen pro Seite",
+    "restricted": "Die Mitarbeiter-Auswertung ist nur für Administratoren verfügbar."
   },
   "units": {
     "pieces": "Stk.",

@@ -18,8 +18,9 @@
  *   apply and the quick selector is set to '180'.
  * - Section is read from the route segment `/analytics/:section?`.
  *   Valid values: 'overview' | 'movements' | 'pricing' | 'inventory' |
- *   'finance', plus 'employees' when the employees view is enabled. Any
- *   unknown value falls back to 'overview'.
+ *   'finance' | 'employees'. Any unknown value falls back to 'overview'.
+ *   The employees section shows its charts to ADMIN and the demo session
+ *   only; for any other user it shows a notice and the filters are inert.
  * - The suppliers list is fetched once with a 5-minute staleTime and
  *   is reused by both the supplier filter dropdown and the price-trend
  *   item search inside PriceTrendCard.
@@ -34,7 +35,7 @@
 import * as React from 'react';
 import type { JSX } from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { Box, Typography, Stack, Button, Paper } from '@mui/material';
+import { Alert, Box, Typography, Stack, Button, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { readParams } from '../../utils/urlState';
 import { useSupplierListQuery } from '../../api/suppliers/hooks/useSupplierListQuery';
@@ -66,16 +67,18 @@ export default function Analytics(): JSX.Element {
   const { t } = useTranslation(['analytics', 'common']);
   const navigate = useNavigate();
   const { user } = useAuth();
-  // Employees analytics is a supervision view: ADMIN role or the demo session only.
-  const showEmployees = user?.role === 'ADMIN' || user?.isDemo === true;
+  // Employees analytics is a supervision view: ADMIN and the demo session see it;
+  // any other signed-in user gets a notice and inert filters (backend ADR-0020).
+  const canSeeEmployees = user?.role === 'ADMIN' || user?.isDemo === true;
     // Read section from route: /analytics/:section?
   const { section: rawSection } = useParams();
   const section: AnalyticsSection =
     rawSection === 'pricing' || rawSection === 'inventory' || rawSection === 'finance' || rawSection === 'movements'
       ? (rawSection as AnalyticsSection)
-      : rawSection === 'employees' && showEmployees
+      : rawSection === 'employees'
         ? 'employees'
         : 'overview';
+  const employeesLocked = section === 'employees' && !canSeeEmployees;
   
   // URL <-> state
   const [searchParams, setSearchParams] = useSearchParams();
@@ -121,9 +124,9 @@ export default function Analytics(): JSX.Element {
         </Stack>
       </Stack>
       {/* Submenu (tabs) */}
-      <AnalyticsNav section={section} showEmployees={showEmployees} />
+      <AnalyticsNav section={section} />
       <Box sx={{ mb: 2 }}>
-          <Filters value={filters} onChange={setFilters} suppliers={suppliersQ.data ?? []} disabled={suppliersQ.isLoading} />
+          <Filters value={filters} onChange={setFilters} suppliers={suppliersQ.data ?? []} disabled={suppliersQ.isLoading || employeesLocked} />
       </Box>
       <Box
   sx={{
@@ -155,7 +158,9 @@ export default function Analytics(): JSX.Element {
   )}
 
   {section === 'employees' && (
-    <EmployeesSection {...scope} />
+    employeesLocked ? (
+      <Alert severity="info" sx={{ gridColumn: '1 / -1' }}>{t('analytics:employees.restricted')}</Alert>
+    ) : <EmployeesSection {...scope} />
   )}
 
   {section === 'pricing' && (

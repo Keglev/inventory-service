@@ -148,7 +148,8 @@
       "reason": "Reason"
     },
     "empty": "No employee activity in this period",
-    "rowsPerPage": "Rows per page"
+    "rowsPerPage": "Rows per page",
+    "restricted": "Employee analytics are available to administrators only."
   },
   "units": {
     "pieces": "pcs",

@@ -7,8 +7,12 @@
  *
  * @sections
  * - overview   -> Stock Value + Monthly Movement
+ * - movements  -> Stock movements over time
  * - pricing    -> Price Trend
  * - inventory  -> Low Stock + Stock per Supplier
+ * - finance    -> Financial summary
+ * - employees  -> Employee activity (charts for ADMIN and the demo session;
+ *                a notice for other users, decided in Analytics)
  *
  * @enterprise
  * - Uses route segments so deep-links work (e.g., /analytics/pricing).
@@ -25,11 +29,9 @@ export type AnalyticsSection = 'overview' | 'movements' | 'pricing' | 'inventory
 export type AnalyticsNavProps = {
   /** Current section (parsed from the URL). */
   section: AnalyticsSection;
-  /** Show the ADMIN/demo-only Employees tab (gated by the caller). */
-  showEmployees?: boolean;
 };
 
-export default function AnalyticsNav({ section, showEmployees = false }: AnalyticsNavProps) {
+export default function AnalyticsNav({ section }: AnalyticsNavProps) {
   const navigate = useNavigate();
   const { t } = useTranslation(['analytics']);
 
@@ -45,7 +47,7 @@ export default function AnalyticsNav({ section, showEmployees = false }: Analyti
         <Tab value="pricing"   label={t('analytics:nav.pricing')} />
         <Tab value="inventory" label={t('analytics:nav.inventory')} />
         <Tab value="finance"   label={t('analytics:nav.finance')} />
-        {showEmployees && <Tab value="employees" label={t('analytics:nav.employees')} />}
+        <Tab value="employees" label={t('analytics:nav.employees')} />
       </Tabs>
     </Box>
   );
