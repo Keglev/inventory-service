@@ -252,8 +252,8 @@
  * @module pages/analytics/sections/EmployeesSection
  *
  * @summary
- * "Employees" analytics section (ADMIN + demo mode only; the tab and the
- * route fallback are gated in Analytics/AnalyticsNav). Renders:
+ * "Employees" analytics section, rendered for ADMIN and the demo session only
+ * (Analytics shows any other user a notice instead; backend ADR-0020). Renders:
  * - a granularity toggle (daily | weekly | monthly) that refetches the
  *   aggregation with the selected bucket size,
  * - a line chart with one series per employee (legend shows display names),

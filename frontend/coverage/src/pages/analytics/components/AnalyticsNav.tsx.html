@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
@@ -115,7 +115,9 @@
 <a name='L50'></a><a href='#L50'>50</a>
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
-<a name='L53'></a><a href='#L53'>53</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -147,14 +149,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -176,8 +180,12 @@
  *
  * @sections
  * - overview   -&gt; Stock Value + Monthly Movement
+ * - movements  -&gt; Stock movements over time
  * - pricing    -&gt; Price Trend
  * - inventory  -&gt; Low Stock + Stock per Supplier
+ * - finance    -&gt; Financial summary
+ * - employees  -&gt; Employee activity (charts for ADMIN and the demo session;
+ *                a notice for other users, decided in Analytics)
  *
  * @enterprise
  * - Uses route segments so deep-links work (e.g., /analytics/pricing).
@@ -194,11 +202,9 @@ export type AnalyticsSection = 'overview' | 'movements' | 'pricing' | 'inventory
 export type AnalyticsNavProps = {
   /** Current section (parsed from the URL). */
   section: AnalyticsSection;
-  /** Show the ADMIN/demo-only Employees tab (gated by the caller). */
-  showEmployees?: boolean;
 };
 &nbsp;
-export default function AnalyticsNav({ section, showEmployees = false }: AnalyticsNavProps) {
+export default function AnalyticsNav({ section }: AnalyticsNavProps) {
   const navigate = useNavigate();
   const { t } = useTranslation(['analytics']);
 &nbsp;
@@ -214,7 +220,7 @@ export default function AnalyticsNav({ section, showEmployees = false }: Analyti
         &lt;Tab value="pricing"   label={t('analytics:nav.pricing')} /&gt;
         &lt;Tab value="inventory" label={t('analytics:nav.inventory')} /&gt;
         &lt;Tab value="finance"   label={t('analytics:nav.finance')} /&gt;
-        {showEmployees &amp;&amp; &lt;Tab value="employees" label={t('analytics:nav.employees')} /&gt;}
+        &lt;Tab value="employees" label={t('analytics:nav.employees')} /&gt;
       &lt;/Tabs&gt;
     &lt;/Box&gt;
   );
