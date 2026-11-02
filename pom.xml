@@ -58,20 +58,6 @@
          .github/workflows/e2e-playwright.yml. Drop when the Boot BOM manages
          H2 2.5 or later. -->
     <h2.version>2.5.252</h2.version>
-    <!-- Ahead of the Spring Boot 4.1.1 BOM, which pins Tomcat 11.0.24. Trivy
-         failed the image build on 2026-09-09 with three CRITICAL findings
-         against tomcat-embed-core 11.0.24, all fixed in 11.0.25:
-         CVE-2026-65182, CVE-2026-65905, CVE-2026-68525. No Spring Boot release
-         carries the newer Tomcat yet; 4.1.1 is the latest published. Drop this
-         pin once a Boot release brings 11.0.25 or later of its own accord. -->
-    <tomcat.version>11.0.25</tomcat.version>
-    <!-- Ahead of the Spring Boot 4.1.1 BOM, which pins Jackson 3.1.5. Trivy
-         failed the image build on 2026-09-29 with CVE-2026-68497 (HIGH, CPU
-         denial of service through unbounded numeric parsing) against
-         tools.jackson.core:jackson-databind 3.1.5, fixed in 3.1.6. 3.1.7 is
-         the latest patch of the line Boot manages. Drop this pin once a Boot
-         release brings 3.1.6 or later of its own accord. -->
-    <jackson-bom.version>3.1.7</jackson-bom.version>
     <!-- Commit written into build-info.properties so the running jar can name the
          source it was built from. CI passes the real value through the Docker
          build; a local build reports "unknown" rather than claiming a commit. -->
