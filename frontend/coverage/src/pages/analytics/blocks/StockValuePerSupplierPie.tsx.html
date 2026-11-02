@@ -228,7 +228,11 @@
 <a name='L163'></a><a href='#L163'>163</a>
 <a name='L164'></a><a href='#L164'>164</a>
 <a name='L165'></a><a href='#L165'>165</a>
-<a name='L166'></a><a href='#L166'>166</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -363,6 +367,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -545,6 +553,10 @@ export default function StockValuePerSupplierPie({ chartHeight = 260, dateScopeN
                 /&gt;
                 {/* Recharts sorts legend items alphabetically by default; keep the
                     slices' rank order so "all others" stays last. */}
+                {/* TODO(FD-10): align and verticalAlign are deprecated since Recharts 3.10.
+                    Its replacement, position="left", centres and narrows the legend and
+                    puts the readout against its last line (mockup 2026-11-02), so they
+                    stay until a Recharts release removes them. */}
                 &lt;Legend
                   {...chartLegendProps(muiTheme)}
                   itemSorter={(item) =&gt; data.findIndex((d) =&gt; d.name === item.value)}

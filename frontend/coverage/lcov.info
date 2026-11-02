@@ -3301,12 +3301,12 @@ FNF:4
 FNH:4
 FNDA:28,useDebounced
 FNDA:16,(anonymous_1)
-FNDA:5,(anonymous_2)
+FNDA:4,(anonymous_2)
 FNDA:16,(anonymous_3)
 DA:27,28
 DA:28,28
 DA:29,16
-DA:30,5
+DA:30,4
 DA:33,16
 DA:36,28
 LF:6
@@ -3894,8 +3894,8 @@ FN:81,(anonymous_3)
 FN:91,(anonymous_4)
 FN:101,(anonymous_5)
 FN:135,(anonymous_6)
-FN:155,(anonymous_7)
-FN:155,(anonymous_8)
+FN:159,(anonymous_7)
+FN:159,(anonymous_8)
 FNF:9
 FNH:8
 FNDA:23,StockValuePerSupplierPie
@@ -3932,7 +3932,7 @@ DA:103,3
 DA:104,1
 DA:114,23
 DA:135,0
-DA:155,24
+DA:159,24
 LF:26
 LH:25
 BRDA:53,0,0,23
@@ -3970,8 +3970,8 @@ BRDA:147,17,0,1
 BRDA:147,17,1,9
 BRDA:148,18,0,1
 BRDA:148,18,1,9
-BRDA:156,19,0,1
-BRDA:156,19,1,9
+BRDA:160,19,0,1
+BRDA:160,19,1,9
 BRF:37
 BRH:37
 end_of_record
