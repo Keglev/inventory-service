@@ -185,7 +185,7 @@
             classDef external   fill:#4f46e5,color:#fff,stroke:#3730a3;
         </div>
         <h2 id="cicd-pipeline">CI/CD Pipeline</h2>
-        <p>Eleven GitHub Actions workflows make up the pipeline. They
+        <p>Twelve GitHub Actions workflows make up the pipeline. They
         are grouped by the chain they belong to and listed in execution
         order within it; the shared ones serve more than one chain or
         none (<a
@@ -210,8 +210,9 @@
         <td><code>backend-ci.yml</code></td>
         <td><code>mvn clean verify</code> — compile, unit + integration
         tests, JaCoCo coverage report; calls the Playwright suite and
-        the YAML lint beside it and reports all three through one
-        <code>build-and-test</code> job</td>
+        the YAML lint beside it and reports all three through
+        <code>build-and-test-backend</code>, one of the three required
+        checks</td>
         </tr>
         <tr class="even">
         <td>Backend</td>
@@ -240,8 +241,8 @@
         keeping the SBOM 60 days as
         <code>sbom-frontend-&lt;sha&gt;</code> for a published image;
         calls the Playwright suite and the YAML lint beside it and
-        reports all three through one <code>build-and-test</code>
-        job</td>
+        reports all three through
+        <code>build-and-test-frontend</code></td>
         </tr>
         <tr class="odd">
         <td>Frontend</td>
@@ -255,8 +256,8 @@
         <td><code>docs-pr-check.yml</code></td>
         <td>Pull request gate for documentation: builds the site and
         verifies internal links without publishing; calls the YAML lint
-        beside it and reports both through one
-        <code>build-and-test</code> job</td>
+        beside it and reports both through
+        <code>build-and-test-docs</code></td>
         </tr>
         <tr class="odd">
         <td>Docs</td>
@@ -284,6 +285,19 @@
         </tr>
         <tr class="even">
         <td>Shared</td>
+        <td><code>claimant-gate.yml</code></td>
+        <td>Reusable: the first job of <code>backend-ci.yml</code>,
+        <code>frontend-ci.yml</code> and <code>docs-pr-check.yml</code>.
+        All three run on every pull request, so each required check
+        reports; the gate (<code>claimant-gate.sh</code>) decides from
+        the pull request’s diff whether it touches the caller’s family,
+        and when it does not, the caller skips its jobs and its check
+        passes (<a
+        href="09-decisions/adr-0019-each-claimant-reports-its-own-check.html">ADR
+        0019</a>)</td>
+        </tr>
+        <tr class="odd">
+        <td>Shared</td>
         <td><code>e2e-playwright.yml</code></td>
         <td>Reusable: called as a job by <code>backend-ci.yml</code> and
         <code>frontend-ci.yml</code>, and skipped when the commit
@@ -298,7 +312,7 @@
         href="09-decisions/adr-0016-one-claimant-and-the-e2e-inside-ci.html">ADR
         0016</a>)</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>Shared</td>
         <td><code>.github/actions/image-sbom-scan</code></td>
         <td>Composite action used by both image builds: one Trivy
@@ -308,7 +322,7 @@
         <code>app.jar</code>), then gates on fixable HIGH/CRITICAL CVEs
         found in that SBOM, before the image is published</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>Shared</td>
         <td><code>release.yml</code></td>
         <td>On a <code>v*.*.*</code> tag push, verifies both tiers
@@ -316,17 +330,16 @@
         notes generated from the merged pull requests since the previous
         tag</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>Shared</td>
         <td><code>yaml-lint.yml</code></td>
-        <td>Reusable: called as a job by all three
-        <code>build-and-test</code> claimants, and skipped unless the
-        pull request changes a checked YAML file. Parses every tracked
-        YAML file outside <code>docs/backend/api</code> (duplicate keys
-        included), rejects trailing whitespace and a missing final
-        newline, and runs actionlint over the workflows; a finding fails
-        the caller’s <code>build-and-test</code> and blocks the
-        merge</td>
+        <td>Reusable: called as a job by all three claimants of a
+        required check, and skipped unless the pull request changes a
+        checked YAML file. Parses every tracked YAML file outside
+        <code>docs/backend/api</code> (duplicate keys included), rejects
+        trailing whitespace and a missing final newline, and runs
+        actionlint over the workflows; a finding fails the caller’s
+        required check and blocks the merge</td>
         </tr>
         </tbody>
         </table>

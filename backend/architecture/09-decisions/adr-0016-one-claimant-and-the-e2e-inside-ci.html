@@ -349,6 +349,21 @@
         <code>main</code> up to <code>045d9aa</code>: 159 trigger
         <code>backend-ci.yml</code>, and 11 of those skip the duplicate
         run; no other verdict changes.</p>
+        <h2
+        id="amendment-2026-11-02-one-required-check-per-claimant">Amendment
+        2026-11-02: one required check per claimant</h2>
+        <p>The three claimants no longer share the name
+        <code>build-and-test</code>: each reports its own required check
+        (<code>build-and-test-backend</code>, <code>-frontend</code>,
+        <code>-docs</code>), runs on every pull request and skips its
+        jobs through a gate job when the pull request touches none of
+        its paths. Recorded in <a
+        href="adr-0019-each-claimant-reports-its-own-check.html">ADR-0019</a>.</p>
+        <p>Superseded by this block: “One workflow claims
+        <code>build-and-test</code> for any given pull request”, the
+        three <code>pull_request</code> path filters, and the
+        Consequences paragraph on the ambiguity of one name reported by
+        several workflows.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -400,6 +415,10 @@
       <li><a href="#amendment-2026-10-20-one-suite-per-pull-request"
       id="toc-amendment-2026-10-20-one-suite-per-pull-request">Amendment
       2026-10-20: one suite per pull request</a></li>
+      <li><a
+      href="#amendment-2026-11-02-one-required-check-per-claimant"
+      id="toc-amendment-2026-11-02-one-required-check-per-claimant">Amendment
+      2026-11-02: one required check per claimant</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

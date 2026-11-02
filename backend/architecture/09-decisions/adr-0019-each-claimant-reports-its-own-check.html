@@ -1,0 +1,283 @@
+<!-- ===========================================================================
+     Smart Supply Pro Docs — Architecture page template
+     Pandoc template for the architecture pages; build-architecture-docs.sh
+     renders the Markdown tree through it.
+
+     Pandoc copies this comment into every page the template produces, so it
+     is written for anyone reading a published page source. A dollar sign
+     here would be read as template syntax and substituted, so the comment
+     carries none.
+     ======================================================================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0019-each-claimant-reports-its-own-check · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=5b1c5d5d46" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+    <li><a href="/inventory-service/decisions/index.html">All decisions</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0019-each-ci-claimant-reports-its-own-required-check">ADR-0019:
+        Each CI claimant reports its own required check</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-11-02</p>
+        <h2 id="context">Context</h2>
+        <p>Since ADR-0016 the ruleset protect-main requires one status,
+        the bare context <code>build-and-test</code>, and three
+        workflows declare a job by that name:
+        <code>backend-ci.yml</code>, <code>frontend-ci.yml</code> and
+        <code>docs-pr-check.yml</code>. Their <code>pull_request</code>
+        path filters split the repository between them, so a pull
+        request confined to one family is reported once.</p>
+        <p>A pull request that spans families is reported once per
+        family, under the same name. GitHub does not say which run
+        counts, and ADR-0016 left that open. Pull request #446 (docs
+        page and frontend code, 2026-10-29) answered it in practice:
+        <code>docs-pr-check.yml</code> finished first,
+        <code>build-and-test</code> turned green, and the pull request
+        showed as mergeable while the frontend suite was still running
+        (W27). It was merged only after the frontend run finished,
+        because the runs were read by hand.</p>
+        <p>Separate names close the gap, but a required check must
+        report on every pull request. GitHub’s documentation is
+        explicit: a workflow skipped by a path filter leaves its checks
+        pending (“Waiting for status to be reported”) and blocks the
+        merge, while a job skipped by an <code>if:</code> condition
+        reports success. Docs, backend and frontend changes often arrive
+        alone, so the three checks cannot all be required while each
+        workflow keeps its path filter.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Each claimant reports a check of its own, and all three are
+        required.</p>
+        <ul>
+        <li>The aggregator jobs are named
+        <code>build-and-test-backend</code>,
+        <code>build-and-test-frontend</code> and
+        <code>build-and-test-docs</code>. The ruleset requires these
+        three contexts instead of <code>build-and-test</code>.</li>
+        <li>The three workflows lose their <code>pull_request</code>
+        path filters and run on every pull request. Their first job
+        calls the reusable <code>claimant-gate.yml</code>, which runs
+        <code>.github/scripts/claimant-gate.sh &lt;family&gt;</code> on
+        the pull request’s own diff (<code>HEAD^..HEAD</code> of the
+        merge commit) and returns <code>run=true|false</code>.</li>
+        <li>Every other job of the workflow, the reusable browser suite
+        and YAML lint included, runs only with <code>run=true</code>.
+        The aggregator passes when the gate returned
+        <code>run=false</code>, and fails when the gate itself
+        failed.</li>
+        <li>The families are the old path filters, unchanged: frontend =
+        <code>frontend/</code>, <code>ops/nginx/</code>,
+        <code>frontend-ci.yml</code>, the three scripts it runs and the
+        SBOM action; docs = <code>docs/</code>, the docs scripts and
+        toolchain action, <code>docs-build.yml</code>,
+        <code>docs-pr-check.yml</code>, <code>lychee.toml</code>;
+        backend = every other path.</li>
+        <li>Pushes to <code>main</code> keep their path filters. The
+        deploy chains start from the CI run of their own family
+        (<code>workflow_run</code>), and a run with skipped jobs on
+        every push would start them for nothing.</li>
+        </ul>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Keep one name and read every check before
+        merging.</strong> It works while the merging person remembers
+        it; the merge button does not.</li>
+        <li><strong>Three required names, path filters kept.</strong>
+        Every pull request confined to one or two families would be
+        blocked forever by the missing check.</li>
+        <li><strong>One always-running workflow that waits for the
+        others.</strong> It needs polling through the API, with “not
+        started yet” and “not relevant” states to tell apart; the gate
+        job gives the same guarantee with the platform’s own rules.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>A pull request merges only when every family it touches has
+        passed: the case of #446 can no longer show as mergeable
+        early.</li>
+        <li>A docs-only pull request runs the docs checks; the backend
+        and frontend workflows run their gate job (seconds) and report
+        success. The same holds for a backend-only or frontend-only pull
+        request.</li>
+        <li>Every pull request starts all three workflows. The cost of
+        an idle one is one short gate job.</li>
+        <li>The path lists exist twice: in the push filters and in
+        <code>claimant-gate.sh</code> (and the frontend list a third
+        time in <code>e2e-relevant.sh</code>). A path added to one place
+        must be added to the others; the script’s header says so.</li>
+        <li><code>frontend-ci.yml</code> stands at its size alarm (180
+        code lines). The next addition there needs a script or a
+        waiver.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>The gate script returns <code>run=true</code> for a push or
+        a manual run, and exits non-zero for an unknown family or a
+        checkout without the parent commit.</li>
+        <li>Replayed over the last 99 merged pull requests (#385 to
+        #484): for every one, the gate’s three verdicts equal the set of
+        claimant workflows that actually ran on it; all seven non-empty
+        combinations of families occur. A planted change
+        (<code>ops/nginx/</code> dropped from the frontend list) moves
+        #411 to the backend and nothing else.</li>
+        <li>The ruleset change belongs to the merge of this change: the
+        three new contexts replace <code>build-and-test</code> right
+        before the merge, after the other open pull requests have
+        merged, so none waits for a name it does not report.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a
+        href="adr-0016-one-claimant-and-the-e2e-inside-ci.html">ADR-0016:
+        One claimant for the required check, and the browser suite
+        inside CI</a></li>
+        <li><a href="adr-0017-workflows-named-by-chain.html">ADR-0017:
+        Workflow files are named by chain, not numbered</a></li>
+        <li>GitHub Docs, troubleshooting required status checks
+        (handling skipped but required checks):
+        https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks</li>
+        <li>System-wide decisions index
+        (<code>../../../decisions/index.md</code>)</li>
+        </ul>
+        <hr />
+        <p>Frontend decisions: see <a
+        href="../../../frontend/architecture/09-decisions/index.html">docs/frontend/architecture/adr/</a></p>
+        <p><a href="../index.html">Back to Architecture Index</a></p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0019-each-ci-claimant-reports-its-own-required-check"
+      id="toc-adr-0019-each-ci-claimant-reports-its-own-required-check">ADR-0019:
+      Each CI claimant reports its own required check</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Served from this site, not a CDN (no visitor address goes to a third
+       party). data-mermaid-version and the integrity hash are the pin:
+       vendor-mermaid.sh copies that version from npm and fails the build unless
+       it matches the hash, and the browser refuses any other file. Update both
+       together. Only pages with a diagram load it: md-to-html-links.lua sets
+       has-mermaid on them, and check-mermaid-pages.sh fails the build when a
+       page and its flag disagree (W23). -->
+  <script src="/inventory-service/assets/docs.js?v=f546e6c747"></script>
+</body>
+</html>
