@@ -150,6 +150,10 @@ export default function StockValuePerSupplierPie({ chartHeight = 260, dateScopeN
                 />
                 {/* Recharts sorts legend items alphabetically by default; keep the
                     slices' rank order so "all others" stays last. */}
+                {/* TODO(FD-10): align and verticalAlign are deprecated since Recharts 3.10.
+                    Its replacement, position="left", centres and narrows the legend and
+                    puts the readout against its last line (mockup 2026-11-02), so they
+                    stay until a Recharts release removes them. */}
                 <Legend
                   {...chartLegendProps(muiTheme)}
                   itemSorter={(item) => data.findIndex((d) => d.name === item.value)}
