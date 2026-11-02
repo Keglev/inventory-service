@@ -4,17 +4,16 @@
 # Pull request gate for documentation changes. Builds the docs site exactly as
 # docs-build.yml does (minus coverage and TypeDoc, which come from CI
 # artifacts) and checks that every internal link resolves. Nothing is uploaded
-# or deployed from this workflow. Its last job is named build-and-test so it
-# satisfies the required status check for docs-only pull requests: it requires
-# the site job and the YAML lint (yaml-lint.yml, skipped unless a checked YAML
-# file changed, such as docs-build.yml or this file). The trigger paths below
-# must stay identical to the docs entries in the paths-ignore list of
-# backend-ci.yml, this file included. A pull request editing this file is
-# therefore reported by this workflow alone, which is the intent: the docs gate
-# checks itself.
+# or deployed from this workflow. Its last job reports build-and-test-docs, one
+# of the three checks branch protection requires on main (W27, backend
+# ADR-0019): it requires the site job and the YAML lint (yaml-lint.yml, skipped
+# unless a checked YAML file changed, such as docs-build.yml or this file). It
+# runs on every pull request; its first job (claimant-gate.yml) skips the site
+# job when the pull request touches no docs path (the docs entries of
+# backend-ci.yml's push filter, this file included), and the check passes.
 #
 # Failure mode: a page that fails to render, a Mermaid loading mismatch, a
-# broken internal link or a YAML finding fails build-and-test and blocks the
+# broken internal link or a YAML finding fails build-and-test-docs and blocks the
 # merge. Nothing is published either way.
 # =============================================================================
 name: Docs PR Check
@@ -22,13 +21,6 @@ name: Docs PR Check
 on:
   pull_request:
     branches: [ "main" ]
-    paths:
-      - 'docs/**'
-      - '.github/scripts/docs/**'
-      - '.github/actions/docs-toolchain/**'
-      - '.github/workflows/docs-build.yml'
-      - 'lychee.toml'
-      - '.github/workflows/docs-pr-check.yml'
   workflow_dispatch:
 
 concurrency:
@@ -36,7 +28,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    uses: ./.github/workflows/claimant-gate.yml
+    with:
+      claimant: docs
+
   docs:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     # Pinned to the image, not to a moving label. This job installs pandoc from the
     # Ubuntu archive, and 24.04 publishes exactly one pandoc: 3.1.3+ds-2. When
     # ubuntu-latest migrates to the next LTS that version is simply not there, so
@@ -93,12 +92,16 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   yaml-lint:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     uses: ./.github/workflows/yaml-lint.yml
 
-  # The only job branch protection sees: fails when the site job did not
-  # succeed or the lint failed or was cancelled; passes a skipped lint.
+  # The only job branch protection sees: fails when the gate failed, the site
+  # job did not succeed or the lint failed or was cancelled; passes a skipped
+  # lint, and passes when the gate found no docs path (ADR-0019).
   build-and-test:
-    needs: [docs, yaml-lint]
+    name: build-and-test-docs
+    needs: [changes, docs, yaml-lint]
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -106,6 +109,8 @@ jobs:
       - name: Require the site job and the YAML lint
         run: |
           set -eu
-          echo "docs=${{ needs.docs.result }} yaml-lint=${{ needs.yaml-lint.result }}"
+          echo "gate=${{ needs.changes.result }}/${{ needs.changes.outputs.run }} docs=${{ needs.docs.result }} yaml-lint=${{ needs.yaml-lint.result }}"
+          [ "${{ needs.changes.result }}" = "success" ] || exit 1
+          [ "${{ needs.changes.outputs.run }}" = "false" ] && exit 0
           [ "${{ needs.docs.result }}" = "success" ] || exit 1
           case "${{ needs.yaml-lint.result }}" in success|skipped) ;; *) exit 1 ;; esac
