@@ -74,21 +74,17 @@ public class GlobalExceptionHandler {
         return respond(HttpStatus.BAD_REQUEST, "Request body is invalid or unreadable");
     }
 
-    /** Handles missing parameters and type conversion failures. */
-    @ExceptionHandler({
-        MissingServletRequestParameterException.class,
-        MethodArgumentTypeMismatchException.class
-    })
-    public ResponseEntity<ErrorResponse> handleParameterError(Exception ex) {
-        String message;
-        if (ex instanceof MissingServletRequestParameterException missingParam) {
-            message = "Missing required parameter: " + missingParam.getParameterName();
-        } else if (ex instanceof MethodArgumentTypeMismatchException typeMismatch) {
-            message = "Invalid parameter value: " + (typeMismatch.getName() != null ? typeMismatch.getName() : "unknown");
-        } else {
-            message = "Invalid parameter";
-        }
-        return respond(HttpStatus.BAD_REQUEST, message);
+    /** Handles a required request parameter that is missing. */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingParameter(MissingServletRequestParameterException ex) {
+        return respond(HttpStatus.BAD_REQUEST, "Missing required parameter: " + ex.getParameterName());
+    }
+
+    /** Handles a parameter value that cannot be converted to its declared type. */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        // Spring 7 declares the parameter name non-null (@NullMarked package).
+        return respond(HttpStatus.BAD_REQUEST, "Invalid parameter value: " + ex.getName());
     }
 
     /** Returns a generic 401 to prevent authentication mechanism enumeration. */
