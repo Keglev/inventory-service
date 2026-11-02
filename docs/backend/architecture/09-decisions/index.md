@@ -33,6 +33,7 @@ ADRs do **not** document:
 - [ADR-0016: One claimant for the required check, and the browser suite inside CI](./adr-0016-one-claimant-and-the-e2e-inside-ci.md)
 - [ADR-0017: Workflow files are named by chain, not numbered](./adr-0017-workflows-named-by-chain.md)
 - [ADR-0018: Endpoints without callers are removed after a measured access-log window](./adr-0018-endpoints-removed-after-measured-usage.md)
+- [ADR-0019: Each CI claimant reports its own required check](./adr-0019-each-claimant-reports-its-own-check.md)
 
 ---
 

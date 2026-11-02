@@ -39,6 +39,8 @@ Source: [Backend architecture, section 9](../backend/architecture/09-decisions/i
 | 0015 | [GitHub Pages is deployed by the publisher job](../backend/architecture/09-decisions/adr-0015-pages-deployed-from-the-publisher-job.md) |
 | 0016 | [One claimant for the required check, and the browser suite inside CI](../backend/architecture/09-decisions/adr-0016-one-claimant-and-the-e2e-inside-ci.md) |
 | 0017 | [Workflow files are named by chain, not numbered](../backend/architecture/09-decisions/adr-0017-workflows-named-by-chain.md) |
+| 0018 | [Endpoints without callers are removed after a measured access-log window](../backend/architecture/09-decisions/adr-0018-endpoints-removed-after-measured-usage.md) |
+| 0019 | [Each CI claimant reports its own required check](../backend/architecture/09-decisions/adr-0019-each-claimant-reports-its-own-check.md) |
 
 Backend ADR-0009 supersedes the wallet delivery and password model of backend
 ADR-0001; the auto-login mechanism ADR-0001 chose still stands.

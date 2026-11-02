@@ -75,6 +75,14 @@ branch ruleset requires.
   sequence") and the job name `e2e` for the browser suite named in ADR-0016 and
   in the 2026-09-23 amendment of frontend ADR-0009.
 
+## Amendment 2026-11-02: three aggregator names
+
+The three aggregator jobs keep the id `build-and-test` but report
+`build-and-test-backend`, `build-and-test-frontend` and `build-and-test-docs`,
+the three checks the ruleset now requires; `claimant-gate.yml` joins the shared
+workflows without a chain prefix
+([ADR-0019](adr-0019-each-claimant-reports-its-own-check.md)).
+
 ## References
 - [ADR-0016: One claimant for the required check, and the browser suite inside CI](adr-0016-one-claimant-and-the-e2e-inside-ci.md)
 - Frontend ADR-0009 and its amendment of 2026-09-23

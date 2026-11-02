@@ -68,25 +68,26 @@ graph TB
 
 ## CI/CD Pipeline
 
-Eleven GitHub Actions workflows make up the pipeline. They are grouped by the
+Twelve GitHub Actions workflows make up the pipeline. They are grouped by the
 chain they belong to and listed in execution order within it; the shared ones
 serve more than one chain or none ([ADR 0017](09-decisions/adr-0017-workflows-named-by-chain.md)).
 
 | Chain | Workflow | Purpose |
 |---|---|---|
-| Backend | `backend-ci.yml` | `mvn clean verify` — compile, unit + integration tests, JaCoCo coverage report; calls the Playwright suite and the YAML lint beside it and reports all three through one `build-and-test` job |
+| Backend | `backend-ci.yml` | `mvn clean verify` — compile, unit + integration tests, JaCoCo coverage report; calls the Playwright suite and the YAML lint beside it and reports all three through `build-and-test-backend`, one of the three required checks |
 | Backend | `backend-docker.yml` | `docker build` (prod profile), SBOM and CVE gate (`image-sbom-scan`: blocks on an incomplete SBOM or a fixable HIGH/CRITICAL CVE; keeps the SBOM 60 days as `sbom-backend-<sha>`), `docker push :SHA :latest` to GHCR, each push up to three attempts |
 | Backend | `backend-deploy.yml` | Copies the compose file to the host over SSH, validates it, pulls the SHA-tagged image, restarts only the backend service, then runs the health and smoke checks against `api.smartsupplypro.de` |
-| Frontend | `frontend-ci.yml` | Audits the shipped dependency tree (gate), lints, runs Vitest, then builds the image and runs the SBOM and CVE gate (`image-sbom-scan`) before it reaches Docker Hub, keeping the SBOM 60 days as `sbom-frontend-<sha>` for a published image; calls the Playwright suite and the YAML lint beside it and reports all three through one `build-and-test` job |
+| Frontend | `frontend-ci.yml` | Audits the shipped dependency tree (gate), lints, runs Vitest, then builds the image and runs the SBOM and CVE gate (`image-sbom-scan`) before it reaches Docker Hub, keeping the SBOM 60 days as `sbom-frontend-<sha>` for a published image; calls the Playwright suite and the YAML lint beside it and reports all three through `build-and-test-frontend` |
 | Frontend | `frontend-deploy.yml` | Deploys the scanned image to Koyeb by digest, then verifies the commit's build id reached the served bundle before trusting the platform's status |
-| Docs | `docs-pr-check.yml` | Pull request gate for documentation: builds the site and verifies internal links without publishing; calls the YAML lint beside it and reports both through one `build-and-test` job |
+| Docs | `docs-pr-check.yml` | Pull request gate for documentation: builds the site and verifies internal links without publishing; calls the YAML lint beside it and reports both through `build-and-test-docs` |
 | Docs | `docs-build.yml` | Generates OpenAPI docs (Redocly), converts architecture markdown to HTML (Pandoc + Lua filter) and checks internal links |
 | Docs | `docs-deploy.yml` | Publishes the docs-site artifact to the `gh-pages` branch, then deploys that branch to GitHub Pages ([ADR 0015](09-decisions/adr-0015-pages-deployed-from-the-publisher-job.md)) |
 | Docs | `.github/actions/docs-toolchain` | Composite action used by both docs workflows: Node 24, and as asked the pinned Redocly CLI and Pandoc; the npm pin and the frontend npm cache only when TypeDoc runs `npm ci`. One place for the docs tool versions |
+| Shared | `claimant-gate.yml` | Reusable: the first job of `backend-ci.yml`, `frontend-ci.yml` and `docs-pr-check.yml`. All three run on every pull request, so each required check reports; the gate (`claimant-gate.sh`) decides from the pull request's diff whether it touches the caller's family, and when it does not, the caller skips its jobs and its check passes ([ADR 0019](09-decisions/adr-0019-each-claimant-reports-its-own-check.md)) |
 | Shared | `e2e-playwright.yml` | Reusable: called as a job by `backend-ci.yml` and `frontend-ci.yml`, and skipped when the commit touches nothing the browser suite can see; on a pull request that also triggers `frontend-ci.yml`, `backend-ci.yml` skips its copy and the suite runs once, in `frontend-ci.yml`. Playwright against a local stack built from the commit (packaged jar on H2, `test,e2e` profile; frontend served via `vite preview`). A red suite fails the calling CI run, which blocks the merge and stops the deploy chain ([ADR 0016](09-decisions/adr-0016-one-claimant-and-the-e2e-inside-ci.md)) |
 | Shared | `.github/actions/image-sbom-scan` | Composite action used by both image builds: one Trivy analysis writes a CycloneDX SBOM (components only) of the local image, fails when it lacks the image's own components (Alpine packages; for the backend the Java libraries in `app.jar`), then gates on fixable HIGH/CRITICAL CVEs found in that SBOM, before the image is published |
 | Shared | `release.yml` | On a `v*.*.*` tag push, verifies both tiers report that version, then publishes the GitHub Release with notes generated from the merged pull requests since the previous tag |
-| Shared | `yaml-lint.yml` | Reusable: called as a job by all three `build-and-test` claimants, and skipped unless the pull request changes a checked YAML file. Parses every tracked YAML file outside `docs/backend/api` (duplicate keys included), rejects trailing whitespace and a missing final newline, and runs actionlint over the workflows; a finding fails the caller's `build-and-test` and blocks the merge |
+| Shared | `yaml-lint.yml` | Reusable: called as a job by all three claimants of a required check, and skipped unless the pull request changes a checked YAML file. Parses every tracked YAML file outside `docs/backend/api` (duplicate keys included), rejects trailing whitespace and a missing final newline, and runs actionlint over the workflows; a finding fails the caller's required check and blocks the merge |
 
 The backend chain is strictly sequential: the image is built only after the test
 suite passes, and the deploy runs only after the image has been scanned. There is

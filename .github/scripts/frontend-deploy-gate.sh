@@ -43,6 +43,7 @@ while IFS= read -r path; do
     frontend/typedoc.json|frontend/README.md|docs/*) ;;
     .github/workflows/frontend-ci.yml|.github/workflows/e2e-playwright.yml) ;;
     .github/workflows/yaml-lint.yml|.github/scripts/check-yaml.sh) ;;
+    .github/workflows/claimant-gate.yml|.github/scripts/claimant-gate.sh) ;;
     .github/scripts/verify-image-contract.sh) ;;
     .github/scripts/report-dependency-tree.sh) ;;
     .github/scripts/frontend-ci-summary.sh) ;;

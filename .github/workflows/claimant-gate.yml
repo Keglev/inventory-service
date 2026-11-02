@@ -1,0 +1,51 @@
+# =============================================================================
+# claimant-gate.yml - Smart Supply Pro CI Claimant Gate
+#
+# The first job of each of the three claimants of a required check
+# (backend-ci.yml, frontend-ci.yml, docs-pr-check.yml). They run on every pull
+# request so that each reports its own check (W27, backend ADR-0019); this
+# job decides whether the pull request touches the caller's family, and the
+# caller skips its other jobs when it does not. The rules live in
+# .github/scripts/claimant-gate.sh.
+#
+# No chain prefix on purpose: it belongs to all three chains (ADR-0017).
+# No concurrency block: the three callers of one pull request share a ref.
+#
+# Three outcomes: run=true for a pull request that touches the family, a push
+# or a manual run; run=false for a pull request that does not, after which the
+# caller's aggregator passes. Failure mode: an unknown claimant or a checkout
+# without the parent commit fails the job, and the caller's required check
+# fails with it.
+# =============================================================================
+name: CI Claimant Gate
+
+on:
+  workflow_call:
+    inputs:
+      claimant:
+        type: string
+        required: true
+    outputs:
+      run:
+        value: ${{ jobs.gate.outputs.run }}
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - name: Decide whether the pull request touches this family
+        id: decide
+        env:
+          CLAIMANT: ${{ inputs.claimant }}
+        run: bash .github/scripts/claimant-gate.sh "$CLAIMANT"

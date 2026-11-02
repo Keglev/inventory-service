@@ -1,12 +1,15 @@
 # =============================================================================
 # frontend-ci.yml - Smart Supply Pro Frontend CI
 #
-# Triggers on push/PR to main when frontend or Nginx config files change, or
-# one of the three scripts this workflow runs.
+# Pushes to main trigger it when frontend or Nginx config files change, or one
+# of the scripts this workflow runs. Pull requests always run it: its first job
+# (claimant-gate.yml) skips the rest when the pull request touches none of
+# those paths, and the required check build-and-test-frontend still reports
+# (W27, backend ADR-0019).
 # Audits the installed dependency tree, then runs ESLint, then Vitest unit tests
 # outside Docker to get GitHub annotation support. An advisory of high severity
 # or above in a dependency that ships to the browser fails the job; lint errors
-# fail it too. Both block the merge through the build-and-test check.
+# fail it too. Both block the merge through build-and-test-frontend.
 # Builds a Docker image (Nginx + Vite bundle) into the runner's Docker daemon
 # and scans it with Trivy on the same terms as the backend image. A fixed CVE
 # of high severity or above fails the job. Pull requests build and scan too and
@@ -15,7 +18,7 @@
 # On success, triggers: frontend-deploy.yml (Koyeb deployment).
 #
 # Failure mode: the audit, lint, unit-test or CVE gate above, a broken image
-# contract, a failed browser suite or a YAML finding fails build-and-test. A pull request cannot merge;
+# contract, a failed browser suite or a YAML finding fails build-and-test-frontend. A pull request cannot merge;
 # on main nothing is published and frontend-deploy.yml does not start.
 # =============================================================================
 name: Frontend CI - Build & Test
@@ -33,14 +36,6 @@ on:
       - '.github/actions/image-sbom-scan/**'
   pull_request:
     branches: [ "main" ]
-    paths:
-      - 'frontend/**'
-      - 'ops/nginx/**'
-      - '.github/workflows/frontend-ci.yml'
-      - '.github/scripts/verify-image-contract.sh'
-      - '.github/scripts/report-dependency-tree.sh'
-      - '.github/scripts/frontend-ci-summary.sh'
-      - '.github/actions/image-sbom-scan/**'
   workflow_dispatch:
 
 # Read scope only. This workflow publishes to Docker Hub, authenticated with
@@ -72,7 +67,7 @@ env:
   VITE_API_BASE: https://api.smartsupplypro.de
 
 # A pull request runs everything except the two steps that talk to Docker Hub:
-# it builds the image, scans it, and fails the required build-and-test check
+# it builds the image, scans it, and fails the required build-and-test-frontend check
 # when the scan finds a fixed CVE of high severity or above. The finding
 # arrives at the review rather than at the merge, which is only affordable
 # because building an image is no longer the same step as publishing one.
@@ -82,7 +77,14 @@ env:
 # fork, which carries no secrets, still runs the whole gate, because nothing on
 # the pull-request path needs a credential.
 jobs:
+  changes:
+    uses: ./.github/workflows/claimant-gate.yml
+    with:
+      claimant: frontend
+
   frontend:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
 
@@ -269,7 +271,7 @@ jobs:
       #   FAILS the job before the publishing step below runs, so the image
       #     never leaves the runner, and stops frontend-deploy with it: that
       #     workflow runs only when this one concludes success. On a pull
-      #     request the same failure lands on the required build-and-test check.
+      #     request the same failure lands on the required build-and-test-frontend check.
       #   DOES NOT CHECK findings with no fix available (ignore-unfixed).
       # The SBOM is kept as an artifact only for an image that is published.
       - name: SBOM and CVE gate (Trivy)
@@ -312,18 +314,24 @@ jobs:
   # The suite runs beside the frontend job, not after it: it builds its own bundle
   # and its own backend. Skipped when the gate inside it finds nothing to see.
   e2e:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     uses: ./.github/workflows/e2e-playwright.yml
 
   # YAML hygiene and actionlint; skipped unless the pull request changes a
   # checked YAML file (gate inside yaml-lint.yml).
   yaml-lint:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     uses: ./.github/workflows/yaml-lint.yml
 
-  # The only job branch protection sees. It fails when any job above failed or
-  # was cancelled, and passes when the suite or the lint was skipped, so a red
-  # browser suite fails this run and the deploy chain never starts (ADR-0016).
+  # The only job branch protection sees. It fails when the gate or any job above
+  # failed or was cancelled, and passes when the suite or the lint was skipped,
+  # so a red browser suite fails this run and the deploy chain never starts
+  # (ADR-0016). With the gate's run=false it passes (ADR-0019).
   build-and-test:
-    needs: [frontend, e2e, yaml-lint]
+    name: build-and-test-frontend
+    needs: [changes, frontend, e2e, yaml-lint]
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -331,6 +339,8 @@ jobs:
       - name: Require the frontend job, the browser suite and the YAML lint
         run: |
           set -eu
-          echo "frontend=${{ needs.frontend.result }} e2e=${{ needs.e2e.result }} yaml-lint=${{ needs.yaml-lint.result }}"
+          echo "gate=${{ needs.changes.result }}/${{ needs.changes.outputs.run }} frontend=${{ needs.frontend.result }} e2e=${{ needs.e2e.result }} yaml-lint=${{ needs.yaml-lint.result }}"
+          [ "${{ needs.changes.result }}" = "success" ] || exit 1
+          [ "${{ needs.changes.outputs.run }}" = "false" ] && exit 0
           [ "${{ needs.frontend.result }}" = "success" ] || exit 1
           for r in "${{ needs.e2e.result }}" "${{ needs.yaml-lint.result }}"; do case "$r" in success|skipped) ;; *) exit 1 ;; esac; done

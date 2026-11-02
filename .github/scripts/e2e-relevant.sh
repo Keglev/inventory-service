@@ -17,13 +17,14 @@
 # a new file included, runs it.
 #
 # One suite per pull request (F4, fork C, 2026-10-20). When backend-ci calls
-# this (E2E_CALLER=backend-ci) for a pull request that also touches a path
-# frontend-ci triggers on, frontend-ci runs this same script on the same diff
+# this (E2E_CALLER=backend-ci) for a pull request that also touches a path of
+# the frontend family, frontend-ci runs this same script on the same diff
 # and so reaches the same verdict; backend-ci skips its copy instead of a second
 # identical run. Pushes to main keep both runs, so a red suite still stops both
-# deploy chains. The list below must match frontend-ci.yml's paths filter: a
-# path missing from it costs a duplicate run, a path listed here that
-# frontend-ci does not trigger on would leave the pull request without a suite.
+# deploy chains. The list below must match the frontend list in
+# claimant-gate.sh: a path missing from it costs a duplicate run, a path listed
+# here that the frontend gate does not claim would leave the pull request
+# without a suite.
 #
 # Produces: run=true|false on $GITHUB_OUTPUT and, for a skip, the reason in the
 # job summary. A manual dispatch always runs.

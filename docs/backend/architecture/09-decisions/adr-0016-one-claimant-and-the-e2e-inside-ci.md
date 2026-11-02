@@ -181,6 +181,18 @@ Replayed as pull requests over the 300 commits on `main` up to `045d9aa`: 159
 trigger `backend-ci.yml`, and 11 of those skip the duplicate run; no other
 verdict changes.
 
+## Amendment 2026-11-02: one required check per claimant
+
+The three claimants no longer share the name `build-and-test`: each reports its
+own required check (`build-and-test-backend`, `-frontend`, `-docs`), runs on
+every pull request and skips its jobs through a gate job when the pull request
+touches none of its paths. Recorded in
+[ADR-0019](adr-0019-each-claimant-reports-its-own-check.md).
+
+Superseded by this block: "One workflow claims `build-and-test` for any given
+pull request", the three `pull_request` path filters, and the Consequences
+paragraph on the ambiguity of one name reported by several workflows.
+
 ## References
 - [ADR-0013: The docs pipeline rebuilds, and publishes, by change](adr-0013-docs-pipeline-rebuilds-by-change.md)
 - [ADR-0015: GitHub Pages is deployed by the publisher job](adr-0015-pages-deployed-from-the-publisher-job.md)
