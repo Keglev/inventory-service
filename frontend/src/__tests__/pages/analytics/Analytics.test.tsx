@@ -102,6 +102,13 @@ vi.mock('@/features/help/components/HelpIconButton', () => ({
 }));
 
 const Analytics = (await import('@/pages/analytics/Analytics')).default;
+const { Filters } = await import('@/pages/analytics/components/filters/Filters');
+
+/** The disabled prop of the last Filters render. */
+const filtersDisabled = () => vi.mocked(Filters).mock.lastCall?.[0].disabled;
+
+/** Waits until the supplier list has loaded: loading alone also disables the filters. */
+const settled = (client: QueryClient) => waitFor(() => expect(client.isFetching()).toBe(0));
 
 // -----------------------------------------------------------------------------
 // Helpers
@@ -178,16 +185,32 @@ describe('Analytics', () => {
     expect(screen.getByTestId('movements-section')).toBeInTheDocument();
   });
 
-  it('falls back to "overview" for /analytics/employees when the user is not entitled', () => {
+  // A signed-in USER opens the tab but gets the notice, no charts (no request)
+  // and filters that do nothing there (backend ADR-0020).
+  it('shows the administrators-only notice and inert filters when a USER opens "employees"', async () => {
+    mockUseAuth.mockReturnValue({ user: { email: 'u@example.com', fullName: 'U', role: 'USER' } });
     setup(queryClient, '/analytics/employees');
-    expect(screen.getByTestId('analytics-nav')).toHaveTextContent('overview');
+    expect(screen.getByTestId('analytics-nav')).toHaveTextContent('employees');
+    expect(screen.getByRole('alert')).toHaveTextContent(tEn('analytics:employees.restricted'));
     expect(screen.queryByTestId('employees-section')).not.toBeInTheDocument();
+    await settled(queryClient);
+    expect(filtersDisabled()).toBe(true);
   });
 
-  it('renders the "employees" section for an ADMIN user', () => {
+  it('keeps the filters working for a USER on the other sections', async () => {
+    mockUseAuth.mockReturnValue({ user: { email: 'u@example.com', fullName: 'U', role: 'USER' } });
+    setup(queryClient, '/analytics/movements');
+    await settled(queryClient);
+    expect(filtersDisabled()).toBe(false);
+  });
+
+  it('renders the "employees" section for an ADMIN user', async () => {
     mockUseAuth.mockReturnValue({ user: { email: 'a@example.com', fullName: 'A', role: 'ADMIN' } });
     setup(queryClient, '/analytics/employees');
     expect(screen.getByTestId('employees-section')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    await settled(queryClient);
+    expect(filtersDisabled()).toBe(false);
   });
 
   it('renders the "employees" section for a demo session', () => {

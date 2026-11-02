@@ -34,6 +34,7 @@ ADRs do **not** document:
 - [ADR-0017: Workflow files are named by chain, not numbered](./adr-0017-workflows-named-by-chain.md)
 - [ADR-0018: Endpoints without callers are removed after a measured access-log window](./adr-0018-endpoints-removed-after-measured-usage.md)
 - [ADR-0019: Each CI claimant reports its own required check](./adr-0019-each-claimant-reports-its-own-check.md)
+- [ADR-0020: Employee analytics are shown to administrators and the demo, not to users](./adr-0020-employee-analytics-for-admin-and-demo.md)
 
 ---
 

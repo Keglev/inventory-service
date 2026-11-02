@@ -10,8 +10,10 @@ the active section and filters (date window, supplier) are synchronized to query
 parameters, so views are shareable and survive refresh. The supplier is picked in
 `SupplierPickerField`, the inventory's supplier search (two characters, matched in
 the browser); an empty field means all suppliers. The six sections are
-Overview, Movements, Pricing, Inventory Health, Finance, and Employees — the last
-visible only for ADMIN or demo sessions.
+Overview, Movements, Pricing, Inventory Health, Finance, and Employees. Every
+signed-in user sees all six tabs; the Employees charts are shown to ADMIN and demo
+sessions only, and any other user gets a notice there, with the filters inert and
+no employee request sent (backend ADR-0020).
 
 ## Block Pattern
 
