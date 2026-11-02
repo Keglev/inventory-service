@@ -1,0 +1,263 @@
+<!-- ===========================================================================
+     Smart Supply Pro Docs — Architecture page template
+     Pandoc template for the architecture pages; build-architecture-docs.sh
+     renders the Markdown tree through it.
+
+     Pandoc copies this comment into every page the template produces, so it
+     is written for anyone reading a published page source. A dollar sign
+     here would be read as template syntax and substituted, so the comment
+     carries none.
+     ======================================================================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0020-employee-analytics-for-admin-and-demo · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=5b1c5d5d46" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+    <li><a href="/inventory-service/decisions/index.html">All decisions</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0020-employee-analytics-are-shown-to-administrators-and-the-demo-not-to-users">ADR-0020:
+        Employee analytics are shown to administrators and the demo, not
+        to users</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-11-02</p>
+        <h2 id="context">Context</h2>
+        <p>The Employees section of the analytics page shows who changed
+        which stock, when and how much: a chart per employee and a
+        change log. That is a supervision view. The two endpoints behind
+        it, <code>GET /api/analytics/by-employee</code> and
+        <code>GET /api/analytics/employee-changes</code>
+        (<code>EmployeeAnalyticsController</code>), have allowed two
+        callers since they were built:</p>
+        <ul>
+        <li>a signed-in <code>ADMIN</code>, and</li>
+        <li>an anonymous caller while the demo is on
+        (<code>app.demo-readonly</code>), whose responses carry masked
+        identities (<code>DemoIdentityMasking</code>).</li>
+        </ul>
+        <p>A signed-in <code>USER</code> gets 403. The frontend hid the
+        tab from that user, and a typed
+        <code>/analytics/employees</code> silently showed the overview
+        instead.</p>
+        <p>Read side by side, the rule looks contradictory: an anonymous
+        visitor sees what a signed-in employee may not. The endpoint
+        review of 2026-10-28 (ADR-0018) left it open because the access
+        log carried no roles, so usage could not settle it.</p>
+        <h2 id="decision">Decision</h2>
+        <p>The rule stays, and it is now a recorded decision, not an
+        accident of history.</p>
+        <ul>
+        <li><code>ADMIN</code> sees the employee charts: supervising
+        stock changes is an administrator’s task.</li>
+        <li>The demo shows them too. This is a portfolio application,
+        and the demo is how a reviewer sees what the system does; a
+        feature hidden from the demo is a feature nobody sees. The demo
+        shows seeded data with masked identities, so no real person’s
+        activity is exposed.</li>
+        <li>A signed-in <code>USER</code> does not see them. The API
+        keeps answering 403. In the UI the Employees tab is visible to
+        every signed-in user; for a <code>USER</code> the section shows
+        a notice (“Die Mitarbeiter-Auswertung ist nur für
+        Administratoren verfügbar.” / “Employee analytics are available
+        to administrators only.”), the filter panel stays visible but
+        disabled, and no employee request is sent.</li>
+        </ul>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Hide the tab from users (the behaviour until
+        now).</strong> A user never learns the view exists or why it is
+        missing; a typed address silently lands elsewhere.</li>
+        <li><strong>Hide the tab, show the notice only on a typed
+        address.</strong> A user would almost never see the notice (fork
+        EA-1 B).</li>
+        <li><strong>Open the view to users.</strong> It turns a
+        supervision view into colleagues watching each other’s activity;
+        not wanted.</li>
+        <li><strong>Close it to the demo.</strong> Consistent, but the
+        portfolio would lose one of its sections for every
+        reviewer.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>The UI and the API state the same rule: the UI explains it,
+        the API enforces it. The 403 for a <code>USER</code> is
+        unchanged, so a client that ignores the UI is still
+        refused.</li>
+        <li>The rule is visible in the product: every signed-in user
+        sees six tabs.</li>
+        <li>Changing who may see the view means changing both the
+        <code>@PreAuthorize</code> expression on the two endpoints and
+        <code>canSeeEmployees</code> in <code>Analytics.tsx</code>.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Backend:
+        <code>@PreAuthorize("hasRole('ADMIN') or (!isAuthenticated() and   @appProperties.demoReadonly)")</code>
+        on both <code>EmployeeAnalyticsController</code> endpoints;
+        unchanged by this record.</li>
+        <li>Frontend: <code>Analytics.tsx</code> decides between
+        <code>EmployeesSection</code> and the notice
+        (<code>analytics:employees.restricted</code>, EN and DE) and
+        passes <code>disabled</code> to the filters;
+        <code>AnalyticsNav</code> renders the Employees tab for
+        everyone.</li>
+        <li>Tests: the page spec covers a <code>USER</code> (notice, no
+        section, filters disabled once the supplier list has loaded),
+        the same <code>USER</code> on another section (filters enabled),
+        <code>ADMIN</code> and the demo (section, filters enabled); four
+        mutations of the rule each fail their own test.</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a
+        href="adr-0018-endpoints-removed-after-measured-usage.html">ADR-0018:
+        Endpoints without callers are removed after a measured
+        access-log window</a></li>
+        <li>Frontend architecture, analytics domain
+        (<code>../../../frontend/architecture/05-domains/analytics.md</code>)</li>
+        <li>System-wide decisions index
+        (<code>../../../decisions/index.md</code>)</li>
+        </ul>
+        <hr />
+        <p>Frontend decisions: see <a
+        href="../../../frontend/architecture/09-decisions/index.html">docs/frontend/architecture/adr/</a></p>
+        <p><a href="../index.html">Back to Architecture Index</a></p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0020-employee-analytics-are-shown-to-administrators-and-the-demo-not-to-users"
+      id="toc-adr-0020-employee-analytics-are-shown-to-administrators-and-the-demo-not-to-users">ADR-0020:
+      Employee analytics are shown to administrators and the demo, not
+      to users</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Served from this site, not a CDN (no visitor address goes to a third
+       party). data-mermaid-version and the integrity hash are the pin:
+       vendor-mermaid.sh copies that version from npm and fails the build unless
+       it matches the hash, and the browser refuses any other file. Update both
+       together. Only pages with a diagram load it: md-to-html-links.lua sets
+       has-mermaid on them, and check-mermaid-pages.sh fails the build when a
+       page and its flag disagree (W23). -->
+  <script src="/inventory-service/assets/docs.js?v=f546e6c747"></script>
+</body>
+</html>
