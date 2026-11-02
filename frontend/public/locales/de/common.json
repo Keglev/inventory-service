@@ -55,7 +55,6 @@
     "cancel": "Abbrechen",
     "create": "Erstellen",
     "creating": "Wird erstellt...",
-    "save": "Speichern",
     "yes": "Ja",
     "no": "Nein",
     "help": "Hilfe",
@@ -98,7 +97,6 @@
     "title": "Benachrichtigungen"
   },
   "error": "Fehler",
-  "selectOption": "Option auswählen",
   "units": {
     "pieces": "Stk."
   },

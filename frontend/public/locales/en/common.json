@@ -55,7 +55,6 @@
     "cancel": "Cancel",
     "create": "Create",
     "creating": "Creating...",
-    "save": "Save",
     "yes": "Yes",
     "no": "No",
     "help": "Help",
@@ -98,7 +97,6 @@
     "title": "Notifications"
   },
   "error": "Error",
-  "selectOption": "Select an option",
   "units": {
     "pieces": "pcs"
   },
